@@ -6,7 +6,7 @@ import { cva } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
 
-export const avatarVariants = cva('relative flex shrink-0 overflow-hidden rounded-full border-0', {
+const avatarVariants = cva('relative flex shrink-0 overflow-hidden rounded-full border-0', {
   variants: {
     size: {
       xs: 'size-3 text-[8px]',

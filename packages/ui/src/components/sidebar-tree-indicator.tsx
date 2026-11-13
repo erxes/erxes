@@ -5,7 +5,7 @@ type TIndicatorPosition = { top: number; height: number };
 
 export type TFindActiveTreeItem = (container: HTMLElement) => HTMLElement | null;
 
-export const findActiveSubItem: TFindActiveTreeItem = (container) =>
+const findActiveSubItem: TFindActiveTreeItem = (container) =>
   container.querySelector<HTMLElement>(
     ':scope > li > [data-sidebar=menu-sub-button][data-active=true]',
   );

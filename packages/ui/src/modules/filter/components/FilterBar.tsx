@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import type { Except } from 'type-fest';
 import { Button } from 'erxes-ui/components/button';
-import { Combobox } from 'erxes-ui/components/combobox';
-import { Popover } from 'erxes-ui/components/popover';
 import { useRemoveQueryStateByKey } from 'erxes-ui/hooks/use-query-state';
 import { cn } from 'erxes-ui/lib/utils';
 import { useFilterContext } from '../hooks/useFilterContext';
 import { useFilterQueryState } from '../hooks/useFilterQueryState';
-import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
-import { getDisplayValue } from '../date-filter/utils/getDisplayValue';
 
 export const FilterBar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
@@ -113,44 +109,6 @@ export const FilterBarButton = React.forwardRef<
       }}
       {...props}
     />
-  );
-});
-
-export const FilterBarDate = React.forwardRef<
-  React.ComponentRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button> & {
-    filterKey: string;
-    label?: string;
-  }
->(({ filterKey, label, className, ...props }, ref) => {
-  const { sessionKey } = useFilterContext();
-  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey ?? '');
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button
-          ref={ref}
-          variant="ghost"
-          className={cn('rounded-none h-7 bg-background', className)}
-          {...props}
-        >
-          {getDisplayValue(query ?? '')}
-        </Button>
-      </Popover.Trigger>
-      <Combobox.Content>
-        <DateFilterCommand
-          value={filterKey}
-          label={label}
-          selected={query ?? ''}
-          onSelect={(val) => {
-            setQuery(val);
-            setOpen(false);
-          }}
-        />
-      </Combobox.Content>
-    </Popover>
   );
 });
 

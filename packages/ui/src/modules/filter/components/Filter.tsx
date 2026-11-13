@@ -1,9 +1,7 @@
-import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
 import {
   FilterBar,
   FilterBarButton,
   FilterBarCloseButton,
-  FilterBarDate,
   FilterBarItem,
   FilterBarName,
   FilterSearchValueBarItem,
@@ -14,7 +12,6 @@ import {
   FilterCommandItem,
   FilterItem,
   FilterPopover,
-  FilterPopoverDateView,
   FilterSearchValueTrigger,
   FilterTrigger,
   FilterView,
@@ -31,13 +28,10 @@ export const Filter = Object.assign(FilterProvider, {
   SearchValueBarItem: FilterSearchValueBarItem,
   Dialog: FilterDialog,
   DialogStringView: FilterDialogStringView,
-  DialogDateView: FilterDialogDateView,
-  DateView: FilterPopoverDateView,
   Bar: FilterBar,
   BarItem: FilterBarItem,
   BarName: FilterBarName,
   BarButton: FilterBarButton,
   BarClose: FilterBarCloseButton,
-  Date: FilterBarDate,
   CommandInput: FilterCommandInput,
 });

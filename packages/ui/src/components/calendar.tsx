@@ -141,30 +141,3 @@ export const Calendar = ({ className, classNames, ...props }: CalendarProps) => 
     {...props}
   />
 );
-
-export const CalendarTwoMonths = ({ className, classNames, ...props }: CalendarProps) => (
-  <DayPicker
-    className={cn(className)}
-    classNames={getBaseClassNames({
-      [UI.Months]: 'relative inline-flex',
-      [UI.Month]:
-        'space-y-4 ml-0 first-of-type:mr-12 first-of-type:relative first-of-type:after:absolute first-of-type:after:w-px first-of-type:after:h-auto first-of-type:after:inset-y-0 first-of-type:after:-right-6 first-of-type:after:bg-muted',
-      [UI.MonthCaption]: 'flex items-center h-7',
-      [UI.PreviousMonthButton]: cn(
-        buttonVariants({ variant: 'ghost' }),
-        'absolute right-10 top-0 h-7 w-7 bg-muted p-0 opacity-80 hover:opacity-100',
-      ),
-      [UI.NextMonthButton]: cn(
-        buttonVariants({ variant: 'ghost' }),
-        'absolute right-1 top-0 h-7 w-7 bg-muted p-0 opacity-80 hover:opacity-100',
-      ),
-      [UI.Weekdays]: 'flex w-full border-b border-muted',
-      [UI.Weekday]: 'text-muted-foreground rounded-md w-8 h-6 font-normal text-[0.8rem]',
-      [UI.Week]: 'flex w-full mt-0.5',
-      ...classNames,
-    })}
-    components={{ Chevron }}
-    numberOfMonths={2}
-    {...props}
-  />
-);

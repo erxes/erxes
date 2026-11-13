@@ -5,7 +5,7 @@ import type { ButtonProps } from './button';
 import { Button } from './button';
 import { cn } from 'erxes-ui/lib/utils';
 
-export type DragHandleProps = Omit<ButtonProps, 'asChild' | 'children' | 'size'>;
+type DragHandleProps = Omit<ButtonProps, 'asChild' | 'children' | 'size'>;
 
 export const DragHandle = forwardRef<HTMLButtonElement, DragHandleProps>(
   ({ className, variant = 'ghost', ...props }, ref) => (

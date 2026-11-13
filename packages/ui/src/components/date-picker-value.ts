@@ -49,7 +49,7 @@ const DATE_FNS_TOKEN: Record<string, string> = {
 };
 
 /** Turns a Day.js format string into the date-fns pattern with the same output. */
-export const toDateFnsPattern = (dayjsFormat: string) =>
+const toDateFnsPattern = (dayjsFormat: string) =>
   dayjsFormat.replace(DAYJS_TOKEN, (token, escaped?: string) =>
     escaped === undefined ? (DATE_FNS_TOKEN[token] ?? token) : `'${escaped.replaceAll("'", "''")}'`,
   );

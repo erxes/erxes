@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-export interface INavigationMenuItemInfo {
+interface INavigationMenuItemInfo {
   name: string;
   path: string;
   icon?: React.ElementType;
@@ -11,8 +11,6 @@ export interface INavigationMenuItemControls {
   renderActions: (item: INavigationMenuItemInfo) => React.ReactNode;
 }
 
-export const NavigationMenuItemControlsContext = createContext<INavigationMenuItemControls | null>(
-  null,
-);
+const NavigationMenuItemControlsContext = createContext<INavigationMenuItemControls | null>(null);
 
 export const useNavigationMenuItemControls = () => useContext(NavigationMenuItemControlsContext);

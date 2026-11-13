@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Attachments } from 'erxes-ui/modules/attachments/attachments';
+import { AttachmentPreview } from 'erxes-ui/modules/attachments/attachment-media';
 import type { GalleryRenderProps } from 'erxes-ui/modules/blocks/constant/galleryBlockConfig';
 import { useGalleryUpload } from 'erxes-ui/modules/blocks/hooks/useGalleryUpload';
 import {
@@ -94,35 +94,25 @@ export const GalleryBlockContent = (props: GalleryRenderProps) => {
   return (
     <div className="w-full my-1 select-none" contentEditable={false}>
       {!isEmpty && (
-        <Attachments.Root
-          initialAttachments={keyedImages.map(({ image }) => ({
+        <AttachmentPreview
+          images={keyedImages.map(({ image }) => ({
             url: image.url,
             name: image.caption ?? '',
-            type: 'image/*',
-            size: 0,
           }))}
-        >
-          <Attachments.Preview
-            heading=""
-            className="p-0"
-            renderThumbnails={(openPreview) => (
-              <div
-                className="grid gap-2"
-                style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
-              >
-                {keyedImages.map(({ image, key }, index) => (
-                  <GalleryItem
-                    key={key}
-                    image={image}
-                    readonly={readonly}
-                    onRemove={() => removeImage(key)}
-                    onPreview={() => openPreview(index)}
-                  />
-                ))}
-              </div>
-            )}
-          />
-        </Attachments.Root>
+          renderThumbnails={(openPreview) => (
+            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+              {keyedImages.map(({ image, key }, index) => (
+                <GalleryItem
+                  key={key}
+                  image={image}
+                  readonly={readonly}
+                  onRemove={() => removeImage(key)}
+                  onPreview={() => openPreview(index)}
+                />
+              ))}
+            </div>
+          )}
+        />
       )}
 
       {!readonly && <GalleryEditBar {...props} isEmpty={isEmpty} columns={columns} />}

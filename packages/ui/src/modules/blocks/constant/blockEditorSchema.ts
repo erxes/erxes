@@ -12,7 +12,7 @@ import { documentPlaceholderBlock } from 'erxes-ui/modules/blocks/components/Doc
 import { galleryBlock } from 'erxes-ui/modules/blocks/components/GalleryBlock';
 import { customVideoBlock } from 'erxes-ui/modules/blocks/components/CustomVideoBlock';
 
-export const fontFamily = createStyleSpec(
+const fontFamily = createStyleSpec(
   {
     type: 'fontFamily',
     propSchema: 'string',
@@ -44,7 +44,7 @@ const fontSizeStyle = createStyleSpec(
   },
 );
 
-export const fontSize = {
+const fontSize = {
   ...fontSizeStyle,
   implementation: {
     ...fontSizeStyle.implementation,

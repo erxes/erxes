@@ -44,7 +44,7 @@ const useColorPickerContext = () => {
   return context;
 };
 
-export const ColorPickerProvider = ({
+const ColorPickerProvider = ({
   children,
   value,
   onValueChange,

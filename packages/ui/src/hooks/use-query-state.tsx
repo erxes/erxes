@@ -181,19 +181,6 @@ export function useMultiQueryState<T extends QueryTypes>(
   return [queries, setQueries];
 }
 
-/** Returns only the query values that are present in the URL. */
-export const useNonNullMultiQueryState = <T extends QueryTypes>(
-  queryKeys: (keyof T)[],
-): QueryValues<T> => {
-  const [searchParams] = useSearchParams();
-
-  const present = queryKeys.filter(
-    (key) => parseQueryValue(searchParams.get(String(key)), String(key)) !== null,
-  );
-
-  return readQueries<T>(searchParams, present);
-};
-
 /** Creates a remover that preserves the remaining query values and router state. */
 export function useRemoveQueryStateByKey() {
   const [, setSearchParams] = useSearchParams();

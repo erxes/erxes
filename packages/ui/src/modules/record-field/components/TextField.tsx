@@ -6,15 +6,6 @@ import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped'
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 import React, { useEffect, useState } from 'react';
 
-export interface ITextFieldContainerProps {
-  placeholder?: string;
-  value: string;
-  field: string;
-  fieldId?: string;
-  _id: string;
-  scope?: string;
-}
-
 export const TextField = React.forwardRef<
   HTMLButtonElement,
   ButtonProps & {

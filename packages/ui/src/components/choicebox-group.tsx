@@ -5,7 +5,7 @@ import { forwardRef, useId } from 'react';
 import { cn } from 'erxes-ui/lib/utils';
 import { type RadioGroupProps } from './radio-group';
 
-export interface ChoiceboxGroupProps extends Omit<RadioGroupProps, 'className'> {
+interface ChoiceboxGroupProps extends Omit<RadioGroupProps, 'className'> {
   className?: string;
   direction?: 'column' | 'row';
   spacing?: 'default' | 'tight' | 'loose';
@@ -50,7 +50,7 @@ const ChoiceboxGroupRoot = forwardRef<HTMLDivElement, ChoiceboxGroupProps>(
 
 ChoiceboxGroupRoot.displayName = 'ChoiceboxGroup';
 
-export interface ChoiceboxItemProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'> {
+interface ChoiceboxItemProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'> {
   value: string;
   title?: React.ReactNode;
   disabled?: boolean;

@@ -1,68 +1,30 @@
 # erxes-ui
 
-Shared React components, business modules, hooks, and frontend state for erxes.
+The design system core-ui and plugin UIs share: UI primitives, layout, record tables, filters,
+the block editor, hooks and shared state. It ships as source; `apps/core-ui` compiles it.
 
-## Install in a React application
+## Who imports it
 
-```sh
-npm install @erxes/ui
-```
+- `apps/core-ui` imports `erxes-ui` and, for a few files, `erxes-ui/<path>` (the `./*` export).
+- Plugin UIs get `erxes-ui` from the host as a Module Federation singleton and import only the
+  root, `src/index.ts`. A removed export breaks them at runtime, not at build time.
 
-```tsx
-import { Button } from '@erxes/ui';
+## What `src/index.ts` exports
 
-export function Example() {
-  return <Button onClick={() => window.alert('Hello')}>Continue</Button>;
-}
-```
+Only what something uses:
 
-The published package contains JavaScript and automatically imports its compiled
-stylesheet. Vite source aliases, `process.env` shims, Tailwind plugins, source
-scanning, and copied theme declarations are not required to render components.
-Match the React version with the package's peer dependencies.
+- what core-ui imports,
+- what plugin UIs import (the HR plugin is the first consumer),
+- the plugin API in the plugin skills: `getPluginRuntime`, `pluginFetch`, `pluginJson`,
+  `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl` and the `IUIConfig` types,
+- the design-system primitives in `src/components` (Accordion, Card, Slider …), even unused,
+  because plugins build on them.
 
-Component subpaths also include the stylesheet:
+Anything else is removed, not kept "in case". Before you remove an export, check the HR plugin
+UI and `.agents/skills/plugin-contract/SKILL.md`.
 
-```tsx
-import { Button } from '@erxes/ui/components/button';
-```
+## Styles
 
-The stylesheet covers the classes used by the library. Configure Tailwind in your
-application if you want to generate additional utility classes of your own.
-Override CSS variables such as `--primary` to customize the default theme. Add
-the `dark` class to a parent element to select the dark theme.
-
-The stylesheet also sets the page defaults erxes apps share (`src/base.css`):
-the default light and dark theme, theme border colour on every element, page
-background and text colour, and heading sizes. A standalone app that is not
-hosted by core-ui only needs this stylesheet, plus `@erxes/ui/fonts.css` to load
-Inter and Roboto Mono (core-ui loads them from its `index.html`).
-
-`@erxes/ui/theme.css` remains available for applications that already compile
-Tailwind and supply their own design tokens. The compiled stylesheet is also
-exported as `@erxes/ui/styles.css` and `@erxes/ui/style.css`.
-
-Components that use routing, GraphQL, translations, or shared state still need
-their corresponding application providers. The ready-to-use stylesheet does
-not configure those services.
-
-## Build the npm package
-
-```sh
-pnpm nx build erxes-ui
-pnpm --filter erxes-ui test:package
-pnpm --dir frontend/libs/erxes-ui/dist pack
-```
-
-The build writes a standalone `dist/package.json`, JavaScript entries, type
-declarations, and compiled CSS. The existing `theme.css` contract and the default
-tokens in `src/base.css` (also imported by core-ui) are compiled into it. The publish workflow packs this
-directory and applies the shared platform version. Workspace consumers continue
-to resolve the original source exports.
-
-Declaration emission retains the shared-libraries workflow's existing policy:
-type diagnostics are reported, while declaration-emit failures fail the build.
-
-## Running unit tests
-
-Run `nx test erxes-ui` to execute the unit tests via [Jest](https://jestjs.io).
+`styles.css` builds Tailwind from this package's sources and imports `theme.css` (tokens) and
+`base.css` (page defaults, light and dark theme). `fonts.css` loads Inter and Roboto Mono for an
+app not hosted by core-ui.

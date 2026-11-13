@@ -19,8 +19,6 @@ import {
 } from './date-picker-value';
 import { DateTextInput } from './date-text-input';
 
-export type { DatePickerValue } from './date-picker-value';
-
 type SelectedDates = Date | Date[] | DateRange;
 
 export type DatePickerProps = {

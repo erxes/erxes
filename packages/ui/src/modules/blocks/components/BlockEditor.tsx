@@ -1,5 +1,4 @@
 import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
-import { BlockEditorComments } from './BlockEditorComments';
 import { useState } from 'react';
 import { SuggestionMenuController, TableHandlesController } from '@blocknote/react';
 import {
@@ -32,7 +31,6 @@ export const BlockEditor = ({
   formattingToolbar = true,
   linkToolbar = true,
   slashMenuOnTop = false,
-  floatingThread = true,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
@@ -90,13 +88,9 @@ export const BlockEditor = ({
           />
           {formattingToolbar && <Toolbar />}
           <TableHandlesController tableHandle={TableHandleWithRemove} />
-          <BlockEditorComments enabled={!!editor.comments} floatingThread={floatingThread}>
-            {children}
-          </BlockEditorComments>
+          {children}
         </BlockNoteView>
       </BlockEditorEditableContext.Provider>
     </div>
   );
 };
-
-export { Attribute, Mention } from './BlockEditorInlineContent';
