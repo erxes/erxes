@@ -28,8 +28,8 @@
     "i18next": "^24.2.0",
     "jotai": "^2.12.0",
     "qrcode": "^1.5.4",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "react-hook-form": "7.55.0",
     "react-i18next": "^15.1.1",
     "react-router-dom": "^7.1.1",
@@ -41,7 +41,7 @@
     "@rsbuild/plugin-react": "^1.1.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/qrcode": "^1.5.5",
-    "@types/react": "18.3.1",
-    "@types/react-dom": "18.3.0"
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
   }
 }
