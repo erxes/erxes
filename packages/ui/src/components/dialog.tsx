@@ -6,13 +6,22 @@ import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
+/** Dims the page under a dialog. Content renders one; a hand-built popup in `Dialog.Portal` uses this. */
+const DialogBackdrop = ({ className, ...props }: DialogPrimitive.Backdrop.Props) => (
+  <DialogPrimitive.Backdrop
+    forceRender
+    className={cn(
+      'fixed inset-0 z-50 bg-black/80 backdrop-blur-xs data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 duration-200 ease-out',
+      className,
+    )}
+    {...props}
+  />
+);
+
 /** The backdrop dims the page and the viewport centers the popup; a press on either closes the dialog. */
 const DialogContent = ({ className, ...props }: DialogPrimitive.Popup.Props) => (
   <DialogPrimitive.Portal>
-    <DialogPrimitive.Backdrop
-      forceRender
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 duration-200 ease-out"
-    />
+    <DialogBackdrop />
     <DialogPrimitive.Viewport className="fixed inset-0 z-50 grid place-items-center">
       <DialogPrimitive.Popup
         className={cn(
@@ -96,6 +105,8 @@ const DialogDescription = ({ className, ...props }: DialogPrimitive.Description.
 export const Dialog = Object.assign(DialogPrimitive.Root, {
   Trigger: DialogPrimitive.Trigger,
   Close: DialogPrimitive.Close,
+  Portal: DialogPrimitive.Portal,
+  Backdrop: DialogBackdrop,
   Content: DialogContent,
   HeaderCombined: DialogCombinedHeader,
   ContentCombined: DialogContentCombined,

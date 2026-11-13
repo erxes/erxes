@@ -38,6 +38,18 @@ const sheetVariants = cva(
   },
 );
 
+/** Dims the page under a sheet. View renders one. */
+const SheetBackdrop = ({ className, ...props }: SheetPrimitive.Backdrop.Props) => (
+  <SheetPrimitive.Backdrop
+    forceRender
+    className={cn(
+      'fixed inset-0 z-50 bg-black/25 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-open:duration-200 data-closed:duration-200 data-closed:[animation-fill-mode:forwards]',
+      className,
+    )}
+    {...props}
+  />
+);
+
 /** The backdrop fades in under the panel, which slides in from its side and fades with it. */
 const SheetView = ({
   side = 'right',
@@ -45,10 +57,7 @@ const SheetView = ({
   ...props
 }: SheetPrimitive.Popup.Props & VariantProps<typeof sheetVariants>) => (
   <SheetPrimitive.Portal>
-    <SheetPrimitive.Backdrop
-      forceRender
-      className="fixed inset-0 z-50 bg-black/25 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-open:duration-200 data-closed:duration-200 data-closed:[animation-fill-mode:forwards]"
-    />
+    <SheetBackdrop />
     <SheetPrimitive.Popup className={cn(sheetVariants({ side }), className)} {...props} />
   </SheetPrimitive.Portal>
 );
@@ -123,6 +132,7 @@ const SheetDescription = ({ className, ...props }: SheetPrimitive.Description.Pr
 export const Sheet = Object.assign(SheetRoot, {
   Trigger: SheetPrimitive.Trigger,
   View: SheetView,
+  Backdrop: SheetBackdrop,
   Content: SheetContent,
   Header: SheetHeader,
   Footer: SheetFooter,
