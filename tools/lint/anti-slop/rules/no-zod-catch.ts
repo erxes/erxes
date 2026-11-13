@@ -1,14 +1,40 @@
-import { type ESTree, defineRule } from 'vite-plus/lint/plugins';
+import { type ESTree, type Scope, type SourceCode, defineRule } from 'vite-plus/lint/plugins';
+
+import { unwrapArrayExpression } from '../shared/array-method.ts';
 
 /** The identifier a member chain like `z.string().optional()` starts from. */
-const chainRoot = (input: ESTree.Node): ESTree.Node => {
-  let node = input;
+const chainRoot = (input: ESTree.Node) => {
+  let node = unwrapArrayExpression(input);
 
   while (node.type === 'CallExpression' || node.type === 'MemberExpression') {
-    node = node.type === 'CallExpression' ? node.callee : node.object;
+    node = unwrapArrayExpression(node.type === 'CallExpression' ? node.callee : node.object);
   }
 
   return node;
+};
+
+/** Built from zod's import: `z.string()`, or a const that is (`const Tier = z.enum(...)`). */
+const isZodSchema = (sourceCode: SourceCode, input: ESTree.Node, depth = 0): boolean => {
+  const root = chainRoot(input);
+
+  if (root.type !== 'Identifier' || depth > 10) return false;
+
+  let scope: Scope | null = sourceCode.getScope(root);
+
+  while (scope && !scope.set.has(root.name)) scope = scope.upper;
+
+  const definition = scope?.set.get(root.name)?.defs[0];
+
+  if (definition?.type === 'ImportBinding')
+    return (
+      definition.parent?.type === 'ImportDeclaration' &&
+      /^zod(\/|$)/.test(definition.parent.source.value)
+    );
+
+  if (definition?.node.type === 'VariableDeclarator' && definition.node.init)
+    return isZodSchema(sourceCode, definition.node.init, depth + 1);
+
+  return false;
 };
 
 /** A fallback value, as zod's `.catch(value)` takes; a Promise's `.catch` takes a handler. */
@@ -23,7 +49,8 @@ const isValue = (node: ESTree.Node | undefined) =>
 /**
  * Ban zod's `.catch()`: it swaps a malformed value for a fallback without a
  * trace, so a bad token claim can turn into the top tier. Promise `.catch`
- * with a handler stays allowed.
+ * with a handler stays allowed. A schema imported from another file is caught
+ * only when the fallback is a plain value.
  */
 export const noZodCatchRule = defineRule({
   meta: {
@@ -43,10 +70,8 @@ export const noZodCatchRule = defineRule({
 
         if (callee.property.type !== 'Identifier' || callee.property.name !== 'catch') return;
 
-        const root = chainRoot(callee.object);
-        const onZod = root.type === 'Identifier' && root.name === 'z';
-
-        if (onZod || isValue(node.arguments[0])) context.report({ node, messageId: 'zodCatch' });
+        if (isValue(node.arguments[0]) || isZodSchema(context.sourceCode, callee.object))
+          context.report({ node, messageId: 'zodCatch' });
       },
     };
   },
