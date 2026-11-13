@@ -14,6 +14,7 @@ import {
   cursorPageOf,
   ImageAddress,
   isoDate,
+  listOf,
 } from './common';
 import { ContactLink, ContactLinkInput } from './customers';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
@@ -199,7 +200,7 @@ export const companiesContract = {
       summary: "The company's people: main contact first, then current, then former",
     })
     .input(ID)
-    .output(z.object({ data: z.array(PersonRef) })),
+    .output(listOf(PersonRef)),
   linkPerson: oc
     .route({
       method: 'PUT',

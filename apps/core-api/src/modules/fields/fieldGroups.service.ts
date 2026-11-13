@@ -1,5 +1,6 @@
 import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { oneRow, setOrders } from '~/lib/rows';
@@ -20,17 +21,20 @@ export const listFieldGroups = async (
   actor: Actor,
   input: { contentType: FieldContentType; archived?: boolean },
 ) => {
-  const rows = await client
-    .select()
-    .from(fieldGroups)
-    .where(
-      and(
-        eq(fieldGroups.orgId, actor.orgId),
-        eq(fieldGroups.contentType, input.contentType),
-        input.archived ? isNotNull(fieldGroups.archivedAt) : isNull(fieldGroups.archivedAt),
-      ),
-    )
-    .orderBy(asc(fieldGroups.order), asc(fieldGroups.createdAt));
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(fieldGroups)
+      .where(
+        and(
+          eq(fieldGroups.orgId, actor.orgId),
+          eq(fieldGroups.contentType, input.contentType),
+          input.archived ? isNotNull(fieldGroups.archivedAt) : isNull(fieldGroups.archivedAt),
+        ),
+      )
+      .orderBy(asc(fieldGroups.order), asc(fieldGroups.createdAt))
+      .limit(limit),
+  );
 
   return { data: rows.map(toFieldGroupDto) };
 };

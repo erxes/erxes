@@ -1,6 +1,7 @@
 import type { LeadStageKind } from '@erxes/core-contract';
 import { companies, customers, type Db, leadStages, newId } from '@erxes/core-db';
 import { and, eq, max, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { setOrders } from '~/lib/rows';
@@ -50,7 +51,7 @@ const countsOf = async (client: Db, orgId: string) =>
   ] as const;
 
 export const listLeadStages = async (client: Db, actor: Actor) => {
-  const stages = await stagesOf(client, actor.orgId);
+  const stages = await wholeList((limit) => stagesOf(client, actor.orgId).limit(limit));
   const counts = await countsOf(client, actor.orgId);
 
   return { data: stages.map((stage) => toStageDto(stage, ...counts)) };

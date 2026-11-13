@@ -19,7 +19,9 @@ export const transferRouter = {
       ({ aliases, fieldType, ...column }) => column,
     ),
   })),
-  imports: authed.transfer.imports.handler(({ context }) => listImports(db(), context.actor)),
+  imports: authed.transfer.imports.handler(({ input, context }) =>
+    listImports(db(), context.actor, input),
+  ),
   import: authed.transfer.import.handler(({ input, context }) =>
     getImport(db(), context.actor, input.id),
   ),
@@ -41,7 +43,9 @@ export const transferRouter = {
   importRows: authed.transfer.importRows.handler(({ input: { id, ...query }, context }) =>
     listImportRows(db(), context.actor, id, query),
   ),
-  exports: authed.transfer.exports.handler(({ context }) => listExports(db(), context.actor)),
+  exports: authed.transfer.exports.handler(({ input, context }) =>
+    listExports(db(), context.actor, input),
+  ),
   createExport: authed.transfer.createExport.handler(({ input, context }) =>
     createExport(db(), context.actor, input),
   ),

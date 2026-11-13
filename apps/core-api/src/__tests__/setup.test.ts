@@ -7,6 +7,22 @@ import { useTestServer } from './support';
 
 const OpenApiDocument = z.object({ openapi: z.string(), paths: z.record(z.string(), z.unknown()) });
 
+/** An operation's JSON bodies, by status and media type. */
+const Operation = z.object({
+  responses: z.record(
+    z.string(),
+    z.object({ content: z.record(z.string(), z.object({ schema: z.unknown() })).optional() }),
+  ),
+});
+
+/** A body that is a list: a `data` array, with its paging or its cap if it has them. */
+const ListBody = z.object({
+  properties: z.object({
+    data: z.object({ type: z.literal('array'), maxItems: z.int().optional() }),
+    pageInfo: z.unknown().optional(),
+  }),
+});
+
 const owner = {
   organizationName: 'Acme LLC',
   firstName: 'Bat',
@@ -61,6 +77,29 @@ describe('first-run setup (/core/v1/setup)', () => {
     expect(Object.keys(document.paths)).toEqual(
       expect.arrayContaining(['/customers', '/customers/{id}', '/companies', '/setup']),
     );
+  });
+
+  it('pages every list (cursorPageOf) or caps it (listOf, or a max)', async () => {
+    const document = OpenApiDocument.parse(
+      await (await fetch(server.url('/core/v1/openapi.json'))).json(),
+    );
+
+    const unbounded = Object.entries(document.paths).flatMap(([path, methods]) =>
+      Object.entries(z.record(z.string(), z.unknown()).parse(methods)).flatMap(
+        ([method, operation]) =>
+          Object.values(Operation.safeParse(operation).data?.responses ?? {})
+            .flatMap((response) => Object.values(response.content ?? {}))
+            .flatMap(({ schema }) => {
+              const list = ListBody.safeParse(schema).data?.properties;
+
+              return list && list.pageInfo === undefined && list.data.maxItems === undefined
+                ? [`${method.toUpperCase()} ${path}`]
+                : [];
+            }),
+      ),
+    );
+
+    expect(unbounded).toEqual([]);
   });
 
   it('is off where the SaaS side creates organisations', async () => {

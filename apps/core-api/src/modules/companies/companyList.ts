@@ -4,7 +4,7 @@ import { companies, customerCompanies, customers, type Db } from '@erxes/core-db
 import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
-import { keysetPage } from '~/lib/keyset';
+import { keysetPage, wholeList } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { linkDto, linkOrder } from '~/modules/customers/customerLinks';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
@@ -100,25 +100,27 @@ export const listCompanies = async (
 export const companyPeople = async (client: Db, actor: Actor, id: string) => {
   await findCompany(client, actor.orgId, id);
 
-  const rows = await client
-    .select({
-      id: customers.id,
-      firstName: customers.firstName,
-      lastName: customers.lastName,
-      primaryEmail: customers.primaryEmail,
-      primaryPhone: customers.primaryPhone,
-      avatarUrl: customers.avatarUrl,
-      state: customers.state,
-      role: customerCompanies.role,
-      isPrimaryContact: customerCompanies.isPrimaryContact,
-      endedAt: customerCompanies.endedAt,
-      createdAt: customerCompanies.createdAt,
-    })
-    .from(customerCompanies)
-    .innerJoin(customers, eq(customers.id, customerCompanies.customerId))
-    .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, id)))
-    .orderBy(...linkOrder)
-    .limit(500);
+  const rows = await wholeList((limit) =>
+    client
+      .select({
+        id: customers.id,
+        firstName: customers.firstName,
+        lastName: customers.lastName,
+        primaryEmail: customers.primaryEmail,
+        primaryPhone: customers.primaryPhone,
+        avatarUrl: customers.avatarUrl,
+        state: customers.state,
+        role: customerCompanies.role,
+        isPrimaryContact: customerCompanies.isPrimaryContact,
+        endedAt: customerCompanies.endedAt,
+        createdAt: customerCompanies.createdAt,
+      })
+      .from(customerCompanies)
+      .innerJoin(customers, eq(customers.id, customerCompanies.customerId))
+      .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, id)))
+      .orderBy(...linkOrder)
+      .limit(limit),
+  );
 
   return {
     data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...person }) => ({

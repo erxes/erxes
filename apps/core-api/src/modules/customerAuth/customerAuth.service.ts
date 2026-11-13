@@ -17,6 +17,7 @@ import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
 import { type CustomerCaller, systemCaller } from '~/http/auth';
 import { HttpError, notFound, pgConstraint } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
+import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
 import { contactUpdated } from '~/modules/activities/contactHistory';
 import { findCustomer } from '~/modules/customers/customerRows';
@@ -252,13 +253,16 @@ export const updateMyProfile = (
 export const myLogins = (me: CustomerCaller) =>
   withOrg(me.orgId, async (tx) => ({
     data: (
-      await tx
-        .select()
-        .from(customerLogins)
-        .where(
-          and(eq(customerLogins.orgId, me.orgId), eq(customerLogins.customerId, me.customerId)),
-        )
-        .orderBy(asc(customerLogins.createdAt))
+      await wholeList((limit) =>
+        tx
+          .select()
+          .from(customerLogins)
+          .where(
+            and(eq(customerLogins.orgId, me.orgId), eq(customerLogins.customerId, me.customerId)),
+          )
+          .orderBy(asc(customerLogins.createdAt))
+          .limit(limit),
+      )
     ).map(toLoginDto),
   }));
 
@@ -338,11 +342,14 @@ const activeSessions = (me: CustomerCaller) =>
 export const mySessions = (me: CustomerCaller) =>
   withOrg(me.orgId, async (tx) => ({
     data: (
-      await tx
-        .select()
-        .from(customerSessions)
-        .where(activeSessions(me))
-        .orderBy(desc(customerSessions.lastUsedAt))
+      await wholeList((limit) =>
+        tx
+          .select()
+          .from(customerSessions)
+          .where(activeSessions(me))
+          .orderBy(desc(customerSessions.lastUsedAt))
+          .limit(limit),
+      )
     ).map((row): CustomerSession => ({
       id: row.id,
       clientId: row.clientId,

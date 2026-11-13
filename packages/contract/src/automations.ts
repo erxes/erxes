@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from './automationDefinition';
 import { ActionInfo, AutomationRun, RunStatus, RunStep } from './automationRuns';
-import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const Automation = createSelectSchema(automations, {
   id: Id,
@@ -94,7 +94,7 @@ export const automationsContract = {
   list: oc
     .route({ method: 'GET', path: '/automations' })
     .input(z.object({ status: AutomationStatus.optional() }))
-    .output(z.object({ data: z.array(Automation) })),
+    .output(listOf(Automation)),
   get: oc
     .route({ method: 'GET', path: '/automations/{id}' })
     .input(z.object({ id: Id }))
@@ -199,16 +199,14 @@ export const automationsContract = {
     })
     .input(z.object({ id: Id }))
     .output(
-      z.object({
-        data: z.array(
-          z.object({
-            version: z.int(),
-            publishedBy: z.string().nullable(),
-            createdAt: z.iso.datetime(),
-            definition: AutomationDefinition,
-          }),
-        ),
-      }),
+      listOf(
+        z.object({
+          version: z.int(),
+          publishedBy: z.string().nullable(),
+          createdAt: z.iso.datetime(),
+          definition: AutomationDefinition,
+        }),
+      ),
     ),
   restoreVersion: oc
     .route({
@@ -225,16 +223,14 @@ export const automationsContract = {
       summary: 'Ready-made automations to start from',
     })
     .output(
-      z.object({
-        data: z.array(
-          z.object({
-            id: z.string(),
-            name: z.string(),
-            description: z.string(),
-            definition: AutomationDefinition,
-          }),
-        ),
-      }),
+      listOf(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          description: z.string(),
+          definition: AutomationDefinition,
+        }),
+      ),
     ),
   fields: oc
     .route({
@@ -244,11 +240,7 @@ export const automationsContract = {
         'Paths conditions and placeholders can use, with their types (custom fields included)',
     })
     .input(z.object({ subject: z.enum(CONTENT_TYPES).optional() }))
-    .output(
-      z.object({
-        data: z.array(AutomationFieldPath),
-      }),
-    ),
+    .output(listOf(AutomationFieldPath)),
   remove: oc
     .route({ method: 'DELETE', path: '/automations/{id}' })
     .input(z.object({ id: Id }))

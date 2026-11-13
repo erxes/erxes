@@ -2,6 +2,7 @@ import type { AUDIT_STREAM_STARTS, AUDIT_STREAM_STATUSES } from '@erxes/core-db/
 import type { AuditStream } from '@erxes/core-contract';
 import { auditLogs, auditStreams, type Db, newId, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
@@ -51,11 +52,14 @@ const checkUrl = (url: string) => {
 };
 
 export const listStreams = async (client: Db, actor: Actor) => {
-  const rows = await client
-    .select()
-    .from(auditStreams)
-    .where(eq(auditStreams.orgId, actor.orgId))
-    .orderBy(auditStreams.createdAt);
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(auditStreams)
+      .where(eq(auditStreams.orgId, actor.orgId))
+      .orderBy(auditStreams.createdAt)
+      .limit(limit),
+  );
 
   const latest = await latestSeq(client, actor.orgId);
 

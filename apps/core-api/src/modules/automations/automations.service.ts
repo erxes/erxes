@@ -1,6 +1,7 @@
 import { type Automation, AutomationDefinition } from '@erxes/core-contract';
 import { automationRuns, automations, automationVersions, type Db, newId } from '@erxes/core-db';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, userCaller } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -91,16 +92,19 @@ export const listAutomations = async (
   actor: Actor,
   query: { status?: AutomationRow['status'] },
 ) => {
-  const rows = await client
-    .select()
-    .from(automations)
-    .where(
-      and(
-        eq(automations.orgId, actor.orgId),
-        query.status ? eq(automations.status, query.status) : undefined,
-      ),
-    )
-    .orderBy(desc(automations.updatedAt));
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(automations)
+      .where(
+        and(
+          eq(automations.orgId, actor.orgId),
+          query.status ? eq(automations.status, query.status) : undefined,
+        ),
+      )
+      .orderBy(desc(automations.updatedAt))
+      .limit(limit),
+  );
 
   const stats = await statsOf(
     client,
@@ -247,11 +251,16 @@ export const removeAutomation = async (client: Db, actor: Actor, id: string) => 
 export const listVersions = async (client: Db, actor: Actor, id: string) => {
   await findAutomation(client, actor.orgId, id);
 
-  const rows = await client
-    .select()
-    .from(automationVersions)
-    .where(and(eq(automationVersions.orgId, actor.orgId), eq(automationVersions.automationId, id)))
-    .orderBy(desc(automationVersions.version));
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(automationVersions)
+      .where(
+        and(eq(automationVersions.orgId, actor.orgId), eq(automationVersions.automationId, id)),
+      )
+      .orderBy(desc(automationVersions.version))
+      .limit(limit),
+  );
 
   return {
     data: rows.map((row) => ({

@@ -3,7 +3,7 @@ import { trash } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
 
 export const TrashItem = createSelectSchema(trash, {
   id: Id,
@@ -44,12 +44,12 @@ export const trashContract = {
       summary: 'Deleted customers and companies, newest first (contacts.delete)',
     })
     .input(
-      z.object({
+      CursorQuery.extend({
         type: z.enum(CONTENT_TYPES).optional(),
         limit: z.coerce.number().int().min(1).max(500).default(100),
       }),
     )
-    .output(z.object({ data: z.array(TrashItem) })),
+    .output(cursorPageOf(TrashItem)),
   restore: oc
     .route({
       method: 'POST',

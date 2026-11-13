@@ -83,6 +83,17 @@ export const cursorPageOf = <T extends z.ZodType>(item: T) =>
     totalCapped: z.boolean().optional(),
   });
 
+/**
+ * Most items a list read whole may hold. Whole lists are small config
+ * (roles, stages, fields, webhooks); past this the server fails instead of
+ * cutting the list. Lists that grow with use are `cursorPageOf`.
+ */
+export const LIST_MAX = 1000;
+
+/** A small config list, read whole: at most `LIST_MAX` items. */
+export const listOf = <T extends z.ZodType>(item: T) =>
+  z.object({ data: z.array(item).max(LIST_MAX) });
+
 /** Records that tags and custom fields attach to. */
 export const ContentType = z.enum(CONTENT_TYPES);
 

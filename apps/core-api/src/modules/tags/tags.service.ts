@@ -3,7 +3,7 @@ import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { containsPattern } from '~/lib/keyset';
+import { containsPattern, wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 
 type TagRow = typeof tags.$inferSelect;
@@ -43,18 +43,20 @@ export const listTags = async (
   actor: Actor,
   query: { type: ContentType; search?: string },
 ) => {
-  const rows = await client
-    .select()
-    .from(tags)
-    .where(
-      and(
-        eq(tags.orgId, actor.orgId),
-        eq(tags.type, query.type),
-        query.search ? ilike(tags.name, containsPattern(query.search)) : undefined,
-      ),
-    )
-    .orderBy(asc(sql`lower(${tags.name})`))
-    .limit(500);
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(tags)
+      .where(
+        and(
+          eq(tags.orgId, actor.orgId),
+          eq(tags.type, query.type),
+          query.search ? ilike(tags.name, containsPattern(query.search)) : undefined,
+        ),
+      )
+      .orderBy(asc(sql`lower(${tags.name})`))
+      .limit(limit),
+  );
 
   return { data: rows.map(toTagDto) };
 };

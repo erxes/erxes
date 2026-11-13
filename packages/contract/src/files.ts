@@ -118,7 +118,7 @@ export const filesContract = {
       summary: 'Files by id (ready ones only), e.g. a record’s attachments',
     })
     .input(z.object({ ids: IdList }))
-    .output(z.object({ data: z.array(FileInfo) })),
+    .output(z.object({ data: z.array(FileInfo).max(100) })),
   remove: oc
     .route({
       method: 'DELETE',

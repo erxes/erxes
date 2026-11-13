@@ -1,8 +1,9 @@
-import type { TransferRecordType } from '@erxes/core-contract';
+import type { CursorQuery, TransferRecordType } from '@erxes/core-contract';
 import { type Db, type ImportOptions, importRows, imports, newId } from '@erxes/core-db';
 import { and, asc, eq, sql } from 'drizzle-orm';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
+import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { readyFile } from '~/modules/files/files.service';
@@ -37,16 +38,28 @@ const sampleOf = async (client: Db, id: string) =>
       .limit(5)
   ).map((row) => row.cells);
 
-export const listImports = async (client: Db, actor: Actor) => ({
-  data: (
-    await client
-      .select()
-      .from(imports)
-      .where(eq(imports.orgId, actor.orgId))
-      .orderBy(sql`${imports.createdAt} desc`)
-      .limit(50)
-  ).map((row) => toDto(row)),
-});
+export const listImports = async (client: Db, actor: Actor, query: CursorQuery) => {
+  const page = await keysetPage(
+    client,
+    {
+      table: imports,
+      id: imports.id,
+      createdAt: imports.createdAt,
+      scope: eq(imports.orgId, actor.orgId),
+    },
+    undefined,
+    query,
+    (where, orderBy, limit) =>
+      client
+        .select()
+        .from(imports)
+        .where(where)
+        .orderBy(...orderBy)
+        .limit(limit),
+  );
+
+  return { ...page, data: page.data.map((row) => toDto(row)) };
+};
 
 export const getImport = async (client: Db, actor: Actor, id: string) => {
   const row = await importOrThrow(client, actor.orgId, id);

@@ -2,7 +2,7 @@ import { customerLogins, customerSessions, customers } from '@erxes/core-db/sche
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber } from './common';
+import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber, listOf } from './common';
 import { PluginName } from './plugins';
 
 /** The fields a request sends along with the address. */
@@ -148,7 +148,7 @@ export const customerAccountContract = {
     .output(CustomerProfile),
   logins: oc
     .route({ method: 'GET', path: '/customer/me/logins', summary: 'Addresses I sign in with' })
-    .output(z.object({ data: z.array(CustomerLogin) })),
+    .output(listOf(CustomerLogin)),
   addLogin: oc
     .route({
       method: 'POST',
@@ -178,7 +178,7 @@ export const customerAccountContract = {
     .output(z.object({ ok: z.literal(true) })),
   sessions: oc
     .route({ method: 'GET', path: '/customer/me/sessions', summary: 'Where I am signed in' })
-    .output(z.object({ data: z.array(CustomerSession) })),
+    .output(listOf(CustomerSession)),
   revokeSession: oc
     .route({
       method: 'DELETE',

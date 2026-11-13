@@ -12,6 +12,7 @@ import {
   Id,
   IdList,
   isoDate,
+  listOf,
   QueryBoolean,
 } from './common';
 import { Currency } from './money';
@@ -171,7 +172,7 @@ export const productsContract = {
       summary: 'The given products (archived ones too), for order lines: `?ids=a,b`, at most 100',
     })
     .input(z.object({ ids: IdList }))
-    .output(z.object({ data: z.array(Product) })),
+    .output(z.object({ data: z.array(Product).max(100) })),
   create: oc
     .route({
       method: 'POST',
@@ -203,7 +204,7 @@ export const productsContract = {
         'A plugin starts (`used`) or stops using products, so they appear in its lists (plugins only)',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100), used: z.boolean() }))
-    .output(z.object({ data: z.array(Product) })),
+    .output(z.object({ data: z.array(Product).max(100) })),
   archive: oc
     .route({
       method: 'POST',
@@ -222,7 +223,7 @@ export const productsContract = {
 export const productCategoriesContract = {
   list: oc
     .route({ method: 'GET', path: '/product-categories', summary: 'Every category, by name' })
-    .output(z.object({ data: z.array(ProductCategory) })),
+    .output(listOf(ProductCategory)),
   create: oc
     .route({
       method: 'POST',

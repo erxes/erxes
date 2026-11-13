@@ -224,19 +224,21 @@ export const authContract = {
     .route({
       method: 'GET',
       path: '/auth/sign-ins',
-      summary: 'My recent sign-ins and failed attempts, newest first',
+      summary: 'My 15 most recent sign-ins and failed attempts, newest first',
     })
     .output(
       z.object({
-        data: z.array(
-          z.object({
-            id: z.string(),
-            success: z.boolean(),
-            ip: z.string().nullable(),
-            userAgent: z.string().nullable(),
-            createdAt: z.iso.datetime(),
-          }),
-        ),
+        data: z
+          .array(
+            z.object({
+              id: z.string(),
+              success: z.boolean(),
+              ip: z.string().nullable(),
+              userAgent: z.string().nullable(),
+              createdAt: z.iso.datetime(),
+            }),
+          )
+          .max(15),
       }),
     ),
 };

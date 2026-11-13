@@ -1,6 +1,7 @@
 import { FIELD_TYPE_FAMILIES } from '@erxes/core-contract';
 import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import type { Actor, Caller } from '~/http/auth';
 import { forbidden, HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -97,19 +98,22 @@ export const listFields = async (
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
 
-  const rows = await client
-    .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
-    .from(fields)
-    .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
-    .where(
-      and(
-        eq(fields.orgId, caller.orgId),
-        eq(fields.contentType, input.contentType),
-        input.groupId ? eq(fields.groupId, input.groupId) : undefined,
-        input.archived ? archived : active,
-      ),
-    )
-    .orderBy(asc(fields.order), asc(fields.createdAt));
+  const rows = await wholeList((limit) =>
+    client
+      .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
+      .from(fields)
+      .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
+      .where(
+        and(
+          eq(fields.orgId, caller.orgId),
+          eq(fields.contentType, input.contentType),
+          input.groupId ? eq(fields.groupId, input.groupId) : undefined,
+          input.archived ? archived : active,
+        ),
+      )
+      .orderBy(asc(fields.order), asc(fields.createdAt))
+      .limit(limit),
+  );
 
   return { data: rows.map((row) => toFieldDto(row.field, row.groupArchivedAt)) };
 };

@@ -2,6 +2,7 @@ import { roles } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { listOf } from './common';
 import { RoleKey } from './values';
 
 /**
@@ -146,14 +147,14 @@ export const rolesContract = {
       path: '/roles',
       summary: 'Roles of the organisation, with member counts',
     })
-    .output(z.object({ data: z.array(Role) })),
+    .output(listOf(Role)),
   permissions: oc
     .route({
       method: 'GET',
       path: '/permissions',
       summary: "Every action a role can include: core's and installed plugins'",
     })
-    .output(z.object({ data: z.array(PermissionInfo) })),
+    .output(listOf(PermissionInfo)),
   create: oc
     .route({
       method: 'POST',

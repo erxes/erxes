@@ -3,7 +3,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { type FieldType, OPTION_FIELD_TYPES } from './values';
-import { FieldContentType, Id, IdList, isoDate, QueryBoolean } from './common';
+import { FieldContentType, Id, IdList, isoDate, QueryBoolean, listOf } from './common';
 
 /** A custom field ("property") on customers or companies. */
 const int = () => z.int();
@@ -144,7 +144,7 @@ export const fieldsContract = {
         archived: QueryBoolean.optional(),
       }),
     )
-    .output(z.object({ data: z.array(Field) })),
+    .output(listOf(Field)),
   usage: oc
     .route({
       method: 'GET',
@@ -237,7 +237,7 @@ export const fieldGroupsContract = {
       summary: 'Field groups of a record type, in order. Archived ones only with `archived=true`',
     })
     .input(z.object({ contentType: FieldContentType, archived: QueryBoolean.optional() }))
-    .output(z.object({ data: z.array(FieldGroup) })),
+    .output(listOf(FieldGroup)),
   create: oc
     .route({
       method: 'POST',

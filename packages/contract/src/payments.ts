@@ -9,7 +9,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { InvoiceStatus, PaymentGatewayKind } from './values';
-import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { PluginName } from './plugins';
@@ -165,9 +165,7 @@ export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
  * `core.payment.paid` (webhooks, automations, the plugin's own consumer).
  */
 export const paymentsContract = {
-  gateways: oc
-    .route({ method: 'GET', path: '/payments/gateways' })
-    .output(z.object({ data: z.array(PaymentGateway) })),
+  gateways: oc.route({ method: 'GET', path: '/payments/gateways' }).output(listOf(PaymentGateway)),
   addGateway: oc
     .route({
       method: 'POST',
@@ -259,14 +257,14 @@ export const paymentsContract = {
   refunds: oc
     .route({ method: 'GET', path: '/payments/invoices/{id}/refunds' })
     .input(z.object({ id: Id }))
-    .output(z.object({ data: z.array(Refund) })),
+    .output(listOf(Refund)),
   pluginSettings: oc
     .route({
       method: 'GET',
       path: '/payments/plugins',
       summary: 'Installed plugins that take payments, with their gateway settings',
     })
-    .output(z.object({ data: z.array(PluginPaymentSettings) })),
+    .output(listOf(PluginPaymentSettings)),
   updatePluginSettings: oc
     .route({ method: 'PUT', path: '/payments/plugins/{plugin}' })
     .input(

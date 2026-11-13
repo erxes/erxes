@@ -9,7 +9,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from './automationDefinition';
-import { Id, isoDate } from './common';
+import { Id, isoDate, listOf } from './common';
 
 /** The list a view belongs to: customers, leads (people), companies, company leads, products. */
 export const ViewRecordType = z.enum(VIEW_RECORD_TYPES);
@@ -88,7 +88,7 @@ export const viewsContract = {
       summary: "Views of a list: the member's own and the team's shared ones",
     })
     .input(z.object({ recordType: ViewRecordType }))
-    .output(z.object({ data: z.array(View) })),
+    .output(listOf(View)),
   create: oc
     .route({
       method: 'POST',
@@ -119,5 +119,5 @@ export const viewsContract = {
       summary: 'What a list can be filtered by: fields, custom fields, the company, activity',
     })
     .input(z.object({ recordType: ViewRecordType }))
-    .output(z.object({ data: z.array(FilterField) })),
+    .output(listOf(FilterField)),
 };

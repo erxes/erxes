@@ -2,7 +2,7 @@ import { tags } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ContentType, Id, isoDate } from './common';
+import { ContentType, Id, isoDate, listOf } from './common';
 
 export const Tag = createSelectSchema(tags, { id: Id, createdAt: isoDate }).pick({
   id: true,
@@ -25,7 +25,7 @@ export const tagsContract = {
   list: oc
     .route({ method: 'GET', path: '/tags', summary: 'Tags of a record type, by name' })
     .input(z.object({ type: ContentType, search: z.string().trim().max(100).optional() }))
-    .output(z.object({ data: z.array(Tag) })),
+    .output(listOf(Tag)),
   create: oc
     .route({
       method: 'POST',

@@ -2,6 +2,7 @@ import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
 import { CORE_EVENT_TYPES, type EventTypeInfo, type Webhook } from '@erxes/core-contract';
 import { type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
@@ -90,11 +91,14 @@ export const findWebhook = async (client: Db, orgId: string, id: string) => {
 
 export const listWebhooks = async (client: Db, actor: Actor) => ({
   data: (
-    await client
-      .select()
-      .from(webhooks)
-      .where(eq(webhooks.orgId, actor.orgId))
-      .orderBy(desc(webhooks.createdAt))
+    await wholeList((limit) =>
+      client
+        .select()
+        .from(webhooks)
+        .where(eq(webhooks.orgId, actor.orgId))
+        .orderBy(desc(webhooks.createdAt))
+        .limit(limit),
+    )
   ).map(toWebhookDto),
 });
 
