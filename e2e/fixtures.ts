@@ -36,9 +36,10 @@ export const coreClient = (request: APIRequestContext, baseURL: string | undefin
           data: call.body ? Buffer.from(await call.arrayBuffer()) : undefined,
         });
 
-        const body = await response.body();
+        // A 204 must have no body at all, not an empty one.
+        const body = await response.text();
 
-        return new Response(body.length > 0 ? body : null, {
+        return new Response(body || null, {
           status: response.status(),
           headers: response.headers(),
         });

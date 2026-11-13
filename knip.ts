@@ -5,7 +5,12 @@ const config: KnipConfig = {
   workspaces: {
     '.': {
       entry: ['tools/lint/*/rules/*.test.ts'],
-      project: ['tools/**/*.ts'],
+      project: ['tools/**/*.ts', 'e2e/**/*.ts'],
+      // The daily flows in Chromium (pnpm e2e); the config names the specs and the setup file.
+      playwright: {
+        config: ['e2e/playwright.config.ts'],
+        entry: ['e2e/*.spec.ts', 'e2e/*.setup.ts'],
+      },
       // Copied from the HR plugin as a whole, with its vendored ESLint Stylistic rule.
       ignore: ['tools/lint/anti-slop/**'],
       // Oxlint runs its tsrs-lint binary through OXLINT_TSGOLINT_PATH in the check scripts.
