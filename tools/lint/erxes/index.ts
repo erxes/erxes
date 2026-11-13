@@ -178,10 +178,14 @@ const noOrgFilterRule = defineRule({
           const between = quasis[index + 1]?.value.raw ?? '';
           const next = expressions[index + 1];
 
-          // `org_id = ${value}`, or `${table.orgId} = ${value}`
+          // `org_id = ${value}`, `${value} = org_id` (quoted too), or
+          // `${table.orgId} = ${value}` either way round.
+          const pair = /^\s*=\s*$/.test(between) && next;
+
           const filter =
-            (/\borg_id\s*=\s*$/.test(before) && !isColumn(value)) ||
-            (isOrgId(value) && /^\s*=\s*$/.test(between) && !isColumn(next));
+            (!isColumn(value) &&
+              (/\borg_id"?\s*=\s*$/.test(before) || /^\s*=\s*"?org_id\b/.test(between))) ||
+            (pair && ((isOrgId(value) && !isColumn(next)) || (isOrgId(next) && !isColumn(value))));
 
           if (filter) context.report({ node, messageId: 'filter' });
         });
