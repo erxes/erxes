@@ -32,7 +32,7 @@ export const Slider = <Value extends number | readonly number[]>({
             <SliderPrimitive.Thumb
               key={index}
               index={index}
-              className="block h-4 w-4 rounded-full border border-primary/50 bg-background shadow transition-colors has-focus-visible:outline-hidden has-focus-visible:ring-1 has-focus-visible:ring-ring data-disabled:pointer-events-none data-disabled:opacity-50"
+              className="block h-4 w-4 rounded-full border border-primary bg-background shadow transition-colors has-focus-visible:outline-hidden has-focus-visible:ring-1 has-focus-visible:ring-ring data-disabled:pointer-events-none data-disabled:opacity-50"
             />
           ))}
       </SliderPrimitive.Control>
