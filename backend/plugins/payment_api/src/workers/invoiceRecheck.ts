@@ -56,13 +56,11 @@ const backfillOnce = async (
  * Re-checks one invoice with its provider and sends its paid notification.
  * Queues the next check while there is still something to wait for.
  */
-const recheckInvoice = async (job: Job<IInvoiceRecheckJobData>) => {
-  const { subdomain, invoiceId, attempt = 0 } = job.data || ({} as any);
-
-  if (!subdomain || !invoiceId) {
-    return;
-  }
-
+const runRecheck = async ({
+  subdomain,
+  invoiceId,
+  attempt = 0,
+}: IInvoiceRecheckJobData) => {
   const models = await generateModels(subdomain);
 
   await backfillOnce(subdomain, models);
@@ -131,12 +129,42 @@ const recheckInvoice = async (job: Job<IInvoiceRecheckJobData>) => {
     logError(
       `${subdomain}: paid notification for invoice ${invoiceId} failed: ${e.message}`,
     );
-    await scheduleInvoiceRecheck(subdomain, invoiceId, attempt + 1);
+    await scheduleInvoiceRecheck(subdomain, invoiceId, attempt + 1, {
+      forNotification: true,
+    });
 
     return 'notification failed, will retry';
   }
 
   return 'notified';
+};
+
+/**
+ * Any failure outside the guarded steps above (models, Redis, the invoice
+ * lookup) still queues the next check, so a transient error cannot end the
+ * chain: the failed job itself is removed and has no BullMQ retries.
+ */
+const recheckInvoice = async (job: Job<IInvoiceRecheckJobData>) => {
+  const data = job.data;
+
+  if (!data?.subdomain || !data?.invoiceId) {
+    return 'missing job data';
+  }
+
+  try {
+    return await runRecheck(data);
+  } catch (e) {
+    logError(
+      `${data.subdomain}: re-check of invoice ${data.invoiceId} failed: ${e.message}`,
+    );
+    await scheduleInvoiceRecheck(
+      data.subdomain,
+      data.invoiceId,
+      (data.attempt ?? 0) + 1,
+    );
+
+    return 'failed, will retry';
+  }
 };
 
 // Queues of the per-org cron this worker replaces. Removed on startup so a

@@ -19,6 +19,10 @@ export const RECHECK_DELAYS_MS = [
   8 * 60 * 60 * 1000,
 ];
 
+// A paid invoice whose notification keeps failing is retried past the
+// re-check schedule, every 8 hours for about three more days.
+const NOTIFY_MAX_ATTEMPTS = RECHECK_DELAYS_MS.length + 9;
+
 export interface IInvoiceRecheckJobData {
   subdomain: string;
   invoiceId: string;
@@ -41,16 +45,25 @@ export const scheduleInvoiceRecheck = async (
   subdomain: string,
   invoiceId: string,
   attempt = 0,
+  { forNotification = false }: { forNotification?: boolean } = {},
 ) => {
-  if (!invoiceId || attempt >= RECHECK_DELAYS_MS.length) {
+  const maxAttempts = forNotification
+    ? NOTIFY_MAX_ATTEMPTS
+    : RECHECK_DELAYS_MS.length;
+
+  if (!invoiceId || attempt >= maxAttempts) {
     return;
   }
+
+  // past the end of the schedule, keep the longest delay
+  const delay =
+    RECHECK_DELAYS_MS[Math.min(attempt, RECHECK_DELAYS_MS.length - 1)];
 
   await sendWorkerQueue(INVOICE_RECHECK_SERVICE, INVOICE_RECHECK_QUEUE).add(
     INVOICE_RECHECK_QUEUE,
     { subdomain: subdomain || 'os', invoiceId, attempt },
     {
-      delay: RECHECK_DELAYS_MS[attempt],
+      delay,
       jobId: `${INVOICE_RECHECK_QUEUE}-${invoiceId}-${attempt}`,
       removeOnComplete: true,
       removeOnFail: true,
