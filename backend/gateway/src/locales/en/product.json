@@ -418,7 +418,18 @@
     "similarity-removed": "Similarity removed",
     "check-required-fields": "Please fill in the required fields",
     "duplicate-codes_one": "{{count}} duplicate code across included products.",
-    "duplicate-codes_other": "{{count}} duplicate codes across included products."
+    "duplicate-codes_other": "{{count}} duplicate codes across included products.",
+    "similarities": "Similarities",
+    "similarity-detail": "Similarity group",
+    "details": "Details",
+    "media": "Media",
+    "actions": "Actions",
+    "create": "Create",
+    "discard": "Discard changes",
+    "load-failed": "Could not load the similarity group",
+    "not-found": "Similarity group not found",
+    "retry": "Retry",
+    "no-update-permission": "You can view this similarity group but not edit it."
   },
   "product-category": {
     "edit": "Edit",

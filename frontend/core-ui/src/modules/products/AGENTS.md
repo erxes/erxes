@@ -1,26 +1,28 @@
 # Products module (core-ui)
 
 The `/settings/products` app: the product list, product detail and create in
-the record side panel, packages in the same panel, categories, UOMs,
-conditions and the other product settings pages. Backend rules live in
-`backend/core-api/src/modules/products`; shared pieces (`PRODUCT_FORM_SCHEMA`,
-`useAddProduct`, `ProductFilesUpload`, `useProductFileLinks`) live in
-`frontend/libs/ui-modules/src/modules/products`.
+the record side panel, packages and similarity groups in the same panel,
+categories, UOMs, conditions and the other product settings pages. Backend
+rules live in `backend/core-api/src/modules/products`; shared pieces
+(`PRODUCT_FORM_SCHEMA`, `useAddProduct`, `ProductFilesUpload`,
+`useProductFileLinks`) live in `frontend/libs/ui-modules/src/modules/products`.
 
 ## Layout
 
-| Path                                                     | Responsibility                                                                              |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `product-detail/components/panel/ProductRecordPanel.tsx` | A saved product in the side panel (also `/settings/products/:id`)                           |
-| `product-detail/components/panel/ProductPanelNew.tsx`    | Create: a draft drawn with the same tabs, kept until Create                                 |
-| `product-detail/components/panel/ProductPanelFields.tsx` | The Details cells; each saves on its own                                                    |
-| `product-detail/hooks/useProductPanelSave.ts`            | Queued `productsEdit` saves built from the cached product                                   |
-| `product-detail/utils/productFormValues.ts`              | Product ⇄ form values ⇄ `productsEdit` variables                                            |
-| `hooks/useProductConditionToggle.ts`                     | Adds or removes one condition (`productsSetConditionCodes`)                                 |
-| `product-detail/components/panel/ProductPanelCells.tsx`  | Panel cells other record panels share (vendor, currency, errors)                            |
-| `packages/components/panel/PackageRecordPanel.tsx`       | A package in the side panel (`core:productPackage`, also `/settings/products/packages/:id`) |
-| `packages/components/panel/PackagePanelNew.tsx`          | Create a package: a draft with the same tabs, kept until Create                             |
-| `packages/hooks/usePackagePanelSave.ts`                  | Queued `productPackagesEdit` saves of one changed field each                                |
+| Path                                                         | Responsibility                                                                                              |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `product-detail/components/panel/ProductRecordPanel.tsx`     | A saved product in the side panel (also `/settings/products/:id`)                                           |
+| `product-detail/components/panel/ProductPanelNew.tsx`        | Create: a draft drawn with the same tabs, kept until Create                                                 |
+| `product-detail/components/panel/ProductPanelFields.tsx`     | The Details cells; each saves on its own                                                                    |
+| `product-detail/hooks/useProductPanelSave.ts`                | Queued `productsEdit` saves built from the cached product                                                   |
+| `product-detail/utils/productFormValues.ts`                  | Product ⇄ form values ⇄ `productsEdit` variables                                                            |
+| `hooks/useProductConditionToggle.ts`                         | Adds or removes one condition (`productsSetConditionCodes`)                                                 |
+| `product-detail/components/panel/ProductPanelCells.tsx`      | Panel cells other record panels share (vendor, currency, errors)                                            |
+| `bulk-similarity/components/panel/SimilarityRecordPanel.tsx` | A similarity group in the side panel (`core:productSimilarity`, also `/settings/products/similarities/:id`) |
+| `bulk-similarity/components/panel/SimilarityPanelForm.tsx`   | The group's form as panel tabs, saved only on Save                                                          |
+| `packages/components/panel/PackageRecordPanel.tsx`           | A package in the side panel (`core:productPackage`, also `/settings/products/packages/:id`)                 |
+| `packages/components/panel/PackagePanelNew.tsx`              | Create a package: a draft with the same tabs, kept until Create                                             |
+| `packages/hooks/usePackagePanelSave.ts`                      | Queued `productPackagesEdit` saves of one changed field each                                                |
 
 ## Rules
 
@@ -60,10 +62,19 @@ conditions and the other product settings pages. Backend rules live in
 - Packages are read-only in the panel without `productsUpdate`; Delete
   needs `productsDelete` and archives the package.
 - Legacy `?activePackageId=` links redirect to the side panel.
+- A similarity group is never saved per field: Save regenerates its
+  products. Cells write to the form; after Save, or Discard, the form is
+  re-keyed so it and its editors read the saved group.
+- Similarity groups are read-only in the panel without `productsUpdate`;
+  Delete needs `productsDelete` and keeps the group's products.
+- Legacy `?similarityId=` links redirect to the side panel.
 
 ## Known limitations
 
 - Plugin form widgets (`FormWidgetSideTabs`) are not shown in the product
   panel, because no plugin registers one for `core:product`. A plugin that
   adds one needs a tab for it in `ProductRecordPanel` and `ProductPanelNew`.
-- Packages have no activity log.
+- A product's own Similarity tab still creates a group in a sheet
+  (`ProductSimilarityCreateSheet` → `BulkProductSheetForm`), and the variant
+  field and product chooser pickers open as sheets over the panel.
+- Packages and similarity groups have no activity log.

@@ -49,6 +49,7 @@ import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 import { PRODUCT_CONTENT_TYPE } from '@/products/constants/productQueryKey';
 import { PACKAGE_CONTENT_TYPE } from '@/products/packages/constants/packageContentType';
+import { SIMILARITY_CONTENT_TYPE } from '@/products/bulk-similarity/constants/similarityContentType';
 import { ProductsPath } from '@/types/paths/ProductsPath';
 import {
   TeamMembersPath,
@@ -96,6 +97,13 @@ const PackageRecordPanel = lazy(() =>
       default: module.PackageRecordPanel,
     }),
   ),
+);
+const SimilarityRecordPanel = lazy(() =>
+  import(
+    '@/products/bulk-similarity/components/panel/SimilarityRecordPanel'
+  ).then((module) => ({
+    default: module.SimilarityRecordPanel,
+  })),
 );
 const CPUserRecordPanel = lazy(() =>
   import(
@@ -719,6 +727,13 @@ export const SidePanelRecord = (
       </Suspense>
     );
   }
+  if (props.record.contentType === SIMILARITY_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <SimilarityRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.record.contentType === 'core:approvalRequest') {
     return (
       <Suspense fallback={<Skeleton className="m-3 h-32" />}>
@@ -771,6 +786,11 @@ export const SidePanelLayout = () => {
     }
     if (record.contentType === PACKAGE_CONTENT_TYPE) {
       return `${ProductsPath.Packages}/${encodeURIComponent(record.contentId)}`;
+    }
+    if (record.contentType === SIMILARITY_CONTENT_TYPE) {
+      return `${ProductsPath.Similarities}/${encodeURIComponent(
+        record.contentId,
+      )}`;
     }
     if (record.contentType === USER_CONTENT_TYPE) {
       return `${TeamMembersPath.Index}${

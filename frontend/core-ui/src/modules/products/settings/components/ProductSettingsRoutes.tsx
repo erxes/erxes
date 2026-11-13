@@ -80,6 +80,12 @@ const PackageDetailPage = lazy(() =>
   })),
 );
 
+const SimilarityDetailPage = lazy(() =>
+  import('~/pages/products/SimilarityDetailPage').then((module) => ({
+    default: module.SimilarityDetailPage,
+  })),
+);
+
 export const ProductsSettingRoutes = () => {
   return (
     <Suspense fallback={<></>}>
@@ -93,6 +99,7 @@ export const ProductsSettingRoutes = () => {
           element={<ProductsSimilarityGroupPage />}
         />
         <Route path="similarities" element={<ProductsSimilaritiesPage />} />
+        <Route path="similarities/:id" element={<SimilarityDetailPage />} />
         <Route
           path="bundle-condition"
           element={<ProductsBundleConditionPage />}

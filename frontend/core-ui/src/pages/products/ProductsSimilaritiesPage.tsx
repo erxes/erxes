@@ -1,30 +1,25 @@
-import { Button, PageContainer, useQueryState } from 'erxes-ui';
+import { Button, PageContainer } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ProductsHeader } from '@/products/components/ProductsHeader';
 import { ProductSidebar } from '@/products/components/ProductSidebar';
 import { BulkProductAddSheet } from '@/products/bulk-similarity/components/BulkProductAddSheet';
-import { BulkProductEditSheet } from '@/products/bulk-similarity/components/BulkProductEditSheet';
 import { SimilarityList } from '@/products/bulk-similarity/components/SimilarityList';
-import { useProductSimilarity } from '@/products/bulk-similarity/hooks/useProductSimilarityDetail';
+import {
+  SIMILARITY_CONTENT_TYPE,
+  SIMILARITY_QUERY_KEY,
+} from '@/products/bulk-similarity/constants/similarityContentType';
+import { RecordDetailLink } from '@/side-panel/components/RecordDetailLink';
 
 export const ProductsSimilaritiesPage = () => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const [creating, setCreating] = useState(false);
-  const [editId, setEditId] = useQueryState<string>('similarityId');
-  const { similarity } = useProductSimilarity(editId || undefined);
 
-  const handleNew = () => {
-    setEditId(null);
-    setCreating(true);
-  };
+  const handleNew = () => setCreating(true);
 
   const handleOpenChange = (next: boolean) => {
-    if (!next) {
-      setCreating(false);
-      setEditId(null);
-    }
+    if (!next) setCreating(false);
   };
 
   return (
@@ -44,15 +39,10 @@ export const ProductsSimilaritiesPage = () => {
 
       <BulkProductAddSheet open={creating} onOpenChange={handleOpenChange} />
 
-      {/* when editing, wait for the record to load before mounting the form so
-          react-hook-form picks up the real default values */}
-      {!!editId && !!similarity && (
-        <BulkProductEditSheet
-          open
-          onOpenChange={handleOpenChange}
-          similarity={similarity}
-        />
-      )}
+      <RecordDetailLink
+        queryKey={SIMILARITY_QUERY_KEY}
+        contentType={SIMILARITY_CONTENT_TYPE}
+      />
     </PageContainer>
   );
 };
