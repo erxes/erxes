@@ -1,4 +1,3 @@
-import type { ThreadStore, User } from '@blocknote/core/comments';
 import type { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { useEffect } from 'react';
@@ -13,10 +12,8 @@ export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
-  comments?: { threadStore: ThreadStore };
-  resolveUsers?: (userIds: string[]) => Promise<User[]>;
 }): IBlockEditor => {
-  const { placeholder, uploadFile, ...restArgs } = args ?? {};
+  const { initialContent, placeholder, uploadFile } = args ?? {};
 
   const { toast } = useToast();
 
@@ -33,19 +30,16 @@ export const useBlockEditor = (args?: {
     }
   };
 
-  const editor = useCreateBlockNote(
-    {
-      schema: BLOCK_SCHEMA,
-      tables: TABLE_SCHEMA,
-      placeholders: {
-        default: placeholder || "Type '/' for commands...",
-      },
-      uploadFile: uploadFile ?? defaultUploadFile,
-      resolveFileUrl: (url) => Promise.resolve(readImage(url)),
-      ...restArgs,
+  const editor = useCreateBlockNote({
+    schema: BLOCK_SCHEMA,
+    tables: TABLE_SCHEMA,
+    placeholders: {
+      default: placeholder || "Type '/' for commands...",
     },
-    [restArgs.comments?.threadStore],
-  );
+    uploadFile: uploadFile ?? defaultUploadFile,
+    resolveFileUrl: (url) => Promise.resolve(readImage(url)),
+    initialContent,
+  });
 
   useEffect(() => {
     const exportHTML = editor.blocksToHTMLLossy.bind(editor);

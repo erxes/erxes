@@ -1,6 +1,6 @@
 /*
  * App-level styles: the BlockNote editor (slash menu, toolbar, drag handle,
- * headings, theme variables), its comment cards, and the sidebar menu look.
+ * headings, theme variables) and the sidebar menu look.
  */
 .bn-shadcn {
   --background: 0 0% 100%;
@@ -190,78 +190,6 @@
   --border: var(--erxes-block-border);
   --input: var(--erxes-block-input);
   --ring: var(--erxes-block-ring);
-}
-
-.erxes-comment-card {
-  background-color: var(--erxes-block-background);
-  color: var(--erxes-block-foreground);
-  isolation: isolate;
-}
-
-.erxes-comment-card button.erxes-comment-save {
-  min-height: 2rem;
-  height: auto;
-  padding: 0.375rem 1rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
-  font-weight: 500;
-  border-width: 1px;
-  border-style: solid;
-  background-color: var(--erxes-block-primary);
-  border-color: var(--erxes-block-primary);
-  color: var(--erxes-block-primary-foreground);
-}
-
-.erxes-comment-card textarea {
-  padding: 0.75rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
-}
-
-.erxes-comment-card textarea.bn-comment-editor:focus {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-}
-
-.erxes-comment-card button.erxes-comment-icon,
-.erxes-comment-card button.erxes-comment-secondary {
-  height: 1.75rem;
-  padding: 0.25rem 0.75rem;
-  border-width: 0;
-  background-color: transparent;
-  color: var(--erxes-block-foreground);
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
-  font-weight: 500;
-}
-.erxes-comment-card button.erxes-comment-icon {
-  width: 1.75rem;
-  padding: 0.25rem;
-}
-.erxes-comment-card button.erxes-comment-icon:hover,
-.erxes-comment-card button.erxes-comment-secondary:hover {
-  background-color: var(--erxes-block-accent);
-}
-
-.erxes-comment-card .bn-comment-actions-wrapper {
-  padding-top: 0.25rem;
-}
-
-.erxes-comment-card button.erxes-comment-reaction {
-  height: 1.75rem;
-  padding: 0.25rem 0.625rem;
-  border: 1px solid var(--erxes-block-border);
-  border-radius: 9999px;
-  background-color: var(--erxes-block-background);
-  color: var(--erxes-block-foreground);
-}
-.erxes-comment-card button.erxes-comment-reaction[aria-pressed='true'] {
-  border-color: transparent;
-  background-color: var(--erxes-block-accent);
-  color: var(--erxes-block-primary);
-}
-.erxes-comment-card button.erxes-comment-reaction:hover {
-  background-color: var(--erxes-block-accent);
 }
 
 /* Sidebar body (plugin ./sidebar remotes, core modules): top-level groups use
