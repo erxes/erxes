@@ -36,10 +36,9 @@ import { Combobox, Editor, Popover, ScrollArea, TextField } from 'erxes-ui';
 import { type ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ContactRecordChip,
+  ContactsRelationField,
   PanelDescriptionField,
   PanelField,
-  useSidePanel,
 } from 'ui-modules';
 
 const SCOPE = 'side-panel-ticket';
@@ -70,7 +69,7 @@ export const TicketPanelName = ({ ticket }: { ticket: ITicketDetail }) => {
 
 const TicketPanelFields = ({ ticket }: { ticket: ITicketDetail }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
-  const { openRecord } = useSidePanel();
+  const { updateTicket } = useUpdateTicket();
   const { canEditTicket: canEdit, canMoveTicket: canMove } =
     useTicketDetailPermissions(ticket);
   const { _id } = ticket;
@@ -185,7 +184,6 @@ const TicketPanelFields = ({ ticket }: { ticket: ITicketDetail }) => {
       </PanelField>
       {(['customer', 'company'] as const).map((kind) => {
         const field = kind === 'customer' ? 'customerId' : 'companyId';
-        const value = ticket[field];
 
         return (
           <PanelField
@@ -197,22 +195,22 @@ const TicketPanelFields = ({ ticket }: { ticket: ITicketDetail }) => {
                 : t('company-label', { keyPrefix: '' })
             }
           >
-            {value ? (
-              <ContactRecordChip
-                kind={kind}
-                id={value}
-                onOpen={() =>
-                  openRecord(
-                    { contentType: `core:${kind}`, contentId: value },
-                    { stack: true },
-                  )
-                }
-              />
-            ) : (
-              <span className="px-1 text-xs text-muted-foreground">
-                {t('not-specified')}
-              </span>
-            )}
+            <ContactsRelationField
+              kind={kind}
+              value={ticket[field]}
+              scope={`${SCOPE}.${kind}`}
+              readOnly={!canEdit}
+              onValueChange={(id) =>
+                updateTicket({
+                  variables:
+                    kind === 'customer'
+                      ? { _id, customerId: id }
+                      : { _id, companyId: id },
+                  update: (cache) =>
+                    cache.evict({ id: 'ROOT_QUERY', fieldName: 'getTickets' }),
+                })
+              }
+            />
           </PanelField>
         );
       })}

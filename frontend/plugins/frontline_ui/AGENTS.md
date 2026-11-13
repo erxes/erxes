@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-13`
 
 ## Scope
 
@@ -466,8 +466,11 @@
   ticket record panel's actions view and in the `TicketDetailPage` header; the
   fields row carries no actions. The
   notification ticket view's `Open ticket` button opens the same record panel.
-  `TicketPanelDetail` shows linked customers and companies through
-  `ContactRecordChip`, opening each contact with stacked navigation.
+  `TicketPanelDetail` shows the ticket's one customer and one company through
+  ui-modules `ContactsRelationField`: each chip opens the contact with stacked
+  navigation, and the picker sets or clears `customerId` / `companyId` through
+  `updateTicket` (evicting cached `getTickets` lists). Without edit permission
+  the field is read-only.
   While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
