@@ -92,6 +92,16 @@ Errors assert as
 `rejects.toMatchObject({ status, code })`. Use raw `fetch` with `url()` and `headers()` only for
 cookies, CSRF, signed links and exports.
 
+## Models
+
+`verify/tla` has TLA+ models of the file lifecycle (`modules/files`) and the job queue
+(`modules/jobs`). Any change to those modules or their tables means updating the model in the
+same PR and rerunning `pnpm verify:models`, which runs TLC with pinned Java. Every model action
+names the `file:line` it stands for. Replay a counterexample against the code: a step the code
+can't take is a modeling error, and a trace the code can follow is a product bug. Never weaken a
+property to make it pass. `src/__tests__/concurrency.test.ts` replays each property on real
+Postgres. Follow `.agents/skills/verify-models/SKILL.md`.
+
 ## Check
 
 `pnpm check`, `DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes pnpm test`,
