@@ -2,6 +2,7 @@ import { roles } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { RoleKey } from './values';
 
 /**
  * What a member may do, as actions (`contacts.delete`). Roles are named sets
@@ -109,14 +110,6 @@ export const PermissionAction = z
   .string()
   .trim()
   .regex(/^(\*|[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+)$/, 'an action like contacts.delete');
-
-/** `owner`, `admin`, `member`, or a custom role's `r_<id>`. */
-export const RoleKey = z
-  .string()
-  .trim()
-  .regex(/^(owner|admin|member|r_[A-Za-z0-9]{6,40})$/, 'a role');
-
-export type RoleKey = z.infer<typeof RoleKey>;
 
 export const Role = createSelectSchema(roles)
   .pick({ key: true, name: true, description: true, permissions: true, builtin: true })

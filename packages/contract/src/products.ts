@@ -1,8 +1,9 @@
-import { PRODUCT_KINDS, PRODUCT_STATUSES } from '@erxes/core-db/enums';
+import { PRODUCT_STATUSES } from '@erxes/core-db/enums';
 import { productCategories, products } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { ProductKind } from './values';
 import {
   CursorQuery,
   CustomFields,
@@ -15,10 +16,6 @@ import {
 } from './common';
 import { Currency } from './money';
 import { PluginName } from './plugins';
-
-export const ProductKind = z.enum(PRODUCT_KINDS);
-
-export type ProductKind = z.infer<typeof ProductKind>;
 
 export const ProductStatus = z.enum(PRODUCT_STATUSES);
 

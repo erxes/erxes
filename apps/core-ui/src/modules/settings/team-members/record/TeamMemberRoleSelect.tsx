@@ -1,4 +1,4 @@
-import type { User, UserRole } from '@erxes/core-contract';
+import type { User, RoleKey } from '@erxes/core-contract';
 import { IconCheck } from '@tabler/icons-react';
 import { Command, PopoverScoped, RecordTableInlineCell } from 'erxes-ui';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ export const TeamMemberRoleSelect = ({ user }: { user: User }) => {
     return <RecordTableInlineCell>{value}</RecordTableInlineCell>;
   }
 
-  const handleRoleChange = (role: UserRole) => {
+  const handleRoleChange = (role: RoleKey) => {
     if (role === user.role) return setOpen(false);
 
     edit.mutate({ id: user.id, role }, { onSuccess: () => setOpen(false) });

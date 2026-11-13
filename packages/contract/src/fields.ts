@@ -1,31 +1,9 @@
-import { FIELD_TYPES, FIELD_VALIDATIONS } from '@erxes/core-db/enums';
 import { fieldGroups, fields } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { type FieldType, OPTION_FIELD_TYPES } from './values';
 import { FieldContentType, Id, IdList, isoDate, QueryBoolean } from './common';
-
-export const FieldType = z.enum(FIELD_TYPES);
-
-export type FieldType = z.infer<typeof FieldType>;
-
-/** Field types whose values are chosen from `options`. */
-export const OPTION_FIELD_TYPES: readonly FieldType[] = ['select', 'multiselect', 'radio', 'check'];
-
-/**
- * Types sharing a stored value: a field holding values may only change within
- * its family; an unused field may become any type.
- */
-export const FIELD_TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
-  ['select', 'radio'],
-  ['multiselect', 'check'],
-  ['text', 'textarea', 'phone'],
-];
-
-/** Format a text field's values must have. */
-export const FieldValidation = z.enum(FIELD_VALIDATIONS);
-
-export type FieldValidation = z.infer<typeof FieldValidation>;
 
 /** A custom field ("property") on customers or companies. */
 const int = () => z.int();

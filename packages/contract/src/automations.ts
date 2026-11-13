@@ -1,13 +1,11 @@
-import { AUTOMATION_STATUSES } from '@erxes/core-db/enums';
 import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { AutomationStatus } from './values';
 import { AutomationDefinition } from './automationDefinition';
 import { ActionInfo, AutomationRun, RunStatus, RunStep } from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
-
-export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
 
 export const Automation = createSelectSchema(automations, {
   id: Id,

@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
+import { NewPassword } from './values';
 import { Organization, OrganizationRegion } from './organizations';
 import { User } from './users';
 
@@ -11,15 +12,6 @@ export const Session = z.object({
 });
 
 export type Session = z.infer<typeof Session>;
-
-/** At least 8 characters with a lower-case letter, an upper-case letter and a digit (as old erxes). */
-export const NewPassword = z
-  .string()
-  .min(8, 'At least 8 characters')
-  .max(200)
-  .regex(/[a-z]/, 'Add a lower-case letter')
-  .regex(/[A-Z]/, 'Add an upper-case letter')
-  .regex(/\d/, 'Add a digit');
 
 export const authContract = {
   setupStatus: oc

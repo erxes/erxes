@@ -23,11 +23,6 @@ import { viewsContract } from './views';
 import { transferContract } from './transfer';
 import { leadsContract } from './leads';
 
-export const CORE_API_VERSION = 'v1';
-
-/** Every path in the contract is under this prefix (`/core/v1/customers`, …). */
-export const CORE_API_PREFIX = '/core/v1';
-
 /** The whole core API. Core implements it; plugins call it with a typed client. */
 export const coreContract = {
   activities: activitiesContract,
@@ -112,6 +107,8 @@ export * from './trash';
 export * from './transfer';
 
 export * from './users';
+
+export * from './values';
 
 export * from './views';
 
