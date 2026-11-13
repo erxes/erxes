@@ -56,7 +56,7 @@ export type UserLinkName = z.infer<typeof UserLinkName>;
 // ─── Records ────────────────────────────────────────────────────────────────
 
 /** ISO/IEC 5218, as in erxes until now: 0 not known, 1 male, 2 female, 9 not applicable. */
-export const CustomerSex = z.literal(CUSTOMER_SEXES);
+export const CustomerSex = z.union(CUSTOMER_SEXES.map((code) => z.literal(code)));
 
 export type CustomerSex = z.infer<typeof CustomerSex>;
 

@@ -1,3 +1,4 @@
+import { FIELD_TYPE_FAMILIES } from '@erxes/core-contract';
 import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import type { Actor, Caller } from '~/http/auth';
@@ -26,15 +27,8 @@ type FieldValidation = NonNullable<FieldRow['validation']>;
 
 const TEXT_TYPES: readonly FieldType[] = ['text', 'textarea'];
 
-/** Types sharing a stored value (mirrors the contract's FIELD_TYPE_FAMILIES). */
-const TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
-  ['select', 'radio'],
-  ['multiselect', 'check'],
-  ['text', 'textarea', 'phone'],
-];
-
 const sameFamily = (from: FieldType, to: FieldType) =>
-  from === to || TYPE_FAMILIES.some((family) => family.includes(from) && family.includes(to));
+  from === to || FIELD_TYPE_FAMILIES.some((family) => family.includes(from) && family.includes(to));
 
 const findField = async (client: Db, orgId: string, id: string) => {
   const [row] = await client

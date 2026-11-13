@@ -1,4 +1,4 @@
-import { USER_STATUSES } from '../enums';
+import { type NOTIFICATION_DELIVERIES, USER_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -99,7 +99,7 @@ export const users = pgTable(
     notificationSettings: jsonb()
       .$type<{
         muted?: string[];
-        groups?: Record<string, 'email' | 'inbox' | 'off'>;
+        groups?: Record<string, (typeof NOTIFICATION_DELIVERIES)[number]>;
         email?: boolean;
         browser?: boolean;
       }>()

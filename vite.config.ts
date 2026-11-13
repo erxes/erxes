@@ -213,7 +213,7 @@ export default defineConfig({
       {
         // The one place that implements the contract; feature routers import its builders.
         files: ['apps/core-api/src/orpc.ts'],
-        rules: { 'no-restricted-imports': 'off' },
+        rules: { 'no-restricted-imports': ['error', { paths: [...decided, ...nodeCrypto] }] },
       },
       {
         // A test file's describe callback holds all its cases; max-lines still bounds the file.
