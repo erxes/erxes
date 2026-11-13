@@ -20,18 +20,15 @@ const MAX_PANEL_HISTORY = 20;
 export const sidePanelHistoryState = atom<string[]>([]);
 
 /** The history entry's state: the panel's tab and the tabs of the records behind it (kept with other state). */
-const RouterState = z
-  .looseObject({
-    sidePanel: z
-      .object({
-        path: z.string().nullable(),
-        tab: z.string(),
-        history: z.array(z.object({ path: z.string(), tab: z.string() })),
-      })
-      .optional(),
-  })
-  .nullable()
-  .catch(null);
+const RouterState = z.looseObject({
+  sidePanel: z
+    .object({
+      path: z.string().nullable(),
+      tab: z.string(),
+      history: z.array(z.object({ path: z.string(), tab: z.string() })),
+    })
+    .optional(),
+});
 
 const PanelHistory = z.array(z.unknown());
 
@@ -57,7 +54,8 @@ export const usePanelRoute = (sourcePath: string | null) => {
 
   const path = queries.panel ?? null;
   const location = useLocation();
-  const routerState = RouterState.parse(location.state);
+  // Another page's state, or none, keeps no panel tabs.
+  const routerState = RouterState.safeParse(location.state).data;
   const saved = routerState?.sidePanel;
   const navigationState = saved?.path === path ? saved : undefined;
 

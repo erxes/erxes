@@ -12,9 +12,10 @@ import type { FieldInfo } from './useAutomationFields';
 const RELATIVE_UNITS = RelativeAmount.shape.unit.unwrap().options;
 
 /** What the rule holds so far: a half-typed amount is still shown. */
-const RelativeValue = z
-  .object({ amount: z.number().optional(), unit: z.enum(RELATIVE_UNITS).optional() })
-  .catch({});
+const RelativeValue = z.object({
+  amount: z.number().optional(),
+  unit: z.enum(RELATIVE_UNITS).optional(),
+});
 
 type ValueProps = {
   rule: ConditionRule;
@@ -26,7 +27,8 @@ type ValueProps = {
 
 const RelativeInput = ({ rule, onChange, disabled }: ValueProps) => {
   const { t } = useTranslation('automations');
-  const current = RelativeValue.parse(rule.value ?? {});
+  // A value from another operator (a list, a date) starts the relative input empty.
+  const current = RelativeValue.safeParse(rule.value).data ?? {};
 
   return (
     <div className="flex w-full items-center gap-1">

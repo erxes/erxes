@@ -81,13 +81,16 @@ export const targetOf = (parts: FilterPart[], field: FilterField, editing: numbe
   return index < 0 ? null : index;
 };
 
-const Values = z.array(z.union([z.string(), z.number()]).transform(String)).catch([]);
+const Values = z.array(z.union([z.string(), z.number()]).transform(String));
 
-/** The values a rule picks: the list of "is any of", or the one of "is". */
+/**
+ * The values a rule picks: the list of "is any of", or the one of "is". A value that isn't text or
+ * numbers (a date range, a relative amount) picks nothing.
+ */
 export const valuesOf = (rule: ConditionRule | undefined): string[] => {
   if (!rule || rule.value === undefined || rule.value === null) return [];
 
-  return rule.op === 'in' ? Values.parse(rule.value) : Values.parse([rule.value]);
+  return Values.safeParse(rule.op === 'in' ? rule.value : [rule.value]).data ?? [];
 };
 
 /** Picks or unpicks a value of an "is any of" rule; null when nothing is left picked. */
