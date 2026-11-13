@@ -1,7 +1,8 @@
 # erxes core API. Build from the repository root:
 #   docker build -f apps/core-api/Dockerfile -t erxes-core-api .
-# Runs `node dist/main.js`; operators also get dist/migrate.js, dist/grant.js
-# and dist/plugin-role.js (see deploy/docker-compose.yml).
+# Runs `node --import ./dist/instrumentation.js dist/main.js` (tracing loads
+# first, so it can patch http, express and pg); operators also get
+# dist/migrate.js, dist/grant.js and dist/plugin-role.js (see deploy/docker-compose.yml).
 FROM node:24-bookworm-slim AS build
 RUN npm install -g pnpm@11.5.2
 # The root `prepare` script installs git hooks; the image has no git and never commits.
@@ -40,4 +41,4 @@ USER node
 EXPOSE 3400
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3400)+'/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
-CMD ["node", "--enable-source-maps", "dist/main.js"]
+CMD ["node", "--enable-source-maps", "--import", "./dist/instrumentation.js", "dist/main.js"]

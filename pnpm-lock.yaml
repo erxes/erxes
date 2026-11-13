@@ -105,6 +105,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      import-in-the-middle:
+        specifier: ^3.6.0
+        version: 3.6.0
       ipaddr.js:
         specifier: ^2.5.0
         version: 2.5.0

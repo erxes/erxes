@@ -6,10 +6,10 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 
 - `src/main.ts` loads the signing keys, applies migrations, registers `CORE_PLUGIN_KEYS`, starts the
   server, the cleanup and audit checkpoints (`src/lib/maintenance.ts`), the live updates listener
-  (`src/modules/live/hub.ts`) and the event processor (`src/modules/events/processor.ts`). Its
-  first import is `src/instrumentation.ts`.
-- `src/instrumentation.ts` starts OpenTelemetry (http, express, pg, oRPC) before anything else
-  loads. Spans leave the process only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
+  (`src/modules/live/hub.ts`) and the event processor (`src/modules/events/processor.ts`).
+- `src/instrumentation.ts` starts OpenTelemetry (http, express, pg, oRPC). Node preloads it with
+  `--import` (the `dev` and `start` scripts, the Dockerfile CMD): it registers the ESM loader hook
+  that lets the instrumentations patch modules, so it must run before the app loads. Spans leave the process only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
 - `src/logger.ts` has the pino `logger`, its redaction list and `traced(name, run)`.
 - `src/app.ts` builds the Express app: `authenticate`, the live stream, the signed file links, then
   `coreApi`.

@@ -1,12 +1,15 @@
 import { cpSync } from 'node:fs';
 import { defineConfig } from 'tsdown';
 
-// One ESM bundle; workspace packages are inlined, npm packages stay external.
+// One ESM bundle; workspace packages are inlined, npm packages stay external
+// (OpenTelemetry patches http, express and pg only as node loads them).
 export default defineConfig({
-  // The server, plus the operator commands a container runs without tsx:
+  // The server, its tracing preload (`node --import ./dist/instrumentation.js dist/main.js`),
+  // and the operator commands a container runs without tsx:
   //   node dist/migrate.js · node dist/grant.js <role> · node dist/plugin-role.js <plugin>
   entry: {
     main: 'src/main.ts',
+    instrumentation: 'src/instrumentation.ts',
     migrate: 'scripts/migrate.ts',
     grant: 'scripts/grant.ts',
     'plugin-role': 'scripts/plugin-role.ts',
