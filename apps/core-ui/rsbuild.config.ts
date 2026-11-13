@@ -38,7 +38,7 @@ export default defineConfig({
     // The React Compiler memoizes components and hooks, so a state change re-renders only
     // what reads it. Babel runs it on our own source before SWC; node_modules stay as shipped.
     pluginBabel({
-      include: [resolve(__dirname, 'src'), ui],
+      include: [resolve(import.meta.dirname, 'src'), ui],
       babelLoaderOptions: (options) => {
         options.plugins ??= [];
         options.plugins.unshift(reactCompiler);
