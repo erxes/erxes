@@ -1,7 +1,8 @@
 import { IconCategory, IconChevronLeft, IconHierarchy2 } from '@tabler/icons-react';
 import { AppLayout, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { PageOutlet } from '~/components/CrashBoundary';
 import { PropertiesSettingsRoutes } from '~/modules/settings/properties/PropertiesSettingsRoutes';
 import { PRODUCTS_PATH } from '../paths';
 import { CategoriesPage } from './CategoriesPage';
@@ -62,7 +63,7 @@ const ProductsSettingsLayout = () => {
       title={t('settings.title', 'Products settings')}
       sidebar={<ProductsSettingsSidebar />}
     >
-      <Outlet />
+      <PageOutlet />
     </AppLayout>
   );
 };

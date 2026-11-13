@@ -30,7 +30,8 @@ Use synthetic data only. Never point the app at a copy of production data.
 5. For a render crash, in development run
    `dispatchEvent(new CustomEvent('erxes:crash', { detail: 'page' }))` (or `'app'`) in the browser
    console: the page (or the whole app) shows what failed with Try again and Reload, and Try again
-   brings it back with the top bar's state kept.
+   brings it back with the top bar's state kept. A page inside a module keeps the module's
+   sidebar, since every layout renders its route through `PageOutlet`.
 6. For API-only changes call the endpoint:
    `curl -H "authorization: Bearer <token>" http://localhost:3400/core/v1/<path>`
    (`pnpm bootstrap --subdomain acme --name "Acme" --email owner@acme.mn --password '<password>'`

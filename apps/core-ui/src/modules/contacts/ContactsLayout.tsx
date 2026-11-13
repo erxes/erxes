@@ -9,7 +9,8 @@ import {
 import { AppLayout, AppLayoutFooterLink, cn, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { PageOutlet } from '~/components/CrashBoundary';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 import { ContactsPath } from './utils/contactDetailPath';
 import type { ViewRecordType } from '@erxes/core-contract';
@@ -148,7 +149,7 @@ export const ContactsLayout = () => {
         }
       >
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <Outlet />
+          <PageOutlet />
         </div>
       </AppLayout>
       <SidePanelLayout fallback />

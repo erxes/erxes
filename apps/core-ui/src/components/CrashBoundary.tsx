@@ -1,9 +1,10 @@
 import { IconAlertTriangle, IconRefresh, IconReload } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { useEffect, useState, type ReactNode } from 'react';
+import { createContext, Suspense, use, useEffect, useState, type ReactNode } from 'react';
 import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import { PageSpinner } from '~/components/PageSpinner';
 import { messageOf } from '~/lib/api';
 
 /**
@@ -41,27 +42,41 @@ const CrashFallback = ({ scope }: { scope: CrashScope }) => {
   );
 };
 
+/** Development only: a page boundary tells the one above it that it takes the forced crash. */
+const OuterPage = createContext<((nested: boolean) => void) | null>(null);
+
 /**
  * Development only: `dispatchEvent(new CustomEvent('erxes:crash', { detail: 'page' }))`
- * in the browser console makes the next render throw, to try the fallback. The state lives
+ * in the browser console makes the next render throw, to try the fallback. Page boundaries
+ * nest (MainLayout, then a module layout), and only the innermost throws. The state lives
  * below the boundary, so "Try again" remounts it and the page recovers.
  */
-const DevCrash = ({ scope }: { scope: CrashScope }) => {
+const DevCrash = ({ scope, children }: { scope: CrashScope; children: ReactNode }) => {
   const [crash, setCrash] = useState(false);
+  const [nested, setNested] = useState(false);
+  const outer = use(OuterPage);
+
+  useEffect(() => {
+    if (scope !== 'page' || !outer) return;
+
+    outer(true);
+
+    return () => outer(false);
+  }, [scope, outer]);
 
   useEffect(() => {
     const onCrash = (event: Event) => {
-      if (event instanceof CustomEvent && event.detail === scope) setCrash(true);
+      if (event instanceof CustomEvent && event.detail === scope && !nested) setCrash(true);
     };
 
     window.addEventListener('erxes:crash', onCrash);
 
     return () => window.removeEventListener('erxes:crash', onCrash);
-  }, [scope]);
+  }, [scope, nested]);
 
   if (crash) throw new Error(`Forced ${scope} crash (development only)`);
 
-  return null;
+  return scope === 'page' ? <OuterPage value={setNested}>{children}</OuterPage> : children;
 };
 
 /** A render error below shows what failed, with retry and reload. Moving to another page resets it. */
@@ -76,8 +91,19 @@ export const CrashBoundary = ({ scope, children }: { scope: CrashScope; children
       }
       fallback={<CrashFallback scope={scope} />}
     >
-      {import.meta.env.DEV && <DevCrash scope={scope} />}
-      {children}
+      {import.meta.env.DEV ? <DevCrash scope={scope}>{children}</DevCrash> : children}
     </ErrorBoundary>
   );
 };
+
+/**
+ * Where a layout renders its route. A crash or a lazy load replaces only the route,
+ * so the layout's sidebar (Contacts, Settings, …) stays usable.
+ */
+export const PageOutlet = () => (
+  <CrashBoundary scope="page">
+    <Suspense fallback={<PageSpinner />}>
+      <Outlet />
+    </Suspense>
+  </CrashBoundary>
+);

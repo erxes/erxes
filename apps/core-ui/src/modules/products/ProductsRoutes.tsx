@@ -2,7 +2,8 @@ import { IconPackage, IconSettings } from '@tabler/icons-react';
 import { AppLayout, AppLayoutFooterLink, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+import { PageOutlet } from '~/components/CrashBoundary';
 import { RecordPage } from '~/modules/side-panel/RecordPage';
 import { NestedViews } from '~/modules/views/NestedViews';
 import { ProductsPage } from './list/ProductsPage';
@@ -43,7 +44,7 @@ const ProductsLayout = () => {
       }
     >
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <Outlet />
+        <PageOutlet />
       </div>
     </AppLayout>
   );
