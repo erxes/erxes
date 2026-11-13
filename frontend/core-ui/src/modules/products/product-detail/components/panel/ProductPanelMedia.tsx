@@ -1,5 +1,5 @@
 import { ScrollArea } from 'erxes-ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
@@ -14,35 +14,8 @@ import {
 } from 'ui-modules/modules/products/components/ProductVideoUploads';
 import { ProductFilesUpload } from 'ui-modules/modules/products/components/ProductFilesUpload';
 import { ContactDetailSection } from '@/side-panel/components/details/ContactDetailSection';
+import { useSavingValue } from '@/products/product-detail/hooks/useSavingValue';
 import { TProductPanelFieldsProps } from './ProductPanelFields';
-
-/**
- * Shows a change at once and saves it; the saved product replaces it once
- * stored, and a failed save puts the saved value back. While saves are
- * pending the newest change is shown: an older save's result is out of date.
- */
-const useSavingValue = <T,>(saved: T, save: (value: T) => Promise<unknown>) => {
-  const [value, setValue] = useState(saved);
-  const latestSaved = useRef(saved);
-  latestSaved.current = saved;
-  const pending = useRef(0);
-
-  useEffect(() => {
-    if (!pending.current) setValue(saved);
-  }, [saved]);
-
-  const change = (next: T) => {
-    setValue(next);
-    pending.current += 1;
-    const settle = (result: unknown) => {
-      pending.current -= 1;
-      if (!pending.current && !result) setValue(latestSaved.current);
-    };
-    save(next).then(settle, () => settle(null));
-  };
-
-  return [value, change] as const;
-};
 
 // The Media tab: each upload or removal saves on its own.
 export const ProductPanelMedia = ({

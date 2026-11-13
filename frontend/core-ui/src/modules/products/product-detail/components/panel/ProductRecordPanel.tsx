@@ -1,14 +1,13 @@
 import {
   IconAlignLeft,
   IconBarcode,
-  IconEye,
   IconForms,
   IconHistory,
   IconId,
   IconLayoutGrid,
   IconPhoto,
 } from '@tabler/icons-react';
-import { Alert, Button, Empty, ScrollArea, Spinner } from 'erxes-ui';
+import { Button, Empty, ScrollArea, Spinner } from 'erxes-ui';
 import { type ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -39,6 +38,7 @@ import { ProductPanelDetail } from './ProductPanelDetail';
 import { ProductPanelInventory } from './ProductPanelInventory';
 import { ProductPanelMedia } from './ProductPanelMedia';
 import { ProductPanelNew } from './ProductPanelNew';
+import { PanelReadOnlyTab } from './PanelReadOnlyTab';
 
 // Radix sizes its content as a table, which lets wide values push past the
 // panel; a block lets each value shrink and truncate instead.
@@ -50,29 +50,6 @@ const scroll = (content: ReactNode) => (
 
 // A read-only product's changes are never sent.
 const skipSave = () => Promise.resolve(null);
-
-/**
- * A read-only tab: why it cannot be edited, then its content with every
- * control disabled.
- */
-const ReadOnlyTab = ({
-  reason,
-  children,
-}: {
-  reason: string | null;
-  children: ReactNode;
-}) =>
-  reason ? (
-    <fieldset disabled className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <Alert className="m-3 mb-0 w-auto shrink-0 items-center">
-        <IconEye />
-        <Alert.Description>{reason}</Alert.Description>
-      </Alert>
-      {children}
-    </fieldset>
-  ) : (
-    children
-  );
 
 /**
  * A product in the app's side panel (`?panel=/detail/core:product/<id>`):
@@ -192,7 +169,7 @@ export const ProductRecordPanel = ({
   const readOnly = !!readOnlyReason;
   const saveField = readOnly ? skipSave : save;
   const editable = (content: ReactNode) => (
-    <ReadOnlyTab reason={readOnlyReason}>{content}</ReadOnlyTab>
+    <PanelReadOnlyTab reason={readOnlyReason}>{content}</PanelReadOnlyTab>
   );
 
   const tabs: IRecordSidePanelTab[] = [

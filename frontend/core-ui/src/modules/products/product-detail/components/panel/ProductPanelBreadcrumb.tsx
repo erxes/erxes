@@ -1,12 +1,23 @@
-import { IconCube } from '@tabler/icons-react';
+import { type Icon, IconCube } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ProductsPath } from '@/types/paths/ProductsPath';
 
-// A product page's header: back to the product list, then the product.
-export const ProductPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
+// A record page's header: back to its list (the product list unless given),
+// then the record.
+export const ProductPanelBreadcrumb = ({
+  title,
+  to = ProductsPath.Products,
+  label,
+  icon: ListIcon = IconCube,
+}: {
+  title: ReactNode;
+  to?: string;
+  label?: string;
+  icon?: Icon;
+}) => {
   const { t } = useTranslation('product');
 
   return (
@@ -14,9 +25,9 @@ export const ProductPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
       <Breadcrumb.List className="min-w-0 flex-nowrap gap-1">
         <Breadcrumb.Item className="shrink-0">
           <Button variant="ghost" asChild>
-            <Link to={ProductsPath.Products}>
-              <IconCube />
-              {t('product', 'Product')}
+            <Link to={to}>
+              <ListIcon />
+              {label ?? t('product', 'Product')}
             </Link>
           </Button>
         </Breadcrumb.Item>

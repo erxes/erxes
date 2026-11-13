@@ -8,14 +8,15 @@ shared pieces (`PRODUCT_FORM_SCHEMA`, `useAddProduct`, `ProductFilesUpload`,
 
 ## Layout
 
-| Path                                                    | Responsibility                                                     |
-| ------------------------------------------------------- | ------------------------------------------------------------------ |
+| Path                                                     | Responsibility                                                    |
+| -------------------------------------------------------- | ----------------------------------------------------------------- |
 | `product-detail/components/panel/ProductRecordPanel.tsx` | A saved product in the side panel (also `/settings/products/:id`) |
-| `product-detail/components/panel/ProductPanelNew.tsx`   | Create: a draft drawn with the same tabs, kept until Create        |
+| `product-detail/components/panel/ProductPanelNew.tsx`    | Create: a draft drawn with the same tabs, kept until Create       |
 | `product-detail/components/panel/ProductPanelFields.tsx` | The Details cells; each saves on its own                          |
-| `product-detail/hooks/useProductPanelSave.ts`           | Queued `productsEdit` saves built from the cached product          |
-| `product-detail/utils/productFormValues.ts`             | Product ⇄ form values ⇄ `productsEdit` variables                   |
-| `hooks/useProductConditionToggle.ts`                    | Adds or removes one condition (`productsSetConditionCodes`)        |
+| `product-detail/hooks/useProductPanelSave.ts`            | Queued `productsEdit` saves built from the cached product         |
+| `product-detail/utils/productFormValues.ts`              | Product ⇄ form values ⇄ `productsEdit` variables                  |
+| `hooks/useProductConditionToggle.ts`                     | Adds or removes one condition (`productsSetConditionCodes`)       |
+| `product-detail/components/panel/ProductPanelCells.tsx`  | Panel cells other record panels share (vendor, currency, errors)  |
 
 ## Rules
 
