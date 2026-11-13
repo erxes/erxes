@@ -44,6 +44,13 @@
   --ring: 234.5 89.5% 73.9%;
 }
 
+/* The empty-line placeholder and the drag handle take BlockNote's side-menu colour,
+   #cfcfcf by default (1.6:1 on white). */
+.bn-shadcn,
+.bn-shadcn.dark {
+  --bn-colors-side-menu: hsl(var(--muted-foreground));
+}
+
 .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
   font-style: normal;
 }
