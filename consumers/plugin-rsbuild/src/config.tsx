@@ -1,4 +1,4 @@
-import type { PluginManifest } from '@erxes/core-contract';
+import { Organization as OrganizationSchema, type PluginManifest } from '@erxes/core-contract';
 import type { CoreClient } from '@erxes/plugin-sdk';
 import { Button, pluginJson, type IUIConfig } from 'erxes-ui';
 import { cn } from 'erxes-ui/lib/utils';
@@ -22,7 +22,10 @@ export const wrongButton = <Button nope />;
 export const wrongTitle: PluginManifest['title'] = 1;
 
 const Main = () => (
-  <Button className={cn('w-full')} onClick={() => pluginJson<Organization>('consumer', '/org')}>
+  <Button
+    className={cn('w-full')}
+    onClick={() => pluginJson('consumer', '/org', OrganizationSchema)}
+  >
     Load
   </Button>
 );
