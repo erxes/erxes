@@ -1,30 +1,14 @@
 import type { Block } from '@blocknote/core';
+import { z } from 'zod';
+import { jsonOf } from 'erxes-ui/utils/json';
 
-const isValidBlocks = (blocks: unknown): blocks is Block[] =>
-  Array.isArray(blocks) &&
-  blocks.length > 0 &&
-  blocks.every(
-    (block) => typeof block === 'object' && block !== null && 'id' in block && 'type' in block,
-  );
+/** BlockNote checks the rest of a block when it loads it; here only that each has an id and a type. */
+const blockSchema = z.custom<Block>(
+  (block) => typeof block === 'object' && block !== null && 'id' in block && 'type' in block,
+);
 
-export const parseBlocks = (content: unknown) => {
-  try {
-    if (isValidBlocks(content)) {
-      return content;
-    }
+const blocksSchema = z.array(blockSchema).min(1);
 
-    if (typeof content !== 'string' || !content.trim()) {
-      return false;
-    }
-
-    const blocks: unknown = JSON.parse(content);
-
-    if (isValidBlocks(blocks)) {
-      return blocks;
-    }
-
-    return false;
-  } catch {
-    return false;
-  }
-};
+/** Stored editor content (blocks, or blocks as JSON); false when it is empty or not blocks. */
+export const parseBlocks = (content: unknown) =>
+  blocksSchema.or(jsonOf(blocksSchema)).safeParse(content).data ?? false;

@@ -103,9 +103,9 @@ export const checked = <T>(schema: z.ZodType<T>, value: unknown): T => {
 };
 
 /** A remote's answer: its JSON, or the text when it isn't JSON. */
-export const parseBody = (body: string): unknown => {
+export const parseBody = (body: string) => {
   try {
-    return JSON.parse(body);
+    return z.json().parse(JSON.parse(body));
   } catch {
     return body;
   }

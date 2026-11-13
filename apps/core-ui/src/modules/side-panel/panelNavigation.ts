@@ -1,4 +1,4 @@
-import { useMultiQueryState } from 'erxes-ui';
+import { jsonOf, useMultiQueryState } from 'erxes-ui';
 import { atom, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -71,7 +71,8 @@ export const usePanelRoute = (sourcePath: string | null) => {
 
   const history = useMemo(
     () =>
-      PanelHistory.parse(JSON.parse(historyKey))
+      jsonOf(PanelHistory)
+        .parse(historyKey)
         .filter((entry): entry is string => typeof entry === 'string' && entry.startsWith('/'))
         .slice(-MAX_PANEL_HISTORY),
     [historyKey],
