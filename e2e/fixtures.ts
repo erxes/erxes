@@ -62,7 +62,10 @@ export const expectAccessible = async (page: Page) => {
     .map(
       (violation) =>
         `${violation.id} (${violation.impact}): ${violation.help}\n${violation.nodes
-          .map((node) => `  ${node.target.join(' ')}`)
+          .map(
+            (node) =>
+              `  ${node.target.join(' ')}\n    ${node.html.slice(0, 200)}\n    ${node.failureSummary ?? ''}`,
+          )
           .join('\n')}`,
     );
 
