@@ -13,12 +13,11 @@ import {
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { messageOf } from '~/lib/api';
-import { useCan } from '~/modules/auth/session';
-import { useLeadsT } from '~/modules/leads/i18n';
 import { SaveViewButton, ViewDialog } from './ViewControls';
 import { viewHref } from './viewLinks';
-import { useViewMutations, useViewState } from './useViews';
+import { useCanShareViews, useViewMutations, useViewState } from './useViews';
 
 /** Tabs before the rest go under "More". */
 const VISIBLE = 5;
@@ -31,17 +30,16 @@ const ACTIVE =
 
 /** Copies a view's address, saying whether it worked. */
 const useCopyViewLink = (recordType: ViewRecordType) => {
-  const t = useLeadsT();
+  const { t } = useTranslation('views');
   const { toast } = useToast();
 
   return (view: View) =>
     navigator.clipboard.writeText(`${window.location.origin}${viewHref(recordType, view)}`).then(
-      () =>
-        toast({ title: t('views.link-copied'), description: t('views.link-copied-description') }),
+      () => toast({ title: t('link-copied'), description: t('link-copied-description') }),
       (error: unknown) =>
         toast({
           variant: 'destructive',
-          title: t('views.copy-link'),
+          title: t('copy-link'),
           description: messageOf(error),
         }),
     );
@@ -54,7 +52,7 @@ const useViewCopyAndDelete = (
   onOpen: (view: View | null) => void,
   onClosed: () => void,
 ) => {
-  const t = useLeadsT();
+  const { t } = useTranslation('views');
   const { confirm } = useConfirm();
   const { create, remove } = useViewMutations(recordType);
 
@@ -63,7 +61,7 @@ const useViewCopyAndDelete = (
       create.mutate(
         {
           recordType,
-          name: t('views.copy', { name: view.name }),
+          name: t('copy', { name: view.name }),
           filter: view.filter,
           search: view.search,
           shared: false,
@@ -71,7 +69,7 @@ const useViewCopyAndDelete = (
         { onSuccess: (copy) => onOpen(copy) },
       ),
     deleteView: () =>
-      void confirm({ message: t('views.delete-confirm', { name: view.name }) }).then(() =>
+      void confirm({ message: t('delete-confirm', { name: view.name }) }).then(() =>
         remove.mutate({ id: view.id }, { onSuccess: onClosed }),
       ),
   };
@@ -89,8 +87,8 @@ const ViewMenu = ({
   onOpen: (view: View | null) => void;
   onClosed: () => void;
 }) => {
-  const t = useLeadsT();
-  const can = useCan();
+  const { t } = useTranslation('views');
+  const canShare = useCanShareViews(recordType);
   const copyLink = useCopyViewLink(recordType);
   const { update } = useViewMutations(recordType);
   const { duplicate, deleteView } = useViewCopyAndDelete(view, recordType, onOpen, onClosed);
@@ -102,7 +100,7 @@ const ViewMenu = ({
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            aria-label={t('views.actions', { name: view.name })}
+            aria-label={t('actions', { name: view.name })}
             className="flex size-5 items-center justify-center rounded text-muted-foreground opacity-0 hover:bg-muted group-hover/tab:opacity-100 data-[state=open]:opacity-100"
           >
             <IconDots className="size-3.5" />
@@ -112,40 +110,41 @@ const ViewMenu = ({
           {view.editable && (
             <DropdownMenu.Item onSelect={() => setRenaming(true)}>
               <IconPencil />
-              {t('views.rename')}
+              {t('rename')}
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Item onSelect={duplicate}>
             <IconCopy />
-            {t('views.duplicate')}
+            {t('duplicate')}
           </DropdownMenu.Item>
-          {view.editable && can('contacts.edit') && (
+          {view.editable && canShare && (
             <DropdownMenu.Item
               onSelect={() => update.mutate({ id: view.id, shared: !view.shared })}
             >
               {view.shared ? <IconLock /> : <IconUsers />}
-              {view.shared ? t('views.private') : t('views.share')}
+              {view.shared ? t('private') : t('share')}
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Item onSelect={() => void copyLink(view)}>
             <IconLink />
-            {t('views.copy-link')}
+            {t('copy-link')}
           </DropdownMenu.Item>
           {view.editable && (
             <>
               <DropdownMenu.Separator />
               <DropdownMenu.Item className="text-destructive" onSelect={deleteView}>
                 <IconTrash />
-                {t('views.delete')}
+                {t('delete')}
               </DropdownMenu.Item>
             </>
           )}
         </DropdownMenu.Content>
       </DropdownMenu>
       <ViewDialog
+        recordType={recordType}
         open={renaming}
         onOpenChange={setRenaming}
-        title={t('views.rename-title')}
+        title={t('rename-title')}
         initial={{ name: view.name, shared: view.shared }}
         pending={update.isPending}
         onSave={({ name, shared }) =>
@@ -158,13 +157,13 @@ const ViewMenu = ({
 
 /** Views past the first few. */
 const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => void }) => {
-  const t = useLeadsT();
+  const { t } = useTranslation('views');
 
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
         <button type="button" className={TAB}>
-          {t('views.more', { count: views.length })}
+          {t('more', { count: views.length })}
           <IconChevronDown className="size-3.5" />
         </button>
       </DropdownMenu.Trigger>
@@ -182,7 +181,7 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
 
 /** Saves the list as it is now as a new view, and opens it. */
 const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
-  const t = useLeadsT();
+  const { t } = useTranslation('views');
   const { query } = useViewState(recordType);
   const { create } = useViewMutations(recordType);
   const [adding, setAdding] = useState(false);
@@ -196,12 +195,13 @@ const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
         onClick={() => setAdding(true)}
       >
         <IconPlus className="size-4" />
-        {t('views.new-view')}
+        {t('new-view')}
       </Button>
       <ViewDialog
+        recordType={recordType}
         open={adding}
         onOpenChange={setAdding}
-        title={t('views.new-view')}
+        title={t('new-view')}
         initial={{ name: '', shared: false }}
         pending={create.isPending}
         onSave={({ name, shared }) =>
@@ -233,7 +233,7 @@ export const ViewTabs = ({
   recordType: ViewRecordType;
   allLabel: string;
 }) => {
-  const t = useLeadsT();
+  const { t } = useTranslation('views');
   const { views, error, current, changed, query } = useViewState(recordType);
   // The open view stays visible even when it is past the first few.
   const visible = views.slice(0, VISIBLE);
@@ -273,7 +273,7 @@ export const ViewTabs = ({
             type="button"
             className="flex items-center gap-1.5"
             onClick={() => query.openView(view)}
-            title={view.shared ? t('views.shared') : t('views.mine')}
+            title={view.shared ? t('shared') : t('mine')}
           >
             {view.shared && <IconUsers className="size-3.5 opacity-60" />}
             <span className="max-w-40 truncate">{view.name}</span>
@@ -293,7 +293,7 @@ export const ViewTabs = ({
       {changed && (
         <div className="ml-auto flex shrink-0 items-center gap-1 pl-2">
           <span className="mr-1 hidden text-xs text-muted-foreground md:inline">
-            {current ? t('views.edited') : t('views.filtered')}
+            {current ? t('edited') : t('filtered')}
           </span>
           <Button
             variant="ghost"
@@ -302,7 +302,7 @@ export const ViewTabs = ({
             onClick={() => query.openView(current)}
           >
             <IconRotate className="size-3.5" />
-            {t('views.reset')}
+            {t('reset')}
           </Button>
           <SaveViewButton recordType={recordType} />
         </div>

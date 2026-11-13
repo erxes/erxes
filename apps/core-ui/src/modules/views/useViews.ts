@@ -1,7 +1,27 @@
-import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
+import type { ConditionGroup, FilterField, View, ViewRecordType } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
+import { useCan, useSession } from '~/modules/auth/session';
+
+/** A field a list filters by; money fields carry the currency their amounts are shown in. */
+export type ListField = FilterField & { currency?: string };
+
+/** Amounts stored in the currency's smallest unit, shown and typed in the organisation's currency. */
+const MONEY_PATHS: Partial<Record<ViewRecordType, string[]>> = { product: ['subject.price'] };
+
+/** Whose fields the advanced builder offers lookups (tags) for. */
+export const subjectOf = (recordType: ViewRecordType) =>
+  recordType === 'product'
+    ? null
+    : recordType === 'company' || recordType === 'company_lead'
+      ? 'company'
+      : 'customer';
+
+/** Sharing a view with the team needs the list's edit permission. */
+export const useCanShareViews = (recordType: ViewRecordType) =>
+  useCan()(recordType === 'product' ? 'products.manage' : 'contacts.edit');
 
 /** The advanced filter, the selected view and the search, all kept in the address (shareable, survive reloads). */
 export const useListQuery = () => {
@@ -40,8 +60,19 @@ const viewsQuery = (recordType: ViewRecordType) =>
 
 export const useViews = (recordType: ViewRecordType) => useQuery(viewsQuery(recordType));
 
-export const useFilterFields = (recordType: ViewRecordType) =>
-  useQuery(orpc.views.fields.queryOptions({ input: { recordType }, staleTime: 60_000 }));
+export const useFilterFields = (recordType: ViewRecordType) => {
+  const { currency } = useSession().organization;
+  const money = MONEY_PATHS[recordType] ?? [];
+
+  return useQuery(
+    orpc.views.fields.queryOptions({
+      input: { recordType },
+      staleTime: 60_000,
+      select: ({ data }): ListField[] =>
+        data.map((field) => (money.includes(field.path) ? { ...field, currency } : field)),
+    }),
+  );
+};
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
@@ -64,6 +95,7 @@ export const useViewState = (recordType: ViewRecordType) => {
 export const useViewMutations = (recordType: ViewRecordType) => {
   const client = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation('views');
   const { queryKey } = viewsQuery(recordType);
 
   // The sidebar changes at once; the refetch confirms it.
@@ -75,7 +107,7 @@ export const useViewMutations = (recordType: ViewRecordType) => {
   const onError = (error: Error) =>
     toast({
       variant: 'destructive',
-      title: 'Could not save the view',
+      title: t('save-failed'),
       description: messageOf(error),
     });
 

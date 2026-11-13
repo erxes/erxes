@@ -4,7 +4,7 @@ import { LeadsBoard } from '~/modules/leads/LeadsBoard';
 import { useLeadView } from '~/modules/leads/leadView';
 import { CustomersFilter } from './CustomersFilter';
 import { CustomersHeader } from './CustomersHeader';
-import { ViewTabs } from '../views/ViewTabs';
+import { ViewTabs } from '~/modules/views/ViewTabs';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { CustomersRecordTable } from './CustomersRecordTable';
 

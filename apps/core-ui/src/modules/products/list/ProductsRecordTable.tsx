@@ -44,9 +44,9 @@ const NoProducts = () => {
 
 /** Whether the list is narrowed by anything (else an empty list means an empty catalog). */
 const useFiltered = () => {
-  const { search, kind, categoryId, plugin, status } = useProductsFilters();
+  const { search, filter, status } = useProductsFilters();
 
-  return !!(search || kind || categoryId || plugin || status === 'archived');
+  return !!(search || filter || status === 'archived');
 };
 
 export const ProductsRecordTable = () => {

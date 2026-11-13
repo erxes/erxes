@@ -1,17 +1,5 @@
-import type { ContentType } from '@erxes/core-contract';
 import { IconCheck, IconPlus, IconTag, IconTags } from '@tabler/icons-react';
-import {
-  Button,
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  RecordTableInlineCell,
-  Skeleton,
-  cn,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Combobox, Command, Popover, RecordTableInlineCell, Skeleton, cn } from 'erxes-ui';
 import { type ComponentProps, useState } from 'react';
 import {
   TagInline,
@@ -206,75 +194,10 @@ const TagsSelectInlineCell = ({
   </TagsSelectProvider>
 );
 
-/** Filter by tags: the menu item, its list and the bar chip (query key `tags`). */
-const TagsFilterItem = () => (
-  <Filter.Item value="tags">
-    <IconTags />
-    Tags
-  </Filter.Item>
-);
-
-const TagsFilterView = ({ type }: { type: ContentType }) => {
-  const [tags, setTags] = useQueryState<string[]>('tags');
-  const { resetFilterState } = useFilterContext();
-
-  return (
-    <Filter.View filterKey="tags">
-      <TagsSelectProvider
-        type={type}
-        value={tags ?? []}
-        onValueChange={(next) => {
-          setTags(next.length ? next : null);
-          resetFilterState();
-        }}
-      >
-        <TagsSelectContent />
-      </TagsSelectProvider>
-    </Filter.View>
-  );
-};
-
-const TagsFilterBar = ({ type }: { type: ContentType }) => {
-  const [tags, setTags] = useQueryState<string[]>('tags');
-  const [open, setOpen] = useState(false);
-
-  if (!tags?.length) return null;
-
-  return (
-    <Filter.BarItem queryKey="tags">
-      <Filter.BarName>
-        <IconTags />
-        Tags
-      </Filter.BarName>
-      <TagsSelectProvider
-        type={type}
-        value={tags}
-        onValueChange={(next) => setTags(next.length ? next : null)}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Filter.BarButton filterKey="tags" className="max-w-72 justify-start overflow-hidden">
-              <TagsSelectedList maxVisible={3} />
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content className="w-72">
-            <TagsSelectContent />
-          </Combobox.Content>
-        </Popover>
-      </TagsSelectProvider>
-    </Filter.BarItem>
-  );
-};
-
 export const TagsSelect = Object.assign(TagsSelectRoot, {
   Provider: TagsSelectProvider,
   Content: TagsSelectContent,
   Value: TagsSelectValue,
   SelectedList: TagsSelectedList,
   InlineCell: TagsSelectInlineCell,
-});
-
-export const TagsFilter = Object.assign(TagsFilterItem, {
-  View: TagsFilterView,
-  Bar: TagsFilterBar,
 });

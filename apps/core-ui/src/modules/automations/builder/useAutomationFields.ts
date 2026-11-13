@@ -12,6 +12,8 @@ export type FieldInfo = {
   type: string;
   options?: string[];
   group?: string;
+  /** A money amount, stored in this currency's smallest unit and typed in its major unit. */
+  currency?: string;
 };
 
 /**

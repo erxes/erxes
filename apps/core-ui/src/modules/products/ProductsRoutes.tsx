@@ -3,6 +3,7 @@ import { AppLayout, AppLayoutFooterLink, NavigationMenuLinkItem, Sidebar } from 
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, Route, Routes } from 'react-router-dom';
+import { NestedViews } from '~/modules/views/NestedViews';
 import { ProductsPage } from './list/ProductsPage';
 import { PRODUCT_SETTINGS_PATH } from './paths';
 import { ProductsSettingsRoutes } from './settings/ProductsSettingsRoutes';
@@ -27,11 +28,13 @@ const ProductsLayout = () => {
         <Sidebar.Group className="px-2 py-1">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
+              {/* The catalog's saved views nest under it. */}
               <NavigationMenuLinkItem
                 pathPrefix="products"
                 path=""
                 name={t('catalog', 'Catalog')}
                 icon={IconPackage}
+                action={<NestedViews recordType="product" />}
               />
             </Sidebar.Menu>
           </Sidebar.GroupContent>

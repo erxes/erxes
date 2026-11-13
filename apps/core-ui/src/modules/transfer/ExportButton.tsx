@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
-import { useListQuery } from '~/modules/contacts/views/useViews';
+import { useListQuery } from '~/modules/views/useViews';
 import { useTransferColumns } from './useTransfer';
 
 const ColumnPicker = ({
@@ -111,13 +111,7 @@ const useStartExport = (onStarted: () => void) => {
 };
 
 /** "Export": what the list shows (its filters and view) to CSV or Excel, with chosen columns, in the background. */
-export const ExportButton = ({
-  recordType,
-  query,
-}: {
-  recordType: TransferRecordType;
-  query: { tagIds?: string[]; ownerId?: string };
-}) => {
+export const ExportButton = ({ recordType }: { recordType: TransferRecordType }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'transfer' });
   const can = useCan();
   const columns = useTransferColumns(recordType);
@@ -130,11 +124,7 @@ export const ExportButton = ({
   const selected =
     chosen ?? exportable.filter((column) => column.default).map((column) => column.key);
 
-  const filtered =
-    list.advanced !== null ||
-    Boolean(list.search) ||
-    Boolean(query.tagIds?.length) ||
-    Boolean(query.ownerId);
+  const filtered = list.advanced !== null || Boolean(list.search);
 
   const start = useStartExport(() => setOpen(false));
 
@@ -147,12 +137,7 @@ export const ExportButton = ({
       columns: exportable
         .filter((column) => selected.includes(column.key))
         .map((column) => column.key),
-      query: {
-        filter: list.advanced,
-        search: list.search || undefined,
-        tagIds: query.tagIds,
-        ownerId: query.ownerId,
-      },
+      query: { filter: list.advanced, search: list.search || undefined },
     });
 
   return (

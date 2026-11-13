@@ -1,10 +1,11 @@
-import { type Product, ProductKind } from '@erxes/core-contract';
+import type { Product } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan } from '~/modules/auth/session';
+import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 /** RecordTable remembers the scroll position of the list under this key. */
 export const PRODUCTS_SESSION_KEY = 'core_products_cursor';
@@ -12,21 +13,16 @@ export const PRODUCTS_SESSION_KEY = 'core_products_cursor';
 /** Whether the member may add, edit and archive products and categories. */
 export const useCanManageProducts = () => useCan()('products.manage');
 
-/** The list filters, read from the URL. */
+/** The list filters, read from the URL: the search, the filter (views save both) and archived or not. */
 export const useProductsFilters = () => {
-  const [{ searchValue, kind, categoryId, plugin, archived }] = useMultiQueryState<{
+  const [{ searchValue, archived }] = useMultiQueryState<{
     searchValue: string;
-    kind: string;
-    categoryId: string;
-    plugin: string;
     archived: boolean;
-  }>(['searchValue', 'kind', 'categoryId', 'plugin', 'archived']);
+  }>(['searchValue', 'archived']);
 
   return {
     search: searchValue || undefined,
-    kind: ProductKind.options.find((option) => option === kind),
-    categoryId: categoryId || undefined,
-    plugin: plugin || undefined,
+    filter: useAdvancedFilterParam(),
     status: archived === true ? ('archived' as const) : ('active' as const),
   };
 };

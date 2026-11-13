@@ -1,33 +1,18 @@
 import type { Customer, CustomerState } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMultiQueryState, useToast } from 'erxes-ui';
+import { useQueryState, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
-import { useAdvancedFilterParam } from '../views/useViews';
+import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 /** RecordTable remembers the scroll position per list under this key. */
 export const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
 
-/** The list filters, read from the URL. */
+/** The list filters, read from the URL: the search and the filter (views save both). */
 export const useCustomersFilters = (state: CustomerState) => {
-  const [{ searchValue, tags, ownerId, stage }] = useMultiQueryState<{
-    searchValue: string;
-    tags: string[];
-    ownerId: string;
-    stage: string;
-  }>(['searchValue', 'tags', 'ownerId', 'stage']);
+  const [searchValue] = useQueryState<string>('searchValue');
 
-  const filter = useAdvancedFilterParam();
-
-  return {
-    state,
-    filter,
-    search: searchValue || undefined,
-    tagIds: tags?.length ? tags.join(',') : undefined,
-    ownerId: ownerId || undefined,
-    // Leads: the stage tab.
-    leadStageId: state === 'lead' ? stage || undefined : undefined,
-  };
+  return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
 };
 
 export const useCustomers = (state: CustomerState) => {

@@ -2,24 +2,20 @@ import {
   IconBuilding,
   IconChartFunnel,
   IconChevronDown,
-  IconLayoutList,
   IconMagnet,
   IconSettings,
   IconUser,
-  IconUsers,
 } from '@tabler/icons-react';
 import { AppLayout, AppLayoutFooterLink, cn, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 import { ContactsPath } from './utils/contactDetailPath';
 import type { ViewRecordType } from '@erxes/core-contract';
-import { useViews } from './views/useViews';
 import { useLeadsT } from '~/modules/leads/i18n';
-import { VIEW_LIST_PATHS, viewHref } from './views/viewLinks';
+import { NestedViews } from '~/modules/views/NestedViews';
 import { CONTACT_SETTINGS_PATH } from './settings/paths';
-import { messageOf } from '~/lib/api';
 
 const CONTACTS_SECTIONS = [
   // People and companies are peers; leads (of either kind) come after.
@@ -29,51 +25,6 @@ const CONTACTS_SECTIONS = [
 ];
 
 const LEADS = `${ContactsPath.Index}${ContactsPath.Leads}`;
-
-/** A list's saved views, nested under it in the sidebar (shown whenever there are any). */
-const NestedViews = ({
-  recordType,
-  indent = false,
-}: {
-  recordType: ViewRecordType;
-  indent?: boolean;
-}) => {
-  const { data, error } = useViews(recordType);
-  const leadsT = useLeadsT();
-  const { pathname } = useLocation();
-  const [params] = useSearchParams();
-  const views = data?.data ?? [];
-
-  if (error) {
-    return (
-      <p role="alert" className={cn('px-2 text-xs text-destructive', indent && 'ml-5')}>
-        {messageOf(error)}
-      </p>
-    );
-  }
-
-  if (!views.length) return null;
-
-  const here = pathname === VIEW_LIST_PATHS[recordType];
-
-  return (
-    <Sidebar.Sub className={cn(indent && 'ml-5')}>
-      {views.map((view) => (
-        <Sidebar.SubItem key={view.id}>
-          <Sidebar.SubButton asChild size="sm" isActive={here && params.get('view') === view.id}>
-            <Link
-              to={viewHref(recordType, view)}
-              title={view.shared ? leadsT('views.shared') : leadsT('views.mine')}
-            >
-              {view.shared ? <IconUsers /> : <IconLayoutList />}
-              <span className="truncate">{view.name}</span>
-            </Link>
-          </Sidebar.SubButton>
-        </Sidebar.SubItem>
-      ))}
-    </Sidebar.Sub>
-  );
-};
 
 /** The Leads group: its report first, then people and companies. */
 const LEAD_ITEMS: { label: string; to: string; icon: typeof IconUser; views?: ViewRecordType }[] = [

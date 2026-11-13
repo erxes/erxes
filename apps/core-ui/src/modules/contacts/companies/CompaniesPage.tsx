@@ -3,7 +3,7 @@ import { LeadsBoard } from '~/modules/leads/LeadsBoard';
 import { useLeadView } from '~/modules/leads/leadView';
 import { CompaniesFilter } from './CompaniesFilter';
 import { CompaniesHeader } from './CompaniesHeader';
-import { ViewTabs } from '../views/ViewTabs';
+import { ViewTabs } from '~/modules/views/ViewTabs';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { CompaniesRecordTable } from './CompaniesRecordTable';
 

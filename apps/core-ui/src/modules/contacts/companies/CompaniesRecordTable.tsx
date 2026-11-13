@@ -4,7 +4,7 @@ import { CompaniesCommandBar } from './CompaniesCommandBar';
 import { stickyWithStage } from '~/modules/leads/leadColumns';
 import { useCompaniesColumns } from './companiesColumns';
 import { EmptyList } from '../components/EmptyList';
-import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
+import { companiesSessionKey, useCompanies } from './useCompanies';
 
 export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { list, loading, error, hasNextPage, hasPreviousPage, handleFetchMore } =
@@ -31,7 +31,7 @@ export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         dataLength={list.length}
-        sessionKey={state === 'lead' ? 'core_company_leads_cursor' : COMPANIES_SESSION_KEY}
+        sessionKey={companiesSessionKey(state)}
       >
         <RecordTable>
           <RecordTable.Header />

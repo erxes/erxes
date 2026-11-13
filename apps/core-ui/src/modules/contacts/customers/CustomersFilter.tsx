@@ -1,22 +1,11 @@
 import type { CustomerState } from '@erxes/core-contract';
-import { IconSearch } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  isUndefinedOrNull,
-  Skeleton,
-  useFilterQueryState,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { TagsFilter } from '~/modules/tags/TagsSelect';
-import { SelectMember } from '../components/SelectMember';
-import { AdvancedFilterButton } from '../views/ViewControls';
-import { customersSessionKey, useCustomers } from './useCustomers';
-import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
-import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
 import { formatTotal } from '~/lib/cursorList';
+import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
+import { ListFilter } from '~/modules/views/filter/ListFilter';
+import { useContactOptionLabel } from '../components/contactOptionLabel';
+import { customersSessionKey, useCustomers } from './useCustomers';
 
 const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation();
@@ -33,82 +22,18 @@ const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
   );
 };
 
-// Quick filters (search, tags, owner) here; everything else in Advanced (views).
-const CustomersFilterPopover = ({ state }: { state: CustomerState }) => {
-  const { t } = useTranslation('common');
-  const { t: contactT } = useTranslation('contact', { keyPrefix: 'customer' });
-
-  const [queries] = useMultiQueryState<{
-    tags: string[];
-    searchValue: string;
-    ownerId: string;
-    stage: string;
-  }>(['tags', 'searchValue', 'ownerId', 'stage']);
-
-  const hasFilters = Object.values(queries || {}).some((value) => value !== null);
-
-  return (
-    <>
-      <Filter.Popover scope={`${state}s-page`}>
-        <Filter.Trigger isFiltered={hasFilters} />
-        <Combobox.Content>
-          <Filter.View>
-            <Command>
-              <Filter.CommandInput
-                placeholder={t('filter._')}
-                variant="secondary"
-                className="bg-background"
-              />
-              <Command.List className="p-1">
-                <Filter.Item value="searchValue" inDialog>
-                  <IconSearch />
-                  {t('filter.search')}
-                </Filter.Item>
-                {state === 'lead' && <LeadStageFilter.Item />}
-                <TagsFilter />
-                <SelectMember.FilterItem label={contactT('owner')} />
-              </Command.List>
-            </Command>
-          </Filter.View>
-          {state === 'lead' && <LeadStageFilter.View />}
-          <SelectMember.FilterView />
-          <TagsFilter.View type="customer" />
-        </Combobox.Content>
-      </Filter.Popover>
-      <Filter.Dialog>
-        <Filter.View filterKey="searchValue" inDialog>
-          <Filter.DialogStringView filterKey="searchValue" />
-        </Filter.View>
-      </Filter.Dialog>
-    </>
-  );
-};
-
+/** People (customers or leads) filter by any field, property, their company or activity (`F`). */
 export const CustomersFilter = ({ state }: { state: CustomerState }) => {
-  const { t } = useTranslation('common');
-  const { t: contactT } = useTranslation('contact', { keyPrefix: 'customer' });
-  const [searchValue] = useFilterQueryState<string>('searchValue');
+  const optionLabel = useContactOptionLabel();
 
   return (
-    <Filter id={`${state}s-filter`} sessionKey={customersSessionKey(state)}>
-      <Filter.Bar>
-        <CustomersFilterPopover state={state} />
-        <Filter.BarItem queryKey="searchValue">
-          <Filter.BarName>
-            <IconSearch />
-            {t('filter.search')}
-          </Filter.BarName>
-          <Filter.BarButton filterKey="searchValue" inDialog>
-            {searchValue}
-          </Filter.BarButton>
-        </Filter.BarItem>
-        {state === 'lead' && <LeadStageFilter.Bar />}
-        <TagsFilter.Bar type="customer" />
-        <SelectMember.FilterBar label={contactT('owner')} />
-        <AdvancedFilterButton recordType={state} />
-        <CustomerTotalCount state={state} />
-        {state === 'lead' && <LeadDisplayMenu />}
-      </Filter.Bar>
-    </Filter>
+    <ListFilter
+      recordType={state}
+      sessionKey={customersSessionKey(state)}
+      optionLabel={optionLabel}
+    >
+      <CustomerTotalCount state={state} />
+      {state === 'lead' && <LeadDisplayMenu />}
+    </ListFilter>
   );
 };

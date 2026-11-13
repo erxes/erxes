@@ -1,7 +1,9 @@
 import { type ConditionRule, RelativeAmount } from '@erxes/core-contract';
 import { Input, Select } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { amountStep, fromAmountInput, toAmountInput } from '~/lib/money';
 import { oneOf, textOf } from '~/lib/text';
 import { LIST_VALUE, RELATIVE } from './conditionOperators';
 import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
@@ -169,11 +171,40 @@ const TextInput = ({ rule, field, onChange, disabled }: ValueProps) => {
   );
 };
 
+/** An amount typed in the currency's major unit (12.50), kept in its smallest (1250); the text is kept while typing. */
+const MoneyInput = ({ rule, onChange, disabled, currency }: ValueProps & { currency: string }) => {
+  const { t } = useTranslation('automations');
+  const stored = Number(rule.value);
+
+  const [text, setText] = useState(
+    rule.value === undefined || !Number.isFinite(stored) ? '' : toAmountInput(stored, currency),
+  );
+
+  return (
+    <Input
+      className="h-8 w-full min-w-0"
+      type="number"
+      step={amountStep(currency)}
+      disabled={disabled}
+      placeholder={t('value-placeholder', 'value')}
+      value={text}
+      onChange={(event) => {
+        setText(event.target.value);
+        onChange(fromAmountInput(event.target.value, currency));
+      }}
+    />
+  );
+};
+
 /** The value side of a rule, shaped by the operator and the field's type. */
 export const ConditionValueInput = (props: ValueProps) => {
   const { rule, field } = props;
 
   if (RELATIVE.has(rule.op)) return <RelativeInput {...props} />;
+
+  if (field?.currency && field.type === 'number' && !LIST_VALUE.has(rule.op)) {
+    return <MoneyInput {...props} currency={field.currency} />;
+  }
 
   if (LIST_VALUE.has(rule.op)) return <ListInput {...props} />;
 

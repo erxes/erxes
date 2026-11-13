@@ -6,12 +6,14 @@ import enContact from './locales/en/contact.json';
 import enOrganization from './locales/en/organization.json';
 import enProduct from './locales/en/product.json';
 import enSettings from './locales/en/settings.json';
+import enViews from './locales/en/views.json';
 import mnAutomations from './locales/mn/automations.json';
 import mnCommon from './locales/mn/common.json';
 import mnContact from './locales/mn/contact.json';
 import mnOrganization from './locales/mn/organization.json';
 import mnProduct from './locales/mn/product.json';
 import mnSettings from './locales/mn/settings.json';
+import mnViews from './locales/mn/views.json';
 
 /*
  * erxes-ui and core's components translate through react-i18next with the
@@ -44,6 +46,7 @@ void i18n.use(initReactI18next).init({
       organization: enOrganization,
       automations: enAutomations,
       product: enProduct,
+      views: enViews,
     },
     mn: {
       common: mnCommon,
@@ -52,11 +55,12 @@ void i18n.use(initReactI18next).init({
       organization: mnOrganization,
       automations: mnAutomations,
       product: mnProduct,
+      views: mnViews,
     },
   },
   lng: savedLanguage(),
   fallbackLng: 'en',
-  ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product'],
+  ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views'],
   defaultNS: 'common',
   fallbackNS: 'common',
   interpolation: { escapeValue: false },

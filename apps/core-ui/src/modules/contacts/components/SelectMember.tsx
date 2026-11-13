@@ -9,11 +9,6 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
-  SelectMemberFilterBar,
-  SelectMemberFilterItem,
-  SelectMemberFilterView,
-} from './SelectMemberFilter';
-import {
   SelectMemberContent,
   SelectMemberProvider,
   SelectMemberValue,
@@ -88,11 +83,8 @@ const SelectMemberFormItem = ({
   );
 };
 
-/** The member picker's inline cell, form item and filter parts. */
+/** The member picker's inline cell and form item. */
 export const SelectMember = {
   InlineCell: SelectMemberInlineCell,
   FormItem: SelectMemberFormItem,
-  FilterItem: SelectMemberFilterItem,
-  FilterView: SelectMemberFilterView,
-  FilterBar: SelectMemberFilterBar,
 };

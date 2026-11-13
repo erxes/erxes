@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { ContactsPageHeader } from '~/modules/contacts/components/ContactsPageHeader';
 import { useCreateHotkey } from '~/modules/contacts/customers/CustomersHeader';
+import { ViewTabs } from '~/modules/views/ViewTabs';
 import { ProductSheet } from '../form/ProductSheet';
 import { useProductSheet } from '../form/useProductSheet';
 import { PRODUCTS_PATH } from '../paths';
@@ -42,6 +43,7 @@ export const ProductsPage = () => {
         </ContactsPageHeader.Start>
         <ContactsPageHeader.End>{manage && <AddProductButton />}</ContactsPageHeader.End>
       </ContactsPageHeader>
+      <ViewTabs recordType="product" allLabel={t('all-products', 'All products')} />
       <PageSubHeader>
         <ProductsFilter />
       </PageSubHeader>

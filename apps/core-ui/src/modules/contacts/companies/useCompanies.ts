@@ -1,40 +1,28 @@
 import type { Company } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMultiQueryState, useToast } from 'erxes-ui';
+import { useQueryState, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
-import { useAdvancedFilterParam } from '../views/useViews';
-
-export const COMPANIES_SESSION_KEY = 'core_companies_cursor';
+import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 type CompanyState = 'lead' | 'customer';
 
+/** RecordTable remembers the scroll position per list under this key. */
+export const companiesSessionKey = (state: CompanyState) =>
+  state === 'lead' ? 'core_company_leads_cursor' : 'core_companies_cursor';
+
 /** The list filters, read from the URL; `state` splits companies that are customers from company leads. */
 export const useCompaniesFilters = (state: CompanyState = 'customer') => {
-  const [{ searchValue, tags, ownerId, stage }] = useMultiQueryState<{
-    searchValue: string;
-    tags: string[];
-    ownerId: string;
-    stage: string;
-  }>(['searchValue', 'tags', 'ownerId', 'stage']);
+  const [searchValue] = useQueryState<string>('searchValue');
 
-  const filter = useAdvancedFilterParam();
-
-  return {
-    state,
-    filter,
-    search: searchValue || undefined,
-    tagIds: tags?.length ? tags.join(',') : undefined,
-    ownerId: ownerId || undefined,
-    leadStageId: state === 'lead' ? stage || undefined : undefined,
-  };
+  return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
 };
 
 export const useCompanies = (state: CompanyState = 'customer') => {
   const filters = useCompaniesFilters(state);
 
   return useCursorList<Company>({
-    sessionKey: state === 'lead' ? 'core_company_leads_cursor' : COMPANIES_SESSION_KEY,
+    sessionKey: companiesSessionKey(state),
     filters,
     options: (paging) =>
       orpc.companies.list.infiniteOptions({
