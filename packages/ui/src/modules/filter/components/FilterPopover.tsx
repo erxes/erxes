@@ -121,7 +121,7 @@ export const FilterItem = ({
       value={value}
       onSelect={onSelect}
       ref={ref}
-      className={cn('h-8', active && 'text-primary', className)}
+      className={cn('h-8', active && 'text-primary-text', className)}
       {...props}
     >
       {children}

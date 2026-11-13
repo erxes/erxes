@@ -15,6 +15,7 @@ export const RecordTableMoreButton = ({
   return (
     <Button
       ref={ref}
+      aria-label={children ? undefined : 'More'}
       variant="ghost"
       size="icon"
       className={cn(

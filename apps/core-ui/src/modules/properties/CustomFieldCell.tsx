@@ -59,7 +59,7 @@ const OptionsCell = ({
                   }}
                 >
                   <span className="flex-1 truncate">{option}</span>
-                  {selected && <IconCheck className="size-4 text-primary" />}
+                  {selected && <IconCheck className="size-4 text-primary-text" />}
                 </Command.Item>
               );
             })}

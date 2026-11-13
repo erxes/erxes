@@ -49,6 +49,7 @@
   "days": "өдөр",
   "template-hint": "Текстэд дараах орлуулагчийг ашиглаж болно",
   "add-condition": "Нөхцөл нэмэх",
+  "operator": "Харьцуулалт",
   "match-prefix": "Эдгээрийн",
   "match-all": "бүгд",
   "match-any": "аль нэг",

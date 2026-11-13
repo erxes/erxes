@@ -1,7 +1,8 @@
 # erxes core: static checks, tests on Postgres, builds, TLA+ model checks, container
 # images with a vulnerability scan and a smoke test of the whole stack, and the
-# packed shared packages checked outside the workspace. The five run side by side;
-# images go to GHCR on pushes to postgre only after all of them pass.
+# packed shared packages checked outside the workspace, and the daily flows in
+# Chromium on the smoke test's stack. The six run side by side; images go to GHCR
+# on pushes to postgre only after all of them pass.
 # Require the `Check` job in branch protection.
 name: CI
 
@@ -181,10 +182,66 @@ jobs:
       - name: A plugin UI and a plugin server build against the tarballs
         run: consumers/run.sh "$RUNNER_TEMP/packs"
 
+  e2e:
+    # The daily flows (e2e/*.spec.ts) in Chromium with an axe check on every page they visit,
+    # against the same stack as the smoke test. A new runner is a fresh database: the specs
+    # seed their synthetic data through the API.
+    name: Daily flows in Chromium, light and dark, with axe
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CORE_API_IMAGE: erxes-core-api:local
+      CORE_UI_IMAGE: erxes-core-ui:local
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          cleanup: false
+      - name: Build both images from the images job's layer cache
+        uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
+        with:
+          source: .
+          load: true
+          set: |
+            core-api.cache-from=type=gha,scope=core-api
+            core-ui.cache-from=type=gha,scope=core-ui
+      - name: Start the stack
+        run: |
+          deploy/make-secrets.sh
+          {
+            echo "DATA_OWNER_PASSWORD=$(openssl rand -hex 16)"
+            echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
+          } > deploy/.env
+          docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Chromium (headless shell) and its system libraries
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+      - name: Wait for the stack
+        run: timeout 120 sh -c 'until curl -fsS http://localhost:8080/core/v1/setup >/dev/null; do sleep 2; done'
+      - name: Daily flows
+        run: pnpm e2e
+        env:
+          E2E_BASE_URL: http://localhost:8080
+      - name: Traces and screenshots of failed specs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-traces
+          path: e2e/test-results/
+          retention-days: 14
+      - name: Stack logs
+        if: failure()
+        run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env logs --no-color --tail 300 || true
+
   check:
     # The job to require. It fails when any job above failed, was cancelled or was skipped.
     name: Check
-    needs: [static, integration, models, images, packages]
+    needs: [static, integration, models, images, packages, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:

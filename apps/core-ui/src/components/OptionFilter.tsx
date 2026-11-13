@@ -33,7 +33,9 @@ export const OptionFilter = {
                 onSelect={() => setValue(option.value)}
               >
                 {option.label}
-                {value === option.value && <IconCheck className="ml-auto size-4 text-primary" />}
+                {value === option.value && (
+                  <IconCheck className="ml-auto size-4 text-primary-text" />
+                )}
               </Filter.CommandItem>
             ))}
           </Command.List>

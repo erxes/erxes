@@ -10,7 +10,11 @@ import { cn } from 'erxes-ui/lib/utils';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 
 import type { Header, RowData } from '@tanstack/react-table';
-import { useRecordTableState, type RecordTableFeatures } from './RecordTableProvider';
+import {
+  useRecordTable,
+  useRecordTableState,
+  type RecordTableFeatures,
+} from './RecordTableProvider';
 
 type RecordTableHeader = Header<RecordTableFeatures, RowData>;
 
@@ -36,8 +40,9 @@ export const RecordTableHead = ({
   pinned: boolean;
 }) => {
   const { id } = header.column;
+  const { headId } = useRecordTable();
 
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+  const { isDragging, listeners, setNodeRef, transform } = useSortable({
     id,
     disabled: pinned,
   });
@@ -45,6 +50,7 @@ export const RecordTableHead = ({
   return (
     <Table.Head
       ref={setNodeRef}
+      id={headId(id)}
       className={cn(recordTableHeadVariants({ isDragging, pinned }), className)}
       style={{
         width: `var(--header-${header.id}-width)`,
@@ -55,9 +61,10 @@ export const RecordTableHead = ({
       {children}
       {!isStructuralColumn(id) && (
         <>
+          {/* Pointer-only drag area: a role="button" inside the header would hide its name. */}
           <span
-            {...attributes}
             {...listeners}
+            aria-hidden
             tabIndex={-1}
             className="absolute top-0 left-0 w-full h-full focus:outline-hidden"
           />

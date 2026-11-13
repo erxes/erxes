@@ -63,15 +63,15 @@ export const useCan = () => {
 /**
  * The UI clears only after the server has cleared the HttpOnly session
  * cookie: otherwise the cookie would still work while the page says
- * "signed out". A failure says the member is still signed in.
+ * "signed out". Then a fresh page load drops every cache, the live stream and
+ * loaded plugin UIs, and shows sign-in. A failure says the member is still signed in.
  */
 const useSignOutHandlers = () => {
-  const client = useQueryClient();
   const { toast } = useToast();
   const { t } = useTranslation('organization');
 
   return {
-    onSuccess: () => client.clear(),
+    onSuccess: () => window.location.assign('/'),
     onError: (error: Error) =>
       toast({
         variant: 'destructive',

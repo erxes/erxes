@@ -44,7 +44,7 @@ export const IconPicker = ({
                   setOpen(false);
                 }}
                 value={key}
-                className={cn(_value === key && 'text-primary')}
+                className={cn(_value === key && 'text-primary-text')}
               >
                 <Icon />
               </Command.Item>

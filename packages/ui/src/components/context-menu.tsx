@@ -113,7 +113,7 @@ const ContextMenuRadioItem = ({
   <ContextMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm font-medium text-sm py-1.5 pl-2 pr-8 outline-hidden transition-colors focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 data-[state=checked]:text-primary [&>svg]:size-4 [&>svg]:shrink-0 gap-2',
+      'relative flex cursor-default select-none items-center rounded-sm font-medium text-sm py-1.5 pl-2 pr-8 outline-hidden transition-colors focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 data-[state=checked]:text-primary-text [&>svg]:size-4 [&>svg]:shrink-0 gap-2',
       className,
     )}
     {...props}

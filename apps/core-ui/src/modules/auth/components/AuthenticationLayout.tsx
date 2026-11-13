@@ -8,6 +8,7 @@ export const AuthBanner = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
 
   return (
+    // Dark in both themes: the foreground colour in light, the background in dark.
     <div className="relative z-10 hidden h-dvh overflow-hidden bg-foreground lg:block lg:w-1/2 dark:bg-background">
       <Polygons />
       <div className="flex h-full w-full flex-col items-center justify-center text-primary-foreground">
@@ -18,7 +19,7 @@ export const AuthBanner = () => {
           <h1 className="text-2xl font-semibold leading-7 text-background dark:text-foreground">
             {t('banner-title')}
           </h1>
-          <p className="text-lg font-medium leading-6 text-muted-foreground">
+          <p className="text-lg font-medium leading-6 text-background/70 dark:text-muted-foreground">
             {t('banner-description')}
           </p>
         </div>
@@ -40,17 +41,17 @@ export const AuthenticationLayout = ({ children }: { children: ReactNode }) => {
             className="absolute -top-[18.5%] left-1/2 w-[170%] -translate-x-1/2"
           />
         </div>
-        <Logo className="relative mx-auto hidden h-10 text-primary sm:block" />
+        <Logo className="relative mx-auto hidden h-10 text-primary-text sm:block" />
         <div className="relative sm:min-h-144">
           <div className="overflow-hidden rounded-xl bg-sidebar shadow-xl">
             <div className="-mx-px h-full w-auto space-y-6 rounded-b-xl border border-t-0 bg-background p-6 pt-8">
               {children}
             </div>
-            <div className="m-0 flex w-full flex-col space-y-1 px-0 py-5 text-accent-foreground">
+            <div className="m-0 flex w-full flex-col space-y-1 px-0 py-5 text-muted-foreground">
               <span className="text-center text-sm">{t('accept-terms-prefix')}</span>
               <span className="inline-flex justify-center gap-1 text-center text-sm">
                 <a
-                  className="font-medium text-primary hover:underline"
+                  className="font-medium text-primary-text hover:underline"
                   href="https://erxes.io/legal/terms"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -59,7 +60,7 @@ export const AuthenticationLayout = ({ children }: { children: ReactNode }) => {
                 </a>
                 {t('and')}
                 <a
-                  className="font-medium text-primary hover:underline"
+                  className="font-medium text-primary-text hover:underline"
                   href="https://erxes.io/legal/privacy"
                   target="_blank"
                   rel="noopener noreferrer"

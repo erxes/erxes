@@ -31,7 +31,7 @@ export const ContactFieldValue = ({
     variant="secondary"
     className={cn(
       'w-full font-medium text-left justify-start px-2 flex-auto overflow-hidden',
-      isPrimary && 'text-primary bg-primary/10 hover:bg-primary/20',
+      isPrimary && 'text-primary-text bg-primary/10 hover:bg-primary/20',
     )}
     size="lg"
   >
@@ -41,7 +41,7 @@ export const ContactFieldValue = ({
       <IconCircleDashed className="text-muted-foreground" />
     )}
     <TextOverflowTooltip value={text} />
-    {isPrimary && <IconBookmarkFilled className="text-primary" />}
+    {isPrimary && <IconBookmarkFilled className="text-primary-text" />}
   </Button>
 );
 
@@ -87,7 +87,7 @@ export const ContactFieldOptions = ({
         align="start"
       >
         <DropdownMenu.Item onClick={isPrimary ? undefined : onSetPrimary}>
-          {isPrimary ? <IconBookmarkFilled className="text-primary" /> : <IconBookmark />}
+          {isPrimary ? <IconBookmarkFilled className="text-primary-text" /> : <IconBookmark />}
           {isPrimary ? `Primary ${kind}` : `Set as primary ${kind}`}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={onEdit}>

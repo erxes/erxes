@@ -49,6 +49,7 @@
   "days": "days",
   "template-hint": "Text can use placeholders like",
   "add-condition": "Add condition",
+  "operator": "Operator",
   "match-prefix": "Match",
   "match-all": "all",
   "match-any": "any",

@@ -68,7 +68,7 @@ export const FinalSection = ({
         className="flex items-center justify-center"
       >
         <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-muted">
-          <IconCircleCheck className="text-primary size-12" stroke={2} />
+          <IconCircleCheck className="text-primary-text size-12" stroke={2} />
         </div>
       </Appear>
 

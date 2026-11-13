@@ -27,7 +27,10 @@ export const ProductPanelProperties = ({ product }: { product: Product }) => {
               <p className="text-sm text-muted-foreground">
                 {t('form.no-properties', 'No product properties yet.')}{' '}
                 {manage && (
-                  <Link to={PRODUCT_SETTINGS.properties} className="text-primary hover:underline">
+                  <Link
+                    to={PRODUCT_SETTINGS.properties}
+                    className="text-primary-text hover:underline"
+                  >
                     {t('form.add-properties', 'Add them in settings')}
                   </Link>
                 )}

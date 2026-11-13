@@ -620,5 +620,12 @@
     "choose-currency": "Choose a currency",
     "search": "Search",
     "no-match": "Nothing matches"
+  },
+  "crash": {
+    "app-title": "erxes stopped working",
+    "page-title": "This page stopped working",
+    "try-again": "Try again",
+    "reload": "Reload",
+    "reload-hint": "Try again keeps what you typed elsewhere. Reload starts over and clears unsaved changes."
   }
 }

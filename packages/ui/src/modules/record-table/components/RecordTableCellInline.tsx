@@ -2,18 +2,27 @@ import { Badge } from 'erxes-ui/components/badge';
 import { Button } from 'erxes-ui/components/button';
 import { Popover } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
-import React from 'react';
+import React, { use, useId } from 'react';
 import type { Popover as PopoverPrimitive } from 'radix-ui';
+import { CellColumnHead } from './RecordTableCell';
 
 const RecordTableCellTrigger = ({
   ref,
   children,
   className,
+  id,
   ...props
 }: React.ComponentProps<typeof Button>) => {
+  const ownId = useId();
+  const triggerId = id ?? ownId;
+  // In a table, the column then the value ("Emails ada@…"); an empty cell is still named.
+  const columnHead = use(CellColumnHead);
+
   return (
     <Popover.Trigger asChild>
       <Button
+        id={triggerId}
+        aria-labelledby={columnHead ? `${columnHead} ${triggerId}` : undefined}
         variant="ghost"
         className={cn(
           'h-8 px-2 w-full justify-start text-left rounded-none focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:shadow-subtle overflow-hidden',

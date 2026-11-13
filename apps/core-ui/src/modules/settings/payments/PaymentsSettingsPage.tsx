@@ -129,7 +129,7 @@ const CurrencyNote = () => {
       {t('currency-note', 'New invoices are in {{currency}} unless a plugin names another.', {
         currency,
       })}{' '}
-      <Link to="/settings/general" className="text-primary hover:underline">
+      <Link to="/settings/general" className="text-primary-text hover:underline">
         {t('change-currency', 'Change')}
       </Link>
     </p>

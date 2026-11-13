@@ -1,7 +1,9 @@
 import { IconPlugConnectedX, IconRefresh } from '@tabler/icons-react';
 import { Button, Spinner } from 'erxes-ui';
 import { useQuery } from '@tanstack/react-query';
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary';
+import { messageOf } from '~/lib/api';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { loadedPluginComponent, loadPluginComponent } from './remotes';
 import type { LoadedPlugin } from './types';
@@ -30,35 +32,25 @@ const Failure = ({
   </div>
 );
 
+const PluginCrash = ({ name }: { name: string }) => {
+  const { error, resetBoundary } = useErrorBoundary();
+
+  return (
+    <Failure title={`${name} stopped working`} message={messageOf(error)} onRetry={resetBoundary} />
+  );
+};
+
 /** One plugin failing to draw must not take core down. */
-class PluginBoundary extends Component<
-  { name: string; children: ReactNode },
-  { error: Error | null }
-> {
-  override state: { error: Error | null } = { error: null };
-
-  static getDerivedStateFromError(error: Error) {
-    return { error };
-  }
-
-  override componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error(`[plugins] ${this.props.name} crashed`, error, info.componentStack);
-  }
-
-  override render() {
-    if (this.state.error) {
-      return (
-        <Failure
-          title={`${this.props.name} stopped working`}
-          message={this.state.error.message}
-          onRetry={() => this.setState({ error: null })}
-        />
-      );
+const PluginBoundary = ({ name, children }: { name: string; children: ReactNode }) => (
+  <ErrorBoundary
+    onError={(error, info) =>
+      console.error(`[plugins] ${name} crashed`, error, info.componentStack)
     }
-
-    return this.props.children;
-  }
-}
+    fallback={<PluginCrash name={name} />}
+  >
+    {children}
+  </ErrorBoundary>
+);
 
 /** Renders a plugin's page module under `/<plugin path>/*`; the plugin draws its own sidebar. */
 export const PluginPage = ({ plugin }: { plugin: LoadedPlugin | undefined }) => {

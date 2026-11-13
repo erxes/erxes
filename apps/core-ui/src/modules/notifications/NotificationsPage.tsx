@@ -68,7 +68,7 @@ const InboxNav = ({
             to={`/notifications/${item.source}`}
             className={navLinkClassName(source === item.source)}
           >
-            <Icon className="size-4 text-primary" />
+            <Icon className="size-4 text-primary-text" />
             <span className="truncate">{item.label}</span>
             <Count value={bySource[item.source] ?? 0} active={source === item.source} />
           </Link>

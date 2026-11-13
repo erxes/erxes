@@ -30,7 +30,7 @@ export const ContentTypeSwitch = () => {
           aria-pressed={type === value}
           className={cn(
             'h-6 px-3',
-            type === value && 'bg-background text-primary shadow-sm hover:bg-background',
+            type === value && 'bg-background text-primary-text shadow-sm hover:bg-background',
           )}
           onClick={() => setType(value)}
         >

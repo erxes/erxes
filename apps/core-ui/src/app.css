@@ -44,6 +44,13 @@
   --ring: 234.5 89.5% 73.9%;
 }
 
+/* The empty-line placeholder and the drag handle take BlockNote's side-menu colour,
+   #cfcfcf by default (1.6:1 on white). */
+.bn-shadcn,
+.bn-shadcn.dark {
+  --bn-colors-side-menu: hsl(var(--muted-foreground));
+}
+
 .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
   font-style: normal;
 }
@@ -219,14 +226,14 @@
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
   [data-active='true'],
   [data-state='active'],
-  .text-primary
+  .text-primary-text
 ) {
   color: color-mix(in oklab, var(--foreground) 85%, transparent);
 }
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
     [data-active='true'],
     [data-state='active'],
-    .text-primary
+    .text-primary-text
   )
   svg {
   color: var(--muted-foreground);
@@ -234,12 +241,12 @@
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
     [data-active='true'],
     [data-state='active'],
-    .text-primary
+    .text-primary-text
   ):hover,
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
     [data-active='true'],
     [data-state='active'],
-    .text-primary
+    .text-primary-text
   ):hover
   svg {
   color: var(--foreground);

@@ -129,7 +129,7 @@ export const DateTextInput = ({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         autoComplete="off"
-        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-accent-foreground/70 focus-visible:outline-hidden disabled:cursor-not-allowed"
+        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed"
       />
       {options.clearable && !isDisabled && inputText ? (
         <button

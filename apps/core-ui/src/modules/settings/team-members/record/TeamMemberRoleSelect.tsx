@@ -49,7 +49,7 @@ export const TeamMemberRoleSelect = ({ user }: { user: User }) => {
                 >
                   <span className="flex items-center gap-2">
                     {role.name}
-                    {user.role === role.key && <IconCheck className="text-primary size-4" />}
+                    {user.role === role.key && <IconCheck className="text-primary-text size-4" />}
                   </span>
                 </Command.Item>
               ))}

@@ -11,5 +11,9 @@ coverage/
 data/
 .test-files/
 
+# Playwright traces, screenshots and the owner session (e2e/)
+e2e/test-results/
+e2e/playwright-report/
+
 # Throwaway scripts (AGENTS.md)
 .scratch/

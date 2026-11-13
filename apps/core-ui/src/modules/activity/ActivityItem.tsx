@@ -158,7 +158,7 @@ const EventItem = ({
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             {plugin && <PluginMeta activity={activity} actor={actor} label={look?.label} />}
             {activity.link && (
-              <Link to={activity.link} className="text-primary hover:underline">
+              <Link to={activity.link} className="text-primary-text hover:underline">
                 {t('open', 'Open')}
               </Link>
             )}

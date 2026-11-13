@@ -37,7 +37,7 @@ const Row = ({
           <span className="block truncate text-xs text-muted-foreground">{item.description}</span>
         )}
       </span>
-      {selected && <IconCheck className="mt-1 size-4 shrink-0 text-primary" />}
+      {selected && <IconCheck className="mt-1 size-4 shrink-0 text-primary-text" />}
     </Command.Item>
   );
 };
@@ -149,7 +149,7 @@ const Categories = ({
             <span
               className={cn(
                 'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
-                group.source !== 'core' && 'bg-primary/10 text-primary',
+                group.source !== 'core' && 'bg-primary/10 text-primary-text',
               )}
             >
               <group.icon className="size-4" />

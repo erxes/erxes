@@ -4,6 +4,7 @@ import { Provider as JotaiProvider } from 'jotai';
 import { Suspense } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { CrashBoundary } from '~/components/CrashBoundary';
 import { messageOf } from '~/lib/api';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { ThemeEffect } from '~/modules/app/ThemeEffect';
@@ -117,9 +118,11 @@ export const App = () => (
         <BrowserRouter>
           <Toaster />
           <ThemeEffect />
-          <Suspense fallback={<FullScreenSpinner />}>
-            <Screen />
-          </Suspense>
+          <CrashBoundary scope="app">
+            <Suspense fallback={<FullScreenSpinner />}>
+              <Screen />
+            </Suspense>
+          </CrashBoundary>
         </BrowserRouter>
       </JotaiProvider>
     </I18nextProvider>

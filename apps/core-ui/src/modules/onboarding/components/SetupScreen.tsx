@@ -172,7 +172,7 @@ export const SetupScreen = ({
         />
       </div>
       <Appear y={16} duration={500} className="flex w-full max-w-sm flex-col items-center gap-8">
-        <div className="relative flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <div className="relative flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary-text">
           <IconSparkles className="size-8" stroke={1.75} />
           {setup.done < steps.length && !setup.error && (
             <span className="absolute inset-0 animate-ping rounded-2xl bg-primary/10" />

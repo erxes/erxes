@@ -134,6 +134,7 @@ export const StageColumn = memo(function StageColumn({
   return (
     <section
       ref={setNodeRef}
+      aria-label={stage.name}
       className={cn(
         'flex h-full w-72 shrink-0 flex-col overflow-hidden rounded-xl border-t-[3px] bg-muted/40 transition-[background-color,box-shadow] duration-150',
         target && 'bg-primary/5 shadow-[inset_0_0_0_2px] shadow-primary/30',
@@ -158,7 +159,7 @@ export const StageColumn = memo(function StageColumn({
           <div
             className={cn(
               'flex h-24 shrink-0 items-center justify-center rounded-lg border border-dashed text-xs text-muted-foreground transition-colors',
-              target && 'border-primary/40 text-primary',
+              target && 'border-primary/40 text-primary-text',
             )}
           >
             {target ? t('board.drop-here') : t('board.empty')}

@@ -118,7 +118,7 @@ const InboxChips = ({
           className={cn(
             'flex h-6 shrink-0 items-center gap-1 rounded-full border px-2 text-xs',
             active
-              ? 'border-primary bg-primary/10 text-primary'
+              ? 'border-primary bg-primary/10 text-primary-text'
               : 'text-muted-foreground hover:bg-accent',
           )}
         >

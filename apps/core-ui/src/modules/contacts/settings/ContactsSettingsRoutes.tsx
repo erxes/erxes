@@ -7,7 +7,8 @@ import {
 } from '@tabler/icons-react';
 import { AppLayout, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { PageOutlet } from '~/components/CrashBoundary';
 import { useCan } from '~/modules/auth/session';
 import { CONTACT_PROPERTY_TYPES } from '~/modules/properties/constants';
 import { ImportExportPage } from '~/modules/settings/import-export/ImportExportPage';
@@ -88,7 +89,7 @@ const ContactsSettingsLayout = () => {
       title={t('contacts-settings', 'Contacts settings')}
       sidebar={<ContactsSettingsSidebar />}
     >
-      <Outlet />
+      <PageOutlet />
     </AppLayout>
   );
 };

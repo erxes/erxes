@@ -56,7 +56,7 @@ const PickerTrigger = ({
         disabled={disabled}
         className="flex h-auto min-h-9 w-full items-center gap-2.5 rounded-md border bg-background px-2.5 py-1.5 text-left shadow-xs transition-colors hover:bg-muted/40 focus-visible:outline-hidden focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-60 data-[state=open]:border-primary/40"
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary-text">
           <SelectedIcon className="size-4" />
         </span>
         <span className="min-w-0 flex-1">

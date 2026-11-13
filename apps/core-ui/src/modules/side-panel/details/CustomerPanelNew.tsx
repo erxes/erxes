@@ -121,7 +121,7 @@ const SexRow = () => {
             value={String(field.value ?? 0)}
             onValueChange={(value) => field.onChange(Number(value))}
           >
-            <Select.Trigger className={INPUT_CLASS_NAME}>
+            <Select.Trigger className={INPUT_CLASS_NAME} aria-label={t('pronoun', 'Pronoun')}>
               <Select.Value placeholder={t('pronoun', 'Pronoun')} />
             </Select.Trigger>
             <Select.Content align="start">

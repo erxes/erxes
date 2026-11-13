@@ -35,8 +35,10 @@ const InviteTextCell = ({
               <Input
                 {...field}
                 placeholder={placeholder}
+                aria-label={placeholder}
                 type={name}
-                autoComplete={name === 'email' ? 'new-email' : 'new-password'}
+                // Someone else's address: the browser shouldn't offer the owner's own.
+                autoComplete={name === 'email' ? 'off' : 'new-password'}
                 className={INPUT_CLASS_NAME}
               />
             </Form.Control>
@@ -50,6 +52,7 @@ const InviteTextCell = ({
 
 /** Every role but owner. */
 const InviteRoleCell = ({ index, last }: { index: number; last: boolean }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { control } = useFormContext<TUserForm>();
   const { roles } = useRoles();
 
@@ -64,7 +67,7 @@ const InviteRoleCell = ({ index, last }: { index: number; last: boolean }) => {
           <Form.Item>
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
-                <Select.Trigger className={INPUT_CLASS_NAME}>
+                <Select.Trigger className={INPUT_CLASS_NAME} aria-label={t('role')}>
                   <Select.Value />
                 </Select.Trigger>
               </Form.Control>

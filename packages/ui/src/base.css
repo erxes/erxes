@@ -15,13 +15,16 @@
 
     --primary: oklch(0.514 0.2276 276.98);
     --primary-foreground: oklch(0.9848 0 0);
+    /* Primary as text (links, active items): dark mode's --primary reads at 2.6:1 on dark surfaces. */
+    --primary-text: var(--primary);
 
     --secondary: oklch(0.8372 0.0563 288.17);
     --muted: oklch(0.9619 0 0);
-    --muted-foreground: oklch(0.5509 0.0057 17.33);
+    --muted-foreground: oklch(0.52 0.0057 17.33);
 
     --accent: oklch(0.9688 0.0008 286.38);
-    --accent-foreground: oklch(0.7258 0.0074 286.21);
+    /* Field labels, placeholders and table heads use it as text: 4.5:1 on white and on --muted (WCAG AA). */
+    --accent-foreground: oklch(0.52 0.0074 286.21);
 
     --destructive: oklch(0.6368 0.2078 25.33);
     --destructive-foreground: oklch(0.9848 0 0);
@@ -29,6 +32,11 @@
     --success: oklch(0.7205 0.192 149.49);
     --warning: oklch(0.7453 0.1322 54.63);
     --info: oklch(0.6261 0.1859 259.6);
+    /* Status colours as text on their own 10% tint (badges): 4.5:1 or more. */
+    --success-text: oklch(0.47 0.14 149.49);
+    --warning-text: oklch(0.5 0.12 54.63);
+    --destructive-text: oklch(0.5 0.19 25.33);
+    --info-text: oklch(0.5 0.17 259.6);
 
     --scroll: oklch(0.8634 0.0059 286.27);
     --border: oklch(0.9197 0.0041 286.32);
@@ -66,13 +74,14 @@
 
     --primary: oklch(0.514 0.2276 276.98);
     --primary-foreground: oklch(0.9848 0 0);
+    --primary-text: oklch(0.7 0.15 276.98);
 
     --secondary: oklch(0.2219 0.0798 280.68);
     --muted: oklch(0.2591 0 0);
     --muted-foreground: oklch(0.7132 0.0043 17.26);
 
     --accent: oklch(0.245 0.0037 286.12);
-    --accent-foreground: oklch(0.5278 0.0102 286.05);
+    --accent-foreground: oklch(0.7132 0.0102 286.05);
 
     --destructive: oklch(0.6368 0.2078 25.33);
     --destructive-foreground: oklch(0.98 0.01 257);
@@ -80,6 +89,10 @@
     --success: oklch(0.7205 0.192 149.49);
     --warning: oklch(0.7453 0.1322 54.63);
     --info: oklch(0.6261 0.1859 259.6);
+    --success-text: var(--success);
+    --warning-text: var(--warning);
+    --destructive-text: oklch(0.72 0.17 25.33);
+    --info-text: oklch(0.72 0.15 259.6);
 
     --scroll: oklch(0.3701 0.0113 285.84);
     --border: oklch(0.28 0.0104 285.76);

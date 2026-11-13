@@ -16,7 +16,7 @@ export const Mention = createReactInlineContentSpec(
   },
   {
     render: (props) => (
-      <span className="bg-primary/10 p-1 rounded font-bold text-sm text-primary inline-flex items-center">
+      <span className="bg-primary/10 p-1 rounded font-bold text-sm text-primary-text inline-flex items-center">
         @{props.inlineContent.props.fullName}
       </span>
     ),

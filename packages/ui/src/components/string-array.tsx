@@ -57,7 +57,7 @@ export function StringArrayInput({
         onChange={(event) => setDraft(event.target.value)}
         onKeyDown={onKeyDown}
         onPaste={onPaste}
-        className="h-7 min-w-20 flex-1 bg-transparent px-2 text-sm outline-hidden placeholder:text-accent-foreground/70"
+        className="h-7 min-w-20 flex-1 bg-transparent px-2 text-sm outline-hidden placeholder:text-accent-foreground"
       />
     </div>
   );

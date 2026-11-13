@@ -11,9 +11,11 @@ import { removeCodeFormattingFromHTML } from 'erxes-ui/modules/blocks/utils/remo
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
+  /** What screen readers call the editor; the placeholder when not given. */
+  label?: string;
   uploadFile?: (file: File) => Promise<string>;
 }): IBlockEditor => {
-  const { initialContent, placeholder, uploadFile } = args ?? {};
+  const { initialContent, placeholder, label, uploadFile } = args ?? {};
 
   const { toast } = useToast();
 
@@ -30,11 +32,21 @@ export const useBlockEditor = (args?: {
     }
   };
 
+  const defaultPlaceholder = placeholder || "Type '/' for commands...";
+
   const editor = useCreateBlockNote({
     schema: BLOCK_SCHEMA,
     tables: TABLE_SCHEMA,
     placeholders: {
-      default: placeholder || "Type '/' for commands...",
+      default: defaultPlaceholder,
+    },
+    // A text box to assistive tech; BlockNote's "/" menu adds aria-autocomplete, which needs that role.
+    domAttributes: {
+      editor: {
+        role: 'textbox',
+        'aria-multiline': 'true',
+        'aria-label': label || defaultPlaceholder,
+      },
     },
     uploadFile: uploadFile ?? defaultUploadFile,
     resolveFileUrl: (url) => Promise.resolve(readImage(url)),

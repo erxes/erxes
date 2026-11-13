@@ -59,7 +59,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
             <span
               className={cn(
                 'text-sm font-medium transition-colors',
-                theme === value ? 'text-primary' : 'text-muted-foreground',
+                theme === value ? 'text-primary-text' : 'text-muted-foreground',
               )}
               aria-hidden="true"
             >

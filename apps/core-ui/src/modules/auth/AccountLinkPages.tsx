@@ -22,7 +22,7 @@ const Shell = ({
     <AuthenticationLayout>
       <div className="flex flex-col items-center gap-3">
         <div className="text-xl font-semibold leading-none">{title}</div>
-        {subtitle && <div className="text-center text-accent-foreground">{subtitle}</div>}
+        {subtitle && <div className="text-center text-muted-foreground">{subtitle}</div>}
       </div>
       {children}
     </AuthenticationLayout>

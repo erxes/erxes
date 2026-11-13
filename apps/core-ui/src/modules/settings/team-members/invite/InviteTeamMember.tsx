@@ -24,7 +24,12 @@ export function InviteTeamMember() {
           </Dialog.Title>
           <Dialog.Description className="sr-only">{t('add-new-account')}</Dialog.Description>
           <Dialog.Close asChild>
-            <Button variant="secondary" size="icon" className="absolute right-2 top-2">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute right-2 top-2"
+              aria-label={t('close', { ns: 'common' })}
+            >
               <IconX />
             </Button>
           </Dialog.Close>

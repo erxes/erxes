@@ -130,7 +130,12 @@ export const ContactDescriptionRow = ({ label, scope }: { label: string; scope: 
         control={control}
         name="description"
         render={({ field }) => (
-          <Editor initialContent={field.value} onChange={field.onChange} scope={scope} />
+          <Editor
+            initialContent={field.value}
+            onChange={field.onChange}
+            scope={scope}
+            label={label}
+          />
         )}
       />
     </div>
