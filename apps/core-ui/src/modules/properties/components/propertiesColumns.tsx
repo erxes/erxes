@@ -1,4 +1,4 @@
-import type { Field } from '@erxes/core-contract';
+import { type Field, FieldContentType } from '@erxes/core-contract';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import type { RecordTableColumnDef } from 'erxes-ui';
 import {
@@ -13,13 +13,21 @@ import type { TFunction } from 'i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { z } from 'zod';
 import { propertiesPath } from '../constants';
 import { FIELD_TYPES_OBJECT } from '../fieldTypes';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 
+/** What a field's edit page path needs; a row parses this, not the whole field. */
+export const FieldLocation = z.object({
+  id: z.string(),
+  contentType: FieldContentType,
+  groupId: z.string().nullable(),
+});
+
 /** The edit page of a field. */
-export const propertyEditPath = (field: Field) =>
+export const propertyEditPath = (field: z.infer<typeof FieldLocation>) =>
   `${propertiesPath(field.contentType)}/${field.groupId ?? 'ungrouped'}/${field.id}`;
 
 const PropertiesCheckboxCell = ({ id }: { id: string }) => {
