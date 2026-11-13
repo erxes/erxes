@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs as TabsPrimitive } from 'radix-ui';
+import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 
@@ -16,14 +16,14 @@ const tabsListVariants = cva('h-auto text-accent-foreground', {
 });
 
 const tabsTriggerVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-disabled:pointer-events-none data-disabled:opacity-50',
   {
     variants: {
       variant: {
         underline:
-          'relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 hover:bg-accent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent data-[state=active]:text-primary-text',
+          'relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 hover:bg-accent data-active:bg-transparent data-active:shadow-none data-active:after:bg-primary data-active:hover:bg-accent data-active:text-primary-text',
         segment:
-          'gap-2 rounded-md text-muted-foreground hover:bg-accent data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:hover:bg-background',
+          'gap-2 rounded-md text-muted-foreground hover:bg-accent data-active:bg-background data-active:text-foreground data-active:shadow-sm data-active:hover:bg-background',
       },
     },
     defaultVariants: {
@@ -36,54 +36,53 @@ type TTabsVariant = VariantProps<typeof tabsListVariants>['variant'];
 
 const TabsVariantContext = React.createContext<TTabsVariant>('underline');
 
+/** Typed over the tab values, so a change handler gets the caller's value type back. */
+const TabsRoot = <Value extends string>(
+  props: Omit<TabsPrimitive.Root.Props, 'value' | 'defaultValue' | 'onValueChange'> & {
+    value?: Value;
+    defaultValue?: Value;
+    onValueChange?: (value: Value, eventDetails: TabsPrimitive.Root.ChangeEventDetails) => void;
+  },
+) => <TabsPrimitive.Root {...props} />;
+
+/** Arrow keys select the tab they land on, as under Radix. */
 const TabsList = ({
-  ref,
   className,
   variant,
+  activateOnFocus = true,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.List> & VariantProps<typeof tabsListVariants>) => (
-  <TabsVariantContext.Provider value={variant ?? 'underline'}>
+}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) => (
+  <TabsVariantContext value={variant ?? 'underline'}>
     <TabsPrimitive.List
-      ref={ref}
+      activateOnFocus={activateOnFocus}
       className={cn(tabsListVariants({ variant }), className)}
       {...props}
     />
-  </TabsVariantContext.Provider>
+  </TabsVariantContext>
 );
 
 const TabsTrigger = ({
-  ref,
   className,
   variant,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger> &
-  VariantProps<typeof tabsTriggerVariants>) => {
-  const listVariant = React.useContext(TabsVariantContext);
+}: TabsPrimitive.Tab.Props & VariantProps<typeof tabsTriggerVariants>) => {
+  const listVariant = React.use(TabsVariantContext);
 
   return (
-    <TabsPrimitive.Trigger
-      ref={ref}
+    <TabsPrimitive.Tab
       className={cn(tabsTriggerVariants({ variant: variant ?? listVariant }), className)}
       {...props}
     />
   );
 };
 
-const TabsContent = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn('focus-visible:outline-hidden', className)}
-    {...props}
-  />
+/** An inactive panel carries data-hidden; one kept mounted also gets the hidden attribute. */
+const TabsContent = ({ className, ...props }: TabsPrimitive.Panel.Props) => (
+  <TabsPrimitive.Panel className={cn('focus-visible:outline-hidden', className)} {...props} />
 );
 
-export const Tabs = Object.assign(TabsPrimitive.Root, {
+export const Tabs = Object.assign(TabsRoot, {
   List: TabsList,
   Trigger: TabsTrigger,
   Content: TabsContent,
-  Primitive: TabsPrimitive,
 });
