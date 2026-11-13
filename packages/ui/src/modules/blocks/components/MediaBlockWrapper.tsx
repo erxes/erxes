@@ -2,6 +2,8 @@ import { FilePanelExtension } from '@blocknote/core/extensions';
 import { useBlockNoteEditor, useDictionary, useExtension } from '@blocknote/react';
 import type { PointerEvent, ReactNode } from 'react';
 import { useRef, useState } from 'react';
+import { cn } from 'erxes-ui/lib/utils';
+import { useBlockEditorEditable } from 'erxes-ui/modules/blocks/hooks/useBlockEditorEditable';
 
 const MIN_WIDTH = 64;
 
@@ -56,8 +58,8 @@ export const MediaBlockWrapper = ({
   children: ReactNode;
 }) => {
   const editor = useBlockNoteEditor();
+  const editable = useBlockEditorEditable(editor.isEditable);
   const mediaRef = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState(false);
 
   const [drag, setDrag] = useState<{
     side: ResizeSide;
@@ -100,18 +102,21 @@ export const MediaBlockWrapper = ({
 
   return (
     <Wrapper
-      className="bn-file-block-content-wrapper"
+      className="bn-file-block-content-wrapper group/media"
       style={{ width: width ? `${width}px` : 'fit-content' }}
-      onMouseEnter={() => setHovered(editor.isEditable)}
-      onMouseLeave={() => setHovered(false)}
     >
       <div className="bn-visual-media-wrapper relative" ref={mediaRef}>
         {children}
-        {(hovered || drag) &&
+        {/* An embedded player gets the pointer events over it, so hovering it shows nothing:
+            the handles stay in place, invisible, and show when the pointer reaches one. */}
+        {editable &&
           (['left', 'right'] as const).map((side) => (
             <div
               key={side}
-              className="bn-resize-handle"
+              className={cn(
+                'bn-resize-handle opacity-0 group-hover/media:opacity-100 hover:opacity-100 pointer-coarse:opacity-100',
+                drag && 'opacity-100',
+              )}
               style={{ [side]: '4px' }}
               onPointerDown={startResize(side)}
               onPointerMove={resize}
