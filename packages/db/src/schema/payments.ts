@@ -27,6 +27,17 @@ export const INVOICE_STATUSES = [
   'failed',
 ] as const;
 
+/** What an invoice is for, line by line; `amount` = quantity × unit price, in hundredths. */
+export interface InvoiceLine {
+  productId: string | null;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  amount: number;
+  /** The plugin the line belongs to, when one invoice pays for several (an order and its delivery). */
+  plugin: string | null;
+}
+
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
@@ -88,6 +99,7 @@ export const paymentInvoices = pgTable(
     payment: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     /** The caller's own data (order lines, room number), returned in events. */
     metadata: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
+    lines: jsonb().$type<InvoiceLine[]>().default([]).notNull(),
     /** What the gateway says was paid (hundredths), and its payment id (for refunds). */
     paidAmount: bigint({ mode: 'number' }),
     gatewayPaymentId: text(),

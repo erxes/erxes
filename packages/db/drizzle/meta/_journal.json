@@ -309,6 +309,13 @@
       "when": 1794504750013,
       "tag": "0043_automation_triggers_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794541209998,
+      "tag": "0044_products",
+      "breakpoints": true
     }
   ]
 }
