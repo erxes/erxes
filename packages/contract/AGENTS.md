@@ -1,13 +1,19 @@
 # @erxes/core-contract
 
-The `/core/v1` API contract (zod 3 + `@orpc/contract`) and event schemas. Core implements it,
+The `/core/v1` API contract (zod 4 + `@orpc/contract`) and event schemas. Core implements it,
 core-ui and plugins call it with a typed client, and `openapi.json` describes it for everyone else.
+
+Types flow one way: the Drizzle table (`@erxes/core-db/schema`) → drizzle-zod → these schemas →
+the oRPC router and `openapi.json` → `@orpc/tanstack-query` in core-ui. Renaming a column fails
+the type check in the contract, the services and core-ui.
 
 ## Layout
 
 - `src/<domain>.ts` has the domain's schemas and its `<domain>Contract` of procedures.
 - `src/index.ts` assembles `coreContract` and `CORE_API_PREFIX` (`/core/v1`).
-- `src/common.ts` has shared pieces: `Id`, `IdList`, `CursorQuery`, `cursorPageOf`, `Changes`, `text()`.
+- `src/common.ts` has shared pieces: `Id`, `IdList`, `CursorQuery`, `cursorPageOf`, `isoDate`.
+- `src/leads.ts` has the lifecycle columns customers and companies share: `LIFECYCLE_COLUMNS`,
+  `lifecycleRow`, `lifecycleInput`, `LIFECYCLE_INPUT_COLUMNS`.
 - `src/events.ts` has the event schemas plugins publish (`EventInput`, `EventNotify`).
 - `src/live.ts` has the `/core/v1/stream` messages (`LiveHello`, `LiveTimeline`). The stream is
   Server-Sent Events outside the oRPC router, so it is not in `openapi.json`.
@@ -21,8 +27,26 @@ core-ui and plugins call it with a typed client, and `openapi.json` describes it
   (`{ id, ...changes }`). The summary names the error codes the procedure adds (`409 TAG_EXISTS`).
 - Ids are text (`Id`). List queries extend `CursorQuery` and answer `cursorPageOf(Row)`.
 - Outputs never include credentials or `org_id`.
-- Types come from these schemas (`z.infer`). Nothing downstream hand-writes an API shape. Phase 2
-  (future) builds row schemas from the Drizzle tables with drizzle-zod and moves to zod 4.
+- Types come from these schemas (`z.infer`). Nothing downstream hand-writes an API shape.
+- A schema that mirrors a table starts from the table. Copy `src/tags.ts`:
+  - Output: `createSelectSchema(table, refinements).pick({ ... })`, then `.extend({ ... })` for
+    computed fields (`tagIds`, `editable`, `actor`). Pick every column by name; never `.omit()` from a table schema,
+    so a new column (a hash, a secret, `orgId`) stays private until someone picks it.
+  - Input: `createUpdateSchema(table, rules).pick({ ... })` gives every field optional. Create
+    is `.required({ name: true })`, update is `.extend({ id: Id })`. Not `createInsertSchema`
+    with refinements: drizzle-zod 0.8.3 types a refined optional column as required.
+  - Refinements keep the API's rules: `(name) => name.trim().min(1).max(100)` keeps the column's
+    nullability (a nullable column becomes `.nullable()`, and `.optional()` in update schemas).
+    A schema value (`Id`, `z.iso.datetime()`) replaces the column as it is: add `.nullable()` or
+    `.optional()` yourself.
+  - Override what drizzle-zod infers differently: `id: Id`, timestamps `isoDate`, integers
+    `() => z.int()` (it adds the column's int32 or int53 bounds), jsonb columns their real shape.
+  - Enums come from the column constants: `z.enum(CONTENT_TYPES)`, not a second list.
+- Check `openapi.json` after every change: zero difference unless the API is meant to change.
+  Property order may move (computed fields come last); that is not a change.
+- The contract imports only `@erxes/core-db/schema` from the database package: table definitions,
+  no client or driver. core-ui bundles them, so `packages/db/src/schema` never imports Node, `pg`
+  or `../client` (`no-restricted-imports`, `noDriver` in `tools/lint/restricted-imports.ts`).
 - The package has no import-time side effects and imports no app (`no-restricted-imports`).
 
 ## Versioning
