@@ -45,7 +45,10 @@ The core React app (React 19 with the compiler, Rsbuild, React Query) and the Mo
 `pnpm check` and `pnpm build`. For a visible change, follow `.agents/skills/verify-feature/SKILL.md`
 and say what you saw in the browser.
 
-`pnpm build` fails when a route's gzipped JS goes over its budget in `bundleBudget.ts`. erxes-ui is
+`pnpm build` fails when a route's gzipped JS goes over its budget in `bundleBudget.ts`, or when a
+chunk holds drizzle or a `packages/db` module other than `enums.ts`. That happens when a value comes
+from a contract module built on a table: import it from `values.ts` (`packages/contract/AGENTS.md`),
+and keep `coreContract` an `import type`; `src/lib/api.ts` passes `coreRoutes` to `OpenAPILink`. erxes-ui is
 one shared chunk every route loads, so a heavy part of it loads on first use (`LazyEditor.tsx`).
 For a speed change, measure before and after: `pnpm --filter @erxes/core-ui perf:seed` fills an
 empty org, and `perf` times interactions and route loads against a production build

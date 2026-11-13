@@ -41,7 +41,7 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
 - Releasing the three packages: bump their `version` in a PR, then run `.github/workflows/release.yml`
   (manually, or push a `v2-*` tag). It publishes each version not yet on npm under the `v2-next` dist-tag
   only. `@erxes/ui` 3.x from old erxes owns `latest` and `next`.
-- `pnpm check:generated`: regenerates migrations and `packages/contract/openapi.json` and fails on drift.
+- `pnpm check:generated`: regenerates migrations and `packages/contract/openapi.json` and `routes.json`, and fails on drift.
 - `pnpm db:generate`, `pnpm openapi`, `pnpm bootstrap` (an organisation and owner from the command line),
   `pnpm plugin:secret <name>` (registers a plugin or rotates its client secret; the old one works 24 h more).
 - The pre-commit hook runs `vp staged` (`vp check --fix` on staged files). CI
@@ -65,7 +65,7 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
 - Contract first. Every endpoint is declared in `packages/contract` and implemented in
   `apps/core-api/src/modules/<feature>/<feature>.router.ts`, built from the builders in
   `apps/core-api/src/orpc.ts`. Types flow from the contract; never hand-write an API shape.
-  `pnpm check:generated` fails when `openapi.json` is stale.
+  `pnpm check:generated` fails when `openapi.json` or `routes.json` is stale.
 - Tenancy. Every table with an organisation's data has `org_id`. Every query filters by the caller's organisation
   (`context.actor.orgId`, or `context.plugin.orgId` from the plugin's token). Never trust an organisation id from input.
 - Responses never carry credentials or `org_id`: services map rows to DTOs.

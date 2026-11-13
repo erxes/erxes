@@ -6,10 +6,13 @@ Drizzle schema, client and migrator for core's tables.
 
 - `src/schema/<domain>.ts` defines tables. `src/schema/index.ts` exports them for drizzle-kit and
   the client, and as `@erxes/core-db/schema` for the contract, which builds its schemas from them
-  (`packages/contract/AGENTS.md`). core-ui bundles that subpath, so schema files import only
-  `drizzle-orm`, `drizzle-orm/pg-core`, `../table` and each other: no Node, `pg` or client. The
+  (`packages/contract/AGENTS.md`). The published contract copies that subpath, so schema files
+  import only `drizzle-orm`, `drizzle-orm/pg-core`, `../table`, `../enums` and each other: no Node,
+  `pg` or client. The
   shapes a jsonb column stores (`ConditionGroup`, `ExportQuery`, `ViewSort`) are typed here, and
   the db package never imports the contract.
+- `src/enums.ts` (`@erxes/core-db/enums`) has the `as const` value lists the columns store and the
+  contract's z.enums accept. It imports nothing, so browsers load it without the tables.
 - `src/table.ts` is `pgTable`, which prefixes every table with `core_`.
 - `src/client.ts` has `configureDb`, `db()`, `withTransaction`, `Db` and `Transaction`.
 - `src/migrate.ts` has `runMigrations()`. The API runs it at startup in one transaction under
@@ -24,8 +27,8 @@ Drizzle schema, client and migrator for core's tables.
   `core_tags_org_type_name_key`.
 - Every table that holds an organisation's data has `org_id` with a foreign key to
   `core_organizations` (`onDelete('cascade')`), and its indexes lead with `org_id`.
-- Columns that hold a fixed set of values carry it in the type: `text({ enum: ... })` or
-  `.$type<...>()`, so services need no casts.
+- Columns that hold a fixed set of values carry it in the type: `text({ enum: ... })` with an
+  array from `src/enums.ts`, or `.$type<...>()`, so services need no casts.
 - Schema change: edit `src/schema`, run `pnpm db:generate`, read the SQL, commit both together.
   Never edit a released migration. Never use `drizzle-kit push`. `pnpm check:generated` fails when
   the schema and `drizzle/` disagree.
