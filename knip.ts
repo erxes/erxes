@@ -4,7 +4,8 @@ import type { KnipConfig } from 'knip';
 const config: KnipConfig = {
   workspaces: {
     '.': {
-      entry: ['tools/lint/*/rules/*.test.ts'],
+      // tools/*.ts are scripts the vp tasks in vite.config.ts run with node.
+      entry: ['tools/lint/*/rules/*.test.ts', 'tools/*.ts'],
       project: ['tools/**/*.ts', 'e2e/**/*.ts'],
       // The daily flows in Chromium (pnpm e2e); the config names the specs and the setup file.
       playwright: {
