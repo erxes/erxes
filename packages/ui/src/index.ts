@@ -101,8 +101,6 @@ export { TextOverflowTooltip } from './components/text-overflow';
 
 export { Textarea } from './components/textarea';
 
-export { DateInput, TimeField } from './components/time-picker';
-
 export { Toaster } from './components/toaster';
 
 export { ToggleGroup } from './components/toggle-group';
