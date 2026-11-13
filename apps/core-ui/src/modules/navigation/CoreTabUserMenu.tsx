@@ -52,23 +52,20 @@ const ThemeSelector = () => {
       <Tooltip.Provider delayDuration={100}>
         <ToggleGroup
           className="ml-auto h-6 gap-0.5 rounded bg-accent text-accent-foreground"
-          onValueChange={(value) => {
-            if (value && isThemeOption(value)) setTheme(value);
+          onValueChange={([next]) => {
+            if (next && isThemeOption(next)) setTheme(next);
           }}
           size="sm"
-          type="single"
-          value={theme}
+          value={[theme]}
         >
           {options.map(({ value, label, icon: Icon }) => (
             <Tooltip key={value}>
               <ToggleGroup.Item
-                asChild
-                className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                render={<Tooltip.Trigger />}
+                className="h-full min-w-6 px-1 data-pressed:bg-background data-pressed:shadow-sm"
                 value={value}
               >
-                <Tooltip.Trigger>
-                  <Icon />
-                </Tooltip.Trigger>
+                <Icon />
               </ToggleGroup.Item>
               <Tooltip.Content alignOffset={4}>{label}</Tooltip.Content>
             </Tooltip>

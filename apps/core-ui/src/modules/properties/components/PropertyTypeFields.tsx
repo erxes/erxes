@@ -113,10 +113,9 @@ export const PropertyValidationField = ({ form }: { form: PropertyFormApi }) => 
           <Form.Label>{t('validation', 'Validation')}</Form.Label>
           <Form.Control>
             <ToggleGroup
-              type="single"
               variant="outline"
-              value={field.value ?? NONE}
-              onValueChange={(next) => {
+              value={[field.value ?? NONE]}
+              onValueChange={([next]) => {
                 if (!next) return;
                 field.onChange(next === NONE ? null : next);
               }}
