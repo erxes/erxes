@@ -665,6 +665,18 @@
     "owner-everything": "Owners can do everything, including owner-only actions (plugins, audit retention).",
     "admin-everything": "Admins can do everything except owner-only actions — including whatever plugins add later."
   },
+  "general": {
+    "title": "General",
+    "name": "Organisation name",
+    "name-required": "Enter a name",
+    "country": "Country",
+    "currency": "Currency",
+    "currency-help": "New products and invoices take this currency. Products and invoices keep the currency they were made in.",
+    "read-only": "Only owners and admins can change these settings.",
+    "save": "Save",
+    "saved": "Organisation saved",
+    "save-failed": "Could not save"
+  },
   "payments": {
     "currency-note": "New invoices are in {{currency}} unless a plugin names another.",
     "change-currency": "Change",

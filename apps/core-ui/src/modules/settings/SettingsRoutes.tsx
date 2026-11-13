@@ -4,6 +4,7 @@ import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
+import { GeneralSettingsPage } from './general/GeneralSettingsPage';
 import { NotificationSettingsPage } from './notifications/NotificationSettingsPage';
 import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
@@ -28,7 +29,8 @@ const MovedTo = ({ base }: { base: string }) => {
 export const SettingsRoutes = () => (
   <Routes>
     <Route element={<SettingsLayout />}>
-      <Route index element={<Navigate to="team-members" replace />} />
+      <Route index element={<Navigate to="general" replace />} />
+      <Route path="general" element={<GeneralSettingsPage />} />
       <Route path="team-members/*" element={<TeamMemberSettingsRoutes />} />
       <Route path="tags" element={<MovedTo base={CONTACT_SETTINGS.tags} />} />
       <Route path="properties/*" element={<MovedTo base={CONTACT_SETTINGS.properties} />} />

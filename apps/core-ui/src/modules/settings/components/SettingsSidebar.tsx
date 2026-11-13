@@ -6,6 +6,7 @@ import {
   IconApps,
   IconLock,
   IconPlugConnected,
+  IconSettings,
   IconShieldCheck,
   IconShieldHalf,
   IconTrash,
@@ -35,6 +36,7 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const plan = usePlan().data;
 
   return [
+    { name: t('general', 'General'), path: 'general', icon: IconSettings },
     { name: t('team-member'), path: 'team-members', icon: IconUsersGroup },
     { name: t('roles', 'Roles'), path: 'roles', icon: IconShieldHalf },
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
