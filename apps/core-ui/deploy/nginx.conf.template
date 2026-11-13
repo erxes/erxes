@@ -40,6 +40,17 @@ server {
     proxy_read_timeout 120s;
   }
 
+  # Plugin APIs: core-api forwards /pl:<plugin>/… to the plugin with the member's identity.
+  location /pl: {
+    proxy_pass ${CORE_API_URL};
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_request_buffering off;
+    proxy_read_timeout 120s;
+  }
+
   # Hashed build files are cached for good; index.html never is.
   location /static/ {
     expires 1y;

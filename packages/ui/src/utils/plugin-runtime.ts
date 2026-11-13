@@ -2,97 +2,41 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { z } from 'zod';
 
 /**
- * How plugin UIs reach their own API and hear about changes. The host app
- * (core-ui) provides the runtime; erxes-ui is a Module Federation singleton,
- * so every plugin UI gets the host's.
+ * How plugin UIs reach their own API and hear about changes. erxes-ui is a
+ * Module Federation singleton, so every plugin UI gets the host's.
  *
- * - `pluginFetch('hr', '/leaves')` calls the plugin's API (its address comes
- *   from the plugin's manifest) with a 5-minute token core issues for this
- *   member and this plugin only. The plugin verifies it with core's public
- *   keys; core's session cookie never leaves core.
+ * - `pluginUrl('hr', '/api/v1/me')` is `/pl:hr/api/v1/me` on core's own
+ *   address. Core forwards it to the plugin's API (its manifest's `api.url`)
+ *   with a 5-minute token for this member and this plugin only, so the session
+ *   cookie stays first-party and never reaches the plugin. Use it for links,
+ *   images and downloads too.
+ * - `pluginFetch('hr', '/api/v1/leaves')` is `fetch` on that address.
  * - `useLiveSignal('hr', ['leaves'], refetch)` runs when the plugin says a
  *   topic changed (`core_live_signal` / `POST /core/v1/plugins/live`), and
- *   after reconnecting, over the one stream the browser keeps with core.
+ *   after reconnecting, over the one stream the browser keeps with core. The
+ *   host provides it with `setPluginRuntime`.
  */
-
-export interface PluginSession {
-  token: string;
-  /** ISO time the token stops working. */
-  expiresAt: string;
-  /** The plugin API's address, from its manifest. */
-  apiUrl: string | null;
-}
 
 export type PluginLiveMessage = { plugin: string; topics: string[] } | { resync: true };
 
 export interface PluginRuntime {
-  session(plugin: string): Promise<PluginSession>;
   subscribe(listener: (message: PluginLiveMessage) => void): () => void;
 }
 
 let runtime: PluginRuntime | null = null;
-const sessions = new Map<string, Promise<PluginSession>>();
 
 export const setPluginRuntime = (next: PluginRuntime | null) => {
   runtime = next;
-  sessions.clear();
 };
 
 export const getPluginRuntime = () => runtime;
 
-const need = () => {
-  if (!runtime)
-    throw new Error('erxes plugin runtime is not available (open the plugin inside erxes)');
+/** The address of `path` on a plugin's API, as the browser reaches it through core. */
+export const pluginUrl = (plugin: string, path = '') => `/pl:${plugin}/${path.replace(/^\/+/, '')}`;
 
-  return runtime;
-};
-
-/** A cached session, renewed 30 seconds before it ends. */
-const sessionOf = (plugin: string, fresh = false): Promise<PluginSession> => {
-  const cached = sessions.get(plugin);
-
-  if (cached && !fresh) {
-    return cached.then((session) =>
-      new Date(session.expiresAt).getTime() - Date.now() > 30_000
-        ? session
-        : sessionOf(plugin, true),
-    );
-  }
-
-  const request = need().session(plugin);
-
-  sessions.set(plugin, request);
-  request.catch(() => sessions.delete(plugin));
-
-  return request;
-};
-
-const join = (base: string, path: string) =>
-  `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
-
-/**
- * `fetch` against a plugin's API as the signed-in member. Relative paths are
- * resolved against the plugin's API address; a 401 renews the token once.
- */
-export const pluginFetch = async (
-  plugin: string,
-  path: string,
-  init: RequestInit = {},
-): Promise<Response> => {
-  const send = async (session: PluginSession) => {
-    const headers = new Headers(init.headers);
-
-    headers.set('Authorization', `Bearer ${session.token}`);
-
-    const url = /^https?:\/\//.test(path) ? path : join(session.apiUrl ?? `/pl/${plugin}`, path);
-
-    return fetch(url, { ...init, headers, credentials: 'omit' });
-  };
-
-  const response = await send(await sessionOf(plugin));
-
-  return response.status === 401 ? send(await sessionOf(plugin, true)) : response;
-};
+/** `fetch` against a plugin's API as the signed-in member. */
+export const pluginFetch = (plugin: string, path: string, init: RequestInit = {}) =>
+  fetch(pluginUrl(plugin, path), { ...init, credentials: 'same-origin' });
 
 const errorBody = z.object({ message: z.string() });
 

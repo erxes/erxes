@@ -27,6 +27,14 @@ export const CORE_API_VERSION = 'v1';
 /** Every path in the contract is under this prefix (`/core/v1/customers`, …). */
 export const CORE_API_PREFIX = '/core/v1';
 
+/**
+ * Browsers reach plugin `<name>`'s API at `/pl:<name>/<path>` on core's own
+ * address, and core forwards to `<manifest api.url>/<path>`. This header is
+ * core's signed statement of the organisation a forwarded request is for: the
+ * member's, or the visitor's address's. Verify it with `verifyPluginOrg`.
+ */
+export const PLUGIN_ORG_HEADER = 'x-erxes-org';
+
 /** The whole core API. Core implements it; plugins call it with a typed client. */
 export const coreContract = {
   activities: activitiesContract,

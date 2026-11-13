@@ -18,7 +18,7 @@ Only what something uses:
 
 - what core-ui imports,
 - what plugin UIs import (the HR plugin is the first consumer),
-- the plugin API in the plugin skills: `getPluginRuntime`, `pluginFetch`, `pluginJson`,
+- the plugin API in the plugin skills: `getPluginRuntime`, `pluginUrl`, `pluginFetch`, `pluginJson`,
   `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl` and the `IUIConfig` types,
 - the design-system primitives in `src/components` (Accordion, Card, Slider …), even unused,
   because plugins build on them.

@@ -1,5 +1,5 @@
 import type { Plugin } from '@erxes/core-contract';
-import { type Db, db, pluginInstallations, plugins } from '@erxes/core-db';
+import { type Db, db, pluginInstallations, plugins, users, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { type Actor, type PluginCaller, userCaller } from '~/http/auth';
 import { can } from '~/http/access';
@@ -172,8 +172,25 @@ export const pluginSession = async (actor: Actor, name: string) => {
     .map((permission) => permission.action)
     .filter((action) => can(actor, action));
 
+  // Who it is, so the plugin can show and match the member (HR links people by email).
+  const [user] = await withOrg(actor.orgId, (tx) =>
+    tx
+      .select({ email: users.email, name: users.fullName })
+      .from(users)
+      .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
+      .limit(1),
+  );
+
   const token = await signJwt(
-    { org: actor.orgId, role: actor.role, permissions, tier: tierOf(plan, name), access },
+    {
+      org: actor.orgId,
+      role: actor.role,
+      permissions,
+      tier: tierOf(plan, name),
+      access,
+      email: user?.email ?? null,
+      name: user?.name ?? null,
+    },
     {
       typ: PLUGIN_SESSION_TYP,
       audience: name,

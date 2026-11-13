@@ -6,6 +6,9 @@ import { z } from 'zod';
 export interface PluginMember {
   userId: string;
   orgId: string;
+  /** The member's sign-in email and display name (null in tokens without them). */
+  email: string | null;
+  name: string | null;
   /** `owner`, `admin`, `member` or a custom role key. */
   role: string;
   /** The member's actions in this plugin (from its manifest's `permissions`). */
@@ -99,6 +102,8 @@ const Strings = z
 const member = (claims: {
   sub: string;
   org: string;
+  email: string | null;
+  name: string | null;
   role: string;
   permissions: string[];
   tier: PluginMember['tier'];
@@ -106,6 +111,8 @@ const member = (claims: {
 }): PluginMember => ({
   userId: claims.sub,
   orgId: claims.org,
+  email: claims.email,
+  name: claims.name,
   role: claims.role,
   permissions: claims.permissions,
   can: (action) => claims.role === 'owner' || claims.permissions.includes(action),
@@ -114,9 +121,13 @@ const member = (claims: {
   canChange: () => claims.access === 'full' || claims.access === 'warning',
 });
 
+const Text = z.string().nullable().catch(null);
+
 const SessionClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
+  email: Text,
+  name: Text,
   role: z.string(),
   permissions: Strings,
   // Absent or unknown means self-hosted: pro; null means no plan.
@@ -131,6 +142,17 @@ const SessionClaims = z.object({
  */
 export const verifyPluginSession = async (token: string, options: VerifyOptions) =>
   member(await verifyCoreToken(token, options, 'erxes-plugin-session+jwt', SessionClaims));
+
+const OrgClaims = z.object({ org: z.string().min(1) });
+
+/**
+ * The organisation a request core forwarded from `/pl:<plugin>/…` is for,
+ * from its `x-erxes-org` header (`PLUGIN_ORG_HEADER`): the signed-in member's,
+ * or for visitors (careers pages, a mobile app with the plugin's own tokens)
+ * the one whose address they opened. Throws when core didn't sign it for this plugin.
+ */
+export const verifyPluginOrg = async (token: string, options: VerifyOptions) =>
+  (await verifyCoreToken(token, options, 'erxes-plugin-org+jwt', OrgClaims)).org;
 
 /** The bearer token of a request's `Authorization` header, if any. */
 export const bearerOf = (authorization: string | undefined | null) =>
@@ -164,6 +186,8 @@ export const verifyCoreCall = (token: string, options: VerifyOptions): Promise<C
 const AccessTokenClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
+  email: Text,
+  name: Text,
   role: z.string().catch('member'),
   permissions: Strings.catch([]),
   // Not in these tokens: ask core (`saas.pluginPlan`) when the tier matters.

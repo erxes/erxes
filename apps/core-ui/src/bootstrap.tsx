@@ -6,7 +6,6 @@ import { StrictMode } from 'react';
 import { setFileStorage, setPluginRuntime, setRecordTimeline } from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { orpc } from './lib/api';
 import { coreFileStorage } from './lib/files';
 import { pluginLive } from './lib/live';
 import { SharedTimeline } from './modules/activity/SharedTimeline';
@@ -17,11 +16,8 @@ setFileStorage(coreFileStorage);
 // Plugin UIs show core's timeline for their own records.
 setRecordTimeline(SharedTimeline);
 
-// Plugin UIs call their own API with a per-plugin token and hear live signals.
-setPluginRuntime({
-  session: (name) => orpc.plugins.session.call({ name }),
-  subscribe: pluginLive,
-});
+// Plugin UIs hear their live signals (their API calls go through core at /pl:<plugin>).
+setPluginRuntime({ subscribe: pluginLive });
 
 const root = document.getElementById('root');
 

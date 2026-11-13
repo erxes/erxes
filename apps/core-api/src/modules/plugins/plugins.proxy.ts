@@ -1,7 +1,9 @@
+import { PLUGIN_ORG_HEADER } from '@erxes/core-contract';
 import { db, organizations, pluginInstallations, plugins, withSystem } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { config } from '~/config';
 import { cookieMember } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
@@ -11,8 +13,7 @@ import { pluginSession } from './installations.service';
 /** `/pl:<plugin>/…`: the browser's way to a plugin's API, on core's own address. */
 const PLUGIN_PATH = /^\/pl:([a-z][a-z0-9_]{0,39})(?=\/|\?|$)/;
 
-/** The organisation of the address, signed for one plugin (`verifyPluginOrg` in the SDK). */
-const ORG_HEADER = 'x-erxes-org';
+/** The organisation, signed for one plugin (`verifyPluginOrg` in the SDK). */
 const ORG_TOKEN_TYP = 'erxes-plugin-org+jwt';
 const ORG_TOKEN_TTL_SECONDS = 5 * 60;
 
@@ -39,7 +40,7 @@ const apiUrlOf = async (name: string) => {
  * the plugin: the subdomain's (or DEFAULT_SUBDOMAIN's), else the only one.
  */
 const orgOfAddress = async (host: string | undefined, name: string) => {
-  const subdomain = subdomainFromHost(host);
+  const subdomain = subdomainFromHost(host) ?? config.auth.defaultSubdomain;
 
   const rows = await withSystem('plugin proxy: the address organisation', (tx) =>
     tx
@@ -82,13 +83,13 @@ const identityFor = async (req: Request, name: string): Promise<Record<string, s
 
     return {
       authorization: `Bearer ${session.token}`,
-      [ORG_HEADER]: await orgToken(member.actor.orgId, name),
+      [PLUGIN_ORG_HEADER]: await orgToken(member.actor.orgId, name),
     };
   }
 
   const orgId = await orgOfAddress(req.get('host'), name);
 
-  return orgId ? { [ORG_HEADER]: await orgToken(orgId, name) } : {};
+  return orgId ? { [PLUGIN_ORG_HEADER]: await orgToken(orgId, name) } : {};
 };
 
 const resolveUpstream = async (req: Request, _res: Response, next: NextFunction) => {
@@ -119,7 +120,7 @@ const forward = createProxyMiddleware<Request, Response>({
     proxyReq: (proxyReq, req) => {
       // Core's cookie never leaves core, and only core names the organisation.
       proxyReq.removeHeader('cookie');
-      proxyReq.removeHeader(ORG_HEADER);
+      proxyReq.removeHeader(PLUGIN_ORG_HEADER);
 
       for (const [name, value] of Object.entries(upstreams.get(req)?.headers ?? {})) {
         proxyReq.setHeader(name, value);

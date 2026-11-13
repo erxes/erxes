@@ -17,6 +17,7 @@ import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
+import { pluginProxy } from '~/modules/plugins/plugins.proxy';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
 import { standingGuard } from '~/modules/saas/saas.service';
@@ -89,6 +90,9 @@ export const createApp = (log: Logger = logger): Express => {
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');
   app.use(requestLogger(log));
   app.use(requestContext);
+
+  // Plugin APIs at `/pl:<plugin>/…`: streamed through before any body parser.
+  app.use(pluginProxy);
 
   // Signed file links stream bytes: before the JSON parser and sign-in.
   app.use('/core/v1/files/signed', uploadLimit, signedFilesRouter);

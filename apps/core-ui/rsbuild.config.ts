@@ -34,7 +34,7 @@ const SHARED = [
 
 /**
  * The erxes core UI (apps/core-ui). Same-origin with the API: in development
- * the dev server forwards /core to apps/core-api; in production a reverse proxy
+ * the dev server forwards /core and the plugin APIs (/pl:<plugin>) to apps/core-api; in production a reverse proxy
  * serves both under one address, so the session cookie stays first-party.
  * It is also the Module Federation host for plugin UIs (PUBLIC_PLUGINS).
  */
@@ -85,6 +85,7 @@ export default defineConfig({
     port: Number(WEB_PORT) || 3500,
     proxy: {
       '/core': CORE_API_URL || 'http://localhost:3400',
+      '/pl:': CORE_API_URL || 'http://localhost:3400',
     },
   },
   tools: {

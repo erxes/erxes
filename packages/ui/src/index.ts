@@ -209,7 +209,7 @@ export {
   pluginJson,
   type PluginLiveMessage,
   type PluginRuntime,
-  type PluginSession,
+  pluginUrl,
   setPluginRuntime,
   useLiveSignal,
 } from './utils/plugin-runtime';
