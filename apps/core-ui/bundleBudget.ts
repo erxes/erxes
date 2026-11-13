@@ -11,15 +11,15 @@ import { logger, type RsbuildPlugin, type Rspack } from '@rsbuild/core';
  * 15 kB over the route's size when it was set.
  */
 const BUDGET_KB: Record<string, number> = {
-  'automations/AutomationsRoutes': 866,
-  'contacts/ContactsRoutes': 896,
-  'home/HomePage': 826,
-  'notifications/NotificationsPage': 806,
-  'onboarding/MainOnboardingPage': 816,
-  'plugins/PluginPage': 806,
-  'products/ProductsRoutes': 866,
-  'reports/ReportsRoutes': 816,
-  'settings/SettingsRoutes': 896,
+  'automations/AutomationsRoutes': 850,
+  'contacts/ContactsRoutes': 880,
+  'home/HomePage': 810,
+  'notifications/NotificationsPage': 790,
+  'onboarding/MainOnboardingPage': 800,
+  'plugins/PluginPage': 790,
+  'products/ProductsRoutes': 850,
+  'reports/ReportsRoutes': 800,
+  'settings/SettingsRoutes': 880,
 };
 
 const ROUTES_MODULE = './src/modules/app/AppRoutes.tsx';
