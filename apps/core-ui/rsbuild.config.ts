@@ -10,9 +10,8 @@ const ui = resolve(__dirname, '../../packages/ui/src');
 const { WEB_PORT, CORE_API_URL } = process.env;
 
 /**
- * Libraries shared with plugin UIs as single instances. Plugin UIs built for
- * erxes 3.x declare the same names with `import: false`, so the host must
- * provide every one of them (core-ui itself does not use `@apollo/client`).
+ * Libraries shared with plugin UIs as single instances. Plugin UIs declare the
+ * same names with `import: false`, so the host must provide every one of them.
  */
 const SHARED = [
   'react',
@@ -20,9 +19,9 @@ const SHARED = [
   'react-router',
   'react-router-dom',
   'erxes-ui',
-  '@apollo/client',
   'jotai',
   'react-i18next',
+  '@tanstack/react-query',
 ];
 
 /**
@@ -71,13 +70,5 @@ export default defineConfig({
   },
   tools: {
     postcss: (_options, { addPlugins }) => addPlugins(tailwindcss()),
-    rspack: {
-      module: {
-        rules: [
-          // erxes-ui's ESM imports `dayjs/plugin/x` without an extension
-          { test: /\.m?js$/, resolve: { fullySpecified: false } },
-        ],
-      },
-    },
   },
 });

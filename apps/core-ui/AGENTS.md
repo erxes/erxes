@@ -32,8 +32,9 @@ The core React app (React 18, Rsbuild, React Query) and the Module Federation ho
 - Browser code never imports `@erxes/core-db`, `pg`, `drizzle-orm` or `node:*` (`no-restricted-imports`).
 - The UI follows old core-ui: the top bar (`CoreTab`), one `AppLayout` sidebar per app, pages from
   `PageContainer`, `PageHeader`, `Filter` and `RecordTable`. Reuse erxes-ui parts before writing new ones.
-- `SHARED` in `rsbuild.config.ts` lists the singletons plugin UIs expect from the host. Old plugins
-  declare them with `import: false`, so the names stay and the host provides each one.
+- `SHARED` in `rsbuild.config.ts` lists the singletons plugin UIs expect from the host. Plugins
+  declare them with `import: false`, so the names stay and the host provides each one. Core has no
+  GraphQL, so `@apollo/client` is not shared: a plugin UI that still imports it fails to load.
 - A plugin's `./config` exports `CONFIG` (`name`, `path`, `icon`, `modules`). Its first module
   renders under `/<path>/*`.
 - React compiler rules run at error: derive state while rendering, reset with a `key`, `void` a
