@@ -1,5 +1,6 @@
 import {
   IconAt,
+  IconBuilding,
   IconCalendarEvent,
   IconCheck,
   IconChevronDown,
@@ -13,6 +14,7 @@ import {
   IconTextSize,
   IconUserCircle,
   IconWorld,
+  IconWorldWww,
 } from '@tabler/icons-react';
 
 export const COUNTRIES = [
@@ -265,11 +267,47 @@ export const FORM_FIELD_TYPES = [
     label: 'Birth date',
     icon: <IconCalendarEvent />,
   },
+
+  {
+    value: 'core:company:avatar',
+    label: 'Logo',
+    defaultLabel: 'Company Logo',
+    icon: <IconUserCircle />,
+  },
+  {
+    value: 'core:company:primaryName',
+    label: 'Name',
+    defaultLabel: 'Company Name',
+    icon: <IconBuilding />,
+  },
+  {
+    value: 'core:company:primaryEmail',
+    label: 'Email',
+    defaultLabel: 'Company Email',
+    icon: <IconAt />,
+  },
+  {
+    value: 'core:company:primaryPhone',
+    label: 'Phone',
+    defaultLabel: 'Company Phone',
+    icon: <IconPhoneSpark />,
+  },
+  {
+    value: 'core:company:website',
+    label: 'Website',
+    icon: <IconWorldWww />,
+  },
+  {
+    value: 'core:company:description',
+    label: 'Description',
+    defaultLabel: 'Company Description',
+    icon: <IconTextSize />,
+  },
 ];
 
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];
 
-export type FormGroupKey = 'basic' | 'core:customer';
+export type FormGroupKey = 'basic' | 'core:customer' | 'core:company';
 export type GroupedFields = Record<FormGroupKey, FormFieldType[]>;
 
 export interface FormGroupMetadata {

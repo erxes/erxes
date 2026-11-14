@@ -130,6 +130,13 @@
   Answers stay on submissions only; `Ticket.formResponses`
   (`form/formResponses.ts`) groups rows by `groupId`, newest first. The live
   form page in `apps/frontline-widgets` reads `?t=` and sends it.
+- Lead forms save `core:company:*` fields (`primaryName`, `primaryEmail`,
+  `primaryPhone`, `website`, `description`, `avatar`) inside the submission
+  guard after the customer is saved (`saveFormCompany` in
+  `form/graphql/resolvers/mutations/widget.ts`): the company is found with
+  `findMessengerCompany` (name, email or phone) and updated, or created, then
+  linked to the customer once through a core relation. Nothing is saved
+  without a name, email or phone. Avatars arrive as `{ url }`.
 - Ticket SLA per pipeline (`pipeline.slaPolicy`: `enabled`, one rule per
   priority 0-4 with `firstResponseMinutes` / `resolutionMinutes`,
   `warnBeforeMinutes`; normalized by `normalizeSlaPolicy` in
@@ -1555,6 +1562,11 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   `conformity.create`, and `fields.generatePropertiesData`, which splits
   messenger `companyData` into `propertiesData` for keys that match a Core
   `core:company` field and `trackedData` for every remaining key.
+- `core` over tRPC — `relation.getRelationIds` (query, `{ contentType,
+  contentId, relatedContentType }`) and `relation.createMultipleRelations`
+  (mutation, `{ relations: [{ entities }] }`; core has no single
+  `createRelation` procedure), which link a lead form's company to its
+  customer.
 - `core` over tRPC — `cpNotifications.create`
   (mutation, `{ cpUserIds, clientPortalId, eventType, data }`), which files a
   client portal notification for a survey requester. `data.type` must be one
