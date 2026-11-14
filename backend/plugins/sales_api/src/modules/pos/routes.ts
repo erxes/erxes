@@ -1,8 +1,13 @@
+import {
+  IProductDocument,
+  IProductCategoryDocument,
+} from 'erxes-api-shared/core-types';
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IPosDocument } from './@types/pos';
 import { USER_FIELDS } from './db/definitions/constants';
 import { calcProductsTaxRule, getChildCategories } from './utils';
+import { getProductGroupSelection } from './utils/productGroupFilter';
 import { getProductPricing } from './utils/getProductPricing';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
@@ -119,7 +124,11 @@ export const getProductsData = async (
     );
   }
 
-  const productGroups: any = [];
+  const productGroups: {
+    categories: (Partial<IProductCategoryDocument> & {
+      products: IProductDocument[];
+    })[];
+  }[] = [];
 
   const ebarimtConfig = await sendTRPCMessage({
     subdomain,
@@ -131,74 +140,47 @@ export const getProductsData = async (
   });
 
   for (const group of groups) {
-    const includeCatIds = await getChildCategories(
-      subdomain,
-      group.categoryIds,
-    );
-    const excludeCatIds = await getChildCategories(
-      subdomain,
-      group.excludedCategoryIds,
-    );
-
-    const productCategoryIds = includeCatIds.filter(
-      (c) => !excludeCatIds.includes(c),
-    );
-
-    const productCategories = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'productCategories',
-      action: 'find',
-      input: {
-        query: { _id: { $in: productCategoryIds } },
-        sort: { order: 1 },
-      },
-      defaultValue: [],
-    });
-
-    const categories: any[] = [];
-
-    for (const category of productCategories) {
-      categories.push({
-        ...category,
-        _id: category._id,
-        name: category.name,
-        description: category.description,
-        code: category.code,
-        parentId: category.parentId,
-        order: category.order,
-        attachment: category.attachment,
-        meta: category.meta,
-        status: category.status,
-        isSimilarity: category.isSimilarity,
-        similarities: category.similarities,
-      });
-    }
-
-    const categoryIds = categories.map((cat) => cat._id);
-    const productsByCatId = {};
-
-    const products: any[] = await sendTRPCMessage({
+    const selection = await getProductGroupSelection(subdomain, group);
+    const products: IProductDocument[] = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
       action: 'find',
-      input: {
-        query: {
-          status: { $ne: 'deleted' },
-          categoryId: { $in: categoryIds },
-          _id: { $nin: group.excludedProductIds },
-        },
-      },
-      defaultValue: [],
+      input: { query: selection.query },
+      throwOnError: true,
     });
+    // Keep the selected category tree and each tag/explicit product's own category.
+    const categoryIds = [
+      ...new Set([
+        ...selection.categoryIds,
+        ...products.map((product) => product.categoryId).filter(Boolean),
+      ]),
+    ];
+    const categories: IProductCategoryDocument[] = categoryIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'productCategories',
+          action: 'find',
+          input: { query: { _id: { $in: categoryIds } }, sort: { order: 1 } },
+          throwOnError: true,
+        })
+      : [];
+    const productsByCatId: Record<string, IProductDocument[]> = {};
 
     const productsById = await calcProductsTaxRule(
       subdomain,
       ebarimtConfig?.value,
       products,
     );
-    const pricing = await getProductPricing(subdomain, pos, products);
+    const pricing = await getProductPricing(
+      subdomain,
+      pos,
+      products.map((product) => ({
+        _id: product._id,
+        unitPrice: product.unitPrice ?? 0,
+      })),
+    );
 
     for (const productId of Object.keys(productsById)) {
       const product = productsById[productId];

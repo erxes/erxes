@@ -11,26 +11,41 @@ import {
   RecordTableInlineCell,
   RecordTableTree,
   Avatar,
-  Badge,
   TextOverflowTooltip,
   RelativeDateDisplay,
+  badgeVariants,
+  cn,
 } from 'erxes-ui';
 import { ICategory } from '../types/category';
-import { CategoryEditSheet } from './CategoryEditSheet';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TMS_CATEGORY_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { categoryMoreColumn } from './CategoryMoreCell';
+
+const CategoryNameBadge = ({ category }: { category: ICategory }) => {
+  const { openDetail } = useTourismPanel(TMS_CATEGORY_CONTENT_TYPE);
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        badgeVariants({ variant: 'secondary' }),
+        'px-2 py-1 font-medium cursor-pointer hover:bg-accent',
+      )}
+      onClick={() => openDetail(category._id)}
+    >
+      <TextOverflowTooltip value={category.name || '-'} />
+    </button>
+  );
+};
 
 export const categoryColumns: (
   categoryObject: Record<string, ICategory>,
-  branchLanguages?: string[],
-  mainLanguage?: string,
   t?: (key: string) => string,
 ) => ColumnDef<ICategory & { hasChildren: boolean }>[] = (
   categoryObject,
-  branchLanguages,
-  mainLanguage,
   t = (k) => k,
 ) => [
-  categoryMoreColumn(branchLanguages, mainLanguage),
+  categoryMoreColumn(),
   RecordTable.checkboxColumn as ColumnDef<ICategory & { hasChildren: boolean }>,
   {
     id: 'attachment',
@@ -64,22 +79,7 @@ export const categoryColumns: (
             name={name}
             hasChildren={row.original.hasChildren}
           >
-            <CategoryEditSheet
-              category={row.original}
-              showTrigger={false}
-              branchLanguages={branchLanguages}
-              mainLanguage={mainLanguage}
-            >
-              <Badge
-           
-                        variant="secondary"
-        className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
-              >
-                <TextOverflowTooltip
-                  value={(cell.getValue() as string) || '-'}
-                />
-              </Badge>
-            </CategoryEditSheet>
+            <CategoryNameBadge category={row.original} />
           </RecordTableTree.Trigger>
         </RecordTableInlineCell>
       );
@@ -101,7 +101,9 @@ export const categoryColumns: (
   },
   {
     id: 'parentId',
-    header: () => <RecordTable.InlineHead icon={IconFolder} label={t('parent')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFolder} label={t('parent')} />
+    ),
     accessorKey: 'parentId',
     cell: ({ cell }) => {
       const parent = categoryObject[cell.getValue() as string];

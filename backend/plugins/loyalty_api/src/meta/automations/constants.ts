@@ -1,5 +1,6 @@
 import {
   AutomationConstants,
+  TAutomationFindObjectTargetDefinition,
   TAutomationRuntimeOutputDefinition,
 } from 'erxes-api-shared/core-modules';
 import {
@@ -29,7 +30,36 @@ const TIER_CHANGED_OUTPUT: TAutomationRuntimeOutputDefinition<TierChangedTarget>
     ],
   };
 
+export const LOYALTY_ACCOUNT_FIND_OBJECT_TYPE = 'loyalty:score.accounts';
+
+const LOYALTY_ACCOUNT_FIND_OBJECT_TARGET: TAutomationFindObjectTargetDefinition =
+  {
+    value: LOYALTY_ACCOUNT_FIND_OBJECT_TYPE,
+    label: 'Loyalty account',
+    lookupFields: [
+      { value: '_id', label: 'ID' },
+      { value: 'number', label: 'Number' },
+      { value: 'ownerId', label: 'Customer ID' },
+    ],
+    output: {
+      variables: [
+        { key: 'number', label: 'Account number' },
+        { key: 'status', label: 'Status' },
+        { key: 'wallets', label: 'Balances' },
+        { key: 'vouchers', label: 'Usable vouchers' },
+      ],
+    },
+    lookup: {
+      description:
+        "The customer's own loyalty balances as they are now: points per wallet, " +
+        'tier, points expiring soon and vouchers they can use. status: active, ' +
+        'frozen or closed. Call it before stating any balance, tier or voucher.',
+      customerField: 'ownerId',
+    },
+  };
+
 export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
+  findObjectTargets: [LOYALTY_ACCOUNT_FIND_OBJECT_TARGET],
   triggers: [
     {
       moduleName: 'score',

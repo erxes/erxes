@@ -5,6 +5,7 @@ export const posCovers = gql(`
     $startDate: Date
     $endDate: Date
     $userId: String
+    $posId: String
     $page: Int
     $perPage: Int
   ) {
@@ -12,6 +13,7 @@ export const posCovers = gql(`
       startDate: $startDate
       endDate: $endDate
       userId: $userId
+      posId: $posId
       page: $page
       perPage: $perPage
     ) {
@@ -77,5 +79,11 @@ export const posCovers = gql(`
         cursor
       }
     }
+    posCoversCount(
+      startDate: $startDate
+      endDate: $endDate
+      userId: $userId
+      posId: $posId
+    )
   }
 `);

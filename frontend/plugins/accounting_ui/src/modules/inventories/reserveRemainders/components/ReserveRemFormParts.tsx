@@ -39,13 +39,13 @@ export const RemainderFormField = <TForm extends TRemainderField>({
 export const ReserveRemFormFooter = ({ loading }: { loading: boolean }) => {
   const { t } = useTranslation('accounting');
   return (
-    <Sheet.Footer className="p-5 border-t bg-background shrink-0">
+    <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
       <Sheet.Close asChild>
-        <Button variant="outline" type="button" size="lg">
+        <Button variant="outline" type="button">
           {t('cancel')}
         </Button>
       </Sheet.Close>
-      <Button type="submit" size="lg" disabled={loading}>
+      <Button type="submit" disabled={loading}>
         {loading && <Spinner />}
         {t('save')}
       </Button>

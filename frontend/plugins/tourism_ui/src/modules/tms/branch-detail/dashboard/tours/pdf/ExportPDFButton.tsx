@@ -14,7 +14,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
-import { Button, Dialog, Sheet, Spinner, useToast } from 'erxes-ui';
+import { Button, Dialog, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { useItineraryDetail } from '../../itinerary/hooks/useItineraryDetail';
@@ -25,7 +25,8 @@ import type { IAmenity } from '@/tms/branch-detail/dashboard/amenities/types/ame
 import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
 import type { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
 import type { ITourDetail } from '../hooks/useTourDetail';
-import { TourEditForm } from '../_components/TourEditForm';
+import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
 import { generateFilename } from '../../itinerary/pdf/utils';
 import { buildTourPdfBlob, resolveTourForPdf } from './pdfBuilder';
 import { CustomizeTourPdfDialog } from './CustomizeTourPdfDialog';
@@ -40,9 +41,6 @@ interface ExportTourPDFButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   branchId?: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-  refetchTour?: () => Promise<unknown>;
 }
 
 export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
@@ -53,12 +51,9 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
   size = 'default',
   className,
   branchId: fallbackBranchId,
-  branchLanguages,
-  mainLanguage,
-  refetchTour,
 }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const { openDetail } = useTourismPanel(TMS_TOUR_CONTENT_TYPE);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string>();
@@ -67,7 +62,6 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
   const [pdfConfig, setPdfConfig] = useState<TourPdfRenderConfig>(
     createDefaultTourPdfConfig,
   );
-  const [refreshNonce, setRefreshNonce] = useState(0);
   const { t } = useTranslation('tourism');
   const { toast } = useToast();
   const downloadTimeoutRef = useRef<NodeJS.Timeout>();
@@ -93,11 +87,8 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
         : undefined,
     [branchId, rawBranchDetail],
   );
-  const {
-    itinerary: rawItinerary,
-    loading: itineraryLoading,
-    refetch,
-  } = useItineraryDetail(itineraryId, Boolean(itineraryId), language);
+  const { itinerary: rawItinerary, loading: itineraryLoading } =
+    useItineraryDetail(itineraryId, Boolean(itineraryId), language);
   const itinerary = useMemo(
     () =>
       rawItinerary && rawItinerary._id === itineraryId
@@ -175,17 +166,17 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
   );
   const shouldWaitForElements = Boolean(
     pdfConfig.itineraryConfig.showElements &&
-    previewOpen &&
-    branchId &&
-    elementsLoading &&
-    !elements.length,
+      previewOpen &&
+      branchId &&
+      elementsLoading &&
+      !elements.length,
   );
   const shouldWaitForAmenities = Boolean(
     pdfConfig.itineraryConfig.showAmenities &&
-    previewOpen &&
-    branchId &&
-    amenitiesLoading &&
-    !amenities.length,
+      previewOpen &&
+      branchId &&
+      amenitiesLoading &&
+      !amenities.length,
   );
   const shouldWaitForResources =
     shouldWaitForElements || shouldWaitForAmenities;
@@ -271,7 +262,10 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
         if (totalImages > 0 && loadedImages < totalImages) {
           toast({
             title: t('some-images-failed'),
-            description: t('some-images-failed-desc', { failed: totalImages - loadedImages, total: totalImages }),
+            description: t('some-images-failed-desc', {
+              failed: totalImages - loadedImages,
+              total: totalImages,
+            }),
           });
         }
 
@@ -325,7 +319,9 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
 
     toast({
       title: t('pdf-downloaded'),
-      description: t('pdf-downloaded-desc', { name: localizedTour.name || 'Tour' }),
+      description: t('pdf-downloaded-desc', {
+        name: localizedTour.name || 'Tour',
+      }),
       variant: 'success',
     });
   }, [localizedTour, previewBlob, toast, triggerDownload]);
@@ -346,8 +342,13 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
   }, [generatePreview]);
 
   const handleOpenEditSheet = useCallback(() => {
-    setEditOpen(true);
-  }, []);
+    if (!localizedTour?._id) {
+      return;
+    }
+
+    handlePreviewOpenChange(false);
+    openDetail(localizedTour._id);
+  }, [handlePreviewOpenChange, localizedTour?._id, openDetail]);
 
   const handleConfigToggle = useCallback(
     (
@@ -456,34 +457,6 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
     setPdfConfig(createDefaultTourPdfConfig());
   }, []);
 
-  const handleEditOpenChange = useCallback(
-    async (open: boolean) => {
-      setEditOpen(open);
-
-      if (!open && localizedTour?._id) {
-        try {
-          await Promise.all([
-            refetchTour?.(),
-            itineraryId ? refetch?.() : undefined,
-          ]);
-        } catch (error) {
-          toast({
-            title: t('refresh-failed'),
-            description:
-              error instanceof Error
-                ? error.message
-                : t('failed-to-reload-tour'),
-            variant: 'destructive',
-          });
-        } finally {
-          forcePreviewRefreshRef.current = true;
-          setRefreshNonce((current) => current + 1);
-        }
-      }
-    },
-    [itineraryId, localizedTour?._id, refetch, refetchTour, toast],
-  );
-
   useEffect(() => {
     if (!previewOpen || !localizedTour) {
       return;
@@ -505,7 +478,6 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
     localizedTour,
     previewOpen,
     pdfConfig,
-    refreshNonce,
     shouldWaitForBranch,
     shouldWaitForItinerary,
     shouldWaitForResources,
@@ -636,23 +608,6 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
-
-      <Sheet
-        open={editOpen}
-        onOpenChange={(open) => void handleEditOpenChange(open)}
-      >
-        <Sheet.View className="w-[900px] sm:max-w-[900px] p-0">
-          {localizedTour?._id ? (
-            <TourEditForm
-              tourId={localizedTour._id}
-              branchId={branchId}
-              branchLanguages={branchLanguages}
-              mainLanguage={mainLanguage}
-              onSuccess={() => void handleEditOpenChange(false)}
-            />
-          ) : null}
-        </Sheet.View>
-      </Sheet>
 
       <CustomizeTourPdfDialog
         open={customizeOpen}

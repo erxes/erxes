@@ -6,7 +6,7 @@ import { useQueryState } from 'erxes-ui';
 export const useGetCycleProgress = (cycleId?: string | null) => {
   const [assignee] = useQueryState<string>('assignee');
 
-  const { data, loading, refetch } = useQuery(GET_CYCLE_PROGRESS, {
+  const { data, loading, error, refetch } = useQuery(GET_CYCLE_PROGRESS, {
     variables: cycleId
       ? { _id: cycleId, assigneeId: assignee || undefined }
       : undefined,
@@ -21,5 +21,5 @@ export const useGetCycleProgress = (cycleId?: string | null) => {
 
   const cycleProgress = data?.getCycleProgress;
 
-  return { cycleProgress, loading, refetch };
+  return { cycleProgress, loading, error, refetch };
 };

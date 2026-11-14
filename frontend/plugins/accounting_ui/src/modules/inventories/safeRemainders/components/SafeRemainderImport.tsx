@@ -166,9 +166,9 @@ export const SafeRemainderImport = ({
               </div>
             )}
           </div>
-          <Sheet.Footer className="px-5 border-t bg-background shrink-0 mt-4">
+          <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
             <Button
-              variant="secondary"
+              variant="outline"
               disabled={loading}
               onClick={() => handleOpenChange(false)}
             >

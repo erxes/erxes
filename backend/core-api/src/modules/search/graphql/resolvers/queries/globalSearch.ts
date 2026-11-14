@@ -1,4 +1,11 @@
-import { escapeRegExp } from 'erxes-api-shared/utils';
+import { ICustomerDocument } from 'erxes-api-shared/core-types';
+import {
+  buildSearchTokenFilter,
+  escapeRegExp,
+  splitSearchWords,
+} from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
+import { customerSearchTokenConfig } from '@/contacts/db/definitions/customers';
 import { IContext } from '~/connectionResolvers';
 
 type TGlobalSearchItem = {
@@ -51,10 +58,108 @@ export const buildIdentifierSearchRegex = (
     : undefined;
 };
 
-type TDataSource = {
-  count: () => Promise<number>;
-  fetch: (skip: number, limit: number) => Promise<TGlobalSearchItem[]>;
+const IDENTIFIER_SEARCH_PATTERN = /^[\d\s\-+()./]+$/;
+const CONTACT_SEARCH_PATTERN = /[@.]/;
+const MIN_TOKEN_WORD_LENGTH = 3;
+
+const isTokenWord = (word: string): boolean =>
+  word.length >= MIN_TOKEN_WORD_LENGTH;
+
+const getContactTokenValue = (words: string[]): string | undefined => {
+  const [longestWord] = [...words]
+    .reverse()
+    .sort((a, b) => b.length - a.length);
+
+  return longestWord && isTokenWord(longestWord) ? longestWord : undefined;
 };
+
+const getNameTokenValue = (words: string[]): string | undefined => {
+  const tokenWords = words.at(-1)?.length === 1 ? words.slice(0, -1) : words;
+
+  return tokenWords.length && tokenWords.every(isTokenWord)
+    ? tokenWords.join(' ')
+    : undefined;
+};
+
+const buildCustomerSearchFilter = (
+  rawSearch: string,
+  fieldsFilter: FilterQuery<ICustomerDocument>,
+): FilterQuery<ICustomerDocument> => {
+  if (IDENTIFIER_SEARCH_PATTERN.test(rawSearch)) {
+    return fieldsFilter;
+  }
+
+  const isContactSearch = CONTACT_SEARCH_PATTERN.test(rawSearch);
+  const words = splitSearchWords(rawSearch);
+  const tokenValue = isContactSearch
+    ? getContactTokenValue(words)
+    : getNameTokenValue(words);
+
+  if (!tokenValue) {
+    return fieldsFilter;
+  }
+
+  const tokenFilter = buildSearchTokenFilter<ICustomerDocument>(
+    tokenValue,
+    customerSearchTokenConfig,
+  );
+
+  return {
+    $or: [
+      isContactSearch ? { $and: [tokenFilter, fieldsFilter] } : tokenFilter,
+      {
+        ...fieldsFilter,
+        searchTokens: { $in: [null, []] },
+        state: { $ne: 'visitor' },
+      },
+    ],
+  };
+};
+
+const getCustomerSearchHint = async (
+  customers: IContext['models']['Customers'],
+  rawSearch: string,
+): Promise<string | undefined> => {
+  const words = splitSearchWords(rawSearch);
+
+  // Multi-word intersections, short searches and identifiers need the planner.
+  if (
+    CONTACT_SEARCH_PATTERN.test(rawSearch) ||
+    IDENTIFIER_SEARCH_PATTERN.test(rawSearch) ||
+    words.length !== 1 ||
+    !isTokenWord(words[0])
+  ) {
+    return undefined;
+  }
+
+  // Tenants may not have this index. Sparse/partial indexes omit legacy rows.
+  const indexes = await customers.collection.indexes().catch(() => []);
+  const index = indexes.find(
+    ({ key, sparse, partialFilterExpression, collation, hidden }) =>
+      !sparse &&
+      !partialFilterExpression &&
+      !collation &&
+      !hidden &&
+      JSON.stringify(key) ===
+        JSON.stringify({ searchTokens: 1, state: 1, status: 1 }),
+  );
+
+  return index?.name;
+};
+
+type TSearchPage = {
+  list: TGlobalSearchItem[];
+  totalCount: number;
+};
+
+type TDataSource =
+  | {
+      queryPage: (skip: number, limit: number) => Promise<TSearchPage>;
+    }
+  | {
+      count: () => Promise<number>;
+      fetch: (skip: number, limit: number) => Promise<TGlobalSearchItem[]>;
+    };
 
 const decodeOffsets = (cursor?: string): number[] => {
   if (!cursor) return [];
@@ -135,11 +240,22 @@ const paginateDataSources = async (
     offsets.push(0);
   }
 
-  const batches = await Promise.all(
-    sources.map((source, index) => source.fetch(offsets[index], limit)),
-  );
+  const pages = await Promise.all(
+    sources.map(async (source, index): Promise<TSearchPage> => {
+      if ('queryPage' in source) {
+        return source.queryPage(offsets[index], limit);
+      }
 
-  const counts = await Promise.all(sources.map((source) => source.count()));
+      const [list, totalCount] = await Promise.all([
+        source.fetch(offsets[index], limit),
+        source.count(),
+      ]);
+
+      return { list, totalCount };
+    }),
+  );
+  const batches = pages.map(({ list }) => list);
+  const counts = pages.map(({ totalCount }) => totalCount);
   const totalCount = counts.reduce((sum, count) => sum + count, 0);
 
   const sortDirection = params.orderBy?.createdAt === 1 ? 1 : -1;
@@ -183,12 +299,14 @@ export const globalSearchQueries = {
     const customerQuery = searchRegex
       ? {
           status: { $ne: 'deleted' },
-          $or: [
-            { firstName: searchRegex },
-            { lastName: searchRegex },
-            { primaryEmail: searchRegex },
-            { primaryPhone: identifierRegex ?? searchRegex },
-          ],
+          ...buildCustomerSearchFilter(rawSearch, {
+            $or: [
+              { firstName: searchRegex },
+              { lastName: searchRegex },
+              { primaryEmail: searchRegex },
+              { primaryPhone: identifierRegex ?? searchRegex },
+            ],
+          }),
         }
       : { status: { $ne: 'deleted' } };
 
@@ -217,15 +335,65 @@ export const globalSearchQueries = {
 
     const contactsSources: TDataSource[] = [
       {
-        count: () => models.Customers.countDocuments(customerQuery),
-        fetch: async (skip, limit) => {
-          const docs = await models.Customers.find(customerQuery)
-            .sort({ createdAt: sortDirection, _id: sortDirection })
-            .skip(skip)
-            .limit(limit)
-            .lean();
+        queryPage: async (skip, limit) => {
+          // The legacy fallback can scan most customers. Share that scan between
+          // the exact total and the page instead of evaluating the filter twice.
+          const aggregate = models.Customers.aggregate<{
+            list: Array<
+              Pick<
+                ICustomerDocument,
+                | '_id'
+                | 'createdAt'
+                | 'firstName'
+                | 'lastName'
+                | 'primaryEmail'
+                | 'primaryPhone'
+              >
+            >;
+            counts: Array<{ total: number }>;
+          }>([
+            { $match: customerQuery },
+            {
+              $project: {
+                _id: 1,
+                createdAt: 1,
+                firstName: 1,
+                lastName: 1,
+                primaryEmail: 1,
+                primaryPhone: 1,
+              },
+            },
+            {
+              $facet: {
+                list: [
+                  { $sort: { createdAt: sortDirection, _id: sortDirection } },
+                  { $skip: skip },
+                  { $limit: limit },
+                ],
+                counts: [{ $count: 'total' }],
+              },
+            },
+          ]);
+          const hint = await getCustomerSearchHint(models.Customers, rawSearch);
+          const [page] = await aggregate.option(hint ? { hint } : {}).catch(
+            (error: unknown) => {
+              // The index can be dropped between discovery and execution.
+              if (
+                hint &&
+                error instanceof Error &&
+                'code' in error &&
+                error.code === 2 &&
+                error.message.includes('hint provided does not correspond')
+              ) {
+                return aggregate.option({ hint: undefined }).exec();
+              }
 
-          return docs.map((doc) => {
+              throw error;
+            },
+          );
+          const docs = page?.list ?? [];
+
+          const list = docs.map((doc) => {
             const name =
               [doc.firstName, doc.lastName].filter(Boolean).join(' ') ||
               doc.primaryEmail ||
@@ -249,6 +417,8 @@ export const globalSearchQueries = {
               ]),
             };
           });
+
+          return { list, totalCount: page?.counts[0]?.total ?? 0 };
         },
       },
       {

@@ -86,11 +86,7 @@ export const ToursView = ({
 
   if (view === 'calendar') {
     return (
-      <TourCalendar
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <TourCalendar branchId={branchId} mainLanguage={mainLanguage} />
     );
   }
 

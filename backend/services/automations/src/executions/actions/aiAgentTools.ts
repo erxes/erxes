@@ -32,6 +32,7 @@ const TOOL_BLOCKING_ACTION_TYPES: string[] = [
   AUTOMATION_CORE_ACTIONS.DELAY,
   AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
   AUTOMATION_CORE_ACTIONS.WORKFLOW,
+  AUTOMATION_CORE_ACTIONS.APPROVAL,
 ];
 
 // Provider function names allow [a-z0-9_-] only
@@ -81,6 +82,31 @@ const CONVERSATION_ENUM_INPUTS: Record<
         }
       : null;
   },
+  // The customer's open tickets, named by number and title so the agent picks
+  // the one the message is about instead of inventing an id
+  ticketId: (facts) => {
+    const tickets = (Array.isArray(facts.openTickets) ? facts.openTickets : [])
+      .map(
+        (ticket) =>
+          ticket as { _id?: unknown; number?: unknown; name?: unknown },
+      )
+      .filter((ticket) => typeof ticket._id === 'string' && ticket._id);
+
+    return tickets.length
+      ? {
+          parameter: {
+            type: 'string',
+            enum: tickets.map(({ _id }) => String(_id)),
+            description: `The open ticket this belongs to: ${tickets
+              .map(({ _id, number, name }) =>
+                `${_id} = #${number ?? ''} ${name ?? ''}`.trim(),
+              )
+              .join('; ')}.`,
+          },
+          required: true,
+        }
+      : null;
+  },
 };
 
 const buildToolInputPlan = async ({
@@ -95,6 +121,9 @@ const buildToolInputPlan = async ({
   facts: Record<string, unknown>;
 }) => {
   const bindings = workflow?.config?.inputs || {};
+  // What each input the agent fills means, and its allowed values
+  const hints: Record<string, { description?: string; enum?: string[] }> =
+    workflow?.config?.inputHints || {};
   const inputNames = Object.keys(bindings);
   const resolvedBindings: Record<string, unknown> = {};
   const modelParamNames: string[] = [];
@@ -147,7 +176,18 @@ const buildToolInputPlan = async ({
       type: 'object' as const,
       properties: {
         ...Object.fromEntries(
-          modelParamNames.map((name) => [name, { type: 'string' }]),
+          modelParamNames.map((name) => {
+            const { description, enum: values } = hints[name] || {};
+
+            return [
+              name,
+              {
+                type: 'string',
+                ...(description ? { description } : {}),
+                ...(values?.length ? { enum: values.map(String) } : {}),
+              },
+            ];
+          }),
         ),
         ...enumParameters,
       },

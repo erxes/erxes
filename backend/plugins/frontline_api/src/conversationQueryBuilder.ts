@@ -382,26 +382,15 @@ export default class Builder {
     };
   }
 
-  public static dateFilter(startDate: string, endDate: string) {
+  public static dateFilter(
+    startDate: string,
+    endDate: string,
+  ): { createdAt: { $gte: Date; $lte: Date } } {
     return {
-      $and: [
-        {
-          $or: [
-            {
-              createdAt: {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate),
-              },
-            },
-            {
-              updatedAt: {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate),
-              },
-            },
-          ],
-        },
-      ],
+      createdAt: {
+        $gte: fixDate(startDate),
+        $lte: fixDate(endDate),
+      },
     };
   }
 

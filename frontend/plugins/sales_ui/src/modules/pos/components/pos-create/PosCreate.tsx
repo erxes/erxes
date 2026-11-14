@@ -20,7 +20,8 @@ import { useTranslation } from 'react-i18next';
 interface PosCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateSuccess?: () => void;
+  // The new POS's id, for a caller that picks what was just made
+  onCreateSuccess?: (posId?: string) => void;
 }
 
 export interface PosFormData {
@@ -173,7 +174,7 @@ export const PosCreate = ({
           productGroupsRef.current = [];
           slotsRef.current = [];
           onOpenChange(false);
-          if (onCreateSuccess) onCreateSuccess();
+          onCreateSuccess?.(posId ?? undefined);
           setIsSubmitting(false);
         },
       });

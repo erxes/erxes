@@ -1,9 +1,41 @@
-import { TApprovalChangeApplier } from 'erxes-api-shared/core-modules';
+import {
+  sendAutomationApprovalDecision,
+  TApprovalChangeApplier,
+  TApprovalChangeRejecter,
+} from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 
 export const AUTOMATION_CHANGE_TYPES = {
   OWNERSHIP_TRANSFER: 'automations.ownershipTransfer',
+  APPROVAL_STEP: 'automations.approvalStep',
 } as const;
+
+type TApprovalStepDecision = 'approved' | 'rejected';
+
+/** Hands an approval step's decision to the run waiting on it. */
+const resolveApprovalStep = async (
+  subdomain: string,
+  payload: Record<string, unknown> | undefined,
+  decision: TApprovalStepDecision,
+  userId?: string,
+  reason?: string,
+) => {
+  const executionId = String(payload?.executionId || '');
+  const actionId = String(payload?.actionId || '');
+
+  if (!executionId || !actionId) {
+    throw new Error('Approval step request names no waiting run');
+  }
+
+  // A failure surfaces on the request instead of passing for applied
+  await sendAutomationApprovalDecision(subdomain, {
+    executionId,
+    actionId,
+    decision,
+    userId,
+    reason,
+  });
+};
 
 /**
  * Ownership is a liability, so it moves only when the person taking it on has
@@ -35,4 +67,18 @@ export const automationChangeAppliers: Record<
   TApprovalChangeApplier<IModels>
 > = {
   [AUTOMATION_CHANGE_TYPES.OWNERSHIP_TRANSFER]: applyOwnershipTransfer,
+  [AUTOMATION_CHANGE_TYPES.APPROVAL_STEP]: ({ subdomain, payload, approverId }) =>
+    resolveApprovalStep(subdomain, payload, 'approved', approverId),
+};
+
+export const automationChangeRejecters: Record<
+  string,
+  TApprovalChangeRejecter<IModels>
+> = {
+  [AUTOMATION_CHANGE_TYPES.APPROVAL_STEP]: ({
+    subdomain,
+    payload,
+    rejecterId,
+    reason,
+  }) => resolveApprovalStep(subdomain, payload, 'rejected', rejecterId, reason),
 };

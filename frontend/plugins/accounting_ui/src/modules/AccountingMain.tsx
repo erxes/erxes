@@ -155,6 +155,12 @@ const AccountingCheckSync = lazy(() =>
   })),
 );
 
+const AccountingNotFound = lazy(() =>
+  import('~/pages/NotFoundPage').then((module) => ({
+    default: module.AccountingNotFoundPage,
+  })),
+);
+
 const PluginAccounting = () => {
   return (
     <AppLayout
@@ -241,6 +247,7 @@ const PluginAccounting = () => {
             path="adjustment/closing/:id"
             element={<AdjustClosingDetail />}
           />
+          <Route path="*" element={<AccountingNotFound />} />
         </Routes>
         <PageChangeEffect />
       </Suspense>

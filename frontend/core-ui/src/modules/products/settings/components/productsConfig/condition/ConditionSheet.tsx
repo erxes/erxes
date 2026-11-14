@@ -1,5 +1,6 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
@@ -10,21 +11,24 @@ export const ConditionSheet = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen} modal>
+    <>
       <Can action="productsConfigsManage">
-        <Sheet.Trigger asChild>
-          <Button className="whitespace-nowrap shrink-0">
-            <IconPlus />
-            {t('add-condition', 'Add condition')}
-          </Button>
-        </Sheet.Trigger>
+        <Button
+          onClick={() => setOpen(true)}
+          className="whitespace-nowrap shrink-0"
+        >
+          <IconPlus />
+          {t('add-condition', 'Add condition')}
+        </Button>
       </Can>
-      <Sheet.View
-        className="p-0 sm:max-w-lg"
-        onEscapeKeyDown={(e) => e.preventDefault()}
+      <ProductEditorPanel
+        name="conditions/new"
+        open={open}
+        onOpenChange={setOpen}
+        requiredPermission="productsConfigsManage"
       >
         {open && <ConditionForm onDone={() => setOpen(false)} />}
-      </Sheet.View>
-    </Sheet>
+      </ProductEditorPanel>
+    </>
   );
 };

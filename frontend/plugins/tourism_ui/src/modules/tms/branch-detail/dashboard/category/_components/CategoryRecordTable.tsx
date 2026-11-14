@@ -2,28 +2,31 @@ import { IconLayoutGrid } from '@tabler/icons-react';
 import { RecordTable, RecordTableTree } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { CategoryCreateSheet } from './CategoryCreateSheet';
+import { CategoryCreateButton } from './CategoryPanel';
 import { categoryColumns } from './CategoryColumns';
 import { useCategories } from '../hooks/useCategories';
 import { CategoryCommandBar } from './CategoryCommandBar';
 import { useMemo } from 'react';
 import { ICategory } from '../types/category';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface CategoryRecordTableProps {
   branchId?: string;
-  branchLanguages?: string[];
   mainLanguage?: string;
 }
 
-function CategoryTableContent({ loading }: Readonly<{ loading: boolean }>) {
+function CategoryTableContent({
+  loading,
+  length,
+}: Readonly<{ loading: boolean; length: number }>) {
   return (
     <RecordTable.Scroll>
       <RecordTable>
         <RecordTable.Header />
         <RecordTable.Body>
           <RecordTable.RowList Row={RecordTableTree.Row} />
-          {loading && <RecordTable.RowSkeleton rows={10} />}
+          {loading && !length && <RecordTable.RowSkeleton rows={10} />}
         </RecordTable.Body>
       </RecordTable>
     </RecordTable.Scroll>
@@ -32,7 +35,6 @@ function CategoryTableContent({ loading }: Readonly<{ loading: boolean }>) {
 
 export const CategoryRecordTable = ({
   branchId,
-  branchLanguages,
   mainLanguage,
 }: CategoryRecordTableProps) => {
   const { t } = useTranslation('tourism');
@@ -61,45 +63,29 @@ export const CategoryRecordTable = ({
   }, [categoriesWithChildren]);
 
   if (!loading && (categories?.length ?? 0) === 0) {
-    return (
-      <EmptyStateRow
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    );
+    return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
     <RecordTable.Provider
-      columns={categoryColumns(
-        categoryObject,
-        branchLanguages,
-        mainLanguage,
-        t,
-      )}
+      columns={categoryColumns(categoryObject, t)}
       data={categoriesWithChildren || []}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name']}
       tableId="tourism_categories_record_table"
     >
       <RecordTableTree id="tour-categories" ordered>
-        <CategoryTableContent loading={loading} />
+        <CategoryTableContent
+          loading={loading}
+          length={categoriesWithChildren?.length ?? 0}
+        />
       </RecordTableTree>
       <CategoryCommandBar />
     </RecordTable.Provider>
   );
 };
 
-function EmptyStateRow({
-  branchId,
-  branchLanguages,
-  mainLanguage,
-}: Readonly<{
-  branchId?: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-}>) {
+function EmptyStateRow({ branchId }: Readonly<{ branchId?: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
@@ -117,11 +103,7 @@ function EmptyStateRow({
         {t('no-categories-yet-desc')}
       </p>
 
-      <CategoryCreateSheet
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <CategoryCreateButton branchId={branchId} />
     </div>
   );
 }

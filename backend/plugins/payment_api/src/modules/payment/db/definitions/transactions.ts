@@ -20,6 +20,8 @@ export const transactionSchema = schemaWrapper(
   }),
 );
 
+transactionSchema.index({ invoiceId: 1 });
+
 // TODO: readd after server time issue fixed
 // transactionSchema.index(
 //   { createdAt: 1 },

@@ -36,13 +36,71 @@ exception to plugin isolation.
   a `{{ }}` variable, a `<< cond >>` token or a `[[ ]]` choice is filled at run
   time.
 - The engine's own contracts live in `coreActionConfigSchemas.ts` (if, split,
-  findObject, transform, setProperty, sendEmail, outgoingWebhook, messagePro,
-  delay, waitEvent) and `aiAgentActionConfigSchema.ts`, which the AI agent
+  findObject, transform, setProperty, sendEmail, sendNotification,
+  approval, pickMember, outgoingWebhook, messagePro, delay, waitEvent) and `aiAgentActionConfigSchema.ts`, which the AI agent
   executor parses with. Executors in `services/automations` derive their config
   types from them, so a schema change is an executor change. Core attaches
   their tenant rules in `core-api/src/meta/automations/configValidators.ts`
   (sendEmail: the reply-to, or the From field while it is aligned, must be a
-  verified sender).
+  verified sender; sendNotification: named team members exist).
+- `sendNotification` ("Notify team members") creates in-app notifications
+  through core `notifications.create`: `kind: 'user'` from the run's
+  `createdVia.actorId` (the automation owner; changing who it comes from means
+  transferring ownership), `kind: 'system'` when the run has no actor. Each is
+  stamped with the run's `createdVia` (plus `runId`) and points at
+  `triggerType`/`targetId`. No email or push: it sets no notification `event`.
+  Notifications store `createdVia` with the `schemaWrapper` shape
+  (`core-modules/notifications/definitions/notifications.ts`).
+- `approval` ("Ask for approval") branches through folks `approved` /
+  `rejected` (config keys hold the next action ids; graph, canvas edges and
+  insert-on-edge list them). The engine creates a change request through core
+  `approval.createAutomationRequest` (type `core:automations.approvalStep`,
+  content `core:automations.executions`/executionId, payload executionId +
+  actionId, requester = `createdVia.actorId` or the owner, who may also
+  approve), parks the run as `waiting`, and arms an `expireApproval` job
+  (`timeoutHours`, default 72, max 720). Core's applier/rejecter call
+  automations `resolveApproval`; the timeout resolves `expired` and cancels the
+  request. `resolveApprovalAction` claims the waiting run atomically, writes
+  `decision`/`decidedBy`/`reason` on the step's result and continues on the
+  branch; a run whose automation is no longer active completes there. It is
+  non-deferrable and cannot sit inside an AI helper tool.
+- Approval change types may register `rejecters` beside `appliers`
+  (`TApprovalConfig`); core's reject and cancel mutations call the owning
+  plugin's `rejectChange` producer, best effort.
+- `pickMember` ("Pick a team member") assigns nothing: it outputs `userId`
+  (one available candidate), `userIds` (all available) and `fallback`, for
+  later steps' assign fields. Availability is core's
+  (`core-modules/users/availability.ts` `resolveMemberAvailability`, served by
+  core tRPC `users.availability`): a member's declaration
+  (`user.availability` status/until/reason, set by themselves or with
+  `teamMembersSetAvailability`; absent or past `until` = not declared) and
+  membership of the busy segment linked in config `TEAM_AVAILABILITY`
+  (`segmentId` of a `core:organization.users` segment, `precedence`
+  `segment` | `manual` when they disagree); neither speaking = available. A
+  removed segment counts as not linked. The engine drops inactive and
+  unavailable candidates, takes turns through an atomic counter per
+  automation and step (`automations_pick_turns`, `n % sorted ids`) or picks at
+  random, and gives `fallbackUserId` or skips `nobody-available`.
+- `waitEvent` may carry `timeout` (`value` + `unit` minutes/hours/days,
+  capped at 30 days by `readWaitEventTimeoutMinutes`; none waits until the
+  event). With a timeout the node has two exits in config, `met` and
+  `timedOut` (canvas folks, graph links, insert-on-edge), and no
+  `nextActionId`; turning it off hands `met` back as `nextActionId`. The
+  engine arms an `expireWait` job and both the event (segment resume and
+  waiting webhook) and the timeout first claim the run atomically
+  (`claimWaitEvent`: status `waiting` + `waitingActionId`), so only one resumes
+  it; the step's result gets `outcome: met | timedOut`. A timeout without a
+  `timedOut` link continues on `met` / the main path.
+- Working hours come from a branch (Settings → Structure: `workhours` per
+  weekday with lunch, `holidays` that close or shorten a period) in the
+  organization's `TIMEZONE`. `workingCalendar.ts` holds the pure math
+  (`nextWorkingMoment`, `addWorkingTime`, `isWorkingMoment`); a calendar with no
+  working day means plain clock time. In delay, `workingTime` counts only open
+  time for minutes and hours, lands days and longer on the next opening, and
+  0 waits for opening; the branch is the record's `branchId` / first
+  `branchIds`, else `branchId` in the config (`services/automations`
+  `executions/workingTime.ts`, also used when a paused automation re-arms
+  delays). The walk is bounded to 400 days; DST jumps are not modelled.
 
 ## Where schemas are enforced
 
@@ -94,7 +152,34 @@ without saving.
 - Every `{{ … }}` in a node config is stored as the builder writes it,
   `{{ key }}`, whoever authored it; every reader accepts any spacing, and a
   spacing-only difference is not a config change.
-- Branch links are `if` `config.yes/no`, findObject `config.isExists/notExists`
+- AI agent lookups: a find object target with `lookup`
+  (`TAutomationAiLookup`: `description`, `customerField`, `byFields`) can be
+  turned on per agent (`context.lookups`, objectType list, default empty; UI
+  step "Lookup"). The engine (`services/automations/src/ai/lookup`) builds one
+  read-only tool per enabled target, only when the run has
+  `facts.customerId`. The customer is never a parameter: without a value it
+  asks FIND_OBJECT for `customerField = customerId` with `newest`; with a
+  `byFields` value it checks `record[customerField] === customerId`
+  (`belongsToLookupCustomer`), and a record of another customer reads as
+  `{ found: false }`. The agent sees only the target's `output.variables`
+  (`projectLookupRecord`). Lookups are declared by core (customer, product), sales
+  (POS order) and loyalty (account). A lookup without `customerField` is
+  organization data (`isPublicLookup`): offered without a customer, found
+  only by a `byFields` value, never "mine". Core's product lookup reads price
+  and stock by code (`toProductStockView`: total, by branch name,
+  `stockTracked` false when no inventory exists; cost never leaves). A lookup result outranks context
+  documents and conversation history (tool instruction in `run.ts`), and the
+  number check (`shouldCheckGrounding`) runs whenever knowledge is loaded or a
+  lookup was called, with `facts` counted as a source. `lookupAiTool`, `ai.tools` and agent `context.tools` were removed;
+  do not bring back a parallel read contract.
+- A find object target may declare `projection` (fields to leave out). Core's
+  team member target leaves out every credential
+  (`SECRET_USER_FIELDS_PROJECTION`, `team-member/loggedUser.ts`): a found
+  record is stored in run history and can reach an AI agent. Team member
+  trigger targets come from user event logs, which `toLoggedUser` strips the
+  same way.
+- Branch links are `if` `config.yes/no`, findObject `config.isExists/notExists`,
+  approval `config.approved/rejected`, waitEvent `config.met/timedOut`
   and `config.optionalConnects[].actionId` (AI agent topics and tools, split
   options, message buttons). An action no trigger reaches is reported as
   `unreachable`; it refuses neither the save nor going live.
@@ -105,10 +190,28 @@ without saving.
   shows them as its preflight. Reach and owners only warn.
 - Nodes inside workflows are left to `validateWorkflowBindings`.
 
+## Workflow for-each
+
+- `workflow.config.forEach = { items, itemInput, onItemError }` runs the
+  workflow once per list item, one child execution after another; the item
+  becomes the value of the declared input `itemInput`, whose own binding is
+  ignored. Read it through `readWorkflowForEach`; incomplete settings mean a
+  plain single run, and `validateWorkflowBindings` blocks activation.
+- The list is frozen when the node is entered; at most
+  `WORKFLOW_FOR_EACH_MAX_ITEMS` (100) items, more fails the node with
+  `CONFIG_INVALID` instead of cutting the list. An empty list starts no child
+  and continues at once.
+- Progress lives on the waiting exec action as `result.forEach` (engine
+  `executions/workflowForEach.ts`); a resume for a child that is not
+  `currentChildId` is ignored. When done the result is
+  `{ total, succeeded, failed[] }`; `onItemError: 'stop'` fails the run on the
+  first failed item, `continue` (default) never fails the node.
+
 ## Validation
 
 - `pnpm nx test erxes-api-shared` (`configSchema.test.ts`,
-  `coreActionConfigSchemas.test.ts`, `builderConfigContract.test.ts`)
+  `coreActionConfigSchemas.test.ts`, `builderConfigContract.test.ts`,
+  `workflowValidation.test.ts`)
 - `pnpm nx test core-api` (`modules/automations/utils/__tests__`)
 - After changing a schema: restart the declaring service, then core-api, which
   caches plugin meta until restart.

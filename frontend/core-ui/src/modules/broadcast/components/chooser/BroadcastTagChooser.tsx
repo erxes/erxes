@@ -24,7 +24,7 @@ export const BroadcastTagChooser = ({
   const count = (value: number) => (
     <span
       className={cn(
-        'ml-2 text-xs text-muted-foreground',
+        'shrink-0 text-xs tabular-nums text-muted-foreground',
         loading && 'animate-pulse',
       )}
     >
@@ -45,8 +45,8 @@ export const BroadcastTagChooser = ({
   }
 
   return (
-    <Command>
-      <Command.List className="min-h-full">
+    <Command className="h-auto min-h-0 min-w-0 flex-1 border">
+      <Command.List className="m-0 min-h-0 max-h-none flex-1 overflow-x-hidden overflow-y-auto p-1">
         {options.map((tag) =>
           !tag.children ? (
             <Command.Item
@@ -54,12 +54,14 @@ export const BroadcastTagChooser = ({
               value={tag._id}
               onSelect={() => toggle(tag._id)}
               className={cn(
-                'mb-1 flex justify-between cursor-pointer last-of-type:mb-9',
+                'mb-1 min-w-0 justify-between cursor-pointer last-of-type:mb-0',
                 isSelected(tag._id) &&
                   'bg-primary/10 data-[selected=true]:bg-primary/10',
               )}
             >
-              <span>{tag.name}</span>
+              <span className="min-w-0 flex-1 truncate" title={tag.name}>
+                {tag.name}
+              </span>
               {count(countOf(tag._id))}
             </Command.Item>
           ) : (
@@ -67,10 +69,12 @@ export const BroadcastTagChooser = ({
               key={tag._id}
               heading={
                 <span
-                  className="cursor-pointer hover:text-primary flex justify-between w-full"
+                  className="flex min-w-0 w-full cursor-pointer items-center justify-between gap-2 hover:text-primary"
                   onClick={() => toggleGroup(tag)}
                 >
-                  <span>{tag.name}</span>
+                  <span className="min-w-0 flex-1 truncate" title={tag.name}>
+                    {tag.name}
+                  </span>
                   {hasSelectedChild(tag) && count(groupCount(tag))}
                 </span>
               }
@@ -82,12 +86,14 @@ export const BroadcastTagChooser = ({
                   value={child._id}
                   onSelect={() => toggle(child._id)}
                   className={cn(
-                    'mb-1 pl-5 flex justify-between cursor-pointer',
+                    'mb-1 min-w-0 pl-5 justify-between cursor-pointer last-of-type:mb-0',
                     isSelected(child._id) &&
                       'bg-primary/10 data-[selected=true]:bg-primary/10',
                   )}
                 >
-                  <span>{child.name}</span>
+                  <span className="min-w-0 flex-1 truncate" title={child.name}>
+                    {child.name}
+                  </span>
                   {count(countOf(child._id))}
                 </Command.Item>
               ))}

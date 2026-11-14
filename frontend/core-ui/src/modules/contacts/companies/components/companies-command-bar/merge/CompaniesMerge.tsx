@@ -8,22 +8,21 @@ const MERGEABLE_COUNT = 2;
 export const CompaniesMerge = ({ companyIds }: { companyIds: string[] }) => {
   const disabled = companyIds.length !== MERGEABLE_COUNT;
 
-  if (disabled) return <CompaniesMergeSheet disabled />;
-
   return (
     <CompaniesMergeProvider companyIds={companyIds}>
-      <CompaniesMergeSheetContainer />
+      <CompaniesMergeSheetContainer disabled={disabled} />
     </CompaniesMergeProvider>
   );
 };
 
-const CompaniesMergeSheetContainer = () => {
+const CompaniesMergeSheetContainer = ({ disabled }: { disabled: boolean }) => {
   const { open, setOpen, save, saving, ready } = useCompaniesMergeContext();
   const saveDisabled = !ready;
   const handleDiscard = () => setOpen(false);
 
   return (
     <CompaniesMergeSheet
+      disabled={disabled && !open}
       open={open}
       onOpenChange={setOpen}
       onDiscard={handleDiscard}

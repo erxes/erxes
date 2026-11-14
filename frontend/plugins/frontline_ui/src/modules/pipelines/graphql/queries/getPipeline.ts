@@ -38,6 +38,15 @@ export const GET_PIPELINE = gql(`
       memberIds
       visibility
       createLayout
+      slaPolicy {
+        enabled
+        warnBeforeMinutes
+        rules {
+          priority
+          firstResponseMinutes
+          resolutionMinutes
+        }
+      }
     }
   }
 `);

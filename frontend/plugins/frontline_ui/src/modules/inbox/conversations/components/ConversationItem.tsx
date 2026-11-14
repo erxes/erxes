@@ -364,6 +364,7 @@ const ConversationSelector = ({
 };
 
 const ConversationCheckbox = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { _id } = useConversationContext();
   const [isChecked, setIsChecked] = useState(false);
   const setSelectConversations = useSetAtom(setSelectConversationsState);
@@ -375,6 +376,7 @@ const ConversationCheckbox = () => {
         className="absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 data-[state=checked]:opacity-100 z-10"
         onClick={(e) => e.stopPropagation()}
         onCheckedChange={() => setSelectConversations(_id || '')}
+        aria-label={t('select-conversation', 'Select conversation')}
       />
       <ConversationCheckedEffect
         isChecked={isChecked}

@@ -31,7 +31,7 @@ export const NotificationCount = ({ dot = false }: { dot?: boolean }) => {
     return (
       <span
         aria-hidden
-        className="absolute top-1 right-1 size-1.5 rounded-full bg-primary ring-2 ring-sidebar"
+        className="absolute top-1 right-1 size-1.5 rounded-full bg-primary ring-2 ring-sidebar dark:group-data-[framed=true]/layout:bg-primary-foreground dark:group-data-[framed=true]/layout:ring-transparent"
       />
     );
   }

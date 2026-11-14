@@ -41,6 +41,7 @@ export const useFixedAssetAccountConfigs = () => {
     data: queryData,
     loading,
     error,
+    refetch,
   } = useQuery(GET_ACCOUNTING_CONFIGS, {
     variables: { code: FIXED_ASSET_ACCOUNTS_CODE },
   });
@@ -62,7 +63,7 @@ export const useFixedAssetAccountConfigs = () => {
     [data?.accountingsConfigs],
   );
 
-  return { configs, loading, error };
+  return { configs, loading, error, refetch };
 };
 
 const mutationOptions = { refetchQueries: ['AccountingsConfigs'] };

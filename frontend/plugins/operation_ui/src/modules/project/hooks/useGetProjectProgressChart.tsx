@@ -3,10 +3,13 @@ import { GET_PROJECT_PROGRESS_CHART } from '@/project/graphql/queries/getProject
 import { useRefetchOnTaskListChange } from '@/task/hooks/useRefetchOnTaskListChange';
 
 export const useGetProjectProgressChart = (projectId?: string | null) => {
-  const { data, loading, refetch } = useQuery(GET_PROJECT_PROGRESS_CHART, {
-    variables: projectId ? { _id: projectId } : undefined,
-    skip: !projectId,
-  });
+  const { data, loading, error, refetch } = useQuery(
+    GET_PROJECT_PROGRESS_CHART,
+    {
+      variables: projectId ? { _id: projectId } : undefined,
+      skip: !projectId,
+    },
+  );
 
   useRefetchOnTaskListChange({
     filter: { projectId },
@@ -16,5 +19,5 @@ export const useGetProjectProgressChart = (projectId?: string | null) => {
 
   const getProjectProgressChart = data?.getProjectProgressChart;
 
-  return { getProjectProgressChart, loading, refetch };
+  return { getProjectProgressChart, loading, error, refetch };
 };

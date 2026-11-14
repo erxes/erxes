@@ -28,6 +28,10 @@ import {
   TPropertyProducers,
   TPropertyProducersInput,
 } from '../../core-modules/properties/valueUsage';
+import {
+  TTemplatePartProducers,
+  TTemplatePartsProducersInput,
+} from '../../core-modules/templates/parts';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -52,6 +56,9 @@ type TModuleProducerInputMap = {
   };
   properties: {
     [K in TPropertyProducers]: TPropertyProducersInput[K];
+  };
+  templates: {
+    [K in TTemplatePartProducers]: TTemplatePartsProducersInput[K];
   };
 };
 

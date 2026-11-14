@@ -6,9 +6,9 @@ import {
 } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { webDrawerState } from '../states/webBuilderState';
+import { CONTENT_WEB_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
 import { REACT_APP_WEBBUILDER_URL } from '@/utils';
@@ -22,7 +22,7 @@ interface WebCardProps {
 
 export const WebCard = ({ web, index }: WebCardProps) => {
   const { t } = useTranslation('content');
-  const setDrawer = useSetAtom(webDrawerState);
+  const { openDetail } = useContentPanel(CONTENT_WEB_CONTENT_TYPE);
   const { removeWeb } = useRemoveWeb();
   const { confirm } = useConfirm();
 
@@ -40,7 +40,7 @@ export const WebCard = ({ web, index }: WebCardProps) => {
     web.clientPortalId
   }&pageName=home&sessioncode=${sessionCode}`;
 
-  const handleEdit = () => setDrawer({ open: true, editingWeb: web });
+  const handleEdit = () => openDetail(web._id);
 
   const handleDelete = () =>
     confirm({

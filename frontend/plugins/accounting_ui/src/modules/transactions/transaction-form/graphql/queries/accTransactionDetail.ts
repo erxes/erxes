@@ -64,9 +64,6 @@ query accountingAccTransactionDetail($_id: String!) {
       assignedUserId
       productId
       fixedAssetId
-      fixedAssetCategoryId
-      fixedAssetCode
-      fixedAssetName
       count
       unitPrice
       weight
@@ -111,9 +108,6 @@ query accountingAccTransactionDetail($_id: String!) {
       assignedUserId
       productId
       fixedAssetId
-      fixedAssetCategoryId
-      fixedAssetCode
-      fixedAssetName
       count
       unitPrice
       weight
@@ -166,9 +160,6 @@ query accountingAccTransactionDetail($_id: String!) {
         assignedUserId
         productId
         fixedAssetId
-        fixedAssetCategoryId
-        fixedAssetCode
-        fixedAssetName
         count
         unitPrice
         weight
@@ -201,9 +192,6 @@ query accountingAccTransactionDetail($_id: String!) {
         assignedUserId
         productId
         fixedAssetId
-        fixedAssetCategoryId
-        fixedAssetCode
-        fixedAssetName
         count
         unitPrice
         weight

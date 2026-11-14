@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Empty } from 'erxes-ui';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
 export const JobListStatus = ({
   error,
@@ -9,20 +11,21 @@ export const JobListStatus = ({
   retry: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+
+  if (!error) {
+    return <AccountingEmptyState description={t('job-no-results')} />;
+  }
+
   return (
-    <Empty role={error ? 'alert' : 'status'}>
-      <Empty.Header>
-        <Empty.Description>
-          {error ? t('job-list-load-failed') : t('job-no-results')}
-        </Empty.Description>
-      </Empty.Header>
-      {error && (
-        <Empty.Content>
-          <Button type="button" variant="secondary" onClick={retry}>
-            {t('job-retry')}
-          </Button>
-        </Empty.Content>
-      )}
-    </Empty>
+    <AccountingEmptyState
+      icon={IconAlertCircle}
+      title={t('error')}
+      description={t('job-list-load-failed')}
+      action={
+        <Button type="button" variant="secondary" onClick={retry}>
+          {t('job-retry')}
+        </Button>
+      }
+    />
   );
 };

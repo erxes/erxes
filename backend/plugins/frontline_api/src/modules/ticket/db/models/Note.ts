@@ -129,6 +129,14 @@ export const loadNoteClass = (models: IModels) => {
           .forEach((id) => mentionUserIds.add(id));
       }
 
+      // A team member's note the customer can see is a response to them.
+      if (note.contentId && !note.isInternal && !isClientPortalAuthor(userId)) {
+        await models.Ticket.markSlaFirstResponse(
+          [note.contentId],
+          note.get('createdAt') || new Date(),
+        );
+      }
+
       if (note.contentId && !isClientPortalAuthor(userId)) {
         await models.Ticket.updateOne(
           { _id: note.contentId },

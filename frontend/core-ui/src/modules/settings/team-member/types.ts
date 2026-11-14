@@ -1,3 +1,4 @@
+import type { IMemberAvailability } from './availability/types';
 import { TSessionState } from '@/settings/team-member/sessions/types';
 import { z } from 'zod';
 import {
@@ -53,6 +54,14 @@ export interface IUser extends IUserInline {
   username?: string;
   propertiesData?: Record<string, unknown>;
   sessionState?: TSessionState;
+  availability?: IMemberAvailability | null;
+  // Null while the organization has tracking off or the viewer lacks permission
+  activity?: IUserActivity | null;
+}
+
+export interface IUserActivity {
+  activeMinutes: number;
+  lastActiveAt?: string | null;
 }
 
 export interface IUserDetail extends IUser {

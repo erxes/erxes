@@ -27,6 +27,18 @@ const SettingsProfile = lazy(() =>
   })),
 );
 
+const SettingsMyActivity = lazy(() =>
+  import('~/pages/settings/account/MyActivityPage').then((module) => ({
+    default: module.SettingsMyActivityPage,
+  })),
+);
+
+const SettingsAppearance = lazy(() =>
+  import('~/pages/settings/account/AppearancePage').then((module) => ({
+    default: module.SettingsAppearancePage,
+  })),
+);
+
 const SettingsChangePassword = lazy(() =>
   import('~/pages/settings/account/ChangePasswordPage').then((module) => ({
     default: module.ChangePasswordPage,
@@ -106,6 +118,11 @@ const ProductsSettingsRoutes = lazy(() =>
     }),
   ),
 );
+const ExchangeRatesPage = lazy(() =>
+  import('~/pages/settings/workspace/ExchangeRatesPage').then((module) => ({
+    default: module.ExchangeRatesPage,
+  })),
+);
 const BrandsSettingsRoutes = lazy(() =>
   import('~/pages/settings/workspace/BrandsPage').then((module) => ({
     default: module.BrandsPage,
@@ -113,11 +130,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
-    (module) => ({
-      default: module.AutomationSettingsRoutes,
-    }),
-  ),
+  import(
+    '@/automations/components/settings/components/AutomationSettingsRoutes'
+  ).then((module) => ({
+    default: module.AutomationSettingsRoutes,
+  })),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -187,6 +204,14 @@ export function SettingsRoutes() {
           element={<Navigate to={`${SettingsPath.Profile}`} replace />}
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
+        <Route
+          path={SettingsPath.MyActivity}
+          element={<SettingsMyActivity />}
+        />
+        <Route
+          path={SettingsPath.Appearance}
+          element={<SettingsAppearance />}
+        />
         <Route
           path={SettingsPath.NotificationCatchAll}
           element={<SettingsNotificationRoutes />}
@@ -272,6 +297,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.Brands}
           element={<BrandsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.ExchangeRates}
+          element={<ExchangeRatesPage />}
         />
         <Route
           path={SettingsWorkspacePath.ProductsCatchAll}

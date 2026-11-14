@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { IconPlus } from '@tabler/icons-react';
+import { IconAssembly, IconPlus } from '@tabler/icons-react';
 import { Button, PageSubHeader, Sheet } from 'erxes-ui';
 import { Can } from 'ui-modules';
 import { AccountingLayout } from '@/layout/components/Layout';
@@ -42,6 +42,7 @@ export const JobExecutionsPage = () => {
       <AccountingHeader
         returnLink="/accounting/inventories/job-executions"
         returnText={t('production-executions')}
+        icon={IconAssembly}
         skipSettings
       >
         <Can action="manageJobExecutions">

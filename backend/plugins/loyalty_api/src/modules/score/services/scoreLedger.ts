@@ -605,6 +605,7 @@ export const changeBalance = async ({
   logId,
   sourceLogId,
   lotId,
+  lotDatesFrom,
 }: {
   models: IModels;
   subdomain: string;
@@ -623,6 +624,8 @@ export const changeBalance = async ({
   // The earning a refund or recalculation takes back first.
   sourceLogId?: string;
   lotId?: string;
+  // A correction's new lot keeps the dates of the earning it corrects.
+  lotDatesFrom?: Date;
 }) => {
   const accountType = fieldId
     ? await models.LoyaltyAccountTypes.findOne({ fieldId }).lean()
@@ -719,10 +722,14 @@ export const changeBalance = async ({
     });
   }
 
-  const pendingUntil =
+  const datesFrom = lotDatesFrom || now;
+  const lotExpiresAt = getLotExpiry(accountType, datesFrom);
+  const heldUntil =
     purchaseEarn && !absolute && change > 0
-      ? getPendingUntil(accountType, now)
+      ? getPendingUntil(accountType, datesFrom)
       : undefined;
+  // A hold that has run out by now is not one.
+  const pendingUntil = heldUntil && heldUntil > now ? heldUntil : undefined;
 
   if (pendingUntil) {
     await models.LoyaltyAccounts.changePending(account._id, key, change);
@@ -731,7 +738,7 @@ export const changeBalance = async ({
       amount: change,
       pending: true,
       availableAt: pendingUntil,
-      expiresAt,
+      expiresAt: lotExpiresAt,
       sourceLogId: logId,
     });
 
@@ -802,7 +809,7 @@ export const changeBalance = async ({
       amount: backedChange,
       pending: false,
       availableAt: now,
-      expiresAt,
+      expiresAt: lotExpiresAt,
       sourceLogId: logId,
     });
   } else if (backedChange < 0) {

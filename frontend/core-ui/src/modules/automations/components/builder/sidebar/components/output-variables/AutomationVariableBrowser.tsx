@@ -28,7 +28,11 @@ const AutomationVariableBrowserContent = () => {
   }
 
   return (
-    <div className={cn('space-y-3 px-5 py-2 text-sm', className)}>
+    // The browser is where variables come from, never where they drop
+    <div
+      data-variable-drop-exclude
+      className={cn('space-y-3 px-5 py-2 text-sm', className)}
+    >
       <AutomationVariableBrowserHeader />
       <AutomationVariableBrowserOutputVariables />
       <AutomationVariableBrowserCustomProperties />

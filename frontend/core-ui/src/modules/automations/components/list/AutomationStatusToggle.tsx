@@ -61,20 +61,40 @@ export const AutomationStatusBadge = ({
 );
 
 export const AutomationStatusToggle = ({
+  name,
   status,
   loading,
   setActive,
 }: {
+  name: string;
   status: string;
   loading: boolean;
   setActive: (isActive: boolean) => void;
-}) => (
-  <div className="w-full flex h-full py-1 px-2 gap-2">
-    <AutomationStatusBadge status={status} />
-    <Switch
-      disabled={loading}
-      checked={status === 'active'}
-      onCheckedChange={setActive}
-    />
-  </div>
-);
+}) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <div className="w-full flex flex-col py-1 px-2 gap-1">
+      <div className="flex gap-2">
+        <AutomationStatusBadge status={status} />
+        <Switch
+          aria-label={t('status-switch-label', {
+            name,
+            defaultValue: 'Automation active: {{name}}',
+          })}
+          disabled={loading}
+          checked={status === 'active'}
+          onCheckedChange={setActive}
+        />
+      </div>
+      {status === 'active' && (
+        <p className="text-xs text-muted-foreground">
+          {t(
+            'status-switch-hint',
+            'Turning this off stops new triggers from running.',
+          )}
+        </p>
+      )}
+    </div>
+  );
+};

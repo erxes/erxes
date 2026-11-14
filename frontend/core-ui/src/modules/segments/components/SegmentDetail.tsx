@@ -1,154 +1,246 @@
-import { IconPlus } from '@tabler/icons-react';
 import {
-  Button,
-  FocusSheet,
-  ScrollArea,
-  Separator,
-  Tabs,
-  useQueryState,
-} from 'erxes-ui';
-import { useState } from 'react';
+  PagePanelStatus,
+  PanelEmptyState,
+} from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanelContext,
+  usePagePanel,
+} from '@/side-panel/hooks/usePagePanel';
+import {
+  IconPlus,
+  IconTemplate,
+  IconCode,
+  IconChartBar,
+  IconBolt,
+} from '@tabler/icons-react';
+import { Button, ScrollArea, useQueryState, Spinner } from 'erxes-ui';
+import { type MutableRefObject, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Can,
   SegmentForm,
   SegmentOverview,
-  SegmentUnsavedBadge,
   useSegmentDetail,
+  RecordSidePanel,
+  type TSegmentForm,
 } from 'ui-modules';
-import { SegmentAutomationCreateButton } from './SegmentAutomationCreateButton';
-import { SegmentAutomations } from './SegmentAutomations';
-import { SegmentDetailSidebar } from './SegmentDetailSidebar';
-
-type Props = {
+import { SegmentAutomationCreateButton } from '@/segments/components/SegmentAutomationCreateButton';
+import { SegmentAutomations } from '@/segments/components/SegmentAutomations';
+import { SegmentDetailHeader } from '@/segments/components/SegmentDetailHeader';
+import { SegmentPageDraft } from '@/segments/components/SegmentPageDraft';
+type Props = Readonly<{
   onRefresh: () => void;
-};
-
+  page?: boolean;
+}>;
 const SegmentDetailBody = ({
   contentType,
   segmentId,
   onRefresh,
   onCreated,
   onOpenExisting,
+  draft,
+  initialDraft,
 }: {
   contentType: string;
   segmentId: string;
   onRefresh: () => void;
-  onCreated: () => void;
+  onCreated: (id: string) => void;
   onOpenExisting: (id: string) => void;
+  draft: MutableRefObject<(() => TSegmentForm) | null>;
+  initialDraft?: TSegmentForm;
 }) => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const { segment, refetch } = useSegmentDetail(segmentId);
+  const { segment, segmentLoading, unavailable, refetch } =
+    useSegmentDetail(segmentId);
   const { t } = useTranslation('segment');
-
+  const { t: detailT } = useTranslation('segment', {
+    keyPrefix: 'detail',
+  });
+  const pagePanel = usePagePanelContext();
+  if (segmentLoading || unavailable) {
+    return <PagePanelStatus entry={pagePanel} loading={segmentLoading} />;
+  }
   const title = segmentId
     ? segment?.name || `${t('edit')} ${t('a-segment')}`
     : `${t('create')} ${t('a-segment')}`;
-
+  const definition = {
+    value: 'definition',
+    label: detailT('definition'),
+    icon: IconCode,
+    content: (
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+        <SegmentForm.Root contentType={contentType} segmentId={segmentId}>
+          <SegmentForm.Wrapper>
+            <SegmentPageDraft draft={draft} initialDraft={initialDraft} />
+            <SegmentForm.Header />
+            <SegmentForm.Content className="px-5 pb-4" />
+            <SegmentForm.Footer
+              callback={onRefresh}
+              onCreateSuccess={onCreated}
+              onOpenExisting={onOpenExisting}
+            />
+          </SegmentForm.Wrapper>
+        </SegmentForm.Root>
+      </div>
+    ),
+  };
+  const tabs = segmentId
+    ? [
+        {
+          value: 'overview',
+          label: detailT('overview'),
+          icon: IconChartBar,
+          content: (
+            <ScrollArea className="min-h-0 flex-1">
+              <SegmentOverview
+                segment={segment}
+                onRefresh={refetch}
+                actions={
+                  <SegmentAutomationCreateButton segment={segment} size="sm" />
+                }
+              />
+            </ScrollArea>
+          ),
+        },
+        definition,
+        {
+          value: 'automations',
+          label: detailT('automations'),
+          icon: IconBolt,
+          content: (
+            <ScrollArea className="min-h-0 flex-1">
+              <SegmentAutomations segment={segment} />
+            </ScrollArea>
+          ),
+        },
+      ]
+    : [definition];
+  const value = tabs.some((tab) => tab.value === selectedTab)
+    ? selectedTab || tabs[0].value
+    : tabs[0].value;
   return (
     <>
-      <FocusSheet.Header
-        title={title}
-        description={segmentId ? segment?.description : undefined}
-      >
-        <SegmentUnsavedBadge />
-      </FocusSheet.Header>
-      <FocusSheet.Content>
-        {/* A segment that does not exist yet has nothing to look back on, so it
-          opens straight into its definition with no sidebar to choose from. */}
-        {!!segmentId && (
-          <FocusSheet.SideBar>
-            <SegmentDetailSidebar />
-          </FocusSheet.SideBar>
-        )}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Separator />
-          <div className="flex-1 min-h-0">
-            <Tabs
-              value={segmentId ? (selectedTab ?? 'overview') : 'definition'}
-              onValueChange={setSelectedTab}
-              className="h-full"
-            >
-              <Tabs.Content value="overview" className="h-full">
-                <ScrollArea className="h-full">
-                  <SegmentOverview
-                    segment={segment}
-                    onRefresh={refetch}
-                    actions={
-                      <SegmentAutomationCreateButton
-                        segment={segment}
-                        size="sm"
-                      />
-                    }
-                  />
-                </ScrollArea>
-              </Tabs.Content>
-              <Tabs.Content value="automations" className="h-full">
-                <ScrollArea className="h-full">
-                  <SegmentAutomations segment={segment} />
-                </ScrollArea>
-              </Tabs.Content>
-              <Tabs.Content value="definition" className="h-full">
-                <SegmentForm
-                  contentType={contentType}
-                  segmentId={segmentId}
-                  callback={onRefresh}
-                  onCreateSuccess={onCreated}
-                  onOpenExisting={onOpenExisting}
-                />
-              </Tabs.Content>
-            </Tabs>
-          </div>
-        </div>
-      </FocusSheet.Content>
+      <SegmentDetailHeader title={title} />
+      <RecordSidePanel.Layout
+        expanded={pagePanel.expanded && Boolean(segmentId)}
+        tabs={tabs}
+        value={value}
+        onValueChange={setSelectedTab}
+      />
     </>
   );
 };
-
-export function SegmentDetail({ onRefresh }: Props) {
-  const [contentType] = useQueryState<string>('contentType');
-  const [segmentId, setOpen] = useQueryState<string>('segmentId');
+export function SegmentDetail({ onRefresh, page = false }: Props) {
+  const [queryType] = useQueryState<string>('contentType');
+  const [queryId, setOpen] = useQueryState<string>('segmentId');
+  const { id } = useParams<{ id: string }>();
+  const pageSegmentId = id === 'new' ? '' : id;
+  const segmentId = page ? pageSegmentId : queryId;
+  const { segment, segmentLoading } = useSegmentDetail(segmentId || undefined);
+  const contentType = queryType || segment?.contentType;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state: { segmentDraft?: TSegmentForm } | null = location.state;
+  const draft = useRef<(() => TSegmentForm) | null>(null);
+  const search = contentType ? `?${new URLSearchParams({ contentType })}` : '';
+  const openPage = (recordId: string) =>
+    navigate(`/segments/${encodeURIComponent(recordId)}${search}`);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const { t } = useTranslation('segment');
-
+  const pagePanel = usePagePanel({
+    requiredPermission: segmentId ? undefined : 'segmentsManage',
+    maxWidth: 1100,
+    defaultWidth: 800,
+    page,
+    onExpand: () => {
+      const params = new URLSearchParams({ contentType: contentType || '' });
+      const tab = new URLSearchParams(location.search).get('tab');
+      if (tab) params.set('tab', tab);
+      else if (draft.current) params.set('tab', 'definition');
+      navigate(
+        `/segments/${encodeURIComponent(segmentId || 'new')}?${params}`,
+        {
+          state: { segmentDraft: draft.current?.() },
+        },
+      );
+    },
+    name: 'segments/SegmentDetail',
+    open: page || (Boolean(contentType) && (!!segmentId || isCreatingNew)),
+    onOpenChange: (open) => {
+      if (page) {
+        if (!open) navigate(`/segments${search}`);
+        return;
+      }
+      if (open) {
+        setIsCreatingNew(!segmentId);
+        return;
+      }
+      setOpen(null);
+      setIsCreatingNew(false);
+    },
+    identity: segmentId || 'new',
+  });
   if (!contentType) {
-    return null;
+    if (!page) return null;
+    return segmentLoading ? (
+      <Spinner />
+    ) : (
+      <PanelEmptyState
+        title={t('not-found', 'Segment not found')}
+        action={
+          <Button variant="outline" onClick={() => navigate('/segments')}>
+            {t('segments')}
+          </Button>
+        }
+      />
+    );
   }
-
   return (
     <>
-      <Can action="segmentsManage">
-        <Button onClick={() => setIsCreatingNew(true)}>
-          <IconPlus /> {t('create-segment')}
-        </Button>
-      </Can>
+      {!page && (
+        <Can action="segmentsManage">
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/templates?group=segment">
+                <IconTemplate /> {t('from-template')}
+              </Link>
+            </Button>
+            <Button onClick={() => setIsCreatingNew(true)}>
+              <IconPlus /> {t('create-segment')}
+            </Button>
+          </>
+        </Can>
+      )}
 
-      <FocusSheet
-        open={!!segmentId || isCreatingNew}
-        onOpenChange={(open) => {
-          if (open) {
-            return;
-          }
-
-          setOpen(null);
-          setIsCreatingNew(false);
-        }}
-      >
-        <FocusSheet.View
-          className={segmentId ? 'lg:max-w-6xl' : 'lg:max-w-5xl'}
-        >
-          <SegmentDetailBody
-            contentType={contentType}
-            segmentId={segmentId || ''}
-            onRefresh={onRefresh}
-            onCreated={() => setIsCreatingNew(false)}
-            onOpenExisting={(id) => {
-              setIsCreatingNew(false);
-              setOpen(id);
-            }}
-          />
-        </FocusSheet.View>
-      </FocusSheet>
+      {createPortal(
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
+          {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+            <SegmentDetailBody
+              contentType={contentType}
+              segmentId={segmentId || ''}
+              onRefresh={onRefresh}
+              draft={draft}
+              initialDraft={page ? state?.segmentDraft : undefined}
+              onCreated={(id) =>
+                page ? openPage(id) : setIsCreatingNew(false)
+              }
+              onOpenExisting={(id) => {
+                if (page) {
+                  openPage(id);
+                  return;
+                }
+                setIsCreatingNew(false);
+                setOpen(id);
+              }}
+            />
+          ) : (
+            <PagePanelStatus entry={pagePanel} />
+          )}
+        </div>,
+        pagePanel,
+      )}
     </>
   );
 }

@@ -5,25 +5,25 @@ import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
 import { AssistantButton } from '../components/AssistantButton';
 import { agentActivityState } from '../states/agentActivityState';
 
-let mockPath: string | null = null;
+let mockTool: string | null = null;
 let mockAllowed = true;
 let mockShortcut: () => void;
 let mockShortcutEnabled = false;
-const mockOpen = jest.fn();
-const mockClose = jest.fn();
+const mockToggle = jest.fn();
 
 jest.mock('ui-modules', () => ({
-  SIDE_PANEL_CHAT_PATH: '/chat',
   usePermissionCheck: () => ({
     isLoaded: true,
     hasActionPermission: () => mockAllowed,
   }),
-  useSidePanel: () => ({
-    path: mockPath,
-    openPath: mockOpen,
-    close: mockClose,
-  }),
 }));
+jest.mock(
+  '@/global-sidebar/hooks/useGlobalSidebar',
+  () => ({
+    useGlobalSidebar: () => ({ tool: mockTool, toggleTool: mockToggle }),
+  }),
+  { virtual: true },
+);
 jest.mock('react-hotkeys-hook', () => ({
   useHotkeys: (
     _key: string,
@@ -62,33 +62,29 @@ jest.mock(
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockPath = null;
+  mockTool = null;
   mockAllowed = true;
 });
 
-it('opens the real Assistant route from the button and shortcut', () => {
-  render(<AssistantButton />);
-  fireEvent.click(screen.getByRole('button', { name: 'Assistant' }));
-  expect(mockOpen).toHaveBeenCalledWith('/chat');
-  expect(mockShortcutEnabled).toBe(true);
-  mockShortcut();
-  expect(mockOpen).toHaveBeenCalledTimes(2);
-});
-
-it('closes the Assistant route when already open', () => {
-  mockPath = '/chat';
+it('toggles Assistant in the global sidebar from the button and shortcut', () => {
   render(<AssistantButton />);
   const button = screen.getByRole('button', { name: 'Assistant' });
-  expect(button.getAttribute('aria-pressed')).toBe('true');
+  expect(button.getAttribute('aria-pressed')).toBe('false');
   fireEvent.click(button);
-  expect(mockClose).toHaveBeenCalledTimes(1);
+  expect(mockToggle).toHaveBeenCalledWith('assistant');
+  expect(mockShortcutEnabled).toBe(true);
+  mockShortcut();
+  expect(mockToggle).toHaveBeenCalledTimes(2);
 });
 
-it('can replace a record panel with the Assistant', () => {
-  mockPath = '/detail/customer/c1';
+it('shows as pressed while Assistant is the open global tool', () => {
+  mockTool = 'assistant';
   render(<AssistantButton />);
-  fireEvent.click(screen.getByRole('button', { name: 'Assistant' }));
-  expect(mockOpen).toHaveBeenCalledWith('/chat');
+  expect(
+    screen
+      .getByRole('button', { name: 'Assistant' })
+      .getAttribute('aria-pressed'),
+  ).toBe('true');
 });
 
 it('hides the entry and disables its shortcut without permission', () => {
