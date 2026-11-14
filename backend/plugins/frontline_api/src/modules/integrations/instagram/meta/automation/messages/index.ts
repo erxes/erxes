@@ -9,16 +9,47 @@ import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import {
   AutomationExecutionSetWaitCondition,
+  buildSkippedAction,
   EXECUTE_WAIT_TYPES,
   IAutomationAction,
   IAutomationExecution,
+  replaceOutputPlaceholders,
   splitType,
 } from 'erxes-api-shared/core-modules';
+import { hasReplyableMedia } from '@/integrations/facebook/meta/automation/utils/turnTaking';
+import { hasNewerCustomerMessage } from '@/integrations/instagram/meta/automation/utils/turnTaking';
+import { resolveInstagramActionConfigTemplates } from '@/integrations/instagram/meta/automation/utils/templates';
+import { generateModels } from '~/connectionResolvers';
+import { isAutomatedReplyPaused } from '@/inbox/services/automatedReplyPause';
+import { resolveInboxConversationId } from '@/ticket/utils/conversationTickets';
+
 export const checkMessageTrigger = async (subdomain, { target, config }) => {
   const { conditions = [], botId } = config;
   if (target.botId !== botId) {
     return;
   }
+
+  const models = await generateModels(subdomain);
+
+  // A person has taken over the conversation: the bot stays out of it.
+  const inboxConversationId = await resolveInboxConversationId(
+    models,
+    target?.conversationId,
+  );
+
+  if (
+    inboxConversationId &&
+    (await isAutomatedReplyPaused(
+      models,
+      await models.Conversations.findOne(
+        { _id: inboxConversationId },
+        { automatedReplyControl: 1 },
+      ).lean(),
+    ))
+  ) {
+    return false;
+  }
+
   const payload = target?.payload || {};
   const { persistentMenuId, isBackBtn } = payload;
   if (persistentMenuId && isBackBtn) {
@@ -58,7 +89,16 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
             target?.content || '',
             directMessageCondtions,
           );
-        } else if (target?.content) {
+        }
+
+        if (await hasNewerCustomerMessage(models, target)) {
+          return false;
+        }
+
+        if (
+          String(target?.content || '').trim() ||
+          hasReplyableMedia(target?.attachments)
+        ) {
           return true;
         }
       }
@@ -100,16 +140,37 @@ export const actionCreateMessage = async ({
     botId,
   } = await getData(models, subdomain, collectionType, target, triggerConfig);
 
+  if (
+    collectionType === 'messages' &&
+    execution.actions?.some(({ actionType }) => actionType === 'aiAgent') &&
+    (await hasNewerCustomerMessage(models, target))
+  ) {
+    return buildSkippedAction('superseded-by-newer-message', {
+      messageId: target?._id,
+    });
+  }
+
   const result: any[] = [];
 
   try {
+    const outputResolvedValues = await replaceOutputPlaceholders({
+      subdomain,
+      execution,
+      values: { config: config || {} },
+      keepUnresolvedPlaceholders: true,
+    });
+    const resolvedConfig = resolveInstagramActionConfigTemplates(
+      outputResolvedValues.config as TAutomationActionConfig,
+      { prevAction: execution.actions?.at(-1)?.result },
+    );
+
     const messages = await generateMessages({
       subdomain,
       conversation,
       customer,
       executionId,
       actionId,
-      config,
+      config: resolvedConfig,
     });
 
     if (!messages?.length) {

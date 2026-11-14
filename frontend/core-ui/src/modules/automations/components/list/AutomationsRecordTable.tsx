@@ -6,8 +6,17 @@ import { AutomationsRecordTableContent } from '@/automations/components/list/Aut
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationsCardList } from '@/automations/components/list/AutomationsCardList';
+import { AutomationFolderCards } from '@/automations/components/list/folders/AutomationFolderCards';
+import { AutomationFolderCreateButton } from '@/automations/components/list/folders/AutomationFolderCreateButton';
+import { AutomationFolderEmptyState } from '@/automations/components/list/folders/AutomationFolderEmptyState';
+import { useAutomationFolderView } from '@/automations/hooks/useAutomationFolderView';
 import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
-import { IconAffiliate, IconSettings } from '@tabler/icons-react';
+import {
+  IconAffiliate,
+  IconFolder,
+  IconSettings,
+  IconTemplate,
+} from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
@@ -44,6 +53,8 @@ export const AutomationsRecordTable = () => {
 
   const { t } = useTranslation('automations');
   const { layout } = useAutomationsListLayout();
+  const { folderId, folder, folders, showFolders, openFolder } =
+    useAutomationFolderView();
   const columns = useMemo(() => getAutomationColumns(t), [t]);
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('automations'));
   const navigate = useNavigate();
@@ -71,11 +82,22 @@ export const AutomationsRecordTable = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost">
+                <Button variant="ghost" onClick={() => openFolder(null)}>
                   <IconAffiliate />
                   {t('automations')}
                 </Button>
               </Breadcrumb.Item>
+              {folderId && (
+                <>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <Button variant="ghost">
+                      <IconFolder />
+                      {folder?.name || t('folder')}
+                    </Button>
+                  </Breadcrumb.Item>
+                </>
+              )}
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
@@ -85,6 +107,7 @@ export const AutomationsRecordTable = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
+          {!folderId && <AutomationFolderCreateButton />}
           <Button variant="outline" asChild>
             <Link
               to={AutomationSettingsPath.Index}
@@ -94,6 +117,14 @@ export const AutomationsRecordTable = () => {
               {t('go-to-settings')}
             </Link>
           </Button>
+          <Can action="templatesInstall">
+            <Button variant="outline" asChild>
+              <Link to="/templates?group=automation">
+                <IconTemplate />
+                {t('from-template')}
+              </Link>
+            </Button>
+          </Can>
           <Can action="automationsCreate">
             <Button asChild>
               <Link to={'/automations/create'}>
@@ -105,6 +136,9 @@ export const AutomationsRecordTable = () => {
         </PageHeader.End>
       </PageHeader>
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />
+      {showFolders && !error && (
+        <AutomationFolderCards folders={folders} onOpen={openFolder} />
+      )}
       {error ? (
         <AutomationErrorEmptyState
           title={t('automations-load-error')}
@@ -112,7 +146,11 @@ export const AutomationsRecordTable = () => {
           onRetry={() => refetch()}
         />
       ) : list.length === 0 ? (
-        <AutomationsRecordTableEmptyState />
+        folderId || (showFolders && folders.length) ? (
+          <AutomationFolderEmptyState inFolder={!!folderId} />
+        ) : (
+          <AutomationsRecordTableEmptyState />
+        )
       ) : layout === 'grid' ? (
         <AutomationsCardList
           list={list}

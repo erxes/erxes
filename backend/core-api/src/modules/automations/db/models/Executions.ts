@@ -190,6 +190,22 @@ const byCountThenKey = (a: IAutomationStatsCount, b: IAutomationStatsCount) =>
 // One list page worth of rows; the list is cursor paginated well below this.
 const EXECUTION_COUNT_ID_LIMIT = 100;
 
+const RECENT_RUN_LIMIT = 10;
+
+export interface IAutomationRecentRun {
+  _id: string;
+  status?: string;
+  createdAt?: Date;
+  errorCode?: string;
+  failedActionId?: string;
+  failedActionType?: string;
+}
+
+export interface IAutomationRecentRuns {
+  automationId: string;
+  runs: IAutomationRecentRun[];
+}
+
 export interface IExecutionModel extends Model<IAutomationExecutionDocument> {
   createExecution(doc: IAutomationExecution): IAutomationExecutionDocument;
   getExecution(selector: any): IAutomationExecutionDocument;
@@ -199,6 +215,7 @@ export interface IExecutionModel extends Model<IAutomationExecutionDocument> {
     params: IAutomationActivityParams,
   ): Promise<IAutomationActivity>;
   getExecutionCounts(automationIds: string[]): Promise<IAutomationStatsCount[]>;
+  getRecentRuns(automationIds: string[]): Promise<IAutomationRecentRuns[]>;
 }
 
 export const loadClass = (models: IModels) => {
@@ -249,6 +266,37 @@ export const loadClass = (models: IModels) => {
       ]);
 
       return counts.map(({ _id, count }) => ({ key: _id, count }));
+    }
+
+    /**
+     * The latest root runs of each automation, newest first, so a list row or
+     * the builder can tell at a glance whether it has been failing.
+     * One indexed query per id: Mongo 4.4 has no $topN to do it in one.
+     */
+    public static async getRecentRuns(automationIds: string[]) {
+      const ids = [...new Set(automationIds)].slice(
+        0,
+        EXECUTION_COUNT_ID_LIMIT,
+      );
+
+      return Promise.all(
+        ids.map(async (automationId) => ({
+          automationId,
+          runs: await models.AutomationExecutions.find(
+            { automationId, parentExecutionId: { $exists: false } },
+            {
+              status: 1,
+              createdAt: 1,
+              errorCode: 1,
+              failedActionId: 1,
+              failedActionType: 1,
+            },
+          )
+            .sort({ createdAt: -1 })
+            .limit(RECENT_RUN_LIMIT)
+            .lean<IAutomationRecentRun[]>(),
+        })),
+      );
     }
 
     /**

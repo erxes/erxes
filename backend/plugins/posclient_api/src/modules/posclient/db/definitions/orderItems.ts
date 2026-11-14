@@ -19,6 +19,13 @@ const discountInfoSchema = new Schema(
       label: 'Discount percent',
       optional: true,
     }),
+    // Pricing only: loyalty's plans behind the discount, kept as given.
+    reasons: field({
+      type: [Schema.Types.Mixed],
+      optional: true,
+      default: undefined,
+      label: 'Pricing reasons',
+    }),
   },
   { _id: false },
 );

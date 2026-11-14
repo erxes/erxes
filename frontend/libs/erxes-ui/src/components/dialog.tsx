@@ -4,6 +4,7 @@ import { Dialog as DialogPrimitive } from 'radix-ui';
 import { cn } from '../lib/utils';
 import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export type DialogProps = React.ComponentPropsWithoutRef<
   typeof DialogPrimitive.Root
@@ -64,28 +65,32 @@ const DialogCombinedHeader = ({
   title: string;
   description: string;
   hideClose?: boolean;
-}) => (
-  <Dialog.Header>
-    <Dialog.Title>{title}</Dialog.Title>
-    <Dialog.Description className="sr-only">{description}</Dialog.Description>
-    {!hideClose && (
-      <Dialog.Close asChild>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute right-4 top-3"
-        >
-          <IconX />
-        </Button>
-      </Dialog.Close>
-    )}
-  </Dialog.Header>
-);
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <Dialog.Header>
+      <Dialog.Title>{title}</Dialog.Title>
+      <Dialog.Description className="sr-only">{description}</Dialog.Description>
+      {!hideClose && (
+        <Dialog.Close asChild aria-label={t('close', 'Close')}>
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute right-4 top-3"
+          >
+            <IconX />
+          </Button>
+        </Dialog.Close>
+      )}
+    </Dialog.Header>
+  );
+};
 
 const DialogContentCombined = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
-  React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>
+    React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>
 >(({ className, children, title, description, hideClose, ...props }, ref) => (
   <DialogContent ref={ref} className={cn(className)} {...props}>
     <DialogCombinedHeader

@@ -24,6 +24,18 @@ import { FilterQuery } from 'mongoose';
 import dealResolvers from '@/sales/graphql/resolvers/customResolvers/deal';
 import moment from 'moment';
 import { Resolver } from 'erxes-api-shared/core-types';
+import {
+  dealScoreLogInsights,
+  dealScoreLogPage,
+  dealScoreLogIds,
+} from '@/sales/utils/dealScoreLogs';
+import {
+  dealScoreLogTimeline,
+  isTimeZone,
+  TTimelineInterval,
+} from '@/sales/utils/dealScoreLogTimeline';
+import { visiblePipelinesQuery } from '@/sales/utils/pipelineVisibility';
+import { drilledIds, TScoreLogDrill } from '@/sales/utils/scoreLogSums';
 
 const contains = (values: string[]) => {
   return { $in: values };
@@ -130,6 +142,74 @@ const getPipelineVisibilityFilter = async ({
       { userId: { $in: uniqueCheckUserIds } },
     ],
   };
+};
+
+/**
+ * Deals of every pipeline the user may open, each pipeline's own "only my
+ * deals" rule applied, for lists that are not scoped to one pipeline.
+ */
+const visibleDealsScope = async (
+  models: IModels,
+  subdomain: string,
+  user: IContext['user'],
+): Promise<FilterQuery<IDealDocument>> => {
+  const pipelines = await models.Pipelines.find(
+    await visiblePipelinesQuery(subdomain, user),
+    { _id: 1, isCheckUser: 1, isCheckDepartment: 1 },
+  ).lean();
+  const stages = await models.Stages.find(
+    {
+      pipelineId: { $in: pipelines.map(({ _id }) => _id) },
+      status: { $ne: SALES_STATUSES.ARCHIVED },
+    },
+    { _id: 1, pipelineId: 1 },
+  ).lean();
+  const stagesOf = (pipelineId: string) =>
+    stages
+      .filter((stage) => stage.pipelineId === pipelineId)
+      .map(({ _id }) => _id);
+
+  const open = pipelines.filter(
+    ({ isCheckUser, isCheckDepartment }) => !isCheckUser && !isCheckDepartment,
+  );
+  const branches: FilterQuery<IDealDocument>[] = [
+    { stageId: { $in: open.flatMap(({ _id }) => stagesOf(_id)) } },
+  ];
+
+  for (const { _id } of pipelines.filter((p) => !open.includes(p))) {
+    const own = await getPipelineVisibilityFilter({
+      models,
+      subdomain,
+      userId: user._id,
+      pipelineId: _id,
+    });
+
+    branches.push({
+      $and: [{ stageId: { $in: stagesOf(_id) } }, ...(own ? [own] : [])],
+    });
+  }
+
+  return { $or: branches };
+};
+
+// One pipeline is checked by generateFilter; any wider list keeps to the
+// pipelines and deals the user may see.
+const dealScoreLogFilter = async (
+  models: IModels,
+  subdomain: string,
+  user: IContext['user'],
+  params: IDealQueryParams,
+) => {
+  const filter = await generateFilter(models, subdomain, user._id, params);
+
+  if (!params.pipelineId) {
+    filter.$and = [
+      ...(filter.$and || []),
+      await visibleDealsScope(models, subdomain, user),
+    ];
+  }
+
+  return filter;
 };
 
 const getCustomerPhoneCondition = async (
@@ -245,7 +325,6 @@ export const generateFilter = async (
       ? {}
       : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
-
 
   if (parentId) {
     filter.parentId = parentId;
@@ -768,6 +847,65 @@ export const dealQueries: Record<string, Resolver> = {
     const filter = await generateFilter(models, subdomain, user._id, args);
 
     return models.Deals.find(filter).countDocuments();
+  },
+
+  // Loyalty entries of the deals the list filter matches.
+  async salesDealScoreLogs(
+    _root,
+    args: IDealQueryParams &
+      TScoreLogDrill & { page?: number; perPage?: number },
+    { user, models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('showDeals');
+
+    const { page, perPage, kind, period, ...params } = args;
+    const filter = await dealScoreLogFilter(models, subdomain, user, params);
+    // A kind or period is loyalty's to match; sales lists what it keeps.
+    const onlyIds =
+      kind || period
+        ? await drilledIds(subdomain, await dealScoreLogIds(models, filter), {
+            kind,
+            period,
+          })
+        : null;
+
+    return dealScoreLogPage(models, filter, page, perPage, onlyIds);
+  },
+
+  // What those entries add up to, summed by loyalty.
+  async salesDealScoreLogInsights(
+    _root,
+    args: IDealQueryParams,
+    { user, models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('showDeals');
+
+    const filter = await dealScoreLogFilter(models, subdomain, user, args);
+
+    return dealScoreLogInsights(models, subdomain, filter);
+  },
+
+  // What those entries moved per period, for drawing them over time.
+  async salesDealScoreLogTimeline(
+    _root,
+    {
+      interval,
+      timezone,
+      ...args
+    }: IDealQueryParams & { interval: TTimelineInterval; timezone?: string },
+    { user, models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('showDeals');
+
+    const zone = timezone || 'UTC';
+
+    if (!isTimeZone(zone)) {
+      throw new Error(`Unknown time zone "${zone}"`);
+    }
+
+    const filter = await dealScoreLogFilter(models, subdomain, user, args);
+
+    return dealScoreLogTimeline(models, subdomain, filter, interval, zone);
   },
 
   async dealLink(

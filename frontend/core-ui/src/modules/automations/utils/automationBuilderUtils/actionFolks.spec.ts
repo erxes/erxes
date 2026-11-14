@@ -35,6 +35,17 @@ describe('resolveActionFolks', () => {
     ).toEqual(['yes', 'no', 'onSuccessActionId', 'onErrorActionId']);
   });
 
+  it('gives a wait event Met and Timed out exits only with a timeout', () => {
+    expect(resolveActionFolks('waitEvent', {}, declared)).toEqual([]);
+    expect(
+      resolveActionFolks(
+        'waitEvent',
+        { timeout: { value: 1, unit: 'days' } },
+        declared,
+      ).map((f) => f.key),
+    ).toEqual(['met', 'timedOut']);
+  });
+
   it('reads the policy off the node, not the action type', () => {
     expect(isBranchingOnError(branchingConfig)).toBe(true);
     expect(isBranchingOnError({ errorPolicy: { onError: 'fail' } })).toBe(

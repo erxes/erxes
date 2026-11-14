@@ -23,7 +23,7 @@ export const ProductsRecordTable = () => {
     <RecordTable.Provider
       columns={productColumns(t)}
       data={productsMain || []}
-      className="relative h-full"
+      className="relative m-3"
       stickyColumns={['checkbox', 'code', 'name']}
       tableId="accounting_inventory_remainders_record_table"
     >

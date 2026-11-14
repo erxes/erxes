@@ -18,7 +18,11 @@ import {
 import { TFunction } from 'i18next';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import {
+  SelectBranches,
+  SelectDepartments,
+  usePermissionCheck,
+} from 'ui-modules';
 
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { ColumnDef } from '@tanstack/table-core';
@@ -54,6 +58,49 @@ export const ProductNumberField = ({
   children?: React.ReactNode;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
+  const { toast } = useToast();
+  const { t } = useTranslation('sales');
+
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEditPrice = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canDiscount = isLoaded && hasActionPermission('dealsEdit');
+  const isUnitPrice = field === 'unitPrice';
+
+  if (isUnitPrice && !canEditPrice && !canDiscount) {
+    return <TextOverflowTooltip value={formatAmount(value)} />;
+  }
+
+  const savesAsDiscount = (price: number) =>
+    isUnitPrice && (!canEditPrice || price < (Number(product.unitPrice) || 0));
+
+  const saveAsDiscount = (price: number) => {
+    const unitPrice = Number(product.unitPrice) || 0;
+
+    if (!Number.isFinite(price) || price < 0 || price > unitPrice) {
+      toast({
+        variant: 'destructive',
+        title: t('invalid-value', 'Invalid value'),
+        description: t(
+          'unit-price-discount-only',
+          'Only Sales Admin can raise the unit price. Enter a price between 0 and the current unit price.',
+        ),
+      });
+      return;
+    }
+
+    const updatedProduct = applyRowDiscount(
+      product,
+      (unitPrice - price) * (Number(product.quantity) || 0),
+    );
+
+    updateRecord(product, {
+      discountInfos: updatedProduct.discountInfos,
+      discount: updatedProduct.discount,
+      discountPercent: updatedProduct.discountPercent,
+      tax: updatedProduct.tax,
+      amount: updatedProduct.amount,
+    });
+  };
 
   return (
     <NumberField
@@ -62,7 +109,9 @@ export const ProductNumberField = ({
       scope={`product-${_id}-${field}`}
       formatValue={formatValue}
       onSave={(value) => {
-        if (calculateProduct) {
+        if (savesAsDiscount(value)) {
+          saveAsDiscount(value);
+        } else if (calculateProduct) {
           const base = { ...product, [field]: value };
           const updates = calculateProductValues(field, base);
           const fullUpdate = { [field]: value, ...updates };
@@ -111,6 +160,13 @@ const ProductUomInfoNumberField = ({
   const { t } = useTranslation('sales');
   const info = getProductUomInfo(product);
   const value = info[field];
+
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+
+  if (field === 'unitPrice' && !canEdit) {
+    return <TextOverflowTooltip value={formatAmount(value)} />;
+  }
 
   return (
     <NumberField
@@ -219,6 +275,13 @@ export const ProductDiscountNumberField = ({
       setIsOpen(false);
     }
   };
+
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEdit = isLoaded && hasActionPermission('dealsEdit');
+
+  if (!canEdit) {
+    return <TextOverflowTooltip value={formatAmount(value)} />;
+  }
 
   return (
     <PopoverScoped

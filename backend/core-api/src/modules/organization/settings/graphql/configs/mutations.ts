@@ -1,5 +1,11 @@
 import fetch from 'node-fetch';
-import { getCoreDomain, resetConfigsCache } from 'erxes-api-shared/utils';
+import {
+  getCoreDomain,
+  redis,
+  resetConfigsCache,
+  USER_ACTIVITY_TRACKING_CONFIG,
+  userActivityTrackingKey,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const organizationConfigMutations = {
@@ -9,7 +15,7 @@ export const organizationConfigMutations = {
   async configsUpdate(
     _parent: undefined,
     { configsMap }: { configsMap: Record<string, string> },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const codes = Object.keys(configsMap);
 
@@ -25,6 +31,15 @@ export const organizationConfigMutations = {
     }
 
     await resetConfigsCache();
+
+    // Gateway cannot read configs, so it checks this marker before recording
+    if (USER_ACTIVITY_TRACKING_CONFIG in configsMap) {
+      const enabled =
+        String(configsMap[USER_ACTIVITY_TRACKING_CONFIG]) === 'true';
+      const key = userActivityTrackingKey(subdomain);
+
+      await (enabled ? redis.set(key, '1') : redis.del(key));
+    }
 
     return true;
   },

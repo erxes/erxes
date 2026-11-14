@@ -28,6 +28,7 @@ import {
   SelectSegment,
   SelectStage,
   SelectTags,
+  SettingsHeader,
 } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -43,7 +44,9 @@ import {
   objectToKeyValueArray,
 } from '../utils/transformers';
 import PerConditions from './PerConditions';
+import { ProductPlacesBreadcrumb } from './ProductPlacesBreadcrumb';
 import PerPrintConditions from './PerPrintConditions';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 type ProductPlacesConfigCode =
   | 'dealsProductsDataPlaces'
@@ -151,8 +154,8 @@ const normalizeFilters = (value: unknown): DefaultFilterItem[] => {
       segmentIds: toStringArray(record.segmentIds).length
         ? toStringArray(record.segmentIds)
         : legacySegmentId
-          ? [legacySegmentId]
-          : [],
+        ? [legacySegmentId]
+        : [],
       userId:
         typeof record.userId === 'string'
           ? record.userId
@@ -797,42 +800,36 @@ export const ProductPlacesConfigManager = ({
   }, [code, t]);
 
   return (
-    <div className="w-full h-full flex flex-col gap-4 p-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">{configTitle(code, t)}</h2>
-        <Button onClick={handleNew}>
-          <IconPlus /> {t('add-config')}
-        </Button>
-      </div>
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+      <SettingsHeader breadcrumbs={<ProductPlacesBreadcrumb />}>
+        <div className="ml-auto">
+          <Button onClick={handleNew}>
+            <IconPlus /> {t('add-config')}
+          </Button>
+        </div>
+      </SettingsHeader>
 
-      <RecordTable.Provider
-        columns={columns}
-        data={rows}
-        stickyColumns={['more', 'checkbox']}
-        tableId={`mongolian_product_places_${code}_record_table_v2`}
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-              {loading && <RecordTable.RowSkeleton rows={4} />}
-            </RecordTable.Body>
-          </RecordTable>
-          {!loading && rows.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {t('no-configurations')}
-                </p>
-                <Button onClick={handleNew}>
-                  <IconPlus /> {t('add-config')}
-                </Button>
-              </div>
-            </div>
-          )}
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
+      <div className="flex min-h-0 flex-auto flex-col p-6">
+        <RecordTable.Provider
+          columns={columns}
+          data={rows}
+          stickyColumns={['more', 'checkbox']}
+          tableId={`mongolian_product_places_${code}_record_table_v2`}
+        >
+          <RecordTable.Scroll>
+            <RecordTable>
+              <RecordTable.Header />
+              <RecordTable.Body>
+                <RecordTable.RowList />
+                {loading && <RecordTable.RowSkeleton rows={4} />}
+              </RecordTable.Body>
+            </RecordTable>
+            {!loading && rows.length === 0 && (
+              <SettingsEmptyState title={t('no-configs-yet')} />
+            )}
+          </RecordTable.Scroll>
+        </RecordTable.Provider>
+      </div>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <Sheet.View side="right" className="bg-background sm:max-w-4xl">

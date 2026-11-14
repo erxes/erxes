@@ -2,6 +2,7 @@ import { Row } from '@tanstack/react-table';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
+  formatAmount,
   INumberFieldContainerProps,
   NumberField,
   RecordTableInlineCell,
@@ -29,6 +30,10 @@ export const SafeRemainderNumberCell = ({ value }: { value: number }) => (
       currencyValue={{ currencyCode: CurrencyCode.MNT, amountMicros: value }}
     />
   </RecordTableInlineCell>
+);
+
+export const SafeRemainderCountCell = ({ value }: { value?: number }) => (
+  <RecordTableInlineCell>{formatAmount(value ?? 0)}</RecordTableInlineCell>
 );
 
 export const SafeRemainderCountField = ({

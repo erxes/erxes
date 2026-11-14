@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { CP_USERS_EDIT } from '@/contacts/client-portal-users/graphql/cpUsersEdit';
 import { GET_CLIENT_PORTAL_USER } from '@/contacts/client-portal-users/graphql/getClientPortalUser';
-import { useQueryState, useToast } from 'erxes-ui';
+import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 type CPUserEditVariables = {
@@ -25,20 +25,23 @@ interface CPUserEditOptions {
 }
 
 export function useCPUserEdit() {
-  const [_id] = useQueryState<string>('cpUserId');
   const { toast } = useToast();
   const { t } = useTranslation('contact');
 
   const [cpUsersEditMutation] = useMutation(CP_USERS_EDIT, {
-    refetchQueries: [
-      { query: GET_CLIENT_PORTAL_USER, variables: { _id: _id ?? '' } },
-      'getClientPortalUsers',
-    ],
+    refetchQueries: ['getClientPortalUsers'],
   });
 
   const cpUserEdit = (options: CPUserEditOptions) => {
     return cpUsersEditMutation({
       variables: options.variables,
+      refetchQueries: [
+        {
+          query: GET_CLIENT_PORTAL_USER,
+          variables: { _id: options.variables._id },
+        },
+        'getClientPortalUsers',
+      ],
       onError: (error) => {
         toast({
           title: t('error', { defaultValue: 'Error' }),

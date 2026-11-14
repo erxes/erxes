@@ -8,6 +8,7 @@ import { ITicket } from '~/modules/ticket/@types/ticket';
 import { ticketCreateActionConfigSchema } from '~/meta/automationConfigSchemas';
 import { validateTicketCreateConfig } from '~/meta/automationConfigValidators';
 import { TICKET_STATUS_CHANGED_RELATION } from '~/modules/ticket/meta/automations/trigger/checkStatusChangedTrigger';
+import { TICKET_SLA_RELATION } from '~/modules/ticket/meta/automations/trigger/checkSlaTrigger';
 
 export const FRONTLINE_TICKET_TARGET_SOURCE_TYPE = 'frontline:tickets.tickets';
 
@@ -165,6 +166,20 @@ export const ticketsAutomationContants = {
         'Start this workflow when a ticket moves to another status in the selected pipeline.',
       isCustom: true,
       // Every move is its own event, so each one runs.
+      reEnrollment: true,
+      output: TICKET_OUTPUT,
+      setPropertyTargets: FRONTLINE_TICKET_SET_PROPERTY_TARGETS,
+    },
+    {
+      moduleName: 'tickets',
+      collectionName: 'tickets',
+      relationType: TICKET_SLA_RELATION,
+      icon: 'IconHourglass',
+      label: 'Ticket SLA',
+      description:
+        'Start this workflow when a ticket is about to miss, or misses, its first response or resolution time.',
+      isCustom: true,
+      // A ticket can warn and breach on both clocks; each is its own run.
       reEnrollment: true,
       output: TICKET_OUTPUT,
       setPropertyTargets: FRONTLINE_TICKET_SET_PROPERTY_TARGETS,

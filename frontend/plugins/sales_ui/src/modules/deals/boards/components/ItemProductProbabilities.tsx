@@ -40,19 +40,19 @@ const AmountRow = ({
 
   return (
     <div className="flex justify-between items-center">
-      <span className="text-[11px] font-semibold text-muted-foreground">
+      <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
       <ul className="m-0 list-none">
         {keys.map((key, index) => (
           <li
             key={key}
-            className={`text-[11px] leading-3 font-semibold${
+            className={`text-xs font-semibold tabular-nums${
               isUnused ? ' opacity-60' : ''
             }`}
           >
             {calculateAmount(amounts[key], percentMultiplier)}{' '}
-            <span className="text-[9px] text-muted-foreground">
+            <span className="text-muted-foreground">
               {key}
               {showComma && index < keys.length - 1 ? ',' : ''}
             </span>

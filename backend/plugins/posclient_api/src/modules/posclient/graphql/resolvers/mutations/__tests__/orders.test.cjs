@@ -103,3 +103,52 @@ test('regular POS visitor creation still requires a POS user', async () => {
     { message: 'POS user required' },
   );
 });
+
+test('order edits price at the stored creation date, overriding submitted dates', async () => {
+  const createdAt = new Date('2020-01-06T10:30:00Z');
+  const reachedPricing = new Error('Reached pricing');
+  let pricedDoc;
+  const editModule = { exports: {} };
+  const editDependencies = {
+    ...dependencies,
+    '@/posclient/utils/orderUtils': {
+      checkOrderStatus: () => {},
+      validateOrder: async () => {},
+      cleanOrderItems: async () => {},
+      prepareOrderDoc: async (_, doc) => {
+        pricedDoc = doc;
+        throw reachedPricing;
+      },
+    },
+    '~/modules/posclient/utils/orderChangeLogs': {
+      getOrderChangeSnapshot: async () => ({}),
+    },
+    '~/modules/posclient/utils/orderVoucher': {
+      syncOrderVoucher: async () => {},
+    },
+  };
+  vm.runInNewContext(
+    ts.transpileModule(readFileSync(filename, 'utf8'), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS },
+    }).outputText,
+    {
+      module: editModule,
+      exports: editModule.exports,
+      require: (name) => editDependencies[name] || {},
+    },
+  );
+  await assert.rejects(
+    editModule.exports.ordersEdit(
+      { _id: 'order', items: [], createdAt: new Date('2026-11-04T00:00:00Z') },
+      {
+        subdomain: 'tenant',
+        config: { token: 'pos' },
+        models: {
+          Orders: { getOrder: async () => ({ _id: 'order', createdAt }) },
+        },
+      },
+    ),
+    (error) => error === reachedPricing,
+  );
+  assert.equal(pricedDoc.createdAt, createdAt);
+});

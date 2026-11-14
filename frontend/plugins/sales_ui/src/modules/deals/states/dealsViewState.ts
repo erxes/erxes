@@ -1,6 +1,8 @@
 import { atomWithStorage } from 'jotai/utils';
 
-export const dealsViewAtom = atomWithStorage<'board' | 'list'>(
+export type TDealsView = 'board' | 'list' | 'points';
+
+export const dealsViewAtom = atomWithStorage<TDealsView>(
   'dealsView',
   'board',
   undefined,

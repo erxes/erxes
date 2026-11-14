@@ -26,6 +26,7 @@ import {
 } from '../types/JournalForms';
 import { BankTransaction } from './forms/BankForm';
 import { CashTransaction } from './forms/CashForm';
+import { FxaChangeTable } from './forms/FxaChangeTable';
 import { FxaIncomeForm } from './forms/FxaIncomeForm';
 import { FxaMoveForm } from './forms/FxaMoveForm';
 import { FxaOutForm } from './forms/FxaOutForm';
@@ -45,8 +46,8 @@ import { TBalance } from './TBalance';
 const isHiddenTransaction = (transaction?: object) =>
   Boolean(
     transaction &&
-    'permission' in transaction &&
-    transaction.permission === 'hidden',
+      'permission' in transaction &&
+      transaction.permission === 'hidden',
   );
 
 // Separate the transaction form component to prevent unnecessary re-renders
@@ -81,6 +82,11 @@ const TransactionForm = ({
     return <InvSaleForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_SALE_RETURN)
     return <InvSaleReturnForm form={form} index={index} />;
+  if (
+    field.journal === TrJournalEnum.FXA_CAPITAL ||
+    field.journal === TrJournalEnum.FXA_REVALUATION
+  )
+    return <FxaChangeTable form={form} index={index} />;
   if (field.journal === TrJournalEnum.FXA_INCOME)
     return <FxaIncomeForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.FXA_OUT)

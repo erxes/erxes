@@ -29,20 +29,16 @@ const AccountingOrderPosContent = ({ onSelect }: { onSelect?: () => void }) => {
   const [posId, setPosId] = useQueryState<string>('pos');
   const { data, loading } = useAccountingPosList();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">{t('loading')}</span>
-      </div>
-    );
-  }
-
   return (
     <Command>
       <Command.Input placeholder={t('search-pos')} />
-      <Command.Empty>
-        <span className="text-muted-foreground">{t('no-pos-found')}</span>
-      </Command.Empty>
+      {loading ? (
+        <Combobox.Empty loading />
+      ) : (
+        <Command.Empty>
+          <span className="text-muted-foreground">{t('no-pos-found')}</span>
+        </Command.Empty>
+      )}
       <Command.List>
         {(data?.posList || []).map((pos) => (
           <Command.Item

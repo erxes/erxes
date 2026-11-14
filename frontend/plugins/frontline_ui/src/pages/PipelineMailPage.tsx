@@ -1,10 +1,10 @@
 import { PipelineMailSettings } from '@/integrations/mail/components/PipelineMailSettings';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { Spinner } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 
 export const PipelineMailPage = () => {
-  const { pipelineId } = useParams<{ pipelineId: string }>();
+  const { pipelineId } = useSettingsParams();
   const { pipeline, loading } = useGetPipeline(pipelineId);
 
   if (loading || !pipelineId) {

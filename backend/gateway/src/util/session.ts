@@ -1,5 +1,9 @@
 import { createHash } from 'crypto';
-import { redis } from 'erxes-api-shared/utils';
+import {
+  redis,
+  sendWorkerQueue,
+  userActivityTrackingKey,
+} from 'erxes-api-shared/utils';
 
 // Written by core-api/src/modules/auth/session.ts; names and key format must match
 export const SESSION_COOKIE = 'erxes-sid';
@@ -15,6 +19,27 @@ interface IStoredSession {
   expiresAt: number;
   idleSecs: number;
 }
+
+// Activity stats must never slow down or fail the request that produced them
+const recordActivity = async (
+  subdomain: string,
+  userId: string,
+  at: number,
+) => {
+  try {
+    if (!(await redis.exists(userActivityTrackingKey(subdomain)))) {
+      return;
+    }
+
+    await sendWorkerQueue('logs', 'user_activity').add('touch', {
+      subdomain,
+      userId,
+      at,
+    });
+  } catch {
+    // Dropping one 5-minute slot is acceptable
+  }
+};
 
 const sessionKey = (subdomain: string, sid: string) =>
   `session:${subdomain}:${createHash('sha256').update(sid).digest('hex')}`;
@@ -56,6 +81,8 @@ export const verifySession = async (
       ttlSecs,
       'XX',
     );
+
+    void recordActivity(subdomain, session.userId, now);
   }
 
   return session;

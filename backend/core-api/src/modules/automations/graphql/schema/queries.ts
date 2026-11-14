@@ -19,6 +19,8 @@ const queryParams = `
   triggerTypes: [String]
   actionTypes: [String]
   triggerSegmentId: String
+  folderId: String
+  withoutFolder: Boolean
 `;
 
 const historiesParams = `
@@ -47,6 +49,7 @@ const listParams = `
 
 const queries = `
   automationsMain(${listParams}): AutomationsListResponse
+  automationFolders: [AutomationFolder]
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   cpAutomationDetail(_id: String!): Automation
@@ -55,8 +58,10 @@ const queries = `
   automationStats(automationId: String!, beginDate: Date, endDate: Date): AutomationStats
   automationActivity(automationId: String!, beginDate: Date!, endDate: Date!, buckets: Int!, actionId: String): AutomationActivity
   automationExecutionCounts(automationIds: [String!]!): [AutomationStatsCount]
+  automationRecentRuns(automationIds: [String!]!): [AutomationRecentRuns]
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
+  automationBuiltInTemplateMaterialize(pluginName: String!, templateId: String!, answers: JSON, usedIds: [String]): JSON
   automationSetPropertyTargets(sourceType: String!): JSON
   automationNodeOutput(nodeType: String!, config: JSON): JSON
   automationNodeCatalog: JSON

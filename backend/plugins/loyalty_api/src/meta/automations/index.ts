@@ -5,6 +5,7 @@ import {
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
+import { findLoyaltyObject } from './findObject';
 import { scoreAutomationProducers } from './score/producers';
 import { spinAutomationProducers } from './spin/producers';
 import { voucherAutomationProducers } from './voucher/producers';
@@ -33,4 +34,7 @@ export const automationMeta: AutomationConfigs = {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
+
+  findObject: async ({ subdomain, data }) =>
+    findLoyaltyObject(await generateModels(subdomain), subdomain, data),
 };

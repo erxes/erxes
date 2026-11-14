@@ -7,6 +7,7 @@ import {
 } from './configSchema';
 import {
   delayActionConfigSchema,
+  pickMemberActionConfigSchema,
   findObjectActionConfigSchema,
   ifActionConfigSchema,
   messageProActionConfigSchema,
@@ -33,6 +34,7 @@ const schemas: Record<string, TAutomationConfigSchema> = {
   messagePro: messageProActionConfigSchema,
   aiAgent: aiAgentActionConfigSchema,
   delay: delayActionConfigSchema,
+  pickMember: pickMemberActionConfigSchema,
 };
 
 const malformedOf = (schema: TAutomationConfigSchema, config: unknown) => {

@@ -80,6 +80,9 @@ export const types = () => `
     description: String
     posId: String
     categoryIds: [String]
+    productIds: [String]
+    tagIds: [String]
+    excludeTagIds: [String]
     excludedCategoryIds: [String]
     excludedProductIds: [String]
   }
@@ -89,6 +92,9 @@ export const types = () => `
     description: String
     name: String
     categoryIds: [String]
+    productIds: [String]
+    tagIds: [String]
+    excludeTagIds: [String]
     excludedCategoryIds: [String]
     excludedProductIds: [String]
   }

@@ -9,21 +9,22 @@ import {
 import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
+  Badge,
   Combobox,
   Command,
   CurrencyCode,
   CurrencyFormatedDisplay,
   fixNum,
+  formatAmount,
   Popover,
   RecordTable,
   RecordTableInlineCell,
-  useConfirm,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
-import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
+import { useTrRecordsDelete } from '@/transactions/hooks/useTrRecordsDelete';
 import {
   TR_JOURNAL_LABELS,
   TR_SIDES,
@@ -35,13 +36,13 @@ import {
   getCurrentTransactionReturnPath,
 } from '../utils/transactionNavigation';
 
-const NumberCell = ({ row }: any) => {
+const NumberCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { number } = row.original;
 
   return <RecordTableInlineCell>{number}</RecordTableInlineCell>;
 };
 
-const DescriptionCell = ({ row }: any) => {
+const DescriptionCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { description } = row.original;
 
   return <RecordTableInlineCell>{description}</RecordTableInlineCell>;
@@ -60,18 +61,44 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
+const SideAmountCell = ({
+  row,
+  cellSide,
+}: {
+  row: Row<ITrRecord>;
+  cellSide: string;
+}) => {
   const { details, side } = row.original;
   const { amount } = details ?? {};
 
-  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
+  if (!side || !TR_SIDES.ALL.includes(side)) {
+    return <RecordTableInlineCell>-</RecordTableInlineCell>;
+  }
+
+  return <AmountCell value={side === cellSide ? fixNum(amount) : 0} />;
 };
 
-const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
-  const { details, side } = row.original;
-  const { amount } = details ?? {};
+const DebitCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} cellSide={TR_SIDES.DEBIT} />
+);
 
-  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
+const CreditCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} cellSide={TR_SIDES.CREDIT} />
+);
+
+const CountItemCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITrRecord>;
+  value: number;
+}) => {
+  const { details } = row.original;
+  if (!details?.productId && !details?.fixedAssetId) {
+    return undefined;
+  }
+
+  return <RecordTableInlineCell>{formatAmount(value)}</RecordTableInlineCell>;
 };
 
 const AmountItemCell = ({
@@ -98,7 +125,7 @@ const AmountItemCell = ({
   );
 };
 
-const BranchCell = ({ row }: any) => {
+const BranchCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { branch } = row.original;
 
   return (
@@ -108,7 +135,7 @@ const BranchCell = ({ row }: any) => {
   );
 };
 
-const DepartmentCell = ({ row }: any) => {
+const DepartmentCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { department } = row.original;
 
   return (
@@ -124,7 +151,11 @@ const StatusCell = ({ row }: { row: Row<ITrRecord> }) => {
 
   return (
     <RecordTableInlineCell>
-      {t(TR_STATUS_LABELS[status || ''] || '') || status}
+      {status && (
+        <Badge variant="secondary" className="font-medium">
+          {t(TR_STATUS_LABELS[status] || '') || status}
+        </Badge>
+      )}
     </RecordTableInlineCell>
   );
 };
@@ -143,15 +174,15 @@ const JournalCell = ({ row }: { row: Row<ITrRecord> }) => {
   );
 };
 
-const DateCell = ({ getValue }: any) => {
+const DateCell = ({ row }: { row: Row<ITrRecord> }) => {
   return (
     <RecordTableInlineCell>
-      {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
+      {dayjs(new Date(row.original.date ?? '')).format('YYYY-MM-DD')}
     </RecordTableInlineCell>
   );
 };
 
-const AccountCell = ({ row }: any) => {
+const AccountCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details } = row.original;
 
   return (
@@ -161,7 +192,7 @@ const AccountCell = ({ row }: any) => {
   );
 };
 
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details } = row.original;
 
   if (details?.fixedAssetId) {
@@ -184,11 +215,31 @@ const ProductCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      <ProductsInline
-        productIds={[details.productId]}
-        products={details.product && [details.product]}
-      />
+      <ProductsInline productIds={[details.productId]} />
     </RecordTableInlineCell>
+  );
+};
+
+const TrRecordActions = ({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="edit" onSelect={onEdit}>
+          <IconEdit /> {t('edit')}
+        </Command.Item>
+        <Command.Item value="delete" onSelect={onDelete}>
+          <IconTrash /> {t('delete')}
+        </Command.Item>
+      </Command.List>
+    </Command>
   );
 };
 
@@ -197,12 +248,10 @@ const TransactionMoreColumnCell = ({
 }: {
   cell: Cell<ITrRecord, unknown>;
 }) => {
-  const { t } = useTranslation('accounting');
   const { parentId, trId, originId } = cell.row.original;
   const navigate = useNavigate();
   const location = useLocation();
-  const { confirm } = useConfirm();
-  const { removeTrRecords } = useTrRecordsRemove();
+  const { deleteTrRecords } = useTrRecordsDelete();
 
   const handleEdit = () => {
     navigate(
@@ -214,16 +263,7 @@ const TransactionMoreColumnCell = ({
     );
   };
 
-  const handleDelete = () =>
-    confirm({
-      message: t('are-you-sure-delete-tr-record'),
-      options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
-      },
-    }).then(() => {
-      removeTrRecords(parentId);
-    });
+  const handleDelete = () => deleteTrRecords([cell.row.original]);
 
   return (
     <Popover>
@@ -231,16 +271,7 @@ const TransactionMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
-            </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
-            </Command.Item>
-          </Command.List>
-        </Command>
+        <TrRecordActions onEdit={handleEdit} onDelete={handleDelete} />
       </Combobox.Content>
     </Popover>
   );
@@ -273,7 +304,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('number')} />
     ),
     accessorKey: 'number',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <NumberCell row={row} />,
   },
   {
     id: 'date',
@@ -281,7 +312,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
     ),
     accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DateCell row={row} />,
     size: 100,
   },
   {
@@ -301,31 +332,31 @@ export const trRecordColumns = (
     cell: ({ row }) => <JournalCell row={row} />,
   },
   {
-    id: 'product-inv',
+    id: 'item-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('product-asset')} />
     ),
-    accessorKey: 'product-inv',
+    accessorKey: 'item-details',
     cell: ({ row }) => <ProductCell row={row} />,
   },
   {
-    id: 'unitPrice-inv',
+    id: 'unitPrice-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('unit-price')} />
     ),
-    accessorKey: 'unitPrice-inv',
+    accessorKey: 'unitPrice-details',
     cell: ({ row }) => (
       <AmountItemCell row={row} value={row.original?.details?.unitPrice ?? 0} />
     ),
   },
   {
-    id: 'count-inv',
+    id: 'count-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('quantity-label')} />
     ),
-    accessorKey: 'count-inv',
+    accessorKey: 'count-details',
     cell: ({ row }) => (
-      <AmountItemCell row={row} value={row.original?.details?.count ?? 0} />
+      <CountItemCell row={row} value={row.original?.details?.count ?? 0} />
     ),
   },
   {
@@ -350,9 +381,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <DescriptionCell row={row} />,
     size: 200,
   },
   {

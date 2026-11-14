@@ -242,5 +242,26 @@
   {
    "text": "dadas"
   }
+ ],
+ "frontline:form.links.create": [
+  {
+   "formId": "Qx3pV9mL2aRk7tYw1nBzC",
+   "expiresInDays": ""
+  },
+  {
+   "formId": "Qx3pV9mL2aRk7tYw1nBzC",
+   "expiresInDays": "14"
+  }
+ ],
+ "frontline:telegram.messages.create": [
+  {
+   "content": "Сайн байна уу!"
+  },
+  {
+   "content": "{{ actions.ai1.reply }}"
+  },
+  {
+   "content": ""
+  }
  ]
 }

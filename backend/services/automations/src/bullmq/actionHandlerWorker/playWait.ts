@@ -9,6 +9,7 @@ import { debugInfo } from '../../debugger';
 import { resolveAutomationErrorCode } from '../../executions/errorCodes';
 import { getExecutionActionsMap } from '../../utils/utils';
 import { executeActions } from '../../executions/executeActions';
+import { finalizeExecAction } from '../../executions/executionActionMetrics';
 
 // Type for play wait job data
 interface IPlayWaitData {
@@ -71,6 +72,20 @@ export const playWaitingActionWorker = async (
   try {
     const actionsMap = await getExecutionActionsMap(automation, execution);
     const action = actionsMap[waitingActionId];
+
+    // The wait is over: its row stops saying "waiting" and keeps how long
+    const waited = [...(execution.actions || [])]
+      .reverse()
+      .find(
+        (execAction) =>
+          execAction.actionId === waitingActionId &&
+          execAction.status === 'waiting',
+      );
+
+    if (waited) {
+      finalizeExecAction(waited, 'success');
+      execution.markModified('actions');
+    }
 
     executeActions(
       subdomain,

@@ -7,7 +7,6 @@ import {
 import { useQuery } from '@apollo/client';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
-import { useParams } from 'react-router';
 
 export type TAutomationActivityRange = '24h' | '7d' | '30d';
 
@@ -50,8 +49,7 @@ const fillBuckets = <T extends { start: string }>(
  * Traces and latency always describe the latest range ending now; refresh
  * moves the range forward instead of re-asking for the old one.
  */
-export const useAutomationStatsActivity = () => {
-  const { id } = useParams();
+export const useAutomationStatsActivity = (automationId?: string) => {
   const [range, setRange] = useState<TAutomationActivityRange>('24h');
   const [actionId, setActionId] = useState<string | undefined>();
   const [anchor, setAnchor] = useState(() => Date.now());
@@ -69,8 +67,8 @@ export const useAutomationStatsActivity = () => {
   const { data, loading, error } = useQuery<{
     automationActivity: TAutomationActivity;
   }>(AUTOMATION_ACTIVITY, {
-    variables: { automationId: id, beginDate, endDate, buckets, actionId },
-    skip: !id,
+    variables: { automationId, beginDate, endDate, buckets, actionId },
+    skip: !automationId,
   });
 
   const activity = data?.automationActivity;

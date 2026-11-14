@@ -12,6 +12,7 @@ import {
   ITransaction,
   ITransactionDocument,
   ITrDetail,
+  ITrFollowInfos,
 } from '../@types/transaction';
 import {
   createOrUpdateTr,
@@ -24,11 +25,9 @@ const SPLIT_FOLLOW_TYPES = [
   TR_FOLLOW_TYPES.INV_SPLIT_INCOME,
 ];
 
-type TLegacyInvSplitInfo = {
-  detailId?: string;
-  productId?: string;
-  ratio?: number;
-};
+type TLegacyInvSplitInfo = NonNullable<
+  ITrFollowInfos['invSplitDetails']
+>[number];
 type TExistingInvSplitFollowDocs = {
   out?: ITransactionDocument;
   income?: ITransactionDocument;
@@ -106,7 +105,7 @@ export const normalizeInvSplitTransaction = (
 
   const followInfos = { ...transaction.followInfos };
   const legacySplitInfos = Array.isArray(followInfos.invSplitDetails)
-    ? (followInfos.invSplitDetails as TLegacyInvSplitInfo[])
+    ? followInfos.invSplitDetails
     : [];
   delete followInfos.invSplitDetails;
 

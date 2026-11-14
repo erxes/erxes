@@ -6,8 +6,10 @@ import { twoFactorQueries } from '@/auth/graphql/resolvers/twoFactor';
 import { supportAccessQueries } from '@/auth/graphql/resolvers/supportAccess';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
+import { automationFolderQueries } from '@/automations/graphql/resolvers/folders';
 import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
 import { notificationTemplateQueries } from '@/notificationTemplates/graphql/resolvers';
+import { currencyRateQueries } from '@/currencyRates/graphql/resolvers';
 import { beforeResolverQueries } from '@/beforeResolvers/graphql/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
@@ -22,6 +24,7 @@ import { notificationQueries } from '@/notifications/graphql/resolver/queries';
 import { brandQueries } from '@/organization/brand/graphql/queries';
 import { organizationConfigQueries } from '@/organization/settings/graphql/configs/queries';
 import { favoriteQueries } from '@/organization/settings/graphql/favorites/queries';
+import { dashboardLayoutQueries } from '@/organization/settings/graphql/dashboardLayouts/queries';
 import { structureQueries } from '@/organization/structure/graphql/resolvers/queries';
 import { userQueries } from '@/organization/team-member/graphql/queries';
 import { permissionQueries } from '~/modules/permissions/graphql/resolvers/queries/permission';
@@ -40,7 +43,7 @@ import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries'
 import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
-import { templateQueries } from '@/template/graphql/queries';
+import { templateQueries } from '@/template/graphql/resolvers';
 import { globalSearchQueries } from '@/search/graphql/resolvers/queries/globalSearch';
 import { referenceQueries } from '~/meta/references/graphql/queries';
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
@@ -48,6 +51,8 @@ import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsThreadsQueries } from '@/agents/graphql/resolvers/queries/threads';
 import { agentsSettingsQueries } from '@/agents/graphql/resolvers/queries/settings';
 import { agentsToolsQueries } from '@/agents/graphql/resolvers/queries/tools';
+import { dataExtensionQueries } from '@/data-extensions/graphql/resolvers';
+import { isDataExtensionsServiceEnabled } from 'erxes-api-shared/core-modules';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
@@ -78,6 +83,7 @@ export const queries = {
   ...segmentQueries,
   ...relationsQueries,
   ...favoriteQueries,
+  ...dashboardLayoutQueries,
   ...structureQueries,
   ...brandQueries,
   ...organizationConfigQueries,
@@ -86,8 +92,10 @@ export const queries = {
   ...filesQueries,
   ...documentQueries,
   ...automationQueries,
+  ...automationFolderQueries,
   ...emailTemplateQueries,
   ...notificationTemplateQueries,
+  ...currencyRateQueries,
   ...beforeResolverQueries,
   ...logQueries,
   ...notificationQueries,
@@ -110,4 +118,6 @@ export const queries = {
   ...agentsThreadsQueries,
   ...agentsSettingsQueries,
   ...agentsToolsQueries,
+  // Served by the standalone app when it runs (see apollo/schema/schema.ts).
+  ...(isDataExtensionsServiceEnabled() ? {} : dataExtensionQueries),
 };

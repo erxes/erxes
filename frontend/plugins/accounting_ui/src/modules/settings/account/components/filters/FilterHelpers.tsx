@@ -1,5 +1,7 @@
 import {
   IconCoins,
+  IconFolder,
+  IconGitBranch,
   IconHash,
   IconLabelFilled,
   IconLayoutGridAdd,
@@ -8,14 +10,24 @@ import {
   IconToggleRightFilled,
 } from '@tabler/icons-react';
 import {
+  Combobox,
   CurrencyCode,
   CurrencyField,
   Filter,
+  Popover,
   SelectTree,
   useFilterContext,
+  useFilterQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  BranchBadge,
+  DepartmentBadge,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules';
 import {
   SelectAccountCatCommand,
   SelectAccountCategory,
@@ -48,18 +60,30 @@ import {
 import {
   AccountsTrStatusCommand,
   SelectAccountTrStatusCommand,
+  TrStatusOptions,
 } from './AccountsTrStatus';
 
+type AccountFilterProps = { queryKey?: string };
+type AccountFilterBarProps = AccountFilterProps & { labelKey?: string };
+
+const useAccountFilterQuery = <T,>(queryKey: string) => {
+  const { sessionKey } = useFilterContext();
+  return useFilterQueryState<T>(queryKey, sessionKey);
+};
+
 // category helper
-export const AccountsFilterCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string | null>(
-    'categoryId',
+export const AccountsFilterCategory = ({
+  filterKey = 'category',
+  queryKey = 'categoryId',
+}: AccountFilterProps & { filterKey?: string }) => {
+  const [categoryId, setCategoryId] = useAccountFilterQuery<string | null>(
+    queryKey,
   );
   const { resetFilterState } = useFilterContext();
 
   return (
     <SelectTree.Provider id="account-category-filter" ordered>
-      <Filter.View filterKey="category">
+      <Filter.View filterKey={filterKey}>
         <SelectAccountCatCommand
           focusOnMount
           selected={categoryId ?? undefined}
@@ -73,23 +97,26 @@ export const AccountsFilterCategory = () => {
   );
 };
 
-export const FilterBarCategory = () => {
+export const FilterBarCategory = ({
+  queryKey = 'categoryId',
+  labelKey = 'category',
+}: AccountFilterBarProps) => {
   const { t } = useTranslation('accounting');
-  const [categoryId, setCategoryId] = useQueryState<string | null>(
-    'categoryId',
+  const [categoryId, setCategoryId] = useAccountFilterQuery<string | null>(
+    queryKey,
   );
 
   return (
-    <Filter.BarItem queryKey="categoryId">
+    <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
         <IconLayoutGridAdd />
-        {t('category')}
+        {t(labelKey)}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountCategory
           selected={categoryId ?? undefined}
           onSelect={(categoryId) => setCategoryId(categoryId)}
-          recordId="categoryId"
+          recordId={queryKey}
           variant="ghost"
           className="rounded-none bg-background max-h-full p-0"
         />
@@ -100,7 +127,8 @@ export const FilterBarCategory = () => {
 
 // currency filter helper
 export const AccountsFilterCurrency = () => {
-  const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
+  const [currency, setCurrency] =
+    useAccountFilterQuery<CurrencyCode>('currency');
   const { resetFilterState } = useFilterContext();
   const { dealCurrencyOptions } = useCurrencyConfigs();
 
@@ -124,7 +152,8 @@ export const AccountsFilterCurrency = () => {
 
 export const FilterBarCurrency = () => {
   const { t } = useTranslation('accounting');
-  const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
+  const [currency, setCurrency] =
+    useAccountFilterQuery<CurrencyCode>('currency');
   const { dealCurrencyOptions } = useCurrencyConfigs();
 
   return (
@@ -150,8 +179,10 @@ export const FilterBarCurrency = () => {
 };
 
 // account kind filter helper
-export const AccountsFilterKind = () => {
-  const [kind, setKind] = useQueryState<string | null>('kind');
+export const AccountsFilterKind = ({
+  queryKey = 'kind',
+}: AccountFilterProps) => {
+  const [kind, setKind] = useAccountFilterQuery<string | null>(queryKey);
   const { resetFilterState } = useFilterContext();
 
   const handleSelect = (value: string | null) => {
@@ -164,15 +195,18 @@ export const AccountsFilterKind = () => {
   );
 };
 
-export const FilterBarKind = () => {
+export const FilterBarKind = ({
+  queryKey = 'kind',
+  labelKey = 'kind',
+}: AccountFilterBarProps) => {
   const { t } = useTranslation('accounting');
-  const [kind, setKind] = useQueryState<string | null>('kind');
+  const [kind, setKind] = useAccountFilterQuery<string | null>(queryKey);
 
   return (
-    <Filter.BarItem queryKey="kind">
+    <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
         <IconToggleRightFilled />
-        {t('kind')}
+        {t(labelKey)}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountKindCommand
@@ -269,9 +303,11 @@ export const FilterBarIsTemp = () => {
 };
 
 // account isOutBalance filter helper
-export const AccountsFilterIsOutBalance = () => {
-  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>(
-    'isOutBalance',
+export const AccountsFilterIsOutBalance = ({
+  queryKey = 'isOutBalance',
+}: AccountFilterProps) => {
+  const [isOutBalance, setIsOutBalance] = useAccountFilterQuery<string | null>(
+    queryKey,
   );
   const { resetFilterState } = useFilterContext();
 
@@ -289,17 +325,20 @@ export const AccountsFilterIsOutBalance = () => {
   );
 };
 
-export const FilterBarIsOutBalance = () => {
+export const FilterBarIsOutBalance = ({
+  queryKey = 'isOutBalance',
+  labelKey = 'off-balance-sheet',
+}: AccountFilterBarProps) => {
   const { t } = useTranslation('accounting');
-  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>(
-    'isOutBalance',
+  const [isOutBalance, setIsOutBalance] = useAccountFilterQuery<string | null>(
+    queryKey,
   );
 
   return (
-    <Filter.BarItem queryKey="isOutBalance">
+    <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
         <IconToggleRightFilled />
-        {t('off-balance-sheet')}
+        {t(labelKey)}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsOutBalanceCommand
@@ -314,8 +353,10 @@ export const FilterBarIsOutBalance = () => {
 };
 
 // account status filter helper
-export const AccountsFilterStatus = () => {
-  const [status, setStatus] = useQueryState<string | null>('status');
+export const AccountsFilterStatus = ({
+  queryKey = 'status',
+}: AccountFilterProps) => {
+  const [status, setStatus] = useAccountFilterQuery<string | null>(queryKey);
   const { resetFilterState } = useFilterContext();
 
   const handleSelect = (value: string | null) => {
@@ -332,15 +373,18 @@ export const AccountsFilterStatus = () => {
   );
 };
 
-export const FilterBarStatus = () => {
+export const FilterBarStatus = ({
+  queryKey = 'status',
+  labelKey = 'status',
+}: AccountFilterBarProps) => {
   const { t } = useTranslation('accounting');
-  const [status, setStatus] = useQueryState<string | null>('status');
+  const [status, setStatus] = useAccountFilterQuery<string | null>(queryKey);
 
   return (
-    <Filter.BarItem queryKey="status">
+    <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
         <IconToggleRightFilled />
-        {t('status')}
+        {t(labelKey)}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountStatusCommand
@@ -356,7 +400,7 @@ export const FilterBarStatus = () => {
 
 // account journal filter helper
 export const AccountsFilterTrJournal = () => {
-  const [journal, setJournal] = useQueryState<string | null>('journal');
+  const [journal, setJournal] = useAccountFilterQuery<string | null>('journal');
   const { resetFilterState } = useFilterContext();
 
   const handleSelect = (value: string | null) => {
@@ -375,7 +419,7 @@ export const AccountsFilterTrJournal = () => {
 
 export const FilterBarTrJournal = () => {
   const { t } = useTranslation('accounting');
-  const [journal, setJournal] = useQueryState<string | null>('journal');
+  const [journal, setJournal] = useAccountFilterQuery<string | null>('journal');
 
   return (
     <Filter.BarItem queryKey="journal">
@@ -395,9 +439,124 @@ export const FilterBarTrJournal = () => {
   );
 };
 
+const MISSING_STRUCTURE_FALLBACK = "empty:before:content-['-']";
+
+const BranchFilterValue = ({ id }: { id: string }) => (
+  <span className={MISSING_STRUCTURE_FALLBACK}>
+    <BranchBadge branchId={id} renderAsPlainText />
+  </span>
+);
+
+const DepartmentFilterValue = ({ id }: { id: string }) => (
+  <span className={MISSING_STRUCTURE_FALLBACK}>
+    <DepartmentBadge departmentId={id} renderAsPlainText />
+  </span>
+);
+
+const STRUCTURE_FILTERS = {
+  branchId: {
+    Select: SelectBranches,
+    Value: BranchFilterValue,
+    Icon: IconGitBranch,
+    labelKey: 'branch',
+  },
+  departmentId: {
+    Select: SelectDepartments,
+    Value: DepartmentFilterValue,
+    Icon: IconFolder,
+    labelKey: 'department',
+  },
+};
+
+type StructureQueryKey = keyof typeof STRUCTURE_FILTERS;
+
+type StructureFilterProps = { queryKey: StructureQueryKey };
+
+const useStructureFilterQuery = (queryKey: StructureQueryKey) => {
+  const [value, setValue] = useAccountFilterQuery<string | null>(queryKey);
+
+  const setStructure = (next?: string[] | string) =>
+    setValue(typeof next === 'string' && next ? next : null);
+
+  return [value, setStructure] as const;
+};
+
+export const AccountsFilterStructure = ({ queryKey }: StructureFilterProps) => {
+  const { Select } = STRUCTURE_FILTERS[queryKey];
+  const [value, setValue] = useStructureFilterQuery(queryKey);
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Select
+      mode="single"
+      value={value ?? undefined}
+      onValueChange={(next) => {
+        setValue(next);
+        resetFilterState();
+      }}
+    >
+      <Select.Content />
+    </Select>
+  );
+};
+
+const FilterBarStructurePopover = ({
+  queryKey,
+  value,
+}: StructureFilterProps & { value: string }) => {
+  const { Select, Value } = STRUCTURE_FILTERS[queryKey];
+
+  return (
+    <>
+      <Popover.Trigger asChild>
+        <Filter.BarButton filterKey={queryKey}>
+          <Value id={value} />
+        </Filter.BarButton>
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Select.Content />
+      </Combobox.Content>
+    </>
+  );
+};
+
+export const FilterBarStructure = ({ queryKey }: StructureFilterProps) => {
+  const { t } = useTranslation('accounting');
+  const { Select, Icon, labelKey } = STRUCTURE_FILTERS[queryKey];
+  const [value, setValue] = useStructureFilterQuery(queryKey);
+  const [open, setOpen] = useState(false);
+
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <Filter.BarItem queryKey={queryKey}>
+      <Filter.BarName>
+        <Icon />
+        {t(labelKey)}
+      </Filter.BarName>
+      <Select
+        mode="single"
+        value={value}
+        onValueChange={(next) => {
+          setValue(next);
+          setOpen(false);
+        }}
+      >
+        <Popover open={open} onOpenChange={setOpen}>
+          <FilterBarStructurePopover queryKey={queryKey} value={value} />
+        </Popover>
+      </Select>
+    </Filter.BarItem>
+  );
+};
+
 // tr status filter helper
-export const AccountsFilterTrStatus = () => {
-  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+export const AccountsFilterTrStatus = (options: TrStatusOptions) => {
+  const [statuses, setStatuses] = useAccountFilterQuery<string[] | null>(
+    'statuses',
+  );
 
   const handleSelect = (value: string[] | null) => {
     setStatuses(value);
@@ -408,19 +567,25 @@ export const AccountsFilterTrStatus = () => {
       focusOnMount
       selected={statuses}
       onSelect={handleSelect}
+      {...options}
     />
   );
 };
 
-export const FilterBarTrStatus = () => {
+export const FilterBarTrStatus = ({
+  labelKey = 'tr-status',
+  ...options
+}: TrStatusOptions & { labelKey?: string }) => {
   const { t } = useTranslation('accounting');
-  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+  const [statuses, setStatuses] = useAccountFilterQuery<string[] | null>(
+    'statuses',
+  );
 
   return (
     <Filter.BarItem queryKey="statuses">
       <Filter.BarName>
         <IconNotebook />
-        {t('tr-status')}
+        {t(labelKey)}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountTrStatusCommand
@@ -428,6 +593,7 @@ export const FilterBarTrStatus = () => {
           onSelect={(value) => setStatuses(value)}
           variant="ghost"
           className="rounded-none h-7 bg-background"
+          {...options}
         />
       </Filter.BarButton>
     </Filter.BarItem>

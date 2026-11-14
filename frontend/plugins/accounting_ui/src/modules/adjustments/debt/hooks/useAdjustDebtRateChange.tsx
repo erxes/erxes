@@ -36,6 +36,7 @@ export const useAdjustDebtRateChange = (
         toast({
           title: t('success'),
           description: t('Debt Rate Adjustment updated successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },
@@ -86,6 +87,7 @@ export const useAdjustDebtRateRemove = (
         toast({
           title: t('success'),
           description: t('Debt Rate Adjustment removed successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

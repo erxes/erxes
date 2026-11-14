@@ -138,12 +138,13 @@ export const ContactOverviewCustomize = ({
         <Button
           type="button"
           variant="ghost"
-          size="icon"
-          className="size-7 flex-none"
+          size="sm"
+          className="h-7 flex-none gap-1.5 px-2 text-xs"
           aria-label={t('customize', 'Customize')}
           title={t('customize', 'Customize')}
         >
           <IconAdjustmentsHorizontal className="size-4" />
+          {t('customize', 'Customize')}
         </Button>
       </Popover.Trigger>
       <Popover.Content align="end" className="w-64 p-1.5">

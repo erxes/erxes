@@ -33,6 +33,7 @@ export const useSafeRemainderAdd = (
         toast({
           title: t('success'),
           description: t('safe-remainder-created'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

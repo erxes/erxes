@@ -46,25 +46,29 @@ export const BroadcastSegmentStep = ({
   }
 
   return (
-    <Command>
-      <Command.List className="min-h-full">
+    <Command className="h-auto min-h-0 min-w-0 flex-1 border">
+      <Command.List className="m-0 min-h-0 max-h-none flex-1 overflow-x-hidden overflow-y-auto p-1">
         {segments.map((segment) => (
           <Command.Item
             key={segment._id}
             value={segment._id}
             onSelect={() => toggle(segment)}
             className={cn(
-              'mb-1 flex justify-between cursor-pointer last-of-type:mb-9',
+              'mb-1 min-w-0 justify-between cursor-pointer last-of-type:mb-0',
               isSelected(segment) &&
                 'bg-primary/10 data-[selected=true]:bg-primary/10',
             )}
           >
             <span
-              className={segment.name?.trim() ? '' : 'text-muted-foreground'}
+              className={cn(
+                'min-w-0 flex-1 truncate',
+                !segment.name?.trim() && 'text-muted-foreground',
+              )}
+              title={segmentLabel(segment, t)}
             >
               {segmentLabel(segment, t)}
             </span>
-            <span className="ml-2 text-xs text-muted-foreground">
+            <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
               {segment.membersCount ?? '—'}
             </span>
           </Command.Item>

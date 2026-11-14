@@ -19,6 +19,7 @@ export const ConversationRefetch = () => {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={t('refresh', 'Refresh')}
             className="relative"
             onClick={() => setRefetchNewMessages(true)}
           >

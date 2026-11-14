@@ -4,10 +4,12 @@ import {
   graphqlPubsub,
   isEnabled,
   sendWorkerMessage,
-  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 
-import { golomtCallbackHandler } from '~/apis/golomt/api';
+import {
+  golomtCallbackHandler,
+  notificationHandler as golomtNotificationHandler,
+} from '~/apis/golomt/api';
 import { minupayCallbackHandler } from '~/apis/minupay/api';
 import { monpayCallbackHandler } from '~/apis/monpay/api';
 import { pocketCallbackHandler } from '~/apis/pocket/api';
@@ -20,6 +22,7 @@ import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
 
@@ -115,10 +118,11 @@ export const callbackHandler = async (req, res) => {
         return res.status(400).send('Invoice not found');
       }
 
-      const result = await models.Invoices.checkInvoice(
-        transaction.invoiceId,
-        subdomain,
-      );
+      const { status: result, claimed } =
+        await models.Invoices.checkInvoiceAndClaim(
+          transaction.invoiceId,
+          subdomain,
+        );
 
       delete transaction.response;
 
@@ -168,50 +172,16 @@ export const callbackHandler = async (req, res) => {
         }
       }
 
-      if (result === 'paid') {
-        if (invoice.contentType) {
-          const [pluginName, moduleName, collectionType] = splitType(
-            invoice.contentType,
-          );
-
-          sendWorkerQueue(pluginName, 'payments')
-            .add(
-              'callback',
-              {
-                subdomain,
-                data: {
-                  ...invoice,
-                  status: 'paid',
-                  moduleName,
-                  collectionType,
-                  apiResponse: 'success',
-                },
-              },
-              { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-            )
-            .catch((err) => {
-              process.stderr.write(
-                `[paymentCallback] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
-              );
-            });
-        }
-      }
-
-      if (invoice.callback) {
+      // notify only if this callback moved the invoice to paid; if this
+      // fails, notifyPending stays set and the invoice re-check worker retries
+      if (claimed) {
         try {
-          await fetch(invoice.callback, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              _id: invoice._id,
-              amount: invoice.amount,
-              status: 'paid',
-            }),
-          });
+          await notifyPaidInvoice(models, subdomain, invoice._id);
         } catch (e) {
-          console.error('Error: ', e);
+          console.error(
+            `[CALLBACK] Failed to queue paid notifications for invoice ${invoice._id}`,
+            e,
+          );
         }
       }
 
@@ -224,4 +194,25 @@ export const callbackHandler = async (req, res) => {
   }
 
   return res.status(200).send('OK');
+};
+
+/**
+ * Golomt push notification endpoint: /pl:payment/notification/golomt
+ * Golomt has to enable push notifications for the merchant with this URL.
+ */
+export const golomtNotificationRoute = async (req, res) => {
+  try {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    return await golomtNotificationHandler(
+      models,
+      subdomain,
+      { ...req.query, ...req.body },
+      res,
+    );
+  } catch (e) {
+    console.error('[golomt notification] failed', e);
+    return res.status(500).json({ status: 'error', message: e.message });
+  }
 };

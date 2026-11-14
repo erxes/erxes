@@ -111,3 +111,49 @@ export const validateMessageProConfig: TAutomationConfigValidator = async ({
         },
       ];
 };
+
+/** Team members named in a config field exist; placeholders resolve at run time. */
+const validateTeamMemberIds =
+  (field: string): TAutomationConfigValidator =>
+  async ({ subdomain, config }) => {
+    const userIds = readText(config[field])
+      .split(',')
+      .map((id) => readLiteralConfigId(id.trim()))
+      .filter((id): id is string => !!id);
+
+    if (!userIds.length) {
+      return [];
+    }
+
+    const models = await generateModels(subdomain);
+    const found = await models.Users.find(
+      { _id: { $in: userIds }, isActive: { $ne: false } },
+      { _id: 1 },
+    ).lean();
+    const foundIds = new Set(found.map((user) => String(user._id)));
+    const missing = userIds.filter((id) => !foundIds.has(id));
+
+    return missing.length
+      ? [
+          {
+            path: `config.${field}`,
+            malformed: true,
+            message: `Team member ${missing.join(', ')} does not exist`,
+          },
+        ]
+      : [];
+  };
+
+/** Notified team members exist. */
+export const validateSendNotificationConfig = validateTeamMemberIds('userIds');
+
+/** Candidates and the fallback member exist. */
+export const validatePickMemberConfig: TAutomationConfigValidator = async (
+  input,
+) => [
+  ...(await validateTeamMemberIds('candidateIds')(input)),
+  ...(await validateTeamMemberIds('fallbackUserId')(input)),
+];
+
+/** Approvers exist. */
+export const validateApprovalConfig = validateTeamMemberIds('approverIds');

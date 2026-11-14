@@ -3,6 +3,7 @@ import { Combobox, Command, Popover } from 'erxes-ui';
 import React from 'react';
 import { Except } from 'type-fest';
 import {
+  ORIGIN_TR_JOURNALS,
   TR_JOURNAL_LABELS,
   TrJournalEnum,
 } from '~/modules/transactions/types/constants';
@@ -58,7 +59,7 @@ export const AccountsTrJournalCommand = ({
         focusOnMount={focusOnMount}
       />
       <Command.List>
-        {Object.values(TrJournalEnum).map((trJournal) => (
+        {ORIGIN_TR_JOURNALS.map((trJournal) => (
           <Command.Item
             key={trJournal}
             value={trJournal}

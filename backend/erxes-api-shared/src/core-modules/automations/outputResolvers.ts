@@ -11,6 +11,7 @@ import {
   TAutomationOutputDefinition,
   TAutomationProducers,
   TAutomationRuntimeOutputDefinition,
+  TAutomationFindObjectTargetDefinition,
 } from './types';
 import { splitType } from './typeUtils';
 import {
@@ -805,6 +806,11 @@ export const getAutomationActionConstant = async (actionType: string) =>
     | (IAutomationsActionConfig & {
         output?: TAutomationRuntimeOutputDefinition;
       })
+    | undefined;
+
+export const getAutomationFindObjectTarget = async (objectType: string) =>
+  (await findAutomationNodeConstant(objectType, ['findObjectTargets'])) as
+    | TAutomationFindObjectTargetDefinition
     | undefined;
 
 const getAutomationOutputDefinition = async (nodeType: string) =>

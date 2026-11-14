@@ -56,6 +56,7 @@ export const UPDATE_TICKET_MUTATION = gql(`
       assignedMembers
       startDate
       targetDate
+      statusChangedDate
       channelId
       pipelineId
       isSubscribed
