@@ -6,11 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-<<<<<<< ours
-- **Last synchronized:** `2026-11-02`
-=======
 - **Last synchronized:** `2026-11-06`
->>>>>>> theirs
 
 ## Scope
 
