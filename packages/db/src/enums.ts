@@ -280,6 +280,28 @@ export const INVOICE_STATUSES = [
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
+// ─── Assistant ──────────────────────────────────────────────────────────────
+
+export const ASSISTANT_PROVIDERS = ['openai', 'grok', 'kimi', 'kimi-code'] as const;
+
+export const ASSISTANT_APPROVAL_MODES = ['writes', 'destructive'] as const;
+
+export const ASSISTANT_THINKING_LEVELS = [
+  'off',
+  'minimal',
+  'low',
+  'medium',
+  'high',
+  'xhigh',
+  'max',
+] as const;
+
+export const ASSISTANT_THINKING_KINDS = ['effort', 'toggle', 'budget', 'fixed', 'none'] as const;
+
+export const ASSISTANT_MESSAGE_ROLES = ['user', 'assistant'] as const;
+
+export const ASSISTANT_QUESTION_MODES = ['single_select', 'multi_select'] as const;
+
 // ─── Settings ───────────────────────────────────────────────────────────────
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;

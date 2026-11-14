@@ -49,3 +49,5 @@ export * from './products';
 export * from './customerAuth';
 
 export * from './rateLimits';
+
+export * from './assistant';
