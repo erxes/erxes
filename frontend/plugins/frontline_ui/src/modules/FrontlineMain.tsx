@@ -37,6 +37,12 @@ const Ticket = lazy(() =>
   })),
 );
 
+const TicketDetail = lazy(() =>
+  import('~/pages/TicketDetailPage').then((module) => ({
+    default: module.TicketDetailPage,
+  })),
+);
+
 const Report = lazy(() =>
   import('~/pages/ReportIndexPage').then((module) => ({
     default: module.ReportIndexPage,
@@ -75,7 +81,7 @@ const FormPreviewPage = lazy(() =>
 
 const HelpCenter = lazy(() =>
   import('~/pages/HelpCenterIndexPage').then((module) => ({
-    default: module.default,
+    default: module.HelpCenterIndexPage,
   })),
 );
 
@@ -117,6 +123,7 @@ const IntegrationsMain = () => {
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/tickets" element={<Ticket />} />
+        <Route path="/tickets/:ticketId" element={<TicketDetail />} />
         <Route
           path="/calls"
           element={<Navigate to="/frontline/calls/dashboard" replace />}
@@ -200,4 +207,4 @@ const FrontlineEntry = () => (
   </Routes>
 );
 
-export default FrontlineEntry;
+export { FrontlineEntry as Frontline };

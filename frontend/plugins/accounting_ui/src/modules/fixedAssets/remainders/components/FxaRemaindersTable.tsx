@@ -5,8 +5,6 @@ import { useMemo } from 'react';
 import {
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
-  Table,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { IconBuildingOff } from '@tabler/icons-react';
@@ -147,28 +145,6 @@ const getFxaRemainderColumns = ({
   },
 ];
 
-const FxaRemaindersSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const rowKeys = useMemo(
-    () =>
-      Array.from({ length: rows }, (_, index) => `fxa-rem-skeleton-${index}`),
-    [rows],
-  );
-
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {Array.from({ length: 5 }, (_, index) => (
-            <Table.Cell key={`${rowKey}-${index}`} className="border-r-0 px-2">
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
-
 export const FxaRemaindersTable = () => {
   const { t } = useTranslation('accounting');
   const { fixedAssetRemainders, loading, error } = useFixedAssetRemainders();
@@ -294,7 +270,7 @@ export const FxaRemaindersTable = () => {
           <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {isInitialLoading && <FxaRemaindersSkeleton rows={20} />}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>

@@ -2,42 +2,39 @@ import { ComponentType, useState } from 'react';
 import {
   IField,
   IFieldGroup,
+  IFieldMutation,
   IPropertyRow,
-  mutateFunction,
-} from '../types/fieldsTypes';
+} from 'ui-modules/modules/properties/types/fieldsTypes';
 import {
   hasFieldValue,
   toPropertyGroupKey,
   validatePropertyValue,
-} from '../propertyUtils';
+} from 'ui-modules/modules/properties/propertyUtils';
 
-import { FieldBoolean } from './FieldBoolean';
-import { FieldCheck } from './FieldCheck';
-import { FieldDate } from './FieldDate';
-import { FeaturedFieldValue } from './FeaturedFieldValue';
-import { FieldEditor } from './FieldEditor';
-import { FieldFile } from './FieldFile';
-import { FieldLabel } from './FieldLabel';
-import { useFieldSaveState } from '../hooks/useFieldSaveState';
-import { FieldNumber } from './FieldNumber';
-import { FieldObjectList } from './FieldObjectList';
-import { FieldPhone } from './FieldPhone';
-import { FieldRadio } from './FieldRadio';
-import { FieldRelation } from './FieldRelation';
-import { FieldSelect } from './FieldSelect';
-import { FieldSelectMultiple } from './FieldSelectMultiple';
-import { FieldString } from './FieldString';
-import { FieldStringMultiple } from './FieldStringMultiple';
-import { FieldTextarea } from './FieldTextarea';
+import { FieldBoolean } from 'ui-modules/modules/properties/components/FieldBoolean';
+import { FieldCheck } from 'ui-modules/modules/properties/components/FieldCheck';
+import { FieldDate } from 'ui-modules/modules/properties/components/FieldDate';
+import { FeaturedFieldValue } from 'ui-modules/modules/properties/components/FeaturedFieldValue';
+import { FieldEditor } from 'ui-modules/modules/properties/components/FieldEditor';
+import { FieldFile } from 'ui-modules/modules/properties/components/FieldFile';
+import { FieldLabel } from 'ui-modules/modules/properties/components/FieldLabel';
+import { useFieldSaveState } from 'ui-modules/modules/properties/hooks/useFieldSaveState';
+import { FieldNumber } from 'ui-modules/modules/properties/components/FieldNumber';
+import { FieldObjectList } from 'ui-modules/modules/properties/components/FieldObjectList';
+import { FieldPhone } from 'ui-modules/modules/properties/components/FieldPhone';
+import { FieldRadio } from 'ui-modules/modules/properties/components/FieldRadio';
+import { FieldRelation } from 'ui-modules/modules/properties/components/FieldRelation';
+import { FieldSelect } from 'ui-modules/modules/properties/components/FieldSelect';
+import { FieldSelectMultiple } from 'ui-modules/modules/properties/components/FieldSelectMultiple';
+import { FieldString } from 'ui-modules/modules/properties/components/FieldString';
+import { FieldStringMultiple } from 'ui-modules/modules/properties/components/FieldStringMultiple';
+import { FieldTextarea } from 'ui-modules/modules/properties/components/FieldTextarea';
 
 export interface FieldProps {
   field: IField;
   inCell?: boolean;
   value: any;
-  mutateHook?: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  mutateHook?: () => IFieldMutation;
   propertiesData?: Record<string, unknown>;
   id: string;
   onFieldChange?: (value: unknown) => void;
@@ -72,7 +69,11 @@ export const FIELD_COMPONENT_BY_TYPE: Record<
 
 export const Field = (props: FieldProps) => {
   const { field, mutateHook, propertiesData, id } = props;
-  const { mutate, loading } = mutateHook?.() ?? {
+  const {
+    mutate,
+    loading,
+    propertiesDataMode = 'replace',
+  }: IFieldMutation = mutateHook?.() ?? {
     mutate: () => null,
     loading: false,
   };
@@ -94,11 +95,14 @@ export const Field = (props: FieldProps) => {
       return;
     }
 
-    const nextData = { ...propertiesData };
+    const nextData: Record<string, unknown> =
+      propertiesDataMode === 'patch' ? {} : { ...propertiesData };
 
     // '' would fail the number/email/date checks and block the whole save
     if (hasFieldValue(value)) {
       nextData[field._id] = value;
+    } else if (propertiesDataMode === 'patch') {
+      nextData[field._id] = null;
     } else {
       delete nextData[field._id];
     }
@@ -143,17 +147,18 @@ export interface FieldMultipleProps {
   inCell?: boolean;
   rowId: string;
   value: any;
-  mutateHook?: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  mutateHook?: () => IFieldMutation;
   propertiesData?: Record<string, any>;
   id: string;
 }
 
 export const FieldMultiple = (props: FieldMultipleProps) => {
   const { group, field, mutateHook, propertiesData, id, rowId } = props;
-  const { mutate, loading } = mutateHook?.() ?? {
+  const {
+    mutate,
+    loading,
+    propertiesDataMode = 'replace',
+  }: IFieldMutation = mutateHook?.() ?? {
     mutate: () => null,
     loading: false,
   };
@@ -199,7 +204,7 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
       {
         _id: id,
         propertiesData: {
-          ...propertiesData,
+          ...(propertiesDataMode === 'patch' ? {} : propertiesData),
           [groupKey]: rows,
         },
       },

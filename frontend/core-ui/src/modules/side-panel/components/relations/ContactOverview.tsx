@@ -2,6 +2,7 @@ import { IconChevronRight } from '@tabler/icons-react';
 import { Button, cn, ScrollArea } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ContactOverviewSectionContext,
   IContactOverviewSection,
@@ -10,8 +11,8 @@ import {
 import { IContactWidgetModule } from '@/side-panel/hooks/useContactWidgetModules';
 import { contactOverviewFoldedState } from '@/side-panel/states/contactOverviewState';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { TContactOverviewEntry } from './contactOverviewEntries';
-import { ContactOverviewCustomize } from './ContactOverviewCustomize';
+import { TContactOverviewEntry } from '@/side-panel/components/relations/contactOverviewEntries';
+import { ContactOverviewCustomize } from '@/side-panel/components/relations/ContactOverviewCustomize';
 
 type TContactType = 'core:customer' | 'core:company';
 
@@ -21,6 +22,7 @@ const SectionSlot = ({
   module,
   contactType,
   contentId,
+  access,
   folded,
   onFold,
   onUnavailable,
@@ -29,13 +31,14 @@ const SectionSlot = ({
   module: IContactWidgetModule;
   contactType: TContactType;
   contentId: string;
+  access: 'read' | 'write';
   folded: boolean;
   onFold: (key: string, folded: boolean) => void;
   onUnavailable: (key: string) => void;
 }) => {
   const value = useMemo<IContactOverviewSection>(
-    () => ({ folded, setFolded: (next) => onFold(sectionKey, next) }),
-    [sectionKey, folded, onFold],
+    () => ({ folded, setFolded: (next) => onFold(sectionKey, next), access }),
+    [sectionKey, folded, onFold, access],
   );
 
   return (
@@ -43,7 +46,12 @@ const SectionSlot = ({
       <RenderPluginsComponent
         pluginName={`${module.pluginName}_ui`}
         remoteModuleName="contactWidget"
-        props={{ module: module.name, contentType: contactType, contentId }}
+        props={{
+          module: module.name,
+          contentType: contactType,
+          contentId,
+          access,
+        }}
         quiet
         onLoadError={() => onUnavailable(sectionKey)}
       />
@@ -97,19 +105,23 @@ const OtherSection = ({
 export const ContactOverview = ({
   contactType,
   contentId,
+  access,
   entries,
   customize,
   onUnavailable,
 }: {
   contactType: TContactType;
   contentId: string;
+  access: 'read' | 'write';
   // The modules shown here, in order (those pinned as tabs left out).
   entries: TContactOverviewEntry[];
   customize: React.ComponentProps<typeof ContactOverviewCustomize>;
   onUnavailable: (key: string) => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [foldedMap, setFoldedMap] = useAtom(contactOverviewFoldedState);
 
+  /** Reads a saved section preference, falling back to the section default. */
   const isFolded = (key: string, byDefault: boolean) =>
     foldedMap[`${contactType}:${key}`] ?? byDefault;
 
@@ -125,7 +137,10 @@ export const ContactOverview = ({
   return (
     <div className="flex flex-1 min-h-0 flex-col">
       {customize.entries.length > 0 && (
-        <div className="flex h-9 flex-none items-center justify-end border-b px-2">
+        <div className="flex h-9 flex-none items-center justify-between gap-2 border-b px-3">
+          <h2 className="min-w-0 truncate text-xs font-medium text-muted-foreground">
+            {t('related-records', 'Related records')}
+          </h2>
           <ContactOverviewCustomize {...customize} />
         </div>
       )}
@@ -138,6 +153,7 @@ export const ContactOverview = ({
               module={entry.module}
               contactType={contactType}
               contentId={contentId}
+              access={access}
               folded={isFolded(entry.key, false)}
               onFold={setFolded}
               onUnavailable={onUnavailable}

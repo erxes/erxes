@@ -1,3 +1,4 @@
+import { AutomationRunHealthDot } from '@/automations/components/builder/header/AutomationRunHealthDot';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import {
   AutomationBuilderTabsType,
@@ -80,6 +81,9 @@ export const AutomationHeaderTabs = ({
           <span className="relative z-10 whitespace-nowrap capitalize">
             {t(value)}
           </span>
+          {value === AutomationBuilderTabsType.History && (
+            <AutomationRunHealthDot />
+          )}
         </Tabs.Trigger>
       ))}
     </Tabs.List>

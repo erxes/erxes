@@ -1,3 +1,4 @@
+import { MemberAvailabilityEditor } from '@/settings/team-member/availability/components/MemberAvailabilityEditor';
 import {
   IconActivity,
   IconAlignLeft,
@@ -8,6 +9,7 @@ import {
   IconLabelFilled,
   IconMail,
   IconMailCheck,
+  IconUserCheck,
   IconUser,
 } from '@tabler/icons-react';
 import type { ColumnDef, Cell } from '@tanstack/react-table';
@@ -419,6 +421,24 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
             >
               {status ? (cell.getValue() as string) : t('not-verified')}
             </Badge>
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      id: 'availability',
+      accessorKey: 'availability',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconUserCheck}
+          label={t('availability', 'Availability')}
+        />
+      ),
+      cell: ({ cell }) => {
+        const { _id, availability } = cell.row.original;
+        return (
+          <RecordTableInlineCell>
+            <MemberAvailabilityEditor userId={_id} availability={availability} />
           </RecordTableInlineCell>
         );
       },

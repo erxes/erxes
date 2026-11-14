@@ -41,7 +41,8 @@ function fixture(pricing) {
   });
   return {
     checkPricing,
-    run: (items) => checkPricing('tenant-a', { items, totalAmount: 0 }, {}),
+    run: (items, createdAt) =>
+      checkPricing('tenant-a', { items, totalAmount: 0, createdAt }, {}),
     request: () => request,
   };
 }
@@ -178,4 +179,124 @@ test('saving again rebuilds bonuses and removes them below the threshold', async
   const reduced = await save(second);
   assert.equal(reduced.items.length, 1);
   assert.equal(reduced.items[0].unitPrice, 100);
+});
+
+test('passes the order creation time as the order moment, checkout stays now', async () => {
+  const f = fixture({});
+  await f.run([paidItem()], new Date('2020-01-06T10:30:00Z'));
+  assert.equal(f.request().input.orderCreatedAt, '2020-01-06T10:30:00.000Z');
+  assert.equal(f.request().input.date, undefined);
+});
+
+test('new orders omit both times so loyalty evaluates at now', async () => {
+  const f = fixture({});
+  await f.run([paidItem()]);
+  assert.equal(f.request().input.orderCreatedAt, undefined);
+  assert.equal(f.request().input.date, undefined);
+});
+
+function previewFixture(order) {
+  let pricingDoc;
+  let filter;
+  const { default: queries } = load(
+    path.resolve(__dirname, '../../graphql/resolvers/queries/bridges.ts'),
+    {
+      'erxes-api-shared/utils': { markResolvers: () => {} },
+      '~/modules/posclient/utils/assertPosUser': {
+        assertPosUser: (user) => {
+          if (!user) throw new Error('Login required');
+        },
+      },
+      '~/modules/posclient/utils/loyalties': {
+        checkLoyalties: async (_, doc) => doc,
+      },
+      '~/modules/posclient/utils/loyaltyEarn': {},
+      '~/modules/posclient/utils/pricing': {
+        checkPricing: async (_, doc) => {
+          pricingDoc = doc;
+          return doc;
+        },
+      },
+      '~/modules/posclient/utils/customerCreate': {},
+    },
+  );
+  return {
+    run: (orderId) =>
+      queries.poscLoyaltyPreview(
+        null,
+        { items: [], orderId },
+        {
+          subdomain: 'tenant-a',
+          posUser: { _id: 'cashier' },
+          config: { token: 'pos-a' },
+          models: {
+            Orders: {
+              findOne: (query) => {
+                filter = query;
+                return { lean: async () => order };
+              },
+            },
+          },
+        },
+      ),
+    doc: () => pricingDoc,
+    filter: () => filter,
+  };
+}
+
+test('saved-order previews pass their creation time within POS/sub-token scope', async () => {
+  const createdAt = new Date('2020-01-06T10:30:00Z');
+  const f = previewFixture({ createdAt });
+  await f.run('saved-order');
+  assert.equal(f.doc().createdAt, createdAt);
+  assert.equal(f.filter()._id, 'saved-order');
+  assert.deepEqual(
+    Array.from(f.filter().$or, (row) => Object.entries(row)[0]),
+    [
+      ['posToken', 'pos-a'],
+      ['subToken', 'pos-a'],
+    ],
+  );
+});
+
+test('unsaved previews omit the order creation time', async () => {
+  const f = previewFixture();
+  await f.run();
+  assert.equal(f.doc().createdAt, undefined);
+  assert.equal(f.filter(), undefined);
+});
+
+test('previews reject unknown orders and orders outside the current POS scope', async () => {
+  const f = previewFixture(null);
+  await assert.rejects(f.run('other-order'), { message: 'Order not found' });
+  assert.equal(f.doc(), undefined);
+});
+
+test('pricing discounts carry the plans behind them by name', async () => {
+  const reason = {
+    planId: 'hh',
+    planName: 'Happy hour',
+    kind: 'discount',
+    value: 10,
+    window: { type: 'daily', startTime: '18:00', endTime: '21:00' },
+    matchedMoment: 'orderCreated',
+  };
+  const f = fixture({
+    'paid-a': { value: 10, bonusProducts: [], reasons: [reason] },
+  });
+  const { items } = await f.run([paidItem()]);
+  const info = items[0].discountInfos.find(({ type }) => type === 'pricing');
+
+  assert.equal(info.title, 'Happy hour');
+  assert.equal(info.reasons.length, 1);
+  assert.equal(info.reasons[0].matchedMoment, 'orderCreated');
+});
+
+test('pricing discounts without reasons keep the generic title', async () => {
+  const f = fixture({ 'paid-a': { value: 10, bonusProducts: [] } });
+  const { items } = await f.run([paidItem()]);
+  const info = items[0].discountInfos.find(({ type }) => type === 'pricing');
+
+  assert.equal(info.title, 'Pricing discount');
+  assert.equal(info.reasons, undefined);
 });

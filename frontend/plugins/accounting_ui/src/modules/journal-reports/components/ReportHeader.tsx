@@ -1,9 +1,8 @@
-import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
-import { Separator, useQueryState } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { Separator, Skeleton, useQueryState } from 'erxes-ui';
 import type { RefObject } from 'react';
-import { currentOrganizationState } from 'ui-modules';
+import { useJournalReportOrganizationName } from '@/journal-reports/hooks/useJournalReportOrganizationName';
+import { formatReportPeriodQuery } from '@/journal-reports/utils/reportNavigation';
 import { ReportRules } from '../types/reportsMap';
 import { ReportExcelExportButton } from './ReportExcelExportButton';
 
@@ -11,22 +10,17 @@ interface IReportHeaderProps {
   reportContainerRef: RefObject<HTMLDivElement>;
 }
 
-const parseQueryDate = (value?: string): string => {
-  if (!value) return '';
-
-  return format(new Date(value), 'yyyy-MM-dd');
-};
-
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
   const { t } = useTranslation('accounting');
-  const [currentOrganization] = useAtom(currentOrganizationState);
+  const { organizationName, loading: organizationLoading } =
+    useJournalReportOrganizationName();
   const [report] = useQueryState<string>('report');
   const [fromDate] = useQueryState<string>('fromDate');
   const [toDate] = useQueryState<string>('toDate');
 
   const title = t(ReportRules[(report as string) || '']?.title || '');
-  const from = parseQueryDate(fromDate as string);
-  const to = parseQueryDate(toDate as string);
+  const from = formatReportPeriodQuery(fromDate);
+  const to = formatReportPeriodQuery(toDate);
 
   return (
     <>
@@ -40,7 +34,11 @@ export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
       </div>
       <div className="flex justify-between pb-[2em]">
         <div className="flex flex-col gap-1">
-          <p className="font-bold">{currentOrganization?.name ?? 'OrgName'}</p>
+          {organizationLoading ? (
+            <Skeleton className="h-[1.5em] w-40" />
+          ) : (
+            <p className="font-bold min-h-[1.5em]">{organizationName}</p>
+          )}
           <Separator className="print:bg-foreground bg-border" />
           <p>{t('organization-name')}</p>
         </div>

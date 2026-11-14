@@ -143,7 +143,7 @@ const generateImportExportRouter = (
   return trpcMiddleware;
 };
 
-export const startImportExportWorker = ({
+export const startImportExportWorker = async ({
   pluginName,
   config,
   app,
@@ -155,10 +155,13 @@ export const startImportExportWorker = ({
   if (startedWorkers.has(pluginName)) {
     return;
   }
+  startedWorkers.add(pluginName);
 
   const { import: importConfig, export: exportConfig } = config || {};
 
-  initializePluginConfig(pluginName, 'importExport', {
+  // Awaited: every meta section rewrites the whole plugin config, so a
+  // concurrent write (e.g. payments) would otherwise drop this one.
+  await initializePluginConfig(pluginName, 'importExport', {
     import: {
       configured: !!importConfig,
       hasGetImportHeaders: !!importConfig?.getImportHeaders,
@@ -211,6 +214,5 @@ export const startImportExportWorker = ({
     );
   }
 
-  startedWorkers.add(pluginName);
   app.use('/importExport', trpcMiddleware);
 };

@@ -1,5 +1,6 @@
 import { appRouter } from './trpc/init-trpc';
 import automations from './meta/automations';
+import { templates } from './meta/templates';
 import { generateModels } from './connectionResolvers';
 import resolvers from './apollo/resolvers';
 import { router } from './routes';
@@ -18,6 +19,7 @@ import {
   TGetExportHeadersInput,
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
+import { salesExportHandlers } from './modules/sales/meta/export/exportHandlers';
 import { permissions } from '~/meta/permissions';
 import { properties } from './meta/properties';
 import { salesReferences } from './meta/references';
@@ -120,6 +122,7 @@ startPlugin({
     // Agent skill and the client-portal operations the agent should not plan around.
     agent,
     automations,
+    templates,
     segments,
     documents,
     references: salesReferences,
@@ -160,6 +163,16 @@ startPlugin({
       export: {
         types: [
           {
+            label: 'Deals',
+            contentType: 'sales:sales.deals',
+            permissions: ['dealsExportManage'],
+          },
+          {
+            label: 'POS Orders',
+            contentType: 'sales:pos.posOrders',
+            permissions: ['posOrdersExportManage'],
+          },
+          {
             label: 'POS Items',
             contentType: 'sales:pos.posItems',
             permissions: ['posItemsExportManage'],
@@ -167,7 +180,7 @@ startPlugin({
         ],
         getExportHeaders: createCoreModuleProducerHandler({
           moduleName: 'importExport',
-          modules: { pos: posExportHandlers },
+          modules: { pos: posExportHandlers, sales: salesExportHandlers },
           methodName: TImportExportProducers.GET_EXPORT_HEADERS,
           extractModuleName: (input: TGetExportHeadersInput) =>
             input.moduleName,
@@ -175,7 +188,7 @@ startPlugin({
         }),
         getExportData: createCoreModuleProducerHandler({
           moduleName: 'importExport',
-          modules: { pos: posExportHandlers },
+          modules: { pos: posExportHandlers, sales: salesExportHandlers },
           methodName: TImportExportProducers.GET_EXPORT_DATA,
           extractModuleName: (input: TGetExportDataInput) => input.moduleName,
           generateModels,

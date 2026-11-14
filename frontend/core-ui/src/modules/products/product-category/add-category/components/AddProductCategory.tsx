@@ -49,13 +49,9 @@ export function AddCategoryForm({
   const { fields } = useFields({ contentType: 'core:product' });
 
   async function onSubmit(data: ProductFormValues) {
-    const cleanData: Record<string, any> = {};
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (value) {
-        cleanData[key] = value;
-      }
-    });
+    const cleanData: Partial<ProductFormValues> = Object.fromEntries(
+      Object.entries(data).filter(([, value]) => Boolean(value)),
+    );
 
     productCategoriesAdd({
       variables: {

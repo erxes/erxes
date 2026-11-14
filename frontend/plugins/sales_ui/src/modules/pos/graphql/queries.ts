@@ -80,6 +80,9 @@ const productGroups = gql(`
       _id
       posId
       categoryIds
+      productIds
+      tagIds
+      excludeTagIds
       excludedCategoryIds
       excludedProductIds
     }

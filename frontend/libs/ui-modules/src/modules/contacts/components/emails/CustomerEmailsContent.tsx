@@ -8,7 +8,7 @@ import { useCustomerEmailsContext } from 'ui-modules/modules/contacts/hooks/emai
 import { useCustomerEmails } from 'ui-modules/modules/contacts/hooks/emails/useCustomerEmails';
 
 export const CustomerEmailsContent = () => {
-  const { scope, Trigger, _id } = useCustomerEmailsContext();
+  const { scope, Trigger, _id, maxVisible } = useCustomerEmailsContext();
   const {
     open,
     setOpen,
@@ -24,6 +24,7 @@ export const CustomerEmailsContent = () => {
       <div className="flex min-w-0 items-center">
         <Trigger>
           <EmailDisplay
+            maxVisible={maxVisible}
             {...emailProps}
             onEmailClick={handleVerifiedEmailClick}
             onEmailDoubleClick={handleVerifiedEmailDoubleClick}

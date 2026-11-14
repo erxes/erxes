@@ -44,6 +44,7 @@ export const useTransactionsRemove = (
         toast({
           title: t('success'),
           description: t('transactions-deleted-successfully'),
+          variant: 'success',
         });
       },
       refetchQueries: [
@@ -53,7 +54,9 @@ export const useTransactionsRemove = (
         },
       ],
       awaitRefetchQueries: true,
-      update: () => {
+      update: (cache) => {
+        cache.evict({ fieldName: 'accTrRecordsMain' });
+        cache.gc();
         navigate(returnPath);
       },
     });

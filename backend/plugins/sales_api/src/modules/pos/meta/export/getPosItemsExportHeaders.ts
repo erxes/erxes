@@ -1,33 +1,32 @@
-import {
-  ImportHeaderDefinition,
-  IImportExportContext,
-} from 'erxes-api-shared/core-modules';
+import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
+import { parseExportHeaders } from '~/meta/export/utils';
 
-export async function getPosItemsExportHeaders(
-  _data: unknown,
-  _ctx: IImportExportContext,
-): Promise<ImportHeaderDefinition[]> {
-  return [
-    { key: 'number', label: 'Number', isDefault: true },
-    { key: 'createdAt', label: 'Created Date', isDefault: true },
-    { key: 'posName', label: 'POS Name', isDefault: true },
-    { key: 'branch', label: 'Branch', isDefault: false },
-    { key: 'department', label: 'Department', isDefault: false },
-    { key: 'cashier', label: 'Cashier', isDefault: false },
-    { key: 'type', label: 'Type', isDefault: false },
-    { key: 'billType', label: 'Bill Type', isDefault: false },
-    { key: 'registerNumber', label: 'Company RD', isDefault: false },
-    { key: 'customerType', label: 'Customer Type', isDefault: false },
-    { key: 'customer', label: 'Customer', isDefault: false },
-    { key: 'productCode', label: 'Code', isDefault: true },
-    { key: 'productName', label: 'Product Name', isDefault: true },
-    { key: 'categoryCode', label: 'Category Code', isDefault: false },
-    { key: 'categoryName', label: 'Category Name', isDefault: false },
-    { key: 'barcode', label: 'Barcode', isDefault: false },
-    { key: 'count', label: 'Count', isDefault: true },
-    { key: 'unitPrice', label: 'Unit Price', isDefault: true },
-    { key: 'discountAmount', label: 'Discount', isDefault: false },
-    { key: 'totalAmount', label: 'Total Amount', isDefault: true },
-    { key: 'paymentType', label: 'Payment Type', isDefault: false },
-  ];
+export const POS_ITEM_EXPORT_HEADERS = parseExportHeaders(`
+  number           | Number           | default
+  createdAt        | Created Date     | default
+  posName          | POS Name         | default
+  branch           | Branch
+  department       | Department
+  cashier          | Cashier
+  type             | Type
+  billType         | Bill Type
+  registerNumber   | Company RD
+  customerType     | Customer Type
+  customer         | Customer
+  productCode      | Code             | default
+  productName      | Product Name     | default
+  categoryCode     | Category Code
+  categoryName     | Category Name
+  barcode          | Barcode
+  count            | Count            | default
+  unitPrice        | Unit Price       | default
+  discountAmount   | Discount
+  totalAmount      | Total Amount     | default
+  orderTotalAmount | Order Total
+  paymentType      | Payment Type
+`);
+
+/** Fixed column list for POS item exports, one row per order item. */
+export function getPosItemsExportHeaders(): Promise<ImportHeaderDefinition[]> {
+  return Promise.resolve(POS_ITEM_EXPORT_HEADERS);
 }

@@ -1,3 +1,4 @@
+import { ColumnDef } from '@tanstack/react-table';
 import { TFunction } from 'i18next';
 import {
   IconCalendarTime,
@@ -7,7 +8,6 @@ import {
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
   Button,
@@ -16,19 +16,42 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { ApprovalRequest } from 'ui-modules';
-import { ApprovalRequestDetailSheet } from './ApprovalRequestDetailSheet';
+import { useSidePanel, ApprovalRequest } from 'ui-modules';
 import {
   APPROVAL_REQUEST_STATUS_META,
   getApprovalRequestUserName,
-} from './approvalRequestUtils';
-
+} from '@/settings/approval/components/approvalRequestUtils';
+const ApprovalRequestDetailsCell = ({
+  id,
+  t,
+}: {
+  id: string;
+  t: TFunction;
+}) => {
+  const { openRecord } = useSidePanel();
+  return (
+    <RecordTableInlineCell className="justify-center">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7"
+        onClick={() =>
+          openRecord({
+            contentType: 'core:approvalRequest',
+            contentId: id,
+          })
+        }
+      >
+        <IconEye className="size-4" />
+        <span className="sr-only">{t('view-details')}</span>
+      </Button>
+    </RecordTableInlineCell>
+  );
+};
 export const approvalRequestColumns = ({
   t,
-  onCompleted,
 }: {
   t: TFunction;
-  onCompleted: () => void;
 }): ColumnDef<ApprovalRequest>[] => [
   {
     id: 'details',
@@ -37,18 +60,7 @@ export const approvalRequestColumns = ({
     minSize: 42,
     header: () => <RecordTable.InlineHead label="" />,
     cell: ({ row }) => (
-      <RecordTableInlineCell className="justify-center">
-        <ApprovalRequestDetailSheet
-          request={row.original}
-          onCompleted={onCompleted}
-          t={t}
-        >
-          <Button variant="ghost" size="icon" className="size-7">
-            <IconEye className="size-4" />
-            <span className="sr-only">{t('view-details')}</span>
-          </Button>
-        </ApprovalRequestDetailSheet>
-      </RecordTableInlineCell>
+      <ApprovalRequestDetailsCell id={row.original._id} t={t} />
     ),
   },
   {
@@ -60,7 +72,6 @@ export const approvalRequestColumns = ({
     cell: ({ row }) => {
       const status = row.original.status;
       const { icon: Icon, variant } = APPROVAL_REQUEST_STATUS_META[status];
-
       return (
         <RecordTableInlineCell>
           <Badge
@@ -84,7 +95,6 @@ export const approvalRequestColumns = ({
     cell: ({ row }) => {
       const { content, contentType } = row.original;
       const label = content?.label || contentType;
-
       return (
         <RecordTableInlineCell className="min-w-0 gap-2">
           <IconLock className="size-4 shrink-0 text-muted-foreground" />
@@ -123,7 +133,9 @@ export const approvalRequestColumns = ({
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="min-w-0">
-        <TextOverflowTooltip value={row.original.reason || '-'} />
+        <TextOverflowTooltip
+          value={row.original.reason || row.original.change?.summary || '-'}
+        />
       </RecordTableInlineCell>
     ),
   },
@@ -138,7 +150,6 @@ export const approvalRequestColumns = ({
       const approverNames = (row.original.requiredApprovers || [])
         .map(getApprovalRequestUserName)
         .filter((name) => name !== '-');
-
       return (
         <RecordTableInlineCell className="min-w-0">
           <TextOverflowTooltip

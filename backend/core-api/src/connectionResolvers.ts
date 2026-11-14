@@ -60,6 +60,11 @@ import {
   IFavoritesModel,
   loadFavoritesClass,
 } from '@/organization/settings/db/models/Favorites';
+import { IDashboardLayoutDocument } from '@/organization/settings/db/definitions/dashboardLayouts';
+import {
+  IDashboardLayoutModel,
+  loadDashboardLayoutClass,
+} from '@/organization/settings/db/models/DashboardLayouts';
 import {
   IBranchDocument,
   IDepartmentDocument,
@@ -118,7 +123,10 @@ import {
   IActivityLogDocument,
   IUserActivityDailyDocument,
   IAutomationDocument,
+  getDataExtensionModels,
   IAutomationExecutionDocument,
+  IDataExtensionFieldModel,
+  IDataExtensionSchemaVersionModel,
   IEmailAddressDocument,
   IEmailDeliveryDocument,
   IEmailRampDocument,
@@ -187,11 +195,26 @@ import {
   INotificationTemplateModel,
   loadNotificationTemplateClass,
 } from './modules/notificationTemplates/db/models/NotificationTemplates';
+import { ICurrencyRateDocument } from './modules/currencyRates/db/definitions/currencyRates';
+import {
+  ICurrencyRateModel,
+  loadCurrencyRateClass,
+} from './modules/currencyRates/db/models/CurrencyRates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
   loadAutomationWorkflowTemplateClass,
 } from './modules/automations/db/models/AutomationWorkflowTemplates';
+import {
+  IAutomationFolderDocument,
+  IAutomationFolderModel,
+  loadAutomationFolderClass,
+} from './modules/automations/db/models/AutomationFolders';
+import {
+  ITemplateInstallationDocument,
+  ITemplateInstallationModel,
+  loadTemplateInstallationClass,
+} from './modules/template/db/models/Installations';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -381,18 +404,6 @@ import {
   loadFileShareClass,
 } from '@/files/db/models/FileShares';
 import {
-  ITemplateCategoryModal,
-  loadTemplateCategoryClass,
-} from '@/template/db/models/Category';
-import {
-  ITemplateModal,
-  loadTemplateClass,
-} from '@/template/db/models/Template';
-import {
-  ITemplateCategoryDocument,
-  ITemplateDocument,
-} from '@/template/@types';
-import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
@@ -412,6 +423,8 @@ import {
 } from '@/agents/db/models/Settings';
 
 export interface IModels {
+  DataExtensionFields: IDataExtensionFieldModel;
+  DataExtensionSchemaVersions: IDataExtensionSchemaVersionModel;
   Brands: IBrandModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
@@ -446,12 +459,16 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
+  DashboardLayouts: IDashboardLayoutModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
   EmailTemplates: IEmailTemplateModel;
   NotificationTemplates: INotificationTemplateModel;
+  CurrencyRates: ICurrencyRateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
+  AutomationFolders: IAutomationFolderModel;
+  TemplateInstallations: ITemplateInstallationModel;
   Logs: ILogModel;
   Imports: IImportModel;
   Exports: IExportModel;
@@ -495,8 +512,6 @@ export interface IModels {
 
   NotificationSettings: Model<NotificationSettings>;
 
-  Template: ITemplateModal;
-  TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
   LdapConfigs: ILdapConfigModel;
@@ -749,6 +764,11 @@ export const loadClasses = (
     loadFavoritesClass(models),
   );
 
+  models.DashboardLayouts = db.model<
+    IDashboardLayoutDocument,
+    IDashboardLayoutModel
+  >('dashboard_layouts', loadDashboardLayoutClass(models));
+
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
     'documents',
     loadDocumentClass(models, subdomain),
@@ -780,6 +800,11 @@ export const loadClasses = (
     INotificationTemplateModel
   >('notification_templates', loadNotificationTemplateClass(models));
 
+  models.CurrencyRates = db.model<ICurrencyRateDocument, ICurrencyRateModel>(
+    'currency_rates',
+    loadCurrencyRateClass(models),
+  );
+
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,
     IAutomationWorkflowTemplateModel
@@ -787,6 +812,16 @@ export const loadClasses = (
     'automation_workflow_templates',
     loadAutomationWorkflowTemplateClass(models),
   );
+
+  models.AutomationFolders = db.model<
+    IAutomationFolderDocument,
+    IAutomationFolderModel
+  >('automation_folders', loadAutomationFolderClass(models));
+
+  models.TemplateInstallations = db.model<
+    ITemplateInstallationDocument,
+    ITemplateInstallationModel
+  >('template_installations', loadTemplateInstallationClass(models, subdomain));
 
   models.Notifications = db.model<
     INotificationDocument,
@@ -982,16 +1017,6 @@ export const loadClasses = (
     loadFileShareClass(models),
   );
 
-  models.Template = db.model<ITemplateDocument, ITemplateModal>(
-    'templates',
-    loadTemplateClass(models, subdomain),
-  );
-
-  models.TemplateCategory = db.model<
-    ITemplateCategoryDocument,
-    ITemplateCategoryModal
-  >('template_categories', loadTemplateCategoryClass(models));
-
   models.OAuthDeviceCodes = db.model<
     IOAuthDeviceCodeDocument,
     Model<IOAuthDeviceCodeDocument>
@@ -1033,6 +1058,7 @@ export const loadClasses = (
     IAgentsSettingsDocument,
     IAgentsSettingsModel
   >('agents_settings', loadAgentsSettingsClass(models));
+  Object.assign(models, getDataExtensionModels(db));
 
   const db_name = db.name;
 

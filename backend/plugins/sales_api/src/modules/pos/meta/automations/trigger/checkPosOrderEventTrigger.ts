@@ -18,6 +18,9 @@ type TEventFieldChange = {
 
 type TEventUpdateDescription = {
   updated?: Record<string, TEventFieldChange>;
+  // A field the document did not have before, e.g. the first paidDate
+  added?: Record<string, unknown>;
+  removed?: Record<string, unknown>;
 };
 
 type TPosOrderEventTarget = IPosOrder & {
@@ -25,22 +28,39 @@ type TPosOrderEventTarget = IPosOrder & {
 };
 
 const RETURN_STATUSES = ['return', 'returned'];
-const DELIVERY_DONE_STATUSES = ['done', 'complete', 'completed'];
+// posclient marks a delivery done; `complete` is only a new order with no
+// kitchen step, so counting it would announce delivery at checkout
+const DELIVERY_DONE_STATUSES = ['done'];
 
 const isTruthyDate = (value: unknown) => Boolean(value);
-
-const hasUpdatedField = (
-  eventUpdateDescription: TEventUpdateDescription | undefined,
-  field: string,
-) => Boolean(eventUpdateDescription?.updated?.[field]);
 
 const getUpdatedField = (
   eventUpdateDescription: TEventUpdateDescription | undefined,
   field: string,
-) => eventUpdateDescription?.updated?.[field];
+): TEventFieldChange | undefined => {
+  const updated = eventUpdateDescription?.updated?.[field];
 
+  if (updated) {
+    return updated;
+  }
+
+  const added = eventUpdateDescription?.added;
+
+  return added && field in added
+    ? { prev: undefined, current: added[field] }
+    : undefined;
+};
+
+const hasUpdatedField = (
+  eventUpdateDescription: TEventUpdateDescription | undefined,
+  field: string,
+) => Boolean(getUpdatedField(eventUpdateDescription, field));
+
+// An update always says what changed; a create says nothing
 const isCreateEvent = (eventUpdateDescription?: TEventUpdateDescription) =>
-  !eventUpdateDescription?.updated;
+  !eventUpdateDescription?.updated &&
+  !eventUpdateDescription?.added &&
+  !eventUpdateDescription?.removed;
 
 const matchesScope = (
   target: TPosOrderEventTarget,

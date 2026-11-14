@@ -3,10 +3,13 @@ import { GET_PROJECT_PROGRESS_BY_MEMBER } from '@/project/graphql/queries/getPro
 import { useRefetchOnTaskListChange } from '@/task/hooks/useRefetchOnTaskListChange';
 
 export const useGetProjectProgressByMember = (projectId?: string | null) => {
-  const { data, loading, refetch } = useQuery(GET_PROJECT_PROGRESS_BY_MEMBER, {
-    variables: projectId ? { _id: projectId } : undefined,
-    skip: !projectId,
-  });
+  const { data, loading, error, refetch } = useQuery(
+    GET_PROJECT_PROGRESS_BY_MEMBER,
+    {
+      variables: projectId ? { _id: projectId } : undefined,
+      skip: !projectId,
+    },
+  );
 
   const projectProgressByMember = data?.getProjectProgressByMember;
 
@@ -16,5 +19,5 @@ export const useGetProjectProgressByMember = (projectId?: string | null) => {
     refetch,
   });
 
-  return { projectProgressByMember, loading, refetch };
+  return { projectProgressByMember, loading, error, refetch };
 };

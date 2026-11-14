@@ -22,6 +22,18 @@ const CoversMain = lazy(() =>
   })),
 );
 
+const PosOrderDetail = lazy(() =>
+  import('~/pages/PosRecordDetailPage').then((module) => ({
+    default: module.PosOrderDetailPage,
+  })),
+);
+
+const PosCoverDetail = lazy(() =>
+  import('~/pages/PosRecordDetailPage').then((module) => ({
+    default: module.PosCoverDetailPage,
+  })),
+);
+
 const PosMain = lazy(() =>
   import('~/pages/PosIndexPage').then((module) => ({
     default: module.PosIndexPage,
@@ -58,13 +70,24 @@ const PosByItemsMain = lazy(() =>
   })),
 );
 
+const PosLoyaltyPointsMain = lazy(() =>
+  import('~/pages/PosLoyaltyPointsPage').then((module) => ({
+    default: module.PosLoyaltyPointsPage,
+  })),
+);
+
 const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/" element={<PosMain />} />
+        <Route path="loyalty" element={<PosLoyaltyPointsMain />} />
+        <Route path="orders/:orderId" element={<PosOrderDetail />} />
+        <Route path="covers/:coverId" element={<PosCoverDetail />} />
         <Route path=":posId/orders" element={<OrdersMain />} />
+        <Route path=":posId/orders/:orderId" element={<PosOrderDetail />} />
         <Route path=":posId/covers" element={<CoversMain />} />
+        <Route path=":posId/covers/:coverId" element={<PosCoverDetail />} />
         <Route path=":posId/by-items" element={<PosByItemsMain />} />
         <Route path=":posId/items" element={<PosItemsMain />} />
         <Route path=":posId/summary" element={<PosSummaryMain />} />

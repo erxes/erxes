@@ -6,12 +6,15 @@ import { useQueryState } from 'erxes-ui';
 export const useGetCycleProgressByProject = (cycleId?: string | null) => {
   const [assignee] = useQueryState<string>('assignee');
 
-  const { data, loading, refetch } = useQuery(GET_CYCLE_PROGRESS_BY_PROJECT, {
-    variables: cycleId
-      ? { _id: cycleId, assigneeId: assignee || undefined }
-      : undefined,
-    skip: !cycleId,
-  });
+  const { data, loading, error, refetch } = useQuery(
+    GET_CYCLE_PROGRESS_BY_PROJECT,
+    {
+      variables: cycleId
+        ? { _id: cycleId, assigneeId: assignee || undefined }
+        : undefined,
+      skip: !cycleId,
+    },
+  );
 
   const cycleProgressByProject = data?.getCycleProgressByProject;
 
@@ -21,5 +24,5 @@ export const useGetCycleProgressByProject = (cycleId?: string | null) => {
     refetch,
   });
 
-  return { cycleProgressByProject, loading, refetch };
+  return { cycleProgressByProject, loading, error, refetch };
 };

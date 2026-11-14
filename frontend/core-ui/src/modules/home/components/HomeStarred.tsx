@@ -1,8 +1,8 @@
 import {
-  HomeEmptyState,
-  HomeListSkeleton,
-  HomeSection,
-} from '@/home/components/HomeSection';
+  DashboardWidgetEmptyState,
+  DashboardWidgetListSkeleton,
+  DashboardWidgetCard,
+} from 'ui-modules';
 
 import { Link } from 'react-router-dom';
 import { useFavoritesQuery } from '@/navigation/hooks/useFavorites';
@@ -15,11 +15,15 @@ export const HomeStarred = () => {
 
   const renderContent = () => {
     if (loading && favorites.length === 0) {
-      return <HomeListSkeleton />;
+      return <DashboardWidgetListSkeleton />;
     }
 
     if (favorites.length === 0) {
-      return <HomeEmptyState>{t('starred-empty')}</HomeEmptyState>;
+      return (
+        <DashboardWidgetEmptyState>
+          {t('starred-empty')}
+        </DashboardWidgetEmptyState>
+      );
     }
 
     return (
@@ -48,5 +52,9 @@ export const HomeStarred = () => {
     );
   };
 
-  return <HomeSection title={t('starred')}>{renderContent()}</HomeSection>;
+  return (
+    <DashboardWidgetCard title={t('starred')}>
+      {renderContent()}
+    </DashboardWidgetCard>
+  );
 };

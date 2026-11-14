@@ -4,39 +4,36 @@ import { withFilter } from 'graphql-subscriptions';
 export default {
   name: 'accounting',
   typeDefs: `
-				accountingAdjustInventoryChanged(adjustId: String!): AdjustInventory
-      accountingAdjustFixedAssetChanged(adjustId: String!): AdjustFixedAsset
-      accountingAdjustFundRateChanged(adjustId: String!): AdjustFundRate
-      accountingAdjustDebtRateChanged(adjustId: String!): AdjustDebtRate
-      accountingTransactionChanged(parentId: String, userId: String, filter: JSON): JSON
-			`,
+    accountingAdjustInventoryChanged(adjustId: String!): AdjustInventory
+    accountingAdjustFixedAssetChanged(adjustId: String!): AdjustFixedAsset
+    accountingAdjustFundRateChanged(adjustId: String!): AdjustFundRate
+    accountingAdjustDebtRateChanged(adjustId: String!): AdjustDebtRate
+    accountingTransactionChanged(parentId: String, userId: String, filter: JSON): JSON
+  `,
   generateResolvers: (graphqlPubsub) => {
     return {
-      /*
-       * Listen for conversation changes like status, assignee, read state
-       */
       accountingAdjustInventoryChanged: {
-        subscribe: (_, { adjustId }) =>
+        subscribe: (_, { adjustId }, { subdomain }) =>
           graphqlPubsub.asyncIterator(
-            `accountingAdjustInventoryChanged:${adjustId}`,
+            `accountingAdjustInventoryChanged:${subdomain}:${adjustId}`,
           ),
       },
       accountingAdjustFixedAssetChanged: {
-        subscribe: (_, { adjustId }) =>
+        subscribe: (_, { adjustId }, { subdomain }) =>
           graphqlPubsub.asyncIterator(
-            `accountingAdjustFixedAssetChanged:${adjustId}`,
+            `accountingAdjustFixedAssetChanged:${subdomain}:${adjustId}`,
           ),
       },
       accountingAdjustFundRateChanged: {
-        subscribe: (_, { adjustId }) =>
+        subscribe: (_, { adjustId }, { subdomain }) =>
           graphqlPubsub.asyncIterator(
-            `accountingAdjustFundRateChanged:${adjustId}`,
+            `accountingAdjustFundRateChanged:${subdomain}:${adjustId}`,
           ),
       },
       accountingAdjustDebtRateChanged: {
-        subscribe: (_, { adjustId }) =>
+        subscribe: (_, { adjustId }, { subdomain }) =>
           graphqlPubsub.asyncIterator(
-            `accountingAdjustDebtRateChanged:${adjustId}`,
+            `accountingAdjustDebtRateChanged:${subdomain}:${adjustId}`,
           ),
       },
       accountingTransactionChanged: {

@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { getActionResultErrorText } from '@/automations/utils/automationHistoryUtils/executionResultPreview';
 import { ActionResult } from 'ui-modules';
 
 const VISIBLE_FIELD_LIMIT = 8;
@@ -24,18 +23,9 @@ export const TransformActionResult = ({
   result,
 }: ActionResultComponentProps<{
   data?: Record<string, any>;
-  error?: unknown;
 }>) => {
   const { entries, hiddenCount, total } = useTransformActionResult(result);
   const { t } = useTranslation('automations');
-
-  if (result?.error) {
-    return (
-      <ActionResult.Status status="error">
-        {getActionResultErrorText(result.error)}
-      </ActionResult.Status>
-    );
-  }
 
   if (!total) {
     return (

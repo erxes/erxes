@@ -1,5 +1,5 @@
 import { MemberSection } from '@/channels/components/settings/channel-details/MemberSection';
-import { UpdateChannelForm } from '@/channels/components/settings/channel-details/UpdateChannelForm';
+import { ChannelEditButton } from '@/channels/components/settings/channel-details/ChannelEditButton';
 import { useGetChannel } from '@/channels/hooks/useGetChannel';
 import { IntegrationList } from '@/integrations/components/IntegrationList';
 import { useParams } from 'react-router-dom';
@@ -28,7 +28,7 @@ export const ChannelDetails = () => {
 
       <div className="mt-4 w-full border border-muted-foreground/15 rounded-md shrink-0">
         <section className="w-full p-4">
-          {channel && <UpdateChannelForm channel={channel} />}
+          <ChannelEditButton channelId={channel._id} />
         </section>
       </div>
 

@@ -1,64 +1,171 @@
-import { isRecord } from '@/operation/utils/isRecord';
-import { TaskDetails } from '@/task/components/detail/TaskDetails';
-import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
-import { useGetTask } from '@/task/hooks/useGetTask';
-import { TaskDetailBreadCrump } from '@/task/components/breadcrump/TaskDetailBreadCrump';
-import { PageHeader } from 'ui-modules';
-import { Breadcrumb, FocusSheet, ScrollArea, Separator } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
-import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
+import { useGetProject } from '@/project/hooks/useGetProject';
+import { ProjectBreadCrumb } from '@/project/components/breadcumb/ProjectBreadCrumb';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
-import { TaskDetailActions } from '@/task/components/task-actions/TaskDetailActions';
+import { TaskDetailBreadCrump } from '@/task/components/breadcrump/TaskDetailBreadCrump';
+import { useGetTask } from '@/task/hooks/useGetTask';
+import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
+import {
+  IconAlignLeft,
+  IconHistory,
+  IconInfoCircle,
+  IconListDetails,
+} from '@tabler/icons-react';
+import {
+  Breadcrumb,
+  Button,
+  Empty,
+  PageContainer,
+  Separator,
+  Spinner,
+  useQueryState,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { Link, useParams } from 'react-router-dom';
+import { PageHeader, RecordSidePanel } from 'ui-modules';
+import { TaskPanelActions } from '~/widgets/record-panel/TaskPanelActions';
+import {
+  TaskPanelActivity,
+  TaskPanelTitle,
+} from '~/widgets/record-panel/RecordPanel';
+import {
+  TaskPageDescription,
+  TaskPageFields,
+} from '~/widgets/record-panel/TaskPanelDetail';
 
+const FIELDS_TAB = 'fields';
+const DESCRIPTION_TAB = 'description';
+const ACTIVITY_TAB = 'activity';
+
+/** Links back to the tasks of the project the page was opened from. */
+const TaskProjectCrumb = ({ link }: { link: string }) => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const { project } = useGetProject(projectId);
+
+  return (
+    <Breadcrumb.Item>
+      <Button variant="ghost" asChild>
+        <Link to={link}>{project?.name}</Link>
+      </Button>
+    </Breadcrumb.Item>
+  );
+};
+
+/** Leads back through the team, project or My Tasks the task was opened from. */
+const TaskPageBreadcrumb = () => {
+  const { teamId, projectId } = useParams<{
+    teamId?: string;
+    projectId?: string;
+  }>();
+  const teamPath = teamId ? `/team/${teamId}` : '';
+
+  return (
+    <Breadcrumb>
+      <Breadcrumb.List className="gap-1">
+        {teamId && (
+          <>
+            <TeamBreadCrumb />
+            <Separator.Inline />
+          </>
+        )}
+        {projectId ? (
+          <>
+            <ProjectBreadCrumb link={`/operation${teamPath}/projects`} />
+            <Separator.Inline />
+            <TaskProjectCrumb
+              link={`/operation${teamPath}/projects/${projectId}/tasks`}
+            />
+          </>
+        ) : (
+          <TaskBreadCrump link={`/operation${teamPath}/tasks`} />
+        )}
+        <Separator.Inline />
+        <TaskDetailBreadCrump />
+      </Breadcrumb.List>
+    </Breadcrumb>
+  );
+};
+
+/** A task on its own page, laid out like a contact's: fields beside tabs. */
 export const TaskDetailPage = () => {
-  const { teamId, taskId } = useParams<{ teamId?: string; taskId: string }>();
-  const { task } = useGetTask(taskId);
+  const { t } = useTranslation('operation');
+  const { taskId } = useParams<{ taskId: string }>();
+  const { task, loading } = useGetTask(taskId);
+  const [tab, setTab] = useQueryState<string>('tab');
 
   if (!taskId) {
     return null;
   }
 
-  return (
-    <>
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              {teamId ? (
-                <>
-                  <TeamBreadCrumb />
-                  <Separator.Inline />
-                  <TaskBreadCrump link={`/operation/team/${teamId}/tasks`} />
-                </>
-              ) : (
-                <TaskBreadCrump link={`/operation/tasks`} />
-              )}
-              <Separator.Inline />
-              <TaskDetailBreadCrump />
-              <TaskDetailActions taskId={taskId} />
-            </Breadcrumb.List>
-          </Breadcrumb>
-        </PageHeader.Start>
-      </PageHeader>
-      <div className="h-full w-full flex flex-1 overflow-hidden">
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="w-full xl:max-w-3xl mx-auto p-6">
-            <TaskDetails taskId={taskId} />
+  const renderBody = () => {
+    if (loading && !task) {
+      return <Spinner containerClassName="py-12" />;
+    }
+
+    if (!task) {
+      return (
+        <div className="flex flex-1 items-center justify-center p-6">
+          <Empty>
+            <Empty.Header>
+              <Empty.Media variant="icon">
+                <IconInfoCircle />
+              </Empty.Media>
+              <Empty.Title>{t('task-not-found')}</Empty.Title>
+            </Empty.Header>
+          </Empty>
+        </div>
+      );
+    }
+
+    return (
+      <RecordSidePanel.Tabs
+        key={taskId}
+        value={tab ?? DESCRIPTION_TAB}
+        onValueChange={setTab}
+        visibleCount={2}
+        overviewTab={FIELDS_TAB}
+        expandedDefaultTab={DESCRIPTION_TAB}
+        overviewHeader={
+          <div className="min-w-0 flex-1 truncate text-sm">
+            <TaskPanelTitle taskId={taskId} />
           </div>
-        </ScrollArea>
-        {task && (
-          <FocusSheet>
-            <TaskSideWidgets
-              contentId={task._id}
-              customerId={task.customerId}
-              companyId={task.companyId}
-              propertiesData={
-                isRecord(task.propertiesData) ? task.propertiesData : undefined
-              }
-            />
-          </FocusSheet>
-        )}
-      </div>
-    </>
+        }
+        tabs={[
+          {
+            value: FIELDS_TAB,
+            label: t('details', 'Details'),
+            icon: IconListDetails,
+            content: <TaskPageFields taskId={taskId} />,
+          },
+          {
+            value: DESCRIPTION_TAB,
+            label: t('description', 'Description'),
+            icon: IconAlignLeft,
+            content: <TaskPageDescription taskId={taskId} />,
+          },
+          {
+            value: ACTIVITY_TAB,
+            label: t('activity', 'Activity'),
+            icon: IconHistory,
+            content: <TaskPanelActivity taskId={taskId} />,
+          },
+        ]}
+      />
+    );
+  };
+
+  return (
+    <PageContainer>
+      <RecordSidePanel expanded expandedMode="page" expandable={false}>
+        <PageHeader>
+          <PageHeader.Start>
+            <TaskPageBreadcrumb />
+          </PageHeader.Start>
+          <PageHeader.End>
+            <TaskPanelActions taskId={taskId} />
+          </PageHeader.End>
+        </PageHeader>
+        {renderBody()}
+      </RecordSidePanel>
+    </PageContainer>
   );
 };

@@ -1,16 +1,11 @@
 import { Badge, Card, RelativeDateDisplay, Separator } from 'erxes-ui';
 
+import { InvoicePaymentMethodBadges } from '~/modules/payment/components/InvoiceInlineCells';
 import { IInvoice } from '~/modules/payment/types/Payment';
 
 export const InvoiceWidgetCard = ({ invoice }: { invoice: IInvoice }) => {
-  const {
-    invoiceNumber,
-    description,
-    amount,
-    currency,
-    status,
-    createdAt,
-  } = invoice || {};
+  const { invoiceNumber, description, amount, currency, status, createdAt } =
+    invoice || {};
 
   return (
     <Card className="bg-background">
@@ -30,14 +25,13 @@ export const InvoiceWidgetCard = ({ invoice }: { invoice: IInvoice }) => {
         </h5>
       </div>
       <Separator />
-      <div className="px-3 h-9 flex items-center text-xs text-muted-foreground">
+      <div className="px-3 h-9 flex items-center justify-between gap-2 text-xs text-muted-foreground">
         {createdAt && (
           <RelativeDateDisplay value={createdAt as unknown as string} asChild>
-            <RelativeDateDisplay.Value
-              value={createdAt as unknown as string}
-            />
+            <RelativeDateDisplay.Value value={createdAt as unknown as string} />
           </RelativeDateDisplay>
         )}
+        <InvoicePaymentMethodBadges invoice={invoice} />
       </div>
     </Card>
   );

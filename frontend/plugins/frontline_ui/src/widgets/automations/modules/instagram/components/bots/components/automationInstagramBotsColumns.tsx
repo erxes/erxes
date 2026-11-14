@@ -94,7 +94,7 @@ export const automationInstagramBotsColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label={t('name')} />,
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -107,7 +107,7 @@ export const automationInstagramBotsColumns = (
   {
     id: 'account',
     accessorKey: 'account',
-    header: () => <RecordTable.InlineHead label={t('account')} />,
+    header: () => <RecordTable.InlineHead label={t('account', 'Account')} />,
     cell: ({ cell }) => {
       const name = cell.row.original.account?.name ?? '-';
       return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
@@ -117,7 +117,7 @@ export const automationInstagramBotsColumns = (
   {
     id: 'page',
     accessorKey: 'page',
-    header: () => <RecordTable.InlineHead label={t('page')} />,
+    header: () => <RecordTable.InlineHead label={t('page', 'Page')} />,
     cell: ({ cell }) => {
       const { profileUrl = '' } = cell.row.original || {};
       const name = cell.row.original.page?.name ?? '-';
@@ -134,7 +134,7 @@ export const automationInstagramBotsColumns = (
   },
   {
     id: 'action-group',
-    header: () => <RecordTable.InlineHead label={t('actions')} />,
+    header: () => <RecordTable.InlineHead label={t('actions', 'Actions')} />,
     cell: ({ cell }) => <BotActionsCell _id={cell.row.original?._id} />,
   },
 ];

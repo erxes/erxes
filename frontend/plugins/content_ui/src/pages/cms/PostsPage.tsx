@@ -4,7 +4,6 @@ import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { Posts } from '~/modules/cms/posts/types/postsType';
 import { buildCurrentPostsReturnPath } from '~/modules/cms/posts/utils/postsNavigation';
 
@@ -58,7 +57,6 @@ export const PostsIndexPage = ({
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <PostsHeader>
           <PostsAdd clientPortalId={clientPortalId} />

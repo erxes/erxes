@@ -5,6 +5,7 @@ export const useEMIntegrationDetail = ({ id }: { id: string | false }) => {
   const { data, loading } = useQuery(EM_INTEGRATION_DETAIL_QUERY, {
     variables: id ? { _id: id } : undefined,
     skip: !id,
+    fetchPolicy: 'cache-and-network',
   });
 
   const integrationDetail = data?.integrationDetail ?? undefined;

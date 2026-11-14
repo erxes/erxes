@@ -1,11 +1,10 @@
 import { IconWorldPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { CmsLayout } from '../cms/shared/CmsLayout';
 import { WebList } from './components/WebList';
-import { WebDrawer } from './components/WebDrawer';
-import { webDrawerState } from './states/webBuilderState';
+import { CONTENT_WEB_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 
 const BREADCRUMB_ITEMS = [
   {
@@ -17,9 +16,9 @@ const BREADCRUMB_ITEMS = [
 
 const AddWebButton = () => {
   const { t } = useTranslation('content');
-  const setDrawer = useSetAtom(webDrawerState);
+  const { openDraft } = useContentPanel(CONTENT_WEB_CONTENT_TYPE);
   return (
-    <Button onClick={() => setDrawer({ open: true, editingWeb: null })}>
+    <Button onClick={() => openDraft()}>
       <IconWorldPlus className="mr-2 h-4 w-4" />
       {t('new-web-project')}
     </Button>
@@ -34,7 +33,6 @@ export function WebBuilderPage() {
       headerActions={<AddWebButton />}
     >
       <WebList />
-      <WebDrawer />
     </CmsLayout>
   );
 }

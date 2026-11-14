@@ -38,7 +38,8 @@ export const getTelegramResponse = async (
     | 'sendAnimation'
     | 'sendMediaGroup'
     | 'sendPoll'
-    | 'getFile',
+    | 'getFile'
+    | 'sendChatAction',
   params?: Record<string, unknown> | FormData,
 ): Promise<unknown> => {
   if (token !== token.trim() || !/^[0-9]+:[A-Za-z0-9_-]+$/.test(token)) {

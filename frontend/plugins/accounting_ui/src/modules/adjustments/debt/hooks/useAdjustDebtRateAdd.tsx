@@ -32,6 +32,7 @@ export const useAdjustDebtRateAdd = (
         toast({
           title: t('success'),
           description: t('Debt Rate Adjustment created successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

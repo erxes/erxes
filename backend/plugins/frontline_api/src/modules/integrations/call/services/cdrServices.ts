@@ -1,5 +1,11 @@
 import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage, graphqlPubsub } from 'erxes-api-shared/utils';
+import {
+  integrationForQueue,
+  queueFromActionType,
+  rehomeCallRecords,
+  resolveQueueIntegration,
+} from '@/integrations/call/services/queueRouting';
 import { debugCall } from '@/integrations/call/debuggers';
 import {
   determinePrimaryPhone,
@@ -27,6 +33,7 @@ interface ICdrLegTimeParams {
   userfield?: string;
   start?: string;
   end?: string;
+  session?: string;
 }
 
 interface IConversationPayload {
@@ -47,6 +54,7 @@ const findOverlappingLeg = async (
   params: ICdrLegTimeParams,
   primaryPhone: string,
   inboxId: string,
+  peerInboxIds: string[],
 ) => {
   if (!primaryPhone || !belongsToInboundCall(params)) return null;
 
@@ -60,10 +68,23 @@ const findOverlappingLeg = async (
     ? FOLLOWME_OVERLAP_BUFFER_MS
     : LEG_OVERLAP_BUFFER_MS;
 
+  const otherInboxIds = peerInboxIds.filter((peerId) => peerId !== inboxId);
+  const sameCallOnPeer =
+    params.session && otherInboxIds.length
+      ? [
+          {
+            inboxIntegrationId: { $in: otherInboxIds },
+            session: params.session,
+          },
+        ]
+      : [];
+
   return models.CallCdrs.findOne({
-    $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+    $and: [
+      { $or: [{ src: primaryPhone }, { dst: primaryPhone }] },
+      { $or: [{ inboxIntegrationId: inboxId }, ...sameCallOnPeer] },
+    ],
     conversationId: { $exists: true, $ne: '' },
-    inboxIntegrationId: inboxId,
     start: { $lte: new Date(legEnd.getTime() + bufferMs) },
     end: { $gte: new Date(legStart.getTime() - bufferMs) },
   }).sort({ start: -1 });
@@ -76,7 +97,7 @@ export const receiveCdr = async (
   verifiedIntegration?: any,
 ) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-  const integration =
+  const matched =
     verifiedIntegration ||
     (await models.CallIntegrations.findOne({
       $or: [
@@ -84,7 +105,22 @@ export const receiveCdr = async (
         { dstTrunk: params.dst_trunk_name },
       ],
     }));
-  if (!integration) return;
+  if (!matched) return;
+
+  const queueOwner = await resolveQueueIntegration(
+    models,
+    matched,
+    queueFromActionType(params.action_type),
+  );
+  const integration = queueOwner || matched;
+  if (queueOwner && params.uniqueid) {
+    await rehomeCallRecords(
+      models,
+      { uniqueid: params.uniqueid, linkedid: params.linkedid },
+      queueOwner.inboxId,
+      queueOwner.phone,
+    );
+  }
 
   if (params.uniqueid) {
     const lockKey = `${subdomain}:call:session:${params.uniqueid}`;
@@ -126,6 +162,9 @@ const processCdrLocked = async (
   integration: any,
 ) => {
   const inboxId = integration.inboxId;
+  const queueRouted = Boolean(
+    integrationForQueue([integration], queueFromActionType(params.action_type)),
+  );
 
   const primaryPhone = determinePrimaryPhone(params);
 
@@ -135,6 +174,7 @@ const processCdrLocked = async (
   });
 
   const peers = await findPeerIntegrations(models, integration);
+  const peerInboxIds = peers.map((peer) => peer.inboxId);
   const { match: operatorMatch, extension: operatorExtension } =
     matchCdrOperator(peers, params);
   const operatorUserId = operatorMatch?.operator.userId;
@@ -158,7 +198,7 @@ const processCdrLocked = async (
   const ownerForConversation = isAnsweredLeg ? operatorPhone : undefined;
   const assignedUserId = isAnsweredLeg ? operatorUserId : undefined;
   const answeredInboxId =
-    isAnsweredLeg && operatorMatch
+    isAnsweredLeg && operatorMatch && !queueRouted
       ? operatorMatch.integration.inboxId
       : undefined;
 
@@ -193,7 +233,7 @@ const processCdrLocked = async (
     const existingCdr = await models.CallCdrs.findOne({
       uniqueid: { $in: cdrUniqueids },
       conversationId: { $exists: true, $ne: '' },
-      inboxIntegrationId: inboxId,
+      inboxIntegrationId: { $in: peerInboxIds },
     }).sort({ createdAt: 1 });
 
     if (existingCdr?.conversationId) {
@@ -210,6 +250,7 @@ const processCdrLocked = async (
       params,
       primaryPhone,
       inboxId,
+      peerInboxIds,
     );
 
     if (overlappingCdr?.conversationId) {
@@ -224,6 +265,7 @@ const processCdrLocked = async (
   if (!conversationId && belongsToInboundCall(params)) {
     const siblingSession = await models.CallSessions.findSibling({
       inboxIntegrationId: inboxId,
+      peerInboxIds,
       customerPhone: primaryPhone,
       excludeUniqueid: params.uniqueid,
     });
@@ -245,7 +287,9 @@ const processCdrLocked = async (
     updatedAt: new Date(),
     owner: ownerForConversation,
     userId: assignedUserId,
-    integrationId: answeredInboxId || (conversationId ? undefined : inboxId),
+    integrationId: queueRouted
+      ? inboxId
+      : answeredInboxId || (conversationId ? undefined : inboxId),
   };
   if (customer) {
     payload.customerId = customer?.erxesApiId;

@@ -1,6 +1,8 @@
 export { CategoryRecordTable } from './_components/CategoryRecordTable';
-export { CategoryCreateSheet } from './_components/CategoryCreateSheet';
-export { CategoryEditSheet } from './_components/CategoryEditSheet';
+export {
+  CATEGORY_PANEL,
+  CategoryCreateButton,
+} from './_components/CategoryPanel';
 export { CategoryCommandBar } from './_components/CategoryCommandBar';
 export { CategoryFilter } from './_components/CategoryFilter';
 export { categoryColumns } from './_components/CategoryColumns';

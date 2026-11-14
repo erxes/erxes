@@ -1,3 +1,4 @@
+import { ContactRelationWidget } from '@/widgets/core-widgets/ContactRelationWidget';
 import {
   CompanyWidget,
   IRelationWidgetProps,
@@ -6,12 +7,16 @@ import {
 import { IconBuildingSkyscraper } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * The host record's company: the one it keeps itself (`companyId`). Records
- * set it in their own form; no relation is read or written here.
- */
-export const CompanyWidgets = ({ companyId }: IRelationWidgetProps) => {
+/** Shows reciprocal company links for contacts and explicit host fields for other records. */
+export const CompanyWidgets = (props: IRelationWidgetProps) => {
+  const { companyId } = props;
   const { t } = useTranslation('common', { keyPrefix: 'widgets' });
+
+  if (props.contentType === 'core:customer') {
+    return (
+      <ContactRelationWidget {...props} relatedContentType="core:company" />
+    );
+  }
 
   if (!companyId) {
     return (

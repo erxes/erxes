@@ -4,7 +4,10 @@ import {
   TSettingPath,
 } from '@/types/paths/SettingsPath';
 import {
+  IconActivity,
+  IconLayoutDashboard,
   IconAdjustmentsAlt,
+  IconArrowsExchange,
   IconBolt,
   IconBroadcast,
   IconBuilding,
@@ -132,6 +135,16 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsPath.Profile,
     },
     {
+      name: t('my-activity', 'My activity'),
+      icon: IconActivity,
+      path: SettingsPath.MyActivity,
+    },
+    {
+      name: t('appearance', 'Appearance'),
+      icon: IconLayoutDashboard,
+      path: SettingsPath.Appearance,
+    },
+    {
       name: t('notification'),
       icon: IconNotification,
       path: SettingsPath.Notification,
@@ -172,6 +185,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('brands'),
       icon: IconChessKnight,
       path: SettingsWorkspacePath.Brands,
+    },
+    {
+      name: t('exchange-rates', 'Exchange rates'),
+      icon: IconArrowsExchange,
+      path: SettingsWorkspacePath.ExchangeRates,
     },
     {
       name: t('properties', 'Properties'),
@@ -427,6 +445,7 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',
   [SettingsWorkspacePath.Brands]: 'brands',
+  [SettingsWorkspacePath.ExchangeRates]: 'exchangeRates',
   [SettingsWorkspacePath.Properties]: 'properties',
   [SettingsWorkspacePath.Products]: 'products',
   [SettingsWorkspacePath.Automations]: 'automations',

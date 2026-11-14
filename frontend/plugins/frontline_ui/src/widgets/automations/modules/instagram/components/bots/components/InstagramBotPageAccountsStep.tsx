@@ -21,8 +21,8 @@ export const InstagramBotPageAccountsStep = ({
   const { instagramGetAccounts, loading } = useInstagramAccounts();
 
   return (
-    <div className="flex-1 overflow-hidden p-4 pt-0">
-      <Command>
+    <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
+      <Command className="flex-1">
         <div className="p-1">
           <Command.Primitive.Input asChild>
             <Input
@@ -54,8 +54,9 @@ export const InstagramBotPageAccountsStep = ({
               value === selectedAccountId ? undefined : value,
             )
           }
+          className="flex-1 overflow-hidden"
         >
-          <Command.List>
+          <Command.List className="max-h-none overflow-y-auto">
             <InstagramBotPageAccountsStepContent
               loading={loading}
               instagramGetAccounts={instagramGetAccounts}
