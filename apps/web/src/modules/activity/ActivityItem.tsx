@@ -38,7 +38,7 @@ import { ChangeList, type Lookups } from '~/components/ChangeList';
 import { actorLabel, pluginLabel } from '~/lib/members';
 import type { ReactNode } from 'react';
 import { readChanges, verbOf } from './activityData';
-import { LinkedRecord, Sentence } from './ActivitySentence';
+import { LinkedRecord, Sentence, SentenceLine } from './ActivitySentence';
 import { NoteItem } from './NoteEntry';
 import { When } from './timelineTime';
 import { Reactions } from './TimelineExtras';
@@ -193,8 +193,6 @@ export const ActivityItem = ({
   /** The record whose timeline this is; entries of related records say whose they are. */
   pageTarget: { type: string; id: string };
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'activity' });
-
   const actor =
     activity.actorName ?? actorLabel(activity.actorType, activity.actorId, lookups.members);
 
@@ -204,7 +202,10 @@ export const ActivityItem = ({
   const onRelated = related && (
     <span className="text-muted-foreground">
       {' '}
-      · {t('on', 'on')} <LinkedRecord type={activity.targetType} id={activity.targetId} />
+      <SentenceLine
+        name="on-record"
+        components={{ record: <LinkedRecord type={activity.targetType} id={activity.targetId} /> }}
+      />
     </span>
   );
 
