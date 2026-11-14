@@ -118,11 +118,13 @@ const sendNextBatch = async (orgId: string, streamId: string) => {
 
   const result = await sendBatch(row, body);
 
-  // Only from where this batch read: a stream paused, moved or re-pointed meanwhile is left alone.
+  // Only from where this batch read: a stream paused, moved or re-pointed meanwhile is left
+  // alone (a batch the old URL took is sent again to the new one).
   const unchanged = and(
     eq(auditStreams.id, streamId),
     eq(auditStreams.status, 'active'),
     eq(auditStreams.cursorSeq, row.cursorSeq),
+    eq(auditStreams.url, row.url),
   );
 
   if (result.ok) {
