@@ -231,6 +231,8 @@ export {
   useLiveSignal,
 } from './utils/plugin-runtime';
 
+export { addPluginStyles } from './utils/plugin-styles';
+
 export {
   RecordTimeline,
   type RecordTimelineProps,

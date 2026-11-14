@@ -3,8 +3,9 @@
 
   Maps utilities to design tokens. Token values live on the host's :root and
   .dark (base.css, imported once by the host page), so this file must not
-  declare them. A plugin imports it next to its own prefixed Tailwind
-  utilities; see web/src/styles.css for the host.
+  declare them. A plugin UI imports it with theme(inline) to build its own
+  utilities (create-erxes's ui/src/styles.css), and addPluginStyles adds the
+  ones web lacks; see apps/web/src/styles.css for the host.
 */
 @custom-variant dark (&:is(.dark *));
 /* Inside an app layout whose navigation panel is closed, where its toggle button floats at the

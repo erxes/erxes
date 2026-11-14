@@ -24,7 +24,7 @@ Only what something uses:
 - what web imports,
 - what plugin UIs import (the HR plugin is the first consumer),
 - the plugin API in the plugin skills: `getPluginRuntime`, `pluginFetch`, `pluginJson`,
-  `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl` and the `IUIConfig` types,
+  `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl`, `addPluginStyles` and the `IUIConfig` types,
 - the design-system primitives in `src/components` (Accordion, Card, Slider …), even unused,
   because plugins build on them,
 - the pickers in `src/modules/pickers`: `EntityPicker`, and `SelectMember`, `MemberInline` and
