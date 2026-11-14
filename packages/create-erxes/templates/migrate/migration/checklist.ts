@@ -392,6 +392,7 @@ for (const collection of inventory.collections) {
 
   // `timestamps: true` adds createdAt and updatedAt below; a schema that also declares them gets them once.
   const stamped = new Set(schema.timestamps ? ['createdAt', 'updatedAt'] : []);
+
   const fields = schema.fields.filter(
     (entry) => entry.type !== 'spread' && entry.name !== '_id' && !stamped.has(entry.name),
   );

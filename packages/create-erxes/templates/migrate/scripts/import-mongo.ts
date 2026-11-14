@@ -119,8 +119,10 @@ try {
       seen += 1;
 
       // `unwind` turns one document into a row per item of that array field (a user's departmentIds).
+      const listed: unknown = unwind ? document[unwind] : undefined;
+
       const copies = unwind
-        ? [document[unwind]]
+        ? [listed]
             .flat()
             .filter((item) => item !== undefined && item !== null)
             .map((item) => ({ ...document, [unwind]: item }))
