@@ -23,7 +23,7 @@ export interface EventConsumer {
  * end. 10 attempts, each wait about twice the last (2 min first): 9 to 17
  * hours in all, then the job stays failed until retried
  * (`POST /events/failures/retry`).
- * The insert trigger on core_events (migration 0054) adds a job to every
+ * The insert trigger on core_events, core_event_jobs(), adds a job to every
  * `event.*` queue, so a consumer taken out deletes its queue in a migration
  * (`core_queue.delete_queue`).
  */
