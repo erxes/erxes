@@ -7,7 +7,7 @@ import {
   type Db,
 } from '@erxes/core-db';
 import { safeValidateUIMessages, type ToolSet, type UIMessage } from 'ai';
-import { and, eq, isNull, max, sql } from 'drizzle-orm';
+import { and, eq, gte, isNull, max, sql } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { findConnection, openKey } from './connections.service';
 import { continueReply } from './continuation';
@@ -93,6 +93,32 @@ const addUserMessage = async (client: Db, threadId: string, message: UIMessage) 
   }
 };
 
+type MessageRow = typeof assistantMessages.$inferSelect;
+
+const rewind = async (client: Db, threadId: string, rows: MessageRow[], messageId: string) => {
+  const index = rows.findIndex((row) => row.id === messageId);
+  const edited = rows[index];
+
+  if (edited?.role !== 'user' || rows.slice(index + 1).some((row) => row.role === 'user')) {
+    throw new HttpError(
+      409,
+      'ASSISTANT_STALE',
+      'Only the newest question can be edited; reload the conversation and try again',
+    );
+  }
+
+  await client
+    .delete(assistantMessages)
+    .where(
+      and(
+        eq(assistantMessages.threadId, threadId),
+        gte(assistantMessages.position, edited.position),
+      ),
+    );
+
+  return rows.slice(0, index);
+};
+
 export const beginTurn = async (
   client: Db,
   request: AssistantChatRequest,
@@ -119,11 +145,9 @@ export const beginTurn = async (
     ? await lockThread(client, request.threadId)
     : await createThread(client, turn.threadId);
 
-  const stored = (await threadMessages(client, thread.id)).map(({ id, role, parts }) => ({
-    id,
-    role,
-    parts,
-  }));
+  const rows = await threadMessages(client, thread.id);
+  const kept = request.edit ? await rewind(client, thread.id, rows, request.message.id) : rows;
+  const stored = kept.map(({ id, role, parts }) => ({ id, role, parts }));
 
   const continuing = request.message.role === 'assistant';
 

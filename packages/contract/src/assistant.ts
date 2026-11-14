@@ -68,17 +68,24 @@ export const AssistantSettings = createSelectSchema(assistantSettings).pick({
   approvalMode: true,
 });
 
-export const AssistantChatRequest = z.object({
-  threadId: Id.optional(),
-  message: z.object({
-    id: z.string().regex(/^[\w-]{1,64}$/),
-    role: z.enum(ASSISTANT_MESSAGE_ROLES),
-    parts: z.array(AssistantMessagePart).min(1).max(200),
-  }),
-  provider: AssistantProvider.optional(),
-  model: AssistantModelId.optional(),
-  thinkingLevel: AssistantThinkingLevel.optional(),
-});
+export const AssistantChatRequest = z
+  .object({
+    threadId: Id.optional(),
+    message: z.object({
+      id: z.string().regex(/^[\w-]{1,64}$/),
+      role: z.enum(ASSISTANT_MESSAGE_ROLES),
+      parts: z.array(AssistantMessagePart).min(1).max(200),
+    }),
+    edit: z.boolean().optional(),
+    provider: AssistantProvider.optional(),
+    model: AssistantModelId.optional(),
+    thinkingLevel: AssistantThinkingLevel.optional(),
+  })
+  .refine(
+    (request) =>
+      !request.edit || (request.threadId !== undefined && request.message.role === 'user'),
+    { message: 'an edit replaces a user message in an existing thread', path: ['edit'] },
+  );
 
 export type AssistantChatRequest = z.infer<typeof AssistantChatRequest>;
 
