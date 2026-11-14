@@ -5,6 +5,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
   CursorQuery,
+  DESCRIPTION_MAX,
   Id,
   IdList,
   PhoneNumber,
@@ -104,7 +105,7 @@ const UserFields = createUpdateSchema(users, {
   phone: () => PhoneNumber,
   birthDate: () => DateOnly,
   workStartedDate: () => DateOnly,
-  description: (value) => value.trim().max(5000),
+  description: (value) => value.trim().max(DESCRIPTION_MAX),
   /** Sets the given links; an empty string or `null` removes one. Others stay. */
   links: z.partialRecord(UserLinkName, z.string().trim().max(500).nullable()).optional(),
   email: (email) => email.trim().check(z.email()).max(254),

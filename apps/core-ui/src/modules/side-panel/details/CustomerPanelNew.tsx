@@ -26,6 +26,7 @@ import {
   ContactAvatarRow,
   ContactDescriptionRow,
   ContactOwnerRow,
+  contactDescription,
   NewContactForm,
   useFinishCreate,
 } from './NewContactForm';
@@ -50,7 +51,7 @@ const customerSchema = z
     position: z.string(),
     sex: CustomerSex.nullable(),
     birthDate: z.date().nullable(),
-    description: z.string(),
+    description: contactDescription,
     avatarUrl: z.string().nullable(),
   })
   .refine(
