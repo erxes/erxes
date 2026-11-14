@@ -5,7 +5,8 @@
 # Versions are bumped in a PR, never here. A version already on npm is skipped, so a rerun
 # publishes only what is missing.
 # @erxes/ui's `latest` and `next` belong to old erxes's 3.x (publish-shared-libs.yml
-# on main, tags `[0-9]*`); this workflow never moves them.
+# on main, tags `[0-9]*`); this workflow never moves them. create-erxes's `latest` follows
+# its newest version.
 name: Release
 
 on:
@@ -57,3 +58,6 @@ jobs:
             fi
             npm publish "$tgz" --tag v2-next --access public --provenance || { echo "::error::$spec failed to publish"; exit 1; }
           done
+          # create-erxes has no old line, so `pnpm create erxes` (its `latest`) gets the newest.
+          # Set on every run, so a rerun repairs it.
+          npm dist-tag add "create-erxes@$(jq -r .version packages/create-erxes/package.json)" latest

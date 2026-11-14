@@ -10,7 +10,9 @@
  * plugin's own copy would hold a different `skipToken`, so `input: skipToken`
  * (from the host's `@tanstack/react-query`) would run the query, not disable it.
  * `nuqs` is shared so a plugin's URL state reads web's `NuqsAdapter`: a plugin's
- * own copy would find no adapter and throw.
+ * own copy would find no adapter and throw. `react-hook-form` is shared because
+ * erxes-ui's `Form` is its `FormProvider` and `Controller`: a plugin's `useForm`
+ * from its own copy would hand them a form another version built.
  */
 export const SHARED = [
   'react',
@@ -26,4 +28,5 @@ export const SHARED = [
   '@tanstack/react-query',
   '@tanstack/query-core',
   'nuqs',
+  'react-hook-form',
 ];
