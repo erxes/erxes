@@ -184,9 +184,9 @@ export const auditStreamJob = defineJob({
   },
 });
 
-/** Sends a stream's waiting entries now (a new, resumed or re-pointed stream). */
+/** Sends a stream's waiting entries now (a new, resumed or re-pointed stream), even a round backing off. */
 export const queueStreamRound = (client: Db, row: Pick<StreamRow, 'id' | 'orgId'>) =>
-  auditStreamJob.enqueue(client, {
+  auditStreamJob.enqueueNow(client, {
     orgId: row.orgId,
     payload: { streamId: row.id },
     dedupeKey: row.id,

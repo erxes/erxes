@@ -256,6 +256,17 @@ export const defineJob = <S extends z.ZodType<Record<string, unknown>, Record<st
         client,
         inputs.map((input) => ({ ...input, queue: name })),
       ),
+    /**
+     * Someone asked for it now: makes the job waiting with this dedupe key
+     * due now (a retry waiting out its backoff keeps its attempts), or adds one.
+     */
+    enqueueNow: async (client: Db, input: Omit<Input, 'runAt'> & { dedupeKey: string }) => {
+      await queue().upsert(
+        name,
+        { orgId: input.orgId, payload: input.payload },
+        { singletonKey: input.dedupeKey, startAfter: new Date(), ...inTransaction(client) },
+      );
+    },
   };
 };
 
