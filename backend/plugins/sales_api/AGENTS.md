@@ -104,6 +104,9 @@
 - Internal POS cancellation removes token-owned unpaid synced POS orders without
   successful/unresolved eBarimt receipts and refunds their loyalty points.
   Returned orders are retained; missing orders allow idempotent retries.
+- The `payments.callback` job forwards every paid POS order invoice to POS client
+  `paymentCallbackClient`, with no dependence on `data.posToken` from the invoice.
+  A failed call throws, so the job retries.
 - POS configuration exposes `isShowRemainder` for remainder display separately
   from `isCheckRemainder` and validation category exclusions.
 - POS configuration stores `customerCreateConfig` (`enabled`,

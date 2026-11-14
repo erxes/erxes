@@ -9,17 +9,30 @@ import { IModels } from '~/connectionResolvers';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import {
   BILL_TYPES,
+  ORDER_INVOICE_CONTENT_TYPES,
+  ORDER_SALE_STATUS,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  ExpectedError,
+  graphqlPubsub,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
+  checkOrderLines,
   checkOrderStatus,
+  checkOrderType,
   prepareEbarimtData,
   validateOrderPayment,
 } from '~/modules/posclient/utils/orderUtils';
 import * as crypto from 'node:crypto';
 import { debugError } from '~/modules/posclient/debugError';
+
+const SETTLE_WAIT_MS = 500;
+const SETTLE_WAIT_ATTEMPTS = 20;
+const SETTLE_CLAIM_MS = 60 * 1000;
+const PORTAL_BILL_TYPES = [BILL_TYPES.CITIZEN, BILL_TYPES.ENTITY];
 
 export interface ICountBy {
   [index: string]: number;
@@ -57,14 +70,69 @@ export const segmentProductIds = async (
   return ids;
 };
 
+const getSettleBillType = (order: IOrderDocument) => {
+  if (order.userId) {
+    return order.billType;
+  }
+
+  if (order.billType === BILL_TYPES.ENTITY && !order.registerNumber) {
+    return BILL_TYPES.CITIZEN;
+  }
+
+  return order.billType || BILL_TYPES.CITIZEN;
+};
+
+const isMobileCovered = (mobileAmount: number, totalAmount: number) =>
+  Math.round(mobileAmount) >= Math.round(totalAmount);
+
+const getAppliedMobileAmount = (
+  order: IOrderDocument,
+  sumMobileAmount: number,
+) => {
+  if (!isMobileCovered(sumMobileAmount, order.totalAmount)) {
+    return sumMobileAmount;
+  }
+
+  const otherAmount = (order.paidAmounts || []).reduce(
+    (sum, i) => sum + Number(i.amount),
+    order.cashAmount || 0,
+  );
+
+  return Math.max(order.totalAmount - otherAmount, 0);
+};
+
+export const claimSettlement = (models: IModels, _id: string) =>
+  models.Orders.findOneAndUpdate(
+    {
+      _id,
+      paidDate: null,
+      $or: [
+        { settlingAt: null },
+        { settlingAt: { $lt: new Date(Date.now() - SETTLE_CLAIM_MS) } },
+      ],
+    },
+    { $set: { settlingAt: new Date() } },
+  ).lean();
+
+export const releaseSettlement = (models: IModels, _id: string) =>
+  models.Orders.updateOne({ _id }, { $unset: { settlingAt: '' } });
+
 export const updateMobileAmount = async (
   subdomain: string,
   models: IModels,
   paymentParams: any[],
+  { deferReceipt = false }: { deferReceipt?: boolean } = {},
 ) => {
   const firstData = (paymentParams || [])[0] || {};
   const { contentTypeId } = firstData;
-  const { posToken } = firstData.data;
+
+  let order = await models.Orders.findOne({ _id: contentTypeId }).lean();
+
+  if (!order) {
+    throw new Error(`Order not found`);
+  }
+
+  const posToken = order.posToken;
   const orderSelector = { _id: contentTypeId, posToken };
 
   const conf = await models.Configs.findOne({ token: posToken });
@@ -75,12 +143,8 @@ export const updateMobileAmount = async (
 
   for (const payData of paymentParams) {
     const { contentTypeId, amount, _id } = payData;
-    const { posToken } = payData.data;
 
-    if (
-      orderSelector._id !== contentTypeId ||
-      orderSelector.posToken !== posToken
-    ) {
+    if (orderSelector._id !== contentTypeId) {
       continue;
     }
 
@@ -89,7 +153,7 @@ export const updateMobileAmount = async (
     });
   }
 
-  let order = await models.Orders.findOne(orderSelector).lean();
+  order = await models.Orders.findOne(orderSelector).lean();
 
   if (!order) {
     throw new Error(`Order not found`);
@@ -101,7 +165,10 @@ export const updateMobileAmount = async (
   );
 
   await models.Orders.updateOne(orderSelector, {
-    $set: { mobileAmount: sumMobileAmount },
+    $set: {
+      mobileAmount: getAppliedMobileAmount(order, sumMobileAmount),
+      saleStatus: ORDER_SALE_STATUS.CONFIRMED,
+    },
   });
 
   order = await models.Orders.findOne(orderSelector).lean();
@@ -110,8 +177,12 @@ export const updateMobileAmount = async (
     throw new Error(`Order not found`);
   }
 
+  if (order.paidDate) {
+    return sumMobileAmount;
+  }
+
   const { totalAmount, registerNumber, _id } = order;
-  let billType = order.billType;
+  let billType = getSettleBillType(order);
 
   const ebarimtConfig: any = conf.ebarimtConfig;
   if (
@@ -123,13 +194,11 @@ export const updateMobileAmount = async (
   ) {
     billType = BILL_TYPES.INNER;
   }
-  console.log('[SETTLE CHECK]', {
-    totalAmount,
-    sumMobileAmount,
-    billType,
-    registerNumber,
-  });
-  if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
+
+  const billTypeMissing =
+    deferReceipt && !order.billType && billType !== BILL_TYPES.INNER;
+
+  if (isMobileCovered(sumMobileAmount, totalAmount) && !billTypeMissing) {
     if (
       (billType === BILL_TYPES.ENTITY && registerNumber) ||
       billType === BILL_TYPES.CITIZEN ||
@@ -190,6 +259,122 @@ export const updateMobileAmount = async (
   return sumMobileAmount;
 };
 
+const getPaidInvoices = (subdomain: string, _id: string) =>
+  sendTRPCMessage({
+    subdomain,
+    pluginName: 'payment',
+    method: 'query',
+    module: 'invoices',
+    action: 'find',
+    input: {
+      contentTypeId: _id,
+      contentType: { $in: ORDER_INVOICE_CONTENT_TYPES },
+      status: 'paid',
+    },
+    defaultValue: [],
+  });
+
+const paymentNotConfirmed = () =>
+  new ExpectedError('Order payment is not confirmed', 'FORBIDDEN');
+
+const assertReceiptType = (order: IOrderDocument, billType: string) => {
+  if (billType === BILL_TYPES.ENTITY && order.billType === BILL_TYPES.CITIZEN) {
+    throw new ExpectedError(
+      'Order is already settled with a citizen receipt',
+      'CONFLICT',
+    );
+  }
+};
+
+const waitForSettlement = async (models: IModels, _id: string) => {
+  for (let attempt = 0; attempt < SETTLE_WAIT_ATTEMPTS; attempt++) {
+    const { paidDate, mobileAmount, totalAmount } =
+      await models.Orders.getOrder(_id);
+
+    if (paidDate || !isMobileCovered(mobileAmount || 0, totalAmount)) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, SETTLE_WAIT_MS));
+  }
+};
+
+export const recordPaidInvoices = async (
+  subdomain: string,
+  models: IModels,
+  _id: string,
+) => {
+  const order = await models.Orders.getOrder(_id);
+
+  if (order.paidDate) {
+    return order;
+  }
+
+  const invoices = await getPaidInvoices(subdomain, _id);
+
+  if (!invoices.length) {
+    throw paymentNotConfirmed();
+  }
+
+  checkOrderType(order);
+
+  await updateMobileAmount(subdomain, models, invoices, { deferReceipt: true });
+
+  const recordedOrder = await models.Orders.getOrder(_id);
+
+  if (
+    recordedOrder.paidDate ||
+    recordedOrder.isPre ||
+    isMobileCovered(recordedOrder.mobileAmount || 0, recordedOrder.totalAmount)
+  ) {
+    return recordedOrder;
+  }
+
+  throw paymentNotConfirmed();
+};
+
+export const settleFromPaidInvoices = async (
+  subdomain: string,
+  models: IModels,
+  { _id, billType, registerNumber }: ISettlePaymentParams,
+) => {
+  const order = await models.Orders.getOrder(_id);
+
+  if (order.paidDate) {
+    assertReceiptType(order, billType);
+
+    return order;
+  }
+
+  const invoices = await getPaidInvoices(subdomain, _id);
+
+  if (!invoices.length) {
+    throw paymentNotConfirmed();
+  }
+
+  checkOrderType(order);
+
+  if (!order.userId && PORTAL_BILL_TYPES.includes(billType)) {
+    await models.Orders.updateOne(
+      { _id, paidDate: null },
+      { $set: { billType, ...(registerNumber ? { registerNumber } : {}) } },
+    );
+  }
+
+  await updateMobileAmount(subdomain, models, invoices);
+  await waitForSettlement(models, _id);
+
+  const settledOrder = await models.Orders.getOrder(_id);
+
+  if (!settledOrder.paidDate) {
+    throw paymentNotConfirmed();
+  }
+
+  assertReceiptType(settledOrder, billType);
+
+  return settledOrder;
+};
+
 export const prepareSettlePayment = async (
   subdomain: string,
   models: IModels,
@@ -200,11 +385,14 @@ export const prepareSettlePayment = async (
 ) => {
   checkOrderStatus(order);
 
-  const items = await models.OrderItems.find({
-    orderId: order._id,
-  }).lean();
+  if (!(await claimSettlement(models, _id))) {
+    if (user) {
+      throw new ExpectedError('Order is being settled', 'CONFLICT');
+    }
 
-  validateOrderPayment(order, { billType });
+    return [];
+  }
+
   const now = new Date();
 
   const ebarimtConfig: any = config.ebarimtConfig;
@@ -220,6 +408,16 @@ export const prepareSettlePayment = async (
   }
 
   try {
+    order = await models.Orders.getOrder(_id);
+
+    const items = await models.OrderItems.find({
+      orderId: order._id,
+    }).lean();
+
+    checkOrderType(order);
+    checkOrderLines(order, items);
+    validateOrderPayment(order, { billType });
+
     const ebarimtResponses: any[] = [];
 
     if (billType !== BILL_TYPES.INNER) {
@@ -284,8 +482,11 @@ export const prepareSettlePayment = async (
               { ...order },
             ),
           },
+          $unset: { settlingAt: '' },
         },
       );
+    } else {
+      await releaseSettlement(models, _id);
     }
 
     order = await models.Orders.getOrder(_id);
@@ -407,6 +608,8 @@ export const prepareSettlePayment = async (
 
     return ebarimtResponses;
   } catch (e) {
+    await releaseSettlement(models, _id);
+
     debugError(e);
 
     return e;
