@@ -1,4 +1,5 @@
 import { createInstance } from 'i18next';
+import resourcesToBackend from 'i18next-resources-to-backend';
 import { initReactI18next } from 'react-i18next';
 import enAutomations from './locales/en/automations.json';
 import enCommon from './locales/en/common.json';
@@ -7,18 +8,13 @@ import enOrganization from './locales/en/organization.json';
 import enProduct from './locales/en/product.json';
 import enSettings from './locales/en/settings.json';
 import enViews from './locales/en/views.json';
-import mnAutomations from './locales/mn/automations.json';
-import mnCommon from './locales/mn/common.json';
-import mnContact from './locales/mn/contact.json';
-import mnOrganization from './locales/mn/organization.json';
-import mnProduct from './locales/mn/product.json';
-import mnSettings from './locales/mn/settings.json';
-import mnViews from './locales/mn/views.json';
 
 /*
- * erxes-ui and core's components translate through react-i18next with the
- * locales bundled here. Plugins
- * share this instance through Module Federation and add their own namespaces.
+ * erxes-ui and core's components translate through react-i18next. English is
+ * bundled, as the fallback every string ends at; another language's locales
+ * load as their own chunks when it is chosen, so no route carries them for
+ * members who read English. Plugins share this instance through Module
+ * Federation and add their own namespaces.
  */
 export const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -37,36 +33,36 @@ const savedLanguage = (): LanguageCode => {
 
 const i18n = createInstance();
 
-void i18n.use(initReactI18next).init({
-  // One namespace per area, as components name it in useTranslation('contact'|…).
-  resources: {
-    en: {
-      common: enCommon,
-      contact: enContact,
-      settings: enSettings,
-      organization: enOrganization,
-      automations: enAutomations,
-      product: enProduct,
-      views: enViews,
+/** Resolves once the saved language's locales are in, so the first render is in that language. */
+export const i18nReady = i18n
+  .use(initReactI18next)
+  .use(
+    resourcesToBackend(
+      (language: string, ns: string) => import(`./locales/${language}/${ns}.json`),
+    ),
+  )
+  .init({
+    // One namespace per area, as components name it in useTranslation('contact'|…).
+    resources: {
+      en: {
+        common: enCommon,
+        contact: enContact,
+        settings: enSettings,
+        organization: enOrganization,
+        automations: enAutomations,
+        product: enProduct,
+        views: enViews,
+      },
     },
-    mn: {
-      common: mnCommon,
-      contact: mnContact,
-      settings: mnSettings,
-      organization: mnOrganization,
-      automations: mnAutomations,
-      product: mnProduct,
-      views: mnViews,
-    },
-  },
-  lng: savedLanguage(),
-  fallbackLng: 'en',
-  ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views'],
-  defaultNS: 'common',
-  fallbackNS: 'common',
-  interpolation: { escapeValue: false },
-  react: { useSuspense: false },
-});
+    partialBundledLanguages: true,
+    lng: savedLanguage(),
+    fallbackLng: 'en',
+    ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views'],
+    defaultNS: 'common',
+    fallbackNS: 'common',
+    interpolation: { escapeValue: false },
+    react: { useSuspense: false },
+  });
 
 // Screen readers pick their voice from <html lang>.
 document.documentElement.lang = i18n.language;
