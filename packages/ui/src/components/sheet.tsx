@@ -94,9 +94,14 @@ const SheetHeader = ({ className, children, ...props }: React.HTMLAttributes<HTM
     ? items.find((child) => React.isValidElement(child) && child.type === SheetClose)
     : undefined;
 
+  // The title and the close button share the first line; a visible description wraps to its own
+  // line under them, so neither is squeezed on a phone.
   return (
     <div
-      className={cn('flex px-5 h-10 items-center bg-background border-b flex-none', className)}
+      className={cn(
+        'flex flex-wrap items-center gap-x-2 gap-y-1 px-5 py-2 min-h-10 bg-background border-b flex-none',
+        className,
+      )}
       {...props}
     >
       {actions ? (
@@ -130,14 +135,14 @@ const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 
 const SheetTitle = ({ className, ...props }: SheetPrimitive.Title.Props) => (
   <SheetPrimitive.Title
-    className={cn('text-lg font-semibold text-foreground leading-none', className)}
+    className={cn('min-w-0 flex-1 text-lg font-semibold text-foreground leading-tight', className)}
     {...props}
   />
 );
 
 const SheetDescription = ({ className, ...props }: SheetPrimitive.Description.Props) => (
   <SheetPrimitive.Description
-    className={cn('text-sm leading-none text-muted-foreground mt-2', className)}
+    className={cn('order-last basis-full text-sm leading-snug text-muted-foreground', className)}
     {...props}
   />
 );
