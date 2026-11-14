@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/erxes/erxes/blob/main/SECURITY.md
+    about: Report security issues privately. Do not open a public issue.
+  - name: Questions and help
+    url: https://discord.com/invite/aaGzy3gQK5
+    about: Ask setup and usage questions in the erxes Discord community.
+  - name: Documentation
+    url: https://erxes.io/docs/introduction
+    about: Guides for setup, configuration and plugins.

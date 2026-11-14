@@ -19,6 +19,7 @@ const config: ModuleFederationConfig = {
     './pms': './src/modules/pms/Main.tsx',
     './tms': './src/modules/tms/Main.tsx',
     './tourism': './src/modules/main/Main.tsx',
+    './recordPanel': './src/widgets/record-panel/RecordPanel.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
 import { useNavigate, useParams } from 'react-router-dom';
-import { SIDE_PANEL_CHAT_PATH, SIDE_PANEL_QUERY_KEY } from 'ui-modules';
+import { useGlobalSidebar } from '@/global-sidebar/hooks/useGlobalSidebar';
 import { agentSidePanelThreadRequestState } from '../states/agentPanelStates';
 
 /** Old bookmarks continue in Assistant; no chat page is mounted here. */
@@ -9,6 +9,7 @@ export const LegacyAgentRedirect = () => {
   const { '*': legacyPath } = useParams();
   const requestThread = useSetAtom(agentSidePanelThreadRequestState);
   const navigate = useNavigate();
+  const { openTool } = useGlobalSidebar();
   useEffect(() => {
     requestThread(
       legacyPath &&
@@ -17,15 +18,8 @@ export const LegacyAgentRedirect = () => {
         ? legacyPath
         : null,
     );
-    navigate(
-      {
-        pathname: '/',
-        search: new URLSearchParams({
-          [SIDE_PANEL_QUERY_KEY]: SIDE_PANEL_CHAT_PATH,
-        }).toString(),
-      },
-      { replace: true },
-    );
-  }, [legacyPath, navigate, requestThread]);
+    openTool('assistant');
+    navigate('/', { replace: true });
+  }, [legacyPath, navigate, openTool, requestThread]);
   return null;
 };

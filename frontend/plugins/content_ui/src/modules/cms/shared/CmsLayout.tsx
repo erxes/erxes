@@ -1,4 +1,4 @@
-import { Button, Breadcrumb, Sidebar, Separator } from 'erxes-ui';
+import { Button, Breadcrumb, Sidebar, Separator, cn } from 'erxes-ui';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,7 +13,7 @@ import {
   IconSettings,
 } from '@tabler/icons-react';
 import { Link, useParams, useLocation } from 'react-router-dom';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_WEBSITES, CONTENT_CMS_LIST } from '../graphql/queries';
 
@@ -28,6 +28,7 @@ interface CmsLayoutProps {
     icon?: ReactNode;
   }>;
   headerActions?: ReactNode;
+  contentClassName?: string;
 }
 
 export function CmsLayout({
@@ -37,22 +38,11 @@ export function CmsLayout({
   showSidebar = true,
   breadcrumbItems,
   headerActions,
+  contentClassName,
 }: CmsLayoutProps) {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const location = useLocation();
-
-  // Force re-render when location changes (fixes back button issue)
-  useEffect(() => {
-    // This effect will run whenever the location changes
-    // ensuring the component updates when browser back/forward is used
-  }, [location]);
-
-  // const [expandedSections, setExpandedSections] = useState({
-  //   contentBuilder: true,
-  //   customPostType: true,
-  //   contentSettings: true,
-  // });
 
   const { data: websitesData } = useQuery(GET_WEBSITES, {
     variables: { search: '' },
@@ -259,7 +249,9 @@ export function CmsLayout({
         </PageHeader>
 
         <div className="flex flex-1 min-w-0 overflow-auto">
-          <div className="w-full py-2 px-4">{children}</div>
+          <div className={cn('w-full py-2 px-4', contentClassName)}>
+            {children}
+          </div>
         </div>
       </div>
     </div>

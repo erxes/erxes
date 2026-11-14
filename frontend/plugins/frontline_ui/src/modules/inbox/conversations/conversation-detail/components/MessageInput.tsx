@@ -76,7 +76,8 @@ export const MessageInput = ({
     suggestions,
   } = useResponseTemplateSuggestions({
     editor,
-    enabled: !isInternalNote && !isTelegram,
+    enabled: !isInternalNote && !isTelegram && !isSlashMenuOpen,
+    channelId: integration?.channelId ?? undefined,
   });
   const {
     mentionItems: discordMentionItems,

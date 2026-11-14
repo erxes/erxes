@@ -3,16 +3,17 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RecordTable, RecordTableTree, Sheet } from 'erxes-ui';
+import { RecordTable, RecordTableTree } from 'erxes-ui';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { useTourGroups } from '../hooks/useTourGroups';
-import { TourCreateSheet } from './TourCreateSheet';
+import { TourCreateButton } from './TourPanel';
 import { TourCommandBar } from './TourCommandBar';
 import { TourGroupAddSheet } from './TourGroupAddSheet';
 import { GroupedTourColumns, TourGroupRow } from './TourGroupColumns';
 import { flattenGroups } from './TourGroupUtils';
-import { TourEditForm } from './TourEditForm';
-import { TourSideTab } from './TourOrdersSidePanel';
+import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 function TourGroupTableContent({
   loading,
@@ -27,7 +28,7 @@ function TourGroupTableContent({
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            {loading && !length && <RecordTable.RowSkeleton rows={30} />}
             <RecordTable.RowList Row={RecordTableTree.Row} />
           </RecordTable.Body>
         </RecordTable>
@@ -53,8 +54,7 @@ export const TourGroupList = ({
     variables: { branchId, language },
   });
 
-  const [editTourId, setEditTourId] = useState<string | null>(null);
-  const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
+  const { openDetail } = useTourismPanel(TMS_TOUR_CONTENT_TYPE);
   const [addTourContext, setAddTourContext] = useState<{
     groupCode: string;
     templateTourId: string;
@@ -65,7 +65,7 @@ export const TourGroupList = ({
     () =>
       GroupedTourColumns(
         {
-          onEdit: (id) => setEditTourId(id),
+          onEdit: (id) => openDetail(id),
           onAddTour: (row) => {
             if (!row.groupCode || !row.templateTourId) {
               return;
@@ -79,7 +79,7 @@ export const TourGroupList = ({
         },
         t,
       ),
-    [t],
+    [t, openDetail],
   );
   const tableOptions: TableOptions<TourGroupRow> = useMemo(
     () => ({
@@ -92,63 +92,20 @@ export const TourGroupList = ({
   );
 
   if (!loading && total === 0) {
-    return (
-      <EmptyState
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    );
+    return <EmptyState branchId={branchId} />;
   }
 
   return (
     <RecordTable.Provider
       columns={columns}
       data={groupedTours}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name']}
       tableOptions={tableOptions}
       tableId="tourism_tour_groups_record_table"
     >
       <TourGroupTableContent loading={loading} length={groupedTours.length} />
-      <TourCommandBar
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-      <Sheet
-        open={!!editTourId}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditTourId(null);
-            setSideTab(null);
-          }
-        }}
-      >
-        <Sheet.View
-          className={`p-0 transition-all duration-200 ${
-            sideTab
-              ? 'w-[1220px] sm:max-w-[1220px]'
-              : 'w-[900px] sm:max-w-[900px]'
-          }`}
-        >
-          {editTourId && (
-            <TourEditForm
-              tourId={editTourId}
-              branchId={branchId}
-              branchLanguages={branchLanguages}
-              mainLanguage={mainLanguage}
-              onSuccess={() => {
-                setEditTourId(null);
-                setSideTab(null);
-              }}
-              sideTab={sideTab}
-              onSideTabChange={setSideTab}
-            />
-          )}
-        </Sheet.View>
-      </Sheet>
-
+      <TourCommandBar branchId={branchId} mainLanguage={mainLanguage} />
       {addTourContext && (
         <TourGroupAddSheet
           templateTourId={addTourContext.templateTourId}
@@ -168,15 +125,7 @@ export const TourGroupList = ({
   );
 };
 
-function EmptyState({
-  branchId,
-  branchLanguages,
-  mainLanguage,
-}: {
-  branchId: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-}) {
+function EmptyState({ branchId }: Readonly<{ branchId: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-2 p-6 text-center">
@@ -191,11 +140,7 @@ function EmptyState({
       <p className="mb-4 text-md text-muted-foreground">
         {t('no-grouped-tours-yet-desc')}
       </p>
-      <TourCreateSheet
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <TourCreateButton branchId={branchId} />
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import {
-  automationHistorySelectedExecutionState,
   automationHistorySplitDirectionState,
   automationHistoryViewModeState,
 } from '@/automations/states/automationState';
-import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useQueryState } from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
+import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
+import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
 import {
   AutomationHistorySplitDirection,
   AutomationHistoryViewMode,
@@ -12,33 +14,43 @@ import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 
 export const useAutomationHistoryView = () => {
-  const [viewMode, setViewMode] = useAtom(automationHistoryViewModeState);
+  const [storedViewMode, setViewMode] = useAtom(automationHistoryViewModeState);
   const [splitDirection, setSplitDirection] = useAtom(
     automationHistorySplitDirectionState,
   );
-  const { detail } = useAutomation();
-  const automationId = detail?._id || '';
-  const [selection, setSelection] = useAtom(
-    automationHistorySelectedExecutionState,
-  );
-
-  const selectedExecutionId =
-    selection?.automationId === automationId ? selection.executionId : null;
+  const panel = useSidePanel();
+  const historyPath = getModulePanelPath(AUTOMATION_HISTORY_PANEL);
+  const historyPanelOpen =
+    panel.path === historyPath || panel.history.includes(historyPath);
+  const viewMode =
+    !historyPanelOpen && storedViewMode === AutomationHistoryViewMode.Split
+      ? AutomationHistoryViewMode.Split
+      : AutomationHistoryViewMode.Panel;
+  const isSplitView = viewMode === AutomationHistoryViewMode.Split;
+  const [selectedExecutionId, setSelectedExecutionId] =
+    useQueryState<string>('executionId');
 
   const selectExecution = useCallback(
-    (executionId: string | null) =>
-      setSelection(executionId ? { automationId, executionId } : null),
-    [automationId, setSelection],
+    (executionId: string | null) => {
+      setSelectedExecutionId(executionId);
+      if (executionId && !isSplitView) panel.openPath(historyPath);
+    },
+    [setSelectedExecutionId, isSplitView, panel, historyPath],
   );
 
   const changeViewMode = useCallback(
-    (mode: AutomationHistoryViewMode) => setViewMode(mode),
-    [setViewMode],
+    (mode: AutomationHistoryViewMode) => {
+      setViewMode(mode);
+      if (mode === AutomationHistoryViewMode.Split) {
+        panel.dismissPath(historyPath);
+      }
+    },
+    [setViewMode, panel, historyPath],
   );
 
   return {
     viewMode,
-    isSplitView: viewMode === AutomationHistoryViewMode.Split,
+    isSplitView,
     changeViewMode,
     splitDirection,
     setSplitDirection,

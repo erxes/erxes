@@ -1,3 +1,4 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ISyncLogDocument } from '~/modules/erkhet/@types/syncLog';
 
@@ -8,16 +9,26 @@ export default {
 
   async createdUser(
     { createdBy }: ISyncLogDocument,
+    _args: unknown,
+    { subdomain }: IContext,
   ) {
     if (!createdBy) {
-      return;
+      return null;
     }
 
-    return {
-      __typename: 'User',
-      _id: createdBy,
-    };
+    const users = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'users',
+      action: 'find',
+      input: {
+        query: { _id: createdBy },
+        fields: { _id: 1, email: 1, username: 1, details: 1 },
+      },
+      defaultValue: [],
+    });
 
+    return users?.[0] ?? null;
   },
 
   async content({ contentType, contentId, consumeData }: ISyncLogDocument) {

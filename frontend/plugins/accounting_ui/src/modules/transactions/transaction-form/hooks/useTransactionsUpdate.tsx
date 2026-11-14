@@ -37,6 +37,7 @@ export const useTransactionsUpdate = (
         toast({
           title: t('success'),
           description: t('transactions-updated-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },
@@ -51,6 +52,11 @@ export const useTransactionsUpdate = (
         },
       ],
       awaitRefetchQueries: true,
+      update: (cache, result, updateOptions) => {
+        options?.update?.(cache, result, updateOptions);
+        cache.evict({ fieldName: 'accTrRecordsMain' });
+        cache.gc();
+      },
     });
   };
 

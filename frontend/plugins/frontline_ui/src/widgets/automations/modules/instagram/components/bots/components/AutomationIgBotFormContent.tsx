@@ -1,3 +1,4 @@
+import { AutomationBotPanel } from '~/widgets/automations/components/AutomationBotsPage';
 import { IconChevronDown, IconChevronUp, IconPlus } from '@tabler/icons-react';
 import {
   Button,
@@ -33,7 +34,7 @@ export const AutomationIgBotFormContent = () => {
 
   return (
     <>
-      <Sheet.Content className="p-4">
+      <Sheet.Content className="min-h-0 flex-1 overflow-y-auto p-4">
         <Form {...form}>
           <IgBotFormSecondarySheet accountId={accountId} pageId={pageId} />
           <AutomationBotFormEffect />
@@ -185,7 +186,7 @@ export const AutomationIgBotFormContent = () => {
           </div>
         </Form>
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="shrink-0">
         <Button
           disabled={onSaveloading}
           onClick={form.handleSubmit(onSave, (error) =>
@@ -215,22 +216,22 @@ const IgBotFormSecondarySheet = ({
   );
 
   return (
-    <Sheet open={isOpenAccountSheet} onOpenChange={setOpenAccountSheet}>
+    <>
       <div className="flex justify-between items-center pb-2">
         <InstagramPageInfo accountId={accountId} pageId={pageId} />
-        <Sheet.Trigger asChild>
-          <Button>{t('select-page', 'Select Page')}</Button>
-        </Sheet.Trigger>
+        <Button onClick={() => setOpenAccountSheet(true)}>
+          {t('select-page', 'Select Page')}
+        </Button>
       </div>
       <Separator />
-      <Sheet.View>
-        {isOpenAccountSheet && (
+      {isOpenAccountSheet && (
+        <AutomationBotPanel onClose={() => setOpenAccountSheet(false)}>
           <InstagramBotPageSelectorSteps
             accountId={accountId}
             step={accountId ? 2 : 1}
           />
-        )}
-      </Sheet.View>
-    </Sheet>
+        </AutomationBotPanel>
+      )}
+    </>
   );
 };

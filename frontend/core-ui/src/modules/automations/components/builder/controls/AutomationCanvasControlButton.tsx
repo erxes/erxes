@@ -26,6 +26,7 @@ export const AutomationCanvasControlButton = ({
           type="button"
           variant="ghost"
           size="icon"
+          aria-label={label}
           disabled={disabled}
           onClick={onClick}
           className={cn(

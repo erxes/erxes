@@ -19,13 +19,11 @@ import { ExportTourPDFButton } from '../pdf';
 
 interface TourCommandBarProps {
   branchId: string;
-  branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 export const TourCommandBar = ({
   branchId,
-  branchLanguages,
   mainLanguage,
 }: TourCommandBarProps) => {
   const { t } = useTranslation('tourism');
@@ -43,11 +41,7 @@ export const TourCommandBar = ({
   const selectedCount = tourIds.length;
   const { removeTours, loading } = useRemoveTours();
   const singleId = selectedCount === 1 ? tourIds[0] : undefined;
-  const {
-    tourDetail,
-    loading: detailLoading,
-    refetch,
-  } = useTourDetail({
+  const { tourDetail, loading: detailLoading } = useTourDetail({
     variables: { id: singleId || '', language },
     skip: !singleId,
     fetchPolicy: 'cache-and-network',
@@ -96,7 +90,9 @@ export const TourCommandBar = ({
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
+        <CommandBar.Value>
+          {t('x-selected', { count: selectedCount })}
+        </CommandBar.Value>
         <Separator.Inline />
         {selectedCount === 1 && (
           <>
@@ -107,9 +103,6 @@ export const TourCommandBar = ({
               variant="secondary"
               size="sm"
               branchId={branchId}
-              branchLanguages={branchLanguages}
-              mainLanguage={mainLanguage}
-              refetchTour={refetch}
             />
             <Separator.Inline />
           </>

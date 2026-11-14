@@ -1,8 +1,13 @@
 import { TActionResultPreview } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { getActionResultErrorText } from '@/automations/utils/automationHistoryUtils/executionResultPreview';
+import {
+  getActionErrorMessage,
+  toSingleLine,
+} from '@/automations/utils/automationHistoryUtils/actionResultShape';
 
 export const getSendEmailResultPreview: TActionResultPreview = (action) => {
   const error = action.result?.response?.error;
 
-  return error ? getActionResultErrorText(error) : 'Sent successfully';
+  return error
+    ? toSingleLine(getActionErrorMessage(error))
+    : 'Sent successfully';
 };

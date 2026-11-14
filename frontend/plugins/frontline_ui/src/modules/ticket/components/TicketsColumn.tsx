@@ -25,6 +25,7 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
+  RelativeDateDisplay,
   Tooltip,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -331,6 +332,34 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
             value={targetDate}
             id={cell.row.original._id}
           />
+        );
+      },
+      size: 240,
+    },
+    {
+      id: 'statusChangedDate',
+      accessorKey: 'statusChangedDate',
+      header: () => (
+        <RecordTable.InlineHead
+          label={t('status-changed-date', 'Status changed date')}
+          icon={IconCalendarFilled}
+        />
+      ),
+      cell: ({ cell }) => {
+        const statusChangedDate = cell.getValue() as string | null;
+        if (!statusChangedDate) {
+          return (
+            <RecordTableInlineCell className="text-muted-foreground">
+              {t('not-specified', 'Not specified')}
+            </RecordTableInlineCell>
+          );
+        }
+        return (
+          <RelativeDateDisplay value={statusChangedDate} asChild>
+            <RecordTableInlineCell>
+              <RelativeDateDisplay.Value value={statusChangedDate} />
+            </RecordTableInlineCell>
+          </RelativeDateDisplay>
         );
       },
       size: 240,

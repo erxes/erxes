@@ -2,9 +2,9 @@ import { IconEdit, IconTrash, IconWorldPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { readImage } from 'erxes-ui/utils/core';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { webDrawerState } from '../states/webBuilderState';
+import { CONTENT_WEB_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
 import { THUMBNAIL_GRADIENTS } from '../constants';
@@ -16,7 +16,7 @@ interface WebListItemProps {
 
 export const WebListItem = ({ web, index }: WebListItemProps) => {
   const { t } = useTranslation('content');
-  const setDrawer = useSetAtom(webDrawerState);
+  const { openDetail } = useContentPanel(CONTENT_WEB_CONTENT_TYPE);
   const { removeWeb } = useRemoveWeb();
   const { confirm } = useConfirm();
 
@@ -25,7 +25,7 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
     ? readImage(web.thumbnail.url, 200)
     : undefined;
 
-  const handleEdit = () => setDrawer({ open: true, editingWeb: web });
+  const handleEdit = () => openDetail(web._id);
 
   const handleDelete = () =>
     confirm({

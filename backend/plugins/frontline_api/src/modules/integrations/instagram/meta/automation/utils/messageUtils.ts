@@ -7,6 +7,7 @@ import {
   TBotData,
 } from '@/integrations/instagram/meta/automation/types/automationTypes';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
+import { getReplyDebounceMs } from '@/integrations/instagram/meta/automation/utils/turnTaking';
 
 export const triggerInstagramAutomation = async (
   subdomain: string,
@@ -20,7 +21,24 @@ export const triggerInstagramAutomation = async (
     adData?: any;
   },
 ) => {
-  const target: any = { ...conversationMessage };
+  if (conversationMessage.fromBot || conversationMessage.internal) {
+    return;
+  }
+
+  const models = await generateModels(subdomain);
+  const instagramConversation = await models.InstagramConversations.findOne(
+    { _id: conversationMessage.conversationId },
+    { erxesApiId: 1 },
+  ).lean();
+  // The inbox conversation; `conversationId` is the account's own thread
+  const target: Partial<IInstagramConversationMessageDocument> & {
+    erxesApiId?: string;
+    payload?: { executionId?: string; actionId?: string; btnId?: string };
+    adData?: unknown;
+  } = {
+    ...conversationMessage,
+    erxesApiId: instagramConversation?.erxesApiId,
+  };
   let type = 'frontline:instagram.messages';
   let repeatOptions;
   if (payload) {
@@ -36,6 +54,8 @@ export const triggerInstagramAutomation = async (
     type = 'instagram:ads';
   }
 
+  const isTypedMessage = !payload && !adData && !repeatOptions;
+
   sendAutomationTrigger(
     subdomain,
     {
@@ -48,6 +68,9 @@ export const triggerInstagramAutomation = async (
         priority: 1,
         removeOnComplete: true,
         removeOnFail: true,
+        ...(isTypedMessage && {
+          delay: getReplyDebounceMs(conversationMessage),
+        }),
       },
     },
   );

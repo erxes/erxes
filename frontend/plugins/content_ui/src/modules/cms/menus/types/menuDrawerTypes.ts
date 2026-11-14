@@ -58,12 +58,12 @@ export interface MenuRecord {
   target?: string;
 }
 
-export interface MenuDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
+export interface MenuPanelFormProps {
   clientPortalId: string;
   menu?: MenuRecord;
+  onCancel: () => void;
+  onCreated?: (menuId: string) => void;
+  onUpdated?: () => void;
 }
 
 export interface MenuFormData {

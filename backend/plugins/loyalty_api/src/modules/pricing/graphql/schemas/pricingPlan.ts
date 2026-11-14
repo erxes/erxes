@@ -53,6 +53,23 @@ export const types = `
     yearEndValue: Date,
   }
 
+  type PricingActiveWindow {
+    type: String
+    startTime: String
+    endTime: String
+    weekDays: [Int]
+    monthDays: [Int]
+    fromMonthDay: String
+    toMonthDay: String
+  }
+
+  type PricingScheduleCheck {
+    active: Boolean
+    matchedMoment: String
+    window: PricingActiveWindow
+    timeZone: String
+  }
+
   type PricingPlan {
     _id: String,
     name: String,
@@ -127,6 +144,9 @@ export const types = `
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRule],
+    activeWindows: [PricingActiveWindow],
+    closedDates: [String],
+    scheduleMoment: String,
 
     conditionRules: [PricingConditionRule],
 
@@ -217,6 +237,16 @@ export const types = `
     yearEndValue: Date,
   }
 
+  input PricingActiveWindowInput {
+    type: String!
+    startTime: String!
+    endTime: String!
+    weekDays: [Int]
+    monthDays: [Int]
+    fromMonthDay: String
+    toMonthDay: String
+  }
+
   input PricingConditionRuleInput {
     conditionCode: String!
     discountType: String!
@@ -300,6 +330,9 @@ export const types = `
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
+    activeWindows: [PricingActiveWindowInput],
+    closedDates: [String],
+    scheduleMoment: String,
 
     conditionRules: [PricingConditionRuleInput],
   }
@@ -378,6 +411,9 @@ export const types = `
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
+    activeWindows: [PricingActiveWindowInput],
+    closedDates: [String],
+    scheduleMoment: String,
 
     conditionRules: [PricingConditionRuleInput],
   }
@@ -424,6 +460,8 @@ const pricingQueryParams = `
 `;
 
 const checkDiscountParams = `
+  date: Date
+  orderCreatedAt: Date
   prioritizeRule: String
   totalAmount: Float
   departmentId: String
@@ -449,6 +487,13 @@ export const queries = `
     search: String
   ): PricingFixedValuePageResult
   pricingCheckDiscount(${checkDiscountParams}): JSON
+  pricingPlanScheduleCheck(
+    activeWindows: [PricingActiveWindowInput]
+    closedDates: [String]
+    scheduleMoment: String
+    checkoutAt: String!
+    orderCreatedAt: String
+  ): PricingScheduleCheck
 `;
 
 export const mutations = `

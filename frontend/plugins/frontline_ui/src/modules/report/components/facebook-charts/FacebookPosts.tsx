@@ -210,6 +210,10 @@ export const FacebookPosts = ({
               <Button
                 variant="outline"
                 size="sm"
+                aria-label={t('previous-page-of', {
+                  title,
+                  defaultValue: 'Previous page of {{title}}',
+                })}
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
                 disabled={page <= 1 || loading}
               >
@@ -221,6 +225,10 @@ export const FacebookPosts = ({
               <Button
                 variant="outline"
                 size="sm"
+                aria-label={t('next-page-of', {
+                  title,
+                  defaultValue: 'Next page of {{title}}',
+                })}
                 onClick={() =>
                   setPage((current) => Math.min(totalPages, current + 1))
                 }

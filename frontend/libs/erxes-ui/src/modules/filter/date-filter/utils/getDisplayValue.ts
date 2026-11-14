@@ -1,25 +1,31 @@
 import { format } from 'date-fns';
 import { MONTHS } from '../constants/dateTypes';
-import { parseHalfToken, parseQuarterToken } from './dateTokens';
+import {
+  normalizeFixedDate,
+  parseHalfToken,
+  parseQuarterToken,
+} from './dateTokens';
 
-export const getDisplayValue = (value: string) => {
+export const getDisplayValue = (rawValue: string) => {
+  const value = normalizeFixedDate(rawValue);
+
   if (value === 'today') {
     return 'Today';
   }
   if (value === 'in-the-past') {
     return 'In the past';
   }
-  if (value === '1-day-from-now') {
-    return '1 day from now';
+  if (value === 'last-1-day') {
+    return 'Last 1 day';
   }
-  if (value === '3-days-from-now') {
-    return '3 days from now';
+  if (value === 'last-3-days') {
+    return 'Last 3 days';
   }
-  if (value === '1-week-from-now') {
-    return '1 week from now';
+  if (value === 'last-7-days') {
+    return 'Last 7 days';
   }
-  if (value === '3-months-from-now') {
-    return '3 months from now';
+  if (value === 'last-3-months') {
+    return 'Last 3 months';
   }
 
   if (MONTHS.some((month) => value.includes(month))) {

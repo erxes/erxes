@@ -688,5 +688,17 @@
    "value": "3",
    "type": "day"
   }
+ ],
+ "pickMember": [
+  {
+   "candidateIds": "u1,u2,{{ trigger.assigneeId }}",
+   "method": "roundRobin",
+   "fallbackUserId": ""
+  },
+  {
+   "candidateIds": "u1",
+   "method": "random",
+   "fallbackUserId": "u3"
+  }
  ]
 }

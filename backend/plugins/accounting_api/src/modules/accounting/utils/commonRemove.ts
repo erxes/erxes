@@ -1,3 +1,4 @@
+import { validateTransactionDate } from './transactionDateValidation';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '../@types/transaction';
@@ -6,11 +7,8 @@ import { TR_FOLLOW_TYPES } from '../@types/constants';
 import { removeFxaIncomeDetails } from './fxaIncome';
 import { removeFxaDisposalInstances } from './fxaOut';
 import { removeFxaMoveInstances } from './fxaMove';
-import {
-  getUniqueFxaOwnerRecordIds,
-  rebuildFixedAssetCurrentCounts,
-} from './fixedAssets';
 import { removeInvJustify } from './invJustify';
+import { removeFxaCapital, validateFxaCapitalRemove } from './fxaCapital';
 import { isInvSplitFollow, removeInvSplitFollowTrs } from './invSplit';
 
 export type TCommonRemoveOptions = {
@@ -54,6 +52,7 @@ export const commonRemove = async (
     );
     return;
   }
+  await validateTransactionDate(models, transaction);
   const handler = getJournalHandler(transaction.journal);
   if (!handler) return;
 
@@ -67,7 +66,10 @@ export const commonRemoveValidation = async (
   followTrs?: ITransactionDocument[],
   options: TCommonRemoveOptions = {},
 ): Promise<void> => {
+  await validateTransactionDate(models, transaction);
   const validators: Record<string, TJournalRemoveHandler> = {
+    fxaCapital: validateFxaCapitalRemove,
+    fxaRevaluation: validateFxaCapitalRemove,
     fxaIncome: validateFxaIncomeRemove,
   };
   const validator = validators[transaction.journal];
@@ -92,6 +94,8 @@ function getJournalHandler(journal: string) {
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
+    fxaCapital: removeFxaCapital,
+    fxaRevaluation: removeFxaCapital,
     fxaIncome: handleFxaIncome,
     fxaOut: handleFxaOut,
     fxaMove: handleFxaMove,
@@ -215,6 +219,7 @@ async function handleFxaIncome(
   if (options?.validateOnly) return;
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_DEP_IN,
+    TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
   ]);
 }
 
@@ -229,16 +234,6 @@ async function handleFxaOut(
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_DEP_OUT,
   ]);
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 }
 
 async function handleFxaMove(
@@ -254,16 +249,6 @@ async function handleFxaMove(
     TR_FOLLOW_TYPES.FXA_DEP_OUT,
     TR_FOLLOW_TYPES.FXA_DEP_IN,
   ]);
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 }
 
 async function handleFxaSale(
@@ -279,14 +264,4 @@ async function handleFxaSale(
     TR_FOLLOW_TYPES.FXA_DEP_OUT,
     TR_FOLLOW_TYPES.FXA_SALE_COST,
   ]);
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 }

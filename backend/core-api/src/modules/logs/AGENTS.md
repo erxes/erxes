@@ -138,7 +138,9 @@ is still honored when present.
   `name` field resolver (`resolvers/customResolvers/log.ts`: the exact operation —
   graphql `payload.mutationName`, else `contentType`/`collectionName` — read off the
   stored doc so the list never ships the full payload; surfaced as the **Operation**
-  column in the System Logs table) · `../../../meta/logs.ts` (optional per-entity
+  column in the System Logs table), plus `docId` (masked by `sanitizeLogValue` like
+  other ids) and a `recordName` resolver (the first of `prevDocument`, `fullDocument`
+  or `result` with a `name`/`title`), surfaced as the **Record** column · `../../../meta/logs.ts` (optional per-entity
   config) · `erxes-api-shared/.../elasticsearch/saveEs.ts`.
 
 **UI:** `frontend/core-ui/src/modules/logs/`
@@ -176,6 +178,10 @@ is still honored when present.
   writes to the wrong DB.
 - **Conflicts → merge** (not blind overwrite): field-level diff + `resolutions`
   (`restore`/`keep`/`custom`); `force` (admin only) blind-restores.
+- **No credentials in user logs**: the users model logs `toLoggedUser(...)`
+  (`team-member/loggedUser.ts`), never `user.toObject()`, so `password` and the
+  reset/registration tokens are not stored, and a revert of a user change never
+  restores a password. Entries written before 2026-11-10 may still hold them.
 - **Idempotent**: complete revert writes `payload.complete` marker; re-runs return
   `alreadyReverted`; re-inserts are idempotent. Dedup collapses exact duplicates
   (manual + auto double-logging).

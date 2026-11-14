@@ -16,7 +16,10 @@ import {
   IHiddenTransaction,
   ITransactionDocument,
 } from '@/accounting/@types/transaction';
-import { generateFilter as accountGenerateFilter } from './accounts';
+import {
+  generateFilter as accountGenerateFilter,
+  IAccountQueryParams,
+} from './accounts';
 import { checkPermissionTrs } from '../../../utils/trPermissions';
 import {
   applyTransactionJournalPermissionFilter,
@@ -72,7 +75,7 @@ interface IQueryParams {
   page?: number;
   perPage?: number;
   sortField?: string;
-  sortDirection?: number;
+  sortDirection?: 1 | -1;
 }
 
 interface IRecordsParams extends IQueryParams {
@@ -80,21 +83,22 @@ interface IRecordsParams extends IQueryParams {
   folded: boolean;
 }
 
+const hasAccountFilter = (accountParams: IAccountQueryParams) =>
+  Object.entries(accountParams).some(([key, value]) => {
+    if (key === 'excludeIds') {
+      return false;
+    }
+
+    return Array.isArray(value)
+      ? value.length > 0
+      : value !== undefined && value !== null && value !== '';
+  });
+
 const getAccountIds = async (
   models: IModels,
   params: IQueryParams,
   user: IUserDocument,
 ): Promise<string[] | undefined> => {
-  const dominantUserIds = await models.Configs.getConfigValue(
-    'dominantReadAccountUsers',
-    undefined,
-    [],
-  );
-
-  if (Array.isArray(dominantUserIds) && dominantUserIds?.includes(user._id)) {
-    return;
-  }
-
   const {
     accountIds,
     accountKind,
@@ -111,24 +115,39 @@ const getAccountIds = async (
     accountJournal,
   } = params;
 
+  const accountParams: IAccountQueryParams = {
+    ids: accountIds,
+    kind: accountKind,
+    excludeIds: accountExcludeIds,
+    status: accountStatus,
+    categoryId: accountCategoryId,
+    searchValue: accountSearchValue,
+    brand: accountBrand,
+    isTemp: accountIsTemp,
+    isOutBalance: accountIsOutBalance,
+    branchId: accountBranchId,
+    departmentId: accountDepartmentId,
+    currency: accountCurrency,
+    journal: accountJournal,
+  };
+
+  const dominantUserIds = await models.Configs.getConfigValue(
+    'dominantReadAccountUsers',
+    undefined,
+    [],
+  );
+
+  if (
+    Array.isArray(dominantUserIds) &&
+    dominantUserIds.includes(user._id) &&
+    !hasAccountFilter(accountParams)
+  ) {
+    return;
+  }
+
   const accountFilter: any = await accountGenerateFilter(
     models,
-    {
-      ids: accountIds,
-      kind: accountKind,
-      excludeIds: accountExcludeIds,
-      status: accountStatus,
-      categoryId: accountCategoryId,
-      searchValue: accountSearchValue,
-      brand: accountBrand,
-      isTemp: accountIsTemp,
-      isOutBalance: accountIsOutBalance,
-      branchId: accountBranchId,
-      departmentId: accountDepartmentId,
-      currency: accountCurrency,
-      journal: accountJournal,
-      permissionMode: 'read',
-    },
+    { ...accountParams, permissionMode: 'read' },
     user,
   );
 
@@ -646,7 +665,7 @@ const transactionCommon = {
       pagintationArgs.perPage = ids.length;
     }
 
-    let sort: any = { ptrNumber: -1 };
+    let sort: Record<string, 1 | -1> = { ptrNumber: -1 };
     if (sortField) {
       sort = { [sortField]: sortDirection ?? 1, ptrNumber: -1 };
     }
@@ -667,7 +686,7 @@ const transactionCommon = {
     const { sortField, sortDirection, page, perPage } = params;
     const pageArgs = { page, perPage };
 
-    let sort: any = { ptrNumber: -1 };
+    let sort: Record<string, 1 | -1> = { ptrNumber: -1 };
     if (sortField) {
       sort = { [sortField]: sortDirection ?? 1, ptrNumber: -1 };
     }
@@ -791,7 +810,7 @@ const transactionCommon = {
     const $limit = Number(pageArgs.perPage || '20');
     const $skip = (Number(pageArgs.page || '1') - 1) * $limit;
 
-    let $sort: any = { ptrNumber: -1 };
+    let $sort: Record<string, 1 | -1> = { ptrNumber: -1 };
     if (sortField) {
       $sort = { [sortField]: sortDirection ?? 1, ptrNumber: -1 };
     }

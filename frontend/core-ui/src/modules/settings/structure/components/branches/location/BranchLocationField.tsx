@@ -1,4 +1,4 @@
-import { Label, Skeleton } from 'erxes-ui';
+import { Label, Skeleton, cn } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBranchLocationField } from '../../../hooks/useBranchLocationField';
@@ -13,7 +13,11 @@ const BranchLocationMap = lazy(() =>
   })),
 );
 
-export const BranchLocationField = () => {
+export const BranchLocationField = ({
+  mapClassName,
+}: {
+  mapClassName?: string;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const {
     position,
@@ -30,12 +34,17 @@ export const BranchLocationField = () => {
     <div className="col-span-2 flex flex-col gap-2">
       <Label>{t('location')}</Label>
       <BranchLocationSearch search={search} currentLocation={currentLocation} />
-      <Suspense fallback={<Skeleton className="h-56 w-full rounded-lg" />}>
+      <Suspense
+        fallback={
+          <Skeleton className={cn('h-56 w-full rounded-lg', mapClassName)} />
+        }
+      >
         <BranchLocationMap
           position={position}
           radius={radius}
           fallbackCenter={fallbackCenter}
           onChange={setPosition}
+          className={mapClassName}
         />
       </Suspense>
       <BranchRadiusField radius={radius} onChange={setRadius} />

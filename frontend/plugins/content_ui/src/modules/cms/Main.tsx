@@ -82,6 +82,12 @@ const Settings = lazy(() =>
   })),
 );
 
+const RecordDetail = lazy(() =>
+  import('~/pages/cms/RecordDetailPage').then((module) => ({
+    default: module.RecordDetailPage,
+  })),
+);
+
 const PostsWrapper = () => {
   const { websiteId } = useParams();
   return <Posts clientPortalId={websiteId || ''} />;
@@ -128,7 +134,15 @@ const CmsMain = () => {
             <Route path="custom-types" element={<CustomTypes />} />
             <Route path="custom-fields" element={<CustomFields />} />
             <Route path="cmssettings" element={<Settings />} />
+            <Route
+              path="records/:recordType/:recordId"
+              element={<RecordDetail />}
+            />
           </Route>
+          <Route
+            path="records/:recordType/:recordId"
+            element={<RecordDetail />}
+          />
           <Route path="web-builder/*" element={<WebBuilderPage />} />
         </Routes>
       </Suspense>

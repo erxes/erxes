@@ -1,3 +1,5 @@
+import { normalizeSlaPolicy } from '@/ticket/utils/sla';
+import { scheduleSlaPipelineResync } from '@/ticket/utils/slaQueue';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ChannelMemberRoles } from '@/channel/@types/channel';
@@ -46,6 +48,9 @@ export const pipelineMutations = {
     const pipeline = await models.Pipeline.addPipeline({
       ...params,
       createLayout,
+      ...(params.slaPolicy !== undefined && {
+        slaPolicy: normalizeSlaPolicy(params.slaPolicy),
+      }),
       userId: user._id,
     });
 
@@ -82,9 +87,17 @@ export const pipelineMutations = {
       {
         ...params,
         ...(createLayout !== undefined && { createLayout }),
+        ...(params.slaPolicy !== undefined && {
+          slaPolicy: normalizeSlaPolicy(params.slaPolicy),
+        }),
       },
       user,
     );
+
+    // Open tickets keep the promise the pipeline makes now.
+    if (params.slaPolicy !== undefined) {
+      await scheduleSlaPipelineResync(subdomain, params._id);
+    }
 
     graphqlPubsub.publish(`ticketPipelineChanged:${updatedPipeline?._id}`, {
       ticketPipelineChanged: { type: 'update', pipeline: updatedPipeline },

@@ -31,6 +31,7 @@ import {
   TAutomationTrigger,
 } from 'ui-modules';
 import { AutomationExecutionCountCell } from '@/automations/components/list/AutomationExecutionCountCell';
+import { AutomationRecentRunsStrip } from '@/automations/components/list/AutomationRecentRunsStrip';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
@@ -250,6 +251,16 @@ export const getAutomationColumns: (
       <AutomationExecutionCountCell id={cell.row.original._id} />
     ),
     size: 100,
+  },
+  {
+    id: 'recentRuns',
+    header: () => <RecordTable.InlineHead label={t('history-last-runs')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <AutomationRecentRunsStrip automationId={cell.row.original._id} />
+      </RecordTableInlineCell>
+    ),
+    size: 180,
   },
   {
     id: 'tagIds',

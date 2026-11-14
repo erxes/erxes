@@ -15,8 +15,6 @@ export const erxesMessengerSetupStepAtom = atomWithStorage<number>(
   1,
 );
 
-export const erxesMessengerSetupSheetOpenAtom = atom(false);
-
 export const erxesMessengerSetupEditSheetOpenAtom = atom<false | string>(false);
 
 export const settedIntegrationDetailAtom = atomWithStorage(

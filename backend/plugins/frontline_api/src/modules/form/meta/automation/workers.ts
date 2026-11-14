@@ -1,5 +1,7 @@
 import {
+  AUTOMATION_ERROR_CODES,
   AUTOMATION_UNARY_OPERATORS,
+  buildFailedAction,
   isAutomationConditionMatched,
   sendAutomationTrigger,
 } from 'erxes-api-shared/core-modules';
@@ -11,8 +13,10 @@ import type {
 } from 'erxes-api-shared/core-modules';
 import type { IModels } from '~/connectionResolvers';
 import type { IField } from '@/form/db/definitions/fields';
+import { executeCreateFormLinkAction } from './createFormLinkAction';
 import {
   FORM_ANSWERS_KEY,
+  FORM_LINK_COLLECTION,
   FORM_SUBMISSION_COLLECTION,
   FORM_SUBMITTED_TRIGGER_TYPE,
 } from './constants';
@@ -154,6 +158,29 @@ export const sendFormSubmittedTrigger = (
 };
 
 export const formAutomationWorkers = {
+  receiveActions: async (
+    {
+      action,
+      execution,
+      collectionType,
+    }: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
+    { models, subdomain }: TCoreModuleProducerContext<IModels>,
+  ) => {
+    if (collectionType !== FORM_LINK_COLLECTION) {
+      return buildFailedAction(
+        `Form automations do not handle "${collectionType}"`,
+        AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+      );
+    }
+
+    return await executeCreateFormLinkAction({
+      models,
+      subdomain,
+      action,
+      execution,
+    });
+  },
+
   checkCustomTrigger: ({
     collectionType,
     target,

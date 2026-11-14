@@ -335,6 +335,49 @@ const bridgesQueries = {
 
   // What a save would give, without saving: each line's pricing and loyalty
   // discount, and the bonus products pricing would add.
+  // Scheduled pricing plans for the cart's products and where each stands
+  // now, so the cashier can say why a line is or is not discounted.
+  async poscPricingSchedule(
+    _root,
+    {
+      productIds,
+      customerId,
+      orderId,
+    }: { productIds: string[]; customerId?: string; orderId?: string },
+    { subdomain, models, posUser, config }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const order = orderId
+      ? await models.Orders.findOne(
+          {
+            _id: orderId,
+            $or: [{ posToken: config.token }, { subToken: config.token }],
+          },
+          { createdAt: 1 },
+        ).lean()
+      : undefined;
+
+    if (orderId && !order) {
+      throw new Error('Order not found');
+    }
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'pricing',
+      action: 'scheduleStatus',
+      input: {
+        productIds: [...new Set(productIds)],
+        branchId: config.branchId || '',
+        departmentId: config.departmentId || '',
+        customerId,
+        orderCreatedAt: order?.createdAt?.toISOString(),
+      },
+      defaultValue: [],
+    });
+  },
+
   async poscLoyaltyPreview(
     _root,
     {
@@ -360,10 +403,25 @@ const bridgesQueries = {
   ) {
     assertPosUser(posUser);
 
+    const order = orderId
+      ? await models.Orders.findOne(
+          {
+            _id: orderId,
+            $or: [{ posToken: config.token }, { subToken: config.token }],
+          },
+          { createdAt: 1 },
+        ).lean()
+      : undefined;
+
+    if (orderId && !order) {
+      throw new Error('Order not found');
+    }
+
     const originalByKey = new Map(items.map((item) => [item.key, item]));
     const priced = await checkPricing(
       subdomain,
       {
+        createdAt: order?.createdAt,
         items: items.map(({ key, ...item }) => ({ ...item, _id: key })),
         customerId,
         totalAmount: 0,
@@ -404,14 +462,17 @@ const bridgesQueries = {
                   .map(({ title }) => title)
                   .filter(Boolean)
                   .join(', '),
+                reasons: (discountInfos || []).flatMap(({ type, reasons }) =>
+                  type === 'pricing' ? reasons || [] : [],
+                ),
               },
             ]
           : [];
       },
     );
 
-    // Pricing appends a bonus as a new line; one already in the cart is
-    // discounted in place and shows up in `lines` instead.
+    // Pricing appends each bonus as a separate zero-price line, including
+    // when the same product is already in the cart.
     const bonusItems = doc.items.filter(({ _id }) => !originalByKey.has(_id));
     const products = bonusItems.length
       ? await models.Products.find(

@@ -78,7 +78,7 @@ const FilterTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof Button> & {
     isFiltered?: boolean;
   }
->(({ isFiltered, ...props }, ref) => {
+>(({ isFiltered, className, ...props }, ref) => {
   const { t } = useTranslation();
 
   return (
@@ -90,6 +90,9 @@ const FilterTrigger = React.forwardRef<
               ref={ref}
               variant="ghost"
               size={isFiltered ? 'icon' : 'default'}
+              // Its icon lines up with the page's content, as the first
+              // breadcrumb's does, with or without the label.
+              className={cn(isFiltered ? '-ml-1.5' : '-ml-2 pl-2', className)}
               {...props}
             >
               <IconFilter2 className="w-4 h-4" />
@@ -382,6 +385,7 @@ const FilterDialogStringView = ({
   filterKey: string;
   label?: string;
 }) => {
+  const { t } = useTranslation();
   const { id, setDialogView, setOpenDialog, sessionKey } = useFilterContext();
   const dialogView = useAtomValue(filterDialogViewState(id));
   const [dialogSearch, setDialogSearch] = useState('');
@@ -403,20 +407,25 @@ const FilterDialogStringView = ({
     setOpenDialog(false);
   };
 
-  const displayPlaceholder =
-    label || filterKey.charAt(0).toUpperCase() + filterKey.slice(1);
+  const isSearch = !label && filterKey === 'searchValue';
+  const displayPlaceholder = isSearch
+    ? t('filter.enter-search-text', 'Enter search text')
+    : label || filterKey.charAt(0).toUpperCase() + filterKey.slice(1);
 
   return (
     <Dialog.Content>
       <form onSubmit={onSubmit}>
         <Dialog.Header>
           <Dialog.Title className="font-medium text-lg">
-            Filter by {label || filterKey}...
+            {isSearch
+              ? t('filter.search', 'Search')
+              : `Filter by ${label || filterKey}...`}
           </Dialog.Title>
         </Dialog.Header>
 
         <Input
           placeholder={displayPlaceholder}
+          aria-label={displayPlaceholder}
           className="my-4"
           value={dialogSearch}
           onChange={(e) => setDialogSearch(e.target.value)}

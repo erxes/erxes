@@ -145,7 +145,7 @@ const CreateTmsForm = ({
   }
 
   return (
-    <Sheet.View className="h-full p-0 w-175 md:w-175 sm:max-w-175">
+    <Sheet.View className="p-0 sm:max-w-175">
       {isEditMode ? (
         <Sheet.Header>
           <Sheet.Title>{t('edit-tms')}</Sheet.Title>
@@ -158,19 +158,15 @@ const CreateTmsForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex flex-col w-full h-full"
+          className="flex min-h-0 w-full flex-1 flex-col"
         >
-          <div className="flex flex-col w-full h-full min-h-0">
-            <div className="flex flex-col w-full h-full min-h-0">
-              <TmsInformationFields
-                form={form}
-                onOpenChange={onOpenChange}
-                onSubmit={handleSubmit}
-                isLoading={isLoading}
-                isOpen={isOpen}
-              />
-            </div>
-          </div>
+          <TmsInformationFields
+            form={form}
+            onOpenChange={onOpenChange}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            isOpen={isOpen}
+          />
         </form>
       </Form>
     </Sheet.View>

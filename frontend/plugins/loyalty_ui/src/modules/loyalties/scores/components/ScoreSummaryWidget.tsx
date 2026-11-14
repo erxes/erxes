@@ -24,7 +24,7 @@ import { ScoreStats, useScoreStatistics } from '../hooks/useScoreStatistics';
 import { useRepairOwnerScore } from '../hooks/useRepairOwnerScore';
 import { LoyaltyAccountCard } from '../../accounts/components/LoyaltyAccountCard';
 
-const ScoreStatCards = ({
+export const ScoreStatCards = ({
   stats,
   loading,
 }: {

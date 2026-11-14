@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Dialog as SheetPrimitive } from 'radix-ui';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Button } from './button';
 import { cn } from '../lib/utils';
@@ -11,10 +12,17 @@ const SheetTrigger = React.forwardRef<
 >(({ ...props }, ref) => <SheetPrimitive.Trigger ref={ref} {...props} />);
 SheetTrigger.displayName = SheetPrimitive.Trigger.displayName;
 
+const SheetHeaderActionsContext = React.createContext<React.ReactNode>(null);
+
 const SheetRoot = ({
+  headerActions = null,
   ...props
-}: React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root>) => (
-  <SheetPrimitive.Root {...props} />
+}: React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root> & {
+  headerActions?: React.ReactNode;
+}) => (
+  <SheetHeaderActionsContext.Provider value={headerActions}>
+    <SheetPrimitive.Root {...props} />
+  </SheetHeaderActionsContext.Provider>
 );
 SheetRoot.displayName = SheetPrimitive.Root.displayName;
 
@@ -61,8 +69,7 @@ export const SheetPortal = ({
 SheetPortal.displayName = SheetPrimitive.Portal.displayName;
 
 interface SheetContentProps
-  extends
-    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
 const SheetView = React.forwardRef<
@@ -87,12 +94,19 @@ export const SheetClose = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Close>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Close>
 >(({ asChild, ...props }, ref) => {
+  const { t } = useTranslation();
+
   if (asChild) {
     return <SheetPrimitive.Close ref={ref} {...props} asChild />;
   }
 
   return (
-    <SheetPrimitive.Close ref={ref} {...props} asChild>
+    <SheetPrimitive.Close
+      ref={ref}
+      aria-label={t('close', 'Close')}
+      {...props}
+      asChild
+    >
       <Button
         variant="secondary"
         size="icon"
@@ -107,16 +121,39 @@ SheetClose.displayName = SheetPrimitive.Close.displayName;
 
 const SheetHeader = ({
   className,
+  children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex px-5 h-10 items-center bg-background border-b flex-none',
-      className,
-    )}
-    {...props}
-  />
-);
+}: React.HTMLAttributes<HTMLDivElement>) => {
+  const actions = React.useContext(SheetHeaderActionsContext);
+  const items = React.Children.toArray(children);
+  const close = actions
+    ? items.find(
+        (child) => React.isValidElement(child) && child.type === SheetClose,
+      )
+    : undefined;
+
+  return (
+    <div
+      className={cn(
+        'flex px-5 h-10 items-center bg-background border-b flex-none',
+        className,
+      )}
+      {...props}
+    >
+      {actions ? (
+        <>
+          {items.filter((child) => child !== close)}
+          <div className="ml-auto flex shrink-0 items-center gap-1 [&>button]:ml-0">
+            {actions}
+            {close}
+          </div>
+        </>
+      ) : (
+        children
+      )}
+    </div>
+  );
+};
 SheetHeader.displayName = 'SheetHeader';
 
 const SheetContent = ({

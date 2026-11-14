@@ -179,14 +179,6 @@ export const TaxRowCommonPanelFields = ({
           onSave={(number) => number.trim() && onSave({ number })}
         />
       </PanelField>
-      <PanelField label={t('name')}>
-        <SettingsPanelTextField
-          scope={`${scope}.name`}
-          value={row.name || ''}
-          placeholder={t('name')}
-          onSave={(name) => name.trim() && onSave({ name })}
-        />
-      </PanelField>
       <PanelField label={t('type')}>
         <SettingsPanelSelect
           value={row.kind || ''}

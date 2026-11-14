@@ -1,7 +1,10 @@
+import { IAccountDocument } from '@/accounting/@types/account';
+import { IConfig } from '@/accounting/@types/config';
 import { ACCOUNT_STATUSES } from '@/accounting/@types/constants';
 import {
   ACCOUNT_PERMISSION_SCOPES,
   ACCOUNT_PERMISSION_WRITE_SCOPES,
+  IPermissionDocument,
 } from '@/accounting/@types/permission';
 import {
   ICursorPaginateParams,
@@ -12,8 +15,13 @@ import {
   defaultPaginate,
   escapeRegExp,
 } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 import { validateRequiredId } from '../../validateRequired';
+
+type TAccountFilter = Omit<FilterQuery<IAccountDocument>, '_id'> & {
+  _id?: { $in?: string[]; $nin?: string[] };
+};
 
 export interface IAccountQueryParams {
   ids?: string[];
@@ -25,7 +33,7 @@ export interface IAccountQueryParams {
   page?: number;
   perPage?: number;
   sortField?: string;
-  sortDirection?: number;
+  sortDirection?: 1 | -1;
   isTemp?: boolean;
   isOutBalance?: boolean;
   branchId?: string;
@@ -39,7 +47,7 @@ export interface IAccountQueryParams {
   permissionMode?: 'read' | 'write';
 }
 
-const getConfigUserIds = (config: any) => {
+const getConfigUserIds = (config: Pick<IConfig, 'value'>): string[] => {
   if (Array.isArray(config?.value)) {
     return config.value;
   }
@@ -49,7 +57,7 @@ const getConfigUserIds = (config: any) => {
 
 const applyAccountPermissionFilter = async (
   models: IModels,
-  filter: any,
+  filter: TAccountFilter,
   userId: string,
   permissionMode?: 'read' | 'write',
 ) => {
@@ -77,7 +85,7 @@ const applyAccountPermissionFilter = async (
     return filter;
   }
 
-  const permissionFilter: any = {
+  const permissionFilter: FilterQuery<IPermissionDocument> = {
     userId,
   };
 
@@ -120,6 +128,26 @@ const applyAccountPermissionFilter = async (
   return filter;
 };
 
+export const getAccountCategoryIds = async (
+  models: IModels,
+  categoryId: string,
+): Promise<string[]> => {
+  const category = await models.AccountCategories.getAccountCategory({
+    _id: categoryId,
+    status: { $in: [null, 'active'] },
+  });
+
+  const categories = await models.AccountCategories.find(
+    {
+      order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
+      status: { $in: [null, 'active'] },
+    },
+    { _id: 1 },
+  );
+
+  return categories.map(({ _id }) => _id);
+};
+
 export const generateFilter = async (
   models: IModels,
   params: IAccountQueryParams,
@@ -143,7 +171,7 @@ export const generateFilter = async (
     name,
     permissionMode,
   } = params;
-  const filter: any = {};
+  const filter: TAccountFilter = {};
 
   filter.status = { $ne: ACCOUNT_STATUSES.DELETED };
 
@@ -156,16 +184,9 @@ export const generateFilter = async (
   }
 
   if (categoryId) {
-    const category = await models.AccountCategories.getAccountCategory({
-      _id: categoryId,
-      status: { $in: [null, 'active'] },
-    });
-
-    const accountCategoryIds = await models.AccountCategories.find(
-      { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
-      { _id: 1 },
-    );
-    filter.categoryId = { $in: accountCategoryIds };
+    filter.categoryId = {
+      $in: await getAccountCategoryIds(models, categoryId),
+    };
   } else {
     const notActiveCategories = await models.AccountCategories.find({
       status: { $nin: [null, 'active'] },
@@ -235,11 +256,11 @@ export const generateFilter = async (
     filter.scopeBrandIds = { $in: [brand] };
   }
 
-  if (isTemp !== undefined) {
+  if (typeof isTemp === 'boolean') {
     filter.isTemp = isTemp;
   }
 
-  if (isOutBalance !== undefined) {
+  if (typeof isOutBalance === 'boolean') {
     filter.isOutBalance = isOutBalance;
   }
 
@@ -257,7 +278,7 @@ const accountQueries = {
   async accountsMain(
     _root,
     params: IAccountQueryParams & ICursorPaginateParams,
-    { models, user, commonQuerySelector, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
     const filter = await generateFilter(models, params, user);
@@ -291,7 +312,7 @@ const accountQueries = {
       pagintationArgs.perPage = ids.length;
     }
 
-    let sort: any = { code: 1 };
+    let sort: Record<string, 1 | -1> = { code: 1 };
     if (sortField) {
       sort = { [sortField]: sortDirection ?? 1 };
     }
