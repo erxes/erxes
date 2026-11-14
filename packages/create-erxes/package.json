@@ -1,6 +1,6 @@
 {
   "name": "create-erxes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "Create an erxes plugin for the new core, or migrate an old erxes plugin onto it: pnpm create erxes",
   "license": "MIT",

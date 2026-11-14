@@ -1,6 +1,6 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.1.0-v2.1",
+  "version": "0.1.0-v2.2",
   "private": false,
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",

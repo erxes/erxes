@@ -1,6 +1,6 @@
 {
   "name": "@erxes/plugin-sdk",
-  "version": "0.1.0-v2.1",
+  "version": "0.1.0-v2.2",
   "private": false,
   "description": "For erxes plugin servers: a typed core client with automatic plugin tokens, and verification of members' plugin session tokens",
   "license": "AGPL-3.0-only",
