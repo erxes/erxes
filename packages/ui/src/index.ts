@@ -99,7 +99,7 @@ export { Switch } from './components/switch';
 
 export { Table } from './components/table';
 
-export { Tabs, tabButtonVariants } from './components/tabs';
+export { TabButton, Tabs } from './components/tabs';
 
 export { TextOverflowTooltip } from './components/text-overflow';
 

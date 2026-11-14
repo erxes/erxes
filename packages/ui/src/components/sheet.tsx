@@ -20,7 +20,7 @@ const SheetRoot = ({
 );
 
 const sheetVariants = cva(
-  'fixed z-50 shadow-lg outline-hidden ease-in-out data-closed:duration-200 data-open:duration-200 data-open:animate-in data-closed:animate-out data-open:fade-in-0 data-closed:fade-out-0 data-closed:[animation-fill-mode:forwards] rounded-md bg-muted',
+  'fixed z-50 shadow-lg outline-hidden ease-in-out data-closed:duration-200 data-open:duration-200 data-open:animate-in data-closed:animate-out data-open:fade-in-0 data-closed:fade-out-0 data-closed:animation-forwards rounded-md bg-muted',
   {
     variants: {
       side: {
@@ -28,12 +28,21 @@ const sheetVariants = cva(
         bottom:
           'inset-x-0 bottom-0 border-t data-closed:slide-out-to-bottom-full data-open:slide-in-from-bottom-full',
         left: 'inset-y-0 left-0 h-full flex flex-col w-3/4 border-r data-closed:slide-out-to-left-full data-open:slide-in-from-left-full sm:max-w-md',
+        // Floats 0.5rem in from the viewport's edges, full width on phones.
         right:
-          'inset-y-2 right-2 flex flex-col h-[calc(100dvh-1rem)] w-[calc(100vw-(--spacing(4)))] md:w-3/4 data-closed:slide-out-to-right-full data-open:slide-in-from-right-full overflow-hidden sm:max-w-md',
+          'inset-y-2 right-2 max-sm:left-2 flex flex-col data-closed:slide-out-to-right-full data-open:slide-in-from-right-full overflow-hidden',
       },
+      // A right sheet's width from the sm breakpoint.
+      size: { md: '', lg: '', xl: '' },
     },
+    compoundVariants: [
+      { side: 'right', size: 'md', className: 'sm:w-md' },
+      { side: 'right', size: 'lg', className: 'sm:w-lg' },
+      { side: 'right', size: 'xl', className: 'sm:w-xl' },
+    ],
     defaultVariants: {
       side: 'right',
+      size: 'md',
     },
   },
 );
@@ -43,7 +52,7 @@ const SheetBackdrop = ({ className, ...props }: SheetPrimitive.Backdrop.Props) =
   <SheetPrimitive.Backdrop
     forceRender
     className={cn(
-      'fixed inset-0 z-50 bg-black/25 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-open:duration-200 data-closed:duration-200 data-closed:[animation-fill-mode:forwards]',
+      'fixed inset-0 z-50 bg-black/25 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-open:duration-200 data-closed:duration-200 data-closed:animation-forwards',
       className,
     )}
     {...props}
@@ -53,12 +62,13 @@ const SheetBackdrop = ({ className, ...props }: SheetPrimitive.Backdrop.Props) =
 /** The backdrop fades in under the panel, which slides in from its side and fades with it. */
 const SheetView = ({
   side = 'right',
+  size,
   className,
   ...props
 }: SheetPrimitive.Popup.Props & VariantProps<typeof sheetVariants>) => (
   <SheetPrimitive.Portal>
     <SheetBackdrop />
-    <SheetPrimitive.Popup className={cn(sheetVariants({ side }), className)} {...props} />
+    <SheetPrimitive.Popup className={cn(sheetVariants({ side, size }), className)} {...props} />
   </SheetPrimitive.Portal>
 );
 

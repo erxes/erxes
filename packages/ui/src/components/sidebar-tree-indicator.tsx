@@ -106,13 +106,12 @@ export const SidebarTreeIndicator = ({
     <Element
       aria-hidden
       className={cn(
-        'pointer-events-none absolute top-0 -left-[1.5px] w-0.5 list-none rounded-full bg-primary will-change-transform',
-        animate &&
-          'transition-transform duration-300 ease-out-quint motion-reduce:transition-none',
+        'pointer-events-none absolute top-0 -left-0.5 h-(--indicator-height) w-0.5 translate-y-(--indicator-top) list-none rounded-full bg-primary will-change-transform',
+        animate && 'transition-transform duration-300 ease-out-quint motion-reduce:transition-none',
       )}
       style={{
-        height: position.height - 8,
-        transform: `translateY(${position.top + 4}px)`,
+        '--indicator-height': `${position.height - 8}px`,
+        '--indicator-top': `${position.top + 4}px`,
       }}
     />
   );

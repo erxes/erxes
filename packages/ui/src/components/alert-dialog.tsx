@@ -2,6 +2,7 @@ import React, { createContext, use, useRef, type RefObject } from 'react';
 
 import { AlertDialog as AlertDialogPrimitive } from '@base-ui/react/alert-dialog';
 
+import type { VariantProps } from 'class-variance-authority';
 import { buttonVariants } from './button';
 import { cn } from '../lib/utils';
 
@@ -61,14 +62,21 @@ const AlertDialogDescription = ({
 );
 
 /** Both buttons close the dialog; Action is the primary one. */
-const AlertDialogAction = ({ className, ...props }: AlertDialogPrimitive.Close.Props) => (
-  <AlertDialogPrimitive.Close className={cn(buttonVariants(), className)} {...props} />
+type AlertDialogButtonProps = AlertDialogPrimitive.Close.Props &
+  Pick<VariantProps<typeof buttonVariants>, 'variant'>;
+
+const AlertDialogAction = ({ className, variant, ...props }: AlertDialogButtonProps) => (
+  <AlertDialogPrimitive.Close className={cn(buttonVariants({ variant }), className)} {...props} />
 );
 
-const AlertDialogCancel = ({ className, ...props }: AlertDialogPrimitive.Close.Props) => (
+const AlertDialogCancel = ({
+  className,
+  variant = 'outline',
+  ...props
+}: AlertDialogButtonProps) => (
   <AlertDialogPrimitive.Close
     ref={use(CancelRefContext)}
-    className={cn(buttonVariants({ variant: 'outline' }), 'mt-2 sm:mt-0', className)}
+    className={cn(buttonVariants({ variant }), 'mt-2 sm:mt-0', className)}
     {...props}
   />
 );

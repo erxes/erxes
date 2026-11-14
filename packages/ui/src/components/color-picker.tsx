@@ -106,8 +106,8 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
             type="button"
             aria-label={key}
             aria-pressed={value === color}
-            className="aspect-3/2 rounded flex items-center justify-center cursor-pointer hover:scale-105 transition-transform focus-visible:shadow-focus outline-hidden"
-            style={{ backgroundColor: color }}
+            className="aspect-3/2 rounded flex items-center justify-center cursor-pointer bg-(--swatch) hover:scale-105 transition-transform focus-visible:shadow-focus outline-hidden"
+            style={{ '--swatch': color }}
             onClick={() => {
               onValueChange?.(color);
               setOpen?.(false);
@@ -118,8 +118,8 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
         ))}
         <div className="relative col-span-5">
           <div
-            className="absolute size-7 rounded-[3px] top-0.5 left-0.5 flex items-center justify-center text-primary-foreground"
-            style={{ backgroundColor: value }}
+            className="absolute size-7 rounded-xs top-0.5 left-0.5 flex items-center justify-center bg-(--swatch) text-primary-foreground"
+            style={{ '--swatch': value }}
           >
             <input
               type="color"
@@ -176,8 +176,11 @@ const ColorPickerRoot = ({
     >
       <ColorPickerTrigger ref={ref} className={className} {...props}>
         <div
-          className={cn('h-full w-full rounded shadow-inner', !value && 'bg-primary')}
-          style={{ backgroundColor: value }}
+          className={cn(
+            'h-full w-full rounded shadow-inner',
+            value ? 'bg-(--swatch)' : 'bg-primary',
+          )}
+          style={{ '--swatch': value }}
         />
         <IconChevronDown />
       </ColorPickerTrigger>

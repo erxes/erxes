@@ -65,7 +65,7 @@ const SelectDropdown = ({
     <Select.Trigger className="w-fit font-medium flex-none">
       <Select.Value className="gap-1" />
     </Select.Trigger>
-    <Select.Content className="max-h-[min(26rem,var(--available-height))]">
+    <Select.Content className="max-h-popup">
       {options?.map((option) => (
         <Select.Item key={option.value} value={String(option.value)} disabled={option.disabled}>
           {option.label}

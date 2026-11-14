@@ -88,7 +88,7 @@ const DropdownMenuContent = ({
     sideOffset={sideOffset}
     align={align}
     className={cn(
-      'min-w-[300px] overflow-hidden rounded-lg bg-background p-1 text-sm shadow-lg outline-hidden',
+      'min-w-75 overflow-hidden rounded-lg bg-background p-1 text-sm shadow-lg outline-hidden',
       popupAnimation,
       className,
     )}

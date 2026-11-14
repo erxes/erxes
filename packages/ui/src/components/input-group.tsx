@@ -12,9 +12,8 @@ import { cn } from 'erxes-ui/lib/utils';
  */
 const InputGroupRoot = ({ className, ...props }: React.ComponentProps<'div'>) => (
   <div
-    role="group"
     className={cn(
-      'group/input-group relative flex h-7 w-full min-w-0 items-center rounded-sm bg-background shadow-xs transition-[color,box-shadow] has-[>textarea]:h-auto has-[>:is(input,textarea):focus-visible]:shadow-focus has-[>:is(input,textarea):disabled]:opacity-50',
+      'group/input-group relative flex h-7 w-full min-w-0 items-center rounded-sm bg-background shadow-xs transition has-[>textarea]:h-auto has-[>:is(input,textarea):focus-visible]:shadow-focus has-[>:is(input,textarea):disabled]:opacity-50',
       // The addon takes the field's padding on its side.
       'has-[>[data-align=start]]:[&>:is(input,textarea)]:pl-1.5 has-[>[data-align=end]]:[&>:is(input,textarea)]:pr-1.5',
       className,

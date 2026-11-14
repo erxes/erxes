@@ -6,7 +6,7 @@ import { fieldTextVariants } from './input';
 import { cn } from 'erxes-ui/lib/utils';
 
 const textareaVariants = cva(
-  'flex min-h-[60px] w-full rounded bg-transparent px-3 py-1.5 text-sm shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50',
+  'flex min-h-15 w-full rounded bg-transparent px-3 py-1.5 text-sm shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {

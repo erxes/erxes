@@ -70,10 +70,7 @@ const SelectTrigger = ({
   variant,
   ...props
 }: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>) => (
-  <SelectPrimitive.Trigger
-    className={cn(selectTriggerVariants({ variant }), className)}
-    {...props}
-  >
+  <SelectPrimitive.Trigger className={cn(selectTriggerVariants({ variant }), className)} {...props}>
     {children}
     <IconChevronDown aria-hidden className="w-4 h-4 opacity-50" />
   </SelectPrimitive.Trigger>
@@ -98,7 +95,7 @@ const SelectContent = ({
       >
         <SelectPrimitive.Popup
           className={cn(
-            'relative max-h-[min(24rem,var(--available-height))] min-w-32 overflow-hidden flex flex-col rounded-md bg-background shadow-lg data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+            'relative max-h-popup min-w-32 overflow-hidden flex flex-col rounded-md bg-background shadow-lg data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
             'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
             className,
           )}
@@ -107,7 +104,7 @@ const SelectContent = ({
           <SelectPrimitive.ScrollUpArrow className="flex cursor-default items-center justify-center py-1">
             <IconChevronUp className="w-4 h-4" />
           </SelectPrimitive.ScrollUpArrow>
-          <SelectPrimitive.List className="max-h-[inherit] w-full min-w-(--anchor-width) overflow-y-auto p-1">
+          <SelectPrimitive.List className="max-h-inherit w-full min-w-(--anchor-width) overflow-y-auto p-1">
             {children}
           </SelectPrimitive.List>
           <SelectPrimitive.ScrollDownArrow className="flex cursor-default items-center justify-center py-1">

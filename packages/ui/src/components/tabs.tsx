@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
+import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 
@@ -66,18 +67,20 @@ const tabsContentVariants = cva('focus-visible:outline-hidden', {
  * their own semantics. `pill` fills the open tab; `raised` lifts it onto the background, as the
  * app tabs in the top bar do.
  */
-export const tabButtonVariants = cva(
+const tabButtonVariants = cva(
   'flex h-7 shrink-0 items-center gap-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         pill: 'px-2 transition-colors outline-none hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring/50 data-popup-open:bg-accent/60 [&_svg]:size-4',
         raised:
-          'cursor-default select-none border border-transparent pl-2.5 pr-1 font-medium transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70',
+          'cursor-default select-none border border-transparent pl-2.5 pr-1 font-medium transition hover:bg-accent/70',
       },
       active: { true: 'text-foreground' },
       /** Lifted while it is dragged to a new place. */
       dragging: { true: 'z-10 opacity-60' },
+      /** Holds its own button and a menu button, side by side. */
+      split: { true: 'gap-0' },
     },
     compoundVariants: [
       { variant: 'pill', active: true, className: 'bg-accent font-medium hover:bg-accent' },
@@ -86,6 +89,25 @@ export const tabButtonVariants = cva(
     defaultVariants: { variant: 'pill' },
   },
 );
+
+/** A tab-like button outside a tab list; `render` swaps the element, as menu triggers do. */
+export const TabButton = ({
+  render,
+  variant,
+  active,
+  dragging,
+  split,
+  className,
+  ...props
+}: useRender.ComponentProps<'button'> & VariantProps<typeof tabButtonVariants>) =>
+  useRender({
+    defaultTagName: 'button',
+    render,
+    props: {
+      ...props,
+      className: cn(tabButtonVariants({ variant, active, dragging, split }), className),
+    },
+  });
 
 type TTabsVariant = VariantProps<typeof tabsListVariants>['variant'];
 

@@ -1,17 +1,13 @@
 import React from 'react';
 import { z } from 'zod';
 
-/** CSS selector prefix per theme. */
-export const THEMES = { light: '', dark: '.dark' } as const;
-
+/** A series' colour is a theme colour, such as `var(--chart-1)`, so it follows light and dark. */
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode;
     icon?: React.ComponentType;
-  } & (
-    | { color?: string; theme?: never }
-    | { color?: never; theme: Record<keyof typeof THEMES, string> }
-  );
+    color?: string;
+  };
 };
 
 export const ChartContext = React.createContext<{ config: ChartConfig } | null>(null);

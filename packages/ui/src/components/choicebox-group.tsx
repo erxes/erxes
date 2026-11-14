@@ -66,7 +66,7 @@ const ChoiceboxItem = ({
       />
       <div
         className={cn(
-          'w-full h-full rounded-sm border border-transparent peer-data-checked:border-primary peer-data-checked:bg-primary/10 peer-data-checked:text-primary-text  p-3 flex-col gap-[6px] flex',
+          'w-full h-full rounded-sm border border-transparent peer-data-checked:border-primary peer-data-checked:bg-primary/10 peer-data-checked:text-primary-text  p-3 flex-col gap-1.5 flex',
           className,
         )}
       >

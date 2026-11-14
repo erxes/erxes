@@ -47,7 +47,12 @@ const ComboboxTriggerBase = ({
   );
 };
 
-const ComboboxTrigger = ({ ref, children, hideChevron = false, ...props }: ComboboxTriggerProps) => {
+const ComboboxTrigger = ({
+  ref,
+  children,
+  hideChevron = false,
+  ...props
+}: ComboboxTriggerProps) => {
   return (
     <ComboboxTriggerBase {...props} ref={ref}>
       {children}

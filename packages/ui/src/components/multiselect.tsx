@@ -53,7 +53,7 @@ const SelectorField = ({
         {value.map((option) => (
           <Combobox.Chip
             key={option.value}
-            className="animate-fadeIn relative inline-flex h-7 cursor-default items-center rounded-md border border-solid bg-background pe-7 pl-2 ps-2 text-xs font-medium text-secondary-foreground transition-all hover:bg-background data-disabled:cursor-not-allowed data-disabled:opacity-50"
+            className="relative inline-flex h-7 cursor-default items-center rounded-md border border-solid bg-background pe-7 pl-2 ps-2 text-xs font-medium text-secondary-foreground transition-all hover:bg-background data-disabled:cursor-not-allowed data-disabled:opacity-50"
           >
             {option.label}
             <Combobox.ChipRemove

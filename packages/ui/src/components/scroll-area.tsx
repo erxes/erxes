@@ -43,12 +43,10 @@ const ScrollAreaViewport = ({
   ...props
 }: ScrollAreaPrimitive.Viewport.Props) => (
   <ScrollAreaPrimitive.Viewport
-    className={cn('h-full w-full rounded-[inherit]', className)}
+    className={cn('h-full w-full rounded-inherit', className)}
     {...props}
   >
-    <ScrollAreaPrimitive.Content style={{ minWidth: '100%', display: 'table' }}>
-      {children}
-    </ScrollAreaPrimitive.Content>
+    <ScrollAreaPrimitive.Content>{children}</ScrollAreaPrimitive.Content>
   </ScrollAreaPrimitive.Viewport>
 );
 

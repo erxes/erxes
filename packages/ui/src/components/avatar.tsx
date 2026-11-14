@@ -6,8 +6,20 @@ import { cva } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
 
-const avatarVariants = cva('relative flex shrink-0 overflow-hidden rounded-full border-0', {
+// The size sets the initials' text size; a screen may resize the avatar itself.
+const avatarVariants = cva('relative flex shrink-0 overflow-hidden border-0', {
   variants: {
+    corners: {
+      circle: 'rounded-full',
+      // A person's own avatar: the account menu, a note's author.
+      square: 'rounded-md',
+    },
+    // A ring of the page background, cutting the avatar out of what it overlaps: the next
+    // avatar in a stack (sm), or a timeline's rail (lg).
+    ring: {
+      sm: 'bg-background ring-2 ring-background',
+      lg: 'bg-background ring-4 ring-background',
+    },
     size: {
       xs: 'size-3 text-4xs',
       sm: 'size-3.5 text-3xs',
@@ -17,6 +29,7 @@ const avatarVariants = cva('relative flex shrink-0 overflow-hidden rounded-full 
     },
   },
   defaultVariants: {
+    corners: 'circle',
     size: 'default',
   },
 });
@@ -24,8 +37,11 @@ const avatarVariants = cva('relative flex shrink-0 overflow-hidden rounded-full 
 export type AvatarProps = React.ComponentProps<typeof AvatarPrimitive.Root> &
   VariantProps<typeof avatarVariants>;
 
-const AvatarRoot = ({ className, size, ...props }: AvatarProps) => (
-  <AvatarPrimitive.Root className={cn(avatarVariants({ className, size }), className)} {...props} />
+const AvatarRoot = ({ className, corners, ring, size, ...props }: AvatarProps) => (
+  <AvatarPrimitive.Root
+    className={cn(avatarVariants({ corners, ring, size }), className)}
+    {...props}
+  />
 );
 
 const AvatarImage = ({
@@ -46,7 +62,7 @@ const AvatarFallback = ({
   return (
     <AvatarPrimitive.Fallback
       className={cn(
-        'flex h-full w-full items-center justify-center rounded-full uppercase bg-muted text-muted-foreground',
+        'flex h-full w-full items-center justify-center uppercase bg-muted text-muted-foreground',
         className,
       )}
       {...props}
