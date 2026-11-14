@@ -102,7 +102,7 @@ export const ItemsPage = () => {
             </RecordTable>
           </RecordTable.CursorProvider>
           {!isPending && !list.length && (
-            <Empty className="absolute inset-x-0 top-[25%]">
+            <Empty className="absolute inset-x-0 top-1/4">
               <Empty.Header>
                 <Empty.Title>{t('empty', 'No items yet')}</Empty.Title>
               </Empty.Header>

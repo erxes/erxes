@@ -46,6 +46,7 @@ const list = reads(PERMISSIONS.view)
     const after = input.cursor
       ? sql`(${items.createdAt}, ${items.id}) < (select created_at, id from ${items} where id = ${input.cursor})`
       : undefined;
+
     const rows = await tx
       .select(columns)
       .from(items)
@@ -54,6 +55,7 @@ const list = reads(PERMISSIONS.view)
       )
       .orderBy(desc(items.createdAt), desc(items.id))
       .limit(input.limit + 1);
+
     const page = rows.slice(0, input.limit);
 
     return {
