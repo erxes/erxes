@@ -1,6 +1,6 @@
 {
   "name": "@erxes/ui",
-  "version": "4.0.0-v2.0",
+  "version": "4.0.0-v2.1",
   "private": false,
   "description": "erxes design system: UI primitives, layout, hooks and shared frontend state",
   "license": "AGPL-3.0-only",
