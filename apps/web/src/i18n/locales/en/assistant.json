@@ -199,6 +199,17 @@
     "approval-writes-description": "The assistant asks before it creates, edits or deletes anything.",
     "approval-destructive": "Before risky changes only",
     "approval-destructive-description": "It asks before deleting, merging, archiving, publishing or sending. Other edits go ahead.",
-    "approval-saved": "Saved"
+    "approval-saved": "Saved",
+    "code-mode-title": "Assistant code mode",
+    "code-mode-intro": "This applies to every member. Off by default.",
+    "code-mode-label": "Let the assistant run code",
+    "code-mode-description": "For questions over many records, the assistant writes a short program that reads through the API and computes totals, shares and comparisons, then answers with the result.",
+    "code-mode-on": "Code mode is on",
+    "code-mode-off": "Code mode is off",
+    "code-mode-limits": "What a program can do",
+    "code-mode-fact-api": "Only search and call the API, as the member who asked and within their role.",
+    "code-mode-fact-approval": "Changes that need approval are refused inside a program: the assistant asks for them in the chat.",
+    "code-mode-fact-time": "It stops after 10 seconds or 50 API calls, and returns at most 20,000 characters.",
+    "code-mode-fact-sandbox": "It runs in an isolated JavaScript sandbox on this server, with 32 MB of memory and no network, files or timers."
   }
 }

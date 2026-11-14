@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-do
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { AssistantApprovalsPage } from './assistant/AssistantApprovalsPage';
+import { AssistantCodeModePage } from './assistant/AssistantCodeModePage';
 import { AssistantKeysPage } from './assistant/AssistantKeysPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
@@ -55,6 +56,7 @@ export const SettingsRoutes = () => (
       <Route path="security" element={<SecuritySettingsPage />} />
       <Route path="assistant" element={<AssistantKeysPage />} />
       <Route path="assistant-approvals" element={<AssistantApprovalsPage />} />
+      <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

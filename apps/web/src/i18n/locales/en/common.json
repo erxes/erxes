@@ -116,7 +116,8 @@
     "settings": "Settings",
     "contacts-settings": "Contacts settings",
     "assistant": "Assistant",
-    "assistant-approvals": "Assistant approvals"
+    "assistant-approvals": "Assistant approvals",
+    "assistant-code-mode": "Assistant code mode"
   },
   "auth": {
     "welcome": "Welcome",

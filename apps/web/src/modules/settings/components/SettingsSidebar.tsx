@@ -10,6 +10,7 @@ import {
   IconShieldCheck,
   IconShieldHalf,
   IconShieldQuestion,
+  IconCode,
   IconSparkles,
   IconTrash,
   IconCreditCard,
@@ -62,6 +63,11 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
             name: t('assistant-approvals', 'Assistant approvals'),
             path: 'assistant-approvals',
             icon: IconShieldQuestion,
+          },
+          {
+            name: t('assistant-code-mode', 'Assistant code mode'),
+            path: 'assistant-code-mode',
+            icon: IconCode,
           },
         ]
       : []),
