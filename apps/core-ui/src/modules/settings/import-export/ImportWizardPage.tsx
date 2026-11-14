@@ -114,7 +114,7 @@ export const ImportWizardPage = () => {
     return <p className="py-12 text-center text-sm text-destructive">{messageOf(query.error)}</p>;
   }
 
-  if (!imp) return <Spinner containerClassName="py-12" />;
+  if (!imp) return <Spinner area="lg" />;
 
   const editable = imp.status === 'mapping' || imp.status === 'checked';
   const noun = t(`noun.${imp.recordType}`, NOUNS[imp.recordType]);

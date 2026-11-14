@@ -44,7 +44,7 @@ const When = ({ value }: { value: string }) => (
 );
 
 const Nothing = ({ icon: Icon, title }: { icon: typeof IconFileImport; title: string }) => (
-  <Empty className="py-12">
+  <Empty>
     <Empty.Header>
       <Empty.Media variant="icon">
         <Icon />

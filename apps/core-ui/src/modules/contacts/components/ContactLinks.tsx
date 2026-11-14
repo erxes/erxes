@@ -210,7 +210,7 @@ export const ContactLinks = ({ side, id }: { side: ContactSide; id: string }) =>
     <QueryState
       query={query}
       className="justify-start p-2"
-      loading={<Spinner containerClassName="h-8 justify-start px-2" size="sm" />}
+      loading={<Spinner containerClassName="h-8 justify-start" size="sm" />}
     >
       {(rows) => (
         <div className="flex flex-col">

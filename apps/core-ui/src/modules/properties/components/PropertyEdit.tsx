@@ -34,7 +34,7 @@ export const PropertyEdit = ({ contentType }: { contentType: FieldContentType })
   }
 
   if (loading || (field && usage.isPending && usage.fetchStatus !== 'idle')) {
-    return <Spinner containerClassName="py-12" />;
+    return <Spinner area="lg" />;
   }
 
   if (!field) {

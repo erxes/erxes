@@ -8,9 +8,16 @@ const spinnerVariants = cva('flex-col items-center justify-center flex-auto h-fu
       true: 'flex',
       false: 'hidden',
     },
+    /** Room around a spinner that stands in for a section (`sm`) or a page or panel body (`lg`). */
+    area: {
+      none: '',
+      sm: 'py-6',
+      lg: 'py-12',
+    },
   },
   defaultVariants: {
     show: true,
+    area: 'none',
   },
 });
 
@@ -121,20 +128,21 @@ const WaitingBot = ({ className }: { className?: string }) => (
 export function Spinner({
   size,
   show,
+  area,
   className,
   containerClassName,
   withMascot,
 }: SpinnerContentProps) {
   if (withMascot) {
     return (
-      <div className={cn(spinnerVariants({ show }), containerClassName)}>
+      <div className={cn(spinnerVariants({ show, area }), containerClassName)}>
         <WaitingBot className={className} />
       </div>
     );
   }
 
   return (
-    <div className={cn(spinnerVariants({ show }), containerClassName)}>
+    <div className={cn(spinnerVariants({ show, area }), containerClassName)}>
       <div className={cn(loaderVariants({ size }), className)}>
         <div className="relative size-full left-1/2 top-1/2">
           {SPOKES.map((i) => (

@@ -46,7 +46,7 @@ export const CustomFieldSections = ({
 
   if (error) return <p className="px-2 py-6 text-sm text-destructive">{messageOf(error)}</p>;
 
-  if (loading || !values) return <Spinner containerClassName="py-6" />;
+  if (loading || !values) return <Spinner area="sm" />;
 
   if (sections.length === 0) return empty;
 

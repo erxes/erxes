@@ -44,7 +44,7 @@ const NotificationsEmpty = ({ unreadOnly }: { unreadOnly: boolean }) => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications' });
 
   return (
-    <Empty className="py-10">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconBell />
@@ -94,7 +94,7 @@ export const NotificationList = ({
 
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));
 
-  if (loading) return <Spinner containerClassName="py-10" />;
+  if (loading) return <Spinner area="lg" />;
 
   if (error) {
     return <p className="px-4 py-10 text-center text-sm text-destructive">{messageOf(error)}</p>;

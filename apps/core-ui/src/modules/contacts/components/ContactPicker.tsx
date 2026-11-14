@@ -59,7 +59,7 @@ const RelationChip = ({
   </button>
 );
 
-const ChipSkeleton = () => <Skeleton className="h-5 w-20 rounded-sm" />;
+const ChipSkeleton = () => <Skeleton radius="sm" className="h-5 w-20" />;
 
 const CustomerChip = ({ id, onOpen }: { id: string; onOpen: () => void }) => {
   const { data: customer, isPending } = useCustomer(id);

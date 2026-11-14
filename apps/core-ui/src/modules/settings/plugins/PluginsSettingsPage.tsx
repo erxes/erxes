@@ -163,7 +163,7 @@ export const PluginsSettingsPage = () => {
   const plugins = useQuery(orpc.plugins.list.queryOptions());
 
   const empty = (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconApps />

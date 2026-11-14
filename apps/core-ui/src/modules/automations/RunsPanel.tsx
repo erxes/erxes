@@ -172,7 +172,7 @@ const NoRuns = () => {
   const { t } = useTranslation('automations');
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Title>{t('no-runs', 'No runs yet')}</Empty.Title>
         <Empty.Description>

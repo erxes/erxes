@@ -210,7 +210,7 @@ const NoAutomations = () => {
   const { t } = useTranslation('automations');
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconBolt />

@@ -153,7 +153,7 @@ export const StageColumn = memo(function StageColumn({
       <div className="styled-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
         {query.isPending &&
           CARD_SKELETONS.map((key) => (
-            <Skeleton key={key} className="h-[92px] shrink-0 rounded-lg" />
+            <Skeleton key={key} radius="lg" className="h-[92px] shrink-0" />
           ))}
         {query.error && <p className="p-2 text-xs text-destructive">{messageOf(query.error)}</p>}
         {leads.map((lead) => (
@@ -170,7 +170,7 @@ export const StageColumn = memo(function StageColumn({
           </div>
         )}
         <div ref={sentinel} className="h-px shrink-0" />
-        {query.isFetchingNextPage && <Skeleton className="h-[92px] shrink-0 rounded-lg" />}
+        {query.isFetchingNextPage && <Skeleton radius="lg" className="h-[92px] shrink-0" />}
       </div>
     </section>
   );

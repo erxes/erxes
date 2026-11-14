@@ -185,7 +185,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   const { data: customer, isPending } = useCustomer(customerId);
   const edit = useCustomerEdit();
 
-  if (isPending) return <Spinner containerClassName="py-12" />;
+  if (isPending) return <Spinner area="lg" />;
 
   if (!customer) return null;
 

@@ -137,7 +137,7 @@ const CompanyFields = ({ company }: { company: Company }) => {
 export const CompanyPanelDetail = ({ companyId }: { companyId: string }) => {
   const { data: company, isPending } = useCompany(companyId);
 
-  if (isPending) return <Spinner containerClassName="py-12" />;
+  if (isPending) return <Spinner area="lg" />;
 
   if (!company) return null;
 

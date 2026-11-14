@@ -67,7 +67,7 @@ const NoWebhooks = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconWebhook />

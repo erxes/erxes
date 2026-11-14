@@ -142,7 +142,7 @@ const EmptyBin = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'recycle-bin' });
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconTrash />

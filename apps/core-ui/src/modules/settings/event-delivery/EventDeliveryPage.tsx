@@ -144,7 +144,7 @@ const NoFailures = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'event-delivery' });
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconPlugConnected />

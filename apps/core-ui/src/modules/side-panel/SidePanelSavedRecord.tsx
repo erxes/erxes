@@ -87,7 +87,7 @@ const useRecordHeading = ({ contentType, contentId }: TRelationEntity) => {
     // Still loading: placeholders, never the raw content type.
     return {
       title: <Skeleton className="h-4 w-32" />,
-      avatar: <Skeleton className="size-7 flex-none rounded-full" />,
+      avatar: <Skeleton radius="circle" className="size-7 flex-none" />,
     };
   }
 

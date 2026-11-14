@@ -78,7 +78,7 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Fiel
         {error ? (
           <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
         ) : loading ? (
-          <Spinner containerClassName="py-12" />
+          <Spinner area="lg" />
         ) : groups.length === 0 && ungrouped.length === 0 ? (
           <div className="py-12 text-center text-muted-foreground">
             {t('no-groups-found', 'No field groups found')}

@@ -34,7 +34,7 @@ const useMemberHeading = (user: User | undefined, loading: boolean) => {
     return {
       plainTitle,
       title: plainTitle,
-      avatar: loading ? <Skeleton className="size-7 flex-none rounded-full" /> : undefined,
+      avatar: loading ? <Skeleton radius="circle" className="size-7 flex-none" /> : undefined,
     };
   }
 
@@ -120,7 +120,7 @@ export const MemberDetail = ({
 
   let body: ReactNode = <MemberDetailEmptyState />;
 
-  if (isPending) body = <Spinner containerClassName="py-12" />;
+  if (isPending) body = <Spinner area="lg" />;
   else if (error && !isApiError(error, 'NOT_FOUND')) {
     body = <MemberDetailErrorState message={messageOf(error)} />;
   } else if (user) {

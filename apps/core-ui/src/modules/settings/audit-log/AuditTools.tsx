@@ -132,7 +132,7 @@ export const IntegrityCheck = () => {
         ) : verify.data ? (
           <VerifyResult result={verify.data} />
         ) : (
-          <Spinner containerClassName="py-4" />
+          <Spinner area="sm" />
         )}
       </Popover.Content>
     </Popover>

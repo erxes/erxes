@@ -46,7 +46,7 @@ const NothingRecorded = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
 
   return (
-    <Empty className="py-12">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconShieldCheck />

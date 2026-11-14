@@ -131,7 +131,7 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
         </ScrollArea>
         <div className="mt-3 w-full flex gap-3 justify-end">
           <Button type="submit" disabled={sending}>
-            {sending ? <Spinner size="sm" className="stroke-white" /> : <IconSend size={16} />}
+            {sending ? <Spinner size="sm" /> : <IconSend size={16} />}
             {t('send-invites')}
           </Button>
         </div>
