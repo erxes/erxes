@@ -17,6 +17,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./activities": "./src/activities.ts",
+    "./assistant": "./src/assistant.ts",
     "./audit": "./src/audit.ts",
     "./auth": "./src/auth.ts",
     "./automationDefinition": "./src/automationDefinition.ts",
@@ -53,6 +54,7 @@
     "exports": {
       ".": "./dist/index.js",
       "./activities": "./dist/activities.js",
+      "./assistant": "./dist/assistant.js",
       "./audit": "./dist/audit.js",
       "./auth": "./dist/auth.js",
       "./automationDefinition": "./dist/automationDefinition.js",

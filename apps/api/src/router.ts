@@ -1,4 +1,5 @@
 import { activitiesRouter } from '~/modules/activities/activities.router';
+import { assistantRouter } from '~/modules/assistant/assistant.router';
 import { auditRouter } from '~/modules/audit/audit.router';
 import { eventsRouter } from '~/modules/events/events.router';
 import { filesRouter } from '~/modules/files/files.router';
@@ -30,6 +31,7 @@ import { unscoped } from '~/orpc';
 /** Implements `@erxes/core-contract`; inputs are already validated by its schemas. */
 export const coreRouter = unscoped.router({
   activities: activitiesRouter,
+  assistant: assistantRouter,
   audit: auditRouter,
   events: eventsRouter,
   files: filesRouter,

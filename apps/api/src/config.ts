@@ -131,6 +131,11 @@ const Env = z
 
     OUTBOUND_ALLOW_PRIVATE: flag,
 
+    ASSISTANT_OPENAI_URL: baseUrl('https://api.openai.com/v1'),
+    ASSISTANT_GROK_URL: baseUrl('https://api.x.ai/v1'),
+    ASSISTANT_KIMI_URL: baseUrl('https://api.moonshot.ai/v1'),
+    ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
+
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
     SAAS_PLATFORM_TOKEN: text,
@@ -352,6 +357,14 @@ export const config = {
     graceDays: env.SAAS_GRACE_DAYS,
     /** Where owners manage the subscription; `{subdomain}` is replaced. */
     billingUrl: env.SAAS_BILLING_URL ?? 'https://erxes.io/organizations',
+  },
+  assistant: {
+    endpoints: {
+      openai: env.ASSISTANT_OPENAI_URL,
+      grok: env.ASSISTANT_GROK_URL,
+      kimi: env.ASSISTANT_KIMI_URL,
+      'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
+    },
   },
   /** Secret → plugin name. */
   pluginKeys: env.CORE_PLUGIN_KEYS,

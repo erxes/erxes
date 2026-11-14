@@ -356,6 +356,315 @@
           "id"
         ]
       },
+      "AssistantChatRequest": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "message": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[\\w-]{1,64}$"
+              },
+              "role": {
+                "enum": [
+                  "user",
+                  "assistant"
+                ],
+                "type": "string"
+              },
+              "parts": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 200,
+                "items": {
+                  "$ref": "#/components/schemas/AssistantMessagePart"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "role",
+              "parts"
+            ]
+          },
+          "provider": {
+            "enum": [
+              "openai",
+              "grok",
+              "kimi",
+              "kimi-code"
+            ],
+            "type": "string"
+          },
+          "model": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$"
+          },
+          "thinkingLevel": {
+            "enum": [
+              "off",
+              "minimal",
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AssistantConnection": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "enum": [
+              "openai",
+              "grok",
+              "kimi",
+              "kimi-code"
+            ],
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hasKey": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "provider",
+          "isDefault",
+          "createdAt",
+          "updatedAt",
+          "hasKey"
+        ]
+      },
+      "AssistantMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "type": "string"
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssistantMessagePart"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "parts",
+          "createdAt"
+        ]
+      },
+      "AssistantMessagePart": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": {}
+      },
+      "AssistantModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "recommended": {
+            "type": "boolean"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "thinking": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "effort",
+                      "toggle",
+                      "budget",
+                      "fixed",
+                      "none"
+                    ],
+                    "type": "string"
+                  },
+                  "levels": {
+                    "type": "array",
+                    "items": {
+                      "enum": [
+                        "off",
+                        "minimal",
+                        "low",
+                        "medium",
+                        "high",
+                        "xhigh",
+                        "max"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "levels"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "family",
+          "recommended",
+          "name",
+          "thinking"
+        ]
+      },
+      "AssistantProviderModels": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "enum": [
+              "openai",
+              "grok",
+              "kimi",
+              "kimi-code"
+            ],
+            "type": "string"
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssistantModel"
+            }
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "provider",
+          "models",
+          "error"
+        ]
+      },
+      "AssistantSettings": {
+        "type": "object",
+        "properties": {
+          "approvalMode": {
+            "enum": [
+              "writes",
+              "destructive"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "approvalMode"
+        ]
+      },
+      "AssistantThread": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "running": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "pinned",
+          "createdAt",
+          "updatedAt",
+          "running"
+        ]
+      },
       "Audience": {
         "type": "object",
         "properties": {
@@ -12751,6 +13060,632 @@
                   "required": [
                     "ok"
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/connections": {
+      "get": {
+        "operationId": "assistant.connections",
+        "summary": "The signed-in member's model provider keys; keys are never returned",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "$ref": "#/components/schemas/AssistantConnection"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/connections/{provider}": {
+      "put": {
+        "operationId": "assistant.saveConnection",
+        "summary": "Save or replace the key for a provider; the first saved provider becomes the default",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "openai",
+                "grok",
+                "kimi",
+                "kimi-code"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "apiKey": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "apiKey"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantConnection"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "assistant.removeConnection",
+        "summary": "Forget the key for a provider. 404 NOT_FOUND when none is saved",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "openai",
+                "grok",
+                "kimi",
+                "kimi-code"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/default-provider": {
+      "put": {
+        "operationId": "assistant.setDefaultProvider",
+        "summary": "The provider a turn uses when it names none; null clears it. 404 NOT_FOUND when no key is saved for it",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "openai",
+                          "grok",
+                          "kimi",
+                          "kimi-code"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "provider"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "$ref": "#/components/schemas/AssistantConnection"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/models": {
+      "get": {
+        "operationId": "assistant.models",
+        "summary": "Chat models each saved provider offers, best first; `error` says why a list is empty without revealing the key",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 4,
+                      "items": {
+                        "$ref": "#/components/schemas/AssistantProviderModels"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/models/verify": {
+      "post": {
+        "operationId": "assistant.verifyModel",
+        "summary": "Send one tiny request to check a model works with the saved key",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "enum": [
+                      "openai",
+                      "grok",
+                      "kimi",
+                      "kimi-code"
+                    ],
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$"
+                  }
+                },
+                "required": [
+                  "provider",
+                  "model"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "enum": [
+                        "openai",
+                        "grok",
+                        "kimi",
+                        "kimi-code"
+                      ],
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "error": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "provider",
+                    "model",
+                    "ok",
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/threads": {
+      "get": {
+        "operationId": "assistant.threads",
+        "summary": "The signed-in member's conversations, most recently active first",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "forward",
+                "backward"
+              ],
+              "type": "string",
+              "default": "forward"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursorMode",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "inclusive",
+                "exclusive"
+              ],
+              "type": "string",
+              "default": "exclusive"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "pinned",
+            "in": "query",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "enum": [
+                    "true",
+                    "false"
+                  ],
+                  "type": "string"
+                }
+              ]
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AssistantThread"
+                      }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    },
+                    "totalCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "totalCapped": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "pageInfo",
+                    "totalCount"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/threads/{id}": {
+      "get": {
+        "operationId": "assistant.thread",
+        "summary": "A conversation with its messages",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "title": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "pinned": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "running": {
+                      "type": "boolean"
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AssistantMessage"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "pinned",
+                    "createdAt",
+                    "updatedAt",
+                    "running",
+                    "messages"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "assistant.updateThread",
+        "summary": "Rename or pin a conversation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "pinned": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantThread"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "assistant.removeThread",
+        "summary": "Delete a conversation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/settings": {
+      "get": {
+        "operationId": "assistant.settings",
+        "summary": "The organisation's assistant settings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "assistant.updateSettings",
+        "summary": "When the assistant asks before acting: `writes` before every change, `destructive` before deletes, merges, archives, publishes and sends",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "approvalMode": {
+                    "enum": [
+                      "writes",
+                      "destructive"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "approvalMode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantSettings"
                 }
               }
             }

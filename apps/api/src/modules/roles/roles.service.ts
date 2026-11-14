@@ -40,7 +40,14 @@ const BUILTIN_ROLES = [
     key: 'member',
     name: 'Member',
     description: 'Works with contacts and tags',
-    permissions: ['contacts.view', 'contacts.create', 'contacts.edit', 'tags.manage', 'team.view'],
+    permissions: [
+      'contacts.view',
+      'contacts.create',
+      'contacts.edit',
+      'tags.manage',
+      'team.view',
+      'assistant.chat',
+    ],
   },
 ] as const;
 

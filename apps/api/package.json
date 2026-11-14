@@ -17,6 +17,10 @@
     "openapi": "tsx scripts/openapi.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.104",
+    "@ai-sdk/openai": "^4.0.117",
+    "@ai-sdk/openai-compatible": "^3.0.92",
+    "@ai-sdk/xai": "^5.0.45",
     "@aws-sdk/client-s3": "^3.1166.0",
     "@aws-sdk/s3-request-presigner": "^3.1166.0",
     "@date-fns/tz": "^1.5.0",
@@ -39,6 +43,7 @@
     "@orpc/otel": "1.16.2",
     "@orpc/server": "1.16.2",
     "@orpc/zod": "1.16.2",
+    "ai": "^7.0.172",
     "csv-parse": "^7.0.3",
     "csv-stringify": "^6.9.0",
     "drizzle-orm": "0.45.4",
