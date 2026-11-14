@@ -48,7 +48,15 @@
     "plugin-settings-title": "{{name}} тохиргоо",
     "resize-sidebar": "Хажуугийн самбарын өргөнийг өөрчлөх",
     "assistant": "Туслах",
-    "back": "Буцах"
+    "back": "Буцах",
+    "open-app": "Апп нээх",
+    "apps": {
+      "contacts": "Харилцагчид",
+      "products": "Бүтээгдэхүүнүүд",
+      "automations": "Автоматжуулалт",
+      "reports": "Тайлан",
+      "settings": "Тохиргоо"
+    }
   },
   "core-modules": {
     "contacts": "Харилцагчид"
@@ -558,6 +566,12 @@
     "back-to-sign-in": "Нэвтрэх рүү буцах"
   },
   "notifications": {
+    "title": "Мэдэгдэл",
+    "title-unread_one": "Мэдэгдэл, {{count}} уншаагүй",
+    "title-unread_other": "Мэдэгдэл, {{count}} уншаагүй",
+    "mark-all-read": "Бүгдийг уншсан болгох",
+    "open-inbox": "Ирсэн мэдэгдлүүдийг нээх",
+    "polling": "Шууд шинэчлэл зогссон; 30 секунд тутам шинэчилнэ",
     "kinds": {
       "core": {
         "customer": {
@@ -621,7 +635,62 @@
     }
   },
   "activity": {
-    "this-record": "энэ бичлэг",
+    "sentence": {
+      "created": "<b>{{actor}}</b> энэ бичлэгийг үүсгэсэн",
+      "created_customer": "<b>{{actor}}</b> энэ харилцагчийг үүсгэсэн",
+      "created_company": "<b>{{actor}}</b> энэ компанийг үүсгэсэн",
+      "updated": "<b>{{actor}}</b> энэ бичлэгийг шинэчилсэн",
+      "updated_customer": "<b>{{actor}}</b> энэ харилцагчийг шинэчилсэн",
+      "updated_company": "<b>{{actor}}</b> энэ компанийг шинэчилсэн",
+      "merged": "<b>{{actor}}</b> <b>{{names}}</b>-г энэ бичлэгтэй нэгтгэсэн",
+      "merged_customer": "<b>{{actor}}</b> <b>{{names}}</b>-г энэ харилцагчтай нэгтгэсэн",
+      "merged_company": "<b>{{actor}}</b> <b>{{names}}</b>-г энэ компанитай нэгтгэсэн",
+      "tags-added": "<b>{{actor}}</b> <b>{{added}}</b> таг нэмсэн",
+      "tags-removed": "<b>{{actor}}</b> <b>{{removed}}</b> таг хассан",
+      "tags-changed": "<b>{{actor}}</b> <b>{{added}}</b> таг нэмж, <b>{{removed}}</b> таг хассан",
+      "linked": "<b>{{actor}}</b> <record/>-г холбосон",
+      "unlinked": "<b>{{actor}}</b> <record/>-н холбоосыг салгасан",
+      "lead-converted": "<b>{{actor}}</b> потенциал харилцагчийг харилцагч болгосон",
+      "lead-moved": "<b>{{actor}}</b> потенциал харилцагчийг <stage/> үе шат руу шилжүүлсэн",
+      "lead-reopened": "<b>{{actor}}</b> дахин потенциал харилцагч болгосон, <stage/> үе шатанд",
+      "other": "<b>{{actor}}</b> · {{type}}",
+      "on-record": "· <record/> дээр"
+    },
+    "deleted": "устгасан бичлэг",
+    "deleted_customer": "устгасан харилцагч",
+    "deleted_company": "устгасан компани",
+    "deleted-tag": "устгасан таг",
+    "deleted-property": "Устгасан талбар",
+    "a-team-member": "багийн гишүүн",
+    "image": "зураг",
+    "yes": "Тийм",
+    "no": "Үгүй",
+    "cleared": "арилгасан",
+    "fields": {
+      "state": "Төлөв",
+      "firstName": "Нэр",
+      "middleName": "Дунд нэр",
+      "lastName": "Овог",
+      "avatarUrl": "Зураг",
+      "primaryEmail": "Үндсэн и-мэйл",
+      "emails": "И-мэйлүүд",
+      "primaryPhone": "Үндсэн утас",
+      "phones": "Утаснууд",
+      "sex": "Хүйс",
+      "birthDate": "Төрсөн огноо",
+      "position": "Албан тушаал",
+      "department": "Хэлтэс",
+      "code": "Код",
+      "description": "Тайлбар",
+      "ownerId": "Хариуцагч",
+      "tagIds": "Тагууд",
+      "primaryName": "Нэр",
+      "names": "Нэрс",
+      "website": "Вэбсайт",
+      "industry": "Салбар",
+      "size": "Хэмжээ",
+      "businessType": "Бизнесийн төрөл"
+    },
     "react": "Хариу үйлдэл",
     "earlier-versions": "Өмнөх хувилбарууд",
     "kind": "Юу",

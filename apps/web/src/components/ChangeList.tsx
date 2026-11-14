@@ -41,8 +41,10 @@ export interface Lookups {
 
 const listOf = (values: string[]) => values.join(', ');
 
+type Translate = (key: string, fallback: string) => string;
+
 /** A recorded value as text: names for owners, tags and options; `—` for empty. */
-const formatValue = (field: string, value: unknown, lookups: Lookups): string => {
+const formatValue = (field: string, value: unknown, lookups: Lookups, t: Translate): string => {
   if (
     value === null ||
     value === undefined ||
@@ -55,11 +57,13 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   if (field === 'ownerId' && typeof value === 'string') {
     const member = lookups.members.get(value);
 
-    return member ? memberName(member) : 'a team member';
+    return member ? memberName(member) : t('a-team-member', 'a team member');
   }
 
   if (field === 'tagIds' && Array.isArray(value)) {
-    return listOf(value.map((id) => lookups.tags.get(textOf(id))?.name ?? 'a deleted tag'));
+    return listOf(
+      value.map((id) => lookups.tags.get(textOf(id))?.name ?? t('deleted-tag', 'a deleted tag')),
+    );
   }
 
   if (field === 'description' && typeof value === 'string') {
@@ -67,11 +71,11 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   }
 
   if (field === 'avatarUrl') {
-    return 'image';
+    return t('image', 'image');
   }
 
   if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
+    return value ? t('yes', 'Yes') : t('no', 'No');
   }
 
   if (Array.isArray(value)) {
@@ -81,11 +85,7 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   return textOf(value);
 };
 
-const fieldLabel = (
-  field: string,
-  lookups: Lookups,
-  t: (key: string, fallback: string) => string,
-) => {
+const fieldLabel = (field: string, lookups: Lookups, t: Translate) => {
   if (field.startsWith('customFields.')) {
     return (
       lookups.fields.get(field.slice('customFields.'.length))?.label ??
@@ -119,8 +119,8 @@ export const ChangeList = ({
       )}
     >
       {Object.entries(changes).map(([field, [before, after]]) => {
-        const from = formatValue(field, before, lookups);
-        const to = formatValue(field, after, lookups);
+        const from = formatValue(field, before, lookups, t);
+        const to = formatValue(field, after, lookups, t);
 
         return (
           <div key={field} className="contents">

@@ -245,6 +245,8 @@
     "properties": "Properties",
     "properties-suffix": "properties",
     "add-field": "Add field",
+    "select-field": "Select {{name}}",
+    "select-all-fields": "Select all fields",
     "plugin": {
       "core": "core properties"
     },

@@ -130,6 +130,12 @@ export const en = {
     'no-reasons': 'No leads were disqualified with a reason in this period.',
     tile: 'Leads, last 30 days',
     report: 'Report',
+    'kind-label': 'People or companies',
+    'period-label': 'Period',
+    'bar-now': '{{stage}}: {{count}} in it now',
+    'bar-reached': '{{stage}}: {{count}} reached it in the period',
+    'bar-cohort': 'New leads: {{count}}. Became customers: {{converted}}',
+    'bar-reason': '{{reason}}: {{count}}',
   },
   views: {
     'all-customers': 'All customers',

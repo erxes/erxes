@@ -18,7 +18,7 @@ export const PropertiesHeader = ({ contentType }: { contentType: FieldContentTyp
   const propertyType = PROPERTY_TYPES[contentType];
 
   return (
-    <PageHeader>
+    <PageHeader variant="wrap">
       <PageHeader.Start>
         <Breadcrumb>
           <Breadcrumb.List>

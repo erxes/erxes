@@ -134,6 +134,12 @@ export const mn: typeof en = {
     'no-reasons': 'Энэ хугацаанд шалтгаантай хасагдсан потенциал харилцагч алга.',
     tile: 'Потенциал харилцагч, сүүлийн 30 хоног',
     report: 'Тайлан',
+    'kind-label': 'Хувь хүн эсвэл компани',
+    'period-label': 'Хугацаа',
+    'bar-now': '{{stage}}: одоо {{count}} байна',
+    'bar-reached': '{{stage}}: хугацаанд {{count}} хүрсэн',
+    'bar-cohort': 'Шинэ: {{count}}. Харилцагч болсон: {{converted}}',
+    'bar-reason': '{{reason}}: {{count}}',
   },
   views: {
     'all-customers': 'Бүх харилцагч',
