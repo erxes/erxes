@@ -195,7 +195,7 @@ export const automationsContract = {
           /** Pretend waits for events end with the event happening. */
           assumeEventHappens: z.boolean().default(false),
         })
-        .refine((input) => !input.subjectType === !input.subjectId, {
+        .refine((input) => (input.subjectType === undefined) === (input.subjectId === undefined), {
           message: 'Send subjectType and subjectId together',
           path: ['subjectId'],
         }),
