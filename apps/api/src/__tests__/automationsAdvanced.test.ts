@@ -118,7 +118,7 @@ describe('automations: paths, testing and operations', { timeout: 600_000 }, () 
 
     const test = await t
       .owner()
-      .automations.test({ id: draft.id, subject: { type: 'customer', id: sample.id } });
+      .automations.test({ id: draft.id, subjectType: 'customer', subjectId: sample.id });
 
     expect(test.triggerMatches).toBe(true);
     expect(test.trace.map((item) => item.stepId)).toEqual(['b', 'n']);

@@ -83,7 +83,7 @@ const TestForm = ({
           onClick={() =>
             run.mutate({
               id: automationId,
-              subject: recordId ? { type, id: recordId } : undefined,
+              ...(recordId ? { subjectType: type, subjectId: recordId } : {}),
               assumeEventHappens: assume,
             })
           }
