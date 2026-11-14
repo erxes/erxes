@@ -1,6 +1,6 @@
 {
   "name": "@erxes/lint",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "The lint rules erxes core and its plugins share, as one Vite+ (oxlint) preset",
   "license": "MIT",
