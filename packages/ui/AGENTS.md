@@ -16,9 +16,9 @@ points here.
   `src/theme.css`. A size the scales lack is a new token there, never `text-[11px]` or
   `ease-[cubic-bezier(…)]`. A layout the scales can't name, such as a fixed grid template, is an
   `@utility` there.
-- Classes merge through `cn` (`src/lib/utils.ts`). A token added to a scale `cn` merges (shadow,
-  spacing, text, animate, …) gets its name added to `createCn` there, so `cn('shadow-sm',
-  'shadow-focus')` keeps only the last.
+- Classes merge through `cn` (`src/lib/utils.ts`), whose tables `cn build` generates from the
+  `@theme` scales, so `cn('shadow-sm', 'shadow-focus')` keeps only the last. After changing
+  `@theme`, run `pnpm --filter @erxes/ui cn:tables`; `pnpm check:generated` fails on stale tables.
 - No raw palette colours (`bg-gray-100`, `#fff`), no arbitrary values, no `<style>` and no inline
   style properties. A value only known at runtime (a dragged width, a chart series colour) goes
   in a CSS variable: `style={{ '--panel-width': `${width}px` }}` with `w-(--panel-width)`.
