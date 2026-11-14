@@ -50,7 +50,7 @@ export const AuditFilterBar = ({
   const sources = ['core', ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase()))];
 
   return (
-    <PageSubHeader className="flex-wrap items-center gap-2">
+    <PageSubHeader className="flex-wrap items-center">
       <div className="relative">
         <IconSearch className="absolute top-1.5 left-2 size-4 text-muted-foreground" />
         <Input

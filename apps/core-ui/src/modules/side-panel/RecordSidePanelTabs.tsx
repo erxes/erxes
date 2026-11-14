@@ -59,10 +59,8 @@ const TabBar = ({
     <div ref={barRef} className={cn('flex flex-none min-w-0 overflow-hidden', className)}>
       <Tabs.List
         aria-label={t('navigation', 'Record navigation')}
-        className={cn(
-          'flex min-w-0 items-stretch border-b-0 gap-1 py-0',
-          sidebar ? 'flex-col' : 'h-full',
-        )}
+        variant={sidebar ? 'vertical' : 'flush'}
+        className={cn('min-w-0', !sidebar && 'h-full')}
       >
         {visible.map((tab) => (
           // Full row height, so the active underline lands on the row's bottom border.
@@ -71,12 +69,7 @@ const TabBar = ({
             value={tab.value}
             data-panel-tab={tab.value}
             title={expanded ? tab.label : undefined}
-            className={cn(
-              'text-xs motion-reduce:transition-none',
-              sidebar
-                ? 'h-9 justify-start gap-2.5 rounded-md px-2.5 after:hidden data-active:bg-primary/10 data-active:hover:bg-primary/10'
-                : 'h-full gap-1.5 rounded-none after:-mb-px',
-            )}
+            size="sm"
           >
             <tab.icon
               className={cn('size-4 shrink-0', compact && !sidebar && 'hidden')}
@@ -128,12 +121,12 @@ const TabContent = ({
     inert={splitOverview && isOverview ? false : undefined}
     // A widget's own header lines up with a page's filter row (37px). A quick fade when
     // switching tabs or opening another record in the panel; a record's page opens without one.
+    variant={splitOverview && isOverview ? 'aside' : 'default'}
+    fade={!splitOverview}
     className={cn(
       'flex-1 min-h-0 min-w-0 flex-col [&_[data-side-menu-header]]:h-9',
-      !splitOverview &&
-        'not-data-hidden:animate-in not-data-hidden:fade-in-0 not-data-hidden:duration-150 motion-reduce:animate-none',
       splitOverview && isOverview
-        ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
+        ? 'col-start-1 row-start-1 flex md:row-span-2'
         : 'not-data-hidden:flex data-hidden:hidden',
       splitOverview && !isOverview && 'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
     )}

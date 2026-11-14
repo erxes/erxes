@@ -134,14 +134,11 @@ const TabNavigation = ({ tabs }: { tabs: IRecordSidePanelTab[] }) => {
     >
       <Tabs.List
         aria-label={t('navigation', 'Record navigation')}
-        className="flex min-w-0 items-stretch border-b-0 gap-1 py-0 h-full"
+        variant="flush"
+        className="min-w-0 h-full"
       >
         {tabs.map((tab) => (
-          <Tabs.Trigger
-            key={tab.value}
-            value={tab.value}
-            className="text-xs motion-reduce:transition-none h-full gap-1.5 rounded-none after:-mb-px"
-          >
+          <Tabs.Trigger key={tab.value} value={tab.value} size="sm">
             <tab.icon className="size-4 shrink-0" aria-hidden="true" />
             <span>{tab.label}</span>
           </Tabs.Trigger>
@@ -190,6 +187,8 @@ const RecordSidePanelTabs = ({
           <Tabs.Content
             key={tab.value}
             value={tab.value}
+            variant={overview ? 'aside' : 'default'}
+            fade={!expanded}
             keepMounted={overview}
             // The overview column shows beside the selected tab, so it is never hidden.
             hidden={overview ? false : undefined}
@@ -197,11 +196,9 @@ const RecordSidePanelTabs = ({
             className={cn(
               'flex-1 min-h-0 min-w-0 flex-col mt-0',
               overview
-                ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
+                ? 'col-start-1 row-start-1 flex md:row-span-2'
                 : 'not-data-hidden:flex data-hidden:hidden',
               expanded && !overview && 'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
-              !expanded &&
-                'not-data-hidden:animate-in not-data-hidden:fade-in-0 not-data-hidden:duration-150 motion-reduce:animate-none',
             )}
           >
             {overview && overviewHeader && (

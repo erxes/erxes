@@ -1,8 +1,7 @@
 import { IconPackage, IconPlus } from '@tabler/icons-react';
-import { Button, Kbd, PageContainer } from 'erxes-ui';
+import { Button, Kbd, PageContainer, PageHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { ContactsPageHeader } from '~/modules/contacts/components/ContactsPageHeader';
 import { useCreateHotkey } from '~/modules/contacts/customers/CustomersHeader';
 import { ViewBar } from '~/modules/views/ViewBar';
 import { PRODUCTS_PATH } from '../paths';
@@ -33,14 +32,14 @@ export const ProductsPage = () => {
 
   return (
     <PageContainer>
-      <ContactsPageHeader>
-        <ContactsPageHeader.Start>
+      <PageHeader>
+        <PageHeader.Start variant="flush">
           <AppBreadcrumb
             items={[{ label: t('products', 'Products'), to: PRODUCTS_PATH, icon: IconPackage }]}
           />
-        </ContactsPageHeader.Start>
-        <ContactsPageHeader.End>{manage && <AddProductButton />}</ContactsPageHeader.End>
-      </ContactsPageHeader>
+        </PageHeader.Start>
+        <PageHeader.End>{manage && <AddProductButton />}</PageHeader.End>
+      </PageHeader>
       <ViewBar recordType="product" allLabel={t('all-products', 'All products')}>
         <ProductsFilter />
       </ViewBar>

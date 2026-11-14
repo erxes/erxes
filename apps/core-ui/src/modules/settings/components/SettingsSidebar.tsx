@@ -73,7 +73,7 @@ function SettingsNavigationGroup({
   if (Children.count(children) === 0) return null;
 
   return (
-    <Sidebar.Group className="px-4 py-1">
+    <Sidebar.Group variant="compact">
       <Sidebar.GroupLabel>{name}</Sidebar.GroupLabel>
       <Sidebar.GroupContent>
         <Sidebar.Menu>{children}</Sidebar.Menu>
@@ -114,7 +114,7 @@ function SettingsExitButton() {
   };
 
   return (
-    <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
+    <Sidebar.Header variant="sticky">
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onClick={handleExitSettings}>
@@ -147,7 +147,7 @@ export function SettingsSidebar() {
   return (
     <>
       <SettingsExitButton />
-      <Sidebar.Content className="styled-scroll gap-1">
+      <Sidebar.Content>
         <SettingsNavigationGroup name={t('account', 'Account')}>
           {account.map((item) => (
             <NavigationMenuLinkItem

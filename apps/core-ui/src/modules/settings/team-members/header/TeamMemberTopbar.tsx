@@ -7,9 +7,5 @@ export function TeamMemberTopbar() {
 
   if (!can('team.invite')) return null;
 
-  return (
-    <div className="ml-auto">
-      <InviteTeamMember />
-    </div>
-  );
+  return <InviteTeamMember />;
 }

@@ -27,7 +27,7 @@ const ProductsLayout = () => {
         />
       }
       sidebar={
-        <Sidebar.Group className="px-2 py-1">
+        <Sidebar.Group variant="flush">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {/* The catalog's saved views nest under it. */}

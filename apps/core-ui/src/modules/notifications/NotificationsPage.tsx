@@ -143,13 +143,12 @@ export const NotificationsPage = () => {
       <div className="flex min-h-0 flex-1">
         <InboxNav inboxes={inboxes} source={source} count={count} bySource={bySource} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <PageSubHeader className="items-center gap-3 py-0">
+          <PageSubHeader variant="flush" className="items-center">
             <NotificationTabs
               value={tab}
               onChange={setTab}
               unread={unreadHere}
               className="self-stretch"
-              listClassName="border-b-0"
             />
             <label className="flex items-center gap-2 text-sm text-muted-foreground">
               <Switch checked={important} onCheckedChange={setImportant} />
