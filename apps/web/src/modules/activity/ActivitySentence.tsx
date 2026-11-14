@@ -8,6 +8,7 @@ import { isApiError } from '~/lib/api';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
+import { useStageName } from '~/modules/leads/i18n';
 import {
   readCompanyLink,
   readCustomerLink,
@@ -88,18 +89,22 @@ export const LinkedRecord = ({
   return <CoreRecord type={type} id={id} fallback={fallback || undefined} />;
 };
 
-const Stage = ({ stage }: { stage: { name?: string; color?: string } | null | undefined }) =>
-  stage ? (
+/** The stage as the board names it: default stages translated, the organisation's own as written. */
+const Stage = ({ stage }: { stage: { name?: string; color?: string } | null | undefined }) => {
+  const stageName = useStageName();
+
+  return stage ? (
     <span className="inline-flex items-center gap-1 font-medium">
       <span
         className="size-2 rounded-full bg-(--stage-color)"
         style={{ '--stage-color': stage.color }}
       />
-      {stage.name}
+      {stageName(stage.name)}
     </span>
   ) : (
     <></>
   );
+};
 
 /**
  * One whole sentence from `activity.sentence.<name>`, so each language puts the actor, the verb
