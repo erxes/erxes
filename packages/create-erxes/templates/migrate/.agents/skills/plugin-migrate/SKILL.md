@@ -42,8 +42,11 @@ data only. The inventory reads code, never a database.
    `plugin-owned` lives in this plugin's tables or code.
 5. Pages. One per UI route, under `ui/src/<module>/`, built from `erxes-ui`
    the way `ui/src/items/` is. The old `ui-modules` components don't exist
-   here: erxes-ui's old-to-new component table, `packages/ui/MIGRATION.md` in
-   the erxes repo (branch `postgre`), says what replaces each one.
+   here. Member pickers and names become erxes-ui's `SelectMember` and
+   `MemberInline`; a picker of other records is erxes-ui's `EntityPicker` over
+   the plugin's own query. For erxes-ui components whose props changed, see
+   its old-to-new table, `packages/ui/MIGRATION.md` in the erxes repo (branch
+   `postgre`).
 6. Check parity in the browser, following the `verify` skill: open the old
    page and the new one side by side, and walk the same actions on both.
 7. Tick an item once it works on the new core and its old bugs and
