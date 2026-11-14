@@ -1,11 +1,13 @@
 import { IconDownload } from '@tabler/icons-react';
-import { DropdownMenu, Sheet } from 'erxes-ui';
+import { DropdownMenu } from 'erxes-ui';
+import { SettingsLocalPanel } from '@/settings/components/SettingsLocalPanel';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActiveExports,
   Can,
   ExportFieldSelection,
+  RecordSidePanel,
   useExport,
 } from 'ui-modules';
 
@@ -31,25 +33,21 @@ const DownloadResponsesSheet = ({
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <Sheet.View>
-        <Sheet.Header>
-          <Sheet.Title>
-            {t('download-responses', {
-              defaultValue: 'Download responses',
-            })}
-          </Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="p-5 overflow-y-auto">
-          <ActiveExports
-            entityType={FORM_SUBMISSION_ENTITY_TYPE}
-            entityDisplayName={entityDisplayName}
-            onStartExport={onStartExport}
-          />
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+    <SettingsLocalPanel open={open} onOpenChange={onOpenChange}>
+      <RecordSidePanel.Header
+        title={t('download-responses', {
+          defaultValue: 'Download responses',
+        })}
+        onClose={() => onOpenChange(false)}
+      />
+      <div className="min-h-0 flex-1 p-5 overflow-y-auto">
+        <ActiveExports
+          entityType={FORM_SUBMISSION_ENTITY_TYPE}
+          entityDisplayName={entityDisplayName}
+          onStartExport={onStartExport}
+        />
+      </div>
+    </SettingsLocalPanel>
   );
 };
 

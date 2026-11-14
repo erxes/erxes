@@ -1,31 +1,35 @@
-import { HomeApps } from '@/home/components/HomeApps';
 import { HomeGreeting } from '@/home/components/HomeGreeting';
-import { HomeNotifications } from '@/home/components/HomeNotifications';
-import { HomeStarred } from '@/home/components/HomeStarred';
-import { useTranslation } from 'react-i18next';
+import { DashboardPendingConfigDialog } from '@/home/dashboard/components/DashboardPendingConfigDialog';
+import { DashboardToolbar } from '@/home/dashboard/components/DashboardToolbar';
+import { DashboardWidgetCatalog } from '@/home/dashboard/components/DashboardWidgetCatalog';
+import { HomeDashboard } from '@/home/dashboard/components/HomeDashboard';
+import {
+  DashboardProvider,
+  useDashboard,
+} from '@/home/dashboard/context/DashboardProvider';
 
-export const HomePage = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'home' });
+const HomeLayout = () => {
+  const { isEditing } = useDashboard();
 
   return (
-    <div className="styled-scroll h-full overflow-y-auto bg-muted/30">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
-        <HomeGreeting />
-        <div className="grid gap-6 lg:grid-cols-2">
-          <HomeNotifications />
-          <HomeStarred />
+    <div className="flex h-full bg-muted/30">
+      <div className="styled-scroll h-full min-w-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <HomeGreeting />
+            <DashboardToolbar />
+          </div>
+          <HomeDashboard />
         </div>
-        <HomeApps
-          kind="plugin"
-          title={t('installed-plugins')}
-          emptyLabel={t('plugins-empty')}
-        />
-        <HomeApps
-          kind="core"
-          title={t('core-modules')}
-          emptyLabel={t('core-modules-empty')}
-        />
       </div>
+      {isEditing && <DashboardWidgetCatalog />}
+      <DashboardPendingConfigDialog />
     </div>
   );
 };
+
+export const HomePage = () => (
+  <DashboardProvider>
+    <HomeLayout />
+  </DashboardProvider>
+);

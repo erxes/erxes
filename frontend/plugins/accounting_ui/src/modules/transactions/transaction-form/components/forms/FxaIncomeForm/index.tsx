@@ -14,6 +14,8 @@ import { VatForm } from '../../helpers/VatForm';
 import { FixedAssetForm } from './FixedAssetForm';
 import { FxaIncomeOwnerRecordsSync } from './FxaIncomeOwnerRecordsSheet';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
+import { useFxaIncomeTaxPreview } from '@/transactions/transaction-form/components/forms/hooks/useFxaIncomeTaxPreview';
+import { useTranslation } from 'react-i18next';
 
 export const FxaIncomeForm = ({
   form,
@@ -23,6 +25,8 @@ export const FxaIncomeForm = ({
   index: number;
 }) => {
   const onAccountChange = useFxaAccountConfig(form, index);
+  const { t } = useTranslation('accounting');
+  const { error: taxError } = useFxaIncomeTaxPreview(form, index);
 
   return (
     <>
@@ -59,6 +63,11 @@ export const FxaIncomeForm = ({
       </div>
 
       <FixedAssetForm form={form} journalIndex={index} />
+      {taxError && (
+        <p role="alert" className="text-sm text-destructive">
+          {t(taxError)}
+        </p>
+      )}
       <FxaIncomeOwnerRecordsSync form={form} journalIndex={index} />
     </>
   );

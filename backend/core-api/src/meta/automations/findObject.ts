@@ -12,7 +12,7 @@ type TFindObjectData =
   TAutomationProducersInput[TAutomationProducers.FIND_OBJECT];
 
 export const findObject = async (models: IModels, data: TFindObjectData) => {
-  const { objectType, field, value } = data;
+  const { objectType, field, value, newest } = data;
   const target = CORE_FIND_OBJECT_TARGETS[objectType];
 
   if (!target) {
@@ -27,12 +27,19 @@ export const findObject = async (models: IModels, data: TFindObjectData) => {
     );
   }
 
-  const doc = await target.getCollection(models).findOne(filter).lean();
+  const doc = await target
+    .getCollection(models)
+    .findOne(
+      filter,
+      target.projection,
+      newest ? { sort: { createdAt: -1 } } : undefined,
+    )
+    .lean();
 
   return buildFindObjectResult({
     objectType,
     field,
     value,
-    doc,
+    doc: doc && target.toObject ? await target.toObject(models, doc) : doc,
   });
 };

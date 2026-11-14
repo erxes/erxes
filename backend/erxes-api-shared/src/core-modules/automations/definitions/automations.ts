@@ -39,6 +39,14 @@ export interface IAutomationTrigger<TConfig = any> {
   workflowId?: string;
 }
 
+// Runs the workflow once per list item, one child after another; each item
+// is handed to the workflow as the value of `itemInput`.
+export interface IAutomationWorkflowForEach {
+  items: string;
+  itemInput: string;
+  onItemError?: 'continue' | 'stop';
+}
+
 export interface IAutomationWorkflow {
   id: string;
   // Empty for converted (containment) workflows that own their actions;
@@ -53,6 +61,7 @@ export interface IAutomationWorkflow {
     entryActionId?: string;
     // name -> default binding expression, e.g. { customerId: "{{ trigger.customerId }}" }
     inputs?: Record<string, string>;
+    forEach?: IAutomationWorkflowForEach;
     [key: string]: any;
   };
   actions?: IAutomationAction[];
@@ -88,6 +97,8 @@ export interface IAutomation {
   ownedBy?: 'broadcast';
   ownerContentId?: string;
   duplicatedFrom?: string;
+  // The one place it sits in the list; tags still group it any other way
+  folderId?: string;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -190,6 +201,7 @@ export const automationSchema = new Schema({
   ownedBy: { type: String, optional: true, label: 'Owned by' },
   ownerContentId: { type: String, optional: true, label: 'Owner content id' },
   duplicatedFrom: { type: String, optional: true },
+  folderId: { type: String, optional: true, label: 'Folder' },
   createdAt: {
     type: Date,
     default: new Date(),
@@ -205,3 +217,4 @@ export const automationSchema = new Schema({
 });
 
 automationSchema.index({ ownedBy: 1, ownerContentId: 1 });
+automationSchema.index({ folderId: 1 });

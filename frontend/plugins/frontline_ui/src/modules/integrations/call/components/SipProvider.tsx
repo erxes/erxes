@@ -26,6 +26,7 @@ import { getPluginAssetsUrl, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   extractPhoneNumberFromCounterpart,
+  isCallCompletedElsewhere,
   logger,
   parseCallDirection,
 } from '@/integrations/call/utils/callUtils';
@@ -505,7 +506,8 @@ const SipProvider = ({
             });
           } else if (
             callDirection === CallDirectionEnum.INCOMING &&
-            e?.originator !== 'local'
+            e?.originator !== 'local' &&
+            !isCallCompletedElsewhere(e?.message)
           ) {
             toast({
               title: t('missed-call'),

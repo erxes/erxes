@@ -1,3 +1,9 @@
+import { atom } from 'jotai';
+
+export const ticketRemovedIdsState = atom<{ ids: string[]; userId?: string }>({
+  ids: [],
+});
+
 const removedTicketIds = new Set<string>();
 
 export const markTicketsRemoved = (ids: string[]) => {

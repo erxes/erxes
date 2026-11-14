@@ -16,6 +16,7 @@ import {
 } from '../../../constants/branchLocation';
 import { TLatLng } from '../../../types/branchLocation';
 import 'leaflet/dist/leaflet.css';
+import { cn } from 'erxes-ui';
 
 // A div icon sidesteps Leaflet's default marker images, which bundlers can't resolve
 const PIN_ICON = divIcon({
@@ -35,6 +36,7 @@ type TBranchLocationMapProps = {
   radius: number;
   fallbackCenter: TLatLng | null;
   onChange: (place: TLatLng) => void;
+  className?: string;
 };
 
 type TBranchLocationMapEventsProps = {
@@ -71,6 +73,7 @@ export const BranchLocationMap = ({
   radius,
   fallbackCenter,
   onChange,
+  className,
 }: TBranchLocationMapProps) => {
   const center = position ?? fallbackCenter;
   const markerHandlers = useMemo(
@@ -86,7 +89,10 @@ export const BranchLocationMap = ({
       zoom={center ? PLACE_ZOOM : WORLD_ZOOM}
       // The sheet scrolls; the wheel should scroll it, not zoom the map
       scrollWheelZoom={false}
-      className="isolate h-56 w-full rounded-lg border dark:[&_.leaflet-tile-pane]:hue-rotate-180 dark:[&_.leaflet-tile-pane]:invert"
+      className={cn(
+        'isolate h-56 w-full rounded-lg border dark:[&_.leaflet-tile-pane]:hue-rotate-180 dark:[&_.leaflet-tile-pane]:invert',
+        className,
+      )}
     >
       <TileLayer url={OSM_TILE_URL} attribution={OSM_ATTRIBUTION} />
       <BranchLocationMapEvents position={position} onPick={onChange} />

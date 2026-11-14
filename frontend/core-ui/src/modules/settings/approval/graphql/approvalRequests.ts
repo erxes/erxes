@@ -30,6 +30,9 @@ export const SETTINGS_APPROVAL_REQUESTS = gql`
         lockId
         requesterId
         reason
+        change {
+          summary
+        }
         status
         requiredApproverIds
         decisions {

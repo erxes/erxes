@@ -45,20 +45,16 @@ const SalesBoardContent = ({
   const { data: queryData, loading } = useQuery(ACCOUNTING_SALES_BOARDS_QUERY);
   const data = toGraphqlView(queryData);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">{t('loading')}</span>
-      </div>
-    );
-  }
-
   return (
     <Command>
       <Command.Input placeholder={t('search-board')} />
-      <Command.Empty>
-        <span className="text-muted-foreground">{t('no-boards-found')}</span>
-      </Command.Empty>
+      {loading ? (
+        <Combobox.Empty loading />
+      ) : (
+        <Command.Empty>
+          <span className="text-muted-foreground">{t('no-boards-found')}</span>
+        </Command.Empty>
+      )}
       <Command.List>
         {(data?.salesBoards || []).map((board) => (
           <Command.Item
@@ -102,20 +98,18 @@ const SalesPipelineContent = ({
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">{t('loading')}</span>
-      </div>
-    );
-  }
-
   return (
     <Command>
       <Command.Input placeholder={t('search-pipeline')} />
-      <Command.Empty>
-        <span className="text-muted-foreground">{t('no-pipelines-found')}</span>
-      </Command.Empty>
+      {loading ? (
+        <Combobox.Empty loading />
+      ) : (
+        <Command.Empty>
+          <span className="text-muted-foreground">
+            {t('no-pipelines-found')}
+          </span>
+        </Command.Empty>
+      )}
       <Command.List>
         {(data?.salesPipelines?.list || []).map((pipeline) => (
           <Command.Item
@@ -158,20 +152,16 @@ const SalesStageContent = ({
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">{t('loading')}</span>
-      </div>
-    );
-  }
-
   return (
     <Command>
       <Command.Input placeholder={t('search-stage')} />
-      <Command.Empty>
-        <span className="text-muted-foreground">{t('no-stages-found')}</span>
-      </Command.Empty>
+      {loading ? (
+        <Combobox.Empty loading />
+      ) : (
+        <Command.Empty>
+          <span className="text-muted-foreground">{t('no-stages-found')}</span>
+        </Command.Empty>
+      )}
       <Command.List>
         {(data?.salesStages || []).map((stage) => (
           <Command.Item

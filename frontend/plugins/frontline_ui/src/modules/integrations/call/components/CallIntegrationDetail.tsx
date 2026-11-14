@@ -1,47 +1,21 @@
+import { IntegrationEditButton } from '@/integrations/components/IntegrationPanelForm';
 import { IIntegration } from '@/integrations/types/Integration';
 import { Switch, Tooltip } from 'erxes-ui';
-import { IconEdit } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
-import { CallIntegrationSheetEdit } from '@/integrations/call/components/CallIntegrationEdit';
 import { CallIntegrationAddSheet } from '@/integrations/call/components/CallIntegrationAdd';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { useCallEnabledIntegrations } from '@/integrations/call/hooks/useCallEnabledIntegrations';
 
+/** Renders the entry point for adding a call integration. */
 export const CallIntegrationDetail = () => {
   return (
     <div>
       <CallIntegrationAddSheet />
-      <CallIntegrationSheetEdit />
     </div>
   );
 };
 
-export const CallIntegrationActions = ({
-  integration,
-}: {
-  integration: IIntegration;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const setEditId = useSetAtom(callEditSheetAtom);
-
-  return (
-    <>
-      <CallIntegrationConnect integrationId={integration._id} />
-      <div
-        onClick={() => setEditId(integration._id)}
-        className="flex items-center gap-2 w-full"
-      >
-        <IconEdit size={16} />
-        {t('edit')}
-      </div>
-    </>
-  );
-};
-
+/** Opens the call integration creation panel. */
 export const CallIntegrationConnect = ({
   integrationId,
 }: {
@@ -66,6 +40,7 @@ export const CallIntegrationConnect = ({
       <Tooltip>
         <Tooltip.Trigger asChild>
           <Switch
+            onClick={(event) => event.stopPropagation()}
             checked={isEnabled(integrationId)}
             onCheckedChange={(checked) =>
               toggleIntegration(integration, checked)
@@ -75,5 +50,19 @@ export const CallIntegrationConnect = ({
         <Tooltip.Content>{t('connect-to-call')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
+  );
+};
+
+/** Opens the selected call integration for editing. */
+export const CallIntegrationActions = ({
+  integration,
+}: {
+  integration: IIntegration;
+}) => {
+  return (
+    <>
+      <CallIntegrationConnect integrationId={integration._id} />
+      <IntegrationEditButton integration={integration} />
+    </>
   );
 };

@@ -1,10 +1,21 @@
+import { TBrandsForm, BrandsHotKeyScope } from '../types';
+import { SubmitHandler } from 'react-hook-form';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  PanelFormLayout,
+  RecordSidePanel,
+  SidePanelRecordPathContext,
+} from 'ui-modules';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 import { IconChessKnight, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
   Kbd,
-  Sheet,
-  Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
@@ -13,13 +24,10 @@ import {
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useBrandsForm } from '../hooks/useBrandsForm';
-import { useBrandsAdd } from '../hooks/useBrandsAdd';
-import { SubmitHandler } from 'react-hook-form';
-import { BrandsForm } from './BrandsForm';
-import { BrandsHotKeyScope, TBrandsForm } from '../types';
+import { useBrandsForm } from '@/settings/brands/hooks/useBrandsForm';
+import { useBrandsAdd } from '@/settings/brands/hooks/useBrandsAdd';
+import { BrandsForm } from '@/settings/brands/components/BrandsForm';
 import { useTranslation } from 'react-i18next';
-
 export const CreateBrand = () => {
   const { toast } = useToast();
   const { brandsAdd, loading } = useBrandsAdd();
@@ -30,31 +38,27 @@ export const CreateBrand = () => {
     methods,
     methods: { reset, handleSubmit },
   } = useBrandsForm();
-
   const [_open, _setOpen] = useState<boolean>(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const [createParam] = useQueryState('create_brand');
-
   const open = _open || !!createParam;
-
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-
   const onOpen = () => {
     _setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(BrandsHotKeyScope.BrandsCreateSheet);
   };
-
   const onClose = () => {
     setHotkeyScope(BrandsHotKeyScope.BrandsSettingsPage);
     _setOpen(false);
     if (createParam) {
-      const next = new URLSearchParams(searchParams);
-      next.delete('create_brand');
-      setSearchParams(next);
+      setSearchParams((currentParams) => {
+        const next = new URLSearchParams(currentParams);
+        next.delete('create_brand');
+        return next;
+      });
     }
   };
-
   useEffect(() => {
     if (createParam) {
       setHotkeyScopeAndMemorizePreviousScope(
@@ -62,67 +66,70 @@ export const CreateBrand = () => {
       );
     }
   }, [createParam, setHotkeyScopeAndMemorizePreviousScope]);
-
   useScopedHotkeys(`c`, () => onOpen(), BrandsHotKeyScope.BrandsSettingsPage);
   useScopedHotkeys(`esc`, () => onClose(), BrandsHotKeyScope.BrandsCreateSheet);
-
-  const submitHandler: SubmitHandler<TBrandsForm> = React.useCallback(
-    async (data) => {
-      brandsAdd({
-        variables: data,
-        onCompleted: () => {
-          toast({
-            variant: 'success',
-            title: t('brand-created-successfully'),
-          });
-          reset();
-          onClose();
-        },
-        onError: (error) =>
-          toast({
-            title: t('error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [brandsAdd, toast, reset, onClose, t],
-  );
-
+  const submitHandler: SubmitHandler<TBrandsForm> = (data) => {
+    brandsAdd({
+      variables: data,
+      onCompleted: () => {
+        if (!pagePanel.isCurrent()) return;
+        toast({
+          variant: 'success',
+          title: t('brand-created-successfully'),
+        });
+        reset();
+        onClose();
+      },
+      onError: (error) =>
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
+  const pagePanel = usePagePanel({
+    name: 'settings/brands/CreateBrand',
+    open: open,
+    onOpenChange: (open) => (open ? onOpen() : onClose()),
+  });
   return (
-    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
-      <Sheet.Trigger asChild>
-        <Button>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        <Button onClick={pagePanel.onOpen}>
           <IconPlus />
           {t('create-brand')}
           <Kbd>C</Kbd>
         </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0">
-        <Form {...methods}>
-          <form
-            className="flex flex-col gap-0 size-full"
-            onSubmit={handleSubmit(submitHandler)}
-          >
-            <Sheet.Header>
-              <IconChessKnight />
-              <Sheet.Title>{t('create-brand')}</Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
-              <BrandsForm />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'secondary'} onClick={onClose}>
-                {t('cancel')}
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : t('create-brand')}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <Form {...methods}>
+                <form
+                  className="flex flex-col gap-0 size-full"
+                  onSubmit={handleSubmit(submitHandler)}
+                >
+                  <RecordSidePanel.Header
+                    title={<>{t('create-brand')}</>}
+                    {...pagePanel.headerProps}
+                    avatar={<IconChessKnight />}
+                  />
+                  <PanelFormLayout
+                    onCancel={onClose}
+                    saving={loading}
+                    saveLabel={t('create-brand')}
+                  >
+                    <BrandsForm />
+                  </PanelFormLayout>
+                </form>
+              </Form>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

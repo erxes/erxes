@@ -1,3 +1,5 @@
+import { useIntegrationDraftSession } from '@/integrations/hooks/useIntegrationDraft';
+import { useSidePanel } from 'ui-modules';
 import { toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -10,18 +12,19 @@ import {
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 
-/**
- * Lets an edit be saved from any step: every step already keeps its values in
- * its atom, so only the config step's required fields need checking.
- */
+/** Validates and saves messenger configuration before closing its panel. */
 export const useEMEditSave = () => {
   const { t } = useTranslation('frontline');
+  const { close } = useSidePanel();
+  const { captureRevision, acknowledgeRevision, isActive } =
+    useIntegrationDraftSession();
   const idToEdit = useAtomValue(erxesMessengerSetupEditSheetOpenAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
   const setStep = useSetAtom(erxesMessengerSetupStepAtom);
   const resetSetup = useSetAtom(resetErxesMessengerSetupAtom);
   const { editMessenger, loading } = useEditMessenger();
 
+  /** Validates the config step and saves the selected messenger before closing. */
   const save = () => {
     if (!idToEdit) return;
 
@@ -36,7 +39,14 @@ export const useEMEditSave = () => {
       return;
     }
 
-    editMessenger(idToEdit, parsed.data, () => resetSetup());
+    const submittedRevision = captureRevision();
+    editMessenger(idToEdit, parsed.data, () => {
+      if (!acknowledgeRevision(submittedRevision)) return;
+      if (isActive()) {
+        resetSetup();
+        close();
+      }
+    });
   };
 
   return { canSave: Boolean(idToEdit), save, loading };

@@ -35,6 +35,15 @@ export default composePlugins(
           '**/coverage/**',
           '**/tmp/**',
           '**/.git/**',
+          '**/__tests__/**',
+          '**/*.spec.ts',
+          '**/*.spec.tsx',
+          '**/*.spec.js',
+          '**/*.spec.jsx',
+          '**/*.test.ts',
+          '**/*.test.tsx',
+          '**/*.test.js',
+          '**/*.test.jsx',
         ],
       };
     }

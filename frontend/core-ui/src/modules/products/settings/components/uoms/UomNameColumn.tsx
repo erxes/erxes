@@ -1,9 +1,10 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import { CellContext } from '@tanstack/react-table';
 import {
   TextOverflowTooltip,
   Badge,
   RecordTableInlineCell,
-  Sheet,
+  Button,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { Can, IUom } from 'ui-modules';
@@ -15,18 +16,27 @@ export const UomNameColumnCell = (props: CellContext<IUom, unknown>) => {
 
   return (
     <RecordTableInlineCell>
-      <Sheet open={open} onOpenChange={setOpen} modal>
-        <Can action="uomsManage">
-          <Sheet.Trigger asChild>
-            <Badge variant="secondary" className="cursor-pointer">
-              <TextOverflowTooltip value={props.getValue() as string} />
-            </Badge>
-          </Sheet.Trigger>
-        </Can>
-        <Sheet.View className="p-0 sm:max-w-lg">
-          <UomForm uom={uom} onOpenChange={(isOpen) => setOpen(isOpen)} />
-        </Sheet.View>
-      </Sheet>
+      <Can action="uomsManage">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-auto p-0"
+          onClick={() => setOpen(true)}
+        >
+          <Badge variant="secondary" className="cursor-pointer">
+            <TextOverflowTooltip value={props.getValue() as string} />
+          </Badge>
+        </Button>
+      </Can>
+      <ProductEditorPanel
+        name={`uoms/${uom._id}`}
+        open={open}
+        onOpenChange={setOpen}
+        requiredPermission="uomsManage"
+      >
+        <UomForm uom={uom} onOpenChange={(isOpen) => setOpen(isOpen)} />
+      </ProductEditorPanel>
     </RecordTableInlineCell>
   );
 };

@@ -1,6 +1,5 @@
 import {
   IconClipboardTextFilled,
-  IconCrane,
   IconListCheck,
   IconListDetails,
   IconRefreshAlert,
@@ -21,7 +20,6 @@ export const MainNavigation = () => {
         icon={IconListDetails}
         path="main"
         pathPrefix="accounting"
-        onClick={() => setSidebarPanelOpen(true)}
       />
       <NavigationMenuLinkItem
         name={t('journal-entries')}
@@ -29,12 +27,6 @@ export const MainNavigation = () => {
         path="records"
         pathPrefix="accounting"
         onClick={() => setSidebarPanelOpen(true)}
-      />
-      <NavigationMenuLinkItem
-        name={t('incomplete-vouchers')}
-        icon={IconCrane}
-        path="odd-transactions"
-        pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
         name={t('report')}

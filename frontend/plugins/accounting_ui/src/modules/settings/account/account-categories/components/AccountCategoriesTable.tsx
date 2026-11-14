@@ -6,8 +6,6 @@ import {
   Popover,
   RecordTable,
   RecordTableTree,
-  Skeleton,
-  Table,
   TextField,
   cn,
   toast,
@@ -32,30 +30,6 @@ import { useTranslation } from 'react-i18next';
 type AccountCategoryRow = IAccountCategory & {
   hasChildren: boolean;
   isContext?: boolean;
-};
-
-const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const { t } = useTranslation('accounting');
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {accountCategoriesColumns(t).map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
 };
 
 export const AccountCategoriesTable = () => {
@@ -101,10 +75,10 @@ export const AccountCategoriesTable = () => {
       }
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_account_categories_record_table"
-      className="relative"
+      className="relative m-3"
     >
       <RecordTableTree
-        id="product-categories"
+        id="accounting-account-categories"
         ordered
         length={visibleCategories.length}
       >
@@ -123,9 +97,7 @@ export const AccountCategoriesTable = () => {
                   />
                 )}
               />
-              {isInitialLoading && (
-                <AccountCategoriesInitialSkeleton rows={20} />
-              )}
+              {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
@@ -219,6 +191,7 @@ const AccountCategoryMoreColumnCell = ({
           toast({
             title: t('success'),
             description: t('account-category-deleted-successfully'),
+            variant: 'success',
           });
         },
       });

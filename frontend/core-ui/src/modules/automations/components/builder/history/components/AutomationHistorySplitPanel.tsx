@@ -35,11 +35,13 @@ const AutomationHistorySplitPanelHeader = () => {
 
 export const AutomationHistorySplitPanel = ({
   executionId,
+  automationId,
 }: {
   executionId: string;
+  automationId?: string;
 }) => (
   <AutomationHistoryDetailProvider key={executionId} executionId={executionId}>
-    <AutomationExecutionDetailProvider>
+    <AutomationExecutionDetailProvider automationId={automationId}>
       <div className="flex h-full min-h-0 flex-col bg-background">
         <AutomationHistorySplitPanelHeader />
         <div className="flex-1 min-h-0">

@@ -101,3 +101,9 @@ const putResponses = gql`
 export const putResponseQueries = {
   putResponses,
 };
+
+export const MONGOLIAN_PUT_RESPONSE_TIMEZONE = gql`
+  query mongolianPutResponseTimezone {
+    timeZone: configsGetValue(code: "TIMEZONE")
+  }
+`;

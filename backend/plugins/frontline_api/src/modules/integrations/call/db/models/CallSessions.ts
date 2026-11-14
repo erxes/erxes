@@ -8,8 +8,11 @@ import { IModels } from '~/connectionResolvers';
 
 export const SIBLING_SESSION_WINDOW_MS = 60_000;
 
+const LIVE_SESSION_STATUSES = ['ringing', 'active'];
+
 export interface IFindSiblingParams {
   inboxIntegrationId: string;
+  peerInboxIds?: string[];
   customerPhone: string;
   excludeUniqueid?: string;
   windowMs?: number;
@@ -56,14 +59,29 @@ export const loadCallSessionClass = (models: IModels) => {
 
     public static async findSibling({
       inboxIntegrationId,
+      peerInboxIds = [],
       customerPhone,
       excludeUniqueid,
       windowMs = SIBLING_SESSION_WINDOW_MS,
     }: IFindSiblingParams) {
       if (!inboxIntegrationId || !customerPhone) return null;
 
+      const otherInboxIds = peerInboxIds.filter(
+        (inboxId) => inboxId && inboxId !== inboxIntegrationId,
+      );
+
       const selector: FilterQuery<ICallSessionDocument> = {
-        inboxIntegrationId,
+        ...(otherInboxIds.length
+          ? {
+              $or: [
+                { inboxIntegrationId },
+                {
+                  inboxIntegrationId: { $in: otherInboxIds },
+                  status: { $in: LIVE_SESSION_STATUSES },
+                },
+              ],
+            }
+          : { inboxIntegrationId }),
         customerPhone,
         conversationId: { $exists: true, $nin: ['', null] },
         updatedAt: { $gte: new Date(Date.now() - windowMs) },

@@ -17,8 +17,10 @@ import {
   Textarea,
   Label,
   Badge,
+  cn,
 } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
+import { TOURISM_PANEL_INPUT_CLASS_NAME } from '@/tms/side-panel/TourismPanelForm';
 import { TourFormValues } from '../constants/formSchema';
 import { GUIDE_TYPES } from '../constants/guideTypes';
 import {
@@ -26,7 +28,6 @@ import {
   IconTrash,
   IconUpload,
   IconFileText,
-  IconUsers,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -59,7 +60,8 @@ export const TourNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name')}
+            <span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
@@ -85,7 +87,8 @@ export const TourRefNumberField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('ref-number')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('ref-number')}
+            <span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
@@ -157,7 +160,8 @@ export const TourDescriptionField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('content')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('content')}
+            <span className="text-primary">{labelSuffix}</span>{' '}
           </Form.Label>
           <Form.Control>
             <Editor
@@ -326,9 +330,7 @@ export const TourInfo5Field = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Description>
-            {t('not-visible-for-clients')}
-          </Form.Description>
+          <Form.Description>{t('not-visible-for-clients')}</Form.Description>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -359,7 +361,9 @@ export const TourAdvanceCheckField = ({
             <Switch checked={field.value} onCheckedChange={field.onChange} />
           </Form.Control>
 
-          <Form.Label className="cursor-pointer">{t('advance-check')}</Form.Label>
+          <Form.Label className="cursor-pointer">
+            {t('advance-check')}
+          </Form.Label>
 
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -429,9 +433,7 @@ export const TourItineraryIdField = ({
       name="itineraryId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>
-            {t('itinerary-required')}
-          </Form.Label>
+          <Form.Label>{t('itinerary-required')}</Form.Label>
           <SelectItinerary.FormItem
             value={field.value}
             onValueChange={field.onChange}
@@ -698,121 +700,99 @@ export const TourGuidesField = ({
     name: 'guides',
   });
 
-  const handleAdd = () => {
-    append({ guideId: '', type: 'guide' });
-  };
-
   return (
-    <Form.Item className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className='space-y-2'>
-          <Form.Label className="flex items-center gap-2">
-            <IconUsers size={16} />
-            {t('tour-crew')}
-          </Form.Label>
-          <Form.Description>
-            {t('assign-crew-desc')}
-          </Form.Description>
-        </div>
-
-        <Button type="button" variant="outline" size="sm" onClick={handleAdd}>
-          <IconPlus size={16} />
-          {t('add-crew-member')}
-        </Button>
-      </div>
-
-      {fields.length === 0 ? (
-        <div className="px-4 py-6 text-sm text-center border border-dashed rounded-lg text-muted-foreground">
+    <div className="flex flex-col gap-1">
+      {fields.length === 0 && (
+        <p className="py-1 text-xs text-muted-foreground">
           {t('no-crew-assigned')}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="grid grid-cols-[1fr_1fr_auto] gap-3 items-start p-3 border rounded-lg bg-card"
-            >
-              <Form.Field
-                control={control}
-                name={`guides.${index}.type`}
-                render={({ field: roleField, fieldState }) => (
-                  <div className="space-y-2">
-                    <Form.Label
-                      className={fieldState.error ? 'text-destructive' : ''}
-                    >
-                      {t('role-required')}
-                    </Form.Label>
-                    <Select
-                      onValueChange={roleField.onChange}
-                      value={roleField.value}
-                    >
-                      <Select.Trigger
-                        className={
-                          !roleField.value ? 'text-muted-foreground' : ''
-                        }
-                      >
-                        {roleField.value
-                          ? GUIDE_TYPES.find(
-                              (opt) => opt.value === roleField.value,
-                            )?.label ?? roleField.value
-                          : t('select-role')}
-                      </Select.Trigger>
-                      <Select.Content>
-                        {GUIDE_TYPES.map((option) => (
-                          <Select.Item
-                            key={option.value}
-                            value={option.value}
-                          >
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                    <Form.Message>{fieldState.error?.message}</Form.Message>
-                  </div>
-                )}
-              />
-
-              <Form.Field
-                control={control}
-                name={`guides.${index}.guideId`}
-                render={({ field: memberField, fieldState }) => (
-                  <div className="space-y-2">
-                    <Form.Label
-                      className={fieldState.error ? 'text-destructive' : ''}
-                    >
-                      {t('team-member-required')}
-                    </Form.Label>
-                    <SelectMember.FormItem
-                      mode="single"
-                      value={memberField.value}
-                      onValueChange={(value) =>
-                        memberField.onChange(
-                          typeof value === 'string' ? value : '',
-                        )
-                      }
-                      placeholder={t('select-team-member')}
-                    />
-                    <Form.Message>{fieldState.error?.message}</Form.Message>
-                  </div>
-                )}
-              />
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => remove(index)}
-                aria-label={t('remove-crew-member', { index: index + 1 })}
-                className="mt-7"
-              >
-                <IconTrash size={16} />
-              </Button>
-            </div>
-          ))}
-        </div>
+        </p>
       )}
-    </Form.Item>
+      {fields.map((field, index) => (
+        <div
+          key={field.id}
+          className="grid grid-cols-[7rem_minmax(0,1fr)_auto] items-start gap-2"
+        >
+          <Form.Field
+            control={control}
+            name={`guides.${index}.type`}
+            render={({ field: roleField, fieldState }) => (
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <Select
+                  onValueChange={roleField.onChange}
+                  value={roleField.value}
+                >
+                  <Select.Trigger
+                    aria-label={t('select-role')}
+                    className={cn(
+                      TOURISM_PANEL_INPUT_CLASS_NAME,
+                      !roleField.value && 'text-muted-foreground',
+                    )}
+                  >
+                    {roleField.value
+                      ? GUIDE_TYPES.find((opt) => opt.value === roleField.value)
+                          ?.label ?? roleField.value
+                      : t('select-role')}
+                  </Select.Trigger>
+                  <Select.Content>
+                    {GUIDE_TYPES.map((option) => (
+                      <Select.Item key={option.value} value={option.value}>
+                        {option.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+                {fieldState.error && (
+                  <span className="text-xs text-destructive">
+                    {fieldState.error.message}
+                  </span>
+                )}
+              </div>
+            )}
+          />
+          <Form.Field
+            control={control}
+            name={`guides.${index}.guideId`}
+            render={({ field: memberField, fieldState }) => (
+              <div className="flex min-w-0 flex-col gap-0.5 text-xs [&_button]:h-7">
+                <SelectMember.FormItem
+                  mode="single"
+                  value={memberField.value}
+                  onValueChange={(value) =>
+                    memberField.onChange(typeof value === 'string' ? value : '')
+                  }
+                  placeholder={t('select-team-member')}
+                />
+                {fieldState.error && (
+                  <span className="text-xs text-destructive">
+                    {fieldState.error.message}
+                  </span>
+                )}
+              </div>
+            )}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-7 text-muted-foreground hover:text-destructive"
+            onClick={() => remove(index)}
+            aria-label={t('remove-crew-member', { index: index + 1 })}
+          >
+            <IconTrash className="size-3.5" />
+          </Button>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="w-fit text-muted-foreground"
+        onClick={() => append({ guideId: '', type: 'guide' })}
+      >
+        <IconPlus className="size-3.5" />
+        {t('add-crew-member')}
+      </Button>
+    </div>
   );
 };
 
@@ -874,9 +854,7 @@ const TourPricingOptionsFieldContent = ({
       <div className="flex items-center justify-between">
         <div>
           <Form.Label>{t('pricing-options')}</Form.Label>
-          <Form.Description>
-            {t('pricing-options-desc')}
-          </Form.Description>
+          <Form.Description>{t('pricing-options-desc')}</Form.Description>
         </div>
 
         <div className="flex gap-2">
@@ -1173,7 +1151,8 @@ const TourPricingOptionsFieldContent = ({
                   <Form.Label
                     className={fieldState.error ? 'text-destructive' : ''}
                   >
-                    {t('note')}<span className="text-primary">{labelSuffix}</span>
+                    {t('note')}
+                    <span className="text-primary">{labelSuffix}</span>
                   </Form.Label>
                   <Textarea
                     {...field}

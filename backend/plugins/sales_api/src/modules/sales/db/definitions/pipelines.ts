@@ -84,6 +84,9 @@ export const pipelineSchema = new Schema(
       type: [String],
       label: 'Pos initial categories',
     },
+    productIds: { type: [String], label: 'Include products' },
+    tagIds: { type: [String], label: 'Include product tags' },
+    excludeTagIds: { type: [String], label: 'Exclude product tags' },
     excludeCategoryIds: {
       type: [String],
       label: 'product exclude categories',

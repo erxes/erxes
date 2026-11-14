@@ -15,12 +15,12 @@ import {
   Skeleton,
   Spinner,
   useConfirm,
-  useQueryState,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { TICKET_FORM_FIELDS } from '@/pipelines/components/configs/constant';
-import { configCreateModalAtom } from '../states';
+import { useSidePanel } from 'ui-modules';
+import { TICKET_CONFIG_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 
 const ConfigRowSkeleton = () => (
   <div className="flex h-12 items-center gap-3 px-2">
@@ -36,7 +36,7 @@ const ConfigMenu = ({ configId }: { configId: string }) => {
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const { removeTicketConfig, loading } = useRemoveTicketConfig();
-  const [, setConfigId] = useQueryState<string | undefined>('configId');
+  const { openRecord, record } = useSidePanel();
 
   const onRemove = () => {
     confirm({
@@ -58,7 +58,14 @@ const ConfigMenu = ({ configId }: { configId: string }) => {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" className="min-w-40">
-        <DropdownMenu.Item onSelect={() => setConfigId(configId)}>
+        <DropdownMenu.Item
+          onSelect={() =>
+            openRecord(
+              { contentType: TICKET_CONFIG_CONTENT_TYPE, contentId: configId },
+              { stack: Boolean(record) },
+            )
+          }
+        >
           <IconEdit />
           {t('edit', 'Edit')}
         </DropdownMenu.Item>
@@ -78,8 +85,8 @@ const ConfigMenu = ({ configId }: { configId: string }) => {
 
 export const ConfigList = () => {
   const { t } = useTranslation('frontline');
-  const setCreateOpen = useSetAtom(configCreateModalAtom);
-  const [, setConfigId] = useQueryState<string | undefined>('configId');
+  const { id: channelId, pipelineId } = useSettingsParams();
+  const { openRecord, record } = useSidePanel();
   const { ticketConfig, loading } = useGetTicketConfigByPipelineId();
 
   const formFields = ticketConfig?.formFields;
@@ -110,7 +117,17 @@ export const ConfigList = () => {
           </Empty.Description>
         </Empty.Header>
         <Empty.Content>
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button
+            onClick={() =>
+              openRecord(
+                {
+                  contentType: TICKET_CONFIG_CONTENT_TYPE,
+                  contentId: `new~${channelId}~${pipelineId}`,
+                },
+                { stack: Boolean(record) },
+              )
+            }
+          >
             <IconPlus />
             {t('add-configuration', 'Add Configuration')}
           </Button>
@@ -129,7 +146,15 @@ export const ConfigList = () => {
         <div className="flex h-12 items-center gap-3 rounded-md border bg-background px-2 transition-colors hover:bg-accent">
           <Button
             className="h-auto min-w-0 flex-1 justify-start gap-3 whitespace-normal px-0 py-0 text-left font-normal hover:bg-transparent"
-            onClick={() => setConfigId(ticketConfig.id)}
+            onClick={() =>
+              openRecord(
+                {
+                  contentType: TICKET_CONFIG_CONTENT_TYPE,
+                  contentId: ticketConfig.id,
+                },
+                { stack: Boolean(record) },
+              )
+            }
             variant="ghost"
           >
             <span className="flex size-7 flex-none items-center justify-center rounded bg-primary/10 text-primary">

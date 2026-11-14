@@ -28,6 +28,9 @@ export const usePosEditProductGroup = () => {
             return {
               _id: group._id,
               categoryIds: group.categoryIds,
+              productIds: group.productIds,
+              tagIds: group.tagIds,
+              excludeTagIds: group.excludeTagIds,
               excludedCategoryIds: group.excludedCategoryIds,
               excludedProductIds: group.excludedProductIds,
             };

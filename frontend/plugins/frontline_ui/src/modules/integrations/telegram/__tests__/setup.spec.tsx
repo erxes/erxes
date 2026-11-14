@@ -7,8 +7,12 @@ import { MockedProvider } from '@apollo/client/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toast } from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
 import { ADD_INTEGRATION } from '@/integrations/graphql/mutations/AddIntegration';
-import { TelegramIntegrationDetail } from '../TelegramIntegrationDetail';
+import {
+  TelegramIntegrationDetail,
+  TelegramSetup,
+} from '../TelegramIntegrationDetail';
 import {
   TELEGRAM_ADD_BOT,
   TELEGRAM_BOTS,
@@ -54,51 +58,69 @@ jest.mock('erxes-ui', () => {
       TriggerIcon: () => null,
       Content: Wrap,
     }),
-    Sheet: Object.assign(
-      ({
-        children,
-        onOpenChange,
-      }: PropsWithChildren<{ onOpenChange: (open: boolean) => void }>) => (
-        <div>
-          <button onClick={() => onOpenChange(true)}>Open setup</button>
-          {children}
-        </div>
-      ),
-      {
-        Trigger: Wrap,
-        View: Wrap,
-        Header: Wrap,
-        Title: Wrap,
-        Close: Wrap,
-        Content: Wrap,
-        Footer: Wrap,
-      },
-    ),
+    Sheet: Object.assign(Wrap, {
+      Content: Wrap,
+      Footer: Wrap,
+      Close: Wrap,
+    }),
     Spinner: () => <span>Loading</span>,
+    isDeeplyEqual: (left: unknown, right: unknown) =>
+      JSON.stringify(left) === JSON.stringify(right),
     toast: jest.fn(),
     useConfirm: () => ({ confirm: () => Promise.resolve() }),
     REACT_APP_API_URL: 'https://api.example.com',
   };
 });
-jest.mock('ui-modules', () => ({
-  SelectBrand: ({
-    value,
-    onValueChange,
-  }: {
-    value: string;
-    onValueChange: (value: string) => void;
-  }) => (
-    <input
-      aria-label="brandId"
-      value={value}
-      onChange={(event) => onValueChange(event.target.value)}
-    />
-  ),
+jest.mock('ui-modules', () => {
+  const { atom, useAtom } = jest.requireActual<typeof import('jotai')>('jotai');
+  const panelRecord = atom<{ contentId: string } | null>(null);
+  return {
+    useSidePanel: () => {
+      const [record, setRecord] = useAtom(panelRecord);
+      return {
+        record,
+        openRecord: ({ contentId }: { contentId: string }) =>
+          setRecord({ contentId }),
+        openNewRecord: () => setRecord({ contentId: 'new' }),
+      };
+    },
+
+    SelectBrand: ({
+      value,
+      onValueChange,
+    }: {
+      value: string;
+      onValueChange: (value: string) => void;
+    }) => (
+      <input
+        aria-label="brandId"
+        value={value}
+        onChange={(event) => onValueChange(event.target.value)}
+      />
+    ),
+  };
+});
+jest.mock('react-router-dom', () => ({ useParams: () => ({}) }));
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
 }));
-jest.mock('react-router', () => ({ useParams: () => ({}) }));
 jest.mock('../translations', () => ({
   useTelegramTranslation: () => ({ t: (key: string) => key }),
 }));
+
+const TelegramPanel = ({ children }: PropsWithChildren) => {
+  const { record } = useSidePanel();
+  return (
+    <>
+      {children}
+      {record && (
+        <TelegramSetup
+          integrationId={record.contentId === 'new' ? null : record.contentId}
+        />
+      )}
+    </>
+  );
+};
 
 const bot = {
   __typename: 'TelegramBot',
@@ -117,20 +139,15 @@ test.each([false, true])(
   'resumes webhook registration after a lost create response, even when the first refresh is stale (%s)',
   async (staleRefresh) => {
     let reads = 0;
-    const botsResult = jest.fn(() => ({
-      data: {
-        telegramBots:
-          ++reads === 1
-            ? []
-            : [
-                {
-                  ...bot,
-                  erxesApiId:
-                    reads > (staleRefresh ? 3 : 2) ? 'integration' : null,
-                },
-              ],
-      },
-    }));
+    const botsResult = jest.fn(() => {
+      reads += 1;
+      const linkedAfter = staleRefresh ? 3 : 2;
+      const savedBot = {
+        ...bot,
+        erxesApiId: reads > linkedAfter ? 'integration' : null,
+      };
+      return { data: { telegramBots: reads === 1 ? [] : [savedBot] } };
+    });
     const createMatches = jest.fn(() => true);
     const registerResult = jest.fn(() => ({
       data: { telegramSetWebhook: true },
@@ -188,11 +205,13 @@ test.each([false, true])(
         ]}
       >
         <Provider store={createStore()}>
-          <TelegramIntegrationDetail />
+          <TelegramPanel>
+            <TelegramIntegrationDetail />
+          </TelegramPanel>
         </Provider>
       </MockedProvider>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Open setup' }));
+    fireEvent.click(screen.getByRole('button', { name: 'connect' }));
     fireEvent.change(await screen.findByRole('textbox', { name: 'brandId' }), {
       target: { value: 'brand' },
     });

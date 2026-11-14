@@ -3,7 +3,6 @@ import {
   Button,
   ScrollArea,
   Select,
-  Sheet,
   Spinner,
   useConfirm,
   useToast,
@@ -15,15 +14,14 @@ import { useAtomValue } from 'jotai';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { useTours } from '../hooks/useTours';
-import { TourEditForm } from './TourEditForm';
 import { TourCalendarRowActions } from './TourCalendarRowActions';
 import { useRemoveTours } from '../hooks/useRemoveTours';
 import { ITour } from '../types/tour';
-import type { TourSideTab } from './TourOrdersSidePanel';
+import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
 
 interface TourCalendarProps {
   branchId: string;
-  branchLanguages?: string[];
   mainLanguage?: string;
 }
 
@@ -101,7 +99,6 @@ function isDateInRange(date: Date, start?: string, end?: string) {
 
 export const TourCalendar = ({
   branchId,
-  branchLanguages,
   mainLanguage,
 }: TourCalendarProps) => {
   const { t } = useTranslation('tourism');
@@ -116,9 +113,7 @@ export const TourCalendar = ({
     variables: { branchId, language },
   });
   const { removeTours } = useRemoveTours();
-  const [editTourId, setEditTourId] = useState<string | null>(null);
   const [deletingTourId, setDeletingTourId] = useState<string | null>(null);
-  const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
 
   const minYear = 2025;
 
@@ -182,14 +177,7 @@ export const TourCalendar = ({
   const showEmptyMonthMessage =
     !loading && tours && tours.length > 0 && !hasToursInCurrentMonth;
 
-  const handleEdit = (tourId: string) => {
-    setEditTourId(tourId);
-  };
-
-  const handleCloseEdit = () => {
-    setEditTourId(null);
-    setSideTab(null);
-  };
+  const { openDetail } = useTourismPanel(TMS_TOUR_CONTENT_TYPE);
 
   const handleDelete = (tourId: string, tourName?: string) => {
     confirm({
@@ -350,7 +338,7 @@ export const TourCalendar = ({
                     </span>
                     <TourCalendarRowActions
                       deleting={deletingTourId === tour._id}
-                      onEdit={() => handleEdit(tour._id)}
+                      onEdit={() => openDetail(tour._id)}
                       onDelete={() => handleDelete(tour._id, tour.name)}
                     />
                   </div>
@@ -380,28 +368,6 @@ export const TourCalendar = ({
           <ScrollArea.Bar orientation="horizontal" className="z-10" />
         </ScrollArea>
       )}
-
-      <Sheet open={!!editTourId} onOpenChange={handleCloseEdit}>
-        <Sheet.View
-          className={`p-0 transition-all duration-200 ${
-            sideTab
-              ? 'w-[1220px] sm:max-w-[1220px]'
-              : 'w-[900px] sm:max-w-[900px]'
-          }`}
-        >
-          {editTourId && (
-            <TourEditForm
-              tourId={editTourId}
-              branchId={branchId}
-              branchLanguages={branchLanguages}
-              mainLanguage={mainLanguage}
-              onSuccess={handleCloseEdit}
-              sideTab={sideTab}
-              onSideTabChange={setSideTab}
-            />
-          )}
-        </Sheet.View>
-      </Sheet>
     </div>
   );
 };

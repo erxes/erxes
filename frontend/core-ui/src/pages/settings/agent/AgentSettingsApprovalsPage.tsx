@@ -12,12 +12,8 @@ import {
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  PageHeader,
-  usePermissionCheck,
-  SIDE_PANEL_CHAT_PATH,
-  useSidePanel,
-} from 'ui-modules';
+import { PageHeader, usePermissionCheck } from 'ui-modules';
+import { useGlobalSidebar } from '@/global-sidebar/hooks/useGlobalSidebar';
 
 import {
   AGENTS_SETTINGS,
@@ -54,7 +50,7 @@ const MODES: {
  * everyone else.
  */
 export const AgentSettingsApprovalsPage = () => {
-  const { openPath } = useSidePanel();
+  const { openTool } = useGlobalSidebar();
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const { settings, loading, error } = useAgentsSettings();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
@@ -100,10 +96,7 @@ export const AgentSettingsApprovalsPage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button
-                  variant="ghost"
-                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
-                >
+                <Button variant="ghost" onClick={() => openTool('assistant')}>
                   <IconShieldCheck />
                   {t('assistant', 'Assistant')}
                 </Button>

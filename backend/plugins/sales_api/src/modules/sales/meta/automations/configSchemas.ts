@@ -42,6 +42,14 @@ export const dealCreateActionConfigSchema = z
     labelIds: idsText.optional(),
     tagIds: idsText.optional(),
     priority: z.string().optional(),
+    items: described(
+      z.string(),
+      'Deal lines as JSON text: [{"productId", "quantity", "unitPrice"}]; unitPrice falls back to the product price.',
+    ).optional(),
+    productIds: described(
+      idsText,
+      'Products added once each at their own price when items is empty.',
+    ).optional(),
   })
   .refine(({ name, cardName }) => !!(name || cardName)?.trim(), {
     path: ['name'],

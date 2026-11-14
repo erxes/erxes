@@ -45,7 +45,7 @@ export const FacebookBotPagesStep = () => {
   }, [botPageIds, selectedPage, setSelectedPage]);
 
   return (
-    <div className="flex-1 overflow-hidden p-4 pt-0">
+    <div className="min-h-0 flex-1 overflow-hidden p-4 pt-0">
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
@@ -59,8 +59,12 @@ export const FacebookBotPagesStep = () => {
             })}
           </div>
         </div>
-        <RadioGroup value={selectedPage} onValueChange={setSelectedPage}>
-          <Command.List>
+        <RadioGroup
+          className="min-h-0 flex-1 overflow-hidden"
+          value={selectedPage}
+          onValueChange={setSelectedPage}
+        >
+          <Command.List className="max-h-none overflow-y-auto">
             <FacebookBotPagesStepContent
               loading={loading || botsLoading}
               facebookGetPages={pages}

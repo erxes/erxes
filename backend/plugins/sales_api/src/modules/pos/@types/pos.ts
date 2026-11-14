@@ -70,6 +70,9 @@ export interface IProductGroup {
   description: string;
   posId: string;
   categoryIds?: string[];
+  productIds?: string[];
+  tagIds?: string[];
+  excludeTagIds?: string[];
   excludedCategoryIds?: string[];
   excludedProductIds: string[];
 }

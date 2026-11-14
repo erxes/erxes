@@ -3,16 +3,13 @@ import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
   AssignToField,
-  BranchField,
-  DepartmentField,
   DescriptionField,
 } from '../../GeneralFormFields';
 import { CustomerFields } from '../../helpers/CustomerFields';
 import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { FixedAssetForm } from './FixedAssetForm';
-import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
 import { useFxaDisposalFollowTrs } from '../hooks/useFxaDisposalFollowTrs';
-import { FxaSaleAccountFields } from '../FxaSaleForm/FxaSaleAccountFields';
+import { FxaOutAccountWarning } from '@/transactions/transaction-form/components/forms/FxaOutForm/FxaOutAccountWarning';
 
 export const FxaOutForm = ({
   form,
@@ -21,7 +18,6 @@ export const FxaOutForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
-  const onAccountChange = useFxaAccountConfig(form, index);
   useFxaDisposalFollowTrs({ form, journalIndex: index });
 
   return (
@@ -33,15 +29,13 @@ export const FxaOutForm = ({
           filter={{ journals: [JournalEnum.FIXED_ASSET] }}
           allDetails
           labelTxt="asset-account"
-          onAccountChange={onAccountChange}
         />
         <CustomerFields form={form} index={index} />
-        <BranchField form={form} index={index} />
-        <DepartmentField form={form} index={index} />
         <AssignToField form={form} index={index} />
         <DescriptionField form={form} index={index} />
-        <FxaSaleAccountFields form={form} index={index} />
       </div>
+
+      <FxaOutAccountWarning form={form} index={index} />
 
       <div className="pt-3">
         <RelAccountsForm form={form} index={index} />

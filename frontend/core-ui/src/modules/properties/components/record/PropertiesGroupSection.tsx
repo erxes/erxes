@@ -18,6 +18,7 @@ import {
   EnumCursorDirection,
   RecordTable,
   Spinner,
+  useQueryState,
 } from 'erxes-ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -44,6 +45,8 @@ const PropertiesGroupActions = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const setActivePropertyGroup = useSetAtom(activePropertyState);
   const setLayoutGroup = useSetAtom(activeLayoutGroupState);
+  const [, setEditGroupCode] = useQueryState<string>('editGroupCode');
+  const [, setLayoutGroupCode] = useQueryState<string>('layoutGroupCode');
   const setArchiveTarget = useSetAtom(archiveTargetState);
 
   return (
@@ -76,11 +79,21 @@ const PropertiesGroupActions = ({
           </Can>
         )}
         <Can action="fieldGroupsManage">
-          <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
+          <DropdownMenu.Item
+            onClick={() => {
+              setActivePropertyGroup(group);
+              setEditGroupCode(group.code);
+            }}
+          >
             <IconEdit />
             {t('edit', 'Edit')}
           </DropdownMenu.Item>
-          <DropdownMenu.Item onClick={() => setLayoutGroup(group)}>
+          <DropdownMenu.Item
+            onClick={() => {
+              setLayoutGroup(group);
+              setLayoutGroupCode(group.code);
+            }}
+          >
             <IconLayoutRows />
             {t('layout', 'Layout')}
           </DropdownMenu.Item>

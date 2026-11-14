@@ -1,95 +1,137 @@
-import { useTranslation } from 'react-i18next';
-import {
-  IconAlertTriangle,
-  IconArrowMerge,
-  IconLayoutSidebarLeftCollapse,
-} from '@tabler/icons-react';
-import { Alert, Button, Sheet, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
+import { SidePanelRecordPathContext, RecordSidePanel } from 'ui-modules';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+  usePagePanelContext,
+  PagePanelOptions,
+} from '@/side-panel/hooks/usePagePanel';
+import { useTranslation } from 'react-i18next';
+import { IconAlertTriangle, IconArrowMerge } from '@tabler/icons-react';
+import { Alert, Button, cn } from 'erxes-ui';
 import { MergeTooltip } from '@/contacts/customers/components/customers-command-bar/merge/MergeTooltip';
-
+export const CUSTOMERS_MERGE_PANEL =
+  'contacts/customers/customers-command-bar/merge/MergeSheet';
 const noop = () => {
   //
 };
-interface MergeSheetProps extends React.ComponentProps<typeof Sheet> {
+interface MergeSheetProps extends Omit<PagePanelOptions, 'name'> {
   children?: ReactNode;
   disabled?: boolean;
   className?: string;
   notice?: string;
   saveLabel?: string;
+  saving?: boolean;
   onDiscard?: () => void;
   onSave?: () => void;
 }
-
 export const MergeSheet = ({
   children,
   disabled = false,
   className,
   notice,
   saveLabel,
+  saving = false,
   onDiscard = noop,
   onSave = noop,
   ...props
 }: MergeSheetProps) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer',
+  });
+  const pagePanel = usePagePanel({
+    name: CUSTOMERS_MERGE_PANEL,
+    requiredPermission: 'contactsMerge',
+    maxWidth: 1000,
+    defaultWidth: 800,
+    ...props,
+  });
   return (
-    <Sheet {...props}>
-      <MergeTooltip disabled={!disabled}>
-        <Sheet.Trigger asChild>
-          <Button variant={'secondary'} disabled={disabled}>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        <MergeTooltip disabled={!disabled}>
+          <Button
+            variant={'secondary'}
+            disabled={disabled}
+            onClick={pagePanel.onOpen}
+          >
             <IconArrowMerge />
             {t('action-merge')}
           </Button>
-        </Sheet.Trigger>
-      </MergeTooltip>
-      <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
-        <MergeSheetHeader />
-        {notice && (
-          <Alert variant="warning" className="mx-6 mt-4 w-auto">
-            <IconAlertTriangle />
-            <Alert.Description>{notice}</Alert.Description>
-          </Alert>
+        </MergeTooltip>
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <MergeSheetHeader />
+                {notice && (
+                  <Alert variant="warning" className="mx-6 mt-4 w-auto">
+                    <IconAlertTriangle />
+                    <Alert.Description>{notice}</Alert.Description>
+                  </Alert>
+                )}
+                <div
+                  className={cn(
+                    'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                    'min-h-0 overflow-y-auto',
+                  )}
+                >
+                  <div className={cn('w-full', className)}>{children}</div>
+                </div>
+                {!disabled && (
+                  <MergeSheetFooter
+                    saving={saving}
+                    saveLabel={saveLabel}
+                    onDiscard={onDiscard}
+                    onSave={onSave}
+                  />
+                )}
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
         )}
-        <Sheet.Content className="min-h-0 overflow-y-auto">
-          <div className={cn('w-full', className)}>{children}</div>
-        </Sheet.Content>
-        {!disabled && (
-          <MergeSheetFooter
-            saveLabel={saveLabel}
-            onDiscard={onDiscard}
-            onSave={onSave}
-          />
-        )}
-      </Sheet.View>
-    </Sheet>
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };
-
-const MergeSheetHeader = () => (
-  <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
-    <Button variant="ghost" size="icon">
-      <IconLayoutSidebarLeftCollapse />
-    </Button>
-    <Sheet.Title>Merge Customers</Sheet.Title>
-    <Sheet.Close />
-  </Sheet.Header>
-);
-
+const MergeSheetHeader = () => {
+  const pagePanel = usePagePanelContext();
+  return (
+    <RecordSidePanel.Header
+      title={<>Merge Customers</>}
+      {...pagePanel.headerProps}
+    />
+  );
+};
 interface MergeSheetFooterProps {
   saveLabel?: string;
+  saving: boolean;
   onDiscard: () => void;
   onSave: () => void;
 }
-
 const MergeSheetFooter = ({
   saveLabel,
+  saving,
   onDiscard,
   onSave,
 }: MergeSheetFooterProps) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer',
+  });
   return (
-    <Sheet.Footer className="flex justify-end p-5">
+    <div
+      className={cn(
+        'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+        'flex justify-end p-5',
+      )}
+    >
       <Button
+        disabled={saving}
         onClick={() => {
           onDiscard();
         }}
@@ -98,12 +140,13 @@ const MergeSheetFooter = ({
         {t('action-discard')}
       </Button>
       <Button
+        disabled={saving}
         onClick={() => {
           onSave();
         }}
       >
         {saveLabel ?? t('action-save')}
       </Button>
-    </Sheet.Footer>
+    </div>
   );
 };

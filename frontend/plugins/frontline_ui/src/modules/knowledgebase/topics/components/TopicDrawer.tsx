@@ -1,6 +1,7 @@
+import { useKbPanelFormDraft } from '@/knowledgebase/shared/hooks/useKbPanelFormDraft';
+import { topicPanelDraftsState } from '@/knowledgebase/shared/states/panelFormDraftsState';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
@@ -16,19 +17,16 @@ import { ITopic } from '@/knowledgebase/types';
 
 export const TopicDrawer = ({
   topic,
-  isOpen,
   onClose,
   onSaved,
 }: {
   topic?: ITopic;
-  isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
-  const isEditing = !!topic;
   const { saveTopic, loading } = useSaveTopic();
 
   const form = useForm<TTopicForm>({
@@ -36,41 +34,82 @@ export const TopicDrawer = ({
     defaultValues: EMPTY_TOPIC,
   });
 
-  useEffect(() => {
-    form.reset(topic ? topicToForm(topic) : EMPTY_TOPIC);
-  }, [topic, form]);
+  const { dirtyFields } = form.formState;
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    save,
+    saving,
+    uploading,
+    createdId,
+    captureUpdate,
+    invalidateUpdates,
+  } = useKbPanelFormDraft({
+    form,
+    kind: 'topic',
+    recordId: topic?._id,
+    context: [],
+    onDeleted: onClose,
+    values: topic ? topicToForm(topic) : EMPTY_TOPIC,
+    draftsState: topicPanelDraftsState,
+    discardMessage: t(
+      'discard-unsaved-changes',
+      'Discard your unsaved changes?',
+    ),
+  });
+
+  const isEditing = Boolean(topic || createdId);
+
+  const cancel = () => {
+    clearDraft();
+    onClose();
+  };
 
   const submit = form.handleSubmit(async (values) => {
-    const saved = await saveTopic(values, topic?._id);
+    const submittedValues = structuredClone(form.getValues());
+    const submittedDirtyFields = structuredClone(dirtyFields);
+    const saved = await save((recordId) =>
+      saveTopic(values, recordId, recordId ? submittedDirtyFields : undefined),
+    );
 
     if (!saved) return;
 
+    if (!markSaved(values, submittedValues)) return;
     onSaved?.();
-    onClose();
-    form.reset(EMPTY_TOPIC);
+    if (isActive()) onClose();
   });
 
   return (
     <KbFormSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title={
-        isEditing
-          ? t('kb-edit-topic', 'Edit Topic')
-          : t('kb-new-topic', 'New Topic')
-      }
+      onClose={cancel}
       submitLabel={
         isEditing
           ? t('kb-save-changes', 'Save Changes')
           : t('kb-create-topic', 'Create Topic')
       }
-      loading={loading}
+      loading={loading || saving}
+      uploading={uploading}
       onSubmit={submit}
     >
       <Form {...form}>
-        <form onSubmit={submit} className="grid gap-4 p-4">
-          <TopicFormFields form={form} t={t} />
-        </form>
+        <div className="grid gap-2">
+          <TopicFormFields
+            form={form}
+            t={t}
+            uploadingDisabled={loading || saving}
+            invalidateBackgroundChange={() =>
+              invalidateUpdates('backgroundImage')
+            }
+            captureBackgroundChange={() => {
+              const update = captureUpdate('backgroundImage');
+              return (backgroundImage) =>
+                update((latest) =>
+                  backgroundImage ? { ...latest, backgroundImage } : latest,
+                );
+            }}
+          />
+        </div>
       </Form>
     </KbFormSheet>
   );

@@ -93,8 +93,18 @@ describe('a genuine token', () => {
       name: 'Bat',
       email: 'bat@erxes.io',
       reason: 'Setup: pipeline',
+      trusted: false,
     });
     await expect(verifySupportToken(token, SUBDOMAIN)).resolves.toBeNull();
+  });
+
+  it('trusts only a literal true claim', async () => {
+    await expect(
+      verifySupportToken(sign({ trusted: true }), SUBDOMAIN),
+    ).resolves.toMatchObject({ trusted: true });
+    await expect(
+      verifySupportToken(sign({ trusted: 'true' }), SUBDOMAIN),
+    ).resolves.toMatchObject({ trusted: false });
   });
 
   it('strips markup from what reaches notification emails', async () => {
