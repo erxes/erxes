@@ -24,6 +24,7 @@
 
 ## Current Capabilities
 
+- Sync rule configs (`syncDeal`, `syncDealReturn`, `syncDealMovement`, `syncOrder`) are validated in `Configs.createConfig`/`updateConfig` through `modules/accounting/utils/syncConfigValidation.ts`. Every rule needs a non-blank `title` and `subId` (stage id, or POS id for orders). Deal and order rules also need `saleAccountId`, `saleOutAccountId`, and `saleCostAccountId`, plus `vatRowId`/`ctaxRowId` while `hasVat`/`hasCtax` is on. Movement rules need `sourceAccountId` and `destinationAccountId`. A failed check throws `Sync rule is missing required fields: …`. Other config codes are not validated.
 - Transaction create/edit/remove checks the latest posted closing first, once per validation; it locks every journal through 23:59:59.999 on its date and stops further lookups on rejection. Open dates then check only the journal-specific adjustment using the same end-of-day cutoff before any writes. Editing validates both the saved and submitted dates; posting/undo excludes only its own adjustment and still respects later periods.
 
 - Capitalization and revaluation store total `preDeprecation`/`taxPreDeprecation` targets in source detail `followInfos`; only capitalization/correction permits independent rule and target editing. Acquisition `hasTaxDepreciation` remains authoritative; passive assets mirror book. Income-tax rate, tax method/rate/residual and independent accumulated targets can change on dated capitalization/correction journals, preserving explicit zero for tax balances and income-tax percentages. Active tax methods must be automatic and annual rates positive.
@@ -188,6 +189,7 @@
 
 ## Local Invariants
 
+- Required sync-rule fields must stay aligned with what `meta/afterProcessHandlers` reads (`invSale` follow accounts, movement accounts, tax rows) and with the frontend `syncConfigSchema.ts`. Never relax the backend check on the assumption that clients validate.
 - The plugin TypeScript libraries include `es2023.array` for native `findLast` on the supported Node 22 runtime; the emitted JavaScript target remains unchanged.
 
 - Revaluation accepts only shared cost and linked accumulated-depreciation changes: tax accumulated depreciation changes by the same amount as book, preserving the prior difference. `readFxaChangeRules` validates that method, annual rates, residual values, depreciation start date and income-tax rate are inherited unchanged through revaluation; use capitalization/correction. Negative derived tax depreciation is rejected. Net book change alone drives matched reserve/loss allocation. Revaluation leaves posted deferred-tax balances untouched. Fixed-asset matching has no tax-expense account; adjustment selects its own expense account, and income/capitalization counterparts remain accountant-owned.
