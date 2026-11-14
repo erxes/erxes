@@ -110,7 +110,7 @@ export const MainOnboarding = () => {
           >
             Step {currentStep} of {steps.length}
           </Appear>
-          <span className="h-px flex-1 bg-gradient-to-r from-primary/60 to-transparent" />
+          <span className="h-px flex-1 bg-linear-to-r from-primary/60 to-transparent" />
         </div>
         <div className="flex w-5/6 flex-col items-center justify-center gap-4 lg:w-4/6">
           <StepContent
