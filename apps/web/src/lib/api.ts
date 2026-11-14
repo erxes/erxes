@@ -1,10 +1,14 @@
-import { CORE_API_PREFIX, type coreContract, InvalidInput } from '@erxes/core-contract';
+import {
+  CORE_API_PREFIX,
+  type coreContract,
+  type ERRORS,
+  type ErrorCode,
+} from '@erxes/core-contract';
 import { coreRoutes } from '@erxes/core-contract/routes';
 import { createORPCClient, ORPCError } from '@orpc/client';
-import type { ContractRouterClient } from '@orpc/contract';
+import type { ContractRouterClient, ORPCErrorFromErrorMap } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { createTanstackQueryUtils } from '@orpc/tanstack-query';
-import type { z } from 'zod';
 
 /**
  * Typed client for /core/v1 from the same contract the server implements.
@@ -28,22 +32,23 @@ const client: ContractRouterClient<typeof coreContract> = createORPCClient(
  */
 export const orpc = createTanstackQueryUtils(client);
 
-/** A core error, optionally with a given code (`CUSTOMER_EXISTS`, …). */
-export const isApiError = (error: unknown, code?: string): error is ORPCError<string, unknown> =>
-  error instanceof ORPCError && (code === undefined || error.code === code);
+/** Any error core answers with: one per code in `ERRORS`, with that code's `data`. */
+type ApiError = ORPCErrorFromErrorMap<typeof ERRORS>;
 
-/** A core error's `data`, when it has the shape `schema` describes. */
-export const errorData = <T>(error: unknown, schema: z.ZodType<T>) => {
-  if (!isApiError(error)) return undefined;
-
-  const parsed = schema.safeParse(error.data);
-
-  return parsed.success ? parsed.data : undefined;
-};
+/**
+ * Whether core answered with `code` (`TAKEN`, `NOT_FOUND`, …). It narrows
+ * `error.data` to what `ERRORS` declares for the code, so the field a
+ * `TAKEN` is about reads as `error.data.field`.
+ */
+export const isApiError = <C extends ErrorCode>(
+  error: unknown,
+  code: C,
+): error is Extract<ApiError, { code: C }> =>
+  error instanceof ORPCError && error.defined && error.code === code;
 
 /** What to tell the member: the error's message, or the first field the contract refused. */
 export const messageOf = (error: unknown) => {
-  const issue = errorData(error, InvalidInput)?.issues[0];
+  const issue = isApiError(error, 'INVALID_INPUT') ? error.data.issues[0] : undefined;
 
   if (issue) return `${issue.path.join('.')}: ${issue.message}`;
 

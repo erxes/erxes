@@ -1,5 +1,6 @@
 import { roles } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { listOf } from './common';
@@ -140,22 +141,46 @@ const RoleFields = createUpdateSchema(roles, {
   permissions: () => z.array(PermissionAction).max(1000),
 }).pick({ name: true, description: true, permissions: true });
 
+const {
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  LIMIT_EXCEEDED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  LIMIT_EXCEEDED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+});
+
 export const rolesContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/roles',
       summary: 'Roles of the organisation, with member counts',
     })
     .output(listOf(Role)),
-  permissions: oc
+  permissions: base
     .route({
       method: 'GET',
       path: '/permissions',
       summary: "Every action a role can include: core's and installed plugins'",
     })
     .output(listOf(PermissionInfo)),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/roles',
@@ -164,7 +189,7 @@ export const rolesContract = {
     })
     .input(RoleFields.required({ name: true, permissions: true }))
     .output(Role),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/roles/{key}',
@@ -172,7 +197,7 @@ export const rolesContract = {
     })
     .input(RoleFields.extend({ key: RoleKey }))
     .output(Role),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/roles/{key}',

@@ -1,6 +1,7 @@
 import { FILE_STORAGES } from '@erxes/core-db/enums';
 import { files } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, IdList, isoDate } from './common';
@@ -71,8 +72,28 @@ const AllowedType = z
     '.ext, type/subtype or type/*',
   );
 
+const {
+  FILE_TOO_LARGE,
+  FILE_TYPE_NOT_ALLOWED,
+  LIMIT_EXCEEDED,
+  MASS_DELETE_STOPPED,
+  UPLOAD_CHANGED,
+  UPLOAD_INCOMPLETE,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  FILE_TOO_LARGE,
+  FILE_TYPE_NOT_ALLOWED,
+  LIMIT_EXCEEDED,
+  MASS_DELETE_STOPPED,
+  UPLOAD_CHANGED,
+  UPLOAD_INCOMPLETE,
+});
+
 export const filesContract = {
-  createUpload: oc
+  createUpload: base
     .route({
       method: 'POST',
       path: '/files',
@@ -94,7 +115,7 @@ export const filesContract = {
       }),
     )
     .output(z.object({ file: FileInfo, upload: UploadTarget })),
-  complete: oc
+  complete: base
     .route({
       method: 'POST',
       path: '/files/{id}/complete',
@@ -103,7 +124,7 @@ export const filesContract = {
     })
     .input(z.object({ id: Id }))
     .output(FileInfo),
-  get: oc
+  get: base
     .route({
       method: 'GET',
       path: '/files/{id}',
@@ -111,7 +132,7 @@ export const filesContract = {
     })
     .input(z.object({ id: Id }))
     .output(FileInfo.extend({ downloadUrl: z.string().nullable() })),
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/files',
@@ -119,7 +140,7 @@ export const filesContract = {
     })
     .input(z.object({ ids: IdList }))
     .output(z.object({ data: z.array(FileInfo).max(100) })),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/files/{id}',
@@ -127,14 +148,14 @@ export const filesContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  settings: oc
+  settings: base
     .route({
       method: 'GET',
       path: '/settings/files',
       summary: 'What the organisation accepts as uploads',
     })
     .output(FileSettings),
-  updateSettings: oc
+  updateSettings: base
     .route({
       method: 'PUT',
       path: '/settings/files',

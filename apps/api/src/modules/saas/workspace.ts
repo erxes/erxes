@@ -10,7 +10,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError, pgCode } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { safeEqual } from '~/lib/crypto';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
 import { forgetEntitlements, refreshEntitlements } from './entitlements';
@@ -36,30 +36,23 @@ const upsertOrganization = async (tx: Transaction, orgId: string, input: SaasWor
 
   const { subdomain, name, country, currency } = input.organization;
 
-  try {
-    if (!org) {
-      if (!input.owner)
-        throw new HttpError(400, 'OWNER_REQUIRED', 'A new workspace needs its owner');
+  if (!org) {
+    if (!input.owner) throw fail('OWNER_REQUIRED', 'A new workspace needs its owner');
 
-      await insertOrganization(tx, {
-        id: orgId,
-        subdomain,
-        name,
-        country,
-        currency,
-        owner: input.owner,
-      });
-    } else if (org.subdomain !== subdomain || org.name !== name) {
-      // Country and currency are the organisation's own settings after it is made.
-      await tx
-        .update(organizations)
-        .set({ subdomain, name, updatedAt: sql`now()` })
-        .where(eq(organizations.id, orgId));
-    }
-  } catch (error) {
-    if (pgCode(error) === '23505')
-      throw new HttpError(409, 'SUBDOMAIN_TAKEN', 'Another workspace has this subdomain');
-    throw error;
+    await insertOrganization(tx, {
+      id: orgId,
+      subdomain,
+      name,
+      country,
+      currency,
+      owner: input.owner,
+    });
+  } else if (org.subdomain !== subdomain || org.name !== name) {
+    // Country and currency are the organisation's own settings after it is made.
+    await tx
+      .update(organizations)
+      .set({ subdomain, name, updatedAt: sql`now()` })
+      .where(eq(organizations.id, orgId));
   }
 
   return !org;
@@ -96,7 +89,7 @@ export const workspaceUsage = (orgId: string) =>
   withOrg(orgId, async (tx) => {
     const [org] = await tx.select().from(organizations).limit(1);
 
-    if (!org) throw new HttpError(404, 'NOT_FOUND', 'No such workspace');
+    if (!org) throw fail('NOT_FOUND', 'No such workspace');
 
     const [row] = await tx.select().from(entitlements).limit(1);
 

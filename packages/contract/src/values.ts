@@ -2,7 +2,6 @@ import {
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
   CUSTOMER_SEXES,
-  CUSTOMER_UNIQUE_FIELDS,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
@@ -146,14 +145,6 @@ export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
 
 /** How the live stream reaches this browser, in its `hello` event: pushing, or polling while it can't listen. */
 export const LiveMode = z.enum(LIVE_MODES);
-
-/** The `data` of a 409 `CUSTOMER_EXISTS`: the customer that has the value, and which field it is. */
-export const CustomerExists = z.object({
-  id: z.string().nullable(),
-  field: z.enum(CUSTOMER_UNIQUE_FIELDS),
-});
-
-export type CustomerExists = z.infer<typeof CustomerExists>;
 
 /**
  * Core's notifications in groups a member chooses for at once (each plugin

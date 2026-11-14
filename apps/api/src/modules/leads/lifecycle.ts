@@ -9,7 +9,7 @@ import {
   leadEvents,
   newId,
 } from '@erxes/core-db';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { currentImport } from '~/lib/causation';
 import { recordActivity } from '~/modules/activities/activities.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -65,7 +65,7 @@ export const planLeadOnCreate = async (client: Db, input: LeadInput): Promise<Le
   };
 
   if ((input.state ?? 'customer') !== 'lead') {
-    if (input.leadStageId) throw new HttpError(400, 'NOT_A_LEAD', 'Only leads have a lead stage');
+    if (input.leadStageId) throw fail('NOT_A_LEAD', 'Only leads have a lead stage');
 
     return { set: origin, steps: [] };
   }
@@ -147,8 +147,7 @@ const lifecyclePlan = (
   if (current.state === 'customer' && nextState === 'lead') return reopen(change);
 
   if (wanted) {
-    if (current.state !== 'lead')
-      throw new HttpError(400, 'NOT_A_LEAD', 'Only leads move between lead stages');
+    if (current.state !== 'lead') throw fail('NOT_A_LEAD', 'Only leads move between lead stages');
 
     return {
       set: {

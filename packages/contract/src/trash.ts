@@ -1,6 +1,7 @@
 import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import { trash } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
@@ -34,12 +35,17 @@ export const TrashItem = createSelectSchema(trash, {
 
 export type TrashItem = z.infer<typeof TrashItem>;
 
+const { LIMIT_EXCEEDED, NOTHING_TO_RETRY, SUBJECT_REQUIRED } = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({ ...COMMON_ERRORS, LIMIT_EXCEEDED, NOTHING_TO_RETRY, SUBJECT_REQUIRED });
+
 /**
  * The recycle bin: deleted customers and companies stay restorable for 30
  * days — with their tags, links and timeline — then are purged for good.
  */
 export const trashContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/trash',
@@ -52,7 +58,7 @@ export const trashContract = {
       }),
     )
     .output(cursorPageOf(TrashItem)),
-  restore: oc
+  restore: base
     .route({
       method: 'POST',
       path: '/trash/restore',
@@ -66,7 +72,7 @@ export const trashContract = {
         failed: z.array(z.object({ id: Id, reason: z.string() })),
       }),
     ),
-  purge: oc
+  purge: base
     .route({
       method: 'POST',
       path: '/trash/purge',

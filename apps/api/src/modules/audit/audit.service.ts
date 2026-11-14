@@ -10,7 +10,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, gte, ilike, like, lte, or, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
 import type { Changes } from '~/lib/changes';
@@ -261,8 +261,7 @@ export const auditSettings = async (client: Db) => {
 
 export const updateAuditSettings = async (client: Db, input: { retentionDays: number }) => {
   if (input.retentionDays > config.retention.auditDays) {
-    throw new HttpError(
-      400,
+    throw fail(
       'LIMIT_EXCEEDED',
       `This server keeps audit entries up to ${config.retention.auditDays} days`,
     );

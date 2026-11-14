@@ -1,18 +1,10 @@
 import { actorOf, caller, type Db, newId, productCategories, products } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound, pgCode } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkCategory } from './productChecks';
-
-const taken = (error: unknown): never => {
-  if (pgCode(error) === '23505') {
-    throw new HttpError(409, 'CATEGORY_EXISTS', 'A category with this name is already there');
-  }
-
-  throw error;
-};
 
 const findCategory = async (client: Db, id: string) => {
   const [row] = await client
@@ -39,7 +31,7 @@ const checkNotUnder = async (client: Db, id: string, parentId: string) => {
   `);
 
   if (result.rows.length) {
-    throw new HttpError(400, 'INVALID_CATEGORY', 'A category can’t go under itself');
+    throw fail('INVALID_CATEGORY', 'A category can’t go under itself');
   }
 };
 
@@ -61,30 +53,26 @@ export const createCategory = async (
 ) => {
   await checkCategory(client, input.parentId);
 
-  try {
-    const row = oneRow(
-      await client
-        .insert(productCategories)
-        .values({
-          id: newId(),
-          name: input.name,
-          parentId: input.parentId ?? null,
-          createdBy: actorOf(caller()).actorId,
-        })
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .insert(productCategories)
+      .values({
+        id: newId(),
+        name: input.name,
+        parentId: input.parentId ?? null,
+        createdBy: actorOf(caller()).actorId,
+      })
+      .returning(),
+  );
 
-    await recordAudit(client, {
-      action: 'product_category.created',
-      targetType: 'product_category',
-      targetId: row.id,
-      targetLabel: row.name,
-    });
+  await recordAudit(client, {
+    action: 'product_category.created',
+    targetType: 'product_category',
+    targetId: row.id,
+    targetLabel: row.name,
+  });
 
-    return row;
-  } catch (error) {
-    return taken(error);
-  }
+  return row;
 };
 
 export const updateCategory = async (
@@ -99,26 +87,22 @@ export const updateCategory = async (
     await checkNotUnder(client, id, changes.parentId);
   }
 
-  try {
-    const row = oneRow(
-      await client
-        .update(productCategories)
-        .set({ ...changes, updatedAt: sql`now()` })
-        .where(eq(productCategories.id, id))
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .update(productCategories)
+      .set({ ...changes, updatedAt: sql`now()` })
+      .where(eq(productCategories.id, id))
+      .returning(),
+  );
 
-    await recordAudit(client, {
-      action: 'product_category.updated',
-      targetType: 'product_category',
-      targetId: row.id,
-      targetLabel: row.name,
-    });
+  await recordAudit(client, {
+    action: 'product_category.updated',
+    targetType: 'product_category',
+    targetId: row.id,
+    targetLabel: row.name,
+  });
 
-    return row;
-  } catch (error) {
-    return taken(error);
-  }
+  return row;
 };
 
 /** Deletes a category without subcategories (409 CATEGORY_HAS_CHILDREN); its products lose it. */
@@ -132,7 +116,7 @@ export const removeCategory = async (client: Db, id: string) => {
     .limit(1);
 
   if (child) {
-    throw new HttpError(409, 'CATEGORY_HAS_CHILDREN', 'Move or delete its subcategories first');
+    throw fail('CATEGORY_HAS_CHILDREN', 'Move or delete its subcategories first');
   }
 
   await client

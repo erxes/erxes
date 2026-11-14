@@ -1,6 +1,7 @@
 import { EVENT_FAILURE_STATUSES, NOTIFICATION_PRIORITIES } from '@erxes/core-db/enums';
 import { events } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
@@ -118,8 +119,30 @@ const FailureRef = z.object({ consumer: z.string().trim().min(1).max(100), event
  * `POST /events`. Core turns events into timeline entries and notifications;
  * automations and webhooks will read the same stream.
  */
+const {
+  INVALID_ACTOR,
+  INVALID_OWNER,
+  INVALID_TYPE,
+  LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY,
+  NO_TIMELINE,
+  SUBJECT_REQUIRED,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  INVALID_ACTOR,
+  INVALID_OWNER,
+  INVALID_TYPE,
+  LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY,
+  NO_TIMELINE,
+  SUBJECT_REQUIRED,
+});
+
 export const eventsContract = {
-  publish: oc
+  publish: base
     .route({
       method: 'POST',
       path: '/events',
@@ -129,7 +152,7 @@ export const eventsContract = {
     })
     .input(z.object({ events: z.array(EventInput).min(1).max(100) }))
     .output(z.object({ published: z.int(), duplicates: z.int() })),
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/events',
@@ -145,7 +168,7 @@ export const eventsContract = {
       }),
     )
     .output(cursorPageOf(CoreEvent)),
-  failures: oc
+  failures: base
     .route({
       method: 'GET',
       path: '/events/failures',
@@ -160,7 +183,7 @@ export const eventsContract = {
         counts: z.object({ retrying: z.int(), dead: z.int() }),
       }),
     ),
-  retryFailures: oc
+  retryFailures: base
     .route({
       method: 'POST',
       path: '/events/failures/retry',
@@ -173,7 +196,7 @@ export const eventsContract = {
       }),
     )
     .output(z.object({ retried: z.int() })),
-  dismissFailures: oc
+  dismissFailures: base
     .route({
       method: 'POST',
       path: '/events/failures/dismiss',

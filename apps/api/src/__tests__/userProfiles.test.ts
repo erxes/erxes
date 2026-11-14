@@ -95,13 +95,13 @@ describe('team member profiles', () => {
       invite([{ email: 'MANY1@acme.mn' }, { email: 'many3@acme.mn' }]),
     ).rejects.toMatchObject({
       status: 409,
-      code: 'EMAIL_TAKEN',
-      data: { emails: ['many1@acme.mn'] },
+      code: 'TAKEN',
+      data: { field: 'email', values: ['many1@acme.mn'] },
     });
     expect((await t.owner().users.list({ search: 'many3' })).totalCount).toBe(0);
     await expect(
       invite([{ email: 'many4@acme.mn' }, { email: 'Many4@acme.mn' }]),
-    ).rejects.toMatchObject({ code: 'EMAIL_TAKEN' });
+    ).rejects.toMatchObject({ code: 'TAKEN' });
     await expect(invite([{ email: 'many5@acme.mn', password: 'short' }])).rejects.toMatchObject({
       code: 'INVALID_INPUT',
     });
@@ -149,7 +149,7 @@ describe('team member profiles', () => {
     expect((await update(id, { email: ' Renamed@Acme.mn ' })).email).toBe('renamed@acme.mn');
     await expect(update(id, { email: 'bat@acme.mn' })).rejects.toMatchObject({
       status: 409,
-      code: 'EMAIL_TAKEN',
+      code: 'TAKEN',
     });
     await expect(update(t.ids.owner, { email: 'mine@acme.mn' }, admin)).rejects.toMatchObject({
       code: 'OWNER_ONLY',

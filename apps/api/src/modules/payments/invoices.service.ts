@@ -9,7 +9,7 @@ import {
   withOrg,
 } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
@@ -155,8 +155,7 @@ export const getInvoice = async (id: string) => {
 export const cancelInvoice = async (id: string) => {
   const { invoice, gateway } = await visibleInvoice(id, 'owner');
 
-  if (invoice.status !== 'pending')
-    throw new HttpError(409, 'NOT_PENDING', `The invoice is ${invoice.status}`);
+  if (invoice.status !== 'pending') throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
 
   await driverOf(gateway)
     .cancel(invoice.gatewayInvoiceId ?? '')
@@ -219,11 +218,7 @@ export const payTestInvoice = async (id: string) => {
     const { gateway } = await invoiceWithGateway(tx, id);
 
     if (gateway.kind !== 'test')
-      throw new HttpError(
-        400,
-        'NOT_TEST',
-        'Only invoices of the test gateway can be paid this way',
-      );
+      throw fail('NOT_TEST', 'Only invoices of the test gateway can be paid this way');
 
     await tx
       .update(paymentInvoices)

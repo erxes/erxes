@@ -16,7 +16,7 @@ import {
 import { and, eq, getTableColumns, inArray, ne, notInArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { can } from '~/http/access';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 
@@ -135,7 +135,7 @@ const checkPermissions = async (client: Db, permissions: string[]) => {
   const unknown = permissions.filter((action) => action !== '*' && !known.has(action));
 
   if (unknown.length) {
-    throw new HttpError(400, 'UNKNOWN_PERMISSION', `Unknown permissions: ${unknown.join(', ')}`, {
+    throw fail('UNKNOWN_PERMISSION', `Unknown permissions: ${unknown.join(', ')}`, {
       permissions: unknown,
     });
   }
@@ -143,29 +143,23 @@ const checkPermissions = async (client: Db, permissions: string[]) => {
   const ownerOnly = permissions.filter((action) => OWNER_ONLY.has(action));
 
   if (ownerOnly.length) {
-    throw new HttpError(
-      400,
-      'OWNER_ONLY_PERMISSION',
-      `Only owners can do: ${ownerOnly.join(', ')}`,
-      { permissions: ownerOnly },
-    );
+    throw fail('OWNER_ONLY_PERMISSION', `Only owners can do: ${ownerOnly.join(', ')}`, {
+      permissions: ownerOnly,
+    });
   }
 
   const beyond = permissions.filter((action) => !can(me, action));
 
   if (beyond.length) {
-    throw new HttpError(
-      403,
-      'BEYOND_OWN_PERMISSIONS',
-      "A role can't hold permissions you don't have",
-      { permissions: beyond },
-    );
+    throw fail('BEYOND_OWN_PERMISSIONS', "A role can't hold permissions you don't have", {
+      permissions: beyond,
+    });
   }
 
   return [...new Set(permissions)].toSorted();
 };
 
-const noSuchRole = () => new HttpError(404, 'ROLE_NOT_FOUND', 'No such role');
+const noSuchRole = () => fail('ROLE_NOT_FOUND', 'No such role');
 
 const roleOrThrow = async (client: Db, key: string) => {
   const [row] = await client.select().from(roles).where(eq(roles.key, key)).limit(1);
@@ -203,8 +197,7 @@ export const assertAssignable = async (client: Db, keys: string | string[]) => {
         : row.permissions.some((action) => !can(me, action)));
 
     if (wider) {
-      throw new HttpError(
-        403,
+      throw fail(
         'BEYOND_OWN_PERMISSIONS',
         `You can't give the ${row.name} role: it can do more than you`,
       );
@@ -251,7 +244,7 @@ export const updateRole = async (
   const tx = db();
 
   if (FIXED.has(key)) {
-    throw new HttpError(403, 'FIXED_ROLE', 'Owner and Admin roles can’t be changed');
+    throw fail('FIXED_ROLE', 'Owner and Admin roles can’t be changed');
   }
 
   const before = await roleOrThrow(tx, key);
@@ -292,7 +285,7 @@ export const removeRole = async (key: string) => {
 
   const row = await roleOrThrow(tx, key);
 
-  if (row.builtin) throw new HttpError(403, 'BUILTIN_ROLE', 'Built-in roles can’t be deleted');
+  if (row.builtin) throw fail('BUILTIN_ROLE', 'Built-in roles can’t be deleted');
 
   const [count] = await tx
     .select({ members: sql<number>`count(*)::int` })
@@ -300,8 +293,7 @@ export const removeRole = async (key: string) => {
     .where(eq(users.role, key));
 
   if (count?.members) {
-    throw new HttpError(
-      409,
+    throw fail(
       'ROLE_IN_USE',
       `${count.members} members have this role: give them another one first`,
     );

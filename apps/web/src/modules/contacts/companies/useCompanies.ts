@@ -59,7 +59,7 @@ export const useCompanyEdit = () => {
   );
 };
 
-/** Callers show the failure next to the field it is about (`COMPANY_EXISTS`). */
+/** Callers show the failure next to the field it is about (`TAKEN`). */
 export const useCompanyCreate = () => {
   const client = useQueryClient();
 

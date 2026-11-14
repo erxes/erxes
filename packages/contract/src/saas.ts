@@ -5,6 +5,7 @@ import {
   PLUGIN_TIERS,
 } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { z } from 'zod';
 import { OrganizationRegion } from './organizations';
 
@@ -79,15 +80,20 @@ export const PluginPlan = z.object({
 
 export type PluginPlan = z.infer<typeof PluginPlan>;
 
+const { LIMIT_EXCEEDED } = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({ ...COMMON_ERRORS, LIMIT_EXCEEDED });
+
 export const saasContract = {
-  plan: oc
+  plan: base
     .route({
       method: 'GET',
       path: '/plan',
       summary: "The organisation's subscription: each plugin's tier, status and access",
     })
     .output(SubscriptionInfo),
-  pluginPlan: oc
+  pluginPlan: base
     .route({
       method: 'GET',
       path: '/plan/plugin',

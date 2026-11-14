@@ -20,7 +20,7 @@ const useCategorySave = (editing: ProductCategory | null, onDone: () => void) =>
   const [errors, setErrors] = useState<{ name?: string; parent?: string }>({});
 
   const onError = (error: Error) => {
-    if (isApiError(error, 'CATEGORY_EXISTS')) {
+    if (isApiError(error, 'TAKEN')) {
       setErrors({
         name: t('errors.category-exists', 'A category with this name is already there.'),
       });

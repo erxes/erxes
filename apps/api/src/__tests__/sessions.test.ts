@@ -139,7 +139,7 @@ describe('session security', () => {
     expect(limited.status).toBe(429);
     expect(Number(limited.headers.get('retry-after'))).toBeGreaterThan(0);
     expect(await limited.json()).toMatchObject({
-      defined: false,
+      defined: true,
       code: 'TOO_MANY_REQUESTS',
       status: 429,
     });

@@ -11,7 +11,7 @@ import {
   reactions,
 } from '@erxes/core-db';
 import { and, eq, ilike, inArray, isNotNull, ne, not, or, type SQL, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { allOf, anyOf } from '~/lib/conditions';
 import { keysetPage } from '~/lib/keyset';
 import { entryById, selectEntries } from './activities.service';
@@ -139,7 +139,7 @@ export const reactToActivity = async (client: Db, id: string, emoji: string) => 
       .where(eq(reactions.activityId, id));
 
     if (used.length >= 20 && !used.some((one) => one.emoji === emoji))
-      throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
+      throw fail('TOO_MANY_REACTIONS', 'At most 20 different reactions');
 
     await client.insert(reactions).values({ activityId: id, userId, emoji });
   }

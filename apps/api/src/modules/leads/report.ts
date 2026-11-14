@@ -3,7 +3,7 @@ import { type Db, leadEvents, leadStages } from '@erxes/core-db';
 import type { LEAD_EVENTS } from '@erxes/core-db/enums';
 import { type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { leadCounts, recordTable, stagesOf } from './stages';
 
 type LeadEventName = (typeof LEAD_EVENTS)[number];
@@ -129,7 +129,10 @@ const scopeOf = (
   const to = input.to ? new Date(input.to) : new Date();
   const from = input.from ? new Date(input.from) : new Date(to.getTime() - 30 * 86_400_000);
 
-  if (from >= to) throw new HttpError(400, 'INVALID_INPUT', '`from` must be before `to`');
+  if (from >= to)
+    throw fail('INVALID_INPUT', '`from` must be before `to`', {
+      issues: [{ path: ['from'], message: '`from` must be before `to`' }],
+    });
 
   return {
     client,

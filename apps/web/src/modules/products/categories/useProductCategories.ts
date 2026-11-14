@@ -23,7 +23,7 @@ const useRefresh = () => {
     ]);
 };
 
-/** Callers show failures where they happen (`CATEGORY_EXISTS`, `CATEGORY_HAS_CHILDREN`). */
+/** Callers show failures where they happen (`TAKEN`, `CATEGORY_HAS_CHILDREN`). */
 export const useCategoryMutations = () => {
   const refresh = useRefresh();
 

@@ -3,7 +3,7 @@ import { CORE_EVENT_TYPES, type EventTypeInfo } from '@erxes/core-contract';
 import { caller, type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
@@ -48,8 +48,7 @@ const checkUrl = (url: string) => {
   try {
     assertOutboundUrl(url);
   } catch (error) {
-    throw new HttpError(
-      400,
+    throw fail(
       'INVALID_URL',
       error instanceof OutboundError ? error.message : 'Not a valid address',
     );

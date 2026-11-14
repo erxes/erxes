@@ -6,6 +6,7 @@ import {
 } from '@erxes/core-db/enums';
 import { views } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
@@ -79,9 +80,12 @@ const ViewFields = createUpdateSchema(views, {
   sort: () => ViewSort,
 }).pick({ name: true, filter: true, search: true, columns: true, sort: true, shared: true });
 
+/** Views answer with the common errors only. */
+const base = oc.errors(COMMON_ERRORS);
+
 /** Saved lists (views) and what lists can be filtered by. */
 export const viewsContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/views',
@@ -89,7 +93,7 @@ export const viewsContract = {
     })
     .input(z.object({ recordType: ViewRecordType }))
     .output(listOf(View)),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/views',
@@ -99,7 +103,7 @@ export const viewsContract = {
     })
     .input(ViewFields.required({ name: true }).extend({ recordType: ViewRecordType }))
     .output(View),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/views/{id}',
@@ -108,11 +112,11 @@ export const viewsContract = {
     })
     .input(ViewFields.extend({ id: Id }))
     .output(View),
-  remove: oc
+  remove: base
     .route({ method: 'DELETE', path: '/views/{id}' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  fields: oc
+  fields: base
     .route({
       method: 'GET',
       path: '/views/fields',

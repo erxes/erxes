@@ -13,7 +13,7 @@ import {
   plugins,
 } from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions/catalog';
 import { render } from './templates';
@@ -257,5 +257,5 @@ export const checkDefinition = async (client: Db, definition: AutomationDefiniti
 
   const [first] = problems;
 
-  if (first) throw new HttpError(400, 'INVALID_AUTOMATION', first, { problems });
+  if (first) throw fail('INVALID_AUTOMATION', first, { problems });
 };

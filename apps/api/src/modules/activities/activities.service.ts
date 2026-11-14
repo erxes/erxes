@@ -13,7 +13,7 @@ import {
 } from '@erxes/core-db';
 import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMembers } from '~/lib/guards';
 import { lockRows } from '~/lib/locks';
@@ -125,7 +125,7 @@ const checkFiles = async (client: Db, fileIds: string[]) => {
     .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   if (found.length !== wanted.length) {
-    throw new HttpError(400, 'INVALID_FILE', 'Attach files uploaded to this organisation');
+    throw fail('INVALID_FILE', 'Attach files uploaded to this organisation');
   }
 
   return wanted;
@@ -180,18 +180,14 @@ type NoteRow = Awaited<ReturnType<typeof findNote>>;
 /** 403 NOT_AUTHOR unless the member wrote the note. */
 const assertAuthor = (note: NoteRow) => {
   if (note.authorId !== caller('user').userId) {
-    throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
+    throw fail('NOT_AUTHOR', 'Only the author can edit a note');
   }
 };
 
 /** 403 NOT_ALLOWED unless the member wrote the note or may moderate notes. */
 const assertCanModerate = (note: NoteRow) => {
   if (note.authorId !== caller('user').userId && !callerCan('notes.moderate')) {
-    throw new HttpError(
-      403,
-      'NOT_ALLOWED',
-      'Only the author or an owner or admin can delete a note',
-    );
+    throw fail('NOT_ALLOWED', 'Only the author or an owner or admin can delete a note');
   }
 };
 

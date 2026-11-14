@@ -10,8 +10,7 @@ import { useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
-import { errorData, isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '~/lib/api';
 import { automationQuery } from './automationQueries';
 
 interface Draft {
@@ -60,8 +59,6 @@ export const useAutomationDraft = (automation: Automation) => {
   };
 };
 
-const invalidAutomation = z.object({ problems: z.array(z.string()) });
-
 type UpdateInput = InferContractRouterInputs<typeof coreContract>['automations']['update'];
 
 /** Save, turn on, pause, start now and delete; `onProblems` gets what the server refused. */
@@ -77,11 +74,7 @@ export const useAutomationMutations = (id: string, onProblems: (problems: string
   };
 
   const onError = (error: Error) => {
-    onProblems(
-      isApiError(error, 'INVALID_AUTOMATION')
-        ? (errorData(error, invalidAutomation)?.problems ?? [])
-        : [],
-    );
+    onProblems(isApiError(error, 'INVALID_AUTOMATION') ? error.data.problems : []);
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),

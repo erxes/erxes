@@ -49,7 +49,7 @@ const CoreRecord = ({
   }
 
   if (query.isError) {
-    const deleted = isApiError(query.error) && query.error.status === 404;
+    const deleted = isApiError(query.error, 'NOT_FOUND');
 
     return (
       <span className="text-muted-foreground" title={deleted ? undefined : query.error.message}>

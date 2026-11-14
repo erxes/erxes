@@ -1,5 +1,6 @@
 import { LANGUAGES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { z } from 'zod';
 import { isoDate } from './common';
 import { NewPassword } from './values';
@@ -15,15 +16,69 @@ export const Session = z.object({
 
 export type Session = z.infer<typeof Session>;
 
+const {
+  ALREADY_ENABLED,
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  CHALLENGE_EXPIRED,
+  CROSS_SITE,
+  FIXED_ROLE,
+  INVALID_CREDENTIALS,
+  INVALID_LINK,
+  LIMIT_EXCEEDED,
+  NOT_ENABLED,
+  NOT_INVITED,
+  NOT_SET_UP,
+  ORGANIZATION_REQUIRED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  SAME_PASSWORD,
+  SETUP_DISABLED,
+  SETUP_DONE,
+  TOO_MANY_ATTEMPTS,
+  UNKNOWN_PERMISSION,
+  WRONG_CODE,
+  WRONG_PASSWORD,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  ALREADY_ENABLED,
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  CHALLENGE_EXPIRED,
+  CROSS_SITE,
+  FIXED_ROLE,
+  INVALID_CREDENTIALS,
+  INVALID_LINK,
+  LIMIT_EXCEEDED,
+  NOT_ENABLED,
+  NOT_INVITED,
+  NOT_SET_UP,
+  ORGANIZATION_REQUIRED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  SAME_PASSWORD,
+  SETUP_DISABLED,
+  SETUP_DONE,
+  TOO_MANY_ATTEMPTS,
+  UNKNOWN_PERMISSION,
+  WRONG_CODE,
+  WRONG_PASSWORD,
+});
+
 export const authContract = {
-  setupStatus: oc
+  setupStatus: base
     .route({
       method: 'GET',
       path: '/setup',
       summary: 'Whether this installation still needs its first organisation and owner',
     })
     .output(z.object({ required: z.boolean() })),
-  setup: oc
+  setup: base
     .route({
       method: 'POST',
       path: '/setup',
@@ -48,7 +103,7 @@ export const authContract = {
       }),
     )
     .output(Session),
-  signIn: oc
+  signIn: base
     .route({
       method: 'POST',
       path: '/auth/sign-in',
@@ -69,7 +124,7 @@ export const authContract = {
         z.object({ twoFactorRequired: z.literal(true), challenge: z.string() }),
       ]),
     ),
-  requestPasswordReset: oc
+  requestPasswordReset: base
     .route({
       method: 'POST',
       path: '/auth/password-reset',
@@ -83,7 +138,7 @@ export const authContract = {
       }),
     )
     .output(z.object({ ok: z.literal(true) })),
-  resetPassword: oc
+  resetPassword: base
     .route({
       method: 'POST',
       path: '/auth/password-reset/confirm',
@@ -91,7 +146,7 @@ export const authContract = {
     })
     .input(z.object({ token: z.string().min(10).max(300), password: NewPassword }))
     .output(Session),
-  invitation: oc
+  invitation: base
     .route({
       method: 'GET',
       path: '/auth/invitation',
@@ -101,7 +156,7 @@ export const authContract = {
     .output(
       z.object({ organization: z.string(), email: z.string(), inviter: z.string().nullable() }),
     ),
-  acceptInvitation: oc
+  acceptInvitation: base
     .route({
       method: 'POST',
       path: '/auth/invitation/accept',
@@ -116,7 +171,7 @@ export const authContract = {
       }),
     )
     .output(Session),
-  signInTwoFactor: oc
+  signInTwoFactor: base
     .route({
       method: 'POST',
       path: '/auth/sign-in/2fa',
@@ -136,14 +191,14 @@ export const authContract = {
         .refine((value) => Boolean(value.code || value.recoveryCode), 'a code or a recovery code'),
     )
     .output(Session),
-  twoFactorSetup: oc
+  twoFactorSetup: base
     .route({
       method: 'POST',
       path: '/auth/2fa/setup',
       summary: 'Start turning on two-factor sign-in: a new secret for an authenticator app',
     })
     .output(z.object({ secret: z.string(), uri: z.string() })),
-  twoFactorEnable: oc
+  twoFactorEnable: base
     .route({
       method: 'POST',
       path: '/auth/2fa/enable',
@@ -158,7 +213,7 @@ export const authContract = {
       }),
     )
     .output(z.object({ recoveryCodes: z.array(z.string()) })),
-  twoFactorDisable: oc
+  twoFactorDisable: base
     .route({
       method: 'POST',
       path: '/auth/2fa/disable',
@@ -166,7 +221,7 @@ export const authContract = {
     })
     .input(z.object({ password: z.string().min(1).max(200) }))
     .output(z.object({ ok: z.literal(true) })),
-  twoFactorRecoveryCodes: oc
+  twoFactorRecoveryCodes: base
     .route({
       method: 'POST',
       path: '/auth/2fa/recovery-codes',
@@ -174,28 +229,28 @@ export const authContract = {
     })
     .input(z.object({ password: z.string().min(1).max(200) }))
     .output(z.object({ recoveryCodes: z.array(z.string()) })),
-  signOutEverywhere: oc
+  signOutEverywhere: base
     .route({
       method: 'POST',
       path: '/auth/sign-out-everywhere',
       summary: 'End every session of the signed-in member, on every device',
     })
     .output(z.object({ ok: z.literal(true) })),
-  signOut: oc
+  signOut: base
     .route({
       method: 'POST',
       path: '/auth/sign-out',
       summary: 'Sign out; clears the session cookie',
     })
     .output(z.object({ ok: z.literal(true) })),
-  me: oc
+  me: base
     .route({
       method: 'GET',
       path: '/auth/me',
       summary: 'The signed-in team member and their organisation',
     })
     .output(Session),
-  onboarded: oc
+  onboarded: base
     .route({
       method: 'POST',
       path: '/auth/onboarded',
@@ -212,7 +267,7 @@ export const authContract = {
         .optional(),
     )
     .output(Session),
-  changePassword: oc
+  changePassword: base
     .route({
       method: 'POST',
       path: '/auth/password',
@@ -221,7 +276,7 @@ export const authContract = {
     })
     .input(z.object({ currentPassword: z.string().min(1).max(200), newPassword: NewPassword }))
     .output(z.object({ ok: z.literal(true) })),
-  signIns: oc
+  signIns: base
     .route({
       method: 'GET',
       path: '/auth/sign-ins',

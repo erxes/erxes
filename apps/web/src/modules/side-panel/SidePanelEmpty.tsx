@@ -48,7 +48,7 @@ export const SidePanelFailed = ({
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
-  return isApiError(error) && error.status === 404 ? (
+  return isApiError(error, 'NOT_FOUND') ? (
     <SidePanelEmpty
       title={t('not-found-title', 'Nothing here')}
       description={t('record-not-found', 'This record no longer exists.')}

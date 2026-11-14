@@ -1,7 +1,7 @@
 import type { InvoiceLineInput } from '@erxes/core-contract';
 import { type Db, type InvoiceLine, products } from '@erxes/core-db';
 import { inArray } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
 /**
@@ -30,13 +30,15 @@ export const resolveInvoiceLines = async (
     const productName = line.productId ? names.get(line.productId) : undefined;
 
     if (line.productId && productName === undefined) {
-      throw new HttpError(400, 'INVALID_PRODUCT', `Unknown product ${line.productId}`);
+      throw fail('INVALID_PRODUCT', `Unknown product ${line.productId}`);
     }
 
     const name = line.name ?? productName;
 
     if (!name) {
-      throw new HttpError(400, 'INVALID_INPUT', 'A line needs a name or a product');
+      throw fail('INVALID_INPUT', 'A line needs a name or a product', {
+        issues: [{ path: ['lines'], message: 'A line needs a name or a product' }],
+      });
     }
 
     return {
@@ -52,11 +54,7 @@ export const resolveInvoiceLines = async (
   const total = resolved.reduce((sum, line) => sum + line.amount, 0);
 
   if (resolved.length > 0 && total !== amount) {
-    throw new HttpError(
-      400,
-      'LINES_MISMATCH',
-      `The lines add up to ${total}, the invoice is for ${amount}`,
-    );
+    throw fail('LINES_MISMATCH', `The lines add up to ${total}, the invoice is for ${amount}`);
   }
 
   return resolved;

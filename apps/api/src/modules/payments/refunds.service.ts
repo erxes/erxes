@@ -9,7 +9,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -66,38 +66,34 @@ const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow, input: RefundInp
     invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
 
   if (left <= 0)
-    throw new HttpError(
-      409,
+    throw fail(
       'NOT_REFUNDABLE',
       `The invoice is ${invoice.status === 'refunded' ? 'already refunded' : invoice.status}`,
     );
 
   const amount = input.amount ?? left;
 
-  if (amount > left)
-    throw new HttpError(409, 'NOT_REFUNDABLE', `Only ${left} can still be refunded`);
+  if (amount > left) throw fail('NOT_REFUNDABLE', `Only ${left} can still be refunded`);
 
   if (input.manual) return { amount, full: amount === left, paymentId: null };
 
   const { refunds } = driverOf(gateway);
 
   if (refunds === 'none')
-    throw new HttpError(
-      409,
+    throw fail(
       'PARTIAL_NOT_SUPPORTED',
       'This gateway does not refund: refund outside erxes and record it as manual',
     );
 
   if (refunds === 'full' && (amount !== left || invoice.refundedAmount > 0)) {
-    throw new HttpError(
-      409,
+    throw fail(
       'PARTIAL_NOT_SUPPORTED',
       `${gateway.name} refunds whole payments only: refund the rest outside erxes and record it as manual`,
     );
   }
 
   if (!invoice.gatewayPaymentId)
-    throw new HttpError(409, 'NOT_REFUNDABLE', 'The gateway gave no payment id to refund');
+    throw fail('NOT_REFUNDABLE', 'The gateway gave no payment id to refund');
 
   return { amount, full: amount === left, paymentId: invoice.gatewayPaymentId };
 };

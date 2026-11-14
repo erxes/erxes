@@ -53,13 +53,13 @@ describe('products', { timeout: 120_000 }, () => {
       t.owner().products.create({ ...phone, name: 'Copy', code: 'px-1' }),
     ).rejects.toMatchObject({
       status: 409,
-      code: 'PRODUCT_CODE_EXISTS',
-      data: { productId: created.id },
+      code: 'TAKEN',
+      data: { field: 'code', id: created.id },
     });
     await t.owner().products.update({ id: created.id, code: 'PX-1', barcode: '865' });
     await expect(
       t.owner().products.create({ ...phone, code: null, barcode: '865' }),
-    ).rejects.toMatchObject({ code: 'PRODUCT_BARCODE_EXISTS', data: { productId: created.id } });
+    ).rejects.toMatchObject({ code: 'TAKEN', data: { field: 'barcode', id: created.id } });
     await expect(
       t.owner().products.create({ ...phone, code: null, categoryId: 'nope' }),
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_CATEGORY' });
@@ -143,7 +143,7 @@ describe('products', { timeout: 120_000 }, () => {
     expect(delivery.plugins).toEqual(['hr']);
     await expect(t.hr().products.update({ id: delivery.id, plugins: [] })).rejects.toMatchObject({
       status: 403,
-      code: 'FORBIDDEN',
+      code: 'NOT_ALLOWED',
     });
 
     const other = await tms();

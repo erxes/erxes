@@ -35,21 +35,20 @@ describe('customers (/core/v1/customers)', () => {
     });
   });
 
-  it('refuses a taken primary email or phone and names the existing customer', async () => {
-    const existing = await t
-      .owner()
-      .customers.create({ firstName: 'Bold', primaryPhone: '99001122' });
+  it('refuses a taken primary email or phone and names the field', async () => {
+    await t.owner().customers.create({ firstName: 'Bold', primaryPhone: '99001122' });
 
     await expect(
       t.owner().customers.create({ primaryEmail: 'SARAA@mail.mn' }),
     ).rejects.toMatchObject({
       status: 409,
-      code: 'CUSTOMER_EXISTS',
+      code: 'TAKEN',
       data: { field: 'primaryEmail' },
     });
     await expect(t.owner().customers.create({ phones: ['9900 1122'] })).rejects.toMatchObject({
       status: 409,
-      data: { field: 'primaryPhone', id: existing.id },
+      code: 'TAKEN',
+      data: { field: 'primaryPhone' },
     });
   });
 

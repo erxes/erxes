@@ -1,6 +1,7 @@
 import { AUTOMATION_FIELD_TYPES, CONTENT_TYPES } from '@erxes/core-db/enums';
 import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AutomationStatus } from './values';
@@ -69,8 +70,44 @@ const Fields = createUpdateSchema(automations, {
  * actions from core and plugins, delays and branches — for its customer or
  * company. Every run and step is logged.
  */
+const {
+  CROSS_SITE,
+  INVALID_AUTOMATION,
+  INVALID_FILE,
+  INVALID_LEAD_STAGE,
+  INVALID_RECIPIENT,
+  INVALID_STEP_INPUT,
+  INVALID_URL,
+  LIMIT_EXCEEDED,
+  NOT_ACTIVE,
+  NOT_AUTHOR,
+  NOT_FAILED,
+  NOT_RUNNING,
+  NO_MEMBERS,
+  NO_SUBJECT,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  CROSS_SITE,
+  INVALID_AUTOMATION,
+  INVALID_FILE,
+  INVALID_LEAD_STAGE,
+  INVALID_RECIPIENT,
+  INVALID_STEP_INPUT,
+  INVALID_URL,
+  LIMIT_EXCEEDED,
+  NOT_ACTIVE,
+  NOT_AUTHOR,
+  NOT_FAILED,
+  NOT_RUNNING,
+  NO_MEMBERS,
+  NO_SUBJECT,
+});
+
 export const automationsContract = {
-  catalog: oc
+  catalog: base
     .route({
       method: 'GET',
       path: '/automations/catalog',
@@ -91,19 +128,19 @@ export const automationsContract = {
         actions: z.array(ActionInfo),
       }),
     ),
-  list: oc
+  list: base
     .route({ method: 'GET', path: '/automations' })
     .input(z.object({ status: AutomationStatus.optional() }))
     .output(listOf(Automation)),
-  get: oc
+  get: base
     .route({ method: 'GET', path: '/automations/{id}' })
     .input(z.object({ id: Id }))
     .output(Automation),
-  create: oc
+  create: base
     .route({ method: 'POST', path: '/automations', successStatus: 201 })
     .input(Fields.required({ name: true, definition: true }))
     .output(Automation),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/automations/{id}',
@@ -112,7 +149,7 @@ export const automationsContract = {
     })
     .input(Fields.extend({ id: Id }))
     .output(Automation),
-  activate: oc
+  activate: base
     .route({
       method: 'POST',
       path: '/automations/{id}/activate',
@@ -120,11 +157,11 @@ export const automationsContract = {
     })
     .input(z.object({ id: Id }))
     .output(Automation),
-  pause: oc
+  pause: base
     .route({ method: 'POST', path: '/automations/{id}/pause' })
     .input(z.object({ id: Id }))
     .output(Automation),
-  start: oc
+  start: base
     .route({
       method: 'POST',
       path: '/automations/{id}/start',
@@ -139,7 +176,7 @@ export const automationsContract = {
         continuing: z.boolean(),
       }),
     ),
-  test: oc
+  test: base
     .route({
       method: 'POST',
       path: '/automations/{id}/test',
@@ -163,7 +200,7 @@ export const automationsContract = {
         trace: z.array(DryRunStep),
       }),
     ),
-  stats: oc
+  stats: base
     .route({
       method: 'GET',
       path: '/automations/{id}/stats',
@@ -191,7 +228,7 @@ export const automationsContract = {
         skippedByLimit: z.int(),
       }),
     ),
-  versions: oc
+  versions: base
     .route({
       method: 'GET',
       path: '/automations/{id}/versions',
@@ -212,7 +249,7 @@ export const automationsContract = {
           .max(100),
       }),
     ),
-  restoreVersion: oc
+  restoreVersion: base
     .route({
       method: 'POST',
       path: '/automations/{id}/versions/{version}/restore',
@@ -220,7 +257,7 @@ export const automationsContract = {
     })
     .input(z.object({ id: Id, version: z.coerce.number().int().min(1) }))
     .output(Automation),
-  templates: oc
+  templates: base
     .route({
       method: 'GET',
       path: '/automations/templates',
@@ -236,7 +273,7 @@ export const automationsContract = {
         }),
       ),
     ),
-  fields: oc
+  fields: base
     .route({
       method: 'GET',
       path: '/automations/fields',
@@ -245,19 +282,19 @@ export const automationsContract = {
     })
     .input(z.object({ subject: z.enum(CONTENT_TYPES).optional() }))
     .output(listOf(AutomationFieldPath)),
-  remove: oc
+  remove: base
     .route({ method: 'DELETE', path: '/automations/{id}' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  runs: oc
+  runs: base
     .route({ method: 'GET', path: '/automations/{id}/runs' })
     .input(CursorQuery.extend({ id: Id, status: RunStatus.optional() }))
     .output(cursorPageOf(AutomationRun)),
-  run: oc
+  run: base
     .route({ method: 'GET', path: '/automations/runs/{runId}' })
     .input(z.object({ runId: Id }))
     .output(z.object({ run: AutomationRun, steps: z.array(RunStep) })),
-  retryRun: oc
+  retryRun: base
     .route({
       method: 'POST',
       path: '/automations/runs/{runId}/retry',
@@ -265,7 +302,7 @@ export const automationsContract = {
     })
     .input(z.object({ runId: Id }))
     .output(AutomationRun),
-  cancelRun: oc
+  cancelRun: base
     .route({
       method: 'POST',
       path: '/automations/runs/{runId}/cancel',

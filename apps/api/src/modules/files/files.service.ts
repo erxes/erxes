@@ -13,7 +13,7 @@ import {
 import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { callerCan } from '~/http/access';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { randomToken } from '~/lib/crypto';
 import { lockRows } from '~/lib/locks';
@@ -137,13 +137,12 @@ export const completeUpload = async (client: Db, id: string) => {
   const stored = await storage().stat(row.key);
 
   if (!stored) {
-    throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
+    throw fail('UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
   }
 
   if (stored.size !== row.size) {
     await storage().remove(row.key);
-    throw new HttpError(
-      409,
+    throw fail(
       'UPLOAD_INCOMPLETE',
       'The uploaded file does not match the declared size; upload it again',
     );
@@ -154,11 +153,7 @@ export const completeUpload = async (client: Db, id: string) => {
   try {
     await storage().promote(row.key, finalKey, stored);
   } catch {
-    throw new HttpError(
-      409,
-      'UPLOAD_CHANGED',
-      'The file changed while it was being checked; upload it again',
-    );
+    throw fail('UPLOAD_CHANGED', 'The file changed while it was being checked; upload it again');
   }
 
   const ready = oneRow(
@@ -232,8 +227,7 @@ export const listFiles = async (client: Db, ids: string[]) => {
 /** The uploader may delete a file, and so may members allowed to moderate files. */
 const assertCanRemove = (row: FileRow) => {
   if (!isUploader(row) && !callerCan('files.moderate')) {
-    throw new HttpError(
-      403,
+    throw fail(
       'NOT_ALLOWED',
       'Only the uploader or someone who moderates files can delete this file',
     );

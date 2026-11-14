@@ -11,7 +11,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, gte, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { logger } from '~/logger';
 import { ownerIds } from '~/modules/audit/alerts';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -145,8 +145,7 @@ export const guardDeletions = async (tx: Db, count: number, what: string) => {
   // The request is refused (rolled back), but the stop itself is saved.
   await recordStop(deletion);
 
-  throw new HttpError(
-    429,
+  throw fail(
     'MASS_DELETE_STOPPED',
     `Stopped after ${total} deletions in a few minutes: the owners have been told`,
   );

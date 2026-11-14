@@ -6,12 +6,12 @@ import {
   fields,
 } from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import type { FieldRow } from './fieldRows';
 
 const invalid = (field: FieldRow, message: string) =>
-  new HttpError(400, 'INVALID_FIELD_VALUE', `${field.label}: ${message}`, { fieldId: field.id });
+  fail('INVALID_FIELD_VALUE', `${field.label}: ${message}`, { fieldId: field.id });
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NUMBER = /^-?\d+([.,]\d+)?$/;
@@ -123,7 +123,7 @@ export const applyCustomFields = async (
     const definition = byId.get(id);
 
     if (!definition) {
-      throw new HttpError(400, 'INVALID_FIELD', `Unknown ${contentType} field`, { fieldId: id });
+      throw fail('INVALID_FIELD', `Unknown ${contentType} field`, { fieldId: id });
     }
 
     if (value === null || isEmpty(value)) {
@@ -132,7 +132,7 @@ export const applyCustomFields = async (
     }
 
     if (definition.field.archivedAt || definition.groupArchivedAt) {
-      throw new HttpError(400, 'INVALID_FIELD', `${definition.field.label} is archived`, {
+      throw fail('INVALID_FIELD', `${definition.field.label} is archived`, {
         fieldId: id,
       });
     }

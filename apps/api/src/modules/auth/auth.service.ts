@@ -16,13 +16,12 @@ import { effectivePermissions } from '~/modules/roles/roles.service';
 import { twoFactorChallenge } from './twoFactor.service';
 import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { verifyPassword } from '~/lib/crypto';
 import { asMember } from './account.service';
 import { type ExampleLanguage, exampleDataJob } from '~/modules/organizations/exampleData';
 
-const invalidCredentials = () =>
-  new HttpError(401, 'INVALID_CREDENTIALS', 'Wrong email or password');
+const invalidCredentials = () => fail('INVALID_CREDENTIALS', 'Wrong email or password');
 
 /** `acme.erxes.io` → `acme`; plain hosts (localhost, IPs) name no organisation. */
 export const subdomainFromHost = (host?: string): string | undefined => {
@@ -56,8 +55,7 @@ const findAccount = async (email: string, subdomain: string | undefined) => {
   );
 
   if (rows.length > 1) {
-    throw new HttpError(
-      400,
+    throw fail(
       'ORGANIZATION_REQUIRED',
       'This email belongs to several organisations: sign in at your organisation address',
     );
@@ -84,8 +82,7 @@ const assertNotLockedOut = async ({ user }: Account) => {
   );
 
   if ((recent?.failures ?? 0) >= 10) {
-    throw new HttpError(
-      429,
+    throw fail(
       'TOO_MANY_ATTEMPTS',
       'Too many failed sign-ins for this account: try again in 15 minutes',
     );
@@ -209,7 +206,7 @@ export const getSession = async (orgId: string, userId: string) =>
       .limit(1);
 
     if (!row) {
-      throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+      throw fail('UNAUTHORIZED', 'Sign in to continue');
     }
 
     return {

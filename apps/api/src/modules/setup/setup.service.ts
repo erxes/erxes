@@ -3,7 +3,7 @@ import { type Db, organizations, runAs, withOrg, withSystem } from '@erxes/core-
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { memberOf } from '~/http/auth';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { hashPassword } from '~/lib/crypto';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
 
@@ -41,11 +41,7 @@ export const runSetup = async (input: {
   password: string;
 }) => {
   if (!config.setup.enabled) {
-    throw new HttpError(
-      403,
-      'SETUP_DISABLED',
-      'Organisations are created by the erxes SaaS service here',
-    );
+    throw fail('SETUP_DISABLED', 'Organisations are created by the erxes SaaS service here');
   }
 
   const passwordHash = await hashPassword(input.password);
@@ -55,11 +51,7 @@ export const runSetup = async (input: {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext('core:setup'))`);
 
     if (await hasOrganization(tx)) {
-      throw new HttpError(
-        409,
-        'SETUP_DONE',
-        'This installation is already set up. Sign in instead.',
-      );
+      throw fail('SETUP_DONE', 'This installation is already set up. Sign in instead.');
     }
 
     const created = await insertOrganization(tx, {

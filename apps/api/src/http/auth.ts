@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { config } from '~/config';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
 import { publicPaths } from '~/http/access';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { verifyJwt } from '~/lib/signing';
 import { appServes } from '~/modules/customerAuth/customerApps';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
@@ -66,7 +66,7 @@ const accessClaimsOf = async (token: string) => {
   return AccessClaims.safeParse(verified?.payload).data ?? null;
 };
 
-const unauthorized = () => new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+const unauthorized = () => fail('UNAUTHORIZED', 'Sign in to continue');
 
 /** Paths under /core/v1 that work without being signed in (public in the access map). */
 const PUBLIC_PATHS = new Set([...publicPaths(), '/openapi.json', '/.well-known/jwks.json']);
@@ -168,7 +168,7 @@ const resolveMember = async (req: Request, bearer: string): Promise<Resolved> =>
   if (!token) throw unauthorized();
 
   if (cookie && isCrossSiteWrite(req)) {
-    throw new HttpError(403, 'CROSS_SITE', 'Cross-site request blocked');
+    throw fail('CROSS_SITE', 'Cross-site request blocked');
   }
 
   const claims = await accessClaimsOf(token);

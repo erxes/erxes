@@ -8,7 +8,7 @@ import {
 } from '@erxes/core-db';
 import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { hmacSha256, randomInt, safeEqual } from '~/lib/crypto';
 import { lockKeys } from '~/lib/locks';
@@ -68,8 +68,7 @@ export const sendCode = async (
     .where(and(forAddress(address), gt(customerCodes.createdAt, sql`now() - interval '1 hour'`)));
 
   if (recent && (recent.count >= MAX_PER_HOUR || recent.tooSoon)) {
-    throw new HttpError(
-      429,
+    throw fail(
       'TOO_MANY_CODES',
       recent.tooSoon
         ? 'A code was just sent: wait a moment before asking for another'
@@ -162,4 +161,4 @@ export const useCode = async (
 };
 
 export const invalidCode = () =>
-  new HttpError(400, 'INVALID_CODE', 'The code is wrong or has expired: ask for a new one');
+  fail('INVALID_CODE', 'The code is wrong or has expired: ask for a new one');

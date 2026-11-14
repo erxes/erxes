@@ -4,7 +4,7 @@ import { caller, type Db, newId, views } from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { callerCan } from '~/http/access';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { filterFields } from './filterFields';
 import { compileRecordFilter } from './recordFilter';
@@ -16,7 +16,7 @@ const permissionsOf = (recordType: ViewRecordType) =>
     : { see: 'contacts.view', share: 'contacts.edit' };
 
 const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
-  new HttpError(403, 'NOT_ALLOWED', message, { permission });
+  fail('NOT_ALLOWED', message, { permission });
 
 /** The member may see the list the views are of. */
 const assertSees = (recordType: ViewRecordType) => {
@@ -119,8 +119,7 @@ const viewOrThrow = async (client: Db, id: string) => {
 };
 
 const notEditable = (what: string) =>
-  new HttpError(
-    403,
+  fail(
     'NOT_ALLOWED',
     `Only its creator (or, when shared, members who may share views) can ${what} this view`,
   );

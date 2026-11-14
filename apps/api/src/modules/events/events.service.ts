@@ -2,7 +2,7 @@ import type { ActivityTarget, CursorQuery, EventFailure, EventInput } from '@erx
 import { actorOf, caller, type Db, events, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { currentRunCause, currentImport } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
@@ -65,11 +65,7 @@ export const publishPluginEvents = async (client: Db, inputs: EventInput[]) => {
     assertPluginNamespace(plugin, input.type);
 
     if (input.summary && !input.subjectId) {
-      throw new HttpError(
-        400,
-        'SUBJECT_REQUIRED',
-        'A timeline summary needs a subject (customer or company)',
-      );
+      throw fail('SUBJECT_REQUIRED', 'A timeline summary needs a subject (customer or company)');
     }
   }
 
@@ -224,7 +220,7 @@ export const retryEventFailures = async (
   input: { failures?: FailureRef[]; allDead?: boolean },
 ) => {
   if (!input.failures?.length && !input.allDead) {
-    throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
+    throw fail('NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
   }
 
   const failed = await failedJobs(

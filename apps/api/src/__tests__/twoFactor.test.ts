@@ -73,7 +73,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     await recovered.api.auth.signInTwoFactor({ challenge: await challenge(), recoveryCode });
     await expect(
       server.browser().api.auth.signInTwoFactor({ challenge: await challenge(), recoveryCode }),
-    ).rejects.toMatchObject({ status: 401 });
+    ).rejects.toMatchObject({ code: 'WRONG_CODE' });
     await expect(
       server
         .browser()

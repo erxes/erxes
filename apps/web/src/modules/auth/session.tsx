@@ -20,7 +20,7 @@ export const useSetupStatus = (enabled: boolean) =>
 export const useSessionQuery = () =>
   useQuery(orpc.auth.me.queryOptions({ staleTime: 60_000, retry: false }));
 
-export const isSignedOut = (error: unknown) => isApiError(error) && error.status === 401;
+export const isSignedOut = (error: unknown) => isApiError(error, 'UNAUTHORIZED');
 
 /** Starts the app with the session a sign-in (or setup, or invitation) returned. */
 export const useSignedIn = () => {

@@ -1,6 +1,7 @@
 import { CONTENT_TYPES, WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
 import { webhookDeliveries, webhooks } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
@@ -248,21 +249,26 @@ const WebhookFields = createUpdateSchema(webhooks, {
   eventTypes: () => z.array(EventPattern).min(1).max(100),
 }).pick({ url: true, description: true, eventTypes: true, status: true });
 
+const { INVALID_URL, LIMIT_EXCEEDED } = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({ ...COMMON_ERRORS, INVALID_URL, LIMIT_EXCEEDED });
+
 /**
  * Webhooks: an organisation's endpoints get its events as signed POSTs
  * (`Erxes-Signature: t=<unix>,v1=<hex HMAC-SHA256 of "<t>.<body>">`), retried
  * with backoff for about a day; every attempt is in the delivery log.
  */
 export const webhooksContract = {
-  eventTypes: oc
+  eventTypes: base
     .route({
       method: 'GET',
       path: '/events/types',
       summary: "Event types to subscribe to or automate on: core's and installed plugins'",
     })
     .output(listOf(EventTypeInfo)),
-  list: oc.route({ method: 'GET', path: '/webhooks' }).output(listOf(Webhook)),
-  create: oc
+  list: base.route({ method: 'GET', path: '/webhooks' }).output(listOf(Webhook)),
+  create: base
     .route({
       method: 'POST',
       path: '/webhooks',
@@ -271,15 +277,15 @@ export const webhooksContract = {
     })
     .input(WebhookFields.omit({ status: true }).required({ url: true, eventTypes: true }))
     .output(z.object({ webhook: Webhook, secret: z.string() })),
-  update: oc
+  update: base
     .route({ method: 'PATCH', path: '/webhooks/{id}' })
     .input(WebhookFields.extend({ id: Id }))
     .output(Webhook),
-  remove: oc
+  remove: base
     .route({ method: 'DELETE', path: '/webhooks/{id}' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  rotateSecret: oc
+  rotateSecret: base
     .route({
       method: 'POST',
       path: '/webhooks/{id}/secret',
@@ -287,7 +293,7 @@ export const webhooksContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ secret: z.string() })),
-  test: oc
+  test: base
     .route({
       method: 'POST',
       path: '/webhooks/{id}/test',
@@ -295,7 +301,7 @@ export const webhooksContract = {
     })
     .input(z.object({ id: Id }))
     .output(WebhookDelivery),
-  deliveries: oc
+  deliveries: base
     .route({
       method: 'GET',
       path: '/webhooks/{id}/deliveries',
@@ -303,7 +309,7 @@ export const webhooksContract = {
     })
     .input(CursorQuery.extend({ id: Id, status: z.enum(WEBHOOK_DELIVERY_STATUSES).optional() }))
     .output(cursorPageOf(WebhookDelivery)),
-  redeliver: oc
+  redeliver: base
     .route({
       method: 'POST',
       path: '/webhooks/deliveries/{deliveryId}/redeliver',

@@ -8,6 +8,7 @@ import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import { coreRouter } from '~/router';
+import { invalidInput } from '~/http/errors';
 import { logger } from '~/logger';
 
 const handler = new OpenAPIHandler(coreRouter, {
@@ -23,17 +24,8 @@ const handler = new OpenAPIHandler(coreRouter, {
   clientInterceptors: [
     onError((error) => {
       // Input that fails the contract: one stable code, with zod's issues.
-      if (
-        error instanceof ORPCError &&
-        error.code === 'BAD_REQUEST' &&
-        error.cause instanceof ValidationError
-      ) {
-        throw new ORPCError('INVALID_INPUT', {
-          status: 400,
-          message: 'The request is not valid',
-          data: { issues: error.cause.issues },
-          cause: error.cause,
-        });
+      if (error instanceof ORPCError && error.cause instanceof ValidationError) {
+        throw invalidInput(error.cause);
       }
     }),
   ],
@@ -57,13 +49,32 @@ export const coreApi: RequestHandler = async (req, res, next) => {
  * The contract's named object schemas (`Customer`, `Invoice`, …) become
  * `components.schemas` and are referenced by `$ref`, not repeated inline.
  */
-const commonSchemas = Object.fromEntries(
+const namedSchemas = Object.fromEntries(
   Object.entries(contract).flatMap(([name, value]) =>
     /^[A-Z]/.test(name) && value instanceof z.ZodObject
       ? [[name, { schema: value, strategy: 'output' as const }]]
       : [],
   ),
 );
+
+// Each error body once (`NOT_FOUNDError`, …); responses list the codes they can answer with by $ref.
+const errorSchemas = Object.fromEntries(
+  Object.entries(contract.ERRORS).map(([code, error]) => [
+    `${code}Error`,
+    {
+      schema: z.object({
+        defined: z.literal(true),
+        code: z.literal(code),
+        status: z.literal(error.status),
+        message: z.string(),
+        ...('data' in error ? { data: error.data } : {}),
+      }),
+      strategy: 'output' as const,
+    },
+  ]),
+);
+
+const commonSchemas = { ...namedSchemas, ...errorSchemas };
 
 // Recursive schemas (automation steps, condition groups) unroll three levels deep.
 const converter = new ZodToJsonSchemaConverter({ maxLazyDepth: 3 });
@@ -73,6 +84,9 @@ export const generateOpenApi = () =>
     info: { title: 'erxes core', version: 'v1' },
     servers: [{ url: CORE_API_PREFIX }],
     commonSchemas,
+    customErrorResponseBodySchema: (definedErrors) => ({
+      oneOf: definedErrors.map(([code]) => ({ $ref: `#/components/schemas/${code}Error` })),
+    }),
   });
 
 let spec: ReturnType<typeof generateOpenApi> | undefined;

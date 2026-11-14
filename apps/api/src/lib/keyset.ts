@@ -3,7 +3,7 @@ import type { Db } from '@erxes/core-db';
 import type { SQL } from 'drizzle-orm';
 import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 
 export interface KeysetSource {
   table: PgTable;
@@ -70,7 +70,7 @@ export const keysetPage = async <Row extends { id: string }>(
     if (!anchor) {
       // A list reopening at a remembered record that is gone starts from the top.
       if (!inclusive) {
-        throw new HttpError(400, 'INVALID_CURSOR', 'The cursor record no longer exists');
+        throw fail('INVALID_CURSOR', 'The cursor record no longer exists');
       }
 
       cursor = undefined;

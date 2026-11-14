@@ -1,6 +1,6 @@
 import { db } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
-import express, { type Express, type NextFunction, type Request, type Response } from 'express';
+import express, { type Express } from 'express';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Logger, SerializedRequest } from 'pino';
 import { pinoHttp } from 'pino-http';
@@ -11,7 +11,7 @@ import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
-import { HttpError } from '~/http/errors';
+import { answerError, fail } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
@@ -81,15 +81,6 @@ const requestLogger = (log: Logger) =>
     customSuccessObject: (req, _res, line: Record<string, unknown>) => ({ ...line, req }),
     customErrorObject: (req, _res, _error, line: Record<string, unknown>) => ({ ...line, req }),
   });
-
-/** Errors outside oRPC (auth, unknown routes) in the same shape as oRPC's. */
-const errorBody = (status: number, code: string, message: string, data?: unknown) => ({
-  defined: false,
-  code,
-  status,
-  message,
-  data,
-});
 
 export const createApp = (log: Logger = logger): Express => {
   const app = express();
@@ -179,26 +170,10 @@ export const createApp = (log: Logger = logger): Express => {
     coreApi,
   );
 
-  app.use((_req, res) => {
-    res.status(404).json(errorBody(404, 'NOT_FOUND', 'No such route'));
+  app.use(() => {
+    throw fail('NOT_FOUND', 'No such route');
   });
-
-  app.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
-    if (error instanceof HttpError) {
-      res.status(error.status).json(errorBody(error.status, error.code, error.message, error.data));
-
-      return;
-    }
-
-    if (error instanceof SyntaxError && 'body' in error) {
-      res.status(400).json(errorBody(400, 'INVALID_JSON', 'The request body is not valid JSON'));
-
-      return;
-    }
-
-    req.log.error({ err: error }, 'unhandled error');
-    res.status(500).json(errorBody(500, 'INTERNAL', 'Something went wrong'));
-  });
+  app.use(answerError);
 
   return app;
 };
