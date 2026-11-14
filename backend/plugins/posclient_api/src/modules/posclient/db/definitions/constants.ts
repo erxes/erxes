@@ -59,6 +59,13 @@ export const ORDER_STATUSES = {
   FULL: ['paid', 'done', 'complete'],
 };
 
+export const ORDER_INVOICE_CONTENT_TYPES = [
+  'sales:pos.orders',
+  'sales:order',
+  'sales:posOrder',
+  'sales:posOrders',
+];
+
 export const ORDER_SALE_STATUS = {
   CART: 'cart',
   CONFIRMED: 'confirmed',

@@ -61,12 +61,6 @@ const handleDealPaymentCallback = async (
 };
 
 const handlePosOrderPaymentCallback = async (subdomain: string, data: any) => {
-  const posToken = data?.data?.posToken;
-
-  if (!posToken) {
-    return;
-  }
-
   await sendTRPCMessage({
     subdomain,
     pluginName: 'posclient',
@@ -75,6 +69,7 @@ const handlePosOrderPaymentCallback = async (subdomain: string, data: any) => {
     action: 'paymentCallbackClient',
     input: data,
     defaultValue: null,
+    throwOnError: true,
   });
 };
 
