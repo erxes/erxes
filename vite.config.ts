@@ -54,6 +54,7 @@ export default defineConfig({
       'packages/db/drizzle/**',
       'packages/contract/openapi.json',
       'packages/contract/routes.json',
+      'packages/ui/src/lib/cn-tables.ts',
       'pnpm-lock.yaml',
     ],
   },
@@ -70,7 +71,13 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
     // consumers/ installs the packed packages outside the workspace, so their imports
     // resolve only there; consumers/run.sh type-checks them (CI's packages job).
-    ignorePatterns: ['dist/**', 'coverage/**', 'consumers/**'],
+    ignorePatterns: [
+      'dist/**',
+      'coverage/**',
+      'consumers/**',
+      // Written by `cn build` (pnpm --filter @erxes/ui cn:tables), checked by check:generated.
+      'packages/ui/src/lib/cn-tables.ts',
+    ],
     rules: { ...rules, ...restrictedRules, ...budgetRules },
     overrides: [
       ...areas,

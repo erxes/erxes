@@ -43,7 +43,8 @@
     "tag": "v2-next"
   },
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "cn:tables": "cn build --full --css src/styles.css --out src/lib/cn-tables.ts --quiet"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",

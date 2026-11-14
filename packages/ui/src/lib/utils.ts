@@ -1,44 +1,13 @@
-import { createCn } from 'cn/config';
+import { createCn } from 'cn/engine';
 import type { Ref, RefCallback } from 'react';
+import tables from './cn-tables';
 
 /**
- * Joins classes and drops the ones a later class overrides. The theme scales below are the
- * tokens theme.css and styles.css add, so `cn('shadow-sm', 'shadow-focus')` keeps only the last.
- * A new token in those files gets its name added here.
+ * Joins classes and drops the ones a later class overrides. The merge tables include the
+ * scales theme.css and styles.css declare in `@theme`, so `cn('shadow-sm', 'shadow-focus')`
+ * keeps only the last; `pnpm check:generated` fails when they are older than the theme.
  */
-export const cn = createCn({
-  extend: {
-    theme: {
-      shadow: [
-        'focus',
-        'subtle',
-        'destructive',
-        'focus-destructive',
-        'button-primary',
-        'button-outline',
-      ],
-      spacing: ['cell'],
-      text: ['3xs', '2xs'],
-      animate: [
-        'accordion-down',
-        'accordion-up',
-        'spinner',
-        'bot-appear',
-        'bot-rock',
-        'bot-glance',
-        'bot-blink',
-        'bot-dots',
-        'text-shimmer',
-        'first',
-        'second',
-        'third',
-        'fourth',
-        'fifth',
-      ],
-    },
-    classGroups: { scrollbar: ['hide-scroll', 'styled-scroll'] },
-  },
-});
+export const cn = createCn(tables);
 
 /** One ref callback that sets every given ref, for an element both the component and its caller need. */
 export const mergeRefs =
