@@ -15,6 +15,7 @@
     "image:context": "pnpm build && rm -rf .runtime && pnpm --filter @__id__/api deploy --prod .runtime"
   },
   "devDependencies": {
+    "@erxes/lint": "__lintVersion__",
     "@types/node": "^26.6.6",
     "tsrs": "0.25.0-ts7.1.0-beta",
     "typescript": "7.0.2",

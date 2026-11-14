@@ -5,18 +5,14 @@
  */
 import { cp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import lint from '../../lint/package.json' with { type: 'json' };
 
 const pkg = resolve(import.meta.dirname, '..');
 const repo = resolve(pkg, '../..');
 const out = join(pkg, 'dist/templates');
 
 /** Core files every plugin gets unchanged, at the same path. */
-const CORE_FILES = [
-  'tools/check-rls.sql',
-  'tools/config/rules.ts',
-  'tools/config/budgets.ts',
-  'tools/test/no-skips.ts',
-];
+const CORE_FILES = ['tools/check-rls.sql', 'tools/test/no-skips.ts'];
 
 /** The section every erxes repo's AGENTS.md has, unchanged. */
 const QUALITY = /<!-- quality:start -->[\s\S]*?<!-- quality:end -->/;
@@ -55,8 +51,14 @@ export const writeTemplates = async () => {
 
   const agents = join(out, 'base/AGENTS.md');
   const quality = await qualitySection();
+  const manifest = join(out, 'base/package.json');
 
   await writeFile(agents, (await readFile(agents, 'utf8')).replace(QUALITY, quality));
+  // A plugin lints with the @erxes/lint this CLI was packed alongside.
+  await writeFile(
+    manifest,
+    (await readFile(manifest, 'utf8')).replace('__lintVersion__', lint.version),
+  );
   await writeFile(
     join(out, 'base/api/src/test/core-functions.sql'),
     [

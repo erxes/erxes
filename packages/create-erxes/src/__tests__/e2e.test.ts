@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { x } from 'tinyexec';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import lint from '../../../lint/package.json' with { type: 'json' };
 
 const packs = resolve(process.env.CREATE_ERXES_PACKS ?? '');
 const repo = resolve(import.meta.dirname, '../../../..');
@@ -55,6 +56,12 @@ const usePacks = async (dir: string) => {
       'ui/package.json',
       '"erxes-ui": "npm:@erxes/ui@v2-next"',
       `"erxes-ui": "file:${await tarball('erxes-ui')}"`,
+    ],
+    // The CLI pins the @erxes/lint it was packed with.
+    [
+      'package.json',
+      `"@erxes/lint": "${lint.version}"`,
+      `"@erxes/lint": "file:${await tarball('erxes-lint')}"`,
     ],
     [
       'pnpm-workspace.yaml',

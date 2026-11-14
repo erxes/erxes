@@ -27,6 +27,9 @@ importers:
       '@erxes/core-contract':
         specifier: workspace:*
         version: link:packages/contract
+      '@erxes/lint':
+        specifier: workspace:*
+        version: link:packages/lint
       '@orpc/client':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)
@@ -39,9 +42,6 @@ importers:
       '@playwright/test':
         specifier: ^1.65.0
         version: 1.65.0
-      '@shadcn/lint':
-        specifier: 0.2.5
-        version: 0.2.5
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6
@@ -406,6 +406,16 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.23.15
+
+  packages/lint:
+    dependencies:
+      '@shadcn/lint':
+        specifier: 0.2.5
+        version: 0.2.5
+    devDependencies:
+      vite-plus:
+        specifier: ^1.6.0
+        version: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
 
   packages/payment-gateways:
     dependencies:

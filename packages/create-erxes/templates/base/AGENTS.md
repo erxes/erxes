@@ -22,8 +22,9 @@ are the reference feature: copy their shape for a new one.
 - Every table, index and constraint starts with `__id___`, and every table has
   `org_id` with forced row-level security, or is listed in `tools/no-org-id.sql`
   with the reason. Core and other plugins share the database. [pnpm check:rls]
-- `tools/config/`, `tools/test/no-skips.ts` and `tools/check-rls.sql` come from
-  core unchanged, as does the quality section above. Change them in core.
+- The lint rules are `@erxes/lint`'s preset (`vite.config.ts`). It,
+  `tools/test/no-skips.ts` and `tools/check-rls.sql` come from core unchanged, as
+  does the quality section above. Change them in core.
 - The plugin reaches core only through `@erxes/plugin-sdk` (`api/src/core.ts`)
   and the UI's `pluginFetch`. It never reads `core_*` tables or imports core code.
 - Members are signed in by core: the UI sends a session token, the API checks it

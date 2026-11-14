@@ -20,8 +20,9 @@ const ESCAPE = /(oxlint|eslint)-(disable|enable)|@ts-(ignore|expect-error|nochec
 const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
 
 // consumers/ asserts with @ts-expect-error that the published types reject wrong calls;
-// tools/lint/anti-slop/vendor is ESLint Stylistic's code, kept as upstream wrote it; this file
-// names the comments it bans. Untracked files count too, so a new file is checked before its commit.
+// packages/lint/src/anti-slop/vendor is ESLint Stylistic's code, kept as upstream wrote it; this
+// file names the comments it bans. Untracked files count too, so a new file is checked before its
+// commit.
 const sources = git(
   'ls-files',
   '--cached',
@@ -37,7 +38,7 @@ const sources = git(
     (file) =>
       file &&
       file !== 'tools/check-escapes.ts' &&
-      !/^(consumers|tools\/lint\/anti-slop\/vendor)\//.test(file),
+      !/^(consumers|packages\/lint\/src\/anti-slop\/vendor)\//.test(file),
   );
 
 const escapes = sources.flatMap((file) =>

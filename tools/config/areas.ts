@@ -1,7 +1,8 @@
 // What each part of the repo adds to the rules everyone gets: its runtime, React and
-// accessibility in the browser, and the rules a part has adopted so far.
+// accessibility in the browser, and the rules a part has adopted so far. @erxes/lint's
+// preset turns the server rules back off in tests.
+import { browserRules } from '@erxes/lint';
 import type { OxlintConfig } from 'vite-plus/lint';
-import { browserRules } from './rules';
 
 export const areas = [
   {
@@ -51,7 +52,7 @@ export const areas = [
       'packages/plugin-sdk/**',
       'packages/ui/**',
     ],
-    rules: { 'erxes/no-inline-enum': 'error' },
+    rules: { 'core/no-inline-enum': 'error' },
   },
   {
     // A query per item is an N+1: batch it (`inArray`, a set-based update), or go through
@@ -73,12 +74,6 @@ export const areas = [
   {
     // A procedure's permission is its ACCESS policy (src/http/policies.ts), checked before it runs.
     files: ['apps/api/src/modules/**'],
-    rules: { 'erxes/no-service-permission': 'error' },
-  },
-  {
-    // A test takes its steps in order (a race, a session's lifetime); N+1s are a server concern.
-    // Fixtures write through the owner's connection, outside any organisation's scope.
-    files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
-    rules: { 'no-await-in-loop': 'off', 'erxes/no-org-filter': 'off' },
+    rules: { 'core/no-service-permission': 'error' },
   },
 ] satisfies OxlintConfig['overrides'];

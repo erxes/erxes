@@ -18,7 +18,9 @@ vp run test          # on dev:stack's Postgres (.env.local); vp run dev:stack do
 second, and a miss names the changed file. `check` also runs `tools/check-docs.ts`, which fails when
 an AGENTS.md or SKILL.md names a path, script or function the repo doesn't have, and
 `tools/check-escapes.ts`, which fails on any lint-disable or `@ts-ignore`/`@ts-expect-error` comment.
-Lint config is in `tools/config/`; the files a rule is off for are in `tools/config/exceptions.ts`.
+The rules core shares with plugins are `@erxes/lint`'s preset (`packages/lint`); core's own are in
+`tools/config/` and its own lint plugin in `tools/lint/core.ts`. The files a rule is off for are in
+`tools/config/exceptions.ts`.
 
 ## Invariants
 
