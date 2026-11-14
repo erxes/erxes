@@ -4,6 +4,7 @@ import { parseEnv } from 'node:util';
 import { configDefaults, defineConfig } from 'vite-plus';
 import { areas } from './tools/config/areas';
 import { budgetOverrides, budgetRules } from './tools/config/budgets';
+import { designOverrides, designSettings } from './tools/config/design';
 import { exceptions } from './tools/config/exceptions';
 import { restrictedOverrides, restrictedRules } from './tools/config/restricted';
 import { rules } from './tools/config/rules';
@@ -62,14 +63,22 @@ export default defineConfig({
       { name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' },
       { name: 'anti-slop', specifier: './tools/lint/anti-slop/index.ts' },
       { name: 'erxes', specifier: './tools/lint/erxes/index.ts' },
+      { name: 'shadcn', specifier: '@shadcn/lint' },
     ],
+    settings: designSettings,
     categories: { correctness: 'error', suspicious: 'error' },
     options: { typeAware: true, typeCheck: true },
     // consumers/ installs the packed packages outside the workspace, so their imports
     // resolve only there; consumers/run.sh type-checks them (CI's packages job).
     ignorePatterns: ['dist/**', 'coverage/**', 'consumers/**'],
     rules: { ...rules, ...restrictedRules, ...budgetRules },
-    overrides: [...areas, ...restrictedOverrides, ...budgetOverrides, ...exceptions],
+    overrides: [
+      ...areas,
+      ...designOverrides,
+      ...restrictedOverrides,
+      ...budgetOverrides,
+      ...exceptions,
+    ],
   },
   test: {
     reporters: [...configDefaults.reporters, noSkips()],
