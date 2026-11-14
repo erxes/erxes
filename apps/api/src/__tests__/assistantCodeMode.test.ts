@@ -92,7 +92,7 @@ describe('assistant code mode', () => {
   });
 
   it('stops a program at its memory limit and cuts long output', async () => {
-    expect(await runCode("const all = []; while (true) all.push('x'.repeat(100000));")).toContain(
+    expect(await runCode('const all = []; while (true) all.push(all.length);')).toContain(
       'OUT_OF_MEMORY',
     );
 
