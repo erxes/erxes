@@ -155,17 +155,10 @@ export const activities = pgTable(
     actorType: text({ enum: ACTOR_TYPES }).notNull(),
     actorId: text(),
     dedupeKey: text(),
-    /** Notes: pinned to the top of the timeline. */
-    pinnedAt: timestamptz(),
-    /** Notes: last edited. */
-    editedAt: timestamptz(),
     occurredAt: timestamptz().defaultNow().notNull(),
     createdAt: createdAt(),
   },
   (table) => [
-    index('core_activities_pinned_idx')
-      .on(table.orgId, table.targetType, table.targetId)
-      .where(sql`${table.pinnedAt} IS NOT NULL`),
     index('core_activities_target_idx').on(
       table.orgId,
       table.targetType,

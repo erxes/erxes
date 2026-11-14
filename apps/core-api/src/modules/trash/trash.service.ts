@@ -11,9 +11,13 @@ import {
   customers,
   type Db,
   newId,
+  notes,
+  noteVersions,
+  reactions,
   savepoint,
   tags,
   trash,
+  users,
 } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { CasingCache } from 'drizzle-orm/casing';
@@ -59,15 +63,27 @@ const companionsOf = async (tx: Db, type: ContentType, ids: string[]) => {
       ),
     );
 
-  const entries = await tx
+  const timeline = and(eq(activities.targetType, type), inArray(activities.targetId, ids));
+  const entryIds = tx.select({ id: activities.id }).from(activities).where(timeline);
+
+  const entries = await tx.select().from(activities).where(timeline);
+  const noteRows = await tx.select().from(notes).where(inArray(notes.id, entryIds));
+
+  const versions = await tx
     .select()
-    .from(activities)
-    .where(and(eq(activities.targetType, type), inArray(activities.targetId, ids)));
+    .from(noteVersions)
+    .where(inArray(noteVersions.noteId, entryIds));
+
+  const reacted = await tx.select().from(reactions).where(inArray(reactions.activityId, entryIds));
+  const recordOf = new Map(entries.map((entry) => [entry.id, entry.targetId]));
 
   return (id: string): Omit<Snapshot, 'row'> => ({
     tagIds: tagRows.filter((tag) => tag.recordId === id).map((tag) => tag.tagId),
     links: links.filter((link) => (type === 'customer' ? link.customerId : link.companyId) === id),
     activities: entries.filter((entry) => entry.targetId === id),
+    notes: noteRows.filter((note) => recordOf.get(note.id) === id),
+    noteVersions: versions.filter((version) => recordOf.get(version.noteId) === id),
+    reactions: reacted.filter((reaction) => recordOf.get(reaction.activityId) === id),
   });
 };
 
@@ -116,33 +132,32 @@ export const moveToTrash = async (tx: Db, type: ContentType, ids: string[]) => {
 };
 
 export const listTrash = async (client: Db, query: CursorQuery & { type?: ContentType }) => {
+  const { snapshot, ...columns } = getTableColumns(trash);
+
+  const countOf = (key: keyof Snapshot) =>
+    sql<number>`jsonb_array_length(${snapshot} -> ${key})`.mapWith(Number);
+
   // A record deleted again moves to the top: `deletedAt` is the position.
-  const page = await keysetPage(
+  return keysetPage(
     client,
     { table: trash, id: trash.id, createdAt: trash.deletedAt },
     query.type ? eq(trash.recordType, query.type) : undefined,
     query,
     (where, orderBy, limit) =>
       client
-        .select()
+        .select({
+          ...columns,
+          counts: {
+            tags: countOf('tagIds'),
+            links: countOf('links'),
+            activities: countOf('activities'),
+          },
+        })
         .from(trash)
         .where(where)
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return {
-    ...page,
-    data: page.data.map((row) => ({
-      ...row,
-      deletedBy: { type: row.deletedByType, id: row.deletedBy },
-      counts: {
-        tags: row.snapshot.tagIds.length,
-        links: row.snapshot.links.length,
-        activities: row.snapshot.activities.length,
-      },
-    })),
-  };
 };
 
 /** Column names in the database, as the client spells them (`casing: 'snake_case'` in `@erxes/core-db`). */
@@ -231,10 +246,31 @@ const restoreRelations = async (tx: Db, item: TrashRow) => {
   );
 };
 
+/** Reactions come back from the members still on the team. */
+const restoreReactions = async (tx: Db, rows: Snapshot['reactions']) => {
+  if (!rows.length) return;
+
+  const members = new Set(
+    (
+      await tx
+        .select({ id: users.id })
+        .from(users)
+        .where(inArray(users.id, [...new Set(rows.map((row) => row.userId))]))
+    ).map((member) => member.id),
+  );
+
+  await reinsert(
+    tx,
+    reactions,
+    rows.filter((row) => members.has(row.userId)),
+    { skipExisting: true },
+  );
+};
+
 /** One record back, with its custom field values (of fields still existing), relations and timeline. */
 const restoreItem = async (tx: Db, item: TrashRow) => {
   const type = item.recordType;
-  const { row, activities: entries } = item.snapshot;
+  const { row, activities: entries, notes: noteRows, noteVersions: versions } = item.snapshot;
 
   await reinsert(tx, tableOf(type), [row], { skipExisting: false });
 
@@ -244,11 +280,15 @@ const restoreItem = async (tx: Db, item: TrashRow) => {
   await restoreRelations(tx, item);
 
   await reinsert(tx, activities, entries, { skipExisting: true });
+  await reinsert(tx, notes, noteRows, { skipExisting: true });
+  await reinsert(tx, noteVersions, versions, { skipExisting: true });
+  await restoreReactions(tx, item.snapshot.reactions);
 
   await tx.delete(trash).where(eq(trash.id, item.id));
   await publishCoreEvents(tx, {
     type: `core.${type}.restored`,
-    subject: { type, id: item.recordId },
+    subjectType: type,
+    subjectId: item.recordId,
   });
   await recordAudit(tx, {
     action: `${type}.restored`,

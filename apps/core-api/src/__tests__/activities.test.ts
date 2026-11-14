@@ -75,7 +75,8 @@ describe('activity timeline', () => {
       targetId: customer.id,
       type: 'hr.candidate.applied',
       summary: 'Applied for Accountant',
-      entity: { type: 'application', id: 'app1' },
+      entityType: 'application',
+      entityId: 'app1',
       link: '/hr/applications/app1',
       actorUserId: t.ids.member,
     };
@@ -88,7 +89,8 @@ describe('activity timeline', () => {
     expect(retry).toMatchObject({ created: false, activity: { id: first.activity.id } });
     expect(first.activity).toMatchObject({
       source: 'hr',
-      actor: { type: 'user', id: t.ids.member },
+      actorType: 'user',
+      actorId: t.ids.member,
     });
 
     await expect(t.hr().activities.create({ ...entry, type: 'ecom.x.y' })).rejects.toMatchObject({
@@ -132,8 +134,9 @@ describe('activity timeline', () => {
 
     expect(note).toMatchObject({
       type: 'customer.note',
-      pinned: false,
-      data: { body: 'Call back on Monday @member' },
+      actorType: 'user',
+      actorId: t.ids.owner,
+      note: { body: 'Call back on Monday @member', mentions: [t.ids.member], pinnedAt: null },
     });
 
     const mention = await t.member().notifications.list({ kind: 'core.note.mentioned' });
@@ -144,18 +147,19 @@ describe('activity timeline', () => {
     });
 
     await expect(
-      t.member().activities.updateNote({ id: note.id, body: 'mine now' }),
+      t.member().activities.editNote({ id: note.id, body: 'mine now' }),
     ).rejects.toMatchObject({ code: 'NOT_AUTHOR' });
 
-    const pinned = await t.member().activities.updateNote({ id: note.id, pinned: true });
+    const pinned = await t.member().activities.pinNote({ id: note.id, pinned: true });
 
     const edited = await t
       .owner()
-      .activities.updateNote({ id: note.id, body: 'Call back on Tuesday' });
+      .activities.editNote({ id: note.id, body: 'Call back on Tuesday' });
 
-    expect(pinned.pinned).toBe(true);
-    expect(edited).toMatchObject({ pinned: true, data: { body: 'Call back on Tuesday' } });
-    expect(edited.editedAt).not.toBeNull();
+    expect(pinned.note?.pinnedAt).not.toBeNull();
+    expect(edited.note).toMatchObject({ body: 'Call back on Tuesday' });
+    expect(edited.note?.pinnedAt).not.toBeNull();
+    expect(edited.note?.editedAt).not.toBeNull();
 
     const list = (query: { kind?: 'notes' | 'changes'; pinned?: 'true' }) =>
       t.owner().activities.list({ targetType: 'customer', targetId: id, ...query });

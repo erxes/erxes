@@ -12,7 +12,8 @@ const BODIES: Partial<Record<string, object>> = {
   'fieldGroups.update': { name: 'pwned' },
   'users.update': { fullName: 'pwned' },
   'users.setPassword': { password: 'Pwned-password-1' },
-  'activities.updateNote': { body: 'pwned' },
+  'activities.editNote': { body: 'pwned' },
+  'activities.pinNote': { pinned: true },
 };
 
 /** The paths of core's OpenAPI document: each path's operations by HTTP method. */

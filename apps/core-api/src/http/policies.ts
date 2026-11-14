@@ -39,7 +39,9 @@ export const ACCESS = {
   // Timelines check per target: contacts.view, or the plugin timeline's permission.
   'activities.list': MEMBER,
   'activities.addNote': MEMBER,
-  'activities.updateNote': MEMBER,
+  'activities.editNote': MEMBER,
+  'activities.pinNote': MEMBER,
+  'activities.noteVersions': MEMBER,
   'activities.removeNote': MEMBER,
   'activities.react': MEMBER,
   'activities.types': MEMBER,
