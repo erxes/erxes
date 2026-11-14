@@ -62,10 +62,9 @@ export const MemberInline = ({
 const MemberList = ({
   value,
   members,
+  noneLabel,
   onPick,
-}: {
-  value: string | null | undefined;
-  members: MemberQueries;
+}: Pick<SelectMemberProps, 'value' | 'members' | 'noneLabel'> & {
   onPick: (id: string | null) => void;
 }) => {
   const team = useQuery(members.team);
@@ -79,6 +78,7 @@ const MemberList = ({
       )}
       value={value ? [value] : []}
       onValueChange={([id]) => onPick(id ?? null)}
+      noneLabel={noneLabel}
       loading={team.isPending}
       error={team.error}
     />
@@ -91,6 +91,8 @@ interface SelectMemberProps {
   /** Where the members come from: `memberQueries` from `@erxes/core-contract/client`. */
   members: MemberQueries;
   placeholder?: string;
+  /** A first row that picks no member, e.g. "Anyone" on a filter. */
+  noneLabel?: string;
 }
 
 /** The member as a record table cell; click to pick another. */
@@ -99,6 +101,7 @@ const SelectMemberInlineCell = ({
   value,
   onValueChange,
   members,
+  noneLabel,
   scope,
   placeholder,
   size = 'lg',
@@ -140,6 +143,7 @@ const SelectMemberInlineCell = ({
         <MemberList
           value={value}
           members={members}
+          noneLabel={noneLabel}
           onPick={(next) => {
             onValueChange(next);
             setOpen(false);
@@ -155,6 +159,7 @@ const SelectMemberField = ({
   value,
   onValueChange,
   members,
+  noneLabel,
   placeholder,
   className,
   ...trigger
@@ -171,6 +176,7 @@ const SelectMemberField = ({
         <MemberList
           value={value}
           members={members}
+          noneLabel={noneLabel}
           onPick={(next) => {
             onValueChange(next);
             setOpen(false);
