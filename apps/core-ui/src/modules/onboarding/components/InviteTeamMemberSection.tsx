@@ -163,8 +163,8 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="gap-1.5 pr-1.5 max-w-full">
-                    <TextOverflowTooltip value={tag} className="truncate" />
+                  <Badge key={tag} variant="secondary" className="max-w-full">
+                    <TextOverflowTooltip value={tag} />
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}

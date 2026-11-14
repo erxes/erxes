@@ -79,7 +79,7 @@ const RecordTableInlineAnchor = ({
         onClick?.(e);
       }}
       variant="secondary"
-      className={cn('min-w-32 group truncate', className)}
+      className={cn('min-w-32 group overflow-hidden', className)}
       {...props}
     >
       {children}

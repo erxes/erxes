@@ -13,7 +13,7 @@ const MemberLabel = ({ member }: { member: User }) =>
   ) : (
     <span className="inline-flex items-center gap-1">
       <span>{memberLabelText(member)}</span>
-      <Badge variant="destructive" className="h-5 shrink-0 px-1.5 text-[11px]">
+      <Badge variant="destructive" size="sm" className="h-5 shrink-0">
         Inactive
       </Badge>
     </span>

@@ -112,7 +112,7 @@ const EntryRow = ({
             {auditSentence(entry, i18n.language)}
           </button>
           {entry.source !== 'core' && (
-            <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+            <Badge variant="secondary" size="sm">
               {pluginLabel(entry.source)}
             </Badge>
           )}

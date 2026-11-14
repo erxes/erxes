@@ -66,7 +66,7 @@ const Counts = ({ imp }: { imp: Import }) => {
   return (
     <div className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <Badge key={item.key} variant={item.tone} className="px-2.5 py-1 text-sm">
+        <Badge key={item.key} variant={item.tone} size="lg">
           {imp.counts[item.key].toLocaleString()} {finished ? item.done : item.label}
         </Badge>
       ))}

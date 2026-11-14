@@ -102,7 +102,7 @@ const PluginMeta = ({
 }) => (
   <>
     {activity.actor.type === 'user' && <span>{actor}</span>}
-    <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+    <Badge variant="secondary" size="sm">
       {pluginLabel(activity.source)}
       {label ? ` · ${label}` : ''}
     </Badge>

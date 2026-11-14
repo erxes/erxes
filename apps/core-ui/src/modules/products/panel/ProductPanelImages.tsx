@@ -49,7 +49,7 @@ const Thumbnail = ({
     <div className="group relative size-20 overflow-hidden rounded-md border bg-muted">
       <img src={fileUrl(id)} alt="" className="size-full object-cover" />
       {main && (
-        <Badge variant="secondary" className="absolute bottom-1 left-1 h-5 px-1 text-[10px]">
+        <Badge variant="secondary" size="sm" className="absolute bottom-1 left-1 h-5">
           {t('images.main', 'Main')}
         </Badge>
       )}

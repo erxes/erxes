@@ -206,11 +206,7 @@ const SignIns = () => {
                 )}
                 <span className="flex-1">{deviceOf(entry.userAgent)}</span>
                 <span className="text-muted-foreground">{entry.ip ?? '—'}</span>
-                {!entry.success && (
-                  <Badge variant="destructive" className="font-normal">
-                    {t('failed', 'Failed')}
-                  </Badge>
-                )}
+                {!entry.success && <Badge variant="destructive">{t('failed', 'Failed')}</Badge>}
                 <RelativeDateDisplay
                   value={entry.createdAt}
                   render={<span className="w-28 text-right text-muted-foreground" />}
