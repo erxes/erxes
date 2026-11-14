@@ -1,5 +1,9 @@
 import { IProduct } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import {
+  resolveProductPdfAttachment,
+  schedulePdfPagesRender,
+} from '~/modules/products/utils/pdfAttachments';
 
 export const productMutations = {
   /**
@@ -9,11 +13,28 @@ export const productMutations = {
   async productsAdd(
     _root: undefined,
     doc: IProduct,
-    { models, __, checkPermission }: IContext,
+    { models, __, checkPermission, subdomain }: IContext,
   ) {
     await checkPermission('productsCreate');
 
-    return models.Products.createProduct(__(doc));
+    const { value, needsRender } = resolveProductPdfAttachment({
+      pdfAttachment: doc.pdfAttachment,
+    });
+
+    const product = await models.Products.createProduct(
+      __({ ...doc, pdfAttachment: value ?? undefined }),
+    );
+
+    if (needsRender && value?.pdf) {
+      schedulePdfPagesRender({
+        models,
+        subdomain,
+        productId: product._id,
+        pdf: value.pdf,
+      });
+    }
+
+    return product;
   },
 
   /**
@@ -24,17 +45,45 @@ export const productMutations = {
   async productsEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & IProduct,
-    { models, __, checkPermission }: IContext,
+    { models, __, checkPermission, subdomain }: IContext,
   ) {
     await checkPermission('productsUpdate');
 
-    return models.Products.updateProduct(
+    let needsRender = false;
+
+    if (doc.pdfAttachment !== undefined) {
+      const existing = await models.Products.findOne(
+        { _id },
+        { pdfAttachment: 1 },
+      ).lean();
+
+      const resolved = resolveProductPdfAttachment({
+        pdfAttachment: doc.pdfAttachment,
+        previousPdfAttachment: existing?.pdfAttachment,
+      });
+
+      doc.pdfAttachment = resolved.value ?? undefined;
+      needsRender = resolved.needsRender;
+    }
+
+    const product = await models.Products.updateProduct(
       _id,
       __({
         ...doc,
         status: 'active',
       }),
     );
+
+    if (needsRender && doc.pdfAttachment?.pdf) {
+      schedulePdfPagesRender({
+        models,
+        subdomain,
+        productId: _id,
+        pdf: doc.pdfAttachment.pdf,
+      });
+    }
+
+    return product;
   },
 
   /**

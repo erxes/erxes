@@ -47,6 +47,8 @@ export const ProductFormSchema = z
     attachmentMore: z.any().optional(),
     videos: z.any().optional(),
     files: z.array(productFileSchema).optional(),
+    // Only set when the admin changes the reader PDF (see ProductPdfAttachmentUpload)
+    pdfAttachment: z.any().optional(),
     currency: z.string().optional(),
     subUoms: z.array(z.any()).optional(),
     variants: z.record(z.any()).optional().catch({}),
@@ -92,6 +94,7 @@ export const EMPTY_PRODUCT_FORM_VALUES: ProductFormValues = {
   attachmentMore: undefined,
   videos: undefined,
   files: [],
+  pdfAttachment: undefined,
   currency: '',
   duration: undefined,
   durationType: undefined,

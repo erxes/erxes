@@ -141,6 +141,7 @@ const productsEdit = gql`
     $attachmentMore: [AttachmentInput]
     $videos: [AttachmentInput]
     $files: [AttachmentInput]
+    $pdfAttachment: PdfAttachmentInput
     $duration: Float
     $durationType: ProductDurationType
   ) {
@@ -168,6 +169,7 @@ const productsEdit = gql`
       attachmentMore: $attachmentMore
       videos: $videos
       files: $files
+      pdfAttachment: $pdfAttachment
       duration: $duration
       durationType: $durationType
     ) {

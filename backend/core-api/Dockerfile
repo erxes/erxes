@@ -41,7 +41,8 @@ fs.writeFileSync( \
 FROM node:22-alpine3.22
 WORKDIR /app
 # qpdf rewrites PDFs with object streams so the viewer opens them in a few range reads
-RUN apk add --no-cache qpdf
+# poppler-utils renders product PDFs into reader page images
+RUN apk add --no-cache qpdf poppler-utils
 
 COPY --from=installer /app/node_modules ./node_modules
 
