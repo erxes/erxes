@@ -133,6 +133,8 @@ const RecordTableInlineAnchor = ({
 };
 
 export const RecordTableInlineCell = Object.assign(RecordTableCellDisplay, {
+  /** Names the triggers inside by the element with this id, as the column head does in a table. */
+  LabelledBy: CellColumnHead,
   Trigger: RecordTableCellTrigger,
   Content: RecordTableCellContent,
   Anchor: RecordTableInlineAnchor,

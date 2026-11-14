@@ -1,10 +1,7 @@
 import { IconForms, type Icon } from '@tabler/icons-react';
 import { cn, Label, RecordTableInlineCell } from 'erxes-ui';
-import { createContext, use, useId } from 'react';
+import { useId } from 'react';
 import { PanelLabel } from './PanelLabel';
-
-/** The id of the field's label while its value is empty (the placeholder shows instead). */
-const EmptyFieldLabel = createContext<string | undefined>(undefined);
 
 // One field in the side panel: its label, then the value as a record table
 // cell. Click to edit; Enter saves and Escape cancels, as in the list.
@@ -44,7 +41,10 @@ export const PanelField = ({
             'text-xs [&_button:not([role=switch],[data-panel-inline])]:h-7 [&_button:not([role=switch])]:text-xs [&_input]:text-xs',
         )}
       >
-        <EmptyFieldLabel value={placeholder ? labelId : undefined}>{children}</EmptyFieldLabel>
+        {/* The value's trigger is named by the label, then its value ("Position Analyst"). */}
+        <RecordTableInlineCell.LabelledBy value={labelId}>
+          {children}
+        </RecordTableInlineCell.LabelledBy>
         {placeholder && (
           <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center gap-1.5 text-xs text-muted-foreground">
             <Icon className="size-3.5 shrink-0" aria-hidden="true" />
@@ -56,16 +56,7 @@ export const PanelField = ({
   );
 };
 
-// A table cell trigger with the panel's rounded hover. Empty, it shows no text
-// of its own, so screen readers name it by the field's label.
-export const PanelFieldTrigger = ({
-  ref,
-  ...props
-}: React.ComponentProps<typeof RecordTableInlineCell.Trigger>) => (
-  <RecordTableInlineCell.Trigger
-    ref={ref}
-    aria-labelledby={use(EmptyFieldLabel)}
-    variant="field"
-    {...props}
-  />
-);
+// A table cell trigger with the panel's rounded hover.
+export const PanelFieldTrigger = (
+  props: React.ComponentProps<typeof RecordTableInlineCell.Trigger>,
+) => <RecordTableInlineCell.Trigger variant="field" {...props} />;

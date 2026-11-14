@@ -1,7 +1,7 @@
 import type { ContentType, Tag } from '@erxes/core-contract';
 import { IconCircleFilled } from '@tabler/icons-react';
 import { Badge, cn, PopoverScoped, Skeleton, TextOverflowTooltip } from 'erxes-ui';
-import { type ReactNode, createContext, useContext, useState } from 'react';
+import { Fragment, type ReactNode, createContext, useContext, useState } from 'react';
 import { useTags } from './useTags';
 
 /*
@@ -141,30 +141,39 @@ export const TagsSelectedList = ({
 
   return (
     <>
-      {visible.map((id) => {
+      {visible.map((id, index) => {
         const tag = tags.find((item) => item.id === id);
         const onClose = maxVisible === undefined ? () => remove(id) : undefined;
 
-        return tag ? (
-          <Badge key={id} variant="secondary" className={className} onClose={onClose}>
-            <TagInline tag={tag} />
-          </Badge>
-        ) : (
-          <Badge
-            key={id}
-            variant="secondary"
-            className={className}
-            onClose={onClose}
-            title={UNKNOWN_TAG_LABEL}
-          >
-            <span className="max-w-24 truncate">{UNKNOWN_TAG_LABEL}</span>
-          </Badge>
+        return (
+          <Fragment key={id}>
+            {/* Badges are inline boxes, so without a space between them the visible text axe
+                reads runs the tags together ("ExampleVIP"). The flex row doesn't render it. */}
+            {index > 0 && ' '}
+            {tag ? (
+              <Badge variant="secondary" className={className} onClose={onClose}>
+                <TagInline tag={tag} />
+              </Badge>
+            ) : (
+              <Badge
+                variant="secondary"
+                className={className}
+                onClose={onClose}
+                title={UNKNOWN_TAG_LABEL}
+              >
+                <span className="max-w-24 truncate">{UNKNOWN_TAG_LABEL}</span>
+              </Badge>
+            )}
+          </Fragment>
         );
       })}
       {remaining > 0 && (
-        <Badge variant="muted" className="shrink-0">
-          +{remaining}
-        </Badge>
+        <>
+          {' '}
+          <Badge variant="muted" className="shrink-0">
+            +{remaining}
+          </Badge>
+        </>
       )}
     </>
   );
