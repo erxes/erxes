@@ -6,6 +6,7 @@ import { StrictMode } from 'react';
 import { setFileStorage, setPluginRuntime, setRecordTimeline } from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { i18nReady } from './i18n';
 import { orpc } from './lib/api';
 import { coreFileStorage } from './lib/files';
 import { pluginLive } from './lib/live';
@@ -27,8 +28,11 @@ const root = document.getElementById('root');
 
 if (!root) throw new Error('index.html has no #root element');
 
-createRoot(root).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+// A member who reads Mongolian gets it on the first paint, not English and then a swap.
+void i18nReady.then(() =>
+  createRoot(root).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  ),
 );

@@ -76,7 +76,7 @@ export const ProductsSettingsRoutes = () => (
         path="properties/*"
         element={<PropertiesSettingsRoutes types={PRODUCT_PROPERTY_TYPES} />}
       />
-      <Route path="*" element={<Navigate to="categories" replace />} />
+      <Route path="*" element={<Navigate to="/products/settings/categories" replace />} />
     </Route>
   </Routes>
 );

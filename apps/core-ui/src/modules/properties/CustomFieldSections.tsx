@@ -51,6 +51,7 @@ export const CustomFieldSections = ({
   /** Shown when the record type has no properties yet. */
   empty?: ReactNode;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { sections, loading, error } = useFields(contentType);
 
   if (error) return <p className="px-2 py-6 text-sm text-destructive">{messageOf(error)}</p>;
@@ -67,7 +68,9 @@ export const CustomFieldSections = ({
             <div className="flex h-7 shrink-0 items-center justify-between pr-1">
               <Collapsible.Trigger render={<Button variant="ghost" size="xs" />}>
                 <Collapsible.TriggerIcon className="size-3" />
-                <span className="font-mono uppercase">{group?.name ?? 'Properties'}</span>
+                <span className="font-mono uppercase">
+                  {group?.name ?? t('properties', 'Properties')}
+                </span>
               </Collapsible.Trigger>
             </div>
             <Collapsible.Panel>
