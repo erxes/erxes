@@ -13,7 +13,7 @@ const config: KnipConfig = {
     },
     ui: {
       entry: ['src/config.tsx', 'src/__Pascal__.tsx'],
-      project: ['src/**/*.{ts,tsx}'],
+      project: ['src/**/*.{ts,tsx,css}'],
     },
   },
 };

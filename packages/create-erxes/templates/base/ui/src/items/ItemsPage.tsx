@@ -8,6 +8,7 @@ import {
   PageHeader,
   RecordTable,
   type RecordTableColumnDef,
+  RecordTableInlineCell,
   SelectMember,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -63,9 +64,9 @@ const columns: RecordTableColumnDef<Item>[] = [
     header: 'Created by',
     size: 200,
     cell: ({ row }) => (
-      <span className="flex items-center gap-2 px-2">
+      <RecordTableInlineCell>
         <MemberInline memberId={row.original.createdBy} members={memberQueries} />
-      </span>
+      </RecordTableInlineCell>
     ),
   },
   {
