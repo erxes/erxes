@@ -44,7 +44,7 @@ const AllowedGateways = ({
           <Checkbox
             id={`${id}-${gateway.id}`}
             checked={allowed.includes(gateway.id)}
-            onCheckedChange={(on) => onToggle(gateway.id, on === true)}
+            onCheckedChange={(on) => onToggle(gateway.id, on)}
           />
           <label htmlFor={`${id}-${gateway.id}`}>{gateway.name}</label>
         </span>

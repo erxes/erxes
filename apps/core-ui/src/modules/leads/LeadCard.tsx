@@ -21,14 +21,12 @@ const OwnerAvatar = ({ ownerId }: { ownerId: string }) => {
   const name = member ? memberName(member) : t('actions.owner');
 
   return (
-    <Tooltip delayDuration={300}>
-      <Tooltip.Trigger asChild>
-        <span className="shrink-0">
-          <Avatar size="lg">
-            <Avatar.Image src={readImage(member?.avatarUrl ?? undefined)} />
-            <Avatar.Fallback>{name.charAt(0).toUpperCase()}</Avatar.Fallback>
-          </Avatar>
-        </span>
+    <Tooltip>
+      <Tooltip.Trigger delay={300} render={<span className="shrink-0" />}>
+        <Avatar size="lg">
+          <Avatar.Image src={readImage(member?.avatarUrl ?? undefined)} />
+          <Avatar.Fallback>{name.charAt(0).toUpperCase()}</Avatar.Fallback>
+        </Avatar>
       </Tooltip.Trigger>
       <Tooltip.Content>{t('board.owner', { name })}</Tooltip.Content>
     </Tooltip>

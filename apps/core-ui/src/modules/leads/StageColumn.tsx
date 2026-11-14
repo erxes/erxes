@@ -96,17 +96,20 @@ const ColumnHeader = ({
       <span className="rounded-full bg-background px-1.5 text-xs tabular-nums text-muted-foreground">
         {count}
       </span>
-      <Tooltip delayDuration={300}>
-        <Tooltip.Trigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto size-7 text-muted-foreground"
-            aria-label={t('board.add-here')}
-            onClick={onAdd}
-          >
-            <IconPlus className="size-4" />
-          </Button>
+      <Tooltip>
+        <Tooltip.Trigger
+          delay={300}
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-auto size-7 text-muted-foreground"
+              aria-label={t('board.add-here')}
+              onClick={onAdd}
+            />
+          }
+        >
+          <IconPlus className="size-4" />
         </Tooltip.Trigger>
         <Tooltip.Content>{t('board.add-here')}</Tooltip.Content>
       </Tooltip>

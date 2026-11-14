@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Label as LabelPrimitive } from 'radix-ui';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
 
+// Base UI controls mark themselves data-disabled, so a label after one dims on that.
 const labelVariants = cva(
-  'leading-none inline-block peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+  'leading-none inline-block peer-disabled:cursor-not-allowed peer-disabled:opacity-70 peer-data-disabled:cursor-not-allowed peer-data-disabled:opacity-70',
   {
     variants: {
       variant: {
@@ -20,11 +20,12 @@ const labelVariants = cva(
   },
 );
 
+/** A native label: Base UI has no label primitive. */
 export const Label = ({
-  ref,
   className,
   variant,
+  htmlFor,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>) => (
-  <LabelPrimitive.Root ref={ref} className={cn(labelVariants({ variant }), className)} {...props} />
+}: React.ComponentProps<'label'> & VariantProps<typeof labelVariants>) => (
+  <label htmlFor={htmlFor} className={cn(labelVariants({ variant }), className)} {...props} />
 );

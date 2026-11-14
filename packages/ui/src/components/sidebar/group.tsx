@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const SidebarGroup = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
@@ -17,21 +16,13 @@ export const SidebarGroup = ({ ref, className, ...props }: React.ComponentProps<
   );
 };
 
-export const SidebarGroupLabel = ({
-  ref,
-  className,
-  asChild = false,
-  ...props
-}: React.ComponentProps<'div'> & { asChild?: boolean }) => {
-  const Comp = asChild ? Slot.Root : 'div';
-
+export const SidebarGroupLabel = ({ className, ...props }: React.ComponentProps<'div'>) => {
   return (
-    <Comp
-      ref={ref}
+    <div
       data-sidebar="group-label"
       className={cn(
         'flex h-6 shrink-0 items-center rounded-lg px-2 font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
-        'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 data-[state=open]:hover:bg-accent data-[state=closed]:hover:bg-accent',
+        'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         className,
       )}
       {...props}
@@ -39,17 +30,10 @@ export const SidebarGroupLabel = ({
   );
 };
 
-export const SidebarGroupAction = ({
-  ref,
-  className,
-  asChild = false,
-  ...props
-}: React.ComponentProps<'button'> & { asChild?: boolean }) => {
-  const Comp = asChild ? Slot.Root : 'button';
-
+export const SidebarGroupAction = ({ className, ...props }: React.ComponentProps<'button'>) => {
   return (
-    <Comp
-      ref={ref}
+    <button
+      type="button"
       data-sidebar="group-action"
       className={cn(
         'absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-foreground outline-hidden transition-transform hover:bg-accent focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',

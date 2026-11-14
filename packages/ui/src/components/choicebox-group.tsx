@@ -12,25 +12,14 @@ interface ChoiceboxGroupProps extends Omit<RadioGroupProps, 'className'> {
 }
 
 const ChoiceboxGroupRoot = ({
-  ref,
   children,
   className,
   direction = 'column',
   spacing = 'default',
-  value,
-  onValueChange,
-  defaultValue,
   ...props
-}: ChoiceboxGroupProps & React.RefAttributes<HTMLDivElement>) => {
+}: ChoiceboxGroupProps) => {
   return (
-    <RadioGroup
-      ref={ref}
-      className={cn('w-full')}
-      value={value}
-      onValueChange={onValueChange}
-      defaultValue={defaultValue}
-      {...props}
-    >
+    <RadioGroup className="w-full" {...props}>
       <div
         className={cn(
           'flex w-full h-max gap-2',
@@ -77,7 +66,7 @@ const ChoiceboxItem = ({
       />
       <div
         className={cn(
-          'w-full h-full rounded-sm border border-transparent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10 peer-data-[state=checked]:text-primary-text  p-3 flex-col gap-[6px] flex',
+          'w-full h-full rounded-sm border border-transparent peer-data-checked:border-primary peer-data-checked:bg-primary/10 peer-data-checked:text-primary-text  p-3 flex-col gap-[6px] flex',
           className,
         )}
       >

@@ -1,4 +1,4 @@
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, buttonVariants } from 'erxes-ui';
 import { type ComponentType, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -17,12 +17,10 @@ export const AppBreadcrumb = ({ items }: { items: Crumb[] }) => (
           const Icon = item.icon;
 
           const link = (
-            <Button variant="ghost" asChild>
-              <Link to={item.to}>
-                {Icon && <Icon />}
-                {item.label}
-              </Link>
-            </Button>
+            <Link to={item.to} className={buttonVariants({ variant: 'ghost' })}>
+              {Icon && <Icon />}
+              {item.label}
+            </Link>
           );
 
           return (

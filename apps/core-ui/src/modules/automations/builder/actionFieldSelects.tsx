@@ -130,7 +130,6 @@ export const LookupMultiSelect = ({
           (id) => options.find((option) => option.value === id) ?? { value: id, label: id },
         )}
         onChange={(next) => onChange(next.map((option) => option.value))}
-        defaultOptions={options}
         options={options}
         disabled={disabled}
         placeholder={

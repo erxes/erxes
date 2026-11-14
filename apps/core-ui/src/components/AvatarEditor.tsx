@@ -93,18 +93,15 @@ export const AvatarEditor = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <button
-          type="button"
-          className="group relative flex-none rounded-full outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
-          aria-label={t('change', 'Change picture')}
-          title={t('change', 'Change picture')}
-        >
-          {avatar}
-          <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition-opacity group-hover:opacity-100 group-data-[state=open]:opacity-100">
-            <IconCamera className="size-3.5" />
-          </span>
-        </button>
+      <Popover.Trigger
+        className="group relative flex-none rounded-full outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
+        aria-label={t('change', 'Change picture')}
+        title={t('change', 'Change picture')}
+      >
+        {avatar}
+        <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition-opacity group-hover:opacity-100 group-data-popup-open:opacity-100">
+          <IconCamera className="size-3.5" />
+        </span>
       </Popover.Trigger>
       <Popover.Content align="start" sideOffset={8} className="w-64 space-y-3 p-3">
         <p className="text-sm font-medium">{t('title', 'Picture')}</p>

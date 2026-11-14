@@ -1,59 +1,40 @@
 import React from 'react';
-import { Dialog as DialogPrimitive } from 'radix-ui';
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
 import { cn } from '../lib/utils';
 import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-export type DialogProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>;
-
-const DialogTrigger = DialogPrimitive.Trigger;
-
-const DialogPortal = DialogPrimitive.Portal;
-
-const DialogClose = DialogPrimitive.Close;
-
-const DialogOverlay = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Overlay>) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
+/** Dims the page under a dialog. Content renders one; a hand-built popup in `Dialog.Portal` uses this. */
+const DialogBackdrop = ({ className, ...props }: DialogPrimitive.Backdrop.Props) => (
+  <DialogPrimitive.Backdrop
+    forceRender
     className={cn(
-      'fixed inset-0 grid place-items-center z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 backdrop-blur-xs',
-      'duration-200 ease-out',
+      'fixed inset-0 z-50 bg-black/80 backdrop-blur-xs data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 duration-200 ease-out',
       className,
     )}
     {...props}
   />
 );
 
-const DialogContent = ({
-  ref,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) => (
-  <DialogPortal>
-    <DialogOverlay>
-      <DialogPrimitive.Content
-        ref={ref}
+/** The backdrop dims the page and the viewport centers the popup; a press on either closes the dialog. */
+const DialogContent = ({ className, ...props }: DialogPrimitive.Popup.Props) => (
+  <DialogPrimitive.Portal>
+    <DialogBackdrop />
+    <DialogPrimitive.Viewport className="fixed inset-0 z-50 grid place-items-center">
+      <DialogPrimitive.Popup
         className={cn(
           'grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0',
           'duration-200 ease-out will-change-transform',
           'sm:rounded-lg outline-hidden',
           className,
         )}
         {...props}
-      >
-        {children}
-      </DialogPrimitive.Content>
-    </DialogOverlay>
-  </DialogPortal>
+      />
+    </DialogPrimitive.Viewport>
+  </DialogPrimitive.Portal>
 );
 
 const DialogCombinedHeader = ({
@@ -72,27 +53,25 @@ const DialogCombinedHeader = ({
       <Dialog.Title>{title}</Dialog.Title>
       <Dialog.Description className="sr-only">{description}</Dialog.Description>
       {!hideClose && (
-        <Dialog.Close asChild aria-label={t('close', 'Close')}>
-          <Button variant="secondary" size="icon" className="absolute right-4 top-3">
-            <IconX />
-          </Button>
-        </Dialog.Close>
+        <DialogPrimitive.Close
+          aria-label={t('close', 'Close')}
+          render={<Button variant="secondary" size="icon" className="absolute right-4 top-3" />}
+        >
+          <IconX />
+        </DialogPrimitive.Close>
       )}
     </Dialog.Header>
   );
 };
 
 const DialogContentCombined = ({
-  ref,
-  className,
   children,
   title,
   description,
   hideClose,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> &
-  React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>) => (
-  <DialogContent ref={ref} className={cn(className)} {...props}>
+}: DialogPrimitive.Popup.Props & React.ComponentProps<typeof DialogCombinedHeader>) => (
+  <DialogContent {...props}>
     <DialogCombinedHeader title={title} description={description} hideClose={hideClose} />
     {children}
   </DialogContent>
@@ -109,35 +88,25 @@ const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
   />
 );
 
-const DialogTitle = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Title>) => (
+const DialogTitle = ({ className, ...props }: DialogPrimitive.Title.Props) => (
   <DialogPrimitive.Title
-    ref={ref}
     className={cn('text-lg font-semibold leading-none tracking-tight', className)}
     {...props}
   />
 );
 
-const DialogDescription = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Description>) => (
+const DialogDescription = ({ className, ...props }: DialogPrimitive.Description.Props) => (
   <DialogPrimitive.Description
-    ref={ref}
     className={cn('text-sm text-accent-foreground', className)}
     {...props}
   />
 );
 
 export const Dialog = Object.assign(DialogPrimitive.Root, {
-  Portal: DialogPortal,
-  Overlay: DialogOverlay,
-  Trigger: DialogTrigger,
-  Close: DialogClose,
+  Trigger: DialogPrimitive.Trigger,
+  Close: DialogPrimitive.Close,
+  Portal: DialogPrimitive.Portal,
+  Backdrop: DialogBackdrop,
   Content: DialogContent,
   HeaderCombined: DialogCombinedHeader,
   ContentCombined: DialogContentCombined,

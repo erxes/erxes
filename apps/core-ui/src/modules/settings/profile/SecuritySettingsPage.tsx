@@ -211,10 +211,11 @@ const SignIns = () => {
                     {t('failed', 'Failed')}
                   </Badge>
                 )}
-                <RelativeDateDisplay value={entry.createdAt} asChild>
-                  <span className="w-28 text-right text-muted-foreground">
-                    <RelativeDateDisplay.Value value={entry.createdAt} />
-                  </span>
+                <RelativeDateDisplay
+                  value={entry.createdAt}
+                  render={<span className="w-28 text-right text-muted-foreground" />}
+                >
+                  <RelativeDateDisplay.Value value={entry.createdAt} />
                 </RelativeDateDisplay>
               </li>
             ))}

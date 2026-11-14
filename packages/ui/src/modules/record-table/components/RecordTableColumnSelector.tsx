@@ -107,7 +107,7 @@ const SortableColumnItem = ({
         checked={visible}
         disabled={isLastVisible}
         title={isLastVisible ? 'At least one column must stay visible' : undefined}
-        onCheckedChange={(checked) => column.toggleVisibility(!!checked)}
+        onCheckedChange={(checked) => column.toggleVisibility(checked)}
       />
 
       <Label
@@ -135,10 +135,8 @@ const SortableColumnItem = ({
 };
 
 export const RecordTableColumnSelector = ({
-  children,
   align = 'start',
 }: {
-  children?: React.ReactNode;
   align?: 'start' | 'center' | 'end';
 }) => {
   const { table, columnSelectorOpen, setColumnSelectorOpen } = useRecordTable();
@@ -178,17 +176,16 @@ export const RecordTableColumnSelector = ({
 
   return (
     <DropdownMenu open={columnSelectorOpen} onOpenChange={setColumnSelectorOpen}>
-      <DropdownMenu.Trigger asChild>
-        {children ?? (
-          <Button variant="ghost" aria-label="Columns" className="h-full w-full rounded-none px-0">
-            <IconSettings />
-          </Button>
-        )}
+      <DropdownMenu.Trigger
+        render={<Button variant="ghost" className="h-full w-full rounded-none px-0" />}
+        aria-label="Columns"
+      >
+        <IconSettings />
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content
         align={align}
-        className="hide-scroll max-h-(--radix-dropdown-menu-content-available-height) w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain p-1"
+        className="hide-scroll max-h-(--available-height) w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain p-1"
       >
         <DndContext
           sensors={sensors}

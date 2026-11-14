@@ -93,10 +93,10 @@ const TypesField = ({
     <div className="space-y-2">
       <Label htmlFor={id}>{t('allowed-types', 'Allowed file types')}</Label>
       <MultipleSelector
-        inputProps={{ id }}
+        id={id}
         value={types}
         onChange={onChange}
-        defaultOptions={TYPE_OPTIONS}
+        options={TYPE_OPTIONS}
         creatable
         disabled={disabled}
         placeholder={t(

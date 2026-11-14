@@ -1,4 +1,13 @@
+import type { Locator } from '@playwright/test';
 import { expect, expectAccessible, test, unique } from './fixtures';
+
+const centerOf = async (locator: Locator) => {
+  const box = await locator.boundingBox();
+
+  if (!box) throw new Error(`${String(locator)} is not on screen`);
+
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+};
 
 test('a member moves a lead to the next stage on the board', async ({ page, api }) => {
   const { data: stages } = await api.leads.stages({});
@@ -23,14 +32,18 @@ test('a member moves a lead to the next stage on the board', async ({ page, api 
   await expect(card).toBeVisible();
   await expectAccessible(page);
 
-  // A real pointer drag: dnd-kit starts after 6px of movement.
+  // A real pointer drag: dnd-kit starts after 6px of movement. As it starts it can scroll the
+  // board (CI saw 174px), so the pointer aims at the column once the drag runs, and again
+  // before the drop.
   await card.hover();
+  const start = await centerOf(card);
   await page.mouse.down();
-  const box = await target.boundingBox();
+  await page.mouse.move(start.x + 12, start.y, { steps: 3 });
 
-  if (!box) throw new Error(`the ${to.name} column is not on screen`);
-
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 12 });
+  const drop = await centerOf(target);
+  await page.mouse.move(drop.x, drop.y, { steps: 12 });
+  const settled = await centerOf(target);
+  await page.mouse.move(settled.x, settled.y, { steps: 2 });
   await page.mouse.up();
 
   await expect(target.getByRole('button', { name: new RegExp(name) })).toBeVisible();

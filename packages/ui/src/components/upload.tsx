@@ -74,16 +74,13 @@ const UploadRoot = ({
       }}
     >
       <Dialog open={isImageFocused} onOpenChange={setIsImageFocused}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-accent" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-none w-auto bg-transparent border-0 p-0">
-            <img
-              src={readImage(url)}
-              alt="Focused view"
-              className="max-h-[90vh] max-w-[90vw] object-contain"
-            />
-          </Dialog.Content>
-        </Dialog.Portal>
+        <Dialog.Content className="max-w-none w-auto bg-transparent border-0 p-0">
+          <img
+            src={readImage(url)}
+            alt="Focused view"
+            className="max-h-[90vh] max-w-[90vw] object-contain"
+          />
+        </Dialog.Content>
       </Dialog>
       <div ref={ref} className={cn('flex gap-4', className)} {...rest} />
     </UploadContext.Provider>

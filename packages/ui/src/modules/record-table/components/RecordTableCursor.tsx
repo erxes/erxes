@@ -6,9 +6,9 @@ import {
   type ReactNode,
   type UIEvent,
 } from 'react';
-import { composeRefs } from 'radix-ui/internal';
 import { useDebouncedCallback } from 'use-debounce';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
+import { mergeRefs } from 'erxes-ui/lib/utils';
 import { useCursorScroll } from '../hooks/useCursorScroll';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
 import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
@@ -108,7 +108,7 @@ export const RecordTableCursorProvider = ({
       value={{ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading }}
     >
       <ScrollArea.Root className="h-full w-full pb-2 pr-2 relative">
-        <ScrollArea.Viewport ref={composeRefs(scrollRef, setViewport)} onScroll={handleScroll}>
+        <ScrollArea.Viewport ref={mergeRefs(scrollRef, setViewport)} onScroll={handleScroll}>
           <div className="min-h-[calc(100vh-8rem)]">{children}</div>
         </ScrollArea.Viewport>
 

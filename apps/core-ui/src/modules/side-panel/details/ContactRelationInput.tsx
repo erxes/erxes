@@ -87,28 +87,30 @@ const ContactRelationPopover = ({
 
   return (
     <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          data-panel-inline=""
-          disabled={disabled}
-          aria-label={hasLinks ? editLabel : addLabel}
-          className={cn(
-            'h-6 shrink-0 gap-1.5 px-1 text-xs font-normal text-muted-foreground [&>svg]:size-3.5',
-            hasLinks &&
-              !moreCount &&
-              'opacity-0 group-hover/relations:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100',
-            moreCount > 0 && 'bg-muted hover:bg-accent',
-          )}
-        >
-          <ContactRelationTriggerLabel
-            saving={disabled}
-            moreCount={moreCount}
-            hasLinks={hasLinks}
-            addLabel={addLabel}
+      <Popover.Trigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            data-panel-inline=""
+            disabled={disabled}
+            aria-label={hasLinks ? editLabel : addLabel}
+            className={cn(
+              'h-6 shrink-0 gap-1.5 px-1 text-xs font-normal text-muted-foreground [&>svg]:size-3.5',
+              hasLinks &&
+                !moreCount &&
+                'opacity-0 group-hover/relations:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100',
+              moreCount > 0 && 'bg-muted hover:bg-accent',
+            )}
           />
-        </Button>
+        }
+      >
+        <ContactRelationTriggerLabel
+          saving={disabled}
+          moreCount={moreCount}
+          hasLinks={hasLinks}
+          addLabel={addLabel}
+        />
       </Popover.Trigger>
       <Combobox.Content>
         <ContactRelationPicker

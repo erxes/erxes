@@ -1,6 +1,6 @@
 import type { FieldContentType } from '@erxes/core-contract';
 import { IconHierarchy2, IconPlus } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageHeader } from 'erxes-ui';
+import { Breadcrumb, PageHeader, buttonVariants, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useMatch } from 'react-router-dom';
 import { PROPERTY_TYPES, propertiesPath } from '../constants';
@@ -23,21 +23,17 @@ export const PropertiesHeader = ({ contentType }: { contentType: FieldContentTyp
         <Breadcrumb>
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
-              <Button variant="ghost" asChild>
-                <Link to={propertyType.basePath}>
-                  <IconHierarchy2 />
-                  {t('properties', 'Properties')}
-                </Link>
-              </Button>
+              <Link to={propertyType.basePath} className={buttonVariants({ variant: 'ghost' })}>
+                <IconHierarchy2 />
+                {t('properties', 'Properties')}
+              </Link>
             </Breadcrumb.Item>
             <Breadcrumb.Separator />
             <Breadcrumb.Item>
-              <Button variant="ghost" asChild className="capitalize">
-                <Link to={list}>
-                  {t(`content-type.${propertyType.i18nKey}`, propertyType.label)}{' '}
-                  {t('properties-suffix', 'properties')}
-                </Link>
-              </Button>
+              <Link to={list} className={cn(buttonVariants({ variant: 'ghost' }), 'capitalize')}>
+                {t(`content-type.${propertyType.i18nKey}`, propertyType.label)}{' '}
+                {t('properties-suffix', 'properties')}
+              </Link>
             </Breadcrumb.Item>
             {!onList && (
               <>
@@ -58,12 +54,10 @@ export const PropertiesHeader = ({ contentType }: { contentType: FieldContentTyp
         {onList && manager && (
           <>
             <AddPropertyGroup contentType={contentType} />
-            <Button asChild>
-              <Link to={`${list}/add`}>
-                <IconPlus />
-                {t('add-field', 'Add field')}
-              </Link>
-            </Button>
+            <Link to={`${list}/add`} className={buttonVariants()}>
+              <IconPlus />
+              {t('add-field', 'Add field')}
+            </Link>
           </>
         )}
       </PageHeader.End>

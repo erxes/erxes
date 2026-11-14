@@ -1,11 +1,12 @@
-import { useRef, useState, type RefObject, type InputHTMLAttributes } from 'react';
-import { composeRefs } from 'radix-ui/internal';
+import { useRef, useState } from 'react';
+import { Input } from '@base-ui/react/input';
 import { Tooltip } from './tooltip';
 import { inputVariants } from './input';
 import { cn } from 'erxes-ui/lib/utils';
 
-/** A tooltip that opens only while the element's text is cut off, measured when it would open. */
-function useOverflowTooltip<T extends HTMLElement>(ref: RefObject<T | null>) {
+/** Opens the tooltip only while the element's text is cut off, measured when it would open. */
+const useOverflowTooltip = <T extends HTMLElement>() => {
+  const ref = useRef<T>(null);
   const [open, setOpen] = useState(false);
 
   const onOpenChange = (next: boolean) => {
@@ -14,82 +15,47 @@ function useOverflowTooltip<T extends HTMLElement>(ref: RefObject<T | null>) {
     setOpen(next && element !== null && element.scrollWidth > element.clientWidth);
   };
 
-  return { open, onOpenChange };
-}
+  return { ref, open, onOpenChange };
+};
 
-interface TextOverflowTooltipProps {
-  value?: string;
-  className?: string;
-  delayDuration?: number;
-}
-
-const TextOverflowTooltipRoot = ({
-  ref: forwardedRef,
-  value,
-  className,
-  delayDuration = 100,
-}: TextOverflowTooltipProps & React.RefAttributes<HTMLSpanElement>) => {
-  const innerRef = useRef<HTMLSpanElement>(null);
-  const tooltip = useOverflowTooltip(innerRef);
+/** Shows the full value in a tooltip, only while the text is cut off. */
+const TextOverflowTooltipRoot = ({ value, className }: { value?: string; className?: string }) => {
+  const { ref, ...tooltip } = useOverflowTooltip<HTMLSpanElement>();
 
   return (
-    <Tooltip.Provider delayDuration={delayDuration}>
-      <Tooltip {...tooltip}>
-        <Tooltip.Trigger asChild>
-          <span
-            ref={composeRefs(innerRef, forwardedRef)}
-            className={cn('truncate w-full', className)}
-          >
-            {value}
-          </span>
-        </Tooltip.Trigger>
-        <Tooltip.Content>
-          <span>{value}</span>
-        </Tooltip.Content>
-      </Tooltip>
-    </Tooltip.Provider>
+    <Tooltip {...tooltip}>
+      <Tooltip.Trigger
+        delay={100}
+        render={<span ref={ref} className={cn('truncate w-full', className)} />}
+      >
+        {value}
+      </Tooltip.Trigger>
+      <Tooltip.Content>
+        <span>{value}</span>
+      </Tooltip.Content>
+    </Tooltip>
   );
 };
 
-interface TextOverflowTooltipInputProps extends Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'value' | 'onChange'
-> {
-  value?: string;
-  onChange?: (value: string) => void;
-  delayDuration?: number;
-}
-
+/** A text input whose tooltip shows the whole value while it doesn't fit. */
 const TextOverflowTooltipInput = ({
-  ref: forwardedRef,
-  value,
-  onChange,
   className,
-  delayDuration = 100,
   ...props
-}: TextOverflowTooltipInputProps & React.RefAttributes<HTMLInputElement>) => {
-  const innerRef = useRef<HTMLInputElement>(null);
-  const tooltip = useOverflowTooltip(innerRef);
+}: Omit<Input.Props, 'className'> & { className?: string; value?: string }) => {
+  const { ref, ...tooltip } = useOverflowTooltip<HTMLInputElement>();
 
   return (
-    <Tooltip.Provider delayDuration={delayDuration}>
-      <Tooltip {...tooltip}>
-        <Tooltip.Trigger asChild>
-          <input
-            ref={composeRefs(innerRef, forwardedRef)}
-            value={value}
-            onChange={(e) => onChange?.(e.target.value)}
-            className={cn(inputVariants(), className)}
-            {...props}
-          />
-        </Tooltip.Trigger>
-        {value && (
-          <Tooltip.Content>
-            <span>{value}</span>
-          </Tooltip.Content>
-        )}
-      </Tooltip>
-    </Tooltip.Provider>
+    <Tooltip {...tooltip}>
+      <Tooltip.Trigger
+        delay={100}
+        render={<Input ref={ref} className={cn(inputVariants(), className)} {...props} />}
+      />
+      {props.value && (
+        <Tooltip.Content>
+          <span>{props.value}</span>
+        </Tooltip.Content>
+      )}
+    </Tooltip>
   );
 };
 

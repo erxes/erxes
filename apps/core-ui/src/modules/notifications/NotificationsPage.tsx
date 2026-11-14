@@ -1,5 +1,14 @@
 import { IconBell, IconChecks, IconInbox, IconSettings } from '@tabler/icons-react';
-import { Button, cn, PageContainer, PageHeader, PageSubHeader, ScrollArea, Switch } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  PageContainer,
+  PageHeader,
+  PageSubHeader,
+  ScrollArea,
+  Switch,
+  buttonVariants,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
@@ -85,12 +94,10 @@ const PageActions = ({ source, unread }: { source?: string; unread: number }) =>
 
   return (
     <PageHeader.End>
-      <Button variant="ghost" asChild>
-        <Link to="/settings/notifications">
-          <IconSettings />
-          {t('settings-link', 'Settings')}
-        </Link>
-      </Button>
+      <Link to="/settings/notifications" className={buttonVariants({ variant: 'ghost' })}>
+        <IconSettings />
+        {t('settings-link', 'Settings')}
+      </Link>
       <Button
         variant="outline"
         disabled={!unread || markRead.isPending}

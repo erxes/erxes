@@ -1,11 +1,10 @@
-import React from 'react';
-
-import { Slot } from 'radix-ui';
+import type React from 'react';
+import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from 'erxes-ui/lib/utils';
 
-export const buttonVariants = cva(
+const variants = cva(
   'inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer',
   {
     variants: {
@@ -33,30 +32,17 @@ export const buttonVariants = cva(
   },
 );
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
+/**
+ * The size variants override the base padding, gap and text size, so the classes go through
+ * tailwind-merge. Without it a link styled as a small button gets whichever rule the CSS
+ * happens to list last.
+ */
+export const buttonVariants = (props?: Parameters<typeof variants>[0]) => cn(variants(props));
 
-export const Button = ({
-  ref,
-  className,
-  variant,
-  size,
-  asChild = false,
-  children,
-  ...props
-}: ButtonProps & React.RefAttributes<HTMLButtonElement>) => {
-  const Comp = asChild ? Slot.Root : 'button';
+export type ButtonProps = React.ComponentProps<typeof ButtonPrimitive> &
+  VariantProps<typeof buttonVariants>;
 
-  return (
-    <Comp
-      className={cn(buttonVariants({ variant, size, className }))}
-      type="button"
-      ref={ref}
-      {...props}
-    >
-      {children}
-    </Comp>
-  );
-};
+/** A native button by default. Links styled as buttons put `buttonVariants` on the link instead. */
+export const Button = ({ className, variant, size, ...props }: ButtonProps) => (
+  <ButtonPrimitive className={buttonVariants({ variant, size, className })} {...props} />
+);

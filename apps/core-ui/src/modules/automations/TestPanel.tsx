@@ -157,11 +157,9 @@ export const TestPanel = ({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button variant="outline">
-          <IconFlask />
-          {t('test', 'Test')}
-        </Button>
+      <Sheet.Trigger render={<Button variant="outline" />}>
+        <IconFlask />
+        {t('test', 'Test')}
       </Sheet.Trigger>
       <Sheet.View className="flex w-full flex-col gap-4 p-4 sm:max-w-xl">
         <Sheet.Header>

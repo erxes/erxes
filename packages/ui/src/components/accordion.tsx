@@ -1,35 +1,17 @@
-import React from 'react';
-
-import { Accordion as AccordionPrimitive } from 'radix-ui';
+import { Accordion as AccordionPrimitive } from '@base-ui/react/accordion';
 import { IconChevronDown } from '@tabler/icons-react';
 
 import { cn } from '../lib/utils';
 
-const AccordionRoot = AccordionPrimitive.Root;
-
-const AccordionItem = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Item>) => (
-  <AccordionPrimitive.Item
-    ref={ref}
-    className={cn('border-b border-border', className)}
-    {...props}
-  />
+const AccordionItem = ({ className, ...props }: AccordionPrimitive.Item.Props) => (
+  <AccordionPrimitive.Item className={cn('border-b border-border', className)} {...props} />
 );
 
-const AccordionTrigger = ({
-  ref,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) => (
+const AccordionTrigger = ({ className, children, ...props }: AccordionPrimitive.Trigger.Props) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
-      ref={ref}
       className={cn(
-        'flex flex-1 items-center justify-between py-4 text-left font-semibold transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
+        'flex flex-1 items-center justify-between py-4 text-left font-semibold transition-all hover:underline [&[data-panel-open]>svg]:rotate-180',
         className,
       )}
       {...props}
@@ -43,23 +25,17 @@ const AccordionTrigger = ({
   </AccordionPrimitive.Header>
 );
 
-const AccordionContent = ({
-  ref,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Content>) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    className="overflow-y-clip text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+const AccordionPanel = ({ className, children, ...props }: AccordionPrimitive.Panel.Props) => (
+  <AccordionPrimitive.Panel
+    className="overflow-y-clip text-sm transition-all data-closed:animate-accordion-up data-open:animate-accordion-down"
     {...props}
   >
     <div className={cn('pb-4 pt-0', className)}>{children}</div>
-  </AccordionPrimitive.Content>
+  </AccordionPrimitive.Panel>
 );
 
-export const Accordion = Object.assign(AccordionRoot, {
+export const Accordion = Object.assign(AccordionPrimitive.Root, {
   Item: AccordionItem,
   Trigger: AccordionTrigger,
-  Content: AccordionContent,
+  Panel: AccordionPanel,
 });

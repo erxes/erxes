@@ -1,9 +1,8 @@
 import { Badge } from 'erxes-ui/components/badge';
-import { Button } from 'erxes-ui/components/button';
-import { Popover } from 'erxes-ui/components/popover';
+import { Button, buttonVariants } from 'erxes-ui/components/button';
+import { Popover, type PopoverContentProps } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
 import React, { use, useId } from 'react';
-import type { Popover as PopoverPrimitive } from 'radix-ui';
 import { CellColumnHead } from './RecordTableCell';
 
 const RecordTableCellTrigger = ({
@@ -19,68 +18,54 @@ const RecordTableCellTrigger = ({
   const columnHead = use(CellColumnHead);
 
   return (
-    <Popover.Trigger asChild>
-      <Button
-        id={triggerId}
-        aria-labelledby={columnHead ? `${columnHead} ${triggerId}` : undefined}
-        variant="ghost"
-        className={cn(
-          'h-8 px-2 w-full justify-start text-left rounded-none focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:shadow-subtle overflow-hidden',
-          className,
-        )}
-        ref={ref}
-        {...props}
-      >
-        {children}
-      </Button>
+    <Popover.Trigger
+      render={
+        <Button
+          id={triggerId}
+          aria-labelledby={columnHead ? `${columnHead} ${triggerId}` : undefined}
+          variant="ghost"
+          className={cn(
+            'h-8 px-2 w-full justify-start text-left rounded-none focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:shadow-subtle overflow-hidden',
+            className,
+          )}
+          ref={ref}
+          {...props}
+        />
+      }
+    >
+      {children}
     </Popover.Trigger>
   );
 };
 
-const RecordTableCellContent = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content>) => {
+const RecordTableCellContent = ({ className, ...props }: PopoverContentProps) => {
   return (
     <Popover.Content
       align="start"
       sideOffset={-32}
       disableTransition
       className={cn(
-        'p-0 w-(--radix-popper-anchor-width) min-w-56 rounded',
+        'p-0 w-(--anchor-width) min-w-56 rounded',
         !className &&
-          'has-[>input]:w-[var(--radix-popper-anchor-width)] has-[>input]:min-w-0 [&>input]:h-8 [&>input]:px-2',
+          'has-[>input]:w-[var(--anchor-width)] has-[>input]:min-w-0 [&>input]:h-8 [&>input]:px-2',
         className,
       )}
-      ref={ref}
       {...props}
     />
   );
 };
 
-const RecordTableCellDisplay = ({
-  ref,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof Button>) => {
-  return (
-    <Button
-      variant="ghost"
-      className={cn(
-        'h-8 px-2 w-full justify-start text-left font-normal rounded-none overflow-hidden',
-        className,
-      )}
-      ref={ref}
-      asChild
-      tabIndex={-1}
-      {...props}
-    >
-      <div>{children}</div>
-    </Button>
-  );
-};
+const RecordTableCellDisplay = ({ className, ...props }: React.ComponentProps<'div'>) => (
+  <div
+    className={cn(
+      buttonVariants({ variant: 'ghost' }),
+      'h-8 px-2 w-full justify-start text-left font-normal rounded-none overflow-hidden',
+      className,
+    )}
+    tabIndex={-1}
+    {...props}
+  />
+);
 
 const RecordTableInlineAnchor = ({
   ref,

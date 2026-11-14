@@ -21,16 +21,18 @@ export const ProductPanelActions = ({ product }: { product: Product }) => {
       {archived && <Badge variant="secondary">{t('status.archived', 'Archived')}</Badge>}
       {manage && (
         <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              aria-label={t('panel.actions', 'Product actions')}
-              title={t('panel.actions', 'Product actions')}
-            >
-              <IconDots className="size-4" />
-            </Button>
+          <Popover.Trigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label={t('panel.actions', 'Product actions')}
+                title={t('panel.actions', 'Product actions')}
+              />
+            }
+          >
+            <IconDots className="size-4" />
           </Popover.Trigger>
           <Popover.Content className="min-w-56 p-0" align="end" side="bottom" sideOffset={8}>
             <Command>

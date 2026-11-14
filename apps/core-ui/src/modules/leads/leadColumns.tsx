@@ -144,10 +144,11 @@ const originColumns = <
     accessorKey: 'lastActivityAt',
     header: () => <LeadsHead label="last-activity" icon={IconActivity} />,
     cell: ({ row }) => (
-      <RelativeDateDisplay value={row.original.lastActivityAt} asChild>
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <RelativeDateDisplay.Value value={row.original.lastActivityAt} />
-        </RecordTableInlineCell>
+      <RelativeDateDisplay
+        value={row.original.lastActivityAt}
+        render={<RecordTableInlineCell className="text-xs font-medium text-muted-foreground" />}
+      >
+        <RelativeDateDisplay.Value value={row.original.lastActivityAt} />
       </RelativeDateDisplay>
     ),
   },

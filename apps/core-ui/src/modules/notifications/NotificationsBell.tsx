@@ -1,5 +1,5 @@
 import { IconBell, IconChecks, IconInbox } from '@tabler/icons-react';
-import { Button, cn, Popover, ScrollArea } from 'erxes-ui';
+import { Button, cn, Popover, ScrollArea, buttonVariants } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -74,17 +74,14 @@ const BellHeader = ({
           <IconChecks className="size-4" />
           {t('mark-all-read', 'Mark all read')}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7"
-          asChild
+        <Link
+          to={source ? `/notifications/${source}` : '/notifications'}
+          onClick={onLeave}
           aria-label={t('open-inbox', 'Open inbox')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-7')}
         >
-          <Link to={source ? `/notifications/${source}` : '/notifications'} onClick={onLeave}>
-            <IconInbox className="size-4" />
-          </Link>
-        </Button>
+          <IconInbox className="size-4" />
+        </Link>
       </div>
     </div>
   );
@@ -150,21 +147,23 @@ export const NotificationsBell = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <CoreTabTooltip label={t('title', 'Notifications')}>
-        <Popover.Trigger asChild>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            aria-label={
-              count
-                ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
-                : t('title', 'Notifications')
-            }
-            className={cn(coreTabIconClassName(open), 'relative')}
-          >
-            <IconBell className="size-4" />
-            <BellIndicators count={count} />
-          </Button>
+        <Popover.Trigger
+          render={
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              aria-label={
+                count
+                  ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
+                  : t('title', 'Notifications')
+              }
+              className={cn(coreTabIconClassName(open), 'relative')}
+            />
+          }
+        >
+          <IconBell className="size-4" />
+          <BellIndicators count={count} />
         </Popover.Trigger>
       </CoreTabTooltip>
       <Popover.Content align="end" className="w-[26rem] p-0">

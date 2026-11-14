@@ -94,14 +94,7 @@ const ConfirmDialog = ({ message, options = {}, onConfirm, onDismiss }: ConfirmD
 
   return (
     <AlertDialog open>
-      <AlertDialog.Content
-        onOpenAutoFocus={(event) => {
-          if (!inputRef.current) return;
-
-          event.preventDefault();
-          inputRef.current.focus();
-        }}
-      >
+      <AlertDialog.Content initialFocus={confirmationValue ? inputRef : undefined}>
         <AlertDialog.Header>
           <AlertDialog.Title>{message}</AlertDialog.Title>
           {description && <AlertDialog.Description> {description} </AlertDialog.Description>}

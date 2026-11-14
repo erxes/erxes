@@ -89,11 +89,9 @@ const ColorCell = ({ tag }: { tag: Tag }) => {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <RecordTableInlineCell.Trigger>
-          <TagDot color={tag.colorCode} className="size-3" />
-        </RecordTableInlineCell.Trigger>
-      </Popover.Trigger>
+      <RecordTableInlineCell.Trigger>
+        <TagDot color={tag.colorCode} className="size-3" />
+      </RecordTableInlineCell.Trigger>
       <Popover.Content className="w-auto p-3">
         <ColorSwatches
           value={tag.colorCode}
@@ -147,10 +145,11 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
 };
 
 const CreatedCell = ({ tag }: { tag: Tag }) => (
-  <RelativeDateDisplay value={tag.createdAt} asChild>
-    <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-      <RelativeDateDisplay.Value value={tag.createdAt} />
-    </RecordTableInlineCell>
+  <RelativeDateDisplay
+    value={tag.createdAt}
+    render={<RecordTableInlineCell className="text-xs font-medium text-muted-foreground" />}
+  >
+    <RelativeDateDisplay.Value value={tag.createdAt} />
   </RelativeDateDisplay>
 );
 

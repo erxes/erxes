@@ -139,18 +139,15 @@ export const TemplateInput = ({
       )}
       {!disabled && (
         <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <button
-              type="button"
-              title={t('insert-data', 'Insert data')}
-              aria-label={t('insert-data', 'Insert data')}
-              className={cn(
-                'absolute right-1.5 flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground',
-                multiline ? 'top-1.5' : 'top-1/2 -translate-y-1/2',
-              )}
-            >
-              <IconBraces className="size-4" />
-            </button>
+          <Popover.Trigger
+            title={t('insert-data', 'Insert data')}
+            aria-label={t('insert-data', 'Insert data')}
+            className={cn(
+              'absolute right-1.5 flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
+              multiline ? 'top-1.5' : 'top-1/2 -translate-y-1/2',
+            )}
+          >
+            <IconBraces className="size-4" />
           </Popover.Trigger>
           <Popover.Content align="end" sideOffset={6} collisionPadding={12} className="w-72 p-0">
             <DataPicker fields={fields} subject={subject} onPick={insert} />

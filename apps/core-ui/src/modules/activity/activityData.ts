@@ -16,7 +16,8 @@ const reader =
     return parsed.success ? parsed.data : null;
   };
 
-const ids = z.array(z.string()).catch([]);
+/** Absent means none, as core's note schema defaults them; a list of anything else is another shape. */
+const ids = z.array(z.string()).default([]);
 
 /** `field → [before, after]`; the values are whatever the field holds. */
 const changes = z.record(z.string(), z.tuple([z.unknown(), z.unknown()]));
@@ -25,7 +26,7 @@ const note = z.object({
   body: z.string(),
   mentions: ids,
   fileIds: ids,
-  history: z.array(z.object({ body: z.string(), editedAt: z.string() })).catch([]),
+  history: z.array(z.object({ body: z.string(), editedAt: z.string() })).default([]),
 });
 
 export type NoteData = z.infer<typeof note>;
@@ -33,7 +34,7 @@ export type NoteData = z.infer<typeof note>;
 export const readChanges = reader(z.object({ changes }).transform((data) => data.changes));
 export const readNote = reader(note);
 export const readTagged = reader(z.object({ added: ids, removed: ids }));
-export const readMerged = reader(z.object({ mergedNames: z.array(z.string()).catch([]) }));
+export const readMerged = reader(z.object({ mergedNames: z.array(z.string()) }));
 
 export const readCompanyLink = reader(
   z.object({ companyId: z.string(), companyName: z.string().optional() }),
@@ -46,11 +47,9 @@ export const readCustomerLink = reader(
 export const readLead = reader(
   z.object({
     event: z.string().optional(),
-    to: z
-      .object({ name: z.string().optional(), color: z.string().optional() })
-      .nullable()
-      .catch(null),
-    reason: z.string().optional(),
+    to: z.object({ name: z.string().optional(), color: z.string().optional() }).nullable(),
+    // Core writes null when the move gave no reason.
+    reason: z.string().nullish(),
   }),
 );
 

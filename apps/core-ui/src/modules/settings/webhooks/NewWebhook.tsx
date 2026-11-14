@@ -83,10 +83,9 @@ const NewWebhookForm = ({ onCreated }: { onCreated: (secret: string) => void }) 
       <div className="space-y-1.5">
         <Label htmlFor={eventsId}>{t('events', 'Events')}</Label>
         <MultipleSelector
-          inputProps={{ id: eventsId }}
+          id={eventsId}
           value={types}
           onChange={setTypes}
-          defaultOptions={options}
           options={options}
           placeholder={t(
             'events-placeholder',
@@ -119,11 +118,9 @@ export const NewWebhook = ({ onCreated }: { onCreated: (secret: string) => void 
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add', 'Add webhook')}
-        </Button>
+      <Dialog.Trigger render={<Button />}>
+        <IconPlus />
+        {t('add', 'Add webhook')}
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.HeaderCombined

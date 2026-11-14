@@ -192,13 +192,14 @@ export default defineConfig({
         rules: { 'no-console': ['error', { allow: ['warn', 'error'] }] },
       },
       {
-        // Value lists are written once, in packages/db/src/enums.ts. apps/core-ui and
-        // packages/ui join once their Base UI rewrite lands.
+        // Value lists are written once, in packages/db/src/enums.ts.
         files: [
           'apps/core-api/**',
+          'apps/core-ui/**',
           'packages/db/**',
           'packages/contract/**',
           'packages/plugin-sdk/**',
+          'packages/ui/**',
         ],
         rules: { 'erxes/no-inline-enum': 'error' },
       },
@@ -255,19 +256,6 @@ export default defineConfig({
           'packages/plugin-sdk/src/index.ts',
         ],
         rules: { 'oxc/no-barrel-file': 'off' },
-      },
-      {
-        // The Base UI rewrite owns these files right now; they still read stored
-        // UI state with zod `.catch()`. Move them to `.default()` or `safeParse`
-        // and delete this entry once that rewrite lands.
-        files: [
-          'apps/core-ui/src/modules/activity/activityData.ts',
-          'apps/core-ui/src/modules/automations/builder/ConditionValueInput.tsx',
-          'apps/core-ui/src/modules/side-panel/panelNavigation.ts',
-          'apps/core-ui/src/modules/views/filter/filterRules.ts',
-          'packages/ui/src/modules/record-table/utils/rowFields.ts',
-        ],
-        rules: { 'anti-slop/no-zod-catch': 'off' },
       },
       {
         // Copied from the HR plugin (and ESLint Stylistic in vendor/). Kept as

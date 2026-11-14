@@ -91,10 +91,8 @@ const EntryRow = ({
         className="px-3 py-2 whitespace-nowrap text-muted-foreground"
         aria-label={new Date(entry.createdAt).toLocaleString()}
       >
-        <RelativeDateDisplay value={entry.createdAt} asChild>
-          <span>
-            <RelativeDateDisplay.Value value={entry.createdAt} />
-          </span>
+        <RelativeDateDisplay value={entry.createdAt} render={<span />}>
+          <RelativeDateDisplay.Value value={entry.createdAt} />
         </RelativeDateDisplay>
       </td>
       <td className="px-3 py-2">

@@ -38,9 +38,7 @@ const TeamMemberMoreColumnCell = ({ user }: { user: User }) => {
   return (
     <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       {permissions?.canEdit && (
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
+        <Popover.Trigger render={<RecordTable.MoreButton className="w-full h-full" />} />
       )}
       <Combobox.Content>
         <Command shouldFilter={false}>

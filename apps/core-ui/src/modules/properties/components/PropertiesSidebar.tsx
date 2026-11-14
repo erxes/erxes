@@ -18,13 +18,14 @@ export const PropertiesSidebar = ({ types }: { types: readonly FieldContentType[
           <Sidebar.Menu>
             {types.map((contentType) => (
               <Sidebar.MenuItem key={contentType}>
-                <Sidebar.MenuButton isActive={contentType === type} asChild>
-                  <Link to={propertiesPath(contentType)}>
-                    {t(
-                      `content-type.${PROPERTY_TYPES[contentType].i18nKey}`,
-                      PROPERTY_TYPES[contentType].label,
-                    )}
-                  </Link>
+                <Sidebar.MenuButton
+                  isActive={contentType === type}
+                  render={<Link to={propertiesPath(contentType)} />}
+                >
+                  {t(
+                    `content-type.${PROPERTY_TYPES[contentType].i18nKey}`,
+                    PROPERTY_TYPES[contentType].label,
+                  )}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

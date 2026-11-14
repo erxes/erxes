@@ -1,6 +1,7 @@
+import { cn } from 'erxes-ui/lib/utils';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { Badge } from 'erxes-ui/components/badge';
-import { Button } from 'erxes-ui/components/button';
+import { buttonVariants } from 'erxes-ui/components/button';
 import type { EmailDisplayProps } from 'erxes-ui/modules/display/types/emailDisplay';
 import { formatEmails } from 'erxes-ui/modules/display/utils/formatEmails';
 import type { IEmailField } from 'erxes-ui/modules/inputs/types/emailField';
@@ -39,35 +40,32 @@ const EmailChip = ({
   }
 
   return (
-    <Button
-      asChild
-      size="sm"
-      variant="secondary"
-      className="min-w-0 max-w-full h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <span
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- the chip sits inside table and detail triggers that are buttons, and a button may not contain a button
-        role="button"
-        tabIndex={0}
-        onClick={(event) => {
-          event.stopPropagation();
-          onEmailClick(email);
-        }}
-        onDoubleClick={(event) => {
-          event.stopPropagation();
-          onEmailDoubleClick?.(email);
-        }}
-        onKeyDown={(event) => {
-          if (event.key !== 'Enter' && event.key !== ' ') return;
+    <span
+      className={cn(
+        buttonVariants({ size: 'sm', variant: 'secondary' }),
+        'min-w-0 max-w-full h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring',
+      )}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- the chip sits inside table and detail triggers that are buttons, and a button may not contain a button
+      role="button"
+      tabIndex={0}
+      onClick={(event) => {
+        event.stopPropagation();
+        onEmailClick(email);
+      }}
+      onDoubleClick={(event) => {
+        event.stopPropagation();
+        onEmailDoubleClick?.(email);
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
 
-          event.preventDefault();
-          event.stopPropagation();
-          (onEmailKeyActivate ?? onEmailClick)(email);
-        }}
-      >
-        <EmailText {...item} />
-      </span>
-    </Button>
+        event.preventDefault();
+        event.stopPropagation();
+        (onEmailKeyActivate ?? onEmailClick)(email);
+      }}
+    >
+      <EmailText {...item} />
+    </span>
   );
 };
 

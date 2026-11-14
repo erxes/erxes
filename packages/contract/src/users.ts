@@ -13,7 +13,7 @@ import {
   ImageAddress,
   isoDate,
 } from './common';
-import { NewPassword, RoleKey, UserLinkName } from './values';
+import { InviteRole, NewPassword, RoleKey, UserLinkName } from './values';
 
 export const UserStatus = z.enum(USER_STATUSES);
 
@@ -130,10 +130,7 @@ const UserFields = createUpdateSchema(users, {
 
 const InviteEntry = z.object({
   email: z.string().trim().check(z.email()).max(254),
-  role: RoleKey.refine(
-    (role) => role !== 'owner',
-    'invite as admin or member, then make them owner',
-  ).default('member'),
+  role: InviteRole.default('member'),
   /** Given: the member can sign in at once (active). Otherwise they stay invited. */
   password: NewPassword.optional(),
   ...UserFields.pick({ fullName: true, username: true }).shape,

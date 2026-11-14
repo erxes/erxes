@@ -76,11 +76,7 @@ const TrashRow = ({
 
   return (
     <li className="flex items-center gap-3 p-3 text-sm">
-      <Checkbox
-        aria-label={label}
-        checked={checked}
-        onCheckedChange={(on) => onCheckedChange(on === true)}
-      />
+      <Checkbox aria-label={label} checked={checked} onCheckedChange={onCheckedChange} />
       <Badge variant="secondary">
         {item.recordType === 'customer' ? t('customer', 'Customer') : t('company', 'Company')}
       </Badge>
@@ -106,10 +102,8 @@ const TrashRow = ({
       </span>
       <span className="ml-auto text-xs text-muted-foreground">
         {actorLabel(item.deletedBy, members)} ·{' '}
-        <RelativeDateDisplay value={item.deletedAt} asChild>
-          <span>
-            <RelativeDateDisplay.Value value={item.deletedAt} />
-          </span>
+        <RelativeDateDisplay value={item.deletedAt} render={<span />}>
+          <RelativeDateDisplay.Value value={item.deletedAt} />
         </RelativeDateDisplay>
       </span>
     </li>

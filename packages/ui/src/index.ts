@@ -45,6 +45,8 @@ export { CopyText } from './components/copy-text';
 
 export { DatePicker } from './components/date-picker';
 
+export { DateInput, TimeField } from './components/date-time-input';
+
 export { Dialog } from './components/dialog';
 
 export { DragHandle } from './components/drag-handle';
@@ -65,7 +67,9 @@ export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
 
-export { MultipleSelector, type MultiSelectOption } from './components/multiselect';
+export { MultipleSelector, Slider } from './components/on-demand';
+
+export { type MultiSelectOption } from './components/multiselect';
 
 export { Popover } from './components/popover';
 
@@ -85,8 +89,6 @@ export { Sidebar } from './components/sidebar';
 
 export { Skeleton } from './components/skeleton';
 
-export { Slider } from './components/slider';
-
 export { Spinner } from './components/spinner';
 
 export { StringArrayInput } from './components/string-array';
@@ -100,8 +102,6 @@ export { Tabs } from './components/tabs';
 export { TextOverflowTooltip } from './components/text-overflow';
 
 export { Textarea } from './components/textarea';
-
-export { DateInput, TimeField } from './components/time-picker';
 
 export { Toaster } from './components/toaster';
 

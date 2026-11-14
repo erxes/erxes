@@ -1,4 +1,4 @@
-import { Button } from 'erxes-ui';
+import { buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -77,9 +77,9 @@ export const HomeRecordList = ({
     <DashboardWidgetCard
       title={title}
       action={
-        <Button asChild size="sm" variant="ghost">
-          <Link to={viewAllTo}>{t('view-all')}</Link>
-        </Button>
+        <Link to={viewAllTo} className={buttonVariants({ size: 'sm', variant: 'ghost' })}>
+          {t('view-all')}
+        </Link>
       }
     >
       {renderContent()}

@@ -87,14 +87,16 @@ export const VersionsPanel = ({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button
-          variant="ghost"
-          title={t('versions', 'Versions')}
-          aria-label={t('versions', 'Versions')}
-        >
-          <IconHistory />
-        </Button>
+      <Sheet.Trigger
+        render={
+          <Button
+            variant="ghost"
+            title={t('versions', 'Versions')}
+            aria-label={t('versions', 'Versions')}
+          />
+        }
+      >
+        <IconHistory />
       </Sheet.Trigger>
       <Sheet.View className="flex w-full flex-col gap-4 p-4 sm:max-w-md">
         <Sheet.Header>

@@ -83,11 +83,9 @@ export const TeamMemberCommandBar = ({ rows }: { rows: User[] }) => {
         {can('team.manage') && <Separator.Inline />}
         {can('team.manage') && (
           <Popover open={open} onOpenChange={setOpen}>
-            <Popover.Trigger asChild>
-              <Button variant="secondary">
-                <IconRepeat />
-                {t('actions')}
-              </Button>
+            <Popover.Trigger render={<Button variant="secondary" />}>
+              <IconRepeat />
+              {t('actions')}
             </Popover.Trigger>
             <Popover.Content className="min-w-[280px] p-0" align="end" side="top" sideOffset={10}>
               <Command>

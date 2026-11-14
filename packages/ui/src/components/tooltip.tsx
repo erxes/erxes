@@ -1,31 +1,46 @@
-import React from 'react';
-import { Tooltip as TooltipPrimitive } from 'radix-ui';
+import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
 import { cn } from '../lib/utils';
 
-const TooltipContent = ({
-  ref,
-  className,
-  sideOffset = 8,
-  children,
+/** Opens after 700ms and skips the delay for 300ms after one closes, the timings the app had under Radix. */
+const TooltipProvider = ({
+  delay = 700,
+  timeout = 300,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) => (
+}: TooltipPrimitive.Provider.Props) => (
+  <TooltipPrimitive.Provider delay={delay} timeout={timeout} {...props} />
+);
+
+const TooltipContent = ({
+  className,
+  side = 'top',
+  sideOffset = 8,
+  align = 'center',
+  alignOffset = 0,
+  ...props
+}: TooltipPrimitive.Popup.Props &
+  Pick<TooltipPrimitive.Positioner.Props, 'side' | 'sideOffset' | 'align' | 'alignOffset'>) => (
   <TooltipPrimitive.Portal>
-    <TooltipPrimitive.Content
-      ref={ref}
+    <TooltipPrimitive.Positioner
+      className="isolate z-50"
+      side={side}
       sideOffset={sideOffset}
-      className={cn(
-        'z-50 overflow-hidden rounded-md bg-foreground px-3 py-1.5 text-xs text-background animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-        className,
-      )}
-      {...props}
+      align={align}
+      alignOffset={alignOffset}
+      collisionPadding={0}
     >
-      {children}
-    </TooltipPrimitive.Content>
+      <TooltipPrimitive.Popup
+        className={cn(
+          'overflow-hidden rounded-md bg-foreground px-3 py-1.5 text-xs text-background animate-in fade-in-0 zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          className,
+        )}
+        {...props}
+      />
+    </TooltipPrimitive.Positioner>
   </TooltipPrimitive.Portal>
 );
 
 export const Tooltip = Object.assign(TooltipPrimitive.Root, {
-  Provider: TooltipPrimitive.Provider,
+  Provider: TooltipProvider,
   Trigger: TooltipPrimitive.Trigger,
   Content: TooltipContent,
 });

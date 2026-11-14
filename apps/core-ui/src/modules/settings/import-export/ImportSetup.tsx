@@ -172,7 +172,6 @@ const TagsOption = ({ imp, onChange }: Omit<SetupProps, 'disabled'>) => {
           (tagId) => options.find((tag) => tag.value === tagId) ?? { value: tagId, label: tagId },
         )}
         options={options}
-        defaultOptions={options}
         hidePlaceholderWhenSelected
         onChange={(next) => onChange({ options: { tagIds: next.map((item) => item.value) } })}
       />

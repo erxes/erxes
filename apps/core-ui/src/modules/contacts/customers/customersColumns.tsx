@@ -55,9 +55,7 @@ const CustomerMoreColumnCell = ({ customer }: { customer: Customer }) => {
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="h-full w-full" />
-      </Popover.Trigger>
+      <Popover.Trigger render={<RecordTable.MoreButton className="h-full w-full" />} />
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
@@ -124,10 +122,11 @@ const CustomerSexCell = ({ customer }: { customer: Customer }) => {
 };
 
 const DateCell = ({ value }: { value: string }) => (
-  <RelativeDateDisplay value={value} asChild>
-    <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-      <RelativeDateDisplay.Value value={value} />
-    </RecordTableInlineCell>
+  <RelativeDateDisplay
+    value={value}
+    render={<RecordTableInlineCell className="text-xs font-medium text-muted-foreground" />}
+  >
+    <RelativeDateDisplay.Value value={value} />
   </RelativeDateDisplay>
 );
 

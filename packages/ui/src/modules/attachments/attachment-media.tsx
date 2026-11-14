@@ -1,5 +1,5 @@
 import { IconChevronLeft, IconChevronRight, IconDownload, IconX } from '@tabler/icons-react';
-import { Button } from 'erxes-ui/components/button';
+import { Button, buttonVariants } from 'erxes-ui/components/button';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { cn } from 'erxes-ui/lib/utils';
 import { readImage } from 'erxes-ui/utils/core';
@@ -45,16 +45,19 @@ export const AttachmentPreview = ({ images, renderThumbnails }: AttachmentPrevie
           >
             <IconX size={20} />
           </Button>
-          <Button variant="secondary" size="icon" aria-label="Download file" asChild>
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href={readImage(current.url)}
-              className={cn(navButtonClassName, 'top-20 -right-4 -translate-y-1/2')}
-            >
-              <IconDownload />
-            </a>
-          </Button>
+          <a
+            aria-label="Download file"
+            target="_blank"
+            rel="noreferrer"
+            href={readImage(current.url)}
+            className={cn(
+              buttonVariants({ variant: 'secondary', size: 'icon' }),
+              navButtonClassName,
+              'top-20 -right-4 -translate-y-1/2',
+            )}
+          >
+            <IconDownload />
+          </a>
           <Button
             variant="secondary"
             size="icon"

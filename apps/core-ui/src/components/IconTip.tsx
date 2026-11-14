@@ -1,5 +1,5 @@
 import { Kbd, Tooltip } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import type { ReactElement } from 'react';
 
 /** The hover label of an icon-only button, with its shortcut when it has one. */
 export const IconTip = ({
@@ -9,11 +9,11 @@ export const IconTip = ({
 }: {
   label: string;
   hotkey?: string;
-  children: ReactNode;
+  children: ReactElement;
 }) => (
-  <Tooltip.Provider delayDuration={300}>
+  <Tooltip.Provider delay={300}>
     <Tooltip>
-      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+      <Tooltip.Trigger render={children} />
       <Tooltip.Content side="bottom" className="flex items-center gap-1.5">
         {label}
         {hotkey && <Kbd>{hotkey}</Kbd>}

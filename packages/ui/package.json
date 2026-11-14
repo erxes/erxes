@@ -46,6 +46,7 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "@base-ui/react": "1.9.0",
     "@blocknote/core": "0.57.0",
     "@blocknote/react": "0.57.0",
     "@blocknote/shadcn": "0.57.0",
@@ -65,8 +66,6 @@
     "date-fns": "4.1.0",
     "jotai-family": "1.1.0",
     "libphonenumber-js": "1.12.6",
-    "radix-ui": "1.4.3",
-    "react-aria-components": "1.10.1",
     "react-day-picker": "10.0.2",
     "react-hook-form": "7.55.0",
     "react-hotkeys-hook": "5.4.0",

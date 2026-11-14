@@ -1,3 +1,4 @@
+import { LiveMode } from '@erxes/core-contract';
 import { jsonOf } from 'erxes-ui';
 import { z } from 'zod';
 
@@ -16,8 +17,9 @@ import { z } from 'zod';
  * (`mode: polling`, offline, reconnecting) queries fall back to polling.
  */
 
-const liveMode = z.enum(['connecting', 'live', 'polling']);
-const hello = z.object({ mode: z.enum(['live', 'polling']) });
+/** What the tab holding the stream tells the others: still connecting, or the stream's mode. */
+const liveMode = z.union([z.literal('connecting'), LiveMode]);
+const hello = z.object({ mode: LiveMode });
 
 const timeline = z.object({
   targets: z.array(z.object({ targetType: z.string(), targetId: z.string() })),

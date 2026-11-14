@@ -1,10 +1,10 @@
 import { Tooltip } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import type { ReactElement } from 'react';
 
 /** The hover label every top bar icon shows. */
-export const CoreTabTooltip = ({ label, children }: { label: string; children: ReactNode }) => (
+export const CoreTabTooltip = ({ label, children }: { label: string; children: ReactElement }) => (
   <Tooltip>
-    <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+    <Tooltip.Trigger render={children} />
     <Tooltip.Content side="bottom">{label}</Tooltip.Content>
   </Tooltip>
 );

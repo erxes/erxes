@@ -1,6 +1,6 @@
 import type { FieldContentType } from '@erxes/core-contract';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Button, Spinner, useToast } from 'erxes-ui';
+import { Spinner, useToast, buttonVariants } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { messageOf, orpc } from '~/lib/api';
@@ -41,9 +41,9 @@ export const PropertyEdit = ({ contentType }: { contentType: FieldContentType })
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
         {t('no-fields-found', 'No fields found')}
-        <Button variant="secondary" asChild>
-          <Link to={propertiesPath(contentType)}>{t('cancel', 'Cancel')}</Link>
-        </Button>
+        <Link to={propertiesPath(contentType)} className={buttonVariants({ variant: 'secondary' })}>
+          {t('cancel', 'Cancel')}
+        </Link>
       </div>
     );
   }

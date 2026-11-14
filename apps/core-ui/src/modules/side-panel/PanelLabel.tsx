@@ -49,19 +49,21 @@ export const PanelLabel = ({
   const showTooltip = isClamped && !expanded;
 
   return (
-    <Tooltip.Provider delayDuration={100}>
+    <Tooltip.Provider delay={100}>
       <Tooltip>
-        <Tooltip.Trigger asChild>
-          <span
-            ref={ref}
-            className={cn(
-              'my-1 block min-w-0 wrap-break-word',
-              !expanded && 'line-clamp-2',
-              className,
-            )}
-          >
-            {children}
-          </span>
+        <Tooltip.Trigger
+          render={
+            <span
+              ref={ref}
+              className={cn(
+                'my-1 block min-w-0 wrap-break-word',
+                !expanded && 'line-clamp-2',
+                className,
+              )}
+            />
+          }
+        >
+          {children}
         </Tooltip.Trigger>
         {showTooltip && <Tooltip.Content>{tooltip ?? children}</Tooltip.Content>}
       </Tooltip>

@@ -44,11 +44,9 @@ export const PropertyArchiveDialog = () => {
                 ? t('remove-title', 'Remove {{label}}?', { label: target?.label })
                 : t('archive-title', 'Archive {{label}}?', { label: target?.label })}
           </AlertDialog.Title>
-          <AlertDialog.Description asChild>
-            <div className="flex items-center gap-2">
-              {checking && <Spinner size="sm" containerClassName="w-auto" />}
-              {description}
-            </div>
+          <AlertDialog.Description render={<div className="flex items-center gap-2" />}>
+            {checking && <Spinner size="sm" containerClassName="w-auto" />}
+            {description}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>

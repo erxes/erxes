@@ -74,7 +74,7 @@ const TabBar = ({
             className={cn(
               'text-xs motion-reduce:transition-none',
               sidebar
-                ? 'h-9 justify-start gap-2.5 rounded-md px-2.5 after:hidden data-[state=active]:bg-primary/10 data-[state=active]:hover:bg-primary/10'
+                ? 'h-9 justify-start gap-2.5 rounded-md px-2.5 after:hidden data-active:bg-primary/10 data-active:hover:bg-primary/10'
                 : 'h-full gap-1.5 rounded-none after:-mb-px',
             )}
           >
@@ -88,15 +88,15 @@ const TabBar = ({
       </Tabs.List>
       {overflow.length > 0 && (
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button variant="ghost" size="sm" className="text-accent-foreground">
-              {t('more', '+{{count}} More', { count: overflow.length })}
-              <IconChevronDown />
-            </Button>
+          <DropdownMenu.Trigger
+            render={<Button variant="ghost" size="sm" className="text-accent-foreground" />}
+          >
+            {t('more', '+{{count}} More', { count: overflow.length })}
+            <IconChevronDown />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="start">
             {overflow.map((tab) => (
-              <DropdownMenu.Item key={tab.value} onSelect={() => onValueChange(tab.value)}>
+              <DropdownMenu.Item key={tab.value} onClick={() => onValueChange(tab.value)}>
                 <tab.icon />
                 {tab.label}
               </DropdownMenu.Item>
@@ -124,16 +124,19 @@ const TabContent = ({
 }) => (
   <Tabs.Content
     value={tab.value}
-    forceMount={keepMounted || undefined}
+    keepMounted={keepMounted}
+    // The split overview shows beside the selected tab, so it is never hidden.
+    hidden={splitOverview && isOverview ? false : undefined}
+    inert={splitOverview && isOverview ? false : undefined}
     // A widget's own header lines up with a page's filter row (37px). A quick fade when
     // switching tabs or opening another record in the panel; a record's page opens without one.
     className={cn(
       'flex-1 min-h-0 min-w-0 flex-col [&_[data-side-menu-header]]:h-9',
       !splitOverview &&
-        'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none',
+        'not-data-hidden:animate-in not-data-hidden:fade-in-0 not-data-hidden:duration-150 motion-reduce:animate-none',
       splitOverview && isOverview
         ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
-        : 'data-[state=active]:flex data-[state=inactive]:hidden',
+        : 'not-data-hidden:flex data-hidden:hidden',
       splitOverview && !isOverview && 'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
     )}
   >

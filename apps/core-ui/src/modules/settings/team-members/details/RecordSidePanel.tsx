@@ -190,15 +190,18 @@ const RecordSidePanelTabs = ({
           <Tabs.Content
             key={tab.value}
             value={tab.value}
-            forceMount={overview || undefined}
+            keepMounted={overview}
+            // The overview column shows beside the selected tab, so it is never hidden.
+            hidden={overview ? false : undefined}
+            inert={overview ? false : undefined}
             className={cn(
               'flex-1 min-h-0 min-w-0 flex-col mt-0',
               overview
                 ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
-                : 'data-[state=active]:flex data-[state=inactive]:hidden',
+                : 'not-data-hidden:flex data-hidden:hidden',
               expanded && !overview && 'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
               !expanded &&
-                'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none',
+                'not-data-hidden:animate-in not-data-hidden:fade-in-0 not-data-hidden:duration-150 motion-reduce:animate-none',
             )}
           >
             {overview && overviewHeader && (

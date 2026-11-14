@@ -3,10 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import { IconSearch } from '@tabler/icons-react';
 import { cva } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
-import type { DialogProps } from './dialog';
+import { cn, mergeRefs } from '../lib/utils';
 import { Dialog } from './dialog';
-import { cn } from '../lib/utils';
-import { composeRefs } from 'radix-ui/internal';
 
 const CommandRoot = ({
   ref,
@@ -23,23 +21,29 @@ const CommandRoot = ({
   />
 );
 
-type CommandDialogProps = DialogProps & {
-  dialogContentClassName?: string;
-};
-
-const CommandDialog = ({ children, dialogContentClassName, ...props }: CommandDialogProps) => {
-  return (
-    <Dialog {...props}>
-      <Dialog.Content
-        className={cn('overflow-hidden p-0 rounded-lg border-0', dialogContentClassName)}
-      >
-        <CommandRoot className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
-          {children}
-        </CommandRoot>
-      </Dialog.Content>
-    </Dialog>
-  );
-};
+/** A command palette in a dialog. The title names the dialog for screen readers; it isn't shown. */
+const CommandDialog = ({
+  title,
+  description,
+  className,
+  children,
+  ...props
+}: Omit<React.ComponentProps<typeof Dialog>, 'children'> & {
+  children: React.ReactNode;
+  title: string;
+  description?: string;
+  className?: string;
+}) => (
+  <Dialog {...props}>
+    <Dialog.Content className={cn('overflow-hidden p-0 rounded-lg border-0', className)}>
+      <Dialog.Title className="sr-only">{title}</Dialog.Title>
+      {description && <Dialog.Description className="sr-only">{description}</Dialog.Description>}
+      <CommandRoot className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        {children}
+      </CommandRoot>
+    </Dialog.Content>
+  </Dialog>
+);
 
 const commanInputVariants = cva(
   'flex h-8 w-full rounded-md px-3 text-sm font-medium outline-hidden placeholder:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50',
@@ -81,7 +85,7 @@ const CommandInput = ({
       >
         <IconSearch className="mr-2 h-4 w-4 shrink-0 opacity-50" />
         <CommandPrimitive.Input
-          ref={composeRefs(inputRef, ref)}
+          ref={mergeRefs(inputRef, ref)}
           className={cn(commanInputVariants({ variant: 'primary' }), 'pl-0', className)}
           {...props}
         />
@@ -92,7 +96,7 @@ const CommandInput = ({
   return (
     <div className={cn('flex items-center bg-background border-b', wrapperClassName)}>
       <CommandPrimitive.Input
-        ref={composeRefs(inputRef, ref)}
+        ref={mergeRefs(inputRef, ref)}
         className={cn(commanInputVariants({ variant: 'secondary' }), className)}
         {...props}
         placeholder={props.placeholder || 'Search'}

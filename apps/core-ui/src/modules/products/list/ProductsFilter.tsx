@@ -17,7 +17,7 @@ const ArchivedToggle = () => {
     <IconTip label={label}>
       <Toggle
         aria-label={label}
-        className="size-7 min-w-7 px-0 data-[state=on]:bg-accent"
+        className="size-7 min-w-7 px-0 data-pressed:bg-accent"
         pressed={archived === true}
         onPressedChange={(pressed) => setArchived(pressed ? true : null)}
       >

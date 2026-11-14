@@ -49,11 +49,11 @@ const ContactsSettingsSidebar = () => {
       <Sidebar.Header className="px-2 pt-0 pb-1">
         <Sidebar.Menu>
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton asChild>
-              <Link to={`${ContactsPath.Index}${ContactsPath.Customers}`}>
-                <IconChevronLeft />
-                <span>{t('exit-settings', 'Exit settings')}</span>
-              </Link>
+            <Sidebar.MenuButton
+              render={<Link to={`${ContactsPath.Index}${ContactsPath.Customers}`} />}
+            >
+              <IconChevronLeft />
+              <span>{t('exit-settings', 'Exit settings')}</span>
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
         </Sidebar.Menu>

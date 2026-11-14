@@ -123,31 +123,33 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-6 text-muted-foreground opacity-0 group-hover/note:opacity-100 data-[state=open]:opacity-100"
-          aria-label={t('note-actions', 'Note actions')}
-        >
-          <IconDots className="size-3.5" />
-        </Button>
+      <DropdownMenu.Trigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 text-muted-foreground opacity-0 group-hover/note:opacity-100 data-popup-open:opacity-100"
+            aria-label={t('note-actions', 'Note actions')}
+          />
+        }
+      >
+        <IconDots className="size-3.5" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end">
         <DropdownMenu.Item
-          onSelect={() => update.mutate({ id: activity.id, pinned: !activity.pinned })}
+          onClick={() => update.mutate({ id: activity.id, pinned: !activity.pinned })}
         >
           {activity.pinned ? <IconPinnedOff /> : <IconPin />}
           {activity.pinned ? t('unpin', 'Unpin') : t('pin', 'Pin to top')}
         </DropdownMenu.Item>
         {mine && (
-          <DropdownMenu.Item onSelect={onEdit}>
+          <DropdownMenu.Item onClick={onEdit}>
             <IconPencil />
             {t('edit', 'Edit')}
           </DropdownMenu.Item>
         )}
         {(mine || manager) && (
-          <DropdownMenu.Item className="text-destructive" onSelect={() => void onDelete()}>
+          <DropdownMenu.Item className="text-destructive" onClick={() => void onDelete()}>
             <IconX />
             {t('delete', 'Delete')}
           </DropdownMenu.Item>

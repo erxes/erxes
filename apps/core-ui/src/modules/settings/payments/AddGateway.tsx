@@ -176,11 +176,9 @@ export const AddGateway = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add', 'Connect a gateway')}
-        </Button>
+      <Dialog.Trigger render={<Button />}>
+        <IconPlus />
+        {t('add', 'Connect a gateway')}
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.HeaderCombined

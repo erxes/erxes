@@ -49,26 +49,23 @@ const ThemeSelector = () => {
   return (
     <div className="flex h-7 items-center gap-2 px-2 text-sm font-medium">
       {t('theme')}
-      <Tooltip.Provider delayDuration={100}>
+      <Tooltip.Provider delay={100}>
         <ToggleGroup
           className="ml-auto h-6 gap-0.5 rounded bg-accent text-accent-foreground"
-          onValueChange={(value) => {
-            if (value && isThemeOption(value)) setTheme(value);
+          onValueChange={([next]) => {
+            if (next && isThemeOption(next)) setTheme(next);
           }}
           size="sm"
-          type="single"
-          value={theme}
+          value={[theme]}
         >
           {options.map(({ value, label, icon: Icon }) => (
             <Tooltip key={value}>
               <ToggleGroup.Item
-                asChild
-                className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                render={<Tooltip.Trigger />}
+                className="h-full min-w-6 px-1 data-pressed:bg-background data-pressed:shadow-sm"
                 value={value}
               >
-                <Tooltip.Trigger>
-                  <Icon />
-                </Tooltip.Trigger>
+                <Icon />
               </ToggleGroup.Item>
               <Tooltip.Content alignOffset={4}>{label}</Tooltip.Content>
             </Tooltip>
@@ -93,20 +90,18 @@ const SelectLanguages = () => {
         {t('language')}
         <IconChevronRight className="ml-auto" />
       </DropdownMenu.SubTrigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
-          <DropdownMenu.RadioGroup
-            value={i18n.language}
-            onValueChange={(value) => void i18n.changeLanguage(value)}
-          >
-            {LANGUAGES.map((language) => (
-              <DropdownMenu.RadioItem key={language.code} value={language.code}>
-                {languageName(language.code)}
-              </DropdownMenu.RadioItem>
-            ))}
-          </DropdownMenu.RadioGroup>
-        </DropdownMenu.SubContent>
-      </DropdownMenu.Portal>
+      <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
+        <DropdownMenu.RadioGroup
+          value={i18n.language}
+          onValueChange={(value) => void i18n.changeLanguage(value)}
+        >
+          {LANGUAGES.map((language) => (
+            <DropdownMenu.RadioItem key={language.code} value={language.code}>
+              {languageName(language.code)}
+            </DropdownMenu.RadioItem>
+          ))}
+        </DropdownMenu.RadioGroup>
+      </DropdownMenu.SubContent>
     </DropdownMenu.Sub>
   );
 };
@@ -122,18 +117,20 @@ export const CoreTabUserMenu = () => {
   return (
     <DropdownMenu>
       <CoreTabTooltip label={userName}>
-        <DropdownMenu.Trigger asChild>
-          <Button
-            aria-label={sidebarT('profile')}
-            className={cn(coreTabIconClassName(), 'p-0')}
-            size="icon"
-            variant="ghost"
-          >
-            <Avatar className="size-6 rounded-md">
-              {user.avatarUrl && <Avatar.Image src={user.avatarUrl} alt={userName} />}
-              <Avatar.Fallback className="rounded-md text-xs">{userName.charAt(0)}</Avatar.Fallback>
-            </Avatar>
-          </Button>
+        <DropdownMenu.Trigger
+          render={
+            <Button
+              aria-label={sidebarT('profile')}
+              className={cn(coreTabIconClassName(), 'p-0')}
+              size="icon"
+              variant="ghost"
+            />
+          }
+        >
+          <Avatar className="size-6 rounded-md">
+            {user.avatarUrl && <Avatar.Image src={user.avatarUrl} alt={userName} />}
+            <Avatar.Fallback className="rounded-md text-xs">{userName.charAt(0)}</Avatar.Fallback>
+          </Avatar>
         </DropdownMenu.Trigger>
       </CoreTabTooltip>
       <DropdownMenu.Content
@@ -142,12 +139,10 @@ export const CoreTabUserMenu = () => {
         side="bottom"
         sideOffset={8}
       >
-        <DropdownMenu.Item asChild className="p-2">
-          <Link to="/settings/profile">
-            <UserIdentity />
-            <IconChevronRight className="text-muted-foreground" />
-          </Link>
-        </DropdownMenu.Item>
+        <DropdownMenu.LinkItem className="p-2" render={<Link to="/settings/profile" />}>
+          <UserIdentity />
+          <IconChevronRight className="text-muted-foreground" />
+        </DropdownMenu.LinkItem>
         <DropdownMenu.Separator />
         <ThemeSelector />
         <SelectLanguages />

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Popover as PopoverPrimitive } from 'radix-ui';
+import React, { useRef } from 'react';
+import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { cn } from '../lib/utils';
-import { Button } from './button';
+import { Button, buttonVariants } from './button';
 import { IconX } from '@tabler/icons-react';
 
 type CommandBarProps = React.PropsWithChildren<{
@@ -18,27 +18,28 @@ const Root = ({
   disableAutoFocus = true,
   children,
 }: CommandBarProps) => {
+  // Where the bar opens from. The page opens it, so it is an anchor, not a trigger.
+  const anchor = useRef<HTMLDivElement>(null);
+
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange} defaultOpen={defaultOpen}>
-      {/* Where the bar opens from; the page opens it, so it is an anchor, not a button. */}
-      <PopoverPrimitive.Anchor
-        className={cn('fixed bottom-10 left-1/2 h-px w-px -translate-x-1/2 z-50')}
-      />
-
-      <PopoverPrimitive.Content
-        side="top"
-        sideOffset={0}
-        onOpenAutoFocus={(e) => {
-          if (disableAutoFocus) {
-            e.preventDefault();
-          }
-        }}
-        className={cn(
-          'z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2',
-        )}
-      >
-        {children}
-      </PopoverPrimitive.Content>
+      <div ref={anchor} className="fixed bottom-10 left-1/2 h-px w-px -translate-x-1/2 z-50" />
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Positioner
+          anchor={anchor}
+          side="top"
+          sideOffset={0}
+          collisionPadding={0}
+          className="isolate z-50"
+        >
+          <PopoverPrimitive.Popup
+            initialFocus={!disableAutoFocus}
+            className="data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
+          >
+            {children}
+          </PopoverPrimitive.Popup>
+        </PopoverPrimitive.Positioner>
+      </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
   );
 };
@@ -54,15 +55,18 @@ const Value = ({
 }) => {
   return (
     <div className="flex items-center -space-x-px">
-      <Button
-        variant="outline"
-        className={cn('shadow-none border-dashed border', onClose && 'rounded-r-none', className)}
-        asChild
+      <div
+        ref={ref}
+        className={cn(
+          buttonVariants({ variant: 'outline' }),
+          'shadow-none border-dashed border',
+          onClose && 'rounded-r-none',
+          className,
+        )}
+        {...props}
       >
-        <div ref={ref} {...props}>
-          {children}
-        </div>
-      </Button>
+        {children}
+      </div>
       {onClose && (
         <Button
           variant="outline"

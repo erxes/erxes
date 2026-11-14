@@ -3,7 +3,7 @@ import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
-import { Button } from './button';
+import { buttonVariants } from './button';
 import { IconX } from '@tabler/icons-react';
 
 export const badgeVariants = cva(
@@ -47,18 +47,16 @@ export const Badge = ({
     >
       {children}
       {onClose && (
-        <Button
-          variant="ghost"
-          size="icon"
+        <IconX
           onClick={(e) => {
             e.stopPropagation();
             onClose();
           }}
-          className="size-3.5 p-0 hover:bg-transparent flex-none"
-          asChild
-        >
-          <IconX className="size-3.5 flex-none" />
-        </Button>
+          className={cn(
+            buttonVariants({ variant: 'ghost', size: 'icon' }),
+            'size-3.5 p-0 hover:bg-transparent flex-none',
+          )}
+        />
       )}
     </div>
   );

@@ -36,16 +36,16 @@ export const LeadStageMenu = ({
   stages: LeadStage[];
   value?: string | null;
   onSelect: (stage: LeadStage) => void;
-  children: React.ReactNode;
+  children: React.ReactElement;
   align?: 'start' | 'end';
 }) => (
   <DropdownMenu>
-    <DropdownMenu.Trigger asChild>{children}</DropdownMenu.Trigger>
+    <DropdownMenu.Trigger render={children} />
     <DropdownMenu.Content align={align} className="min-w-48">
       {stages.map((stage, index) => (
         <div key={stage.id}>
           {index > 0 && stages[index - 1]?.kind !== stage.kind && <DropdownMenu.Separator />}
-          <DropdownMenu.Item onSelect={() => stage.id !== value && onSelect(stage)}>
+          <DropdownMenu.Item onClick={() => stage.id !== value && onSelect(stage)}>
             <LeadStageBadge stage={stage} className="flex-1" />
             {stage.id === value && <IconCheck className="size-4 text-primary-text" />}
           </DropdownMenu.Item>
@@ -91,7 +91,7 @@ export const LeadStageTrigger = ({
       ...props.style,
     }}
     className={cn(
-      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium transition-[filter] hover:brightness-95 data-[state=open]:border-border',
+      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium transition-[filter] hover:brightness-95 data-popup-open:border-border',
       !stage && 'border-dashed border-border text-muted-foreground',
       props.className,
     )}

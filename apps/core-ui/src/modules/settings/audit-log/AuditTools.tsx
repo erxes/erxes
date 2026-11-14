@@ -120,11 +120,9 @@ export const IntegrityCheck = () => {
 
   return (
     <Popover onOpenChange={(open) => open && verify.mutate(undefined)}>
-      <Popover.Trigger asChild>
-        <Button variant="ghost">
-          <IconShieldCheck />
-          {t('verify', 'Check integrity')}
-        </Button>
+      <Popover.Trigger render={<Button variant="ghost" />}>
+        <IconShieldCheck />
+        {t('verify', 'Check integrity')}
       </Popover.Trigger>
       <Popover.Content align="end" className="w-80 text-sm">
         {verify.isError ? (
@@ -215,10 +213,8 @@ export const Retention = ({ isOwner }: { isOwner: boolean }) => {
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <Button variant="ghost" className="text-muted-foreground">
-          {t('kept-for', { days: retentionDays, defaultValue: `Kept ${retentionDays} days` })}
-        </Button>
+      <Popover.Trigger render={<Button variant="ghost" className="text-muted-foreground" />}>
+        {t('kept-for', { days: retentionDays, defaultValue: `Kept ${retentionDays} days` })}
       </Popover.Trigger>
       <Popover.Content align="end" className="w-72 space-y-3 text-sm">
         <p>

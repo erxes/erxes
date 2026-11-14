@@ -1,11 +1,10 @@
 import React from 'react';
 import { Button } from './button';
-import { cn } from '../lib/utils';
+import { cn, mergeRefs } from '../lib/utils';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import { Popover } from './popover';
 import { Command } from './command';
 import { useOnInView } from 'react-intersection-observer';
-import { composeRefs } from 'radix-ui/internal';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
 
@@ -19,21 +18,23 @@ const ComboboxTriggerBase = ({
   hideChevron?: boolean;
 }) => {
   return (
-    <Popover.Trigger asChild>
-      <Button
-        ref={ref}
-        variant="outline"
-        {...props}
-        type="button"
-        className={cn(
-          'flex truncate h-7 rounded pl-3 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-start overflow-hidden font-normal text-left w-full gap-1',
-          (!props.variant || props.variant === 'outline') && 'shadow-xs',
-          props.size === 'lg' && 'gap-2',
-          className,
-        )}
-      >
-        {children}
-      </Button>
+    <Popover.Trigger
+      render={
+        <Button
+          ref={ref}
+          variant="outline"
+          {...props}
+          type="button"
+          className={cn(
+            'flex truncate h-7 rounded pl-3 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-start overflow-hidden font-normal text-left w-full gap-1',
+            (!props.variant || props.variant === 'outline') && 'shadow-xs',
+            props.size === 'lg' && 'gap-2',
+            className,
+          )}
+        />
+      }
+    >
+      {children}
     </Popover.Trigger>
   );
 };
@@ -94,7 +95,7 @@ const ComboboxContent = ({
       align="start"
       sideOffset={8}
       {...props}
-      className={cn('p-0 min-w-72 w-(--radix-popper-anchor-width) max-w-96', className)}
+      className={cn('p-0 min-w-72 w-(--anchor-width) max-w-96', className)}
     />
   );
 };
@@ -141,7 +142,7 @@ const ComboboxChipTrigger = ({
     <ComboboxTriggerBase
       className={cn(
         'group w-fit max-w-sm h-7 rounded p-0 gap-0 overflow-hidden',
-        'data-[state=open]:border-primary/40',
+        'data-popup-open:border-primary/40',
         className,
       )}
       disabled={disabled}
@@ -158,7 +159,7 @@ const ComboboxChipTrigger = ({
         {onClear ? (
           <span className="size-5 shrink-0" />
         ) : (
-          <IconChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          <IconChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-popup-open:rotate-180" />
         )}
       </span>
     </ComboboxTriggerBase>
@@ -209,7 +210,7 @@ const ComboboxFetchMore = ({
   }
 
   return (
-    <Command.Item ref={composeRefs(ref, bottomRef)} {...props} className={cn(className)}>
+    <Command.Item ref={mergeRefs(ref, bottomRef)} {...props} className={cn(className)}>
       <Spinner
         className="size-4 text-muted-foreground"
         containerClassName="w-auto flex-none mr-2"

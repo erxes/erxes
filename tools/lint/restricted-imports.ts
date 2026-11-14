@@ -41,7 +41,12 @@ export const decided = [
     message: "One zod: import { z } from 'zod' (zod 4 classic).",
   })),
   { name: 'react', importNames: ['forwardRef'], message: 'React 19: take ref from the props.' },
-  { name: 'react-merge-refs', message: "Merge refs with composeRefs from 'radix-ui/internal'." },
+  { name: 'react-merge-refs', message: "Merge refs with mergeRefs from 'erxes-ui/lib/utils'." },
+  ...['radix-ui', 'react-aria-components'].map((name) => ({
+    name,
+    message:
+      'Primitives come from Base UI (@base-ui/react), wrapped in packages/ui/src/components.',
+  })),
 ];
 
 // A stored hash, signature or token keeps its format only if one file makes it.
