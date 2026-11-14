@@ -1,9 +1,9 @@
 import type { Notification } from '@erxes/core-contract';
 import { IconBell } from '@tabler/icons-react';
-import { Button, Empty, Spinner } from 'erxes-ui';
+import { memberQueries, messageOf } from '@erxes/core-contract/client';
+import { Button, Empty, Spinner, useMembersById } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '@erxes/core-contract/client';
-import { actorLabel, useMembersById } from '~/lib/members';
+import { actorLabel } from '~/lib/members';
 import { NotificationItem } from './NotificationItem';
 import type { Inbox } from './useNotifications';
 
@@ -90,6 +90,7 @@ export const NotificationList = ({
 
   const members = useMembersById(
     notifications.map((item) => (item.actorType === 'user' ? item.actorId : null)),
+    memberQueries,
   );
 
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));

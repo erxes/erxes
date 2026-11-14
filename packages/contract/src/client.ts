@@ -30,6 +30,23 @@ const client: ContractRouterClient<typeof coreContract> = createORPCClient(
  */
 export const orpc = createTanstackQueryUtils(client);
 
+/**
+ * Where erxes-ui's member pickers and `useMembersById` read members:
+ * `<SelectMember.Field members={memberQueries} … />`. The active team is one
+ * request and cache entry for every picker and name in web and its plugins.
+ */
+export const memberQueries = {
+  team: orpc.users.list.queryOptions({
+    input: { limit: 100, status: 'active' },
+    staleTime: 60_000,
+  }),
+  byIds: (ids: string[]) =>
+    orpc.users.list.queryOptions({
+      input: { ids: ids.join(','), limit: 100 },
+      staleTime: 5 * 60_000,
+    }),
+};
+
 /** Any error core answers with: one per code in `ERRORS`, with that code's `data`. */
 type ApiError = ORPCErrorFromErrorMap<typeof ERRORS>;
 

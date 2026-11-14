@@ -1,4 +1,4 @@
-import type { TrashItem, User } from '@erxes/core-contract';
+import type { TrashItem } from '@erxes/core-contract';
 import { IconRestore, IconTrash, IconTrashX } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -10,7 +10,9 @@ import {
   PageHeader,
   RelativeDateDisplay,
   ScrollArea,
+  type Member,
   useConfirm,
+  useMembersById,
   useToast,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -18,8 +20,8 @@ import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '@erxes/core-contract/client';
-import { actorLabel, useMembersById } from '~/lib/members';
+import { memberQueries, messageOf, orpc } from '@erxes/core-contract/client';
+import { actorLabel } from '~/lib/members';
 import { useCan } from '~/modules/auth/session';
 
 const useTrashActions = (onDone: () => void) => {
@@ -67,7 +69,7 @@ const TrashRow = ({
   onCheckedChange,
 }: {
   item: TrashItem;
-  members: Map<string, User>;
+  members: Map<string, Member>;
   checked: boolean;
   onCheckedChange: (on: boolean) => void;
 }) => {
@@ -121,6 +123,7 @@ const TrashList = ({
 }) => {
   const members = useMembersById(
     items.map((item) => (item.deletedByType === 'user' ? item.deletedBy : null)),
+    memberQueries,
   );
 
   return (

@@ -1,9 +1,9 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { useDraggable } from '@dnd-kit/core';
 import { IconClockHour4, IconMail, IconPhone } from '@tabler/icons-react';
-import { Avatar, cn, readImage, Tooltip } from 'erxes-ui';
+import { memberQueries } from '@erxes/core-contract/client';
+import { Avatar, cn, memberName, readImage, Tooltip, useMembersById } from 'erxes-ui';
 import { memo } from 'react';
-import { memberName, useMembersById } from '~/lib/members';
 import { useMinuteClock } from '~/lib/useMinuteClock';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
@@ -17,7 +17,7 @@ const nameOf = (lead: BoardLead) =>
 /** The owner as an avatar; their name on hover. */
 const OwnerAvatar = ({ ownerId }: { ownerId: string }) => {
   const t = useLeadsT();
-  const member = useMembersById([ownerId]).get(ownerId);
+  const member = useMembersById([ownerId], memberQueries).get(ownerId);
   const name = member ? memberName(member) : t('actions.owner');
 
   return (

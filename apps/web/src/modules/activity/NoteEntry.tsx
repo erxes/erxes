@@ -8,13 +8,12 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Button, cn, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
+import { Button, cn, DropdownMenu, memberName, Skeleton, useConfirm } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Lookups } from '~/components/ChangeList';
 import { UserAvatar } from '~/components/UserAvatar';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { memberName } from '~/lib/members';
 import { useCan, useSession } from '~/modules/auth/session';
 import { NoteComposer } from './NoteComposer';
 import { When } from './timelineTime';

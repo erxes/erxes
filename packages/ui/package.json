@@ -84,6 +84,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@tanstack/react-query": "^5.107.1",
     "@types/node": "^26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -93,6 +94,7 @@
     "react-i18next": "^18.0.1"
   },
   "peerDependencies": {
+    "@tanstack/react-query": "^5.107.1",
     "jotai": "^3.0.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

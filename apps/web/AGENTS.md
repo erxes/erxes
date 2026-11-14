@@ -9,7 +9,7 @@ The core React app (React 19 with the compiler, Rsbuild, React Query) and the Mo
 - Call core through `orpc` from `@erxes/core-contract/client`, the client plugin UIs use too: `useQuery(orpc.tags.list.queryOptions({ input }))`,
   `useMutation(orpc.tags.create.mutationOptions({ onSuccess }))`. The contract makes every query
   key: invalidate with `orpc.<group>.key()` or `orpc.<group>.<proc>.key()`. A lookup used in many
-  places is one exported options factory (`activeMembersQuery()` in `src/lib/members.ts`).
+  places is one exported options factory (`memberQueries` in `@erxes/core-contract/client`, which erxes-ui's `SelectMember`, `MemberInline` and `useMembersById` take).
 - Keyset lists read through `useCursorList` (`src/lib/cursorList.ts`) into `RecordTable.CursorProvider`.
 - Every query's failure is shown: render through `<QueryState query={…}>` from
   `~/components/QueryState`, or read `isError`. Every mutation has an error toast or inline message.

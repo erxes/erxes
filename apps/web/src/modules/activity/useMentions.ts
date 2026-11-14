@@ -1,7 +1,8 @@
 import type { User } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { type KeyboardEvent, type RefObject, useState } from 'react';
-import { activeMembersQuery, memberName } from '~/lib/members';
+import { memberQueries } from '@erxes/core-contract/client';
+import { memberName } from 'erxes-ui';
 
 /** The `@word` being typed at the caret, if any. */
 const mentionAt = (text: string, caret: number) => {
@@ -26,7 +27,7 @@ export const useMentions = ({
   initial: string[];
   textarea: RefObject<HTMLTextAreaElement | null>;
 }) => {
-  const team = useQuery(activeMembersQuery());
+  const team = useQuery(memberQueries.team);
   const members = team.data?.data ?? [];
   const [mentions, setMentions] = useState(initial);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);

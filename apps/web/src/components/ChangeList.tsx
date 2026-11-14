@@ -1,7 +1,7 @@
-import type { ContentType, Field, Tag, User } from '@erxes/core-contract';
-import { cn, editorText } from 'erxes-ui';
+import type { ContentType, Field, Tag } from '@erxes/core-contract';
+import { memberQueries } from '@erxes/core-contract/client';
+import { cn, editorText, type Member, memberName, useMembersById } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { memberName, useMembersById } from '~/lib/members';
 import { textOf } from '~/lib/text';
 import { useAllFields } from '~/modules/properties/useFields';
 import { useTags } from '~/modules/tags/useTags';
@@ -34,7 +34,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 export interface Lookups {
-  members: Map<string, User>;
+  members: Map<string, Member>;
   tags: Map<string, Tag>;
   fields: Map<string, Field>;
 }
@@ -166,7 +166,7 @@ export const useChangeLookups = (
     (change?.ownerId ?? []).map((id) => (typeof id === 'string' ? id : null)),
   );
 
-  const members = useMembersById([...extraMemberIds, ...owners]);
+  const members = useMembersById([...extraMemberIds, ...owners], memberQueries);
 
   return {
     members,

@@ -169,6 +169,17 @@ export { PageHeader } from './modules/layout/components/PageHeader';
 
 export { NavigationMenuLinkItem } from './modules/navigation-menu/components/NavigationMenu';
 
+export { EntityPicker } from './modules/pickers/EntityPicker';
+
+export {
+  type Member,
+  type MemberQueries,
+  memberName,
+  useMembersById,
+} from './modules/pickers/members';
+
+export { MemberInline, SelectMember } from './modules/pickers/SelectMember';
+
 export { NumberField } from './modules/record-field/components/NumberField';
 
 export { TextField } from './modules/record-field/components/TextField';

@@ -8,10 +8,6 @@ import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan, useSession } from '~/modules/auth/session';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
 
-/** First and last name, else the stored full name, else the email. */
-export const memberName = (user: Pick<User, 'firstName' | 'lastName' | 'fullName' | 'email'>) =>
-  [user.firstName, user.lastName].filter(Boolean).join(' ') || user.fullName || user.email;
-
 /** The list's filters: search, role and "Is active" (on unless switched off). */
 const useTeamMemberFilters = () => {
   const [{ searchValue, isActive, role }] = useMultiQueryState({

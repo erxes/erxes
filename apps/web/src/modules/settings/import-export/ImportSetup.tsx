@@ -1,10 +1,9 @@
 import type { Import, ImportOptions } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import { Label, MultipleSelector, Select, Switch } from 'erxes-ui';
+import { memberQueries, messageOf } from '@erxes/core-contract/client';
+import { Label, memberName, MultipleSelector, Select, Switch } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '@erxes/core-contract/client';
-import { activeMembersQuery, memberName } from '~/lib/members';
 import { useTags } from '~/modules/tags/useTags';
 import { useTransferColumns } from '~/modules/transfer/useTransfer';
 
@@ -127,7 +126,7 @@ const OptionSelect = ({
 
 const useOptionLabels = (isCompany: boolean) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
-  const members = useQuery(activeMembersQuery());
+  const members = useQuery(memberQueries.team);
 
   const modes: Record<ImportOptions['mode'], string> = {
     create: t('mode-create', 'Skip them (create new ones only)'),

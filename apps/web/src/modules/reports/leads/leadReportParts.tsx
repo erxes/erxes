@@ -1,7 +1,7 @@
 import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
-import { cn, Tooltip } from 'erxes-ui';
+import { memberQueries } from '@erxes/core-contract/client';
+import { cn, MemberInline, Tooltip } from 'erxes-ui';
 import { useMemo, useState } from 'react';
-import { MembersInline } from '~/modules/contacts/components/MembersInline';
 import { useLeadReport } from '~/modules/leads/useLeads';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 
@@ -237,7 +237,11 @@ export const LeadOwners = ({ report }: { report: LeadReport }) => {
       label={t('actions.owner')}
       rows={report.byOwner.map((row) => ({
         id: row.ownerId ?? 'none',
-        key: row.ownerId ? <MembersInline memberIds={[row.ownerId]} /> : t('report.no-owner'),
+        key: row.ownerId ? (
+          <MemberInline memberId={row.ownerId} members={memberQueries} />
+        ) : (
+          t('report.no-owner')
+        ),
         count: row.count,
         converted: row.converted,
       }))}
