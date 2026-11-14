@@ -3,12 +3,91 @@ import { useQuery } from '@tanstack/react-query';
 import { type KeyboardEvent, type RefObject, useState } from 'react';
 import { activeMembersQuery, memberName } from '~/lib/members';
 
+interface MentionAt {
+  query: string;
+  start: number;
+}
+
 /** The `@word` being typed at the caret, if any. */
-const mentionAt = (text: string, caret: number) => {
-  const match = /(^|\s)@([^\s@]{0,30})$/.exec(text.slice(0, caret));
+const mentionAt = (text: string, caret: number): MentionAt | null => {
+  const match = /(^|\s)@([^\s@[\]]{0,40})$/.exec(text.slice(0, caret));
   const word = match?.[2];
 
-  return word === undefined ? null : { query: word.toLowerCase(), start: caret - word.length - 1 };
+  return word === undefined ? null : { query: word, start: caret - word.length - 1 };
+};
+
+/**
+ * The `@word` at the caret of a textarea and the suggestion it highlights.
+ * `pick` puts `@name ` in place of the word and the caret after it; `onKeyDown`
+ * handles arrows, Enter/Tab and Escape while suggesting and says whether it used the key.
+ */
+export const useMentionInput = <T>({
+  body,
+  setBody,
+  textarea,
+}: {
+  body: string;
+  setBody: (body: string) => void;
+  textarea: RefObject<HTMLTextAreaElement | null>;
+}) => {
+  const [mention, setMention] = useState<MentionAt | null>(null);
+  const [highlight, setHighlight] = useState(0);
+
+  const pick = (name: string) => {
+    if (!mention) return;
+
+    const caret = textarea.current?.selectionStart ?? body.length;
+    const after = body.slice(caret).replace(/^ /, '');
+
+    setBody(`${body.slice(0, mention.start)}@${name} ${after}`);
+    setMention(null);
+    requestAnimationFrame(() => {
+      const position = mention.start + name.length + 2;
+
+      textarea.current?.focus();
+      textarea.current?.setSelectionRange(position, position);
+    });
+  };
+
+  const onKeyDown = (
+    event: KeyboardEvent<HTMLTextAreaElement>,
+    suggestions: T[],
+    onPick: (item: T) => void,
+  ) => {
+    if (!mention || !suggestions.length) return false;
+
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      const step = event.key === 'ArrowDown' ? 1 : suggestions.length - 1;
+
+      setHighlight((index) => (index + step) % suggestions.length);
+    } else if (event.key === 'Enter' || event.key === 'Tab') {
+      const item = suggestions[highlight] ?? suggestions[0];
+
+      if (item) onPick(item);
+    } else if (event.key === 'Escape') {
+      setMention(null);
+    } else {
+      return false;
+    }
+
+    event.preventDefault();
+
+    return true;
+  };
+
+  return {
+    query: mention?.query ?? null,
+    highlight,
+    setHighlight,
+    pick,
+    onKeyDown,
+    /** The text changed: look for an `@word` at the caret. */
+    onType: (text: string, caret: number) => {
+      setMention(mentionAt(text, caret));
+      setHighlight(0);
+    },
+    close: () => setMention(null),
+  };
 };
 
 /**
@@ -29,68 +108,29 @@ export const useMentions = ({
   const team = useQuery(activeMembersQuery());
   const members = team.data?.data ?? [];
   const [mentions, setMentions] = useState(initial);
-  const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
-  const [highlight, setHighlight] = useState(0);
+  const input = useMentionInput<User>({ body, setBody, textarea });
+  const query = input.query?.toLowerCase();
 
-  const suggestions = mention
-    ? members
-        .filter((member) =>
-          `${memberName(member)} ${member.email}`.toLowerCase().includes(mention.query),
-        )
-        .slice(0, 6)
-    : [];
+  const suggestions =
+    query === undefined
+      ? []
+      : members
+          .filter((member) => `${memberName(member)} ${member.email}`.toLowerCase().includes(query))
+          .slice(0, 6);
 
   const pick = (member: User) => {
-    if (!mention) return;
-
-    const name = memberName(member);
-    const caret = textarea.current?.selectionStart ?? body.length;
-
-    setBody(`${body.slice(0, mention.start)}@${name} ${body.slice(caret)}`);
+    input.pick(memberName(member));
     setMentions((current) => (current.includes(member.id) ? current : [...current, member.id]));
-    setMention(null);
-    requestAnimationFrame(() => {
-      const position = mention.start + name.length + 2;
-
-      textarea.current?.focus();
-      textarea.current?.setSelectionRange(position, position);
-    });
-  };
-
-  /** Arrows, Enter/Tab and Escape while suggesting; true when the key was used. */
-  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!suggestions.length) return false;
-
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      const step = event.key === 'ArrowDown' ? 1 : suggestions.length - 1;
-
-      setHighlight((index) => (index + step) % suggestions.length);
-    } else if (event.key === 'Enter' || event.key === 'Tab') {
-      const member = suggestions[highlight] ?? suggestions[0];
-
-      if (member) pick(member);
-    } else if (event.key === 'Escape') {
-      setMention(null);
-    } else {
-      return false;
-    }
-
-    event.preventDefault();
-
-    return true;
   };
 
   return {
     suggestions,
-    highlight,
+    highlight: input.highlight,
     pick,
-    onKeyDown,
-    /** The text changed: look for an `@word` at the caret. */
-    onType: (text: string, caret: number) => {
-      setMention(mentionAt(text, caret));
-      setHighlight(0);
-    },
-    close: () => setMention(null),
+    onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) =>
+      input.onKeyDown(event, suggestions, pick),
+    onType: input.onType,
+    close: input.close,
     /** Only the people still named in the text. */
     mentionsIn: (text: string) =>
       mentions.filter((id) => {

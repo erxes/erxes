@@ -5,6 +5,7 @@ import type { AssistantTab } from './assistantState';
 import { chatFailureOf, needsKey } from './chatError';
 import { Composer } from './Composer';
 import { EmptyState, KeyNotice } from './EmptyState';
+import { usePageContext } from './PageContextChip';
 import { Transcript, WorkingRow } from './Transcript';
 import type { AssistantTabs } from './useAssistantTabs';
 import { useConversation } from './useConversation';
@@ -53,6 +54,7 @@ export const Conversation = ({
 }) => {
   const { t } = useTranslation('assistant');
   const view = useConversation(tab, tabs, open);
+  const context = usePageContext();
   const { chat, model } = view;
 
   if (isApiError(view.thread.error, 'NOT_FOUND')) {
@@ -92,7 +94,10 @@ export const Conversation = ({
       className="flex min-h-0 flex-1 flex-col"
     >
       {chat.messages.length === 0 && !chat.error ? (
-        <EmptyState noKey={model.noKey} onPick={view.send} />
+        <EmptyState
+          noKey={model.noKey}
+          onPick={(text) => view.send({ text, mentions: [], page: context.page })}
+        />
       ) : (
         <Transcript messages={chat.messages} footer={footer} actions={view.actions} />
       )}
@@ -101,6 +106,8 @@ export const Conversation = ({
         model={model}
         busy={view.busy}
         block={view.block}
+        page={context.page}
+        onHidePage={context.hide}
         onSend={view.send}
         onStop={() => void chat.stop()}
       />

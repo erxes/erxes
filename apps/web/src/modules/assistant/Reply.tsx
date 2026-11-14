@@ -1,7 +1,23 @@
-import { Streamdown } from 'streamdown';
+import { type Components, defaultComponents, type ExtraProps, Streamdown } from 'streamdown';
+import { ReferenceChip } from './RecordChip';
+import { referenceOfHref, withReferenceLinks } from './references';
 import { replyLink } from './replyLinks';
 
 const NO_IMAGES = ['img'];
+
+const DefaultLink = defaultComponents.a;
+
+const ReplyLink = (props: React.JSX.IntrinsicElements['a'] & ExtraProps) => {
+  const handle = referenceOfHref(props.href);
+
+  if (handle) return <ReferenceChip handle={handle} />;
+
+  if (DefaultLink) return <DefaultLink {...props} />;
+
+  return <a href={props.href}>{props.children}</a>;
+};
+
+const COMPONENTS: Components = { a: ReplyLink };
 
 export const Reply = ({ text, streaming }: { text: string; streaming: boolean }) => (
   <Streamdown
@@ -12,7 +28,8 @@ export const Reply = ({ text, streaming }: { text: string; streaming: boolean })
     skipHtml
     disallowedElements={NO_IMAGES}
     urlTransform={replyLink}
+    components={COMPONENTS}
   >
-    {text}
+    {withReferenceLinks(text, streaming)}
   </Streamdown>
 );

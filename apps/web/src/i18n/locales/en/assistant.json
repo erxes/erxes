@@ -9,13 +9,33 @@
   },
   "composer": {
     "label": "Message",
-    "placeholder": "Ask anything about your workspace",
+    "placeholder": "Ask anything, @ to mention a record",
     "no-key": "Add a provider key to start",
     "approval": "Approve or decline the change above first",
     "question": "Answer the questions above first",
     "running": "A reply is still being written",
     "send": "Send",
     "stop": "Stop"
+  },
+  "reference": {
+    "loading": "Loading…",
+    "unavailable": "Unavailable"
+  },
+  "record": {
+    "customer": "Customer",
+    "company": "Company",
+    "member": "Team member",
+    "product": "Product",
+    "automation": "Automation"
+  },
+  "mention": {
+    "label": "Mention a record",
+    "failed": "Could not search records. Try again."
+  },
+  "page": {
+    "viewing": "Viewing",
+    "home": "Home",
+    "remove": "Don't send this page"
   },
   "reload": "Reload conversation",
   "needs-approval": "The assistant needs your approval",

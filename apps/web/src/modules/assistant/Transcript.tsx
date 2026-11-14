@@ -1,3 +1,4 @@
+import { AssistantMentions } from '@erxes/core-contract';
 import { IconCopy, IconLoader2, IconRefresh } from '@tabler/icons-react';
 import { Button, useToast } from 'erxes-ui';
 import { isTextUIPart, type UIMessage } from 'ai';
@@ -5,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
 import { ApprovalCard } from './ApprovalCard';
+import { MessageText } from './MessageText';
 import { AnsweredCard, QuestionCard } from './QuestionCard';
 import { Reply } from './Reply';
 import { StepsGroup, ThinkingBlock } from './Steps';
@@ -79,6 +81,13 @@ const Row = ({ row, actions }: { row: TranscriptRow; actions: TranscriptActions 
   }
 };
 
+const mentionsOf = (message: UIMessage) =>
+  message.parts.flatMap((part) =>
+    part.type === 'data-mentions'
+      ? (AssistantMentions.safeParse(part.data).data?.mentions ?? [])
+      : [],
+  );
+
 const UserBubble = ({ message }: { message: UIMessage }) => {
   const text = textOf(message);
 
@@ -88,7 +97,7 @@ const UserBubble = ({ message }: { message: UIMessage }) => {
         <CopyButton text={text} />
       </div>
       <p className="max-w-5/6 rounded-xl rounded-br-sm bg-accent px-3 py-2 text-sm whitespace-pre-wrap break-words">
-        {text}
+        <MessageText text={text} mentions={mentionsOf(message)} />
       </p>
     </div>
   );

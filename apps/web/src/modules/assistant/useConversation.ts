@@ -1,12 +1,12 @@
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { isTextUIPart, safeValidateUIMessages, type UIMessage } from 'ai';
+import { isDataUIPart, isTextUIPart, safeValidateUIMessages, type UIMessage } from 'ai';
 import { useSetAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { orpc } from '~/lib/api';
 import { type AssistantTab, assistantUnreadState } from './assistantState';
 import { type ChatSession, sessionFor } from './chatSession';
-import type { ComposerBlock } from './Composer';
+import type { ComposerBlock, ComposerMessage } from './Composer';
 import { pendingAction } from './transcriptRows';
 import type { AssistantTabs } from './useAssistantTabs';
 import { useModelRun } from './useModelRun';
@@ -63,10 +63,13 @@ const useUnreadWhenClosed = (status: Status, open: boolean) => {
 const lastQuestion = (messages: UIMessage[]) =>
   messages
     .findLast((message) => message.role === 'user')
-    ?.parts.filter(isTextUIPart)
-    .map((part) => part.text)
-    .join('\n')
-    .trim();
+    ?.parts.filter((part) => isTextUIPart(part) || isDataUIPart(part));
+
+const partsOf = ({ text, mentions, page }: ComposerMessage): UIMessage['parts'] => [
+  { type: 'text', text },
+  ...(mentions.length ? [{ type: 'data-mentions' as const, data: { mentions } }] : []),
+  ...(page ? [{ type: 'data-page' as const, data: page }] : []),
+];
 
 export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: boolean) => {
   const client = useQueryClient();
@@ -84,10 +87,12 @@ export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: bo
 
   useUnreadWhenClosed(chat.status, open);
 
-  const send = (text: string) => {
+  const sendParts = (parts: UIMessage['parts']) => {
     chat.clearError();
-    void chat.sendMessage({ text });
+    void chat.sendMessage({ parts });
   };
+
+  const send = (message: ComposerMessage) => sendParts(partsOf(message));
 
   const block: ComposerBlock = model.noKey
     ? 'no-key'
@@ -116,7 +121,7 @@ export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: bo
       onRegenerate: () => {
         const question = lastQuestion(chat.messages);
 
-        if (question) send(question);
+        if (question?.length) sendParts(question);
       },
     },
   };
