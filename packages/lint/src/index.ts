@@ -2,6 +2,7 @@
 // into its vite.config.ts `lint`. The overrides' paths follow a plugin's layout (api/, ui/,
 // migration/, scripts/); core has none of them and applies the rule sets to its own paths.
 import type { OxlintConfig } from 'vite-plus/lint';
+import ui from '../../ui/package.json' with { type: 'json' };
 import { browserRules, designRules, rules, serverRules } from './rules.ts';
 
 export { browserRules, designRules } from './rules.ts';
@@ -17,8 +18,9 @@ const pluginImports = {
         'graphql',
         'mongoose',
         'erxes-ui/*',
-        '!erxes-ui/*.css',
-        '!erxes-ui/federation',
+        ...Object.keys(ui.publishConfig.exports)
+          .filter((path) => path !== '.')
+          .map((path) => `!erxes-ui${path.slice(1)}`),
       ],
       message: 'Use erxes-ui through its public exports; data goes through oRPC (ui/src/orpc.ts).',
     },
@@ -75,6 +77,7 @@ export const preset = {
       files: [
         'api/src/config.ts',
         'api/src/test/**',
+        'api/scripts/openapi.ts',
         'vite.config.ts',
         'api/drizzle.config.ts',
         'ui/rsbuild.config.ts',
@@ -95,7 +98,7 @@ export const preset = {
     },
     {
       // Tools load these through their default export.
-      files: ['vite.config.ts', 'api/drizzle.config.ts', 'ui/rsbuild.config.ts'],
+      files: ['vite.config.ts', 'knip.ts', 'api/drizzle.config.ts', 'ui/rsbuild.config.ts'],
       rules: { 'import/no-default-export': 'off' },
     },
     {

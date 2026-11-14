@@ -5,12 +5,25 @@ import { defineConfig } from 'tsdown';
 // `publishConfig`. `onlyImport` fails the build when dist imports anything outside
 // `dependencies` and `peerDependencies`.
 export default defineConfig({
-  entry: ['src/index.ts', 'src/shadcn.ts', 'src/anti-slop/index.ts', 'src/erxes/index.ts'],
+  entry: [
+    'src/index.ts',
+    'src/shadcn.ts',
+    'src/anti-slop/index.ts',
+    'src/erxes/index.ts',
+    'src/check-escapes.ts',
+    'src/check-docs.ts',
+  ],
   platform: 'node',
   fixedExtension: false,
   dts: true,
-  deps: { onlyImport: ['@shadcn/lint', 'vite-plus'] },
-  exports: { devExports: true },
+  deps: { onlyImport: ['@shadcn/lint', 'vite-plus', 'zod'] },
+  exports: {
+    devExports: true,
+    bin: {
+      'erxes-check-docs': './src/check-docs.ts',
+      'erxes-check-escapes': './src/check-escapes.ts',
+    },
+  },
   publint: true,
   attw: { profile: 'esm-only', level: 'error' },
 });
