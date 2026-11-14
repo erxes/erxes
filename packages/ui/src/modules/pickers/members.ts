@@ -36,9 +36,9 @@ export const useMembersById = (ids: (string | null | undefined)[], members: Memb
 
   const wanted = useMemo(
     () =>
-      [
-        ...new Set(ids.filter((id): id is string => Boolean(id) && !known.has(id ?? ''))),
-      ].toSorted(),
+      [...new Set(ids.filter((id): id is string => Boolean(id) && !known.has(id ?? '')))].toSorted(
+        (a, b) => a.localeCompare(b),
+      ),
     [ids, known],
   );
 
