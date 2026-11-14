@@ -4,7 +4,6 @@ import {
   customers,
   customerTags,
   type Db,
-  newId,
   tags,
   users,
 } from '@erxes/core-db';
@@ -13,6 +12,7 @@ import type { Actor } from '~/http/auth';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { inOrder } from '~/lib/sequence';
 import { createCompany } from '~/modules/companies/companies.service';
+import { addTags } from '~/modules/tags/tags.service';
 import { CellError, type Column } from './columns';
 import type { ImportRow } from './importState';
 
@@ -175,14 +175,14 @@ export const tagIds = async (tx: Db, ctx: Context, names: string[], created: Cre
   if (first !== undefined && !ctx.imp.options.createMissing)
     throw new CellError(`Tags: no tag named “${first}”`);
 
-  const rows = missing.map((name) => ({
-    id: newId(),
-    type,
-    name,
-    createdBy: ctx.actor.userId,
-  }));
-
-  if (rows.length) await tx.insert(tags).values(rows);
+  const rows = missing.length
+    ? await addTags(
+        tx,
+        ctx.actor,
+        type,
+        missing.map((name) => ({ name })),
+      )
+    : [];
 
   for (const row of rows) {
     created.set(`tag:${row.name.toLowerCase()}`, row.id);
