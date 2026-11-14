@@ -66,6 +66,7 @@ export const AssistantMessage = createSelectSchema(assistantMessages, {
 
 export const AssistantSettings = createSelectSchema(assistantSettings).pick({
   approvalMode: true,
+  codeMode: true,
 });
 
 export const AssistantChatRequest = z
@@ -231,8 +232,18 @@ export const assistantContract = {
       method: 'PATCH',
       path: '/assistant/settings',
       summary:
-        'When the assistant asks before acting: `writes` before every change, `destructive` before deletes, merges, archives, publishes and sends',
+        'When the assistant asks before acting (`writes`: before every change, `destructive`: before deletes, merges, archives, publishes and sends), and whether it may run code in a sandbox to compute over API results',
     })
-    .input(z.object({ approvalMode: AssistantApprovalMode }))
+    .input(
+      z
+        .object({
+          approvalMode: AssistantApprovalMode.optional(),
+          codeMode: z.boolean().optional(),
+        })
+        .refine(
+          (value) => value.approvalMode !== undefined || value.codeMode !== undefined,
+          'nothing to update',
+        ),
+    )
     .output(AssistantSettings),
 };

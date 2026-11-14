@@ -20,6 +20,8 @@ import { apiTools, approvalFor, type ToolScope } from './tools/apiTools';
 import { askUser } from './tools/askUser';
 import { createArtifact } from './tools/createArtifact';
 import { readAttachment } from './tools/readAttachment';
+import { runCode } from './tools/runCode';
+import { loadSkill, skillsFor } from './skills/skills';
 import { type Contents, forModel } from './attachments';
 import { modelTextOf } from './turnContext';
 
@@ -36,9 +38,16 @@ export const chatTools = (scope: ToolScope) => ({
   ask_user: askUser,
   readAttachment: readAttachment(scope),
   createArtifact,
+  loadSkill: loadSkill(skillsFor(scope.plugins)),
+  runCode: runCode(scope),
 });
 
 type ChatTools = ReturnType<typeof chatTools>;
+
+const offeredTools = (scope: ToolScope, tools: ChatTools) =>
+  Object.keys(tools).filter(
+    (name): name is keyof ChatTools => scope.codeMode || name !== 'runCode',
+  );
 
 export interface Run {
   scope: ToolScope;
@@ -62,12 +71,13 @@ export const streamTurn = async (run: Run) => {
 
   const result = streamText({
     model: createModel(provider, model, apiKey),
-    instructions: instructionsFor(new Date()),
+    instructions: instructionsFor(new Date(), skillsFor(scope.plugins), scope.codeMode),
     messages: await convertToModelMessages(forModel(run.messages, run.contents), {
       tools,
       convertDataPart: modelTextOf,
     }),
     tools,
+    activeTools: offeredTools(scope, tools),
     toolApproval: { callApi: (input) => approvalFor(scope, input) },
     stopWhen: stepCountIs(MAX_STEPS),
     maxOutputTokens: outputTokens(provider, model, level, MAX_OUTPUT_TOKENS),

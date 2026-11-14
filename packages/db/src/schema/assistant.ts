@@ -153,6 +153,7 @@ export const assistantSettings = pgTable(
   {
     orgId: orgIdColumn().primaryKey(),
     approvalMode: text({ enum: ASSISTANT_APPROVAL_MODES }).default('writes').notNull(),
+    codeMode: boolean().default(false).notNull(),
     updatedAt: updatedAt(),
   },
   (table) => [

@@ -100,6 +100,8 @@ export * from './payments';
 
 export * from './plugins';
 
+export * from './pluginAssistant';
+
 export * from './products';
 
 export * from './records';

@@ -1,15 +1,18 @@
 import { type Caller, enterScope, withOrg } from '@erxes/core-db';
-import { call, getRouter, isProcedure, ORPCError, ValidationError } from '@orpc/server';
+import { call, getRouter, isProcedure } from '@orpc/server';
 import { tool } from 'ai';
 import { z } from 'zod';
 import { memberMayCall } from '~/http/access';
 import { memberOf } from '~/http/auth';
 import type { CoreContext } from '~/orpc';
 import { coreRouter } from '~/router';
+import type { InstalledPlugin } from '../plugins';
 import { identitiesIn } from '../records';
 import { issueReferences } from '../references.service';
 import type { ApprovalMode } from '../settings.service';
 import { type ApiProcedure, apiCatalog, needsApproval } from './apiCatalog';
+import { callPluginProcedure, type PluginProcedure, pluginProcedures } from './pluginOperations';
+import { bounded, describeError, refusal } from './results';
 
 type Member = Extract<Caller, { type: 'user' }>;
 
@@ -19,9 +22,9 @@ export interface ToolScope {
   threadId: string;
   context: CoreContext;
   approvalMode: ApprovalMode;
+  codeMode: boolean;
+  plugins: InstalledPlugin[];
 }
-
-const MAX_RESULT_CHARS = 40_000;
 
 const SEARCH_LIMIT = 8;
 
@@ -29,13 +32,15 @@ export const CallApiInput = z.object({
   procedure: z
     .string()
     .min(3)
-    .max(80)
-    .describe('The procedure name from searchApi, e.g. "customers.list"'),
+    .max(130)
+    .describe('The procedure name from searchApi, e.g. "customers.list" or "hr:leave.list"'),
   input: z
     .record(z.string(), z.unknown())
     .optional()
     .describe('One object: path parameters, query and body fields together'),
 });
+
+export type CallApiInput = z.infer<typeof CallApiInput>;
 
 const tokensOf = (text: string) =>
   text
@@ -53,15 +58,21 @@ const scoreOf = (procedure: ApiProcedure, tokens: string[]) =>
     return score + inName + inPath + inSummary;
   }, 0);
 
-const visibleTo = (member: Member) =>
-  [...apiCatalog().values()].filter(
-    (procedure) => !procedure.denied && memberMayCall(procedure.name, member),
-  );
+type Entry = ApiProcedure | PluginProcedure;
+
+const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
+
+const findEntry = (scope: ToolScope, name: string): Entry | undefined =>
+  apiCatalog().get(name) ?? pluginProcedures(scope.plugins).find((entry) => entry.name === name);
+
+const mayCall = (scope: ToolScope, entry: Entry) =>
+  !entry.denied && (isPluginEntry(entry) || memberMayCall(entry.name, scope.member));
 
 const searchProcedures = (scope: ToolScope, query: string, limit: number) => {
   const tokens = tokensOf(query);
 
-  const found = visibleTo(scope.member)
+  const found = [...apiCatalog().values(), ...pluginProcedures(scope.plugins)]
+    .filter((entry) => mayCall(scope, entry))
     .map((procedure) => ({ procedure, score: scoreOf(procedure, tokens) }))
     .filter(({ score }) => score > 0)
     .toSorted((a, b) => b.score - a.score || a.procedure.name.localeCompare(b.procedure.name))
@@ -78,40 +89,6 @@ const searchProcedures = (scope: ToolScope, query: string, limit: number) => {
   return { procedures: found };
 };
 
-const refusal = (code: string, message: string, extra: Record<string, unknown> = {}) => ({
-  ok: false as const,
-  code,
-  message,
-  ...extra,
-});
-
-const describeError = (error: unknown) => {
-  if (!(error instanceof ORPCError)) throw error;
-
-  const issues = error.cause instanceof ValidationError ? error.cause.issues : undefined;
-  const code: unknown = error.code;
-
-  return refusal(typeof code === 'string' ? code : 'ERROR', error.message, {
-    status: error.status,
-    ...(issues ? { issues } : {}),
-  });
-};
-
-const bounded = (result: unknown, issued: { ref: string; type: string; label: string }[]) => {
-  const json = JSON.stringify(result ?? null);
-  const references = issued.length ? { references: issued } : {};
-
-  return json.length > MAX_RESULT_CHARS
-    ? {
-        ok: true as const,
-        truncated: true,
-        result: json.slice(0, MAX_RESULT_CHARS),
-        note: 'The answer was cut. Ask for less: add filters, a smaller limit, or fewer fields.',
-        ...references,
-      }
-    : { ok: true as const, result, ...references };
-};
-
 const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) => {
   const issued = await withOrg(scope.orgId, (tx) =>
     issueReferences(tx, scope.threadId, identitiesIn(schema, result)),
@@ -123,27 +100,24 @@ const withReferences = async (scope: ToolScope, schema: unknown, result: unknown
   );
 };
 
-const runProcedure = async (scope: ToolScope, name: string, input: Record<string, unknown>) => {
+const runCore = async (scope: ToolScope, name: string, input: Record<string, unknown>) => {
   const path = name.split('.');
   const procedure = getRouter(coreRouter, path);
 
   if (!isProcedure(procedure)) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}`);
 
-  const member = await memberOf(scope.orgId, scope.member.userId);
-
-  if (!member)
-    return refusal('UNAUTHORIZED', 'The member who started this chat is no longer active');
-
-  return enterScope(member, scope.orgId, () =>
-    call(procedure, input, { context: scope.context, path }).then(
-      (result) => withReferences(scope, procedure['~orpc'].outputSchema, result),
-      describeError,
-    ),
+  return call(procedure, input, { context: scope.context, path }).then(
+    (result) => withReferences(scope, procedure['~orpc'].outputSchema, result),
+    describeError,
   );
 };
 
-const callProcedure = (scope: ToolScope, name: string, input: Record<string, unknown> = {}) => {
-  const entry = apiCatalog().get(name);
+export const callProcedure = async (
+  scope: ToolScope,
+  name: string,
+  input: Record<string, unknown> = {},
+) => {
+  const entry = findEntry(scope, name);
 
   if (!entry) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}; use searchApi`);
 
@@ -154,26 +128,38 @@ const callProcedure = (scope: ToolScope, name: string, input: Record<string, unk
     );
   }
 
-  return runProcedure(scope, name, input);
+  const member = await memberOf(scope.orgId, scope.member.userId);
+
+  if (!member)
+    return refusal('UNAUTHORIZED', 'The member who started this chat is no longer active');
+
+  return enterScope(member, scope.orgId, () =>
+    isPluginEntry(entry)
+      ? callPluginProcedure(scope.orgId, entry, input)
+      : runCore(scope, name, input),
+  );
 };
 
-export const approvalFor = (scope: ToolScope, input: z.infer<typeof CallApiInput>) => {
-  const entry = apiCatalog().get(input.procedure);
+export const approvalFor = (scope: ToolScope, input: CallApiInput) => {
+  const entry = findEntry(scope, input.procedure);
 
-  if (!entry || entry.denied || !memberMayCall(entry.name, scope.member)) return 'not-applicable';
+  if (!entry || !mayCall(scope, entry)) return 'not-applicable';
 
   return needsApproval(entry, scope.approvalMode) ? 'user-approval' : 'not-applicable';
 };
 
+export const searchApi = (scope: ToolScope, query: string, limit = SEARCH_LIMIT) =>
+  searchProcedures(scope, query, limit);
+
 export const apiTools = (scope: ToolScope) => ({
   searchApi: tool({
     description:
-      'Find the erxes API procedures you can call for a task. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary and input JSON schema.',
+      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary and input JSON schema.',
     inputSchema: z.object({
       query: z.string().trim().min(1).max(200),
       limit: z.int().min(1).max(20).optional(),
     }),
-    execute: ({ query, limit }) => searchProcedures(scope, query, limit ?? SEARCH_LIMIT),
+    execute: ({ query, limit }) => searchApi(scope, query, limit),
   }),
   callApi: tool({
     description:

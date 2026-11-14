@@ -52,6 +52,22 @@ export const lastToolResult = (request: ChatRequest) => {
   return last?.role === 'tool' ? textOf(last.content) : null;
 };
 
+export const systemOf = (request: ChatRequest) =>
+  request.messages
+    .filter((message) => message.role === 'system')
+    .map((message) => textOf(message.content))
+    .join('\n');
+
+const toolResultsSinceQuestion = (request: ChatRequest) =>
+  request.messages
+    .slice(request.messages.findLastIndex((message) => message.role === 'user') + 1)
+    .filter((message) => message.role === 'tool').length;
+
+export const inSteps =
+  (...replies: Reply[]): Script =>
+  (request) =>
+    replies[toolResultsSinceQuestion(request)] ?? { text: 'Done.' };
+
 const chunk = (delta: Record<string, unknown>, finish: string | null = null) =>
   `data: ${JSON.stringify({
     id: 'chatcmpl-test',

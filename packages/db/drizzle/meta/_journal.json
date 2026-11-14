@@ -407,6 +407,13 @@
       "when": 1794645157904,
       "tag": "0057_assistant_references",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794652008443,
+      "tag": "0058_assistant_code_mode",
+      "breakpoints": true
     }
   ]
 }

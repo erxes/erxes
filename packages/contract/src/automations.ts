@@ -113,6 +113,15 @@ export const automationsContract = {
     })
     .input(Fields.extend({ id: Id }))
     .output(Automation),
+  check: oc
+    .route({
+      method: 'POST',
+      path: '/automations/check',
+      summary:
+        'What would stop a definition from being turned on (unknown steps, missing fields, broken templates); nothing is saved',
+    })
+    .input(z.object({ definition: AutomationDefinition }))
+    .output(z.object({ problems: z.array(z.string()) })),
   activate: oc
     .route({
       method: 'POST',

@@ -861,10 +861,14 @@
               "destructive"
             ],
             "type": "string"
+          },
+          "codeMode": {
+            "type": "boolean"
           }
         },
         "required": [
-          "approvalMode"
+          "approvalMode",
+          "codeMode"
         ]
       },
       "AssistantThread": {
@@ -10687,6 +10691,87 @@
           "installedAt"
         ]
       },
+      "PluginAssistant": {
+        "type": "object",
+        "properties": {
+          "skills": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "$ref": "#/components/schemas/PluginAssistantSkill"
+            },
+            "default": []
+          },
+          "operations": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/PluginAssistantOperation"
+            },
+            "default": []
+          }
+        },
+        "description": "What the plugin adds to the assistant: skills, and operations of its API"
+      },
+      "PluginAssistantOperation": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "pattern": "^[a-z][A-Za-z0-9]*(\\.[a-z][A-Za-z0-9]*)+$"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "changes": {
+            "type": "boolean",
+            "default": false
+          },
+          "input": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {},
+            "description": "JSON Schema of the input, e.g. z.toJSONSchema(Input)"
+          }
+        },
+        "required": [
+          "name",
+          "summary"
+        ],
+        "description": "A procedure of the plugin’s API the assistant may call, as <plugin>:<name>. Core calls <api.url>/rpc/<name with / for .> with oRPC’s RPC protocol and the member’s session token, so the plugin’s own checks apply. changes: true follows the approval mode."
+      },
+      "PluginAssistantSkill": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "pattern": "^[^\\n\\r]*$"
+          },
+          "instructions": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 12000
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "instructions"
+        ],
+        "description": "Text-only guidance, mounted as <plugin>-<name>: the assistant sees the name and description every turn and loads the Markdown instructions when a request fits. Core rules, approvals and the member’s permissions always win."
+      },
       "PluginManifest": {
         "type": "object",
         "properties": {
@@ -10999,6 +11084,9 @@
                 "label"
               ]
             }
+          },
+          "assistant": {
+            "$ref": "#/components/schemas/PluginAssistant"
           }
         },
         "required": [
@@ -14062,7 +14150,7 @@
       },
       "patch": {
         "operationId": "assistant.updateSettings",
-        "summary": "When the assistant asks before acting: `writes` before every change, `destructive` before deletes, merges, archives, publishes and sends",
+        "summary": "When the assistant asks before acting (`writes`: before every change, `destructive`: before deletes, merges, archives, publishes and sends), and whether it may run code in a sandbox to compute over API results",
         "requestBody": {
           "required": true,
           "content": {
@@ -14076,11 +14164,11 @@
                       "destructive"
                     ],
                     "type": "string"
+                  },
+                  "codeMode": {
+                    "type": "boolean"
                   }
-                },
-                "required": [
-                  "approvalMode"
-                ]
+                }
               }
             }
           }
@@ -20402,6 +20490,3061 @@
                   },
                   "required": [
                     "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/automations/check": {
+      "post": {
+        "operationId": "automations.check",
+        "summary": "What would stop a definition from being turned on (unknown steps, missing fields, broken templates); nothing is saved",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "definition": {
+                    "type": "object",
+                    "properties": {
+                      "trigger": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "event"
+                              },
+                              "event": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                              },
+                              "conditions": {
+                                "type": "object",
+                                "properties": {
+                                  "match": {
+                                    "enum": [
+                                      "all",
+                                      "any"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "rules": {
+                                    "type": "array",
+                                    "maxItems": 50,
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "$ref": "#/components/schemas/ConditionRule"
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "match": {
+                                              "enum": [
+                                                "all",
+                                                "any"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "rules": {
+                                              "type": "array",
+                                              "maxItems": 50,
+                                              "items": {
+                                                "anyOf": [
+                                                  {
+                                                    "$ref": "#/components/schemas/ConditionRule"
+                                                  },
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "match": {},
+                                                      "rules": {}
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          "required": [
+                                            "match",
+                                            "rules"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "match",
+                                  "rules"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "event"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "schedule"
+                              },
+                              "every": {
+                                "enum": [
+                                  "hour",
+                                  "day",
+                                  "week",
+                                  "month"
+                                ],
+                                "type": "string"
+                              },
+                              "at": {
+                                "type": "string",
+                                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                                "default": "09:00"
+                              },
+                              "weekdays": {
+                                "type": "array",
+                                "maxItems": 7,
+                                "items": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 7
+                                }
+                              },
+                              "dayOfMonth": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 31
+                              },
+                              "timezone": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "default": "Asia/Ulaanbaatar"
+                              },
+                              "audience": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "enum": [
+                                      "customer",
+                                      "company"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "conditions": {
+                                    "type": "object",
+                                    "properties": {
+                                      "match": {
+                                        "enum": [
+                                          "all",
+                                          "any"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "rules": {
+                                        "type": "array",
+                                        "maxItems": 50,
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "$ref": "#/components/schemas/ConditionRule"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "match": {
+                                                  "enum": [
+                                                    "all",
+                                                    "any"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "rules": {
+                                                  "type": "array",
+                                                  "maxItems": 50,
+                                                  "items": {
+                                                    "anyOf": [
+                                                      {},
+                                                      {}
+                                                    ]
+                                                  }
+                                                }
+                                              },
+                                              "required": [
+                                                "match",
+                                                "rules"
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "match",
+                                      "rules"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "type"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "every"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "date"
+                              },
+                              "subject": {
+                                "enum": [
+                                  "customer",
+                                  "company"
+                                ],
+                                "type": "string"
+                              },
+                              "field": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              "offsetDays": {
+                                "type": "integer",
+                                "minimum": -365,
+                                "maximum": 365,
+                                "default": 0
+                              },
+                              "yearly": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "at": {
+                                "type": "string",
+                                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                                "default": "09:00"
+                              },
+                              "timezone": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "default": "Asia/Ulaanbaatar"
+                              },
+                              "conditions": {
+                                "type": "object",
+                                "properties": {
+                                  "match": {
+                                    "enum": [
+                                      "all",
+                                      "any"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "rules": {
+                                    "type": "array",
+                                    "maxItems": 50,
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "$ref": "#/components/schemas/ConditionRule"
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "match": {
+                                              "enum": [
+                                                "all",
+                                                "any"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "rules": {
+                                              "type": "array",
+                                              "maxItems": 50,
+                                              "items": {
+                                                "anyOf": [
+                                                  {
+                                                    "$ref": "#/components/schemas/ConditionRule"
+                                                  },
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "match": {},
+                                                      "rules": {}
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          "required": [
+                                            "match",
+                                            "rules"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "match",
+                                  "rules"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "subject",
+                              "field"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "manual"
+                              },
+                              "audience": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "enum": [
+                                      "customer",
+                                      "company"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "conditions": {
+                                    "type": "object",
+                                    "properties": {
+                                      "match": {
+                                        "enum": [
+                                          "all",
+                                          "any"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "rules": {
+                                        "type": "array",
+                                        "maxItems": 50,
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "$ref": "#/components/schemas/ConditionRule"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "match": {
+                                                  "enum": [
+                                                    "all",
+                                                    "any"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "rules": {
+                                                  "type": "array",
+                                                  "maxItems": 50,
+                                                  "items": {
+                                                    "anyOf": [
+                                                      {},
+                                                      {}
+                                                    ]
+                                                  }
+                                                }
+                                              },
+                                              "required": [
+                                                "match",
+                                                "rules"
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "match",
+                                      "rules"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "type"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ]
+                          }
+                        ]
+                      },
+                      "steps": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 100,
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,24}$"
+                                },
+                                "type": {
+                                  "const": "action"
+                                },
+                                "action": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                },
+                                "input": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string",
+                                    "maxLength": 60
+                                  },
+                                  "additionalProperties": {}
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type",
+                                "action",
+                                "input"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,24}$"
+                                },
+                                "type": {
+                                  "const": "delay"
+                                },
+                                "amount": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 10000
+                                },
+                                "unit": {
+                                  "enum": [
+                                    "minutes",
+                                    "hours",
+                                    "days"
+                                  ],
+                                  "type": "string"
+                                },
+                                "until": {
+                                  "type": "string",
+                                  "maxLength": 200
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,24}$"
+                                },
+                                "type": {
+                                  "const": "wait_for"
+                                },
+                                "event": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                },
+                                "conditions": {
+                                  "type": "object",
+                                  "properties": {
+                                    "match": {
+                                      "enum": [
+                                        "all",
+                                        "any"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "rules": {
+                                      "type": "array",
+                                      "maxItems": 50,
+                                      "items": {
+                                        "anyOf": [
+                                          {
+                                            "$ref": "#/components/schemas/ConditionRule"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "match",
+                                    "rules"
+                                  ]
+                                },
+                                "amount": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 10000
+                                },
+                                "unit": {
+                                  "enum": [
+                                    "minutes",
+                                    "hours",
+                                    "days"
+                                  ],
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type",
+                                "event",
+                                "amount",
+                                "unit"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,24}$"
+                                },
+                                "type": {
+                                  "const": "branch"
+                                },
+                                "conditions": {
+                                  "type": "object",
+                                  "properties": {
+                                    "match": {
+                                      "enum": [
+                                        "all",
+                                        "any"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "rules": {
+                                      "type": "array",
+                                      "maxItems": 50,
+                                      "items": {
+                                        "anyOf": [
+                                          {
+                                            "$ref": "#/components/schemas/ConditionRule"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "match",
+                                    "rules"
+                                  ]
+                                },
+                                "then": {
+                                  "type": "array",
+                                  "maxItems": 100,
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "action"
+                                          },
+                                          "action": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                          },
+                                          "input": {
+                                            "type": "object",
+                                            "propertyNames": {
+                                              "type": "string",
+                                              "maxLength": 60
+                                            },
+                                            "additionalProperties": {}
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "action",
+                                          "input"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "delay"
+                                          },
+                                          "amount": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 10000
+                                          },
+                                          "unit": {
+                                            "enum": [
+                                              "minutes",
+                                              "hours",
+                                              "days"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "until": {
+                                            "type": "string",
+                                            "maxLength": 200
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "wait_for"
+                                          },
+                                          "event": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                          },
+                                          "conditions": {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          },
+                                          "amount": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 10000
+                                          },
+                                          "unit": {
+                                            "enum": [
+                                              "minutes",
+                                              "hours",
+                                              "days"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "event",
+                                          "amount",
+                                          "unit"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "branch"
+                                          },
+                                          "conditions": {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          },
+                                          "then": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "else": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "conditions",
+                                          "then",
+                                          "else"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "switch"
+                                          },
+                                          "cases": {
+                                            "type": "array",
+                                            "minItems": 1,
+                                            "maxItems": 10,
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                },
+                                                "conditions": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                },
+                                                "steps": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "conditions",
+                                                "steps"
+                                              ]
+                                            }
+                                          },
+                                          "otherwise": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "cases",
+                                          "otherwise"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "split"
+                                          },
+                                          "paths": {
+                                            "type": "array",
+                                            "minItems": 2,
+                                            "maxItems": 5,
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                },
+                                                "weight": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 100
+                                                },
+                                                "steps": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "weight",
+                                                "steps"
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "paths"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "stop"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                "else": {
+                                  "type": "array",
+                                  "maxItems": 100,
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "action"
+                                          },
+                                          "action": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                          },
+                                          "input": {
+                                            "type": "object",
+                                            "propertyNames": {
+                                              "type": "string",
+                                              "maxLength": 60
+                                            },
+                                            "additionalProperties": {}
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "action",
+                                          "input"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "delay"
+                                          },
+                                          "amount": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 10000
+                                          },
+                                          "unit": {
+                                            "enum": [
+                                              "minutes",
+                                              "hours",
+                                              "days"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "until": {
+                                            "type": "string",
+                                            "maxLength": 200
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "wait_for"
+                                          },
+                                          "event": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                          },
+                                          "conditions": {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          },
+                                          "amount": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 10000
+                                          },
+                                          "unit": {
+                                            "enum": [
+                                              "minutes",
+                                              "hours",
+                                              "days"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "event",
+                                          "amount",
+                                          "unit"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "branch"
+                                          },
+                                          "conditions": {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          },
+                                          "then": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "else": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "conditions",
+                                          "then",
+                                          "else"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "switch"
+                                          },
+                                          "cases": {
+                                            "type": "array",
+                                            "minItems": 1,
+                                            "maxItems": 10,
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                },
+                                                "conditions": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                },
+                                                "steps": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "conditions",
+                                                "steps"
+                                              ]
+                                            }
+                                          },
+                                          "otherwise": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "cases",
+                                          "otherwise"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "split"
+                                          },
+                                          "paths": {
+                                            "type": "array",
+                                            "minItems": 2,
+                                            "maxItems": 5,
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                },
+                                                "weight": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 100
+                                                },
+                                                "steps": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "weight",
+                                                "steps"
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "paths"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "stop"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type",
+                                "conditions",
+                                "then",
+                                "else"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,24}$"
+                                },
+                                "type": {
+                                  "const": "switch"
+                                },
+                                "cases": {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "maxItems": 10,
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "label": {
+                                        "type": "string",
+                                        "maxLength": 100
+                                      },
+                                      "conditions": {
+                                        "type": "object",
+                                        "properties": {
+                                          "match": {
+                                            "enum": [
+                                              "all",
+                                              "any"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "rules": {
+                                            "type": "array",
+                                            "maxItems": 50,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "$ref": "#/components/schemas/ConditionRule"
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        "required": [
+                                          "match",
+                                          "rules"
+                                        ]
+                                      },
+                                      "steps": {
+                                        "type": "array",
+                                        "maxItems": 100,
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "action"
+                                                },
+                                                "action": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                                },
+                                                "input": {
+                                                  "type": "object",
+                                                  "propertyNames": {},
+                                                  "additionalProperties": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "action",
+                                                "input"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "delay"
+                                                },
+                                                "amount": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 10000
+                                                },
+                                                "unit": {
+                                                  "enum": [
+                                                    "minutes",
+                                                    "hours",
+                                                    "days"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "until": {
+                                                  "type": "string",
+                                                  "maxLength": 200
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "wait_for"
+                                                },
+                                                "event": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                                },
+                                                "conditions": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                },
+                                                "amount": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 10000
+                                                },
+                                                "unit": {
+                                                  "enum": [
+                                                    "minutes",
+                                                    "hours",
+                                                    "days"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "event",
+                                                "amount",
+                                                "unit"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "branch"
+                                                },
+                                                "conditions": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                },
+                                                "then": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                },
+                                                "else": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "conditions",
+                                                "then",
+                                                "else"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "switch"
+                                                },
+                                                "cases": {
+                                                  "type": "array",
+                                                  "minItems": 1,
+                                                  "maxItems": 10,
+                                                  "items": {}
+                                                },
+                                                "otherwise": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "cases",
+                                                "otherwise"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "split"
+                                                },
+                                                "paths": {
+                                                  "type": "array",
+                                                  "minItems": 2,
+                                                  "maxItems": 5,
+                                                  "items": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "paths"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "stop"
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type"
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "conditions",
+                                      "steps"
+                                    ]
+                                  }
+                                },
+                                "otherwise": {
+                                  "type": "array",
+                                  "maxItems": 100,
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "action"
+                                          },
+                                          "action": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                          },
+                                          "input": {
+                                            "type": "object",
+                                            "propertyNames": {
+                                              "type": "string",
+                                              "maxLength": 60
+                                            },
+                                            "additionalProperties": {}
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "action",
+                                          "input"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "delay"
+                                          },
+                                          "amount": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 10000
+                                          },
+                                          "unit": {
+                                            "enum": [
+                                              "minutes",
+                                              "hours",
+                                              "days"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "until": {
+                                            "type": "string",
+                                            "maxLength": 200
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "wait_for"
+                                          },
+                                          "event": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                          },
+                                          "conditions": {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          },
+                                          "amount": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 10000
+                                          },
+                                          "unit": {
+                                            "enum": [
+                                              "minutes",
+                                              "hours",
+                                              "days"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "event",
+                                          "amount",
+                                          "unit"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "branch"
+                                          },
+                                          "conditions": {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          },
+                                          "then": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "else": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "conditions",
+                                          "then",
+                                          "else"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "switch"
+                                          },
+                                          "cases": {
+                                            "type": "array",
+                                            "minItems": 1,
+                                            "maxItems": 10,
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                },
+                                                "conditions": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                },
+                                                "steps": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "conditions",
+                                                "steps"
+                                              ]
+                                            }
+                                          },
+                                          "otherwise": {
+                                            "type": "array",
+                                            "maxItems": 100,
+                                            "items": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "action": {},
+                                                    "input": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "until": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "event": {},
+                                                    "conditions": {},
+                                                    "amount": {},
+                                                    "unit": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "conditions": {},
+                                                    "then": {},
+                                                    "else": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "cases": {},
+                                                    "otherwise": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "paths": {},
+                                                    "label": {}
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {},
+                                                    "type": {},
+                                                    "label": {}
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "cases",
+                                          "otherwise"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "split"
+                                          },
+                                          "paths": {
+                                            "type": "array",
+                                            "minItems": 2,
+                                            "maxItems": 5,
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                },
+                                                "weight": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 100
+                                                },
+                                                "steps": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "weight",
+                                                "steps"
+                                              ]
+                                            }
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type",
+                                          "paths"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,24}$"
+                                          },
+                                          "type": {
+                                            "const": "stop"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "maxLength": 100
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "type"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type",
+                                "cases",
+                                "otherwise"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,24}$"
+                                },
+                                "type": {
+                                  "const": "split"
+                                },
+                                "paths": {
+                                  "type": "array",
+                                  "minItems": 2,
+                                  "maxItems": 5,
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "label": {
+                                        "type": "string",
+                                        "maxLength": 100
+                                      },
+                                      "weight": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 100
+                                      },
+                                      "steps": {
+                                        "type": "array",
+                                        "maxItems": 100,
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "action"
+                                                },
+                                                "action": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                                },
+                                                "input": {
+                                                  "type": "object",
+                                                  "propertyNames": {},
+                                                  "additionalProperties": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "action",
+                                                "input"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "delay"
+                                                },
+                                                "amount": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 10000
+                                                },
+                                                "unit": {
+                                                  "enum": [
+                                                    "minutes",
+                                                    "hours",
+                                                    "days"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "until": {
+                                                  "type": "string",
+                                                  "maxLength": 200
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "wait_for"
+                                                },
+                                                "event": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                                                },
+                                                "conditions": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                },
+                                                "amount": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 10000
+                                                },
+                                                "unit": {
+                                                  "enum": [
+                                                    "minutes",
+                                                    "hours",
+                                                    "days"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "event",
+                                                "amount",
+                                                "unit"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "branch"
+                                                },
+                                                "conditions": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "match": {},
+                                                    "rules": {}
+                                                  }
+                                                },
+                                                "then": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                },
+                                                "else": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "conditions",
+                                                "then",
+                                                "else"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "switch"
+                                                },
+                                                "cases": {
+                                                  "type": "array",
+                                                  "minItems": 1,
+                                                  "maxItems": 10,
+                                                  "items": {}
+                                                },
+                                                "otherwise": {
+                                                  "type": "array",
+                                                  "maxItems": 100,
+                                                  "items": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "cases",
+                                                "otherwise"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "split"
+                                                },
+                                                "paths": {
+                                                  "type": "array",
+                                                  "minItems": 2,
+                                                  "maxItems": 5,
+                                                  "items": {}
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type",
+                                                "paths"
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z0-9]{1,24}$"
+                                                },
+                                                "type": {
+                                                  "const": "stop"
+                                                },
+                                                "label": {
+                                                  "type": "string",
+                                                  "maxLength": 100
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "type"
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "weight",
+                                      "steps"
+                                    ]
+                                  }
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type",
+                                "paths"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,24}$"
+                                },
+                                "type": {
+                                  "const": "stop"
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "reentry": {
+                        "enum": [
+                          "always",
+                          "once",
+                          "daily"
+                        ],
+                        "type": "string",
+                        "default": "always"
+                      },
+                      "goal": {
+                        "type": "object",
+                        "properties": {
+                          "match": {
+                            "enum": [
+                              "all",
+                              "any"
+                            ],
+                            "type": "string"
+                          },
+                          "rules": {
+                            "type": "array",
+                            "maxItems": 50,
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "$ref": "#/components/schemas/ConditionRule"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "match": {
+                                      "enum": [
+                                        "all",
+                                        "any"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "rules": {
+                                      "type": "array",
+                                      "maxItems": 50,
+                                      "items": {
+                                        "anyOf": [
+                                          {
+                                            "$ref": "#/components/schemas/ConditionRule"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "match": {
+                                                "enum": [
+                                                  "all",
+                                                  "any"
+                                                ],
+                                                "type": "string"
+                                              },
+                                              "rules": {
+                                                "type": "array",
+                                                "maxItems": 50,
+                                                "items": {
+                                                  "anyOf": [
+                                                    {},
+                                                    {}
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "match",
+                                              "rules"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "match",
+                                    "rules"
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "match",
+                          "rules"
+                        ]
+                      },
+                      "maxRunsPerHour": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100000
+                      }
+                    },
+                    "required": [
+                      "trigger",
+                      "steps"
+                    ]
+                  }
+                },
+                "required": [
+                  "definition"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "problems": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "problems"
                   ]
                 }
               }
@@ -29442,7 +32585,7 @@
     "/plugins/manifest": {
       "put": {
         "operationId": "plugins.registerManifest",
-        "summary": "The calling plugin declares its UI, API, scopes, permissions and events",
+        "summary": "The calling plugin declares its UI, API, scopes, permissions, events and assistant skills and operations. 400 API_REQUIRED when it declares assistant operations without api",
         "requestBody": {
           "required": true,
           "content": {

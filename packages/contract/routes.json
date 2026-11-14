@@ -284,6 +284,16 @@
         }
       }
     },
+    "check": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/automations/check"
+        }
+      }
+    },
     "activate": {
       "~orpc": {
         "errorMap": {},

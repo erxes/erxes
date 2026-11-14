@@ -80,3 +80,13 @@ export const threadIdOf = (chunks: Chunk[]) => {
 
 export const partsOf = (message: { parts: unknown[] } | undefined) =>
   z.array(Part).parse(message?.parts ?? []);
+
+export const toolPart = (parts: Part[], tool: string) =>
+  parts.find((part) => part.type === `tool-${tool}`);
+
+export const respond = (parts: Part[], approved: boolean) =>
+  parts.map((part) =>
+    part.state === 'approval-requested'
+      ? { ...part, state: 'approval-responded', approval: { ...part.approval, approved } }
+      : part,
+  );

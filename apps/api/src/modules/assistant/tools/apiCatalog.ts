@@ -9,9 +9,12 @@ export interface ApiProcedure {
   path: string;
   summary: string;
   input: Record<string, unknown>;
+  changes: boolean;
   denied: boolean;
   risky: boolean;
 }
+
+const READS_BY_POST = new Set(['automations.check', 'automations.test']);
 
 const DENIED_GROUPS = new Set([
   'assistant',
@@ -33,6 +36,7 @@ const DENIED_PROCEDURES = new Set([
   'users.setPassword',
   'users.disable',
   'users.enable',
+  'automations.activate',
   'audit.updateSettings',
   'audit.streams',
   'audit.createStream',
@@ -61,7 +65,7 @@ const words = (name: string) =>
     .replace(/[_-]/g, ' ')
     .toLowerCase();
 
-const isCredentialName = (name: string) => {
+export const isCredentialName = (name: string) => {
   const spaced = words(name);
 
   return (
@@ -96,15 +100,16 @@ const jsonSchema = (procedure: AnyContractProcedure, strategy: 'input' | 'output
   return isSchema(schema) ? converter.convert(schema, { strategy })[1] : {};
 };
 
+export const carriesCredentials = (schemas: unknown[]) =>
+  schemas.flatMap((schema) => namesIn(schema)).some(isCredentialName);
+
+export const isRisky = (name: string, method: string) =>
+  method === 'DELETE' || RISKY_ACTION.test(name.split('.').at(-1) ?? '');
+
 const describe = (name: string, procedure: AnyContractProcedure): ApiProcedure => {
   const { route } = procedure['~orpc'];
   const method = route.method ?? 'POST';
   const input = jsonSchema(procedure, 'input');
-
-  const carriesCredentials = [...namesIn(input), ...namesIn(jsonSchema(procedure, 'output'))].some(
-    isCredentialName,
-  );
-
   const [group = ''] = name.split('.');
 
   return {
@@ -113,8 +118,12 @@ const describe = (name: string, procedure: AnyContractProcedure): ApiProcedure =
     path: route.path ?? '',
     summary: route.summary ?? '',
     input,
-    denied: DENIED_GROUPS.has(group) || DENIED_PROCEDURES.has(name) || carriesCredentials,
-    risky: method === 'DELETE' || RISKY_ACTION.test(name.split('.').at(-1) ?? ''),
+    changes: method !== 'GET' && !READS_BY_POST.has(name),
+    denied:
+      DENIED_GROUPS.has(group) ||
+      DENIED_PROCEDURES.has(name) ||
+      carriesCredentials([input, jsonSchema(procedure, 'output')]),
+    risky: isRisky(name, method),
   };
 };
 
@@ -135,4 +144,4 @@ export const apiCatalog = () => {
 };
 
 export const needsApproval = (procedure: ApiProcedure, mode: ApprovalMode) =>
-  procedure.method !== 'GET' && (mode === 'writes' || procedure.risky);
+  procedure.changes && (mode === 'writes' || procedure.risky);

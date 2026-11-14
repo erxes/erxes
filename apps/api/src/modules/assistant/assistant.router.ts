@@ -42,12 +42,27 @@ export const assistantRouter = {
   settings: scoped.assistant.settings.handler(() => getSettings(db())),
   updateSettings: scoped.assistant.updateSettings.handler(({ input }) =>
     audited(
-      (tx) => updateSettings(tx, input.approvalMode),
-      () => ({
-        action: 'settings.assistant_approval_changed',
-        targetType: 'organization',
-        metadata: { approvalMode: input.approvalMode },
-      }),
+      (tx) => updateSettings(tx, input),
+      () => [
+        ...(input.approvalMode === undefined
+          ? []
+          : [
+              {
+                action: 'settings.assistant_approval_changed',
+                targetType: 'organization',
+                metadata: { approvalMode: input.approvalMode },
+              },
+            ]),
+        ...(input.codeMode === undefined
+          ? []
+          : [
+              {
+                action: 'settings.assistant_code_mode_changed',
+                targetType: 'organization',
+                metadata: { codeMode: input.codeMode },
+              },
+            ]),
+      ],
     ),
   ),
 };

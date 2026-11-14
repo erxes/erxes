@@ -103,7 +103,10 @@ describe('assistant connections, models and settings', () => {
   });
 
   it('lets admins choose when the assistant asks, and members only read it', async () => {
-    expect(await t.member().assistant.settings({})).toEqual({ approvalMode: 'writes' });
+    expect(await t.member().assistant.settings({})).toEqual({
+      approvalMode: 'writes',
+      codeMode: false,
+    });
 
     await expect(
       t.member().assistant.updateSettings({ approvalMode: 'destructive' }),
@@ -111,8 +114,14 @@ describe('assistant connections, models and settings', () => {
 
     await t.owner().assistant.updateSettings({ approvalMode: 'destructive' });
 
-    expect(await t.member().assistant.settings({})).toEqual({ approvalMode: 'destructive' });
-    expect(await t.other().assistant.settings({})).toEqual({ approvalMode: 'writes' });
+    expect(await t.member().assistant.settings({})).toEqual({
+      approvalMode: 'destructive',
+      codeMode: false,
+    });
+    expect(await t.other().assistant.settings({})).toEqual({
+      approvalMode: 'writes',
+      codeMode: false,
+    });
 
     await t.owner().assistant.updateSettings({ approvalMode: 'writes' });
   });

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
 import { fakeModel, lastToolResult, type Script } from './fakeModel';
-import { type Part, partsOf, postChat, threadIdOf, userMessage } from './assistantChat';
+import { partsOf, postChat, respond, threadIdOf, toolPart, userMessage } from './assistantChat';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0003';
@@ -18,16 +18,6 @@ const searchThen: Script = (request) =>
   lastToolResult(request) === null
     ? { tool: 'searchApi', input: { query: 'audit log' } }
     : { text: 'Found.' };
-
-const toolPart = (parts: Part[], tool: string) =>
-  parts.find((part) => part.type === `tool-${tool}`);
-
-const respond = (parts: Part[], approved: boolean) =>
-  parts.map((part) =>
-    part.state === 'approval-requested'
-      ? { ...part, state: 'approval-responded', approval: { ...part.approval, approved } }
-      : part,
-  );
 
 describe('assistant tools', () => {
   useTestDatabase();

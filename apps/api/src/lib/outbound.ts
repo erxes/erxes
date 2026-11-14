@@ -1,5 +1,5 @@
 import { lookup as dnsLookup } from 'node:dns';
-import { request as httpRequest } from 'node:http';
+import { type IncomingHttpHeaders, request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { isIP, type LookupFunction } from 'node:net';
 import { openScope } from '@erxes/core-db';
@@ -65,6 +65,72 @@ export interface OutboundResponse {
   ms: number;
 }
 
+interface OutboundRequest {
+  method: string;
+  body: string;
+  headers: Record<string, string>;
+  timeoutMs: number;
+  maxBytes: number;
+  overflow: 'cut' | 'fail';
+}
+
+const sendOutbound = (raw: string, request: OutboundRequest) => {
+  if (openScope()) {
+    throw new Error(
+      'An outbound call was made inside a database transaction; call out after it ends',
+    );
+  }
+
+  const url = assertOutboundUrl(raw);
+  const started = Date.now();
+  const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
+
+  return new Promise<{ status: number; headers: IncomingHttpHeaders; body: Buffer; ms: number }>(
+    (resolve, reject) => {
+      const req = send(
+        url,
+        {
+          method: request.method,
+          headers: {
+            ...request.headers,
+            'Content-Length': String(Buffer.byteLength(request.body)),
+          },
+          lookup: safeLookup,
+          timeout: request.timeoutMs,
+        },
+        (res) => {
+          const chunks: Buffer[] = [];
+          let size = 0;
+
+          res.on('data', (chunk: Buffer) => {
+            if (size < request.maxBytes) chunks.push(chunk);
+            size += chunk.length;
+
+            if (size > request.maxBytes && request.overflow === 'fail') {
+              res.destroy(new OutboundError(`the answer is over ${request.maxBytes} bytes`));
+            }
+          });
+          res.on('end', () =>
+            resolve({
+              status: res.statusCode ?? 0,
+              headers: res.headers,
+              body: Buffer.concat(chunks),
+              ms: Date.now() - started,
+            }),
+          );
+          res.on('error', reject);
+        },
+      );
+
+      req.on('timeout', () =>
+        req.destroy(new OutboundError(`no answer within ${request.timeoutMs / 1000} s`)),
+      );
+      req.on('error', reject);
+      req.end(request.body);
+    },
+  );
+};
+
 /**
  * POSTs `body`; resolves with any HTTP answer, rejects on network errors and
  * timeouts. Never inside a tenant scope: a slow remote would hold its
@@ -75,49 +141,45 @@ export const postOutbound = async (
   body: string,
   headers: Record<string, string>,
   timeoutMs = 10_000,
-) => {
-  if (openScope()) {
-    throw new Error(
-      'postOutbound was called inside a database transaction; call out after it ends',
-    );
+): Promise<OutboundResponse> => {
+  const answer = await sendOutbound(raw, {
+    method: 'POST',
+    body,
+    headers,
+    timeoutMs,
+    maxBytes: 2048,
+    overflow: 'cut',
+  });
+
+  return {
+    status: answer.status,
+    body: answer.body.toString('utf8').slice(0, 2048),
+    ms: answer.ms,
+  };
+};
+
+const headersOf = (incoming: IncomingHttpHeaders) => {
+  const headers = new Headers();
+
+  for (const [name, value] of Object.entries(incoming)) {
+    for (const item of [value ?? []].flat()) headers.append(name, item);
   }
 
-  const url = assertOutboundUrl(raw);
-  const started = Date.now();
-  const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
-
-  return new Promise<OutboundResponse>((resolve, reject) => {
-    const req = send(
-      url,
-      {
-        method: 'POST',
-        headers: { ...headers, 'Content-Length': String(Buffer.byteLength(body)) },
-        lookup: safeLookup,
-        timeout: timeoutMs,
-      },
-      (res) => {
-        const chunks: Buffer[] = [];
-        let size = 0;
-
-        res.on('data', (chunk: Buffer) => {
-          if (size < 2048) chunks.push(chunk);
-          size += chunk.length;
-        });
-        res.on('end', () =>
-          resolve({
-            status: res.statusCode ?? 0,
-            body: Buffer.concat(chunks).toString('utf8').slice(0, 2048),
-            ms: Date.now() - started,
-          }),
-        );
-        res.on('error', reject);
-      },
-    );
-
-    req.on('timeout', () =>
-      req.destroy(new OutboundError(`no answer within ${timeoutMs / 1000} s`)),
-    );
-    req.on('error', reject);
-    req.end(body);
-  });
+  return headers;
 };
+
+export const outboundFetch =
+  (options: { timeoutMs: number; maxBytes: number }) => async (request: Request) => {
+    const answer = await sendOutbound(request.url, {
+      method: request.method,
+      body: await request.text(),
+      headers: Object.fromEntries(request.headers),
+      ...options,
+      overflow: 'fail',
+    });
+
+    return new Response(answer.status === 204 ? null : new Uint8Array(answer.body), {
+      status: answer.status,
+      headers: headersOf(answer.headers),
+    });
+  };

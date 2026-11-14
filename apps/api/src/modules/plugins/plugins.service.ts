@@ -225,6 +225,10 @@ export const registerManifest = async (manifest: PluginManifest) => {
     'Event types',
   );
 
+  if (manifest.assistant?.operations.length && !manifest.api) {
+    throw new HttpError(400, 'API_REQUIRED', 'Assistant operations are called at api.url: add api');
+  }
+
   await db()
     .update(plugins)
     .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })

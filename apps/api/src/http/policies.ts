@@ -237,6 +237,7 @@ export const ACCESS = {
   'automations.get': needs('automations.view'),
   'automations.create': needs('automations.manage'),
   'automations.update': needs('automations.manage'),
+  'automations.check': needs('automations.view'),
   'automations.activate': needs('automations.manage'),
   'automations.pause': needs('automations.manage'),
   'automations.remove': needs('automations.manage'),
