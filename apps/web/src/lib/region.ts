@@ -24,12 +24,14 @@ export const countryNames = (codes: string[], language: string) =>
     codes.map(namer(language, 'region')),
   );
 
-/** Every country, by name. */
+/** Every country: Mongolia first, then by name. */
 export const countryOptions = (language: string): RegionOption[] => {
   const name = namer(language, 'region');
 
-  return COUNTRIES.map((code) => ({ value: code, label: name(code) })).toSorted((a, b) =>
-    a.label.localeCompare(b.label, language),
+  return COUNTRIES.map((code) => ({ value: code, label: name(code) })).toSorted(
+    (a, b) =>
+      Number(b.value === 'MN') - Number(a.value === 'MN') ||
+      a.label.localeCompare(b.label, language),
   );
 };
 

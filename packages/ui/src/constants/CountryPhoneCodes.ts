@@ -9,7 +9,7 @@ const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
 const flagOf = (code: string) =>
   String.fromCodePoint(...Array.from(code, (letter) => 0x1f1a5 + letter.charCodeAt(0)));
 
-/** Every country libphonenumber-js knows, with its English name and calling code, by name. */
+/** Every country libphonenumber-js knows, with its English name and calling code: Mongolia first, then by name. */
 export const CountryPhoneCodes: PhoneCountry[] = getCountries()
   .map((code) => ({
     code,
@@ -17,4 +17,6 @@ export const CountryPhoneCodes: PhoneCountry[] = getCountries()
     flag: flagOf(code),
     dial_code: `+${getCountryCallingCode(code)}`,
   }))
-  .toSorted((a, b) => a.name.localeCompare(b.name));
+  .toSorted(
+    (a, b) => Number(b.code === 'MN') - Number(a.code === 'MN') || a.name.localeCompare(b.name),
+  );
