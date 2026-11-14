@@ -14,6 +14,8 @@ import { Lang, parse, type SgNode } from '@ast-grep/napi';
 import { z } from 'zod';
 
 const output = resolve(import.meta.dirname, 'inventory.json');
+// One order on every machine, so a rerun on another one changes no line.
+const alphabetical = (a: string, b: string) => a.localeCompare(b, 'en');
 const argv = process.argv.slice(2);
 
 const { values: args } = parseArgs({
@@ -34,21 +36,27 @@ const recorded = existsSync(output)
   ? Recorded.safeParse(JSON.parse(readFileSync(output, 'utf8'))).data?.source
   : undefined;
 
-const from = args.from ?? recorded?.from;
+const given = args.from ?? recorded?.from;
 const plugin = args.plugin ?? recorded?.plugin;
 const ref = args.ref ?? recorded?.ref ?? 'origin/main';
 
-if (!from || !plugin) {
+if (!given || !plugin) {
   throw new Error(
     'Usage: pnpm migrate:inventory -- --from <old erxes checkout> --plugin <name> [--ref origin/main]',
   );
 }
 
+// Git takes all three as arguments, so none may read as an option.
+if (!/^[a-z][a-z0-9_]*$/.test(plugin)) throw new Error(`Not an old plugin name: ${plugin}`);
+if (!/^\w[\w./-]*$/.test(ref)) throw new Error(`Not a git ref: ${ref}`);
+
+const from = resolve(given);
+
 const started = performance.now();
 const apiRoot = `backend/plugins/${plugin}_api/`;
 const uiRoot = `frontend/plugins/${plugin}_ui/`;
 const sourceFile = /\.(ts|tsx|js|jsx|mts|cts)$/;
-const testFile = /\/__tests__\/|\.(test|spec)\.\w+$/;
+const testFile = /(?:\/__tests__\/)|(?:\.(?:test|spec)\.\w+$)/;
 const workerDir = /^(workers?|crons?)$/i;
 const workerName = /^(worker|cron)|(workers?|crons?)$/i;
 const eventHelper = /^(sendDbEventLog|sendEvent|sendAutomation\w*|sendNotification\w*)$/;
@@ -85,7 +93,12 @@ const REGISTRATIONS = [
   { kind: 'automation trigger', file: /automation/i, key: 'triggers', id: ['type', 'label'] },
   { kind: 'automation action', file: /automation/i, key: 'actions', id: ['type', 'label'] },
   { kind: 'segment', file: /segment/i, key: 'contentTypes', id: ['type', 'contentType'] },
-  { kind: 'import-export', file: /import-export|\/main\.ts$/, key: 'types', id: ['contentType'] },
+  {
+    kind: 'import-export',
+    file: /(?:import-export)|(?:\/main\.ts$)/,
+    key: 'types',
+    id: ['contentType'],
+  },
 ] as const;
 
 type Field = string | { dynamic: string } | { missing: true };
@@ -660,7 +673,7 @@ const scanFile = (file: string, source: string, paths: Set<string>) => {
     registrations,
     constants,
     uiImports: uiImports.length ? { file, names: uiImports } : undefined,
-    workerEvidence: [...workerEvidence].toSorted(),
+    workerEvidence: [...workerEvidence].toSorted(alphabetical),
   };
 };
 
@@ -701,7 +714,7 @@ const sha = git('rev-parse', '--verify', `${ref}^{commit}`).trim();
 const allPaths = git('ls-tree', '-r', '-z', '--name-only', sha, '--', apiRoot, uiRoot)
   .split('\0')
   .filter(Boolean)
-  .toSorted();
+  .toSorted(alphabetical);
 
 if (!allPaths.some((path) => path.startsWith(apiRoot)))
   throw new Error(`${ref} has no ${apiRoot} in ${from}`);
@@ -785,7 +798,7 @@ const uiRoutes = all('uiRoutes')
       (_match, expression: string) => constants.get(expression.trim()) ?? `:${expression.trim()}`,
     ),
   }));
-const modules = [...new Set(sources.map(moduleOf))].toSorted();
+const modules = [...new Set(sources.map(moduleOf))].toSorted(alphabetical);
 
 const inventory = {
   source: { repo: 'erxes/erxes', from, plugin, ref, sha },
@@ -835,7 +848,6 @@ const inventory = {
 };
 
 writeFileSync(output, `${JSON.stringify(inventory, null, 2)}\n`);
-execFileSync('vp', ['fmt', output], { stdio: 'ignore' });
 
 console.info(inventory.counts);
 console.info(`wrote ${output} in ${Math.round(performance.now() - started)} ms`);

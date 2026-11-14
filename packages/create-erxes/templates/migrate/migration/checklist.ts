@@ -3,7 +3,6 @@
 // Mongoose schemas) and migration/import-map.ts (collection → table, for
 // scripts/import-mongo.ts). Rerun after `pnpm migrate:inventory`; ticks in an
 // existing MIGRATION.md are kept.
-import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
@@ -18,6 +17,7 @@ import {
 
 const here = import.meta.dirname;
 const root = resolve(here, '..');
+const alphabetical = (a: string, b: string) => a.localeCompare(b, 'en');
 
 const Value = z.union([
   z.string(),
@@ -241,7 +241,7 @@ const all = [...items.values()].flat();
 const gaps = all.filter((item) => item.gap).length;
 const order = [
   '(plugin)',
-  ...[...items.keys()].filter((module) => module !== '(plugin)').toSorted(),
+  ...[...items.keys()].filter((module) => module !== '(plugin)').toSorted(alphabetical),
 ];
 const sections = [
   'Tables',
@@ -406,8 +406,5 @@ writeFileSync(
     '',
   ].join('\n'),
 );
-
-// The repo's formatter owns the layout, so `vp run check` passes on what this wrote.
-execFileSync('vp', ['fmt', markdown, here], { stdio: 'ignore' });
 
 console.info(`MIGRATION.md: ${all.length} items, ${gaps} gaps; ${tables.length} draft tables`);

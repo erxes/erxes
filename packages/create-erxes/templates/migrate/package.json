@@ -1,7 +1,7 @@
 {
   "scripts": {
     "migrate:inventory": "node migration/inventory.ts",
-    "migrate:checklist": "node migration/checklist.ts",
+    "migrate:checklist": "node migration/checklist.ts && vp fmt MIGRATION.md migration",
     "migrate:import": "node --env-file-if-exists=.env scripts/import-mongo.ts"
   },
   "devDependencies": {
