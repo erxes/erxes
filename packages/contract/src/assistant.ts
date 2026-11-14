@@ -1,10 +1,4 @@
-import {
-  ASSISTANT_APPROVAL_MODES,
-  ASSISTANT_MESSAGE_ROLES,
-  ASSISTANT_PROVIDERS,
-  ASSISTANT_THINKING_KINDS,
-  ASSISTANT_THINKING_LEVELS,
-} from '@erxes/core-db/enums';
+import { ASSISTANT_MESSAGE_ROLES, ASSISTANT_THINKING_KINDS } from '@erxes/core-db/enums';
 import {
   assistantConnections,
   assistantMessages,
@@ -15,14 +9,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf, QueryBoolean } from './common';
-
-export const AssistantProvider = z.enum(ASSISTANT_PROVIDERS);
-
-export type AssistantProvider = z.infer<typeof AssistantProvider>;
-
-export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
-
-export type AssistantThinkingLevel = z.infer<typeof AssistantThinkingLevel>;
+import { AssistantApprovalMode, AssistantProvider, AssistantThinkingLevel } from './values';
 
 export const AssistantModelId = z
   .string()
@@ -56,6 +43,8 @@ export const AssistantProviderModels = z.object({
   models: z.array(AssistantModel),
   error: z.string().nullable(),
 });
+
+export type AssistantProviderModels = z.infer<typeof AssistantProviderModels>;
 
 export const AssistantThread = createSelectSchema(assistantThreads, {
   id: Id,
@@ -135,7 +124,9 @@ export const assistantContract = {
       summary:
         'Chat models each saved provider offers, best first; `error` says why a list is empty without revealing the key',
     })
-    .output(z.object({ data: z.array(AssistantProviderModels).max(ASSISTANT_PROVIDERS.length) })),
+    .output(
+      z.object({ data: z.array(AssistantProviderModels).max(AssistantProvider.options.length) }),
+    ),
   verifyModel: oc
     .route({
       method: 'POST',
@@ -204,6 +195,6 @@ export const assistantContract = {
       summary:
         'When the assistant asks before acting: `writes` before every change, `destructive` before deletes, merges, archives, publishes and sends',
     })
-    .input(z.object({ approvalMode: z.enum(ASSISTANT_APPROVAL_MODES) }))
+    .input(z.object({ approvalMode: AssistantApprovalMode }))
     .output(AssistantSettings),
 };

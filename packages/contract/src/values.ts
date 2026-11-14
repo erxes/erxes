@@ -1,4 +1,8 @@
 import {
+  ASSISTANT_APPROVAL_MODES,
+  ASSISTANT_PROVIDERS,
+  ASSISTANT_QUESTION_MODES,
+  ASSISTANT_THINKING_LEVELS,
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
   CUSTOMER_SEXES,
@@ -146,6 +150,20 @@ export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
 
 /** How the live stream reaches this browser, in its `hello` event: pushing, or polling while it can't listen. */
 export const LiveMode = z.enum(LIVE_MODES);
+
+export const AssistantProvider = z.enum(ASSISTANT_PROVIDERS);
+
+export type AssistantProvider = z.infer<typeof AssistantProvider>;
+
+export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
+
+export type AssistantThinkingLevel = z.infer<typeof AssistantThinkingLevel>;
+
+export const AssistantApprovalMode = z.enum(ASSISTANT_APPROVAL_MODES);
+
+export type AssistantApprovalMode = z.infer<typeof AssistantApprovalMode>;
+
+export const AssistantQuestionMode = z.enum(ASSISTANT_QUESTION_MODES);
 
 /** The `data` of a 409 `CUSTOMER_EXISTS`: the customer that has the value, and which field it is. */
 export const CustomerExists = z.object({
