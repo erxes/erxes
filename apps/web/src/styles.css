@@ -2,6 +2,7 @@
    defaults, component styles, its own utilities), plus the utilities this app's code uses. */
 @import '../../../packages/ui/src/styles.css';
 @source './';
+@source '../node_modules/streamdown/dist/*.js';
 
 /* Layouts only one screen uses. */
 @theme {

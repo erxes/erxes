@@ -1,6 +1,7 @@
 import { Sidebar } from 'erxes-ui';
 import { PageOutlet } from '~/components/CrashBoundary';
 import { useLiveUpdates } from '~/lib/live';
+import { AssistantHost } from '~/modules/assistant/AssistantHost';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
@@ -33,6 +34,7 @@ export const MainLayout = () => {
             <PageOutlet />
           </main>
           <SidePanelLayout />
+          <AssistantHost />
         </div>
       </div>
     </Sidebar.Provider>

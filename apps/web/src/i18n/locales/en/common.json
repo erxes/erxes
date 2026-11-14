@@ -48,6 +48,8 @@
     "plugin-settings-title": "{{name}} settings",
     "resize-sidebar": "Resize sidebar",
     "assistant": "Assistant",
+    "assistant-shortcut": "Assistant (Ctrl+J)",
+    "assistant-unread": "New reply",
     "back": "Back"
   },
   "core-modules": {
@@ -112,7 +114,9 @@
     "plan": "Plan",
     "lead-stages": "Lead stages",
     "settings": "Settings",
-    "contacts-settings": "Contacts settings"
+    "contacts-settings": "Contacts settings",
+    "assistant": "Assistant",
+    "assistant-approvals": "Assistant approvals"
   },
   "auth": {
     "welcome": "Welcome",
