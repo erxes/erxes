@@ -21,7 +21,7 @@ const ProductsSettingsSidebar = () => {
 
   return (
     <>
-      <Sidebar.Header className="px-2 pt-0 pb-1">
+      <Sidebar.Header variant="sticky">
         <Sidebar.Menu>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton render={<Link to={PRODUCTS_PATH} />}>
@@ -31,7 +31,7 @@ const ProductsSettingsSidebar = () => {
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Header>
-      <Sidebar.Content className="styled-scroll gap-1">
+      <Sidebar.Content>
         <Sidebar.Group>
           <Sidebar.GroupContent>
             <Sidebar.Menu>

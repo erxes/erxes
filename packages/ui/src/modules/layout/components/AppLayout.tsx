@@ -236,7 +236,11 @@ const AppLayoutMobile = ({
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden [--navigation-panel-toggle-space:2.5rem]">
       <Sidebar collapsible="offcanvas">
-        {title && <Sidebar.Header className="px-4 text-sm font-medium">{title}</Sidebar.Header>}
+        {title && (
+          <Sidebar.Header>
+            <span className="px-2 text-sm font-medium">{title}</span>
+          </Sidebar.Header>
+        )}
         <div data-navigation-context className="styled-scroll min-h-0 flex-1 overflow-y-auto pb-1">
           {sidebar}
         </div>

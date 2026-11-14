@@ -52,11 +52,7 @@ const LeadsGroup = () => {
 
   return (
     <Sidebar.MenuItem>
-      <Sidebar.MenuButton
-        className="px-2"
-        isActive={inLeads && !open}
-        onClick={() => setOpen((value) => !value)}
-      >
+      <Sidebar.MenuButton isActive={inLeads && !open} onClick={() => setOpen((value) => !value)}>
         <IconMagnet />
         <span className="min-w-0 flex-1 truncate capitalize">{t('leads')}</span>
         <IconChevronDown
@@ -86,7 +82,7 @@ const ContactsNavigation = () => {
   const { t } = useTranslation('contact');
 
   return (
-    <Sidebar.Group className="px-2 py-1">
+    <Sidebar.Group variant="flush">
       <Sidebar.GroupContent>
         <Sidebar.Menu>
           {CONTACTS_SECTIONS.filter(({ path }) => path !== ContactsPath.Leads).map(
@@ -96,7 +92,6 @@ const ContactsNavigation = () => {
               return (
                 <Sidebar.MenuItem key={path}>
                   <Sidebar.MenuButton
-                    className="px-2"
                     isActive={pathname === fullPath || pathname.startsWith(`${fullPath}/`)}
                     render={<Link to={fullPath} />}
                   >

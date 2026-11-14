@@ -37,13 +37,12 @@ const ReportsNavigation = () => {
   const t = useLeadsT();
 
   return (
-    <Sidebar.Group className="px-2 py-1">
+    <Sidebar.Group variant="flush">
       <Sidebar.GroupContent>
         <Sidebar.Menu>
           {REPORTS.map(({ path, label, icon: Icon }) => (
             <Sidebar.MenuItem key={path}>
               <Sidebar.MenuButton
-                className="px-2"
                 isActive={pathname.startsWith(`/reports/${path}`)}
                 render={<Link to={`/reports/${path}`} />}
               >
