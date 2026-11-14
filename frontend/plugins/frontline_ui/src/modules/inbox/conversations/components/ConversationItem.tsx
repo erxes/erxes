@@ -343,7 +343,7 @@ const ConversationSelector = ({
   return (
     <div className="group relative grid size-9 shrink-0 place-items-center">
       <ConversationCheckbox />
-      <div className="relative size-full transition-opacity group-hover:opacity-0 group-focus-within:opacity-0 peer-data-[state=checked]:opacity-0">
+      <div className="relative size-full transition-opacity group-hover:opacity-0 group-focus-within:opacity-0 group-focus-visible/row:opacity-0 peer-data-[state=checked]:opacity-0">
         {isPending ? (
           <Skeleton className="size-9 rounded-full" />
         ) : (
@@ -373,7 +373,7 @@ const ConversationCheckbox = () => {
     <>
       <Checkbox
         checked={isChecked}
-        className="absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 data-[state=checked]:opacity-100 z-10"
+        className="absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-focus-visible/row:opacity-100 data-[state=checked]:opacity-100 z-10"
         onClick={(e) => e.stopPropagation()}
         onCheckedChange={() => setSelectConversations(_id || '')}
         aria-label={t('select-conversation', 'Select conversation')}
