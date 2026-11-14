@@ -7,7 +7,7 @@ Plugins live in their own repos and upgrade on their own schedule, so every chan
 additive or a versioned breaking change. The HR plugin is the first consumer.
 
 1. Say which surface changes:
-   - the HTTP contract (`packages/contract/src/*.ts` and `openapi.json`). Plugin UIs call it
+   - the HTTP contract (`packages/contract/src/*.ts` and the OpenAPI document). Plugin UIs call it
      through `@erxes/core-contract/client`, which bundles `routes.json` into each plugin build, so
      a plugin built before a path moved keeps calling the old one;
    - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction;
@@ -25,7 +25,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      an input required or stricter, changing a field's type or meaning, reusing an error code.
      The old shape stays next to the new one, marked deprecated in the summary, for at least one
      minor release. An HTTP breaking change goes under `/core/v2`.
-3. For the contract, run `pnpm openapi` and read the `openapi.json` diff: every removed path,
+3. For the contract, diff the OpenAPI document from before and after the change
+   (`packages/contract/AGENTS.md` says how to write both): every removed path,
    removed field or newly required field is a breaking change.
 4. For federation, keep shared names and exported symbols: a removed `erxes-ui` export breaks
    plugin UIs at runtime, not at build time. Search the plugin repos (the HR plugin first) for a
