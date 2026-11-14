@@ -17,7 +17,7 @@
     "build": "vp pack src/main.ts src/telemetry.ts --format esm --sourcemap --no-dts",
     "start": "node --enable-source-maps --import ./dist/telemetry.mjs dist/main.mjs",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "node --env-file-if-exists=../.env src/db/migrate.ts",
+    "db:migrate": "node --env-file-if-exists=../.env src/migrate.ts",
     "db:check": "drizzle-kit check"
   },
   "dependencies": {
