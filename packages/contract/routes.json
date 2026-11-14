@@ -231,6 +231,26 @@
           "path": "/assistant/settings"
         }
       }
+    },
+    "appearance": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/appearance"
+        }
+      }
+    },
+    "updateAppearance": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/assistant/appearance"
+        }
+      }
     }
   },
   "automations": {

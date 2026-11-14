@@ -1,5 +1,8 @@
 import {
   ASSISTANT_APPROVAL_MODES,
+  ASSISTANT_AVATAR_BODIES,
+  ASSISTANT_AVATAR_COLORS,
+  ASSISTANT_AVATAR_EXPRESSIONS,
   ASSISTANT_MESSAGE_ROLES,
   ASSISTANT_PROVIDERS,
   ASSISTANT_RECORD_TYPES,
@@ -165,6 +168,32 @@ export const assistantSettings = pgTable(
       columns: [table.orgId],
       foreignColumns: [organizations.id],
       name: 'core_assistant_settings_org_id_fkey',
+    }).onDelete('cascade'),
+  ],
+);
+
+export const assistantAppearances = pgTable(
+  'assistant_appearances',
+  {
+    orgId: orgIdColumn(),
+    userId: text().notNull(),
+    body: text({ enum: ASSISTANT_AVATAR_BODIES }).default('circle').notNull(),
+    color: text({ enum: ASSISTANT_AVATAR_COLORS }).default('ink').notNull(),
+    expression: text({ enum: ASSISTANT_AVATAR_EXPRESSIONS }).default('neutral').notNull(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    primaryKey({ name: 'core_assistant_appearances_pkey', columns: [table.orgId, table.userId] }),
+    check('core_assistant_appearances_body_check', inList(table.body, ASSISTANT_AVATAR_BODIES)),
+    check('core_assistant_appearances_color_check', inList(table.color, ASSISTANT_AVATAR_COLORS)),
+    check(
+      'core_assistant_appearances_expression_check',
+      inList(table.expression, ASSISTANT_AVATAR_EXPRESSIONS),
+    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_assistant_appearances_org_id_fkey',
     }).onDelete('cascade'),
   ],
 );

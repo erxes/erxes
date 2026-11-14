@@ -1,5 +1,6 @@
 import { ASSISTANT_MESSAGE_ROLES, ASSISTANT_THINKING_KINDS } from '@erxes/core-db/enums';
 import {
+  assistantAppearances,
   assistantConnections,
   assistantMessages,
   assistantSettings,
@@ -68,6 +69,14 @@ export const AssistantSettings = createSelectSchema(assistantSettings).pick({
   approvalMode: true,
   codeMode: true,
 });
+
+export const AssistantAppearance = createSelectSchema(assistantAppearances).pick({
+  body: true,
+  color: true,
+  expression: true,
+});
+
+export type AssistantAppearance = z.infer<typeof AssistantAppearance>;
 
 export const AssistantChatRequest = z
   .object({
@@ -246,4 +255,19 @@ export const assistantContract = {
         ),
     )
     .output(AssistantSettings),
+  appearance: oc
+    .route({
+      method: 'GET',
+      path: '/assistant/appearance',
+      summary: "How the assistant's avatar looks to the signed-in member",
+    })
+    .output(AssistantAppearance),
+  updateAppearance: oc
+    .route({
+      method: 'PUT',
+      path: '/assistant/appearance',
+      summary: "Set the avatar's body, colour and resting expression for the signed-in member",
+    })
+    .input(AssistantAppearance)
+    .output(AssistantAppearance),
 };

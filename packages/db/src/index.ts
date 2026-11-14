@@ -16,6 +16,7 @@ export * as schema from './schema';
 
 export {
   activities,
+  assistantAppearances,
   assistantConnections,
   assistantMessages,
   assistantReferences,

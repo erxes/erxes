@@ -61,6 +61,8 @@ export const ACCESS = {
   'assistant.record': needs('assistant.chat'),
   'assistant.settings': needs('assistant.chat'),
   'assistant.updateSettings': needs('assistant.manage'),
+  'assistant.appearance': needs('assistant.chat'),
+  'assistant.updateAppearance': needs('assistant.chat'),
 
   'audit.list': needs('audit.view'),
   'audit.record': { plugin: 'audit:write' },

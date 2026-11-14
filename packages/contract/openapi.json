@@ -356,6 +356,66 @@
           "id"
         ]
       },
+      "AssistantAppearance": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "enum": [
+              "circle",
+              "pebble",
+              "squircle",
+              "capsule",
+              "triangle",
+              "hexagon",
+              "cloud",
+              "drop"
+            ],
+            "type": "string"
+          },
+          "color": {
+            "enum": [
+              "ink",
+              "brown",
+              "red",
+              "orange",
+              "amber",
+              "green",
+              "teal",
+              "blue",
+              "violet",
+              "pink",
+              "grey"
+            ],
+            "type": "string"
+          },
+          "expression": {
+            "enum": [
+              "neutral",
+              "attentive",
+              "surprised",
+              "excited",
+              "happy",
+              "laughing",
+              "angry",
+              "sad",
+              "scared",
+              "wary",
+              "confused",
+              "curious",
+              "proud",
+              "shy",
+              "bored",
+              "sleepy"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "body",
+          "color",
+          "expression"
+        ]
+      },
       "AssistantArtifact": {
         "type": "object",
         "properties": {
@@ -14180,6 +14240,50 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AssistantSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/appearance": {
+      "get": {
+        "operationId": "assistant.appearance",
+        "summary": "How the assistant's avatar looks to the signed-in member",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantAppearance"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "assistant.updateAppearance",
+        "summary": "Set the avatar's body, colour and resting expression for the signed-in member",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantAppearance"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantAppearance"
                 }
               }
             }

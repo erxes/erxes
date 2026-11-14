@@ -334,6 +334,50 @@ export const ASSISTANT_TEXT_TYPES = [
 
 export const ASSISTANT_ARTIFACT_FORMATS = ['html', 'csv', 'markdown'] as const;
 
+export const ASSISTANT_AVATAR_BODIES = [
+  'circle',
+  'pebble',
+  'squircle',
+  'capsule',
+  'triangle',
+  'hexagon',
+  'cloud',
+  'drop',
+] as const;
+
+export const ASSISTANT_AVATAR_COLORS = [
+  'ink',
+  'brown',
+  'red',
+  'orange',
+  'amber',
+  'green',
+  'teal',
+  'blue',
+  'violet',
+  'pink',
+  'grey',
+] as const;
+
+export const ASSISTANT_AVATAR_EXPRESSIONS = [
+  'neutral',
+  'attentive',
+  'surprised',
+  'excited',
+  'happy',
+  'laughing',
+  'angry',
+  'sad',
+  'scared',
+  'wary',
+  'confused',
+  'curious',
+  'proud',
+  'shy',
+  'bored',
+  'sleepy',
+] as const;
+
 // ─── Settings ───────────────────────────────────────────────────────────────
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;

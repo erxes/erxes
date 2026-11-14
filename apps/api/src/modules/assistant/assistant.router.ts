@@ -1,5 +1,6 @@
 import { db } from '@erxes/core-db';
 import { audited, scoped, unscoped } from '~/orpc';
+import { getAppearance, updateAppearance } from './appearance.service';
 import {
   listConnections,
   removeConnection,
@@ -39,6 +40,10 @@ export const assistantRouter = {
     return found ? readRecord(found.type, found.id) : UNAVAILABLE;
   }),
   record: scoped.assistant.record.handler(({ input }) => readRecord(input.type, input.id)),
+  appearance: scoped.assistant.appearance.handler(() => getAppearance(db())),
+  updateAppearance: scoped.assistant.updateAppearance.handler(({ input }) =>
+    updateAppearance(db(), input),
+  ),
   settings: scoped.assistant.settings.handler(() => getSettings(db())),
   updateSettings: scoped.assistant.updateSettings.handler(({ input }) =>
     audited(
