@@ -1,7 +1,6 @@
 import { IconShieldLock } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Input, useToast } from 'erxes-ui';
-import QRCode from 'qrcode';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
@@ -182,8 +181,10 @@ export const TwoFactorSection = () => {
   const start = useMutation({
     mutationFn: async () => {
       const { secret, uri } = await orpc.auth.twoFactorSetup.call();
+      // Loaded when setup starts: settings pages don't carry the QR encoder.
+      const { toDataURL } = await import('qrcode');
 
-      return { secret, qr: await QRCode.toDataURL(uri, { margin: 1, width: 180 }) };
+      return { secret, qr: await toDataURL(uri, { margin: 1, width: 180 }) };
     },
     onSuccess: setSetup,
     onError,
