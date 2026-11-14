@@ -1,10 +1,10 @@
 import { ACTIVITY_TARGETS, TIMELINE_KINDS } from '@erxes/core-db/enums';
-import { activities } from '@erxes/core-db/schema';
+import { activities, notes, noteVersions } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
-import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
+import { AppLink, DedupeKey, EntityType, EventType } from './platform';
 
 export const ActivityTarget = z.enum(ACTIVITY_TARGETS);
 
@@ -40,11 +40,32 @@ export const CORE_ACTIVITY_TYPES = [
   'company.customer_unlinked',
 ] as const;
 
+/** What only a note has; its entry says where it is and who wrote it. */
+export const Note = createSelectSchema(notes, { pinnedAt: isoDate, editedAt: isoDate }).pick({
+  body: true,
+  /** Members mentioned with @. */
+  mentions: true,
+  fileIds: true,
+  /** Pinned to the top of the timeline. */
+  pinnedAt: true,
+  /** Last reworded; earlier wordings are in `noteVersions`. */
+  editedAt: true,
+});
+
+export type Note = z.infer<typeof Note>;
+
+export const NoteVersion = createSelectSchema(noteVersions, { id: Id, editedAt: isoDate }).pick({
+  id: true,
+  /** The wording an edit replaced. */
+  body: true,
+  /** When this wording was written. */
+  editedAt: true,
+});
+
 export const Activity = createSelectSchema(activities, {
   id: Id,
   targetId: Id,
   data: z.record(z.string(), z.unknown()),
-  editedAt: isoDate,
   occurredAt: isoDate,
 })
   .pick({
@@ -62,21 +83,27 @@ export const Activity = createSelectSchema(activities, {
      */
     data: true,
     link: true,
-    editedAt: true,
+    /** The plugin's own record it is about. */
+    entityType: true,
+    entityId: true,
+    /** Who did it: a team member (`actorId` = user id), a plugin (its name) or `system`. */
+    actorType: true,
+    actorId: true,
     occurredAt: true,
   })
   .extend({
-    entity: EntityRef.nullable(),
-    actor: ActorRef,
-    /** Notes only. */
-    pinned: z.boolean(),
-    /** Emoji → the members who reacted. */
+    /** A team member's name and picture, selected with the entry so the timeline reads at once. */
+    actorName: z.string().nullable(),
+    actorAvatarUrl: z.string().nullable(),
+    /** Notes (`<target>.note`) only. */
+    note: Note.nullable(),
+    /** Emoji → the members who reacted, first reaction first. */
     reactions: z.record(z.string(), z.array(z.string())),
   });
 
 export type Activity = z.infer<typeof Activity>;
 
-/** Notes are timeline entries of type `customer.note` / `company.note`; `data` = `{ body, mentions, fileIds }`. */
+/** Notes are timeline entries of type `customer.note` / `company.note`, with `note` set. */
 export const NoteInput = z.object({
   body: z.string().trim().min(1).max(10_000),
   /** Team members mentioned with @: they are notified. */
@@ -97,6 +124,8 @@ export const ActivityInput = createUpdateSchema(activities, {
   link: AppLink.optional(),
   occurredAt: () => z.iso.datetime(),
   dedupeKey: DedupeKey.optional(),
+  entityType: EntityType.optional(),
+  entityId: Id.optional(),
 })
   .pick({
     targetType: true,
@@ -107,6 +136,9 @@ export const ActivityInput = createUpdateSchema(activities, {
     summary: true,
     data: true,
     link: true,
+    /** The plugin's own record it is about. */
+    entityType: true,
+    entityId: true,
     /** When it happened (defaults to now). */
     occurredAt: true,
     /** Retry-safe: one entry per plugin and key. */
@@ -114,10 +146,13 @@ export const ActivityInput = createUpdateSchema(activities, {
   })
   .required({ targetType: true, targetId: true, type: true })
   .extend({
-    entity: EntityRef.optional(),
     /** The team member who did it, if any. */
     actorUserId: Id.optional(),
-  });
+  })
+  .refine(
+    (value) => (value.entityType === undefined) === (value.entityId === undefined),
+    'entityType and entityId go together',
+  );
 
 export type ActivityInput = z.infer<typeof ActivityInput>;
 
@@ -192,22 +227,44 @@ export const activitiesContract = {
         ),
       }),
     ),
-  updateNote: oc
+  editNote: oc
     .route({
       method: 'PATCH',
       path: '/activities/notes/{id}',
-      summary: 'Edit a note (its author) or pin / unpin it (any member)',
+      summary:
+        'Edit a note (its author only). A new wording keeps the old one in `noteVersions`; newly mentioned members are notified',
     })
     .input(
-      z.object({
-        id: Id,
-        body: NoteInput.shape.body.optional(),
-        mentions: z.array(Id).max(50).optional(),
-        fileIds: z.array(Id).max(20).optional(),
-        pinned: z.boolean().optional(),
-      }),
+      z
+        .object({
+          id: Id,
+          body: NoteInput.shape.body.optional(),
+          mentions: z.array(Id).max(50).optional(),
+          fileIds: z.array(Id).max(20).optional(),
+        })
+        .refine(
+          (value) =>
+            value.body !== undefined || value.mentions !== undefined || value.fileIds !== undefined,
+          'Change the body, the mentions or the files',
+        ),
     )
     .output(Activity),
+  pinNote: oc
+    .route({
+      method: 'PUT',
+      path: '/activities/notes/{id}/pinned',
+      summary: 'Pin a note to the top of its timeline, or unpin it (any member)',
+    })
+    .input(z.object({ id: Id, pinned: z.boolean() }))
+    .output(Activity),
+  noteVersions: oc
+    .route({
+      method: 'GET',
+      path: '/activities/notes/{id}/versions',
+      summary: "A note's earlier wordings, newest first (the latest 100)",
+    })
+    .input(z.object({ id: Id }))
+    .output(z.object({ data: z.array(NoteVersion).max(100) })),
   removeNote: oc
     .route({
       method: 'DELETE',
@@ -234,12 +291,18 @@ export const activitiesContract = {
         "Change a plugin's own entry (by id, or by its dedupe key with id `key:<dedupeKey>`) — the order was refunded, the line changes",
     })
     .input(
-      z.object({
-        id: z.string().min(1).max(260),
-        summary: z.string().trim().min(1).max(500).optional(),
-        data: z.record(z.string(), z.unknown()).optional(),
-        link: AppLink.nullable().optional(),
-      }),
+      z
+        .object({
+          id: z.string().min(1).max(260),
+          summary: z.string().trim().min(1).max(500).optional(),
+          data: z.record(z.string(), z.unknown()).optional(),
+          link: AppLink.nullable().optional(),
+        })
+        .refine(
+          (value) =>
+            value.summary !== undefined || value.data !== undefined || value.link !== undefined,
+          'Change the summary, the data or the link',
+        ),
     )
     .output(Activity),
   remove: oc

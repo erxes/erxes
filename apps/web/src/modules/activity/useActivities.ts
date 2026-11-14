@@ -90,7 +90,8 @@ export const useNoteActions = () => {
 
   return {
     add: useMutation(orpc.activities.addNote.mutationOptions(handlers)),
-    update: useMutation(orpc.activities.updateNote.mutationOptions(handlers)),
+    edit: useMutation(orpc.activities.editNote.mutationOptions(handlers)),
+    pin: useMutation(orpc.activities.pinNote.mutationOptions(handlers)),
     remove: useMutation(orpc.activities.removeNote.mutationOptions(handlers)),
     react: useMutation(orpc.activities.react.mutationOptions(handlers)),
   };

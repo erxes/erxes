@@ -66,7 +66,7 @@ describe('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
       kind: 'notes',
     });
 
-    expect(notes.data.map((item) => item.data.body)).toContain('Remember me');
+    expect(notes.data.map((item) => item.note?.body)).toContain('Remember me');
     expect((await admin().trash.list({})).data).toEqual([]);
 
     // Purging for good is the owner's.
@@ -130,15 +130,14 @@ describe('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
 
     const state = (await t.owner().plugins.list({})).data.find((plugin) => plugin.name === 'hr');
 
-    expect(state).toMatchObject({ installed: false });
-    expect(state?.statusReason).toMatch(/Suspended/);
+    expect(state?.installation?.status).toBe('disabled');
+    expect(state?.installation?.statusReason).toMatch(/Suspended/);
     // Its tokens stop working; installing again resumes it.
     await expect(hr.activities.remove({ id: entries[44] ?? '' })).rejects.toMatchObject({
       status: 401,
     });
     expect(await t.owner().plugins.install({ name: 'hr' })).toMatchObject({
-      installed: true,
-      statusReason: null,
+      installation: { status: 'active', statusReason: null },
     });
   });
 });

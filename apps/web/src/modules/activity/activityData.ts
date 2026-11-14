@@ -16,23 +16,13 @@ const reader =
     return parsed.success ? parsed.data : null;
   };
 
-/** Absent means none, as core's note schema defaults them; a list of anything else is another shape. */
+/** Absent means none; a list of anything else is another shape. */
 const ids = z.array(z.string()).default([]);
 
 /** `field → [before, after]`; the values are whatever the field holds. */
 const changes = z.record(z.string(), z.tuple([z.unknown(), z.unknown()]));
 
-const note = z.object({
-  body: z.string(),
-  mentions: ids,
-  fileIds: ids,
-  history: z.array(z.object({ body: z.string(), editedAt: z.string() })).default([]),
-});
-
-export type NoteData = z.infer<typeof note>;
-
 export const readChanges = reader(z.object({ changes }).transform((data) => data.changes));
-export const readNote = reader(note);
 export const readTagged = reader(z.object({ added: ids, removed: ids }));
 export const readMerged = reader(z.object({ mergedNames: z.array(z.string()) }));
 
@@ -52,8 +42,6 @@ export const readLead = reader(
     reason: z.string().nullish(),
   }),
 );
-
-export const isNoteType = (type: string) => type.endsWith('.note');
 
 /** `customer.tagged` → `tagged`. */
 export const verbOf = (activity: Activity) => activity.type.slice(activity.type.indexOf('.') + 1);

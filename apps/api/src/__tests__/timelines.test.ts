@@ -109,7 +109,7 @@ describe(
       // Entries carry who did them (name, else email) and, for links, the other side's name.
       expect(
         (await list({ kind: 'notes' }))
-          .map((item) => item.actor.name ?? '')
+          .map((item) => item.actorName ?? '')
           .toSorted((a, b) => a.localeCompare(b)),
       ).toEqual(['member@acme.mn', 'owner@acme.mn']);
 
@@ -123,11 +123,11 @@ describe(
       expect(await list({ from: new Date(Date.now() + 60_000).toISOString() })).toEqual([]);
 
       // Edits keep the earlier wording.
-      await t.owner().activities.updateNote({ id: note.id, body: 'Wants the green plan' });
-      expect((await theNote())?.data).toMatchObject({
-        body: 'Wants the green plan',
-        history: [{ body: 'Wants the blue plan' }],
-      });
+      await t.owner().activities.editNote({ id: note.id, body: 'Wants the green plan' });
+      expect((await theNote())?.note?.body).toBe('Wants the green plan');
+      expect((await t.owner().activities.noteVersions({ id: note.id })).data).toMatchObject([
+        { body: 'Wants the blue plan' },
+      ]);
 
       // Reactions: added, counted per member, taken back.
       const react = { id: note.id, emoji: '👍' };
