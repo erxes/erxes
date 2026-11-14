@@ -20,39 +20,9 @@ import { SyncSettingSection } from './SyncSettingSection';
 import { TR_STATUSES } from '@/transactions/types/constants';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
+import { TSyncOrderConfigFormValues } from '@/settings/syncSettings/syncConfigSchema';
 
-export const syncOrderConfigFormSchema = z.object({
-  title: z.string(),
-  posId: z.string(),
-  dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
-  trStatus: z.string().optional(),
-  returnType: z.enum(['fullTr', 'onlySale', 'delete']),
-  saleAccountId: z.string(),
-  saleOutAccountId: z.string(),
-  saleCostAccountId: z.string(),
-  branchId: z.string(),
-  departmentId: z.string(),
-  hasVat: z.boolean(),
-  vatRowId: z.string(),
-  reverseVatRules: z.array(z.string()).optional(),
-  hasCtax: z.boolean(),
-  ctaxRowId: z.string(),
-  reverseCtaxRules: z.array(z.string()).optional(),
-  payments: z.record(
-    z.object({
-      accountId: z.string(),
-    }),
-  ),
-  defaultPayment: z.object({
-    accountId: z.string(),
-  }),
-  defaultNegPayment: z.object({
-    accountId: z.string(),
-  }),
-});
-
-type ConfigFormValues = z.infer<typeof syncOrderConfigFormSchema>;
+type ConfigFormValues = TSyncOrderConfigFormValues;
 
 export const SyncOrderConfigForm = ({
   form,

@@ -10,7 +10,7 @@ import {
   SelectDepartments,
   PanelFormRow,
 } from 'ui-modules';
-import { z } from 'zod';
+import { TSyncDealMovementConfigFormValues } from '@/settings/syncSettings/syncConfigSchema';
 import {
   SyncConfigGeneralFields,
   SyncConfigPipelineSection,
@@ -21,24 +21,7 @@ import { useEffect } from 'react';
 import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
 import { SettingsPanelSelect } from '@/settings/components/panel/SettingsPanelFields';
 
-export const syncDealMovementConfigFormSchema = z.object({
-  title: z.string(),
-  boardId: z.string().optional(),
-  pipelineId: z.string().optional(),
-  stageId: z.string(),
-  responseFieldId: z.string().optional(),
-  dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
-  trStatus: z.string().optional(),
-  sourceAccountId: z.string(),
-  destinationAccountId: z.string(),
-  defaultSourceBranchId: z.string().optional(),
-  defaultSourceDepartmentId: z.string().optional(),
-  defaultDestinationBranchId: z.string().optional(),
-  defaultDestinationDepartmentId: z.string().optional(),
-  dealLocationSide: z.enum(['source', 'destination']),
-});
-
-type ConfigFormValues = z.infer<typeof syncDealMovementConfigFormSchema>;
+type ConfigFormValues = TSyncDealMovementConfigFormValues;
 
 const InventoryAccountField = ({
   form,

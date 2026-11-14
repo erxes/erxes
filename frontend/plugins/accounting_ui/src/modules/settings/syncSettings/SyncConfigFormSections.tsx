@@ -346,8 +346,8 @@ export const SyncConfigAccountsSection = <
           key={name}
           control={control}
           name={name as FieldPath<TFieldValues>}
-          render={({ field }) => (
-            <PanelFormRow label={t(label)}>
+          render={({ field, fieldState }) => (
+            <PanelFormRow label={t(label)} error={fieldState.error?.message}>
               <SelectAccount.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
@@ -496,10 +496,13 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
         <Form.Field
           control={control}
           name={rowIdName}
-          render={({ field }) => {
+          render={({ field, fieldState }) => {
             const SelectComponent = selectComponent;
             return (
-              <PanelFormRow label={t(rowLabel)}>
+              <PanelFormRow
+                label={t(rowLabel)}
+                error={fieldState.error?.message}
+              >
                 <SelectComponent
                   value={field.value || ''}
                   onValueChange={field.onChange}

@@ -487,6 +487,7 @@
   "Must fill fixed asset sale cost account": "Борлуулсан хөрөнгийн дансны үнийг бүртгэх данс сонгоно уу",
   "Must fill destination branch": "Хүлээн авах салбар сонгоно уу",
   "VAT row is required": "НӨАТ-ын мөр сонгоно уу",
+  "CTAX row is required": "НХАТ-ын мөр сонгоно уу",
   "VAT amount is required": "НӨАТ-ын дүн оруулна уу",
   "business-transaction": "Ажил гүйлгээ",
   "at-selling-price": "(үнээр)",
