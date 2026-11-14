@@ -58,7 +58,10 @@
     "merge-tooltip": "You can only merge 2 contacts",
     "not-found": "Customer not found",
     "not-found-description": "There seems to be no customer with this ID.",
-    "selected": "{{selectedCount}} selected"
+    "selected": "{{selectedCount}} selected",
+    "position": "Position",
+    "department": "Department",
+    "company": "Company"
   },
   "company": {
     "name": "Name",
@@ -110,6 +113,10 @@
     "contacts": "Contacts"
   },
   "general": "General",
+  "actions": "Actions",
+  "contact-actions": "Contact actions",
+  "confirm-delete-contact": "Delete this contact?",
+  "action-delete": "Delete",
   "contacts": "Contacts",
   "filter": {
     "_": "Filter",
