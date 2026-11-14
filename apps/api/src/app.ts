@@ -88,7 +88,7 @@ const errorBody = (status: number, code: string, message: string, data?: unknown
   code,
   status,
   message,
-  ...(data === undefined ? {} : { data }),
+  data,
 });
 
 export const createApp = (log: Logger = logger): Express => {
