@@ -12,6 +12,8 @@ test('a member creates a contact, edits it and adds a note', async ({ page, api 
   await page.getByRole('textbox', { name: 'Last name' }).fill('Lovelace');
   await page.getByRole('textbox', { name: 'Email' }).fill(`${name.replace(' ', '.')}@example.test`);
   await expectAccessible(page);
+  // Saved straight after typing: the editor hands over every edit at once.
+  await page.getByRole('textbox', { name: 'Description' }).fill('Met at the trade fair');
   await page.getByRole('button', { name: 'Create customer' }).click();
 
   let id = '';
@@ -23,6 +25,7 @@ test('a member creates a contact, edits it and adds a note', async ({ page, api 
       return id;
     })
     .not.toBe('');
+  expect((await api.customers.get({ id })).description).toContain('Met at the trade fair');
 
   await page.goto(`/contacts/customers/${id}`);
   await expect(page.getByRole('heading', { name: `${name} Lovelace` })).toBeVisible();

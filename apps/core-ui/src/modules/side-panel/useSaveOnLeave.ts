@@ -1,8 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-// The editor reports its content 300 ms after the last edit.
-const EDITOR_SETTLE_MS = 350;
-
 /**
  * Saves a description editor when you click or tab anywhere outside it, never while
  * typing. Focus can't be trusted to leave the editor first: closing the image preview
@@ -38,7 +35,7 @@ export const useSaveOnLeave = ({
     const leave = (event: Event) => {
       if (event.target instanceof Node && containerRef.current?.contains(event.target)) return;
 
-      setTimeout(save, EDITOR_SETTLE_MS);
+      save();
     };
 
     document.addEventListener('pointerdown', leave, true);
