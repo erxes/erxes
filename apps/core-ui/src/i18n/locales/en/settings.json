@@ -582,7 +582,7 @@
     "all": "All",
     "retrying": "Retrying ({{count}})",
     "dead": "Stopped ({{count}})",
-    "explain": "Failed events are retried after 1 min, 5 min, 30 min, 2 h and 12 h, then stop here.",
+    "explain": "Failed events are retried 9 times over about half a day, each wait twice the last, then stop here.",
     "empty": "Every event was delivered",
     "empty-description": "Timelines and notifications handled every event from core and plugins.",
     "attempts": "{{count}} attempts",

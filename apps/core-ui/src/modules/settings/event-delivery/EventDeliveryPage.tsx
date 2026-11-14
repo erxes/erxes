@@ -196,7 +196,7 @@ const StatusFilter = ({
       <p className="ml-auto text-xs text-muted-foreground">
         {t(
           'explain',
-          'Failed events are retried after 1 min, 5 min, 30 min, 2 h and 12 h, then stop here.',
+          'Failed events are retried 9 times over about half a day, each wait twice the last, then stop here.',
         )}
       </p>
     </div>
