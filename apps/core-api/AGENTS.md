@@ -66,4 +66,6 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
 sets up two organisations for cross-tenant cases, and `currentToken` (`__tests__/db.ts`) is a
 member's token for raw requests. Errors assert as `rejects.toMatchObject({ status, code })`. Raw
 `fetch` with `url()` and `headers()` is only for cookies, CSRF, signed links and exports. A change
-to `modules/files` or `modules/jobs` updates its TLA+ model: `.agents/skills/verify-models/SKILL.md`.
+to `modules/files` updates its TLA+ model: `.agents/skills/verify-models/SKILL.md`. Tests that
+need background work done call `settle()` (`__tests__/settle.ts`), which runs the pg-boss
+workers until no job is due; `makeDue()` brings delayed and retried jobs forward.
