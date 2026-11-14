@@ -22,6 +22,9 @@ Use synthetic data only. Never point the app at a copy of production data.
    `pnpm exec playwright show-trace e2e/test-results/<spec>/trace.zip`.
    - Fix a violation where it is caused: the web component, or the erxes-ui part if every
      consumer shows it. Never disable an axe rule or filter it out of `expectAccessible`.
+   - `e2e/assistant.spec.ts` talks to a fake model that `e2e/globalSetup.ts` starts on port 3510,
+     so start the stack with `ASSISTANT_KIMI_URL=http://127.0.0.1:3510/v1 vp run dev:stack up`.
+     CI adds `e2e/docker-compose.e2e.yml` for the same reason. Never use a real provider key.
    - A new screen in a daily flow gets a step and an `expectAccessible` in its spec
      (`e2e/*.spec.ts`; CI's `e2e` job runs them against the built images).
 3. For permission changes, invite a member in Settings › Team members and set their password there,

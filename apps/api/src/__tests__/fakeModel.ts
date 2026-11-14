@@ -23,8 +23,8 @@ const ChatRequest = z.looseObject({
 export type ChatRequest = z.infer<typeof ChatRequest>;
 
 export type Reply =
-  | { text: string; delayMs?: number }
-  | { tool: string; input: Record<string, unknown> };
+  | { text: string; delayMs?: number; reasoning?: string }
+  | { tool: string; input: Record<string, unknown>; reasoning?: string };
 
 export type Script = (request: ChatRequest) => Reply;
 
@@ -51,6 +51,8 @@ const chunk = (delta: Record<string, unknown>, finish: string | null = null) =>
 
 const streamReply = async (res: ServerResponse, reply: Reply, calls: number) => {
   res.writeHead(200, { 'content-type': 'text/event-stream' });
+
+  if (reply.reasoning) res.write(chunk({ role: 'assistant', reasoning_content: reply.reasoning }));
 
   if ('tool' in reply) {
     res.write(
@@ -95,7 +97,7 @@ const jsonReply = (res: ServerResponse, reply: Reply) => {
   );
 };
 
-export const fakeModel = async (apiKey: string) => {
+export const fakeModel = async (apiKey: string, port = 0) => {
   const requests: ChatRequest[] = [];
 
   const state: { script: Script; models: string[]; listStatus: number } = {
@@ -138,7 +140,7 @@ export const fakeModel = async (apiKey: string) => {
       if (request.stream) void streamReply(res, reply, requests.length);
       else jsonReply(res, reply);
     });
-  }).listen(0);
+  }).listen(port);
 
   await once(server, 'listening');
 

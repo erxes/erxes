@@ -12,6 +12,7 @@ const { CI, E2E_BASE_URL } = process.env;
 export default defineConfig({
   testDir: '.',
   outputDir: 'test-results',
+  globalSetup: './globalSetup.ts',
   fullyParallel: true,
   forbidOnly: Boolean(CI),
   workers: CI ? 4 : 2,
