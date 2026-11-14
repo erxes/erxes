@@ -1,6 +1,6 @@
 // What an old erxes call into core becomes on the new core. Built from what
 // erxes `postgre` opens to plugins: packages/contract and the access map in
-// apps/core-api/src/http/access.ts. Old calls run on the server, so:
+// apps/api/src/http/access.ts. Old calls run on the server, so:
 //
 //   sdk           core.forOrg(orgId).<procedure> from the API, with the scope named
 //   contract      no plugin scope; the UI calls core with the member's own session

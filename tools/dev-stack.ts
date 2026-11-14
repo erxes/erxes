@@ -32,12 +32,12 @@ const envFile = resolve(root, '.env.local');
 /** The dev servers `up` starts, each in its own process group, so `down` stops exactly it. */
 const servers = {
   api: {
-    filter: '@erxes/core-api',
+    filter: '@erxes/api',
     env: { PORT: String(stack.ports.api), DATA_URL: `${postgres}/erxes` },
     ready: `${api}/ready`,
   },
   ui: {
-    filter: '@erxes/core-ui',
+    filter: '@erxes/web',
     env: { WEB_PORT: String(stack.ports.ui), CORE_API_URL: api },
     ready: ui,
   },

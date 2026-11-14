@@ -40,7 +40,7 @@ export const derivePluginNames = (name: string, title?: string) => {
     name,
     /** Core's name for it: tables, permissions, events and the UI remote start with it. */
     id,
-    /** The Module Federation remote core-ui loads. */
+    /** The Module Federation remote web loads. */
     remote: `${id}_ui`,
     /** The React component the remote exposes. */
     pascal: words.map(capitalize).join(''),

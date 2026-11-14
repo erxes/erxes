@@ -12,8 +12,8 @@ export const exceptions = [
     // caret in the textarea, a focusable window splitter with a grip inside (<hr> holds no
     // children), and an email chip inside triggers that are buttons already.
     files: [
-      'apps/core-ui/src/modules/activity/NoteComposer.tsx',
-      'apps/core-ui/src/modules/side-panel/RecordSidePanelResizeHandle.tsx',
+      'apps/web/src/modules/activity/NoteComposer.tsx',
+      'apps/web/src/modules/side-panel/RecordSidePanelResizeHandle.tsx',
       'packages/ui/src/modules/display/components/EmailDisplay.tsx',
     ],
     plugins: browserPlugins,
@@ -22,8 +22,8 @@ export const exceptions = [
   {
     // Position is identity: a file's columns are positional, and a test trace can repeat a step.
     files: [
-      'apps/core-ui/src/modules/settings/import-export/ImportSetup.tsx',
-      'apps/core-ui/src/modules/automations/TestPanel.tsx',
+      'apps/web/src/modules/settings/import-export/ImportSetup.tsx',
+      'apps/web/src/modules/automations/TestPanel.tsx',
     ],
     plugins: browserPlugins,
     rules: { 'react/no-array-index-key': 'off' },
@@ -66,7 +66,7 @@ export const exceptions = [
       'vite.config.ts',
       'knip.ts',
       '**/{tsdown,playwright}.config.ts',
-      'apps/core-ui/rsbuild.config.ts',
+      'apps/web/rsbuild.config.ts',
       'packages/db/drizzle.config.ts',
       'tools/lint/*/index.ts',
       'tools/lint/anti-slop/vendor/**',

@@ -18,8 +18,8 @@ on:
     branches: [postgre]
     paths:
       - .github/workflows/bench.yml
-      - apps/core-api/scripts/bench-filters.ts
-      - apps/core-api/src/modules/views/recordFilter.ts
+      - apps/api/scripts/bench-filters.ts
+      - apps/api/src/modules/views/recordFilter.ts
       - packages/db/drizzle/**
 
 permissions:

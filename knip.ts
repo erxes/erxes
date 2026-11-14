@@ -18,11 +18,11 @@ const config: KnipConfig = {
       ignoreDependencies: ['tsrs'],
     },
     // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
-    'apps/core-api': {
+    'apps/api': {
       entry: ['scripts/*.ts', 'src/**/*.test.ts'],
       project: ['src/**/*.ts', 'scripts/**/*.ts'],
     },
-    'apps/core-ui': {
+    'apps/web': {
       // The opt-in perf scripts, run by hand with `pnpm perf` and `pnpm perf:seed`.
       entry: ['e2e/perf/*.ts'],
       project: ['src/**/*.{ts,tsx,css}', 'e2e/**/*.ts'],

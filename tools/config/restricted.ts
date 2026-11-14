@@ -8,18 +8,18 @@ const routerBuilder = {
   name: '@orpc/server',
   importNames: ['implement', 'os'],
   message:
-    'Build procedures with the builders from apps/core-api/src/orpc.ts, in modules/<feature>/<feature>.router.ts.',
+    'Build procedures with the builders from apps/api/src/orpc.ts, in modules/<feature>/<feature>.router.ts.',
 };
 
 // Decisions recorded as bans: each message says what to use instead.
 const decided = [
   {
     name: 'graphile-worker',
-    message: 'Durable work goes through pg-boss (apps/core-api/src/modules/jobs).',
+    message: 'Durable work goes through pg-boss (apps/api/src/modules/jobs).',
   },
   {
     name: 'bullmq',
-    message: 'Durable work goes through pg-boss (apps/core-api/src/modules/jobs).',
+    message: 'Durable work goes through pg-boss (apps/api/src/modules/jobs).',
   },
   {
     name: 'ioredis',
@@ -55,18 +55,12 @@ const decided = [
 const nodeCrypto = ['node:crypto', 'crypto'].map((name) => ({
   name,
   message:
-    'Use apps/core-api/src/lib/crypto.ts (safeEqual, sha256, hmacSha256, randomToken), or add the helper there.',
+    'Use apps/api/src/lib/crypto.ts (safeEqual, sha256, hmacSha256, randomToken), or add the helper there.',
 }));
 
 // Packages are shared with plugins and never reach into an app.
 const noApps = {
-  group: [
-    '@erxes/core-api',
-    '@erxes/core-api/*',
-    '@erxes/core-ui',
-    '@erxes/core-ui/*',
-    '**/apps/**',
-  ],
+  group: ['@erxes/api', '@erxes/api/*', '@erxes/web', '@erxes/web/*', '**/apps/**'],
   message: 'Packages and the UI never import an app. Move the shared code into a package.',
 };
 
@@ -104,7 +98,7 @@ const oneTransaction = {
 // retries, and stops with the queue.
 const noTimers = {
   name: 'setInterval',
-  message: 'Periodic work is a schedule: defineSchedule() in apps/core-api/src/modules/jobs.',
+  message: 'Periodic work is a schedule: defineSchedule() in apps/api/src/modules/jobs.',
 };
 
 export const restrictedRules = {
@@ -134,7 +128,7 @@ export const restrictedOverrides = [
     },
   },
   {
-    files: ['apps/core-ui/src/**', 'packages/ui/**'],
+    files: ['apps/web/src/**', 'packages/ui/**'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -146,7 +140,7 @@ export const restrictedOverrides = [
     // Core's hashing, comparisons and random tokens all go through lib/crypto.ts, its
     // transactions through withOrg/withSystem and savepoint(), its periodic work through
     // pg-boss schedules.
-    files: ['apps/core-api/**'],
+    files: ['apps/api/**'],
     rules: {
       'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
       'no-restricted-properties': ['error', oneTransaction],
@@ -155,16 +149,16 @@ export const restrictedOverrides = [
   },
   {
     // A live stream's heartbeat and member re-check belong to its connection and end with it.
-    files: ['apps/core-api/src/modules/live/stream.http.ts'],
+    files: ['apps/api/src/modules/live/stream.http.ts'],
     rules: { 'no-restricted-globals': 'off' },
   },
   {
-    files: ['apps/core-api/src/lib/crypto.ts'],
+    files: ['apps/api/src/lib/crypto.ts'],
     rules: { 'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }] },
   },
   {
     // The one place that implements the contract; feature routers import its builders.
-    files: ['apps/core-api/src/orpc.ts'],
+    files: ['apps/api/src/orpc.ts'],
     rules: { 'no-restricted-imports': ['error', { paths: [...decided, ...nodeCrypto] }] },
   },
   {

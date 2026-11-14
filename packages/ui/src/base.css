@@ -1,6 +1,6 @@
 /*
   Default erxes theme and page defaults, shared by every app that hosts erxes
-  UI: core-ui, standalone product apps and the published erxes-ui styles.
+  UI: web, standalone product apps and the published erxes-ui styles.
   theme.css maps Tailwind utilities to these tokens; plugin remotes import only
   theme.css, because the host page already declares the values below.
   Import after Tailwind and theme.css, so `@apply` resolves.

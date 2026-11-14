@@ -2,7 +2,7 @@ import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
-// core-ui's shared list, from the tarball. The fallbacks are built here, so every
+// web's shared list, from the tarball. The fallbacks are built here, so every
 // module erxes-ui's dist reaches has to resolve from the tarballs.
 import { SHARED } from 'erxes-ui/federation';
 

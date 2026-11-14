@@ -9,7 +9,7 @@ PLUGIN_SECRET=change-me-to-the-secret-in-core-plugin-keys
 PUBLIC_URL=http://localhost:__apiPort__
 # `pnpm dev:ui` serves the remote here; in the image the API serves it at /ui.
 UI_ENTRY_URL=http://localhost:__uiPort__/remoteEntry.js
-# core-ui's address, which calls this API from the browser.
+# web's address, which calls this API from the browser.
 CORE_UI_URL=http://localhost:3500
 # Traces go to an OTLP collector when this is set.
 # OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318

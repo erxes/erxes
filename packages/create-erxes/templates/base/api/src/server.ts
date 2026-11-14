@@ -30,7 +30,7 @@ export const createApp = () => {
 
   app.disable('x-powered-by');
   app.use(pinoHttp({ logger }));
-  // The plugin UI runs inside core-ui and calls this API from core-ui's origin.
+  // The plugin UI runs inside web and calls this API from web's origin.
   app.use(cors({ origin: config.coreUiOrigin, maxAge: 600 }));
 
   app.get('/health', (_req, res) => {

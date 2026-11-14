@@ -1,6 +1,6 @@
 /**
  * Where erxes-ui's upload hooks and components send files. The host app
- * (core-ui) sets an adapter for its file service at start-up. erxes-ui is a
+ * (web) sets an adapter for its file service at start-up. erxes-ui is a
  * Module Federation singleton, so plugin UIs get the host's adapter too.
  */
 export interface FileStorageAdapter {

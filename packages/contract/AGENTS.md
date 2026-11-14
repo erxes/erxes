@@ -1,11 +1,11 @@
 # @erxes/core-contract
 
 The `/core/v1` API contract (zod 4 + `@orpc/contract`) and event schemas. Core implements it,
-core-ui and plugins call it with a typed client, and `openapi.json` describes it for everyone else.
+web and plugins call it with a typed client, and `openapi.json` describes it for everyone else.
 
 Types flow one way: the Drizzle table (`@erxes/core-db/schema`) → drizzle-zod → these schemas →
-the oRPC router and `openapi.json` → `@orpc/tanstack-query` in core-ui. Renaming a column fails
-the type check in the contract, the services and core-ui. Clients take only the types from that
+the oRPC router and `openapi.json` → `@orpc/tanstack-query` in web. Renaming a column fails
+the type check in the contract, the services and web. Clients take only the types from that
 chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and import values from
 `src/values.ts`, so a browser never loads a table or drizzle.
 
@@ -15,8 +15,8 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
   with no table import (`common.ts`, `money.ts`, `automationDefinition.ts`).
 - `src/common.ts` has `Id`, `IdList`, `CursorQuery`, `cursorPageOf`, `isoDate`. `src/events.ts`
   has the event schemas plugins publish. The `/core/v1/stream` messages are Server-Sent Events
-  outside the router: `StreamData` in `apps/core-api/src/modules/live/stream.http.ts`, read by
-  `apps/core-ui/src/lib/liveClient.ts`.
+  outside the router: `StreamData` in `apps/api/src/modules/live/stream.http.ts`, read by
+  `apps/web/src/lib/liveClient.ts`.
 - `openapi.json` and `routes.json` come from `pnpm openapi`.
 - The package has no import-time side effects (`sideEffects: false` in its package.json).
 

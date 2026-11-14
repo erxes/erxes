@@ -5,7 +5,7 @@
  *   `@ts-expect-error` or `@ts-nocheck` in tracked source. This is a script, not a lint
  *   rule, because a file-level disable comment would silence the rule that bans it.
  * - With a base commit (CI passes the PR's base): a route budget in
- *   apps/core-ui/bundleBudget.ts that grew. A new route may add its own.
+ *   apps/web/bundleBudget.ts that grew. A new route may add its own.
  *   node tools/check-escapes.ts [base-sha]
  */
 import { execFileSync } from 'node:child_process';
@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const BUDGET_FILE = 'apps/core-ui/bundleBudget.ts';
+const BUDGET_FILE = 'apps/web/bundleBudget.ts';
 
 const ESCAPE = /(oxlint|eslint)-(disable|enable)|@ts-(ignore|expect-error|nocheck)/;
 

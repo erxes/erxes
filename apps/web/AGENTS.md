@@ -1,4 +1,4 @@
-# core-ui
+# web
 
 The core React app (React 19 with the compiler, Rsbuild, React Query) and the Module Federation host for plugin UIs.
 

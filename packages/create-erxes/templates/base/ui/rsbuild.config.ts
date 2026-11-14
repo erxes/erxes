@@ -3,7 +3,7 @@ import { defineConfig } from '@rsbuild/core';
 import { pluginBabel } from '@rsbuild/plugin-babel';
 import { pluginReact } from '@rsbuild/plugin-react';
 import reactCompiler from 'babel-plugin-react-compiler';
-// What core-ui shares. The host provides each one (`import: false`), so the plugin
+// What web shares. The host provides each one (`import: false`), so the plugin
 // never bundles a second React, router, query client or erxes-ui.
 import { SHARED } from 'erxes-ui/federation';
 
@@ -29,7 +29,7 @@ export default defineConfig({
     }),
   ],
   source: { entry: { index: './src/index.ts' } },
-  // Chunks load from wherever remoteEntry.js came from, not from core-ui's origin.
+  // Chunks load from wherever remoteEntry.js came from, not from web's origin.
   output: { assetPrefix: 'auto' },
   dev: { assetPrefix: true, lazyCompilation: false },
   server: { port: Number(process.env.UI_PORT) || __uiPort__, cors: { origin: '*' } },

@@ -1,6 +1,6 @@
 # erxes-ui
 
-The design system core-ui and plugin UIs build on (`README.md` says who imports what). Screens
+The design system web and plugin UIs build on (`README.md` says who imports what). Screens
 compose these components and the theme's tokens; each component owns how it looks. `vp run check`
 enforces that with `@shadcn/lint`, configured in `tools/config/design.ts`, and every finding
 points here.

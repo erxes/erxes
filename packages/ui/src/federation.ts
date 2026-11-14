@@ -1,5 +1,5 @@
 /**
- * The libraries core-ui shares with plugin UIs as single instances. core-ui's
+ * The libraries web shares with plugin UIs as single instances. web's
  * rsbuild.config.ts provides each one; a plugin UI imports this list from
  * `erxes-ui/federation` and declares the same names with `import: false`, so
  * it never bundles a second React, router, query client or erxes-ui. A shared

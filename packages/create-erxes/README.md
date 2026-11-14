@@ -1,7 +1,7 @@
 # create-erxes
 
 Creates an erxes plugin for the new core (Postgres): an Express 5, oRPC and Drizzle API, and a
-React Module Federation remote that core-ui loads.
+React Module Federation remote that web loads.
 
 ```sh
 pnpm create erxes inventory

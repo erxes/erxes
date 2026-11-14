@@ -8,7 +8,7 @@ import { PgBoss } from 'pg-boss';
 import { connectionSettings, getPool } from './client';
 
 /**
- * The job queue's schema: pg-boss's tables (`apps/core-api/src/modules/jobs`).
+ * The job queue's schema: pg-boss's tables (`apps/api/src/modules/jobs`).
  * They have no `org_id`; a job carries its organisation in its data.
  */
 export const QUEUE_SCHEMA = 'core_queue';

@@ -1,6 +1,6 @@
 // Seeds the synthetic org the perf run measures: 2,000 customers, 200 leads, 10 draft
 // automations and 300 notes, through the typed core client. Run once on a fresh org:
-//   API_URL=http://localhost:3400 EMAIL=owner@acme.test PASSWORD=… pnpm --filter @erxes/core-ui perf:seed
+//   API_URL=http://localhost:3400 EMAIL=owner@acme.test PASSWORD=… pnpm --filter @erxes/web perf:seed
 import { CORE_API_PREFIX, coreContract } from '@erxes/core-contract';
 import { createORPCClient } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
