@@ -18,10 +18,12 @@ mkdirSync(scratch, { recursive: true });
 
 const dir = mkdtempSync(join(scratch, 'generated-'));
 const contract = join(root, 'api/openapi.json');
+const api = join(root, 'api');
+const drizzle = join(api, 'node_modules/drizzle-kit/bin.cjs');
 
-const run = (...args: string[]) => {
-  const output = execFileSync('pnpm', ['--filter', '@__id__/api', 'exec', ...args], {
-    cwd: root,
+const run = (entry: string, ...args: string[]) => {
+  const output = execFileSync(process.execPath, [entry, ...args], {
+    cwd: api,
     encoding: 'utf8',
   });
 
@@ -33,7 +35,7 @@ const run = (...args: string[]) => {
 try {
   const document = join(dir, 'openapi.json');
 
-  run('node', 'scripts/openapi.ts', document);
+  run(join(api, 'scripts/openapi.ts'), document);
 
   if (readFileSync(contract, 'utf8') !== readFileSync(document, 'utf8'))
     throw new Error('Contract drift. Run pnpm openapi and commit api/openapi.json.');
@@ -47,9 +49,9 @@ try {
     config,
     `import config from ${JSON.stringify(join(root, 'api/drizzle.config.ts'))};\nexport default { ...config, out: ${JSON.stringify(relative(join(root, 'api'), generated))} };\n`,
   );
-  run('drizzle-kit', 'check');
+  run(drizzle, 'check');
 
-  const result = run('drizzle-kit', 'generate', '--config', config);
+  const result = run(drizzle, 'generate', '--config', config);
 
   // Drizzle sometimes prints an error and exits zero. Require its completion message too.
   if (!/No schema changes, nothing to migrate|Your SQL migration file/.test(result))

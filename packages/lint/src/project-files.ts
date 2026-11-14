@@ -7,7 +7,7 @@ export const projectFiles = (root: string) => {
   let gitRoot: string | undefined;
 
   try {
-    gitRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+    gitRoot = execFileSync('/usr/bin/git', ['rev-parse', '--show-toplevel'], {
       cwd: root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
@@ -17,10 +17,14 @@ export const projectFiles = (root: string) => {
   }
 
   if (gitRoot && resolve(gitRoot) === resolve(root)) {
-    return execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], {
-      cwd: root,
-      encoding: 'utf8',
-    })
+    return execFileSync(
+      '/usr/bin/git',
+      ['ls-files', '-z', '--cached', '--others', '--exclude-standard'],
+      {
+        cwd: root,
+        encoding: 'utf8',
+      },
+    )
       .split('\0')
       .filter((file) => file && existsSync(join(root, file)));
   }

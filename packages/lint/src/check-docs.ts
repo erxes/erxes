@@ -10,6 +10,8 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import vite from 'vite-plus/package.json' with { type: 'json' };
 import { z } from 'zod';
 import { projectFiles } from './project-files.ts';
 
@@ -52,10 +54,14 @@ const TaskGraph = z.object({
   tasks: z.record(z.string(), z.object({ package: z.string(), name: z.string() })),
 });
 
+const vpCli = fileURLToPath(new URL(vite.bin.vp, import.meta.resolve('vite-plus/package.json')));
+
 const rootRuns = new Set(
   Object.values(
     TaskGraph.parse(
-      JSON.parse(execFileSync('vp', ['run', '--json'], { cwd: root, encoding: 'utf8' })),
+      JSON.parse(
+        execFileSync(process.execPath, [vpCli, 'run', '--json'], { cwd: root, encoding: 'utf8' }),
+      ),
     ).tasks,
   )
     .filter((task) => task.package === '.')
@@ -76,7 +82,7 @@ const scriptProblem = (command: string) => {
 
   const [, ...args] = command.split(/\s+/);
   const filter = args[0] === '--filter' ? args[1] : undefined;
-  const name = (filter ? args.slice(2) : args).filter((arg) => !arg.startsWith('-'))[0];
+  const name = (filter ? args.slice(2) : args).find((arg) => !arg.startsWith('-'));
   const script = name === 'run' ? args[args.indexOf('run') + 1] : name;
 
   if (!script || PNPM_BUILTINS.has(script)) return undefined;
@@ -106,7 +112,7 @@ const pathProblem = (token: string, doc: string) => {
 
 const isIgnored = (path: string) => {
   try {
-    execFileSync('git', ['check-ignore', '-q', '--no-index', path], {
+    execFileSync('/usr/bin/git', ['check-ignore', '-q', '--no-index', path], {
       cwd: root,
       stdio: 'ignore',
     });

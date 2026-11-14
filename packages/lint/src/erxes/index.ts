@@ -91,7 +91,10 @@ const noOrgFilterRule = defineRule({
 
         // Any `x.orgId` counts (a table can come from a lookup, `LINKS[type]`); only a join
         // to a known table's column is allowed.
-        const other = isOrgId(left) ? right : isOrgId(right) ? left : null;
+        let other: ESTree.Node | undefined;
+
+        if (isOrgId(left)) other = right;
+        else if (isOrgId(right)) other = left;
 
         if (other && !isColumn(other)) context.report({ node, messageId: 'filter' });
       },
