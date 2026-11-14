@@ -50,7 +50,7 @@ const AvatarUpload = ({
             size="sm"
             variant="ghost"
             type="button"
-            className="text-muted-foreground"
+            tone="muted"
             onClick={() => onChange(null)}
           >
             <IconTrash />

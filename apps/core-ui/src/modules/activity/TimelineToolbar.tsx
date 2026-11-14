@@ -105,7 +105,8 @@ const FilterPopover = (props: FiltersProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className={cn('relative size-7 text-muted-foreground', count > 0 && 'text-foreground')}
+            tone={count > 0 ? 'default' : 'muted'}
+            className="relative"
             aria-label={t('filters', 'Filters')}
           />
         }
@@ -135,7 +136,7 @@ const FilterPopover = (props: FiltersProps) => {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-full text-xs"
+            className="h-7 w-full"
             onClick={() => onChange({ ...NO_FILTERS, kind: filters.kind })}
           >
             {t('clear-filters', 'Clear filters')}
@@ -227,7 +228,7 @@ export const TimelineToolbar = ({
         <Button
           variant="ghost"
           size="icon"
-          className={cn('size-7 text-muted-foreground', searching && 'bg-accent text-foreground')}
+          tone="muted"
           aria-label={t('search', 'Search the timeline…')}
           aria-pressed={searching}
           onClick={onToggleSearch}

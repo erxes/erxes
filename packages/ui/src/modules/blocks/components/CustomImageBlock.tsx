@@ -100,8 +100,9 @@ const CustomImagePreview: FC<
         <>
           <Button
             variant="ghost"
+            size="flush"
             aria-label="Preview image"
-            className="bn-visual-media mx-auto h-auto max-w-full cursor-pointer border-0 bg-transparent p-0 hover:bg-transparent"
+            className="mx-auto w-full max-w-full"
             style={imgLoaded ? undefined : { display: 'none' }}
             contentEditable={false}
             onMouseDown={(event) => event.preventDefault()}
@@ -111,7 +112,7 @@ const CustomImagePreview: FC<
             }}
           >
             <img
-              className="block h-auto w-full max-w-full object-contain"
+              className="bn-visual-media block h-auto w-full max-w-full object-contain"
               src={src}
               alt={block.props.caption || block.props.name || ''}
               draggable={false}

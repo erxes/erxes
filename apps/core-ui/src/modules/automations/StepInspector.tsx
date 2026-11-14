@@ -77,7 +77,7 @@ const StepTools = ({
       <Button
         size="icon"
         variant="ghost"
-        className="text-destructive"
+        tone="destructive"
         aria-label={t('remove-step', 'Remove step')}
         onClick={() => {
           onSteps(removeStep(steps, step.id));

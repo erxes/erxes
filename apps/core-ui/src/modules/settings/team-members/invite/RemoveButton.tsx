@@ -19,11 +19,7 @@ export const InviteRowRemoveButton = ({
   };
 
   return (
-    <Button
-      variant="secondary"
-      className="bg-destructive/10 text-destructive"
-      onClick={handleRemove}
-    >
+    <Button variant="secondary" tone="destructive" onClick={handleRemove}>
       <IconX />
       {t('remove-selected')}
     </Button>

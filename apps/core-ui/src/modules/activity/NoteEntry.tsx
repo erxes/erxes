@@ -128,7 +128,8 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
           <Button
             variant="ghost"
             size="icon"
-            className="size-6 text-muted-foreground opacity-0 group-hover/note:opacity-100 data-popup-open:opacity-100"
+            tone="muted"
+            className="size-6 opacity-0 group-hover/note:opacity-100 data-popup-open:opacity-100"
             aria-label={t('note-actions', 'Note actions')}
           />
         }

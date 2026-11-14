@@ -86,7 +86,7 @@ const WizardActions = ({
       {imp.undoable && (
         <Button
           variant="outline"
-          className="text-destructive"
+          tone="destructive"
           disabled={undo.isPending}
           onClick={confirmUndo}
         >

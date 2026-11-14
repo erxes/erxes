@@ -18,14 +18,7 @@ export const LeadDisplayMenu = () => {
     <Popover>
       <IconTip label={t('display')}>
         <Popover.Trigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={t('display')}
-              className="size-7 text-muted-foreground data-popup-open:bg-accent data-popup-open:text-foreground"
-            />
-          }
+          render={<Button variant="ghost" size="icon" aria-label={t('display')} tone="muted" />}
         >
           <IconAdjustmentsHorizontal className="size-4" />
         </Popover.Trigger>

@@ -28,7 +28,7 @@ export const LeadHeaderActions = ({
             <Button
               variant="ghost"
               size="icon"
-              className="size-7 text-primary-text"
+              tone="primary"
               aria-label={t('actions.convert-to-customer')}
               onClick={() => setConverting(true)}
             />

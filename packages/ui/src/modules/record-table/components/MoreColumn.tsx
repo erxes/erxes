@@ -16,12 +16,9 @@ export const RecordTableMoreButton = ({
     <Button
       ref={ref}
       aria-label={children ? undefined : 'More'}
-      variant="ghost"
+      variant="cell"
       size="icon"
-      className={cn(
-        'h-8 w-full focus-visible:outline-transparent rounded-none focus-visible:shadow-subtle',
-        className,
-      )}
+      className={cn('h-8 w-full', className)}
       {...props}
     >
       {children || <IconDots className="text-muted-foreground" />}

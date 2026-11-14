@@ -124,9 +124,10 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
 
   return (
     <Button
-      variant="ghost"
+      variant="cell"
       size="icon"
-      className="h-full w-full rounded-none text-muted-foreground hover:text-destructive"
+      tone="muted"
+      className="h-full w-full"
       aria-label={`Delete ${tag.name}`}
       onClick={() =>
         void confirm({

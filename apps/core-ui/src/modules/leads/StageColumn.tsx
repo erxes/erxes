@@ -103,7 +103,8 @@ const ColumnHeader = ({
             <Button
               variant="ghost"
               size="icon"
-              className="ml-auto size-7 text-muted-foreground"
+              tone="muted"
+              className="ml-auto"
               aria-label={t('board.add-here')}
               onClick={onAdd}
             />

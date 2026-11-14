@@ -125,7 +125,7 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
           <Button
             size="icon"
             variant="ghost"
-            className="text-destructive"
+            tone="destructive"
             title={t('remove', 'Remove')}
             aria-label={t('remove', 'Remove')}
             onClick={() =>

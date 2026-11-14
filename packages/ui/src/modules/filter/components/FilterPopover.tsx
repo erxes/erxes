@@ -42,7 +42,7 @@ export const FilterTrigger = ({
                   size={isFiltered ? 'icon' : 'default'}
                   // Its icon lines up with the page's content, as the first
                   // breadcrumb's does, with or without the label.
-                  className={cn(isFiltered ? '-ml-1.5' : '-ml-2 pl-2', className)}
+                  className={cn(isFiltered ? '-ml-1.5' : '-ml-3', className)}
                   {...props}
                 />
               }

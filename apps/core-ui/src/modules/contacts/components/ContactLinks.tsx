@@ -179,9 +179,7 @@ const AddLink = ({
 
   return (
     <Popover open={adding} onOpenChange={setAdding}>
-      <Popover.Trigger
-        render={<Button variant="ghost" size="sm" className="w-fit text-muted-foreground" />}
-      >
+      <Popover.Trigger render={<Button variant="ghost" size="sm" tone="muted" className="w-fit" />}>
         <IconPlus />
         {side === 'core:customer' ? 'Link a company' : 'Add a person'}
       </Popover.Trigger>

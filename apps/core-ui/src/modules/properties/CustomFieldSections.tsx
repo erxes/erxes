@@ -59,17 +59,9 @@ export const CustomFieldSections = ({
           className="group flex flex-col rounded-xl bg-foreground/5 p-1 pt-0"
         >
           <div className="flex h-7 shrink-0 items-center justify-between pr-1">
-            <Collapsible.Trigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 gap-1.5 px-1 font-mono text-xs font-medium uppercase"
-                />
-              }
-            >
+            <Collapsible.Trigger render={<Button variant="ghost" size="xs" />}>
               <Collapsible.TriggerIcon className="size-3" />
-              {group?.name ?? 'Properties'}
+              <span className="font-mono uppercase">{group?.name ?? 'Properties'}</span>
             </Collapsible.Trigger>
           </div>
           <Collapsible.Panel>

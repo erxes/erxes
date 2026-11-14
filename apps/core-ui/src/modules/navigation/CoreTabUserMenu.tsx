@@ -2,7 +2,6 @@ import { IconChevronRight, IconDeviceLaptop, IconMoon, IconSun } from '@tabler/i
 import {
   Avatar,
   Button,
-  cn,
   DropdownMenu,
   type ThemeOption,
   themeState,
@@ -15,7 +14,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { LANGUAGES, type LanguageCode } from '~/i18n';
 import { useSession, useSignOut } from '~/modules/auth/session';
-import { coreTabIconClassName } from './coreTabClassName';
 import { CoreTabTooltip } from './CoreTabTooltip';
 
 const isThemeOption = (value: string): value is ThemeOption =>
@@ -121,9 +119,9 @@ export const CoreTabUserMenu = () => {
           render={
             <Button
               aria-label={sidebarT('profile')}
-              className={cn(coreTabIconClassName(), 'p-0')}
+              className="relative shrink-0"
               size="icon"
-              variant="ghost"
+              variant="nav"
             />
           }
         >

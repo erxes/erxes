@@ -199,7 +199,7 @@ export const Retention = ({ isOwner }: { isOwner: boolean }) => {
     return (
       <Button
         variant="ghost"
-        className="text-destructive"
+        tone="destructive"
         title={messageOf(settings.error)}
         onClick={() => void settings.refetch()}
       >
@@ -213,7 +213,7 @@ export const Retention = ({ isOwner }: { isOwner: boolean }) => {
 
   return (
     <Popover>
-      <Popover.Trigger render={<Button variant="ghost" className="text-muted-foreground" />}>
+      <Popover.Trigger render={<Button variant="ghost" tone="muted" />}>
         {t('kept-for', { days: retentionDays, defaultValue: `Kept ${retentionDays} days` })}
       </Popover.Trigger>
       <Popover.Content align="end" className="w-72 space-y-3 text-sm">

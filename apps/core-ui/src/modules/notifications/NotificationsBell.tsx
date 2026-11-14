@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useLiveMode } from '~/lib/live';
-import { coreTabIconClassName } from '~/modules/navigation/coreTabClassName';
 import { CoreTabTooltip } from '~/modules/navigation/CoreTabTooltip';
 import { NotificationList } from './NotificationList';
 import { type NotificationTab, NotificationTabs } from './NotificationTabs';
@@ -152,13 +151,13 @@ export const NotificationsBell = () => {
             <Button
               type="button"
               size="icon"
-              variant="ghost"
+              variant="nav"
               aria-label={
                 count
                   ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
                   : t('title', 'Notifications')
               }
-              className={cn(coreTabIconClassName(open), 'relative')}
+              className="relative shrink-0"
             />
           }
         >

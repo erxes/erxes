@@ -202,7 +202,7 @@ export const RecycleBinPage = () => {
           {can('trash.purge') && (
             <Button
               variant="outline"
-              className="text-destructive"
+              tone="destructive"
               disabled={!selected.size || purge.isPending}
               onClick={() =>
                 void confirm({

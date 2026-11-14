@@ -48,7 +48,7 @@ const DashboardTileEditOverlay = ({
           <Button
             variant="secondary"
             size="icon"
-            className="text-destructive"
+            tone="destructive"
             aria-label={t('dashboard.remove')}
             onClick={() => removeItem(item.id)}
           >

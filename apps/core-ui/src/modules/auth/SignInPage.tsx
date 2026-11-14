@@ -56,7 +56,8 @@ const PasswordInput = ({
         size="icon"
         onClick={() => setShown((value) => !value)}
         aria-label={shown ? t('hide-password') : t('show-password')}
-        className="absolute inset-y-0 right-1 my-auto size-6 rounded-sm p-0 text-accent-foreground/60 hover:text-foreground"
+        tone="muted"
+        className="absolute inset-y-0 right-1 my-auto size-6"
       >
         {shown ? <IconEyeOff size={15} stroke={1.75} /> : <IconEye size={15} stroke={1.75} />}
       </Button>

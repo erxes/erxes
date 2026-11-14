@@ -198,12 +198,7 @@ export const SetupScreen = ({
           </div>
         ) : (
           setup.canSkip && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground"
-              onClick={setup.skip}
-            >
+            <Button variant="ghost" size="sm" tone="muted" onClick={setup.skip}>
               {t('setup-skip', 'Continue — the examples will appear in a moment')}
             </Button>
           )

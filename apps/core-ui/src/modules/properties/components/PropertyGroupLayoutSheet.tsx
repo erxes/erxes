@@ -48,7 +48,8 @@ const LayoutItem = ({ field }: { field: Field }) => {
       <Button
         variant="ghost"
         size="icon"
-        className="size-6 shrink-0 cursor-grab text-muted-foreground"
+        tone="muted"
+        className="size-6 shrink-0 cursor-grab"
         {...attributes}
         {...listeners}
       >

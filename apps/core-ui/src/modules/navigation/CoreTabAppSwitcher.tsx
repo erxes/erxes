@@ -1,8 +1,7 @@
 import { IconGridDots } from '@tabler/icons-react';
-import { Button, cn, Popover } from 'erxes-ui';
+import { Button, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import type { NavApp } from './apps';
-import { coreTabIconClassName } from './coreTabClassName';
 import { CoreTabTooltip } from './CoreTabTooltip';
 
 const AppGroup = ({
@@ -30,13 +29,9 @@ const AppGroup = ({
             <Button
               key={app.id}
               type="button"
-              variant="ghost"
+              variant="nav"
               aria-current={active ? 'page' : undefined}
-              className={cn(
-                'h-8 min-w-0 justify-start gap-2 px-2 text-sm font-medium',
-                active &&
-                  'bg-primary/10 text-primary-text hover:bg-primary/15 hover:text-primary-text',
-              )}
+              className="h-8 min-w-0 justify-start"
               onClick={() => onSelect(app)}
             >
               <Icon className="size-4 shrink-0" />
@@ -73,9 +68,9 @@ export const CoreTabAppSwitcher = ({
             <Button
               type="button"
               size="icon"
-              variant="ghost"
+              variant="nav"
               aria-label="Open app"
-              className={coreTabIconClassName(open)}
+              className="relative shrink-0"
             />
           }
         >

@@ -135,7 +135,7 @@ const AppLayoutSidebarHeader = ({
     <Button
       aria-expanded
       aria-label="Collapse sidebar"
-      className="size-8 shrink-0 rounded-md"
+      className="size-8 shrink-0"
       size="icon"
       title="Collapse sidebar"
       type="button"

@@ -130,7 +130,7 @@ const GroupShell = ({
       <div className="relative flex items-center gap-1">
         {handle ?? <span className="size-7 shrink-0" />}
         <Collapsible.Trigger
-          render={<Button variant="secondary" className="w-full justify-start font-medium" />}
+          render={<Button variant="secondary" className="w-full justify-start" />}
         >
           <Collapsible.TriggerIcon />
           {name}
@@ -205,7 +205,8 @@ export const PropertiesGroupSection = ({
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 shrink-0 cursor-grab text-muted-foreground"
+            tone="muted"
+            className="shrink-0 cursor-grab"
             aria-label={t('reorder-group', 'Reorder group')}
             {...attributes}
             {...listeners}

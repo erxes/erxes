@@ -82,7 +82,7 @@ export const BarcodeAttribute = ({
             size="icon"
             aria-label="Delete barcode"
             title="Delete barcode"
-            className="text-destructive"
+            tone="destructive"
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();

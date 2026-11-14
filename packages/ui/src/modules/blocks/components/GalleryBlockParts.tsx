@@ -2,7 +2,7 @@ import { useResolveUrl } from '@blocknote/react';
 import { IconLayoutGrid, IconLoader2, IconPhoto, IconPlus, IconX } from '@tabler/icons-react';
 import { Button } from 'erxes-ui/components/button';
 import { Spinner } from 'erxes-ui/components/spinner';
-import { cn } from 'erxes-ui/lib/utils';
+import { ToggleGroup } from 'erxes-ui/components/toggle-group';
 import type { GalleryImage } from 'erxes-ui/modules/blocks/utils/galleryImages';
 
 const COLUMN_OPTIONS = [2, 3, 4] as const;
@@ -30,8 +30,9 @@ export const GalleryItem = ({
       ) : (
         <Button
           variant="ghost"
+          size="flush"
           aria-label="Preview image"
-          className="h-full w-full p-0 rounded-none"
+          className="h-full w-full"
           onClick={onPreview}
         >
           <img
@@ -45,9 +46,10 @@ export const GalleryItem = ({
 
       {!readonly && (
         <Button
-          variant="ghost"
+          variant="overlay"
+          size="icon"
           aria-label="Remove image"
-          className="absolute top-1 right-1 h-5 w-5 p-0 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [&>svg]:size-3"
+          className="absolute top-1 right-1 size-5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [&>svg]:size-3"
           onMouseDown={(e) => e.preventDefault()}
           onClick={onRemove}
         >
@@ -85,9 +87,9 @@ export const GalleryUploadButton = ({
 
   return (
     <Button
-      variant="ghost"
+      variant="dashed"
       disabled={uploading}
-      className="flex-1 h-auto gap-1.5 py-2 text-muted-foreground border border-dashed rounded-md hover:bg-muted"
+      className="flex-1 h-9"
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
     >
@@ -113,23 +115,24 @@ export const GalleryColumnPicker = ({
 }) => (
   <div className="flex items-center gap-1 shrink-0">
     <IconLayoutGrid size={14} className="text-muted-foreground" />
-    {COLUMN_OPTIONS.map((n) => (
-      <Button
-        key={n}
-        variant="ghost"
-        aria-label={`${n} columns`}
-        aria-pressed={columns === n}
-        className={cn(
-          'h-6 w-6 p-0 text-xs',
-          columns === n
-            ? 'bg-primary text-primary-foreground hover:bg-primary'
-            : 'text-muted-foreground hover:bg-muted',
-        )}
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => onChange(n)}
-      >
-        {n}
-      </Button>
-    ))}
+    <ToggleGroup
+      variant="outline"
+      size="sm"
+      value={[String(columns)]}
+      onValueChange={([next]) => {
+        if (next) onChange(Number(next));
+      }}
+    >
+      {COLUMN_OPTIONS.map((n) => (
+        <ToggleGroup.Item
+          key={n}
+          value={String(n)}
+          aria-label={`${n} columns`}
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          {n}
+        </ToggleGroup.Item>
+      ))}
+    </ToggleGroup>
   </div>
 );

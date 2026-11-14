@@ -67,7 +67,8 @@ const RuleRow = ({
       <Button
         size="icon"
         variant="ghost"
-        className="size-8 text-muted-foreground"
+        tone="muted"
+        className="size-8"
         disabled={disabled}
         onClick={onRemove}
         aria-label={t('remove', 'Remove')}

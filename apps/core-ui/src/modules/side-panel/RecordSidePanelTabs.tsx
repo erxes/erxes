@@ -88,9 +88,7 @@ const TabBar = ({
       </Tabs.List>
       {overflow.length > 0 && (
         <DropdownMenu>
-          <DropdownMenu.Trigger
-            render={<Button variant="ghost" size="sm" className="text-accent-foreground" />}
-          >
+          <DropdownMenu.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>
             {t('more', '+{{count}} More', { count: overflow.length })}
             <IconChevronDown />
           </DropdownMenu.Trigger>

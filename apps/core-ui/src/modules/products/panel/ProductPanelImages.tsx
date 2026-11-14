@@ -161,13 +161,15 @@ export const ProductPanelImages = ({ product }: { product: Product }) => {
       {manage && (
         <Button
           type="button"
-          variant="outline"
+          variant="dashed"
           onClick={() => input.current?.click()}
           disabled={uploading}
-          className="size-20 flex-col border-dashed text-xs text-muted-foreground"
+          className="size-20 flex-col"
         >
           {uploading ? <Spinner size="sm" /> : <IconPhotoPlus />}
-          {uploading ? t('images.uploading', 'Uploading') : t('images.add', 'Add')}
+          <span className="text-xs">
+            {uploading ? t('images.uploading', 'Uploading') : t('images.add', 'Add')}
+          </span>
         </Button>
       )}
       <input

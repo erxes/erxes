@@ -257,8 +257,9 @@ export const ProductPanelNew = () => {
         <Button
           type="button"
           variant="ghost"
-          size="sm"
-          className="ml-28 h-6 self-start px-1 text-xs text-primary-text"
+          size="xs"
+          tone="primary"
+          className="ml-28 self-start"
           onClick={() => openProduct(existingId, { stack: true })}
         >
           {t('form.open-existing', 'Open that product')}

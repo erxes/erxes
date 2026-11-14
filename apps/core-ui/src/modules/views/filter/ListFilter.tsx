@@ -3,7 +3,6 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
 import {
   Button,
-  cn,
   Combobox,
   Command,
   Filter,
@@ -120,14 +119,12 @@ const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }
       <Popover.Trigger
         render={
           <Button
-            variant="ghost"
             size="sm"
             aria-label={t('label')}
             aria-keyshortcuts="F"
-            className={cn(
-              'h-7 min-w-7 gap-1 px-1.5 text-muted-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
-              count > 0 && 'bg-accent text-foreground',
-            )}
+            variant={count > 0 ? 'secondary' : 'ghost'}
+            tone={count > 0 ? 'default' : 'muted'}
+            className="h-7 min-w-7"
             onClick={onClick}
           />
         }

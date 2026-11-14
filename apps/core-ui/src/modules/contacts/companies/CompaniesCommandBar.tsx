@@ -105,7 +105,7 @@ export const CompaniesCommandBar = ({ rows }: { rows: Company[] }) => {
                 onClick={() => setMerging(true)}
               />
               <Separator.Inline />
-              <Button variant="secondary" className="text-destructive" onClick={deleteSelected}>
+              <Button variant="secondary" tone="destructive" onClick={deleteSelected}>
                 <IconTrash />
                 {t('action-delete')}
               </Button>

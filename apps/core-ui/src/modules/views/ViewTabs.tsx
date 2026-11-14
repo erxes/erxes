@@ -207,7 +207,8 @@ const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
           variant="ghost"
           size="icon"
           aria-label={t('new-view')}
-          className="size-7 shrink-0 text-muted-foreground"
+          tone="muted"
+          className="shrink-0"
           onClick={() => setAdding(true)}
         >
           <IconPlus className="size-4" />
