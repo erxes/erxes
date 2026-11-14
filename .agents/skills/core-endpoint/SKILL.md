@@ -11,7 +11,9 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    `packages/contract/AGENTS.md`. A new group goes into `coreContract` in `src/index.ts`.
 2. Write the service in `apps/core-api/src/modules/<feature>/<feature>.service.ts`. It takes
    `client: Db` and the input; who is calling is `caller()` from `@erxes/core-db`. It returns the row, with Dates; the output schema drops the columns it doesn't pick and
-   encodes dates with `isoDate`. Add only the fields the row lacks (`{ ...row, actor: { type, id } }`).
+   encodes dates with `isoDate`. A field the row lacks is selected in the query
+   (`select({ ...getTableColumns(table), editable })`, `editable` an `sql` expression), never
+   mapped on after.
    A body that leaves outside oRPC (webhook, plugin delivery, job payload) goes through the
    schema's `.parse(row)` instead. The handler runs inside `withOrg`, so
    queries carry no org filter and inserts leave out `orgId` (lint `erxes/no-org-filter`).
