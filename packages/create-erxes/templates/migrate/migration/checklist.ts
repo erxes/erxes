@@ -5,6 +5,7 @@
 // existing MIGRATION.md are kept.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import type * as pg from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 import {
   CORE_CALLS,
@@ -309,7 +310,7 @@ writeFileSync(markdown, lines.join('\n'));
 
 // schema-draft.ts and import-map.ts ------------------------------------------------
 
-const COLUMN: Record<string, string> = {
+const COLUMN: Record<string, `${keyof typeof pg}(${string})`> = {
   String: 'text()',
   Number: 'doublePrecision()',
   Boolean: 'boolean()',

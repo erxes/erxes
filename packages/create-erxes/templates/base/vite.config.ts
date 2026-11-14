@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { preset } from '@erxes/lint';
 import { configDefaults, defineConfig } from 'vite-plus';
 import { noSkips } from './tools/test/no-skips.ts';
@@ -13,7 +14,10 @@ export default defineConfig({
   run: {
     tasks: {
       // A rerun with no edits replays the last result.
-      check: { command: `${tsrs} vp check`, cache: tracked },
+      check: {
+        command: `erxes-check-escapes && ${tsrs} vp check && knip && erxes-check-docs && pnpm check:generated`,
+        cache: tracked,
+      },
       fix: { command: `${tsrs} vp check --fix`, cache: false },
       test: { command: 'vp test run', cache: { ...tracked, env: ['DATA_TEST_URL'] } },
     },
@@ -26,6 +30,7 @@ export default defineConfig({
       '**/dist/**',
       'coverage/**',
       'api/drizzle/**',
+      'api/openapi.json',
       'pnpm-lock.yaml',
     ],
   },
@@ -44,7 +49,7 @@ export default defineConfig({
           name: 'api',
           include: ['src/**/*.test.ts'],
           environment: 'node',
-          setupFiles: ['src/test/setup.ts'],
+          setupFiles: [resolve(import.meta.dirname, 'api/src/test/setup.ts')],
           // config.ts needs these; tests never reach core.
           env: {
             CORE_URL: 'http://127.0.0.1:9',

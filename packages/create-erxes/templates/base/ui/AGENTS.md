@@ -6,7 +6,7 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
 - `rsbuild.config.ts` declares web's shared singletons with `import: false`,
   reading the list from `erxes-ui/federation`, so it follows the installed
   erxes-ui. A missing name bundles a second copy and breaks at runtime.
-- Build pages from `erxes-ui` components and its root export only. The host
+- Build pages from `erxes-ui` components and its public package exports. The host
   provides React, the router, the query client and erxes-ui; web's CSS
   styles them, so use Tailwind classes web already uses.
 - Data goes through `src/orpc.ts`: `useQuery(orpc.items.list.queryOptions(...))`,
