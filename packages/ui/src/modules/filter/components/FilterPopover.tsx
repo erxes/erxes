@@ -126,7 +126,8 @@ export const FilterItem = ({
       value={value}
       onSelect={onSelect}
       ref={ref}
-      className={cn('h-8', active && 'text-primary-text', className)}
+      checked={active}
+      className={className}
       {...props}
     >
       {children}
@@ -214,12 +215,12 @@ export const FilterCommandInput = ({
 }: React.ComponentPropsWithoutRef<typeof Command.Input> &
   React.RefAttributes<HTMLInputElement>) => {
   return (
-    <div className="relative">
-      <Command.Input ref={ref} className={cn('pr-8', className)} {...props} />
-      <Kbd className="absolute right-2 top-1/2 -translate-y-1/2" variant="foreground">
-        F
-      </Kbd>
-    </div>
+    <Command.Input
+      ref={ref}
+      className={className}
+      trailing={<Kbd variant="foreground">F</Kbd>}
+      {...props}
+    />
   );
 };
 

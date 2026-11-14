@@ -44,10 +44,10 @@ const RecordTableCellContent = ({ className, ...props }: PopoverContentProps) =>
       align="start"
       sideOffset={-32}
       disableTransition
+      variant="flush"
       className={cn(
-        'p-0 w-(--anchor-width) min-w-56 rounded',
-        !className &&
-          'has-[>input]:w-[var(--anchor-width)] has-[>input]:min-w-0 [&>input]:h-8 [&>input]:px-2',
+        'w-(--anchor-width) min-w-56',
+        !className && 'has-[>input]:w-[var(--anchor-width)] has-[>input]:min-w-0 [&>input]:h-8',
         className,
       )}
       {...props}

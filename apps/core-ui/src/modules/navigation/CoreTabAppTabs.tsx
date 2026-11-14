@@ -11,7 +11,7 @@ import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modi
 import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-react';
-import { cn, ContextMenu } from 'erxes-ui';
+import { cn, ContextMenu, tabButtonVariants } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NavApp } from './apps';
@@ -155,9 +155,8 @@ const CoreTabAppTab = ({
         title={app.label}
         data-active={active}
         className={cn(
-          'group/tab flex h-7 min-w-24 max-w-48 shrink-0 cursor-default select-none items-center gap-1.5 rounded-md border border-transparent pl-2.5 pr-1 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground',
-          'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
-          isDragging && 'z-10 opacity-60',
+          tabButtonVariants({ variant: 'raised', active, dragging: isDragging }),
+          'group/tab min-w-24 max-w-48',
         )}
         style={{ transform: CSS.Transform.toString(transform), transition }}
         onClick={onSelect}

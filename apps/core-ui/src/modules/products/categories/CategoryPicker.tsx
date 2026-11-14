@@ -50,7 +50,7 @@ export const CategoryPicker = ({
       <Combobox.Content>
         <Command>
           <Command.Input placeholder={t('category.search', 'Search categories')} />
-          <Command.List className="max-h-72 p-1">
+          <Command.List className="max-h-72">
             {query.isError && (
               <p role="alert" className="p-2 text-sm text-destructive">
                 {messageOf(query.error)}

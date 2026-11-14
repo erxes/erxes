@@ -1,5 +1,5 @@
 import { IconBraces, IconBuilding, IconClock, IconRoute, IconUser } from '@tabler/icons-react';
-import { cn, Command, Input, Popover, Textarea } from 'erxes-ui';
+import { Button, cn, Command, Input, Popover, Textarea } from 'erxes-ui';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FieldInfo } from './useAutomationFields';
@@ -142,14 +142,23 @@ export const TemplateInput = ({
           <Popover.Trigger
             title={t('insert-data', 'Insert data')}
             aria-label={t('insert-data', 'Insert data')}
-            className={cn(
-              'absolute right-1.5 flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
-              multiline ? 'top-1.5' : 'top-1/2 -translate-y-1/2',
-            )}
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  'absolute right-1.5 size-6',
+                  multiline ? 'top-1.5' : 'top-1/2 -translate-y-1/2',
+                )}
+              />
+            }
           >
             <IconBraces className="size-4" />
           </Popover.Trigger>
-          <Popover.Content align="end" sideOffset={6} collisionPadding={12} className="w-72 p-0">
+          <Popover.Content align="end" sideOffset={6} collisionPadding={12}
+            variant="flush"
+            className="w-72"
+          >
             <DataPicker fields={fields} subject={subject} onPick={insert} />
           </Popover.Content>
         </Popover>

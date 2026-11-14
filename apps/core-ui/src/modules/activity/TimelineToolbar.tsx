@@ -117,30 +117,32 @@ const FilterPopover = (props: FiltersProps) => {
           </span>
         )}
       </Popover.Trigger>
-      <Popover.Content align="end" className="w-64 space-y-3 p-3">
-        <FilterSelects {...props} />
-        {canIncludeRelated && (
-          <div className="flex items-center justify-between gap-2 text-sm">
-            <Label htmlFor="timeline-include-related">
-              {t('include-customers', 'Include its customers')}
-            </Label>
-            <Switch
-              id="timeline-include-related"
-              checked={filters.includeRelated}
-              onCheckedChange={(includeRelated) => onChange({ ...filters, includeRelated })}
-            />
-          </div>
-        )}
-        {count > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-full text-xs"
-            onClick={() => onChange({ ...NO_FILTERS, kind: filters.kind })}
-          >
-            {t('clear-filters', 'Clear filters')}
-          </Button>
-        )}
+      <Popover.Content align="end" className="w-64">
+        <div className="space-y-3">
+          <FilterSelects {...props} />
+          {canIncludeRelated && (
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <Label htmlFor="timeline-include-related">
+                {t('include-customers', 'Include its customers')}
+              </Label>
+              <Switch
+                id="timeline-include-related"
+                checked={filters.includeRelated}
+                onCheckedChange={(includeRelated) => onChange({ ...filters, includeRelated })}
+              />
+            </div>
+          )}
+          {count > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-full text-xs"
+              onClick={() => onChange({ ...NO_FILTERS, kind: filters.kind })}
+            >
+              {t('clear-filters', 'Clear filters')}
+            </Button>
+          )}
+        </div>
       </Popover.Content>
     </Popover>
   );

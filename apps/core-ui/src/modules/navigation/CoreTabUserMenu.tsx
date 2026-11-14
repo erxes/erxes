@@ -26,7 +26,7 @@ const UserIdentity = () => {
   const { user } = useSession();
 
   return (
-    <div className="flex min-w-0 flex-1 items-center">
+    <div className="flex min-w-0 flex-1 items-center py-2">
       <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
         <span className="truncate font-semibold">{user.fullName || user.email}</span>
         <span className="truncate text-xs font-medium text-accent-foreground">{user.email}</span>
@@ -86,7 +86,7 @@ const SelectLanguages = () => {
 
   return (
     <DropdownMenu.Sub>
-      <DropdownMenu.SubTrigger className="h-7 py-0">
+      <DropdownMenu.SubTrigger className="h-7">
         {t('language')}
         <IconChevronRight className="ml-auto" />
       </DropdownMenu.SubTrigger>
@@ -133,13 +133,8 @@ export const CoreTabUserMenu = () => {
           </Avatar>
         </DropdownMenu.Trigger>
       </CoreTabTooltip>
-      <DropdownMenu.Content
-        align="end"
-        className="w-56 min-w-56! space-y-1 p-1.5"
-        side="bottom"
-        sideOffset={8}
-      >
-        <DropdownMenu.LinkItem className="p-2" render={<Link to="/settings/profile" />}>
+      <DropdownMenu.Content align="end" className="w-56 min-w-56!" side="bottom" sideOffset={8}>
+        <DropdownMenu.LinkItem render={<Link to="/settings/profile" />}>
           <UserIdentity />
           <IconChevronRight className="text-muted-foreground" />
         </DropdownMenu.LinkItem>
@@ -148,7 +143,7 @@ export const CoreTabUserMenu = () => {
         <SelectLanguages />
         <DropdownMenu.Separator />
         <DropdownMenu.Item
-          className="h-7 py-0 text-sm"
+          className="h-7"
           disabled={signOut.isPending}
           onClick={() => signOut.mutate()}
         >

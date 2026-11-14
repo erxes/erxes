@@ -92,7 +92,7 @@ const ColorCell = ({ tag }: { tag: Tag }) => {
       <RecordTableInlineCell.Trigger>
         <TagDot color={tag.colorCode} className="size-3" />
       </RecordTableInlineCell.Trigger>
-      <Popover.Content className="w-auto p-3">
+      <Popover.Content className="w-auto">
         <ColorSwatches
           value={tag.colorCode}
           onChange={(colorCode) => {

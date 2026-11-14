@@ -53,7 +53,7 @@ const LeadStageCell = ({
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content className="w-52">
           <Command>
-            <Command.List className="p-1">
+            <Command.List>
               {stages.map((item) => (
                 <Command.Item key={item.id} value={item.id} onSelect={() => pick(item)}>
                   <LeadStageBadge stage={item} className="flex-1" />

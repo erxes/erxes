@@ -39,7 +39,7 @@ const OptionsCell = ({
       <RecordTableInlineCell.Content className="w-56 p-0">
         <Command>
           <Command.Input placeholder={`Search ${field.label.toLowerCase()}`} />
-          <Command.List className="max-h-72 p-1">
+          <Command.List className="max-h-72">
             {field.options.map((option) => {
               const selected = value.includes(option);
 

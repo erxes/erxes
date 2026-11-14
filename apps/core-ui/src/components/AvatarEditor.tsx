@@ -82,30 +82,40 @@ export const AvatarEditor = ({
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'avatar' });
 
-  const avatar = (
-    <Avatar size="lg" className={cn('size-7 flex-none', className)}>
+  const picture = (
+    <>
       <Avatar.Image src={readImage(src ?? undefined)} />
       <Avatar.Fallback>{name?.charAt(0)}</Avatar.Fallback>
-    </Avatar>
+    </>
   );
 
-  if (!canEdit) return avatar;
+  if (!canEdit) {
+    return (
+      <Avatar size="lg" className={cn('size-7 flex-none', className)}>
+        {picture}
+      </Avatar>
+    );
+  }
 
+  // The avatar is the trigger, so the focus ring follows its round edge.
   return (
     <Popover>
       <Popover.Trigger
-        className="group relative flex-none rounded-full outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
+        nativeButton={false}
+        render={<Avatar size="lg" className={cn('group size-7 flex-none', className)} />}
         aria-label={t('change', 'Change picture')}
         title={t('change', 'Change picture')}
       >
-        {avatar}
+        {picture}
         <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition-opacity group-hover:opacity-100 group-data-popup-open:opacity-100">
           <IconCamera className="size-3.5" />
         </span>
       </Popover.Trigger>
-      <Popover.Content align="start" sideOffset={8} className="w-64 space-y-3 p-3">
-        <p className="text-sm font-medium">{t('title', 'Picture')}</p>
-        <AvatarUpload value={src ?? ''} onChange={onSave} />
+      <Popover.Content align="start" sideOffset={8} className="w-64">
+        <div className="space-y-3">
+          <p className="text-sm font-medium">{t('title', 'Picture')}</p>
+          <AvatarUpload value={src ?? ''} onChange={onSave} />
+        </div>
       </Popover.Content>
     </Popover>
   );

@@ -108,7 +108,7 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: FieldC
           </Badge>
         </Collapsible.Trigger>
       </div>
-      <Collapsible.Panel className="pt-2">
+      <Collapsible.Panel className="mt-2">
         <div className="flex flex-col divide-y rounded-md border">
           {groups.map((group) => (
             <ArchivedRow

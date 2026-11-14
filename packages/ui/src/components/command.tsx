@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 import { IconSearch } from '@tabler/icons-react';
-import { cva } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
 import { cn, mergeRefs } from '../lib/utils';
 import { Dialog } from './dialog';
@@ -63,11 +63,14 @@ const CommandInput = ({
   variant = 'secondary',
   wrapperClassName,
   focusOnMount,
+  trailing,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input> & {
   variant?: 'primary' | 'secondary';
   wrapperClassName?: string;
   focusOnMount?: boolean;
+  /** Sits at the end of the search row, such as the key that focuses it. */
+  trailing?: React.ReactNode;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -89,6 +92,7 @@ const CommandInput = ({
           className={cn(commanInputVariants({ variant: 'primary' }), 'pl-0', className)}
           {...props}
         />
+        {trailing}
       </div>
     );
   }
@@ -101,6 +105,7 @@ const CommandInput = ({
         {...props}
         placeholder={props.placeholder || 'Search'}
       />
+      {trailing && <span className="mr-2 flex shrink-0">{trailing}</span>}
     </div>
   );
 };
@@ -120,8 +125,16 @@ const CommandList = ({
   />
 );
 
-const CommandEmpty = ({ ref, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) => (
-  <CommandPrimitive.Empty ref={ref} className="py-8 text-center text-sm" {...props} />
+const CommandEmpty = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Empty>) => (
+  <CommandPrimitive.Empty
+    ref={ref}
+    className={cn('py-8 text-center text-sm', className)}
+    {...props}
+  />
 );
 
 const CommandGroup = ({
@@ -151,17 +164,32 @@ const CommandSeparator = ({
   />
 );
 
+const commandItemVariants = cva(
+  'relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8',
+  {
+    variants: {
+      variant: {
+        default: '',
+        destructive: 'text-destructive',
+      },
+      /** The current value among the items, such as the picked icon or the open filter. */
+      checked: { true: 'text-primary-text' },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
+
 const CommandItem = ({
   ref,
   className,
+  variant,
+  checked,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Item>) => (
+}: React.ComponentProps<typeof CommandPrimitive.Item> &
+  VariantProps<typeof commandItemVariants>) => (
   <CommandPrimitive.Item
     ref={ref}
-    className={cn(
-      'relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8',
-      className,
-    )}
+    className={cn(commandItemVariants({ variant, checked }), className)}
     {...props}
   />
 );

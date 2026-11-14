@@ -140,7 +140,7 @@ const GroupShell = ({
         </Collapsible.Trigger>
         {actions ?? <span className="size-7 shrink-0" />}
       </div>
-      <Collapsible.Panel className="pt-2">
+      <Collapsible.Panel className="mt-2">
         {fields.length === 0 ? (
           <div className="rounded-md border py-10 text-center text-sm text-muted-foreground">
             {t('no-fields-found', 'No fields found')}

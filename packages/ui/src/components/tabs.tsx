@@ -32,6 +32,32 @@ const tabsTriggerVariants = cva(
   },
 );
 
+/**
+ * A tab in a strip that isn't a Tabs list: links, menu triggers or draggable tabs, which own
+ * their own semantics. `pill` fills the open tab; `raised` lifts it onto the background, as the
+ * app tabs in the top bar do.
+ */
+export const tabButtonVariants = cva(
+  'flex h-7 shrink-0 items-center gap-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground [&_svg]:shrink-0',
+  {
+    variants: {
+      variant: {
+        pill: 'px-2 transition-colors outline-none hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring/50 data-popup-open:bg-accent/60 [&_svg]:size-4',
+        raised:
+          'cursor-default select-none border border-transparent pl-2.5 pr-1 font-medium transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70',
+      },
+      active: { true: 'text-foreground' },
+      /** Lifted while it is dragged to a new place. */
+      dragging: { true: 'z-10 opacity-60' },
+    },
+    compoundVariants: [
+      { variant: 'pill', active: true, className: 'bg-accent font-medium hover:bg-accent' },
+      { variant: 'raised', active: true, className: 'border-border bg-background shadow-xs' },
+    ],
+    defaultVariants: { variant: 'pill' },
+  },
+);
+
 type TTabsVariant = VariantProps<typeof tabsListVariants>['variant'];
 
 const TabsVariantContext = React.createContext<TTabsVariant>('underline');

@@ -53,43 +53,41 @@ export const CustomFieldSections = ({
   return (
     <div className="flex flex-col gap-2">
       {sections.map(({ group, fields }) => (
-        <Collapsible
-          key={group?.id ?? 'ungrouped'}
-          defaultOpen
-          className="group flex flex-col rounded-xl bg-foreground/5 p-1 pt-0"
-        >
-          <div className="flex h-7 shrink-0 items-center justify-between pr-1">
-            <Collapsible.Trigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 gap-1.5 px-1 font-mono text-xs font-medium uppercase"
-                />
-              }
-            >
-              <Collapsible.TriggerIcon className="size-3" />
-              {group?.name ?? 'Properties'}
-            </Collapsible.Trigger>
-          </div>
-          <Collapsible.Panel>
-            <div className="flex flex-col gap-1 rounded-lg bg-background p-3 shadow-sm">
-              {fields.map((field) => (
-                <PanelField
-                  key={field.id}
-                  icon={FIELD_TYPES_OBJECT[field.type].icon}
-                  label={field.label}
-                >
-                  <CustomFieldCell
-                    field={field}
-                    scope={`${scope}.${field.id}`}
-                    value={values[field.id]}
-                    onSave={(value) => onSave({ [field.id]: value })}
+        <Collapsible key={group?.id ?? 'ungrouped'} defaultOpen className="group">
+          <div className="flex flex-col rounded-xl bg-foreground/5 p-1 pt-0">
+            <div className="flex h-7 shrink-0 items-center justify-between pr-1">
+              <Collapsible.Trigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 gap-1.5 px-1 font-mono text-xs font-medium uppercase"
                   />
-                </PanelField>
-              ))}
+                }
+              >
+                <Collapsible.TriggerIcon className="size-3" />
+                {group?.name ?? 'Properties'}
+              </Collapsible.Trigger>
             </div>
-          </Collapsible.Panel>
+            <Collapsible.Panel>
+              <div className="flex flex-col gap-1 rounded-lg bg-background p-3 shadow-sm">
+                {fields.map((field) => (
+                  <PanelField
+                    key={field.id}
+                    icon={FIELD_TYPES_OBJECT[field.type].icon}
+                    label={field.label}
+                  >
+                    <CustomFieldCell
+                      field={field}
+                      scope={`${scope}.${field.id}`}
+                      value={values[field.id]}
+                      onSave={(value) => onSave({ [field.id]: value })}
+                    />
+                  </PanelField>
+                ))}
+              </div>
+            </Collapsible.Panel>
+          </div>
         </Collapsible>
       ))}
     </div>

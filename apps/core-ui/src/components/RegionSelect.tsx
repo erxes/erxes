@@ -34,10 +34,8 @@ const SearchSelect = ({
       <Combobox.Content>
         <Command>
           <Command.Input placeholder={t('search', 'Search')} variant="secondary" focusOnMount />
-          <Command.List className="max-h-72 overflow-y-auto p-1">
-            <Command.Empty className="p-4 text-center text-sm text-muted-foreground">
-              {t('no-match', 'Nothing matches')}
-            </Command.Empty>
+          <Command.List className="max-h-72 overflow-y-auto">
+            <Command.Empty>{t('no-match', 'Nothing matches')}</Command.Empty>
             {options.map((option) => (
               <Command.Item
                 key={option.value}

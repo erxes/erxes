@@ -88,7 +88,7 @@ export const ProductKindRow = ({ product }: { product: Product }) => {
         <PanelFieldTrigger>{label(product.kind)}</PanelFieldTrigger>
         <RecordTableInlineCell.Content>
           <Command>
-            <Command.List className="p-1">
+            <Command.List>
               {ProductKind.options.map((kind) => (
                 <Command.Item
                   key={kind}
