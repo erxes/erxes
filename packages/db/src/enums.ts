@@ -331,6 +331,10 @@ export const ASSISTANT_TEXT_TYPES = [
 
 export const ASSISTANT_ARTIFACT_FORMATS = ['html', 'csv', 'markdown'] as const;
 
+export const ASSISTANT_PROGRAM_HOST_FUNCTIONS = ['searchApi', 'callApi'] as const;
+
+export const ASSISTANT_PROGRAM_FAILURES = ['TIMEOUT', 'OUT_OF_MEMORY', 'PROGRAM_ERROR'] as const;
+
 export const ASSISTANT_AVATAR_BODIES = [
   'circle',
   'pebble',

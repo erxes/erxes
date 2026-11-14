@@ -1,3 +1,4 @@
+import { setTimeout as sleep } from 'node:timers/promises';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { postChat, userMessage } from './assistantChat';
@@ -89,6 +90,24 @@ describe('assistant code mode', () => {
 
     expect(result).toContain('TIMEOUT');
     expect(Date.now() - started).toBeLessThan(20_000);
+  });
+
+  it('keeps answering other requests while a program runs', async () => {
+    const started = Date.now();
+    let finished = false;
+
+    const running = runCode('while (true) {}').finally(() => {
+      finished = true;
+    });
+
+    await sleep(1000);
+
+    const tags = await t.owner().tags.list({ type: 'customer' });
+
+    expect(Date.now() - started).toBeLessThan(3000);
+    expect(finished).toBe(false);
+    expect(tags.data.map((tag) => tag.name)).toContain('Wholesale');
+    expect(await running).toContain('TIMEOUT');
   });
 
   it('stops a program at its memory limit and cuts long output', async () => {

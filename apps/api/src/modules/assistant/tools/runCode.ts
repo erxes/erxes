@@ -1,6 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import { CODE_LIMITS, type ProgramResult, runProgram } from '../codeMode';
+import { CODE_LIMITS, runProgram } from '../codeMode';
 import { approvalFor, CallApiInput, callProcedure, searchApi, type ToolScope } from './apiTools';
 import { refusal } from './results';
 
@@ -28,7 +28,7 @@ export const runCode = (scope: ToolScope) =>
     description:
       'Run a JavaScript program in a sandbox that can call searchApi and callApi, to compute over many records and return one JSON value. Write the body of an async function and return the result.',
     inputSchema: z.object({ code: z.string().min(1).max(20_000) }),
-    execute: async ({ code }): Promise<ProgramResult | ReturnType<typeof refusal>> => {
+    execute: async ({ code }) => {
       if (!scope.codeMode) return refusal('CODE_MODE_OFF', 'An admin has not turned on code mode');
 
       return runProgram(code, {
