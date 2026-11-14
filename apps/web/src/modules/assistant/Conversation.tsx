@@ -2,6 +2,7 @@ import { Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { isApiError } from '~/lib/api';
 import type { AssistantTab } from './assistantState';
+import { AssistantAvatar } from './AssistantAvatar';
 import { chatFailureOf, needsKey } from './chatError';
 import { Composer } from './Composer';
 import { EmptyState, KeyNotice } from './EmptyState';
@@ -18,7 +19,10 @@ const ChatFailure = ({ error, onReload }: { error: Error; onReload: () => void }
 
   return (
     <div role="alert" className="flex flex-col items-start gap-2 rounded-lg border p-3 text-sm">
-      <p className="text-destructive-text">{failure.message}</p>
+      <p className="flex items-start gap-2 text-destructive-text">
+        <AssistantAvatar size={20} state="exclaim" animated={false} />
+        {failure.message}
+      </p>
       <Button variant="outline" size="sm" onClick={onReload}>
         {t('reload', 'Reload conversation')}
       </Button>
@@ -78,7 +82,12 @@ export const Conversation = ({
 
   const footer = (
     <>
-      {chat.status === 'submitted' && <WorkingRow label={t('working', 'Working on it…')} />}
+      {chat.status === 'submitted' && (
+        <WorkingRow
+          label={t('working', 'Working on it…')}
+          avatar={chat.messages.at(-1)?.role !== 'assistant'}
+        />
+      )}
       {view.runningElsewhere && (
         <WorkingRow label={t('running-elsewhere', 'Writing a reply… it appears here when done.')} />
       )}

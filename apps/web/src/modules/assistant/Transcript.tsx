@@ -5,6 +5,7 @@ import { lazy, Suspense, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
 import { ApprovalCard } from './ApprovalCard';
+import { AssistantAvatar } from './AssistantAvatar';
 import { CopyButton, textOf } from './CopyButton';
 import { AnsweredCard, QuestionCard } from './QuestionCard';
 import { Reply } from './Reply';
@@ -64,19 +65,28 @@ const Row = ({ row, actions }: { row: TranscriptRow; actions: TranscriptActions 
 const AssistantMessage = ({
   message,
   last,
+  current,
   actions,
 }: {
   message: UIMessage;
   last: boolean;
+  current: boolean;
   actions: TranscriptActions;
 }) => {
   const { t } = useTranslation('assistant');
   const rows = transcriptRows(message.parts);
   const text = textOf(message);
   const waiting = rows.some((row) => row.kind === 'approval' || row.kind === 'question');
+  const thinking = current && actions.busy && !rows.some((row) => row.kind === 'text');
 
   return (
     <div className="flex flex-col gap-2">
+      <AssistantAvatar
+        size={28}
+        state={thinking ? 'thinking' : 'idle'}
+        animated={current}
+        follow={current && !thinking}
+      />
       {rows.map((row) => (
         <Row key={row.key} row={row} actions={actions} />
       ))}
@@ -100,9 +110,13 @@ const AssistantMessage = ({
   );
 };
 
-export const WorkingRow = ({ label }: { label: string }) => (
+export const WorkingRow = ({ label, avatar = false }: { label: string; avatar?: boolean }) => (
   <p className="flex items-center gap-2 text-sm text-muted-foreground">
-    <IconLoader2 aria-hidden className="size-3.5 animate-spin" />
+    {avatar ? (
+      <AssistantAvatar size={28} state="thinking" />
+    ) : (
+      <IconLoader2 aria-hidden className="size-3.5 animate-spin" />
+    )}
     {label}
   </p>
 );
@@ -167,6 +181,7 @@ export const Transcript = ({
               <AssistantMessage
                 message={message}
                 last={index === lastAssistant}
+                current={index === messages.length - 1}
                 actions={actions}
               />
             )}

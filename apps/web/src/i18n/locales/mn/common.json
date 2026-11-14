@@ -117,7 +117,8 @@
     "contacts-settings": "Харилцагчийн тохиргоо",
     "assistant": "Туслах",
     "assistant-approvals": "Туслахын зөвшөөрөл",
-    "assistant-code-mode": "Туслахын код горим"
+    "assistant-code-mode": "Туслахын код горим",
+    "assistant-appearance": "Туслахын төрх"
   },
   "auth": {
     "welcome": "Тавтай морил",

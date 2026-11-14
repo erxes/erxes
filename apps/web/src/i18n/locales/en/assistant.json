@@ -49,7 +49,8 @@
   "empty": {
     "title": "How can I help?",
     "description": "Ask about your workspace, or ask for a change.",
-    "suggestions": "Suggestions"
+    "suggestions": "Suggestions",
+    "avatar": "Assistant"
   },
   "suggestion": {
     "new-customers": "Which customers were added this week?",
@@ -216,5 +217,54 @@
     "code-mode-fact-approval": "Changes that need approval are refused inside a program: the assistant asks for them in the chat.",
     "code-mode-fact-time": "It stops after 10 seconds or 50 API calls, and returns at most 20,000 characters.",
     "code-mode-fact-sandbox": "It runs in an isolated JavaScript sandbox on this server, with 32 MB of memory and no network, files or timers."
+  },
+  "appearance": {
+    "title": "Assistant appearance",
+    "intro": "How the assistant looks to you, on every device. Other members choose their own.",
+    "preview": "Preview",
+    "body": "Shape",
+    "color": "Colour",
+    "expression": "Resting expression",
+    "bodies": {
+      "circle": "Circle",
+      "pebble": "Pebble",
+      "squircle": "Squircle",
+      "capsule": "Capsule",
+      "triangle": "Triangle",
+      "hexagon": "Hexagon",
+      "cloud": "Cloud",
+      "drop": "Drop"
+    },
+    "colors": {
+      "ink": "Ink",
+      "brown": "Brown",
+      "red": "Red",
+      "orange": "Orange",
+      "amber": "Amber",
+      "green": "Green",
+      "teal": "Teal",
+      "blue": "Blue",
+      "violet": "Violet",
+      "pink": "Pink",
+      "grey": "Grey"
+    },
+    "expressions": {
+      "neutral": "Neutral",
+      "attentive": "Attentive",
+      "surprised": "Surprised",
+      "excited": "Excited",
+      "happy": "Happy",
+      "laughing": "Laughing",
+      "angry": "Angry",
+      "sad": "Sad",
+      "scared": "Scared",
+      "wary": "Wary",
+      "confused": "Confused",
+      "curious": "Curious",
+      "proud": "Proud",
+      "shy": "Shy",
+      "bored": "Bored",
+      "sleepy": "Sleepy"
+    }
   }
 }

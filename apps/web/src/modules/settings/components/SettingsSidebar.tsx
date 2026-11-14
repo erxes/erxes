@@ -5,6 +5,7 @@ import {
   IconCloudUpload,
   IconApps,
   IconLock,
+  IconMoodSmile,
   IconPlugConnected,
   IconSettings,
   IconShieldCheck,
@@ -154,7 +155,14 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
     { name: t('security', 'Password & security'), path: 'security', icon: IconLock },
     { name: t('notifications', 'Notifications'), path: 'notifications', icon: IconBellCog },
     ...(can('assistant.chat')
-      ? [{ name: t('assistant', 'Assistant'), path: 'assistant', icon: IconSparkles }]
+      ? [
+          { name: t('assistant', 'Assistant'), path: 'assistant', icon: IconSparkles },
+          {
+            name: t('assistant-appearance', 'Assistant appearance'),
+            path: 'assistant-appearance',
+            icon: IconMoodSmile,
+          },
+        ]
       : []),
   ];
 };

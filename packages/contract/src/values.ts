@@ -1,5 +1,8 @@
 import {
   ASSISTANT_APPROVAL_MODES,
+  ASSISTANT_AVATAR_BODIES,
+  ASSISTANT_AVATAR_COLORS,
+  ASSISTANT_AVATAR_EXPRESSIONS,
   ASSISTANT_PROVIDERS,
   ASSISTANT_QUESTION_MODES,
   ASSISTANT_THINKING_LEVELS,
@@ -164,6 +167,12 @@ export const AssistantApprovalMode = z.enum(ASSISTANT_APPROVAL_MODES);
 export type AssistantApprovalMode = z.infer<typeof AssistantApprovalMode>;
 
 export const AssistantQuestionMode = z.enum(ASSISTANT_QUESTION_MODES);
+
+export const AssistantAvatarBody = z.enum(ASSISTANT_AVATAR_BODIES);
+
+export const AssistantAvatarColor = z.enum(ASSISTANT_AVATAR_COLORS);
+
+export const AssistantAvatarExpression = z.enum(ASSISTANT_AVATAR_EXPRESSIONS);
 
 /** The `data` of a 409 `CUSTOMER_EXISTS`: the customer that has the value, and which field it is. */
 export const CustomerExists = z.object({

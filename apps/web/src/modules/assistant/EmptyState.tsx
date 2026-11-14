@@ -1,7 +1,9 @@
-import { IconKey, IconSparkles } from '@tabler/icons-react';
+import { IconKey } from '@tabler/icons-react';
 import { buttonVariants, cn } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { AssistantAvatar } from './AssistantAvatar';
 import { ASSISTANT_SETTINGS_PATH } from './providers';
 
 const SUGGESTIONS = [
@@ -43,13 +45,17 @@ export const EmptyState = ({
   onPick: (text: string) => void;
 }) => {
   const { t } = useTranslation('assistant');
+  const [winking, setWinking] = useState(false);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 overflow-y-auto px-6 py-8">
       <div className="flex flex-col items-center gap-2 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-accent text-primary-text">
-          <IconSparkles aria-hidden className="size-6" />
-        </span>
+        <AssistantAvatar
+          size={72}
+          state={winking ? 'wink' : 'idle'}
+          follow
+          label={t('empty.avatar', 'Assistant')}
+        />
         <h2 className="text-lg font-semibold">{t('empty.title', 'How can I help?')}</h2>
         <p className="text-sm text-muted-foreground">
           {t('empty.description', 'Ask about your workspace, or ask for a change.')}
@@ -61,6 +67,8 @@ export const EmptyState = ({
         <ul
           className="flex w-full flex-col gap-2"
           aria-label={t('empty.suggestions', 'Suggestions')}
+          onPointerOver={() => setWinking(true)}
+          onPointerLeave={() => setWinking(false)}
         >
           {SUGGESTIONS.map(([key, text]) => (
             <li key={key}>

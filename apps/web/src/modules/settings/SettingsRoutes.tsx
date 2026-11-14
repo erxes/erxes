@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
+import { AssistantAppearancePage } from './assistant/AssistantAppearancePage';
 import { AssistantApprovalsPage } from './assistant/AssistantApprovalsPage';
 import { AssistantCodeModePage } from './assistant/AssistantCodeModePage';
 import { AssistantKeysPage } from './assistant/AssistantKeysPage';
@@ -57,6 +58,7 @@ export const SettingsRoutes = () => (
       <Route path="assistant" element={<AssistantKeysPage />} />
       <Route path="assistant-approvals" element={<AssistantApprovalsPage />} />
       <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
+      <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>
