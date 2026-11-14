@@ -41,14 +41,8 @@ import { MainJournalForm } from './forms/MainJournalForm';
 import { PayableTransaction } from './forms/PayableForm';
 import { ReceivableTransaction } from './forms/ReceivableForm';
 import { sumDtAndCt } from './Summary';
+import { isHiddenTransaction } from './utils';
 import { TBalance } from './TBalance';
-
-const isHiddenTransaction = (transaction?: object) =>
-  Boolean(
-    transaction &&
-      'permission' in transaction &&
-      transaction.permission === 'hidden',
-  );
 
 // Separate the transaction form component to prevent unnecessary re-renders
 const TransactionForm = ({
