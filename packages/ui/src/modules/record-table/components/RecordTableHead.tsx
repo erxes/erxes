@@ -19,11 +19,11 @@ import {
 type RecordTableHeader = Header<RecordTableFeatures, RowData>;
 
 const recordTableHeadVariants = cva(
-  'sticky z-2 top-0 transition-transform duration-200 whitespace-nowrap text-xs [&_svg]:flex-none',
+  'sticky z-2 top-0 w-(--head-width) transition-transform duration-200 whitespace-nowrap text-xs [&_svg]:flex-none',
   {
     variants: {
       isDragging: { true: 'z-3' },
-      pinned: { true: 'z-3' },
+      pinned: { true: 'z-3 left-(--head-start)' },
     },
   },
 );
@@ -53,8 +53,8 @@ export const RecordTableHead = ({
       id={headId(id)}
       className={cn(recordTableHeadVariants({ isDragging, pinned }), className)}
       style={{
-        width: `var(--header-${header.id}-width)`,
-        left: pinned ? `var(--col-${id}-start)` : undefined,
+        '--head-width': `var(--header-${header.id}-width)`,
+        '--head-start': pinned ? `var(--col-${id}-start)` : undefined,
       }}
       {...props}
     >
@@ -71,8 +71,8 @@ export const RecordTableHead = ({
 
           {isDragging && (
             <div
-              className="absolute top-0 left-0 w-full h-screen bg-muted opacity-50"
-              style={{ transform: CSS.Translate.toString(transform) }}
+              className="sortable absolute top-0 left-0 w-full h-screen bg-muted opacity-50"
+              style={{ '--sortable-transform': CSS.Translate.toString(transform) }}
             />
           )}
 

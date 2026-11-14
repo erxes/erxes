@@ -2,6 +2,14 @@ import { createCn } from 'cn/engine';
 import type { Ref, RefCallback } from 'react';
 import tables from './cn-tables';
 
+// A value only known at runtime reaches a class through a CSS variable:
+// `style={{ '--panel-width': `${width}px` }}` read by `w-(--panel-width)`.
+declare module 'react' {
+  interface CSSProperties {
+    [variable: `--${string}`]: string | number | undefined;
+  }
+}
+
 /**
  * Joins classes and drops the ones a later class overrides. The merge tables include the
  * scales theme.css and styles.css declare in `@theme`, so `cn('shadow-sm', 'shadow-focus')`

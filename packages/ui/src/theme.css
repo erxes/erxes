@@ -289,3 +289,11 @@
     @apply block!;
   }
 }
+
+/* A dnd-kit sortable item. useSortable's transform and transition reach it as
+   --sortable-transform and --sortable-transition. The element's own transition-* classes
+   come after this rule, so an element that has them sets them only while no drag runs. */
+@utility sortable {
+  transform: var(--sortable-transform);
+  transition: var(--sortable-transition);
+}

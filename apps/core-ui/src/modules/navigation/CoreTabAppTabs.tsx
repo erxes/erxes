@@ -110,6 +110,26 @@ const TabMenu = ({
   );
 };
 
+/** Enter or Space opens the tab, Delete closes it (the keyboard's ×, as in the ARIA tabs pattern). */
+const handleTabKey = (
+  event: KeyboardEvent<HTMLDivElement>,
+  actions: {
+    onSelect: () => void;
+    onClose: () => void;
+    onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+  },
+) => {
+  if (event.target !== event.currentTarget) return;
+
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    actions.onSelect();
+  } else if (event.key === 'Delete') {
+    event.preventDefault();
+    actions.onClose();
+  } else actions.onKeyDown(event);
+};
+
 const CoreTabAppTab = ({
   app,
   active,
@@ -141,62 +161,57 @@ const CoreTabAppTab = ({
   }, [active]);
 
   return (
-    <ContextMenu>
-      <ContextMenu.Trigger
-        {...attributes}
-        {...listeners}
-        ref={(node) => {
-          ref.current = node;
-          setNodeRef(node);
-        }}
-        role="tab"
-        aria-selected={active}
-        tabIndex={tabbable ? 0 : -1}
-        title={app.label}
-        data-active={active}
-        className={cn(
-          'group/tab flex h-7 min-w-24 max-w-48 shrink-0 cursor-default select-none items-center gap-1.5 rounded-md border border-transparent pl-2.5 pr-1 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground',
-          'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
-          isDragging && 'z-10 opacity-60',
-        )}
-        style={{ transform: CSS.Transform.toString(transform), transition }}
-        onClick={onSelect}
-        onMouseDown={(event) => {
-          // Middle click must not take focus before it closes the tab.
-          if (event.button === 1) {
-            event.preventDefault();
+    // The drag moves this wrapper, so the tab keeps its own colour transitions.
+    <div
+      ref={setNodeRef}
+      className={cn('sortable shrink-0', isDragging && 'z-10')}
+      style={{
+        '--sortable-transform': CSS.Transform.toString(transform),
+        '--sortable-transition': transition,
+      }}
+    >
+      <ContextMenu>
+        <ContextMenu.Trigger
+          {...attributes}
+          {...listeners}
+          ref={ref}
+          role="tab"
+          aria-selected={active}
+          tabIndex={tabbable ? 0 : -1}
+          title={app.label}
+          data-active={active}
+          className={cn(
+            'group/tab flex h-7 min-w-24 max-w-48 cursor-default select-none items-center gap-1.5 rounded-md border border-transparent pl-2.5 pr-1 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground',
+            'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
+            isDragging && 'opacity-60',
+          )}
+          onClick={onSelect}
+          onMouseDown={(event) => {
+            // Middle click must not take focus before it closes the tab.
+            if (event.button === 1) {
+              event.preventDefault();
 
-            return;
-          }
+              return;
+            }
 
-          listeners?.onMouseDown?.(event);
-        }}
-        onAuxClick={(event) => {
-          // Middle click closes, like a browser tab.
-          if (event.button === 1) {
-            event.preventDefault();
-            onClose();
-          }
-        }}
-        onKeyDown={(event) => {
-          if (event.target !== event.currentTarget) return;
-
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            onSelect();
-          } else if (event.key === 'Delete') {
-            // The keyboard's ×, as in the ARIA tabs pattern.
-            event.preventDefault();
-            onClose();
-          } else onKeyDown(event);
-        }}
-      >
-        <TabIcon icon={app.icon} active={active} dragging={isDragging} />
-        <span className="min-w-0 flex-1 truncate">{app.label}</span>
-        <TabCloseButton label={closeLabel} active={active} onClose={onClose} />
-      </ContextMenu.Trigger>
-      <TabMenu closeLabel={closeLabel} onClose={onClose} {...menu} />
-    </ContextMenu>
+            listeners?.onMouseDown?.(event);
+          }}
+          onAuxClick={(event) => {
+            // Middle click closes, like a browser tab.
+            if (event.button === 1) {
+              event.preventDefault();
+              onClose();
+            }
+          }}
+          onKeyDown={(event) => handleTabKey(event, { onSelect, onClose, onKeyDown })}
+        >
+          <TabIcon icon={app.icon} active={active} dragging={isDragging} />
+          <span className="min-w-0 flex-1 truncate">{app.label}</span>
+          <TabCloseButton label={closeLabel} active={active} onClose={onClose} />
+        </ContextMenu.Trigger>
+        <TabMenu closeLabel={closeLabel} onClose={onClose} {...menu} />
+      </ContextMenu>
+    </div>
   );
 };
 
