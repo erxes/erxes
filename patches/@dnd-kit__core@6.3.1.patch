@@ -1,0 +1,22 @@
+diff --git a/dist/core.esm.js b/dist/core.esm.js
+index 1577c253774e3c37eafa4f267f1944426deee405..9c59af7ea8e989029833affb9ae359f30fc3b3db 100644
+--- a/dist/core.esm.js
++++ b/dist/core.esm.js
+@@ -1828,13 +1828,10 @@ function useAutoScroller(_ref) {
+         continue;
+       }
+ 
+-      const index = scrollableAncestors.indexOf(scrollContainer);
+-      const scrollContainerRect = scrollableAncestorRects[index];
+-
+-      if (!scrollContainerRect) {
+-        continue;
+-      }
+-
++      // Measured now. scrollableAncestorRects lines up with the ancestors by index, and for a
++      // render after the over node changes it still holds the previous ancestors' rects: a
++      // board then got its column's rect and scrolled while the pointer crossed the board.
++      const scrollContainerRect = getScrollElementRect(scrollContainer);
+       const {
+         direction,
+         speed

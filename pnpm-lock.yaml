@@ -9,6 +9,7 @@ overrides:
   vitest@*: 5.1.0
 
 patchedDependencies:
+  '@dnd-kit/core@6.3.1': 57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb
   drizzle-zod@0.8.3: 632f36b7ae2dc518abf61204f9f5142852c5e03df8f873e55b8c3121260a27ca
 
 importers:
@@ -225,13 +226,13 @@ importers:
         version: 0.57.0(@date-fns/tz@1.5.0)(@floating-ui/dom@1.8.0)(@types/hast@3.0.5)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(date-fns@4.1.0)(highlight.js@11.12.0)(lowlight@3.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.5)(typescript@7.0.2)(y-prosemirror@1.3.7(prosemirror-model@1.25.13)(prosemirror-state@1.4.4)(prosemirror-view@1.42.9)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
       '@dnd-kit/core':
         specifier: 6.3.1
-        version: 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/modifiers':
         specifier: 9.0.0
-        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 9.0.0(@dnd-kit/core@6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@dnd-kit/sortable':
         specifier: 10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 10.0.0(@dnd-kit/core@6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@dnd-kit/utilities':
         specifier: 3.2.2
         version: 3.2.2(react@19.3.1)
@@ -426,16 +427,19 @@ importers:
         version: 0.57.0(@date-fns/tz@1.5.0)(@floating-ui/dom@1.8.0)(@types/hast@3.0.5)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(date-fns@4.1.0)(highlight.js@11.12.0)(lowlight@3.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.5)(typescript@7.0.2)(y-prosemirror@1.3.7(prosemirror-model@1.25.13)(prosemirror-state@1.4.4)(prosemirror-view@1.42.9)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
       '@dnd-kit/core':
         specifier: 6.3.1
-        version: 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/modifiers':
         specifier: 9.0.0
-        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 9.0.0(@dnd-kit/core@6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@dnd-kit/sortable':
         specifier: 10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 10.0.0(@dnd-kit/core@6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@dnd-kit/utilities':
         specifier: 3.2.2
         version: 3.2.2(react@19.3.1)
+      '@floating-ui/react':
+        specifier: ^0.27.20
+        version: 0.27.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@formkit/auto-animate':
         specifier: 0.10.2
         version: 0.10.2
@@ -6692,7 +6696,7 @@ snapshots:
       react: 19.3.1
       tslib: 2.9.1
 
-  '@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/core@6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@dnd-kit/accessibility': 3.1.1(react@19.3.1)
       '@dnd-kit/utilities': 3.2.2(react@19.3.1)
@@ -6700,16 +6704,16 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
       tslib: 2.9.1
 
-  '@dnd-kit/modifiers@9.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/modifiers@9.0.0(@dnd-kit/core@6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/core': 6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/utilities': 3.2.2(react@19.3.1)
       react: 19.3.1
       tslib: 2.9.1
 
-  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/core': 6.3.1(patch_hash=57e725ee7fe228f95ddf7b673d1811e48ab674a728664295b4cf36a37f454afb)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/utilities': 3.2.2(react@19.3.1)
       react: 19.3.1
       tslib: 2.9.1

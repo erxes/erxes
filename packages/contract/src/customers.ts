@@ -8,6 +8,7 @@ import {
   CursorQuery,
   CustomFields,
   CustomFieldsPatch,
+  DESCRIPTION_MAX,
   EmailAddress,
   Id,
   IdList,
@@ -85,7 +86,7 @@ export const CustomerFields = createUpdateSchema(customers, {
   position: (value) => value.trim().max(200),
   department: (value) => value.trim().max(200),
   code: (code) => code.trim().max(100),
-  description: (value) => value.trim().max(5000),
+  description: (value) => value.trim().max(DESCRIPTION_MAX),
   ownerId: () => Id,
   ...lifecycleInput,
 })

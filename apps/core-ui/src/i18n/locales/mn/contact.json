@@ -58,7 +58,10 @@
     "merge-tooltip": "Зөвхөн 2 харилцагчийг нийлүүлэх боломжтой",
     "not-found": "Харилцагч олдсонгүй",
     "not-found-description": "Энэ ID-тай харилцагч олдсонгүй.",
-    "selected": "{{selectedCount}} сонгосон"
+    "selected": "{{selectedCount}} сонгосон",
+    "position": "Албан тушаал",
+    "department": "Хэлтэс",
+    "company": "Компани"
   },
   "company": {
     "name": "Нэр",
@@ -110,6 +113,10 @@
     "contacts": "Харилцагчид"
   },
   "general": "Ерөнхий",
+  "actions": "Үйлдлүүд",
+  "contact-actions": "Харилцагчийн үйлдлүүд",
+  "confirm-delete-contact": "Энэ харилцагчийг устгах уу?",
+  "action-delete": "Устгах",
   "contacts": "Харилцагчид",
   "filter": {
     "_": "Шүүлтүүр",

@@ -12,6 +12,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { SelectContactContent } from './ContactPicker';
@@ -66,6 +67,7 @@ const LinkMenu = ({
   onChange: (input: LinkChange) => void;
   onUnlink: () => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [editing, setEditing] = useState(false);
   const former = Boolean(row.link.endedAt);
   // The role editor opens under the menu button, which belongs to the menu, not the popover.
@@ -81,7 +83,7 @@ const LinkMenu = ({
               variant="ghost"
               size="icon"
               className="size-7 opacity-0 group-hover:opacity-100 data-popup-open:opacity-100"
-              aria-label="Link options"
+              aria-label={t('link-options', 'Link options')}
             />
           }
         >
@@ -89,19 +91,21 @@ const LinkMenu = ({
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
           <DropdownMenu.Item onClick={() => setEditing(true)}>
-            {row.link.role ? 'Change role' : 'Add role'}
+            {row.link.role ? t('change-role', 'Change role') : t('add-role', 'Add role')}
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onClick={() => onChange({ isPrimaryContact: !row.link.isPrimaryContact })}
           >
-            {row.link.isPrimaryContact ? 'Not the main contact' : 'Make main contact'}
+            {row.link.isPrimaryContact
+              ? t('not-main-contact', 'Not the main contact')
+              : t('make-main-contact', 'Make main contact')}
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => onChange({ ended: !former })}>
-            {former ? 'Works there again' : 'Left the company'}
+            {former ? t('works-again', 'Works there again') : t('left-company', 'Left the company')}
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Item className="text-destructive" onClick={onUnlink}>
-            Unlink
+            {t('unlink', 'Unlink')}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>
@@ -129,6 +133,7 @@ const LinkItem = ({
   onChange: (input: LinkChange) => void;
   onUnlink: () => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { openRecord } = useSidePanel();
   const former = Boolean(row.link.endedAt);
   const other = side === 'core:customer' ? 'core:company' : 'core:customer';
@@ -152,14 +157,17 @@ const LinkItem = ({
         <span className="flex items-center gap-1.5 truncate text-sm font-medium">
           {row.name}
           {row.link.isPrimaryContact && (
-            <IconStarFilled className="size-3 shrink-0 text-warning" aria-label="Main contact" />
+            <IconStarFilled
+              className="size-3 shrink-0 text-warning"
+              aria-label={t('main-contact', 'Main contact')}
+            />
           )}
         </span>
         {row.link.role && (
           <span className="block truncate text-xs text-muted-foreground">{row.link.role}</span>
         )}
       </button>
-      {former && <Badge variant="secondary">Former</Badge>}
+      {former && <Badge variant="secondary">{t('former', 'Former')}</Badge>}
       <LinkMenu row={row} onChange={onChange} onUnlink={onUnlink} />
     </div>
   );
@@ -175,6 +183,7 @@ const AddLink = ({
   linked: string[];
   onAdd: (otherId: string) => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [adding, setAdding] = useState(false);
 
   return (
@@ -183,7 +192,9 @@ const AddLink = ({
         render={<Button variant="ghost" size="sm" className="w-fit text-muted-foreground" />}
       >
         <IconPlus />
-        {side === 'core:customer' ? 'Link a company' : 'Add a person'}
+        {side === 'core:customer'
+          ? t('link-company', 'Link a company')
+          : t('add-person', 'Add a person')}
       </Popover.Trigger>
       <Combobox.Content>
         <SelectContactContent

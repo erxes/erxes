@@ -5996,11 +5996,22 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 64
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
                   "type",
-                  "id"
+                  "id",
+                  "name"
                 ]
               },
               {
@@ -8790,6 +8801,44 @@
           "action",
           "error",
           "recordId"
+        ]
+      },
+      "InvalidInput": {
+        "type": "object",
+        "properties": {
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    ]
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "message"
+              ]
+            }
+          }
+        },
+        "required": [
+          "issues"
         ]
       },
       "Invoice": {
@@ -29562,7 +29611,7 @@
       },
       "post": {
         "operationId": "tags.create",
-        "summary": "Create a tag. 409 TAG_EXISTS when the name is taken for the type",
+        "summary": "Create a tag. 409 TAG_EXISTS when the name is taken for the type, 409 TAG_LIMIT when the type already has LIST_MAX (1000) tags",
         "requestBody": {
           "required": true,
           "content": {

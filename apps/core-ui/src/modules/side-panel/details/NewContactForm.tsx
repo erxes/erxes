@@ -8,6 +8,8 @@ import {
   type UseFormReturn,
 } from 'react-hook-form';
 import { AvatarUploadField } from '~/components/AvatarEditor';
+import { DESCRIPTION_MAX } from '@erxes/core-contract';
+import { z } from 'zod';
 import { messageOf } from '~/lib/api';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { type ContactSide, linkNewContact } from '~/modules/contacts/components/useContactLinks';
@@ -116,9 +118,18 @@ export const ContactOwnerRow = ({ label }: { label: string }) => {
   );
 };
 
-/** The description editor under a new contact's rows. */
+/**
+ * A new contact's description: editor JSON, held to the contract's limit, so Save
+ * stops it here instead of sending what the server refuses.
+ */
+export const contactDescription = z
+  .string()
+  .max(DESCRIPTION_MAX, 'The description is too long. Shorten it to save.');
+
+/** The description editor under a new contact's rows, with its error. */
 export const ContactDescriptionRow = ({ label, scope }: { label: string; scope: string }) => {
-  const { control } = useFormContext<ContactFormFields>();
+  const { control, formState } = useFormContext<ContactFormFields>();
+  const error = formState.errors.description?.message;
 
   return (
     <div className="flex flex-col gap-1.5 pt-2">
@@ -138,6 +149,7 @@ export const ContactDescriptionRow = ({ label, scope }: { label: string; scope: 
           />
         )}
       />
+      {error && <span className="text-xs text-destructive">{error}</span>}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
+import { runsQuery } from './automationQueries';
 
 const STATUS_VARIANT = {
   running: 'info',
@@ -209,7 +210,10 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
                   {t(`status.${run.status}`, run.status)}
                 </Badge>
                 <span className="truncate text-xs text-muted-foreground">
-                  {run.subject?.id ?? run.eventType}
+                  {run.subject
+                    ? (run.subject.name ??
+                      t('deleted-subject', 'A deleted {{type}}', { type: run.subject.type }))
+                    : run.eventType}
                 </span>
                 <span className="ml-auto text-xs text-muted-foreground">
                   <When value={run.startedAt} />
@@ -228,12 +232,7 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
 
 /** Runs of an automation, newest first; each opens its step-by-step log. */
 export const RunsPanel = ({ automationId }: { automationId: string }) => {
-  const runs = useQuery(
-    orpc.automations.runs.queryOptions({
-      input: { id: automationId, limit: 50 },
-      refetchInterval: 5000,
-    }),
-  );
+  const runs = useQuery(runsQuery(automationId));
 
   return (
     <QueryState

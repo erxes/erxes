@@ -216,6 +216,30 @@ export const contactsTagged = async (
   );
 };
 
+/**
+ * Customers' and companies' names by id, in one query: a customer's full name, else
+ * its email or phone; a company's name. Ids are unique across both tables.
+ */
+export const contactNames = async (tx: Db, customerIds: string[], companyIds: string[]) => {
+  const named = await tx
+    .select({
+      id: customers.id,
+      name: sql<
+        string | null
+      >`coalesce(nullif(trim(concat_ws(' ', ${customers.firstName}, ${customers.lastName})), ''), ${customers.primaryEmail}, ${customers.primaryPhone})`,
+    })
+    .from(customers)
+    .where(inArray(customers.id, customerIds))
+    .unionAll(
+      tx
+        .select({ id: companies.id, name: sql<string | null>`${companies.primaryName}` })
+        .from(companies)
+        .where(inArray(companies.id, companyIds)),
+    );
+
+  return new Map(named.map((row) => [row.id, row.name]));
+};
+
 /** Customer–company links, on both timelines. */
 export const contactsLinked = async (
   tx: Db,
@@ -227,34 +251,12 @@ export const contactsLinked = async (
   const verb = linked ? 'linked' : 'unlinked';
 
   // Each side's name goes with the entry, so the timeline reads at once (and
-  // still says who it was after a deletion). Ids are unique across both tables.
-  const named = await tx
-    .select({
-      id: customers.id,
-      name: sql<
-        string | null
-      >`coalesce(nullif(trim(concat_ws(' ', ${customers.firstName}, ${customers.lastName})), ''), ${customers.primaryEmail}, ${customers.primaryPhone})`,
-    })
-    .from(customers)
-    .where(
-      inArray(
-        customers.id,
-        links.map((link) => link.customerId),
-      ),
-    )
-    .unionAll(
-      tx
-        .select({ id: companies.id, name: sql<string | null>`${companies.primaryName}` })
-        .from(companies)
-        .where(
-          inArray(
-            companies.id,
-            links.map((link) => link.companyId),
-          ),
-        ),
-    );
-
-  const names = new Map(named.map((row) => [row.id, row.name]));
+  // still says who it was after a deletion).
+  const names = await contactNames(
+    tx,
+    links.map((link) => link.customerId),
+    links.map((link) => link.companyId),
+  );
 
   await publishCoreEvents(
     tx,

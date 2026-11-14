@@ -1,8 +1,10 @@
-import { caller, type ContentType, type Db, newId, tags } from '@erxes/core-db';
+import { LIST_MAX } from '@erxes/core-contract';
+import { caller, type ContentType, type Db, newId, requestOrgId, tags } from '@erxes/core-db';
 import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { containsPattern, wholeList } from '~/lib/keyset';
+import { lockKeys } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 
 const taken = (error: unknown): never => {
@@ -41,17 +43,48 @@ export const listTags = async (client: Db, query: { type: ContentType; search?: 
   return { data: rows };
 };
 
+/**
+ * Adds tags of one type. The UI reads a type's tags whole (`listTags`), so an
+ * organisation holds at most `LIST_MAX` of them: past that it is 409 TAG_LIMIT.
+ * Adds of one type take turns, so two at once can't pass the limit together.
+ */
+export const addTags = async (
+  client: Db,
+  type: ContentType,
+  values: { name: string; colorCode?: string | null }[],
+) => {
+  await lockKeys(client, [`tags:${requestOrgId()}:${type}`]);
+
+  const held = await client.$count(tags, eq(tags.type, type));
+
+  if (held + values.length > LIST_MAX) {
+    throw new HttpError(
+      409,
+      'TAG_LIMIT',
+      `An organisation holds at most ${LIST_MAX} ${type} tags. Delete ones you don't use first.`,
+    );
+  }
+
+  return client
+    .insert(tags)
+    .values(
+      values.map(({ name, colorCode }) => ({
+        id: newId(),
+        type,
+        name,
+        colorCode: colorCode ?? null,
+        createdBy: caller('user').userId,
+      })),
+    )
+    .returning();
+};
+
 export const createTag = async (
   client: Db,
   input: { type: ContentType; name: string; colorCode?: string | null },
 ) => {
   try {
-    return oneRow(
-      await client
-        .insert(tags)
-        .values({ id: newId(), ...input, createdBy: caller('user').userId })
-        .returning(),
-    );
+    return oneRow(await addTags(client, input.type, [input]));
   } catch (error) {
     return taken(error);
   }

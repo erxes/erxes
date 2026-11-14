@@ -9,14 +9,28 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { findAutomation } from './automations.service';
 import { cancelRun, definitionOf, retryRun } from './runs';
 import { startNow } from './triggers';
+import { contactNames } from '~/modules/activities/contactHistory';
 
 type RunRow = typeof automationRuns.$inferSelect;
 
-const toRunDto = (row: RunRow) => ({
+/** The names of the runs' subjects, read in one query. */
+const subjectNames = (client: Db, rows: RunRow[]) => {
+  const ids = (type: RunRow['subjectType']) =>
+    rows.flatMap((row) => (row.subjectType === type && row.subjectId ? [row.subjectId] : []));
+
+  return contactNames(client, ids('customer'), ids('company'));
+};
+
+const toRunDto = (row: RunRow, names: Map<string, string | null>) => ({
   ...row,
-  subject: row.subjectType && row.subjectId ? { type: row.subjectType, id: row.subjectId } : null,
+  subject:
+    row.subjectType && row.subjectId
+      ? { type: row.subjectType, id: row.subjectId, name: names.get(row.subjectId) ?? null }
+      : null,
   goalReached: Boolean(row.goalReachedAt),
 });
+
+const runDto = async (client: Db, row: RunRow) => toRunDto(row, await subjectNames(client, [row]));
 
 export const listRuns = async (
   client: Db,
@@ -44,7 +58,9 @@ export const listRuns = async (
         .limit(limit),
   );
 
-  return { ...page, data: page.data.map(toRunDto) };
+  const names = await subjectNames(client, page.data);
+
+  return { ...page, data: page.data.map((row) => toRunDto(row, names)) };
 };
 
 const findRun = async (client: Db, runId: string) => {
@@ -69,7 +85,7 @@ export const getRun = async (client: Db, runId: string) => {
     .orderBy(asc(automationRunSteps.finishedAt));
 
   return {
-    run: toRunDto(run),
+    run: await runDto(client, run),
     steps,
   };
 };
@@ -81,7 +97,7 @@ export const retryAutomationRun = async (client: Db, runId: string) => {
 
   if (!run) throw new HttpError(409, 'NOT_FAILED', 'Only a failed run can be retried');
 
-  return toRunDto(run);
+  return runDto(client, run);
 };
 
 export const cancelAutomationRun = async (client: Db, runId: string) => {
@@ -92,7 +108,7 @@ export const cancelAutomationRun = async (client: Db, runId: string) => {
   if (!run)
     throw new HttpError(409, 'NOT_RUNNING', 'Only a running or waiting run can be cancelled');
 
-  return toRunDto(run);
+  return runDto(client, run);
 };
 
 /** A member starts an active automation now, on the given records or its audience. */

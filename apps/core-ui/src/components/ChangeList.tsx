@@ -1,5 +1,5 @@
 import type { ContentType, Field, Tag, User } from '@erxes/core-contract';
-import { cn } from 'erxes-ui';
+import { cn, editorText } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { memberName, useMembersById } from '~/lib/members';
 import { textOf } from '~/lib/text';
@@ -63,13 +63,7 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   }
 
   if (field === 'description' && typeof value === 'string') {
-    return (
-      value
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .slice(0, 120) || '—'
-    );
+    return editorText(value).replace(/\s+/g, ' ').slice(0, 120) || '—';
   }
 
   if (field === 'avatarUrl') {

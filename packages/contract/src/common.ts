@@ -78,6 +78,14 @@ export const ErrorBody = z.object({
 
 export type ErrorBody = z.infer<typeof ErrorBody>;
 
+/** `INVALID_INPUT`'s `data`: what failed the contract, field by field. */
+export const InvalidInput = z.object({
+  issues: z.array(z.object({ path: z.array(z.union([z.string(), z.int()])), message: z.string() })),
+});
+
+/** Longest description a person, customer or company holds, as stored (editor JSON). */
+export const DESCRIPTION_MAX = 5000;
+
 export const cursorPageOf = <T extends z.ZodType>(item: T) =>
   z.object({
     data: z.array(item),

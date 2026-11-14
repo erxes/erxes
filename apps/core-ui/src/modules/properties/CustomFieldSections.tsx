@@ -2,6 +2,7 @@ import type { CustomValue, FieldContentType } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
 import { Button, Collapsible, Spinner, buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { messageOf } from '~/lib/api';
 import { PanelField } from '~/modules/side-panel/PanelField';
@@ -10,18 +11,26 @@ import { CustomFieldCell } from './CustomFieldCell';
 import { FIELD_TYPES_OBJECT } from './fieldTypes';
 import { useFields } from './useFields';
 
-const EmptyProperties = ({ contentType }: { contentType: FieldContentType }) => (
-  <div className="flex w-full flex-1 flex-col items-center justify-center gap-2">
-    <IconListDetails className="text-muted-foreground" size={64} stroke={1.5} />
-    <h3 className="font-semibold text-muted-foreground">No properties found </h3>
-    <div className="my-2 flex flex-col items-center justify-center gap-2">
-      <p className="text-muted-foreground">Get started by creating your first property.</p>
-      <Link to={propertiesPath(contentType)} className={buttonVariants({ size: 'sm' })}>
-        Create property
-      </Link>
+const EmptyProperties = ({ contentType }: { contentType: FieldContentType }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+
+  return (
+    <div className="flex w-full flex-1 flex-col items-center justify-center gap-2">
+      <IconListDetails className="text-muted-foreground" size={64} stroke={1.5} />
+      <h3 className="font-semibold text-muted-foreground">
+        {t('no-properties', 'No properties found')}
+      </h3>
+      <div className="my-2 flex flex-col items-center justify-center gap-2">
+        <p className="text-muted-foreground">
+          {t('no-properties-hint', 'Get started by creating your first property.')}
+        </p>
+        <Link to={propertiesPath(contentType)} className={buttonVariants({ size: 'sm' })}>
+          {t('create-property', 'Create property')}
+        </Link>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /**
  * A record's custom field values: one collapsible card per field group, in
