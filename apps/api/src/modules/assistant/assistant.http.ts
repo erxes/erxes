@@ -84,16 +84,17 @@ const startRun = async (req: Request, res: Response, orgId: string) => {
 
 const drain = (stream: ReadableStream<UIMessageChunk>) => stream.pipeTo(new WritableStream());
 
-const finish = async (req: Request, orgId: string, run: Run, reply: UIMessage | null) => {
-  await withOrg(orgId, (tx) => saveReply(tx, run.threadId, reply));
+const closingAfter = (settled: Promise<void>) =>
+  new TransformStream<UIMessageChunk, UIMessageChunk>({ flush: () => settled });
 
-  const title = await generateTitle(run).catch((error: unknown) => {
+const titleThread = async (req: Request, orgId: string, run: Run) => {
+  try {
+    const title = await generateTitle(run);
+
+    if (title) await withOrg(orgId, (tx) => setTitle(tx, run.threadId, title));
+  } catch (error) {
     req.log.warn({ err: error, threadId: run.threadId }, 'assistant: no title for the thread');
-
-    return null;
-  });
-
-  if (title) await withOrg(orgId, (tx) => setTitle(tx, run.threadId, title));
+  }
 };
 
 const answer = async (req: Request, res: Response, orgId: string, run: Run, titled: boolean) => {
@@ -104,18 +105,19 @@ const answer = async (req: Request, res: Response, orgId: string, run: Run, titl
     .catch((error: unknown) => {
       req.log.error({ err: error, threadId: run.threadId }, 'assistant: the reply stopped');
     })
-    .then(() =>
-      titled
-        ? withOrg(orgId, (tx) => saveReply(tx, run.threadId, turn.reply()))
-        : finish(req, orgId, run, turn.reply()),
-    )
+    .then(() => withOrg(orgId, (tx) => saveReply(tx, run.threadId, turn.reply())))
     .catch((error: unknown) => {
       req.log.error({ err: error, threadId: run.threadId }, 'assistant: could not save the reply');
     });
 
+  const done = titled ? saved : saved.then(() => titleThread(req, orgId, run));
+
   req.socket.setTimeout(0);
-  await pipeUIMessageStreamToResponse({ response: res, stream: toClient });
-  await saved;
+  await pipeUIMessageStreamToResponse({
+    response: res,
+    stream: toClient.pipeThrough(closingAfter(saved)),
+  });
+  await done;
 };
 
 export const assistantChatRouter = Router();
