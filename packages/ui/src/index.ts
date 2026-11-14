@@ -125,6 +125,8 @@ export { cn } from './lib/utils';
 
 export { Editor } from './modules/blocks/components/LazyEditor';
 
+export { editorText } from './modules/blocks/utils/parseBlocks';
+
 export { EmailDisplay } from './modules/display/components/EmailDisplay';
 
 export { PhoneDisplay } from './modules/display/components/PhoneDisplay';
