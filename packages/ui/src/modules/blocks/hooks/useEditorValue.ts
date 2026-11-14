@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
 import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/TextEditor';
 import { parseBlocks } from 'erxes-ui/modules/blocks/utils/parseBlocks';
 
@@ -8,7 +7,8 @@ type EditorBlocks = Parameters<IBlockEditor['replaceBlocks']>[1];
 /**
  * Keeps an editor and a stored value in sync. The value is block JSON, or HTML when
  * `isHTML` is set; either kind is read back, so content saved in the other format still loads.
- * Edits reach `onChange` debounced by 300 ms; the editor's own output is never loaded back.
+ * Every edit reaches `onChange` at once, so a form submitted right after typing has it;
+ * the editor's own output is never loaded back.
  */
 export const useEditorValue = ({
   editor,
@@ -49,15 +49,6 @@ export const useEditorValue = ({
     }
   }, [editor, initialContent]);
 
-  const emitChange = useDebouncedCallback(() => {
-    const value = isHTML
-      ? editor.blocksToHTMLLossy(editor.document)
-      : JSON.stringify(editor.document);
-
-    lastEditorOutputRef.current = value;
-    onChange(value);
-  }, 300);
-
   return () => {
     if (skipNextOnChangeRef.current) {
       skipNextOnChangeRef.current = false;
@@ -65,6 +56,11 @@ export const useEditorValue = ({
       return;
     }
 
-    emitChange();
+    const value = isHTML
+      ? editor.blocksToHTMLLossy(editor.document)
+      : JSON.stringify(editor.document);
+
+    lastEditorOutputRef.current = value;
+    onChange(value);
   };
 };
