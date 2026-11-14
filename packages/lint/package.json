@@ -1,0 +1,63 @@
+{
+  "name": "@erxes/lint",
+  "version": "0.1.0",
+  "private": false,
+  "description": "The lint rules erxes core and its plugins share, as one Vite+ (oxlint) preset",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erxes/erxes.git",
+    "directory": "packages/lint"
+  },
+  "bin": {
+    "erxes-check-docs": "./src/check-docs.ts",
+    "erxes-check-escapes": "./src/check-escapes.ts"
+  },
+  "files": [
+    "dist",
+    "src/anti-slop/LICENSE",
+    "src/anti-slop/vendor/eslint-stylistic/LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./anti-slop": "./src/anti-slop/index.ts",
+    "./check-docs": "./src/check-docs.ts",
+    "./check-escapes": "./src/check-escapes.ts",
+    "./erxes": "./src/erxes/index.ts",
+    "./shadcn": "./src/shadcn.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "bin": {
+      "erxes-check-docs": "./dist/check-docs.js",
+      "erxes-check-escapes": "./dist/check-escapes.js"
+    },
+    "exports": {
+      ".": "./dist/index.js",
+      "./anti-slop": "./dist/anti-slop/index.js",
+      "./check-docs": "./dist/check-docs.js",
+      "./check-escapes": "./dist/check-escapes.js",
+      "./erxes": "./dist/erxes/index.js",
+      "./shadcn": "./dist/shadcn.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public",
+    "provenance": true,
+    "tag": "v2-next"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@shadcn/lint": "0.2.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "vite-plus": "^1.6.0"
+  },
+  "peerDependencies": {
+    "vite-plus": "^1.6.0"
+  }
+}

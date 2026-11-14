@@ -12,18 +12,20 @@ are the reference feature: copy their shape for a new one.
 
 ## This repo
 
-- Gates: `vp run check` (format, lint, types), `vp run test` (real Postgres via
-  `DATA_TEST_URL`), `pnpm check:rls`, `pnpm build`. `vp run fix` formats and fixes lint.
-- Two checks the section names aren't here yet, so their rules are `[review]`
-  in this repo: knip, and `pnpm check:generated` (CI's migration drift check is
-  the nearest).
+- `vp run check` runs the escape guard, format, lint, types, knip, the docs guard
+  and `pnpm check:generated`. The drift check compares migrations with the schema
+  and `api/openapi.json` with the router's request and response schemas. After a
+  deliberate contract change, run `pnpm openapi` and commit the document.
+- Other gates: `vp run test` on real Postgres via `DATA_TEST_URL`,
+  `pnpm check:rls`, `pnpm build`. `vp run fix` formats and fixes lint.
 - Core finds the plugin by these names, so they stay fixed: plugin `__id__`,
   remote `__id___ui` exposing `./config` and `./__id__`, pages under `/__id__/*`.
 - Every table, index and constraint starts with `__id___`, and every table has
   `org_id` with forced row-level security, or is listed in `tools/no-org-id.sql`
   with the reason. Core and other plugins share the database. [pnpm check:rls]
-- `tools/config/`, `tools/test/no-skips.ts` and `tools/check-rls.sql` come from
-  core unchanged, as does the quality section above. Change them in core.
+- The lint rules are `@erxes/lint`'s preset (`vite.config.ts`). It,
+  `tools/test/no-skips.ts` and `tools/check-rls.sql` come from core unchanged, as
+  does the quality section above. Change them in core.
 - The plugin reaches core only through `@erxes/plugin-sdk` (`api/src/core.ts`)
   and the UI's `pluginFetch`. It never reads `core_*` tables or imports core code.
 - Members are signed in by core: the UI sends a session token, the API checks it

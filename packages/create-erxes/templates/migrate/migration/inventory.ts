@@ -14,6 +14,7 @@ import { Lang, parse, type SgNode } from '@ast-grep/napi';
 import { z } from 'zod';
 
 const output = resolve(import.meta.dirname, 'inventory.json');
+
 // One order on every machine, so a rerun on another one changes no line.
 const alphabetical = (a: string, b: string) => a.localeCompare(b, 'en');
 const argv = process.argv.slice(2);
@@ -48,6 +49,7 @@ if (!given || !plugin) {
 
 // Git takes all three as arguments, so none may read as an option.
 if (!/^[a-z][a-z0-9_]*$/.test(plugin)) throw new Error(`Not an old plugin name: ${plugin}`);
+
 if (!/^\w[\w./-]*$/.test(ref)) throw new Error(`Not a git ref: ${ref}`);
 
 const from = resolve(given);
@@ -254,8 +256,10 @@ const sdlOf = (template: SgNode, name: string) => {
     .slice(1, -1)
     .replaceAll(/\$\{[^}]*\}/g, '')
     .replaceAll(/#[^\n]*/g, '');
+
   const operations: { kind: string; name: string; returns: string }[] = [];
   const types: { kind: string; name: string }[] = [];
+
   const listKind = /subscriptions$/i.test(name)
     ? 'subscription'
     : /mutations$/i.test(name)
@@ -328,6 +332,7 @@ const schemaFieldsOf = (object: SgNode) =>
 
 const resolveImport = (file: string, specifier: string, paths: Set<string>) => {
   const pluginRoot = file.startsWith(apiRoot) ? `${apiRoot}src/` : `${uiRoot}src/`;
+
   const base = specifier.startsWith('.')
     ? normalize(join(dirname(file), specifier))
     : specifier.startsWith('~/')
@@ -349,12 +354,14 @@ const scanFile = (file: string, source: string, paths: Set<string>) => {
   const trpcNames = new Set(['sendTRPCMessage']);
   /** Local name → the file it comes from and its name there. */
   const imports = new Map<string, { file: string; name: string }>();
+
   /** A name defined here or imported: `file#name`. */
   const origin = (local: string) => {
     const imported = imports.get(local);
 
     return imported ? `${imported.file}#${imported.name}` : `${file}#${local}`;
   };
+
   const uiImports: string[] = [];
   const workerEvidence = new Set<string>();
   const constants: [string, string][] = [];
@@ -498,6 +505,7 @@ const scanFile = (file: string, source: string, paths: Set<string>) => {
 
     if (name === 'loadClass') {
       const owner = call.field('function')?.field('object')?.text();
+
       const enclosing = call
         .ancestors()
         .find(
@@ -580,6 +588,7 @@ const scanFile = (file: string, source: string, paths: Set<string>) => {
 
   // React Router: <Route path> elements, nested paths joined within the file.
   const uiRoutes = [];
+
   const jsx = file.endsWith('x')
     ? root.findAll({
         rule: { any: [{ kind: 'jsx_element' }, { kind: 'jsx_self_closing_element' }] },
@@ -597,6 +606,7 @@ const scanFile = (file: string, source: string, paths: Set<string>) => {
       .filter((attributes) => attributes.route)
       .map((attributes) => attributes.path)
       .toReversed();
+
     const own = routeAttributes(opening);
 
     // Redirects are not pages.
@@ -635,6 +645,7 @@ const scanFile = (file: string, source: string, paths: Set<string>) => {
         const owner = pair.parent();
         const name = owner && field(owner, 'name');
         const above = owner?.parent();
+
         const group =
           typeof name === 'string'
             ? name
@@ -687,10 +698,13 @@ function assignedTarget(call: SgNode) {
 
 function routeAttributes(opening: SgNode | null) {
   const attributes = opening?.findAll({ rule: { kind: 'jsx_attribute' } }) ?? [];
+
   const value = (name: string) =>
     attributes.find((attribute) => attribute.child(0)?.text() === name)?.child(2);
+
   const pathNode = value('path');
   const elementNode = value('element');
+
   const component = elementNode?.find({
     rule: { any: [{ kind: 'jsx_self_closing_element' }, { kind: 'jsx_opening_element' }] },
   });
@@ -711,6 +725,7 @@ const countBy = <T>(items: T[], key: (item: T) => string) => {
 };
 
 const sha = git('rev-parse', '--verify', `${ref}^{commit}`).trim();
+
 const allPaths = git('ls-tree', '-r', '-z', '--name-only', sha, '--', apiRoot, uiRoot)
   .split('\0')
   .filter(Boolean)
@@ -723,12 +738,16 @@ const pathSet = new Set(allPaths);
 const sources = allPaths.filter((path) => sourceFile.test(path) && !testFile.test(path));
 const blobs = readBlobs(sha, sources);
 const scans = sources.map((file) => scanFile(file, blobs.get(file) ?? '', pathSet));
+
 type Scan = (typeof scans)[number];
+
 type ListKey = { [K in keyof Scan]: Scan[K] extends readonly unknown[] ? K : never }[keyof Scan];
+
 const all = <K extends ListKey>(key: K) => scans.map((scan) => scan[key]).flat();
 
 // Constants by name, so `type: TASK_TARGET` reads as its string.
 const constants = new Map(scans.flatMap((scan) => scan.constants));
+
 const resolveField = (value: Field): Field =>
   typeof value === 'object' && 'dynamic' in value && constants.has(value.dynamic)
     ? (constants.get(value.dynamic) ?? value)
@@ -738,6 +757,7 @@ const resolveField = (value: Field): Field =>
 const loaders = new Map(all('loaders'));
 const schemas = all('schemas');
 const schemaRefs = new Map(schemas.map((schema) => [`${schema.file}#${schema.name}`, schema]));
+
 const collections = all('models').map((model) => {
   const schemaRef = model.loader ? (loaders.get(model.loader) ?? model.loader) : undefined;
   const schema = schemaRef ? schemaRefs.get(schemaRef) : undefined;
@@ -751,6 +771,7 @@ const collections = all('models').map((model) => {
 
 // Express mounts: `router.use('/facebook', facebookRouter)` prefixes that file's routes.
 const mounts = all('mounts');
+
 const prefixOf = (file: string, seen = new Set<string>()): string => {
   const mount = mounts.find((candidate) => candidate.target === file);
 
@@ -760,6 +781,7 @@ const prefixOf = (file: string, seen = new Set<string>()): string => {
 
   return `${prefixOf(mount.file, seen)}${mount.prefix}`;
 };
+
 const routes = all('routes').map((route) => {
   const path = `${prefixOf(route.file)}${route.path}`.replaceAll(/\/+/g, '/');
 
@@ -767,13 +789,16 @@ const routes = all('routes').map((route) => {
 });
 
 const uiModuleImports = scans.flatMap((scan) => (scan.uiImports ? [scan.uiImports] : []));
+
 const env = [...new Map(all('env').map((entry) => [entry.name, entry])).values()].toSorted((a, b) =>
   a.name.localeCompare(b.name),
 );
+
 const registrations = all('registrations').map((entry) => ({
   ...entry,
   id: resolveField(entry.id),
 }));
+
 const eventCalls = all('eventCalls').map((call) => ({
   ...call,
   ...('type' in call && call.type && { type: resolveField(call.type) }),
@@ -788,6 +813,7 @@ const workerFiles = sources.flatMap((file, index) => {
 const trpcCalls = all('trpcCalls');
 const graphqlOperations = scans.flatMap((scan) => scan.graphql.operations);
 const graphqlTypes = scans.flatMap((scan) => scan.graphql.types);
+
 const uiRoutes = all('uiRoutes')
   .filter((route) => route.file.startsWith(uiRoot))
   .map((route) => ({
@@ -798,6 +824,7 @@ const uiRoutes = all('uiRoutes')
       (_match, expression: string) => constants.get(expression.trim()) ?? `:${expression.trim()}`,
     ),
   }));
+
 const modules = [...new Set(sources.map(moduleOf))].toSorted(alphabetical);
 
 const inventory = {
@@ -850,4 +877,5 @@ const inventory = {
 writeFileSync(output, `${JSON.stringify(inventory, null, 2)}\n`);
 
 console.info(inventory.counts);
+
 console.info(`wrote ${output} in ${Math.round(performance.now() - started)} ms`);

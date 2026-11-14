@@ -5,6 +5,7 @@
 // existing MIGRATION.md are kept.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import type * as pg from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 import {
   CORE_CALLS,
@@ -24,6 +25,7 @@ const Value = z.union([
   z.object({ dynamic: z.string() }),
   z.object({ missing: z.literal(true) }),
 ]);
+
 const Located = z.object({ file: z.string(), line: z.number() });
 const InModule = Located.extend({ module: z.string() });
 
@@ -74,11 +76,13 @@ const Inventory = z.object({
 const inventory = Inventory.parse(
   JSON.parse(readFileSync(resolve(here, 'inventory.json'), 'utf8')),
 );
+
 /** The new plugin's name; the old one's is `inventory.source.plugin`. */
 const PLUGIN = '__id__';
 const { plugin } = inventory.source;
 const short = (file: string) => file.replace(/^(backend|frontend)\/plugins\//, '');
 const at = (item: { file: string; line: number }) => `\`${short(item.file)}:${item.line}\``;
+
 const show = (value: z.infer<typeof Value> | undefined) =>
   value === undefined
     ? '?'
@@ -97,6 +101,7 @@ const RUNTIME_ENV =
 type Item = { section: string; text: string; gap: boolean };
 
 const items = new Map<string, Item[]>();
+
 const add = (module: string, section: string, text: string, gap = false) => {
   const list = items.get(module) ?? [];
 
@@ -111,8 +116,10 @@ const describe = (equivalent: Equivalent) =>
 
 const camel = (text: string) =>
   text.replaceAll(/[_-](\w)/g, (_match, char: string) => char.toUpperCase());
+
 const tableName = (collection: string) =>
   `${PLUGIN}_${collection.startsWith(`${plugin}_`) ? collection.slice(plugin.length + 1) : collection}`;
+
 const schemaByRef = new Map(
   inventory.schemas.map((schema) => [`${schema.file}#${schema.name}`, schema]),
 );
@@ -140,14 +147,17 @@ for (const op of inventory.graphql.operations) {
 
 // A page belongs to the module its component or last path segment names.
 const singular = (word: string) => word.replace(/ies$/, 'y').replace(/s$/, '');
+
 const moduleOfPage = (route: { path: string; element: string }) => {
   const byName = inventory.modules
     .filter((module) => route.element.toLowerCase().includes(module.toLowerCase()))
     .toSorted((a, b) => b.length - a.length)[0];
+
   const segment = route.path
     .split('/')
     .filter((part) => part && !part.startsWith(':') && part !== '*')
     .at(-1);
+
   const bySegment = segment && inventory.modules.find((module) => module === singular(segment));
 
   return byName ?? bySegment ?? '(plugin)';
@@ -164,6 +174,7 @@ for (const route of inventory.uiRoutes) {
 for (const call of inventory.trpcCalls) {
   const target = typeof call.pluginName === 'string' ? call.pluginName : undefined;
   const key = `${show(call.target)}.${show(call.action)}`;
+
   const equivalent =
     call.dynamic || !target
       ? UNMAPPED
@@ -227,6 +238,7 @@ for (const entry of env) {
 // MIGRATION.md -------------------------------------------------------------------
 
 const markdown = resolve(root, 'MIGRATION.md');
+
 // Ticks survive a rerun: an item's text without its checkbox is its key, and a
 // filed gap keeps its ` (filed <url>)` suffix.
 const ticked = new Map(
@@ -239,10 +251,12 @@ const ticked = new Map(
 
 const all = [...items.values()].flat();
 const gaps = all.filter((item) => item.gap).length;
+
 const order = [
   '(plugin)',
   ...[...items.keys()].filter((module) => module !== '(plugin)').toSorted(alphabetical),
 ];
+
 const sections = [
   'Tables',
   'Procedures',
@@ -254,6 +268,7 @@ const sections = [
   'Registrations',
   'Environment',
 ];
+
 const symbols = Object.keys(inventory.uiModules.symbols).length;
 
 const lines = [
@@ -295,7 +310,7 @@ writeFileSync(markdown, lines.join('\n'));
 
 // schema-draft.ts and import-map.ts ------------------------------------------------
 
-const COLUMN: Record<string, string> = {
+const COLUMN: Record<string, `${keyof typeof pg}(${string})`> = {
   String: 'text()',
   Number: 'doublePrecision()',
   Boolean: 'boolean()',
@@ -314,6 +329,7 @@ const columnOf = (type: string) => {
 
 const identifier = (name: string) =>
   /^[A-Za-z_$][\w$]*$/.test(name) ? name : JSON.stringify(name);
+
 const snake = (name: string) => name.replaceAll(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
 const drafted = new Set<string>();
 const tables: string[] = [];
@@ -328,12 +344,15 @@ for (const collection of inventory.collections) {
   drafted.add(table);
 
   const fields = schema.fields.filter((entry) => entry.type !== 'spread' && entry.name !== '_id');
+
   const columns = fields.map((entry) => {
     const column = `${columnOf(entry.type)}${entry.required ? '.notNull()' : ''}`;
 
     return `    ${identifier(entry.name)}: ${column}, // ${entry.type}`;
   });
+
   const spreads = schema.fields.filter((entry) => entry.type === 'spread');
+
   const stamps = schema.timestamps
     ? [
         '    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),',

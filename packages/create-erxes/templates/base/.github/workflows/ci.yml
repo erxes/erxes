@@ -32,14 +32,6 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Migrations match the Drizzle schema
-        run: |
-          pnpm db:check
-          pnpm db:generate
-          if [ -n "$(git status --porcelain -- api/drizzle)" ]; then
-            echo 'Schema changed without a migration: run pnpm db:generate and commit api/drizzle'
-            exit 1
-          fi
       - run: pnpm exec vp run check
       - run: pnpm exec vp run test
         env:

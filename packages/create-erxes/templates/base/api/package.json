@@ -18,12 +18,12 @@
     "start": "node --enable-source-maps --import ./dist/telemetry.mjs dist/main.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file-if-exists=../.env src/db/migrate.ts",
+    "openapi": "node scripts/openapi.ts",
     "db:check": "drizzle-kit check"
   },
   "dependencies": {
     "@erxes/core-contract": "v2-next",
     "@erxes/plugin-sdk": "v2-next",
-    "@opentelemetry/instrumentation": "^0.301.1",
     "@opentelemetry/instrumentation-express": "^0.73.0",
     "@opentelemetry/instrumentation-http": "^0.301.1",
     "@opentelemetry/instrumentation-pg": "^0.78.0",
@@ -40,6 +40,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@orpc/openapi": "1.16.2",
+    "@orpc/zod": "1.16.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/pg": "^8.23.1",

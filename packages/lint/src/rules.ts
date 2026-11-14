@@ -1,14 +1,6 @@
-// The lint setup every erxes repo on the new stack shares: create-erxes copies this
-// file and budgets.ts into each plugin unchanged. What only core gets is in
-// core-rules.ts, import bans in restricted.ts, what each part of the repo adds in areas.ts.
+// The rule sets of the preset (index.ts). `rules` holds everywhere, `browserRules` and
+// `designRules` in browser code, `serverRules` in server code.
 import type { OxlintConfig } from 'vite-plus/lint';
-
-export const lintBase = {
-  plugins: ['typescript', 'unicorn', 'oxc', 'import', 'vitest', 'promise', 'node'],
-  jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
-  categories: { correctness: 'error', suspicious: 'error' },
-  options: { typeAware: true, typeCheck: true },
-} satisfies OxlintConfig;
 
 export const rules = {
   'vite-plus/prefer-vite-plus-imports': 'error',
@@ -61,6 +53,34 @@ export const rules = {
   // noImplicitReturns in tsconfig.base.json checks this with types, so exhaustive switches pass.
   'typescript/consistent-return': 'off',
   'typescript/switch-exhaustiveness-check': ['error', { considerDefaultExhaustiveForUnions: true }],
+  // Size limits. Big files are where agents pile up unrelated code, and every agent reads a
+  // file whole. Split by responsibility (a feature's router, service, queries), not into
+  // part1/part2. Raising a limit is a rule change, in its own PR.
+  'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
+  'max-lines-per-function': [
+    'error',
+    { max: 80, skipBlankLines: true, skipComments: true, IIFEs: true },
+  ],
+  'anti-slop/no-reduce-accumulator-copy': 'error',
+  'anti-slop/no-object-parameters': 'error',
+  'anti-slop/no-reflect-apply': 'error',
+  'anti-slop/no-reflect-get': 'error',
+  'anti-slop/no-shape-in-symbol-names': 'error',
+  'anti-slop/no-unknown-type-aliases': 'error',
+  'anti-slop/no-widen-then-assert': 'error',
+  'anti-slop/require-readable-spacing': 'error',
+  // A malformed token claim must fail verification, never fall back to a value.
+  'anti-slop/no-zod-catch': 'error',
+  'erxes/no-session-advisory-lock': 'error',
+} satisfies OxlintConfig['rules'];
+
+/** What server code adds. */
+export const serverRules = {
+  // A query per item is an N+1: batch it (`inArray`, a set-based update), or run the steps in
+  // order on purpose through a named helper.
+  'no-await-in-loop': 'error',
+  // Row level security scopes every query to the organisation, so code adds no org_id filter.
+  'erxes/no-org-filter': 'error',
 } satisfies OxlintConfig['rules'];
 
 /** What browser code adds, in an override that enables the `react` and `jsx-a11y` plugins. */
@@ -78,4 +98,33 @@ export const browserRules = {
   // The automatic JSX runtime (jsx: react-jsx) needs no React in scope.
   'react/react-in-jsx-scope': 'off',
   'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],
+} satisfies OxlintConfig['rules'];
+
+// What a screen may put on a component's className: layout, and opacity to reveal a control on
+// hover. The globs are layout too: shadcn-lint 0.2.5 reads no grid, max-width, max-height or
+// min-height tokens from @theme, so it can't place theme.css's grid-cols-aside or max-h-popup.
+const screenClasses = [
+  'layout',
+  'opacity-0',
+  'opacity-100',
+  'grid-cols-*',
+  'grid-rows-*',
+  'max-w-*',
+  'max-h-*',
+  'min-h-*',
+];
+
+/**
+ * The design system's rules (@shadcn/lint) for screens: they compose erxes-ui components and
+ * theme tokens, and each component owns how it looks.
+ */
+export const designRules = {
+  'shadcn/no-restyle': ['error', { allow: screenClasses }],
+  'shadcn/no-arbitrary-values': 'error',
+  // A style object whose keys are only known at runtime (a width per table column, a
+  // colour per chart series) is built as `cssVariables`, typed Record<`--${string}`, string>.
+  'shadcn/no-inline-styles': ['error', { allowDynamicIdentifiers: ['cssVariables'] }],
+  'shadcn/no-unknown-classes': 'error',
+  'shadcn/require-static-classes': 'error',
+  'shadcn/no-raw-colors': 'error',
 } satisfies OxlintConfig['rules'];

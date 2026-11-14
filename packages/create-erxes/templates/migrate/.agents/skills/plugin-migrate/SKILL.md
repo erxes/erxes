@@ -8,14 +8,21 @@ Port what each feature does, never its code: where the old plugin got
 something wrong (a missing check, a race, a workaround for the old core), the
 new one does it right.
 
-`MIGRATION.md` lists everything the old plugin did, one section per module.
-`migration/inventory.json` holds the raw facts behind it, and
+If scaffolding skipped installation, first run `pnpm migrate:inventory -- --from <old-checkout> --plugin <old-plugin> --ref <ref>`
+and `pnpm migrate:checklist`. These commands generate the port's working files:
+
+```text
+MIGRATION.md                Checklist, one section per old module
+migration/inventory.json   Code inventory behind the checklist
+migration/schema-draft.ts  Draft tables to port
+```
+
 `migration/core-map.ts` says what each old core call becomes. Use synthetic
 data only. The inventory reads code, never a database.
 
-1. Read `MIGRATION.md`. Port the module with the fewest unticked items first;
+1. Read the checklist. Port the module with the fewest unticked items first;
    `Plugin-wide` goes last.
-2. Tables. Move the module's tables from `migration/schema-draft.ts` into
+2. Tables. Move the module's draft tables into
    `api/src/db/schema.ts`, then follow the `schema-change` skill. Fix the draft
    types while moving: whole numbers become `integer()`, fixed string sets
    become `text({ enum })`, required ids stay `text().notNull()`, and a value
@@ -50,5 +57,5 @@ data only. The inventory reads code, never a database.
 Rerun `pnpm migrate:inventory` and `pnpm migrate:checklist` only to pick up
 new old-side code; ticks survive the rerun.
 
-Done when every item in `MIGRATION.md` is ticked, each gap with its issue
+Done when every checklist item is ticked, each gap with its issue
 link, and `vp run check`, `vp run test`, `pnpm check:rls` and `pnpm build` pass.

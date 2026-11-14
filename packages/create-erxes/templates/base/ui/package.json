@@ -17,18 +17,16 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-i18next": "^15.7.4",
-    "react-router": "^7.18.5",
-    "react-router-dom": "^7.18.5",
-    "zod": "^4.6.7"
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
+    "@__id__/api": "workspace:*",
     "@module-federation/rsbuild-plugin": "2.9.3",
     "@rsbuild/core": "^2.3.2",
     "@rsbuild/plugin-babel": "^2.1.0",
     "@rsbuild/plugin-react": "^2.1.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@__id__/api": "workspace:*",
     "babel-plugin-react-compiler": "^1.0.0"
   }
 }

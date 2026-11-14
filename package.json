@@ -27,11 +27,11 @@
     "@arethetypeswrong/core": "^0.18.5",
     "@axe-core/playwright": "^4.14.0",
     "@erxes/core-contract": "workspace:*",
+    "@erxes/lint": "workspace:*",
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi-client": "1.16.2",
     "@playwright/test": "^1.65.0",
-    "@shadcn/lint": "0.2.5",
     "@types/node": "^26.6.6",
     "@types/semver": "^7.8.0",
     "knip": "^6.45.1",
@@ -40,8 +40,7 @@
     "tsdown": "^0.23.7",
     "tsrs": "0.25.0-ts7.1.0-beta",
     "typescript": "~7.0.2",
-    "vite-plus": "1.6.0",
-    "zod": "^4.6.7"
+    "vite-plus": "1.6.0"
   },
   "engines": {
     "node": ">=26",

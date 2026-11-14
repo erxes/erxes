@@ -11,13 +11,16 @@ const textOf = (value: FormDataEntryValue | null) => (typeof value === 'string' 
 const ItemForm = ({ item, onSaved }: { item?: Item; onSaved: () => void }) => {
   const { t } = useTranslation('__id__');
   const queryClient = useQueryClient();
+
   const onSuccess = () => {
     void queryClient.invalidateQueries({ queryKey: orpc.items.key() });
     onSaved();
   };
+
   const create = useMutation(orpc.items.create.mutationOptions({ onSuccess }));
   const update = useMutation(orpc.items.update.mutationOptions({ onSuccess }));
   const { error, isPending } = item ? update : create;
+
   const takenName =
     isDefinedError(error) && error.code === 'ITEM_NAME_TAKEN' ? error.data.name : null;
 
@@ -33,32 +36,34 @@ const ItemForm = ({ item, onSaved }: { item?: Item; onSaved: () => void }) => {
 
   return (
     <form action={save} className="flex flex-1 flex-col">
-      <Sheet.Content className="flex flex-col gap-4 p-4">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="item-name">{t('name', 'Name')}</Label>
-          <Input
-            id="item-name"
-            name="name"
-            required
-            defaultValue={item?.name}
-            aria-invalid={takenName !== null}
-            aria-describedby={takenName === null ? undefined : 'item-name-error'}
-          />
-          {takenName !== null && (
-            <p id="item-name-error" className="text-sm text-destructive">
-              {t('name-taken', 'Another item is already called {{name}}.', { name: takenName })}
+      <Sheet.Content>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="item-name">{t('name', 'Name')}</Label>
+            <Input
+              id="item-name"
+              name="name"
+              required
+              defaultValue={item?.name}
+              aria-invalid={takenName !== null}
+              aria-describedby={takenName === null ? undefined : 'item-name-error'}
+            />
+            {takenName !== null && (
+              <p id="item-name-error" className="text-sm text-destructive">
+                {t('name-taken', 'Another item is already called {{name}}.', { name: takenName })}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="item-description">{t('description', 'Description')}</Label>
+            <Textarea id="item-description" name="description" defaultValue={item?.description} />
+          </div>
+          {error && !isDefinedError(error) && (
+            <p role="alert" className="text-sm text-destructive">
+              {error.message}
             </p>
           )}
         </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="item-description">{t('description', 'Description')}</Label>
-          <Textarea id="item-description" name="description" defaultValue={item?.description} />
-        </div>
-        {error && !isDefinedError(error) && (
-          <p role="alert" className="text-sm text-destructive">
-            {error.message}
-          </p>
-        )}
       </Sheet.Content>
       <Sheet.Footer>
         <Button type="submit" disabled={isPending}>
@@ -90,8 +95,10 @@ export const ItemSheet = ({ items }: { items: Item[] }) => {
         {openId === 'new' || item ? (
           <ItemForm key={item?.id ?? 'new'} item={item} onSaved={close} />
         ) : (
-          <Sheet.Content className="p-4 text-sm text-muted-foreground">
-            {t('not-found', 'This item is not in the list.')}
+          <Sheet.Content>
+            <p className="text-sm text-muted-foreground">
+              {t('not-found', 'This item is not in the list.')}
+            </p>
           </Sheet.Content>
         )}
       </Sheet.View>

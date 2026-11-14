@@ -9,13 +9,17 @@
     "db:generate": "pnpm --filter @__id__/api db:generate",
     "db:check": "pnpm --filter @__id__/api db:check",
     "db:migrate": "pnpm --filter @__id__/api db:migrate",
+    "openapi": "pnpm --filter @__id__/api openapi",
+    "check:generated": "node tools/check-generated.ts",
     "check:rls": "bash tools/check-rls.sh",
     "dev:api": "pnpm --filter @__id__/api dev",
     "dev:ui": "pnpm --filter @__id__/ui dev",
     "image:context": "pnpm build && rm -rf .runtime && pnpm --filter @__id__/api deploy --prod .runtime"
   },
   "devDependencies": {
+    "@erxes/lint": "__lintVersion__",
     "@types/node": "^26.6.6",
+    "knip": "^6.45.1",
     "tsrs": "0.25.0-ts7.1.0-beta",
     "typescript": "7.0.2",
     "vite-plus": "catalog:"

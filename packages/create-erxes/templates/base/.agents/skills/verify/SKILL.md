@@ -10,7 +10,7 @@ Use synthetic data only.
    `verify-feature` skill. Give core
    `CORE_PLUGIN_KEYS=__id__:<32+ character secret>`, and web
    `PUBLIC_PLUGINS=__id___ui@http://localhost:__uiPort__/remoteEntry.js`.
-3. Give the plugin role a database: `pnpm db:plugin-role __id__` in core, then
+3. Give the plugin role a database by running `core$ pnpm db:plugin-role __id__` in core, then
    put its URL in this repo's `.env` as `DATA_URL`, with the same secret as
    `PLUGIN_SECRET`.
 4. Run `pnpm dev:api` and `pnpm dev:ui`. The API log ends with its address; a

@@ -19,4 +19,5 @@ const server = createApp().listen(config.port, () => {
 const stop = () => server.close(() => void pool.end());
 
 process.once('SIGTERM', stop);
+
 process.once('SIGINT', stop);
