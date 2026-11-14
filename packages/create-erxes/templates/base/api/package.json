@@ -21,8 +21,8 @@
     "db:check": "drizzle-kit check"
   },
   "dependencies": {
-    "@erxes/core-contract": "v2-next",
-    "@erxes/plugin-sdk": "v2-next",
+    "@erxes/core-contract": "__contractVersion__",
+    "@erxes/plugin-sdk": "__sdkVersion__",
     "@opentelemetry/instrumentation-express": "^0.73.0",
     "@opentelemetry/instrumentation-http": "^0.301.1",
     "@opentelemetry/instrumentation-pg": "^0.78.0",
