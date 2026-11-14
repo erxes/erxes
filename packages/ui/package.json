@@ -54,6 +54,7 @@
     "@dnd-kit/modifiers": "9.0.0",
     "@dnd-kit/sortable": "10.0.0",
     "@dnd-kit/utilities": "3.2.2",
+    "@floating-ui/react": "^0.27.20",
     "@formkit/auto-animate": "0.10.2",
     "@hookform/resolvers": "7.0.6",
     "@module-federation/enhanced": "2.9.3",
