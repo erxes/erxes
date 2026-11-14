@@ -8,7 +8,7 @@ import { views } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ConditionGroup } from './automationDefinition';
+import { ConditionGroup } from '@erxes/core-db/automationDefinition';
 import { Id, isoDate, listOf } from './common';
 
 /** The list a view belongs to: customers, leads (people), companies, company leads, products. */

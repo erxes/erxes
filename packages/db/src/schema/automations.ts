@@ -17,6 +17,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import type { AutomationDefinition } from '../automationDefinition';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -24,8 +25,8 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 /**
- * An automation: a trigger (event type + conditions) and steps, validated by
- * the contract's `AutomationDefinition`. `definition` is the working copy;
+ * An automation: a trigger (event type + conditions) and steps, in the shape of
+ * `AutomationDefinition` (`../automationDefinition`), which the contract checks on the way in. `definition` is the working copy;
  * activating publishes it as a numbered version runs start from.
  */
 export const automations = pgTable(
@@ -36,13 +37,16 @@ export const automations = pgTable(
     name: text().notNull(),
     description: text(),
     status: text({ enum: AUTOMATION_STATUSES }).default('draft').notNull(),
-    definition: jsonb().$type<Record<string, unknown>>().notNull(),
+    definition: jsonb().$type<AutomationDefinition>().notNull(),
     /** Copied from the definition for matching events quickly (`schedule:`, `date:`, `manual` for the others). */
     triggerEvent: text().notNull(),
     /** Scheduled and date triggers: when the next tick is due. */
     nextRunAt: timestamptz(),
-    /** Working state: round-robin positions, runs skipped by the hourly limit. */
-    state: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
+    /** Working state: round-robin positions per step, runs skipped by the hourly limit. */
+    state: jsonb()
+      .$type<{ turns?: Record<string, number>; skippedByLimit?: number }>()
+      .default({})
+      .notNull(),
     activeVersion: integer(),
     /** The member it acts as: its actions need their permissions, checked at run time. */
     activatedBy: text(),
@@ -74,7 +78,7 @@ export const automationVersions = pgTable(
     orgId: orgIdColumn(),
     automationId: text().notNull(),
     version: integer().notNull(),
-    definition: jsonb().$type<Record<string, unknown>>().notNull(),
+    definition: jsonb().$type<AutomationDefinition>().notNull(),
     publishedBy: text(),
     createdAt: createdAt(),
   },

@@ -1,4 +1,4 @@
-import { AutomationDefinition, type AutomationStep, type DryRunStep } from '@erxes/core-contract';
+import type { AutomationDefinition, AutomationStep, DryRunStep } from '@erxes/core-contract';
 import type { ContentType, Db } from '@erxes/core-db';
 import { notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
@@ -183,7 +183,7 @@ export const testAutomation = async (
   },
 ) => {
   const row = await findAutomation(client, id);
-  const definition = AutomationDefinition.parse(row.definition);
+  const { definition } = row;
   const { trigger } = definition;
 
   const subject = input.subject

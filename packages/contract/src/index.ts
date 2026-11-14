@@ -56,7 +56,7 @@ export const coreContract = {
 
 export * from './activities';
 
-export * from './automationDefinition';
+export * from '@erxes/core-db/automationDefinition';
 
 export * from './automationRuns';
 
