@@ -3,6 +3,7 @@ import { customerSessions, type Db, newId, withOrg, withSystem } from '@erxes/co
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { sha256 } from '~/lib/crypto';
+import { seal, unseal } from '~/lib/secrets';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { newSecret, sameHash, splitCredential } from '~/modules/oauth/oauthClients';
 
@@ -15,6 +16,13 @@ const CUSTOMER_AUDIENCE = 'erxes-customer';
 const SESSION_DAYS = 90;
 
 const CUSTOMER_ACCESS_SECONDS = 900;
+
+/**
+ * How long a replaced refresh token still gets the token that replaced it. Long
+ * enough for a second tab or a retry, short enough that a leaked token used
+ * later still ends the session.
+ */
+const REUSE_GRACE_SECONDS = 60;
 
 interface CustomerSessionRef {
   orgId: string;
@@ -92,47 +100,60 @@ type FoundSession = NonNullable<Awaited<ReturnType<typeof sessionOf>>>;
 
 /**
  * Trades the session's refresh token for new tokens. The previous token used
- * again means it leaked: the session ends.
+ * again within REUSE_GRACE_SECONDS gets the same new token, since a second tab
+ * or a retried request (its answer lost) refreshes that way. Used again later,
+ * it leaked: the session ends.
  */
 export const rotateSession = ({ row, secret }: FoundSession) =>
   withOrg(row.orgId, async (tx) => {
-    if (row.previousTokenHash && sameHash(row.previousTokenHash, secret)) {
+    // One refresh at a time per session: a concurrent one waits here and then sees this one's result.
+    const [session] = await tx
+      .select({
+        tokenHash: customerSessions.tokenHash,
+        previousTokenHash: customerSessions.previousTokenHash,
+        tokenSealed: customerSessions.tokenSealed,
+        live: sql<boolean>`${customerSessions.revokedAt} is null and ${customerSessions.expiresAt} > now()`,
+        justRotated: sql<boolean>`coalesce(${customerSessions.rotatedAt} > now() - make_interval(secs => ${REUSE_GRACE_SECONDS}), false)`,
+      })
+      .from(customerSessions)
+      .where(eq(customerSessions.id, row.id))
+      .for('update')
+      .limit(1);
+
+    if (!session?.live) return null;
+
+    const ref = { orgId: row.orgId, customerId: row.customerId, sessionId: row.id };
+
+    if (sameHash(session.tokenHash, secret)) {
+      const next = newSecret();
+
       await tx
         .update(customerSessions)
-        .set({ revokedAt: sql`now()` })
+        .set({
+          tokenHash: sha256(next),
+          previousTokenHash: session.tokenHash,
+          tokenSealed: seal(next),
+          rotatedAt: sql`now()`,
+          lastUsedAt: sql`now()`,
+          expiresAt: sql`now() + make_interval(days => ${SESSION_DAYS})`,
+        })
         .where(eq(customerSessions.id, row.id));
 
-      return null;
+      return tokensFor(ref, row.clientId, `${row.id}.${next}`);
     }
 
-    const next = newSecret();
+    if (!session.previousTokenHash || !sameHash(session.previousTokenHash, secret)) return null;
 
-    // Only the current token rotates, once: a concurrent use of the same token finds it changed.
-    const [rotated] = await tx
+    if (session.justRotated && session.tokenSealed) {
+      return tokensFor(ref, row.clientId, `${row.id}.${unseal(session.tokenSealed)}`);
+    }
+
+    await tx
       .update(customerSessions)
-      .set({
-        tokenHash: sha256(next),
-        previousTokenHash: row.tokenHash,
-        lastUsedAt: sql`now()`,
-        expiresAt: sql`now() + make_interval(days => ${SESSION_DAYS})`,
-      })
-      .where(
-        and(
-          eq(customerSessions.id, row.id),
-          eq(customerSessions.tokenHash, sha256(secret)),
-          isNull(customerSessions.revokedAt),
-          gt(customerSessions.expiresAt, sql`now()`),
-        ),
-      )
-      .returning({ id: customerSessions.id });
+      .set({ revokedAt: sql`now()` })
+      .where(eq(customerSessions.id, row.id));
 
-    if (!rotated) return null;
-
-    return tokensFor(
-      { orgId: row.orgId, customerId: row.customerId, sessionId: row.id },
-      row.clientId,
-      `${row.id}.${next}`,
-    );
+    return null;
   });
 
 /** Ends the session a refresh token (current or previous) belongs to. */
