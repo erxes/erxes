@@ -3,13 +3,14 @@ import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { AutomationId } from './records';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from './automationDefinition';
 import { ActionInfo, AutomationRun, RunStatus, RunStep } from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const Automation = createSelectSchema(automations, {
-  id: Id,
+  id: AutomationId,
   definition: AutomationDefinition,
   activeVersion: () => z.int(),
   createdAt: isoDate,

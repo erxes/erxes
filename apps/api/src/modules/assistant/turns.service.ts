@@ -1,11 +1,10 @@
-import type { AssistantChatRequest } from '@erxes/core-contract';
+import { ASSISTANT_DATA_PARTS, type AssistantChatRequest } from '@erxes/core-contract';
 import {
   type AssistantMessagePart,
   assistantMessages,
   assistantThreads,
   caller,
   type Db,
-  newId,
 } from '@erxes/core-db';
 import { safeValidateUIMessages, type ToolSet, type UIMessage } from 'ai';
 import { and, eq, isNull, max, sql } from 'drizzle-orm';
@@ -14,6 +13,7 @@ import { findConnection, openKey } from './connections.service';
 import { continueReply } from './continuation';
 import { unreadableKey } from './providers';
 import { isRunning, ownThread, threadMessages } from './threads.service';
+import { type TurnContext, withTurnContext } from './turnContext';
 
 const lockThread = async (client: Db, id: string) => {
   const [row] = await client
@@ -32,10 +32,10 @@ const lockThread = async (client: Db, id: string) => {
   return row;
 };
 
-const createThread = async (client: Db) => {
+const createThread = async (client: Db, id: string) => {
   const [row] = await client
     .insert(assistantThreads)
-    .values({ id: newId(), userId: caller('user').userId })
+    .values({ id, userId: caller('user').userId })
     .returning();
 
   if (!row) throw new Error('The new thread was not returned');
@@ -55,7 +55,11 @@ const nextPosition = async (client: Db, threadId: string) => {
 const partsOf = (message: UIMessage): AssistantMessagePart[] => message.parts;
 
 const validated = async (messages: unknown[], tools: ToolSet) => {
-  const result = await safeValidateUIMessages({ messages, tools });
+  const result = await safeValidateUIMessages({
+    messages,
+    tools,
+    dataSchemas: ASSISTANT_DATA_PARTS,
+  });
 
   if (!result.success) {
     throw new HttpError(
@@ -89,7 +93,12 @@ const addUserMessage = async (client: Db, threadId: string, message: UIMessage) 
   }
 };
 
-export const beginTurn = async (client: Db, request: AssistantChatRequest, tools: ToolSet) => {
+export const beginTurn = async (
+  client: Db,
+  request: AssistantChatRequest,
+  tools: ToolSet,
+  turn: { threadId: string; context: TurnContext },
+) => {
   const connection = await findConnection(client, request.provider);
 
   if (!connection) {
@@ -108,7 +117,7 @@ export const beginTurn = async (client: Db, request: AssistantChatRequest, tools
 
   const thread = request.threadId
     ? await lockThread(client, request.threadId)
-    : await createThread(client);
+    : await createThread(client, turn.threadId);
 
   const stored = (await threadMessages(client, thread.id)).map(({ id, role, parts }) => ({
     id,
@@ -116,8 +125,14 @@ export const beginTurn = async (client: Db, request: AssistantChatRequest, tools
     parts,
   }));
 
-  const sent = request.message;
-  const continuing = sent.role === 'assistant';
+  const continuing = request.message.role === 'assistant';
+
+  const sent = continuing
+    ? request.message
+    : {
+        ...request.message,
+        parts: await withTurnContext(client, thread.id, request.message.parts, turn.context),
+      };
 
   const history = continuing
     ? [...stored.slice(0, -1), continueReply(stored.at(-1), sent)]

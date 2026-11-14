@@ -18,6 +18,7 @@ import {
 import { createModel, DEFAULT_MODELS, describeProviderError } from './providers';
 import { apiTools, approvalFor, type ToolScope } from './tools/apiTools';
 import { askUser } from './tools/askUser';
+import { modelTextOf } from './turnContext';
 
 const MAX_STEPS = 32;
 
@@ -53,7 +54,7 @@ export const streamTurn = async (run: Run) => {
   const result = streamText({
     model: createModel(provider, model, apiKey),
     instructions: instructionsFor(new Date()),
-    messages: await convertToModelMessages(run.messages, { tools }),
+    messages: await convertToModelMessages(run.messages, { tools, convertDataPart: modelTextOf }),
     tools,
     toolApproval: { callApi: (input) => approvalFor(scope, input) },
     stopWhen: stepCountIs(MAX_STEPS),

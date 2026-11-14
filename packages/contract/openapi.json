@@ -458,6 +458,57 @@
           "hasKey"
         ]
       },
+      "AssistantMention": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "customer",
+              "company",
+              "member",
+              "product",
+              "automation"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[^[\\]\\r\\n]+$"
+          },
+          "ref": {
+            "type": "string",
+            "pattern": "^[\\w-]{1,64}$"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "label"
+        ]
+      },
+      "AssistantMentions": {
+        "type": "object",
+        "properties": {
+          "mentions": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/AssistantMention"
+            }
+          }
+        },
+        "required": [
+          "mentions"
+        ]
+      },
       "AssistantMessage": {
         "type": "object",
         "properties": {
@@ -571,6 +622,53 @@
           "recommended",
           "name",
           "thinking"
+        ]
+      },
+      "AssistantPage": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 200,
+            "pattern": "^\\/(?!\\/)[\\w\\-./~%]*$"
+          },
+          "record": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "enum": [
+                  "customer",
+                  "company",
+                  "member",
+                  "product",
+                  "automation"
+                ],
+                "type": "string"
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[^[\\]\\r\\n]+$"
+              },
+              "ref": {
+                "type": "string",
+                "pattern": "^[\\w-]{1,64}$"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "path"
         ]
       },
       "AssistantProviderModels": {
@@ -13629,6 +13727,168 @@
                   },
                   "required": [
                     "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/references/{handle}": {
+      "get": {
+        "operationId": "assistant.reference",
+        "summary": "The record a reply refers to, read now with your permissions; `available: false` when the handle was not issued to you or you cannot read the record",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w-]{1,64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "available": {
+                          "const": true
+                        },
+                        "type": {
+                          "enum": [
+                            "customer",
+                            "company",
+                            "member",
+                            "product",
+                            "automation"
+                          ],
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "label": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "available",
+                        "type",
+                        "id",
+                        "label"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "available": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "available"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/records/{type}/{id}": {
+      "get": {
+        "operationId": "assistant.record",
+        "summary": "A record to mention or show as page context, read now with your permissions; `available: false` when you cannot read it",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "customer",
+                "company",
+                "member",
+                "product",
+                "automation"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "available": {
+                          "const": true
+                        },
+                        "type": {
+                          "enum": [
+                            "customer",
+                            "company",
+                            "member",
+                            "product",
+                            "automation"
+                          ],
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "label": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "available",
+                        "type",
+                        "id",
+                        "label"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "available": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "available"
+                      ]
+                    }
                   ]
                 }
               }

@@ -192,6 +192,26 @@
         }
       }
     },
+    "reference": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/references/{handle}"
+        }
+      }
+    },
+    "record": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/records/{type}/{id}"
+        }
+      }
+    },
     "settings": {
       "~orpc": {
         "errorMap": {},

@@ -9,6 +9,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf, QueryBoolean } from './common';
+import { AssistantRecordType, ReferenceHandle } from './records';
 import { AssistantApprovalMode, AssistantProvider, AssistantThinkingLevel } from './values';
 
 export const AssistantModelId = z
@@ -82,6 +83,18 @@ export const AssistantChatRequest = z.object({
 export type AssistantChatRequest = z.infer<typeof AssistantChatRequest>;
 
 const ProviderInput = z.object({ provider: AssistantProvider });
+
+export const AssistantRecord = z.discriminatedUnion('available', [
+  z.object({
+    available: z.literal(true),
+    type: AssistantRecordType,
+    id: Id,
+    label: z.string(),
+  }),
+  z.object({ available: z.literal(false) }),
+]);
+
+export type AssistantRecord = z.infer<typeof AssistantRecord>;
 
 export const assistantContract = {
   connections: oc
@@ -181,6 +194,24 @@ export const assistantContract = {
     .route({ method: 'DELETE', path: '/assistant/threads/{id}', summary: 'Delete a conversation' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
+  reference: oc
+    .route({
+      method: 'GET',
+      path: '/assistant/references/{handle}',
+      summary:
+        'The record a reply refers to, read now with your permissions; `available: false` when the handle was not issued to you or you cannot read the record',
+    })
+    .input(z.object({ handle: ReferenceHandle }))
+    .output(AssistantRecord),
+  record: oc
+    .route({
+      method: 'GET',
+      path: '/assistant/records/{type}/{id}',
+      summary:
+        'A record to mention or show as page context, read now with your permissions; `available: false` when you cannot read it',
+    })
+    .input(z.object({ type: AssistantRecordType, id: Id }))
+    .output(AssistantRecord),
   settings: oc
     .route({
       method: 'GET',

@@ -57,6 +57,8 @@ export const ACCESS = {
   'assistant.thread': needs('assistant.chat'),
   'assistant.updateThread': needs('assistant.chat'),
   'assistant.removeThread': needs('assistant.chat'),
+  'assistant.reference': needs('assistant.chat'),
+  'assistant.record': needs('assistant.chat'),
   'assistant.settings': needs('assistant.chat'),
   'assistant.updateSettings': needs('assistant.manage'),
 

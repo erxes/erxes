@@ -100,6 +100,8 @@ export * from './plugins';
 
 export * from './products';
 
+export * from './records';
+
 export * from './roles';
 
 export * from './saas';

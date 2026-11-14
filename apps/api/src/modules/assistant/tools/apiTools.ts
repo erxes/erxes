@@ -1,4 +1,4 @@
-import { type Caller, enterScope } from '@erxes/core-db';
+import { type Caller, enterScope, withOrg } from '@erxes/core-db';
 import { call, getRouter, isProcedure, ORPCError, ValidationError } from '@orpc/server';
 import { tool } from 'ai';
 import { z } from 'zod';
@@ -6,6 +6,8 @@ import { memberMayCall } from '~/http/access';
 import { memberOf } from '~/http/auth';
 import type { CoreContext } from '~/orpc';
 import { coreRouter } from '~/router';
+import { identitiesIn } from '../records';
+import { issueReferences } from '../references.service';
 import type { ApprovalMode } from '../settings.service';
 import { type ApiProcedure, apiCatalog, needsApproval } from './apiCatalog';
 
@@ -14,6 +16,7 @@ type Member = Extract<Caller, { type: 'user' }>;
 export interface ToolScope {
   member: Member;
   orgId: string;
+  threadId: string;
   context: CoreContext;
   approvalMode: ApprovalMode;
 }
@@ -94,8 +97,9 @@ const describeError = (error: unknown) => {
   });
 };
 
-const bounded = (result: unknown) => {
+const bounded = (result: unknown, issued: { ref: string; type: string; label: string }[]) => {
   const json = JSON.stringify(result ?? null);
+  const references = issued.length ? { references: issued } : {};
 
   return json.length > MAX_RESULT_CHARS
     ? {
@@ -103,12 +107,25 @@ const bounded = (result: unknown) => {
         truncated: true,
         result: json.slice(0, MAX_RESULT_CHARS),
         note: 'The answer was cut. Ask for less: add filters, a smaller limit, or fewer fields.',
+        ...references,
       }
-    : { ok: true as const, result };
+    : { ok: true as const, result, ...references };
+};
+
+const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) => {
+  const issued = await withOrg(scope.orgId, (tx) =>
+    issueReferences(tx, scope.threadId, identitiesIn(schema, result)),
+  );
+
+  return bounded(
+    result,
+    issued.map(({ ref, type, label }) => ({ ref, type, label })),
+  );
 };
 
 const runProcedure = async (scope: ToolScope, name: string, input: Record<string, unknown>) => {
-  const procedure = getRouter(coreRouter, name.split('.'));
+  const path = name.split('.');
+  const procedure = getRouter(coreRouter, path);
 
   if (!isProcedure(procedure)) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}`);
 
@@ -118,8 +135,11 @@ const runProcedure = async (scope: ToolScope, name: string, input: Record<string
     return refusal('UNAUTHORIZED', 'The member who started this chat is no longer active');
 
   return enterScope(member, scope.orgId, () =>
-    call(procedure, input, { context: scope.context, path: name.split('.') }),
-  ).then(bounded, describeError);
+    call(procedure, input, { context: scope.context, path }).then(
+      (result) => withReferences(scope, procedure['~orpc'].outputSchema, result),
+      describeError,
+    ),
+  );
 };
 
 const callProcedure = (scope: ToolScope, name: string, input: Record<string, unknown> = {}) => {

@@ -3,6 +3,7 @@ import { productCategories, products } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { ProductId } from './records';
 import { ProductKind } from './values';
 import {
   CursorQuery,
@@ -30,7 +31,7 @@ export type ProductStatus = z.infer<typeof ProductStatus>;
 const int = () => z.int();
 
 export const Product = createSelectSchema(products, {
-  id: Id,
+  id: ProductId,
   categoryId: () => Id,
   price: int,
   imageIds: () => z.array(Id),

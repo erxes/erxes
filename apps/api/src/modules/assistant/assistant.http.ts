@@ -1,5 +1,5 @@
 import { AssistantChatRequest } from '@erxes/core-contract';
-import { caller, requestOrgId, withOrg } from '@erxes/core-db';
+import { caller, newId, requestOrgId, withOrg } from '@erxes/core-db';
 import { CONTEXT_LOGGER_SYMBOL } from '@orpc/experimental-pino';
 import { pipeUIMessageStreamToResponse, type UIMessage, type UIMessageChunk } from 'ai';
 import { Router, type Request, type Response } from 'express';
@@ -7,6 +7,7 @@ import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { chatTools, generateTitle, type Run, streamTurn } from './agent';
 import { getSettings } from './settings.service';
+import { readTurnContext } from './turnContext';
 import { beginTurn, saveReply, setTitle } from './turns.service';
 
 const chatMember = () => {
@@ -37,22 +38,18 @@ const parseRequest = (body: unknown) => {
   return parsed.data;
 };
 
-const startRun = (req: Request, res: Response, orgId: string) => {
+const startRun = async (req: Request, res: Response, orgId: string) => {
   const member = chatMember();
   const request = parseRequest(req.body);
+  const threadId = request.threadId ?? newId();
+  const context = { req, res, [CONTEXT_LOGGER_SYMBOL]: req.log };
 
   return withOrg(orgId, async (tx) => {
+    const turnContext = await readTurnContext(request.message);
     const { approvalMode } = await getSettings(tx);
-
-    const scope = {
-      member,
-      orgId,
-      approvalMode,
-      context: { req, res, [CONTEXT_LOGGER_SYMBOL]: req.log },
-    };
-
+    const scope = { member, orgId, threadId, approvalMode, context };
     const tools = chatTools(scope);
-    const turn = await beginTurn(tx, request, tools);
+    const turn = await beginTurn(tx, request, tools, { threadId, context: turnContext });
 
     const run: Run = {
       scope,
