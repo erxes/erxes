@@ -1,5 +1,5 @@
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
-import { Button, cn, Collapsible, Input } from 'erxes-ui';
+import { Button, cn, Collapsible, InputGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../context/DashboardProvider';
 import { type TDashboardCatalogEntry, useDashboardCatalog } from '../hooks/useDashboardCatalog';
@@ -58,15 +58,16 @@ export const DashboardWidgetCatalog = () => {
           <h2 className="text-sm font-semibold">{t('add-widget')}</h2>
           <p className="text-xs text-muted-foreground">{t('catalog-hint')}</p>
         </div>
-        <div className="relative">
-          <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
+        <InputGroup>
+          <InputGroup.Addon>
+            <IconSearch className="size-4" />
+          </InputGroup.Addon>
+          <InputGroup.Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t('catalog-search')}
-            className="pl-8"
           />
-        </div>
+        </InputGroup>
       </div>
       <div className="styled-scroll flex-1 space-y-1 overflow-y-auto p-3">
         {groups.length === 0 && (

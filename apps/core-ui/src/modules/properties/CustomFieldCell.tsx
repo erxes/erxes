@@ -36,7 +36,7 @@ const OptionsCell = ({
           ))}
         </span>
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="w-56 p-0">
+      <RecordTableInlineCell.Content className="w-56">
         <Command>
           <Command.Input placeholder={`Search ${field.label.toLowerCase()}`} />
           <Command.List className="max-h-72">

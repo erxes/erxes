@@ -8,27 +8,35 @@ import { useOnInView } from 'react-intersection-observer';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
 
+type ComboboxTriggerProps = Omit<React.ComponentProps<typeof Button>, 'variant'> & {
+  // Button's looks, or `bordered`: a 1px border instead of the drop shadow, for dense forms.
+  variant?: React.ComponentProps<typeof Button>['variant'] | 'bordered';
+  hideChevron?: boolean;
+};
+
 const ComboboxTriggerBase = ({
   ref,
   className,
   children,
   hideChevron = false,
+  variant = 'outline',
   ...props
-}: React.ComponentProps<typeof Button> & {
-  hideChevron?: boolean;
-}) => {
+}: ComboboxTriggerProps) => {
   return (
     <Popover.Trigger
       render={
         <Button
           ref={ref}
-          variant="outline"
+          variant={variant === 'bordered' ? 'outline' : variant}
           {...props}
           type="button"
           className={cn(
             'flex truncate h-7 rounded pl-3 transition focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-start overflow-hidden font-normal text-left w-full gap-1',
-            (!props.variant || props.variant === 'outline') && 'shadow-xs',
+            variant === 'outline' && 'shadow-xs',
+            variant === 'bordered' && 'border border-input shadow-none',
+            variant === 'ghost' && 'px-2',
             props.size === 'lg' && 'gap-2',
+            props.size === 'icon' && 'justify-center px-0',
             className,
           )}
         />
@@ -39,14 +47,7 @@ const ComboboxTriggerBase = ({
   );
 };
 
-const ComboboxTrigger = ({
-  ref,
-  children,
-  hideChevron = false,
-  ...props
-}: React.ComponentProps<typeof Button> & {
-  hideChevron?: boolean;
-}) => {
+const ComboboxTrigger = ({ ref, children, hideChevron = false, ...props }: ComboboxTriggerProps) => {
   return (
     <ComboboxTriggerBase {...props} ref={ref}>
       {children}

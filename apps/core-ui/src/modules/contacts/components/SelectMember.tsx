@@ -45,9 +45,11 @@ const SelectMemberInlineCell = ({
           ref={ref}
           id={id}
           aria-label={ariaLabel}
-          className={cn(className, 'text-xs')}
+          className={className}
         >
-          <SelectMemberValue placeholder={placeholder ?? ''} size={size} />
+          <span className="contents text-xs">
+            <SelectMemberValue placeholder={placeholder ?? ''} size={size} />
+          </span>
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectMemberContent />
@@ -79,7 +81,7 @@ const SelectMemberFormItem = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Form.Control>
-          <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <Combobox.Trigger className={cn('w-full', className)}>
             <SelectMemberValue placeholder={placeholder} />
           </Combobox.Trigger>
         </Form.Control>

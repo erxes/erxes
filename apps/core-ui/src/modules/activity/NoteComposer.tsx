@@ -178,11 +178,10 @@ export const NoteComposer = ({
         rows={open ? 3 : 1}
         aria-label={t('note-placeholder', 'Write a note… type @ to mention a teammate')}
         placeholder={t('note-placeholder', 'Write a note… type @ to mention a teammate')}
-        className={cn(
-          'min-h-0 resize-none rounded-lg border-0 bg-transparent px-3 py-2 shadow-none focus-visible:shadow-none focus-visible:ring-0',
-          // Collapsed: one line, even when the hint is longer than the box (Mongolian).
-          !open && !body && 'overflow-hidden text-ellipsis whitespace-nowrap',
-        )}
+        variant="ghost"
+        // Collapsed: one line, even when the hint is longer than the box (Mongolian).
+        truncate={!open && !body}
+        className="min-h-0 resize-none"
         onChange={(event) => {
           setBody(event.target.value);
           mentions.onType(event.target.value, event.target.selectionStart);

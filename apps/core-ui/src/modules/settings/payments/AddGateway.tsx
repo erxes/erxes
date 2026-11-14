@@ -153,7 +153,7 @@ const AddGatewayForm = ({ onAdded }: { onAdded: () => void }) => {
               checked={qpay.sandbox}
               onCheckedChange={(sandbox) => setQpay({ ...qpay, sandbox })}
             />
-            <Label htmlFor={`${id}-sandbox`} className="font-normal">
+            <Label htmlFor={`${id}-sandbox`} variant="option">
               {t('sandbox', 'Sandbox (merchant-sandbox.qpay.mn)')}
             </Label>
           </div>

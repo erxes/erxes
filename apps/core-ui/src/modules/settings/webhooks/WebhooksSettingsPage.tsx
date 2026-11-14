@@ -52,7 +52,7 @@ const SecretNotice = ({ secret, onClose }: { secret: string; onClose: () => void
             readOnly
             value={secret}
             aria-label={t('secret-title', 'Signing secret')}
-            className="font-mono text-xs"
+            text="code"
           />
           <Button variant="outline" aria-label={t('copy', 'Copy')} onClick={() => void copy()}>
             {copied ? <IconCheck /> : <IconCopy />}

@@ -48,7 +48,7 @@ const LeadStageCell = ({
   return (
     <>
       <PopoverScoped scope={`lead-stage.${record.id}`} open={open} onOpenChange={setOpen}>
-        <RecordTableInlineCell.Trigger className="px-1">
+        <RecordTableInlineCell.Trigger>
           <LeadStagePill stage={stage} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content className="w-52">
@@ -146,7 +146,7 @@ const originColumns = <
     cell: ({ row }) => (
       <RelativeDateDisplay
         value={row.original.lastActivityAt}
-        render={<RecordTableInlineCell className="text-xs font-medium text-muted-foreground" />}
+        render={<RecordTableInlineCell variant="muted" />}
       >
         <RelativeDateDisplay.Value value={row.original.lastActivityAt} />
       </RelativeDateDisplay>

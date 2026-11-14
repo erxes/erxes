@@ -15,8 +15,8 @@ export const PanelField = ({
 }) => (
   <div className="grid grid-cols-field items-center gap-x-2 min-h-7">
     <Label
-      variant="peer"
-      className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
+      variant="muted"
+      className="flex min-w-0 items-center"
     >
       <FieldIcon className="size-3.5 shrink-0" aria-hidden="true" />
       <span className="my-1 block min-w-0 wrap-break-word line-clamp-2">{label}</span>
@@ -36,15 +36,7 @@ export const PanelField = ({
 // A table cell trigger with the panel's rounded hover.
 export const PanelFieldTrigger = ({
   ref,
-  className,
   ...props
 }: ComponentProps<typeof RecordTableInlineCell.Trigger>) => (
-  <RecordTableInlineCell.Trigger
-    ref={ref}
-    className={cn('rounded-sm font-normal', className)}
-    {...props}
-  />
+  <RecordTableInlineCell.Trigger ref={ref} variant="field" {...props} />
 );
-
-// Text fields from erxes-ui draw a shadow; in the panel they stay flat.
-export const PANEL_TEXT_FIELD_CLASS_NAME = 'rounded-sm shadow-none font-normal';

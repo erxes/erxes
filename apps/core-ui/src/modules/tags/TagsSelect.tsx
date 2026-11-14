@@ -165,7 +165,7 @@ const TagsSelectRoot = ({
     <Popover.Trigger render={<Button variant={variant} className={cn('w-min', className)} />}>
       <TagsSelectValue placeholder={placeholder} />
     </Popover.Trigger>
-    <Combobox.Content className="w-[200px] p-0" align="start">
+    <Combobox.Content className="w-[200px]" align="start">
       <TagsSelectContent />
     </Combobox.Content>
   </TagsSelectProvider>

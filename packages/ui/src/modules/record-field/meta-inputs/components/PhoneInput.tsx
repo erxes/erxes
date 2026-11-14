@@ -17,6 +17,8 @@ interface PhoneInputProps extends Omit<
   value?: string;
   onChange?: (value: string, defaultCountryCode: CountryCode | undefined) => void;
   className?: string;
+  /** `secondary`: on a muted fill without a border, as in the phone list's popover. */
+  variant?: 'default' | 'secondary';
   /** The flag shown until the number names a country. */
   defaultCountry?: CountryCode;
   placeholder?: string;
@@ -45,22 +47,23 @@ const parseInitialPhone = (value?: string, defaultCountry?: CountryCode) => {
 const CountrySelect = ({
   selected,
   onSelect,
-  className,
+  variant,
 }: {
   selected?: PhoneCountry;
   onSelect: (country: PhoneCountry) => void;
-  className?: string;
+  variant: PhoneInputProps['variant'];
 }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.TriggerBase
-        variant="secondary"
+        variant={variant === 'secondary' ? 'secondary' : 'outline'}
+        size="icon"
         aria-expanded={open}
-        className={cn('text-xl w-8 px-0 justify-center shadow-xs', className)}
+        className="w-8"
       >
-        {selected?.flag}
+        <span className="text-xl">{selected?.flag}</span>
       </Combobox.TriggerBase>
       <Popover.Content variant="flush" className="w-56" align="start">
         <Command>
@@ -122,6 +125,7 @@ export const PhoneInput = ({
   onValidationChange,
   onKeyDown,
   onBlur,
+  variant,
   ...props
 }: PhoneInputProps & React.RefAttributes<HTMLInputElement>) => {
   const [initial] = useState(() => parseInitialPhone(value, defaultCountry));
@@ -162,8 +166,8 @@ export const PhoneInput = ({
   };
 
   return (
-    <div className="flex items-center justify-start rounded gap-1">
-      <CountrySelect selected={selectedCountry} onSelect={handleSelect} className={className} />
+    <div className={cn('flex items-center justify-start rounded gap-1', className)}>
+      <CountrySelect selected={selectedCountry} onSelect={handleSelect} variant={variant} />
       <div className="flex-1">
         <Input
           {...props}
@@ -172,11 +176,8 @@ export const PhoneInput = ({
           onBlur={handleBlur}
           placeholder={placeholder}
           ref={ref}
-          className={cn(
-            'bg-accent',
-            validationError && 'border-destructive focus-visible:ring-destructive',
-            className,
-          )}
+          variant={variant}
+          aria-invalid={!!validationError}
           type="tel"
           onKeyDown={(event) => {
             if (event.key === 'Enter') {

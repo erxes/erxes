@@ -91,7 +91,8 @@ const SetupStep = ({
         <code className="block break-all rounded bg-muted p-2 text-xs">{setup.secret}</code>
         <div className="flex gap-2">
           <Input
-            className="w-32 text-center font-mono tracking-widest"
+            text="otp"
+            className="w-32"
             inputMode="numeric"
             maxLength={6}
             placeholder="123456"

@@ -110,9 +110,10 @@ const SortableColumnItem = ({
 
       <Label
         htmlFor={`col-visibility-${column.id}`}
-        className="cursor-pointer select-none font-normal truncate w-full"
+        variant="option"
+        className="cursor-pointer select-none w-full"
       >
-        {label}
+        <span className="block truncate">{label}</span>
       </Label>
 
       <Button

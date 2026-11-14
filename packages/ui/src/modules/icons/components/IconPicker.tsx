@@ -26,7 +26,7 @@ export const IconPicker = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.TriggerBase variant="ghost" size="icon" className="px-2" ref={ref} {...props}>
+      <Combobox.TriggerBase variant="ghost" size="icon" ref={ref} {...props}>
         <IconComponent name={_value} />
       </Combobox.TriggerBase>
 

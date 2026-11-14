@@ -63,7 +63,7 @@ const PasswordField = ({
     name={name}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label className="text-xs">{label}</Form.Label>
+        <Form.Label>{label}</Form.Label>
         <Form.Control>
           <Input {...field} type="password" autoComplete={autoComplete} />
         </Form.Control>

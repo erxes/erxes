@@ -145,7 +145,7 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
           onCheckedChange={setManual}
           disabled={invoice.refundable.gateway === 'none'}
         />
-        <Label htmlFor={`${id}-manual`} className="font-normal">
+        <Label htmlFor={`${id}-manual`} variant="option">
           {t('refund-manual', 'Already paid back outside erxes (record only)')}
         </Label>
       </div>

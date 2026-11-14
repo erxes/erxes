@@ -160,7 +160,7 @@ const RoleNameFields = ({
       <Input
         value={name}
         onChange={(event) => onChange({ name: event.target.value })}
-        className="text-base font-medium"
+        text="title"
         aria-label={t('name', 'Name')}
         maxLength={60}
       />

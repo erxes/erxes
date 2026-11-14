@@ -1,4 +1,3 @@
-import type { ButtonProps } from 'erxes-ui/components/button';
 import { Input } from 'erxes-ui/components/input';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import React, { useState } from 'react';
@@ -6,8 +5,7 @@ import React, { useState } from 'react';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
-type NumberFieldProps = ButtonProps &
-  React.RefAttributes<HTMLButtonElement> & {
+type NumberFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
     placeholder?: string;
     value: number;
     scope: string;

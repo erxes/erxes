@@ -148,7 +148,7 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
 const CreatedCell = ({ tag }: { tag: Tag }) => (
   <RelativeDateDisplay
     value={tag.createdAt}
-    render={<RecordTableInlineCell className="text-xs font-medium text-muted-foreground" />}
+    render={<RecordTableInlineCell variant="muted" />}
   >
     <RelativeDateDisplay.Value value={tag.createdAt} />
   </RelativeDateDisplay>

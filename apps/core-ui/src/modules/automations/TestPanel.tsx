@@ -116,7 +116,7 @@ const TestForm = ({
         </Select>
         <div className="flex items-center gap-2 text-sm">
           <Switch id={`${id}-assume`} checked={assume} onCheckedChange={setAssume} />
-          <Label htmlFor={`${id}-assume`} className="font-normal">
+          <Label htmlFor={`${id}-assume`} variant="option">
             {t('assume-event', 'Waits for events: assume the event happens')}
           </Label>
         </div>

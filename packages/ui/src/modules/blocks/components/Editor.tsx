@@ -13,6 +13,7 @@ export const Editor = ({
   isHTML = false,
   uploadFile,
   label,
+  variant = 'outline',
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
   const editor = useBlockEditor({
@@ -25,9 +26,9 @@ export const Editor = ({
 
   return (
     <BlockEditor
-      variant="outline"
+      variant={variant}
       className={cn(
-        'min-w-0 w-full overflow-x-hidden overflow-y-auto h-28 rounded-md min-h-28 styled-scroll shadow-xs transition pt-1',
+        'min-w-0 w-full overflow-x-hidden overflow-y-auto h-28 min-h-28',
         className,
       )}
       {...props}

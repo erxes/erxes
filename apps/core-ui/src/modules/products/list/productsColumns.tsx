@@ -74,7 +74,7 @@ const NameCell = ({ product }: { product: Product }) => {
 };
 
 const TextCell = ({ children }: { children: React.ReactNode }) => (
-  <RecordTableInlineCell className="text-sm">
+  <RecordTableInlineCell>
     <span className="truncate">{children}</span>
   </RecordTableInlineCell>
 );
@@ -89,8 +89,8 @@ const PriceCell = ({ product }: { product: Product }) => {
   const money = useMoney();
 
   return (
-    <RecordTableInlineCell className="justify-end text-sm tabular-nums">
-      {money(product.price, product.currency)}
+    <RecordTableInlineCell className="justify-end">
+      <span className="tabular-nums">{money(product.price, product.currency)}</span>
     </RecordTableInlineCell>
   );
 };
@@ -99,12 +99,14 @@ const PluginsCell = ({ names }: { names: string[] }) => {
   const { plugins } = useInstalledPlugins();
 
   return (
-    <RecordTableInlineCell className="gap-1">
-      {names.map((name) => (
-        <Badge key={name} variant="secondary" className="shrink-0">
-          {pluginTitle(plugins, name)}
-        </Badge>
-      ))}
+    <RecordTableInlineCell>
+      <div className="flex gap-1">
+        {names.map((name) => (
+          <Badge key={name} variant="secondary" className="shrink-0">
+            {pluginTitle(plugins, name)}
+          </Badge>
+        ))}
+      </div>
     </RecordTableInlineCell>
   );
 };

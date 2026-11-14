@@ -29,7 +29,7 @@ export const MemberPanelActions = ({ user }: { user: User }) => {
       >
         <IconDots className="size-4" />
       </Popover.Trigger>
-      <Combobox.Content align="end" className="min-w-[280px] p-0">
+      <Combobox.Content align="end" className="min-w-[280px]">
         <Command>
           <TeamMemberActionItems user={user} onAction={() => setMenuOpen(false)} />
         </Command>

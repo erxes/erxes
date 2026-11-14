@@ -1,6 +1,6 @@
 import type { User } from '@erxes/core-contract';
 import { IconAdjustmentsHorizontal, IconSearch, IconX } from '@tabler/icons-react';
-import { Button, cn, Input, Label, Popover, Select, Switch } from 'erxes-ui';
+import { Button, cn, InputGroup, Label, Popover, Select, Switch } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { memberName, pluginLabel } from '~/lib/members';
@@ -190,11 +190,12 @@ export const TimelineSearch = ({
   useEffect(() => input.current?.focus(), []);
 
   return (
-    <div className="relative">
-      <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
-      <Input
+    <InputGroup className="h-8">
+      <InputGroup.Addon>
+        <IconSearch className="pointer-events-none size-3.5" />
+      </InputGroup.Addon>
+      <InputGroup.Input
         ref={input}
-        className="h-8 pr-8 pl-8 text-sm"
         placeholder={t('search', 'Search the timeline…')}
         aria-label={t('search', 'Search the timeline…')}
         value={value}
@@ -203,15 +204,17 @@ export const TimelineSearch = ({
           if (event.key === 'Escape') onClose();
         }}
       />
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute top-1/2 right-1.5 flex size-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
-        aria-label={t('close-search', 'Close search')}
-      >
-        <IconX className="size-3.5" />
-      </button>
-    </div>
+      <InputGroup.Addon align="end">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex size-5 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+          aria-label={t('close-search', 'Close search')}
+        >
+          <IconX className="size-3.5" />
+        </button>
+      </InputGroup.Addon>
+    </InputGroup>
   );
 };
 

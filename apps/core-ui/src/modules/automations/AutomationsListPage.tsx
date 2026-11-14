@@ -6,7 +6,7 @@ import {
   Button,
   cn,
   Empty,
-  Input,
+  InputGroup,
   PageContainer,
   PageHeader,
   ScrollArea,
@@ -170,16 +170,17 @@ const AutomationList = ({ automations }: { automations: Automation[] }) => {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <IconSearch className="absolute top-2 left-2.5 size-4 text-muted-foreground" />
-          <Input
-            className="pl-8"
+        <InputGroup className="flex-1">
+          <InputGroup.Addon>
+            <IconSearch className="size-4" />
+          </InputGroup.Addon>
+          <InputGroup.Input
             value={q}
             placeholder={t('search', 'Search automations')}
             aria-label={t('search', 'Search automations')}
             onChange={(event) => setQ(event.target.value)}
           />
-        </div>
+        </InputGroup>
         <StatusSelect value={status} onChange={setStatus} />
       </div>
       {catalog.error && <p className="text-sm text-destructive">{messageOf(catalog.error)}</p>}

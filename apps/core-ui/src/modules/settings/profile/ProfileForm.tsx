@@ -53,7 +53,7 @@ const TextInput = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label className="text-xs">{label}</Form.Label>
+          <Form.Label>{label}</Form.Label>
           <Form.Control>
             <Input {...field} value={field.value ?? ''} type={type} placeholder={placeholder} />
           </Form.Control>
@@ -170,7 +170,7 @@ const MoreSection = () => {
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label className="text-xs">{t('about', 'About me')}</Form.Label>
+            <Form.Label>{t('about', 'About me')}</Form.Label>
             <Form.Control>
               <Textarea
                 {...field}

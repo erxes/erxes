@@ -7,8 +7,19 @@ import { cn } from 'erxes-ui/lib/utils';
 import type { Except } from 'type-fest';
 import { IMaskInput, type ReactElementProps } from 'react-imask';
 
+/** The text of an input or textarea: its size and, for codes, a monospace face. */
+export const fieldTextVariants = {
+  default: '',
+  sm: 'text-xs',
+  code: 'font-mono text-xs',
+  // A one-time code: spaced digits, centred.
+  otp: 'font-mono tracking-widest text-center',
+  // The name of the record the form edits.
+  title: 'text-base font-medium',
+};
+
 export const inputVariants = cva(
-  'flex h-7 w-full rounded-sm bg-background px-3 py-1 text-sm text-foreground shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus',
+  'flex h-7 w-full rounded-sm bg-background px-3 py-1 text-sm text-foreground shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus aria-invalid:focus-visible:shadow-focus-destructive',
   {
     variants: {
       type: {
@@ -21,12 +32,19 @@ export const inputVariants = cva(
       },
       variant: {
         default: '',
-        secondary: 'bg-muted shadow-none focus-visible:shadow-subtle',
+        secondary:
+          'bg-muted shadow-none focus-visible:shadow-subtle aria-invalid:focus-visible:shadow-destructive',
+        // A 1px border instead of the drop shadow, for dense forms.
+        bordered: 'border border-input shadow-none',
+        // No border or corners: a cell in a grid that draws its own lines.
+        flush: 'rounded-none shadow-none',
       },
+      text: fieldTextVariants,
     },
     defaultVariants: {
       type: 'default',
       variant: 'default',
+      text: 'default',
     },
   },
 );
@@ -39,6 +57,7 @@ const InputMain = ({
   className,
   type,
   variant,
+  text,
   ...props
 }: InputProps & React.RefAttributes<HTMLInputElement>) => {
   return (
@@ -49,6 +68,7 @@ const InputMain = ({
         inputVariants({
           type: type === 'file' ? 'file' : type === 'search' ? 'search' : 'default',
           variant,
+          text,
         }),
         className,
       )}
