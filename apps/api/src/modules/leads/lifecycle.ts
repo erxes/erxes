@@ -280,7 +280,8 @@ export const recordLeadSteps = async (
     tx,
     changes.map(({ id, data }) => ({
       type: data.event === 'converted' ? 'core.lead.converted' : 'core.lead.stage_changed',
-      subject: { type: recordType, id },
+      subjectType: recordType,
+      subjectId: id,
       payload: data,
     })),
   );

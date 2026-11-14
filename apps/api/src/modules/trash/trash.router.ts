@@ -1,5 +1,6 @@
 import { db } from '@erxes/core-db';
-import { listTrash, purgeFromTrash, restoreFromTrash } from '~/modules/trash/trash.service';
+import { restoreFromTrash } from '~/modules/trash/restore';
+import { listTrash, purgeFromTrash } from '~/modules/trash/trash.service';
 import { scoped } from '~/orpc';
 
 export const trashRouter = {

@@ -132,7 +132,8 @@ describe('live updates (/core/v1/stream)', () => {
       events: [
         {
           type: 'hr.contract.signed',
-          subject: { type: 'customer', id: customer.id },
+          subjectType: 'customer',
+          subjectId: customer.id,
           summary: 'Signed',
         },
       ],

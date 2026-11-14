@@ -14,6 +14,8 @@ export * from './users';
 
 export * from './platform';
 
+export * from './notes';
+
 export * from './events';
 
 export * from './plugins';

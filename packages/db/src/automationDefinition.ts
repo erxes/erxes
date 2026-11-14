@@ -6,8 +6,8 @@ import {
   REENTRY_RULES,
   RELATIVE_DATE_UNITS,
   SCHEDULE_INTERVALS,
-} from '@erxes/core-db/enums';
-import type { ConditionGroup as StoredConditionGroup } from '@erxes/core-db/schema';
+} from './enums';
+import type { ConditionGroup as StoredConditionGroup } from './schema/common';
 import { z } from 'zod';
 
 // ─── Definition ─────────────────────────────────────────────────────────────

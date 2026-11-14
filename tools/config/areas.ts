@@ -69,7 +69,13 @@ export const areas = [
   {
     // Row level security scopes every query to the organisation, so core adds no org_id filter.
     files: ['apps/api/**'],
-    rules: { 'erxes/no-org-filter': 'error' },
+    rules: {
+      'erxes/no-org-filter': 'error',
+      // Services return rows; a value the row lacks comes from the query's select.
+      'erxes/no-dto-mapper': 'error',
+      // Drizzle's .set() and .values() skip undefined keys.
+      'erxes/no-undefined-spread': 'error',
+    },
   },
   {
     // A procedure's permission is its ACCESS policy (src/http/policies.ts), checked before it runs.

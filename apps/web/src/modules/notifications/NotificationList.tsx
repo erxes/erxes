@@ -89,7 +89,7 @@ export const NotificationList = ({
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notifications' });
 
   const members = useMembersById(
-    notifications.map((item) => (item.actor.type === 'user' ? item.actor.id : null)),
+    notifications.map((item) => (item.actorType === 'user' ? item.actorId : null)),
   );
 
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));
@@ -118,10 +118,10 @@ export const NotificationList = ({
               <NotificationItem
                 key={notification.id}
                 notification={notification}
-                sender={actorLabel(notification.actor, members)}
+                sender={actorLabel(notification.actorType, notification.actorId, members)}
                 senderAvatar={
-                  notification.actor.type === 'user' && notification.actor.id
-                    ? members.get(notification.actor.id)?.avatarUrl
+                  notification.actorType === 'user' && notification.actorId
+                    ? members.get(notification.actorId)?.avatarUrl
                     : undefined
                 }
                 inbox={inboxBySource.get(notification.source)}

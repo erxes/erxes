@@ -167,7 +167,7 @@ export const leadHistory = async (
   const type = input.recordType ?? 'customer';
 
   // The last 200 steps, oldest of them first.
-  const rows = (
+  const data = (
     await client
       .select()
       .from(leadEvents)
@@ -176,7 +176,5 @@ export const leadHistory = async (
       .limit(200)
   ).toReversed();
 
-  return {
-    data: rows.map((row) => ({ ...row, recordType: type, recordId: input.id })),
-  };
+  return { data };
 };

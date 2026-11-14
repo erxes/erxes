@@ -252,7 +252,7 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     await refresh();
     expect(
       (await owner.api.plugins.list({})).data.find((item) => item.name === 'hr'),
-    ).toMatchObject({ installed: false, statusReason: 'Not in your plan' });
+    ).toMatchObject({ installation: { status: 'disabled', statusReason: 'Not in your plan' } });
     expect(await tokenStatus()).not.toBe(200);
 
     // Bought again (Pro this time).

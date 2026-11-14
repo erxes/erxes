@@ -4,7 +4,7 @@ import { seal } from '~/lib/secrets';
 import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
-const order = { amount: 1250, description: 'Order #1', reference: { type: 'order', id: '1' } };
+const order = { amount: 1250, description: 'Order #1', referenceType: 'order', referenceId: '1' };
 
 describe('countries and currencies', { timeout: 120_000 }, () => {
   useTestDatabase();
@@ -115,6 +115,6 @@ describe('countries and currencies', { timeout: 120_000 }, () => {
 
     const hr = (await t.owner().plugins.list({})).data.find((plugin) => plugin.name === 'hr');
 
-    expect(hr?.countries).toEqual(['MN']);
+    expect(hr?.manifest?.countries).toEqual(['MN']);
   });
 });

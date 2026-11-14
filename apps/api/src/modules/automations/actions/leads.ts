@@ -1,13 +1,10 @@
 import { automations, leadStages } from '@erxes/core-db';
 import { eq, or, sql } from 'drizzle-orm';
-import { z } from 'zod';
 import { HttpError } from '~/http/errors';
 import { updateCustomer } from '~/modules/customers/customers.service';
 import { type CoreAction, list, needSubject, text } from './context';
 
 /** Round-robin positions per step, kept in the automation's working state. */
-const Turns = z.object({ turns: z.record(z.string(), z.int()) });
-
 /** Actions on a customer's lead lifecycle and ownership. */
 export const LEAD_ACTIONS: CoreAction[] = [
   {
@@ -84,7 +81,7 @@ export const LEAD_ACTIONS: CoreAction[] = [
         .for('update')
         .limit(1);
 
-      const turns = Turns.safeParse(row?.state).data?.turns ?? {};
+      const turns = row?.state.turns ?? {};
       const position = (turns[ctx.step.id] ?? -1) + 1;
       const ownerId = members[position % members.length];
 

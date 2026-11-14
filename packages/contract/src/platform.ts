@@ -1,29 +1,17 @@
 import { ACTOR_TYPES } from '@erxes/core-db/enums';
 import { z } from 'zod';
-import { Id } from './common';
 
 /**
- * Who did something: a team member (`id` = user id), a plugin (`id` = plugin
- * name, e.g. `hr`) or core itself (`system`). Names are resolved when shown,
- * unless the response carries them.
+ * Who did something, stored as `actorType` with `actorId`: a team member (the
+ * user id), a plugin (its name, e.g. `hr`), a customer (the customer id) or
+ * core itself (`system`, no id).
  */
-export const ActorRef = z.object({
-  type: z.enum(ACTOR_TYPES),
-  id: z.string().nullable(),
-  /** A team member's name and picture, where a list includes them (timelines), so it reads at once. */
-  name: z.string().nullable().optional(),
-  avatarUrl: z.string().nullable().optional(),
-});
+export const ActorType = z.enum(ACTOR_TYPES);
 
-export type ActorRef = z.infer<typeof ActorRef>;
+export type ActorType = z.infer<typeof ActorType>;
 
-/** A record in a plugin that an entry points at. */
-export const EntityRef = z.object({
-  type: z.string().trim().min(1).max(64),
-  id: Id,
-});
-
-export type EntityRef = z.infer<typeof EntityRef>;
+/** The type of a plugin's record an entry points at (`entityType`, with `entityId`). */
+export const EntityType = z.string().trim().min(1).max(64);
 
 /** An app path inside erxes (`/hr/leaves/abc`), never another site. */
 export const AppLink = z

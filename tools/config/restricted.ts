@@ -80,9 +80,19 @@ const serverOnly = {
 
 // The contract builds its schemas from the tables (`@erxes/core-db/schema`) and
 // its published build copies them into dist, so table definitions import drizzle's
-// column builders, `../table`, `../enums` and nothing that needs Node or a database.
+// column builders, `../table`, `../enums`, `../automationDefinition` (zod over the enums)
+// and nothing that needs Node or a database.
 const noDriver = {
-  group: ['pg', 'pg/*', 'node:*', 'drizzle-orm/node-postgres', '../*', '!../table', '!../enums'],
+  group: [
+    'pg',
+    'pg/*',
+    'node:*',
+    'drizzle-orm/node-postgres',
+    '../*',
+    '!../table',
+    '!../enums',
+    '!../automationDefinition',
+  ],
   message: 'Table definitions ship inside the published contract: no Node, driver or client.',
 };
 

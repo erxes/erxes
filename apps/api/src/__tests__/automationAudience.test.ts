@@ -67,7 +67,7 @@ describe('automation subjects', { timeout: 300_000 }, () => {
 
     const runs = await owner.automations.runs({ id: automation.id });
 
-    expect(runs.data.map((run) => run.subject?.id)).toEqual([gold.id]);
+    expect(runs.data.map((run) => run.subjectId)).toEqual([gold.id]);
   });
 
   it('enrolls every record of an audience past 10,000, a page per job', async () => {

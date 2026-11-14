@@ -89,11 +89,10 @@ interface Seeding {
 const customFieldsOf = ({ copy, labels }: Seeding, person: Person) => {
   const plan = person.plan === undefined ? undefined : copy.plan.options[person.plan];
 
+  // null: empty.
   return {
-    ...(plan ? { [labels.plan.id]: plan } : {}),
-    ...(person.renewalInDays === undefined
-      ? {}
-      : { [labels.renewal.id]: isoDay(person.renewalInDays) }),
+    [labels.plan.id]: plan ?? null,
+    [labels.renewal.id]: person.renewalInDays === undefined ? null : isoDay(person.renewalInDays),
   };
 };
 

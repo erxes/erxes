@@ -12,7 +12,7 @@ import {
   system,
   withOrg,
 } from '@erxes/core-db';
-import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, getTableColumns, gt, isNull, sql } from 'drizzle-orm';
 import { HttpError, notFound, pgConstraint } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { wholeList } from '~/lib/keyset';
@@ -153,12 +153,12 @@ export const signInWithCode = async (
         ip,
       });
 
-      const subject = { type: 'customer' as const, id: customerId };
+      const subject = { subjectType: 'customer' as const, subjectId: customerId };
       const payload = { kind: address.kind, app: clientId };
 
       await publishCoreEvents(tx, [
-        ...(signedUp ? [{ type: 'core.customer.signed_up', subject, payload }] : []),
-        { type: 'core.customer.signed_in', subject, payload },
+        ...(signedUp ? [{ type: 'core.customer.signed_up', ...subject, payload }] : []),
+        { type: 'core.customer.signed_in', ...subject, payload },
       ]);
 
       return { ...tokens, customer: await findCustomer(tx, customerId), created };
@@ -308,16 +308,17 @@ const activeSessions = () =>
 
 export const mySessions = () =>
   withOrg(requestOrgId(), async (tx) => ({
-    data: (
-      await wholeList((limit) =>
-        tx
-          .select()
-          .from(customerSessions)
-          .where(activeSessions())
-          .orderBy(desc(customerSessions.lastUsedAt))
-          .limit(limit),
-      )
-    ).map((row) => ({ ...row, current: row.id === caller('customer').sessionId })),
+    data: await wholeList((limit) =>
+      tx
+        .select({
+          ...getTableColumns(customerSessions),
+          current: sql<boolean>`${customerSessions.id} = ${caller('customer').sessionId}`,
+        })
+        .from(customerSessions)
+        .where(activeSessions())
+        .orderBy(desc(customerSessions.lastUsedAt))
+        .limit(limit),
+    ),
   }));
 
 export const revokeMySession = (id: string) =>

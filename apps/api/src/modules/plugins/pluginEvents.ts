@@ -1,3 +1,4 @@
+import { CoreEvent } from '@erxes/core-contract';
 import { events, plugins, pluginInstallations, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -5,7 +6,6 @@ import { sha256 } from '~/lib/crypto';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 import type { EventConsumer } from '~/modules/events/consumers';
-import { eventJson } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { matchesPattern } from '~/modules/webhooks/webhooks.service';
 
@@ -105,7 +105,7 @@ export const pluginEventJob = defineJob({
       type: event.type,
       organizationId: job.orgId,
       createdAt: event.createdAt.toISOString(),
-      data: eventJson(event),
+      data: CoreEvent.parse(event),
     });
 
     const token = await signJwt(

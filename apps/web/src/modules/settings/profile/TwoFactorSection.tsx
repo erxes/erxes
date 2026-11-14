@@ -1,7 +1,6 @@
 import { IconShieldLock } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Input, useToast } from 'erxes-ui';
-import QRCode from 'qrcode';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
@@ -182,8 +181,10 @@ export const TwoFactorSection = () => {
   const start = useMutation({
     mutationFn: async () => {
       const { secret, uri } = await orpc.auth.twoFactorSetup.call();
+      // Loaded when setup starts: settings pages don't carry the QR encoder.
+      const { toDataURL } = await import('qrcode');
 
-      return { secret, qr: await QRCode.toDataURL(uri, { margin: 1, width: 180 }) };
+      return { secret, qr: await toDataURL(uri, { margin: 1, width: 180 }) };
     },
     onSuccess: setSetup,
     onError,
@@ -194,7 +195,7 @@ export const TwoFactorSection = () => {
       <div className="flex items-center gap-2">
         <IconShieldLock className="size-5" />
         <span className="text-sm font-medium">{t('two-factor', 'Two-factor sign-in')}</span>
-        {user.twoFactorEnabled ? (
+        {user.totpEnabledAt ? (
           <Badge variant="success">{t('on', 'On')}</Badge>
         ) : (
           <Badge variant="secondary">{t('off', 'Off')}</Badge>
@@ -207,7 +208,7 @@ export const TwoFactorSection = () => {
         )}
       </p>
       {codes && <RecoveryCodes codes={codes} />}
-      {!user.twoFactorEnabled && !setup && (
+      {!user.totpEnabledAt && !setup && (
         <Button variant="outline" disabled={start.isPending} onClick={() => start.mutate()}>
           {t('two-factor-start', 'Set up')}
         </Button>
@@ -221,7 +222,7 @@ export const TwoFactorSection = () => {
           }}
         />
       )}
-      {user.twoFactorEnabled && <EnabledActions onCodes={setCodes} />}
+      {user.totpEnabledAt && <EnabledActions onCodes={setCodes} />}
     </div>
   );
 };

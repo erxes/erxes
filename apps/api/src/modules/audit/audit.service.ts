@@ -140,7 +140,7 @@ export const auditFilters = (query: AuditFilters) => {
 export const listAudit = async (client: Db, query: CursorQuery & AuditFilters) => {
   const filters = auditFilters(query);
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: auditLogs,
@@ -159,11 +159,6 @@ export const listAudit = async (client: Db, query: CursorQuery & AuditFilters) =
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return {
-    ...page,
-    data: page.data.map((row) => ({ ...row, actor: { type: row.actorType, id: row.actorId } })),
-  };
 };
 
 /**

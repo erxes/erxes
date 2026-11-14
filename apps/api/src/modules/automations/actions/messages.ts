@@ -56,7 +56,8 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
           title: (text(ctx.input.title) ?? '').slice(0, 200) || ctx.automation.name,
           body: text(ctx.input.body)?.slice(0, 2000),
           link: link?.startsWith('/') ? link : undefined,
-          entity: ctx.subject ?? undefined,
+          entityType: ctx.subject?.type,
+          entityId: ctx.subject?.id,
           data: { automationId: ctx.automation.id, runId: ctx.run.id },
         }),
       );

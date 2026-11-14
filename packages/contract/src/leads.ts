@@ -113,18 +113,19 @@ const StageFields = createUpdateSchema(leadStages, {
   color: (color) => color.regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb'),
 }).pick({ name: true, kind: true, color: true });
 
-export const LeadEvent = createSelectSchema(leadEvents, { id: Id, createdAt: isoDate })
-  .pick({
-    id: true,
-    event: true,
-    fromStageId: true,
-    toStageId: true,
-    reason: true,
-    actorType: true,
-    actorId: true,
-    createdAt: true,
-  })
-  .extend({ recordType: LeadRecordType, recordId: Id });
+export const LeadEvent = createSelectSchema(leadEvents, { id: Id, createdAt: isoDate }).pick({
+  id: true,
+  /** The person, or (`companyId`) the company. */
+  customerId: true,
+  companyId: true,
+  event: true,
+  fromStageId: true,
+  toStageId: true,
+  reason: true,
+  actorType: true,
+  actorId: true,
+  createdAt: true,
+});
 
 export type LeadEvent = z.infer<typeof LeadEvent>;
 

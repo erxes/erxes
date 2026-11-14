@@ -107,6 +107,9 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     /** ISO 4217. */
     currency: true,
     description: true,
+    /** The caller's record it is for (`order` and its id). */
+    referenceType: true,
+    referenceId: true,
     status: true,
     metadata: true,
     lines: true,
@@ -120,8 +123,8 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     createdAt: true,
   })
   .extend({
+    /** The gateway's kind, joined in the query. */
     gatewayKind: PaymentGatewayKind,
-    reference: z.object({ type: z.string(), id: z.string() }),
     /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
     refundable: z.object({ amount: z.int(), gateway: z.enum(GATEWAY_REFUND_KINDS) }),
   });
@@ -133,19 +136,20 @@ export const Refund = createSelectSchema(paymentRefunds, {
   invoiceId: Id,
   amount: int,
   createdAt: isoDate,
-})
-  .pick({
-    id: true,
-    invoiceId: true,
-    amount: true,
-    reason: true,
-    /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
-    method: true,
-    status: true,
-    error: true,
-    createdAt: true,
-  })
-  .extend({ requestedBy: z.object({ type: z.string(), id: z.string().nullable() }) });
+}).pick({
+  id: true,
+  invoiceId: true,
+  amount: true,
+  reason: true,
+  /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
+  method: true,
+  status: true,
+  error: true,
+  /** Who asked: a team member (`requestedBy` = user id), a plugin (its name) or `system`. */
+  requestedByType: true,
+  requestedBy: true,
+  createdAt: true,
+});
 
 export type Refund = z.infer<typeof Refund>;
 
@@ -208,10 +212,9 @@ export const paymentsContract = {
         amount: z.int().min(1).max(1_000_000_000_00),
         currency: Currency.optional(),
         description: z.string().trim().min(1).max(255),
-        reference: z.object({
-          type: z.string().trim().min(1).max(60),
-          id: z.string().trim().min(1).max(100),
-        }),
+        /** The caller's record it is for: `order` and its id. */
+        referenceType: z.string().trim().min(1).max(60),
+        referenceId: z.string().trim().min(1).max(100),
         /** Minutes the invoice can be paid in (default 30). */
         expiresInMinutes: z
           .int()

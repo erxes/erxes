@@ -1,5 +1,5 @@
 import { caller, type ContentType, companies, customers, type Db } from '@erxes/core-db';
-import { inArray, sql } from 'drizzle-orm';
+import { type AnyColumn, eq, inArray, sql } from 'drizzle-orm';
 import { currentImport } from '~/lib/causation';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -29,7 +29,8 @@ export const contactCreated = async (tx: Db, type: ContentType, row: ContactRow)
   await recordActivity(tx, { targetType: type, targetId: row.id, type: `${type}.created` });
   await publishCoreEvents(tx, {
     type: `core.${type}.created`,
-    subject: { type, id: row.id },
+    subjectType: type,
+    subjectId: row.id,
     payload: { label: contactLabel(type, row), ownerId: row.ownerId },
   });
   await recordAudit(tx, {
@@ -68,7 +69,8 @@ export const contactsUpdated = async (
     tx,
     changed.map(({ after, changes }) => ({
       type: `core.${type}.updated`,
-      subject: { type, id: after.id },
+      subjectType: type,
+      subjectId: after.id,
       payload: { changes },
     })),
   );
@@ -118,7 +120,8 @@ export const contactsRemoved = async (tx: Db, type: ContentType, rows: ContactRe
     tx,
     rows.map((row) => ({
       type: `core.${type}.deleted`,
-      subject: { type, id: row.id },
+      subjectType: type,
+      subjectId: row.id,
       payload: { label: contactLabel(type, row) },
     })),
   );
@@ -158,7 +161,8 @@ export const contactsMerged = async (
   await moveActivities(tx, type, mergedIds, keep.id);
   await publishCoreEvents(tx, {
     type: `core.${type}.merged`,
-    subject: { type, id: keep.id },
+    subjectType: type,
+    subjectId: keep.id,
     payload: { mergedIds },
   });
   await recordActivity(tx, {
@@ -210,24 +214,25 @@ export const contactsTagged = async (
     tx,
     entries.map((entry) => ({
       type: `core.${type}.tagged`,
-      subject: { type, id: entry.targetId },
+      subjectType: type,
+      subjectId: entry.targetId,
       payload: entry.data,
     })),
   );
 };
 
+/** A customer's full name, else its email or phone. */
+const customerName = sql<
+  string | null
+>`coalesce(nullif(trim(concat_ws(' ', ${customers.firstName}, ${customers.lastName})), ''), ${customers.primaryEmail}, ${customers.primaryPhone})`;
+
 /**
  * Customers' and companies' names by id, in one query: a customer's full name, else
  * its email or phone; a company's name. Ids are unique across both tables.
  */
-export const contactNames = async (tx: Db, customerIds: string[], companyIds: string[]) => {
+const contactNames = async (tx: Db, customerIds: string[], companyIds: string[]) => {
   const named = await tx
-    .select({
-      id: customers.id,
-      name: sql<
-        string | null
-      >`coalesce(nullif(trim(concat_ws(' ', ${customers.firstName}, ${customers.lastName})), ''), ${customers.primaryEmail}, ${customers.primaryPhone})`,
-    })
+    .select({ id: customers.id, name: customerName })
     .from(customers)
     .where(inArray(customers.id, customerIds))
     .unionAll(
@@ -238,6 +243,20 @@ export const contactNames = async (tx: Db, customerIds: string[], companyIds: st
     );
 
   return new Map(named.map((row) => [row.id, row.name]));
+};
+
+/** The name, now, of the customer or company a row's columns point at: null once it is deleted. */
+export const contactName = (client: Db, type: AnyColumn, id: AnyColumn) => {
+  const person = client.select({ name: customerName }).from(customers).where(eq(customers.id, id));
+
+  const company = client
+    .select({ name: companies.primaryName })
+    .from(companies)
+    .where(eq(companies.id, id));
+
+  return sql<
+    string | null
+  >`case ${type} when 'customer' then (${person}) when 'company' then (${company}) end`;
 };
 
 /** Customer–company links, on both timelines. */
@@ -262,7 +281,8 @@ export const contactsLinked = async (
     tx,
     links.map(({ customerId, companyId }) => ({
       type: `core.customer.company_${verb}`,
-      subject: { type: 'customer', id: customerId },
+      subjectType: 'customer',
+      subjectId: customerId,
       payload: { customerId, companyId },
     })),
   );

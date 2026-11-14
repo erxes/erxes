@@ -117,7 +117,9 @@ describe('automations', { timeout: 300_000 }, () => {
     expect(runs).toHaveLength(1);
     expect(runs[0]).toMatchObject({
       status: 'succeeded',
-      subject: { type: 'customer', id: vip.id, name: 'Bold' },
+      subjectType: 'customer',
+      subjectId: vip.id,
+      subjectName: 'Bold',
     });
 
     const detail = await t.owner().automations.run({ runId: runs[0]?.id ?? '' });
@@ -139,7 +141,7 @@ describe('automations', { timeout: 300_000 }, () => {
       .owner()
       .activities.list({ targetType: 'customer', targetId: vip.id, kind: 'notes' });
 
-    expect(notes.data[0]?.data.body).toContain(`Welcome Bold, tagged by ${vipTag}`);
+    expect(notes.data[0]?.note?.body).toContain(`Welcome Bold, tagged by ${vipTag}`);
 
     const inbox = await t.owner().notifications.list({ kind: 'core.automation.message' });
 
@@ -174,7 +176,7 @@ describe('automations', { timeout: 300_000 }, () => {
     await settle();
 
     // One run for the member's change; its own change doesn't start another.
-    expect((await runsOf(self)).filter((run) => run.subject?.id === customer.id)).toHaveLength(1);
+    expect((await runsOf(self)).filter((run) => run.subjectId === customer.id)).toHaveLength(1);
     await t.owner().automations.pause({ id: self });
 
     const once = await active('Once', {
@@ -217,7 +219,7 @@ describe('automations', { timeout: 300_000 }, () => {
       .owner()
       .activities.list({ targetType: 'company', targetId: company.id, kind: 'notes' });
 
-    expect(notes.data.map((entry) => entry.data.body)).toEqual(['version one']);
+    expect(notes.data.map((entry) => entry.note?.body)).toEqual(['version one']);
   });
 
   it('retries a failing step, fails the run with the reason, and continues it on retry', async () => {

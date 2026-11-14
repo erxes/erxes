@@ -12,10 +12,10 @@ import { importParseJob } from './importParse';
 import {
   type Action,
   EMPTY,
-  ImportAction,
   type ImportRow,
   importOrThrow,
-  toDto,
+  selectImports,
+  shownImport,
   UNDO_DAYS,
   undoable,
 } from './importState';
@@ -27,18 +27,8 @@ const defaults = (recordType: TransferRecordType): ImportOptions => ({
   runAutomations: false,
 });
 
-const sampleOf = async (client: Db, id: string) =>
-  (
-    await client
-      .select({ cells: importRows.cells })
-      .from(importRows)
-      .where(eq(importRows.importId, id))
-      .orderBy(asc(importRows.rowNumber))
-      .limit(5)
-  ).map((row) => row.cells);
-
-export const listImports = async (client: Db, query: CursorQuery) => {
-  const page = await keysetPage(
+export const listImports = async (client: Db, query: CursorQuery) =>
+  keysetPage(
     client,
     {
       table: imports,
@@ -48,22 +38,13 @@ export const listImports = async (client: Db, query: CursorQuery) => {
     undefined,
     query,
     (where, orderBy, limit) =>
-      client
-        .select()
-        .from(imports)
+      selectImports(client)
         .where(where)
         .orderBy(...orderBy)
         .limit(limit),
   );
 
-  return { ...page, data: page.data.map((row) => toDto(row)) };
-};
-
-export const getImport = async (client: Db, id: string) => {
-  const row = await importOrThrow(client, id);
-
-  return toDto(row, await sampleOf(client, id));
-};
+export const getImport = shownImport;
 
 /** Starts an import from an uploaded file: it is read in the background, then columns are suggested. */
 export const createImport = async (
@@ -95,7 +76,7 @@ export const createImport = async (
     dedupeKey: stepKey(row.id, importParseJob.queue),
   });
 
-  return toDto(row);
+  return shownImport(client, row.id);
 };
 
 /** Each mapped field must be importable and take one column. */
@@ -150,7 +131,7 @@ export const updateImport = async (
     .set({ action: null, error: null })
     .where(eq(importRows.importId, id));
 
-  return toDto(next, await sampleOf(client, id));
+  return shownImport(client, next.id);
 };
 
 const begin = async (client: Db, id: string, status: 'checking' | 'running') => {
@@ -180,7 +161,7 @@ const begin = async (client: Db, id: string, status: 'checking' | 'running') => 
     dedupeKey: stepKey(next.id, job.queue, after),
   });
 
-  return toDto(next);
+  return shownImport(client, next.id);
 };
 
 export const checkImport = (client: Db, id: string) => begin(client, id, 'checking');
@@ -218,7 +199,7 @@ export const undoImport = async (client: Db, id: string) => {
     targetLabel: row.fileName,
   });
 
-  return toDto(next);
+  return shownImport(client, next.id);
 };
 
 export const listImportRows = async (
@@ -244,7 +225,7 @@ export const listImportRows = async (
     data: rows.map((row) => ({
       rowNumber: row.rowNumber,
       cells: row.cells,
-      action: ImportAction.nullable().parse(row.action),
+      action: row.action,
       error: row.error,
       recordId: row.recordId,
     })),

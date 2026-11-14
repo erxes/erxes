@@ -31,39 +31,37 @@ export const User = createSelectSchema(users, {
   role: RoleKey,
   links: UserLinks,
   onboardedAt: isoDate,
+  totpEnabledAt: isoDate,
   createdAt: isoDate,
   updatedAt: isoDate,
-})
-  .pick({
-    id: true,
-    email: true,
-    username: true,
-    /** Display name: first, middle and last name, or what was given at invite. */
-    fullName: true,
-    avatarUrl: true,
-    role: true,
-    status: true,
-    firstName: true,
-    middleName: true,
-    lastName: true,
-    shortName: true,
-    employeeId: true,
-    phone: true,
-    /** `YYYY-MM-DD` */
-    birthDate: true,
-    /** `YYYY-MM-DD` */
-    workStartedDate: true,
-    description: true,
-    links: true,
-    /** Finished the welcome steps; null shows them at the next sign-in. */
-    onboardedAt: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    /** Signs in with a second step (an authenticator app's code). */
-    twoFactorEnabled: z.boolean(),
-  });
+}).pick({
+  id: true,
+  email: true,
+  username: true,
+  /** Display name: first, middle and last name, or what was given at invite. */
+  fullName: true,
+  avatarUrl: true,
+  role: true,
+  status: true,
+  firstName: true,
+  middleName: true,
+  lastName: true,
+  shortName: true,
+  employeeId: true,
+  phone: true,
+  /** `YYYY-MM-DD` */
+  birthDate: true,
+  /** `YYYY-MM-DD` */
+  workStartedDate: true,
+  description: true,
+  links: true,
+  /** Finished the welcome steps; null shows them at the next sign-in. */
+  onboardedAt: true,
+  /** Signs in with a second step (an authenticator app's code) since then; null when off. */
+  totpEnabledAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 export type User = z.infer<typeof User>;
 

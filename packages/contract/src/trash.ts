@@ -1,4 +1,4 @@
-import { ACTOR_TYPES, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import { trash } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
@@ -16,13 +16,15 @@ export const TrashItem = createSelectSchema(trash, {
     recordType: true,
     recordId: true,
     label: true,
+    /** Who deleted it: a team member (`deletedBy` = user id), a plugin (its name) or `system`. */
+    deletedByType: true,
+    deletedBy: true,
     deletedAt: true,
     /** When it is gone for good. */
     purgeAt: true,
   })
   .extend({
-    deletedBy: z.object({ type: z.enum(ACTOR_TYPES), id: z.string().nullable() }),
-    /** What comes back with it. */
+    /** What comes back with it, counted in the query. */
     counts: z.object({
       tags: z.int(),
       links: z.int(),
