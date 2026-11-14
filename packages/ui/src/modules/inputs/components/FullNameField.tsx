@@ -52,7 +52,8 @@ const FullNameFieldContent = () => {
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           setFirstName(e.target.value);
         }}
-        className="rounded-r-none focus-visible:z-10 max-w-36 shadow-none"
+        variant="flush"
+        className="focus-visible:z-10 max-w-36"
         placeholder="First name"
       />
       <Input
@@ -60,7 +61,8 @@ const FullNameFieldContent = () => {
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           setLastName(e.target.value);
         }}
-        className="rounded-l-none focus-visible:z-10 max-w-36 shadow-none"
+        variant="flush"
+        className="focus-visible:z-10 max-w-36"
         placeholder="Last name"
       />
     </div>

@@ -117,7 +117,6 @@ export const CustomersCommandBar = ({ rows }: { rows: Customer[] }) => {
             type="customer"
             mode="multiple"
             variant="secondary"
-            className="shadow-none"
             value={tagIds}
             onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}
           />

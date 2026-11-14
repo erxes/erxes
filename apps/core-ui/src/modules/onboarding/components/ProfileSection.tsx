@@ -94,7 +94,7 @@ const AvatarField = () => {
               <Form.Control>
                 <Input type="url" placeholder="https://" {...field} />
               </Form.Control>
-              <Form.Description className="text-xs">{t('avatar-url-description')}</Form.Description>
+              <Form.Description>{t('avatar-url-description')}</Form.Description>
               <Form.Message />
             </div>
           </div>

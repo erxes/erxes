@@ -43,7 +43,7 @@ export const MemberPanelName = ({ user }: { user: User }) => {
         }
       }}
     >
-      <PanelFieldTrigger className="px-1 font-medium">
+      <PanelFieldTrigger variant="title">
         <FullNameValue />
       </PanelFieldTrigger>
     </FullNameField>

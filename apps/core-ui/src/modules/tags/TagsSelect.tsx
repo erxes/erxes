@@ -166,13 +166,13 @@ const TagsSelectRoot = ({
       render={
         <Button
           variant={variant}
-          className={cn('w-min text-sm font-medium shadow-xs', className)}
+          className={cn('w-min text-sm font-medium', variant !== 'secondary' && 'shadow-xs', className)}
         />
       }
     >
       <TagsSelectValue placeholder={placeholder} />
     </Popover.Trigger>
-    <Combobox.Content className="w-[200px] p-0" align="start">
+    <Combobox.Content className="w-[200px]" align="start">
       <TagsSelectContent />
     </Combobox.Content>
   </TagsSelectProvider>

@@ -66,7 +66,7 @@ export const EmailFieldForm = ({
             ref={inputRef}
             placeholder={label}
             variant="secondary"
-            className={cn(invalid && 'focus-visible:shadow-destructive')}
+            aria-invalid={invalid}
             value={draft}
             onChange={(event) => {
               setDraft(event.target.value);

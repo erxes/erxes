@@ -81,7 +81,7 @@ export const PanelDescriptionEditor = ({
         readonly={readonly}
         isHTML={isHTML}
         variant="default"
-        className="h-full min-h-0 flex-1 rounded-none pt-0 shadow-none [&_.bn-container]:h-full [&_.bn-editor]:min-h-full [&_.bn-editor]:outline-none"
+        className="h-full min-h-0 flex-1 [&_.bn-container]:h-full [&_.bn-editor]:min-h-full"
       />
     </div>
   );

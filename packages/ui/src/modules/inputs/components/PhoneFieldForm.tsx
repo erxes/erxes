@@ -52,6 +52,7 @@ export const PhoneFieldForm = ({
         <div className="px-1 pb-1">
           <PhoneInput
             ref={inputRef}
+            variant="secondary"
             placeholder={label}
             defaultCountry="MN"
             value={draft}

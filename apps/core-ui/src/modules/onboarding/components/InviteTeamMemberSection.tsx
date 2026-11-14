@@ -153,7 +153,7 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
                 value={inputValue}
                 onChange={onChange}
                 onKeyDown={onKeyDown}
-                className={cn(error && 'focus-visible:shadow-focus-destructive')}
+                aria-invalid={!!error}
               />
               {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
               {!error && (

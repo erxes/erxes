@@ -36,7 +36,7 @@ export const TwoFactorStep = ({ challenge, onBack }: { challenge: string; onBack
           onChange={(event) =>
             setCode(recovery ? event.target.value : event.target.value.replace(/\D/g, ''))
           }
-          className="text-center font-mono tracking-widest"
+          text="otp"
         />
       </div>
       {verify.isError && (

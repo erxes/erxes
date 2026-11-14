@@ -3,9 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { PanelLabel } from './PanelLabel';
 import { IconForms, type Icon } from '@tabler/icons-react';
 
-// Inputs inside a panel form row: the height and text of the panel's cells.
-export const PANEL_INPUT_CLASS_NAME = 'h-7 rounded-sm text-xs shadow-none font-normal';
-
 /**
  * One field of a record not created yet, laid out like `PanelField`: its
  * label, then the input, with the field's error under it.

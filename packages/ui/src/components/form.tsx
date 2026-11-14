@@ -3,6 +3,7 @@ import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 import { Controller, FormProvider, useFormContext } from 'react-hook-form';
 
 import { useRender } from '@base-ui/react/use-render';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { Label } from './label';
 import { cn } from '../lib/utils';
@@ -58,12 +59,29 @@ type FormItemContextValue = {
 
 const FormItemContext = React.createContext<FormItemContextValue | null>(null);
 
-const FormItem = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+const formItemVariants = cva('', {
+  variants: {
+    orientation: {
+      // The label, the control and its message stacked.
+      vertical: 'space-y-1.5',
+      // The label on one side and the control (a switch) on the other.
+      horizontal: 'flex flex-row items-center justify-between',
+    },
+  },
+  defaultVariants: { orientation: 'vertical' },
+});
+
+const FormItem = ({
+  ref,
+  className,
+  orientation,
+  ...props
+}: React.ComponentProps<'div'> & VariantProps<typeof formItemVariants>) => {
   const id = React.useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn('space-y-1.5', className)} {...props} />
+      <div ref={ref} className={cn(formItemVariants({ orientation }), className)} {...props} />
     </FormItemContext.Provider>
   );
 };
@@ -107,7 +125,24 @@ const FormDescription = ({ ref, className, ...props }: React.ComponentProps<'p'>
   );
 };
 
-const FormMessage = ({ ref, className, children, ...props }: React.ComponentProps<'p'>) => {
+const formMessageVariants = cva('text-xs', {
+  variants: {
+    variant: {
+      default: '',
+      // White on red, for a message laid over the rows below a cramped field.
+      solid: 'bg-destructive px-2 py-1 text-destructive-foreground',
+    },
+  },
+  defaultVariants: { variant: 'default' },
+});
+
+const FormMessage = ({
+  ref,
+  className,
+  children,
+  variant,
+  ...props
+}: React.ComponentProps<'p'> & VariantProps<typeof formMessageVariants>) => {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message) : children;
 
@@ -119,7 +154,7 @@ const FormMessage = ({ ref, className, children, ...props }: React.ComponentProp
     <p
       ref={ref}
       id={formMessageId}
-      className={cn('text-xs', error && 'text-destructive', className)}
+      className={cn(error && 'text-destructive', formMessageVariants({ variant }), className)}
       {...props}
     >
       {body}

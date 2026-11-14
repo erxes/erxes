@@ -6,10 +6,9 @@ import { useUserInviteContext } from './InviteMemberContext';
 import { InviteRowCheckbox } from './InviteRowCheckbox';
 import type { TUserForm } from './inviteSchema';
 
-const INPUT_CLASS_NAME = 'rounded-none focus-visible:relative focus-visible:z-10 shadow-none';
+const INPUT_CLASS_NAME = 'focus-visible:relative focus-visible:z-10';
 
-const MESSAGE_CLASS_NAME =
-  'text-destructive-foreground absolute top-full -left-px -right-px z-20 bg-destructive m-0! px-2 py-1';
+const MESSAGE_CLASS_NAME = 'absolute top-full -left-px -right-px z-20 m-0!';
 
 /** The row's email or password, its error shown under the cell. */
 const InviteTextCell = ({
@@ -32,17 +31,14 @@ const InviteTextCell = ({
         render={({ field }) => (
           <Form.Item className="relative">
             <Form.Control>
-              <Input
-                {...field}
-                placeholder={placeholder}
-                aria-label={placeholder}
-                type={name}
-                // Someone else's address: the browser shouldn't offer the owner's own.
-                autoComplete={name === 'email' ? 'off' : 'new-password'}
-                className={INPUT_CLASS_NAME}
-              />
+              <Input {...field}
+              placeholder={placeholder}
+              aria-label={placeholder}
+              type={name}
+              // Someone else's address: the browser shouldn't offer the owner's own.
+              autoComplete={name === 'email' ? 'off' : 'new-password'} variant="flush" className={INPUT_CLASS_NAME}  />
             </Form.Control>
-            <Form.Message className={MESSAGE_CLASS_NAME} />
+            <Form.Message variant="solid" className={MESSAGE_CLASS_NAME} />
           </Form.Item>
         )}
       />
@@ -67,9 +63,7 @@ const InviteRoleCell = ({ index, last }: { index: number; last: boolean }) => {
           <Form.Item>
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
-                <Select.Trigger className={INPUT_CLASS_NAME} aria-label={t('role')}>
-                  <Select.Value />
-                </Select.Trigger>
+                <Select.Trigger variant="flush" className={INPUT_CLASS_NAME} aria-label={t('role')}><Select.Value /></Select.Trigger>
               </Form.Control>
               <Select.Content>
                 {roles

@@ -1,5 +1,5 @@
 import { IconBraces, IconBuilding, IconClock, IconRoute, IconUser } from '@tabler/icons-react';
-import { cn, Command, Input, Popover, Textarea } from 'erxes-ui';
+import { Command, InputGroup, Popover } from 'erxes-ui';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FieldInfo } from './useAutomationFields';
@@ -131,29 +131,28 @@ export const TemplateInput = ({
   };
 
   return (
-    <div className="relative">
+    <InputGroup>
       {multiline ? (
-        <Textarea {...shared} rows={4} className="pr-10" />
+        <InputGroup.Textarea {...shared} rows={4} />
       ) : (
-        <Input {...shared} className="pr-10" />
+        <InputGroup.Input {...shared} />
       )}
       {!disabled && (
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger
-            title={t('insert-data', 'Insert data')}
-            aria-label={t('insert-data', 'Insert data')}
-            className={cn(
-              'absolute right-1.5 flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
-              multiline ? 'top-1.5' : 'top-1/2 -translate-y-1/2',
-            )}
-          >
-            <IconBraces className="size-4" />
-          </Popover.Trigger>
-          <Popover.Content align="end" sideOffset={6} collisionPadding={12} className="w-72 p-0">
-            <DataPicker fields={fields} subject={subject} onPick={insert} />
-          </Popover.Content>
-        </Popover>
+        <InputGroup.Addon align="end">
+          <Popover open={open} onOpenChange={setOpen}>
+            <Popover.Trigger
+              title={t('insert-data', 'Insert data')}
+              aria-label={t('insert-data', 'Insert data')}
+              className="flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground"
+            >
+              <IconBraces className="size-4" />
+            </Popover.Trigger>
+            <Popover.Content align="end" sideOffset={6} collisionPadding={12} className="w-72 p-0">
+              <DataPicker fields={fields} subject={subject} onPick={insert} />
+            </Popover.Content>
+          </Popover>
+        </InputGroup.Addon>
       )}
-    </div>
+    </InputGroup>
   );
 };

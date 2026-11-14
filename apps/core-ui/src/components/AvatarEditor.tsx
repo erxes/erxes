@@ -34,14 +34,7 @@ const AvatarUpload = ({
       }}
       className="items-center"
     >
-      <Upload.Preview
-        className={cn(
-          // A plain circle: erxes-ui draws the preview as an outline button
-          // (padding, a drop shadow), which reads lopsided at avatar size.
-          '[&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:p-0! [&_button]:shadow-none! [&_img]:rounded-full',
-          compact && '[&_button]:size-8!',
-        )}
-      />
+      <Upload.Preview variant="avatar" size={compact ? 'sm' : 'default'} />
       <div className={cn('flex gap-1.5', compact ? 'items-center' : 'flex-col')}>
         <Upload.Button size="sm" variant="outline" type="button" />
         {/* Clears the picture; the stored file stays (erxes-ui's remove button would delete it by name). */}

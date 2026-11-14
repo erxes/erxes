@@ -15,7 +15,7 @@ export interface BlockEditorProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
-  variant?: 'default' | 'outline';
+  variant?: 'default' | 'outline' | 'ghost';
   sideMenu?: boolean;
   formattingToolbar?: boolean;
   linkToolbar?: boolean;

@@ -43,8 +43,10 @@ const ConfirmationField = ({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-xs select-none" variant="peer">
-        Type <span className="font-semibold">{expected}</span> in the field below to confirm.
+      <Label htmlFor={id} className="select-none" variant="peer">
+        <span className="text-xs">
+          Type <span className="font-semibold">{expected}</span> in the field below to confirm.
+        </span>
       </Label>
       <Input
         id={id}
