@@ -47,7 +47,7 @@ export const RECORD_ACTIONS: CoreAction[] = [
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
       const changes = parseInput(ctx, CustomerChanges, ['ownerId']);
-      const saved = await updateCustomer(ctx.tx, ctx.actor, id, changes);
+      const saved = await updateCustomer(ctx.tx, id, changes);
 
       return { id: saved.id, changed: Object.keys(changes) };
     },
@@ -65,7 +65,7 @@ export const RECORD_ACTIONS: CoreAction[] = [
     run: async (ctx) => {
       const id = needSubject(ctx, 'company');
       const changes = parseInput(ctx, CompanyChanges, ['ownerId']);
-      const saved = await updateCompany(ctx.tx, ctx.actor, id, changes);
+      const saved = await updateCompany(ctx.tx, id, changes);
 
       return { id: saved.id, changed: Object.keys(changes) };
     },
@@ -79,7 +79,7 @@ export const RECORD_ACTIONS: CoreAction[] = [
     run: async (ctx) => {
       const tags = { add: list(ctx.input.add), remove: list(ctx.input.remove) };
 
-      await tagCustomers(ctx.tx, ctx.actor, { ids: [needSubject(ctx, 'customer')], ...tags });
+      await tagCustomers(ctx.tx, { ids: [needSubject(ctx, 'customer')], ...tags });
 
       return { added: tags.add, removed: tags.remove };
     },
@@ -93,7 +93,7 @@ export const RECORD_ACTIONS: CoreAction[] = [
     run: async (ctx) => {
       const tags = { add: list(ctx.input.add), remove: list(ctx.input.remove) };
 
-      await tagCompanies(ctx.tx, ctx.actor, { ids: [needSubject(ctx, 'company')], ...tags });
+      await tagCompanies(ctx.tx, { ids: [needSubject(ctx, 'company')], ...tags });
 
       return { added: tags.add, removed: tags.remove };
     },
@@ -112,7 +112,7 @@ export const RECORD_ACTIONS: CoreAction[] = [
           "This step needs a customer or company: the trigger event isn't about one",
         );
 
-      const note = await addNote(ctx.tx, ctx.actor, {
+      const note = await addNote(ctx.tx, {
         targetType: ctx.subject.type,
         targetId: ctx.subject.id,
         body: text(ctx.input.body) ?? '',
@@ -148,7 +148,7 @@ export const RECORD_ACTIONS: CoreAction[] = [
         customFields: { [fieldId]: value },
       });
 
-      await updateCustomer(ctx.tx, ctx.actor, id, { customFields });
+      await updateCustomer(ctx.tx, id, { customFields });
 
       return { fieldId, value };
     },

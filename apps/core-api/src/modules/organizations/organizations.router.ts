@@ -1,15 +1,12 @@
 import { db } from '@erxes/core-db';
 import { getOrganization, updateOrganization } from '~/modules/organizations/organizations.service';
-import { anyone, authed, audited } from '~/orpc';
+import { scoped, audited } from '~/orpc';
 
 export const organizationsRouter = {
-  current: anyone.organizations.current.handler(({ context }) =>
-    getOrganization(db(), context.caller.orgId),
-  ),
-  update: authed.organizations.update.handler(async ({ input, context }) => {
+  current: scoped.organizations.current.handler(() => getOrganization(db())),
+  update: scoped.organizations.update.handler(async ({ input }) => {
     const { organization } = await audited(
-      context.actor,
-      (tx) => updateOrganization(tx, context.actor.orgId, input),
+      (tx) => updateOrganization(tx, input),
       (result) => ({
         action: 'organization.updated',
         targetType: 'organization',

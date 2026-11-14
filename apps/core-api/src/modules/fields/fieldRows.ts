@@ -1,6 +1,5 @@
 import { type FieldContentType, type Db, fieldGroups, fields } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
-import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { valuesTable } from './fieldValues';
@@ -20,8 +19,6 @@ export const toFieldDto = (row: FieldRow, groupArchivedAt?: Date | null) => ({
   ...row,
   archivedAt: row.archivedAt ?? groupArchivedAt ?? null,
 });
-
-export const requireFieldManager = (actor: Actor) => requirePermission(actor, 'properties.manage');
 
 /** A unique violation as the field or group conflict it means; anything else is rethrown. */
 export const taken = (error: unknown): never => {

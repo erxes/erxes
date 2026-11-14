@@ -1,6 +1,5 @@
 import { companies, customerCompanies, db, type Db } from '@erxes/core-db';
 import { asc, inArray, sql } from 'drizzle-orm';
-import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
@@ -60,9 +59,7 @@ const mergedColumns = (keep: CompanyRow, others: CompanyRow[]) => {
 };
 
 /** Merges companies into `keepId`, as `mergeCustomers` does; the others' names become extra names. */
-export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepId: string }) => {
-  requirePermission(actor, 'contacts.merge');
-
+export const mergeCompanies = async (input: { ids: string[]; keepId: string }) => {
   const ids = unique(input.ids);
 
   if (ids.length < 2) {
@@ -100,7 +97,7 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
 
   const merged = await findCompany(tx, keep.id);
 
-  await contactsMerged(tx, actor, 'company', merged, others);
+  await contactsMerged(tx, 'company', merged, others);
 
   return merged;
 };

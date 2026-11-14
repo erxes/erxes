@@ -1,11 +1,11 @@
 import type { AutomationStep } from '@erxes/core-contract';
-import type { automations, Db } from '@erxes/core-db';
+import { type automations, type Db, runAs } from '@erxes/core-db';
 import { withRunCause } from '~/lib/causation';
 import { coreAction } from './actions/catalog';
 import type { ActionContext } from './actions/context';
 import { evaluateGroup } from './conditions';
 import { type Cursor, enterArm, nextCursor, splitPath } from './cursor';
-import { actorOf, type RunContext, type RunRow, subjectRefOf } from './runs';
+import { automationMember, type RunContext, type RunRow, subjectRefOf } from './runs';
 import { render } from './templates';
 
 export type StepOutcome =
@@ -58,10 +58,11 @@ const runLocalAction = async (
   const { tx, automation, context } = state;
   const input = renderInput(step.input, context);
 
+  const member = await automationMember(state.run.orgId, automation.activatedBy);
+
   const ctx: ActionContext = {
     tx,
     orgId: state.run.orgId,
-    actor: await actorOf(tx, state.run.orgId, automation.activatedBy),
     automation: { id: automation.id, name: automation.name },
     run: { id: state.run.id },
     step: { id: step.id },
@@ -77,7 +78,7 @@ const runLocalAction = async (
       automationName: automation.name,
       depth: state.run.depth,
     },
-    () => run(ctx),
+    () => runAs(member, () => run(ctx)),
   );
 
   return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };

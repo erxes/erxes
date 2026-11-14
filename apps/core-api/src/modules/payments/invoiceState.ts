@@ -1,9 +1,8 @@
 import { Invoice } from '@erxes/core-contract';
-import { type Db, paymentGateways, paymentInvoices, withOrg } from '@erxes/core-db';
+import { type Db, paymentGateways, paymentInvoices, runAs, system, withOrg } from '@erxes/core-db';
 import { GATEWAY_REFUNDS } from '@erxes/payment-gateways';
 import { and, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { systemCaller } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { hmacSha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
@@ -55,6 +54,12 @@ export const eventPayload = (invoice: InvoiceRow) => ({
   lines: invoice.lines,
 });
 
+/**
+ * Core settles an invoice on the gateway's word, even when a member's or
+ * plugin's read (`getInvoice`) is what asked the gateway.
+ */
+const settledByGateway = <T>(fn: () => T) => runAs(system('payment check'), fn);
+
 /** Paid: once (a conditional update), then `core.payment.paid` for whoever waits on it. */
 const markPaid = async (
   tx: Db,
@@ -76,11 +81,13 @@ const markPaid = async (
 
   if (!paid) return current(tx, invoice.id);
 
-  await publishCoreEvents(tx, systemCaller(invoice.orgId), {
-    type: 'core.payment.paid',
-    entity: { type: 'payment_invoice', id: invoice.id },
-    payload: { ...eventPayload(paid), paidAmount: check.paidAmount, gateway: kind },
-  });
+  await settledByGateway(() =>
+    publishCoreEvents(tx, {
+      type: 'core.payment.paid',
+      entity: { type: 'payment_invoice', id: invoice.id },
+      payload: { ...eventPayload(paid), paidAmount: check.paidAmount, gateway: kind },
+    }),
+  );
 
   return paid;
 };
@@ -95,11 +102,13 @@ const markExpired = async (tx: Db, invoice: InvoiceRow) => {
 
   if (!expired) return current(tx, invoice.id);
 
-  await publishCoreEvents(tx, systemCaller(invoice.orgId), {
-    type: 'core.payment.expired',
-    entity: { type: 'payment_invoice', id: invoice.id },
-    payload: eventPayload(expired),
-  });
+  await settledByGateway(() =>
+    publishCoreEvents(tx, {
+      type: 'core.payment.expired',
+      entity: { type: 'payment_invoice', id: invoice.id },
+      payload: eventPayload(expired),
+    }),
+  );
 
   return expired;
 };

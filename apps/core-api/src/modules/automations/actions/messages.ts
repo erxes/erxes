@@ -1,5 +1,5 @@
+import { runAs, system } from '@erxes/core-db';
 import { z } from 'zod';
-import { systemCaller } from '~/http/auth';
 import { postOutbound } from '~/lib/outbound';
 import { sendEmail } from '~/modules/email/email';
 import { notify } from '~/modules/notifications/notifications.service';
@@ -48,15 +48,18 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
 
       const link = text(ctx.input.link);
 
-      const result = await notify(ctx.tx, systemCaller(ctx.orgId), {
-        userIds,
-        kind: 'core.automation.message',
-        title: (text(ctx.input.title) ?? '').slice(0, 200) || ctx.automation.name,
-        body: text(ctx.input.body)?.slice(0, 2000),
-        link: link?.startsWith('/') ? link : undefined,
-        entity: ctx.subject ?? undefined,
-        data: { automationId: ctx.automation.id, runId: ctx.run.id },
-      });
+      // The automation's message, not the member's: they hear it too.
+      const result = await runAs(system('automation message'), () =>
+        notify(ctx.tx, {
+          userIds,
+          kind: 'core.automation.message',
+          title: (text(ctx.input.title) ?? '').slice(0, 200) || ctx.automation.name,
+          body: text(ctx.input.body)?.slice(0, 2000),
+          link: link?.startsWith('/') ? link : undefined,
+          entity: ctx.subject ?? undefined,
+          data: { automationId: ctx.automation.id, runId: ctx.run.id },
+        }),
+      );
 
       return { sent: result.created };
     },

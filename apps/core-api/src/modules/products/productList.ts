@@ -1,7 +1,6 @@
 import type { CursorQuery, ProductKind, ProductStatus } from '@erxes/core-contract';
-import { type Db, productCategories, products } from '@erxes/core-db';
+import { caller, type Db, productCategories, products } from '@erxes/core-db';
 import { and, arrayContains, eq, ilike, inArray, or, sql } from 'drizzle-orm';
-import type { Caller } from '~/http/auth';
 import { unique } from '~/lib/contacts';
 import { containsPattern, keysetPage } from '~/lib/keyset';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
@@ -28,25 +27,17 @@ const inCategory = (categoryId: string) => sql`${products.categoryId} in (
 )`;
 
 /** A plugin lists the products it uses unless it asks for `all`; members may filter by plugin. */
-const usedBy = (caller: Caller, query: ProductQuery) => {
-  const plugin = caller.actorType === 'plugin' && !query.all ? caller.source : query.plugin;
+const usedBy = (query: ProductQuery) => {
+  const who = caller();
+  const plugin = who.type === 'plugin' && !query.all ? who.plugin : query.plugin;
 
   return plugin ? arrayContains(products.plugins, [plugin]) : undefined;
 };
 
-export const listProducts = async (
-  client: Db,
-  caller: Caller,
-  query: CursorQuery & ProductQuery,
-) => {
+export const listProducts = async (client: Db, query: CursorQuery & ProductQuery) => {
   const search = query.search ? containsPattern(query.search) : undefined;
 
-  const filter = await compileRecordFilter(
-    client,
-    { userId: caller.actorType === 'user' ? caller.actorId : null },
-    'product',
-    query.filter,
-  );
+  const filter = await compileRecordFilter(client, 'product', query.filter);
 
   return keysetPage(
     client,
@@ -60,7 +51,7 @@ export const listProducts = async (
       filter,
       query.kind ? eq(products.kind, query.kind) : undefined,
       query.categoryId ? inCategory(query.categoryId) : undefined,
-      usedBy(caller, query),
+      usedBy(query),
       search && query.search
         ? or(
             ilike(products.name, search),

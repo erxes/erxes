@@ -6,16 +6,14 @@ import {
   removeRole,
   updateRole,
 } from '~/modules/roles/roles.service';
-import { authed } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const rolesRouter = {
-  list: authed.roles.list.handler(() => listRoles(db())),
-  permissions: authed.roles.permissions.handler(async () => ({
+  list: scoped.roles.list.handler(() => listRoles(db())),
+  permissions: scoped.roles.permissions.handler(async () => ({
     data: await permissionCatalog(db()),
   })),
-  create: authed.roles.create.handler(({ input, context }) => createRole(context.actor, input)),
-  update: authed.roles.update.handler(({ input: { key, ...changes }, context }) =>
-    updateRole(context.actor, key, changes),
-  ),
-  remove: authed.roles.remove.handler(({ input, context }) => removeRole(context.actor, input.key)),
+  create: scoped.roles.create.handler(({ input }) => createRole(input)),
+  update: scoped.roles.update.handler(({ input: { key, ...changes } }) => updateRole(key, changes)),
+  remove: scoped.roles.remove.handler(({ input }) => removeRole(input.key)),
 };

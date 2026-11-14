@@ -1,5 +1,6 @@
 import { PLUGIN_SCOPES, type PluginManifest } from '@erxes/core-contract';
 import {
+  caller,
   type Db,
   db,
   organizations,
@@ -11,7 +12,7 @@ import {
 } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { PLUGIN_ACCESS_TYP, type PluginService } from '~/http/auth';
+import { PLUGIN_ACCESS_TYP } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
@@ -205,19 +206,21 @@ const namespaced = (plugin: string, values: string[] | undefined, what: string) 
 };
 
 /** The plugin's own manifest (deployment-wide token). */
-export const registerManifest = async (service: PluginService, manifest: PluginManifest) => {
+export const registerManifest = async (manifest: PluginManifest) => {
+  const { plugin } = caller('plugin');
+
   namespaced(
-    service.plugin,
+    plugin,
     manifest.permissions?.map((item) => item.action),
     'Permission actions',
   );
   namespaced(
-    service.plugin,
+    plugin,
     manifest.notificationKinds?.map((item) => item.kind),
     'Notification kinds',
   );
   namespaced(
-    service.plugin,
+    plugin,
     manifest.events?.map((item) => item.type),
     'Event types',
   );
@@ -225,7 +228,7 @@ export const registerManifest = async (service: PluginService, manifest: PluginM
   await db()
     .update(plugins)
     .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
-    .where(eq(plugins.name, service.plugin));
+    .where(eq(plugins.name, plugin));
 
   return { ok: true as const };
 };

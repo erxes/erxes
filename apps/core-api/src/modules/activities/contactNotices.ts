@@ -1,5 +1,4 @@
-import type { ContentType } from '@erxes/core-db';
-import type { Actor } from '~/http/auth';
+import { actorOf, caller, type ContentType } from '@erxes/core-db';
 import { currentImport } from '~/lib/causation';
 import type { NotifyInput } from '~/modules/notifications/notifications.service';
 import { contactLabel, type ContactRow, detailLink } from './contactRecords';
@@ -8,7 +7,6 @@ import { contactLabel, type ContactRow, detailLink } from './contactRecords';
 
 /** What a record's owners are told about what someone else did to it (never the one who did it). */
 export const ownerNotice = (
-  actor: Actor,
   type: ContentType,
   owners: (string | null)[],
   input: {
@@ -20,9 +18,8 @@ export const ownerNotice = (
     data?: Record<string, unknown>;
   },
 ): NotifyInput[] => {
-  const userIds = [
-    ...new Set(owners.filter((id): id is string => Boolean(id) && id !== actor.userId)),
-  ];
+  const { actorId } = actorOf(caller());
+  const userIds = [...new Set(owners.filter((id): id is string => Boolean(id) && id !== actorId))];
 
   if (!userIds.length) return [];
 
@@ -43,7 +40,6 @@ export const ownerNotice = (
 
 /** What a record's new owner is told, unless they made themselves the owner. */
 export const newOwnerNotice = (
-  actor: Actor,
   type: ContentType,
   row: ContactRow,
   before: string | null,
@@ -51,7 +47,9 @@ export const newOwnerNotice = (
   // A quiet import tells nobody about each row (the importer sees the summary).
   if (currentImport()?.quiet) return [];
 
-  if (!row.ownerId || row.ownerId === before || row.ownerId === actor.userId) return [];
+  if (!row.ownerId || row.ownerId === before || row.ownerId === actorOf(caller()).actorId) {
+    return [];
+  }
 
   return [
     {

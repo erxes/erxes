@@ -1,7 +1,8 @@
 import { recordAudit } from '~/modules/audit/audit.service';
-import { type Db, organizations, withSystem } from '@erxes/core-db';
+import { type Db, organizations, runAs, withOrg, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
+import { memberOf } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { hashPassword } from '~/lib/crypto';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
@@ -73,21 +74,21 @@ export const runSetup = async (input: {
       },
     });
 
-    await recordAudit(
-      tx,
-      {
-        orgId: created.organization.id,
-        actorType: 'user',
-        actorId: created.owner.id,
-        source: 'core',
-      },
-      {
-        action: 'organization.created',
-        targetType: 'organization',
-        targetId: created.organization.id,
-        targetLabel: created.organization.name,
-      },
-    );
+    // Recorded as the new owner, in the new organisation's log.
+    await withOrg(created.organization.id, async (own) => {
+      const owner = await memberOf(created.organization.id, created.owner.id);
+
+      if (!owner) throw new Error('setup: the new owner is not an active member');
+
+      await runAs(owner, () =>
+        recordAudit(own, {
+          action: 'organization.created',
+          targetType: 'organization',
+          targetId: created.organization.id,
+          targetLabel: created.organization.name,
+        }),
+      );
+    });
 
     return created;
   });

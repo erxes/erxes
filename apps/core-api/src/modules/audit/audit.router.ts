@@ -1,5 +1,4 @@
 import { db } from '@erxes/core-db';
-import { requirePermission } from '~/http/auth';
 import { listCheckpoints } from '~/modules/audit/checkpoints';
 import {
   auditSettings,
@@ -15,36 +14,22 @@ import {
   testStream,
   updateStream,
 } from '~/modules/audit/streams';
-import { authed, plugin, authedUnscoped } from '~/orpc';
+import { scoped, unscoped } from '~/orpc';
 
 export const auditRouter = {
-  list: authed.audit.list.handler(({ input, context }) => listAudit(db(), context.actor, input)),
-  record: plugin.audit.record.handler(({ input, context }) =>
-    recordPluginAudit(db(), context.plugin, input.entries),
+  list: scoped.audit.list.handler(({ input }) => listAudit(db(), input)),
+  record: scoped.audit.record.handler(({ input }) => recordPluginAudit(db(), input.entries)),
+  verify: scoped.audit.verify.handler(() => verifyAudit(db())),
+  checkpoints: scoped.audit.checkpoints.handler(({ input }) => listCheckpoints(db(), input)),
+  settings: scoped.audit.settings.handler(() => auditSettings(db())),
+  updateSettings: scoped.audit.updateSettings.handler(({ input }) =>
+    updateAuditSettings(db(), input),
   ),
-  verify: authed.audit.verify.handler(({ context }) => verifyAudit(db(), context.actor)),
-  checkpoints: authed.audit.checkpoints.handler(({ input, context }) => {
-    requirePermission(context.actor, 'audit.view');
-
-    return listCheckpoints(db(), input);
-  }),
-  settings: authed.audit.settings.handler(({ context }) =>
-    auditSettings(db(), context.actor.orgId),
+  streams: scoped.audit.streams.handler(() => listStreams(db())),
+  createStream: scoped.audit.createStream.handler(({ input }) => createStream(db(), input)),
+  updateStream: scoped.audit.updateStream.handler(({ input: { id, ...changes } }) =>
+    updateStream(db(), id, changes),
   ),
-  updateSettings: authed.audit.updateSettings.handler(({ input, context }) =>
-    updateAuditSettings(db(), context.actor, input),
-  ),
-  streams: authed.audit.streams.handler(() => listStreams(db())),
-  createStream: authed.audit.createStream.handler(({ input, context }) =>
-    createStream(db(), context.actor, input),
-  ),
-  updateStream: authed.audit.updateStream.handler(({ input: { id, ...changes }, context }) =>
-    updateStream(db(), context.actor, id, changes),
-  ),
-  removeStream: authed.audit.removeStream.handler(({ input, context }) =>
-    removeStream(db(), context.actor, input.id),
-  ),
-  testStream: authedUnscoped.audit.testStream.handler(({ input, context }) =>
-    testStream(context.actor, input.id),
-  ),
+  removeStream: scoped.audit.removeStream.handler(({ input }) => removeStream(db(), input.id)),
+  testStream: unscoped.audit.testStream.handler(({ input }) => testStream(input.id)),
 };

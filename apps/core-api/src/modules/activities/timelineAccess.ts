@@ -1,8 +1,14 @@
 import type { ActivityTarget } from '@erxes/core-contract';
-import { companies, customers, type Db, pluginInstallations, plugins } from '@erxes/core-db';
+import {
+  caller,
+  companies,
+  customers,
+  type Db,
+  pluginInstallations,
+  plugins,
+} from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
 import { can } from '~/http/access';
-import type { Actor, PluginCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
@@ -66,19 +72,16 @@ const notAllowed = (permission: string) =>
  * installed plugin declared, with its permission (if any). Plugins reach
  * customers, companies and their own types.
  */
-export const assertTimelineAccess = async (
-  client: Db,
-  who: { actor?: Actor | null; plugin?: PluginCaller | null; orgId: string },
-  targetType: string,
-  targetId: string,
-) => {
+export const assertTimelineAccess = async (client: Db, targetType: string, targetId: string) => {
+  const who = caller();
+
   if (isCoreTarget(targetType)) {
-    if (who.actor && !can(who.actor, 'contacts.view')) throw notAllowed('contacts.view');
+    if (who.type === 'user' && !can(who, 'contacts.view')) throw notAllowed('contacts.view');
 
     return assertTargets(client, [{ type: targetType, id: targetId }]);
   }
 
-  if (who.plugin && !targetType.startsWith(`${who.plugin.plugin}.`)) {
+  if (who.type === 'plugin' && !targetType.startsWith(`${who.plugin}.`)) {
     throw new HttpError(
       403,
       'NOT_ALLOWED',
@@ -95,6 +98,6 @@ export const assertTimelineAccess = async (
       `No installed plugin keeps a timeline for ${targetType}`,
     );
 
-  if (who.actor && timeline.permission && !can(who.actor, timeline.permission))
+  if (who.type === 'user' && timeline.permission && !can(who, timeline.permission))
     throw notAllowed(timeline.permission);
 };

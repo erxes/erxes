@@ -1,6 +1,5 @@
 import type { UserLinkName } from '@erxes/core-contract';
 import type { users } from '@erxes/core-db';
-import type { Role } from '~/http/auth';
 import type { UserRow } from './userRows';
 
 export interface UserChanges {
@@ -8,7 +7,7 @@ export interface UserChanges {
   fullName?: string;
   username?: string;
   avatarUrl?: string | null;
-  role?: Role;
+  role?: string;
   firstName?: string | null;
   middleName?: string | null;
   lastName?: string | null;

@@ -1,21 +1,28 @@
 import type { CursorQuery } from '@erxes/core-contract';
-import { auditLogs, type Db, newId, organizations } from '@erxes/core-db';
+import {
+  actorOf,
+  auditLogs,
+  caller,
+  type Db,
+  newId,
+  organizations,
+  sourceOf,
+} from '@erxes/core-db';
 import { and, eq, gte, ilike, like, lte, or, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { type Actor, type Caller, type PluginCaller, requirePermission } from '~/http/auth';
-import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
 import type { Changes } from '~/lib/changes';
 import { currentRunCause } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
+import { oneRow } from '~/lib/rows';
 import { deleteInBatches, inOrder } from '~/lib/sequence';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
 import { raiseAlerts } from './alerts';
 
-/** Who an entry is recorded for: a member, a plugin, or core itself. */
-export type AuditActor = Caller | { orgId: string; actorType: 'system'; actorId?: null };
+/** The actor columns of the entries and where they came from (`core` or the plugin). */
+type RecordedBy = ReturnType<typeof actorOf> & { source: string };
 
 export interface AuditInput {
   action: string;
@@ -29,32 +36,19 @@ export interface AuditInput {
   userAgent?: string | null;
 }
 
-/**
- * Records one audit entry. Call it inside the same transaction as the change,
- * so a rolled-back change leaves no entry and a committed one always has one.
- * IP and user agent come from the current request.
- */
-export const recordAudit = async (
-  client: Db,
-  actor: AuditActor,
-  input: AuditInput | AuditInput[],
-) => {
-  const cause = currentRunCause();
-
-  const entries = Array.isArray(input) ? input : [input];
-
+const writeAudit = async (client: Db, by: RecordedBy, entries: AuditInput[]) => {
   if (!entries.length) {
     return;
   }
 
+  const cause = currentRunCause();
   const { ip, userAgent } = requestInfo();
 
   await client.insert(auditLogs).values(
     entries.map((entry) => ({
       id: newId(),
-      orgId: actor.orgId,
-      actorType: actor.actorType,
-      actorId: actor.actorId ?? null,
+      actorType: by.actorType,
+      actorId: by.actorId,
       action: entry.action,
       targetType: entry.targetType ?? null,
       targetId: entry.targetId ?? null,
@@ -69,18 +63,35 @@ export const recordAudit = async (
         : (entry.metadata ?? null),
       ip: entry.ip ?? ip,
       userAgent: entry.userAgent ?? userAgent,
-      source: 'source' in actor ? actor.source : 'core',
+      source: by.source,
     })),
   );
 
   await raiseAlerts(
     client,
-    actor,
+    by,
     entries.map((entry) => ({
       ...entry,
       ip: entry.ip ?? ip,
       userAgent: entry.userAgent ?? userAgent,
     })),
+  );
+};
+
+/**
+ * Records audit entries for the caller (`caller()`). Call it inside the same
+ * transaction as the change, so a rolled-back change leaves no entry and a
+ * committed one always has one. The entries belong to the scope's
+ * organisation, so it runs inside `withOrg`. IP and user agent come from the
+ * current request.
+ */
+export const recordAudit = (client: Db, input: AuditInput | AuditInput[]) => {
+  const who = caller();
+
+  return writeAudit(
+    client,
+    { ...actorOf(who), source: sourceOf(who) },
+    Array.isArray(input) ? input : [input],
   );
 };
 
@@ -126,9 +137,7 @@ export const auditFilters = (query: AuditFilters) => {
   );
 };
 
-export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & AuditFilters) => {
-  requirePermission(actor, 'audit.view');
-
+export const listAudit = async (client: Db, query: CursorQuery & AuditFilters) => {
   const filters = auditFilters(query);
 
   const page = await keysetPage(
@@ -182,10 +191,11 @@ export const pruneAudit = async (client: Db, maxDays: number) => {
 /** Plugins record their own actions in the organisation's one audit log. */
 export const recordPluginAudit = async (
   client: Db,
-  caller: PluginCaller,
   entries: (AuditInput & { actorUserId?: string })[],
 ) => {
-  for (const entry of entries) assertPluginNamespace(caller.plugin, entry.action);
+  const { plugin } = caller('plugin');
+
+  for (const entry of entries) assertPluginNamespace(plugin, entry.action);
 
   await assertMembers(
     client,
@@ -204,13 +214,12 @@ export const recordPluginAudit = async (
   }
 
   await inOrder(runs, (run) =>
-    recordAudit(
+    writeAudit(
       client,
       {
-        orgId: caller.orgId,
         actorType: run.actorUserId ? 'user' : 'plugin',
-        actorId: run.actorUserId ?? caller.plugin,
-        source: caller.plugin,
+        actorId: run.actorUserId ?? plugin,
+        source: plugin,
       },
       run.entries,
     ),
@@ -224,15 +233,13 @@ export const recordPluginAudit = async (
  * its contents and the previous entry's hash, positions without gaps. The
  * oldest kept entry is the anchor (older ones may have been pruned).
  */
-export const verifyAudit = async (client: Db, actor: Actor) => {
-  requirePermission(actor, 'audit.view');
-
+export const verifyAudit = async (client: Db) => {
   const chain = await findChainBreak(client);
-  const checkpoints = await verifyCheckpoints(client, actor.orgId, chain.firstSeq);
+  const checkpoints = await verifyCheckpoints(client, chain.firstSeq);
 
   // An intact log gets a fresh checkpoint now, not at the next scheduled one.
   if (chain.brokenAt === null && checkpoints.mismatchAt === null) {
-    await signAuditCheckpoints(client, actor.orgId);
+    await signAuditCheckpoints(client);
   }
 
   return {
@@ -243,11 +250,10 @@ export const verifyAudit = async (client: Db, actor: Actor) => {
   };
 };
 
-export const auditSettings = async (client: Db, orgId: string) => {
+export const auditSettings = async (client: Db) => {
   const [row] = await client
     .select({ settings: organizations.settings })
     .from(organizations)
-    .where(eq(organizations.id, orgId))
     .limit(1);
 
   const max = config.retention.auditDays;
@@ -258,15 +264,7 @@ export const auditSettings = async (client: Db, orgId: string) => {
   };
 };
 
-export const updateAuditSettings = async (
-  client: Db,
-  actor: Actor,
-  input: { retentionDays: number },
-) => {
-  if (!can(actor, 'audit.retention')) {
-    throw new HttpError(403, 'OWNER_ONLY', 'Only owners can change how long the audit log is kept');
-  }
-
+export const updateAuditSettings = async (client: Db, input: { retentionDays: number }) => {
   if (input.retentionDays > config.retention.auditDays) {
     throw new HttpError(
       400,
@@ -275,25 +273,24 @@ export const updateAuditSettings = async (
     );
   }
 
-  const before = await auditSettings(client, actor.orgId);
+  const before = await auditSettings(client);
 
-  await client
-    .update(organizations)
-    .set({
-      settings: sql`jsonb_set(${organizations.settings}, '{audit}', ${JSON.stringify({ retentionDays: input.retentionDays })}::jsonb)`,
-      updatedAt: sql`now()`,
-    })
-    .where(eq(organizations.id, actor.orgId));
-  await recordAudit(
-    client,
-    { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
-    {
-      action: 'settings.audit_retention_changed',
-      targetType: 'organization',
-      targetId: actor.orgId,
-      changes: { retentionDays: [before.retentionDays, input.retentionDays] },
-    },
+  const organization = oneRow(
+    await client
+      .update(organizations)
+      .set({
+        settings: sql`jsonb_set(${organizations.settings}, '{audit}', ${JSON.stringify({ retentionDays: input.retentionDays })}::jsonb)`,
+        updatedAt: sql`now()`,
+      })
+      .returning({ id: organizations.id }),
   );
 
-  return auditSettings(client, actor.orgId);
+  await recordAudit(client, {
+    action: 'settings.audit_retention_changed',
+    targetType: 'organization',
+    targetId: organization.id,
+    changes: { retentionDays: [before.retentionDays, input.retentionDays] },
+  });
+
+  return auditSettings(client);
 };

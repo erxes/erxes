@@ -315,6 +315,7 @@
             "enum": [
               "user",
               "plugin",
+              "customer",
               "system"
             ],
             "type": "string"
@@ -11326,6 +11327,7 @@
                 "enum": [
                   "user",
                   "plugin",
+                  "customer",
                   "system"
                 ],
                 "type": "string"

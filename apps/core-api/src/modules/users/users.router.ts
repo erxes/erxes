@@ -8,30 +8,20 @@ import {
   setUserPassword,
   updateUser,
 } from '~/modules/users/users.service';
-import { authed } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const usersRouter = {
-  list: authed.users.list.handler(({ input }) => listUsers(db(), input)),
-  get: authed.users.get.handler(({ input }) => getUser(db(), input.id)),
-  invite: authed.users.invite.handler(({ input, context }) =>
-    inviteUser(db(), context.actor, input),
+  list: scoped.users.list.handler(({ input }) => listUsers(db(), input)),
+  get: scoped.users.get.handler(({ input }) => getUser(db(), input.id)),
+  invite: scoped.users.invite.handler(({ input }) => inviteUser(db(), input)),
+  inviteMany: scoped.users.inviteMany.handler(({ input }) => inviteUsers(input.entries)),
+  resendInvitation: scoped.users.resendInvitation.handler(({ input }) =>
+    resendInvitation(db(), input.id),
   ),
-  inviteMany: authed.users.inviteMany.handler(({ input, context }) =>
-    inviteUsers(context.actor, input.entries),
+  update: scoped.users.update.handler(({ input: { id, ...changes } }) => updateUser(id, changes)),
+  setPassword: scoped.users.setPassword.handler(({ input }) =>
+    setUserPassword(input.id, input.password),
   ),
-  resendInvitation: authed.users.resendInvitation.handler(({ input, context }) =>
-    resendInvitation(db(), context.actor, input.id),
-  ),
-  update: authed.users.update.handler(({ input: { id, ...changes }, context }) =>
-    updateUser(context.actor, id, changes),
-  ),
-  setPassword: authed.users.setPassword.handler(({ input, context }) =>
-    setUserPassword(context.actor, input.id, input.password),
-  ),
-  disable: authed.users.disable.handler(({ input, context }) =>
-    setUserDisabled(context.actor, input.id, true),
-  ),
-  enable: authed.users.enable.handler(({ input, context }) =>
-    setUserDisabled(context.actor, input.id, false),
-  ),
+  disable: scoped.users.disable.handler(({ input }) => setUserDisabled(input.id, true)),
+  enable: scoped.users.enable.handler(({ input }) => setUserDisabled(input.id, false)),
 };

@@ -1,16 +1,16 @@
 import { LANGUAGES } from '@erxes/core-db/enums';
 import {
+  caller,
   companies,
   type ContentType,
   customers,
   type Db,
   leadStages,
-  roles,
-  users,
+  runAs,
 } from '@erxes/core-db';
-import { and, asc, eq, sql } from 'drizzle-orm';
+import { asc, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import type { Actor } from '~/http/auth';
+import { memberOf } from '~/http/auth';
 import { lockOrganization } from '~/lib/locks';
 import { inOrder } from '~/lib/sequence';
 import { defineJob } from '~/modules/jobs/jobs';
@@ -53,22 +53,22 @@ const isoDay = (days: number) => {
 };
 
 /** The tags and custom fields the example records use. */
-const seedLabels = async (tx: Db, actor: Actor, copy: ExampleCopy) => {
+const seedLabels = async (tx: Db, copy: ExampleCopy) => {
   const tag = async (type: ContentType, name: string, colorCode: string) =>
-    (await createTag(tx, actor, { type, name, colorCode })).id;
+    (await createTag(tx, { type, name, colorCode })).id;
 
   return {
     exampleCustomer: await tag('customer', copy.tags.example, '#94a3b8'),
     vip: await tag('customer', copy.tags.vip, '#f59e0b'),
     exampleCompany: await tag('company', copy.tags.example, '#94a3b8'),
     partner: await tag('company', copy.tags.partner, '#10b981'),
-    plan: await createField(tx, actor, {
+    plan: await createField(tx, {
       contentType: 'customer',
       label: copy.plan.label,
       type: 'select',
       options: copy.plan.options,
     }),
-    renewal: await createField(tx, actor, {
+    renewal: await createField(tx, {
       contentType: 'customer',
       label: copy.renewal,
       type: 'date',
@@ -80,7 +80,6 @@ type Labels = Awaited<ReturnType<typeof seedLabels>>;
 
 interface Seeding {
   tx: Db;
-  actor: Actor;
   copy: ExampleCopy;
   labels: Labels;
   stages: { id: string }[];
@@ -100,16 +99,16 @@ const customFieldsOf = ({ copy, labels }: Seeding, person: Person) => {
 
 /** One customer or lead, linked to its company, with its note. */
 const seedPerson = async (seeding: Seeding, person: Person) => {
-  const { tx, actor, labels } = seeding;
+  const { tx, labels } = seeding;
   const lead = person.stage === undefined ? undefined : seeding.stages[person.stage];
 
-  const created = await createCustomer(tx, actor, {
+  const created = await createCustomer(tx, {
     firstName: person.first,
     lastName: person.last,
     primaryEmail: person.email,
     primaryPhone: person.phone,
     position: person.position,
-    ownerId: actor.userId,
+    ownerId: caller('user').userId,
     ...(person.birthDate ? { birthDate: person.birthDate } : {}),
     tagIds: person.vip ? [labels.exampleCustomer, labels.vip] : [labels.exampleCustomer],
     customFields: customFieldsOf(seeding, person),
@@ -126,14 +125,14 @@ const seedPerson = async (seeding: Seeding, person: Person) => {
   const companyId = person.company === undefined ? undefined : seeding.companyIds[person.company];
 
   if (companyId) {
-    await linkCustomerCompany(tx, actor, created.id, companyId, {
+    await linkCustomerCompany(tx, created.id, companyId, {
       role: person.role ?? null,
       isPrimaryContact: person.mainContact ?? false,
     });
   }
 
   if (person.note) {
-    await addNote(tx, actor, {
+    await addNote(tx, {
       targetType: 'customer',
       targetId: created.id,
       body: person.note,
@@ -159,23 +158,24 @@ const hasContacts = async (tx: Db) => {
  * and no companies (the organisation row is locked, so two members finishing
  * the welcome steps at once can't both seed). Returns whether it did.
  */
-const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) => {
-  await lockOrganization(tx, actor.orgId);
+/** Seeds as the member in scope (`runAs`), who owns the records. */
+const seedExampleData = async (tx: Db, language: ExampleLanguage) => {
+  await lockOrganization(tx);
 
   if (await hasContacts(tx)) return { seeded: false };
 
   const copy = COPY[language];
-  const labels = await seedLabels(tx, actor, copy);
+  const labels = await seedLabels(tx, copy);
   const companyIds: string[] = [];
 
   // One record after another through the full create pipeline; the people link to these ids.
   await inOrder(copy.companies, async (company) => {
-    const created = await createCompany(tx, actor, {
+    const created = await createCompany(tx, {
       primaryName: company.name,
       industry: company.industry,
       website: company.website,
       size: company.size,
-      ownerId: actor.userId,
+      ownerId: caller('user').userId,
       tagIds: company.partner ? [labels.exampleCompany, labels.partner] : [labels.exampleCompany],
     });
 
@@ -188,10 +188,10 @@ const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) 
     .orderBy(asc(leadStages.order));
 
   await inOrder(copy.people, (person) =>
-    seedPerson({ tx, actor, copy, labels, stages, companyIds }, person),
+    seedPerson({ tx, copy, labels, stages, companyIds }, person),
   );
 
-  await createView(tx, actor, {
+  await createView(tx, {
     recordType: 'customer',
     name: copy.vipView,
     shared: true,
@@ -204,7 +204,7 @@ const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) 
   const welcome = AUTOMATION_TEMPLATES.find((template) => template.id === 'welcome');
 
   if (welcome) {
-    await createAutomation(tx, actor, { ...copy.automation, definition: welcome.definition });
+    await createAutomation(tx, { ...copy.automation, definition: welcome.definition });
   }
 
   return { seeded: true };
@@ -223,25 +223,11 @@ export const exampleDataJob = defineJob({
   retry: { attempts: 3 },
   payload: z.object({ userId: z.string(), language: ExampleLanguage.default('en') }),
   async handle(job, tx) {
-    const [member] = await tx
-      .select({
-        id: users.id,
-        role: users.role,
-        status: users.status,
-        permissions: roles.permissions,
-      })
-      .from(users)
-      .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(eq(users.id, job.payload.userId))
-      .limit(1);
+    const member = await memberOf(job.orgId, job.payload.userId);
 
     // Only for an owner still with the organisation.
-    if (!member || member.status !== 'active' || member.role !== 'owner') return;
+    if (member?.role !== 'owner') return;
 
-    await seedExampleData(
-      tx,
-      { userId: member.id, orgId: job.orgId, role: member.role, permissions: member.permissions },
-      job.payload.language,
-    );
+    await runAs(member, () => seedExampleData(tx, job.payload.language));
   },
 });

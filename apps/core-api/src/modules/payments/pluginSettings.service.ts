@@ -1,5 +1,6 @@
 import type { PluginPaymentSettings } from '@erxes/core-contract';
 import {
+  caller,
   type Db,
   paymentGateways,
   paymentPluginSettings,
@@ -8,7 +9,6 @@ import {
 } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 
@@ -71,9 +71,10 @@ const checkGateways = async (client: Db, allowed: string[], fallback: string | n
 
 export const updatePluginSettings = async (
   client: Db,
-  actor: Actor,
   input: { plugin: string; defaultGatewayId: string | null; allowedGatewayIds: string[] },
 ) => {
+  const me = caller('user');
+
   const current = (await listPluginSettings(client)).data.find(
     (row) => row.plugin === input.plugin,
   );
@@ -89,18 +90,18 @@ export const updatePluginSettings = async (
       plugin: input.plugin,
       defaultGatewayId: input.defaultGatewayId,
       allowedGatewayIds: allowed,
-      updatedBy: actor.userId,
+      updatedBy: me.userId,
     })
     .onConflictDoUpdate({
       target: [paymentPluginSettings.orgId, paymentPluginSettings.plugin],
       set: {
         defaultGatewayId: input.defaultGatewayId,
         allowedGatewayIds: allowed,
-        updatedBy: actor.userId,
+        updatedBy: me.userId,
         updatedAt: sql`now()`,
       },
     });
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'payment.plugin_settings_updated',
     targetType: 'plugin',
     targetId: input.plugin,

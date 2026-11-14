@@ -25,10 +25,10 @@ import {
 import { companiesRouter } from '~/modules/companies/companies.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
-import { pub } from '~/orpc';
+import { unscoped } from '~/orpc';
 
 /** Implements `@erxes/core-contract`; inputs are already validated by its schemas. */
-export const coreRouter = pub.router({
+export const coreRouter = unscoped.router({
   activities: activitiesRouter,
   audit: auditRouter,
   events: eventsRouter,

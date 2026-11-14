@@ -1,7 +1,14 @@
-import { type Db, type ImportCounts, importRows, imports, newId } from '@erxes/core-db';
+import {
+  type Db,
+  type ImportCounts,
+  importRows,
+  imports,
+  newId,
+  runAs,
+  system,
+} from '@erxes/core-db';
 import { and, asc, eq, gt, inArray, isNotNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { type Actor, systemCaller, userCaller } from '~/http/auth';
 import { withImportCause } from '~/lib/causation';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
@@ -19,8 +26,8 @@ import {
   fail,
   ImportFailed,
   type ImportRow,
+  importingMember,
   importOrThrow,
-  memberActor,
   type Row,
 } from './importState';
 
@@ -48,8 +55,7 @@ const countsOf = async (tx: Db, id: string, rows: number): Promise<ImportCounts>
   };
 };
 
-const contextOf = async (tx: Db, actor: Actor, imp: ImportRow): Promise<Context> => ({
-  actor,
+const contextOf = async (tx: Db, imp: ImportRow): Promise<Context> => ({
   imp,
   isCompany: imp.recordType === 'company',
   columns: new Map(
@@ -82,7 +88,7 @@ const processBatch = async (tx: Db, ctx: Context, rows: Row[], dry: boolean) => 
 };
 
 /** The last batch: the counts, the status, and for a run its audit entry and the importer's notice. */
-const finish = async (tx: Db, actor: Actor, imp: ImportRow, processed: number, dry: boolean) => {
+const finish = async (tx: Db, imp: ImportRow, processed: number, dry: boolean) => {
   const counts = await countsOf(tx, imp.id, imp.counts.rows);
 
   await tx
@@ -98,27 +104,30 @@ const finish = async (tx: Db, actor: Actor, imp: ImportRow, processed: number, d
 
   if (dry) return;
 
-  await recordAudit(tx, userCaller(actor), {
+  await recordAudit(tx, {
     action: 'import.completed',
     targetType: 'import',
     targetId: imp.id,
     targetLabel: imp.fileName,
     metadata: { recordType: imp.recordType, ...counts, options: imp.options },
   });
-  await notify(tx, systemCaller(imp.orgId), {
-    userIds: [imp.createdBy],
-    kind: 'core.import.done',
-    title: `Import of ${imp.fileName} finished`,
-    body: `${counts.create} created, ${counts.update} updated, ${counts.skip} skipped, ${counts.error} with errors`,
-    link: `/contacts/settings/import-export?import=${imp.id}`,
-    entity: { type: 'import', id: imp.id },
-  }).catch((error: unknown) => log.warn({ err: error }, 'could not tell the importer'));
+  // From core to the importer: a notice from themselves would be skipped.
+  await runAs(system('import done'), () =>
+    notify(tx, {
+      userIds: [imp.createdBy],
+      kind: 'core.import.done',
+      title: `Import of ${imp.fileName} finished`,
+      body: `${counts.create} created, ${counts.update} updated, ${counts.skip} skipped, ${counts.error} with errors`,
+      link: `/contacts/settings/import-export?import=${imp.id}`,
+      entity: { type: 'import', id: imp.id },
+    }),
+  ).catch((error: unknown) => log.warn({ err: error }, 'could not tell the importer'));
 };
 
 /** The importer, or null when the import failed because they can't act any more. */
 const importer = async (tx: Db, imp: ImportRow) => {
   try {
-    return await memberActor(tx, imp.orgId, imp.createdBy);
+    return await importingMember(imp.orgId, imp.createdBy);
   } catch (error) {
     if (!(error instanceof ImportFailed)) throw error;
     await fail(tx, imp.id, error.message);
@@ -141,9 +150,9 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean) => {
 
       if (imp.status !== (dry ? 'checking' : 'running')) return;
 
-      const actor = await importer(tx, imp);
+      const member = await importer(tx, imp);
 
-      if (!actor) return;
+      if (!member) return;
 
       const rows = await tx
         .select()
@@ -157,12 +166,13 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean) => {
         .orderBy(asc(importRows.rowNumber))
         .limit(BATCH);
 
-      await processBatch(tx, await contextOf(tx, actor, imp), rows, dry);
+      // The rows, and the import's audit entry, are the importer's own work.
+      await runAs(member, async () => processBatch(tx, await contextOf(tx, imp), rows, dry));
 
       const processed = imp.processed + rows.length;
       const last = rows.at(-1);
 
-      if (rows.length < BATCH || !last) return finish(tx, actor, imp, processed, dry);
+      if (rows.length < BATCH || !last) return runAs(member, () => finish(tx, imp, processed, dry));
 
       await tx
         .update(imports)
@@ -201,7 +211,7 @@ export const importUndoJob = defineJob({
 
     if (imp.status !== 'running') return;
 
-    const actor = await memberActor(tx, orgId, payload.by ?? imp.createdBy);
+    const member = await importingMember(orgId, payload.by ?? imp.createdBy);
 
     const rows = await tx
       .select({ rowNumber: importRows.rowNumber, recordId: importRows.recordId })
@@ -219,9 +229,11 @@ export const importUndoJob = defineJob({
     const ids = rows.flatMap((row) => (row.recordId ? [row.recordId] : []));
 
     if (ids.length) {
-      if (imp.recordType === 'company')
-        await removeCompanies(tx, actor, ids, { undoingImport: true });
-      else await removeCustomers(tx, actor, ids, { undoingImport: true });
+      await runAs(member, () =>
+        imp.recordType === 'company'
+          ? removeCompanies(tx, ids, { undoingImport: true })
+          : removeCustomers(tx, ids, { undoingImport: true }),
+      );
 
       await tx
         .update(importRows)

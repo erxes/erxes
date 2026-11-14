@@ -2,7 +2,7 @@ import { lookup as dnsLookup } from 'node:dns';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { isIP, type LookupFunction } from 'node:net';
-import { currentScope } from '@erxes/core-db';
+import { openScope } from '@erxes/core-db';
 import ipaddr from 'ipaddr.js';
 import { config } from '~/config';
 
@@ -76,7 +76,7 @@ export const postOutbound = async (
   headers: Record<string, string>,
   timeoutMs = 10_000,
 ) => {
-  if (currentScope()) {
+  if (openScope()) {
     throw new Error(
       'postOutbound was called inside a database transaction; call out after it ends',
     );

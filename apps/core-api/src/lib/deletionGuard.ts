@@ -1,7 +1,16 @@
-import { type Db, deletionCounters, pluginInstallations, withOrgDetached } from '@erxes/core-db';
+import {
+  actorOf,
+  caller,
+  type Db,
+  deletionCounters,
+  pluginInstallations,
+  requestOrgId,
+  runAs,
+  system,
+  withOrgDetached,
+} from '@erxes/core-db';
 import { and, eq, gte, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { type Caller, systemCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { logger } from '~/logger';
 import { ownerIds } from '~/modules/audit/alerts';
@@ -37,7 +46,8 @@ const countDeletions = async (tx: Db, actor: string, count: number) => {
 };
 
 interface MassDeletion {
-  caller: Caller;
+  /** Who deleted (the actor columns of the caller). */
+  by: ReturnType<typeof actorOf>;
   /** `<actorType>:<actorId>`, the counter's key. */
   actor: string;
   total: number;
@@ -45,50 +55,52 @@ interface MassDeletion {
   stop: boolean;
 }
 
-/** Tells the owners, once per window and outcome. */
-const reportMassDeletion = async (
-  client: Db,
-  { caller, actor, total, what, stop }: MassDeletion,
-) => {
-  const who = caller.actorType === 'plugin' ? `The ${caller.actorId} plugin` : 'A team member';
+/** Tells the owners, once per window and outcome. Core tells them, not the deleter. */
+const reportMassDeletion = async (client: Db, { by, actor, total, what, stop }: MassDeletion) => {
+  const who = by.actorType === 'plugin' ? `The ${by.actorId} plugin` : 'A team member';
   const recipients = await ownerIds(client);
 
-  await notify(client, systemCaller(caller.orgId), {
-    userIds: recipients,
-    kind: 'core.security.mass_deletion',
-    title: stop
-      ? `${who} was stopped after deleting ${total} ${what}`
-      : `${who} deleted ${total} ${what} in a few minutes`,
-    body: stop
-      ? caller.actorType === 'plugin'
-        ? 'The plugin is suspended in your organisation. Deleted records are in the recycle bin; install the plugin again to resume it.'
-        : 'Further deletions are refused for now. Deleted records are in the recycle bin.'
-      : 'Deleted records stay in the recycle bin for 30 days.',
-    link: '/settings/recycle-bin',
-    priority: 'high',
-    entity: { type: caller.actorType, id: caller.actorId ?? 'system' },
-    data: { actor, total },
-    dedupeKey: `mass-deletion:${actor}:${stop ? 'stop' : 'alert'}:${new Date().toISOString().slice(0, 15)}`,
-  }).catch((error: unknown) =>
+  await runAs(system('mass deletion'), () =>
+    notify(client, {
+      userIds: recipients,
+      kind: 'core.security.mass_deletion',
+      title: stop
+        ? `${who} was stopped after deleting ${total} ${what}`
+        : `${who} deleted ${total} ${what} in a few minutes`,
+      body: stop
+        ? by.actorType === 'plugin'
+          ? 'The plugin is suspended in your organisation. Deleted records are in the recycle bin; install the plugin again to resume it.'
+          : 'Further deletions are refused for now. Deleted records are in the recycle bin.'
+        : 'Deleted records stay in the recycle bin for 30 days.',
+      link: '/settings/recycle-bin',
+      priority: 'high',
+      entity: { type: by.actorType, id: by.actorId ?? 'system' },
+      data: { actor, total },
+      dedupeKey: `mass-deletion:${actor}:${stop ? 'stop' : 'alert'}:${new Date().toISOString().slice(0, 15)}`,
+    }),
+  ).catch((error: unknown) =>
     log.warn({ err: error }, 'could not tell owners about mass deletion'),
   );
 };
 
 /** Saves the stop outside the refused request: its audit entry and, for a plugin, the suspension. */
 const recordStop = (deletion: MassDeletion) => {
-  const { caller, total, what } = deletion;
-  const actorId = caller.actorId ?? 'system';
+  const { by, total, what } = deletion;
+  const actorId = by.actorId ?? 'system';
+  const orgId = requestOrgId();
 
-  return withOrgDetached(caller.orgId, async (own) => {
+  return withOrgDetached(orgId, async (own) => {
     await reportMassDeletion(own, deletion);
-    await recordAudit(own, systemCaller(caller.orgId), {
-      action: 'security.mass_deletion_stopped',
-      targetType: caller.actorType,
-      targetId: actorId,
-      metadata: { total, what },
-    });
+    await runAs(system('mass deletion'), () =>
+      recordAudit(own, {
+        action: 'security.mass_deletion_stopped',
+        targetType: by.actorType,
+        targetId: actorId,
+        metadata: { total, what },
+      }),
+    );
 
-    if (caller.actorType !== 'plugin') return;
+    if (by.actorType !== 'plugin') return;
 
     await own
       .update(pluginInstallations)
@@ -98,14 +110,7 @@ const recordStop = (deletion: MassDeletion) => {
         updatedAt: sql`now()`,
       })
       .where(eq(pluginInstallations.plugin, actorId));
-    log.warn(
-      {
-        org: caller.orgId,
-        plugin: caller.actorId,
-        total,
-      },
-      'plugin suspended after mass deletion',
-    );
+    log.warn({ org: orgId, plugin: actorId, total }, 'plugin suspended after mass deletion');
   });
 };
 
@@ -115,23 +120,20 @@ const recordStop = (deletion: MassDeletion) => {
  * (in the same transaction). Past the alert line the owners hear about it
  * once per window; past the stop line a member's deletion is refused and a
  * plugin is suspended in the organisation (the owner resumes it by installing
- * it again). Everything deleted stays in the recycle bin.
+ * it again). Owners are exempt. Everything deleted stays in the recycle bin.
  */
-export const guardDeletions = async (
-  tx: Db,
-  caller: Caller,
-  count: number,
-  what: string,
-  actorRole?: string,
-) => {
-  if (count <= 0 || actorRole === 'owner') return;
+export const guardDeletions = async (tx: Db, count: number, what: string) => {
+  const who = caller();
 
-  const actor = `${caller.actorType}:${caller.actorId ?? 'system'}`;
+  if (count <= 0 || (who.type === 'user' && who.role === 'owner')) return;
+
+  const by = actorOf(who);
+  const actor = `${by.actorType}:${by.actorId ?? 'system'}`;
   const total = await countDeletions(tx, actor, count);
 
   if (total < config.massDelete.alertAt) return;
 
-  const deletion = { caller, actor, total, what, stop: total >= config.massDelete.stopAt };
+  const deletion = { by, actor, total, what, stop: total >= config.massDelete.stopAt };
 
   if (!deletion.stop) {
     await reportMassDeletion(tx, deletion);

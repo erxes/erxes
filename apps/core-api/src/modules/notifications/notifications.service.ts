@@ -1,8 +1,17 @@
 import type { NotificationInput } from '@erxes/core-contract';
-import { type Db, newId, notifications, organizations, users } from '@erxes/core-db';
+import {
+  actorOf,
+  caller,
+  type Db,
+  newId,
+  notifications,
+  organizations,
+  requestOrgId,
+  sourceOf,
+  users,
+} from '@erxes/core-db';
 import { and, desc, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import type { Caller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
@@ -51,7 +60,9 @@ const combineChanges = (first: Changes, then: Changes) => {
  * caused it are skipped. `emails` are the addresses of those who also want it
  * by email. `actorType` and `actorId` are who the notification is from.
  */
-const recipientsOf = async (client: Db, caller: Caller, inputs: NotifyInput[]) => {
+const recipientsOf = async (client: Db, source: string, inputs: NotifyInput[]) => {
+  const actor = actorOf(caller());
+
   const rows = await client
     .select({
       id: users.id,
@@ -77,13 +88,10 @@ const recipientsOf = async (client: Db, caller: Caller, inputs: NotifyInput[]) =
     }
 
     const actorUserId =
-      input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
+      input.actorUserId ?? (actor.actorType === 'user' ? actor.actorId : undefined);
 
     const delivery = new Map(
-      delivered.map((member) => [
-        member.id,
-        deliveryFor(member.settings, caller.source, input.kind),
-      ]),
+      delivered.map((member) => [member.id, deliveryFor(member.settings, source, input.kind)]),
     );
 
     const recipients = delivered
@@ -107,8 +115,8 @@ const recipientsOf = async (client: Db, caller: Caller, inputs: NotifyInput[]) =
       wanted: wanted.length,
       recipients,
       emails,
-      actorType: actorUserId ? ('user' as const) : caller.actorType,
-      actorId: actorUserId ?? caller.actorId,
+      actorType: actorUserId ? ('user' as const) : actor.actorType,
+      actorId: actorUserId ?? actor.actorId,
     };
   });
 };
@@ -119,14 +127,14 @@ const recipientsOf = async (client: Db, caller: Caller, inputs: NotifyInput[]) =
  */
 const collapseRecent = async (
   client: Db,
-  caller: Caller,
+  orgId: string,
   input: NotifyInput & { entity: { type: string; id: string }; collapseMinutes: number },
   recipients: string[],
   actorId: string | null,
 ) => {
   // One collapse at a time per entity and actor: changes combine, none is lost.
   await lockKeys(client, [
-    `notify:${caller.orgId}:${input.kind}:${input.entity.type}:${input.entity.id}:${actorId}`,
+    `notify:${orgId}:${input.kind}:${input.entity.type}:${input.entity.id}:${actorId}`,
   ]);
 
   const recent = await client
@@ -184,22 +192,18 @@ const collapseRecent = async (
 /** Emails the new notifications to the members who want them by email. */
 const emailNotified = async (
   client: Db,
-  caller: Caller,
+  orgId: string,
   emails: { to: string; input: NotifyInput }[],
 ) => {
   if (!emails.length) return;
 
-  const [org] = await client
-    .select({ name: organizations.name })
-    .from(organizations)
-    .where(eq(organizations.id, caller.orgId))
-    .limit(1);
+  const [org] = await client.select({ name: organizations.name }).from(organizations).limit(1);
 
-  const app = await appLink(client, caller.orgId, '');
+  const app = await appLink(client, '');
 
   await sendEmail(
     client,
-    caller.orgId,
+    orgId,
     emails.map(({ to, input }) => ({
       to,
       template: 'notification' as const,
@@ -214,23 +218,26 @@ const emailNotified = async (
 };
 
 /**
- * Sends notifications to team members' inboxes, from core or a plugin
- * (`caller.source`), one input or many at once. Unknown ids are an error;
- * members who are not active, and the member who caused it, are skipped.
- * With a `dedupeKey`, a retry creates nothing new.
+ * Sends notifications to team members' inboxes, from core or the calling
+ * plugin, one input or many at once. Runs inside `withOrg`. Unknown ids are
+ * an error; members who are not active, and the member who caused it, are
+ * skipped. With a `dedupeKey`, a retry creates nothing new.
  */
-export const notify = async (client: Db, caller: Caller, input: NotifyInput | NotifyInput[]) => {
+export const notify = async (client: Db, input: NotifyInput | NotifyInput[]) => {
   const inputs = Array.isArray(input) ? input : [input];
 
   if (!inputs.length) return { created: 0, skipped: 0 };
 
-  inputs.forEach((one) => assertPluginNamespace(caller.source, one.kind));
+  const orgId = requestOrgId();
+  const source = sourceOf(caller());
+
+  inputs.forEach((one) => assertPluginNamespace(source, one.kind));
   await assertMembers(
     client,
     inputs.map((one) => one.actorUserId),
   );
 
-  const planned = await recipientsOf(client, caller, inputs);
+  const planned = await recipientsOf(client, source, inputs);
   const collapsed = new Map<(typeof planned)[number], Set<string>>();
 
   const rowsOf = (plan: (typeof planned)[number]) =>
@@ -241,9 +248,8 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput | No
         email: plan.emails.get(userId),
         row: {
           id: newId(),
-          orgId: caller.orgId,
           userId,
-          source: caller.source,
+          source,
           kind: plan.input.kind,
           title: plan.input.title,
           body: plan.input.body ?? null,
@@ -288,7 +294,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput | No
   // Collapsing locks and reads per entity, and folds into what the inputs
   // before it created, so each of those inputs collapses and inserts in turn.
   await inOrder(collapsing, async ({ plan, input: one }) => {
-    collapsed.set(plan, await collapseRecent(client, caller, one, plan.recipients, plan.actorId));
+    collapsed.set(plan, await collapseRecent(client, orgId, one, plan.recipients, plan.actorId));
     created.push(...(await insert(rowsOf(plan))));
   });
 
@@ -299,7 +305,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput | No
   // New notifications only (a collapsed change was already announced).
   await emailNotified(
     client,
-    caller,
+    orgId,
     created.flatMap(({ input: one, email }) => (email ? [{ to: email, input: one }] : [])),
   );
 

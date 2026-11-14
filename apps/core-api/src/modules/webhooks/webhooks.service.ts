@@ -1,9 +1,8 @@
 import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
 import { CORE_EVENT_TYPES, type EventTypeInfo } from '@erxes/core-contract';
-import { type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
+import { caller, type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
@@ -73,7 +72,6 @@ export const listWebhooks = async (client: Db) => ({
 
 export const createWebhook = async (
   client: Db,
-  actor: Actor,
   input: { url: string; description?: string | null; eventTypes: string[] },
 ) => {
   checkUrl(input.url);
@@ -89,12 +87,12 @@ export const createWebhook = async (
         description: input.description ?? null,
         eventTypes: [...new Set(input.eventTypes)],
         secretSealed: seal(secret),
-        createdBy: actor.userId,
+        createdBy: caller('user').userId,
       })
       .returning(),
   );
 
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'webhook.created',
     targetType: 'webhook',
     targetId: row.id,
@@ -110,13 +108,12 @@ const statusChange = (status: (typeof WEBHOOK_STATUSES)[number] | undefined) =>
     ? {
         status,
         disabledReason: status === 'disabled' ? 'Turned off by a member' : null,
-        ...(status === 'active' ? { consecutiveFailures: 0 } : {}),
+        consecutiveFailures: status === 'active' ? 0 : undefined,
       }
     : {};
 
 export const updateWebhook = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: {
     url?: string;
@@ -133,9 +130,9 @@ export const updateWebhook = async (
     await client
       .update(webhooks)
       .set({
-        ...(input.url !== undefined ? { url: input.url } : {}),
-        ...(input.description !== undefined ? { description: input.description } : {}),
-        ...(input.eventTypes ? { eventTypes: [...new Set(input.eventTypes)] } : {}),
+        url: input.url,
+        description: input.description,
+        eventTypes: input.eventTypes && [...new Set(input.eventTypes)],
         ...statusChange(input.status),
         updatedAt: sql`now()`,
       })
@@ -143,7 +140,7 @@ export const updateWebhook = async (
       .returning(),
   );
 
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'webhook.updated',
     targetType: 'webhook',
     targetId: id,
@@ -162,11 +159,11 @@ export const updateWebhook = async (
   return row;
 };
 
-export const removeWebhook = async (client: Db, actor: Actor, id: string) => {
+export const removeWebhook = async (client: Db, id: string) => {
   const row = await findWebhook(client, id);
 
   await client.delete(webhooks).where(eq(webhooks.id, id));
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'webhook.deleted',
     targetType: 'webhook',
     targetId: id,
@@ -176,7 +173,7 @@ export const removeWebhook = async (client: Db, actor: Actor, id: string) => {
   return { ok: true as const };
 };
 
-export const rotateWebhookSecret = async (client: Db, actor: Actor, id: string) => {
+export const rotateWebhookSecret = async (client: Db, id: string) => {
   const row = await findWebhook(client, id);
   const secret = newSigningSecret();
 
@@ -184,7 +181,7 @@ export const rotateWebhookSecret = async (client: Db, actor: Actor, id: string) 
     .update(webhooks)
     .set({ secretSealed: seal(secret), updatedAt: sql`now()` })
     .where(eq(webhooks.id, id));
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'webhook.secret_rotated',
     targetType: 'webhook',
     targetId: id,

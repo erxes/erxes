@@ -90,10 +90,7 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
 
   /** A file as if uploaded through /files. */
   const upload = (name: string, body: Buffer) =>
-    storeServerFile(
-      { orgId: t.ids.org, actorType: 'user', actorId: t.ids.owner, source: 'core' },
-      { name, contentType: 'text/csv', body },
-    );
+    storeServerFile(t.ids.org, { name, contentType: 'text/csv', body });
 
   /** The file a finished export wrote. */
   const exported = async (id: string) => {

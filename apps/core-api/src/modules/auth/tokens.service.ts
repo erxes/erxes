@@ -1,19 +1,22 @@
 import type { AUTH_TOKEN_PURPOSES } from '@erxes/core-db/enums';
 import {
   authTokens,
+  caller,
   type Db,
   newId,
   organizations,
+  requestOrgId,
+  runAs,
   users,
   withOrg,
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
-import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { hashPassword, randomToken, safeEqual, sha256 } from '~/lib/crypto';
+import { asMember } from './account.service';
 
 const INVITE_DAYS = 7;
 export const RESET_MINUTES = 30;
@@ -92,32 +95,25 @@ export const redeem = async (token: string, purpose: (typeof AUTH_TOKEN_PURPOSES
 };
 
 /** Called when members are invited without a password: their invitation emails, sent at once. */
-export const sendInvitations = async (
-  tx: Db,
-  actor: Actor,
-  invited: { id: string; email: string }[],
-) => {
+export const sendInvitations = async (tx: Db, invited: { id: string; email: string }[]) => {
   if (!invited.length) return;
 
+  const orgId = requestOrgId();
   const issued = await issue(tx, invited, 'invite');
 
-  const [org] = await tx
-    .select({ name: organizations.name })
-    .from(organizations)
-    .where(eq(organizations.id, actor.orgId))
-    .limit(1);
+  const [org] = await tx.select({ name: organizations.name }).from(organizations).limit(1);
 
   const [inviter] = await tx
     .select({ name: users.fullName, email: users.email })
     .from(users)
-    .where(eq(users.id, actor.userId))
+    .where(eq(users.id, caller('user').userId))
     .limit(1);
 
-  const app = await appLink(tx, actor.orgId, '');
+  const app = await appLink(tx, '');
 
   await sendEmail(
     tx,
-    actor.orgId,
+    orgId,
     issued.map((user) => ({
       to: user.email,
       template: 'invitation' as const,
@@ -131,9 +127,7 @@ export const sendInvitations = async (
   );
 };
 
-export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => {
-  requirePermission(actor, 'team.invite');
-
+export const resendInvitation = async (tx: Db, userId: string) => {
   const [user] = await tx
     .select({ id: users.id, email: users.email, status: users.status })
     .from(users)
@@ -145,8 +139,8 @@ export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => 
   if (user.status !== 'invited')
     throw new HttpError(409, 'NOT_INVITED', 'This member has already joined');
 
-  await sendInvitations(tx, actor, [user]);
-  await recordAudit(tx, userCaller(actor), {
+  await sendInvitations(tx, [user]);
+  await recordAudit(tx, {
     action: 'user.invitation_sent',
     targetType: 'user',
     targetId: user.id,
@@ -166,11 +160,7 @@ export const invitationInfo = async (token: string) => {
       .where(eq(users.id, row.userId))
       .limit(1);
 
-    const [org] = await tx
-      .select({ name: organizations.name })
-      .from(organizations)
-      .where(eq(organizations.id, row.orgId))
-      .limit(1);
+    const [org] = await tx.select({ name: organizations.name }).from(organizations).limit(1);
 
     const [inviter] = user?.invitedBy
       ? await tx
@@ -223,19 +213,17 @@ export const acceptInvitation = async (input: {
         updatedAt: sql`now()`,
       })
       .where(and(eq(users.id, row.userId), eq(users.status, 'invited')))
-      .returning({ email: users.email });
+      .returning({ id: users.id, role: users.role, email: users.email });
 
     if (!user) throw invalidLink();
 
-    await recordAudit(
-      tx,
-      { orgId: row.orgId, actorType: 'user', actorId: row.userId, source: 'core' },
-      {
+    await runAs(asMember(user), () =>
+      recordAudit(tx, {
         action: 'user.joined',
         targetType: 'user',
         targetId: row.userId,
         targetLabel: user.email,
-      },
+      }),
     );
   });
 

@@ -1,5 +1,6 @@
 import { GatewayConfig, gatewayTakes } from '@erxes/core-contract';
 import {
+  caller,
   type Db,
   newId,
   paymentGateways,
@@ -9,7 +10,6 @@ import {
 import { createGateway } from '@erxes/payment-gateways';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { seal, unseal } from '~/lib/secrets';
@@ -17,13 +17,16 @@ import { recordAudit } from '~/modules/audit/audit.service';
 
 export type GatewayRow = typeof paymentGateways.$inferSelect;
 
-const pluginSettingsOf = async (client: Db, caller: Caller) => {
-  if (caller.actorType !== 'plugin') return null;
+/** The calling plugin's payment settings; members have none. */
+const pluginSettingsOf = async (client: Db) => {
+  const who = caller();
+
+  if (who.type !== 'plugin') return null;
 
   const [settings] = await client
     .select()
     .from(paymentPluginSettings)
-    .where(eq(paymentPluginSettings.plugin, caller.source))
+    .where(eq(paymentPluginSettings.plugin, who.plugin))
     .limit(1);
 
   return settings ?? null;
@@ -35,13 +38,8 @@ const pluginSettingsOf = async (client: Db, caller: Caller) => {
  * gateways the owner allowed the plugin, if any are listed, that take the
  * invoice's currency (QPay: MNT only).
  */
-export const resolveGateway = async (
-  client: Db,
-  caller: Caller,
-  currency: string,
-  requested?: string,
-) => {
-  const settings = await pluginSettingsOf(client, caller);
+export const resolveGateway = async (client: Db, currency: string, requested?: string) => {
+  const settings = await pluginSettingsOf(client);
   const allowed = settings?.allowedGatewayIds ?? [];
 
   if (requested && allowed.length && !allowed.includes(requested)) {
@@ -143,11 +141,7 @@ export const listGateways = async (client: Db) => ({
   ).map(toGatewayDto),
 });
 
-export const addGateway = async (
-  client: Db,
-  actor: Actor,
-  input: { name: string; config: GatewayConfig },
-) => {
+export const addGateway = async (client: Db, input: { name: string; config: GatewayConfig }) => {
   const id = newId();
 
   await verifyGateway(id, input.config);
@@ -160,12 +154,12 @@ export const addGateway = async (
         kind: input.config.kind,
         name: input.name,
         configSealed: seal(JSON.stringify(input.config)),
-        createdBy: actor.userId,
+        createdBy: caller('user').userId,
       })
       .returning(),
   );
 
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'payment.gateway_added',
     targetType: 'payment_gateway',
     targetId: id,
@@ -178,7 +172,6 @@ export const addGateway = async (
 
 export const updateGateway = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: { name?: string; config?: GatewayConfig; status?: GatewayRow['status'] },
 ) => {
@@ -194,16 +187,16 @@ export const updateGateway = async (
     await client
       .update(paymentGateways)
       .set({
-        ...(input.name ? { name: input.name } : {}),
-        ...(input.config ? { configSealed: seal(JSON.stringify(input.config)) } : {}),
-        ...(input.status ? { status: input.status } : {}),
+        name: input.name,
+        configSealed: input.config && seal(JSON.stringify(input.config)),
+        status: input.status,
         updatedAt: sql`now()`,
       })
       .where(eq(paymentGateways.id, id))
       .returning(),
   );
 
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'payment.gateway_updated',
     targetType: 'payment_gateway',
     targetId: id,
@@ -214,7 +207,7 @@ export const updateGateway = async (
   return toGatewayDto(row);
 };
 
-export const removeGateway = async (client: Db, actor: Actor, id: string) => {
+export const removeGateway = async (client: Db, id: string) => {
   const row = await gatewayOrThrow(client, id);
 
   const [used] = await client
@@ -231,7 +224,7 @@ export const removeGateway = async (client: Db, actor: Actor, id: string) => {
     allowedGatewayIds: sql`array_remove(${paymentPluginSettings.allowedGatewayIds}, ${id})`,
     defaultGatewayId: sql`nullif(${paymentPluginSettings.defaultGatewayId}, ${id})`,
   });
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'payment.gateway_removed',
     targetType: 'payment_gateway',
     targetId: id,

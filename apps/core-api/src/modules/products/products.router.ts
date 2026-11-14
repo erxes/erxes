@@ -13,41 +13,31 @@ import {
   updateProduct,
   useProducts,
 } from '~/modules/products/products.service';
-import { anyone } from '~/orpc';
+import { scoped } from '~/orpc';
 
 /** Members and plugins alike: the catalog is shared, each write is audited as its caller. */
 export const productsRouter = {
-  list: anyone.products.list.handler(({ input, context }) =>
-    listProducts(db(), context.caller, input),
+  list: scoped.products.list.handler(({ input }) => listProducts(db(), input)),
+  get: scoped.products.get.handler(({ input }) => findProduct(db(), input.id)),
+  lookup: scoped.products.lookup.handler(({ input }) => lookupProducts(db(), input.ids)),
+  create: scoped.products.create.handler(({ input }) => createProduct(db(), input)),
+  update: scoped.products.update.handler(({ input: { id, ...changes } }) =>
+    updateProduct(db(), id, changes),
   ),
-  get: anyone.products.get.handler(({ input }) => findProduct(db(), input.id)),
-  lookup: anyone.products.lookup.handler(({ input }) => lookupProducts(db(), input.ids)),
-  create: anyone.products.create.handler(({ input, context }) =>
-    createProduct(db(), context.caller, input),
+  use: scoped.products.use.handler(({ input }) => useProducts(db(), input.ids, input.used)),
+  archive: scoped.products.archive.handler(({ input }) =>
+    setProductStatus(db(), input.id, 'archived'),
   ),
-  update: anyone.products.update.handler(({ input: { id, ...changes }, context }) =>
-    updateProduct(db(), context.caller, id, changes),
-  ),
-  use: anyone.products.use.handler(({ input, context }) =>
-    useProducts(db(), context.caller, input.ids, input.used),
-  ),
-  archive: anyone.products.archive.handler(({ input, context }) =>
-    setProductStatus(db(), context.caller, input.id, 'archived'),
-  ),
-  restore: anyone.products.restore.handler(({ input, context }) =>
-    setProductStatus(db(), context.caller, input.id, 'active'),
+  restore: scoped.products.restore.handler(({ input }) =>
+    setProductStatus(db(), input.id, 'active'),
   ),
 };
 
 export const productCategoriesRouter = {
-  list: anyone.productCategories.list.handler(() => listCategories(db())),
-  create: anyone.productCategories.create.handler(({ input, context }) =>
-    createCategory(db(), context.caller, input),
+  list: scoped.productCategories.list.handler(() => listCategories(db())),
+  create: scoped.productCategories.create.handler(({ input }) => createCategory(db(), input)),
+  update: scoped.productCategories.update.handler(({ input: { id, ...changes } }) =>
+    updateCategory(db(), id, changes),
   ),
-  update: anyone.productCategories.update.handler(({ input: { id, ...changes }, context }) =>
-    updateCategory(db(), context.caller, id, changes),
-  ),
-  remove: anyone.productCategories.remove.handler(({ input, context }) =>
-    removeCategory(db(), context.caller, input.id),
-  ),
+  remove: scoped.productCategories.remove.handler(({ input }) => removeCategory(db(), input.id)),
 };

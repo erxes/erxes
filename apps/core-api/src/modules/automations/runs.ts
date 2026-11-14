@@ -8,12 +8,12 @@ import {
   type ContentType,
   type Db,
   newId,
-  roles,
-  users,
+  runAs,
+  system,
 } from '@erxes/core-db';
 import { and, eq, inArray, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { type Actor, systemCaller } from '~/http/auth';
+import { memberOf } from '~/http/auth';
 import { logger } from '~/logger';
 import { enqueueJob } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
@@ -71,28 +71,18 @@ export const definitionOf = async (tx: Db, automationId: string, version: number
   (await definitionsOf(tx, [{ automationId, version }])).get(automationId, version);
 
 /**
- * The member an automation acts as, with their role's permissions read now:
- * a member who was disabled or lost a permission can't keep acting through it.
+ * The member an automation acts as (`runAs`), with their role's permissions
+ * read now: a member who was disabled or lost a permission can't keep acting
+ * through it.
  */
-export const actorOf = async (tx: Db, orgId: string, userId: string | null): Promise<Actor> => {
+export const automationMember = async (orgId: string, userId: string | null) => {
   if (!userId) throw new Error('Nobody turned this automation on');
 
-  const [row] = await tx
-    .select({
-      id: users.id,
-      role: users.role,
-      status: users.status,
-      permissions: roles.permissions,
-    })
-    .from(users)
-    .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(eq(users.id, userId))
-    .limit(1);
+  const member = await memberOf(orgId, userId);
 
-  if (row?.status !== 'active')
-    throw new Error('The member who turned this automation on is no longer active');
+  if (!member) throw new Error('The member who turned this automation on is no longer active');
 
-  return { userId: row.id, orgId, role: row.role, permissions: row.permissions };
+  return member;
 };
 
 export const RunPayload = z.object({ runId: z.string() });
@@ -216,21 +206,25 @@ const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
     .where(eq(automations.id, run.automationId))
     .limit(1);
 
-  if (!automation?.activatedBy) return;
+  const ownerId = automation?.activatedBy;
+
+  if (!automation || !ownerId) return;
 
   const hour = new Date().toISOString().slice(0, 13);
 
-  await notify(tx, systemCaller(run.orgId), {
-    userIds: [automation.activatedBy],
-    kind: 'core.automation.failed',
-    title: `“${automation.name}” failed`,
-    body: error.slice(0, 500),
-    link: `/automations/${automation.id}`,
-    priority: 'high',
-    entity: { type: 'automation', id: automation.id },
-    dedupeKey: `automation-failed:${automation.id}:${hour}`,
-    data: { runId: run.id },
-  }).catch((notifyError: unknown) =>
+  await runAs(system('automation failed'), () =>
+    notify(tx, {
+      userIds: [ownerId],
+      kind: 'core.automation.failed',
+      title: `“${automation.name}” failed`,
+      body: error.slice(0, 500),
+      link: `/automations/${automation.id}`,
+      priority: 'high',
+      entity: { type: 'automation', id: automation.id },
+      dedupeKey: `automation-failed:${automation.id}:${hour}`,
+      data: { runId: run.id },
+    }),
+  ).catch((notifyError: unknown) =>
     log.warn({ run: run.id, err: notifyError }, 'could not notify about a failed run'),
   );
 };

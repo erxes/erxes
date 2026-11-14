@@ -1,7 +1,14 @@
-import { type Db, newId, paymentGateways, paymentInvoices, paymentRefunds } from '@erxes/core-db';
+import {
+  actorOf,
+  caller,
+  type Db,
+  newId,
+  paymentGateways,
+  paymentInvoices,
+  paymentRefunds,
+} from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import type { Caller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
@@ -27,7 +34,14 @@ const toRefundDto = (row: RefundRow) => ({
   requestedBy: { type: row.requestedByType, id: row.requestedBy },
 });
 
-const ownInvoice = async (client: Db, caller: Caller, id: string) => {
+/** Plugins only ever see their own invoices. */
+const hiddenFromCaller = (invoice: { source: string }) => {
+  const who = caller();
+
+  return who.type === 'plugin' && invoice.source !== who.plugin;
+};
+
+const ownInvoice = async (client: Db, id: string) => {
   const [row] = await client
     .select({ invoice: paymentInvoices, gateway: paymentGateways })
     .from(paymentInvoices)
@@ -36,9 +50,7 @@ const ownInvoice = async (client: Db, caller: Caller, id: string) => {
     .for('update', { of: paymentInvoices })
     .limit(1);
 
-  // Plugins only ever see their own invoices.
-  if (!row || (caller.actorType === 'plugin' && row.invoice.source !== caller.source))
-    throw notFound('Invoice');
+  if (!row || hiddenFromCaller(row.invoice)) throw notFound('Invoice');
 
   return row;
 };
@@ -119,7 +131,6 @@ const gatewayRefund = async (
 /** Books a succeeded refund on the invoice, then its event and audit entry. */
 const applyRefund = async (
   client: Db,
-  caller: Caller,
   invoice: InvoiceRow,
   refund: RefundRow,
   input: { full: boolean; reason: string },
@@ -136,7 +147,7 @@ const applyRefund = async (
       .returning(),
   );
 
-  await publishCoreEvents(client, caller, {
+  await publishCoreEvents(client, {
     type: 'core.payment.refunded',
     entity: { type: 'payment_invoice', id: invoice.id },
     payload: {
@@ -148,7 +159,7 @@ const applyRefund = async (
       method: refund.method,
     },
   });
-  await recordAudit(client, caller, {
+  await recordAudit(client, {
     action: 'payment.refunded',
     targetType: 'payment_invoice',
     targetId: invoice.id,
@@ -172,8 +183,8 @@ const applyRefund = async (
  * payments only — or `manual` to record money paid back outside erxes. A
  * gateway's refusal is kept as a failed refund and changes nothing else.
  */
-export const refundInvoice = async (client: Db, caller: Caller, input: RefundInput) => {
-  const { invoice, gateway } = await ownInvoice(client, caller, input.id);
+export const refundInvoice = async (client: Db, input: RefundInput) => {
+  const { invoice, gateway } = await ownInvoice(client, input.id);
 
   const existing = input.dedupeKey
     ? await refundByDedupeKey(client, invoice.id, input.dedupeKey)
@@ -188,6 +199,8 @@ export const refundInvoice = async (client: Db, caller: Caller, input: RefundInp
     ? await gatewayRefund(invoice, gateway, { paymentId, amount, note: input.reason })
     : { status: 'succeeded' as const, gatewayRefundId: null, error: null };
 
+  const requester = actorOf(caller());
+
   const refund = oneRow(
     await client
       .insert(paymentRefunds)
@@ -198,8 +211,8 @@ export const refundInvoice = async (client: Db, caller: Caller, input: RefundInp
         reason: input.reason,
         method: input.manual ? 'manual' : 'gateway',
         ...outcome,
-        requestedByType: caller.actorType,
-        requestedBy: caller.actorId,
+        requestedByType: requester.actorType,
+        requestedBy: requester.actorId,
         dedupeKey: input.dedupeKey ?? null,
       })
       .returning(),
@@ -208,20 +221,19 @@ export const refundInvoice = async (client: Db, caller: Caller, input: RefundInp
   const after =
     outcome.status === 'failed'
       ? invoice
-      : await applyRefund(client, caller, invoice, refund, { full, reason: input.reason });
+      : await applyRefund(client, invoice, refund, { full, reason: input.reason });
 
   return { refund: toRefundDto(refund), invoice: toInvoiceDto(after, gateway.kind) };
 };
 
-export const listRefunds = async (client: Db, caller: Caller, id: string) => {
+export const listRefunds = async (client: Db, id: string) => {
   const [invoice] = await client
     .select({ source: paymentInvoices.source })
     .from(paymentInvoices)
     .where(eq(paymentInvoices.id, id))
     .limit(1);
 
-  if (!invoice || (caller.actorType === 'plugin' && invoice.source !== caller.source))
-    throw notFound('Invoice');
+  if (!invoice || hiddenFromCaller(invoice)) throw notFound('Invoice');
 
   const rows = await wholeList((limit) =>
     client

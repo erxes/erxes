@@ -5,13 +5,14 @@ import {
   organizations,
   pluginInstallations,
   plugins,
+  runAs,
+  system,
   usedTokens,
   withOrg,
   withSystem,
 } from '@erxes/core-db';
 import { eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { systemCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
@@ -184,18 +185,20 @@ const storeAnswer = (orgId: string, name: string, answer: PlatformEntitlements) 
       before.orgStatus !== row.orgStatus ||
       changes.length
     ) {
-      await recordAudit(tx, systemCaller(orgId), {
-        action: 'saas.entitlements_changed',
-        targetType: 'organization',
-        targetId: orgId,
-        targetLabel: name,
-        metadata: {
-          status: { before: before?.orgStatus ?? null, after: row.orgStatus },
-          plugins: { before: before?.plugins ?? null, after: row.plugins },
-          lapsed: row.lapsed,
-          installations: changes,
-        },
-      });
+      await runAs(system('saas entitlements'), () =>
+        recordAudit(tx, {
+          action: 'saas.entitlements_changed',
+          targetType: 'organization',
+          targetId: orgId,
+          targetLabel: name,
+          metadata: {
+            status: { before: before?.orgStatus ?? null, after: row.orgStatus },
+            plugins: { before: before?.plugins ?? null, after: row.plugins },
+            lapsed: row.lapsed,
+            installations: changes,
+          },
+        }),
+      );
     }
 
     return row;

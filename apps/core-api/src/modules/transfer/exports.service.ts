@@ -1,9 +1,19 @@
 import type { EXPORT_FORMATS } from '@erxes/core-db/enums';
 import type { CursorQuery, ExportQuery, TransferRecordType } from '@erxes/core-contract';
-import { companies, customers, type Db, exports, newId, users, withOrg } from '@erxes/core-db';
+import {
+  caller,
+  companies,
+  customers,
+  type Db,
+  exports,
+  newId,
+  runAs,
+  system,
+  withOrg,
+} from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, gt, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { type Actor, systemCaller, userCaller } from '~/http/auth';
+import { memberOf } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
@@ -47,7 +57,7 @@ export const listExports = (client: Db, query: CursorQuery) =>
   );
 
 /** The list's conditions, exactly as the list shows them (leads are customers in the lead state). */
-const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query: ExportQuery) => {
+const whereOf = (client: Db, recordType: TransferRecordType, query: ExportQuery) => {
   const common = {
     search: query.search,
     tagIds: query.tagIds,
@@ -56,8 +66,8 @@ const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query
   };
 
   return recordType === 'company'
-    ? companyListWhere(client, actor, common)
-    : customerListWhere(client, actor, {
+    ? companyListWhere(client, common)
+    : customerListWhere(client, {
         ...common,
         state: recordType === 'lead' ? 'lead' : 'customer',
       });
@@ -77,7 +87,7 @@ export const exportRunJob = defineJob({
 
     if (!built) return;
 
-    const stored = await storeServerFile(userCaller(built.actor), built.file);
+    const stored = await runAs(built.member, () => storeServerFile(job.orgId, built.file));
 
     await withOrg(job.orgId, (tx) => finishExport(tx, built, stored.id));
   },
@@ -92,7 +102,6 @@ export const exportRunJob = defineJob({
 /** Starts an export of a list in the background; the member is told when the file is ready. */
 export const createExport = async (
   client: Db,
-  actor: Actor,
   input: {
     recordType: TransferRecordType;
     format: (typeof EXPORT_FORMATS)[number];
@@ -109,7 +118,7 @@ export const createExport = async (
   if (unknown) throw new HttpError(400, 'INVALID_COLUMNS', `Unknown column: ${unknown}`);
 
   // A filter that doesn't fit is refused now, not in the background.
-  await whereOf(client, actor, input.recordType, input.query);
+  await whereOf(client, input.recordType, input.query);
 
   const row = oneRow(
     await client
@@ -120,17 +129,17 @@ export const createExport = async (
         format: input.format,
         columns: input.columns,
         query: input.query,
-        createdBy: actor.userId,
+        createdBy: caller('user').userId,
       })
       .returning(),
   );
 
   await exportRunJob.enqueue(client, {
-    orgId: actor.orgId,
+    orgId: row.orgId,
     payload: { exportId: row.id },
   });
   // Contacts leaving erxes: always in the audit log.
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'contacts.exported',
     targetType: 'export',
     targetId: row.id,
@@ -142,17 +151,10 @@ export const createExport = async (
 };
 
 /** The member who asked, or null (and the export failed) when they are no longer active. */
-const exporter = async (tx: Db, row: ExportRow): Promise<Actor | null> => {
-  const [member] = await tx
-    .select({ id: users.id, role: users.role, status: users.status })
-    .from(users)
-    .where(eq(users.id, row.createdBy))
-    .limit(1);
+const exporter = async (tx: Db, row: ExportRow) => {
+  const member = await memberOf(row.orgId, row.createdBy);
 
-  if (member?.status === 'active') {
-    // Their permissions don't matter for the conditions (`me` does): the export was allowed when asked.
-    return { userId: member.id, orgId: row.orgId, role: member.role, permissions: [] };
-  }
+  if (member) return member;
 
   await tx
     .update(exports)
@@ -200,8 +202,8 @@ const pageOf = async (
  * Every row of the export's list: up to `MAX_EXPORT_ROWS`, and one page past
  * it when there are more, so the caller can tell the list was cut.
  */
-const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
-  const where = await whereOf(tx, actor, row.recordType, row.query);
+const collectRows = async (tx: Db, row: ExportRow) => {
+  const where = await whereOf(tx, row.recordType, row.query);
   const body: Cell[][] = [];
   let last = '';
 
@@ -222,16 +224,15 @@ const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
 };
 
 /** The export's file in memory: its rows read in one scope, written to storage after it. */
-const buildExport = async (tx: Db, actor: Actor, row: ExportRow) => {
+const buildExport = async (tx: Db, row: ExportRow) => {
   const columns = await transferColumns(tx, row.recordType);
   const header = row.columns.map((key) => columns.find((item) => item.key === key)?.label ?? key);
-  const body = await collectRows(tx, actor, row);
+  const body = await collectRows(tx, row);
   const rows = body.slice(0, MAX_EXPORT_ROWS);
   const stamp = new Date().toISOString().slice(0, 10);
   const plural = { company: 'companies', lead: 'leads', customer: 'customers' }[row.recordType];
 
   return {
-    actor,
     row,
     rowCount: rows.length,
     cut: body.length > MAX_EXPORT_ROWS,
@@ -246,16 +247,19 @@ const buildExport = async (tx: Db, actor: Actor, row: ExportRow) => {
   };
 };
 
-/** The running export and its file, or null when it is no longer running. */
+/**
+ * The running export, its file and the member who asked, or null when it is
+ * no longer running. The list's conditions are the member's (`me`).
+ */
 const prepareExport = (orgId: string, exportId: string) =>
   withOrg(orgId, async (tx) => {
     const [row] = await tx.select().from(exports).where(eq(exports.id, exportId)).limit(1);
 
     if (!row || row.status !== 'running') return null;
 
-    const actor = await exporter(tx, row);
+    const member = await exporter(tx, row);
 
-    return actor ? buildExport(tx, actor, row) : null;
+    return member ? { member, ...(await runAs(member, () => buildExport(tx, row))) } : null;
   });
 
 type BuiltExport = Awaited<ReturnType<typeof buildExport>>;
@@ -268,14 +272,17 @@ const finishExport = async (tx: Db, built: BuiltExport, fileId: string) => {
     .update(exports)
     .set({ status: 'done', rowCount, fileId, finishedAt: sql`now()` })
     .where(eq(exports.id, row.id));
-  await notify(tx, systemCaller(row.orgId), {
-    userIds: [row.createdBy],
-    kind: 'core.export.ready',
-    title: `Your export is ready: ${rowCount.toLocaleString('en')} ${row.recordType === 'company' ? 'companies' : 'records'}`,
-    body: built.cut
-      ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.`
-      : file.name,
-    link: `/contacts/settings/import-export?export=${row.id}`,
-    entity: { type: 'export', id: row.id },
-  }).catch((error: unknown) => log.warn({ err: error }, 'could not tell the exporter'));
+  // From core to the exporter: a notice from themselves would be skipped.
+  await runAs(system('export ready'), () =>
+    notify(tx, {
+      userIds: [row.createdBy],
+      kind: 'core.export.ready',
+      title: `Your export is ready: ${rowCount.toLocaleString('en')} ${row.recordType === 'company' ? 'companies' : 'records'}`,
+      body: built.cut
+        ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.`
+        : file.name,
+      link: `/contacts/settings/import-export?export=${row.id}`,
+      entity: { type: 'export', id: row.id },
+    }),
+  ).catch((error: unknown) => log.warn({ err: error }, 'could not tell the exporter'));
 };

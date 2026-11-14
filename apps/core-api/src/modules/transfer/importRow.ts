@@ -133,21 +133,20 @@ const saveRecord = async (
     const company = CompanyFields.parse(input);
 
     if (existing) {
-      if (Object.keys(company).length) await updateCompany(sp, ctx.actor, existing, company);
+      if (Object.keys(company).length) await updateCompany(sp, existing, company);
 
       return existing;
     }
 
     if (!company.primaryName) throw new CellError('Name: a company needs a name');
 
-    return (await createCompany(sp, ctx.actor, { ...company, primaryName: company.primaryName }))
-      .id;
+    return (await createCompany(sp, { ...company, primaryName: company.primaryName })).id;
   }
 
   const customer = CustomerFields.parse(input);
 
   if (existing) {
-    if (Object.keys(customer).length) await updateCustomer(sp, ctx.actor, existing, customer);
+    if (Object.keys(customer).length) await updateCustomer(sp, existing, customer);
 
     return existing;
   }
@@ -155,7 +154,7 @@ const saveRecord = async (
   if (!customer.firstName && !customer.lastName && !customer.primaryEmail && !customer.primaryPhone)
     throw new CellError('A customer needs a name, an email or a phone');
 
-  return (await createCustomer(sp, ctx.actor, customer)).id;
+  return (await createCustomer(sp, customer)).id;
 };
 
 class DryRun extends Error {}
@@ -201,7 +200,7 @@ export const processRow = async (
 
         // Each link runs the full link (its own checks, audit and events), one after another.
         await inOrder(await companyIds(sp, ctx, read.refs.companies, created), (companyId) =>
-          linkCustomerCompany(sp, ctx.actor, customerId, companyId),
+          linkCustomerCompany(sp, customerId, companyId),
         );
       }
 

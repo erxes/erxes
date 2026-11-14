@@ -1,6 +1,6 @@
-import { type Db, roles, users } from '@erxes/core-db';
+import { caller, type Db, roles, runAs, users } from '@erxes/core-db';
 import { and, count, eq, ne } from 'drizzle-orm';
-import { type Actor, requirePermission } from '~/http/auth';
+import { can } from '~/http/access';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { lockOrganization } from '~/lib/locks';
 
@@ -12,31 +12,42 @@ export const toUserDto = (row: UserRow) => ({
   twoFactorEnabled: Boolean(row.totpEnabledAt),
 });
 
-export const requireTeamManager = (
-  actor: Actor,
-  action: 'team.manage' | 'team.invite' = 'team.manage',
-) => requirePermission(actor, action);
+/**
+ * Changing someone else on the team needs `team.manage` (the policy lets any
+ * member edit their own profile). Read under `lockTeam`, so a manager demoted
+ * a moment ago is already refused.
+ */
+export const assertTeamManager = () => {
+  if (!can(caller('user'), 'team.manage')) {
+    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+      permission: 'team.manage',
+    });
+  }
+};
 
 /**
- * Team changes run one at a time per organisation (a lock on its row), with
- * the caller's role read again inside: two owners demoting each other at the
- * same moment can't both win and leave nobody in charge.
+ * Team changes run one at a time per organisation (a lock on its row), and
+ * `fn` runs as the caller with their role read again inside: two owners
+ * demoting each other at the same moment can't both win and leave nobody in
+ * charge.
  */
-export const lockTeam = async (tx: Db, actor: Actor): Promise<Actor> => {
-  await lockOrganization(tx, actor.orgId);
+export const lockTeam = async <T>(tx: Db, fn: () => Promise<T>) => {
+  await lockOrganization(tx);
 
-  const [me] = await tx
+  const me = caller('user');
+
+  const [row] = await tx
     .select({ role: users.role, status: users.status, permissions: roles.permissions })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(eq(users.id, actor.userId))
+    .where(eq(users.id, me.userId))
     .limit(1);
 
-  if (!me || me.status !== 'active') {
+  if (!row || row.status !== 'active') {
     throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
   }
 
-  return { ...actor, role: me.role, permissions: me.permissions };
+  return runAs({ ...me, role: row.role, permissions: row.permissions }, fn);
 };
 
 /** A unique email or username in the organisation → 409. */

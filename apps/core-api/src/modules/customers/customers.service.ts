@@ -1,8 +1,7 @@
 import type { CustomerInput } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
-import { customerCompanies, customers, newId, savepoint } from '@erxes/core-db';
+import { caller, customerCompanies, customers, newId, savepoint } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
-import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { normalizeEmail, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
 import { oneRow } from '~/lib/rows';
@@ -28,7 +27,7 @@ import { conflictFrom, findCustomer, inOrg } from './customerRows';
 
 export const getCustomer = (client: Db, id: string) => findCustomer(client, id, true);
 
-export const createCustomer = async (client: Db, actor: Actor, input: CustomerInput) => {
+export const createCustomer = async (client: Db, input: CustomerInput) => {
   await assertOwner(client, input.ownerId);
 
   const none = { primary: null, list: [] };
@@ -38,7 +37,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
 
   const customFields = await applyCustomFields(client, 'customer', {}, input.customFields);
 
-  const lead = await planLeadOnCreate(client, userCaller(actor), {
+  const lead = await planLeadOnCreate(client, {
     ...input,
     state: input.state ?? 'customer',
   });
@@ -57,17 +56,15 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
             primaryPhone: phone.primary,
             phones: phone.list,
             ...lead.set,
-            createdBy: actor.userId,
+            createdBy: caller('user').userId,
           })
           .returning({ id: customers.id }),
       );
 
       await saveCustomFields(tx, 'customer', created, customFields, Object.keys(customFields));
-      await recordLeadSteps(tx, userCaller(actor), 'customer', [
-        { id: created, steps: lead.steps },
-      ]);
+      await recordLeadSteps(tx, 'customer', [{ id: created, steps: lead.steps }]);
       await setRecordTags(tx, 'customer', created, tagIds);
-      await contactCreated(tx, actor, 'customer', await findCustomer(tx, created));
+      await contactCreated(tx, 'customer', await findCustomer(tx, created));
 
       return created;
     });
@@ -81,12 +78,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   }
 };
 
-export const updateCustomer = async (
-  client: Db,
-  actor: Actor,
-  id: string,
-  input: CustomerInput,
-) => {
+export const updateCustomer = async (client: Db, id: string, input: CustomerInput) => {
   // Custom fields are merged from what is stored: concurrent edits wait, then build on each other.
   await lockRows(client, 'core_customers', [id]);
 
@@ -104,7 +96,7 @@ export const updateCustomer = async (
       ? undefined
       : await applyCustomFields(client, 'customer', current.customFields, input.customFields);
 
-  const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
+  const lead = await planLeadOnUpdate(client, current, input);
 
   try {
     await savepoint(async (tx) => {
@@ -118,7 +110,7 @@ export const updateCustomer = async (
         throw notFound('Customer');
       }
 
-      await recordLeadSteps(tx, userCaller(actor), 'customer', [{ id, steps: lead.steps }]);
+      await recordLeadSteps(tx, 'customer', [{ id, steps: lead.steps }]);
 
       if (customFields) {
         const keys = Object.keys(input.customFields ?? {});
@@ -130,7 +122,7 @@ export const updateCustomer = async (
         await setRecordTags(tx, 'customer', id, tagIds);
       }
 
-      await contactUpdated(tx, actor, 'customer', current, await findCustomer(tx, id));
+      await contactUpdated(tx, 'customer', current, await findCustomer(tx, id));
     });
 
     return await findCustomer(client, id);
@@ -144,21 +136,16 @@ export const updateCustomer = async (
 
 export const removeCustomers = async (
   client: Db,
-  actor: Actor,
   ids: string[],
   options: { undoingImport?: boolean } = {},
 ) => {
-  // Undoing an import removes only what it created (its own permission is checked there).
-  if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
-
   // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
-  if (!options.undoingImport)
-    await guardDeletions(client, userCaller(actor), ids.length, 'customers', actor.role);
-  await moveToTrash(client, userCaller(actor), 'customer', ids);
+  if (!options.undoingImport) await guardDeletions(client, ids.length, 'customers');
+  await moveToTrash(client, 'customer', ids);
 
   const rows = await client.delete(customers).where(inArray(customers.id, ids)).returning();
 
-  await contactsRemoved(client, actor, 'customer', rows);
+  await contactsRemoved(client, 'customer', rows);
 
   return { removed: rows.length };
 };
@@ -175,7 +162,6 @@ const tagsByCustomer = async (client: Db, ids: string[]) => {
 /** Adds and removes tags on many customers at once. */
 export const tagCustomers = async (
   client: Db,
-  actor: Actor,
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
   const add = await checkTagIds(client, 'customer', input.add);
@@ -187,7 +173,7 @@ export const tagCustomers = async (
     remove: unique(input.remove),
   });
 
-  await contactsTagged(client, actor, 'customer', before, await tagsByCustomer(client, input.ids));
+  await contactsTagged(client, 'customer', before, await tagsByCustomer(client, input.ids));
 
   return { updated: count };
 };
@@ -201,7 +187,6 @@ interface LinkInput {
 /** Creates or changes the links of people to a company; new links go on both timelines. */
 const upsertLinks = async (
   tx: Db,
-  actor: Actor,
   ids: string[],
   companyId: string,
   attributes: { role?: string | null; isPrimaryContact?: boolean; endedAt?: Date | null },
@@ -217,7 +202,6 @@ const upsertLinks = async (
 
   await contactsLinked(
     tx,
-    actor,
     rows.filter((row) => row.created).map(({ customerId }) => ({ customerId, companyId })),
     true,
   );
@@ -229,7 +213,6 @@ const upsertLinks = async (
  */
 export const linkCustomerCompany = async (
   client: Db,
-  actor: Actor,
   id: string,
   companyId: string,
   input: LinkInput = {},
@@ -237,10 +220,11 @@ export const linkCustomerCompany = async (
   await findCustomer(client, id);
   await assertCompany(client, companyId);
 
+  // Unset keys stay as they are: Drizzle skips undefined in the insert and the conflict update.
   const attributes = {
-    ...(input.role !== undefined ? { role: input.role?.trim() || null } : {}),
-    ...(input.isPrimaryContact !== undefined ? { isPrimaryContact: input.isPrimaryContact } : {}),
-    ...(input.ended !== undefined ? { endedAt: input.ended ? new Date() : null } : {}),
+    role: input.role === undefined ? undefined : input.role?.trim() || null,
+    isPrimaryContact: input.isPrimaryContact,
+    endedAt: input.ended === undefined ? undefined : input.ended ? new Date() : null,
   };
 
   // One main contact per company.
@@ -257,28 +241,18 @@ export const linkCustomerCompany = async (
       );
   }
 
-  await upsertLinks(client, actor, [id], companyId, attributes);
+  await upsertLinks(client, [id], companyId, attributes);
 
   return { ok: true as const };
 };
 
 /** Links people to a company (converted leads), in one insert; a link already there stays as it is. */
-export const linkCustomersToCompany = async (
-  tx: Db,
-  actor: Actor,
-  ids: string[],
-  companyId: string,
-) => {
+export const linkCustomersToCompany = async (tx: Db, ids: string[], companyId: string) => {
   await assertCompany(tx, companyId);
-  await upsertLinks(tx, actor, ids, companyId, {});
+  await upsertLinks(tx, ids, companyId, {});
 };
 
-export const unlinkCustomerCompany = async (
-  client: Db,
-  actor: Actor,
-  id: string,
-  companyId: string,
-) => {
+export const unlinkCustomerCompany = async (client: Db, id: string, companyId: string) => {
   await findCustomer(client, id);
 
   const unlinked = await client
@@ -287,7 +261,7 @@ export const unlinkCustomerCompany = async (
     .returning({ customerId: customerCompanies.customerId });
 
   if (unlinked.length) {
-    await contactsLinked(client, actor, [{ customerId: id, companyId }], false);
+    await contactsLinked(client, [{ customerId: id, companyId }], false);
   }
 
   return { ok: true as const };

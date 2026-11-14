@@ -26,10 +26,11 @@ export const lockRows = async (
 
 /**
  * Serialises changes to who runs an organisation (roles, disabling): two
- * owners demoting each other at once can't leave it without an owner.
+ * owners demoting each other at once can't leave it without an owner. Locks
+ * the scope's organisation (`withOrg`).
  */
-export const lockOrganization = (client: Db, orgId: string) =>
-  client.execute(sql`select 1 from core_organizations where id = ${orgId} for update`);
+export const lockOrganization = (client: Db) =>
+  client.execute(sql`select 1 from core_organizations for update`);
 
 /**
  * Transaction-scoped locks on any keys (released at commit or rollback), in

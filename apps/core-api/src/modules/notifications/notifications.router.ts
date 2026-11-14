@@ -1,5 +1,4 @@
 import { db } from '@erxes/core-db';
-import { pluginCaller } from '~/http/auth';
 import {
   listNotifications,
   markRead,
@@ -11,28 +10,18 @@ import {
   notificationSettings,
   updateNotificationSettings,
 } from '~/modules/notifications/settings.service';
-import { authed, plugin } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const notificationsRouter = {
-  list: authed.notifications.list.handler(({ input, context }) =>
-    listNotifications(db(), context.actor, input),
+  list: scoped.notifications.list.handler(({ input }) => listNotifications(db(), input)),
+  unreadCount: scoped.notifications.unreadCount.handler(({ input }) =>
+    unreadCount(db(), input.source),
   ),
-  unreadCount: authed.notifications.unreadCount.handler(({ input, context }) =>
-    unreadCount(db(), context.actor, input.source),
+  settings: scoped.notifications.settings.handler(() => notificationSettings(db())),
+  updateSettings: scoped.notifications.updateSettings.handler(({ input }) =>
+    updateNotificationSettings(db(), input),
   ),
-  settings: authed.notifications.settings.handler(({ context }) =>
-    notificationSettings(db(), context.actor),
-  ),
-  updateSettings: authed.notifications.updateSettings.handler(({ input, context }) =>
-    updateNotificationSettings(db(), context.actor, input),
-  ),
-  markRead: authed.notifications.markRead.handler(({ input, context }) =>
-    markRead(db(), context.actor, input),
-  ),
-  remove: authed.notifications.remove.handler(({ input, context }) =>
-    removeNotification(db(), context.actor, input.id),
-  ),
-  create: plugin.notifications.create.handler(({ input, context }) =>
-    notify(db(), pluginCaller(context.plugin), input),
-  ),
+  markRead: scoped.notifications.markRead.handler(({ input }) => markRead(db(), input)),
+  remove: scoped.notifications.remove.handler(({ input }) => removeNotification(db(), input.id)),
+  create: scoped.notifications.create.handler(({ input }) => notify(db(), input)),
 };

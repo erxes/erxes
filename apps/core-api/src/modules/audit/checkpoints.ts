@@ -119,8 +119,9 @@ const signHead = async (client: Db, head: ChainHead) => {
  * Signs the head of every organisation's audit chain that moved since its last
  * checkpoint — only after checking the entries added since then, so a chain
  * that was tampered with is never signed. Safe on several replicas at once.
+ * Inside `withOrg` that is the one organisation.
  */
-export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
+export const signAuditCheckpoints = async (client: Db) => {
   const heads = await client.execute<ChainHead>(sql`
     select o.id as org_id, h.chain_seq::int as head_seq, h.hash as head_hash, c.chain_seq::int as last_seq, c.hash as last_hash
     from core_organizations o
@@ -134,8 +135,7 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
       where org_id = o.id
       order by chain_seq desc limit 1
     ) c on true
-    where (c.chain_seq is null or h.chain_seq > c.chain_seq)
-      and (${orgId ?? null}::text is null or o.id = ${orgId ?? null}::text)
+    where c.chain_seq is null or h.chain_seq > c.chain_seq
   `);
 
   let signed = 0;
@@ -153,15 +153,16 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
  * and that the entry it names still has the hash it signed. Catches a chain
  * rewritten end to end and entries cut off its end.
  */
-export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: number | null) => {
+export const verifyCheckpoints = async (client: Db, firstSeq: number | null) => {
   const rows = await client.execute<{
+    org_id: string;
     chain_seq: number;
     hash: string;
     signature: string;
     created_at: Date;
     entry_hash: string | null;
   }>(sql`
-    select c.chain_seq::int, c.hash, c.signature, c.created_at, a.hash as entry_hash
+    select c.org_id, c.chain_seq::int, c.hash, c.signature, c.created_at, a.hash as entry_hash
     from core_audit_checkpoints c
     left join core_audit_logs a on a.org_id = c.org_id and a.chain_seq = c.chain_seq
     order by c.chain_seq
@@ -177,7 +178,7 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
       verifyJwt(row.signature, CheckpointClaims, { typ: CHECKPOINT_TYP })
         .then(
           (claims) =>
-            claims.org === orgId &&
+            claims.org === row.org_id &&
             claims.seq === row.chain_seq &&
             claims.hash === row.hash &&
             row.entry_hash === row.hash,

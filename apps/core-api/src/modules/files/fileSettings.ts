@@ -1,10 +1,10 @@
 import type { FileSettings } from '@erxes/core-contract';
 import { type Db, organizations, type OrganizationSettings } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { unique } from '~/lib/contacts';
+import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 
 const MB = 1024 * 1024;
@@ -58,12 +58,11 @@ const typeAllowed = (allowed: string[], name: string, contentType: string) => {
   });
 };
 
-/** The organisation's upload rules, within what this server accepts. */
-export const fileSettingsOf = async (client: Db, orgId: string): Promise<FileSettings> => {
+/** The organisation's upload rules, within what this server accepts (the scope's organisation: row level security). */
+export const fileSettingsOf = async (client: Db): Promise<FileSettings> => {
   const [row] = await client
     .select({ settings: organizations.settings })
     .from(organizations)
-    .where(eq(organizations.id, orgId))
     .limit(1);
 
   const saved = row?.settings.files ?? {};
@@ -98,15 +97,10 @@ export const assertUploadAllowed = (
   }
 };
 
-export const getFileSettings = (client: Db, actor: Actor) => fileSettingsOf(client, actor.orgId);
-
 export const updateFileSettings = async (
   client: Db,
-  actor: Actor,
   input: { maxSizeMb: number; allowedTypes: string[] },
 ) => {
-  requirePermission(actor, 'settings.manage');
-
   if (input.maxSizeMb > config.files.maxSizeMb) {
     throw new HttpError(
       400,
@@ -115,34 +109,32 @@ export const updateFileSettings = async (
     );
   }
 
-  const before = await fileSettingsOf(client, actor.orgId);
+  const before = await fileSettingsOf(client);
 
   const next: OrganizationSettings['files'] = {
     maxSizeMb: input.maxSizeMb,
     allowedTypes: unique(input.allowedTypes),
   };
 
-  await client
-    .update(organizations)
-    .set({
-      settings: sql`jsonb_set(${organizations.settings}, '{files}', ${JSON.stringify(next)}::jsonb)`,
-      updatedAt: sql`now()`,
-    })
-    .where(eq(organizations.id, actor.orgId));
-
-  await recordAudit(
-    client,
-    { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
-    {
-      action: 'settings.files_changed',
-      targetType: 'organization',
-      targetId: actor.orgId,
-      changes: {
-        maxSizeMb: [before.maxSizeMb, next.maxSizeMb],
-        allowedTypes: [before.allowedTypes, next.allowedTypes],
-      },
-    },
+  const org = oneRow(
+    await client
+      .update(organizations)
+      .set({
+        settings: sql`jsonb_set(${organizations.settings}, '{files}', ${JSON.stringify(next)}::jsonb)`,
+        updatedAt: sql`now()`,
+      })
+      .returning({ id: organizations.id }),
   );
 
-  return fileSettingsOf(client, actor.orgId);
+  await recordAudit(client, {
+    action: 'settings.files_changed',
+    targetType: 'organization',
+    targetId: org.id,
+    changes: {
+      maxSizeMb: [before.maxSizeMb, next.maxSizeMb],
+      allowedTypes: [before.allowedTypes, next.allowedTypes],
+    },
+  });
+
+  return fileSettingsOf(client);
 };

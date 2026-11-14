@@ -6,22 +6,14 @@ import {
   removeView,
   updateView,
 } from '~/modules/views/views.service';
-import { authed } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const viewsRouter = {
-  list: authed.views.list.handler(({ input, context }) =>
-    listViews(db(), context.actor, input.recordType),
+  list: scoped.views.list.handler(({ input }) => listViews(db(), input.recordType)),
+  create: scoped.views.create.handler(({ input }) => createView(db(), input)),
+  update: scoped.views.update.handler(({ input: { id, ...changes } }) =>
+    updateView(db(), id, changes),
   ),
-  create: authed.views.create.handler(({ input, context }) =>
-    createView(db(), context.actor, input),
-  ),
-  update: authed.views.update.handler(({ input: { id, ...changes }, context }) =>
-    updateView(db(), context.actor, id, changes),
-  ),
-  remove: authed.views.remove.handler(({ input, context }) =>
-    removeView(db(), context.actor, input.id),
-  ),
-  fields: authed.views.fields.handler(({ input, context }) =>
-    listFilterFields(db(), context.actor, input.recordType),
-  ),
+  remove: scoped.views.remove.handler(({ input }) => removeView(db(), input.id)),
+  fields: scoped.views.fields.handler(({ input }) => listFilterFields(db(), input.recordType)),
 };

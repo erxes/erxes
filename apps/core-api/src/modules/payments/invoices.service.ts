@@ -1,7 +1,15 @@
 import type { CursorQuery, Invoice, InvoiceLineInput } from '@erxes/core-contract';
-import { type Db, newId, paymentGateways, paymentInvoices, withOrg } from '@erxes/core-db';
+import {
+  caller,
+  type Db,
+  newId,
+  paymentGateways,
+  paymentInvoices,
+  requestOrgId,
+  sourceOf,
+  withOrg,
+} from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
-import type { Actor, Caller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { logger } from '~/logger';
@@ -21,12 +29,14 @@ import {
 
 const log = logger.child({ component: 'payments' });
 
-const invoiceByDedupeKey = async (client: Db, caller: Caller, dedupeKey: string) => {
+const invoiceByDedupeKey = async (client: Db, dedupeKey: string) => {
   const [existing] = await client
     .select({ invoice: paymentInvoices, kind: paymentGateways.kind })
     .from(paymentInvoices)
     .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .where(and(eq(paymentInvoices.source, caller.source), eq(paymentInvoices.dedupeKey, dedupeKey)))
+    .where(
+      and(eq(paymentInvoices.source, sourceOf(caller())), eq(paymentInvoices.dedupeKey, dedupeKey)),
+    )
     .limit(1);
 
   return existing ? toInvoiceDto(existing.invoice, existing.kind) : null;
@@ -46,19 +56,19 @@ interface InvoiceInput {
 }
 
 /** What creating an invoice needs before asking the gateway, or the invoice its dedupe key already made. */
-const prepareInvoice = (caller: Caller, input: InvoiceInput) =>
-  withOrg(caller.orgId, async (tx) => {
-    const existing = input.dedupeKey ? await invoiceByDedupeKey(tx, caller, input.dedupeKey) : null;
+const prepareInvoice = (orgId: string, input: InvoiceInput) =>
+  withOrg(orgId, async (tx) => {
+    const existing = input.dedupeKey ? await invoiceByDedupeKey(tx, input.dedupeKey) : null;
 
     if (existing) return { existing };
 
     const lines = await resolveInvoiceLines(tx, input.amount, input.lines ?? []);
-    const currency = input.currency ?? (await getOrganization(tx, caller.orgId)).currency;
-    const gateway = await resolveGateway(tx, caller, currency, input.gatewayId);
+    const currency = input.currency ?? (await getOrganization(tx)).currency;
+    const gateway = await resolveGateway(tx, currency, input.gatewayId);
     const id = newId();
     const path = `/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`;
 
-    return { gateway, id, lines, currency, callbackUrl: await appLink(tx, caller.orgId, path) };
+    return { gateway, id, lines, currency, callbackUrl: await appLink(tx, path) };
   });
 
 /**
@@ -66,8 +76,9 @@ const prepareInvoice = (caller: Caller, input: InvoiceInput) =>
  * between two short scopes; two calls at once with one dedupe key both get
  * the invoice stored first. Call it outside any scope.
  */
-export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
-  const prepared = await prepareInvoice(caller, input);
+export const createInvoice = async (input: InvoiceInput) => {
+  const orgId = requestOrgId();
+  const prepared = await prepareInvoice(orgId, input);
 
   if (prepared.existing) return prepared.existing;
 
@@ -81,13 +92,13 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
     callbackUrl,
   });
 
-  return withOrg(caller.orgId, async (tx) => {
+  return withOrg(orgId, async (tx) => {
     const [row] = await tx
       .insert(paymentInvoices)
       .values({
         id,
         gatewayId: gateway.id,
-        source: caller.source,
+        source: sourceOf(caller()),
         referenceType: input.reference.type,
         referenceId: input.reference.id,
         amount: input.amount,
@@ -104,7 +115,7 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
       .returning();
 
     if (!row) {
-      const first = input.dedupeKey ? await invoiceByDedupeKey(tx, caller, input.dedupeKey) : null;
+      const first = input.dedupeKey ? await invoiceByDedupeKey(tx, input.dedupeKey) : null;
 
       if (!first) throw new Error(`invoice ${id} was neither stored nor found`);
 
@@ -121,29 +132,30 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
  * The invoice, refreshed with its gateway. Plugins see their own invoices,
  * and read those with a line for them (`reader`); only the owner changes one.
  */
-const visibleInvoice = async (caller: Caller, id: string, access: 'owner' | 'reader') => {
-  const { invoice } = await withOrg(caller.orgId, (tx) => invoiceWithGateway(tx, id));
-  const hasLine = invoice.lines.some((line) => line.plugin === caller.source);
+const visibleInvoice = async (id: string, access: 'owner' | 'reader') => {
+  const orgId = requestOrgId();
+  const who = caller();
+  const { invoice } = await withOrg(orgId, (tx) => invoiceWithGateway(tx, id));
 
   if (
-    caller.actorType === 'plugin' &&
-    invoice.source !== caller.source &&
-    !(access === 'reader' && hasLine)
+    who.type === 'plugin' &&
+    invoice.source !== who.plugin &&
+    !(access === 'reader' && invoice.lines.some((line) => line.plugin === who.plugin))
   )
     throw notFound('Invoice');
 
-  return refresh(caller.orgId, id);
+  return refresh(orgId, id);
 };
 
-export const getInvoice = async (caller: Caller, id: string) => {
-  const { invoice, gateway } = await visibleInvoice(caller, id, 'reader');
+export const getInvoice = async (id: string) => {
+  const { invoice, gateway } = await visibleInvoice(id, 'reader');
 
   return toInvoiceDto(invoice, gateway.kind);
 };
 
 /** Cancels a pending invoice with the gateway (best effort), then here. Call it outside any scope. */
-export const cancelInvoice = async (caller: Caller, id: string) => {
-  const { invoice, gateway } = await visibleInvoice(caller, id, 'owner');
+export const cancelInvoice = async (id: string) => {
+  const { invoice, gateway } = await visibleInvoice(id, 'owner');
 
   if (invoice.status !== 'pending')
     throw new HttpError(409, 'NOT_PENDING', `The invoice is ${invoice.status}`);
@@ -154,7 +166,7 @@ export const cancelInvoice = async (caller: Caller, id: string) => {
       log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );
 
-  return withOrg(caller.orgId, async (tx) => {
+  return withOrg(requestOrgId(), async (tx) => {
     const [cancelled] = await tx
       .update(paymentInvoices)
       .set({ status: 'cancelled', updatedAt: sql`now()` })
@@ -162,7 +174,7 @@ export const cancelInvoice = async (caller: Caller, id: string) => {
       .returning();
 
     if (cancelled) {
-      await publishCoreEvents(tx, caller, {
+      await publishCoreEvents(tx, {
         type: 'core.payment.cancelled',
         entity: { type: 'payment_invoice', id },
         payload: eventPayload(invoice),
@@ -216,8 +228,10 @@ export const listInvoices = async (
 };
 
 /** Test gateway only: the payer "pays". Call it outside any scope. */
-export const payTestInvoice = async (actor: Actor, id: string) => {
-  await withOrg(actor.orgId, async (tx) => {
+export const payTestInvoice = async (id: string) => {
+  const orgId = requestOrgId();
+
+  await withOrg(orgId, async (tx) => {
     const { gateway } = await invoiceWithGateway(tx, id);
 
     if (gateway.kind !== 'test')
@@ -233,7 +247,7 @@ export const payTestInvoice = async (actor: Actor, id: string) => {
       .where(eq(paymentInvoices.id, id));
   });
 
-  const { invoice, gateway } = await refresh(actor.orgId, id);
+  const { invoice, gateway } = await refresh(orgId, id);
 
   return toInvoiceDto(invoice, gateway.kind);
 };

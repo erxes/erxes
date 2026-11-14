@@ -1,4 +1,11 @@
-import { automationRuns, automationRunSteps, automations, type Db, withOrg } from '@erxes/core-db';
+import {
+  automationRuns,
+  automationRunSteps,
+  automations,
+  type Db,
+  runAs,
+  withOrg,
+} from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { defineJob } from '~/modules/jobs/jobs';
@@ -9,7 +16,7 @@ import { evaluateGroup } from './conditions';
 import { type Cursor, nextCursor, sameCursor, stepAt } from './cursor';
 import {
   ADVANCE_QUEUE,
-  actorOf,
+  automationMember,
   continueAfter,
   definitionOf,
   failRun,
@@ -129,9 +136,10 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
     subject: await subjectOf(tx, run.subjectType, run.subjectId),
   };
 
+  const member = await automationMember(orgId, automation.activatedBy);
+
   const ctx: CallContext = {
     orgId,
-    actor: await actorOf(tx, orgId, automation.activatedBy),
     automation: { id: automation.id, name: automation.name },
     run: { id: run.id },
     step: { id: step.id },
@@ -143,11 +151,15 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
   const prepared = { step, steps: loaded.steps, input: ctx.input };
   const action = coreAction(step.action);
 
-  if (action && 'call' in action) return { ...prepared, call: () => action.call(ctx) };
+  if (action && 'call' in action)
+    return { ...prepared, call: () => runAs(member, () => action.call(ctx)) };
 
   const plugin = await pluginForAction(tx, step.action);
 
-  return { ...prepared, call: () => runPluginAction(ctx, plugin, step.action) };
+  return {
+    ...prepared,
+    call: () => runAs(member, () => runPluginAction(ctx, plugin, step.action)),
+  };
 };
 
 /**

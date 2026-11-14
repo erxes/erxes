@@ -1,4 +1,4 @@
-import { db, withOrg, withSystem } from '@erxes/core-db';
+import { caller, db, requestOrgId, runAs, withOrg, withSystem } from '@erxes/core-db';
 import { config } from '~/config';
 import {
   completeTwoFactor,
@@ -9,7 +9,7 @@ import {
 } from '~/modules/auth/twoFactor.service';
 import { acceptInvitation, invitationInfo } from '~/modules/auth/tokens.service';
 import { requestPasswordReset, resetPassword } from '~/modules/auth/passwordReset.service';
-import { sessionClaims, signAccessToken } from '~/http/auth';
+import { memberOf, sessionClaims, signAccessToken } from '~/http/auth';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import {
@@ -20,7 +20,7 @@ import {
 } from '~/modules/auth/account.service';
 import { getSession, markOnboarded, signIn, recordSignedIn } from '~/modules/auth/auth.service';
 import { runSetup, setupRequired } from '~/modules/setup/setup.service';
-import { pub, authed, type CoreContext } from '~/orpc';
+import { scoped, unscoped, type CoreContext } from '~/orpc';
 
 /** Signs the member in on this browser (HttpOnly session cookie). */
 const startSession = async (context: CoreContext, userId: string, orgId: string) => {
@@ -37,17 +37,17 @@ const endSession = (context: CoreContext) =>
   });
 
 export const authRouter = {
-  setupStatus: pub.auth.setupStatus.handler(async () => ({
+  setupStatus: unscoped.auth.setupStatus.handler(async () => ({
     required: await withSystem('setup status', (tx) => setupRequired(tx)),
   })),
-  setup: pub.auth.setup.handler(async ({ input, context }) => {
+  setup: unscoped.auth.setup.handler(async ({ input, context }) => {
     const { organization, owner } = await runSetup(input);
 
     await startSession(context, owner.id, organization.id);
 
     return getSession(organization.id, owner.id);
   }),
-  signIn: pub.auth.signIn.handler(async ({ input, context }) => {
+  signIn: unscoped.auth.signIn.handler(async ({ input, context }) => {
     const result = await signIn(input, context.req.get('host'));
 
     // Two-factor: no session until the second step.
@@ -57,44 +57,44 @@ export const authRouter = {
 
     return result;
   }),
-  signInTwoFactor: pub.auth.signInTwoFactor.handler(async ({ input, context }) => {
+  signInTwoFactor: unscoped.auth.signInTwoFactor.handler(async ({ input, context }) => {
     const { orgId, userId } = await completeTwoFactor(input);
     const session = await getSession(orgId, userId);
 
-    await recordSignedIn(orgId, userId, session.user.email, {
-      twoFactor: input.code ? 'app' : 'recovery code',
-    });
+    await recordSignedIn(session.user, { twoFactor: input.code ? 'app' : 'recovery code' });
     await startSession(context, userId, orgId);
 
     return session;
   }),
-  twoFactorSetup: authed.auth.twoFactorSetup.handler(({ context }) =>
-    setupTwoFactor(db(), context.actor),
-  ),
-  twoFactorEnable: authed.auth.twoFactorEnable.handler(async ({ input, context }) => {
-    const result = await enableTwoFactor(db(), context.actor, input.code);
+  twoFactorSetup: scoped.auth.twoFactorSetup.handler(() => setupTwoFactor(db())),
+  twoFactorEnable: scoped.auth.twoFactorEnable.handler(async ({ input, context }) => {
+    const result = await enableTwoFactor(db(), input.code);
 
     // Other sessions ended; this browser stays signed in.
     if (!context.req.headers.authorization)
-      await startSession(context, context.actor.userId, context.actor.orgId);
+      await startSession(context, caller('user').userId, requestOrgId());
 
     return result;
   }),
-  twoFactorDisable: authed.auth.twoFactorDisable.handler(({ input, context }) =>
-    disableTwoFactor(db(), context.actor, input.password),
+  twoFactorDisable: scoped.auth.twoFactorDisable.handler(({ input }) =>
+    disableTwoFactor(db(), input.password),
   ),
-  twoFactorRecoveryCodes: authed.auth.twoFactorRecoveryCodes.handler(({ input, context }) =>
-    regenerateRecoveryCodes(db(), context.actor, input.password),
+  twoFactorRecoveryCodes: scoped.auth.twoFactorRecoveryCodes.handler(({ input }) =>
+    regenerateRecoveryCodes(db(), input.password),
   ),
-  signOut: pub.auth.signOut.handler(async ({ context }) => {
+  signOut: unscoped.auth.signOut.handler(async ({ context }) => {
     const session = await sessionClaims(context.req);
 
-    if (session) {
+    const member = session && (await memberOf(session.orgId, session.userId));
+
+    if (session && member) {
       await withOrg(session.orgId, (tx) =>
-        recordAudit(
-          tx,
-          { orgId: session.orgId, actorType: 'user', actorId: session.userId, source: 'core' },
-          { action: 'auth.signed_out', targetType: 'user', targetId: session.userId },
+        runAs(member, () =>
+          recordAudit(tx, {
+            action: 'auth.signed_out',
+            targetType: 'user',
+            targetId: session.userId,
+          }),
         ),
       );
     }
@@ -103,45 +103,41 @@ export const authRouter = {
 
     return { ok: true as const };
   }),
-  me: authed.auth.me.handler(({ context }) =>
-    getSession(context.actor.orgId, context.actor.userId),
-  ),
-  onboarded: authed.auth.onboarded.handler(({ input, context }) =>
-    markOnboarded(context.actor, input ?? {}),
-  ),
-  changePassword: authed.auth.changePassword.handler(async ({ input, context }) => {
-    const result = await changeOwnPassword(context.actor, input);
+  me: scoped.auth.me.handler(() => getSession(requestOrgId(), caller('user').userId)),
+  onboarded: scoped.auth.onboarded.handler(({ input }) => markOnboarded(input ?? {})),
+  changePassword: scoped.auth.changePassword.handler(async ({ input, context }) => {
+    const result = await changeOwnPassword(input);
 
     // Other sessions ended; this browser stays signed in (bearer callers get a fresh token next sign-in).
     if (!context.req.headers.authorization)
-      await startSession(context, context.actor.userId, context.actor.orgId);
+      await startSession(context, caller('user').userId, requestOrgId());
 
     return result;
   }),
-  requestPasswordReset: pub.auth.requestPasswordReset.handler(({ input }) =>
+  requestPasswordReset: unscoped.auth.requestPasswordReset.handler(({ input }) =>
     requestPasswordReset(input),
   ),
-  resetPassword: pub.auth.resetPassword.handler(async ({ input, context }) => {
+  resetPassword: unscoped.auth.resetPassword.handler(async ({ input, context }) => {
     const { orgId, userId } = await resetPassword(input);
 
     await startSession(context, userId, orgId);
 
     return getSession(orgId, userId);
   }),
-  invitation: pub.auth.invitation.handler(({ input }) => invitationInfo(input.token)),
-  acceptInvitation: pub.auth.acceptInvitation.handler(async ({ input, context }) => {
+  invitation: unscoped.auth.invitation.handler(({ input }) => invitationInfo(input.token)),
+  acceptInvitation: unscoped.auth.acceptInvitation.handler(async ({ input, context }) => {
     const { orgId, userId } = await acceptInvitation(input);
 
     await startSession(context, userId, orgId);
 
     return getSession(orgId, userId);
   }),
-  signOutEverywhere: authed.auth.signOutEverywhere.handler(async ({ context }) => {
-    const result = await signOutEverywhere(context.actor);
+  signOutEverywhere: scoped.auth.signOutEverywhere.handler(async ({ context }) => {
+    const result = await signOutEverywhere();
 
     endSession(context);
 
     return result;
   }),
-  signIns: authed.auth.signIns.handler(({ context }) => mySignIns(context.actor)),
+  signIns: scoped.auth.signIns.handler(() => mySignIns()),
 };

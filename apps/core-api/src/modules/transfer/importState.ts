@@ -1,8 +1,8 @@
 import { ImportRow as ImportRowDto } from '@erxes/core-contract';
-import { type Db, type ImportCounts, type importRows, imports, roles, users } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { type Db, type ImportCounts, type importRows, imports } from '@erxes/core-db';
+import { eq, sql } from 'drizzle-orm';
 import type { z } from 'zod';
-import type { Actor } from '~/http/auth';
+import { memberOf } from '~/http/auth';
 import { notFound } from '~/http/errors';
 
 export type ImportRow = typeof imports.$inferSelect;
@@ -55,21 +55,10 @@ export const fail = async (tx: Db, id: string, message: string) => {
 };
 
 /** The member the import acts as (its creator, with their permissions now). */
-export const memberActor = async (tx: Db, orgId: string, userId: string): Promise<Actor> => {
-  const [row] = await tx
-    .select({
-      id: users.id,
-      role: users.role,
-      status: users.status,
-      permissions: roles.permissions,
-    })
-    .from(users)
-    .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(eq(users.id, userId))
-    .limit(1);
+export const importingMember = async (orgId: string, userId: string) => {
+  const member = await memberOf(orgId, userId);
 
-  if (!row || row.status !== 'active')
-    throw new ImportFailed('The member who started this import is no longer active');
+  if (!member) throw new ImportFailed('The member who started this import is no longer active');
 
-  return { userId: row.id, orgId, role: row.role, permissions: row.permissions };
+  return member;
 };

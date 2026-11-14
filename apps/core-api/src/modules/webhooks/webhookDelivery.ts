@@ -1,9 +1,16 @@
 import type { WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
 import type { CursorQuery } from '@erxes/core-contract';
-import { type Db, events, newId, webhookDeliveries, webhooks, withOrg } from '@erxes/core-db';
+import {
+  caller,
+  type Db,
+  events,
+  newId,
+  webhookDeliveries,
+  webhooks,
+  withOrg,
+} from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { hmacSha256 } from '~/lib/crypto';
 import { keysetPage } from '~/lib/keyset';
@@ -218,7 +225,7 @@ const queueDeliveries = async (
 };
 
 /** Sends a `core.webhook.test` event to the endpoint now (and logs it like any delivery). */
-export const testWebhook = async (client: Db, actor: Actor, id: string) => {
+export const testWebhook = async (client: Db, id: string) => {
   const webhook = await findWebhook(client, id);
 
   const event = oneRow(
@@ -229,13 +236,13 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
         source: 'core',
         type: 'core.webhook.test',
         actorType: 'user',
-        actorId: actor.userId,
+        actorId: caller('user').userId,
         payload: { webhookId: id, message: 'A test from erxes' },
       })
       .returning(),
   );
 
-  return oneRow(await queueDeliveries(client, actor.orgId, [webhook.id], event));
+  return oneRow(await queueDeliveries(client, webhook.orgId, [webhook.id], event));
 };
 
 export const listDeliveries = async (
@@ -265,7 +272,7 @@ export const listDeliveries = async (
   );
 };
 
-export const redeliver = async (client: Db, actor: Actor, deliveryId: string) => {
+export const redeliver = async (client: Db, deliveryId: string) => {
   const [delivery] = await client
     .select()
     .from(webhookDeliveries)
@@ -275,7 +282,7 @@ export const redeliver = async (client: Db, actor: Actor, deliveryId: string) =>
   if (!delivery) throw notFound('Delivery');
 
   return oneRow(
-    await queueDeliveries(client, actor.orgId, [delivery.webhookId], {
+    await queueDeliveries(client, delivery.orgId, [delivery.webhookId], {
       id: delivery.eventId,
       type: delivery.eventType,
     }),

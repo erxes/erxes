@@ -10,8 +10,7 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
 1. Declare the procedure in `packages/contract/src/<domain>.ts` by the rules in
    `packages/contract/AGENTS.md`. A new group goes into `coreContract` in `src/index.ts`.
 2. Write the service in `apps/core-api/src/modules/<feature>/<feature>.service.ts`. It takes
-   `client: Db`, the input, and the `Actor` (or `Caller` for plugins) only when it records who
-   acted. It returns the row, with Dates; the output schema drops the columns it doesn't pick and
+   `client: Db` and the input; who is calling is `caller()` from `@erxes/core-db`. It returns the row, with Dates; the output schema drops the columns it doesn't pick and
    encodes dates with `isoDate`. Add only the fields the row lacks (`{ ...row, actor: { type, id } }`).
    A body that leaves outside oRPC (webhook, plugin delivery, job payload) goes through the
    schema's `.parse(row)` instead. The handler runs inside `withOrg`, so
@@ -21,7 +20,7 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    `needs('<permission>')`, `PUBLIC`, `CUSTOMER` or `{ plugin: '<scope>' }`; the type check fails
    until it has one. Add the handler to `modules/<feature>/<feature>.router.ts` with a builder from
    `src/orpc.ts` (`apps/core-api/AGENTS.md` says which). A new group's router goes into `coreRouter`
-   in `src/router.ts`. Wrap a write in `audited(context.actor, (tx) => ..., entry)` so the change
+   in `src/router.ts`. Wrap a write in `audited((tx) => ..., entry)` so the change
    and its audit entry share a transaction.
 4. Call it from core-ui with `orpc.<group>.<name>.queryOptions({ input })` or `.mutationOptions()`
    from `~/lib/api`, and invalidate with `orpc.<group>.key()`.

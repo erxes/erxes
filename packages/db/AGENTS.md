@@ -15,6 +15,10 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
   inside it narrows to that organisation (an event consumer handling one organisation's event). `withOrgDetached` commits on its own
   even when the surrounding scope rolls back (recording why a request was refused). `savepoint(fn)`
   rolls back only `fn` when it throws, for errors the caller handles.
+- `src/scope.ts` holds the scope a request or job runs in: its `Caller` (a member, plugin,
+  customer or `system`), its organisation and its transaction. `caller()` reads who is calling
+  (`system` outside a request), `runAs(who, fn)` acts as someone else in the same transaction, and
+  `actorOf(caller)` gives the `actor_type`/`actor_id` a record of the change stores.
 - A table with an organisation's data has `org_id` with a cascading foreign key to
   `core_organizations`, indexes that lead with `org_id`, and row level security in its migration:
   `ENABLE` and `FORCE ROW LEVEL SECURITY` and `CREATE POLICY core_tenant`, as in

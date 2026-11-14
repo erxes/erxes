@@ -1,6 +1,5 @@
-import { db, type Db, newId, users } from '@erxes/core-db';
+import { caller, db, type Db, newId, users } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
-import { type Actor, type Role, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -8,18 +7,18 @@ import { hashPassword } from '~/lib/crypto';
 import { sendInvitations } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { splitFullName } from './userProfile';
-import { conflictFrom, requireTeamManager, toUserDto, type UserRow } from './userRows';
+import { conflictFrom, toUserDto, type UserRow } from './userRows';
 
 interface InviteInput {
   email: string;
-  role: Exclude<Role, 'owner'>;
+  role: string;
   password?: string;
   fullName?: string;
   username?: string;
 }
 
 /** A new member row: with a password they can sign in at once, otherwise they stay invited. */
-const inviteValues = async (actor: Actor, input: InviteInput) => ({
+const inviteValues = async (input: InviteInput) => ({
   id: newId(),
   email: input.email.trim().toLowerCase(),
   ...(input.fullName ? { ...splitFullName(input.fullName), fullName: input.fullName } : {}),
@@ -27,14 +26,13 @@ const inviteValues = async (actor: Actor, input: InviteInput) => ({
   role: input.role,
   status: input.password ? ('active' as const) : ('invited' as const),
   passwordHash: input.password ? await hashPassword(input.password) : null,
-  invitedBy: actor.userId,
+  invitedBy: caller('user').userId,
 });
 
 /** Audits the invitations, and emails those invited without a password (sent once the invite commits). */
-const announceInvites = async (tx: Db, actor: Actor, rows: UserRow[]) => {
+const announceInvites = async (tx: Db, rows: UserRow[]) => {
   await recordAudit(
     tx,
-    userCaller(actor),
     rows.map((row) => ({
       action: 'user.invited',
       targetType: 'user',
@@ -46,21 +44,19 @@ const announceInvites = async (tx: Db, actor: Actor, rows: UserRow[]) => {
 
   await sendInvitations(
     tx,
-    actor,
     rows.filter((row) => row.status === 'invited'),
   );
 };
 
-export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) => {
-  requireTeamManager(actor, 'team.invite');
-  await assertAssignable(client, actor, input.role);
+export const inviteUser = async (client: Db, input: InviteInput) => {
+  await assertAssignable(client, input.role);
 
   try {
-    const values = await inviteValues(actor, input);
+    const values = await inviteValues(input);
 
     const inserted = oneRow(await client.insert(users).values(values).returning());
 
-    await announceInvites(client, actor, [inserted]);
+    await announceInvites(client, [inserted]);
 
     return toUserDto(inserted);
   } catch (error) {
@@ -69,12 +65,9 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
 };
 
 /** Several invitations in one go: all are created, or none (409 names the taken emails). */
-export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
-  requireTeamManager(actor, 'team.invite');
-
+export const inviteUsers = async (entries: InviteInput[]) => {
   await assertAssignable(
     db(),
-    actor,
     entries.map((entry) => entry.role),
   );
 
@@ -87,7 +80,7 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
     });
   }
 
-  const values = await Promise.all(entries.map((entry) => inviteValues(actor, entry)));
+  const values = await Promise.all(entries.map((entry) => inviteValues(entry)));
 
   const tx = db();
 
@@ -107,7 +100,7 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
   try {
     const rows = await tx.insert(users).values(values).returning();
 
-    await announceInvites(tx, actor, rows);
+    await announceInvites(tx, rows);
 
     return { data: rows.map(toUserDto) };
   } catch (error) {

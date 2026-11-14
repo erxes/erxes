@@ -1,18 +1,24 @@
 import type { NotificationDelivery, NotificationSettings } from '@erxes/core-contract';
 import { CORE_NOTIFICATION_GROUPS } from '@erxes/core-contract';
-import { type Db, notifications, pluginInstallations, plugins, users } from '@erxes/core-db';
+import {
+  caller,
+  type Db,
+  notifications,
+  pluginInstallations,
+  plugins,
+  users,
+} from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import type { MemberSettings } from './delivery';
 import { mine } from './inbox.service';
 
 /** Plugins that are installed or have notified the member, by name, with their titles. */
-const pluginGroups = async (client: Db, actor: Actor) => {
+const pluginGroups = async (client: Db) => {
   const sources = await client
     .selectDistinct({ source: notifications.source })
     .from(notifications)
-    .where(mine(actor));
+    .where(mine());
 
   const installed = await client
     .select({ name: pluginInstallations.plugin, manifest: plugins.manifest })
@@ -35,14 +41,11 @@ const pluginGroups = async (client: Db, actor: Actor) => {
  * The member's settings by group: core's groups, then each plugin that is
  * installed or has notified them. Plugins muted before groups show as off.
  */
-export const notificationSettings = async (
-  client: Db,
-  actor: Actor,
-): Promise<NotificationSettings> => {
+export const notificationSettings = async (client: Db): Promise<NotificationSettings> => {
   const [user] = await client
     .select({ settings: users.notificationSettings })
     .from(users)
-    .where(eq(users.id, actor.userId))
+    .where(eq(users.id, caller('user').userId))
     .limit(1);
 
   const settings: MemberSettings = user?.settings ?? {};
@@ -59,7 +62,7 @@ export const notificationSettings = async (
             ? ('inbox' as const)
             : (settings.groups?.[group.key] ?? group.default),
       })),
-      ...(await pluginGroups(client, actor)).map(({ name, title }) => ({
+      ...(await pluginGroups(client)).map(({ name, title }) => ({
         key: name,
         label: title,
         plugin: true,
@@ -80,10 +83,9 @@ export const notificationSettings = async (
  */
 export const updateNotificationSettings = async (
   client: Db,
-  actor: Actor,
   input: { groups?: Record<string, NotificationDelivery>; email?: boolean; browser?: boolean },
 ) => {
-  const current = await notificationSettings(client, actor);
+  const current = await notificationSettings(client);
 
   const groups = Object.fromEntries(
     current.groups.filter((group) => !group.locked).map((group) => [group.key, group.delivery]),
@@ -101,7 +103,10 @@ export const updateNotificationSettings = async (
     browser: input.browser ?? current.browser,
   };
 
-  await client.update(users).set({ notificationSettings: next }).where(eq(users.id, actor.userId));
+  await client
+    .update(users)
+    .set({ notificationSettings: next })
+    .where(eq(users.id, caller('user').userId));
 
-  return notificationSettings(client, actor);
+  return notificationSettings(client);
 };

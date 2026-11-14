@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool, types } from 'pg';
 import * as schema from './schema';
-import { currentScope } from './scope';
+import { openScope } from './scope';
 import type { Database, Db } from './types';
 
 // Counts and BIGINT columns fit JS numbers for core data.
@@ -97,7 +97,7 @@ export const rootDb = (): Database => {
  * level security lets nothing through, so a query that forgot its scope
  * fails closed.
  */
-export const db = (): Db => currentScope()?.tx ?? rootDb();
+export const db = (): Db => openScope()?.tx ?? rootDb();
 
 export const closeDb = async () => {
   const current = pool;

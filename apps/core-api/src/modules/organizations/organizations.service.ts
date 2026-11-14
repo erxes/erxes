@@ -2,7 +2,7 @@ import { seedLeadStages } from '~/modules/leads/leadStages.service';
 import type { Db } from '@erxes/core-db';
 import { newId, organizations, users, withSystem } from '@erxes/core-db';
 import { currencyOfCountry } from '@erxes/core-contract';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { diffRows } from '~/lib/changes';
 import { oneRow } from '~/lib/rows';
@@ -22,12 +22,9 @@ const currencyFor = (input: Region, current: { country: string | null; currency:
   (input.country && input.country !== current.country ? currencyOfCountry(input.country) : null) ??
   current.currency;
 
-export const getOrganization = async (client: Db, orgId: string) => {
-  const [row] = await client
-    .select()
-    .from(organizations)
-    .where(eq(organizations.id, orgId))
-    .limit(1);
+/** The scope's organisation (`withOrg`). */
+export const getOrganization = async (client: Db) => {
+  const [row] = await client.select().from(organizations).limit(1);
 
   if (!row) {
     throw notFound('Organization');
@@ -106,12 +103,8 @@ export const createOrganization = async (input: NewOrganization) => {
  * a currency also takes that country's currency; products and invoices keep
  * the currency they were made in.
  */
-export const updateOrganization = async (
-  tx: Db,
-  orgId: string,
-  input: Region & { name?: string },
-) => {
-  const before = await getOrganization(tx, orgId);
+export const updateOrganization = async (tx: Db, input: Region & { name?: string }) => {
+  const before = await getOrganization(tx);
 
   const row = oneRow(
     await tx
@@ -122,7 +115,6 @@ export const updateOrganization = async (
         currency: currencyFor(input, before),
         updatedAt: sql`now()`,
       })
-      .where(eq(organizations.id, orgId))
       .returning(),
   );
 

@@ -1,11 +1,10 @@
-import { withOrg } from '@erxes/core-db';
+import { requestOrgId, withOrg } from '@erxes/core-db';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { link, rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import { Router, type Response } from 'express';
 import { config } from '~/config';
 import { randomUUID } from '~/lib/crypto';
-import { callerOf } from '~/http/auth';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { downloadUrlOf, readyFile } from './files.service';
 import { contentDisposition, localPath, readGrant } from './storage';
@@ -132,16 +131,14 @@ signedFilesRouter.get('/:token', (req, res) => {
 export const downloadRouter = Router();
 
 downloadRouter.get('/files/:id/download', async (req, res) => {
-  const caller = callerOf(req);
-
-  const url = await withOrg(caller.orgId, async (tx) => {
+  const url = await withOrg(requestOrgId(), async (tx) => {
     const row = await readyFile(tx, req.params.id);
     const saving = req.query.download === '1';
     const address = await downloadUrlOf(row, saving);
 
     // Saving a copy is audited; showing a picture inline (avatars, previews) is not.
     if (saving) {
-      await recordAudit(tx, caller, {
+      await recordAudit(tx, {
         action: 'file.downloaded',
         targetType: 'file',
         targetId: row.id,

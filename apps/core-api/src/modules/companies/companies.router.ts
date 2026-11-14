@@ -9,33 +9,23 @@ import {
 import { companyPeople, listCompanies } from '~/modules/companies/companyList';
 import { mergeCompanies } from '~/modules/companies/companyMerge';
 import { linkCustomerCompany, unlinkCustomerCompany } from '~/modules/customers/customers.service';
-import { authed, anyone } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const companiesRouter = {
-  list: authed.companies.list.handler(({ input, context }) =>
-    listCompanies(db(), context.actor, input),
+  list: scoped.companies.list.handler(({ input }) => listCompanies(db(), input)),
+  get: scoped.companies.get.handler(({ input }) => getCompany(db(), input.id)),
+  create: scoped.companies.create.handler(({ input }) => createCompany(db(), input)),
+  update: scoped.companies.update.handler(({ input: { id, ...changes } }) =>
+    updateCompany(db(), id, changes),
   ),
-  get: anyone.companies.get.handler(({ input }) => getCompany(db(), input.id)),
-  create: authed.companies.create.handler(({ input, context }) =>
-    createCompany(db(), context.actor, input),
+  remove: scoped.companies.remove.handler(({ input }) => removeCompanies(db(), input.ids)),
+  merge: scoped.companies.merge.handler(({ input }) => mergeCompanies(input)),
+  tag: scoped.companies.tag.handler(({ input }) => tagCompanies(db(), input)),
+  people: scoped.companies.people.handler(({ input }) => companyPeople(db(), input.id)),
+  linkPerson: scoped.companies.linkPerson.handler(({ input }) =>
+    linkCustomerCompany(db(), input.customerId, input.id, input),
   ),
-  update: authed.companies.update.handler(({ input: { id, ...changes }, context }) =>
-    updateCompany(db(), context.actor, id, changes),
-  ),
-  remove: authed.companies.remove.handler(({ input, context }) =>
-    removeCompanies(db(), context.actor, input.ids),
-  ),
-  merge: authed.companies.merge.handler(({ input, context }) =>
-    mergeCompanies(context.actor, input),
-  ),
-  tag: authed.companies.tag.handler(({ input, context }) =>
-    tagCompanies(db(), context.actor, input),
-  ),
-  people: authed.companies.people.handler(({ input }) => companyPeople(db(), input.id)),
-  linkPerson: authed.companies.linkPerson.handler(({ input, context }) =>
-    linkCustomerCompany(db(), context.actor, input.customerId, input.id, input),
-  ),
-  unlinkPerson: authed.companies.unlinkPerson.handler(({ input, context }) =>
-    unlinkCustomerCompany(db(), context.actor, input.customerId, input.id),
+  unlinkPerson: scoped.companies.unlinkPerson.handler(({ input }) =>
+    unlinkCustomerCompany(db(), input.customerId, input.id),
   ),
 };

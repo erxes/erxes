@@ -10,10 +10,9 @@
  * Never point it at a database you care about: it creates and drops its own.
  */
 import { CursorQuery } from '@erxes/core-contract';
-import { closeDb, configureDb, runMigrations, withOrg } from '@erxes/core-db';
+import { type Caller, closeDb, configureDb, runAs, runMigrations, withOrg } from '@erxes/core-db';
 import { appendFileSync } from 'node:fs';
 import { Client } from 'pg';
-import type { Actor } from '~/http/auth';
 import { randomToken } from '~/lib/crypto';
 import { inOrder } from '~/lib/sequence';
 import { listCompanies } from '~/modules/companies/companyList';
@@ -121,8 +120,14 @@ const time = async (fn: () => Promise<unknown>) => {
   return median;
 };
 
+/** The organisation the bench lists, and its owner, who runs the lists. */
+interface Bench {
+  orgId: string;
+  owner: Caller;
+}
+
 /** Migrates the new database, creates the organisation and seeds it; returns its owner. */
-const prepare = async (url: string): Promise<Actor> => {
+const prepare = async (url: string): Promise<Bench> => {
   configureDb({ url, applicationName: 'erxes-bench-migrate' });
   await runMigrations();
 
@@ -139,7 +144,10 @@ const prepare = async (url: string): Promise<Actor> => {
   await run(url, seedSql(org.organization.id, rows));
   say(`seeded in ${((performance.now() - started) / 1000).toFixed(1)} s`);
 
-  return { userId: org.owner.id, orgId: org.organization.id, role: 'owner', permissions: ['*'] };
+  return {
+    orgId: org.organization.id,
+    owner: { type: 'user', userId: org.owner.id, role: 'owner', permissions: ['*'] },
+  };
 };
 
 /** From here on queries run as a runtime role under row level security, like production. */
@@ -179,7 +187,7 @@ const measure = async (label: string, list: List) => {
   return `| ${label} | ${count.toLocaleString('en')}${capped ? '+' : ''} | ${ms.toFixed(0)} |`;
 };
 
-const bench = async (actor: Actor) => {
+const bench = async ({ orgId, owner }: Bench) => {
   const lines = [
     `| Filter (${rows.toLocaleString('en')} customers) | Matches | ms |`,
     '|---|---:|---:|',
@@ -188,11 +196,12 @@ const bench = async (actor: Actor) => {
   const lists: [string, List][] = [
     ...CASES.map(([label, query]): [string, List] => [
       label,
-      () => withOrg(actor.orgId, (tx) => listCustomers(tx, actor, { ...FIRST_PAGE, ...query })),
+      () =>
+        runAs(owner, () => withOrg(orgId, (tx) => listCustomers(tx, { ...FIRST_PAGE, ...query }))),
     ]),
     [
       'Companies, no filter',
-      () => withOrg(actor.orgId, (tx) => listCompanies(tx, actor, FIRST_PAGE)),
+      () => runAs(owner, () => withOrg(orgId, (tx) => listCompanies(tx, FIRST_PAGE))),
     ],
   ];
 
@@ -216,10 +225,10 @@ const main = async () => {
   say(`database ${name}, ${rows.toLocaleString('en')} customers`);
 
   try {
-    const actor = await prepare(url.toString());
+    const org = await prepare(url.toString());
 
     await useRuntimeRole(url.toString());
-    await bench(actor);
+    await bench(org);
   } finally {
     await closeDb();
     await run(baseUrl, `DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);

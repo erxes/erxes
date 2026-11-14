@@ -1,5 +1,17 @@
 import { recordAudit } from '~/modules/audit/audit.service';
-import { auditLogs, organizations, roles, users, withOrg, withSystem } from '@erxes/core-db';
+import {
+  auditLogs,
+  caller,
+  db,
+  organizations,
+  requestOrgId,
+  roles,
+  runAs,
+  system,
+  users,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { effectivePermissions } from '~/modules/roles/roles.service';
 import { twoFactorChallenge } from './twoFactor.service';
 import { and, eq, sql } from 'drizzle-orm';
@@ -7,7 +19,7 @@ import { config } from '~/config';
 import { HttpError } from '~/http/errors';
 import { toUserDto } from '~/modules/users/userRows';
 import { verifyPassword } from '~/lib/crypto';
-import type { Actor } from '~/http/auth';
+import { asMember } from './account.service';
 import { type ExampleLanguage, exampleDataJob } from '~/modules/organizations/exampleData';
 
 const invalidCredentials = () =>
@@ -90,16 +102,14 @@ const recordFailure = async (
 ) => {
   if (match) {
     await withOrg(match.user.orgId, (tx) =>
-      recordAudit(
-        tx,
-        { orgId: match.user.orgId, actorType: 'user', actorId: match.user.id, source: 'core' },
-        {
+      runAs(asMember(match.user), () =>
+        recordAudit(tx, {
           action: 'auth.sign_in_failed',
           targetType: 'user',
           targetId: match.user.id,
           targetLabel: match.user.email,
           metadata: { reason: valid ? `account ${match.user.status}` : 'wrong password' },
-        },
+        }),
       ),
     );
 
@@ -118,15 +128,13 @@ const recordFailure = async (
 
     if (organization) {
       await withOrg(organization.id, (tx) =>
-        recordAudit(
-          tx,
-          { orgId: organization.id, actorType: 'system', actorId: null },
-          {
+        runAs(system('sign-in'), () =>
+          recordAudit(tx, {
             action: 'auth.sign_in_failed',
             targetType: 'user',
             targetLabel: email,
             metadata: { reason: 'unknown email' },
-          },
+          }),
         ),
       );
     }
@@ -170,28 +178,24 @@ export const signIn = async (
     };
   }
 
-  await recordSignedIn(match.user.orgId, match.user.id, match.user.email);
+  await recordSignedIn(match.user);
 
   return getSession(match.user.orgId, match.user.id);
 };
 
 export const recordSignedIn = (
-  orgId: string,
-  userId: string,
-  email: string,
+  user: { id: string; orgId: string; role: string; email: string },
   metadata?: Record<string, unknown>,
 ) =>
-  withOrg(orgId, (tx) =>
-    recordAudit(
-      tx,
-      { orgId, actorType: 'user', actorId: userId, source: 'core' },
-      {
+  withOrg(user.orgId, (tx) =>
+    runAs(asMember(user), () =>
+      recordAudit(tx, {
         action: 'auth.signed_in',
         targetType: 'user',
-        targetId: userId,
-        targetLabel: email,
+        targetId: user.id,
+        targetLabel: user.email,
         metadata,
-      },
+      }),
     ),
   );
 
@@ -214,7 +218,6 @@ export const getSession = async (orgId: string, userId: string) =>
       organization: row.organization,
       // Spelled out for the UI: what this member may do.
       permissions: await effectivePermissions(tx, {
-        orgId,
         role: row.user.role,
         permissions: row.permissions,
       }),
@@ -227,26 +230,25 @@ export const getSession = async (orgId: string, userId: string) =>
  * after, while the organisation has no contacts.
  */
 export const markOnboarded = async (
-  actor: Actor,
   input: { exampleData?: boolean; language?: ExampleLanguage } = {},
 ) => {
-  const { orgId, userId } = actor;
+  const { userId, role } = caller('user');
+  const orgId = requestOrgId();
+  const tx = db();
 
-  await withOrg(orgId, async (tx) => {
-    await tx
-      .update(users)
-      .set({ onboardedAt: sql`coalesce(${users.onboardedAt}, now())` })
-      .where(eq(users.id, userId));
+  await tx
+    .update(users)
+    .set({ onboardedAt: sql`coalesce(${users.onboardedAt}, now())` })
+    .where(eq(users.id, userId));
 
-    // Queued with the change: seeded right after (see `exampleDataJob`).
-    if (input.exampleData && actor.role === 'owner') {
-      await exampleDataJob.enqueue(tx, {
-        orgId,
-        payload: { userId, language: input.language ?? 'en' },
-        dedupeKey: `example-data:${orgId}`,
-      });
-    }
-  });
+  // Queued with the change: seeded right after (see `exampleDataJob`).
+  if (input.exampleData && role === 'owner') {
+    await exampleDataJob.enqueue(tx, {
+      orgId,
+      payload: { userId, language: input.language ?? 'en' },
+      dedupeKey: `example-data:${orgId}`,
+    });
+  }
 
   return getSession(orgId, userId);
 };

@@ -1,5 +1,4 @@
 import { type Db, organizations } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
 import { createTransport, type Transporter } from 'nodemailer';
 import { config } from '~/config';
 import { logger } from '~/logger';
@@ -32,12 +31,11 @@ const deliver = async (message: { to: string; subject: string; html: string; tex
   await transporter.sendMail({ from: config.email.from, ...message });
 };
 
-/** A link into the organisation's erxes (`APP_URL`, with its subdomain). */
-export const appLink = async (client: Db, orgId: string, path: string) => {
+/** A link into the scope's organisation (`withOrg`) in erxes: `APP_URL`, with its subdomain. */
+export const appLink = async (client: Db, path: string) => {
   const [organization] = await client
     .select({ subdomain: organizations.subdomain })
     .from(organizations)
-    .where(eq(organizations.id, orgId))
     .limit(1);
 
   return `${config.app.url.replace('{subdomain}', organization?.subdomain ?? '')}${path}`;
