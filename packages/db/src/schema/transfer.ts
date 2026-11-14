@@ -3,6 +3,7 @@ import {
   EXPORT_STATUSES,
   type IMPORT_MATCH_KEYS,
   type IMPORT_MODES,
+  IMPORT_ROW_ACTIONS,
   IMPORT_STATUSES,
   TRANSFER_RECORD_TYPES,
 } from '../enums';
@@ -105,7 +106,7 @@ export const importRows = pgTable(
     rowNumber: integer().notNull(),
     cells: jsonb().$type<string[]>().notNull(),
     /** From the check, then the run: `create`, `update`, `skip` or `error`. */
-    action: text(),
+    action: text({ enum: IMPORT_ROW_ACTIONS }),
     error: text(),
     recordId: text(),
   },

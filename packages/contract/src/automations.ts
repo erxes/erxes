@@ -4,7 +4,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AutomationStatus } from './values';
-import { AutomationDefinition } from './automationDefinition';
+import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
 import { ActionInfo, AutomationRun, RunStatus, RunStep } from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 

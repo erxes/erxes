@@ -11,7 +11,7 @@ import { exports, importRows, imports } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ConditionGroup } from './automationDefinition';
+import { ConditionGroup } from '@erxes/core-db/automationDefinition';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const TransferRecordType = z.enum(TRANSFER_RECORD_TYPES);
