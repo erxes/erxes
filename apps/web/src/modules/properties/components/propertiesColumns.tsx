@@ -24,12 +24,15 @@ export const FieldLocation = z.object({
 export const propertyEditPath = (field: z.infer<typeof FieldLocation>) =>
   `${propertiesPath(field.contentType)}/${field.groupId ?? 'ungrouped'}/${field.id}`;
 
-const PropertiesCheckboxCell = ({ id }: { id: string }) => {
+// The table's own checkbox column names its boxes; these keep the selection across every group's
+// table, so they name themselves the same way.
+const PropertiesCheckboxCell = ({ id, label }: { id: string; label: string }) => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(selectedFieldIdsState);
 
   return (
     <div className="flex items-center justify-center">
       <Checkbox
+        aria-label={label}
         onClick={(event) => event.stopPropagation()}
         checked={!!selectedFieldIds[id]}
         onCheckedChange={(value) =>
@@ -48,7 +51,7 @@ const PropertiesCheckboxCell = ({ id }: { id: string }) => {
   );
 };
 
-const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
+const PropertiesHeaderCheckboxCell = ({ ids, label }: { ids: string[]; label: string }) => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(selectedFieldIdsState);
   const allSelected = ids.length > 0 && ids.every((id) => selectedFieldIds[id]);
   const someSelected = ids.some((id) => selectedFieldIds[id]);
@@ -56,6 +59,7 @@ const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
   return (
     <div className="flex items-center justify-center h-8">
       <Checkbox
+        aria-label={label}
         checked={allSelected}
         indeterminate={!allSelected && someSelected}
         onCheckedChange={(value) =>
@@ -142,8 +146,13 @@ export const propertiesColumns = (
   {
     id: 'checkbox',
     accessorKey: 'checkbox',
-    header: () => <PropertiesHeaderCheckboxCell ids={fieldIds} />,
-    cell: ({ row }) => <PropertiesCheckboxCell id={row.original.id} />,
+    header: () => <PropertiesHeaderCheckboxCell ids={fieldIds} label={t('select-all-fields')} />,
+    cell: ({ row }) => (
+      <PropertiesCheckboxCell
+        id={row.original.id}
+        label={t('select-field', { name: row.original.label })}
+      />
+    ),
     size: 33,
   },
   {

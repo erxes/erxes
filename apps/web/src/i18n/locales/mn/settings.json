@@ -236,6 +236,8 @@
     "properties": "Талбарууд",
     "properties-suffix": "талбарууд",
     "add-field": "Талбар нэмэх",
+    "select-field": "{{name}}-г сонгох",
+    "select-all-fields": "Бүх талбарыг сонгох",
     "plugin": {
       "core": "Үндсэн талбарууд"
     },
