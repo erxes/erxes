@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { AutomationId } from './records';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
-import { ActionInfo, AutomationRun, RunStatus, RunStep } from './automationRuns';
+import { ActionInfo, AutomationRun, DryRunStep, RunStatus, RunStep } from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const Automation = createSelectSchema(automations, {
@@ -48,17 +48,6 @@ export const AutomationFieldPath = z.object({
 });
 
 export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
-
-/** One step of a dry run: what it would do, and what would stop it. */
-export const DryRunStep = z.object({
-  stepId: z.string(),
-  type: z.string(),
-  outcome: z.string(),
-  input: z.unknown().nullable(),
-  problem: z.string().nullable(),
-});
-
-export type DryRunStep = z.infer<typeof DryRunStep>;
 
 const Fields = createUpdateSchema(automations, {
   name: (name) => name.trim().min(1).max(120),
