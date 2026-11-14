@@ -1,3 +1,4 @@
+import { validateTransactionDate } from './transactionDateValidation';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '../@types/transaction';
@@ -51,6 +52,7 @@ export const commonRemove = async (
     );
     return;
   }
+  await validateTransactionDate(models, transaction);
   const handler = getJournalHandler(transaction.journal);
   if (!handler) return;
 
@@ -64,6 +66,7 @@ export const commonRemoveValidation = async (
   followTrs?: ITransactionDocument[],
   options: TCommonRemoveOptions = {},
 ): Promise<void> => {
+  await validateTransactionDate(models, transaction);
   const validators: Record<string, TJournalRemoveHandler> = {
     fxaCapital: validateFxaCapitalRemove,
     fxaRevaluation: validateFxaCapitalRemove,
