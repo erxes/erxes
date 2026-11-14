@@ -1,6 +1,6 @@
 import type { coreContract } from '@erxes/core-contract';
 import type { InferContractRouterOutputs } from '@orpc/contract';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 /** Triggers and actions: core's and installed plugins'. */
 export type Catalog = InferContractRouterOutputs<typeof coreContract>['automations']['catalog'];

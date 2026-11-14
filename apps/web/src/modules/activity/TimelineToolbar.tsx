@@ -1,9 +1,18 @@
-import type { User } from '@erxes/core-contract';
 import { IconAdjustmentsHorizontal, IconSearch, IconX } from '@tabler/icons-react';
-import { Button, cn, InputGroup, Label, Popover, Select, Switch } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  InputGroup,
+  Label,
+  type Member,
+  memberName,
+  Popover,
+  Select,
+  Switch,
+} from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { memberName, pluginLabel } from '~/lib/members';
+import { pluginLabel } from '~/lib/members';
 import type { TimelineKind } from './useActivities';
 
 const KINDS: { value: TimelineKind; label: string }[] = [
@@ -31,7 +40,7 @@ export const NO_FILTERS: TimelineFilterState = {
 interface FiltersProps {
   filters: TimelineFilterState;
   onChange: (filters: TimelineFilterState) => void;
-  members: User[];
+  members: Member[];
   /** Plugins that record entries. */
   sources: string[];
   /** Companies can include their customers' entries. */

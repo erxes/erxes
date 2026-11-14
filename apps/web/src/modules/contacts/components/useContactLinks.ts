@@ -1,7 +1,7 @@
 import type { ContactLink } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 
 export type ContactSide = 'core:customer' | 'core:company';
 

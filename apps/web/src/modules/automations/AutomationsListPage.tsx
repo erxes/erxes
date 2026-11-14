@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { catalogQuery } from './automationQueries';
 import { countSteps } from './builder/flowChecks';

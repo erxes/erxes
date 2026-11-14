@@ -1,7 +1,7 @@
 import type { FieldContentType, Field, FieldGroup } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 /** Field groups of a record type, in order (archived ones with `archived`). */
 export const fieldGroupsQuery = (contentType: FieldContentType, archived = false) =>

@@ -16,7 +16,7 @@ import {
 import type { ReactNode } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import {
   LeadOwners,
   LeadReasons,

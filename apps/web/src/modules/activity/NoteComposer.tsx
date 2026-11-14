@@ -1,10 +1,9 @@
 import type { User } from '@erxes/core-contract';
 import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
-import { Button, cn, Spinner, Textarea } from 'erxes-ui';
+import { Button, cn, memberName, Spinner, Textarea } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserAvatar } from '~/components/UserAvatar';
-import { memberName } from '~/lib/members';
 import { AttachButton, AttachedFiles, useAttachments } from './NoteAttachments';
 import { useMentions } from './useMentions';
 

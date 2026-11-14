@@ -1,10 +1,19 @@
-import type { AuditEntry, User } from '@erxes/core-contract';
+import type { AuditEntry } from '@erxes/core-contract';
+import { memberQueries } from '@erxes/core-contract/client';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
-import { Badge, Button, cn, RelativeDateDisplay, Spinner } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  cn,
+  type Member,
+  RelativeDateDisplay,
+  Spinner,
+  useMembersById,
+} from 'erxes-ui';
 import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserAvatar } from '~/components/UserAvatar';
-import { actorLabel, pluginLabel, useMembersById } from '~/lib/members';
+import { actorLabel, pluginLabel } from '~/lib/members';
 import { auditSentence } from './auditSentence';
 
 const isWarning = (action: string) =>
@@ -58,7 +67,7 @@ const EntryRow = ({
   onToggle,
 }: {
   entry: AuditEntry;
-  members: Map<string, User>;
+  members: Map<string, Member>;
   expanded: boolean;
   onToggle: () => void;
 }) => {
@@ -144,6 +153,7 @@ export const AuditTable = ({ entries, paging }: { entries: AuditEntry[]; paging:
 
   const members = useMembersById(
     entries.map((entry) => (entry.actorType === 'user' ? entry.actorId : null)),
+    memberQueries,
   );
 
   return (

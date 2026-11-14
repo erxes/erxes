@@ -15,7 +15,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { CountrySelect, CurrencySelect } from '~/components/RegionSelect';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 
 /** Saves the organisation and gives the whole app its new name, country and currency. */

@@ -3,7 +3,7 @@ import { skipToken, useQuery } from '@tanstack/react-query';
 import { Spinner, useToast, buttonVariants } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { propertiesPath } from '../constants';
 import { hasOptions } from '../fieldTypes';
 import { useAllFields } from '../useFields';

@@ -1,6 +1,6 @@
 import type { CustomerState } from '@erxes/core-contract';
 import { RecordTable } from 'erxes-ui';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { CustomersCommandBar } from './CustomersCommandBar';
 import { stickyWithStage } from '~/modules/leads/leadColumns';
 import { useCustomersColumns } from './customersColumns';

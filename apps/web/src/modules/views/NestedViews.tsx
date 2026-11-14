@@ -3,7 +3,7 @@ import { IconLayoutList, IconUsers } from '@tabler/icons-react';
 import { cn, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useViews } from './useViews';
 import { VIEW_LIST_PATHS, viewHref } from './viewLinks';
 

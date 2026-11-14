@@ -14,7 +14,7 @@ import { Button, Input, PageContainer, PageHeader, ScrollArea, Spinner } from 'e
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 import { useLeadsT } from '~/modules/leads/i18n';

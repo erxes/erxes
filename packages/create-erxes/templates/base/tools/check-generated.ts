@@ -17,7 +17,6 @@ const scratch = join(root, '.scratch');
 mkdirSync(scratch, { recursive: true });
 
 const dir = mkdtempSync(join(scratch, 'generated-'));
-const contract = join(root, 'api/openapi.json');
 const api = join(root, 'api');
 const drizzle = join(api, 'node_modules/drizzle-kit/bin.cjs');
 
@@ -33,13 +32,6 @@ const run = (entry: string, ...args: string[]) => {
 };
 
 try {
-  const document = join(dir, 'openapi.json');
-
-  run(join(api, 'scripts/openapi.ts'), document);
-
-  if (readFileSync(contract, 'utf8') !== readFileSync(document, 'utf8'))
-    throw new Error('Contract drift. Run pnpm openapi and commit api/openapi.json.');
-
   const migrations = join(root, 'api/drizzle');
   const generated = join(dir, 'drizzle');
   const config = join(dir, 'drizzle.config.ts');
@@ -72,7 +64,7 @@ try {
       `Migration drift in ${drift.join(', ')}. Run pnpm db:generate and commit api/drizzle.`,
     );
 
-  process.stdout.write('Migrations and OpenAPI match their sources.\n');
+  process.stdout.write('Migrations match the schema.\n');
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }

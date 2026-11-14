@@ -1,6 +1,6 @@
 import type { Role } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 /** The organisation's roles (built-in and custom). */
 export const rolesQuery = () => orpc.roles.list.queryOptions({ staleTime: 60_000 });

@@ -13,12 +13,12 @@ has a flag (`src/cli.ts`); `-y` takes the defaults.
   the quality section of the root `AGENTS.md` and the tenant functions from `packages/db/drizzle`.
   `scripts/templates.ts` copies them into `dist/templates` at build time, so `templates/` holds no
   copy. Change them in core.
-- A plugin lints with `@erxes/lint`'s preset (`packages/lint`). `scripts/templates.ts` writes the
-  version in `packages/lint/package.json` into the template's `package.json`, so a plugin depends
-  on the `@erxes/lint` its CLI was packed with.
+- A plugin lints with `@erxes/lint`'s preset (`packages/lint`). `scripts/templates.ts` fills the
+  template's `__lintVersion__`, `__contractVersion__`, `__sdkVersion__` and `__uiVersion__` from
+  core's package.json files, so a plugin depends on the `@erxes/lint`, `@erxes/core-contract`,
+  `@erxes/plugin-sdk` and `erxes-ui` its CLI was packed with.
 - `vp run check` in a generated plugin also runs the shipped escape and docs guards, knip,
-  migration drift and the OpenAPI contract drift check. The plugin's `openapi` task updates
-  its committed document.
+  and migration drift. Plugins commit no OpenAPI document: that is for core's external integrations.
 - `src/__tests__/e2e.test.ts` packs nothing itself: CI's packages job packs core's packages and
   this one, then runs `vp test run --project create-erxes-e2e` with `CREATE_ERXES_PACKS` set to the
   tarballs. Each flow generates a plugin, points it at the tarballs and runs its `vp run check`,

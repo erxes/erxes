@@ -8,7 +8,7 @@ import { PageContainer, PageHeader, ScrollArea, Select, Spinner, Switch, useToas
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { desktopSupported } from '~/modules/notifications/useDesktopNotifications';
 import { useNotificationSettings } from '~/modules/notifications/useNotifications';
 

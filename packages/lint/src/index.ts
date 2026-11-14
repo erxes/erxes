@@ -22,7 +22,8 @@ const pluginImports = {
           .filter((path) => path !== '.')
           .map((path) => `!erxes-ui${path.slice(1)}`),
       ],
-      message: 'Use erxes-ui through its public exports; data goes through oRPC (ui/src/orpc.ts).',
+      message:
+        'Use erxes-ui through its public exports; the plugin API goes through ui/src/orpc.ts and core through @erxes/core-contract/client.',
     },
     {
       group: ['@erxes/core-db', '@erxes/core-db/*'],
@@ -68,7 +69,11 @@ export const preset = {
         ...designRules,
         'no-restricted-globals': [
           'error',
-          { name: 'fetch', message: 'Call the API through ui/src/orpc.ts.' },
+          {
+            name: 'fetch',
+            message:
+              'Call the plugin API through ui/src/orpc.ts and core through orpc from @erxes/core-contract/client.',
+          },
         ],
       },
     },

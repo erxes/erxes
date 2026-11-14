@@ -1,5 +1,5 @@
 import { RecordTable } from 'erxes-ui';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { CompaniesCommandBar } from './CompaniesCommandBar';
 import { stickyWithStage } from '~/modules/leads/leadColumns';
 import { useCompaniesColumns } from './companiesColumns';

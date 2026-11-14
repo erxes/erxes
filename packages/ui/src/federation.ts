@@ -5,7 +5,10 @@
  * it never bundles a second React, router, query client or erxes-ui. A shared
  * name matches only that exact import, so React's entry points are listed one
  * by one: a remote that bundles its own `react/jsx-runtime` breaks as soon as
- * its React differs from the host's.
+ * its React differs from the host's. `@tanstack/query-core` is listed with
+ * `@tanstack/react-query` because `@orpc/tanstack-query` imports it directly: a
+ * plugin's own copy would hold a different `skipToken`, so `input: skipToken`
+ * (from the host's `@tanstack/react-query`) would run the query, not disable it.
  */
 export const SHARED = [
   'react',
@@ -19,4 +22,5 @@ export const SHARED = [
   'jotai',
   'react-i18next',
   '@tanstack/react-query',
+  '@tanstack/query-core',
 ];

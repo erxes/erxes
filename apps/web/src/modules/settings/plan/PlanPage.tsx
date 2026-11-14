@@ -12,7 +12,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { usePlan } from '~/modules/saas/usePlan';
 
 type Row = SubscriptionInfo['plugins'][number];

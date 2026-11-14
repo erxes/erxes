@@ -1,4 +1,4 @@
-import { isApiError } from '~/lib/api';
+import { isApiError } from '@erxes/core-contract/client';
 
 type Translate = (key: string, defaultValue: string) => string;
 

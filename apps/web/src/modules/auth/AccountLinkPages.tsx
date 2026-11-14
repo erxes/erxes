@@ -4,7 +4,7 @@ import { Button, Input, Label, Spinner } from 'erxes-ui';
 import { type SubmitEvent, type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignedIn } from '~/modules/auth/session';
 import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
 

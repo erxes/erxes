@@ -12,7 +12,6 @@ description: Add or change an API procedure. Use when editing api/src/modules, a
 3. Fail with `ORPCError` (`NOT_FOUND`, `FORBIDDEN`, `CONFLICT`, `BAD_REQUEST`);
    the UI shows its `message`.
 4. Add the module to `router` in `api/src/router.ts`. The UI's types follow.
-   Run `pnpm openapi` and commit the contract document.
 5. In the UI, read with `orpc.<group>.<name>.queryOptions()` and write with
    `mutationOptions()`, invalidating `orpc.<group>.key()` on success.
 6. Test it in the module's `__tests__`: the happy path, another organisation

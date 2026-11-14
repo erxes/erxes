@@ -21,7 +21,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import type { CategoryNode } from '../categories/categoryTree';
 import { useCategoryMutations, useProductCategories } from '../categories/useProductCategories';
 import { PRODUCT_SETTINGS } from '../paths';

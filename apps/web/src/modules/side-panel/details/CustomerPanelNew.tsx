@@ -17,7 +17,7 @@ import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { toYmd } from '~/components/inlineCells';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
 import { PanelFormRow } from '../PanelForm';
 import { useSidePanelDraft } from '../useSidePanel';

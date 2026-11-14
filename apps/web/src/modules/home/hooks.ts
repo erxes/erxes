@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 // Home reads the same procedures as Contacts and Team members, so their
 // invalidations refresh these too.

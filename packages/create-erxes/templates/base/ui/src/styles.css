@@ -1,0 +1,8 @@
+/* This plugin's own Tailwind utilities, built on erxes-ui's tokens. web's stylesheet already has
+   the page defaults and every class web and erxes-ui use; addPluginStyles (in __Pascal__.tsx)
+   adds only the classes it lacks. The themes are inline, so the utilities carry their values and
+   set no variable of web's. */
+@import 'tailwindcss/theme.css' theme(reference inline);
+@import 'erxes-ui/theme.css' theme(inline);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@source '.';

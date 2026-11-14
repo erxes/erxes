@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { FormSheet } from '~/components/FormSheet';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 import { TAG_COLORS, useTagCreate, useTags } from '~/modules/tags/useTags';

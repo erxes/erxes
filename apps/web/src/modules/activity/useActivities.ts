@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useLivePolling } from '~/lib/live';
 
 export type TimelineKind = 'all' | 'notes' | 'changes' | 'plugins';

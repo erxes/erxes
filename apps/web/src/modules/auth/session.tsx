@@ -4,7 +4,7 @@ import { useToast } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 
 /** Whether the installation still needs its first organisation (asked only when signed out). */
 export const useSetupStatus = (enabled: boolean) =>

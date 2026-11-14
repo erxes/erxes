@@ -47,6 +47,8 @@ const list = reads(PERMISSIONS.view)
   .input(
     z.object({
       search: z.string().trim().max(200).optional(),
+      /** Only the items this member created. */
+      createdBy: z.string().optional(),
       cursor: z.string().optional(),
       limit: z.number().int().min(1).max(100).default(50),
     }),
@@ -61,7 +63,11 @@ const list = reads(PERMISSIONS.view)
       .select(columns)
       .from(items)
       .where(
-        and(input.search ? ilike(items.name, `%${escapeLike(input.search)}%`) : undefined, after),
+        and(
+          input.search ? ilike(items.name, `%${escapeLike(input.search)}%`) : undefined,
+          input.createdBy ? eq(items.createdBy, input.createdBy) : undefined,
+          after,
+        ),
       )
       .orderBy(desc(items.createdAt), desc(items.id))
       .limit(input.limit + 1);

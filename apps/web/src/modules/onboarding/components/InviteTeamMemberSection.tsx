@@ -4,7 +4,7 @@ import { Badge, Button, Input, TextOverflowTooltip, toast } from 'erxes-ui';
 import { type ChangeEvent, type KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD } from './Appear';
 

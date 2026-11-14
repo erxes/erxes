@@ -1,7 +1,7 @@
 import { IconLayoutSidebarRight } from '@tabler/icons-react';
 import { Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { isApiError } from '~/lib/api';
+import { isApiError } from '@erxes/core-contract/client';
 import { RecordSidePanel } from './RecordSidePanel';
 
 /** Explains empty and failed records without mounting their editors. */

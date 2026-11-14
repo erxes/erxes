@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import type { Lookups } from '~/components/ChangeList';
-import { isApiError } from '~/lib/api';
+import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';

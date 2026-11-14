@@ -14,7 +14,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelectedRows } from '~/components/useSelectedRows';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 import { permissionsFor, useTeamMembersDeactivate } from '../useTeamMembers';
 

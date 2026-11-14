@@ -17,7 +17,7 @@ import {
 } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { PanelField, PanelFieldTrigger } from '~/modules/side-panel/PanelField';
 import { ContactTextField } from '~/modules/side-panel/details/ContactDetailFields';
 import { CategoryPicker } from '../categories/CategoryPicker';

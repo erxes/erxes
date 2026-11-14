@@ -3,7 +3,7 @@ import { IconMoodPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, cn, Popover, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';
 import { useNoteActions } from './useActivities';
 

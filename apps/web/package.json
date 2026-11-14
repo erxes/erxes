@@ -24,7 +24,6 @@
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi-client": "1.16.2",
-    "@orpc/tanstack-query": "1.16.2",
     "@tabler/icons-react": "3.34.0",
     "@tanstack/react-query": "^5.62.0",
     "erxes-ui": "workspace:@erxes/ui@*",

@@ -17,7 +17,7 @@ import { Button, DropdownMenu, TabButton, useConfirm, useToast } from 'erxes-ui'
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { ViewDialog } from './ViewControls';
 import { viewHref } from './viewLinks';
 import { useCanShareViews, useViewMutations, useViewState } from './useViews';

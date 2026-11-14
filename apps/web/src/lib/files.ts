@@ -1,7 +1,7 @@
 import type { FileInfo } from '@erxes/core-contract';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import type { FileStorageAdapter } from 'erxes-ui';
-import { isApiError, orpc } from './api';
+import { isApiError, orpc } from '@erxes/core-contract/client';
 
 /** Sends the bytes where core said, reporting progress (fetch can't). */
 const put = (

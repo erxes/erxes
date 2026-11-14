@@ -19,7 +19,7 @@ import { Spinner } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { reorderItems } from '../reorder';
 import { selectedFieldIdsState } from '../states';
 import { groupFields, useAllFields, useFieldGroups } from '../useFields';

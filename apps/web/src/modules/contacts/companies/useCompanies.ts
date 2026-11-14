@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Company } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useQueryState, useToast } from 'erxes-ui';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
 import { useAdvancedFilterParam } from '~/modules/views/useViews';
 

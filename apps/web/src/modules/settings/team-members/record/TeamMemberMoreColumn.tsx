@@ -3,7 +3,7 @@ import { IconEdit, IconMailForward } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import type { RecordTableColumnDef } from 'erxes-ui';
 import { Combobox, Command, Popover, RecordTable, useToast } from 'erxes-ui';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';

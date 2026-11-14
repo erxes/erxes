@@ -1,12 +1,17 @@
+import { memberQueries } from '@erxes/core-contract/client';
 import { IconBox, IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   Button,
   Empty,
+  MemberInline,
   PageContainer,
   PageHeader,
   RecordTable,
   type RecordTableColumnDef,
+  RecordTableInlineCell,
+  SelectMember,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ItemSheet } from './ItemSheet.tsx';
 import { type Item, useItems, useOpenItem, useRemoveItem } from './useItems.ts';
@@ -54,6 +59,17 @@ const columns: RecordTableColumnDef<Item>[] = [
     cell: ({ row }) => <span className="truncate px-2">{row.original.description}</span>,
   },
   {
+    // The member's name and avatar come from core, through the core client.
+    id: 'createdBy',
+    header: 'Created by',
+    size: 200,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <MemberInline memberId={row.original.createdBy} members={memberQueries} />
+      </RecordTableInlineCell>
+    ),
+  },
+  {
     id: 'updatedAt',
     header: 'Updated',
     size: 200,
@@ -71,7 +87,8 @@ const columns: RecordTableColumnDef<Item>[] = [
 export const ItemsPage = () => {
   const { t } = useTranslation('__id__');
   const { open } = useOpenItem();
-  const { data, isPending, error, hasNextPage, fetchNextPage } = useItems();
+  const [createdBy, setCreatedBy] = useState<string | null>(null);
+  const { data, isPending, error, hasNextPage, fetchNextPage } = useItems(createdBy);
   const list = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
@@ -82,6 +99,16 @@ export const ItemsPage = () => {
           <h1 className="text-sm font-semibold">{t('items', 'Items')}</h1>
         </PageHeader.Start>
         <PageHeader.End>
+          {/* md:w-64 is in no class web uses: the plugin's own stylesheet brings it. */}
+          <SelectMember.Field
+            aria-label={t('created-by', 'Created by')}
+            className="w-40 md:w-64"
+            value={createdBy}
+            onValueChange={setCreatedBy}
+            members={memberQueries}
+            placeholder={t('anyone', 'Created by anyone')}
+            noneLabel={t('anyone', 'Created by anyone')}
+          />
           <Button onClick={() => open('new')}>
             <IconPlus />
             {t('add', 'Add item')}

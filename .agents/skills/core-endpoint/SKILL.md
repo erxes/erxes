@@ -26,7 +26,7 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    in `src/router.ts`. Wrap a write in `audited((tx) => ..., entry)` so the change
    and its audit entry share a transaction.
 4. Call it from web with `orpc.<group>.<name>.queryOptions({ input })` or `.mutationOptions()`
-   from `~/lib/api`, and invalidate with `orpc.<group>.key()`.
+   from `@erxes/core-contract/client`, and invalidate with `orpc.<group>.key()`.
 5. Test it in `apps/api/src/__tests__/` through `useTestServer().client(...)`: the happy path,
    each error code (`rejects.toMatchObject({ status, code })`), and a caller from the other
    organisation of `useTwoOrgs()`, who gets 404 or an empty list.

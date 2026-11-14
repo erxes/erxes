@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Label, Select, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 
 type Format = AuditStream['format'];
 

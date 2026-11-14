@@ -10,7 +10,7 @@ import {
   type UseFormReturn,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { useTeamMembersInvite } from '../useTeamMembers';
 import { AddInviteRowButton } from './AddInviteRow';
 import { InviteMemberContext } from './InviteMemberContext';

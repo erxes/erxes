@@ -30,7 +30,6 @@ export default defineConfig({
       '**/dist/**',
       'coverage/**',
       'api/drizzle/**',
-      'api/openapi.json',
       'pnpm-lock.yaml',
     ],
   },

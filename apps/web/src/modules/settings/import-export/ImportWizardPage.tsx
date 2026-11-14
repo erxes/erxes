@@ -13,7 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 import { importQuery } from '~/modules/transfer/useTransfer';
 import { ErrorRows, ImportProgress, ImportSummary } from './ImportResults';

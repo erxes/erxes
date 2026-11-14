@@ -259,9 +259,6 @@ importers:
       '@orpc/openapi-client':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)
-      '@orpc/tanstack-query':
-        specifier: 1.16.2
-        version: 1.16.2(@opentelemetry/api@1.10.0)(@orpc/client@1.16.2(@opentelemetry/api@1.10.0))(@tanstack/query-core@5.107.1)
       '@tabler/icons-react':
         specifier: 3.34.0
         version: 3.34.0(react@19.3.1)
@@ -341,9 +338,18 @@ importers:
 
   packages/contract:
     dependencies:
+      '@orpc/client':
+        specifier: 1.16.2
+        version: 1.16.2(@opentelemetry/api@1.10.0)
       '@orpc/contract':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)
+      '@orpc/openapi-client':
+        specifier: 1.16.2
+        version: 1.16.2(@opentelemetry/api@1.10.0)
+      '@orpc/tanstack-query':
+        specifier: 1.16.2
+        version: 1.16.2(@opentelemetry/api@1.10.0)(@orpc/client@1.16.2(@opentelemetry/api@1.10.0))(@tanstack/query-core@5.107.1)
       country-to-currency:
         specifier: ^3.0.2
         version: 3.0.2
@@ -549,6 +555,9 @@ importers:
         specifier: 4.6.7
         version: 4.6.7
     devDependencies:
+      '@tanstack/react-query':
+        specifier: ^5.107.1
+        version: 5.107.1(@types/react@19.3.0)(react@19.3.1)
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6

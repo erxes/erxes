@@ -6,7 +6,7 @@ import { Button, Form, IconPicker, Input, Select, Spinner, Switch, Textarea } fr
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { FIELD_TYPES, getEditableTypes } from '../fieldTypes';
 import { type IPropertyForm, type IPropertyValues, propertySchema } from '../propertySchema';
 import { fieldGroupsQuery, useFieldGroups } from '../useFields';

@@ -15,7 +15,16 @@ export default defineConfig({
   dts: true,
   deps: {
     alwaysBundle: [/^@erxes\/core-db(\/|$)/],
-    onlyImport: ['@orpc/contract', 'country-to-currency', 'drizzle-orm', 'drizzle-zod', 'zod'],
+    onlyImport: [
+      '@orpc/client',
+      '@orpc/contract',
+      '@orpc/openapi-client',
+      '@orpc/tanstack-query',
+      'country-to-currency',
+      'drizzle-orm',
+      'drizzle-zod',
+      'zod',
+    ],
     dts: { alwaysBundle: [/^@erxes\/core-db(\/|$)/] },
   },
   exports: { devExports: true },

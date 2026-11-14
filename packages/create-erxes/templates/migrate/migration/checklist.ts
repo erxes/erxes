@@ -278,7 +278,7 @@ const lines = [
   `${all.length} items, ${gaps} of them gaps. Follow \`.agents/skills/plugin-migrate\`: one module at a time,`,
   'tick an item once it works on the new core and its old bugs and workarounds are gone, and tick a gap once filed, ending its line with `(filed <issue url>)`.',
   '',
-  `The old UI imports ${symbols} symbols from \`ui-modules\` in ${inventory.uiModules.files} files; the host has no \`ui-modules\`, so each page rebuilds them from \`erxes-ui\`. Its old-to-new component table is \`packages/ui/MIGRATION.md\` in erxes (branch \`postgre\`).`,
+  `The old UI imports ${symbols} symbols from \`ui-modules\` in ${inventory.uiModules.files} files; the host has no \`ui-modules\`, so each page rebuilds them from \`erxes-ui\` (members through its \`SelectMember\` and \`MemberInline\`, other records through \`EntityPicker\`). erxes-ui's own old-to-new component table is \`packages/ui/MIGRATION.md\` in erxes (branch \`postgre\`).`,
   `GraphQL types (${inventory.graphql.types.length}) are listed in \`migration/inventory.json\` for reference; procedures replace them.`,
   '',
 ];

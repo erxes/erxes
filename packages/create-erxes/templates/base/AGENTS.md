@@ -13,9 +13,7 @@ are the reference feature: copy their shape for a new one.
 ## This repo
 
 - `vp run check` runs the escape guard, format, lint, types, knip, the docs guard
-  and `pnpm check:generated`. The drift check compares migrations with the schema
-  and `api/openapi.json` with the router's request and response schemas. After a
-  deliberate contract change, run `pnpm openapi` and commit the document.
+  and `pnpm check:generated`, which compares the migrations with the schema.
 - Other gates: `vp run test` on real Postgres via `DATA_TEST_URL`,
   `pnpm check:rls`, `pnpm build`. `vp run fix` formats and fixes lint.
 - Core finds the plugin by these names, so they stay fixed: plugin `__id__`,
@@ -26,8 +24,9 @@ are the reference feature: copy their shape for a new one.
 - The lint rules are `@erxes/lint`'s preset (`vite.config.ts`). It,
   `tools/test/no-skips.ts` and `tools/check-rls.sql` come from core unchanged, as
   does the quality section above. Change them in core.
-- The plugin reaches core only through `@erxes/plugin-sdk` (`api/src/core.ts`)
-  and the UI's `pluginFetch`. It never reads `core_*` tables or imports core code.
+- The API reaches core through `@erxes/plugin-sdk` (`api/src/core.ts`), the UI
+  through `@erxes/core-contract/client` with the member's session. Neither reads
+  `core_*` tables or imports core's app code.
 - Members are signed in by core: the UI sends a session token, the API checks it
   with `verifyPluginSession`. There is no public route yet, because core can't
   tell a public request's organisation.

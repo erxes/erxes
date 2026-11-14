@@ -3,7 +3,7 @@ import { Button, Spinner } from 'erxes-ui';
 import { useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { loadedPluginComponent, loadPluginComponent } from './remotes';
 import type { LoadedPlugin } from './types';

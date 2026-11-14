@@ -1,6 +1,6 @@
 import type { Import, TransferRecordType } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 /** Still working in the background: poll until it settles. */
 const BUSY: Import['status'][] = ['parsing', 'checking', 'running'];

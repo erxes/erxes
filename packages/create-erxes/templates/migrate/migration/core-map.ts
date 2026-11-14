@@ -3,7 +3,8 @@
 // apps/api/src/http/access.ts. Old calls run on the server, so:
 //
 //   sdk           core.forOrg(orgId).<procedure> from the API, with the scope named
-//   contract      no plugin scope; the UI calls core with the member's own session
+//   contract      no plugin scope; the UI calls core with the member's own session,
+//                 through orpc from @erxes/core-contract/client
 //   plugin-owned  the plugin keeps it in its own tables or code
 //   gap           core offers no equivalent yet: file it, don't work around it
 

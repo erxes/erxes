@@ -14,7 +14,7 @@ import { Button, Form, Input, Spinner, Textarea, Upload, useToast } from 'erxes-
 import type { ReactNode } from 'react';
 import { type UseFormReturn, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { PROFILE_FIELDS, type ProfileValues, patchOf, valuesOf } from './profileValues';
 import { Section } from './Section';
 

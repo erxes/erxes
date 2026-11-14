@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 /**
  * A field conditions and placeholders can use: a record's (from the API) or

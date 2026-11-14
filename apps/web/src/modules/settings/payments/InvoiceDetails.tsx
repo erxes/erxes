@@ -16,7 +16,7 @@ import {
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { amountStep, fromAmountInput, toAmountInput, useMoney } from '~/lib/money';
 import { useCan } from '~/modules/auth/session';
 import { STATUS_BADGE } from './invoiceStatus';

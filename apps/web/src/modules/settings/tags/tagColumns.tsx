@@ -14,7 +14,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { TagDot } from '~/modules/tags/TagDot';
 import { TAG_COLORS } from '~/modules/tags/useTags';
 

@@ -1,10 +1,10 @@
 import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Input, InputGroup, PageSubHeader, Select } from 'erxes-ui';
+import { Input, InputGroup, memberName, PageSubHeader, Select } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
-import { memberName, pluginLabel } from '~/lib/members';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { pluginLabel } from '~/lib/members';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { AREAS, type Filters } from './auditFilters';
 

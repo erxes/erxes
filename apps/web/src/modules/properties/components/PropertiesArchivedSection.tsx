@@ -3,7 +3,7 @@ import { IconRestore, IconTrash } from '@tabler/icons-react';
 import { Badge, Button, Collapsible } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { archiveTargetState } from '../states';
 import { useAllFields, useFieldGroups } from '../useFields';
 import { useCanManageFields, usePropertyRestore } from '../usePropertyMutations';

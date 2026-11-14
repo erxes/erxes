@@ -1,15 +1,10 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { IconBuilding, IconUserCheck } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Combobox, Dialog, Label, Popover, Spinner } from 'erxes-ui';
+import { Button, Combobox, Dialog, Label, Popover, SelectMember, Spinner } from 'erxes-ui';
 import { useId, useState } from 'react';
-import { messageOf, orpc } from '~/lib/api';
+import { memberQueries, messageOf, orpc } from '@erxes/core-contract/client';
 import { SelectContactContent } from '~/modules/contacts/components/ContactPicker';
-import {
-  SelectMemberContent,
-  SelectMemberProvider,
-  SelectMemberValue,
-} from '~/modules/contacts/components/SelectMemberProvider';
 import { useLeadsT } from './i18n';
 import { type LeadRecord, useConvertLeads } from './useLeads';
 
@@ -35,27 +30,17 @@ const OwnerPicker = ({
 }) => {
   const t = useLeadsT();
   const id = useId();
-  const [open, setOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{t('actions.owner')}</Label>
-      <SelectMemberProvider
+      <SelectMember.Field
+        id={id}
         value={value}
-        onValueChange={(next) => onChange(typeof next === 'string' ? next : undefined)}
-        setOpen={setOpen}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Combobox.Trigger id={id} className="w-full">
-            <SelectMemberValue
-              placeholder={leads.length === 1 ? t('actions.keep-owner') : t('actions.keep-owners')}
-            />
-          </Combobox.Trigger>
-          <Combobox.Content>
-            <SelectMemberContent />
-          </Combobox.Content>
-        </Popover>
-      </SelectMemberProvider>
+        members={memberQueries}
+        onValueChange={(next) => onChange(next ?? undefined)}
+        placeholder={leads.length === 1 ? t('actions.keep-owner') : t('actions.keep-owners')}
+      />
     </div>
   );
 };

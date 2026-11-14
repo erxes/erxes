@@ -14,7 +14,7 @@ import { type ReactNode, useState } from 'react';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { usePageHotkey } from '~/lib/usePageHotkey';
 import { isRule } from '~/modules/automations/builder/conditionOperators';
 import { type ListField, useFilterFields, useListQuery } from '../useViews';

@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import {
   COMPANY_BUSINESS_TYPES,
   DEFAULT_COMPANY_INDUSTRY_TYPES,

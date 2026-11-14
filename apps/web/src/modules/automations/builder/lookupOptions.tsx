@@ -1,6 +1,6 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { messageOf, orpc } from '~/lib/api';
-import { memberName } from '~/lib/members';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { memberName } from 'erxes-ui';
 import { tagsQuery } from '~/modules/tags/useTags';
 
 /** Team members (any status) as picker options. */

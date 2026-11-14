@@ -9,12 +9,11 @@ const config: KnipConfig = {
       ignoreDependencies: ['tsrs'],
     },
     api: {
-      entry: ['scripts/*.ts'],
-      project: ['src/**/*.ts', 'scripts/**/*.ts'],
+      project: ['src/**/*.ts'],
     },
     ui: {
       entry: ['src/config.tsx', 'src/__Pascal__.tsx'],
-      project: ['src/**/*.{ts,tsx}'],
+      project: ['src/**/*.{ts,tsx,css}'],
     },
   },
 };

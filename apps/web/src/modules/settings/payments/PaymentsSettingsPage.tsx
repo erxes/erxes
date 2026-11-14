@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useMoney } from '~/lib/money';
 import { useCan, useSession } from '~/modules/auth/session';
 import { AddGateway } from './AddGateway';

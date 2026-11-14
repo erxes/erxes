@@ -1,17 +1,12 @@
 import type { User } from '@erxes/core-contract';
 import { IconId, IconLink } from '@tabler/icons-react';
-import { Skeleton, Spinner } from 'erxes-ui';
+import { memberName, Skeleton, Spinner } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { MemberAvatar } from '../record/TeamMemberColumns';
-import {
-  memberName,
-  useMemberPermissions,
-  useTeamMember,
-  useTeamMemberEdit,
-} from '../useTeamMembers';
+import { useMemberPermissions, useTeamMember, useTeamMemberEdit } from '../useTeamMembers';
 import { MemberDetailEmptyState, MemberDetailErrorState } from './MemberDetailStates';
 import { MemberLinks } from './MemberLinks';
 import { MemberPanelActions } from './MemberPanelActions';

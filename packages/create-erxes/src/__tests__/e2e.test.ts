@@ -8,7 +8,10 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { x } from 'tinyexec';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import contractPackage from '../../../contract/package.json' with { type: 'json' };
 import lint from '../../../lint/package.json' with { type: 'json' };
+import sdk from '../../../plugin-sdk/package.json' with { type: 'json' };
+import ui from '../../../ui/package.json' with { type: 'json' };
 
 const packs = resolve(process.env.CREATE_ERXES_PACKS ?? '');
 const repo = resolve(import.meta.dirname, '../../../..');
@@ -37,27 +40,27 @@ const tarball = async (name: string) => {
   return join(packs, file);
 };
 
-/** Points the plugin's core packages at the tarballs; plugin-sdk's own core-contract too. */
+/**
+ * Points the plugin's core packages, which the CLI pins to the versions it was packed with, at
+ * the tarballs; plugin-sdk's own core-contract too.
+ */
 const usePacks = async (dir: string) => {
   const contract = `file:${await tarball('erxes-core-contract')}`;
+  const pinnedContract = `"@erxes/core-contract": "${contractPackage.version}"`;
 
   const replacements: [string, string, string][] = [
+    ['api/package.json', pinnedContract, `"@erxes/core-contract": "${contract}"`],
+    ['ui/package.json', pinnedContract, `"@erxes/core-contract": "${contract}"`],
     [
       'api/package.json',
-      '"@erxes/core-contract": "v2-next"',
-      `"@erxes/core-contract": "${contract}"`,
-    ],
-    [
-      'api/package.json',
-      '"@erxes/plugin-sdk": "v2-next"',
+      `"@erxes/plugin-sdk": "${sdk.version}"`,
       `"@erxes/plugin-sdk": "file:${await tarball('erxes-plugin-sdk')}"`,
     ],
     [
       'ui/package.json',
-      '"erxes-ui": "npm:@erxes/ui@v2-next"',
+      `"erxes-ui": "npm:@erxes/ui@${ui.version}"`,
       `"erxes-ui": "file:${await tarball('erxes-ui')}"`,
     ],
-    // The CLI pins the @erxes/lint it was packed with.
     [
       'package.json',
       `"@erxes/lint": "${lint.version}"`,
@@ -185,13 +188,6 @@ describe.each([
       'no file or folder api/src/missing.ts',
     );
     await writeFile(agents, docs);
-
-    const contract = join(dir, 'api/openapi.json');
-    const document = await readFile(contract, 'utf8');
-
-    await writeFile(contract, document.replace('"v1"', '"drift"'));
-    await expect(run('pnpm', ['check:generated'], dir)).rejects.toThrow('Contract drift');
-    await writeFile(contract, document);
 
     const schema = join(dir, 'api/src/db/schema.ts');
     const tables = await readFile(schema, 'utf8');

@@ -10,7 +10,7 @@ import { useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { automationQuery } from './automationQueries';
 
 interface Draft {

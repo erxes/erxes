@@ -1,7 +1,7 @@
 import { cn, Combobox, Command, Popover } from 'erxes-ui';
 import { type ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useProductCategories } from './useProductCategories';
 
 const NONE = '__none__';

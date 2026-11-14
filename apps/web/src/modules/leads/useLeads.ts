@@ -2,7 +2,7 @@ import type { Customer, LeadRecordType, LeadStage, LeadStageKind } from '@erxes/
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { LEADS_NS } from './i18n';
 
 /** What lead screens need of a person or a company (both have it). */

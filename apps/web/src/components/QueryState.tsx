@@ -2,7 +2,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { Button, cn, Spinner } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 
 type QueryStateProps<T> = {
   query: UseQueryResult<T>;
