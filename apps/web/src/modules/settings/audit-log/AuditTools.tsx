@@ -5,6 +5,7 @@ import { Button, Input, Popover, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
+import { downloadText } from '~/lib/download';
 
 const JWKS = `${CORE_API_PREFIX}/.well-known/jwks.json`;
 const PAGE = 1000;
@@ -28,16 +29,11 @@ const downloadCheckpoints = async () => {
     if (data.length < PAGE || after === undefined) break;
   }
 
-  const blob = new Blob([JSON.stringify({ jwks: JWKS, checkpoints: all }, null, 2)], {
-    type: 'application/json',
-  });
-
-  const link = document.createElement('a');
-
-  link.href = URL.createObjectURL(blob);
-  link.download = `audit-checkpoints-${new Date().toISOString().slice(0, 10)}.json`;
-  link.click();
-  URL.revokeObjectURL(link.href);
+  downloadText(
+    `audit-checkpoints-${new Date().toISOString().slice(0, 10)}.json`,
+    JSON.stringify({ jwks: JWKS, checkpoints: all }, null, 2),
+    'application/json',
+  );
 };
 
 const DownloadCheckpoints = () => {
