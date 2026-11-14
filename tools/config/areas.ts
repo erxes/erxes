@@ -1,6 +1,7 @@
 // What each part of the repo adds to the rules everyone gets: its runtime, React and
 // accessibility in the browser, and the rules a part has adopted so far.
 import type { OxlintConfig } from 'vite-plus/lint';
+import { browserRules } from './rules';
 
 export const areas = [
   {
@@ -9,6 +10,7 @@ export const areas = [
       'packages/db/**',
       'packages/plugin-sdk/**',
       'packages/payment-gateways/**',
+      'packages/create-erxes/**',
       '{tools,e2e}/**',
     ],
     env: { node: true },
@@ -19,6 +21,8 @@ export const areas = [
       'apps/core-api/src/config.ts',
       'apps/core-api/scripts/**',
       'apps/core-api/src/__tests__/**',
+      'packages/create-erxes/src/existing-plugins.ts',
+      'packages/create-erxes/src/__tests__/**',
       'packages/db/drizzle.config.ts',
       'apps/core-ui/rsbuild.config.ts',
       '{tools,e2e}/**',
@@ -30,21 +34,7 @@ export const areas = [
     files: ['apps/core-ui/src/**', 'packages/ui/**'],
     plugins: ['react', 'jsx-a11y'],
     env: { browser: true },
-    rules: {
-      'react/rules-of-hooks': 'error',
-      'react/exhaustive-deps': 'error',
-      'react/no-unstable-nested-components': 'error',
-      'react/purity': 'error',
-      'react/refs': 'error',
-      'react/immutability': 'error',
-      'react/set-state-in-effect': 'error',
-      'react/no-array-index-key': 'error',
-      'react/no-danger': 'error',
-      'react/iframe-missing-sandbox': 'error',
-      // The automatic JSX runtime (jsx: react-jsx) needs no React in scope.
-      'react/react-in-jsx-scope': 'off',
-      'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],
-    },
+    rules: browserRules,
   },
   {
     // The browser's console is where a page's problems show up.

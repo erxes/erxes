@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U ci" --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Migrations match the Drizzle schema
+        run: |
+          pnpm db:check
+          pnpm db:generate
+          if [ -n "$(git status --porcelain -- api/drizzle)" ]; then
+            echo 'Schema changed without a migration: run pnpm db:generate and commit api/drizzle'
+            exit 1
+          fi
+      - run: pnpm exec vp run check
+      - run: pnpm exec vp run test
+        env:
+          DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
+      # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
+      - run: pnpm check:rls
+        env:
+          DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
+      - run: pnpm image:context
+      - run: docker build --build-arg VERSION=${{ github.sha }} -t __id__-plugin .

@@ -1,0 +1,27 @@
+{
+  "name": "@__id__/plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "__description__",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter @__id__/api build && pnpm --filter @__id__/ui build",
+    "db:generate": "pnpm --filter @__id__/api db:generate",
+    "db:check": "pnpm --filter @__id__/api db:check",
+    "db:migrate": "pnpm --filter @__id__/api db:migrate",
+    "check:rls": "bash tools/check-rls.sh",
+    "dev:api": "pnpm --filter @__id__/api dev",
+    "dev:ui": "pnpm --filter @__id__/ui dev",
+    "image:context": "pnpm build && rm -rf .runtime && pnpm --filter @__id__/api deploy --prod .runtime"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsrs": "0.25.0-ts7.1.0-beta",
+    "typescript": "7.0.2",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=26"
+  },
+  "packageManager": "pnpm@__pnpmVersion__"
+}

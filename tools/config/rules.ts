@@ -62,3 +62,20 @@ export const rules = {
   'typescript/consistent-return': 'off',
   'typescript/switch-exhaustiveness-check': ['error', { considerDefaultExhaustiveForUnions: true }],
 } satisfies OxlintConfig['rules'];
+
+/** What browser code adds, in an override that enables the `react` and `jsx-a11y` plugins. */
+export const browserRules = {
+  'react/rules-of-hooks': 'error',
+  'react/exhaustive-deps': 'error',
+  'react/no-unstable-nested-components': 'error',
+  'react/purity': 'error',
+  'react/refs': 'error',
+  'react/immutability': 'error',
+  'react/set-state-in-effect': 'error',
+  'react/no-array-index-key': 'error',
+  'react/no-danger': 'error',
+  'react/iframe-missing-sandbox': 'error',
+  // The automatic JSX runtime (jsx: react-jsx) needs no React in scope.
+  'react/react-in-jsx-scope': 'off',
+  'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],
+} satisfies OxlintConfig['rules'];

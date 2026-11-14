@@ -18,7 +18,13 @@ const git = (...args: string[]) =>
 
 // Untracked files count too, so a doc may name a file that isn't committed yet.
 const tracked = git('ls-files', '--cached', '--others', '--exclude-standard');
-const docs = tracked.filter((file) => /(^|\/)(AGENTS|SKILL)\.md$/.test(file));
+
+// create-erxes's templates are a plugin's docs: their names exist in the plugin it generates.
+const docs = tracked.filter(
+  (file) =>
+    /(^|\/)(AGENTS|SKILL)\.md$/.test(file) && !file.startsWith('packages/create-erxes/templates/'),
+);
+
 const basenames = new Set(tracked.map((file) => file.split('/').at(-1)));
 
 /** Every word in tracked code, so a doc's `name()` must be one the code has. */

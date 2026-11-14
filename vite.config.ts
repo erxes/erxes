@@ -28,6 +28,9 @@ const localTestUrl = existsSync(localEnv)
 
 if (localTestUrl) process.env.DATA_TEST_URL ??= localTestUrl;
 
+// create-erxes's end-to-end test, a project of its own.
+const e2e = 'src/__tests__/e2e.test.ts';
+
 export default defineConfig({
   run: {
     tasks: {
@@ -37,7 +40,10 @@ export default defineConfig({
         cache: tracked,
       },
       fix: { command: `${tsrs} vp check --fix`, cache: false },
-      test: { command: 'vp test run', cache: { ...tracked, env: ['DATA_TEST_URL'] } },
+      test: {
+        command: 'vp test run',
+        cache: { ...tracked, env: ['DATA_TEST_URL', 'CREATE_ERXES_PACKS'] },
+      },
       // A Postgres, API and UI for this checkout (tools/dev-stack.ts), and what it needs.
       'dev:stack': { command: 'node tools/dev-stack.ts', cache: false },
       doctor: { command: 'node tools/doctor.ts', cache: false },
@@ -122,6 +128,30 @@ export default defineConfig({
         root: 'tools/lint',
         test: { name: 'lint', include: ['**/*.test.ts'], environment: 'node' },
       },
+      {
+        root: 'packages/create-erxes',
+        test: {
+          name: 'create-erxes',
+          include: ['src/**/*.test.ts'],
+          exclude: [...configDefaults.exclude, e2e],
+          environment: 'node',
+        },
+      },
+      // Generates plugins with the packed CLI and runs their gates (CI's packages job): only
+      // with CREATE_ERXES_PACKS, the directory of core's `pnpm pack` tarballs.
+      ...(process.env.CREATE_ERXES_PACKS
+        ? [
+            {
+              root: 'packages/create-erxes',
+              test: {
+                name: 'create-erxes-e2e',
+                include: [e2e],
+                environment: 'node',
+                hookTimeout: 300_000,
+              },
+            },
+          ]
+        : []),
     ],
   },
 });

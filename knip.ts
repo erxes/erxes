@@ -36,6 +36,11 @@ const config: KnipConfig = {
     'packages/plugin-sdk': {
       project: ['src/**/*.ts'],
     },
+    // templates/ are the files a new plugin starts from, not this package's code.
+    'packages/create-erxes': {
+      project: ['src/**/*.ts', 'scripts/**/*.ts'],
+      ignore: ['templates/**'],
+    },
     // erxes-ui is shared with plugin UIs: every file under
     // src/ is a public entry (package.json `exports`), so their exports count as used.
     'packages/ui': {
