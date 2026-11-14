@@ -194,7 +194,7 @@ export const TwoFactorSection = () => {
       <div className="flex items-center gap-2">
         <IconShieldLock className="size-5" />
         <span className="text-sm font-medium">{t('two-factor', 'Two-factor sign-in')}</span>
-        {user.twoFactorEnabled ? (
+        {user.totpEnabledAt ? (
           <Badge variant="success">{t('on', 'On')}</Badge>
         ) : (
           <Badge variant="secondary">{t('off', 'Off')}</Badge>
@@ -207,7 +207,7 @@ export const TwoFactorSection = () => {
         )}
       </p>
       {codes && <RecoveryCodes codes={codes} />}
-      {!user.twoFactorEnabled && !setup && (
+      {!user.totpEnabledAt && !setup && (
         <Button variant="outline" disabled={start.isPending} onClick={() => start.mutate()}>
           {t('two-factor-start', 'Set up')}
         </Button>
@@ -221,7 +221,7 @@ export const TwoFactorSection = () => {
           }}
         />
       )}
-      {user.twoFactorEnabled && <EnabledActions onCodes={setCodes} />}
+      {user.totpEnabledAt && <EnabledActions onCodes={setCodes} />}
     </div>
   );
 };

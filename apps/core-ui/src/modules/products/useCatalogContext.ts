@@ -10,8 +10,8 @@ export const useInstalledPlugins = () => {
   const plugins = useMemo(
     () =>
       (query.data?.data ?? [])
-        .filter((plugin) => plugin.installed)
-        .map(({ name, title }) => ({ name, title })),
+        .filter((plugin) => plugin.installation?.status === 'active')
+        .map(({ name, manifest }) => ({ name, title: manifest?.title ?? name })),
     [query.data],
   );
 

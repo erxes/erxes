@@ -73,7 +73,8 @@ export const timelineConsumer: EventConsumer = {
           link:
             event.link ??
             `/contacts/${subjectType === 'customer' ? 'customers' : 'companies'}/${subjectId}`,
-          entity: { type: event.entityType ?? subjectType, id: event.entityId ?? subjectId },
+          entityType: event.entityType ?? subjectType,
+          entityId: event.entityId ?? subjectId,
           data: { targetType: subjectType, targetId: subjectId },
           actorUserId: actorUserOf(event),
           dedupeKey: `event:${event.id}:owner`,
@@ -101,10 +102,8 @@ export const notificationsConsumer: EventConsumer = {
         body: request.body,
         link: request.link ?? event.link ?? undefined,
         priority: request.priority,
-        entity:
-          event.entityType && event.entityId
-            ? { type: event.entityType, id: event.entityId }
-            : undefined,
+        entityType: event.entityType ?? undefined,
+        entityId: event.entityId ?? undefined,
         actorUserId: actorUserOf(event),
         dedupeKey: `event:${event.id}`,
       }),

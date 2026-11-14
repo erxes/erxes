@@ -5,27 +5,34 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { NotificationDelivery } from './values';
 import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
-import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
+import { AppLink, DedupeKey, EntityType, EventType } from './platform';
 
 export const Notification = createSelectSchema(notifications, {
   id: Id,
   data: z.record(z.string(), z.unknown()),
+  readAt: isoDate,
   createdAt: isoDate,
-})
-  .pick({
-    id: true,
-    /** `core` or the plugin that sent it. */
-    source: true,
-    kind: true,
-    title: true,
-    body: true,
-    link: true,
-    /** Details to show when opened; core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
-    data: true,
-    priority: true,
-    createdAt: true,
-  })
-  .extend({ entity: EntityRef.nullable(), actor: ActorRef, read: z.boolean() });
+}).pick({
+  id: true,
+  /** `core` or the plugin that sent it. */
+  source: true,
+  kind: true,
+  title: true,
+  body: true,
+  link: true,
+  /** Details to show when opened; core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
+  data: true,
+  priority: true,
+  /** The plugin's own record it is about. */
+  entityType: true,
+  entityId: true,
+  /** Who it is from: a team member (`actorId` = user id), a plugin (its name) or `system`. */
+  actorType: true,
+  actorId: true,
+  /** Null while unread. */
+  readAt: true,
+  createdAt: true,
+});
 
 export type Notification = z.infer<typeof Notification>;
 
@@ -40,6 +47,8 @@ export const NotificationInput = createUpdateSchema(notifications, {
       .refine((value) => JSON.stringify(value).length <= 8_000, 'at most 8 KB'),
   priority: z.enum(NOTIFICATION_PRIORITIES).default('normal'),
   dedupeKey: DedupeKey.optional(),
+  entityType: EntityType.optional(),
+  entityId: Id.optional(),
 })
   .pick({
     /** Must start with the plugin's name: `hr.leave.requested`. */
@@ -52,15 +61,21 @@ export const NotificationInput = createUpdateSchema(notifications, {
     priority: true,
     /** Retry-safe: one notification per recipient and key. */
     dedupeKey: true,
+    /** The plugin's own record it is about. */
+    entityType: true,
+    entityId: true,
   })
   .required({ kind: true, title: true })
   .extend({
     /** Team members to notify (active members of the organisation). */
     userIds: z.array(Id).min(1).max(500),
-    entity: EntityRef.optional(),
     /** The team member who caused it, if any (shown as the sender). */
     actorUserId: Id.optional(),
-  });
+  })
+  .refine(
+    (value) => (value.entityType === undefined) === (value.entityId === undefined),
+    'entityType and entityId go together',
+  );
 
 export type NotificationInput = z.infer<typeof NotificationInput>;
 

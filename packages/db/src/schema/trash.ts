@@ -27,6 +27,10 @@ export interface TrashSnapshot {
   links: { customerId: string; companyId: string }[];
   /** Its timeline entries (`core_activities` rows). */
   activities: SnapshotRow[];
+  /** The notes among those entries (`core_notes` rows), their earlier wordings and the entries' reactions. */
+  notes: SnapshotRow[];
+  noteVersions: SnapshotRow[];
+  reactions: (Record<string, unknown> & { activityId: string; userId: string })[];
 }
 
 /**

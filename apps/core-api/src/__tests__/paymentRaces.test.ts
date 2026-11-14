@@ -8,7 +8,8 @@ import { useTwoOrgs } from './support';
 const order = (id: string) => ({
   amount: 5000,
   description: `Order #${id}`,
-  reference: { type: 'order', id },
+  referenceType: 'order',
+  referenceId: id,
 });
 
 describe('payments under concurrent calls', { timeout: 120_000 }, () => {
@@ -52,6 +53,6 @@ describe('payments under concurrent calls', { timeout: 120_000 }, () => {
 
     const events = await t.owner().events.list({ type: 'core.payment.paid' });
 
-    expect(events.data.filter((event) => event.entity?.id === id)).toHaveLength(1);
+    expect(events.data.filter((event) => event.entityId === id)).toHaveLength(1);
   });
 });

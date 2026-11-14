@@ -45,7 +45,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     });
 
     expect(enabled.recoveryCodes).toHaveLength(10);
-    expect((await owner.api.auth.me({})).user.twoFactorEnabled).toBe(true);
+    expect((await owner.api.auth.me({})).user.totpEnabledAt).not.toBeNull();
 
     // The password alone no longer signs in, and no session is set.
     const first = server.browser();
@@ -86,7 +86,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     });
     await recovered.api.auth.twoFactorDisable({ password: credentials.password });
     expect(await server.browser().api.auth.signIn(credentials)).toMatchObject({
-      user: { twoFactorEnabled: false },
+      user: { totpEnabledAt: null },
     });
   });
 });

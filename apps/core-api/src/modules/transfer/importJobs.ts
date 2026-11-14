@@ -119,7 +119,8 @@ const finish = async (tx: Db, imp: ImportRow, processed: number, dry: boolean) =
       title: `Import of ${imp.fileName} finished`,
       body: `${counts.create} created, ${counts.update} updated, ${counts.skip} skipped, ${counts.error} with errors`,
       link: `/contacts/settings/import-export?import=${imp.id}`,
-      entity: { type: 'import', id: imp.id },
+      entityType: 'import',
+      entityId: imp.id,
     }),
   ).catch((error: unknown) => log.warn({ err: error }, 'could not tell the importer'));
 };

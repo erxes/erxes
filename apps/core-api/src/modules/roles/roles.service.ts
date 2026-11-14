@@ -13,14 +13,12 @@ import {
   roles,
   users,
 } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, ne, notInArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-
-type RoleRow = typeof roles.$inferSelect;
 
 /** The roles every organisation starts with. */
 const BUILTIN_ROLES = [
@@ -45,7 +43,8 @@ const BUILTIN_ROLES = [
 ] as const;
 
 /** Owner and Admin are fixed: their meaning is "everything". */
-const FIXED = new Set(['owner', 'admin']);
+const FIXED_ROLES = ['owner', 'admin'];
+const FIXED = new Set(FIXED_ROLES);
 
 export const seedRoles = (tx: Db, orgId: string) =>
   tx
@@ -60,11 +59,18 @@ export const seedRoles = (tx: Db, orgId: string) =>
     )
     .onConflictDoNothing();
 
-const toRoleDto = (row: RoleRow, members: number) => ({
-  ...row,
-  editable: !FIXED.has(row.key),
-  members,
-});
+/** Roles with whether they can be edited and how many members (not disabled) hold them. */
+const selectRoles = (client: Db) =>
+  client
+    .select({
+      ...getTableColumns(roles),
+      editable: sql<boolean>`${notInArray(roles.key, FIXED_ROLES)}`,
+      members: client.$count(users, and(eq(users.role, roles.key), ne(users.status, 'disabled'))),
+    })
+    .from(roles);
+
+const roleWithMembers = async (client: Db, key: string) =>
+  oneRow(await selectRoles(client).where(eq(roles.key, key)).limit(1));
 
 /** Every action a role can hold: core's, and the installed plugins' (from their manifests). */
 export const permissionCatalog = async (client: Db): Promise<PermissionInfo[]> => {
@@ -105,23 +111,16 @@ export const effectivePermissions = async (client: Db, member: Parameters<typeof
     .map((permission) => permission.action);
 };
 
-export const listRoles = async (client: Db) => {
-  const rows = await wholeList((limit) =>
-    client
-      .select({
-        role: roles,
-        members: sql<number>`(select count(*)::int from ${users} u where u.org_id = ${roles.orgId} and u.role = ${roles.key} and u.status <> 'disabled')`,
-      })
-      .from(roles)
+export const listRoles = async (client: Db) => ({
+  data: await wholeList((limit) =>
+    selectRoles(client)
       .orderBy(
         sql`case ${roles.key} when 'owner' then 0 when 'admin' then 1 when 'member' then 2 else 3 end`,
         roles.name,
       )
       .limit(limit),
-  );
-
-  return { data: rows.map((row) => toRoleDto(row.role, row.members)) };
-};
+  ),
+});
 
 const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
 
@@ -242,7 +241,7 @@ export const createRole = async (input: {
     metadata: { permissions },
   });
 
-  return toRoleDto(row, 0);
+  return roleWithMembers(tx, row.key);
 };
 
 export const updateRole = async (
@@ -285,12 +284,7 @@ export const updateRole = async (
     },
   });
 
-  const [count] = await tx
-    .select({ members: sql<number>`count(*)::int` })
-    .from(users)
-    .where(eq(users.role, key));
-
-  return toRoleDto(row, count?.members ?? 0);
+  return roleWithMembers(tx, key);
 };
 
 export const removeRole = async (key: string) => {

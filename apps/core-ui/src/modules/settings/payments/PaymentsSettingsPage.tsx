@@ -41,7 +41,7 @@ const InvoiceRow = ({ invoice, onOpen }: { invoice: Invoice; onOpen: () => void 
         )}
         <span className="truncate">{invoice.description}</span>
         <span className="ml-auto text-xs text-muted-foreground">
-          {invoice.source} · {invoice.reference.type} {invoice.reference.id}
+          {invoice.source} · {invoice.referenceType} {invoice.referenceId}
         </span>
       </button>
     </li>

@@ -107,7 +107,11 @@ const visibleSettings = (settings: GatewayConfig) =>
     ? { invoiceCode: settings.invoiceCode, sandbox: settings.sandbox, clientId: settings.clientId }
     : {};
 
-const toGatewayDto = (row: GatewayRow) => ({ ...row, settings: visibleSettings(configOf(row)) });
+/** The row with the settings a member may see; the sealed credentials stay out. */
+const withVisibleSettings = (row: GatewayRow) => ({
+  ...row,
+  settings: visibleSettings(configOf(row)),
+});
 
 const gatewayOrThrow = async (client: Db, id: string) => {
   const [row] = await client
@@ -138,7 +142,7 @@ export const listGateways = async (client: Db) => ({
     await wholeList((limit) =>
       client.select().from(paymentGateways).orderBy(paymentGateways.createdAt).limit(limit),
     )
-  ).map(toGatewayDto),
+  ).map(withVisibleSettings),
 });
 
 export const addGateway = async (client: Db, input: { name: string; config: GatewayConfig }) => {
@@ -167,7 +171,7 @@ export const addGateway = async (client: Db, input: { name: string; config: Gate
     metadata: { kind: input.config.kind, ...visibleSettings(input.config) },
   });
 
-  return toGatewayDto(row);
+  return withVisibleSettings(row);
 };
 
 export const updateGateway = async (
@@ -204,7 +208,7 @@ export const updateGateway = async (
     metadata: { credentialsChanged: Boolean(input.config), status: input.status },
   });
 
-  return toGatewayDto(row);
+  return withVisibleSettings(row);
 };
 
 export const removeGateway = async (client: Db, id: string) => {

@@ -80,7 +80,7 @@ describe('webhooks', () => {
       expect(hmacSha256(created.secret, `${time}.${first?.body}`, 'hex')).toBe(v1);
       expect(Delivered.parse(JSON.parse(first?.body ?? '{}')).data).toMatchObject({
         type: 'core.customer.created',
-        subject: { type: 'customer' },
+        subjectType: 'customer',
       });
 
       const log = await t.owner().webhooks.deliveries({ id: created.webhook.id });

@@ -1,11 +1,11 @@
 import type { LeadStageKind } from '@erxes/core-contract';
 import { companies, customers, type Db, leadStages, newId } from '@erxes/core-db';
-import { eq, max, sql } from 'drizzle-orm';
+import { and, asc, eq, getTableColumns, max, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { HttpError, notFound, pgCode } from '~/http/errors';
-import { setOrders } from '~/lib/rows';
+import { oneRow, setOrders } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { findStage, leadCounts, type StageRow, stagesOf } from './stages';
+import { findStage, type StageRow, stagesOf } from './stages';
 
 /**
  * Lead stages: where people who are not customers yet stand (New → Contacted →
@@ -26,28 +26,27 @@ export const seedLeadStages = async (tx: Db, orgId: string) => {
     .values(DEFAULT_LEAD_STAGES.map((stage, order) => ({ id: newId(), orgId, order, ...stage })));
 };
 
-type Counts = Map<string | null, number>;
+/** How many leads of a type stand in the stage now. */
+const leadsIn = (client: Db, table: typeof customers | typeof companies) =>
+  client.$count(table, and(eq(table.leadStageId, leadStages.id), eq(table.state, 'lead')));
 
-const toStageDto = (
-  stage: Pick<StageRow, 'id' | 'name' | 'kind' | 'color' | 'order'>,
-  people: Counts = new Map(),
-  companyLeads: Counts = new Map(),
-) => ({
-  ...stage,
-  leadCount: people.get(stage.id) ?? 0,
-  companyLeadCount: companyLeads.get(stage.id) ?? 0,
+/** Stages in order, with their people and company leads counted. */
+const stagesWithCounts = (client: Db) =>
+  client
+    .select({
+      ...getTableColumns(leadStages),
+      leadCount: leadsIn(client, customers),
+      companyLeadCount: leadsIn(client, companies),
+    })
+    .from(leadStages)
+    .orderBy(asc(leadStages.order), asc(leadStages.createdAt));
+
+const stageWithCounts = async (client: Db, id: string) =>
+  oneRow(await stagesWithCounts(client).where(eq(leadStages.id, id)).limit(1));
+
+export const listLeadStages = async (client: Db) => ({
+  data: await wholeList((limit) => stagesWithCounts(client).limit(limit)),
 });
-
-/** Leads per stage, people and companies (one after another: `client` may be a transaction). */
-const countsOf = async (client: Db) =>
-  [await leadCounts(client, 'customer'), await leadCounts(client, 'company')] as const;
-
-export const listLeadStages = async (client: Db) => {
-  const stages = await wholeList((limit) => stagesOf(client).limit(limit));
-  const counts = await countsOf(client);
-
-  return { data: stages.map((stage) => toStageDto(stage, ...counts)) };
-};
 
 const stageTaken = (error: unknown): never => {
   if (pgCode(error) === '23505')
@@ -81,7 +80,7 @@ export const createLeadStage = async (
   await client.insert(leadStages).values(stage).catch(stageTaken);
   await audit(client, 'lead_stage.created', stage);
 
-  return toStageDto(stage);
+  return stageWithCounts(client, stage.id);
 };
 
 /** Some stage of each kind a lead can be moved to must stay: at least one open one. */
@@ -117,7 +116,7 @@ export const updateLeadStage = async (
 
   await audit(client, 'lead_stage.updated', stage);
 
-  return toStageDto(stage, ...(await countsOf(client)));
+  return stageWithCounts(client, stage.id);
 };
 
 export const reorderLeadStages = async (client: Db, ids: string[]) => {

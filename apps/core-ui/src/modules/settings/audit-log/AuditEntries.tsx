@@ -63,10 +63,16 @@ const EntryRow = ({
   onToggle: () => void;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'audit-log' });
-  const who = actorLabel(entry.actor, members, t('deleted-member', 'A removed member'));
+
+  const who = actorLabel(
+    entry.actorType,
+    entry.actorId,
+    members,
+    t('deleted-member', 'A removed member'),
+  );
 
   const member =
-    entry.actor.type === 'user' && entry.actor.id ? members.get(entry.actor.id) : undefined;
+    entry.actorType === 'user' && entry.actorId ? members.get(entry.actorId) : undefined;
 
   const warning = isWarning(entry.action);
 
@@ -137,7 +143,7 @@ export const AuditTable = ({ entries, paging }: { entries: AuditEntry[]; paging:
   const [open, setOpen] = useState<string | null>(null);
 
   const members = useMembersById(
-    entries.map((entry) => (entry.actor.type === 'user' ? entry.actor.id : null)),
+    entries.map((entry) => (entry.actorType === 'user' ? entry.actorId : null)),
   );
 
   return (

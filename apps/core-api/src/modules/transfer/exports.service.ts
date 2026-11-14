@@ -282,7 +282,8 @@ const finishExport = async (tx: Db, built: BuiltExport, fileId: string) => {
         ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.`
         : file.name,
       link: `/contacts/settings/import-export?export=${row.id}`,
-      entity: { type: 'export', id: row.id },
+      entityType: 'export',
+      entityId: row.id,
     }),
   ).catch((error: unknown) => log.warn({ err: error }, 'could not tell the exporter'));
 };

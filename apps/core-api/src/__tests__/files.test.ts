@@ -41,7 +41,7 @@ describe('files', () => {
 
     const done = await t.member().files.complete({ id: started.file.id });
 
-    expect(done).toMatchObject({ status: 'ready', uploadedBy: { type: 'user', id: t.ids.member } });
+    expect(done).toMatchObject({ status: 'ready', actorType: 'user', actorId: t.ids.member });
 
     const got = await t.member().files.get({ id: done.id });
     const download = await fetch(t.url(got.downloadUrl ?? ''));
@@ -180,7 +180,8 @@ describe('files', () => {
 
     expect(viaPlugin.file).toMatchObject({
       source: 'hr',
-      uploadedBy: { type: 'plugin', id: 'hr' },
+      actorType: 'plugin',
+      actorId: 'hr',
     });
   });
 });

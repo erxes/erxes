@@ -1,16 +1,13 @@
-import { FILE_STATUSES, FILE_STORAGES } from '@erxes/core-db/enums';
+import { FILE_STORAGES } from '@erxes/core-db/enums';
 import { files } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, IdList, isoDate } from './common';
-import { ActorRef } from './platform';
 
 export const FileInfo = createSelectSchema(files, {
   id: Id,
   size: () => z.int(),
-  /** Files being deleted are never listed. */
-  status: z.enum(FILE_STATUSES).exclude(['deleting']),
   createdAt: isoDate,
 })
   .pick({
@@ -19,17 +16,20 @@ export const FileInfo = createSelectSchema(files, {
     contentType: true,
     /** Bytes. */
     size: true,
+    /** `pending` until `complete`; files being deleted are never returned. */
     status: true,
     /** `core` or the plugin that uploaded it. */
     source: true,
+    /** Who uploaded it: a team member (`actorId` = user id), a plugin (its name) or `system`. */
+    actorType: true,
+    actorId: true,
     createdAt: true,
   })
   .extend({
-    uploadedBy: ActorRef,
     /**
      * Stable address for signed-in members (`/core/v1/files/<id>/download`):
      * it checks the session, then redirects to a short-lived storage link.
-     * Use it for `<img src>` and links.
+     * Use it for `<img src>` and links. The query selects it with the row.
      */
     url: z.string(),
   });

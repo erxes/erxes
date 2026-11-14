@@ -1,4 +1,5 @@
-import { type Automation, AutomationDefinition } from '@erxes/core-contract';
+import type { Automation, AutomationDefinition } from '@erxes/core-contract';
+import { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
 import {
   automationRuns,
   automations,
@@ -7,7 +8,7 @@ import {
   type Db,
   newId,
 } from '@erxes/core-db';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -16,44 +17,24 @@ import { firstRunAt, triggerKey } from './triggers';
 
 type AutomationRow = typeof automations.$inferSelect;
 
-type Stats = Automation['stats'];
+const status = automationRuns.status;
 
-const noRuns = (): Stats => ({ running: 0, succeeded: 0, failed: 0 });
-
-const statsOf = async (client: Db, ids: string[]) => {
-  const stats = new Map<string, Stats>();
-
-  if (!ids.length) return stats;
-
-  const rows = await client
+/** Automations with how many of their runs are going, succeeded and failed (one pass over the runs). */
+const selectAutomations = (client: Db) => {
+  const stats = client
     .select({
-      automationId: automationRuns.automationId,
-      status: automationRuns.status,
-      count: sql<number>`count(*)::int`,
+      stats: sql`json_build_object(
+        'running', count(*) filter (where ${status} not in ${FINISHED_RUN_STATUSES}),
+        'succeeded', count(*) filter (where ${status} = 'succeeded'),
+        'failed', count(*) filter (where ${status} = 'failed'))`,
     })
     .from(automationRuns)
-    .where(inArray(automationRuns.automationId, ids))
-    .groupBy(automationRuns.automationId, automationRuns.status);
+    .where(eq(automationRuns.automationId, automations.id));
 
-  for (const row of rows) {
-    const entry = stats.get(row.automationId) ?? noRuns();
-
-    if (row.status === 'running' || row.status === 'waiting') entry.running += row.count;
-
-    if (row.status === 'succeeded') entry.succeeded += row.count;
-
-    if (row.status === 'failed') entry.failed += row.count;
-    stats.set(row.automationId, entry);
-  }
-
-  return stats;
+  return client
+    .select({ ...getTableColumns(automations), stats: sql<Automation['stats']>`(${stats})` })
+    .from(automations);
 };
-
-const toAutomationDto = (row: AutomationRow, stats = noRuns()) => ({
-  ...row,
-  definition: AutomationDefinition.parse(row.definition),
-  stats,
-});
 
 export const findAutomation = async (client: Db, id: string) => {
   const [row] = await client.select().from(automations).where(eq(automations.id, id)).limit(1);
@@ -78,26 +59,21 @@ const publish = async (client: Db, row: AutomationRow, definition: AutomationDef
 
 export const listAutomations = async (client: Db, query: { status?: AutomationRow['status'] }) => {
   const rows = await wholeList((limit) =>
-    client
-      .select()
-      .from(automations)
+    selectAutomations(client)
       .where(query.status ? eq(automations.status, query.status) : undefined)
       .orderBy(desc(automations.updatedAt))
       .limit(limit),
   );
 
-  const stats = await statsOf(
-    client,
-    rows.map((row) => row.id),
-  );
-
-  return { data: rows.map((row) => toAutomationDto(row, stats.get(row.id))) };
+  return { data: rows };
 };
 
 export const getAutomation = async (client: Db, id: string) => {
-  const row = await findAutomation(client, id);
+  const [row] = await selectAutomations(client).where(eq(automations.id, id)).limit(1);
 
-  return toAutomationDto(row, (await statsOf(client, [id])).get(id));
+  if (!row) throw notFound('Automation');
+
+  return row;
 };
 
 export const createAutomation = async (
@@ -165,7 +141,7 @@ export const updateAutomation = async (
 /** Checks the definition, publishes it as a new version and turns the automation on, acting as this member. */
 export const activateAutomation = async (client: Db, id: string) => {
   const row = await findAutomation(client, id);
-  const definition = AutomationDefinition.parse(row.definition);
+  const { definition } = row;
 
   await checkDefinition(client, definition);
 
@@ -234,9 +210,7 @@ export const listVersions = async (client: Db, id: string) => {
     .orderBy(desc(automationVersions.version))
     .limit(100);
 
-  return {
-    data: rows.map((row) => ({ ...row, definition: AutomationDefinition.parse(row.definition) })),
-  };
+  return { data: rows };
 };
 
 /** An older version becomes the working copy; an active automation publishes it at once. */
@@ -249,7 +223,5 @@ export const restoreVersion = async (client: Db, id: string, version: number) =>
 
   if (!row) throw notFound('Version');
 
-  return updateAutomation(client, id, {
-    definition: AutomationDefinition.parse(row.definition),
-  });
+  return updateAutomation(client, id, { definition: row.definition });
 };

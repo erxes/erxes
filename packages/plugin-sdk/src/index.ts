@@ -10,7 +10,7 @@
  * Payments (scopes `payments:write`, `payments:read`; subscribe to `core.payment.*`):
  *
  *   const invoice = await core.forOrg(orgId).payments.createInvoice({
- *     amount: 150000, description: 'Order #12', reference: { type: 'order', id: order.id },
+ *     amount: 150000, description: 'Order #12', referenceType: 'order', referenceId: order.id,
  *     metadata: { orderId: order.id }, dedupeKey: `order:${order.id}`,
  *   });                                   // show invoice.payment.qrImage / links to the payer
  *   app.post('/events', express.text({ type: '*\/*' }), async (req, res) => {

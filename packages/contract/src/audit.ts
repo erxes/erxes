@@ -5,31 +5,31 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AuditStreamFormat } from './values';
 import { cursorPageOf, CursorQuery, Id, isoDate, listOf } from './common';
-import { ActorRef } from './platform';
 
 export const AuditEntry = createSelectSchema(auditLogs, {
   id: Id,
   changes: () => z.record(z.string(), z.tuple([z.unknown(), z.unknown()])),
   metadata: () => z.record(z.string(), z.unknown()),
   createdAt: isoDate,
-})
-  .pick({
-    id: true,
-    /** `<record>.<verb>`: `customer.deleted`, `user.role_changed`, `auth.signed_in`. */
-    action: true,
-    targetType: true,
-    targetId: true,
-    targetLabel: true,
-    /** `{ field: [before, after] }` */
-    changes: true,
-    metadata: true,
-    ip: true,
-    userAgent: true,
-    /** `core` or the plugin that recorded it. */
-    source: true,
-    createdAt: true,
-  })
-  .extend({ actor: ActorRef });
+}).pick({
+  id: true,
+  /** A team member (`actorId` = user id), a plugin (its name) or `system`. */
+  actorType: true,
+  actorId: true,
+  /** `<record>.<verb>`: `customer.deleted`, `user.role_changed`, `auth.signed_in`. */
+  action: true,
+  targetType: true,
+  targetId: true,
+  targetLabel: true,
+  /** `{ field: [before, after] }` */
+  changes: true,
+  metadata: true,
+  ip: true,
+  userAgent: true,
+  /** `core` or the plugin that recorded it. */
+  source: true,
+  createdAt: true,
+});
 
 export type AuditEntry = z.infer<typeof AuditEntry>;
 

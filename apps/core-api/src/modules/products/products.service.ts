@@ -87,7 +87,8 @@ const announce = async (
     client,
     changed.map(({ row, changes }) => ({
       type: `core.product.${action}`,
-      entity: { type: 'product', id: row.id },
+      entityType: 'product',
+      entityId: row.id,
       payload: { product: Product.parse(row), changed: Object.keys(changes ?? {}) },
     })),
   );
