@@ -1,7 +1,7 @@
 import type { ActorType, User } from '@erxes/core-contract';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { orpc } from './api';
+import { orpc } from '@erxes/core-contract/client';
 
 export const memberName = (user: Pick<User, 'fullName' | 'email'>) => user.fullName || user.email;
 

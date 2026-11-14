@@ -2,7 +2,7 @@ import { type AutomationDefinition, Reentry } from '@erxes/core-contract';
 import { Input, Select, Textarea } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { ConditionsEditor } from './builder/ConditionsEditor';
 import { FieldLabel } from './builder/FieldLabel';
 import type { useAutomationDraft } from './useAutomationEditor';

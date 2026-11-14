@@ -7,7 +7,7 @@ import { Navigate } from 'react-router-dom';
 import type { AuditEntry } from '@erxes/core-contract';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { type CursorPage, forwardPaging } from '~/lib/cursorList';
 import { useCan } from '~/modules/auth/session';
 import { AuditTable } from './AuditEntries';

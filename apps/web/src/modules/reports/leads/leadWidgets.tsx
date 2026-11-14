@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { DashboardWidgetCard } from '~/modules/home/components/DashboardWidgetCard';
 import type { TDashboardWidgetDefinition } from '~/modules/home/dashboard/types/dashboardTypes';
 import { HOME_NS } from '~/modules/home/i18n';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import {
   LeadReasons,
   LeadSources,

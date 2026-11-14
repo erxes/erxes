@@ -5,7 +5,7 @@ import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
 import { Badge, Button, Input, Label, Select, Sheet, Spinner, Switch } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { LookupError } from './builder/lookupOptions';
 
 type TestResult = InferContractRouterOutputs<typeof coreContract>['automations']['test'];

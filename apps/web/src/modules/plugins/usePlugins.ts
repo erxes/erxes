@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { loadPlugins, parsePluginRemotes } from './remotes';
 
 const LOCAL_REMOTES = parsePluginRemotes();

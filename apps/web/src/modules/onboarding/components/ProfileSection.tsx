@@ -5,7 +5,7 @@ import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { UserAvatar } from '~/components/UserAvatar';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD } from './Appear';

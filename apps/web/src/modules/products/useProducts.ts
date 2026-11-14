@@ -3,7 +3,7 @@ import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/reac
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan } from '~/modules/auth/session';
 import type { IOpenRecordOptions } from '~/modules/side-panel/recordView';

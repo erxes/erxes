@@ -1,5 +1,5 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { memberName } from '~/lib/members';
 import { tagsQuery } from '~/modules/tags/useTags';
 

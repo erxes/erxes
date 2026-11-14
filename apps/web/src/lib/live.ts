@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useSyncExternalStore } from 'react';
-import { orpc } from './api';
+import { orpc } from '@erxes/core-contract/client';
 import { LiveClient } from './liveClient';
 
 /** This tab's share of the browser's one live stream (`LiveClient`). */

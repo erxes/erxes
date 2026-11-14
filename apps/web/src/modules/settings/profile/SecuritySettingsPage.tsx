@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignOutEverywhere } from '~/modules/auth/session';
 import { Section } from './Section';
 import { TwoFactorSection } from './TwoFactorSection';

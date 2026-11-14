@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useMemo } from 'react';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 
 /** Tag colours offered when creating one. */
 export const TAG_COLORS = [

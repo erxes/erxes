@@ -1,7 +1,7 @@
 import { RecordTable } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
 import { TeamMemberCommandBar } from './record/TeamMemberCommandBar';
 import { teamMemberColumns } from './record/TeamMemberColumns';

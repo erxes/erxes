@@ -5,7 +5,7 @@ import { Badge, Button, Empty, PageContainer, PageHeader, ScrollArea, useToast }
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { countryNames } from '~/lib/region';
 import { useCan, useSession } from '~/modules/auth/session';
 

@@ -7,7 +7,7 @@ import { setFileStorage, setPluginRuntime, setRecordTimeline } from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { i18nReady } from './i18n';
-import { orpc } from './lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { coreFileStorage } from './lib/files';
 import { pluginLive } from './lib/live';
 import { SharedTimeline } from './modules/activity/SharedTimeline';

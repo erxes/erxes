@@ -5,7 +5,7 @@ import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
 import { Badge, Button, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { RECORD_PATHS } from '~/modules/transfer/useTransfer';
 
 const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;

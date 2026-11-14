@@ -4,7 +4,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { type InfiniteData, skipToken, useInfiniteQuery } from '@tanstack/react-query';
 import { Button, cn, Skeleton, Tooltip } from 'erxes-ui';
 import { memo, useEffect, useRef } from 'react';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { type CursorPage, formatTotal, forwardPaging } from '~/lib/cursorList';
 import { useCompaniesFilters } from '~/modules/contacts/companies/useCompanies';
 import { useCustomersFilters } from '~/modules/contacts/customers/useCustomers';

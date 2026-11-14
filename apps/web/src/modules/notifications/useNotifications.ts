@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import type { ComponentType } from 'react';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { forwardPaging } from '~/lib/cursorList';
 import { useLivePolling } from '~/lib/live';
 import { pluginLabel } from '~/lib/members';

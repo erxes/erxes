@@ -5,7 +5,7 @@ import { Button, Spinner, useToast } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { uploadErrorMessage, uploadFile } from '~/lib/files';
 import { useCan } from '~/modules/auth/session';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';

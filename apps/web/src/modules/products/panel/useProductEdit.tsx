@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Button, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useOpenProduct, useStoreProduct } from '../useProducts';
 import { productFieldError } from './productErrors';
 

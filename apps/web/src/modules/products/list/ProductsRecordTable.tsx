@@ -1,7 +1,7 @@
 import { IconPackage, IconPlus } from '@tabler/icons-react';
 import { Button, Empty, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { EmptyList } from '~/modules/contacts/components/EmptyList';
 import {
   PRODUCTS_SESSION_KEY,

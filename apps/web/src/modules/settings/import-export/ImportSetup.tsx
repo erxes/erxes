@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Label, MultipleSelector, Select, Switch } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { activeMembersQuery, memberName } from '~/lib/members';
 import { useTags } from '~/modules/tags/useTags';
 import { useTransferColumns } from '~/modules/transfer/useTransfer';

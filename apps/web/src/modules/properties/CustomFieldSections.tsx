@@ -4,7 +4,7 @@ import { Button, Collapsible, Spinner, buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { PanelField } from '~/modules/side-panel/PanelField';
 import { propertiesPath } from './constants';
 import { CustomFieldCell } from './CustomFieldCell';

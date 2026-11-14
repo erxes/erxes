@@ -4,7 +4,7 @@ import { Skeleton, Spinner } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { MemberAvatar } from '../record/TeamMemberColumns';
 import {
   memberName,

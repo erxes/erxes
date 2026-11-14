@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Checkbox, cn, Input, Textarea, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 
 const groupsOf = (catalog: PermissionInfo[]) => {
   const groups = new Map<string, PermissionInfo[]>();

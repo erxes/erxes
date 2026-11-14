@@ -4,7 +4,7 @@ import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';
 import { ProfileForm } from './ProfileForm';
 

@@ -2,7 +2,7 @@ import type { Notification } from '@erxes/core-contract';
 import { IconBell } from '@tabler/icons-react';
 import { Button, Empty, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { actorLabel, useMembersById } from '~/lib/members';
 import { NotificationItem } from './NotificationItem';
 import type { Inbox } from './useNotifications';

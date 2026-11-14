@@ -3,7 +3,7 @@ import { IconArrowUpRight } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { Avatar, Combobox, Command, readImage, Skeleton } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useCompany } from '../companies/useCompanies';
 import { customerName, useCustomer } from '../customers/useCustomers';
 

@@ -21,6 +21,7 @@
     "./auth": "./src/auth.ts",
     "./automationRuns": "./src/automationRuns.ts",
     "./automations": "./src/automations.ts",
+    "./client": "./src/client.ts",
     "./common": "./src/common.ts",
     "./companies": "./src/companies.ts",
     "./customerAuth": "./src/customerAuth.ts",
@@ -57,6 +58,7 @@
       "./auth": "./dist/auth.js",
       "./automationRuns": "./dist/automationRuns.js",
       "./automations": "./dist/automations.js",
+      "./client": "./dist/client.js",
       "./common": "./dist/common.js",
       "./companies": "./dist/companies.js",
       "./customerAuth": "./dist/customerAuth.js",
@@ -93,7 +95,10 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
+    "@orpc/openapi-client": "1.16.2",
+    "@orpc/tanstack-query": "1.16.2",
     "country-to-currency": "^3.0.2",
     "drizzle-orm": "0.45.4",
     "drizzle-zod": "0.8.3",

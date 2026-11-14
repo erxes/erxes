@@ -1,19 +1,17 @@
-import {
-  CORE_API_PREFIX,
-  type coreContract,
-  type ERRORS,
-  type ErrorCode,
-} from '@erxes/core-contract';
-import { coreRoutes } from '@erxes/core-contract/routes';
 import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient, ORPCErrorFromErrorMap } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { createTanstackQueryUtils } from '@orpc/tanstack-query';
+import type { ERRORS, ErrorCode } from './errors';
+import type { coreContract } from './index';
+import { coreRoutes } from './routes';
+import { CORE_API_PREFIX } from './values';
 
 /**
- * Typed client for /core/v1 from the same contract the server implements.
- * Same origin, so the HttpOnly session cookie goes with every request.
- * Calls return the result or throw an `ORPCError` (`code`, `status`, `data`).
+ * The browser's typed client for /core/v1, from the contract the server implements. web and
+ * plugin UIs both import it. They are served from web's origin, so the HttpOnly session cookie
+ * goes with every request. Calls return the result or throw an `ORPCError` (`code`, `status`,
+ * `data`). It imports no table: the routes come from `routes.json` and the types stay types.
  */
 const client: ContractRouterClient<typeof coreContract> = createORPCClient(
   new OpenAPILink(coreRoutes, {
@@ -26,9 +24,9 @@ const client: ContractRouterClient<typeof coreContract> = createORPCClient(
  * Every core call: `orpc.users.list.queryOptions({ input })`,
  * `orpc.users.update.mutationOptions()`, or `orpc.files.complete.call(input)`
  * outside React Query. The key is the procedure and its input, so the same
- * request is cached once wherever it's used, and
- * `invalidateQueries({ queryKey: orpc.users.key() })` reaches every users query.
- * Never write a query key by hand.
+ * request is cached once wherever it's used, in web and in a plugin (they share
+ * web's QueryClient), and `invalidateQueries({ queryKey: orpc.users.key() })`
+ * reaches every users query. Never write a query key by hand.
  */
 export const orpc = createTanstackQueryUtils(client);
 

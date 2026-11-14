@@ -3,7 +3,7 @@ import { IconBuilding, IconUserCheck } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Combobox, Dialog, Label, Popover, Spinner } from 'erxes-ui';
 import { useId, useState } from 'react';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { SelectContactContent } from '~/modules/contacts/components/ContactPicker';
 import {
   SelectMemberContent,

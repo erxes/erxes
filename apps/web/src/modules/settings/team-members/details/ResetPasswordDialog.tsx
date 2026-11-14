@@ -4,7 +4,7 @@ import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useTeamMemberSetPassword } from '../useTeamMembers';
 

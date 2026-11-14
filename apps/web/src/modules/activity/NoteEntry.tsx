@@ -13,7 +13,7 @@ import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Lookups } from '~/components/ChangeList';
 import { UserAvatar } from '~/components/UserAvatar';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { memberName } from '~/lib/members';
 import { useCan, useSession } from '~/modules/auth/session';
 import { NoteComposer } from './NoteComposer';

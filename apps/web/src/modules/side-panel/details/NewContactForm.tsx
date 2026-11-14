@@ -10,7 +10,7 @@ import {
 import { AvatarUploadField } from '~/components/AvatarEditor';
 import { DESCRIPTION_MAX } from '@erxes/core-contract';
 import { z } from 'zod';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { type ContactSide, linkNewContact } from '~/modules/contacts/components/useContactLinks';
 import { PanelFormLayout, PanelFormRow } from '../PanelForm';
