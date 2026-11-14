@@ -110,7 +110,7 @@ export const WebhooksSettingsPage = () => {
           <p className="text-sm text-muted-foreground">
             {t(
               'intro',
-              'Each event is POSTed as JSON with an Erxes-Signature header (t=<time>,v1=<HMAC-SHA256 of "<time>.<body>">). Failed deliveries are retried for about a day.',
+              'Each event is POSTed as JSON with an Erxes-Signature header (t=<time>,v1=<HMAC-SHA256 of "<time>.<body>">). Failed deliveries are retried 9 times over about half a day, each wait twice the last.',
             )}
           </p>
           <QueryState
