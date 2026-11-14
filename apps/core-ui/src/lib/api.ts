@@ -1,4 +1,4 @@
-import { CORE_API_PREFIX, type coreContract } from '@erxes/core-contract';
+import { CORE_API_PREFIX, type coreContract, InvalidInput } from '@erxes/core-contract';
 import { coreRoutes } from '@erxes/core-contract/routes';
 import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
@@ -41,5 +41,11 @@ export const errorData = <T>(error: unknown, schema: z.ZodType<T>) => {
   return parsed.success ? parsed.data : undefined;
 };
 
-export const messageOf = (error: unknown) =>
-  error instanceof Error ? error.message : 'Something went wrong. Try again.';
+/** What to tell the member: the error's message, or the first field the contract refused. */
+export const messageOf = (error: unknown) => {
+  const issue = errorData(error, InvalidInput)?.issues[0];
+
+  if (issue) return `${issue.path.join('.')}: ${issue.message}`;
+
+  return error instanceof Error ? error.message : 'Something went wrong. Try again.';
+};

@@ -7,6 +7,7 @@ import {
   CursorQuery,
   CustomFields,
   CustomFieldsPatch,
+  DESCRIPTION_MAX,
   EmailAddress,
   Id,
   IdList,
@@ -82,7 +83,7 @@ export const CompanyFields = createUpdateSchema(companies, {
   size: () => z.int().min(0).max(10_000_000),
   businessType: (value) => value.trim().max(200),
   code: (code) => code.trim().max(100),
-  description: (value) => value.trim().max(5000),
+  description: (value) => value.trim().max(DESCRIPTION_MAX),
   ownerId: () => Id,
   ...lifecycleInput,
 })

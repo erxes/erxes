@@ -29,6 +29,7 @@ import {
   ContactAvatarRow,
   ContactDescriptionRow,
   ContactOwnerRow,
+  contactDescription,
   NewContactForm,
   useFinishCreate,
 } from './NewContactForm';
@@ -49,7 +50,7 @@ const companySchema = z.object({
   industry: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
   businessType: z.string().optional(),
   size: z.string().optional(),
-  description: z.string().optional(),
+  description: contactDescription.optional(),
   avatarUrl: z.string().nullable().optional(),
 });
 
