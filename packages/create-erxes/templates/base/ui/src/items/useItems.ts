@@ -15,11 +15,11 @@ type Outputs = InferClientOutputs<Client>['items'];
 
 export type Item = Outputs['create'];
 
-/** Every page loaded so far, newest first. */
-export const useItems = () =>
+/** Every page loaded so far, newest first; only `createdBy`'s when given. */
+export const useItems = (createdBy: string | null) =>
   useInfiniteQuery(
     orpc.items.list.infiniteOptions({
-      input: (cursor: string | undefined) => ({ cursor }),
+      input: (cursor: string | undefined) => ({ cursor, createdBy: createdBy ?? undefined }),
       initialPageParam: undefined,
       getNextPageParam: (page) => page.nextCursor ?? undefined,
     }),

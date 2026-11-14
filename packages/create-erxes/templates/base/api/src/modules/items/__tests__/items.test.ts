@@ -38,6 +38,12 @@ describe('items', () => {
 
     expect(next.items.map((item) => item.id)).toEqual([first.id]);
     expect(next.nextCursor).toBeNull();
+    await expect(client.items.list({ createdBy: 'user-org-a' })).resolves.toMatchObject({
+      items: [{ id: second.id }, { id: first.id }],
+    });
+    await expect(client.items.list({ createdBy: 'someone-else' })).resolves.toMatchObject({
+      items: [],
+    });
 
     await expect(
       client.items.update({ id: first.id, name: 'First', description: 'Changed' }),

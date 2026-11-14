@@ -37,7 +37,9 @@ data only. The inventory reads code, never a database.
 4. Core calls. Do what the arrow says: `sdk` is
    `core.forOrg(orgId).<procedure>` in the API with that scope in
    `manifest.scopes`; `contract` is a call from the UI with the member's own
-   session; `plugin-owned` lives in this plugin's tables or code.
+   session, through `orpc` from `@erxes/core-contract/client` (members through
+   erxes-ui's `SelectMember` and `MemberInline`, `ui/AGENTS.md`);
+   `plugin-owned` lives in this plugin's tables or code.
 5. Pages. One per UI route, under `ui/src/<module>/`, built from `erxes-ui`
    the way `ui/src/items/` is. The old `ui-modules` components don't exist
    here: erxes-ui's old-to-new component table, `packages/ui/MIGRATION.md` in
