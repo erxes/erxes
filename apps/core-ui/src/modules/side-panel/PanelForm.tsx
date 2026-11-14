@@ -28,7 +28,7 @@ export const PanelFormRow = ({
         {required && <span className="text-destructive"> *</span>}
       </PanelLabel>
     </span>
-    <div className="group/panel-value relative min-w-0 text-xs [&_button:not([role=switch])]:h-7 [&_button:not([role=switch])]:text-xs [&_input:placeholder-shown]:pl-7">
+    <div className="group/panel-value relative min-w-0 text-xs [&_button:not([role=switch])]:text-xs [&_input:placeholder-shown]:pl-7">
       <Icon
         className="pointer-events-none absolute left-2 top-1/2 z-1 hidden size-3.5 -translate-y-1/2 text-muted-foreground group-has-[input:placeholder-shown]/panel-value:block"
         aria-hidden="true"

@@ -10,6 +10,7 @@ import {
 import { Button } from 'erxes-ui/components/button';
 import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
+import { cn } from 'erxes-ui/lib/utils';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 
 /*
@@ -29,7 +30,10 @@ export const ContactFieldValue = ({
   <Button
     variant="secondary"
     tone={isPrimary ? 'primary' : 'default'}
-    className="h-8 w-full text-left justify-start flex-auto overflow-hidden"
+    className={cn(
+      'h-8 w-full justify-start flex-auto overflow-hidden px-2 text-left',
+      isPrimary && 'bg-primary/10 hover:bg-primary/20',
+    )}
   >
     {status === ValidationStatus.Valid ? (
       <IconCircleDashedCheck className="text-success" />
