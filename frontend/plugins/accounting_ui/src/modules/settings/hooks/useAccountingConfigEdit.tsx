@@ -47,6 +47,7 @@ export const useAccountingConfigEdit = (
         toast({
           title: t('success'),
           description: t('configuration-updated-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

@@ -137,6 +137,8 @@ const JOURNAL_TITLES: Record<string, string> = {
   invMove: 'inventory movement journal',
   invSale: 'inventory sale journal',
   invSaleReturn: 'inventory sale return journal',
+  fxaCapital: 'fixed asset capitalization and correction journal',
+  fxaRevaluation: 'fixed asset revaluation journal',
   fxaIncome: 'fixed asset income journal',
   fxaOut: 'fixed asset out journal',
   fxaMove: 'fixed asset movement journal',
@@ -509,7 +511,8 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Manage safe remainders',
           name: SAFE_REMAINDER_ACTIONS.manage,
-          description: 'Create, update, submit, recalculate, and run safe remainders',
+          description:
+            'Create, update, submit, recalculate, and run safe remainders',
         },
         {
           title: 'Remove safe remainders',
@@ -519,7 +522,8 @@ export const permissions: IPermissionConfig = {
         {
           title: 'View safe remainder item counts',
           name: SAFE_REMAINDER_ACTIONS.viewItemCounts,
-          description: 'View system item counts and use difference filters on safe remainder items',
+          description:
+            'View system item counts and use difference filters on safe remainder items',
         },
       ],
     },

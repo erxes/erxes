@@ -4,6 +4,7 @@ import {
   AccountsFilterIsOutBalance,
   AccountsFilterKind,
   AccountsFilterStatus,
+  AccountsFilterStructure,
   AccountsFilterTrJournal,
   AccountsFilterTrStatus,
   FilterBarCategory,
@@ -11,9 +12,15 @@ import {
   FilterBarIsOutBalance,
   FilterBarKind,
   FilterBarStatus,
+  FilterBarStructure,
   FilterBarTrJournal,
   FilterBarTrStatus,
 } from '@/settings/account/components/filters/FilterHelpers';
+import {
+  FilterAuthorViews,
+  FilterBarAuthors,
+  FilterPopoverAuthorItems,
+} from '@/settings/account/components/filters/AuthorFilters';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import {
   IconCalendar,
@@ -33,13 +40,7 @@ import { SelectAccount } from '~/modules/settings/account/components/SelectAccou
 import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 import { useTranslation } from 'react-i18next';
 
-const SIDEBAR_FILTER_KEYS = new Set(['branchId', 'departmentId', 'journal']);
-
-const TransactionsFilterMenu = ({
-  sidebarFilters,
-}: {
-  sidebarFilters?: boolean;
-}) => {
+const TransactionsFilterMenu = () => {
   const { t } = useTranslation('accounting');
 
   return (
@@ -62,25 +63,19 @@ const TransactionsFilterMenu = ({
           <IconCalendar />
           {t('date')}
         </Filter.Item>
-        {!sidebarFilters && (
-          <>
-            <SelectBranches.FilterItem value="branchId" label={t('branch')} />
-            <SelectDepartments.FilterItem
-              value="departmentId"
-              label={t('department')}
-            />
-          </>
-        )}
+        <SelectBranches.FilterItem value="branchId" label={t('branch')} />
+        <SelectDepartments.FilterItem
+          value="departmentId"
+          label={t('department')}
+        />
         <Filter.Item value="currency">
           <IconCoins />
           {t('currency')}
         </Filter.Item>
-        {!sidebarFilters && (
-          <Filter.Item value="journal">
-            <IconNotebook />
-            {t('journal')}
-          </Filter.Item>
-        )}
+        <Filter.Item value="journal">
+          <IconNotebook />
+          {t('journal')}
+        </Filter.Item>
 
         <Command.Separator className="my-1" />
         <Filter.Item value="statuses">
@@ -117,33 +112,24 @@ const TransactionsFilterMenu = ({
         </Filter.Item>
 
         <Command.Separator className="my-1" />
-        <SelectMember.FilterItem
-          value="createdUserId"
-          label={t('date-type-created')}
-        />
-        <SelectMember.FilterItem value="modifiedUserId" label={t('modified')} />
+        <FilterPopoverAuthorItems />
         <Filter.Item value="updatedDate" inDialog>
           <IconCalendar />
-          {t('modified')}
+          {t('modified-date')}
         </Filter.Item>
         <Filter.Item value="createdDate" inDialog>
           <IconCalendar />
-          {t('date-type-created')}
+          {t('created-date')}
         </Filter.Item>
       </Command.List>
     </Command>
   );
 };
 
-const TransactionsFilterPopover = ({
-  sidebarFilters,
-}: {
-  sidebarFilters?: boolean;
-}) => {
+const TransactionsFilterPopover = () => {
   const queryParams = useTransactionsQueryParams();
-  const hasFilters = Object.entries(queryParams || {}).some(
-    ([key, value]) =>
-      value !== null && !(sidebarFilters && SIDEBAR_FILTER_KEYS.has(key)),
+  const hasFilters = Object.values(queryParams || {}).some(
+    (value) => value !== null,
   );
 
   return (
@@ -152,20 +138,17 @@ const TransactionsFilterPopover = ({
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
-            <TransactionsFilterMenu sidebarFilters={sidebarFilters} />
+            <TransactionsFilterMenu />
           </Filter.View>
           <Filter.View filterKey="date">
             <Filter.DateView filterKey="date" />
           </Filter.View>
-          {!sidebarFilters && (
-            <>
-              <SelectBranches.FilterView mode="single" filterKey="branchId" />
-              <SelectDepartments.FilterView
-                mode="single"
-                filterKey="departmentId"
-              />
-            </>
-          )}
+          <Filter.View filterKey="branchId">
+            <AccountsFilterStructure queryKey="branchId" />
+          </Filter.View>
+          <Filter.View filterKey="departmentId">
+            <AccountsFilterStructure queryKey="departmentId" />
+          </Filter.View>
           <Filter.View filterKey="currency">
             <AccountsFilterCurrency />
           </Filter.View>
@@ -175,11 +158,9 @@ const TransactionsFilterPopover = ({
           <SelectMember.FilterView mode="single" queryKey="mentionOwnerId" />
           <SelectMember.FilterView mode="single" queryKey="mentionUserId" />
 
-          {!sidebarFilters && (
-            <Filter.View filterKey="journal">
-              <AccountsFilterTrJournal />
-            </Filter.View>
-          )}
+          <Filter.View filterKey="journal">
+            <AccountsFilterTrJournal />
+          </Filter.View>
           <SelectAccount.FilterView mode="multiple" queryKey="accountIds" />
           <Filter.View filterKey="accountKind">
             <AccountsFilterKind queryKey="accountKind" />
@@ -195,8 +176,7 @@ const TransactionsFilterPopover = ({
             <AccountsFilterIsOutBalance queryKey="accountIsOutBalance" />
           </Filter.View>
 
-          <SelectMember.FilterView mode="single" queryKey="createdUserId" />
-          <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
+          <FilterAuthorViews />
           <Filter.View filterKey="updatedDate">
             <Filter.DateView filterKey="updatedDate" />
           </Filter.View>
@@ -231,10 +211,8 @@ const TransactionsFilterPopover = ({
 
 export const TransactionsFilter = ({
   afterBar,
-  sidebarFilters,
 }: {
   afterBar?: React.ReactNode;
-  sidebarFilters?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
@@ -251,7 +229,7 @@ export const TransactionsFilter = ({
       sessionKey={ACCTRANSACTIONS_CURSOR_SESSION_KEY}
     >
       <Filter.Bar>
-        <TransactionsFilterPopover sidebarFilters={sidebarFilters} />
+        <TransactionsFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -277,23 +255,11 @@ export const TransactionsFilter = ({
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
-        {!sidebarFilters && (
-          <>
-            <SelectBranches.FilterBar
-              label={t('branch')}
-              filterKey="branchId"
-              mode="single"
-            />
-            <SelectDepartments.FilterBar
-              label={t('department')}
-              filterKey="departmentId"
-              mode="single"
-            />
-          </>
-        )}
+        <FilterBarStructure queryKey="branchId" />
+        <FilterBarStructure queryKey="departmentId" />
         <FilterBarCurrency />
         <FilterBarTrStatus />
-        {!sidebarFilters && <FilterBarTrJournal />}
+        <FilterBarTrJournal />
 
         <SelectAccount.FilterBar queryKey="accountIds" mode="multiple" />
         <FilterBarKind queryKey="accountKind" labelKey="account-type" />
@@ -326,16 +292,7 @@ export const TransactionsFilter = ({
           label={t('approver')}
           mode="single"
         />
-        <SelectMember.FilterBar
-          queryKey="createdUserId"
-          label={t('date-type-created')}
-          mode="single"
-        />
-        <SelectMember.FilterBar
-          queryKey="modifiedUserId"
-          label={t('modified')}
-          mode="single"
-        />
+        <FilterBarAuthors />
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />

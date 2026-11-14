@@ -1,18 +1,37 @@
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { Button } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { loadingPluginsConfigState } from 'ui-modules';
 import { LoadingScreen } from '@/auth/components/LoadingScreen';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
+import { notFoundLocationState } from '@/navigation/states/appLastLocationState';
+import { getAppResumePath } from '@/navigation/utils/appLastLocation';
 
 export const NotFoundPage = () => {
   const navigate = useNavigate();
+  const { key, state } = useLocation();
+  const setNotFoundLocation = useSetAtom(notFoundLocationState);
   const { t } = useTranslation('common', { keyPrefix: 'not-found' });
   const loadingPluginsConfig = useAtomValue(loadingPluginsConfigState);
+  const resumePath = getAppResumePath(state);
+
+  useEffect(() => {
+    if (loadingPluginsConfig) {
+      return;
+    }
+
+    setNotFoundLocation(key);
+    return () => setNotFoundLocation(null);
+  }, [key, loadingPluginsConfig, setNotFoundLocation]);
 
   if (loadingPluginsConfig) {
     return <LoadingScreen />;
+  }
+
+  if (resumePath) {
+    return <Navigate to={resumePath} replace state={null} />;
   }
 
   return (

@@ -5,7 +5,8 @@ import {
   TasksSetDueDateCommandBarItem,
   TasksSetDueDateTrigger,
 } from './SetDueDate';
-import { IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconPrinter, IconTrash } from '@tabler/icons-react';
+import { PrintDocument, usePermissionCheck } from 'ui-modules';
 import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
@@ -26,6 +27,9 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('main');
   const [converting, setConverting] = useState(false);
+  const [printing, setPrinting] = useState(false);
+  const { hasActionPermission } = usePermissionCheck();
+  const canPrint = hasActionPermission('documentsRead');
   const { task } = useGetTask(taskId);
   const { teamId } = useParams();
   const { removeTask } = useRemoveTask();
@@ -74,6 +78,17 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                     />
                   )}
                   <CopyTaskTrigger setCurrentContent={setCurrentContent} />
+                  {canPrint && (
+                    <Command.Item
+                      onSelect={() => {
+                        setOpen(false);
+                        setPrinting(true);
+                      }}
+                    >
+                      <IconPrinter className="size-4" />
+                      {t('print', 'Print')}
+                    </Command.Item>
+                  )}
                 </Command.Group>
                 <Command.Separator />
                 <Command.Group>
@@ -136,10 +151,19 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
             />
           )}
           {currentContent === 'copy' && task && (
-            <CopyTaskCommandBarItem tasks={[task]} setOpen={setOpen} />
+            <CopyTaskCommandBarItem tasks={[task]} setOpen={setOpen} hideUrl />
           )}
         </Popover.Content>
       </Popover>
+      {canPrint && (
+        <PrintDocument
+          items={[{ _id: taskId }]}
+          contentType="operation:task"
+          open={printing}
+          onOpenChange={setPrinting}
+          trigger={null}
+        />
+      )}
       {task && (
         <ConvertToProjectSheet
           task={task}

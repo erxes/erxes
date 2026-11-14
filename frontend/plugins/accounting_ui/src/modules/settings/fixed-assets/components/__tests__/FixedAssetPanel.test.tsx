@@ -106,7 +106,6 @@ test('renaming a saved asset sends the change and closes after saving', async ()
     _id: 'laptop',
     code: 'LT-7',
     name: 'Work laptop',
-    usefulLife: 4,
   });
   expect(mockClosePanel).toHaveBeenCalledTimes(1);
 });
@@ -121,7 +120,7 @@ test('saving without changes closes the panel and sends nothing', async () => {
 });
 
 test('an asset that fails validation warns instead of filling the form', async () => {
-  mockDetail = { ...SAVED_ASSET, depreciationMethod: 'unknown-method' };
+  mockDetail = { ...SAVED_ASSET, name: 42 };
 
   await openSavedAsset();
 

@@ -48,6 +48,18 @@ export const findUngroundedNumbers = ({
   ];
 };
 
+// Figures need checking once the reply could state facts: from knowledge,
+// or from a live record a lookup returned.
+export const shouldCheckGrounding = ({
+  handedOff,
+  hasKnowledge,
+  toolKinds,
+}: {
+  handedOff: boolean;
+  hasKnowledge: boolean;
+  toolKinds: string[];
+}) => !handedOff && (hasKnowledge || toolKinds.includes('lookup'));
+
 export const buildUngroundedNumbersDirective = (numbers: string[]) =>
   [
     `Your reply stated figures that appear in none of the sources or messages you were given: ${numbers.join(

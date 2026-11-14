@@ -1,7 +1,8 @@
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldNamesMarkedBoolean } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { isDeeplyEqual } from 'erxes-ui';
 
 const discordIdRegex = /^\d{17,19}$/;
 const discordUrlRegex = new RegExp(
@@ -14,6 +15,9 @@ export const profileValidationSchema = z
     details: z
       .object({
         avatar: z.string().optional().nullable(),
+        coverPhoto: z.string().optional().nullable(),
+        description: z.string().optional().nullable(),
+        position: z.string().optional().nullable(),
         firstName: z.string().optional().nullable(),
         lastName: z.string().optional().nullable(),
         middleName: z.string().optional().nullable(),
@@ -68,7 +72,7 @@ export const profileValidationSchema = z
             },
           )
           .optional(),
-        gitHub: z
+        github: z
           .string()
           .url()
           .regex(/^https:\/\/(www\.)?github\.com\/[A-Za-z0-9._-]+\/?$/, {
@@ -85,14 +89,116 @@ export const profileValidationSchema = z
           .optional()
           .or(z.literal('')),
       })
-      .optional(),
+      .passthrough()
+      .nullish()
+      .transform((links) => links ?? {}),
     username: z.string().min(3, 'Username must be at least 3 characters'),
     email: z.string().trim().email('Email must be a valid email'),
-    positionIds: z.array(z.string()).optional(),
+    positionIds: z
+      .array(z.string())
+      .nullish()
+      .transform((ids) => ids ?? []),
   })
   .required();
 
 export type FormType = z.infer<typeof profileValidationSchema>;
+export type ProfilePatch = Partial<FormType>;
+
+export const normalizeProfileLinks = (
+  links: FormType['links'] | null | undefined,
+): FormType['links'] => {
+  const normalized: FormType['links'] = {
+    ...links,
+    github:
+      links?.github ?? (typeof links?.gitHub === 'string' ? links.gitHub : ''),
+  };
+  for (const key of Object.keys(normalized)) {
+    normalized[key] ??= '';
+  }
+  return normalized;
+};
+
+const pickDirtyFields = <T extends object>(
+  values: T,
+  dirtyFields: unknown,
+): Partial<T> => {
+  const keys = new Set(
+    Object.entries(
+      dirtyFields && typeof dirtyFields === 'object' ? dirtyFields : {},
+    )
+      .filter(([, dirty]) => dirty === true)
+      .map(([key]) => key),
+  );
+  const patch: Partial<T> = {};
+  for (const key in values) {
+    if (
+      Object.prototype.hasOwnProperty.call(values, key) &&
+      (dirtyFields === true || keys.has(key))
+    ) {
+      patch[key] = values[key];
+    }
+  }
+  return patch;
+};
+
+const hasDirtyPositions = (dirty: unknown): boolean =>
+  Array.isArray(dirty) ? dirty.includes(true) : dirty === true;
+
+export const getProfilePatch = (
+  values: FormType,
+  dirtyFields: FieldNamesMarkedBoolean<FormType>,
+): ProfilePatch => {
+  const patch: ProfilePatch = {};
+  if (dirtyFields.username) patch.username = values.username;
+  if (dirtyFields.email) patch.email = values.email;
+  if (hasDirtyPositions(dirtyFields.positionIds))
+    patch.positionIds = values.positionIds;
+  if (dirtyFields.details && values.details) {
+    const details = pickDirtyFields(values.details, dirtyFields.details);
+    if (Object.keys(details).length > 0) patch.details = details;
+  }
+  if (dirtyFields.links) {
+    const links = pickDirtyFields(values.links, dirtyFields.links);
+    if (Object.keys(links).length > 0) patch.links = links;
+  }
+  return patch;
+};
+
+const pickChangedFields = <T extends object>(
+  values: T,
+  previous: T,
+): Partial<T> => {
+  const changed: Partial<T> = {};
+  for (const key in values) {
+    if (
+      Object.prototype.hasOwnProperty.call(values, key) &&
+      !isDeeplyEqual(values[key], previous[key], { strict: true })
+    ) {
+      changed[key] = values[key];
+    }
+  }
+  return changed;
+};
+
+export const getProfileValuesAfterSave = (
+  saved: FormType,
+  submitted: FormType,
+  current: FormType,
+): FormType => {
+  const values = { ...saved, ...pickChangedFields(current, submitted) };
+  if (current.details) {
+    values.details = {
+      ...saved.details,
+      ...pickChangedFields(current.details, submitted.details ?? {}),
+    };
+  }
+  values.links = {
+    ...saved.links,
+    ...pickChangedFields(current.links, submitted.links),
+  };
+  return values;
+};
+
 const useProfileForm = () => {
   const form = useForm<FormType>({
     mode: 'onBlur',
@@ -102,7 +208,7 @@ const useProfileForm = () => {
         twitter: '',
         website: '',
         discord: '',
-        gitHub: '',
+        github: '',
         instagram: '',
       },
       username: '',

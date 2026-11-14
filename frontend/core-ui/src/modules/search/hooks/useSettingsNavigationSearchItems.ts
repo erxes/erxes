@@ -72,7 +72,7 @@ export const useSettingsNavigationSearchItems = () => {
       ...toItems(t('developer', 'Developer'), settingsData.developer),
       ...toItems(
         t('core-modules', 'Core modules'),
-        GET_CORE_MODULES(t, version).filter(({ hasSettings }) => hasSettings),
+        GET_CORE_MODULES(t).filter(({ hasSettings }) => hasSettings),
       ),
     ];
 
@@ -90,6 +90,14 @@ export const useSettingsNavigationSearchItems = () => {
           {
             name: tSettings('Permission groups', 'Permission groups'),
             path: `${SettingsWorkspacePath.TeamMember}${TeamMembersPath.TeamPermissions}`,
+          },
+          t('team-member', 'Team member'),
+          settingsPrefix,
+        ),
+        toSettingsSearchItem(
+          {
+            name: tSettings('Activity', 'Activity'),
+            path: `${SettingsWorkspacePath.TeamMember}${TeamMembersPath.TeamActivity}`,
           },
           t('team-member', 'Team member'),
           settingsPrefix,

@@ -6,6 +6,7 @@ import {
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
 import { NodeWarningIndicator } from '@/automations/components/builder/nodes/components/NodeWarningIndicator';
+import { NodeRecentFailureIndicator } from '@/automations/components/builder/nodes/components/NodeRecentFailureIndicator';
 import { NodeFrame } from '@/automations/components/builder/nodes/components/NodeFrame';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
@@ -106,6 +107,7 @@ const ActionNodeHeader = ({
           </div>
           {error && <NodeErrorIndicator error={error} />}
           {!error && !data.readOnly && <NodeWarningIndicator nodeId={id} />}
+          <NodeRecentFailureIndicator nodeId={id} />
           <ActionErrorPolicyBadge config={data.config} />
         </div>
       </div>

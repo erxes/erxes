@@ -23,7 +23,7 @@ export function SettingsSidebar() {
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
-  const CORE_MODULES = GET_CORE_MODULES(t, version);
+  const CORE_MODULES = GET_CORE_MODULES(t);
   const sidebar = useMemo(() => GET_SETTINGS_PATH_DATA(version, t), [t]);
   const subNavigation = useSettingsSubNavigation();
 

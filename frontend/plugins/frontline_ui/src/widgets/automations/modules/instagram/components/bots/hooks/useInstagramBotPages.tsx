@@ -5,10 +5,8 @@ import { useMemo } from 'react';
 
 export const useInstagramBotPages = (accountId: string, pageId: string) => {
   const { data, loading } = useQuery(GET_IG_PAGES, {
-    variables: {
-      accountId,
-      kind: 'instagram',
-    },
+    variables: accountId ? { accountId, kind: 'instagram' } : undefined,
+    skip: !accountId,
   });
 
   const page = useMemo(

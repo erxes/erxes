@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
@@ -12,30 +11,27 @@ import {
 } from 'erxes-ui';
 import { IAmenity } from '../types/amenity';
 import { useRemoveAmenities } from '../hooks/useRemoveAmenities';
-import { AmenityEditSheet } from './AmenityEditSheet';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TMS_AMENITY_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { AmenityDuplicate } from './AmenityDuplicate';
 
 interface AmenityMoreCellProps extends CellContext<IAmenity, unknown> {
   branchId?: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
 }
 
 export const AmenityMoreColumn = ({
   branchId,
-  branchLanguages,
-  mainLanguage,
   ...props
 }: AmenityMoreCellProps) => {
   const { t } = useTranslation('tourism');
   const amenity = props.row.original;
-  const [editOpen, setEditOpen] = useState(false);
+  const { openDetail } = useTourismPanel(TMS_AMENITY_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const removeAmenities = useRemoveAmenities();
 
   const handleEdit = () => {
-    setEditOpen(true);
+    openDetail(amenity._id);
   };
 
   const handleDelete = () => {
@@ -72,64 +68,43 @@ export const AmenityMoreColumn = ({
   };
 
   return (
-    <>
-      <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit className="w-4 h-4" />
-                {t('edit')}
-              </Command.Item>
-              <AmenityDuplicate amenity={amenity} branchId={branchId}>
-                {({ onClick, disabled }) => (
-                  <Command.Item
-                    value="duplicate"
-                    onSelect={onClick}
-                    disabled={disabled}
-                  >
-                    <IconCopy className="w-4 h-4" />
-                    {t('duplicate')}
-                  </Command.Item>
-                )}
-              </AmenityDuplicate>
-              <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash className="w-4 h-4" />
-                {t('delete')}
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
-      <AmenityEditSheet
-        amenity={amenity}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        showTrigger={false}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    </>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit className="w-4 h-4" />
+              {t('edit')}
+            </Command.Item>
+            <AmenityDuplicate amenity={amenity} branchId={branchId}>
+              {({ onClick, disabled }) => (
+                <Command.Item
+                  value="duplicate"
+                  onSelect={onClick}
+                  disabled={disabled}
+                >
+                  <IconCopy className="w-4 h-4" />
+                  {t('duplicate')}
+                </Command.Item>
+              )}
+            </AmenityDuplicate>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash className="w-4 h-4" />
+              {t('delete')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
-export const amenityMoreColumn = (
-  branchId?: string,
-  branchLanguages?: string[],
-  mainLanguage?: string,
-): ColumnDef<IAmenity> => ({
+export const amenityMoreColumn = (branchId?: string): ColumnDef<IAmenity> => ({
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: (props) => (
-    <AmenityMoreColumn
-      {...props}
-      branchId={branchId}
-      branchLanguages={branchLanguages}
-      mainLanguage={mainLanguage}
-    />
-  ),
+  cell: (props) => <AmenityMoreColumn {...props} branchId={branchId} />,
   size: 33,
 });

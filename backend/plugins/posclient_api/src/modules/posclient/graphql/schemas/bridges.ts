@@ -82,6 +82,19 @@ export const types = `
     percent: Float
     unitPrice: Float
     title: String
+    reasons: JSON
+  }
+
+  type PosPricingSchedule {
+    planId: String!
+    planName: String
+    scheduleMoment: String
+    active: Boolean
+    matchedMoment: String
+    window: JSON
+    endsAt: Date
+    startsAt: Date
+    endedAt: Date
   }
 
   type PosLoyaltyPreviewBonus {
@@ -122,6 +135,7 @@ export const queries = `
   poscCustomerLoyalty(customerId: String!, totalAmount: Float, orderId: String): PosCustomerLoyalty
   poscProductConditions(productId: String!): [PosProductCondition]
   poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String
+  poscPricingSchedule(productIds: [String!]!, customerId: String, orderId: String): [PosPricingSchedule!]!
   poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String, orderId: String): PosLoyaltyPreview
   poscLoyaltyEarnPreview(items: [PosLoyaltyEarnItem!]!, totalAmount: Float!, customerId: String, orderType: String): PosLoyaltyEarnPreview
 `;

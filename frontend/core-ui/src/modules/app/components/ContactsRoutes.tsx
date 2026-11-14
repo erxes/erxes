@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from 'react-router';
 
 import { ContactsPath } from '@/types/paths/ContactsPath';
 import { ContactsPageEffect } from '@/contacts/components/ContactsPageEffect';
+import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 
 const CustomersIndexPage = lazy(() =>
   import('~/pages/contacts/CustomersIndexPage').then((module) => ({
@@ -13,6 +14,12 @@ const CustomersIndexPage = lazy(() =>
 const CompaniesIndexPage = lazy(() =>
   import('~/pages/contacts/CompaniesIndexPage').then((module) => ({
     default: module.CompaniesIndexPage,
+  })),
+);
+
+const ContactDetailPage = lazy(() =>
+  import('~/pages/contacts/ContactDetailPage').then((module) => ({
+    default: module.ContactDetailPage,
   })),
 );
 
@@ -39,9 +46,26 @@ export const ContactsRoutes = () => {
         <Route path={ContactsPath.Customers} element={<CustomersIndexPage />} />
         <Route path={ContactsPath.Companies} element={<CompaniesIndexPage />} />
         <Route
+          path={`${ContactsPath.Leads}/:id`}
+          element={<ContactDetailPage contentType="core:customer" />}
+        />
+        <Route
+          path={`${ContactsPath.Customers}/:id`}
+          element={<ContactDetailPage contentType="core:customer" />}
+        />
+        <Route
+          path={`${ContactsPath.Companies}/:id`}
+          element={<ContactDetailPage contentType="core:company" />}
+        />
+        <Route
           path={ContactsPath.ClientPortalUsers}
           element={<ClientPortalUsersIndexPage />}
         />
+        <Route
+          path={`${ContactsPath.ClientPortalUsers}/:id`}
+          element={<ContactDetailPage contentType="core:cpUser" />}
+        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <ContactsPageEffect />
     </Suspense>

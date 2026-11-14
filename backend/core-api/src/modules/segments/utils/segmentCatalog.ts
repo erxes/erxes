@@ -7,6 +7,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { listDataExtensionSegmentFields } from '@/data-extensions/segments';
 import { listPropertySegmentFields } from './propertyFields';
 
 /** What the segment form offers for a content type: declared fields plus the tenant's properties. */
@@ -23,7 +24,14 @@ export const listSegmentFields = async (
     segments?.segmentFieldNamespaces?.[contentType] || [];
 
   const properties = await Promise.all(
-    namespaces.map((namespace) => listPropertySegmentFields(models, namespace)),
+    namespaces.map((namespace) =>
+      namespace.dataExtensionRecordType
+        ? listDataExtensionSegmentFields(
+            models,
+            namespace.dataExtensionRecordType,
+          )
+        : listPropertySegmentFields(models, namespace),
+    ),
   );
 
   return [...declared, ...properties.flat()].map((field) => ({

@@ -12,6 +12,7 @@ import {
   getSupervisedDepartmentIds,
   isPipelineRestricted,
 } from '@/ticket/utils/ticketVisibility';
+import { buildTeamMemberRestriction } from '@/ticket/utils/teamMemberRestriction';
 
 const isPipelineHidden = (pipeline: any, userId?: string) =>
   pipeline.visibility === 'private' &&
@@ -123,6 +124,17 @@ export const generateFilter = async (
           ...restrictedConditions,
         ],
       });
+    }
+  }
+
+  if (subdomain && user && !skipPipelineVisibility) {
+    const teamMemberRestriction = await buildTeamMemberRestriction(
+      subdomain,
+      user,
+    );
+
+    if (teamMemberRestriction) {
+      andConditions.push(teamMemberRestriction);
     }
   }
 

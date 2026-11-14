@@ -107,6 +107,7 @@ export interface IDeal {
   extraData?: any;
   brokerType?: 'customer' | 'company' | 'user';
   brokerId?: string;
+  scoreLogIds?: string[];
 }
 
 export interface IDealDocument extends IDeal, Document {

@@ -4,7 +4,8 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PageHeader, SIDE_PANEL_CHAT_PATH, useSidePanel } from 'ui-modules';
+import { PageHeader } from 'ui-modules';
+import { useGlobalSidebar } from '@/global-sidebar/hooks/useGlobalSidebar';
 
 import { BloubAvatar } from '@/agent/bloub/BloubAvatar';
 import { defaultCycle } from '@/agent/bloub/engine/cycles';
@@ -72,7 +73,7 @@ const BotThumb = ({
  * Preferences live in localStorage, hence the "Saved on this device" note.
  */
 export const AgentSettingsAppearancePage = () => {
-  const { openPath } = useSidePanel();
+  const { openTool } = useGlobalSidebar();
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const appearance = useAtomValue(agentBotAppearanceState);
   const setAppearance = useSetAtom(agentBotAppearanceWriteState);
@@ -98,10 +99,7 @@ export const AgentSettingsAppearancePage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button
-                  variant="ghost"
-                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
-                >
+                <Button variant="ghost" onClick={() => openTool('assistant')}>
                   <IconPalette />
                   {t('assistant', 'Assistant')}
                 </Button>

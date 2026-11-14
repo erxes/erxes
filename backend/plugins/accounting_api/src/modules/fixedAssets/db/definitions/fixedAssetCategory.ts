@@ -61,6 +61,7 @@ export const fixedAssetCategorySchema = new Schema({
     optional: true,
     label: 'Default tax salvage value',
   },
+  incomeTaxRate: { type: Number, min: 0, max: 100, optional: true },
   // Бүртгэл үүсгэсэн хэрэглэгч
   createdBy: { type: String, optional: true, label: 'Created user' },
   // Бүртгэл сүүлд зассан хэрэглэгч

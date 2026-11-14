@@ -3,14 +3,13 @@ import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePermissionCheck, useVersion } from 'ui-modules';
+import { usePermissionCheck } from 'ui-modules';
 
 const getDisplayName = (name: string) =>
   /[\sA-Z]/.test(name) ? name : name.charAt(0).toUpperCase() + name.slice(1);
 
 export const useNavigationActivities = (): INavigationActivity[] => {
   const navigationGroups = usePluginsNavigationGroups();
-  const version = useVersion();
   const { i18n, t } = useTranslation('common', {
     keyPrefix: 'core-modules',
   });
@@ -41,7 +40,7 @@ export const useNavigationActivities = (): INavigationActivity[] => {
         };
       });
 
-    const coreActivities = GET_CORE_MODULES(t, version)
+    const coreActivities = GET_CORE_MODULES(t)
       .filter((module) => {
         if (module.settingsOnly) {
           return false;
@@ -69,6 +68,5 @@ export const useNavigationActivities = (): INavigationActivity[] => {
     isWildcard,
     navigationGroups,
     t,
-    version,
   ]);
 };

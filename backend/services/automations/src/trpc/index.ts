@@ -1,4 +1,5 @@
 import { t } from './init-trpc';
+import { resolveApprovalProcedure } from './automations/approval';
 import { completeDeferredActionProcedure } from './automations/deferred';
 import { resumeWaitingExecutionsProcedure } from './automations/resumeWaiting';
 import { runForTargetProcedure } from './automations/runForTarget';
@@ -10,6 +11,7 @@ export const appRouter = t.router({
     runForTarget: runForTargetProcedure,
     completeDeferredAction: completeDeferredActionProcedure,
     resumeWaitingExecutions: resumeWaitingExecutionsProcedure,
+    resolveApproval: resolveApprovalProcedure,
   }),
 });
 

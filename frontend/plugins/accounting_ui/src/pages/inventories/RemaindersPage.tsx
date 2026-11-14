@@ -1,3 +1,4 @@
+import { IconFlagStar } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { AccountingHeader } from '~/modules/layout/components/Header';
@@ -14,6 +15,7 @@ export const RemaindersPage = () => {
       <AccountingHeader
         returnLink="/accounting/inventories/remainders"
         returnText={t('Live Remainders')}
+        icon={IconFlagStar}
         skipSettings={true}
       >
         <ReCalcRemainderForm />

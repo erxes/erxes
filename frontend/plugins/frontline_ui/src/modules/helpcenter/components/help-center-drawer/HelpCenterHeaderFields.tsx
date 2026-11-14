@@ -1,3 +1,4 @@
+import { preventImplicitSubmit } from '@/helpcenter/utils/preventImplicitSubmit';
 import { Form, Input } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { Control } from 'react-hook-form';
@@ -12,7 +13,7 @@ export function HelpCenterHeaderFields({
   t: TFunction;
 }>) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3">
       {HELP_CENTER_HEADER_FIELDS.map((field) => (
         <Form.Field
           key={field.name}
@@ -25,6 +26,7 @@ export function HelpCenterHeaderFields({
               </Form.Label>
               <Form.Control>
                 <Input
+                  onKeyDown={preventImplicitSubmit}
                   {...controlled}
                   className="h-8"
                   placeholder={field.placeholder}

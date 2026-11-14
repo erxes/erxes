@@ -1,5 +1,9 @@
 //tslint:disable
-import { escapeRegExp } from 'erxes-api-shared/utils';
+// The gateway downloads this file and imports it as an ES module, where
+// named imports from the CommonJS shared package are not resolvable, so the
+// helper is kept local.
+const escapeRegExp = (str) =>
+  str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 import { withFilter } from 'graphql-subscriptions';
 
 export default {

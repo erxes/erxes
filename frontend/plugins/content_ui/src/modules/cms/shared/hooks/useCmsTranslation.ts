@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { CMS_TRANSLATIONS } from '../../graphql/queries';
+import { getCmsDefaultLanguage } from '../utils';
 
 interface CmsTranslationRecord {
   language: string;
@@ -17,6 +18,79 @@ export interface TranslationData {
   customFieldsData?: unknown[];
 }
 
+export const CMS_TRANSLATION_FIELDS = {
+  post: {
+    title: 'title',
+    content: 'content',
+    excerpt: 'excerpt',
+    customFieldsData: 'customFieldsData',
+  },
+  category: {
+    name: 'title',
+    description: 'content',
+    customFieldsData: 'customFieldsData',
+  },
+  tag: { name: 'title' },
+  page: {
+    name: 'title',
+    description: 'content',
+    customFieldsData: 'customFieldsData',
+  },
+  menu: { label: 'title' },
+} as const;
+
+export const useRecordInDefaultLanguage = <T extends object | null | undefined>(
+  record: T,
+  cmsConfig: { language?: string | null } | undefined,
+  translations: Record<string, TranslationData>,
+  fields: Record<string, keyof TranslationData>,
+): T => {
+  const translation =
+    cmsConfig && !cmsConfig.language
+      ? translations[getCmsDefaultLanguage(cmsConfig)]
+      : undefined;
+
+  return useMemo(() => {
+    if (!record || !translation) return record;
+
+    const savedFields = Object.entries(fields)
+      .filter(([, field]) => translation[field]?.length)
+      .map(([recordField, field]) => [recordField, translation[field]]);
+
+    return { ...record, ...Object.fromEntries(savedFields) };
+  }, [record, translation, fields]);
+};
+
+interface LoadQuery {
+  loading: boolean;
+  error?: unknown;
+  refetch: () => Promise<unknown>;
+}
+
+export const getSavedRowLoad = (
+  cmsConfig: { language?: string | null } | undefined,
+  cmsQuery: LoadQuery,
+  translationsQuery: LoadQuery,
+) => {
+  const isDefaultImplied = !cmsConfig?.language;
+  const hasFailed =
+    Boolean(cmsQuery.error) ||
+    (isDefaultImplied && !cmsQuery.loading && Boolean(translationsQuery.error));
+
+  return {
+    hasFailed,
+    isBlocked:
+      hasFailed ||
+      cmsQuery.loading ||
+      (isDefaultImplied && translationsQuery.loading),
+    retry: () => {
+      [cmsQuery, translationsQuery]
+        .filter(({ error }) => error)
+        .forEach(({ refetch }) => void refetch().catch(() => undefined));
+    },
+  };
+};
+
 const hasNonEmptyValue = (data: TranslationData | undefined): boolean => {
   if (!data) return false;
   if (data.title && data.title.trim() !== '') return true;
@@ -31,6 +105,8 @@ interface UseCmsTranslationOptions {
   type: 'post' | 'page' | 'category' | 'tag' | 'menu' | 'webPage';
   availableLanguages: string[];
   defaultLanguage: string;
+  cmsConfig?: { language?: string | null };
+  cmsQuery: LoadQuery;
   /** Extra dependency for the reset effect. Change this value to force a state
    *  reset even when objectId stays undefined (e.g. consecutive create sessions). */
   resetKey?: string | number | boolean;
@@ -41,6 +117,8 @@ export const useCmsTranslation = ({
   type,
   availableLanguages,
   defaultLanguage,
+  cmsConfig,
+  cmsQuery,
   resetKey,
 }: UseCmsTranslationOptions) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
@@ -69,11 +147,13 @@ export const useCmsTranslation = ({
   }, [objectId, resetKey]);
 
   // Fetch existing translations
-  const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
+  const translationsQuery = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId, type },
     skip: !objectId,
     fetchPolicy: 'network-only',
   });
+  const translationsData = translationsQuery.data;
+  const savedRowLoad = getSavedRowLoad(cmsConfig, cmsQuery, translationsQuery);
 
   // Load fetched translations into state, and push to form if the user
   // already switched to a non-default language before the query returned.
@@ -145,13 +225,13 @@ export const useCmsTranslation = ({
     setFormDataRef.current = setFormData;
 
     // Save current language data
-    if (selectedLanguage === defaultLanguage) {
-      setDefaultLangData(getCurrentData());
-    } else {
+    if (selectedLanguage !== defaultLanguage) {
       setTranslations((prev) => ({
         ...prev,
         [selectedLanguage]: getCurrentData(),
       }));
+    } else if (!savedRowLoad.isBlocked) {
+      setDefaultLangData(getCurrentData());
     }
 
     // Load target language data
@@ -175,6 +255,7 @@ export const useCmsTranslation = ({
     setDefaultLangData,
     isTranslationMode,
     isHydrated,
+    savedRowLoad,
     languageOptions,
     handleLanguageChange,
   };

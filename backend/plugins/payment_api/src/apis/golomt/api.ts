@@ -11,6 +11,7 @@ import {
   isEnabled,
   random,
   sendWorkerMessage,
+  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
 
@@ -19,67 +20,102 @@ export const hmac256 = (key, message) => {
   return hash.digest('hex');
 };
 
+/**
+ * Golomt push notification (server-to-server). Golomt recommends it over the
+ * browser redirect, which is lost when the customer closes the page. It has
+ * to be enabled for the merchant on Golomt's side, pointing at
+ * /pl:payment/notification/golomt.
+ *
+ * The payload is never trusted: the transaction is re-checked with Golomt's
+ * inquiry API before anything is marked paid.
+ */
 export const notificationHandler = async (
   models: IModels,
   subdomain: string,
   data: any,
   res: any,
 ) => {
-  const { errorCode, transactionId, errorDesc } = data;
+  const { errorCode, transactionId, errorDesc } = data || {};
 
-  if (errorCode !== '000') {
-    res.status(400).json({ status: 'error', message: errorDesc });
-    return;
+  if (!transactionId) {
+    return res
+      .status(400)
+      .json({ status: 'error', message: 'transactionId is required' });
   }
 
-  const transaction = await models.Transactions.getTransaction({
-    'details.golomtTransactionId': transactionId,
+  if (errorCode !== '000') {
+    // unsuccessful payment: nothing to update, acknowledge it
+    return res.status(200).json({ status: 'ok', message: errorDesc });
+  }
+
+  // The id sent to Golomt is the transaction _id, unless the transaction
+  // carries its own golomtTransactionId (see createInvoice).
+  const transaction = await models.Transactions.findOne({
+    $or: [
+      { _id: transactionId },
+      { 'details.golomtTransactionId': transactionId },
+    ],
   });
+
+  if (!transaction) {
+    return res
+      .status(404)
+      .json({ status: 'error', message: 'Transaction not found' });
+  }
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
-  if (payment.kind !== 'golomt') {
-    res
+  if (payment.kind !== PAYMENTS.golomt.kind) {
+    return res
       .status(400)
       .json({ status: 'error', message: 'Payment method kind is mismatched' });
-    return;
   }
 
-  try {
-    const api = new GolomtAPI(payment.config);
-    const status = await api.checkInvoice(transaction);
+  const api = new GolomtAPI(payment.config);
+  const status = await api.checkInvoice(transaction);
 
-    if (status !== PAYMENT_STATUS.PAID) {
-      return transaction;
-    }
+  if (status !== PAYMENT_STATUS.PAID) {
+    // Push says success but the inquiry API doesn't confirm it yet.
+    // Don't acknowledge, so Golomt can retry if it supports it.
+    // The pending-invoice cron (#10341) re-checks it either way.
+    return res
+      .status(503)
+      .json({ status: 'retry', message: 'payment not confirmed yet' });
+  }
 
-    transaction.status = status;
-    transaction.updatedAt = new Date();
+  await models.Transactions.updateOne(
+    { _id: transaction._id, status: PAYMENT_STATUS.PENDING },
+    { $set: { status: PAYMENT_STATUS.PAID, updatedAt: new Date() } },
+  );
 
-    await transaction.save();
+  graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
+    transactionUpdated: {
+      _id: transaction._id,
+      status: PAYMENT_STATUS.PAID,
+      amount: transaction.amount,
+      paymentKind: transaction.paymentKind,
+    },
+  });
 
-    graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
-      transactionUpdated: {
-        _id: transaction._id,
-        status: 'paid',
-        amount: transaction.amount,
-        paymentKind: transaction.paymentKind,
-      },
-    });
-    const invoice = await models.Invoices.getInvoice({
-      _id: transaction.invoiceId,
-    });
-    const result = await models.Invoices.checkInvoice(invoice._id, subdomain);
+  // If the invoice was already paid (widget or redirect callback got there
+  // first), it was already notified; don't notify again.
+  const before = await models.Invoices.getInvoice(
+    { _id: transaction.invoiceId },
+    true,
+  );
+  const wasPaid = before.status === PAYMENT_STATUS.PAID;
 
-    if (result === 'paid') {
-      graphqlPubsub.publish(`invoiceUpdated:${invoice._id}`, {
-        invoiceUpdated: {
-          _id: transaction.invoiceId,
-          status: 'paid',
-        },
-      });
-    }
+  const result = await models.Invoices.checkInvoice(
+    transaction.invoiceId,
+    subdomain,
+  );
 
+  const invoice = await models.Invoices.getInvoice(
+    { _id: transaction.invoiceId },
+    true,
+  );
+
+  if (invoice.contentType) {
     const [pluginName, moduleName, collectionType] = splitType(
       invoice.contentType,
     );
@@ -92,54 +128,81 @@ export const notificationHandler = async (
           queueName: 'payments',
           jobName: 'transactionCallback',
           data: {
-            ...transaction,
+            ...transaction.toObject(),
+            status: PAYMENT_STATUS.PAID,
             moduleName,
             collectionType,
             apiResponse: 'success',
           },
           defaultValue: null,
         });
-
-        if (result === 'paid') {
-          await sendWorkerMessage({
-            subdomain,
-            pluginName,
-            queueName: 'payments',
-            jobName: 'callback',
-            data: {
-              ...invoice,
-              moduleName,
-              collectionType,
-              status: 'paid',
-            },
-            defaultValue: null,
-          });
-
-          if (invoice.callback) {
-            try {
-              await fetch(invoice.callback, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  _id: invoice._id,
-                  amount: invoice.amount,
-                  status: 'paid',
-                }),
-              });
-            } catch (e) {
-              console.error('Error: ', e);
-            }
-          }
-        }
       } catch (e) {
-        console.error('Error: ', e);
+        console.error('[golomt notification] transactionCallback failed', e);
       }
     }
-  } catch (e) {
-    throw new Error(e.message);
   }
+
+  if (result === PAYMENT_STATUS.PAID && !wasPaid) {
+    graphqlPubsub.publish(`invoiceUpdated:${invoice._id}`, {
+      invoiceUpdated: { _id: invoice._id, status: PAYMENT_STATUS.PAID },
+    });
+
+    // same notification as the invoicesCheck mutation
+    if (invoice.contentType) {
+      const [pluginName, moduleName, collectionType] = splitType(
+        invoice.contentType,
+      );
+
+      try {
+        await sendWorkerQueue(pluginName, 'payments').add(
+          'callback',
+          {
+            subdomain,
+            data: {
+              ...invoice,
+              status: PAYMENT_STATUS.PAID,
+              moduleName,
+              collectionType,
+              apiResponse: 'success',
+            },
+          },
+          { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+        );
+      } catch (e) {
+        console.error(
+          `[golomt notification] failed to queue callback for invoice ${invoice._id}`,
+          e,
+        );
+      }
+    }
+
+    if (invoice.callback) {
+      try {
+        const callbackRes = await fetch(invoice.callback, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            _id: invoice._id,
+            amount: invoice.amount,
+            status: PAYMENT_STATUS.PAID,
+          }),
+        });
+
+        if (!callbackRes.ok) {
+          console.error(
+            `[golomt notification] callback for invoice ${invoice._id} returned HTTP ${callbackRes.status}`,
+          );
+        }
+      } catch (e) {
+        console.error(
+          `[golomt notification] callback for invoice ${invoice._id} failed`,
+          e,
+        );
+      }
+    }
+  }
+
+  return res.status(200).json({ status: 'ok' });
 };
 
 export const golomtCallbackHandler = async (models: IModels, data: any) => {

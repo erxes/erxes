@@ -1,17 +1,39 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/react-table';
-import {
-  Button,
-  CommandBar,
-  RecordTable,
-  Separator,
-  useConfirm,
-} from 'erxes-ui';
+import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Can, Export } from 'ui-modules';
-import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
+import { useTrRecordsDelete } from '@/transactions/hooks/useTrRecordsDelete';
 import { useTransactionsFilterVariables } from '../hooks/useTransactionVars';
 import { ITrRecord } from '../types/Transaction';
+
+export const TransactionsDelete = () => {
+  const { t } = useTranslation('accounting');
+  const { table } = RecordTable.useRecordTable();
+  const { deleteTrRecords, loading } = useTrRecordsDelete();
+
+  const handleDelete = async () => {
+    const records = table
+      .getFilteredSelectedRowModel()
+      .rows.map((row: Row<ITrRecord>) => row.original);
+
+    if (await deleteTrRecords(records)) {
+      table.setRowSelection({});
+    }
+  };
+
+  return (
+    <Button
+      variant="secondary"
+      className="text-destructive"
+      disabled={loading}
+      onClick={handleDelete}
+    >
+      <IconTrash />
+      {t('delete')}
+    </Button>
+  );
+};
 
 export const TransactionsCommandbar = () => {
   const { t } = useTranslation('accounting');
@@ -47,40 +69,5 @@ export const TransactionsCommandbar = () => {
         <TransactionsDelete />
       </CommandBar.Bar>
     </CommandBar>
-  );
-};
-
-export const TransactionsDelete = () => {
-  const { t } = useTranslation('accounting');
-  const { table } = RecordTable.useRecordTable();
-  const { confirm } = useConfirm();
-  const { removeTrRecords, loading } = useTrRecordsRemove();
-
-  const handleDelete = () =>
-    confirm({
-      message: t('are-you-sure-delete-tr-records'),
-      options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
-      },
-    }).then(() => {
-      const selectedRows = table.getFilteredSelectedRowModel().rows;
-
-      // Delete each transaction record by parentId
-      selectedRows.forEach((row) => {
-        if (row.original.parentId) {
-          removeTrRecords(row.original.parentId);
-        }
-      });
-
-      // Clear selection after deletion
-      table.setRowSelection({});
-    });
-
-  return (
-    <Button variant="secondary" disabled={loading} onClick={handleDelete}>
-      <IconTrash />
-      {t('delete')}
-    </Button>
   );
 };

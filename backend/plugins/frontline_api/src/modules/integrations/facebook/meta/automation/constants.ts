@@ -125,6 +125,23 @@ export const facebookConstants = {
     },
     {
       moduleName: 'facebook',
+      collectionName: 'customerMessages',
+      method: 'create',
+      configSchema: socialMessageActionConfigSchema,
+      icon: 'IconBrandMessenger',
+      label: 'Message the customer on Messenger',
+      description:
+        "Sends to the record's customer in their latest Messenger conversation: within a day freely, within a week with the HUMAN_AGENT tag.",
+      output: {
+        variables: [
+          { key: 'conversationId', label: 'Conversation ID' },
+          { key: 'tag', label: 'Message tag used' },
+          { key: 'messageIds', label: 'Sent message IDs' },
+        ],
+      },
+    },
+    {
+      moduleName: 'facebook',
       collectionName: 'comments',
       method: 'create',
       configSchema: socialCommentActionConfigSchema,

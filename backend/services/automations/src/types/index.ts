@@ -48,4 +48,8 @@ export type TAutomationWaitEventConfig = {
   targetActionId?: string;
   segmentId?: string;
   webhookConfig?: IncomingWebhookConfig;
+  timeout?: { value?: number | string; unit?: 'minutes' | 'hours' | 'days' };
+  // With a timeout the node has two exits: met (the main path) and timedOut.
+  met?: string;
+  timedOut?: string;
 };

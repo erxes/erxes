@@ -64,6 +64,9 @@ const setup = (records: RemovalRecord[] = [], ownsMaster = false) => {
     ),
   };
   const models = {
+    AdjustClosings: { findOne: () => query(null) },
+    AdjustFixedAssets: { findOne: () => query(null) },
+    AdjustInventories: { findOne: () => query(null) },
     FixedAssets: {
       find: () =>
         query(ownsMaster ? [{ _id: 'asset', transactionId: 'income' }] : []),
