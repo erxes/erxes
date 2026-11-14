@@ -1,6 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-type TDealContacts = {
+export type TDealContacts = {
   _id: string;
   customerId?: string | null;
   companyId?: string | null;

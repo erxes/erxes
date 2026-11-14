@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router';
+import { Routes, Route, Navigate, useMatch } from 'react-router';
 import { TeamMembersPath } from '../constants/teamMemberRoutes';
 import { TeamMemberSettingsBreadcrumb } from './TeamMemberSettingsBreadcrumb';
 import { TeamMemberTopbar } from './header/TeamMemberTopbar';
@@ -14,6 +14,12 @@ const TeamMemberPage = lazy(() =>
   ),
 );
 
+const TeamMemberDetailPage = lazy(() =>
+  import('~/pages/settings/workspace/team-member/TeamMemberDetailPage').then(
+    (module) => ({ default: module.TeamMemberDetailPage }),
+  ),
+);
+
 const PermissionsPage = lazy(() =>
   import('~/pages/settings/workspace/team-member/PermissionPage').then(
     (module) => ({
@@ -22,12 +28,25 @@ const PermissionsPage = lazy(() =>
   ),
 );
 
+const TeamActivityPage = lazy(() =>
+  import('~/pages/settings/workspace/team-member/TeamActivityPage').then(
+    (module) => ({
+      default: module.TeamActivityPage,
+    }),
+  ),
+);
+
 export const TeamMemberSettingsRoutes = () => {
+  const isDetailPage = useMatch(
+    `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}/:id`,
+  );
   return (
     <PageContainer>
-      <SettingsHeader breadcrumbs={<TeamMemberSettingsBreadcrumb />}>
-        <TeamMemberTopbar />
-      </SettingsHeader>
+      {!isDetailPage && (
+        <SettingsHeader breadcrumbs={<TeamMemberSettingsBreadcrumb />}>
+          <TeamMemberTopbar />
+        </SettingsHeader>
+      )}
       <div className="flex flex-auto w-full overflow-hidden">
         <Suspense
           fallback={
@@ -51,8 +70,16 @@ export const TeamMemberSettingsRoutes = () => {
               element={<TeamMemberPage />}
             />
             <Route
+              path={`${TeamMembersPath.TeamMembers}/:id`}
+              element={<TeamMemberDetailPage />}
+            />
+            <Route
               path={TeamMembersPath.TeamPermissions}
               element={<PermissionsPage />}
+            />
+            <Route
+              path={TeamMembersPath.TeamActivity}
+              element={<TeamActivityPage />}
             />
           </Routes>
         </Suspense>

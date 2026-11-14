@@ -35,6 +35,7 @@ export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
         toast({
           title: t('success'),
           description: t('configuration-created-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

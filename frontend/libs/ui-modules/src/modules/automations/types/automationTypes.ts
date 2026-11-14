@@ -87,6 +87,7 @@ export interface IAutomationHistoryAction {
     | 'standby'
     | 'dropped';
   skipReason?: string;
+  errorCode?: string;
   // Which try this row is; above 1 only when an error policy asked for another.
   attempt?: number;
   actionId: string;
@@ -193,15 +194,6 @@ export type TAiKnowledgeSourceConfig = {
   supportsFullScope?: boolean;
 };
 
-export type TAiToolConfig = {
-  pluginName: string;
-  moduleName: string;
-  key: string;
-  label: string;
-  input: string;
-  output: string;
-};
-
 export type TAiKnowledgeSourceSelection = {
   pluginName: string;
   moduleName: string;
@@ -262,6 +254,11 @@ export type AutomationTemplateRequirementProps = {
    */
   dependsOnValue?: unknown;
   onChange: (value: unknown | null) => void;
+  /**
+   * What the chosen value is called, e.g. a page's name, so a finished step
+   * can say what was picked without knowing the plugin's records.
+   */
+  onLabel?: (label: string | null) => void;
 };
 
 export type AutomationRemoteEntryProps =
@@ -274,7 +271,12 @@ export type AutomationRemoteEntryProps =
   | AutomationExecutionActionResultProps
   | AutomationCustomWaitEventFormProps
   | AutomationAiKnowledgeSourceSelectorProps
-  | { componentType: 'automationBotsContent' };
+  | {
+      componentType: 'automationBotsContent';
+      /** Lets the host place plugin-owned bot actions in its page header. */
+      renderHeader?: (actions: React.ReactNode) => React.ReactNode;
+      listHeader?: React.ReactNode;
+    };
 
 export type AutomationRemoteEntryComponentType =
   AutomationRemoteEntryProps['componentType'];

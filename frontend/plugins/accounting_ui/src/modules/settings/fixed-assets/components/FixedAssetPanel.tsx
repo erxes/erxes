@@ -17,7 +17,6 @@ import {
   useFixedAssetEdit,
 } from '@/settings/fixed-assets/hooks/useFixedAssetMutations';
 import { TFixedAssetForm } from '@/settings/fixed-assets/types/FixedAsset';
-import { getUsefulLifeFromRate } from '@/settings/fixed-assets/utils/depreciationRate';
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
 const FixedAssetPanelNew = () => {
@@ -66,12 +65,6 @@ const FixedAssetPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
       const parsed = fixedAssetSchema.partial().safeParse({
         ...FIXED_ASSET_DEFAULT_VALUES,
         ...fixedAssetDetail,
-        usefulLife: getUsefulLifeFromRate(
-          fixedAssetDetail.annualDepreciationRate,
-        ),
-        taxUsefulLife: getUsefulLifeFromRate(
-          fixedAssetDetail.taxAnnualDepreciationRate,
-        ),
       });
       if (parsed.success) reset(parsed.data);
       else
@@ -88,12 +81,6 @@ const FixedAssetPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
     const initialData = {
       ...FIXED_ASSET_DEFAULT_VALUES,
       ...fixedAssetDetail,
-      usefulLife: getUsefulLifeFromRate(
-        fixedAssetDetail?.annualDepreciationRate,
-      ),
-      taxUsefulLife: getUsefulLifeFromRate(
-        fixedAssetDetail?.taxAnnualDepreciationRate,
-      ),
     };
 
     if (isDeeplyEqual({ ...initialData, ...data }, initialData)) {

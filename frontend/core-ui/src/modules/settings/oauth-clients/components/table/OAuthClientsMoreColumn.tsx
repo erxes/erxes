@@ -1,5 +1,6 @@
-import { useTranslation } from 'react-i18next';
+import { IOAuthClientApp } from '../../types';
 import { Cell } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 import {
   Popover,
   Command,
@@ -7,64 +8,75 @@ import {
   RecordTable,
   useConfirm,
   useToast,
+  useQueryState,
 } from 'erxes-ui';
 import { IconEdit, IconLock, IconTrash } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { Can } from 'ui-modules';
-import { IOAuthClientApp } from '../../types';
 import { editingOAuthClientAtom } from '../../state';
 import { useOAuthClientsRemove } from '../../hooks/useOAuthClientsRemove';
 import { useOAuthClientsRevoke } from '../../hooks/useOAuthClientsRevoke';
-
 export const OAuthClientsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IOAuthClientApp, unknown>;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'oauth-clients',
+  });
   const { _id, name, status } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { oauthClientAppsRemove } = useOAuthClientsRemove();
   const { oauthClientAppsRevoke } = useOAuthClientsRevoke();
   const setEditingOAuthClient = useSetAtom(editingOAuthClientAtom);
-
+  const [, setClientId] = useQueryState<string>('oauthClientId');
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-client', { name }),
+      message: t('confirm-delete-client', {
+        name,
+      }),
     }).then(async () => {
       try {
-        await oauthClientAppsRemove({ variables: { _id } });
-      } catch (e: any) {
+        await oauthClientAppsRemove({
+          variables: {
+            _id,
+          },
+        });
+      } catch (e: unknown) {
         toast({
           title: t('error'),
-          description: e.message,
+          description: e instanceof Error ? e.message : t('error'),
           variant: 'destructive',
         });
       }
     });
   };
-
   const handleRevoke = () => {
     confirm({
-      message: t('confirm-revoke-client', { name }),
+      message: t('confirm-revoke-client', {
+        name,
+      }),
     }).then(async () => {
       try {
-        await oauthClientAppsRevoke({ variables: { _id } });
+        await oauthClientAppsRevoke({
+          variables: {
+            _id,
+          },
+        });
         toast({
           variant: 'success',
           title: t('client-revoked'),
         });
-      } catch (e: any) {
+      } catch (e: unknown) {
         toast({
           title: t('error'),
-          description: e.message,
+          description: e instanceof Error ? e.message : t('error'),
           variant: 'destructive',
         });
       }
     });
   };
-
   return (
     <Popover>
       <Can action="appsManage">
@@ -77,7 +89,10 @@ export const OAuthClientsMoreColumnCell = ({
           <Command.List>
             <Command.Item
               value="edit"
-              onSelect={() => setEditingOAuthClient(cell.row.original)}
+              onSelect={() => {
+                setEditingOAuthClient(cell.row.original);
+                setClientId(_id);
+              }}
             >
               <IconEdit /> {t('edit')}
             </Command.Item>
@@ -95,7 +110,6 @@ export const OAuthClientsMoreColumnCell = ({
     </Popover>
   );
 };
-
 export const oauthClientsMoreColumn = {
   id: 'more',
   cell: OAuthClientsMoreColumnCell,

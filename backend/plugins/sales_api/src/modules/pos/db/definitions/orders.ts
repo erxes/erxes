@@ -172,6 +172,12 @@ export const posOrderSchema = schemaWrapper(
       optional: true,
       label: 'Converted Deal',
     },
+    scoreLogIds: {
+      type: [String],
+      optional: true,
+      index: true,
+      label: 'Loyalty score logs',
+    },
     returnInfo: {
       type: returnInfoSchema,
       optional: true,

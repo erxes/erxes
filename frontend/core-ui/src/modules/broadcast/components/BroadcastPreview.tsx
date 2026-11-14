@@ -1,4 +1,4 @@
-import { useQueryState } from 'erxes-ui';
+import { useBroadcastSteps } from '@/broadcast/context/BroadcastStepsContext';
 import { useTranslation } from 'react-i18next';
 import { BroadcastEmailPreview } from './preview/BroadcastEmailPreview';
 import { BroadcastMessengerPreview } from './preview/BroadcastMessengerPreview';
@@ -16,7 +16,7 @@ type BROADCAST_PREVIEW_KEY = keyof typeof BROADCAST_PREVIEW;
 
 export const BroadcastPreview = () => {
   const { t } = useTranslation('broadcasts');
-  const [method] = useQueryState('method');
+  const { method } = useBroadcastSteps();
 
   if (!method) {
     return <div>{t('steps.no-method')}</div>;

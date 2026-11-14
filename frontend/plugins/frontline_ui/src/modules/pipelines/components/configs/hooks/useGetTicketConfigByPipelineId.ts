@@ -1,22 +1,27 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useParams } from 'react-router-dom';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { GET_TICKET_CONFIG_BY_PIPELINE_ID } from '../graphql/queries/getTicketConfigBetPipelineId';
 import type {
   TicketConfigQuery,
   TicketConfigQueryVariables,
 } from '~/gql/graphql';
 
+/** Loads a ticket configuration using the settings pipeline as a default. */
 export const useGetTicketConfigByPipelineId = (
   options?: QueryHookOptions<TicketConfigQuery, TicketConfigQueryVariables>,
 ) => {
-  const { pipelineId } = useParams<{ pipelineId: string }>();
-  const { data, loading } = useQuery(GET_TICKET_CONFIG_BY_PIPELINE_ID, {
-    variables: pipelineId ? { pipelineId } : undefined,
+  const { pipelineId } = useSettingsParams();
+  const effectivePipelineId = options?.variables?.pipelineId ?? pipelineId;
+  const { data, loading, error } = useQuery(GET_TICKET_CONFIG_BY_PIPELINE_ID, {
     ...options,
-    skip: !pipelineId,
+    variables: effectivePipelineId
+      ? { pipelineId: effectivePipelineId }
+      : undefined,
+    skip: options?.skip || !effectivePipelineId,
   });
   return {
     ticketConfig: data?.ticketConfig ?? undefined,
     loading,
+    error,
   };
 };

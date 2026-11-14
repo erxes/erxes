@@ -79,7 +79,6 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Invoice id is required');
   }
 
-
   const transaction = await models.Transactions.getTransaction({
     _id,
   });
@@ -367,7 +366,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async getDistricts(city: string) {
-    return await this.makeRequest<{ districts: string[] }>({
+    return await this.makeRequest<{ code: string; name: string }[]>({
       method: 'GET',
       path: `${meta.paths.districts}/${city}`,
     });

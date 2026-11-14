@@ -26,6 +26,7 @@ export const useReserveRemsRemove = () => {
         toast({
           title: t('success'),
           description: t('reserve-remainder-deleted'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

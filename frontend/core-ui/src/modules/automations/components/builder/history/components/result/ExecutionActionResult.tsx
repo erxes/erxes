@@ -1,11 +1,8 @@
-import {
-  getCoreAutomationActionComponent,
-  isCoreAutomationActionType,
-} from '@/automations/components/builder/nodes/actions/coreAutomationActions';
-import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
+import { GenericActionResult } from '@/automations/components/builder/history/components/result/ActionResultShapeView';
+import { ActionStatusResult } from '@/automations/components/builder/history/components/result/ActionStatusResult';
+import { useExecutionActionResult } from '@/automations/components/builder/history/hooks/useExecutionActionResult';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
-import { getActionResultErrorText } from '@/automations/utils/automationHistoryUtils/executionResultPreview';
 import {
   ActionResult,
   IAutomationHistory,
@@ -24,7 +21,7 @@ const PluginActionResult = ({ action, status }: ExecutionActionResultProps) => {
   const { isEnabled } = useAutomationsRemoteModules(pluginName);
 
   if (!isEnabled) {
-    return <ActionResult.Json value={action.result} />;
+    return <GenericActionResult value={action.result} />;
   }
 
   return (
@@ -42,58 +39,40 @@ const PluginActionResult = ({ action, status }: ExecutionActionResultProps) => {
 };
 
 /**
- * Resolves an action's result renderer: the action's own component first, then
- * the owning plugin, then the raw payload. The history views never special-case
- * an action type themselves.
+ * Resolves an action's result renderer. The engine's outcome is drawn here for
+ * every action; a success goes to the action's own component, then the owning
+ * plugin, then the shape-based fallback. The raw payload is always last and
+ * closed.
  */
 export const ExecutionActionResult = ({
   action,
   status,
 }: ExecutionActionResultProps) => {
   const { t } = useTranslation('automations');
-  const CoreActionResult = isCoreAutomationActionType(
-    action.actionType,
-    TAutomationActionComponent.ActionResult,
-  )
-    ? getCoreAutomationActionComponent(
-        action.actionType,
-        TAutomationActionComponent.ActionResult,
-      )
-    : null;
+  const { CoreActionResult, engineOutcome } = useExecutionActionResult(action);
 
-  // A failure is presented the same way whatever the action type: an action's
-  // own renderer only knows how to lay out a successful payload, and reading
-  // one as a result would style the error as a success.
-  if (action.result?.error) {
-    return (
-      <ActionResult>
-        <ActionResult.Status status="error">
-          {getActionResultErrorText(action.result.error)}
-        </ActionResult.Status>
-        {action.result.result ? (
-          <ActionResult.Body title={t('history-failure-details')}>
-            <ActionResult.Json value={action.result.result} />
-          </ActionResult.Body>
-        ) : null}
-      </ActionResult>
-    );
-  }
+  const renderContent = () => {
+    if (engineOutcome) {
+      return <ActionStatusResult view={engineOutcome} />;
+    }
 
-  if (CoreActionResult) {
-    return (
-      <ActionResult>
+    if (CoreActionResult) {
+      return (
         <CoreActionResult
           result={action.result}
           action={action}
           status={status}
         />
-      </ActionResult>
-    );
-  }
+      );
+    }
+
+    return <PluginActionResult action={action} status={status} />;
+  };
 
   return (
     <ActionResult>
-      <PluginActionResult action={action} status={status} />
+      {renderContent()}
+      <ActionResult.Raw value={action.result} label={t('history-result-raw')} />
     </ActionResult>
   );
 };

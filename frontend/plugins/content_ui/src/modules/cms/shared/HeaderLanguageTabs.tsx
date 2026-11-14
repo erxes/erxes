@@ -5,6 +5,7 @@ import { useAtom } from 'jotai';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
 import { useParams } from 'react-router-dom';
 import { cmsLanguageAtom } from './states/cmsLanguageState';
+import { getCmsDefaultLanguage } from './utils';
 
 interface HeaderLanguageTabsProps {
   onLanguageChange?: (lang: string) => void;
@@ -25,7 +26,7 @@ export const HeaderLanguageTabs = ({
   );
 
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   // In editor mode (onLanguageChange provided) the form owns the content for
   // the active language and mirrors it into this atom.

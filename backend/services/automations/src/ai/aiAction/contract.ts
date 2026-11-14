@@ -8,7 +8,7 @@ export type {
 
 export type TAiToolCallTrace = {
   name: string;
-  kind: 'helper' | 'handoff';
+  kind: 'helper' | 'handoff' | 'lookup';
   arguments: Record<string, unknown>;
   result?: unknown;
   error?: string;

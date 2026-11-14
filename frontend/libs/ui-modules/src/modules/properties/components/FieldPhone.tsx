@@ -54,6 +54,7 @@ export const FieldPhoneDetail = (props: SpecificFieldProps) => {
     >
       <PhoneInput
         id={id}
+        placeholder={props.field.name}
         value={currentValue}
         onChange={(val) => {
           setCurrentValue(val);

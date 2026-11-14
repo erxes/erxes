@@ -10,7 +10,7 @@ import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
 import { BlockNoteView } from '@blocknote/shadcn';
 import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
 import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
-import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
+import { Toolbar } from 'erxes-ui/modules/blocks/components/BlockToolbar';
 import { cn } from 'erxes-ui/lib';
 import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
 import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';

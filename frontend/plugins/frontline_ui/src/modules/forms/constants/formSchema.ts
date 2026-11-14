@@ -123,7 +123,7 @@ export const LEAD_DATA_SCHEMA = z
         z.object({
           name: z.string().optional().catch(undefined),
           description: z.string().optional().catch(undefined),
-          order: z.number().catch(0),
+          order: z.number().optional().catch(undefined),
         }),
       )
       .optional()

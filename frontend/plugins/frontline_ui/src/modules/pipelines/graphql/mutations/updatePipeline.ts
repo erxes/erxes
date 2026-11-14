@@ -17,6 +17,7 @@ export const UPDATE_PIPELINE = gql(`
     $numberSize: String
     $nameConfig: String
     $createLayout: [[String!]!]
+    $slaPolicy: TicketSlaPolicyInput
   ) {
     updatePipeline(
       _id: $_id
@@ -34,6 +35,7 @@ export const UPDATE_PIPELINE = gql(`
       numberSize: $numberSize
       nameConfig: $nameConfig
       createLayout: $createLayout
+      slaPolicy: $slaPolicy
     ) {
       _id
       name
@@ -54,6 +56,15 @@ export const UPDATE_PIPELINE = gql(`
       numberSize
       nameConfig
       createLayout
+      slaPolicy {
+        enabled
+        warnBeforeMinutes
+        rules {
+          priority
+          firstResponseMinutes
+          resolutionMinutes
+        }
+      }
     }
   }
 `);

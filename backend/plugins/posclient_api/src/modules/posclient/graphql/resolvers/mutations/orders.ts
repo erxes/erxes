@@ -465,9 +465,10 @@ const applyOrderEdit = async (
 
   await cleanOrderItems(doc._id, doc.items, models);
 
+  // The stored start, never the client's, is the order's created moment.
   const preparedDoc = await prepareOrderDoc(
     subdomain,
-    doc,
+    { ...doc, createdAt: order.createdAt },
     config,
     models,
     posUser,
@@ -838,9 +839,8 @@ const orderMutations: Record<string, Resolver> = {
           pluginName: 'sales',
           module: 'pos',
           action: 'createOrUpdateOrders',
-          input: {
-            query: { action: 'statusToDone', order, posToken: config.token },
-          },
+          // Flat like every other sync: sales reads action and order here
+          input: { action: 'statusToDone', order, posToken: config.token },
           defaultValue: {},
         });
       } catch (e) {

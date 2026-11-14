@@ -20,3 +20,4 @@ export * from './widget-provider/context/formWidget';
 export * from './hooks';
 export * from './graphql';
 export * from './contact-widget';
+export * from './dashboard-widget';

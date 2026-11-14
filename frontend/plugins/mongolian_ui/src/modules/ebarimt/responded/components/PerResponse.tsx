@@ -11,7 +11,7 @@ interface Receipt {
   items?: ReceiptItem[];
 }
 
-interface EbarimtResponse {
+export interface EbarimtResponse {
   _id?: string;
   companyName?: string;
   consumerNo?: string;
@@ -42,6 +42,25 @@ const getNum = (n?: number) => {
   });
 };
 
+const escapeHtml = (value: string | number | null | undefined) =>
+  String(value ?? '').replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    };
+
+    return entities[character];
+  });
+
+const formatText = (value: string) =>
+  escapeHtml(value).replace(/\r?\n/g, '<br />');
+
+const toScriptString = (value: string) =>
+  JSON.stringify(value).replace(/</g, String.raw`\u003c`);
+
 let totalDiscount = 0;
 
 const getRows = (receipts: Receipt[]) => {
@@ -58,12 +77,12 @@ const getRows = (receipts: Receipt[]) => {
       res = res.concat(`
       <tr class="inventory-info">
         <td colspan="4">
-          ${ind}. ${item.name}
+          ${ind}. ${escapeHtml(item.name)}
         </td>
       </tr>
       <tr class="right">
         <td class="right">${getNum(item.unitPrice)}</td>
-        <td class="right">${item.qty}</td>
+        <td class="right">${escapeHtml(item.qty)}</td>
         <td class="right">${getNum(discount)}</td>
         <td class="right">${getNum(item.totalAmount)}</td>
       </tr>
@@ -81,9 +100,9 @@ const customerInfo = (response: EbarimtResponse) => {
     <div>
       <br />
       <p><strong>Худалдан авагч:</strong></p>
-      ${response.customerTin ? `<p>ТТД: ${response.customerTin}</p>` : ''}
-      ${response.consumerNo ? `<p>РД: ${response.consumerNo}</p>` : ''}
-      ${response.customerName ? `<p>Нэр: ${response.customerName} </p>` : ''}
+      ${response.customerTin ? `<p>ТТД: ${escapeHtml(response.customerTin)}</p>` : ''}
+      ${response.consumerNo ? `<p>РД: ${escapeHtml(response.consumerNo)}</p>` : ''}
+      ${response.customerName ? `<p>Нэр: ${escapeHtml(response.customerName)} </p>` : ''}
     </div>
   `;
 };
@@ -98,7 +117,7 @@ const customize = (
   if (value) {
     return `
       <div>
-        ${value}
+        ${formatText(value)}
       </div>      
     `;
   }
@@ -128,17 +147,17 @@ const getReceiptIconSrc = (receiptIcon?: string) => {
 export const PerResponse = (response: EbarimtResponse, counter: number) => {
   totalDiscount = 0;
   return `
-    <div class="receipt" id="${response._id || ''}">
+    <div class="receipt" id="${escapeHtml(response._id)}">
       ${(counter > 0 && '<div class="splitter"></div>') || ''}
       <div class="center">
-        <img class="receipt-logo" src="${getReceiptIconSrc(response.receiptIcon)}" loading="eager">
+        <img class="receipt-logo" src="${escapeHtml(getReceiptIconSrc(response.receiptIcon))}" loading="eager">
       </div>
       <p class="center">
-        ${response.companyName ? response.companyName : ''}
+        ${escapeHtml(response.companyName)}
       </p>
 
       <p class="center">
-        ${response.status !== 'SUCCESS' ? response.message : ''}
+        ${response.status !== 'SUCCESS' ? escapeHtml(response.message) : ''}
       </p>
 
       ${
@@ -147,10 +166,10 @@ export const PerResponse = (response: EbarimtResponse, counter: number) => {
         ${customize(response, 'headerText', '<br />')}
 
         <div>
-          <p>ТТД: ${response.merchantTin}</p>
-          ${(response.id && `<p>ДДТД: ${response.id}</p>`) || ''}
-          <p>Огноо: ${response.date}</p>
-          ${(response.number && `<p>№: ${response.number}</p>`) || ''}
+          <p>ТТД: ${escapeHtml(response.merchantTin)}</p>
+          ${(response.id && `<p>ДДТД: ${escapeHtml(response.id)}</p>`) || ''}
+          <p>Огноо: ${escapeHtml(response.date)}</p>
+          ${(response.number && `<p>№: ${escapeHtml(response.number)}</p>`) || ''}
         </div>
 
         ${customerInfo(response)}
@@ -179,19 +198,19 @@ export const PerResponse = (response: EbarimtResponse, counter: number) => {
 
         <div class="center barcode">
           <div class="lottery">
-            ${(response.lottery && `Сугалаа: ${response.lottery}`) || ''}
+            ${(response.lottery && `Сугалаа: ${escapeHtml(response.lottery)}`) || ''}
           </div>
           <div>
-            ${(response.qrData && `<canvas id="qrcode${response._id}"></canvas>`) || ''}
+            ${(response.qrData && `<canvas id="qrcode${escapeHtml(response._id)}"></canvas>`) || ''}
           </div>
 
           ${customize(response, 'footerText', '<p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>')}
 
           ${
-            response.description &&
+            (response.description &&
             `<div>
-            ${response.description}
-          </div>`
+            ${formatText(response.description)}
+          </div>`) || ''
           }
         </div>
       `
@@ -207,19 +226,19 @@ export const PerResponse = (response: EbarimtResponse, counter: number) => {
 
       ${
         response.qrData
-          ? `
+          ? `{
         // QRCODE
-        const canvas = document.getElementById("qrcode${response._id || ''}");
+        const canvas = document.getElementById(${toScriptString(`qrcode${response._id || ''}`)});
         const ecl = qrcodegen.QrCode.Ecc.LOW;
-        const text = '${response.qrData}';
+        const text = ${toScriptString(response.qrData)};
         const segs = qrcodegen.QrSegment.makeSegments(text);
         // 1=min, 40=max, mask=7
         const qr = qrcodegen.QrCode.encodeSegments(segs, ecl, 1, 40, 2, false);
         // 4=Scale, 1=border
         qr.drawCanvas(4, 0, canvas);
 
-        $("#qrcode${response._id || ''}").after('<img src="' + canvas.toDataURL() + '" />')
-      `
+        $(canvas).after('<img src="' + canvas.toDataURL() + '" />')
+      }`
           : ''
       }
     </script>

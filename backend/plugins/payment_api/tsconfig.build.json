@@ -18,6 +18,8 @@
     "node_modules",
     "dist",
     "**/*spec.ts",
+    "**/__tests__/**",
+    "**/*.test.ts",
     "src/widget"
   ]
 }

@@ -1,121 +1,44 @@
-import { ChannelForm } from '@/channels/components/settings/channels-list/ChannelForm';
 import { channelCreateSheetOpenState } from '@/channels/states';
+import { ChannelHotKeyScope } from '@/channels/types';
+import { CHANNEL_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Kbd,
-  Sheet,
-  Spinner,
-  usePreviousHotkeyScope,
-  useScopedHotkeys,
-  useSetHotkeyScope,
-  useToast,
-} from 'erxes-ui';
+import { Button, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import React from 'react';
-import { SubmitHandler } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { useChannelAdd } from '../../../hooks/useChannelAdd';
-import { useChannelsForm } from '../../../hooks/useChannelsForm';
-import { ChannelHotKeyScope, TChannelForm } from '../../../types';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
 
-type Props = {
+/** Opens channel creation from its button, shortcut, or shared create state. */
+export const CreateChannel = ({
+  isIconOnly = false,
+}: {
   isIconOnly?: boolean;
-};
-
-export const CreateChannel = ({ isIconOnly = false }: Props) => {
+}) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
-  const navigate = useNavigate();
-  const form = useChannelsForm({});
-  const { addChannel, loading } = useChannelAdd();
+  const { openNewRecord } = useSidePanel();
   const [open, setOpen] = useAtom(channelCreateSheetOpenState);
-  const { toast } = useToast();
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-
-  const onOpen = () => {
-    setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(ChannelHotKeyScope.ChannelAddSheet);
-  };
-
-  const onClose = () => {
-    if (!isIconOnly) {
-      setHotkeyScope(ChannelHotKeyScope.ChannelSettingsPage);
+  /** Starts a new team-channel record panel. */
+  const onOpen = () => openNewRecord(CHANNEL_CONTENT_TYPE, {});
+  useEffect(() => {
+    if (open) {
+      openNewRecord(CHANNEL_CONTENT_TYPE, {});
+      setOpen(false);
     }
-    setOpen(false);
-  };
-
-  useScopedHotkeys(`c`, () => onOpen(), ChannelHotKeyScope.ChannelSettingsPage);
-  useScopedHotkeys(`esc`, () => onClose(), ChannelHotKeyScope.ChannelAddSheet);
-
-  const submitHandler: SubmitHandler<TChannelForm> = React.useCallback(
-    async (data) => {
-      addChannel({
-        // No scope is sent: this form only creates shared channels and the API
-        // defaults to `team`. A personal channel is provisioned on demand when
-        // its settings page is opened or a personal mailbox is connected.
-        variables: { ...data },
-        onCompleted: (data) => {
-          toast({ title: t('success', 'Success!') });
-          if (data.channelAdd) {
-            navigate(`/frontline/settings/channels/${data.channelAdd._id}`);
-          }
-          form.reset();
-          setOpen(false);
-        },
-        onError: (error) =>
-          toast({
-            title: t('error', 'Error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [addChannel, toast, setOpen, form],
-  );
-
+  }, [open, openNewRecord, setOpen]);
+  useScopedHotkeys('c', onOpen, ChannelHotKeyScope.ChannelSettingsPage);
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button
-          variant={isIconOnly ? 'ghost' : 'default'}
-          size={isIconOnly ? 'icon' : 'default'}
-        >
-          <IconPlus />
-          {!isIconOnly && (
-            <>
-              <span>{t('create-channel', 'Create channel')}</span>
-              <Kbd>C</Kbd>
-            </>
-          )}
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0">
-        <Form {...form}>
-          <form
-            className="flex flex-col gap-0 size-full"
-            onSubmit={form.handleSubmit(submitHandler)}
-          >
-            <Sheet.Header>
-              <Sheet.Title>{t('create-channel', 'Create channel')}</Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
-              <ChannelForm form={form} />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => onClose()}>
-                {t('cancel', 'Cancel')}
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : t('create', 'Create')}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+    <Button
+      onClick={onOpen}
+      variant={isIconOnly ? 'ghost' : 'default'}
+      size={isIconOnly ? 'icon' : 'default'}
+    >
+      <IconPlus />
+      {!isIconOnly && (
+        <>
+          <span>{t('create-channel', 'Create channel')}</span>
+          <Kbd>C</Kbd>
+        </>
+      )}
+    </Button>
   );
 };

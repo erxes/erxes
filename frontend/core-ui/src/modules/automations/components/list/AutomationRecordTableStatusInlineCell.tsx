@@ -35,8 +35,9 @@ export const AutomationRecordTableStatusInlineCell = ({
           <AutomationStatusBadge status={status} loading={loading} />
         </div>
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="h-cell">
+      <RecordTableInlineCell.Content className="h-auto">
         <AutomationStatusToggle
+          name={cell.row.original.name}
           status={status}
           loading={loading}
           setActive={setActive}

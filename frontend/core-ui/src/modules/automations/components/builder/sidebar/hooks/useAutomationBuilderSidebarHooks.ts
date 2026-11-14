@@ -68,10 +68,24 @@ export const useAutomationBuilderSidebarHooks = () => {
     openNodeLibrary(nodeType);
   };
 
+  const hasSegmentFormContent =
+    activeNode?.nodeType === AutomationNodeType.Trigger &&
+    !activeNode?.isCustom;
+  const isEditingNode =
+    !!activeNode &&
+    (activeNode.nodeType === AutomationNodeType.Action ||
+      activeNode.nodeType === AutomationNodeType.Workflow);
+  const canShowSecondarySidebar = isEditingNode;
+  const sidebarWidthClasses = hasSegmentFormContent
+    ? 'w-screen max-w-full sm:w-fit sm:min-w-md sm:max-w-[min(56rem,calc(100vw-1rem))]'
+    : 'w-screen max-w-full sm:w-fit sm:min-w-[28rem] sm:max-w-[min(42rem,calc(100vw-1rem))]';
+
   return {
     setIsOpenSideBar,
     isOpenSideBar,
     activeNode,
+    canShowSecondarySidebar,
+    sidebarWidthClasses,
     handleBack,
     handleClose,
     toggleSideBarOpen,

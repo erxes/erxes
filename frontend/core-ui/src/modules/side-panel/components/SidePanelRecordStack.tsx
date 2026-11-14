@@ -1,0 +1,146 @@
+import { useAtomValue } from 'jotai';
+import { ComponentType, useMemo, useState } from 'react';
+import {
+  IRecordViewProps,
+  parseSidePanelRecord,
+  SidePanelDraftContext,
+  SidePanelRecordPathContext,
+  sidePanelDraftState,
+  sidePanelHistoryState,
+  sidePanelSessionState,
+} from 'ui-modules';
+import {
+  getModulePanelRecordView,
+  isModulePanelPath,
+} from '@/side-panel/states/modulePanelState';
+import { PagePanelTarget } from '@/side-panel/components/PagePanelTarget';
+import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
+
+/** Retains one editor with its captured draft defaults and record context. */
+const RecordEntry = ({
+  active,
+  View,
+  initialTab,
+  entryPath,
+  ...props
+}: IRecordViewProps & {
+  active: boolean;
+  View: ComponentType<IRecordViewProps>;
+  initialTab?: string;
+  entryPath: string;
+}) => {
+  const currentDraft = useAtomValue(sidePanelDraftState);
+  const [draft] = useState(() => currentDraft);
+  const { contentType, contentId } = props.record;
+  const recordContext = useMemo(
+    () => ({
+      contentType,
+      contentId,
+      tab: initialTab,
+      draftId: contentId === 'new' ? entryPath.split('/').at(-1) : undefined,
+    }),
+    [contentType, contentId, initialTab, entryPath],
+  );
+
+  return (
+    <div
+      hidden={!active}
+      aria-hidden={!active}
+      {...(!active ? { inert: '' } : {})}
+      className={active ? 'flex min-h-0 flex-1 flex-col' : 'hidden'}
+    >
+      <SidePanelDraftContext.Provider value={draft}>
+        <SidePanelRecordPathContext.Provider value={entryPath}>
+          <PanelRecordContext.Provider value={recordContext}>
+            <View {...props} />
+          </PanelRecordContext.Provider>
+        </SidePanelRecordPathContext.Provider>
+      </SidePanelDraftContext.Provider>
+    </div>
+  );
+};
+
+// Keep the views on the navigation stack mounted so returning from a linked
+// record restores the form, selected tab and scroll position.
+export const SidePanelRecordStack = ({
+  path,
+  View,
+  onBack,
+  onClose,
+  history: providedHistory,
+}: {
+  path: string;
+  View: ComponentType<IRecordViewProps>;
+  onBack?: () => void;
+  onClose: () => void;
+  history?: string[];
+}) => {
+  const storedHistory = useAtomValue(sidePanelHistoryState);
+  const history = providedHistory ?? storedHistory;
+  const session = useAtomValue(sidePanelSessionState);
+  const [stack, setStack] = useState(() => ({
+    path,
+    session,
+    paths: [...history, path],
+  }));
+  // History and the router can notify separately. Do not prune mounted views
+  // until the destination URL arrives, or Back could briefly remove its form.
+  if (stack.path !== path || stack.session !== session) {
+    setStack({ path, session, paths: [...history, path] });
+  }
+  const paths = stack.paths;
+  const occurrences = new Map<string, number>();
+
+  return (
+    <>
+      {paths.map((entry, index) => {
+        const occurrence = occurrences.get(entry) ?? 0;
+        occurrences.set(entry, occurrence + 1);
+        const entryKey = JSON.stringify([session, entry, occurrence]);
+        const record = parseSidePanelRecord(entry);
+        if (!record && !isModulePanelPath(entry)) return null;
+        if (!record) {
+          return (
+            <div
+              key={entryKey}
+              hidden={index !== paths.length - 1}
+              aria-hidden={index !== paths.length - 1}
+              {...(index !== paths.length - 1 ? { inert: '' } : {})}
+              className={
+                index === paths.length - 1
+                  ? 'flex min-h-0 flex-1 flex-col'
+                  : 'hidden'
+              }
+            >
+              <PagePanelTarget path={entry} onClose={onClose} />
+            </div>
+          );
+        }
+
+        return (
+          <RecordEntry
+            key={entryKey}
+            active={index === paths.length - 1}
+            View={View}
+            record={record}
+            entryPath={entry}
+            initialTab={
+              paths
+                .slice(index + 1)
+                .map(getModulePanelRecordView)
+                .find(
+                  (view) =>
+                    view?.contentType === record.contentType &&
+                    view.contentId === record.contentId &&
+                    (record.contentId !== 'new' ||
+                      view.draftId === entry.split('/').at(-1)),
+                )?.tab
+            }
+            onBack={onBack}
+            onClose={onClose}
+          />
+        );
+      })}
+    </>
+  );
+};

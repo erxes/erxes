@@ -3,9 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { ContactsPath } from '@/types/paths/ContactsPath';
 import { IconBookmarksFilled } from '@tabler/icons-react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const ContactsBreadcrumb = () => {
+export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation('contact');
 
@@ -44,6 +45,19 @@ export const ContactsBreadcrumb = () => {
                       {currentSection.label}
                     </Link>
                   </Button>
+                </Breadcrumb.Page>
+              </Breadcrumb.Item>
+            </>
+          )}
+          {title && (
+            <>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Breadcrumb.Page
+                  className="block max-w-64 truncate px-3 py-1 leading-5"
+                  title={typeof title === 'string' ? title : undefined}
+                >
+                  {title}
                 </Breadcrumb.Page>
               </Breadcrumb.Item>
             </>

@@ -21,7 +21,8 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PageHeader, SIDE_PANEL_CHAT_PATH, useSidePanel } from 'ui-modules';
+import { PageHeader } from 'ui-modules';
+import { useGlobalSidebar } from '@/global-sidebar/hooks/useGlobalSidebar';
 
 import { ProviderIcon } from '@/agent/components/ProviderIcon';
 import {
@@ -59,7 +60,7 @@ import {
  * returns stored keys.
  */
 export const AgentSettingsConnectionPage = () => {
-  const { openPath } = useSidePanel();
+  const { openTool } = useGlobalSidebar();
   const { connections, loading, error } = useAgentsConnection();
 
   const [provider, setProvider] = useState('');
@@ -174,10 +175,7 @@ export const AgentSettingsConnectionPage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button
-                  variant="ghost"
-                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
-                >
+                <Button variant="ghost" onClick={() => openTool('assistant')}>
                   <IconSparkles />
                   Assistant
                 </Button>

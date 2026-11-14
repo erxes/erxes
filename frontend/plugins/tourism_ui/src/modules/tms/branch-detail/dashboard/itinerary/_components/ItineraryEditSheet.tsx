@@ -394,7 +394,7 @@ export const ItineraryEditSheet = ({
                     />
                   </Tabs.Content>
 
-                  <Tabs.Content value="info" className="p-6 overflow-y-auto">
+                  <Tabs.Content value="info" className="p-6 overflow-y-auto styled-scroll">
                     <div key={selectedLang} className="w-full space-y-4">
                       <div className="flex items-end gap-4">
                         <div className="w-[20%]">

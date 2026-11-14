@@ -24,6 +24,7 @@ import {
   SettingsPanelSelect,
   SettingsPanelSwitch,
   SettingsPanelTextField,
+  SettingsPanelTitleField,
 } from '@/settings/components/panel/SettingsPanelFields';
 import {
   ISettingsPanelViewProps,
@@ -94,13 +95,11 @@ const AccountPanelActions = ({ contentId }: ISettingsPanelViewProps) => {
   );
 };
 
-const AccountPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
+const useSaveAccount = () => {
   const { t } = useTranslation('accounting');
-  const { accountDetail: account, loading } = useAccountDetail(contentId);
-  const { dealCurrencyOptions } = useCurrencyConfigs();
   const { editAccount } = useAccountEdit();
 
-  const save = (current: IAccount, fields: Partial<TAccountForm>) => {
+  return (current: IAccount, fields: Partial<TAccountForm>) => {
     if (!fields.categoryId && !current.categoryId) {
       toast({ title: t('no-category-selected'), variant: 'destructive' });
       return;
@@ -111,19 +110,34 @@ const AccountPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
       Object.keys(fields),
     );
   };
+};
+
+const AccountPanelTitle = ({ contentId }: ISettingsPanelViewProps) => {
+  const { t } = useTranslation('accounting');
+  const { accountDetail: account, loading } = useAccountDetail(contentId);
+  const save = useSaveAccount();
+
+  return (
+    <SettingsPanelTitleField
+      scope={SCOPE}
+      loading={loading}
+      value={account ? account.name || '' : undefined}
+      placeholder={t('enter-account-name')}
+      onSave={(name) => account && save(account, { name })}
+    />
+  );
+};
+
+const AccountPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
+  const { t } = useTranslation('accounting');
+  const { accountDetail: account, loading } = useAccountDetail(contentId);
+  const { dealCurrencyOptions } = useCurrencyConfigs();
+  const save = useSaveAccount();
 
   return (
     <SettingsPanelDetailLayout loading={loading} hasRecord={!!account}>
       {account && (
         <>
-          <PanelField label={t('name')}>
-            <SettingsPanelTextField
-              scope={`${SCOPE}.name`}
-              value={account.name || ''}
-              placeholder={t('enter-account-name')}
-              onSave={(name) => save(account, { name })}
-            />
-          </PanelField>
           <PanelField label={t('code')}>
             <SettingsPanelTextField
               scope={`${SCOPE}.code`}
@@ -268,6 +282,7 @@ const AccountPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
 export const ACCOUNT_PANEL: ISettingsPanelViews = {
   addLabel: 'add-account',
   editLabel: 'edit-account',
+  Title: AccountPanelTitle,
   New: AccountPanelNew,
   Actions: AccountPanelActions,
   Detail: AccountPanelDetail,

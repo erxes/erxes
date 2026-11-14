@@ -1,3 +1,4 @@
+import { IconAdjustmentsCode } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { AccountingHeader } from '@/layout/components/Header';
 import { AccountingLayout } from '@/layout/components/Layout';
@@ -10,6 +11,7 @@ export const AdjustFixedAssetDetailPage = () => {
       <AccountingHeader
         returnLink="/accounting/adjustment/fxa"
         returnText={t('Fixed asset')}
+        icon={IconAdjustmentsCode}
       />
       <AdjustFixedAssetDetail />
     </AccountingLayout>

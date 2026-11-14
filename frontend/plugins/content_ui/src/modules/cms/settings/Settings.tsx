@@ -1,5 +1,4 @@
 import { PageContainer } from 'erxes-ui';
-import { CmsSidebar } from '../shared/CmsSidebar';
 import { SettingsForm } from './components/SettingsForm';
 import { SettingsHeader } from './components/SettingsHeader';
 import { useSettingsForm } from './hooks/useSettingsForm';
@@ -19,7 +18,6 @@ export const Settings = () => {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <SettingsHeader
           disabled={!canSave}

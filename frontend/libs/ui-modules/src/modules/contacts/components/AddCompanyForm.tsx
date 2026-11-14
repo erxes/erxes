@@ -24,6 +24,7 @@ import { useAddCompany } from '../hooks/useAddCompany';
 import { useCompanyNameByRegister } from '../hooks/useCompanyNameByRegister';
 import { SelectCompany } from './SelectCompany';
 import { SelectMember } from '../../team-members/components/SelectMember';
+import { DataExtensionCreateFields } from '../../data-extensions/components/DataExtensionCreateFields';
 
 const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean).map(
   (i) => ({ label: i, value: i }),
@@ -400,6 +401,8 @@ export function AddCompanyForm({
                 </Form.Item>
               )}
             />
+
+            <DataExtensionCreateFields recordType="core:company" />
           </div>
         </ScrollArea>
 

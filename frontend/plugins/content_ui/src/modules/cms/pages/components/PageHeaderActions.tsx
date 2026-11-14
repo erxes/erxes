@@ -6,16 +6,17 @@ import { IPageFormData } from '../types/pageTypes';
 interface PageHeaderActionsProps {
   form: UseFormReturn<IPageFormData>;
   onSubmit: (data: IPageFormData) => void;
-  getSaving: () => boolean;
+  saving: boolean;
+  isSaveBlocked: boolean;
 }
 
 export const PageHeaderActions = ({
   form,
   onSubmit,
-  getSaving,
+  saving,
+  isSaveBlocked,
 }: PageHeaderActionsProps) => {
   const { t } = useTranslation('content');
-  const saving = getSaving();
 
   // Without this, a failed validation on a field that has no visible message
   // (status, thumbnail, custom fields) makes Save look like it does nothing.
@@ -70,7 +71,7 @@ export const PageHeaderActions = ({
       </Form>
       <Button
         onClick={() => form.handleSubmit(onSubmit, onInvalid)()}
-        disabled={saving}
+        disabled={saving || isSaveBlocked}
       >
         {saving ? (
           <>

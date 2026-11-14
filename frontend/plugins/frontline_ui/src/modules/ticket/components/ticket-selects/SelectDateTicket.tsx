@@ -51,7 +51,7 @@ const useDateSelectContext = () => {
 const toSingleDate = (date: unknown) =>
   date instanceof Date ? date : undefined;
 
-const formatDateLabel = (date: Date) =>
+export const formatDateLabel = (date: Date) =>
   format(
     date,
     date.getFullYear() === new Date().getFullYear() ? 'MMM d' : 'MMM d, yyyy',
@@ -127,7 +127,9 @@ export const DateSelectTrigger = ({
   const { variant, disabled } = useDateSelectContext();
   if (variant === DateSelectVariant.TABLE) {
     return (
-      <RecordTableInlineCell.Trigger>{children}</RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Trigger disabled={disabled}>
+        {children}
+      </RecordTableInlineCell.Trigger>
     );
   }
   if (variant === DateSelectVariant.CARD) {
@@ -238,9 +240,7 @@ export const DateSelectTicketRoot = ({
           <Combobox.ChipTrigger
             label={label}
             disabled={disabled}
-            onClear={
-              dateValue && !disabled ? () => commitValue() : undefined
-            }
+            onClear={dateValue && !disabled ? () => commitValue() : undefined}
             clearLabel={t('clear')}
           >
             {dateValue ? (
