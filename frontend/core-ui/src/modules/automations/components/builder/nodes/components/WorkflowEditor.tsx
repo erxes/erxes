@@ -1,40 +1,20 @@
 import { AutomationBuilderCanvas } from '@/automations/components/builder/AutomationBuilderCanvas';
+import {
+  TWorkflowEditorMeta,
+  TWorkflowEditorValue,
+  useWorkflowEditor,
+} from '@/automations/components/builder/nodes/hooks/useWorkflowEditor';
+import { useWorkflowEditorHeader } from '@/automations/components/builder/nodes/hooks/useWorkflowEditorHeader';
 import { AutomationBuilderSidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebar';
-import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { AutomationProvider } from '@/automations/context/AutomationProvider';
 import { WorkflowEditScopeProvider } from '@/automations/context/WorkflowEditScopeProvider';
-import { AutomationNodeType } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { TWorkflowInputBindings } from '@/automations/utils/workflowInputs';
 import { IconArrowLeft, IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { ReactFlowProvider } from '@xyflow/react';
 import { AlertDialog, Button, Input, Popover } from 'erxes-ui';
-import { useCallback, useMemo, useState } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { TAutomationAction } from 'ui-modules';
+import { FormProvider } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-export type TWorkflowEditorValue = {
-  name: string;
-  description?: string;
-  actions: TAutomationAction[];
-  entryActionId?: string;
-  inputs?: TWorkflowInputBindings;
-};
-
-/** Stable value fingerprint used to decide whether the editor has edits. */
-const snapshotOf = ({
-  name,
-  description,
-  actions,
-  inputs,
-}: Partial<TWorkflowEditorValue>) =>
-  JSON.stringify({
-    name: name || '',
-    description: description || '',
-    actions: actions || [],
-    inputs: inputs || {},
-  });
+export type { TWorkflowEditorValue };
 
 type TWorkflowEditorProps = {
   // Identifies the workflow scope to the canvas; any stable id works
@@ -66,119 +46,19 @@ export const WorkflowEditor = ({
   onBack,
 }: TWorkflowEditorProps) => {
   const { t } = useTranslation('automations');
-  const innerForm = useForm<TAutomationBuilderForm>({
-    defaultValues: {
-      name: initial.name || 'Workflow',
-      status: 'draft',
-      edgeType,
-      flowDirection,
-      triggers: [],
-      actions: initial.actions || [],
-      workflows: [],
-    } as TAutomationBuilderForm,
-  });
-
-  const innerActions = useWatch({
-    control: innerForm.control,
-    name: 'actions',
-  });
-
-  const [meta, setMeta] = useState({
-    name: initial.name || '',
-    description: initial.description || '',
-  });
-  const [inputs, setInputs] = useState<TWorkflowInputBindings>(
-    initial.inputs || {},
-  );
-  const [savedSnapshot, setSavedSnapshot] = useState(() =>
-    snapshotOf({
-      name: initial.name,
-      description: initial.description,
-      actions: initial.actions,
-      inputs: initial.inputs,
-    }),
-  );
-  const [isDiscardOpen, setDiscardOpen] = useState(false);
-
-  // Compared by value, not identity: react-hook-form hands back a fresh
-  // `actions` array on unrelated re-renders, which would otherwise mark an
-  // untouched workflow dirty the moment the canvas mounts.
-  const currentSnapshot = useMemo(
-    () =>
-      snapshotOf({
-        name: meta.name,
-        description: meta.description,
-        actions: innerActions,
-        inputs,
-      }),
-    [innerActions, inputs, meta],
-  );
-  const isDirty = currentSnapshot !== savedSnapshot;
-
-  const updateMeta = useCallback(
-    (key: 'name' | 'description', value: string) => {
-      setMeta((previous) => ({ ...previous, [key]: value }));
-    },
-    [],
-  );
-
-  const addInput = useCallback((name: string) => {
-    const trimmed = name.trim();
-
-    if (!trimmed) {
-      return;
-    }
-
-    setInputs((previous) =>
-      previous[trimmed] !== undefined
-        ? previous
-        : { ...previous, [trimmed]: '' },
-    );
-  }, []);
-
-  const handleSave = useCallback(async () => {
-    const actions = innerForm.getValues('actions') || [];
-    // The stored entry may have been deleted while editing; fall back to the
-    // first member so the workflow always has an entry point.
-    const entryActionId = actions.some(({ id }) => id === initial.entryActionId)
-      ? initial.entryActionId
-      : actions[0]?.id;
-
-    try {
-      await onSave({
-        name: meta.name,
-        description: meta.description,
-        actions,
-        entryActionId,
-        inputs,
-      });
-      setSavedSnapshot(
-        snapshotOf({
-          name: meta.name,
-          description: meta.description,
-          actions,
-          inputs,
-        }),
-      );
-    } catch {
-      // The caller surfaces the failure; stay dirty so the edits aren't lost
-    }
-  }, [innerForm, initial.entryActionId, inputs, meta, onSave]);
-
-  const handleBack = useCallback(() => {
-    // Leaving with unsaved edits needs an explicit discard
-    if (isDirty) {
-      setDiscardOpen(true);
-      return;
-    }
-
-    onBack();
-  }, [isDirty, onBack]);
-
-  const handleDiscard = useCallback(() => {
-    setDiscardOpen(false);
-    onBack();
-  }, [onBack]);
+  const {
+    innerForm,
+    meta,
+    updateMeta,
+    inputs,
+    addInput,
+    isDirty,
+    isDiscardOpen,
+    setDiscardOpen,
+    handleSave,
+    handleBack,
+    handleDiscard,
+  } = useWorkflowEditor({ initial, edgeType, flowDirection, onSave, onBack });
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden">
@@ -249,15 +129,15 @@ const WorkflowEditorHeader = ({
 }: {
   breadcrumbLabel: string;
   saveLabel: string;
-  meta: { name: string; description: string };
-  onMetaChange: (key: 'name' | 'description', value: string) => void;
+  meta: TWorkflowEditorMeta;
+  onMetaChange: (key: keyof TWorkflowEditorMeta, value: string) => void;
   isDirty: boolean;
   onBack: () => void;
   onSave: () => void;
 }) => {
-  const { handleNodeLibraryToggle } = useAutomationBuilderSidebarHooks();
-
   const { t } = useTranslation('automations');
+  const { onNameChange, onDescriptionChange, openActionLibrary } =
+    useWorkflowEditorHeader(onMetaChange);
 
   return (
     <div className="flex items-center gap-3 border-b bg-sidebar px-4 py-2">
@@ -282,16 +162,12 @@ const WorkflowEditorHeader = ({
             <Input
               value={meta.name}
               placeholder={t('workflow-editor-name-placeholder')}
-              onChange={(event) =>
-                onMetaChange('name', event.currentTarget.value)
-              }
+              onChange={onNameChange}
             />
             <Input
               value={meta.description}
               placeholder={t('description')}
-              onChange={(event) =>
-                onMetaChange('description', event.currentTarget.value)
-              }
+              onChange={onDescriptionChange}
             />
           </Popover.Content>
         </Popover>
@@ -307,10 +183,7 @@ const WorkflowEditorHeader = ({
             <Button onClick={onSave}>{saveLabel}</Button>
           </>
         )}
-        <Button
-          variant="outline"
-          onClick={() => handleNodeLibraryToggle(AutomationNodeType.Action)}
-        >
+        <Button variant="outline" onClick={openActionLibrary}>
           <IconPlus className="size-4" />
           {t('workflow-editor-add-action')}
         </Button>

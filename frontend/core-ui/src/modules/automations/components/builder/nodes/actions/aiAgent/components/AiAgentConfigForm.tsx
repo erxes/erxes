@@ -3,30 +3,14 @@ import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/acti
 import { AiAgentConfigRail } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentConfigRail';
 import { AiAgentOutputFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentOutputFields';
 import { AiAgentSetupFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentSetupFields';
-import {
-  TAiAgentConfigTab,
-  useAiAgentConfigTabs,
-} from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentConfigTabs';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { AiAgentActionProvider } from '@/automations/components/builder/nodes/actions/aiAgent/context/AiAgentActionProvider';
 import { AiAgentDetailSheetContent } from '@/automations/components/settings/components/agents/components/AiAgentDetailSheetContent';
 import { Tabs } from 'erxes-ui';
-import { DeepPartial, FieldErrors, FormProvider } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import { TAutomationActionProps } from 'ui-modules';
-import { useAiAgentBuilderSheet } from '../hooks/useAiAgentBuilderSheet';
-import { useAiAgentConfigForm } from '../hooks/useAiAgentConfigForm';
-
-const getOutputCount = (config?: DeepPartial<TAiAgentConfigForm>) => {
-  if (config?.goalType === 'splitTopic') return config.topics?.length || 0;
-  if (config?.goalType === 'classification') {
-    return config.objectFields?.length || 0;
-  }
-  if (config?.goalType === 'generateText') {
-    return (config.captureFields?.length || 0) + (config.tools?.length || 0);
-  }
-  return 0;
-};
+import { useAiAgentConfigFormView } from '../hooks/useAiAgentConfigFormView';
 
 export const AIAgentConfigForm = ({
   currentAction,
@@ -34,41 +18,31 @@ export const AIAgentConfigForm = ({
 }: TAutomationActionProps<TAiAgentConfigForm>) => {
   const {
     form,
-    handleSubmit,
-    handleValidationErrors,
     selectedAgent,
     config,
     automationsAiAgents,
-  } = useAiAgentConfigForm({ currentAction });
-  const {
     sheet,
     openSheet,
     closeSheet,
     handleCreated,
     agentSelectOpen,
     setAgentSelectOpen,
-  } = useAiAgentBuilderSheet({
-    onCreated: (agentId) =>
-      form.setValue('aiAgentId', agentId, { shouldDirty: true }),
-  });
-  const { tab, setTab, outputTab, setOutputTab, showFirstError } =
-    useAiAgentConfigTabs();
-
-  const handleInvalid = (errors: FieldErrors<TAiAgentConfigForm>) => {
-    showFirstError(errors);
-    handleValidationErrors(errors);
-  };
+    tab,
+    changeTab,
+    outputTab,
+    setOutputTab,
+    outputCount,
+    onSave,
+  } = useAiAgentConfigFormView({ currentAction, handleSave });
 
   return (
     <FormProvider {...form}>
       <AiAgentActionProvider actionId={currentAction.id}>
-        <AutomationConfigFormWrapper
-          onSave={handleSubmit(handleSave, handleInvalid)}
-        >
+        <AutomationConfigFormWrapper onSave={onSave}>
           {/* Bleeds over the wrapper padding so the rail runs edge to edge */}
           <Tabs
             value={tab}
-            onValueChange={(value) => setTab(value as TAiAgentConfigTab)}
+            onValueChange={changeTab}
             orientation="vertical"
             className="-m-4 flex min-w-72 flex-1"
           >
@@ -92,7 +66,7 @@ export const AIAgentConfigForm = ({
               </Tabs.Content>
             </div>
             <AiAgentConfigRail
-              outputCount={getOutputCount(config)}
+              outputCount={outputCount}
               snapshot={
                 <AiAgentRuntimeInfo
                   agent={selectedAgent}

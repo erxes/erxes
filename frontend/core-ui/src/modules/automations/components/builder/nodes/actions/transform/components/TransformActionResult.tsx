@@ -1,28 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { ActionResult } from 'ui-modules';
-
-const VISIBLE_FIELD_LIMIT = 8;
-
-const useTransformActionResult = (result?: { data?: Record<string, any> }) => {
-  const entries = Object.entries(result?.data || {});
-
-  return {
-    entries: entries.slice(0, VISIBLE_FIELD_LIMIT),
-    hiddenCount: Math.max(entries.length - VISIBLE_FIELD_LIMIT, 0),
-    total: entries.length,
-  };
-};
-
-const formatValue = (value: unknown) =>
-  typeof value === 'object' && value !== null
-    ? JSON.stringify(value)
-    : String(value);
+import {
+  formatValue,
+  useTransformActionResult,
+} from '@/automations/components/builder/nodes/actions/transform/hooks/useTransformActionResult';
 
 export const TransformActionResult = ({
   result,
 }: ActionResultComponentProps<{
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }>) => {
   const { entries, hiddenCount, total } = useTransformActionResult(result);
   const { t } = useTranslation('automations');

@@ -1,12 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { AiAgentFieldOptionsBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentFieldOptionsBuilder';
-import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
+import {
+  TAiAgentFieldsGroupName,
+  useAiAgentObjectField,
+} from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentObjectField';
 import { Form, Input, Select, Textarea } from 'erxes-ui';
-import { useFormContext, useWatch } from 'react-hook-form';
-
-export type TAiAgentFieldsGroupName = 'objectFields' | 'captureFields';
-
-type TAiAgentFieldSuffix = 'fieldName' | 'prompt' | 'validation' | 'dataType';
 
 // The open row of a field list; its summary line lives in the row trigger.
 export const AiAgentObjectFieldBuilder = ({
@@ -17,13 +15,7 @@ export const AiAgentObjectFieldBuilder = ({
   name?: TAiAgentFieldsGroupName;
 }) => {
   const { t } = useTranslation('automations');
-  const { control } = useFormContext<TAiAgentConfigForm>();
-  // captureFields items share the exact shape of objectFields items, so the
-  // objectFields path type is reused while the runtime path stays correct.
-  const fieldPath = <S extends TAiAgentFieldSuffix>(suffix: S) =>
-    `${name}.${index}.${suffix}` as `objectFields.${number}.${S}`;
-  const isOption =
-    useWatch({ control, name: fieldPath('dataType') }) === 'option';
+  const { control, fieldPath, isOption } = useAiAgentObjectField(index, name);
 
   return (
     <>

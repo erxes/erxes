@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { TAiAgentFieldsGroupName } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectFieldBuilder';
+import { TAiAgentFieldsGroupName } from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentObjectField';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label, Textarea } from 'erxes-ui';

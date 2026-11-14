@@ -1,11 +1,11 @@
 import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
-import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAwaitToConnectButton } from '@/automations/components/builder/nodes/hooks/useAwaitToConnectButton';
 import { AutomationNodeType } from '@/automations/types';
 import { IconGripVertical, IconLinkPlus, IconPlus } from '@tabler/icons-react';
-import { Handle, Position, useConnection } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 import { Button, cn } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface NodeOutputHandlerProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -79,30 +79,8 @@ const AwaitToConnectButton = memo(
     label,
   }: AwaitToConnectButtonProps) => {
     const { t } = useTranslation('automations');
-    const {
-      awaitingToConnectNodeId,
-      setAwaitingToConnectNodeId,
-      setQueryParams,
-    } = useAutomation();
-    const isConnectionDragging = useConnection(
-      (connection) => connection.inProgress,
-    );
-
-    const handleClick = useCallback(
-      (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (!awaitingToConnectNodeId) {
-          setQueryParams({ activeNodeId: null });
-        }
-        setAwaitingToConnectNodeId(
-          awaitingToConnectNodeId === nodeHandleId ? '' : nodeHandleId,
-        );
-      },
-      [awaitingToConnectNodeId, nodeHandleId],
-    );
-
-    const isSelected = awaitingToConnectNodeId === nodeHandleId;
+    const { isSelected, isConnectionDragging, toggleAwaiting } =
+      useAwaitToConnectButton(nodeHandleId);
 
     if (!showButton || isConnectionDragging) return null;
 
@@ -122,7 +100,7 @@ const AwaitToConnectButton = memo(
           })}
         />
         <Button
-          onClick={handleClick}
+          onClick={toggleAwaiting}
           size="sm"
           variant="outline"
           aria-label={t('add-step', 'Add step')}

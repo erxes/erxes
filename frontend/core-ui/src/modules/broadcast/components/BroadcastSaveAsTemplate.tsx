@@ -1,22 +1,19 @@
 import { IconTemplate } from '@tabler/icons-react';
 import { Button, Input, Popover } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useBroadcastSaveAsTemplate } from '../hooks/useBroadcastSaveAsTemplate';
+import { useBroadcastSaveAsTemplateForm } from '../hooks/useBroadcastSaveAsTemplateForm';
 
 export const BroadcastSaveAsTemplate = () => {
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
-  const { save, loading } = useBroadcastSaveAsTemplate();
-
-  const [name, setName] = useState('');
-  const [open, setOpen] = useState(false);
-
-  const handleSave = async () => {
-    if (await save(name)) {
-      setName('');
-      setOpen(false);
-    }
-  };
+  const {
+    open,
+    setOpen,
+    name,
+    onNameChange,
+    saveDisabled,
+    saveLabelKey,
+    handleSave,
+  } = useBroadcastSaveAsTemplateForm();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -30,15 +27,15 @@ export const BroadcastSaveAsTemplate = () => {
         <Input
           placeholder={t('saveAsTemplatePlaceholder')}
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={onNameChange}
         />
         <Button
           type="button"
-          disabled={!name || loading}
+          disabled={saveDisabled}
           onClick={handleSave}
           className="w-full"
         >
-          {loading ? t('saveAsTemplateSaving') : t('saveAsTemplateAction')}
+          {t(saveLabelKey)}
         </Button>
       </Popover.Content>
     </Popover>

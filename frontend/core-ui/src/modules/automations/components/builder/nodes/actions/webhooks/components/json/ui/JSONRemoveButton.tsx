@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
-import { useFormContext } from 'react-hook-form';
 import { IconTrash } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { deleteAtJSONProperty } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
+import { useJSONRemoveButton } from '@/automations/components/builder/nodes/actions/webhooks/hooks/useJSONRemoveButton';
 
 type OutgoinWebhookBodyPath = Array<string | number>;
 
@@ -16,14 +15,8 @@ export const JSONRemoveButton = memo(function JSONRemoveButton({
   name,
   path,
 }: JSONRemoveButtonProps) {
-  const { getValues, setValue } = useFormContext();
   const { t } = useTranslation('automations');
-
-  const onRemove = () => {
-    const root = getValues();
-    const next = deleteAtJSONProperty(root, path);
-    setValue(name, next[name], { shouldDirty: true, shouldTouch: true });
-  };
+  const onRemove = useJSONRemoveButton(name, path);
 
   return (
     <Button

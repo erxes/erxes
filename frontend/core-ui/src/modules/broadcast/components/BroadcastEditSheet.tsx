@@ -1,35 +1,15 @@
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
-import {
-  usePagePanelContext,
-  usePagePanel,
-  PagePanelContext,
-} from '@/side-panel/hooks/usePagePanel';
-import { IBroadcastMethodEnum } from '@/broadcast/types';
+import { PagePanelContext } from '@/side-panel/hooks/usePagePanel';
 import { SidePanelRecordPathContext } from 'ui-modules';
-import { useAutomationDetail } from '@/automations/hooks/useAutomationDetail';
 import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
-import { useBroadcastMessage } from '@/broadcast/hooks/useBroadcastMessage';
-import { messageToFormValues } from '@/broadcast/utils/messageToFormValues';
 import { BroadcastStepsSheetView } from '@/broadcast/components/steps/BroadcastStepsSheetView';
-import { useMultiQueryState } from 'erxes-ui';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BroadcastErrorState } from '@/broadcast/components/list/BroadcastStates';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { IBroadcastFormData } from '@/broadcast/hooks/useBroadcastForm';
-import { broadcastPageSearch } from '@/broadcast/utils/broadcastPageSearch';
-
-type BroadcastEditPageState = {
-  broadcastDraft?: {
-    messageId: string;
-    values: IBroadcastFormData;
-    step: number;
-  };
-};
-type TBroadcastEditQueryParams = {
-  editMessageId: string;
-  method: IBroadcastMethodEnum;
-};
+import {
+  useBroadcastEditSheet,
+  useBroadcastEditSheetContent,
+} from '@/broadcast/hooks/useBroadcastEditSheet';
 
 /**
  * A campaign is edited through the sheet it was created in.
@@ -39,51 +19,9 @@ type TBroadcastEditQueryParams = {
  * campaigns never get here: what they are sending is already out.
  */
 export const BroadcastEditSheet = ({ page = false }: { page?: boolean }) => {
-  const [{ editMessageId: queryId, method }, setQueryParams] =
-    useMultiQueryState<TBroadcastEditQueryParams>(['editMessageId', 'method']);
-  const { messageId: routeId } = useParams<{ messageId: string }>();
-  const editMessageId = page ? routeId : queryId;
-  const navigate = useNavigate();
-  const { search } = useLocation();
-  const handleClose = () => {
-    if (page) {
-      navigate(
-        `/broadcasts/${encodeURIComponent(
-          editMessageId || '',
-        )}${broadcastPageSearch(search)}`,
-      );
-      return;
-    }
-    setQueryParams({
-      editMessageId: null,
-      method: null,
-    });
-  };
-  const openPage = (values?: IBroadcastFormData, step = 0) => {
-    if (!editMessageId) return;
-    navigate(
-      `/broadcasts/${encodeURIComponent(
-        editMessageId,
-      )}/edit${broadcastPageSearch(search)}`,
-      {
-        state: {
-          broadcastDraft: values
-            ? { messageId: editMessageId, values, step }
-            : undefined,
-        },
-      },
-    );
-  };
-  const pagePanel = usePagePanel({
-    page,
-    maxWidth: 1200,
-    defaultWidth: 900,
-    name: 'broadcast/BroadcastEditSheet',
-    open: !!editMessageId,
-    onOpenChange: (open) => !open && handleClose(),
-    identity: editMessageId || 'new',
-    onExpand: page ? undefined : () => openPage(),
-  });
+  const { editMessageId, method, pagePanel, handleClose, onExpand } =
+    useBroadcastEditSheet(page);
+
   return (
     <PagePanelContext.Provider value={pagePanel}>
       <SidePanelRecordPathContext.Provider value={pagePanel.path}>
@@ -92,7 +30,7 @@ export const BroadcastEditSheet = ({ page = false }: { page?: boolean }) => {
             <BroadcastEditSheetContent
               messageId={editMessageId}
               onClose={handleClose}
-              onExpand={page ? undefined : openPage}
+              onExpand={onExpand}
             />
           )}
         </BroadcastStepsSheetView>
@@ -100,6 +38,7 @@ export const BroadcastEditSheet = ({ page = false }: { page?: boolean }) => {
     </PagePanelContext.Provider>
   );
 };
+
 const BroadcastEditSheetContent = ({
   messageId,
   onClose,
@@ -109,50 +48,29 @@ const BroadcastEditSheetContent = ({
   onClose: () => void;
   onExpand?: (values: IBroadcastFormData, step: number) => void;
 }) => {
-  const entry = usePagePanelContext();
   const { t } = useTranslation('broadcasts');
-  const location = useLocation();
-  const state: BroadcastEditPageState | null = location.state;
-  const draft =
-    entry.page && state?.broadcastDraft?.messageId === messageId
-      ? state.broadcastDraft
-      : undefined;
-  const { message, loading, error, refetch } = useBroadcastMessage({
-    variables: {
-      _id: messageId,
-    },
-  });
+  const {
+    entry,
+    error,
+    retry,
+    notFound,
+    flowFailed,
+    loading,
+    initialValues,
+    initialStep,
+  } = useBroadcastEditSheetContent(messageId);
 
-  // A workflow campaign keeps its flow on the automation it owns, not on the
-  // campaign, so the steps cannot be filled in until that has loaded too.
-  const { automation, loading: loadingAutomation } = useAutomationDetail(
-    message?.workflowAutomationId,
-  );
-  const initialValues = useMemo(
-    () =>
-      draft?.values ??
-      messageToFormValues(message, {
-        actions: automation?.actions,
-        entryActionId: automation?.triggers?.[0]?.actionId,
-      }),
-    [message, automation, draft],
-  );
-
-  // The flow editor seeds its own form once, from the value it mounts with, so
-  // the steps must not be rendered before the flow is there to seed it with.
-  const isMissingFlow = !!message?.workflowAutomationId && !automation;
-
-  if (error)
+  if (error) {
     return (
       <PagePanelStatus
         entry={entry}
         error
-        errorState={
-          <BroadcastErrorState error={error} onRetry={() => refetch()} />
-        }
+        errorState={<BroadcastErrorState error={error} onRetry={retry} />}
       />
     );
-  if (!loading && !message?._id)
+  }
+
+  if (notFound) {
     return (
       <PagePanelStatus
         entry={entry}
@@ -161,17 +79,23 @@ const BroadcastEditSheetContent = ({
         }
       />
     );
-  if (!loading && !loadingAutomation && isMissingFlow)
+  }
+
+  if (flowFailed) {
     return <PagePanelStatus entry={entry} error />;
-  if (loading || loadingAutomation || isMissingFlow)
+  }
+
+  if (loading) {
     return <PagePanelStatus entry={entry} loading />;
+  }
+
   return (
     <BroadcastSteps
       messageId={messageId}
       initialValues={initialValues}
       onClose={onClose}
       onExpand={onExpand}
-      initialStep={draft?.step}
+      initialStep={initialStep}
     />
   );
 };

@@ -1,8 +1,6 @@
-import { useAutomationDashboardList } from '@/automations/dashboard/hooks/useAutomationDashboardList';
-import { useAutomationSearchList } from '@/automations/hooks/useAutomationSearchList';
+import { useAutomationDashboardPicker } from '@/automations/dashboard/hooks/useAutomationDashboardPicker';
 import { IconX } from '@tabler/icons-react';
 import { Badge, Combobox, Command, Popover, cn } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const StatusDot = ({ status }: { status?: string }) => (
@@ -25,54 +23,27 @@ export const AutomationDashboardPicker = ({
   max: number;
 }) => {
   const { t } = useTranslation('automations');
-  const [open, setOpen] = useState(false);
   const {
+    open,
+    setOpen,
     search,
     setSearch,
-    automations,
+    options,
     loading,
     error,
     totalCount,
     handleFetchMore,
-  } = useAutomationSearchList(open);
-  const { automations: selected } = useAutomationDashboardList(value);
-
-  const isFull = max > 1 && value.length >= max;
-
-  const handleSelect = (id: string) => {
-    if (value.includes(id)) {
-      onChange(value.filter((current) => current !== id));
-      return;
-    }
-
-    if (max === 1) {
-      onChange([id]);
-      setOpen(false);
-      return;
-    }
-
-    if (!isFull) {
-      onChange([...value, id]);
-    }
-  };
-
-  const triggerLabel = () => {
-    if (!value.length) {
-      return t('dashboard-pick-automation');
-    }
-
-    if (max === 1) {
-      return selected[0]?.name || t('dashboard-automation-unavailable');
-    }
-
-    return t('dashboard-selected-count', { count: value.length, max });
-  };
+    selected,
+    showSelected,
+    triggerLabel,
+    toggle,
+  } = useAutomationDashboardPicker({ value, onChange, max });
 
   return (
     <div className="flex flex-col gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.Trigger className="w-full justify-between">
-          <span className="truncate">{triggerLabel()}</span>
+          <span className="truncate">{triggerLabel}</span>
         </Combobox.Trigger>
         <Combobox.Content className="w-(--radix-popover-trigger-width)">
           <Command shouldFilter={false}>
@@ -83,26 +54,22 @@ export const AutomationDashboardPicker = ({
             />
             <Command.List>
               <Combobox.Empty loading={loading} error={error} />
-              {automations.map((automation) => {
-                const checked = value.includes(automation._id);
-
-                return (
-                  <Command.Item
-                    key={automation._id}
-                    value={automation._id}
-                    disabled={!checked && isFull}
-                    onSelect={handleSelect}
-                  >
-                    <StatusDot status={automation.status} />
-                    <span className="truncate">{automation.name}</span>
-                    <Combobox.Check checked={checked} />
-                  </Command.Item>
-                );
-              })}
+              {options.map(({ automation, checked, disabled }) => (
+                <Command.Item
+                  key={automation._id}
+                  value={automation._id}
+                  disabled={disabled}
+                  onSelect={() => toggle(automation._id)}
+                >
+                  <StatusDot status={automation.status} />
+                  <span className="truncate">{automation.name}</span>
+                  <Combobox.Check checked={checked} />
+                </Command.Item>
+              ))}
               {!loading && (
                 <Combobox.FetchMore
                   fetchMore={handleFetchMore}
-                  currentLength={automations.length}
+                  currentLength={options.length}
                   totalCount={totalCount}
                 />
               )}
@@ -110,7 +77,7 @@ export const AutomationDashboardPicker = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      {max > 1 && !!selected.length && (
+      {showSelected && (
         <div className="flex flex-wrap gap-1">
           {selected.map((automation) => (
             <Badge key={automation._id} variant="secondary" className="gap-1">
@@ -118,7 +85,7 @@ export const AutomationDashboardPicker = ({
               <button
                 type="button"
                 aria-label={t('dashboard-remove-automation')}
-                onClick={() => handleSelect(automation._id)}
+                onClick={() => toggle(automation._id)}
               >
                 <IconX className="size-3" />
               </button>

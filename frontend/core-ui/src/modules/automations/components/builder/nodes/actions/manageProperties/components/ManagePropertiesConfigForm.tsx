@@ -1,55 +1,36 @@
 import { ManagePropertyRule } from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyRule';
 import { ManagePropertiesConfigFormSkeleton } from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertiesConfigFormSkeleton';
-import { useManagePropertySidebarContent } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertySidebarContent';
-import {
-  managePropertiesFormSchema,
-  TManagePropertiesForm,
-} from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
+import { useManagePropertiesConfigForm } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertiesConfigForm';
+import { TManagePropertiesForm } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { AutomationSortableRules } from '@/automations/components/builder/sidebar/components/content/action/conditional/AutomationRuleCard';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { Alert, Button, Form, Label, Select } from 'erxes-ui';
-import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import {
-  TAutomationAction,
-  TAutomationActionProps,
-  useFormValidationErrorHandler,
-} from 'ui-modules';
+import { FormProvider } from 'react-hook-form';
+import { TAutomationActionProps } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
-
-const generateDefaultValues = (currentAction: TAutomationAction) => {
-  const values = { ...(currentAction?.config || {}) };
-  if (!values.rules?.length) {
-    values.rules = [{ field: '', operator: '' }];
-  }
-  return values;
-};
 
 export const ManagePropertiesConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TManagePropertiesForm>) => {
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Manage properties Configuration',
-  });
-
-  const form = useForm<TManagePropertiesForm>({
-    resolver: zodResolver(managePropertiesFormSchema),
-    defaultValues: generateDefaultValues(currentAction),
-  });
+  const { t } = useTranslation('automations');
   const {
+    form,
+    loading,
+    isPropertyTypeValid,
     propertyTypes,
     propertyType,
     sourceType,
-    isPropertyTypeValid,
-    loading,
-  } = useManagePropertySidebarContent(currentAction, form);
-  const { t } = useTranslation('automations');
-  const { fields, append, remove, move, replace } = useFieldArray({
-    control: form.control,
-    name: 'rules',
-  });
+    fields,
+    ruleIds,
+    move,
+    remove,
+    addRule,
+    changeModule,
+    onSave,
+  } = useManagePropertiesConfigForm({ currentAction, handleSave });
+
   if (loading) {
     return <ManagePropertiesConfigFormSkeleton />;
   }
@@ -70,9 +51,7 @@ export const ManagePropertiesConfigForm = ({
 
   return (
     <FormProvider {...form}>
-      <AutomationConfigFormWrapper
-        onSave={form.handleSubmit(handleSave, handleValidationErrors)}
-      >
+      <AutomationConfigFormWrapper onSave={onSave}>
         <div className="w-[500px]">
           <Form.Field
             control={form.control}
@@ -82,18 +61,7 @@ export const ManagePropertiesConfigForm = ({
                 <Form.Label>{t('property-type')}</Form.Label>
                 <Select
                   value={field.value}
-                  onValueChange={(value) => {
-                    const selectedPropertyTarget = propertyTypes.find(
-                      (target) => target.value === value,
-                    );
-
-                    field.onChange(value);
-                    form.setValue('setPropertyTarget', selectedPropertyTarget, {
-                      shouldDirty: true,
-                      shouldTouch: true,
-                    });
-                    replace([{ field: '', operator: '' }]);
-                  }}
+                  onValueChange={changeModule(field.onChange)}
                 >
                   <Select.Trigger>
                     <Select.Value placeholder={t('select-property-type')} />
@@ -112,10 +80,7 @@ export const ManagePropertiesConfigForm = ({
           />
           <div className="mt-4 flex flex-col gap-3">
             <Label>{t('rules')}</Label>
-            <AutomationSortableRules
-              ids={fields.map((field) => field.id)}
-              onReorder={move}
-            >
+            <AutomationSortableRules ids={ruleIds} onReorder={move}>
               {fields.map((field, index) => (
                 <ManagePropertyRule
                   key={field.id}
@@ -132,7 +97,7 @@ export const ManagePropertiesConfigForm = ({
               variant="outline"
               size="sm"
               className="w-fit"
-              onClick={() => append({ field: '', operator: '' })}
+              onClick={addRule}
             >
               <IconPlus />
               {t('add-rule')}

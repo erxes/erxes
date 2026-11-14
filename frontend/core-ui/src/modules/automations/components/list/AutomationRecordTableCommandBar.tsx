@@ -1,38 +1,27 @@
-import { AutomationsHotKeyScope, IAutomation } from '@/automations/types';
-import { ApolloError } from '@apollo/client';
-import { Row } from '@tanstack/react-table';
-import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
+import { AutomationsHotKeyScope } from '@/automations/types';
+import { useAutomationRecordTableCommandBar } from '@/automations/hooks/useAutomationRecordTableCommandBar';
+import { CommandBar, Separator } from 'erxes-ui';
 import { AutomationRemoveButtonCommandBar } from '@/automations/components/list/AutomationRemoveButtonCommandBar';
 import { AutomationMoveToFolderCommandBar } from '@/automations/components/list/folders/AutomationMoveToFolderCommandBar';
 import { Can, TagsSelect } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
-const intersection = (arrays: string[][]): string[] => {
-  if (arrays.length === 0) return [];
-
-  return arrays.reduce((common, current) =>
-    common.filter((item) => current.includes(item)),
-  );
-};
-
 export const AutomationRecordTableCommandBar = () => {
   const { t } = useTranslation('automations');
-  const { table } = RecordTable.useRecordTable();
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const {
+    selectedRows,
+    selectedCount,
+    isSelected,
+    automationIds,
+    tagIds,
+    tagOptions,
+  } = useAutomationRecordTableCommandBar();
 
-  const automationIds = selectedRows.map(
-    (row: Row<IAutomation>) => row.original._id,
-  );
-  const tagIds = intersection(
-    selectedRows.map((row: Row<IAutomation>) => row.original.tagIds || []),
-  );
-
-  const isSelected = selectedRows.length > 0;
   return (
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {t('list-selected-count', { count: selectedRows.length })}
+          {t('list-selected-count', { count: selectedCount })}
         </CommandBar.Value>
         <Can action="tagsTag">
           <>
@@ -45,28 +34,7 @@ export const AutomationRecordTableCommandBar = () => {
               className="shadow-none"
               value={tagIds}
               targetIds={automationIds}
-              options={(newSelectedTagIds) => ({
-                update: (cache) => {
-                  automationIds.forEach((automationId) => {
-                    cache.modify({
-                      id: cache.identify({
-                        __typename: 'Automation',
-                        _id: automationId,
-                      }),
-                      fields: {
-                        tagIds: () => newSelectedTagIds,
-                      },
-                    });
-                  });
-                },
-                onError: (e: ApolloError) => {
-                  toast({
-                    title: t('error'),
-                    description: e.message,
-                    variant: 'destructive',
-                  });
-                },
-              })}
+              options={tagOptions}
             />
           </>
         </Can>

@@ -1,15 +1,11 @@
-import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
 import {
-  StatusBadgeValue,
-  TAutomationStats,
-  TAutomationStatsCount,
-} from '@/automations/types';
+  statusVariantOf,
+  useAutomationStatsOverview,
+} from '@/automations/components/builder/stats/hooks/useAutomationStatsOverview';
+import { formatErrorCode } from '@/automations/components/builder/stats/utils/automationStatsFormat';
+import { TAutomationStats, TAutomationStatsCount } from '@/automations/types';
 import { Badge } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-const getStatusVariant = (status: string): StatusBadgeValue =>
-  STATUSES_BADGE_VARIABLES[status as keyof typeof STATUSES_BADGE_VARIABLES] ??
-  'secondary';
 
 const StatTile = ({
   label,
@@ -24,19 +20,14 @@ const StatTile = ({
   </div>
 );
 
-const formatErrorCode = (code: string) =>
-  code.toLowerCase().split('_').join(' ');
-
 export const AutomationStatsOverview = ({
   stats,
 }: {
   stats: TAutomationStats;
 }) => {
   const { t } = useTranslation('automations');
-  const { total, byStatus, byErrorCode } = stats;
-
-  const errorTotal = byStatus.find(({ key }) => key === 'error')?.count ?? 0;
-  const errorRate = total ? Math.round((errorTotal / total) * 100) : 0;
+  const { total, byStatus, byErrorCode, errorRate } =
+    useAutomationStatsOverview(stats);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -52,7 +43,7 @@ export const AutomationStatsOverview = ({
       <StatTile label={t('stats-by-status')}>
         {byStatus.length ? (
           byStatus.map(({ key, count }: TAutomationStatsCount) => (
-            <Badge key={key} variant={getStatusVariant(key)}>
+            <Badge key={key} variant={statusVariantOf(key)}>
               {key} {count}
             </Badge>
           ))

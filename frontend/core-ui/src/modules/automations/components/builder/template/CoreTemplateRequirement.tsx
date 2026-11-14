@@ -1,6 +1,7 @@
 import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
 import { EmailContentRequirement } from '@/automations/components/builder/template/EmailContentRequirement';
 import { TEmailContentAnswer } from '@/automations/components/builder/template/useEmailContentRequirement';
+import { TAutomationVariableSourceNode } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowserTypes';
 import { Input, Textarea } from 'erxes-ui';
 import { SelectMember, splitAutomationNodeType } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,7 @@ export const CoreTemplateRequirement = ({
   value,
   input,
   defaultValue,
+  variableSourceNodes,
   onChange,
 }: {
   kind: string;
@@ -27,6 +29,8 @@ export const CoreTemplateRequirement = ({
   input?: { multiline?: boolean; placeholder?: string };
   // What the step holds before an answer, e.g. an email's template text
   defaultValue?: unknown;
+  // For `core:emails.content`: its journey's trigger
+  variableSourceNodes?: TAutomationVariableSourceNode[];
   onChange: (value: unknown | null) => void;
 }) => {
   const { t } = useTranslation('automations');
@@ -53,6 +57,7 @@ export const CoreTemplateRequirement = ({
       <EmailContentRequirement
         value={value}
         defaultValue={defaultValue as Partial<TEmailContentAnswer> | undefined}
+        variableSourceNodes={variableSourceNodes}
         onChange={onChange}
       />
     );

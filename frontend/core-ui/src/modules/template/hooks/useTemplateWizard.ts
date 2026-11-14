@@ -1,5 +1,9 @@
 import { TEMPLATE_INSTALL } from '@/template/graphql/mutations';
 import { TEMPLATE_INSTALLATIONS } from '@/template/graphql/queries';
+import {
+  reinstallConfirmOf,
+  useTemplatePriorInstalls,
+} from '@/template/hooks/useTemplatePriorInstalls';
 import { TTemplate, TTemplateAnswers } from '@/template/types';
 import {
   countUnansweredTemplateSteps,
@@ -11,7 +15,7 @@ import {
 } from '@/template/utils/templateWizard';
 import { useMutation } from '@apollo/client';
 import { installedPathOf } from '@/template/utils/installedPath';
-import { useToast } from 'erxes-ui';
+import { useConfirm, useToast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +30,7 @@ import { currentUserState } from 'ui-modules';
 export const useTemplateWizard = (template?: TTemplate) => {
   const { t } = useTranslation('templates');
   const { toast } = useToast();
+  const { confirm } = useConfirm();
   const navigate = useNavigate();
   const currentUser = useAtomValue(currentUserState);
   const ordered = useMemo(
@@ -70,6 +75,7 @@ export const useTemplateWizard = (template?: TTemplate) => {
   });
 
   const remaining = countUnansweredTemplateSteps(ordered, answers);
+  const priorInstalls = useTemplatePriorInstalls(template);
 
   const isStepOpen = useCallback(
     (index: number) => isTemplateStepOpen(ordered, index, answers),
@@ -129,8 +135,8 @@ export const useTemplateWizard = (template?: TTemplate) => {
     setExpandedKey(firstUnansweredTemplateStep(ordered, answers));
   }, [ordered, answers]);
 
-  const submit = useCallback(() => {
-    if (!template || remaining) {
+  const runInstall = useCallback(() => {
+    if (!template) {
       return;
     }
 
@@ -155,7 +161,33 @@ export const useTemplateWizard = (template?: TTemplate) => {
           description: error.message,
         }),
       );
-  }, [template, remaining, install, answers, toast, t, navigate]);
+  }, [template, install, answers, toast, t, navigate]);
+
+  // Installing again makes a second copy of everything; say so first
+  const confirmReinstall = useCallback(() => {
+    if (!template) {
+      return;
+    }
+
+    const { key, values } = reinstallConfirmOf(template, priorInstalls);
+
+    confirm({
+      message: t(key, values),
+      options: { okLabel: t('install-again') },
+    }).then(runInstall);
+  }, [template, priorInstalls, confirm, t, runInstall]);
+
+  const submit = useCallback(() => {
+    if (!template || remaining) {
+      return;
+    }
+
+    if (priorInstalls.installations.length) {
+      confirmReinstall();
+    } else {
+      runInstall();
+    }
+  }, [template, remaining, priorInstalls, confirmReinstall, runInstall]);
 
   return {
     template,
@@ -175,6 +207,7 @@ export const useTemplateWizard = (template?: TTemplate) => {
     remaining,
     submit,
     installing,
+    priorInstalls,
   };
 };
 

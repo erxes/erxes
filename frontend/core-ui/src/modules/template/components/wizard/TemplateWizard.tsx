@@ -1,3 +1,4 @@
+import { TemplatePriorInstallsAlert } from '@/template/components/wizard/TemplatePriorInstallsAlert';
 import { TemplateStepGroup } from '@/template/components/wizard/TemplateStepGroup';
 import { TemplateWizardHeader } from '@/template/components/wizard/TemplateWizardHeader';
 import {
@@ -42,6 +43,7 @@ export const TemplateWizard = ({ template }: { template: TTemplate }) => (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-5">
         <TemplateWizardHeader />
+        <TemplatePriorInstallsAlert />
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <TemplateWizardSteps />
           {/* Level with the first step, under its group's heading */}

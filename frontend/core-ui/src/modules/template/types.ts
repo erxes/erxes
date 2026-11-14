@@ -6,6 +6,9 @@ export type TTemplateRequirement = {
   dependsOn?: string;
   input?: { multiline?: boolean; placeholder?: string };
   defaultAnswer?: unknown;
+  // Which journey this fills into, so its trigger's variables can be offered
+  // while answering (a 'part' fill has none)
+  fills?: { journey?: string }[];
 };
 
 export type TTemplatePreviewNode = { label: string; icon?: string };

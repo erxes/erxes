@@ -1,6 +1,11 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { Badge, Button, cn } from 'erxes-ui';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
+import {
+  formatResultJson,
+  isBlankResultValue,
+  useActionResultToggle,
+} from '../../hooks/useActionResultToggle';
 import { IAutomationHistoryAction } from '../../types/automationTypes';
 
 export type TActionResultStatus = NonNullable<
@@ -53,7 +58,7 @@ export const ActionResultField = ({
   value?: ReactNode;
   badge?: 'success' | 'destructive' | 'secondary';
 }) => {
-  if (value === undefined || value === null || value === '') {
+  if (isBlankResultValue(value)) {
     return null;
   }
 
@@ -90,7 +95,7 @@ export const ActionResultBody = ({
   html?: string;
   children?: ReactNode;
 }) => {
-  const [isExpanded, setExpanded] = useState(false);
+  const { isOpen: isExpanded, toggle } = useActionResultToggle();
 
   if (!html && !children) {
     return null;
@@ -123,7 +128,7 @@ export const ActionResultBody = ({
         variant="ghost"
         size="sm"
         className="h-6 px-0 text-xs text-primary"
-        onClick={() => setExpanded((value) => !value)}
+        onClick={toggle}
       >
         {isExpanded ? 'show less' : 'show more'}
       </Button>
@@ -133,7 +138,7 @@ export const ActionResultBody = ({
 
 export const ActionResultJson = ({ value }: { value: unknown }) => (
   <pre className="max-h-72 min-w-0 overflow-auto whitespace-pre-wrap break-all rounded-md bg-muted/30 p-3 font-mono text-xs">
-    {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+    {formatResultJson(value)}
   </pre>
 );
 
@@ -148,7 +153,7 @@ export const ActionResultRaw = ({
   value: unknown;
   label?: string;
 }) => {
-  const [isOpen, setOpen] = useState(false);
+  const { isOpen, toggle } = useActionResultToggle();
 
   if (value === undefined || value === null) {
     return null;
@@ -161,7 +166,7 @@ export const ActionResultRaw = ({
         size="sm"
         aria-expanded={isOpen}
         className="h-6 gap-1 px-0 text-xs text-muted-foreground"
-        onClick={() => setOpen((open) => !open)}
+        onClick={toggle}
       >
         <IconChevronRight
           className={cn('size-3 transition-transform', isOpen && 'rotate-90')}

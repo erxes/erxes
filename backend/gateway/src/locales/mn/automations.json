@@ -1179,5 +1179,14 @@
   "folder-empty-description": "Жагсаалтаас automation сонгоод \"Хавтас руу зөөх\"-ийг дарж энд оруулна.",
   "folders-all-filed-title": "Бүх automation хавтсанд байна",
   "folders-all-filed-description": "Дээрх хавтсыг нээх эсвэл хайлтаар бүгдээс нь хайна уу.",
-  "from-template": "Template-ээс"
+  "from-template": "Template-ээс",
+  "create-dialog-title": "Automation үүсгэх",
+  "create-dialog-description": "Хоосноос эхлэх эсвэл бэлэн template-ээс сонгох.",
+  "create-dialog-scratch": "Хоосноос эхлэх",
+  "create-dialog-scratch-description": "Хоосон automation: trigger сонгоод алхмуудаа өөрөө нэмнэ.",
+  "create-dialog-from-template": "Template-ээс эхлэх",
+  "create-dialog-see-all": "Бүх template-ийг харах",
+  "create-dialog-open-gallery": "Gallery нээх",
+  "create-dialog-no-templates": "Одоогоор automation template алга.",
+  "create-dialog-templates-error": "Template-уудыг ачаалж чадсангүй."
 }

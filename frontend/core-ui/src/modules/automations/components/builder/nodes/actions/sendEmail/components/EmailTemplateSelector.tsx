@@ -1,13 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { SelectEmailTemplate } from '@/automations/components/builder/nodes/actions/sendEmail/components/SelectEmailTemplate';
-import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
-import {
-  emailTemplateFormat,
-  TEmailContentFormat,
-} from '@/emailTemplates/types';
-import { useConfirm } from 'erxes-ui';
-import { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useEmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useEmailTemplateSelector';
+import { TEmailContentFormat } from '@/emailTemplates/types';
 
 /**
  * Loading a template into the action brings its format with it: a block
@@ -22,43 +16,7 @@ export const EmailTemplateSelector = ({
   format?: TEmailContentFormat;
 }) => {
   const { t } = useTranslation('automations');
-  const { setValue } = useFormContext();
-  const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
-  const { confirm } = useConfirm();
-
-  const handleTemplateSelect = (templateId: string) => {
-    if (!templateId) {
-      return;
-    }
-
-    if (content?.trim()) {
-      confirm({
-        message: t('send-email-template-replace-confirm'),
-      }).then(() => loadEmailTemplate(templateId));
-
-      return;
-    }
-
-    loadEmailTemplate(templateId);
-  };
-
-  useEffect(() => {
-    if (!emailTemplate) {
-      return;
-    }
-
-    const templateFormat = emailTemplateFormat(emailTemplate);
-
-    setValue('contentFormat', templateFormat, { shouldDirty: true });
-
-    if (templateFormat === 'maily') {
-      setValue('contentJson', emailTemplate.contentJson, {
-        shouldDirty: true,
-      });
-    } else {
-      setValue('content', emailTemplate.content || '', { shouldDirty: true });
-    }
-  }, [emailTemplate, setValue]);
+  const { handleTemplateSelect } = useEmailTemplateSelector(content);
 
   return (
     <SelectEmailTemplate

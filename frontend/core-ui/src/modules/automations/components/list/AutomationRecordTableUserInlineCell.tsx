@@ -1,35 +1,28 @@
+import { useAutomationRecordTableUser } from '@/automations/hooks/useAutomationRecordTableUser';
 import { TAutomationRecordTableColumnDefData } from '@/automations/types';
 import { IUser } from '@/settings/team-member/types';
 import { Cell } from '@tanstack/table-core';
-import { Avatar, readImage, RecordTableInlineCell } from 'erxes-ui';
+import { Avatar, RecordTableInlineCell } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-const generateUserName = (user: IUser) => {
-  if (user?.details?.firstName || user?.details?.lastName) {
-    return `${user?.details?.firstName || ''} ${user?.details?.lastName || ''}`;
-  }
 
-  return user.email;
-};
 export const AutomationRecordTableUserInlineCell = ({
   cell,
 }: {
-  cell: Cell<TAutomationRecordTableColumnDefData, any>;
+  cell: Cell<TAutomationRecordTableColumnDefData, unknown>;
 }) => {
-  const user = (cell.getValue() || {}) as IUser;
-  const { details } = user;
+  const { href, avatarSrc, fullName, initial, name } =
+    useAutomationRecordTableUser((cell.getValue() || {}) as IUser);
+
   return (
-    <Link to={`/settings/team/members?user_id=${user._id}`}>
+    <Link to={href}>
       <RecordTableInlineCell>
         <Avatar className="h-6 w-6 rounded-full">
-          <Avatar.Image
-            src={readImage(details?.avatar)}
-            alt={details?.fullName || ''}
-          />
+          <Avatar.Image src={avatarSrc} alt={fullName} />
           <Avatar.Fallback className="rounded-lg text-black">
-            {(details?.fullName || '').split('')[0]}
+            {initial}
           </Avatar.Fallback>
         </Avatar>
-        {generateUserName(user)}
+        {name}
       </RecordTableInlineCell>
     </Link>
   );

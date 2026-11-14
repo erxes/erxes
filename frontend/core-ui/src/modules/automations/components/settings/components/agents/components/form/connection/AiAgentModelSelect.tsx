@@ -1,10 +1,9 @@
-import { TAiAgentProvider } from '@/automations/components/settings/components/agents/constants/providers';
-import { useAiAgentDetailContext } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
+import { TAiAgentModelOption } from '@/automations/components/settings/components/agents/hooks/useAiAgentModelOptions';
+import { useAiAgentModelSelect } from '@/automations/components/settings/components/agents/hooks/useAiAgentModelSelect';
 import {
-  TAiAgentModelOption,
-  useAiAgentModelOptions,
-} from '@/automations/components/settings/components/agents/hooks/useAiAgentModelOptions';
-import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
+  formatModelLabel,
+  modelHintOf,
+} from '@/automations/components/settings/components/agents/utils/aiAgentModelLabels';
 import { IconPlus } from '@tabler/icons-react';
 import {
   Badge,
@@ -15,15 +14,7 @@ import {
   Popover,
   Spinner,
 } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-
-const formatModelLabel = (model: string) => {
-  return model
-    .split('/')
-    .map((part) => part.toUpperCase())
-    .join(' / ');
-};
 
 const AiAgentModelStatusBadge = ({
   option,
@@ -61,12 +52,13 @@ const AiAgentModelHint = ({
   onSwitch: (model: string) => void;
 }) => {
   const { t } = useTranslation('automations');
+  const hint = modelHintOf(option);
 
-  if (!option) {
+  if (!hint) {
     return null;
   }
 
-  if (option.status === 'unverified') {
+  if (hint.kind === 'unverified') {
     return (
       <p className="text-xs text-muted-foreground">
         {t('settings-model-unverified-hint')}
@@ -74,21 +66,11 @@ const AiAgentModelHint = ({
     );
   }
 
-  if (option.status !== 'deprecated' && option.status !== 'unavailable') {
-    return null;
-  }
-
-  const { suggestion } = option;
+  const { suggestion } = hint;
 
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs">
-      <span
-        className={
-          option.status === 'unavailable' ? 'text-destructive' : 'text-warning'
-        }
-      >
-        {t(`settings-model-${option.status}-hint`)}
-      </span>
+      <span className={hint.tone}>{t(hint.messageKey)}</span>
       {suggestion && (
         <Button
           type="button"
@@ -107,12 +89,8 @@ const AiAgentModelHint = ({
 
 export const AiAgentModelSelect = () => {
   const { t } = useTranslation('automations');
-  const { control, watch } = useFormContext<TAiAgentForm>();
-  const { detail } = useAiAgentDetailContext();
-  const provider = watch('connection.provider') as TAiAgentProvider;
-  const value = watch('connection.model');
-
   const {
+    control,
     open,
     setOpen,
     search,
@@ -122,25 +100,15 @@ export const AiAgentModelSelect = () => {
     customModel,
     loading,
     error,
-  } = useAiAgentModelOptions({
-    agentId: detail?._id,
-    provider,
-    savedModel:
-      detail?.connection?.provider === provider
-        ? detail.connection.model
-        : undefined,
-    value,
-  });
+    selectModel,
+  } = useAiAgentModelSelect();
 
   return (
     <Form.Field
       control={control}
       name="connection.model"
       render={({ field }) => {
-        const select = (model: string) => {
-          field.onChange(model);
-          setOpen(false);
-        };
+        const select = selectModel(field.onChange);
 
         return (
           <Form.Item>

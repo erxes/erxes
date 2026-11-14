@@ -1,72 +1,21 @@
-import { gql } from '@apollo/client';
-import { DatePicker, Form, Input, Select, TPropertyInputMeta } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { FieldPath } from 'react-hook-form';
+import { DatePicker, Form, Input, Select } from 'erxes-ui';
+import { ControllerRenderProps } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { pluginsConfigState } from 'ui-modules/states';
-import { useSegment } from '../../context/SegmentProvider';
+import { useSegmentConditionValue } from '../../hooks/useSegmentConditionValue';
 import {
   TNodePath,
   TSegmentField,
   TSegmentForm,
   TSegmentOperator,
 } from '../../types';
-import { useSegmentNodeValue } from '../../hooks/useSegmentNodeValue';
+import {
+  segmentDateValue,
+  segmentTextValue,
+} from '../../utils/segmentConditionValue';
 import { FieldWithError } from '../FieldWithError';
 import { QuerySelectInput } from '../QuerySelectInput';
 
-type TListVariables = Record<string, string | boolean>;
-
-// A field's own variables are declared with the GraphQL type of their value.
-const extraArgs = (variables: TListVariables = {}) => {
-  const keys = Object.keys(variables);
-
-  return {
-    declared: keys
-      .map(
-        (key) =>
-          `, $${key}: ${
-            typeof variables[key] === 'boolean' ? 'Boolean' : 'String'
-          }`,
-      )
-      .join(''),
-    passed: keys.map((key) => `, ${key}: $${key}`).join(''),
-  };
-};
-
-const listQuery = (
-  name: string,
-  labelField: string,
-  valueField: string,
-  variables?: TListVariables,
-) => {
-  const { declared, passed } = extraArgs(variables);
-
-  return gql`
-  query ${name}($searchValue: String, $direction: CURSOR_DIRECTION, $cursor: String, $limit: Int${declared}) {
-    ${name}(searchValue: $searchValue, direction: $direction, cursor: $cursor, limit: $limit${passed}) {
-      list { ${labelField} ${valueField} }
-      totalCount
-      pageInfo { hasNextPage hasPreviousPage startCursor endCursor }
-    }
-  }
-`;
-};
-
-const onlyStrings = (meta: TPropertyInputMeta): Record<string, string> =>
-  Object.fromEntries(
-    Object.entries(meta).filter(
-      (entry): entry is [string, string] => typeof entry[1] === 'string',
-    ),
-  );
-
-const getDateValue = (value: unknown): Date | undefined => {
-  if (value instanceof Date) return value;
-
-  if (typeof value === 'string' && value) return new Date(value);
-
-  return undefined;
-};
+type TValueInputState = ReturnType<typeof useSegmentConditionValue>;
 
 export const SegmentConditionValue = ({
   path,
@@ -79,132 +28,109 @@ export const SegmentConditionValue = ({
   fieldType?: string;
   operator?: TSegmentOperator;
 }) => {
-  const { form, contentType, stats } = useSegment();
-  const { countSettled } = stats;
-  const pluginsConfig = useAtomValue(pluginsConfigState);
-
-  const name = `${path}.value` as FieldPath<TSegmentForm>;
-  const metaName = `${path}.meta`;
-  const meta = useSegmentNodeValue<Record<string, string>>(metaName);
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
+  const state = useSegmentConditionValue({
+    path,
+    field: declared,
+    fieldType,
+    operator,
+  });
 
-  if (!declared || !operator) {
+  if (!state.kind) {
     return <Input disabled placeholder={t('value')} className="w-full" />;
   }
 
-  if (operator.input === 'none') {
+  if (state.kind === 'none') {
     return null;
   }
 
-  const asNumber = operator.input === 'number';
-
-  const [pluginName] = (fieldType || contentType).split(':');
-  const CustomInput =
-    declared.source === 'component' && declared.component
-      ? Object.values(pluginsConfig || {}).find(
-          (config) => config.name === pluginName,
-        )?.widgets?.propertyInputs?.[declared.component]
-      : undefined;
-
   return (
     <Form.Field
-      control={form.control}
-      name={name}
-      render={({ field, fieldState }) => {
-        const value = typeof field.value === 'string' ? field.value : '';
+      control={state.control}
+      name={state.name}
+      render={({ field, fieldState }) => (
+        <FieldWithError error={fieldState.error}>
+          <div className="w-full min-w-0">
+            <SegmentValueInput state={state} field={field} />
+          </div>
+        </FieldWithError>
+      )}
+    />
+  );
+};
 
-        return (
-          <FieldWithError error={fieldState.error}>
-            <div className="w-full min-w-0">
-              {asNumber ? (
-                <Input
-                  type="number"
-                  value={value}
-                  onChange={(event) => field.onChange(event.target.value)}
-                  onBlur={countSettled}
-                  className="w-full min-w-0"
-                />
-              ) : CustomInput ? (
-                <CustomInput
-                  value={value}
-                  meta={meta}
-                  onValueChange={(next: unknown) => {
-                    field.onChange(next);
-                    countSettled();
-                  }}
-                  onMetaChange={(next: TPropertyInputMeta) =>
-                    form.setValue(
-                      metaName as FieldPath<TSegmentForm>,
-                      onlyStrings(next),
-                      { shouldDirty: true },
-                    )
-                  }
-                />
-              ) : declared.input === 'date' ? (
-                <DatePicker
-                  className="w-full"
-                  value={getDateValue(field.value)}
-                  onChange={(date) => {
-                    field.onChange(date);
-                    countSettled();
-                  }}
-                  placeholder="Select date"
-                />
-              ) : declared.input === 'select' &&
-                declared.source === 'static' ? (
-                <Select
-                  value={value}
-                  onValueChange={(next) => {
-                    field.onChange(next);
-                    countSettled();
-                  }}
-                >
-                  <Select.Trigger className="w-full min-w-0">
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {(declared.options || []).map(
-                      (option: { value: string; label: string }) => (
-                        <Select.Item key={option.value} value={option.value}>
-                          {option.label}
-                        </Select.Item>
-                      ),
-                    )}
-                  </Select.Content>
-                </Select>
-              ) : declared.input === 'select' && declared.query ? (
-                <QuerySelectInput
-                  query={listQuery(
-                    declared.query.name,
-                    declared.query.labelField,
-                    declared.query.valueField || '_id',
-                    declared.query.variables,
-                  )}
-                  variables={declared.query.variables}
-                  queryName={declared.query.name}
-                  labelField={declared.query.labelField}
-                  valueField={declared.query.valueField || '_id'}
-                  nullable
-                  value={value}
-                  onSelect={(next) => {
-                    field.onChange(next);
-                    countSettled();
-                  }}
-                  focusOnMount
-                />
-              ) : (
-                <Input
-                  type={declared.input === 'number' ? 'number' : 'text'}
-                  value={value}
-                  onChange={(event) => field.onChange(event.target.value)}
-                  onBlur={countSettled}
-                  className="w-full min-w-0"
-                />
-              )}
-            </div>
-          </FieldWithError>
-        );
-      }}
+const SegmentValueInput = ({
+  state,
+  field,
+}: {
+  state: TValueInputState;
+  field: ControllerRenderProps<TSegmentForm>;
+}) => {
+  const { kind, CustomInput, query, commit, typed, countSettled } = state;
+  const value = segmentTextValue(field.value);
+
+  if (kind === 'custom' && CustomInput) {
+    return (
+      <CustomInput
+        value={value}
+        meta={state.meta}
+        onValueChange={commit(field.onChange)}
+        onMetaChange={state.changeMeta}
+      />
+    );
+  }
+
+  if (kind === 'date') {
+    return (
+      <DatePicker
+        className="w-full"
+        value={segmentDateValue(field.value)}
+        onChange={commit(field.onChange)}
+        placeholder="Select date"
+      />
+    );
+  }
+
+  if (kind === 'static') {
+    return (
+      <Select value={value} onValueChange={commit(field.onChange)}>
+        <Select.Trigger className="w-full min-w-0">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          {state.staticOptions.map((option) => (
+            <Select.Item key={option.value} value={option.value}>
+              {option.label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    );
+  }
+
+  if (kind === 'query' && query) {
+    return (
+      <QuerySelectInput
+        query={query.document}
+        variables={query.variables}
+        queryName={query.name}
+        labelField={query.labelField}
+        valueField={query.valueField}
+        nullable
+        value={value}
+        onSelect={commit(field.onChange)}
+        focusOnMount
+      />
+    );
+  }
+
+  return (
+    <Input
+      type={kind === 'number' ? 'number' : state.textType}
+      value={value}
+      onChange={typed(field.onChange)}
+      onBlur={countSettled}
+      className="w-full min-w-0"
     />
   );
 };

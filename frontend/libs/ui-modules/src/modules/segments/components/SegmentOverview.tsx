@@ -12,7 +12,7 @@ import {
   Label,
   Spinner,
 } from 'erxes-ui';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Bar,
@@ -25,7 +25,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { useSegmentGrowth } from '../hooks/useSegmentGrowth';
+import {
+  formatSegmentNumber,
+  segmentTooltipLabel,
+  useSegmentOverview,
+} from '../hooks/useSegmentOverview';
 import { SegmentRebuildButton } from './SegmentRebuildButton';
 import { ISegment } from '../types';
 import { SegmentBuildProgress } from './SegmentBuildProgress';
@@ -62,22 +66,6 @@ const Stat = ({
   </div>
 );
 
-const tooltipLabel = (at: string) =>
-  new Date(at).toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-const tickLabel = (at: string, hourly: boolean) =>
-  hourly
-    ? new Date(at).toLocaleTimeString(undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : at.slice(5, 10);
-
 export const SegmentOverview = ({
   segment,
   days = 30,
@@ -92,34 +80,26 @@ export const SegmentOverview = ({
 }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'analytics' });
   const {
-    joined,
-    left,
-    growth,
-    hasTrend,
-    hourly,
-    span,
-    measuredSince,
-    series,
     loading,
-    refetch,
-  } = useSegmentGrowth(segment?._id, days);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-
-    try {
-      await Promise.all([refetch(), onRefresh?.()]);
-    } finally {
-      setRefreshing(false);
-    }
-  };
+    refreshing,
+    handleRefresh,
+    showRebuild,
+    membersLabel,
+    showMovement,
+    joinedLabel,
+    leftLabel,
+    change,
+    hasTrend,
+    series,
+    emptyMessage,
+    levelLabel,
+    movementLabel,
+    tickFormatter,
+  } = useSegmentOverview({ segment, days, onRefresh });
 
   if (loading) {
     return <Spinner />;
   }
-
-  const rising = (growth ?? 0) >= 0;
 
   return (
     <div className="p-6 space-y-4">
@@ -142,45 +122,27 @@ export const SegmentOverview = ({
         {/* While a build runs, its own row carries the stop - repeating it
             here left two of them on screen with nothing to tell them
             apart. */}
-        {segment?.status !== 'building' && (
-          <SegmentRebuildButton segment={segment} size="sm" />
-        )}
+        {showRebuild && <SegmentRebuildButton segment={segment} size="sm" />}
         {actions}
       </div>
 
       <div className="flex flex-wrap rounded-lg border">
-        <Stat
-          label={t('members')}
-          value={
-            segment?.membersCount === undefined ||
-            segment?.membersCount === null
-              ? '—'
-              : segment.membersCount.toLocaleString()
-          }
-        />
+        <Stat label={t('members')} value={membersLabel} />
         {/* Nothing has moved yet on a segment this young, and a coloured zero
             reads as a measurement rather than as the absence of one. */}
-        {!!(joined || left) && (
+        {showMovement && (
           <>
-            <Stat
-              label={t('joined')}
-              value={`+${joined.toLocaleString()}`}
-              tone="up"
-            />
-            <Stat
-              label={t('left')}
-              value={`−${left.toLocaleString()}`}
-              tone="down"
-            />
+            <Stat label={t('joined')} value={joinedLabel} tone="up" />
+            <Stat label={t('left')} value={leftLabel} tone="down" />
           </>
         )}
-        {hasTrend && growth !== null && (
+        {change && (
           <Stat
             label={t('change')}
-            value={`${rising ? '+' : ''}${growth}%`}
-            tone={rising ? 'up' : 'down'}
+            value={change.value}
+            tone={change.tone}
             icon={
-              rising ? (
+              change.rising ? (
                 <IconTrendingUp className="size-5" />
               ) : (
                 <IconTrendingDown className="size-5" />
@@ -196,17 +158,13 @@ export const SegmentOverview = ({
         <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed px-6 py-10 text-center">
           <IconChartLine className="size-6 text-muted-foreground" />
           <p className="max-w-md text-sm text-muted-foreground">
-            {measuredSince
-              ? t('measured-since', { date: measuredSince })
-              : t('no-history')}
+            {t(emptyMessage.key, emptyMessage.values)}
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           <section className="space-y-2 rounded-lg border p-4">
-            <Label>
-              {hourly ? t('level-recent') : t('level', { days: span })}
-            </Label>
+            <Label>{t(levelLabel.key, levelLabel.values)}</Label>
             <ChartContainer config={LEVEL_CONFIG} className="h-48 w-full">
               {/* A line, not an area, because the axis does not start at
                   zero. A filled area reads as the quantity underneath it, so
@@ -220,7 +178,7 @@ export const SegmentOverview = ({
                   axisLine={false}
                   tickMargin={8}
                   minTickGap={24}
-                  tickFormatter={(at: string) => tickLabel(at, hourly)}
+                  tickFormatter={tickFormatter}
                   className="text-xs"
                 />
                 {/* Scaled to the data, not to zero: a segment of a million
@@ -234,12 +192,12 @@ export const SegmentOverview = ({
                   axisLine={false}
                   domain={['auto', 'auto']}
                   allowDecimals={false}
-                  tickFormatter={(value: number) => value.toLocaleString()}
+                  tickFormatter={formatSegmentNumber}
                   className="text-xs"
                 />
                 <Tooltip
                   content={
-                    <ChartTooltipContent labelFormatter={tooltipLabel} />
+                    <ChartTooltipContent labelFormatter={segmentTooltipLabel} />
                   }
                 />
                 <Line
@@ -255,9 +213,7 @@ export const SegmentOverview = ({
           </section>
 
           <section className="space-y-2 rounded-lg border p-4">
-            <Label>
-              {hourly ? t('movement-recent') : t('movement', { days: span })}
-            </Label>
+            <Label>{t(movementLabel.key, movementLabel.values)}</Label>
             <ChartContainer config={MOVEMENT_CONFIG} className="h-40 w-full">
               <BarChart data={series} margin={{ top: 8 }}>
                 <CartesianGrid vertical={false} />
@@ -267,7 +223,7 @@ export const SegmentOverview = ({
                   axisLine={false}
                   tickMargin={8}
                   minTickGap={24}
-                  tickFormatter={(at: string) => tickLabel(at, hourly)}
+                  tickFormatter={tickFormatter}
                   className="text-xs"
                 />
                 <YAxis
@@ -279,7 +235,7 @@ export const SegmentOverview = ({
                 <ReferenceLine y={0} stroke="var(--border)" />
                 <Tooltip
                   content={
-                    <ChartTooltipContent labelFormatter={tooltipLabel} />
+                    <ChartTooltipContent labelFormatter={segmentTooltipLabel} />
                   }
                 />
                 <Bar dataKey="joined" fill="var(--color-joined)" radius={2} />

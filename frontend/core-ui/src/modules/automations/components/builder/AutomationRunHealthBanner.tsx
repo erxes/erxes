@@ -1,28 +1,7 @@
-import { useAutomationRunHealth } from '@/automations/hooks/useAutomationRunHealth';
-import { useAutomationRunLabels } from '@/automations/hooks/useAutomationRunLabels';
-import { AutomationBuilderTabsType } from '@/automations/types';
+import { useAutomationRunHealthBanner } from '@/automations/hooks/useAutomationRunHealthBanner';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Button, cn, useMultiQueryState } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-const useAutomationRunHealthBanner = () => {
-  const health = useAutomationRunHealth();
-  const { actionLabel } = useAutomationRunLabels();
-  const [, setQueries] = useMultiQueryState<{
-    activeTab: AutomationBuilderTabsType;
-    status: string;
-  }>(['activeTab', 'status']);
-
-  return {
-    health,
-    failedActionLabel: actionLabel(health.lastFailure?.failedActionType),
-    openFailedRuns: () =>
-      setQueries({
-        activeTab: AutomationBuilderTabsType.History,
-        status: 'error',
-      }),
-  };
-};
 
 /** Says on the canvas that recent runs are failing, without opening history. */
 export const AutomationRunHealthBanner = () => {

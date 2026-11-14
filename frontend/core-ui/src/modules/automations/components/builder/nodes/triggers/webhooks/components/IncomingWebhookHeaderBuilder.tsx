@@ -1,43 +1,29 @@
-import { TIncomingWebhookForm } from '@/automations/components/builder/nodes/triggers/webhooks/states/automationIncomingWebhookFormDefinition';
+import {
+  TIncomingWebhookHeaderField,
+  TIncomingWebhookHeaders,
+  useIncomingWebhookHeaders,
+} from '@/automations/components/builder/nodes/triggers/webhooks/hooks/useIncomingWebhookHeaders';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const IncomingWebhookHeadersBuilder = ({
-  headers = [],
+  headers: value = [],
   onChange,
 }: {
-  headers: TIncomingWebhookForm['headers'];
-  onChange: (...event: any[]) => void;
+  headers: TIncomingWebhookHeaders;
+  onChange: (headers: TIncomingWebhookHeaders) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const handleChange = (
-    index: number,
-    field: 'key' | 'value' | 'description',
-    value: string,
-  ) => {
-    const updatedHeaders = [...(headers || [])];
-    updatedHeaders[index] = {
-      ...updatedHeaders[index],
-      [field]: value,
-    };
-    onChange(updatedHeaders);
-  };
+  const { headers, hasHeaders, addHeader, changeHeader, removeHeader } =
+    useIncomingWebhookHeaders(value, onChange);
 
-  const handleRemove = (index: number) => {
-    const updatedHeaders = (headers || []).filter((_, i) => i !== index);
-    onChange(updatedHeaders);
-  };
-
-  if (!headers?.length) {
+  if (!hasHeaders) {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           <Form.Label>{t('headers')}</Form.Label>
-          <IncomingWebhookHeaderAddButton
-            onChange={onChange}
-            headers={headers}
-          />
+          <IncomingWebhookHeaderAddButton onAdd={addHeader} />
         </div>
         <div className="text-sm text-muted-foreground text-center py-8">
           {t('webhook-headers-empty')}
@@ -50,7 +36,7 @@ export const IncomingWebhookHeadersBuilder = ({
     <>
       <div className="flex flex-row justify-between">
         <Form.Label>{t('headers')}</Form.Label>
-        <IncomingWebhookHeaderAddButton onChange={onChange} headers={headers} />
+        <IncomingWebhookHeaderAddButton onAdd={addHeader} />
       </div>
       <div>
         <Form.Label className="w-1/4">
@@ -64,30 +50,19 @@ export const IncomingWebhookHeadersBuilder = ({
           key={index}
           index={index}
           header={header}
-          handleChange={handleChange}
-          handleRemove={handleRemove}
+          onFieldChange={changeHeader}
+          onRemove={removeHeader}
         />
       ))}
     </>
   );
 };
 
-const IncomingWebhookHeaderAddButton = ({
-  onChange,
-  headers,
-}: {
-  onChange: (headers: TIncomingWebhookForm['headers']) => void;
-  headers: TIncomingWebhookForm['headers'];
-}) => {
+const IncomingWebhookHeaderAddButton = ({ onAdd }: { onAdd: () => void }) => {
   const { t } = useTranslation('automations');
+
   return (
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() =>
-        onChange([...(headers || []), { key: '', value: '', description: '' }])
-      }
-    >
+    <Button size="sm" variant="outline" onClick={onAdd}>
       <IconPlus /> {t('webhook-add-header')}
     </Button>
   );
@@ -96,40 +71,41 @@ const IncomingWebhookHeaderAddButton = ({
 const IncomingWebhookHeadersItem = ({
   index,
   header: { key, value, description },
-  handleChange,
-  handleRemove,
+  onFieldChange,
+  onRemove,
 }: {
   index: number;
-  header: NonNullable<TIncomingWebhookForm['headers']>[number];
-  handleChange: (
+  header: NonNullable<TIncomingWebhookHeaders>[number];
+  onFieldChange: (
     index: number,
-    field: 'key' | 'value' | 'description',
+    field: TIncomingWebhookHeaderField,
     value: string,
   ) => void;
-  handleRemove: (index: number) => void;
+  onRemove: (index: number) => void;
 }) => {
   const { t } = useTranslation('automations');
+
   return (
-    <div key={index} className="flex flex-row items-center gap-2 p-2">
+    <div className="flex flex-row items-center gap-2 p-2">
       <Input
         value={key}
         placeholder={t('webhook-trigger-header-key')}
         className="w-1/4"
-        onChange={(e) => handleChange(index, 'key', e.target.value)}
+        onChange={(e) => onFieldChange(index, 'key', e.target.value)}
       />
       <Input
         value={value}
         placeholder={t('value')}
         className="w-2/4"
-        onChange={(e) => handleChange(index, 'value', e.target.value)}
+        onChange={(e) => onFieldChange(index, 'value', e.target.value)}
       />
       <Input
         value={description}
         placeholder={t('webhook-trigger-header-description-placeholder')}
         className="w-1/4"
-        onChange={(e) => handleChange(index, 'description', e.target.value)}
+        onChange={(e) => onFieldChange(index, 'description', e.target.value)}
       />
-      <Button variant="destructive" onClick={() => handleRemove(index)}>
+      <Button variant="destructive" onClick={() => onRemove(index)}>
         <IconTrash />
       </Button>
     </div>

@@ -1,7 +1,10 @@
+import {
+  secretInputValueOf,
+  useAiAgentSecretField,
+} from '@/automations/components/settings/components/agents/hooks/useAiAgentSecretField';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Button, Form, Input } from 'erxes-ui';
-import { useState } from 'react';
-import { FieldPath, useFormContext } from 'react-hook-form';
+import { FieldPath } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 export const AiAgentSecretField = ({
@@ -18,9 +21,13 @@ export const AiAgentSecretField = ({
   existingSecretMask?: string;
 }) => {
   const { t } = useTranslation('automations');
-  const { control, setValue } = useFormContext<TAiAgentForm>();
-  const [isReplacingSecret, setIsReplacingSecret] = useState(false);
-  const hasStoredSecret = !!existingSecretMask?.trim();
+  const {
+    control,
+    showMask,
+    canKeepStoredSecret,
+    startReplacing,
+    keepStoredSecret,
+  } = useAiAgentSecretField(name, existingSecretMask);
 
   return (
     <Form.Field
@@ -29,7 +36,7 @@ export const AiAgentSecretField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>{label}</Form.Label>
-          {hasStoredSecret && !isReplacingSecret ? (
+          {showMask ? (
             <div className="space-y-3">
               <div className="flex h-10 items-center rounded-md border bg-muted/30 px-3">
                 <span className="font-mono text-sm tracking-wide text-muted-foreground">
@@ -39,7 +46,7 @@ export const AiAgentSecretField = ({
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setIsReplacingSecret(true)}
+                onClick={startReplacing}
               >
                 {t('settings-connection-replace-secret')}
               </Button>
@@ -54,18 +61,15 @@ export const AiAgentSecretField = ({
                   name={field.name}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  value={typeof field.value === 'string' ? field.value : ''}
+                  value={secretInputValueOf(field.value)}
                   onChange={field.onChange}
                 />
               </Form.Control>
-              {hasStoredSecret ? (
+              {canKeepStoredSecret ? (
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => {
-                    setValue(name, '' as any);
-                    setIsReplacingSecret(false);
-                  }}
+                  onClick={keepStoredSecret}
                 >
                   {t('settings-connection-keep-secret')}
                 </Button>

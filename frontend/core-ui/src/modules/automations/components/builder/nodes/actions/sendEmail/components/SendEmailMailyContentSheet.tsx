@@ -1,66 +1,15 @@
-import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
-import { RecordSidePanel } from 'ui-modules';
-import {
-  createPagePanelPortal as createPortal,
-  usePagePanel,
-} from '@/side-panel/hooks/usePagePanel';
-import { useTranslation } from 'react-i18next';
-import { EmailPastedVariables } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailPastedVariables';
 import { EmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateSelector';
-import {
-  createEmailOutputVariableDrop,
-  TEmailVariableDrop,
-} from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailVariableDrop';
+import { SendEmailContentSheetShell } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailContentSheetShell';
+import { useSendEmailMailyContentSheet } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailMailyContentSheet';
 import {
   AutomationVariableBrowser,
   TAutomationVariableSourceNode,
 } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
-import { buildEmailItemTable } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailItemTable';
 import { EmailContentEditor } from '@/emailTemplates/components/EmailContentEditor';
 import { IconEdit } from '@tabler/icons-react';
-import type { Editor as TiptapEditor } from '@tiptap/core';
-import { Button, EmailEditorVariable, JSONContent, cn } from 'erxes-ui';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { Button, JSONContent } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
-/**
- * Output variables already written into this email.
- *
- * Their labels are not stored with them, so reopening an email would draw
- * them as their raw token — the one thing this is here to avoid. The token
- * itself reads well enough as a name.
- */
-const writtenVariables = (node?: JSONContent): EmailEditorVariable[] => {
-  if (!node) {
-    return [];
-  }
-  const id = node.type === 'variable' ? String(node.attrs?.id ?? '') : '';
-  return [
-    ...(id.startsWith('{{')
-      ? [
-          {
-            name: id,
-            label: id.replace(/[{}]/g, '').trim(),
-            required: false,
-          },
-        ]
-      : []),
-    ...(node.content || []).flatMap(writtenVariables),
-  ];
-};
-
-/** The first words of the email, enough to recognise which one it is. */
-const readText = (node?: JSONContent): string => {
-  if (!node) {
-    return '';
-  }
-  if (node.type === 'variable') {
-    return `{${node.attrs?.id ?? ''}}`;
-  }
-  if (node.text) {
-    return node.text;
-  }
-  return (node.content || []).map(readText).join(' ');
-};
 export const SendEmailMailyContentSheet = ({
   contentJson,
   contentType,
@@ -76,109 +25,24 @@ export const SendEmailMailyContentSheet = ({
   onChange: (contentJson: JSONContent) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const [isOpen, setIsOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [editor, setEditor] = useState<TiptapEditor | null>(null);
-  // Edits stay here until Save, so closing the sheet leaves the email as it was.
-  const [draft, setDraft] = useState<JSONContent | undefined>(contentJson);
-  // An output variable becomes a field of the editor's own, so it is drawn
-  // like every other one instead of as raw `{{ … }}` text.
-  const [extraVariables, setExtraVariables] = useState<EmailEditorVariable[]>(
-    [],
-  );
-  const teaser = readText(contentJson).trim();
-  const variables = useMemo(
-    () => [
-      ...writtenVariables(draft).filter(
-        (written) =>
-          !extraVariables.some((added) => added.name === written.name),
-      ),
-      ...extraVariables,
-    ],
-    [draft, extraVariables],
-  );
-  const insertVariable = useCallback(
-    ({ payload, editor: target, position }: TEmailVariableDrop) => {
-      // A list arrives as a table with a row per item, not one joined field.
-      if (payload.fields?.length) {
-        const { table, variables: columns } = buildEmailItemTable(payload);
-        const chain = target.chain().focus();
-        setExtraVariables((current) => [
-          ...current,
-          ...columns.filter(
-            (column) => !current.some((added) => added.name === column.name),
-          ),
-        ]);
-        (position === undefined
-          ? chain.insertContent(table)
-          : chain.insertContentAt(position, table)
-        ).run();
-        return;
-      }
+  const {
+    isOpen,
+    setIsOpen,
+    isHovered,
+    showHover,
+    hideHover,
+    setEditor,
+    draft,
+    setDraft,
+    teaser,
+    variables,
+    extensions,
+    insertFromBrowser,
+    openSheet,
+    openSheetFromButton,
+    onSave,
+  } = useSendEmailMailyContentSheet({ contentJson, onChange });
 
-      // The token is the field's name: rendering hands it back unchanged, and
-      // the step that knows the earlier steps' output fills it in.
-      const name = payload.token.trim();
-      setExtraVariables((current) =>
-        current.some((variable) => variable.name === name)
-          ? current
-          : [
-              ...current,
-              {
-                name,
-                label: payload.label,
-                required: false,
-              },
-            ],
-      );
-      const chain = target.chain().focus();
-      const node = {
-        type: 'variable',
-        // Not required: the editor marks a required field with no default as
-        // a problem, and an output variable has neither.
-        attrs: {
-          id: name,
-          label: payload.label,
-          fallback: null,
-          required: false,
-        },
-      };
-      (position === undefined
-        ? chain.insertContent(node)
-        : chain.insertContentAt(position, node)
-      ).run();
-    },
-    [],
-  );
-
-  // The editor keeps the extensions it was created with, so the plugin is
-  // built once and reaches the current handler through a ref.
-  const insertRef = useRef(insertVariable);
-  insertRef.current = insertVariable;
-  const extensions = useMemo(
-    () => [
-      createEmailOutputVariableDrop((drop) => insertRef.current(drop)),
-      EmailPastedVariables,
-    ],
-    [],
-  );
-  const openSheet = () => {
-    setDraft(contentJson);
-    setIsOpen(true);
-  };
-  const onSave = () => {
-    if (draft) {
-      onChange(draft);
-    }
-    setIsOpen(false);
-  };
-  const pagePanel = usePagePanel({
-    maxWidth: 1200,
-    defaultWidth: 900,
-    name: 'automations/builder/nodes/actions/sendEmail/SendEmailMailyContentSheet',
-    open: isOpen,
-    onOpenChange: setIsOpen,
-  });
   return (
     <div className="flex flex-col gap-2">
       <EmailTemplateSelector content={content} format="maily" />
@@ -187,8 +51,8 @@ export const SendEmailMailyContentSheet = ({
           which email this is and opens the editor full width. */}
       <div
         className="group relative h-52 cursor-pointer overflow-hidden rounded-lg border bg-background p-4"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={showHover}
+        onMouseLeave={hideHover}
         onClick={openSheet}
       >
         <p className="whitespace-pre-wrap text-sm text-muted-foreground">
@@ -201,10 +65,7 @@ export const SendEmailMailyContentSheet = ({
               variant="outline"
               size="sm"
               className="gap-2"
-              onClick={(event) => {
-                event.stopPropagation();
-                openSheet();
-              }}
+              onClick={openSheetFromButton}
             >
               <IconEdit className="size-4" />
               {t('send-email-edit-content')}
@@ -213,79 +74,43 @@ export const SendEmailMailyContentSheet = ({
         )}
       </div>
 
-      {createPortal(
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-          {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-            <>
-              <RecordSidePanel.Header
-                title={
-                  <div className="space-y-1">
-                    <span>{t('send-email-edit-content-title')}</span>
-                    <p>{t('send-email-edit-content-description')}</p>
-                  </div>
-                }
-                {...pagePanel.headerProps}
-              />
+      <SendEmailContentSheetShell
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title={t('send-email-edit-content-title')}
+        description={t('send-email-edit-content-description')}
+        onSave={onSave}
+        saveLabel={t('save')}
+        cancelLabel={t('cancel')}
+      >
+        {/* What earlier steps produced, to drag into the email. */}
+        <aside className="min-h-0 overflow-hidden border-r bg-muted/20">
+          <div className="h-full min-h-0 overflow-y-auto">
+            <AutomationVariableBrowser
+              sourceNodes={variableSourceNodes}
+              onInsertVariable={insertFromBrowser}
+              emptyState={{
+                title: t('send-email-no-variables-title'),
+                description: t('send-email-no-variables-content-description'),
+              }}
+              sourceSectionTitle={t('send-email-variable-sources')}
+            />
+          </div>
+        </aside>
 
-              <div
-                className={cn(
-                  'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                  'grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0',
-                )}
-              >
-                {/* What earlier steps produced, to drag into the email. */}
-                <aside className="min-h-0 overflow-hidden border-r bg-muted/20">
-                  <div className="h-full min-h-0 overflow-y-auto">
-                    <AutomationVariableBrowser
-                      sourceNodes={variableSourceNodes}
-                      onInsertVariable={(payload) =>
-                        editor &&
-                        insertVariable({
-                          payload,
-                          editor,
-                        })
-                      }
-                      emptyState={{
-                        title: t('send-email-no-variables-title'),
-                        description: t(
-                          'send-email-no-variables-content-description',
-                        ),
-                      }}
-                      sourceSectionTitle={t('send-email-variable-sources')}
-                    />
-                  </div>
-                </aside>
-
-                <div className="min-h-0 min-w-0 overflow-y-auto bg-background p-6">
-                  <div className="rounded-xl border bg-background p-4">
-                    <EmailContentEditor
-                      contentJson={draft}
-                      onChange={setDraft}
-                      onCreate={setEditor}
-                      contentType={contentType}
-                      extensions={extensions}
-                      extraVariables={variables}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div
-                className={cn(
-                  'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
-                )}
-              >
-                <Button variant="outline" onClick={() => setIsOpen(false)}>
-                  {t('cancel')}
-                </Button>
-                <Button onClick={onSave}>{t('save')}</Button>
-              </div>
-            </>
-          ) : (
-            <PagePanelStatus entry={pagePanel} />
-          )}
-        </div>,
-        pagePanel,
-      )}
+        <div className="min-h-0 min-w-0 overflow-y-auto bg-background p-6">
+          <div className="rounded-xl border bg-background p-4">
+            <EmailContentEditor
+              contentJson={draft}
+              onChange={setDraft}
+              onCreate={setEditor}
+              contentType={contentType}
+              extensions={extensions}
+              extraVariables={variables}
+            />
+          </div>
+        </div>
+      </SendEmailContentSheetShell>
     </div>
   );
 };

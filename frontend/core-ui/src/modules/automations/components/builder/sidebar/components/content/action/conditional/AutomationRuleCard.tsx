@@ -1,19 +1,14 @@
 import {
-  DndContext,
-  DragEndEvent,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+  RuleAccordionContext,
+  useAutomationRuleCard,
+  useAutomationSortableRules,
+} from '@/automations/components/builder/sidebar/hooks/useAutomationSortableRules';
+import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   SortableContext,
-  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import {
   IconChevronDown,
   IconChevronRight,
@@ -21,50 +16,9 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Button, cn, Collapsible } from 'erxes-ui';
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { ReactNode } from 'react';
 
-type TAutomationRuleCardProps = {
-  id: string;
-  title: string;
-  summary?: string;
-  onRemove: () => void;
-  children: ReactNode;
-};
-
-type TRuleAccordion = {
-  openId: string | null;
-  toggle: (id: string) => void;
-};
-
-const RuleAccordionContext = createContext<TRuleAccordion | null>(null);
-
-// One rule open at a time: the first on load, then whichever was just added
-const useRuleAccordion = (ids: string[]): TRuleAccordion => {
-  const [openId, setOpenId] = useState<string | null>(ids[0] ?? null);
-  const knownIds = useRef(ids);
-
-  useEffect(() => {
-    const added = ids.find((id) => !knownIds.current.includes(id));
-
-    knownIds.current = ids;
-
-    if (added) {
-      setOpenId(added);
-    }
-  }, [ids]);
-
-  return {
-    openId,
-    toggle: (id) => setOpenId((current) => (current === id ? null : id)),
-  };
-};
+const VERTICAL_ONLY = [restrictToVerticalAxis];
 
 // Ordered rules reorder by dragging a card's grip
 export const AutomationSortableRules = ({
@@ -76,34 +30,15 @@ export const AutomationSortableRules = ({
   onReorder: (from: number, to: number) => void;
   children: ReactNode;
 }) => {
-  const accordion = useRuleAccordion(ids);
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: { delay: 100, tolerance: 5 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 100, tolerance: 5 },
-    }),
-    useSensor(KeyboardSensor),
-  );
-
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    const from = ids.indexOf(String(active.id));
-    const to = ids.indexOf(String(over.id));
-
-    if (from >= 0 && to >= 0) {
-      onReorder(from, to);
-    }
-  };
+  const { accordion, sensors, handleDragEnd } = useAutomationSortableRules({
+    ids,
+    onReorder,
+  });
 
   return (
     <DndContext
       sensors={sensors}
-      modifiers={[restrictToVerticalAxis]}
+      modifiers={VERTICAL_ONLY}
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
@@ -122,24 +57,22 @@ export const AutomationRuleCard = ({
   summary,
   onRemove,
   children,
-}: TAutomationRuleCardProps) => {
-  const accordion = useContext(RuleAccordionContext);
-  const open = accordion ? accordion.openId === id : true;
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+}: {
+  id: string;
+  title: string;
+  summary?: string;
+  onRemove: () => void;
+  children: ReactNode;
+}) => {
+  const { open, toggle, dragHandleProps, setNodeRef, style, isDragging } =
+    useAutomationRuleCard(id);
 
   return (
     <Collapsible
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform), transition }}
+      style={style}
       open={open}
-      onOpenChange={() => accordion?.toggle(id)}
+      onOpenChange={toggle}
       className={cn(
         'rounded-lg border bg-muted/30',
         isDragging && 'relative z-10 opacity-70 shadow-lg',
@@ -147,8 +80,7 @@ export const AutomationRuleCard = ({
     >
       <div className="flex items-center gap-1 px-3 py-2">
         <div
-          {...attributes}
-          {...listeners}
+          {...dragHandleProps}
           title="Drag to reorder"
           className="flex flex-none cursor-grab items-center text-muted-foreground active:cursor-grabbing"
         >

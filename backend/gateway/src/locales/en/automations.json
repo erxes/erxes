@@ -1179,5 +1179,14 @@
   "folder-empty-description": "Select automations in the list and use Move to folder to put them here.",
   "folders-all-filed-title": "Every automation is in a folder",
   "folders-all-filed-description": "Open a folder above, or search to look through all of them.",
-  "from-template": "From template"
+  "from-template": "From template",
+  "create-dialog-title": "Create an automation",
+  "create-dialog-description": "Start blank, or from a template that is ready to fill in.",
+  "create-dialog-scratch": "Start from scratch",
+  "create-dialog-scratch-description": "An empty automation: pick a trigger and add the steps yourself.",
+  "create-dialog-from-template": "Start from a template",
+  "create-dialog-see-all": "See all templates",
+  "create-dialog-open-gallery": "Open the gallery",
+  "create-dialog-no-templates": "No automation templates are available yet.",
+  "create-dialog-templates-error": "Couldn't load the templates."
 }

@@ -11,13 +11,15 @@ import {
   Filter,
   Popover,
   TextOverflowTooltip,
-  useFilterContext,
-  useQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useSelectSegments } from '../hooks/useSelectSegments';
+import {
+  useSegmentsFilterBar,
+  useSegmentsFilterList,
+  useSegmentsFilterView,
+  useSelectedSegmentNames,
+} from '../hooks/useSegmentsFilter';
 import { ISegment } from '../types';
 
 const SegmentMembers = ({ segment }: { segment: ISegment }) => {
@@ -52,15 +54,15 @@ const SegmentsFilterList = ({
   onSelect: (ids: string[]) => void;
 }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'filter' });
-  const { segments, loading, error, inputRef, search, setSearch } =
-    useSelectSegments({ contentType, focusOnMount: true });
-
-  const toggle = (segmentId: string) =>
-    onSelect(
-      selected.includes(segmentId)
-        ? selected.filter((id) => id !== segmentId)
-        : [...selected, segmentId],
-    );
+  const {
+    segmentOptions,
+    loading,
+    error,
+    inputRef,
+    search,
+    setSearch,
+    allHref,
+  } = useSegmentsFilterList({ contentType, selected, onSelect });
 
   return (
     <Command shouldFilter={false}>
@@ -74,23 +76,19 @@ const SegmentsFilterList = ({
       <Command.Separator />
       <Command.List className="p-1 max-h-64">
         <Combobox.Empty error={error} loading={loading} />
-        {segments.map((segment: ISegment) => (
-          <Command.Item
-            key={segment._id}
-            value={segment._id}
-            onSelect={() => toggle(segment._id)}
-          >
+        {segmentOptions.map(({ segment, checked, toggle }) => (
+          <Command.Item key={segment._id} value={segment._id} onSelect={toggle}>
             <div className="flex items-center gap-2 flex-auto overflow-hidden">
               <TextOverflowTooltip value={segment.name} className="flex-auto" />
             </div>
             <SegmentMembers segment={segment} />
-            <Combobox.Check checked={selected.includes(segment._id)} />
+            <Combobox.Check checked={checked} />
           </Command.Item>
         ))}
       </Command.List>
       <div className="p-1 border-t">
         <Button variant="ghost" className="justify-start w-full" asChild>
-          <Link to={`/segments?contentType=${encodeURIComponent(contentType)}`}>
+          <Link to={allHref}>
             <IconExternalLink />
             {t('show-all-segments')}
           </Link>
@@ -116,18 +114,14 @@ export const SegmentsFilterView = ({
 }: {
   contentType: string;
 }) => {
-  const [segments, setSegments] = useQueryState<string[]>('segments');
-  const { resetFilterState } = useFilterContext();
+  const { selected, onSelect } = useSegmentsFilterView();
 
   return (
     <Filter.View filterKey="segments">
       <SegmentsFilterList
         contentType={contentType}
-        selected={segments || []}
-        onSelect={(ids) => {
-          setSegments(ids.length ? ids : null);
-          resetFilterState();
-        }}
+        selected={selected}
+        onSelect={onSelect}
       />
     </Filter.View>
   );
@@ -140,29 +134,25 @@ const SelectedSegments = ({
   contentType: string;
   selected: string[];
 }) => {
-  const { segments } = useSelectSegments({ contentType });
-
-  const names = selected.map(
-    (id) =>
-      segments.find((segment: ISegment) => segment._id === id)?.name || id,
+  const { firstName, moreCount } = useSelectedSegmentNames(
+    contentType,
+    selected,
   );
 
   return (
     <div className="flex items-center gap-1 overflow-hidden">
-      <TextOverflowTooltip value={names[0]} />
-      {names.length > 1 && (
-        <Badge variant="secondary">+{names.length - 1}</Badge>
-      )}
+      <TextOverflowTooltip value={firstName} />
+      {moreCount > 0 && <Badge variant="secondary">+{moreCount}</Badge>}
     </div>
   );
 };
 
 const SegmentsFilterBar = ({ contentType }: { contentType: string }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'filter' });
-  const [segments, setSegments] = useQueryState<string[]>('segments');
-  const [open, setOpen] = useState(false);
+  const { selected, setSelected, open, setOpen, hasSelection, settingsHref } =
+    useSegmentsFilterBar(contentType);
 
-  if (!segments?.length) {
+  if (!hasSelection) {
     return null;
   }
 
@@ -178,22 +168,20 @@ const SegmentsFilterBar = ({ contentType }: { contentType: string }) => {
             filterKey="segments"
             className="max-w-72 overflow-hidden justify-start"
           >
-            <SelectedSegments contentType={contentType} selected={segments} />
+            <SelectedSegments contentType={contentType} selected={selected} />
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content className="w-72">
           <SegmentsFilterList
             contentType={contentType}
-            selected={segments}
-            onSelect={(ids) => setSegments(ids.length ? ids : null)}
+            selected={selected}
+            onSelect={setSelected}
           />
         </Combobox.Content>
       </Popover>
       <Filter.BarButton size="icon" asChild>
         <Link
-          to={`/segments?contentType=${encodeURIComponent(
-            contentType,
-          )}&segmentId=${encodeURIComponent(segments[0])}&tab=definition`}
+          to={settingsHref}
           aria-label={t('segment-settings')}
           title={t('segment-settings')}
         >

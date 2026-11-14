@@ -1,16 +1,16 @@
 import { NodeData } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { IconSettings } from '@tabler/icons-react';
 import { Button, Checkbox, Label, Popover, Select, Skeleton } from 'erxes-ui';
-import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useSegmentFields } from 'ui-modules';
+import {
+  useAutomationDefaultTriggerHeader,
+  useAutomationTriggerReEnrollment,
+  useReEnrollmentRelationLabel,
+} from '../hooks/useAutomationDefaultTriggerHeader';
 import {
   ReEnrollmentOption,
   ReEnrollmentRelation,
-  useReEnrollmentRules,
 } from '../hooks/useReEnrollmentRules';
-import { useTriggerReEnrollment } from '../hooks/useTriggerReEnrollment';
 
 export const AutomationDefaultTriggerHeader = ({
   activeNode,
@@ -18,21 +18,12 @@ export const AutomationDefaultTriggerHeader = ({
   activeNode: NodeData;
 }) => {
   const { t } = useTranslation('automations');
-  const { control, setValue } = useFormContext<TAutomationBuilderForm>();
-  const configFieldNamePrefix: `triggers.${number}.config` = `triggers.${activeNode.nodeIndex}.config`;
-  const config = useWatch<TAutomationBuilderForm>({
-    control,
-    name: configFieldNamePrefix,
-  });
-  const { recordType = 'every', contentId } = config || {};
+  const { recordType, contentId, showReEnrollment, onRecordTypeChange } =
+    useAutomationDefaultTriggerHeader(activeNode);
+
   return (
     <div className="p-2 flex flex-row justify-between items-center gap-2">
-      <Select
-        value={recordType}
-        onValueChange={(value) => {
-          setValue(`${configFieldNamePrefix}.recordType`, value);
-        }}
-      >
+      <Select value={recordType} onValueChange={onRecordTypeChange}>
         <Select.Trigger>
           <Select.Value placeholder={t('sidebar-records-every')} />
         </Select.Trigger>
@@ -44,7 +35,7 @@ export const AutomationDefaultTriggerHeader = ({
           </Select.Item>
         </Select.Content>
       </Select>
-      {recordType !== 'new' && (
+      {showReEnrollment && (
         <AutomationTriggerReEnrollmentPopover
           activeNode={activeNode}
           contentId={contentId}
@@ -86,37 +77,23 @@ const AutomationTriggerReEnrollmentPopoverContent = ({
   contentId: string;
 }) => {
   const { t } = useTranslation('automations');
-  const {
-    reEnrollmentOptions,
-    loading: reEnrollmentLoading,
-    hasSubSegmentConditions,
-  } = useReEnrollmentRules({ contentId });
-  const { fieldRules, toggleField } = useTriggerReEnrollment(activeNode);
+  const { loading, hintKey, options } = useAutomationTriggerReEnrollment(
+    activeNode,
+    contentId,
+  );
 
-  if (reEnrollmentLoading) {
+  if (loading) {
     return <Skeleton className="size-10" />;
   }
 
   return (
     <div className="flex flex-col gap-2">
       <b>{t('re-enrollment')}</b>
-      <p className="text-sm text-muted-foreground">
-        {t(
-          hasSubSegmentConditions
-            ? 're-enrollment-fields-hint'
-            : 're-enrollment-no-fields',
-        )}
-      </p>
-      {reEnrollmentOptions.map((option) => (
+      <p className="text-sm text-muted-foreground">{t(hintKey)}</p>
+      {options.map(({ option, id, checked, toggle }) => (
         <div key={option.propertyName} className="flex items-center gap-2">
-          <Checkbox
-            id={`reEnroll-${option.propertyName}`}
-            checked={fieldRules.includes(option.propertyName)}
-            onCheckedChange={(value) =>
-              toggleField(option.propertyName, value === true)
-            }
-          />
-          <Label htmlFor={`reEnroll-${option.propertyName}`}>
+          <Checkbox id={id} checked={checked} onCheckedChange={toggle} />
+          <Label htmlFor={id}>
             <ReEnrollmentOptionLabel option={option} />
           </Label>
         </div>
@@ -125,30 +102,11 @@ const AutomationTriggerReEnrollmentPopoverContent = ({
   );
 };
 
-const MEASURE_PREFIX: Record<string, string> = {
-  sum: 'Sum of',
-  avg: 'Average of',
-  min: 'Lowest',
-  max: 'Highest',
-};
-
 const ReEnrollmentRelationLabel = ({
   relation,
 }: {
   relation: ReEnrollmentRelation;
-}) => {
-  const { fieldByKey } = useSegmentFields(relation.relatedType || undefined);
-  const { measure } = relation;
-
-  const measured =
-    'fieldKey' in measure
-      ? `${MEASURE_PREFIX[measure.op]} ${(
-          fieldByKey(measure.fieldKey)?.label || measure.fieldKey
-        ).toLowerCase()}`
-      : 'Count';
-
-  return <>{`${relation.label} · ${measured}`}</>;
-};
+}) => <>{useReEnrollmentRelationLabel(relation)}</>;
 
 const ReEnrollmentOptionLabel = ({ option }: { option: ReEnrollmentOption }) =>
   option.relation ? (

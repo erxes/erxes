@@ -4,8 +4,22 @@ Installs a solution, such as an AI employee, in one go. Not the content
 templates core used to have: that module was removed; this one owns the name.
 
 - Templates are declared in plugin code, `startPlugin({ meta: { templates } })`
-  (`TTemplate`, `erxes-api-shared/core-modules/templates`). Nothing about a
-  template is stored except installations.
+  (`TTemplate`, `erxes-api-shared/core-modules/templates`), and by core itself
+  in `builtIn/` (`CORE_TEMPLATES`, registered as `pluginName: 'core'`):
+  `core.welcome-series`, `core.lead-follow-up`, `core.birthday-greeting`,
+  `core.win-back` (win-back reads `lastSeenAt`, set only by widget and
+  messenger visits). Nothing about a template is stored except installations.
+- A journey may start from a segment-membership trigger
+  (`config.event: 'segmentMembership'`, `segmentId: '{{ parts.x }}'`): its
+  segment part is created listed even though a journey reads it, because
+  only listed segments are materialized and only a materialized one reports
+  who entered (`templatePartKeysWatchedByMembership`); the install moves the
+  entry step into `config.joined` and empties `actionId`, as the builder
+  saves it (`startMembershipTriggerAtJoined`). Time conditions (`woad`,
+  `annt`) are re-checked nightly, so these fire on the day, not the minute.
+  A plain segment trigger (`config.contentId`) evaluates its segment
+  directly and keeps it automation-owned; starters scope it with
+  `createdAt woad 0` so records made before activation are left alone.
 - `registry.ts` lists what enabled plugins declare and hides a template whose
   trigger or step types automations does not know, or whose requirement kind
   has no enabled owner (`core` and `automations` kinds always do).
@@ -91,6 +105,10 @@ templates core used to have: that module was removed; this one owns the name.
   `ui-modules` `TemplateRequirementOptions` (cards, the last one makes a new
   record in place or in a new tab) and `useTemplateRequirementOptions` (picks
   the only option, or the one that appears after it was made).
+- Installing again is allowed but warned: `useTemplatePriorInstalls` counts
+  earlier installations of the same template that still have an automation
+  (a segment template's while its record stays). The wizard shows a warning
+  banner with a link to the latest one, and install asks to confirm.
 - After installing, `installedPathOf` (core-ui `template/utils`) opens what a
   small template made: an `automation` in the builder, a `segment` on its
   page; a `solution` lands on `/templates/installations/:id?installed=1`. The

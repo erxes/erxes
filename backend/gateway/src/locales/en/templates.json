@@ -67,5 +67,16 @@
   "segment-count_other": "{{count}} segments",
   "no-templates-filtered": "No templates here",
   "no-templates-filtered-body": "Try another group or app.",
-  "install-note-segment": "Segments are created ready to use and stay when you remove the installation."
+  "install-note-segment": "Segments are created ready to use and stay when you remove the installation.",
+  "already-installed_one": "This template is already installed",
+  "already-installed_other": "This template is already installed {{count}} times",
+  "already-installed-body_one": "Its {{count}} automation is still here ({{active}} on). Installing again creates another copy alongside it.",
+  "already-installed-body_other": "Its {{count}} automations are still here ({{active}} on). Installing again creates another copy alongside them.",
+  "already-installed-segment-body": "Installing again creates another set of the same segments.",
+  "view-latest-installation": "Open the latest installation",
+  "reinstall-confirm_one": "This template is already installed and its {{automations}} automation(s) are still here. Install another copy anyway?",
+  "reinstall-confirm_other": "This template is already installed {{count}} times and its {{automations}} automation(s) are still here. Install another copy anyway?",
+  "reinstall-confirm-segment_one": "This template is already installed. Installing again creates the same segments a second time. Continue?",
+  "reinstall-confirm-segment_other": "This template is already installed {{count}} times. Installing again creates the same segments once more. Continue?",
+  "install-again": "Install again"
 }

@@ -24,6 +24,10 @@ import {
   hasRecipientReason,
   recipientReason,
 } from '../../../utils/recipientOutcome';
+import {
+  recipientDisplayName,
+  recipientUpdatedAt,
+} from '../../../utils/recipientDisplay';
 import { useTranslation } from 'react-i18next';
 
 const Head = ({ labelKey, icon }: { labelKey: string; icon?: TablerIcon }) => {
@@ -41,16 +45,6 @@ const OUTCOME_BADGE: Record<
   queued: { icon: IconClock, variant: 'secondary' },
   skipped: { icon: IconAlertTriangle, variant: 'warning' },
   failed: { icon: IconAlertTriangle, variant: 'destructive' },
-};
-
-/** The manifest holds an id; the name comes from the contact it points at. */
-export const recipientDisplayName = (recipient: TBroadcastRecipient) => {
-  const { customer, customerId } = recipient;
-  const name = [customer?.firstName, customer?.lastName]
-    .filter(Boolean)
-    .join(' ');
-
-  return name || customer?.primaryEmail || customer?.primaryPhone || customerId;
 };
 
 const CustomerCell = ({ recipient }: { recipient: TBroadcastRecipient }) => {
@@ -156,8 +150,7 @@ const updatedColumn: ColumnDef<TBroadcastRecipient> = {
   accessorKey: 'updatedAt',
   header: () => <Head labelKey="recipients.updated" />,
   cell: ({ cell }) => {
-    const { updatedAt, finishedAt, createdAt } = cell.row.original;
-    const value = updatedAt || finishedAt || createdAt;
+    const value = recipientUpdatedAt(cell.row.original);
 
     return (
       <RecordTableInlineCell>

@@ -10,13 +10,10 @@ import { AutomationFolderCards } from '@/automations/components/list/folders/Aut
 import { AutomationFolderCreateButton } from '@/automations/components/list/folders/AutomationFolderCreateButton';
 import { AutomationFolderEmptyState } from '@/automations/components/list/folders/AutomationFolderEmptyState';
 import { useAutomationFolderView } from '@/automations/hooks/useAutomationFolderView';
-import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
-import {
-  IconAffiliate,
-  IconFolder,
-  IconSettings,
-  IconTemplate,
-} from '@tabler/icons-react';
+import { useAutomationsListLayout } from '@/automations/hooks/useAutomationsListLayout';
+import { AutomationCreateDialog } from '@/automations/components/list/AutomationCreateDialog';
+import { useAutomationCreateDialog } from '@/automations/hooks/useAutomationCreateDialog';
+import { IconAffiliate, IconFolder, IconSettings } from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
@@ -30,7 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Can,
   PageHeader,
@@ -57,7 +54,7 @@ export const AutomationsRecordTable = () => {
     useAutomationFolderView();
   const columns = useMemo(() => getAutomationColumns(t), [t]);
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('automations'));
-  const navigate = useNavigate();
+  const createDialog = useAutomationCreateDialog();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canCreateAutomation =
     isLoaded && hasActionPermission('automationsCreate');
@@ -66,10 +63,10 @@ export const AutomationsRecordTable = () => {
     `c`,
     () => {
       if (!canCreateAutomation) return;
-      navigate('/automations/create');
+      createDialog.openDialog();
     },
     AutomationsHotKeyScope.AutomationsPage,
-    [canCreateAutomation, navigate],
+    [canCreateAutomation, createDialog.openDialog],
   );
   if (loading) {
     return <Spinner />;
@@ -117,24 +114,15 @@ export const AutomationsRecordTable = () => {
               {t('go-to-settings')}
             </Link>
           </Button>
-          <Can action="templatesInstall">
-            <Button variant="outline" asChild>
-              <Link to="/templates?group=automation">
-                <IconTemplate />
-                {t('from-template')}
-              </Link>
-            </Button>
-          </Can>
           <Can action="automationsCreate">
-            <Button asChild>
-              <Link to={'/automations/create'}>
-                {t('create')}
-                <Kbd>C</Kbd>
-              </Link>
+            <Button onClick={createDialog.openDialog}>
+              {t('create')}
+              <Kbd>C</Kbd>
             </Button>
           </Can>
         </PageHeader.End>
       </PageHeader>
+      <AutomationCreateDialog state={createDialog} />
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />
       {showFolders && !error && (
         <AutomationFolderCards folders={folders} onOpen={openFolder} />
@@ -149,7 +137,9 @@ export const AutomationsRecordTable = () => {
         folderId || (showFolders && folders.length) ? (
           <AutomationFolderEmptyState inFolder={!!folderId} />
         ) : (
-          <AutomationsRecordTableEmptyState />
+          <AutomationsRecordTableEmptyState
+            onCreate={createDialog.openDialog}
+          />
         )
       ) : layout === 'grid' ? (
         <AutomationsCardList

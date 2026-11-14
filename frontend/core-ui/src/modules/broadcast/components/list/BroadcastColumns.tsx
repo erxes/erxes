@@ -1,7 +1,5 @@
 import { IconLabelFilled, IconUser } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { useMemo } from 'react';
-import { useBroadcastEmailScope } from '../../hooks/useBroadcastEmailScope';
 import { Badge, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { BroadcastBrandCell } from './cells/BroadcastBrandCell';
 import { BroadcastFromCell } from './cells/BroadcastFromCell';
@@ -35,7 +33,7 @@ const Head = ({
   return <RecordTable.InlineHead label={t(labelKey)} icon={icon} />;
 };
 
-const BROADCAST_COLUMNS: ColumnDef<TBroadcastMessage>[] = [
+export const BROADCAST_COLUMNS: ColumnDef<TBroadcastMessage>[] = [
   { id: 'more', cell: BroadcastMoreCell, size: 33 },
   RecordTable.checkboxColumn as ColumnDef<TBroadcastMessage>,
   {
@@ -121,19 +119,3 @@ const BROADCAST_COLUMNS: ColumnDef<TBroadcastMessage>[] = [
     ),
   },
 ];
-
-/** Columns that only mean something for an email campaign. */
-const EMAIL_ONLY_COLUMNS = ['brandId', 'from'];
-
-export const useBroadcastColumns = () => {
-  const isEmailScope = useBroadcastEmailScope();
-
-  return useMemo(
-    () =>
-      BROADCAST_COLUMNS.filter(
-        (column) =>
-          isEmailScope || !EMAIL_ONLY_COLUMNS.includes(column.id as string),
-      ),
-    [isEmailScope],
-  );
-};

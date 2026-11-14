@@ -11,7 +11,7 @@ import { NodeFrame } from '@/automations/components/builder/nodes/components/Nod
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
 import { useActionNodeSourceHandler } from '@/automations/components/builder/nodes/hooks/useActionNodeSourceHandler';
-import { isBranchingOnError } from '@/automations/utils/automationBuilderUtils/actionFolks';
+import { errorPolicySummaryOf } from '@/automations/utils/automationBuilderUtils/actionFolks';
 import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Handle, Position } from '@xyflow/react';
@@ -62,19 +62,20 @@ const ActionNodeSourceHandler = ({
 };
 
 /** What the node's error policy does, said on the canvas rather than in a form. */
-const ActionErrorPolicyBadge = ({ config }: { config?: any }) => {
-  const attempts = Number(config?.errorPolicy?.retry?.attempts || 0);
-  const branching = isBranchingOnError(config);
+const ActionErrorPolicyBadge = ({
+  config,
+}: {
+  config?: Parameters<typeof errorPolicySummaryOf>[0];
+}) => {
+  const summary = errorPolicySummaryOf(config);
 
-  if (!attempts && !branching) {
+  if (!summary) {
     return null;
   }
 
   return (
     <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-normal text-muted-foreground">
-      {[attempts > 0 && `retry x${attempts}`, branching && 'on error']
-        .filter(Boolean)
-        .join(' · ')}
+      {summary}
     </span>
   );
 };

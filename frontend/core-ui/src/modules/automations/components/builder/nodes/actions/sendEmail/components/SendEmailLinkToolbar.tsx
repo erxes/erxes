@@ -1,9 +1,8 @@
 import { SendEmailLinkFields } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailLinkFields';
-import { normalizeLinkUrl } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailLinkUtils';
+import { useSendEmailLinkToolbar } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailLinkToolbar';
 import { LinkToolbarController, LinkToolbarProps } from '@blocknote/react';
 import { IconTrash } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -19,15 +18,8 @@ const SendEmailLinkToolbarContent = ({
   stopHideTimer,
 }: LinkToolbarProps) => {
   const { t } = useTranslation('automations');
-  const [urlValue, setUrlValue] = useState(url);
-  const [textValue, setTextValue] = useState(text);
-
-  useEffect(() => {
-    setUrlValue(url);
-    setTextValue(text);
-  }, [url, text]);
-
-  const applyLink = () => editLink(normalizeLinkUrl(urlValue), textValue);
+  const { urlValue, textValue, setUrlValue, setTextValue, applyLink } =
+    useSendEmailLinkToolbar({ url, text, editLink });
 
   return (
     <div

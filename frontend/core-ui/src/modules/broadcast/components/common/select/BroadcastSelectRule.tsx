@@ -1,4 +1,4 @@
-import { BROADCAST_RULES } from '@/broadcast/constants';
+import { useBroadcastSelectRule } from '@/broadcast/hooks/useBroadcastSelectRule';
 import { Form, Select, Tooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -10,22 +10,17 @@ export const BroadcastSelectRule = ({
   onValueChange: (value: string, title: string) => void;
 }) => {
   const { t } = useTranslation('broadcasts');
-  const AVAILABLE_RULES = Object.keys(BROADCAST_RULES).filter(
-    (key) => !values.some((field) => field.rule === key),
+  const { availableRules, selectRule } = useBroadcastSelectRule(
+    values,
+    onValueChange,
   );
 
-  if (AVAILABLE_RULES.length === 0) {
+  if (!availableRules.length) {
     return null;
   }
 
-  const handleValueChange = (value: string) => {
-    const { title } = BROADCAST_RULES[value];
-
-    onValueChange(value, title);
-  };
-
   return (
-    <Select value="" onValueChange={handleValueChange}>
+    <Select value="" onValueChange={selectRule}>
       <Form.Control>
         <Select.Trigger>
           <Select.Value
@@ -38,28 +33,24 @@ export const BroadcastSelectRule = ({
       </Form.Control>
       <Select.Content>
         <Select.Group>
-          {AVAILABLE_RULES.map((key) => {
-            const { title, description } = BROADCAST_RULES[key];
-
-            return (
-              <Tooltip.Provider key={key}>
-                <Tooltip delayDuration={1000}>
-                  <Tooltip.Trigger asChild>
-                    <Select.Item key={key} className="text-xs h-7" value={key}>
-                      {title}
-                    </Select.Item>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content
-                    className="max-w-96"
-                    side="right"
-                    align="start"
-                  >
-                    {description}
-                  </Tooltip.Content>
-                </Tooltip>
-              </Tooltip.Provider>
-            );
-          })}
+          {availableRules.map(({ key, title, description }) => (
+            <Tooltip.Provider key={key}>
+              <Tooltip delayDuration={1000}>
+                <Tooltip.Trigger asChild>
+                  <Select.Item key={key} className="text-xs h-7" value={key}>
+                    {title}
+                  </Select.Item>
+                </Tooltip.Trigger>
+                <Tooltip.Content
+                  className="max-w-96"
+                  side="right"
+                  align="start"
+                >
+                  {description}
+                </Tooltip.Content>
+              </Tooltip>
+            </Tooltip.Provider>
+          ))}
         </Select.Group>
       </Select.Content>
     </Select>

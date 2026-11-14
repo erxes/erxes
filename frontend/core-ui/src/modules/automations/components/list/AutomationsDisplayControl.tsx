@@ -3,50 +3,12 @@ import {
   IconLayoutGrid,
   IconList,
 } from '@tabler/icons-react';
-import {
-  automationsListLayoutState,
-  TAutomationsListLayout,
-} from '@/automations/states/automationsListLayoutState';
+import { TAutomationsListLayout } from '@/automations/states/automationsListLayoutState';
+import { useAutomationsDisplayControl } from '@/automations/hooks/useAutomationsListLayout';
 import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
-import { useMultiQueryState } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export type { TAutomationsListLayout };
-
-const parseLayout = (value?: string | null): TAutomationsListLayout | null =>
-  value === 'grid' || value === 'list' ? value : null;
-
-/**
- * A `layout` query param wins so a shared link opens the way it was sent;
- * otherwise the stored preference applies, which is what survives navigating
- * into an automation and back.
- */
-export const useAutomationsListLayout = () => {
-  const [queryParams, setQueryParams] = useMultiQueryState<{ layout: string }>([
-    'layout',
-  ]);
-  const [storedLayout, setStoredLayout] = useAtom(automationsListLayoutState);
-
-  const paramLayout = parseLayout(queryParams.layout);
-  const layout = paramLayout ?? storedLayout;
-
-  // Adopt a link's layout so leaving and coming back keeps showing it.
-  useEffect(() => {
-    if (paramLayout && paramLayout !== storedLayout) {
-      setStoredLayout(paramLayout);
-    }
-  }, [paramLayout, storedLayout, setStoredLayout]);
-
-  const setLayout = (next: TAutomationsListLayout) => {
-    setStoredLayout(next);
-    // Keep the default layout out of the URL
-    setQueryParams({ layout: next === 'list' ? null : next });
-  };
-
-  return { layout, setLayout };
-};
 
 const AutomationsLayoutOptions = ({
   value,
@@ -89,18 +51,9 @@ const AutomationsLayoutOptions = ({
 };
 
 export const AutomationsDisplayControl = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { layout, setLayout } = useAutomationsListLayout();
   const { t } = useTranslation('automations');
-
-  const handleValueChange = (value: string) => {
-    if (value !== 'list' && value !== 'grid') {
-      return;
-    }
-
-    setLayout(value);
-    setIsOpen(false);
-  };
+  const { isOpen, setIsOpen, layout, handleValueChange } =
+    useAutomationsDisplayControl();
 
   return (
     <PopoverScoped open={isOpen} onOpenChange={setIsOpen}>

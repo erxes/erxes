@@ -1,4 +1,7 @@
-import { useBroadcastRecipientEmail } from '@/broadcast/hooks/useBroadcastRecipientEmail';
+import {
+  formatEventTime,
+  useBroadcastRecipientEmailView,
+} from '@/broadcast/hooks/useBroadcastRecipientEmail';
 import {
   IconAlertTriangle,
   IconCircleCheck,
@@ -8,15 +11,12 @@ import {
   IconSend,
 } from '@tabler/icons-react';
 import type { TablerIcon } from '@tabler/icons-react';
-import dayjs from 'dayjs';
 import {
   Avatar,
-  EmailPreviewDevice,
   EmailPreviewDeviceToggle,
   EmailPreviewFrame,
   Spinner,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /** What each provider event means, in the order they tend to arrive. */
@@ -49,7 +49,7 @@ const EventRow = ({
       <span className="capitalize">{status}</span>
       {createdAt && (
         <span className="text-muted-foreground">
-          {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}
+          {formatEventTime(createdAt)}
         </span>
       )}
     </div>
@@ -69,8 +69,16 @@ export const BroadcastRecipientEmail = ({
   recipientId: string;
 }) => {
   const { t } = useTranslation('broadcasts', { keyPrefix: 'recipientEmail' });
-  const { email, loading, error } = useBroadcastRecipientEmail(recipientId);
-  const [device, setDevice] = useState<EmailPreviewDevice>('desktop');
+  const {
+    email,
+    loading,
+    hasError,
+    unavailableMessage,
+    device,
+    setDevice,
+    recipientInitial,
+    noEventsLabel,
+  } = useBroadcastRecipientEmailView(recipientId);
 
   if (loading) {
     return (
@@ -80,11 +88,11 @@ export const BroadcastRecipientEmail = ({
     );
   }
 
-  if (error || !email) {
+  if (hasError || !email) {
     return (
       <div className="flex h-full items-center justify-center px-6 text-center">
         <p className="max-w-md text-sm text-muted-foreground">
-          {error?.message || t('unavailable')}
+          {unavailableMessage}
         </p>
       </div>
     );
@@ -96,9 +104,7 @@ export const BroadcastRecipientEmail = ({
           the recipient had in front of them. */}
       <div className="flex flex-none items-start gap-3 border-b px-4 py-3">
         <Avatar size="lg">
-          <Avatar.Fallback>
-            {(email.to || '?').charAt(0).toUpperCase()}
-          </Avatar.Fallback>
+          <Avatar.Fallback>{recipientInitial}</Avatar.Fallback>
         </Avatar>
 
         <div className="min-w-0 flex-1">
@@ -129,11 +135,7 @@ export const BroadcastRecipientEmail = ({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">
-              {email.sentAt
-                ? t('no-events-yet')
-                : t('never-left', { status: email.status })}
-            </p>
+            <p className="text-xs text-muted-foreground">{noEventsLabel}</p>
           )}
         </div>
       </div>

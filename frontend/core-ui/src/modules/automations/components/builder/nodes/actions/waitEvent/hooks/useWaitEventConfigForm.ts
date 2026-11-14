@@ -73,10 +73,15 @@ export function useWaitEventConfigForm(
     configFieldNamePrefix,
   ]);
 
+  // Without a choice yet, the first option is what the form shows
+  const defaultTargetTypeId = waitEventOptions[0]?.id;
+
   return {
     waitEventOptions,
     configFieldNamePrefix,
     config,
     onSelectTargetTypeId,
+    defaultTargetTypeId,
+    effectiveTargetType: config?.targetType ?? waitEventOptions[0]?.type,
   };
 }

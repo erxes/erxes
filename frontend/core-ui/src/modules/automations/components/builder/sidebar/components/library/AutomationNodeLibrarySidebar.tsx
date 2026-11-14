@@ -5,18 +5,14 @@ import { useAutomationNodeLibrarySidebar } from '@/automations/components/builde
 import { AutomationNodeType } from '@/automations/types';
 import { IconCheck, IconFilter, IconX } from '@tabler/icons-react';
 import { Badge, Button, cn, Command, Popover, Separator } from 'erxes-ui';
-import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAutomationBuilderSidebarHooks } from '../../hooks/useAutomationBuilderSidebarHooks';
 import { IAutomationsActionConfigConstants } from 'ui-modules';
 import {
-  getActionGroupBadges,
-  TRIGGER_GROUPS,
-} from '../../utils/automationNodeLibrarySidebarUtils';
-import {
-  AutomationNodeLibraryActionGroupFilterProvider,
-  useAutomationNodeLibraryActionGroupFilter,
-} from '../../context/AutomationNodeLibraryActionGroupFilterContext';
+  nodeLibraryTabContentOf,
+  useAutomationNodeLibrarySidebarFilters,
+} from '../../hooks/useAutomationNodeLibrarySidebarFilters';
+import { AutomationNodeLibraryActionGroupFilterProvider } from '../../context/AutomationNodeLibraryActionGroupFilterContext';
 import { AutomationNodeLibraryProvider } from '../../context/AutomationNodeLibraryProvider';
 import { WorkflowNodeLibraryContent } from './WorkflowNodeLibraryContent';
 
@@ -106,6 +102,7 @@ const AutomationNodeLibrarySidebarContent = ({
   config: ReturnType<typeof useAutomationNodeLibrarySidebar>['config'];
 }) => {
   const { t } = useTranslation('automations');
+  const { isWorkflow, listType } = nodeLibraryTabContentOf(activeNodeTab);
 
   return (
     <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
@@ -118,7 +115,7 @@ const AutomationNodeLibrarySidebarContent = ({
           wrapperClassName="m-0 flex-1 rounded-md bg-background shadow-xs"
           autoFocus
         />
-        {activeNodeTab !== AutomationNodeType.Workflow && (
+        {!isWorkflow && (
           <AutomationNodeLibrarySidebarFilters
             activeNodeTab={activeNodeTab}
             list={config.list as IAutomationsActionConfigConstants[]}
@@ -130,15 +127,11 @@ const AutomationNodeLibrarySidebarContent = ({
           key={activeNodeTab}
           className="h-full w-full overflow-auto p-0 pr-1 animate-in fade-in-0 duration-150"
         >
-          {activeNodeTab === AutomationNodeType.Workflow ? (
+          {isWorkflow ? (
             <WorkflowNodeLibraryContent />
           ) : (
             <AutomationNodeLibraryTabContent
-              type={
-                activeNodeTab === AutomationNodeType.Action
-                  ? AutomationNodeType.Action
-                  : AutomationNodeType.Trigger
-              }
+              type={listType}
               list={config.list}
             />
           )}
@@ -155,38 +148,16 @@ const AutomationNodeLibrarySidebarFilters = ({
   activeNodeTab: AutomationNodeType;
   list: IAutomationsActionConfigConstants[];
 }) => {
-  const [isGroupPopoverOpen, setIsGroupPopoverOpen] = useState(false);
-  const {
-    activeActionGroup,
-    setActiveActionGroup,
-    activeTriggerGroup,
-    setActiveTriggerGroup,
-  } = useAutomationNodeLibraryActionGroupFilter();
-
   const { t } = useTranslation('automations');
+  const { isOpen, setIsOpen, activeGroup, groupOptions, clearGroup } =
+    useAutomationNodeLibrarySidebarFilters(activeNodeTab, list);
 
-  const groups = useMemo(
-    () =>
-      activeNodeTab === AutomationNodeType.Action
-        ? getActionGroupBadges(list as IAutomationsActionConfigConstants[])
-        : TRIGGER_GROUPS,
-    [activeNodeTab, list],
-  );
-  const activeGroup =
-    activeNodeTab === AutomationNodeType.Action
-      ? activeActionGroup
-      : activeTriggerGroup;
-  const setActiveGroup =
-    activeNodeTab === AutomationNodeType.Action
-      ? setActiveActionGroup
-      : setActiveTriggerGroup;
-
-  if (!groups.length) {
+  if (!groupOptions.length) {
     return null;
   }
 
   return (
-    <Popover open={isGroupPopoverOpen} onOpenChange={setIsGroupPopoverOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>
         <Button
           variant="secondary"
@@ -199,9 +170,9 @@ const AutomationNodeLibrarySidebarFilters = ({
           aria-label={t('filter-by-type')}
         >
           <IconFilter className="size-4" />
-          {activeGroup ? (
+          {activeGroup && (
             <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-primary" />
-          ) : null}
+          )}
         </Button>
       </Popover.Trigger>
       <Popover.Content
@@ -213,43 +184,33 @@ const AutomationNodeLibrarySidebarFilters = ({
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {t('filter-by-type')}
           </span>
-          {activeGroup ? (
+          {activeGroup && (
             <button
               type="button"
               className="text-xs font-medium text-primary hover:underline"
-              onClick={() => {
-                setActiveGroup(null);
-                setIsGroupPopoverOpen(false);
-              }}
+              onClick={clearGroup}
             >
               {t('sidebar-clear')}
             </button>
-          ) : null}
+          )}
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {groups.map((group) => {
-            const isActive = activeGroup === group;
-
-            return (
-              <Badge
-                key={group}
-                variant={isActive ? 'default' : 'secondary'}
-                className={cn(
-                  'flex cursor-pointer items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors',
-                  isActive
-                    ? 'border-primary bg-primary text-primary-foreground shadow-xs'
-                    : 'border-border bg-muted/40 text-foreground hover:bg-muted',
-                )}
-                onClick={() => {
-                  setActiveGroup(isActive ? null : group);
-                  setIsGroupPopoverOpen(false);
-                }}
-              >
-                {isActive ? <IconCheck className="size-3" /> : null}
-                {group}
-              </Badge>
-            );
-          })}
+          {groupOptions.map(({ group, isActive, choose }) => (
+            <Badge
+              key={group}
+              variant={isActive ? 'default' : 'secondary'}
+              className={cn(
+                'flex cursor-pointer items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors',
+                isActive
+                  ? 'border-primary bg-primary text-primary-foreground shadow-xs'
+                  : 'border-border bg-muted/40 text-foreground hover:bg-muted',
+              )}
+              onClick={choose}
+            >
+              {isActive && <IconCheck className="size-3" />}
+              {group}
+            </Badge>
+          ))}
         </div>
       </Popover.Content>
     </Popover>

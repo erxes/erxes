@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-11-08`
+- **Last synchronized:** `2026-11-14`
 
 ## Scope
 
@@ -101,6 +101,7 @@
 
 ### Provides
 
+- Automation remote `templateRequirement` (`widgets/automations/modules/loyalty/components/template/LoyaltyTemplateRequirement.tsx`): answers kind `loyalty:score.accountType` with an account type id via `SelectLoyaltyAccountType`, wrapped in a form of its own because that picker uses `Form.Control`; reports the wallet name through `onLabel`.
 - Module Federation frontend routes and components configured by this plugin's
   exposed pricing and loyalty UI modules.
 - Pricing GraphQL operations including `PricingPlanDetail` and pricing

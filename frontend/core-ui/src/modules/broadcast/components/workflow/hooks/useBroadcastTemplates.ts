@@ -3,7 +3,7 @@ import { useAutomationFormController } from '@/automations/hooks/useFormSetValue
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { TBuiltInTemplate } from '@/automations/utils/builtInTemplates';
 import { filterActionsForTargets } from '@/automations/utils/targetTypeCompat';
-import { BROADCAST_TARGET_TYPE } from '@/broadcast/components/workflow/components/BroadcastNodeLibrary';
+import { BROADCAST_TARGET_TYPE } from '@/broadcast/components/workflow/hooks/useBroadcastNodeLibrary';
 import { AUTOMATION_BUILT_IN_TEMPLATE_MATERIALIZE } from '@/broadcast/components/workflow/graphql/builtInTemplateQueries';
 import { useApolloClient, useQuery } from '@apollo/client';
 import { useMemo, useState } from 'react';

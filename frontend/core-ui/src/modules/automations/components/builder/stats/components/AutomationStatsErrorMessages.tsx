@@ -1,10 +1,8 @@
+import { formatErrorCode } from '@/automations/components/builder/stats/utils/automationStatsFormat';
 import { TAutomationStatsErrorMessage } from '@/automations/types';
 import dayjs from 'dayjs';
 import { Badge, RelativeDateDisplay } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-const formatErrorCode = (code: string) =>
-  code.toLowerCase().split('_').join(' ');
 
 const ErrorMessageRow = ({
   entry,

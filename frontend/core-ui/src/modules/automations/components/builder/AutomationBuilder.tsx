@@ -1,27 +1,12 @@
 import { ReactFlowProvider } from '@xyflow/react';
-import { useEffect } from 'react';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormProvider, useForm } from 'react-hook-form';
-
-import { Tabs, useMultiQueryState } from 'erxes-ui';
+import { FormProvider } from 'react-hook-form';
+import { Tabs } from 'erxes-ui';
 import { AutomationBuilderDnDProvider } from '@/automations/context/AutomationBuilderDnDProvider';
-
 import { AutomationBuilderWorkspace } from '@/automations/components/builder/AutomationBuilderWorkspace';
 import { AutomationProvider } from '@/automations/context/AutomationProvider';
-import {
-  automationBuilderActiveTabState,
-  automationBuilderSiderbarOpenState,
-} from '@/automations/states/automationState';
 import { AutomationBuilderUnsavedChangesAlert } from '@/automations/components/builder/AutomationBuilderUnsavedChangesAlert';
-import { deepCleanNulls } from '@/automations/utils/automationBuilderUtils/triggerUtils';
-import {
-  automationBuilderFormSchema,
-  TAutomationBuilderForm,
-} from '@/automations/utils/automationFormDefinitions';
-import { normalizeAutomationWorkflows } from '@/automations/utils/workflowInputs';
-import { useAtom, useSetAtom } from 'jotai';
-import { AutomationBuilderTabsType, IAutomation } from '@/automations/types';
+import { useAutomationBuilder } from '@/automations/components/builder/hooks/useAutomationBuilder';
+import { IAutomation } from '@/automations/types';
 import { AutomationBuilderHeader } from '@/automations/components/builder/header/AutomationBuilderHeader';
 import { TAutomationSeed } from '@/automations/hooks/useAutomationSeed';
 import { AutomationHistories } from '@/automations/components/builder/history/components/AutomationHistories';
@@ -41,47 +26,7 @@ export const AutomationBuilder = ({
   seed,
   refetchDetail,
 }: AutomationBuilderProps) => {
-  const [activeTab, setActiveTab] = useAtom(automationBuilderActiveTabState);
-  const setOpenSidebar = useSetAtom(automationBuilderSiderbarOpenState);
-  const [queryParams] = useMultiQueryState<{
-    activeNodeId: string;
-    activeTab: AutomationBuilderTabsType;
-  }>(['activeNodeId', 'activeTab']);
-  const cleanedDetail = deepCleanNulls(detail);
-
-  // Migrates legacy workflow formats (raw trigger.* refs, memberActionIds
-  // reference model) on load; no-op for clean data
-  const normalized = normalizeAutomationWorkflows({
-    triggers: cleanedDetail?.triggers ?? [],
-    actions: cleanedDetail?.actions ?? [],
-    workflows: cleanedDetail?.workflows ?? [],
-  });
-
-  const form = useForm<TAutomationBuilderForm>({
-    resolver: zodResolver(automationBuilderFormSchema),
-    defaultValues: {
-      ...cleanedDetail,
-      edgeType: cleanedDetail?.edgeType ?? 'default',
-      flowDirection: cleanedDetail?.flowDirection ?? 'horizontal',
-      ...normalized,
-      ...(detail ? {} : seed),
-    },
-  });
-
-  useEffect(() => {
-    const nextActiveTab =
-      queryParams.activeTab || AutomationBuilderTabsType.Builder;
-
-    if (activeTab !== nextActiveTab) {
-      setActiveTab(nextActiveTab);
-    }
-  }, [activeTab, queryParams.activeTab, setActiveTab]);
-
-  useEffect(() => {
-    if (queryParams.activeNodeId) {
-      setOpenSidebar(true);
-    }
-  }, [queryParams.activeNodeId, setOpenSidebar]);
+  const { form, activeTab } = useAutomationBuilder(detail, seed);
 
   return (
     <AutomationProvider detail={detail} refetchDetail={refetchDetail}>

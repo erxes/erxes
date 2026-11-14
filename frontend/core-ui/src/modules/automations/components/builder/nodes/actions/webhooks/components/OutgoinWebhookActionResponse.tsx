@@ -2,55 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { Badge } from 'erxes-ui';
 import { ActionResult } from 'ui-modules';
-
-type TWebhookHistoryResult = {
-  request?: {
-    method?: string;
-    url?: string;
-    headers?: Record<string, string>;
-    bodyText?: string;
-  };
-  response?: {
-    status?: number;
-    statusText?: string;
-    ok?: boolean;
-    headers?: Record<string, string>;
-    contentType?: string;
-    bodyText?: string;
-    bodyJson?: any;
-  };
-  meta?: {
-    attemptCount?: number;
-  };
-  error?: {
-    phase?: string;
-    message?: string;
-    attemptCount?: number;
-  };
-};
-
-const useOutgoingWebhookResult = (result?: TWebhookHistoryResult) => {
-  const { t } = useTranslation('automations');
-  const request = result?.request || {};
-  const response = result?.response;
-  const error = result?.error;
-  const attemptCount = result?.meta?.attemptCount || error?.attemptCount;
-
-  const statusText = error
-    ? error.message || error.phase || t('webhook-request-failed')
-    : `${response?.status ?? 'N/A'} ${response?.statusText || ''}`.trim();
-
-  return {
-    request,
-    response,
-    error,
-    attemptCount,
-    hasError: Boolean(error) || response?.ok === false,
-    statusText,
-    responseBody:
-      response?.bodyJson !== undefined ? response.bodyJson : response?.bodyText,
-  };
-};
+import {
+  TWebhookHistoryResult,
+  useOutgoingWebhookResult,
+} from '@/automations/components/builder/nodes/actions/webhooks/hooks/useOutgoingWebhookResult';
 
 export const OutgoinWebhookActionResponse = ({
   result,

@@ -1,10 +1,13 @@
 import { IconAffiliate, IconPlus } from '@tabler/icons-react';
 import { Button, Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { Can } from 'ui-modules';
 
-export const AutomationsRecordTableEmptyState = () => {
+export const AutomationsRecordTableEmptyState = ({
+  onCreate,
+}: {
+  onCreate: () => void;
+}) => {
   const { t } = useTranslation('automations');
 
   return (
@@ -18,11 +21,9 @@ export const AutomationsRecordTableEmptyState = () => {
       </Empty.Header>
       <Empty.Content>
         <Can action="automationsCreate">
-          <Button asChild>
-            <Link to="/automations/create">
-              <IconPlus className="size-4" />
-              {t('create')}
-            </Link>
+          <Button onClick={onCreate}>
+            <IconPlus className="size-4" />
+            {t('create')}
           </Button>
         </Can>
       </Empty.Content>

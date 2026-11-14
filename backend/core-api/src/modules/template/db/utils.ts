@@ -3,6 +3,7 @@ import {
   AUTOMATION_STATUSES,
   getUnansweredTemplateRequirements,
   IAutomation,
+  isSegmentMembershipTrigger,
   materializeTemplate,
   TEMPLATE_CORE_REQUIREMENT_KINDS,
   templatePartKeysUsedByJourneys,
@@ -16,6 +17,42 @@ import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { CORE_TEMPLATE_PARTS } from './constants';
 import { TInstalledPart } from './models/Installations';
+
+const PART_KEY = /\{\{\s*parts\.([A-Za-z0-9_-]+)\s*\}\}/;
+
+/**
+ * Segment parts a membership trigger watches. Only listed segments are
+ * materialized, and only a materialized one reports who entered it.
+ */
+export const templatePartKeysWatchedByMembership = (
+  template: Pick<TRegisteredTemplate, 'journeys'>,
+) =>
+  new Set(
+    template.journeys.flatMap(({ trigger }) => {
+      const key = isSegmentMembershipTrigger(trigger)
+        ? PART_KEY.exec(String(trigger.config?.segmentId || ''))?.[1]
+        : undefined;
+
+      return key ? [key] : [];
+    }),
+  );
+
+/**
+ * A membership trigger starts from its `joined` exit, as the builder saves
+ * it, not from `actionId`.
+ */
+export const startMembershipTriggerAtJoined = <
+  T extends { actionId?: string; config?: Record<string, unknown> },
+>(
+  trigger: T,
+): T =>
+  isSegmentMembershipTrigger(trigger) && !trigger.config?.joined
+    ? {
+        ...trigger,
+        actionId: '',
+        config: { ...trigger.config, joined: trigger.actionId },
+      }
+    : trigger;
 /**
  * Creates and removes parts: an AI agent here, anything else through the
  * plugin that owns its type, so core never writes another plugin's data.
@@ -208,12 +245,13 @@ export const installTemplate = async ({
   let folderId: string | undefined;
 
   const usedByJourneys = templatePartKeysUsedByJourneys(template);
+  const watchedByMembership = templatePartKeysWatchedByMembership(template);
 
   try {
     for (const part of parts) {
       const listed =
         part.type === CORE_TEMPLATE_PARTS.SEGMENT_PART &&
-        !usedByJourneys.has(part.key);
+        (!usedByJourneys.has(part.key) || watchedByMembership.has(part.key));
       const created = await partsApi.create({
         type: part.type,
         doc: part.doc,
@@ -263,7 +301,7 @@ export const installTemplate = async ({
             const node = nodes.get(trigger.type) || {};
 
             return {
-              ...trigger,
+              ...startMembershipTriggerAtJoined(trigger),
               isCustom: !!node.isCustom,
               label: node.label || '',
               icon: node.icon,

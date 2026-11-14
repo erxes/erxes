@@ -1,10 +1,8 @@
 import { AutomationAiAgentDetail } from '@/automations/components/settings/components/agents/components/AutomationAiAgentDetail';
 import { AiAgentDetailSheetShell } from '@/automations/components/settings/components/agents/components/detail/AiAgentDetailSheetShell';
-import { useAiAgentDetail } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
-import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
+import { useAiAgentDetailSheetContent } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetailSheetContent';
 import { Spinner } from 'erxes-ui';
-import { useRef } from 'react';
-import { ApprovalLockScreen, useApprovalLockState } from 'ui-modules';
+import { ApprovalLockScreen } from 'ui-modules';
 
 /**
  * The agent editor sheet, independent of where it is opened from. The host
@@ -22,31 +20,20 @@ export const AiAgentDetailSheetContent = ({
   onCreated: (agentId: string) => void;
   persistStepInUrl: boolean;
 }) => {
-  const isEdit = Boolean(agentId);
-  // The editor swaps in its own close so unsaved changes can be confirmed.
-  const requestCloseRef = useRef<(() => void) | null>(null);
   const {
-    state: lockState,
-    loading: lockLoading,
-    refetch: refetchLockState,
-  } = useApprovalLockState(
-    {
-      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
-      contentId: agentId || '',
-      action: 'view',
-    },
-    {
-      skip: !isEdit,
-    },
-  );
-  const isLockedOut = !!lockState?.locked && !lockState.hasAccess;
-  const { detail, loading, handleSave } = useAiAgentDetail({
-    id: agentId,
-    skip: isEdit && (lockLoading || !lockState || isLockedOut),
-    onCreated,
-  });
+    requestCloseRef,
+    lockState,
+    isLoading,
+    isLockedOut,
+    refetchLockState,
+    detail,
+    handleSave,
+    title,
+    requestClose,
+  } = useAiAgentDetailSheetContent(agentId, onCreated);
+
   const renderContent = (close: () => void) => {
-    if (lockLoading || (isEdit && loading && !detail)) {
+    if (isLoading) {
       return (
         <>
           <span className="sr-only">Loading agent</span>
@@ -60,7 +47,7 @@ export const AiAgentDetailSheetContent = ({
           <span className="sr-only">Agent is locked</span>
           <ApprovalLockScreen
             state={lockState}
-            onRequestCompleted={() => refetchLockState()}
+            onRequestCompleted={refetchLockState}
           />
         </>
       );
@@ -78,10 +65,10 @@ export const AiAgentDetailSheetContent = ({
   };
   return (
     <AiAgentDetailSheetShell
-      title={detail?.name || (isEdit ? 'Agent' : 'New agent')}
+      title={title}
       identity={agentId || 'new'}
       onClose={onClose}
-      onRequestClose={(close) => (requestCloseRef.current || close)()}
+      onRequestClose={requestClose}
     >
       {renderContent}
     </AiAgentDetailSheetShell>

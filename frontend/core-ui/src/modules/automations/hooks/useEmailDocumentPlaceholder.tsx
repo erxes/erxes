@@ -6,7 +6,7 @@ import {
 import type { DefaultReactSuggestionItem } from '@blocknote/react';
 import { IconFileText } from '@tabler/icons-react';
 import type { IBlockEditor } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const insertDocumentPlaceholderBlock = (
@@ -54,15 +54,19 @@ export const useEmailDocumentPlaceholder = ({
     [editor, t],
   );
 
+  const insertDocument = useCallback(
+    (document: EmailDocument) =>
+      insertDocumentPlaceholderBlock(editor, document),
+    [editor],
+  );
+
   return {
     additionalSlashMenuItems,
     documentPlaceholderPicker: (
       <DocumentPickerDialog
         open={open}
         onOpenChange={setOpen}
-        onSelect={(document) =>
-          insertDocumentPlaceholderBlock(editor, document)
-        }
+        onSelect={insertDocument}
       />
     ),
   };

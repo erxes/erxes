@@ -1,10 +1,7 @@
-import { AUTOMATION_EDIT } from '@/automations/graphql/automationMutations';
 import {
   AutomationsHotKeyScope,
   TAutomationRecordTableColumnDefData,
 } from '@/automations/types';
-import { useNavigate } from 'react-router-dom';
-import { ApolloError, useMutation } from '@apollo/client';
 import {
   IconCopy,
   IconEdit,
@@ -22,83 +19,123 @@ import {
   RelativeDateDisplay,
   DropdownMenu,
   Button,
-  useToast,
 } from 'erxes-ui';
-import {
-  ApprovalLockedBadge,
-  TagsSelect,
-  TAutomationAction,
-  TAutomationTrigger,
-} from 'ui-modules';
+import { ApprovalLockedBadge, TagsSelect } from 'ui-modules';
 import { AutomationExecutionCountCell } from '@/automations/components/list/AutomationExecutionCountCell';
 import { AutomationRecentRunsStrip } from '@/automations/components/list/AutomationRecentRunsStrip';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
-import { useState } from 'react';
+import { useAutomationNameCell } from '@/automations/hooks/useAutomationNameCell';
 import { useAutomationActions } from '@/automations/hooks/useAutomationActions';
 import { useTranslation } from 'react-i18next';
 
 const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
 
+const AutomationMoreCell = ({
+  automation,
+}: {
+  automation: TAutomationRecordTableColumnDefData;
+}) => {
+  const { t } = useTranslation('automations');
+  const { canWrite, duplicating, removing, onEdit, onDuplicate, onRemove } =
+    useAutomationActions(automation);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild disabled={removing || duplicating}>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content
+        align="start"
+        className="w-[140px] min-w-0 [&>button]:cursor-pointer"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <DropdownMenu.Item asChild onSelect={onEdit}>
+          <Button variant="ghost" size="sm" className="w-full justify-start">
+            <IconEdit className="size-4" />
+            {t('edit')}
+          </Button>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+            disabled={duplicating}
+            onClick={onDuplicate}
+          >
+            <IconCopy className="size-4" />
+            {t('duplicate')}
+          </Button>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-destructive"
+            disabled={!canWrite || removing}
+            onClick={onRemove}
+          >
+            <IconTrash className="size-4" />
+            {t('delete')}
+          </Button>
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
+const AutomationNameCell = ({
+  automation,
+}: {
+  automation: TAutomationRecordTableColumnDefData;
+}) => {
+  const {
+    automationId,
+    currentName,
+    editingName,
+    setEditingName,
+    canWrite,
+    rename,
+    openAutomation,
+  } = useAutomationNameCell(automation);
+
+  if (!canWrite) {
+    return (
+      <RecordTableInlineCell.Anchor onClick={openAutomation}>
+        <span className="truncate">{currentName}</span>
+      </RecordTableInlineCell.Anchor>
+    );
+  }
+
+  return (
+    <PopoverScoped
+      closeOnEnter
+      onEnter={rename}
+      dependencies={[automationId, canWrite, currentName, editingName]}
+    >
+      <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Anchor onClick={openAutomation}>
+          <span className="truncate">{currentName}</span>
+        </RecordTableInlineCell.Anchor>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content>
+        <Input
+          value={editingName}
+          onChange={(e) => setEditingName(e.target.value)}
+        />
+      </RecordTableInlineCell.Content>
+    </PopoverScoped>
+  );
+};
+
 export const getAutomationColumns: (
   t: (key: string) => string,
 ) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
   {
     id: 'more',
-    cell: ({ cell }) => {
-      const { t } = useTranslation('automations');
-      const { canWrite, duplicating, removing, onEdit, onDuplicate, onRemove } =
-        useAutomationActions(cell.row.original);
-
-      return (
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild disabled={removing || duplicating}>
-            <RecordTable.MoreButton className="w-full h-full" />
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            align="start"
-            className="w-[140px] min-w-0 [&>button]:cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <DropdownMenu.Item asChild onSelect={onEdit}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-              >
-                <IconEdit className="size-4" />
-                {t('edit')}
-              </Button>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-                disabled={duplicating}
-                onClick={onDuplicate}
-              >
-                <IconCopy className="size-4" />
-                {t('duplicate')}
-              </Button>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-destructive"
-                disabled={!canWrite || removing}
-                onClick={onRemove}
-              >
-                <IconTrash className="size-4" />
-                {t('delete')}
-              </Button>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ cell }) => <AutomationMoreCell automation={cell.row.original} />,
     size: 33,
     maxSize: 33,
     minSize: 33,
@@ -108,81 +145,7 @@ export const getAutomationColumns: (
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => {
-      const currentName = cell.getValue() as string;
-      const automationId = cell.row.original._id;
-      const [editingName, setEditingName] = useState(currentName);
-      const navigate = useNavigate();
-      const [edit] = useMutation(AUTOMATION_EDIT);
-      const { toast } = useToast();
-      const lockState = cell.row.original.approvalLockState;
-      const canWrite = !lockState?.locked || lockState.hasAccess;
-      const handleEnter = () => {
-        if (!canWrite) {
-          return;
-        }
-
-        if (editingName === currentName || editingName.trim() === '') {
-          return;
-        }
-        edit({
-          variables: {
-            id: automationId,
-            name: editingName,
-          },
-          onError: (e: ApolloError) => {
-            toast({
-              title: t('error'),
-              description: e.message,
-              variant: 'destructive',
-            });
-          },
-          onCompleted: () => {
-            toast({
-              title: t('success'),
-              variant: 'success',
-              description: t('automation-updated-success'),
-            });
-          },
-        });
-      };
-
-      if (!canWrite) {
-        return (
-          <RecordTableInlineCell.Anchor
-            onClick={() => {
-              navigate(`/automations/edit/${automationId}`);
-            }}
-          >
-            <span className="truncate">{currentName}</span>
-          </RecordTableInlineCell.Anchor>
-        );
-      }
-
-      return (
-        <PopoverScoped
-          closeOnEnter
-          onEnter={handleEnter}
-          dependencies={[automationId, canWrite, currentName, editingName]}
-        >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Anchor
-              onClick={() => {
-                navigate(`/automations/edit/${automationId}`);
-              }}
-            >
-              <span className="truncate">{currentName}</span>
-            </RecordTableInlineCell.Anchor>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input
-              value={editingName}
-              onChange={(e) => setEditingName(e.target.value)}
-            />
-          </RecordTableInlineCell.Content>
-        </PopoverScoped>
-      );
-    },
+    cell: ({ cell }) => <AutomationNameCell automation={cell.row.original} />,
     minSize: 150,
   },
   {
@@ -190,11 +153,10 @@ export const getAutomationColumns: (
     header: () => <RecordTable.InlineHead label={t('visibility')} />,
     cell: ({ cell }) => {
       const lockState = cell.row.original.approvalLockState;
-      const isPrivate = lockState?.locked === true;
 
       return (
         <RecordTableInlineCell>
-          {isPrivate ? (
+          {lockState?.locked ? (
             <ApprovalLockedBadge state={lockState} />
           ) : (
             <Badge variant="secondary">{t('public')}</Badge>
@@ -218,30 +180,24 @@ export const getAutomationColumns: (
     id: 'triggers',
     accessorKey: 'triggers',
     header: () => <RecordTable.InlineHead label={t('triggers')} />,
-    cell: ({ cell }) => {
-      const triggers = (cell.getValue() || []) as TAutomationTrigger[];
-      return (
-        <RecordTableInlineCell>
-          <IconPointerBolt size={12} />
-          {triggers?.length}
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <IconPointerBolt size={12} />
+        {(cell.row.original.triggers || []).length}
+      </RecordTableInlineCell>
+    ),
     size: 80,
   },
   {
     id: 'actions',
     accessorKey: 'actions',
     header: () => <RecordTable.InlineHead label={t('actions')} />,
-    cell: ({ cell }) => {
-      const actions = (cell.getValue() || []) as TAutomationAction[];
-      return (
-        <RecordTableInlineCell>
-          <IconShare size={12} />
-          {actions?.length}
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <IconShare size={12} />
+        {(cell.row.original.actions || []).length}
+      </RecordTableInlineCell>
+    ),
     size: 80,
   },
   {

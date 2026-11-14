@@ -1,4 +1,4 @@
-import { useCopyVariableToken } from '../hooks/useCopyVariableToken';
+import { useAutomationOutputVariableCard } from '../hooks/useAutomationOutputVariableCard';
 import { IconCheck, IconCopy, IconLink } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -21,31 +21,28 @@ export const AutomationOutputVariableCard = ({
   onDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { copied, copy } = useCopyVariableToken(token);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!onClick) {
-      return;
-    }
-
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onClick();
-    }
-  };
+  const {
+    copied,
+    isClickable,
+    role,
+    tabIndex,
+    handleKeyDown,
+    copyToken,
+    insertLink,
+  } = useAutomationOutputVariableCard({ token, onClick, onInsertLink });
 
   return (
     <div
       className={cn(
         'group rounded-md border bg-background px-3 py-2 active:cursor-grabbing',
-        onClick ? 'cursor-pointer hover:border-primary/60' : 'cursor-grab',
+        isClickable ? 'cursor-pointer hover:border-primary/60' : 'cursor-grab',
       )}
       draggable
       onDragStart={onDragStart}
       onClick={onClick}
       onKeyDown={handleKeyDown}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      role={role}
+      tabIndex={tabIndex}
       title={token}
     >
       <div className="flex items-center justify-between gap-2">
@@ -61,10 +58,7 @@ export const AutomationOutputVariableCard = ({
             )}
             title={t('copy-variable')}
             aria-label={t('copy-variable')}
-            onClick={(event) => {
-              event.stopPropagation();
-              copy();
-            }}
+            onClick={copyToken}
           >
             {copied ? (
               <IconCheck className="size-3.5 text-success" />
@@ -79,10 +73,7 @@ export const AutomationOutputVariableCard = ({
               variant="ghost"
               className="size-6"
               title={t('insert-as-link')}
-              onClick={(event) => {
-                event.stopPropagation();
-                onInsertLink();
-              }}
+              onClick={insertLink}
             >
               <IconLink className="size-3.5" />
             </Button>

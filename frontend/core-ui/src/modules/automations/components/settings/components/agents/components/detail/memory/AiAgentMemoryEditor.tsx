@@ -1,9 +1,9 @@
 import { AiAgentContextFileEditor } from '@/automations/components/settings/components/agents/components/detail/memory/AiAgentContextFileEditor';
 import { AiAgentContextFilesForm } from '@/automations/components/settings/components/agents/components/form/AiAgentContextFilesForm';
 import { AiAgentKnowledgeSourceSelector } from '@/automations/components/settings/components/agents/components/form/AiAgentKnowledgeSourceSelector';
+import { useAiAgentFileEditor } from '@/automations/components/settings/components/agents/hooks/useAiAgentMemoryEditor';
 import { TAiAgentMemoryItem } from '@/automations/components/settings/components/agents/hooks/useAiAgentMemoryItems';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
-import { getNextContextFilesAfterEdit } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Form, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 
@@ -39,27 +39,9 @@ const AiAgentFileEditor = ({
 }: {
   file: TAiAgentForm['context']['files'][number];
 }) => {
-  const { getValues, setValue } = useFormContext<TAiAgentForm>();
+  const { saveFile } = useAiAgentFileEditor();
 
-  return (
-    <AiAgentContextFileEditor
-      file={file}
-      onSave={(nextFile) =>
-        setValue(
-          'context.files',
-          getNextContextFilesAfterEdit({
-            files: getValues('context.files'),
-            fileId: nextFile.id,
-            uploadedFile: nextFile,
-          }).map((current) => ({
-            ...current,
-            versions: current.versions || [],
-          })),
-          { shouldDirty: true },
-        )
-      }
-    />
-  );
+  return <AiAgentContextFileEditor file={file} onSave={saveFile} />;
 };
 
 export const AiAgentMemoryEditor = ({ item }: { item: TAiAgentMemoryItem }) => {

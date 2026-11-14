@@ -3,21 +3,15 @@ import { TAutomationWaitEventConfig } from '@/automations/components/builder/nod
 import { IncomingWebhookBodyField } from '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookBodyField';
 import { IncomingWebhookHeadersBuilder } from '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookHeaderBuilder';
 import { IncomingWebhookSettingsField } from '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookSettingsField';
-import { TIncomingWebhookForm } from '@/automations/components/builder/nodes/triggers/webhooks/states/automationIncomingWebhookFormDefinition';
+import {
+  useWaitEventConfigCustomForm,
+  useWaitWebhookContent,
+} from '@/automations/components/builder/nodes/actions/waitEvent/hooks/useWaitEventConfigCustomForm';
 import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { TriggerContentWrapper } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentWrapper';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoOctagon } from '@tabler/icons-react';
-import { Button, Form, Tabs, toast } from 'erxes-ui';
-import { useImperativeHandle, useRef } from 'react';
-import {
-  FormProvider,
-  useForm,
-  useFormContext,
-  useWatch,
-} from 'react-hook-form';
-import { z } from 'zod';
+import { Button, Form, Tabs } from 'erxes-ui';
+import { FormProvider } from 'react-hook-form';
 
 export function WaitEventConfigCustomForm({
   configFieldNamePrefix,
@@ -27,17 +21,13 @@ export function WaitEventConfigCustomForm({
   handleSave: (config: TAutomationWaitEventConfig) => void;
 }) {
   const { t } = useTranslation('automations');
-  const { control } = useFormContext<TAutomationBuilderForm>();
-  const formRef = useRef<{ submit: () => void }>(null);
+  const { control, formRef, submit, saveWebhookConfig } =
+    useWaitEventConfigCustomForm(handleSave);
 
   return (
     <TriggerContentWrapper
       className="flex flex-col flex-1 overflow-auto"
-      footer={
-        <Button onClick={() => formRef.current?.submit()}>
-          {t('save-configuration')}
-        </Button>
-      }
+      footer={<Button onClick={submit}>{t('save-configuration')}</Button>}
     >
       <Form.Field
         name={`${configFieldNamePrefix}.webhookConfig`}
@@ -53,21 +43,7 @@ export function WaitEventConfigCustomForm({
             <WaitWebhookContent
               formRef={formRef}
               config={field.value}
-              handleSave={(
-                config: TAutomationWaitEventConfig['webhookConfig'],
-              ) => {
-                const prevConfig = field.value || {};
-                handleSave({
-                  ...prevConfig,
-                  webhookConfig: {
-                    ...config,
-                    isEnabledSecurity: !!(
-                      config?.security?.beararToken?.trim() ||
-                      config?.security?.secret?.trim()
-                    ),
-                  },
-                });
-              }}
+              handleSave={saveWebhookConfig(field.value)}
             />
           </Form.Item>
         )}
@@ -86,46 +62,11 @@ const WaitWebhookContent = ({
   config: TAutomationWaitEventConfig['webhookConfig'];
 }) => {
   const { t } = useTranslation('automations');
-  const form = useForm<TIncomingWebhookForm>({
-    resolver: zodResolver(
-      z.object({
-        headers: z
-          .array(
-            z.object({
-              key: z.string(),
-              value: z.string(),
-              description: z.string(),
-            }),
-          )
-          .optional(),
-        // Accept any JSON schema structure for builder compatibility
-        schema: z.any().optional(),
-        isEnabledSecurity: z.string().optional(),
-        security: z
-          .object({
-            beararToken: z.string().optional(),
-            secret: z.string().optional(),
-          })
-          .optional(),
-        timeoutMs: z.string().optional(),
-        maxRetries: z.string().optional(),
-      }),
-    ),
-    defaultValues: {
-      ...(config || {}),
-    },
+  const { form, hasHeaders, hasSchema, hasSecurity } = useWaitWebhookContent({
+    formRef,
+    config,
+    handleSave,
   });
-
-  useImperativeHandle(formRef, () => ({
-    submit: () =>
-      form.handleSubmit(handleSave, () => {
-        toast({
-          title: t('wait-event-form-error'),
-          variant: 'destructive',
-        });
-      })(),
-  }));
-  const formValues = useWatch({ control: form.control });
 
   return (
     <FormProvider {...form}>
@@ -133,19 +74,19 @@ const WaitWebhookContent = ({
         <Tabs.List>
           <Tabs.Trigger value="headers">
             {t('headers')}
-            {formValues?.headers?.length && (
+            {hasHeaders && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>
           <Tabs.Trigger value="body">
             {t('body')}
-            {formValues?.schema && (
+            {hasSchema && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>
           <Tabs.Trigger value="settings">
             {t('wait-event-settings')}
-            {formValues?.isEnabledSecurity && (
+            {hasSecurity && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>

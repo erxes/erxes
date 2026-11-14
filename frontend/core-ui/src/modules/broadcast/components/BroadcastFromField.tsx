@@ -1,23 +1,25 @@
 import { BroadcastFromAddress } from '@/broadcast/components/BroadcastFromAddress';
-import { useBroadcastSender } from '@/broadcast/hooks/useBroadcastSender';
-import { domainOf } from '@/broadcast/utils/senderAddress';
+import { useBroadcastFromField } from '@/broadcast/hooks/useBroadcastFromField';
 import { IconInfoCircle, IconLock } from '@tabler/icons-react';
 import { Form, Input, Skeleton } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { z } from 'zod';
-
-const isEmail = (value?: string) =>
-  !value || z.string().email().safeParse(value).success;
 
 const LABEL_CLASS =
   'font-mono text-xs font-semibold uppercase text-accent-foreground';
 
 export const BroadcastFromField = () => {
-  const { control } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
-  const sender = useBroadcastSender();
+  const {
+    control,
+    sender,
+    isLocked,
+    isDomainPicker,
+    senderRules,
+    fromRules,
+    lockedMessage,
+    showSettingsLink,
+  } = useBroadcastFromField();
 
   if (sender.loading) {
     return (
@@ -39,7 +41,7 @@ export const BroadcastFromField = () => {
         <Form.Field
           name="email.sender"
           control={control}
-          rules={{ required: t('sender-required') }}
+          rules={senderRules}
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
@@ -54,7 +56,7 @@ export const BroadcastFromField = () => {
           )}
         />
 
-        {sender.mode === 'locked' ? (
+        {isLocked ? (
           <div className="flex h-7 min-w-0 items-center gap-1.5 rounded-sm bg-muted px-3 text-sm text-muted-foreground">
             <IconLock className="size-3.5 shrink-0" />
             <span className="truncate">{sender.lockedAddress}</span>
@@ -63,14 +65,10 @@ export const BroadcastFromField = () => {
           <Form.Field
             name="fromEmail"
             control={control}
-            rules={{
-              required: t('from-required'),
-              validate: (value?: string) =>
-                isEmail(value) || t('invalid-email'),
-            }}
+            rules={fromRules}
             render={({ field }) => (
               <Form.Item>
-                {sender.mode === 'domains' ? (
+                {isDomainPicker ? (
                   <BroadcastFromAddress
                     value={field.value}
                     onChange={field.onChange}
@@ -89,13 +87,11 @@ export const BroadcastFromField = () => {
         )}
       </div>
 
-      {sender.mode === 'locked' && (
+      {isLocked && (
         <p className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
           <IconInfoCircle className="size-3.5 shrink-0" />
-          {t(`from-locked-${sender.lock}`, {
-            domain: domainOf(sender.lockedAddress),
-          })}
-          {sender.lock === 'unverified' && (
+          {lockedMessage}
+          {showSettingsLink && (
             <Link
               to={sender.settingsPath}
               target="_blank"

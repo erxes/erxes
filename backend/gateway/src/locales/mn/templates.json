@@ -67,5 +67,16 @@
   "segment-count_other": "{{count}} segment",
   "no-templates-filtered": "Энд template алга",
   "no-templates-filtered-body": "Өөр бүлэг эсвэл app сонгоно уу.",
-  "install-note-segment": "Segment шууд хэрэглэхэд бэлэн үүснэ, installation устгахад үлдэнэ."
+  "install-note-segment": "Segment шууд хэрэглэхэд бэлэн үүснэ, installation устгахад үлдэнэ.",
+  "already-installed_one": "Энэ загвар аль хэдийн суулгагдсан",
+  "already-installed_other": "Энэ загвар аль хэдийн {{count}} удаа суулгагдсан",
+  "already-installed-body_one": "Үүсгэсэн {{count}} automation нь байсаар байна ({{active}} асаалттай). Дахин суулгавал давхар хуулбар үүснэ.",
+  "already-installed-body_other": "Үүсгэсэн {{count}} automation нь байсаар байна ({{active}} асаалттай). Дахин суулгавал давхар хуулбар үүснэ.",
+  "already-installed-segment-body": "Дахин суулгавал ижил segment-үүд дахин үүснэ.",
+  "view-latest-installation": "Сүүлийн суулгалтыг нээх",
+  "reinstall-confirm_one": "Энэ загвар аль хэдийн суулгагдсан, {{automations}} automation нь байсаар байна. Давхар хуулбар суулгах уу?",
+  "reinstall-confirm_other": "Энэ загвар аль хэдийн {{count}} удаа суулгагдсан, {{automations}} automation нь байсаар байна. Давхар хуулбар суулгах уу?",
+  "reinstall-confirm-segment_one": "Энэ загвар аль хэдийн суулгагдсан. Дахин суулгавал ижил segment-үүд давхар үүснэ. Үргэлжлүүлэх үү?",
+  "reinstall-confirm-segment_other": "Энэ загвар аль хэдийн {{count}} удаа суулгагдсан. Дахин суулгавал ижил segment-үүд дахин үүснэ. Үргэлжлүүлэх үү?",
+  "install-again": "Дахин суулгах"
 }

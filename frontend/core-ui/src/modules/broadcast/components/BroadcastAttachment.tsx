@@ -7,46 +7,21 @@ import {
   formatBytes,
   getFileIcon,
   readImage,
-  useErxesUpload,
-  useRemoveFile,
 } from 'erxes-ui';
-import { useState } from 'react';
+import {
+  isImageAttachment,
+  useBroadcastAttachment,
+} from '@/broadcast/hooks/useBroadcastAttachment';
 import { ControllerRenderProps, FieldValues } from 'react-hook-form';
-
-type TBroadcastAttachment = {
-  name: string;
-  url: string;
-  type: string;
-  size: number;
-};
 
 export const BroadcastAttachment = ({
   value,
   onChange,
 }: ControllerRenderProps<FieldValues, 'email.attachments'>) => {
-  const [files, setFiles] = useState<TBroadcastAttachment[]>(value || []);
-  const { removeFile, isLoading } = useRemoveFile();
-
-  const props = useErxesUpload({
-    maxFiles: 10,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (addedFiles) => {
-      const newFiles = [
-        ...files.filter(
-          (file) => !addedFiles.some((f) => f.name === file.name),
-        ),
-        ...addedFiles.map((file) => ({
-          name: file.name,
-          url: file.url,
-          type: file.type,
-          size: file.size,
-        })),
-      ];
-
-      setFiles(newFiles);
-      onChange(newFiles);
-    },
-  });
+  const { files, uploadProps, removing, remove } = useBroadcastAttachment(
+    value,
+    onChange,
+  );
 
   return (
     <div className="h-full overflow-y-auto space-y-2 rounded">
@@ -55,7 +30,7 @@ export const BroadcastAttachment = ({
           key={attachment.url}
           className="relative w-full h-12 rounded border bg-muted overflow-hidden flex items-center gap-2"
         >
-          {attachment.type.startsWith('image/') ? (
+          {isImageAttachment(attachment) ? (
             <div className="h-12 w-12 rounded border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
               <img
                 src={readImage(attachment.url)}
@@ -82,20 +57,14 @@ export const BroadcastAttachment = ({
             variant="ghost"
             size="icon"
             className="h-full w-12 shrink-0"
-            disabled={isLoading}
-            onClick={() =>
-              removeFile(attachment.name, (status) => {
-                if (status === 'ok') {
-                  setFiles(files.filter((f) => f.name !== attachment.name));
-                }
-              })
-            }
+            disabled={removing}
+            onClick={() => remove(attachment.name)}
           >
             <IconX size={10} />
           </Button>
         </div>
       ))}
-      <Dropzone {...props} className="mb-30">
+      <Dropzone {...uploadProps} className="mb-30">
         <DropzoneEmptyState />
         <DropzoneContent />
       </Dropzone>

@@ -1,11 +1,8 @@
 import { IconX } from '@tabler/icons-react';
 import { Button, Command } from 'erxes-ui';
-import { forwardRef, useEffect, useMemo, useState } from 'react';
-import { useDebounce } from 'use-debounce';
+import { forwardRef } from 'react';
 import { DATE_OPTIONS } from '../../constants/placeholderInputConstants';
-import { usePlaceholderInputContext } from '../../contexts/PlaceholderInputContext';
-import { usePlaceholderInputSuggestionPopover } from '../../hooks/usePlaceholderInputSuggestionPopover';
-import { usePopoverPosition } from '../../hooks/usePopoverPosition';
+import { usePlaceholderInputSuggestionPopoverView } from '../../hooks/usePlaceholderInputSuggestionPopoverView';
 import { EmojiPicker } from '../EmojiPicker';
 import { AttributesCommandList } from './commandList/AttributesCommandList';
 import { CompaniesCommandList } from './commandList/CompaniesCommandList';
@@ -74,10 +71,6 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
     { searchQuery, onClose, contentType, popoverPosition = 'bottom' },
     popoverRef,
   ) => {
-    const [search, setSearch] = useState('');
-    const [debouncedSearch] = useDebounce(search, 250);
-    const { inputRef } = usePlaceholderInputContext();
-
     const {
       type: suggestionType,
       isOpenPopover,
@@ -86,39 +79,21 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
       isCustomCommandRenderer,
       internalRef,
       suggestionOptions,
-      suggestionConfig,
-    } = usePlaceholderInputSuggestionPopover({
-      popoverRef: popoverRef as
-        | React.MutableRefObject<HTMLDivElement | null>
-        | undefined,
+      title,
+      trigger,
+      selectFieldName,
+      positionStyle,
+      search,
+      setSearch,
+      searchPlaceholder,
+      remoteSearchValue,
+      isServerFiltered,
+    } = usePlaceholderInputSuggestionPopoverView({
+      popoverRef,
       searchQuery,
       onClose,
+      popoverPosition,
     });
-
-    const { selectFieldName = '_id' } = suggestionOptions || {};
-    const title = suggestionConfig?.title || 'Suggestions';
-    const trigger = suggestionConfig?.trigger;
-
-    const positionStyle = usePopoverPosition({
-      position: popoverPosition,
-      inputRef,
-      popoverRef: internalRef,
-      isOpen: isOpenPopover,
-    });
-
-    useEffect(() => {
-      if (!isOpenPopover) {
-        setSearch('');
-        return;
-      }
-
-      setSearch(searchQuery || '');
-    }, [isOpenPopover, searchQuery, suggestionType]);
-
-    const remoteSearchValue = useMemo(
-      () => (debouncedSearch || searchQuery || '').trim(),
-      [debouncedSearch, searchQuery],
-    );
 
     if (!isOpenPopover) return null;
 
@@ -162,17 +137,10 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
       );
     }
 
-    const isServerFilteredSuggestion =
-      suggestionType === 'call_user' ||
-      suggestionType === 'call_customer' ||
-      suggestionType === 'call_company' ||
-      suggestionType === 'call_product' ||
-      suggestionType === 'call_tag';
-
     return (
       <Command
         ref={internalRef}
-        shouldFilter={!isServerFilteredSuggestion}
+        shouldFilter={!isServerFiltered}
         className="z-50 w-80 max-h-80 overflow-hidden rounded-lg border bg-background shadow-lg"
         style={positionStyle}
       >
@@ -185,23 +153,23 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
           value={search}
           onValueChange={setSearch}
           variant="secondary"
-          placeholder={`Search ${title.toLowerCase()}...`}
+          placeholder={searchPlaceholder}
         />
         <Command.List className="max-h-80 overflow-auto">
-          {!isServerFilteredSuggestion && (
+          {!isServerFiltered && (
             <Command.Empty>No results found.</Command.Empty>
           )}
           {suggestionType === 'attribute' && (
             <AttributesCommandList
               contentType={contentType}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
               {...suggestionOptions}
             />
           )}
           {suggestionType === 'option' && (
             <OptionsCommandList
               selectOptions={suggestionOptions?.options || []}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
             />
           )}
           {suggestionType === 'date' && (
@@ -225,35 +193,35 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
           {suggestionType === 'call_user' && (
             <TeamMemberCommandList
               searchValue={remoteSearchValue}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_customer' && (
             <CustomerCommandList
               searchValue={remoteSearchValue}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_company' && (
             <CompaniesCommandList
               searchValue={remoteSearchValue}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_product' && (
             <ProducsCommandList
               searchValue={remoteSearchValue}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_tag' && (
             <TagsCommandList
               searchValue={remoteSearchValue}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
               selectField={selectFieldName}
             />
           )}
@@ -261,7 +229,7 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
             <PlaceholderInputSuggestionCustomCommandList
               suggestionType={suggestionType}
               searchValue={remoteSearchValue}
-              onSelect={(value) => onSelect(value)}
+              onSelect={onSelect}
               selectField={selectFieldName}
             />
           )}

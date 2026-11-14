@@ -15,6 +15,7 @@ import { automationMeta } from './meta/automations';
 import { permissions } from '~/meta/permissions';
 import { loyaltyReferences } from '~/meta/references';
 import { afterProcess } from '~/meta/afterProcess';
+import { templates } from '~/meta/templates';
 
 startPlugin({
   name: 'loyalty',
@@ -48,6 +49,7 @@ startPlugin({
     afterProcess,
     permissions,
     references: loyaltyReferences,
+    templates,
     importExport: {
       export: {
         types: [

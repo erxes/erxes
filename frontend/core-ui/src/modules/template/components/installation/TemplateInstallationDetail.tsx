@@ -1,6 +1,5 @@
 import { TemplateProgressRing } from '@/template/components/wizard/TemplateProgressRing';
-import { useTemplateInstallationView } from '@/template/hooks/useTemplateInstallationView';
-import { useRemoveTemplateInstallation } from '@/template/hooks/useTemplateInstallations';
+import { useTemplateInstallationDetail } from '@/template/hooks/useTemplateInstallationDetail';
 import { TTemplateInstallation } from '@/template/types';
 import {
   IconArrowRight,
@@ -29,10 +28,18 @@ export const TemplateInstallationDetail = ({
   installation: TTemplateInstallation;
 }) => {
   const { t } = useTranslation('templates');
-  const { removeInstallation, loading } = useRemoveTemplateInstallation();
-  const { icon, justInstalled, automations, parts, activeCount } =
-    useTemplateInstallationView(installation);
-  const hasActive = activeCount > 0;
+  const {
+    icon,
+    justInstalled,
+    installedAtValues,
+    automationRows,
+    hasAutomations,
+    progress,
+    parts,
+    removeHintKey,
+    removeDisabled,
+    remove,
+  } = useTemplateInstallationDetail(installation);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
@@ -65,24 +72,18 @@ export const TemplateInstallationDetail = ({
                   {t('activate-note')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {t('installed-at', {
-                    date: new Date(installation.createdAt).toLocaleString(),
-                    version: installation.version,
-                  })}
+                  {t('installed-at', installedAtValues)}
                 </p>
               </div>
             </div>
-            {automations.length > 0 && (
+            {hasAutomations && (
               <div className="flex shrink-0 items-center gap-3 rounded-xl bg-background/70 px-4 py-3">
                 <TemplateProgressRing
-                  done={activeCount}
-                  total={automations.length}
+                  done={progress.active}
+                  total={progress.total}
                 />
                 <span className="text-sm font-medium">
-                  {t('active-of', {
-                    active: activeCount,
-                    total: automations.length,
-                  })}
+                  {t('active-of', progress)}
                 </span>
               </div>
             )}
@@ -91,57 +92,50 @@ export const TemplateInstallationDetail = ({
 
         <section className="flex flex-col gap-2">
           <SectionTitle>{t('created-automations')}</SectionTitle>
-          {automations.map((automation) => {
-            const isActive = automation.status === 'active';
-
-            return (
-              <div
-                key={automation._id}
-                className="flex items-center gap-3 rounded-xl border bg-background px-4 py-3"
+          {automationRows.map((automation) => (
+            <div
+              key={automation._id}
+              className="flex items-center gap-3 rounded-xl border bg-background px-4 py-3"
+            >
+              <span
+                className={cn(
+                  'flex size-9 shrink-0 items-center justify-center rounded-lg',
+                  automation.isActive
+                    ? 'bg-success/15 text-success'
+                    : 'bg-muted text-muted-foreground',
+                )}
               >
-                <span
-                  className={cn(
-                    'flex size-9 shrink-0 items-center justify-center rounded-lg',
-                    isActive
-                      ? 'bg-success/15 text-success'
-                      : 'bg-muted text-muted-foreground',
-                  )}
-                >
-                  <IconComponent
-                    name={automation.icon || 'IconSitemap'}
-                    className="size-4"
-                  />
+                <IconComponent name={automation.icon} className="size-4" />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-sm font-medium">
+                  {automation.shortName}
                 </span>
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-sm font-medium">
-                    {automation.shortName}
+                {automation.description && (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {automation.description}
                   </span>
-                  {automation.description && (
-                    <span className="truncate text-xs text-muted-foreground">
-                      {automation.description}
-                    </span>
-                  )}
-                </span>
-                <Badge
-                  variant={isActive ? 'success' : 'secondary'}
-                  className="shrink-0"
-                >
-                  {t(`status-${automation.status}`, automation.status)}
-                </Badge>
-                <Button
-                  variant={isActive ? 'ghost' : 'secondary'}
-                  className="shrink-0"
-                  asChild
-                >
-                  <Link to={`/automations/edit/${automation._id}`}>
-                    {isActive ? t('open') : t('review-and-switch-on')}
-                    <IconArrowRight />
-                  </Link>
-                </Button>
-              </div>
-            );
-          })}
-          {!automations.length && (
+                )}
+              </span>
+              <Badge
+                variant={automation.isActive ? 'success' : 'secondary'}
+                className="shrink-0"
+              >
+                {t(`status-${automation.status}`, automation.status)}
+              </Badge>
+              <Button
+                variant={automation.isActive ? 'ghost' : 'secondary'}
+                className="shrink-0"
+                asChild
+              >
+                <Link to={automation.href}>
+                  {automation.isActive ? t('open') : t('review-and-switch-on')}
+                  <IconArrowRight />
+                </Link>
+              </Button>
+            </div>
+          ))}
+          {!hasAutomations && (
             <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
               {t('automations-gone')}
             </p>
@@ -183,14 +177,12 @@ export const TemplateInstallationDetail = ({
 
         <Can action="templatesInstall">
           <section className="flex flex-col items-start gap-2 rounded-xl border border-destructive/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-              {hasActive ? t('remove-blocked') : t('remove-hint')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t(removeHintKey)}</p>
             <Button
               variant="destructive"
               className="shrink-0"
-              disabled={hasActive || loading}
-              onClick={() => removeInstallation(installation)}
+              disabled={removeDisabled}
+              onClick={remove}
             >
               {t('remove')}
             </Button>

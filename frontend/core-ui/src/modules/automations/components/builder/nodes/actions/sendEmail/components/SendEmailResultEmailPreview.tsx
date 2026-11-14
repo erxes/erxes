@@ -3,11 +3,10 @@ import {
   Avatar,
   Button,
   Dialog,
-  EmailPreviewDevice,
   EmailPreviewDeviceToggle,
   EmailPreviewFrame,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useSendEmailResultEmailPreview } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailResultEmailPreview';
 
 /**
  * The email this step sent, opened the way an inbox draws it — the same
@@ -25,8 +24,15 @@ export const SendEmailResultEmailPreview = ({
   to: string;
 }) => {
   const { t } = useTranslation('automations');
-  const [device, setDevice] = useState<EmailPreviewDevice>('desktop');
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    device,
+    setDevice,
+    isOpen,
+    setIsOpen,
+    open,
+    senderInitial,
+    subjectLabel,
+  } = useSendEmailResultEmailPreview(from, subject);
 
   return (
     <section className="min-w-0 space-y-1.5">
@@ -37,7 +43,7 @@ export const SendEmailResultEmailPreview = ({
       {/* A glimpse only; the dialog is where it is read. */}
       <div
         className="relative h-32 min-w-0 cursor-pointer overflow-hidden rounded-md border bg-white"
-        onClick={() => setIsOpen(true)}
+        onClick={open}
       >
         <EmailPreviewFrame html={html} className="pointer-events-none h-full" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" />
@@ -47,7 +53,7 @@ export const SendEmailResultEmailPreview = ({
         variant="ghost"
         size="sm"
         className="h-6 px-0 text-xs text-primary"
-        onClick={() => setIsOpen(true)}
+        onClick={open}
       >
         {t('send-email-show-more')}
       </Button>
@@ -60,14 +66,10 @@ export const SendEmailResultEmailPreview = ({
 
           <div className="flex items-start gap-3 border-b px-6 pb-4">
             <Avatar size="lg">
-              <Avatar.Fallback>
-                {(from || '?').charAt(0).toUpperCase()}
-              </Avatar.Fallback>
+              <Avatar.Fallback>{senderInitial}</Avatar.Fallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <div className="truncate font-medium">
-                {subject || t('send-email-no-subject')}
-              </div>
+              <div className="truncate font-medium">{subjectLabel}</div>
               <div className="truncate text-sm text-muted-foreground">
                 {from}
               </div>

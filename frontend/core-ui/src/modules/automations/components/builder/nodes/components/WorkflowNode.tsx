@@ -3,12 +3,13 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
 import {
   createPagePanelPortal as createPortal,
-  usePagePanel,
   PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
-import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
+import {
+  useWorkflowActionSelectorSheet,
+  useWorkflowNode,
+} from '@/automations/components/builder/nodes/hooks/useWorkflowNode';
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
-import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { NodeFrame } from '@/automations/components/builder/nodes/components/NodeFrame';
 import { WorkflowActionMapper } from '@/automations/components/builder/nodes/components/WorkflowActionMapper';
 import {
@@ -19,9 +20,6 @@ import {
   useWorkflowNodeContext,
   WorkflowNodeProvider,
 } from '@/automations/context/WorkflowNodeProvider';
-import { useAutomation } from '@/automations/context/AutomationProvider';
-import { useConvertSelectionToWorkflow } from '@/automations/components/builder/hooks/useConvertSelectionToWorkflow';
-import { useWorkflowTemplates } from '@/automations/components/builder/hooks/useWorkflowTemplates';
 import {
   IconArrowBackUp,
   IconArrowsMaximize,
@@ -41,7 +39,7 @@ import {
   DropdownMenu,
   IconComponent,
 } from 'erxes-ui';
-import { memo, useCallback, useState } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 const WorkflowNodeContent = ({
   data,
@@ -57,31 +55,31 @@ const WorkflowNodeContent = ({
     setOpenDropDown,
     onRemoveNode,
     setOpenDialog,
-  } = useNodeDropDownActions(id, data.nodeType);
-  const { unconvertWorkflow } = useConvertSelectionToWorkflow();
-  const { saveAsTemplate } = useWorkflowTemplates();
-  const { setEditingWorkflowId } = useAutomation();
-  const { workflows } = useAutomationNodes();
-  const hasMemberActions = !!(workflows || []).find(
-    (workflow) => workflow.id === id,
-  )?.actions?.length;
-  const handleUnconvertAndRemove = useCallback(() => {
-    unconvertWorkflow(id);
-    setOpenRemoveAlert(false);
-  }, [unconvertWorkflow, id, setOpenRemoveAlert]);
+    isBorrowed,
+    canConvertBack,
+    isVertical,
+    openEditor,
+    openEdit,
+    closeEdit,
+    requestRemove,
+    convertBack,
+    saveTemplate,
+    unconvertAndRemove,
+  } = useWorkflowNode(id, data);
+
   return (
     <NodeFrame
       label={t('workflow-label')}
       actions={
         <>
-          {data.automationId ? (
+          {isBorrowed ? (
             <WorkflowActionSelectorSheet data={data} />
           ) : (
             <Button
               variant="ghost"
               size="icon"
               aria-label={t('open-workflow', 'Open workflow')}
-              onClick={() => setEditingWorkflowId(id)}
+              onClick={openEditor}
             >
               <IconArrowsMaximize className="size-4" />
             </Button>
@@ -97,17 +95,17 @@ const WorkflowNodeContent = ({
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content className="w-42">
-              <DropdownMenu.Item onSelect={() => setOpenDialog(true)}>
+              <DropdownMenu.Item onSelect={openEdit}>
                 <IconEdit className="size-4" />
                 {t('edit')}
               </DropdownMenu.Item>
-              {!data.automationId && hasMemberActions && (
+              {canConvertBack && (
                 <>
-                  <DropdownMenu.Item onSelect={() => unconvertWorkflow(id)}>
+                  <DropdownMenu.Item onSelect={convertBack}>
                     <IconArrowBackUp className="size-4" />
                     {t('workflow-convert-back')}
                   </DropdownMenu.Item>
-                  <DropdownMenu.Item onSelect={() => saveAsTemplate(id)}>
+                  <DropdownMenu.Item onSelect={saveTemplate}>
                     <IconTemplate className="size-4" />
                     {t('workflow-save-as-template')}
                   </DropdownMenu.Item>
@@ -115,7 +113,7 @@ const WorkflowNodeContent = ({
               )}
               <DropdownMenu.Item
                 className="text-destructive"
-                onSelect={() => setOpenRemoveAlert(true)}
+                onSelect={requestRemove}
               >
                 <IconTrash className="size-4" />
                 {t('delete')}
@@ -124,11 +122,7 @@ const WorkflowNodeContent = ({
           </DropdownMenu>
 
           <Dialog open={isOpenDialog} onOpenChange={setOpenDialog}>
-            <NodeEditMetaDataForm
-              id={id}
-              data={data}
-              callback={() => setOpenDialog(false)}
-            />
+            <NodeEditMetaDataForm id={id} data={data} callback={closeEdit} />
           </Dialog>
           <AlertDialog
             open={isOpenRemoveAlert}
@@ -145,7 +139,7 @@ const WorkflowNodeContent = ({
               </AlertDialog.Header>
               <AlertDialog.Footer>
                 <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
-                <AlertDialog.Action onClick={handleUnconvertAndRemove}>
+                <AlertDialog.Action onClick={unconvertAndRemove}>
                   {t('workflow-unconvert-keep-actions')}
                 </AlertDialog.Action>
                 <AlertDialog.Action
@@ -183,18 +177,15 @@ const WorkflowNodeContent = ({
         </span>
         <WorkflowMemberSummary />
         <WorkflowInputBindings />
-        {!!data.automationId && <WorkflowSelectedNodes {...data} />}
+        {isBorrowed && <WorkflowSelectedNodes {...data} />}
       </div>
       <Handle
         key="left"
         id="left"
         type="target"
-        position={
-          data.flowDirection === 'vertical' ? Position.Top : Position.Left
-        }
+        position={isVertical ? Position.Top : Position.Left}
         className={cn('!size-3 !border-2 !border-info !bg-background', {
-          '!left-1/2 !top-0 -translate-x-1/2':
-            data.flowDirection === 'vertical',
+          '!left-1/2 !top-0 -translate-x-1/2': isVertical,
         })}
       />
     </NodeFrame>
@@ -258,15 +249,7 @@ const WorkflowSelectedNodes = ({
 };
 const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
   const { t } = useTranslation('automations');
-  const { workflowId } = useWorkflowNodeContext();
-  const [open, setOpen] = useState(false);
-  const pagePanel = usePagePanel({
-    maxWidth: 1200,
-    defaultWidth: 900,
-    name: `automations/workflow/${workflowId}`,
-    open: open,
-    onOpenChange: setOpen,
-  });
+  const { open, pagePanel } = useWorkflowActionSelectorSheet();
   return (
     <PagePanelContext.Provider value={pagePanel}>
       <SidePanelRecordPathContext.Provider value={pagePanel.path}>

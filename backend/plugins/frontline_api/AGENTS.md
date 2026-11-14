@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-14`
 
 ## Scope
 
@@ -263,9 +263,27 @@
   `HUMAN_AGENT` tag, otherwise a visible `outside-7-days` skip. It does not
   touch automated-reply control. The builder edits it with the Messenger
   reply form.
-- One template for core's Templates page ships through
+- Two templates for core's Templates page ship through
   `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
-  `frontline.complaint-employee` (v8). Parts (`meta/templates/parts.ts`,
+  `frontline.sla-breach` (trigger `frontline:tickets.tickets.sla` with the
+  two `*.breached` events → notify the chosen leads and
+  `{{ trigger.assigneeId }}`; times come from each pipeline's `slaPolicy`),
+  `frontline.urgent-ticket` (segment trigger on `priority numberigt 3`, i.e.
+  high or critical; `numberigt` is inclusive), and the rating template's
+  second journey `low` (form submitted on its own rating form with the
+  rating field `e` 1 or 2 → notify the chosen team);
+  `frontline.complaint-employee` (v8, a solution) and
+  `frontline.ticket-resolved-rating` (v4, a solution: the resolved journey, the
+  `frontline:tickets.status` requirement picks an *existing* pipeline and
+  status rather than creating a desk, so this fits an org's own pipelines;
+  the `statusChanged` trigger's `toStatusIds` now also accepts the single id
+  that requirement answers with, not only an array). Its email's subject and
+  body are literal text in the step (body as maily `contentJson` plus its
+  html in `content`; without `contentJson` the builder's editor opens
+  empty), not a `core:emails.content` requirement
+  — that requirement's wizard editor needs a live automation it does not
+  have yet and breaks there; the org rewords it in the builder after
+  installing. Complaint employee's parts (`meta/templates/parts.ts`,
   `meta.templateParts`): `frontline:tickets.pipeline` (a "Complaints" channel
   of the chosen members and a pipeline with the default statuses, numbering
   `C{year}-` with size 4, an SLA

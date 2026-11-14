@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-14`
 
 ## Scope
 
@@ -32,10 +32,39 @@
 
 ## Current Capabilities
 
-- One template for core's Templates page ships through
+- Two templates for core's Templates page ship through
   `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
-  `sales.sales-employee` (v7), built on frontline node types (hidden without
-  frontline). One Messenger journey: an AI agent part (Product, Customer, POS
+  starter automations built on `templateHelpers.ts` (`emailStep` writes the
+  maily `contentJson` beside its html; `OPEN_DEAL_CONDITIONS` = active, not a
+  Won/Lost stage): `sales.deal-lost` (probability `Lost` → team notification,
+  email asking why), `sales.stale-deal` (membership trigger on a listed
+  segment `stageChangedDate` 7 days later, re-checked nightly → notify
+  `{{ trigger.assignedUserIds }}`), `sales.deal-round-robin` (segment trigger
+  on active deals created today → `transform` exposes `assignedUserIds` →
+  `split` reads that step (`target`; split conditions cannot read the record)
+  → `pickMember` → `setProperty assignedUserIds` → notify),
+  `sales.big-deal-approval` (membership trigger, `once`, on open deals with
+  `totalAmount numberigt` the `core:text` limit written into the segment
+  part → `approval` → notify approved/rejected) and `sales.pos-review` (a
+  solution: POS order `paid` → 1 day → frontline rating link → email; a
+  second journey alerts the team on a 1 or 2 from that form). Lookup segment
+  fields (`assignedUserIds`) only take equals/not equals, so "nobody
+  assigned" is a split condition, never a segment.
+  `sales.sales-employee` (v8, a solution), built on frontline node types
+  (hidden without frontline), and `sales.deal-won` (v3, an automation: one
+  journey, no parts — notifies the chosen team and emails the deal's
+  customer, trigger `sales:sales.deals.probability` fixed to
+  `{ probability: 'Won' }` so no pipeline/stage picker is needed; the email
+  step reads `{{ trigger.customers.primaryEmail }}`, the generic reference
+  path every `exposure: 'reference'` output field supports). Its email's
+  subject and body are the template's own literal text in the step (body as
+  maily `contentJson` plus its html in `content`: the builder's editor opens
+  only from `contentJson`, so a body without it opens empty), not a
+  `core:emails.content` requirement: that requirement's wizard reuses the
+  builder's rich editor, which needs a live automation it does not have yet,
+  and breaks there; the org rewords the email in the builder after
+  installing, same as any other action. Only `core:emails.sender` (a real
+  per-org pick) stays a requirement. Sales employee's one Messenger journey: an AI agent part (Product, Customer, POS
   order and Loyalty account lookups, offer rules in its instructions, and the
   whole product catalog as knowledge: core `product.knowledge` with
   `scope: 'all'`, which an unscoped source needs to index anything) replies

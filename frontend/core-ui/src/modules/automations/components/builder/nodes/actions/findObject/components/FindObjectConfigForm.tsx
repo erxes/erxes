@@ -1,18 +1,12 @@
-import {
-  findObjectConfigFormSchema,
-  TAutomationFindObjectConfig,
-} from '@/automations/components/builder/nodes/actions/findObject/states/findObjectConfigForm';
+import { useFindObjectConfigForm } from '@/automations/components/builder/nodes/actions/findObject/hooks/useFindObjectConfigForm';
+import { TAutomationFindObjectConfig } from '@/automations/components/builder/nodes/actions/findObject/states/findObjectConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { useAutomation } from '@/automations/context/AutomationProvider';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Select } from 'erxes-ui';
-import { useMemo } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import {
   PlaceholderInput,
   TAutomationActionProps,
   TPlaceholderInputSuggestion,
-  useFormValidationErrorHandler,
 } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -20,36 +14,13 @@ export const FindObjectConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TAutomationFindObjectConfig>) => {
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Find object Configuration',
-  });
-  const { findObjectTargetsConst } = useAutomation();
   const { t } = useTranslation('automations');
-  const form = useForm<TAutomationFindObjectConfig>({
-    resolver: zodResolver(findObjectConfigFormSchema),
-    defaultValues: {
-      objectType: currentAction?.config?.objectType || '',
-      lookupField: currentAction?.config?.lookupField || '',
-      value: currentAction?.config?.value || '',
-    },
-  });
-  const [objectType, lookupField] = useWatch({
-    control: form.control,
-    name: ['objectType', 'lookupField'],
-  });
-
-  const lookupFields = useMemo(() => {
-    const targetConst = findObjectTargetsConst.find(
-      ({ value }) => value === objectType,
-    );
-    return targetConst?.lookupFields || [];
-  }, [findObjectTargetsConst, objectType]);
+  const { form, targets, objectType, lookupFields, valueDisabled, onSave } =
+    useFindObjectConfigForm({ currentAction, handleSave });
 
   return (
     <FormProvider {...form}>
-      <AutomationConfigFormWrapper
-        onSave={form.handleSubmit(handleSave, handleValidationErrors)}
-      >
+      <AutomationConfigFormWrapper onSave={onSave}>
         <Form.Field
           control={form.control}
           name="objectType"
@@ -61,7 +32,7 @@ export const FindObjectConfigForm = ({
                   <Select.Value placeholder={t('select-record-type')} />
                 </Select.Trigger>
                 <Select.Content>
-                  {findObjectTargetsConst.map((target) => (
+                  {targets.map((target) => (
                     <Select.Item key={target.value} value={target.value}>
                       {target.label}
                     </Select.Item>
@@ -83,12 +54,9 @@ export const FindObjectConfigForm = ({
                     <Select.Value placeholder={t('select-lookup-field')} />
                   </Select.Trigger>
                   <Select.Content>
-                    {lookupFields.map((lookupField: any) => (
-                      <Select.Item
-                        key={lookupField.value}
-                        value={lookupField.value}
-                      >
-                        {lookupField.label}
+                    {lookupFields.map((option) => (
+                      <Select.Item key={option.value} value={option.value}>
+                        {option.label}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -105,7 +73,7 @@ export const FindObjectConfigForm = ({
                 <Form.Label>{t('value')}</Form.Label>
                 <PlaceholderInput
                   propertyType={objectType}
-                  isDisabled={!lookupField || !objectType}
+                  isDisabled={valueDisabled}
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   disabled={[TPlaceholderInputSuggestion.Attribute]}
