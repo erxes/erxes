@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import type { ChatRequest, Reply } from '../apps/api/src/__tests__/fakeModel';
+import {
+  type ChatRequest,
+  firstWords,
+  type Reply,
+  type Titles,
+} from '../apps/api/src/__tests__/fakeModel';
 
 export const MODEL_KEY = 'e2e-fake-model-key';
 
@@ -11,22 +16,42 @@ const ToolCalls = z.object({
   ),
 });
 
-const textOf = (content: ChatRequest['messages'][number]['content']) =>
-  typeof content === 'string' ? content : (content ?? []).map((part) => part.text ?? '').join('');
+const References = z.object({
+  references: z.array(z.object({ ref: z.string(), label: z.string() })).default([]),
+});
+
+const REF = /\[\[ref:[\w-]+\]\]/g;
+
+const textsOf = (content: ChatRequest['messages'][number]['content']) =>
+  typeof content === 'string' ? [content] : (content ?? []).map((part) => part.text ?? '');
+
+const referencesIn = (text: string) => {
+  try {
+    return References.safeParse(JSON.parse(text)).data?.references ?? [];
+  } catch {
+    return [];
+  }
+};
 
 const turnOf = (request: ChatRequest) => {
   const start = request.messages.findLastIndex((message) => message.role === 'user');
-  const asked = textOf(request.messages[start]?.content ?? '');
+  const [asked = '', ...context] = textsOf(request.messages[start]?.content ?? null);
+  const after = request.messages.slice(start + 1);
 
-  const calls = request.messages
-    .slice(start + 1)
+  const calls = after
     .flatMap((message) => ToolCalls.safeParse(message).data?.tool_calls ?? [])
     .map((call) => call.function.name);
 
-  return { asked, calls };
+  const records = after
+    .filter((message) => message.role === 'tool')
+    .flatMap((message) => textsOf(message.content).flatMap(referencesIn));
+
+  return { asked, calls, records, refs: context.join('\n').match(REF) ?? [] };
 };
 
-const addCustomer = (name: string, calls: string[]): Reply =>
+type Turn = ReturnType<typeof turnOf>;
+
+const addCustomer = (name: string, { calls }: Turn): Reply =>
   calls.length === 0
     ? {
         reasoning: 'The member wants a new customer, so I will create it.',
@@ -35,19 +60,32 @@ const addCustomer = (name: string, calls: string[]): Reply =>
       }
     : { text: `Added ${name} as a customer.` };
 
-const TOP_CUSTOMERS = [
-  'Here are the **top 3 customers** by won deal value this quarter:',
-  '',
-  '| # | Customer | Won deals | Value |',
-  '| - | --- | --: | --: |',
-  '| 1 | Nomin Trade LLC | 4 | $18,400 |',
-  '| 2 | Altai Foods | 3 | $12,950 |',
-  '| 3 | Khan Logistics | 2 | $9,700 |',
-  '',
-  'Nomin Trade leads with `4` won deals.',
-].join('\n');
+const DEALS = [
+  { won: 4, value: '$18,400' },
+  { won: 3, value: '$12,950' },
+  { won: 2, value: '$9,700' },
+];
 
-const topCustomers = (calls: string[]): Reply => {
+const topCustomersTable = (records: Turn['records']) => {
+  const rows = records
+    .slice(0, DEALS.length)
+    .map(
+      (record, index) =>
+        `| ${index + 1} | ${record.ref} | ${DEALS[index]?.won} | ${DEALS[index]?.value} |`,
+    );
+
+  return [
+    `Here are the **top ${rows.length} customers** by won deal value this quarter:`,
+    '',
+    '| # | Customer | Won deals | Value |',
+    '| - | --- | --: | --: |',
+    ...rows,
+    '',
+    `${records[0]?.ref ?? 'The first customer'} leads with \`4\` won deals.`,
+  ].join('\n');
+};
+
+const topCustomers = ({ calls, records }: Turn): Reply => {
   if (calls.length === 0) {
     return {
       reasoning:
@@ -65,10 +103,10 @@ const topCustomers = (calls: string[]): Reply => {
     return { tool: 'callApi', input: { procedure: 'deals.summary', input: {} } };
   }
 
-  return { text: TOP_CUSTOMERS };
+  return { text: topCustomersTable(records) };
 };
 
-const welcome = (calls: string[]): Reply =>
+const welcome = ({ calls }: Turn): Reply =>
   calls.length === 0
     ? {
         tool: 'ask_user',
@@ -89,15 +127,44 @@ const welcome = (calls: string[]): Reply =>
       }
     : { text: 'Thanks. I will draft the welcome message for that channel.' };
 
+const aboutRecords = (refs: string[]): Reply => ({
+  text: [
+    `Here is what I know about ${refs.join(' and ')}:`,
+    '',
+    '- Added to the workspace this month',
+    '- No open deals yet',
+    '- Last contacted by email',
+  ].join('\n'),
+});
+
+const NAMED = /^Add a customer named (.+)$/;
+
 export const script = (request: ChatRequest): Reply => {
-  const { asked, calls } = turnOf(request);
-  const name = /^Add a customer named (.+)$/.exec(asked)?.[1];
+  const turn = turnOf(request);
+  const name = NAMED.exec(turn.asked)?.[1];
 
-  if (name) return addCustomer(name, calls);
+  if (name) return addCustomer(name, turn);
 
-  if (asked.startsWith('Who are our top')) return topCustomers(calls);
+  if (turn.asked.startsWith('Who are our top')) return topCustomers(turn);
 
-  if (asked.startsWith('Draft a welcome')) return welcome(calls);
+  if (turn.asked.startsWith('Draft a welcome')) return welcome(turn);
+
+  if (turn.refs.length && (turn.asked.includes('@') || turn.asked.includes('this')))
+    return aboutRecords([...new Set(turn.refs)]);
 
   return { text: 'Hello! How can I help?' };
+};
+
+export const titles: Titles = (prompt) => {
+  const name = NAMED.exec(prompt)?.[1];
+
+  if (name) return `New customer ${name}`;
+
+  if (prompt.startsWith('Who are our top')) return 'Top customers this quarter';
+
+  if (prompt.startsWith('Draft a welcome')) return 'Welcome message for new customers';
+
+  if (prompt.startsWith('Hello there')) return 'Greeting';
+
+  return firstWords(prompt.replaceAll('@', ''));
 };

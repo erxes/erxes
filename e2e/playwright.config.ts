@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { MODEL_PORT } from './assistantModel';
 import { OWNER_STATE } from './fixtures';
 
 // The stack under test: CI's deploy/docker-compose.yml on :8080, or `pnpm dev` on :3500.
@@ -12,7 +13,11 @@ const { CI, E2E_BASE_URL } = process.env;
 export default defineConfig({
   testDir: '.',
   outputDir: 'test-results',
-  globalSetup: './globalSetup.ts',
+  webServer: {
+    command: 'pnpm exec tsx modelServer.ts',
+    port: MODEL_PORT,
+    reuseExistingServer: !CI,
+  },
   fullyParallel: true,
   forbidOnly: Boolean(CI),
   workers: CI ? 4 : 2,

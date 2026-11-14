@@ -36,7 +36,7 @@ test('a member saves a key, asks for a change, approves it and sees the result',
   await expectAccessible(page);
 
   await panel.getByRole('textbox', { name: 'Message' }).fill(`Add a customer named ${name}`);
-  await panel.getByRole('button', { name: 'Send' }).click();
+  await panel.getByRole('button', { name: 'Send', exact: true }).click();
 
   const approval = panel.getByRole('group', { name: 'Approve this change?' });
 
@@ -65,7 +65,7 @@ test('closing a tab keeps the conversation; deleting asks first', async ({ page 
   await panel.getByRole('textbox', { name: 'Message' }).fill(question);
   await panel.getByRole('textbox', { name: 'Message' }).press('Enter');
   await expect(panel.getByText('Hello! How can I help?')).toBeVisible();
-  await expect(panel.getByRole('tab', { selected: true })).toHaveText('Test title');
+  await expect(panel.getByRole('tab', { selected: true })).toHaveText('Greeting');
 
   await panel.getByRole('button', { name: 'Conversation actions' }).click();
   await page.getByRole('menuitem', { name: 'Rename' }).click();
@@ -95,4 +95,72 @@ test('closing a tab keeps the conversation; deleting asks first', async ({ page 
   await confirm.getByRole('button', { name: 'Delete' }).click();
   await expect(panel.getByText(question)).toBeHidden();
   await expect(panel.getByRole('heading', { name: 'How can I help?' })).toBeVisible();
+});
+
+test('a reply links each customer it lists, and the page it opens is sent as context', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Assistant', exact: true }).click();
+
+  const panel = page.getByRole('complementary', { name: 'Assistant' });
+
+  await expect(panel.getByText('Viewing')).toBeVisible();
+  await panel
+    .getByRole('textbox', { name: 'Message' })
+    .fill('Who are our top customers by won deal value?');
+  await panel.getByRole('textbox', { name: 'Message' }).press('Enter');
+  await expect(panel.getByText('leads with')).toBeVisible();
+  await expect(panel.getByRole('tab', { selected: true })).toHaveText('Top customers this quarter');
+
+  const chip = panel.getByRole('table').getByRole('link').first();
+  const name = (await chip.textContent())?.trim() ?? '';
+
+  expect(name).not.toBe('');
+  await expect(chip).toHaveAttribute('href', /^\/contacts\/customers\/[\w-]+$/);
+  await expectAccessible(page);
+
+  await chip.click();
+  await expect(page).toHaveURL(/\/contacts\/customers\/[\w-]+$/);
+
+  const context = panel.getByText(`Viewing${name}`);
+
+  await expect(context).toBeVisible();
+  await expectAccessible(page);
+
+  await panel.getByRole('button', { name: "Don't send this page" }).click();
+  await expect(context).toBeHidden();
+});
+
+test('a member mentions a record with @ and sees it linked in the message', async ({
+  page,
+  api,
+}) => {
+  const suffix = unique();
+  const customer = await api.customers.create({ firstName: 'Mira', lastName: `Ochir-${suffix}` });
+  const label = `Mira Ochir-${suffix}`;
+
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Assistant', exact: true }).click();
+
+  const panel = page.getByRole('complementary', { name: 'Assistant' });
+  const message = panel.getByRole('textbox', { name: 'Message' });
+
+  await message.pressSequentially(`Tell me about @Ochir-${suffix}`);
+
+  const options = panel.getByRole('listbox', { name: 'Mention a record' });
+
+  await expect(options.getByRole('option', { name: new RegExp(label) })).toBeVisible();
+  await expectAccessible(page);
+
+  await message.press('Enter');
+  await expect(message).toHaveValue(`Tell me about @${label} `);
+  await message.press('Enter');
+
+  const links = panel.getByRole('link', { name: label });
+
+  await expect(links).toHaveCount(2);
+  await expect(links.first()).toHaveAttribute('href', `/contacts/customers/${customer.id}`);
+  await expect(panel.getByText('No open deals yet')).toBeVisible();
+  await expectAccessible(page);
 });

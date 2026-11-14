@@ -66,7 +66,6 @@ export const exceptions = [
       'vite.config.ts',
       'knip.ts',
       '**/{tsdown,playwright}.config.ts',
-      'e2e/globalSetup.ts',
       'apps/web/rsbuild.config.ts',
       'packages/db/drizzle.config.ts',
       'tools/lint/*/index.ts',

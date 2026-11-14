@@ -36,7 +36,7 @@ const textOf = (content: ChatRequest['messages'][number]['content']) =>
 const isTitleRequest = (request: ChatRequest) =>
   request.messages.some((message) => textOf(message.content).includes('short title'));
 
-const firstWords: Titles = (prompt) =>
+export const firstWords: Titles = (prompt) =>
   prompt
     .replace(/[?!.]+$/, '')
     .split(/\s+/)
