@@ -58,7 +58,6 @@ export const webhookDeliveries = pgTable(
     responseBody: text(),
     error: text(),
     durationMs: integer(),
-    nextAttemptAt: timestamptz(),
     deliveredAt: timestamptz(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

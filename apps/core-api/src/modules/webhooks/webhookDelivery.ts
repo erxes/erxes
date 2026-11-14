@@ -11,22 +11,15 @@ import { postOutbound } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { unseal } from '~/lib/secrets';
 import { logger } from '~/logger';
-import type { EventConsumer } from '~/modules/events/processor';
+import type { EventConsumer } from '~/modules/events/consumers';
 import { eventJson } from '~/modules/events/events.service';
 import { describeError, defineJob } from '~/modules/jobs/jobs';
 import { findWebhook, matchesPattern } from './webhooks.service';
 
 const log = logger.child({ component: 'webhooks' });
 
-/** Deliveries retry for about a day (8 attempts), then the delivery is failed. */
-const DELIVERY_ATTEMPTS = 8;
-
 /** An endpoint failing this many deliveries in a row is turned off. */
 const DISABLE_AFTER_FAILURES = 50;
-
-/** 1 min, 5 min, 30 min, 2 h, 5 h, 8 h, 8 h: about a day in all. */
-const backoff = (attempt: number) =>
-  [60, 300, 1800, 7200, 18_000, 28_800, 28_800][attempt - 1] ?? 28_800;
 
 /** `Erxes-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256(secret, "<t>.<body>")>` (Stripe-style). */
 export const signPayload = (
@@ -96,7 +89,7 @@ const recordOutcome = (
   orgId: string,
   deliveryId: string,
   webhookId: string,
-  attempt: { attempts: number; last: boolean },
+  attempt: { number: number; last: boolean },
   outcome: Outcome,
 ) =>
   withOrg(orgId, async (tx) => {
@@ -107,15 +100,12 @@ const recordOutcome = (
       .update(webhookDeliveries)
       .set({
         status: succeeded ? 'succeeded' : retries ? 'pending' : 'failed',
-        attempts: attempt.attempts,
+        attempts: attempt.number,
         responseStatus: outcome.status,
         responseBody: outcome.body,
         error: outcome.error,
         durationMs: outcome.ms,
         deliveredAt: succeeded ? sql`now()` : null,
-        nextAttemptAt: retries
-          ? sql`now() + make_interval(secs => ${backoff(attempt.attempts)})`
-          : null,
         updatedAt: sql`now()`,
       })
       .where(eq(webhookDeliveries.id, deliveryId));
@@ -145,11 +135,16 @@ const recordOutcome = (
     }
   });
 
-/** One attempt of one delivery: POST, record the outcome, throw to retry. */
+/**
+ * One attempt of one delivery: POST, record the outcome, throw to retry.
+ * 10 attempts, each wait about twice the last (2 min first): 9 to 17 hours
+ * in all, then the delivery is failed.
+ */
 export const deliverJob = defineJob({
   queue: 'webhook.deliver',
-  leaseSeconds: 60,
-  backoff,
+  timeoutSeconds: 60,
+  retry: { attempts: 10, delay: 120, maxDelay: 8 * 3600 },
+  concurrency: 5,
   payload: z.object({ deliveryId: z.string() }),
   async handle(job) {
     const { deliveryId } = job.payload;
@@ -176,13 +171,12 @@ export const deliverJob = defineJob({
     }
 
     const outcome = await send(deliveryId, job.orgId, webhook, event);
-    const last = job.attempts >= job.maxAttempts;
 
     await recordOutcome(
       job.orgId,
       deliveryId,
       webhook.id,
-      { attempts: job.attempts, last },
+      { number: job.attempt, last: job.lastAttempt },
       outcome,
     );
 
@@ -217,7 +211,6 @@ const queueDeliveries = async (
       orgId,
       payload: { deliveryId: delivery.id },
       dedupeKey: delivery.id,
-      maxAttempts: DELIVERY_ATTEMPTS,
     })),
   );
 

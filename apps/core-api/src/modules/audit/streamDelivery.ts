@@ -1,7 +1,15 @@
-import { auditLogs, auditStreams, type Db, newId, organizations, withOrg } from '@erxes/core-db';
-import { and, asc, eq, gt, sql } from 'drizzle-orm';
+import {
+  auditLogs,
+  auditStreams,
+  type Db,
+  organizations,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
+import { and, asc, eq, exists, gt, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { describeError, defineJob } from '~/modules/jobs/jobs';
+import { repeatWhile } from '~/lib/sequence';
+import { describeError, defineJob, defineSchedule } from '~/modules/jobs/jobs';
 import { logger } from '~/logger';
 import { postOutbound } from '~/lib/outbound';
 import { unseal } from '~/lib/secrets';
@@ -15,9 +23,6 @@ type StreamRow = typeof auditStreams.$inferSelect;
 
 /** Entries per request; a full batch is followed by the next at once. */
 const BATCH = 200;
-
-/** How often an idle stream looks for new entries. */
-const IDLE_SECONDS = 10;
 
 /** Owners hear about a stream failing this many times in a row. */
 const ALERT_AFTER_FAILURES = 10;
@@ -64,8 +69,8 @@ export const sendBatch = async (row: StreamRow, body: string) => {
   };
 };
 
-/** The stream's next batch after its cursor, in chain order, or null when there is nothing to do. */
-const nextBatch = (orgId: string, streamId: string, chainId: string) =>
+/** The stream's next batch after its cursor, in chain order, or null when it is removed or paused. */
+const nextBatch = (orgId: string, streamId: string) =>
   withOrg(orgId, async (tx) => {
     const [row] = await tx
       .select()
@@ -73,8 +78,7 @@ const nextBatch = (orgId: string, streamId: string, chainId: string) =>
       .where(eq(auditStreams.id, streamId))
       .limit(1);
 
-    // Removed, paused, or another loop owns it now: this loop ends.
-    if (!row || row.status !== 'active' || row.chainId !== chainId) return null;
+    if (!row || row.status !== 'active') return null;
 
     const entries = await tx
       .select()
@@ -86,123 +90,141 @@ const nextBatch = (orgId: string, streamId: string, chainId: string) =>
     return { row, entries, organization: await organizationOf(tx, orgId) };
   });
 
-const StreamPayload = z.object({ streamId: z.string(), chainId: z.string() });
+/**
+ * Sends the next batch: read in one short transaction, sent after it. The
+ * cursor moves only when the endpoint answers 2xx and the stream is still
+ * where this batch read it. True when a full batch went out (more may wait);
+ * a refusal throws, after counting it and telling owners when it keeps failing.
+ */
+const sendNextBatch = async (orgId: string, streamId: string) => {
+  const batch = await nextBatch(orgId, streamId);
+  const first = batch?.entries.at(0);
+  const last = batch?.entries.at(-1);
+
+  if (!batch || !first || !last) return false;
+
+  const { row, entries } = batch;
+  const firstSeq = first.chainSeq ?? row.cursorSeq + 1;
+
+  const gap =
+    firstSeq > row.cursorSeq + 1 ? { fromSeq: row.cursorSeq + 1, toSeq: firstSeq - 1 } : null;
+
+  const body = formatBatch(
+    row.format,
+    { streamId, organization: batch.organization },
+    entries.map(streamEntry),
+    gap,
+  );
+
+  const result = await sendBatch(row, body);
+
+  // Only from where this batch read: a stream paused, moved or re-pointed meanwhile is left alone.
+  const unchanged = and(
+    eq(auditStreams.id, streamId),
+    eq(auditStreams.status, 'active'),
+    eq(auditStreams.cursorSeq, row.cursorSeq),
+  );
+
+  if (result.ok) {
+    const moved = await withOrg(orgId, (tx) =>
+      tx
+        .update(auditStreams)
+        .set({
+          cursorSeq: last.chainSeq ?? row.cursorSeq,
+          lastDeliveredAt: sql`now()`,
+          lastError: null,
+          consecutiveFailures: 0,
+        })
+        .where(unchanged)
+        .returning({ id: auditStreams.id }),
+    );
+
+    return moved.length > 0 && entries.length === BATCH;
+  }
+
+  await withOrg(orgId, async (tx) => {
+    const [failed] = await tx
+      .update(auditStreams)
+      .set({
+        lastError: result.error,
+        consecutiveFailures: sql`${auditStreams.consecutiveFailures} + 1`,
+      })
+      .where(unchanged)
+      .returning({ failures: auditStreams.consecutiveFailures });
+
+    if (failed?.failures === ALERT_AFTER_FAILURES) {
+      await securityAlert(tx, orgId, {
+        key: `audit-stream-failing:${streamId}`,
+        title: `The audit log can't reach ${row.name}`,
+        body: `${failed.failures} tries in a row failed (${result.error}). Entries wait and are sent once it answers again.`,
+        link: '/settings/audit-log',
+        email: true,
+      }).catch((error: unknown) =>
+        log.warn({ err: error, streamId }, 'could not tell owners about a failing audit stream'),
+      );
+    }
+  });
+
+  throw new Error(result.error ?? 'the endpoint refused the batch');
+};
 
 /**
- * One round of a stream: the next entries after its cursor, read in one short
- * transaction and sent after it. The cursor moves only when the endpoint
- * answers 2xx and the stream is still where this round read it. Then the
- * loop goes on: at once after a full batch, after a pause when idle, with
- * growing waits on failure.
+ * One round of a stream: batches until it is caught up. A refusal fails the
+ * round, and pg-boss retries it: 20 s, 40 s, 80 s … at most 15 minutes
+ * apart; nothing is skipped. One round per stream is queued or running at a
+ * time (the stream id is the dedupe key).
  */
 export const auditStreamJob = defineJob({
   queue: 'audit.stream',
-  leaseSeconds: 60,
-  payload: StreamPayload,
+  timeoutSeconds: 300,
+  retry: { attempts: 6, delay: 20, maxDelay: 900 },
+  payload: z.object({ streamId: z.string() }),
   async handle(job) {
-    const { streamId, chainId } = job.payload;
-    const batch = await nextBatch(job.orgId, streamId, chainId);
-
-    if (!batch) return;
-
-    const { row, entries } = batch;
-
-    const next = (tx: Db, seconds: number) =>
-      auditStreamJob.enqueue(tx, {
-        orgId: job.orgId,
-        payload: { streamId, chainId },
-        runAt: new Date(Date.now() + seconds * 1000),
-        dedupeKey: `${streamId}:${chainId}:${job.id}`,
-        maxAttempts: 3,
-      });
-
-    const first = entries.at(0);
-    const last = entries.at(-1);
-
-    if (!first || !last) {
-      await withOrg(job.orgId, (tx) => next(tx, IDLE_SECONDS));
-
-      return;
-    }
-
-    const firstSeq = first.chainSeq ?? row.cursorSeq + 1;
-
-    const gap =
-      firstSeq > row.cursorSeq + 1 ? { fromSeq: row.cursorSeq + 1, toSeq: firstSeq - 1 } : null;
-
-    const body = formatBatch(
-      row.format,
-      { streamId, organization: batch.organization },
-      entries.map(streamEntry),
-      gap,
-    );
-
-    const result = await sendBatch(row, body);
-
-    await withOrg(job.orgId, async (tx) => {
-      // Only from where this round read: a stream paused, moved or re-pointed meanwhile is left alone.
-      const unchanged = and(
-        eq(auditStreams.id, streamId),
-        eq(auditStreams.chainId, chainId),
-        eq(auditStreams.status, 'active'),
-        eq(auditStreams.cursorSeq, row.cursorSeq),
-      );
-
-      if (result.ok) {
-        const [moved] = await tx
-          .update(auditStreams)
-          .set({
-            cursorSeq: last.chainSeq ?? row.cursorSeq,
-            lastDeliveredAt: sql`now()`,
-            lastError: null,
-            consecutiveFailures: 0,
-          })
-          .where(unchanged)
-          .returning({ id: auditStreams.id });
-
-        if (moved) await next(tx, entries.length === BATCH ? 0 : IDLE_SECONDS);
-
-        return;
-      }
-
-      const [failed] = await tx
-        .update(auditStreams)
-        .set({
-          lastError: result.error,
-          consecutiveFailures: sql`${auditStreams.consecutiveFailures} + 1`,
-        })
-        .where(unchanged)
-        .returning({ failures: auditStreams.consecutiveFailures });
-
-      if (!failed) return;
-
-      if (failed.failures === ALERT_AFTER_FAILURES) {
-        await securityAlert(tx, job.orgId, {
-          key: `audit-stream-failing:${streamId}`,
-          title: `The audit log can't reach ${row.name}`,
-          body: `${failed.failures} tries in a row failed (${result.error}). Entries wait and are sent once it answers again.`,
-          link: '/settings/audit-log',
-          email: true,
-        }).catch((error: unknown) =>
-          log.warn({ err: error, streamId }, 'could not tell owners about a failing audit stream'),
-        );
-      }
-
-      // 20 s, 40 s, 80 s … at most 15 minutes between tries; nothing is skipped.
-      await next(tx, Math.min(10 * 2 ** Math.min(failed.failures, 10), 900));
-    });
+    await repeatWhile(50, () => sendNextBatch(job.orgId, job.payload.streamId));
   },
 });
 
-/** Starts (or restarts) the stream's delivery loop; an older loop sees another chain id and stops. */
-export const startStreamLoop = async (client: Db, row: StreamRow) => {
-  const chainId = newId();
-
-  await client.update(auditStreams).set({ chainId }).where(eq(auditStreams.id, row.id));
-  await auditStreamJob.enqueue(client, {
+/** Sends a stream's waiting entries now (a new, resumed or re-pointed stream). */
+export const queueStreamRound = (client: Db, row: Pick<StreamRow, 'id' | 'orgId'>) =>
+  auditStreamJob.enqueue(client, {
     orgId: row.orgId,
-    payload: { streamId: row.id, chainId },
-    dedupeKey: `${row.id}:${chainId}:0`,
-    maxAttempts: 3,
+    payload: { streamId: row.id },
+    dedupeKey: row.id,
   });
-};
+
+/** Every minute, a round for each active stream with entries past its cursor. */
+export const auditStreamsSchedule = defineSchedule({
+  queue: 'audit.streams',
+  cron: '* * * * *',
+  run: () =>
+    withSystem('audit streams', async (tx) => {
+      const behind = await tx
+        .select({ id: auditStreams.id, orgId: auditStreams.orgId })
+        .from(auditStreams)
+        .where(
+          and(
+            eq(auditStreams.status, 'active'),
+            exists(
+              tx
+                .select({ one: sql`1` })
+                .from(auditLogs)
+                .where(
+                  and(
+                    eq(auditLogs.orgId, auditStreams.orgId),
+                    gt(auditLogs.chainSeq, auditStreams.cursorSeq),
+                  ),
+                ),
+            ),
+          ),
+        );
+
+      await auditStreamJob.enqueueAll(
+        tx,
+        behind.map((row) => ({
+          orgId: row.orgId,
+          payload: { streamId: row.id },
+          dedupeKey: row.id,
+        })),
+      );
+    }),
+});

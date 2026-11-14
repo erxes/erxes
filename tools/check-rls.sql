@@ -11,11 +11,15 @@
 -- 3. Every table, index, sequence and view, and every table constraint,
 --    starts with core_: plugins share the database. Drizzle's migration log
 --    keeps the name packages/db/drizzle.config.ts gives it.
+-- 4. The core_queue schema is pg-boss's (modules/jobs), outside these checks:
+--    its tables have no row level security, a job carries its organisation
+--    in its data, and failed jobs are read by the scope's organisation
+--    (modules/jobs/failed.ts). So no plugin role and not PUBLIC may use it;
+--    plugins queue work through core_events and its insert trigger.
 with no_org_id (table_name, tenant_key, reason) as (
   values
     ('core_organizations', 'id', 'The organisations themselves: their policy keys on id.'),
     ('core_plugins', null, 'The deployment''s plugin registry. Installations per organisation are core_plugin_installations.'),
-    ('core_event_consumers', null, 'Each stream consumer''s read position. A consumer reads every organisation''s events.'),
     ('core_used_tokens', null, 'Ids of used single-use sign-in links, unique across the deployment.'),
     ('core_rate_limits', null, 'Request counts per client address, shared by every replica, before any organisation is known.'),
     ('__drizzle_migrations_core', null, 'The migration log.')
@@ -24,7 +28,7 @@ relations as (
   select c.oid, n.nspname, c.relname, c.relkind, c.relrowsecurity, c.relforcerowsecurity
   from pg_class c
   join pg_namespace n on n.oid = c.relnamespace
-  where n.nspname not in ('pg_catalog', 'information_schema') and n.nspname not like 'pg\_toast%'
+  where n.nspname not in ('pg_catalog', 'information_schema', 'core_queue') and n.nspname not like 'pg\_toast%'
 ),
 tables as (
   select r.*,
@@ -87,4 +91,12 @@ select format('constraint %s on %s does not start with core_', co.conname, co.co
 from pg_constraint co
 join relations r on r.oid = co.conrelid
 where co.conname not like 'core\_%' and co.conrelid is distinct from to_regclass('public.__drizzle_migrations_core')
+union all
+select format('%s may use schema core_queue (the job queue): only the API''s roles may', grantee)
+from (
+  select 'PUBLIC' as grantee where has_schema_privilege('public', 'core_queue', 'USAGE')
+  union all
+  select rolname from pg_roles
+  where rolname like 'erxes\_plugin\_%' and has_schema_privilege(oid, 'core_queue', 'USAGE')
+) as users
 order by 1;

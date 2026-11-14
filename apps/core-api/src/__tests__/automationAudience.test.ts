@@ -1,7 +1,5 @@
 import { sql } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { fireJob } from '~/modules/automations/triggers';
-import { processJobs } from '~/modules/jobs/jobs';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
@@ -101,9 +99,8 @@ describe('automation subjects', { timeout: 300_000 }, () => {
       continuing: true,
     });
 
-    while (await processJobs([fireJob])) {
-      // Each page queues the next.
-    }
+    // Each page queues the next.
+    await settle(300_000);
 
     expect(await runCount(automation.id)).toBe(10_050);
   });

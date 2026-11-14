@@ -1,5 +1,5 @@
 import { EVENT_FAILURE_STATUSES, NOTIFICATION_PRIORITIES } from '@erxes/core-db/enums';
-import { eventFailures, events } from '@erxes/core-db/schema';
+import { events } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -79,23 +79,18 @@ export type CoreEvent = z.infer<typeof CoreEvent>;
 
 export const EventFailureStatus = z.enum(EVENT_FAILURE_STATUSES);
 
-/** An event a consumer (timeline, notifications, …) could not handle. */
-export const EventFailure = createSelectSchema(eventFailures, {
-  attempts: () => z.int(),
-  nextAttemptAt: isoDate,
-  firstFailedAt: isoDate,
-  updatedAt: isoDate,
-})
-  .pick({
-    consumer: true,
-    status: true,
-    attempts: true,
-    lastError: true,
-    nextAttemptAt: true,
-    firstFailedAt: true,
-    updatedAt: true,
-  })
-  .extend({ event: CoreEvent });
+/** An event a consumer (timeline, notifications, …) could not handle: its job in the consumer's queue. */
+export const EventFailure = z.object({
+  consumer: z.string(),
+  status: EventFailureStatus,
+  attempts: z.int(),
+  lastError: z.string(),
+  /** When the last attempt failed. */
+  failedAt: isoDate(),
+  /** When it is tried again; null once dead. */
+  nextAttemptAt: isoDate().nullable(),
+  event: CoreEvent,
+});
 
 export type EventFailure = z.infer<typeof EventFailure>;
 

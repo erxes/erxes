@@ -2,47 +2,46 @@ import { sql } from 'drizzle-orm';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { adminDb } from './db';
 
-/**
- * Whether work is left: an event some consumer hasn't read, or a job that is
- * due. Consumers read only below the cluster's oldest open transaction, so a
- * long transaction elsewhere (another test file's database counts) can hold
- * an event back for a while.
- */
+/** pg-boss's states of a job that hasn't started yet: new, or waiting for its retry. */
+const waiting = sql`state::text in (${sql.join(
+  ['created', 'retry'].map((state) => sql`${state}`),
+  sql`, `,
+)})`;
+
+/** Whether work is left: a job that is due, or one running. */
 const pending = async () => {
-  const { rows } = await adminDb().execute<{ events: boolean; jobs: boolean }>(sql`
-    select
-      exists (
-        select 1 from core_events e join core_event_consumers c
-          on (e.tx_id, e.seq) > (c.last_tx_id, c.last_seq)
-      ) as events,
-      exists (select 1 from core_jobs where status = 'queued' and run_at <= now()) as jobs
+  const { rows } = await adminDb().execute<{ pending: boolean }>(sql`
+    select exists (
+      select 1 from core_queue.job
+      where (${waiting} and start_after <= now()) or state = 'active'
+    ) as pending
   `);
 
-  const [row] = rows;
-
-  return row ? row.events || row.jobs : false;
+  return rows[0]?.pending ?? false;
 };
 
 /**
- * Runs the event consumers and due jobs until nothing is left: events become
- * timeline entries, notifications, automation runs, webhook deliveries; runs
- * take their steps. Work scheduled for later (delays, retries with backoff)
- * stays scheduled.
+ * Runs the workers until no job is due or running: events become timeline
+ * entries, notifications, automation runs, webhook deliveries; runs take their
+ * steps. Work scheduled for later (delays, retries with backoff) stays
+ * scheduled.
  */
 export const settle = async (timeoutMs = 60_000) => {
-  const { processEvents } = await import('~/modules/events/processor');
-  const { processJobs } = await import('~/modules/jobs/jobs');
-  const { JOBS } = await import('~/modules/jobs/registry');
+  const { startWorkers, stopWorkers } = await import('~/modules/jobs/jobs');
   const deadline = Date.now() + timeoutMs;
 
-  while (Date.now() < deadline) {
-    const handled = (await processEvents()) + (await processJobs(JOBS));
+  await startWorkers();
 
-    if (!handled) {
-      if (!(await pending())) return;
+  try {
+    while (await pending()) {
+      if (Date.now() > deadline) throw new Error(`jobs still pending after ${timeoutMs} ms`);
       await sleep(25);
     }
+  } finally {
+    await stopWorkers();
   }
-
-  throw new Error(`events or jobs still pending after ${timeoutMs} ms`);
 };
+
+/** Delayed, waiting and retried jobs become due now (instead of waiting out their time). */
+export const makeDue = () =>
+  adminDb().execute(sql`update core_queue.job set start_after = now() where ${waiting}`);

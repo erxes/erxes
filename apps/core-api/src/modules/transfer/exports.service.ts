@@ -69,7 +69,8 @@ const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query
  */
 export const exportRunJob = defineJob({
   queue: 'export.run',
-  leaseSeconds: 900,
+  timeoutSeconds: 900,
+  retry: { attempts: 3 },
   payload: z.object({ exportId: z.string() }),
   async handle(job) {
     const built = await prepareExport(job.orgId, job.payload.exportId);
@@ -127,7 +128,6 @@ export const createExport = async (
   await exportRunJob.enqueue(client, {
     orgId: actor.orgId,
     payload: { exportId: row.id },
-    maxAttempts: 3,
   });
   // Contacts leaving erxes: always in the audit log.
   await recordAudit(client, userCaller(actor), {

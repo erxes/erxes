@@ -244,7 +244,6 @@ export const markOnboarded = async (
         orgId,
         payload: { userId, language: input.language ?? 'en' },
         dedupeKey: `example-data:${orgId}`,
-        maxAttempts: 3,
       });
     }
   });

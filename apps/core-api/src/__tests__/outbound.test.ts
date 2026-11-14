@@ -4,8 +4,8 @@ import { once } from 'node:events';
 import { createServer, type Server, type ServerResponse } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { postOutbound } from '~/lib/outbound';
-import { processJobs } from '~/modules/jobs/jobs';
-import { JOBS } from '~/modules/jobs/registry';
+import { settle } from './settle';
+
 import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
@@ -73,7 +73,7 @@ describe('calls out over the network', () => {
   });
 
   it('delivers a stream batch with no transaction open while the endpoint answers', async () => {
-    const delivering = processJobs(JOBS);
+    const delivering = settle();
 
     await vi.waitFor(() => expect(waiting).toHaveLength(1));
     expect(await idleInTransaction()).toBe(0);

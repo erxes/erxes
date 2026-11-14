@@ -7735,6 +7735,10 @@
           "lastError": {
             "type": "string"
           },
+          "failedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "nextAttemptAt": {
             "anyOf": [
               {
@@ -7746,14 +7750,6 @@
               }
             ]
           },
-          "firstFailedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
           "event": {
             "$ref": "#/components/schemas/CoreEvent"
           }
@@ -7763,9 +7759,8 @@
           "status",
           "attempts",
           "lastError",
+          "failedAt",
           "nextAttemptAt",
-          "firstFailedAt",
-          "updatedAt",
           "event"
         ]
       },
@@ -11969,17 +11964,6 @@
               }
             ]
           },
-          "nextAttemptAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "deliveredAt": {
             "anyOf": [
               {
@@ -12007,7 +11991,6 @@
           "responseBody",
           "error",
           "durationMs",
-          "nextAttemptAt",
           "deliveredAt",
           "createdAt"
         ]

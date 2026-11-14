@@ -107,7 +107,7 @@ const FailureRow = ({
         <p className="break-words font-mono text-xs text-destructive/90">{failure.lastError}</p>
         <p className="text-xs text-muted-foreground">
           {t('attempts', { count: failure.attempts, defaultValue: `${failure.attempts} attempts` })}{' '}
-          · {t('first-failed', 'first failed')} <When value={failure.firstFailedAt} />
+          · {t('last-failed', 'last failed')} <When value={failure.failedAt} />
           {failure.nextAttemptAt && (
             <>
               {' · '}

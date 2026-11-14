@@ -3,7 +3,7 @@ import { activities, companies, customers, type events } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { notify } from '~/modules/notifications/notifications.service';
-import type { EventConsumer } from './processor';
+import type { EventConsumer } from './consumers';
 
 type EventRow = typeof events.$inferSelect;
 

@@ -3,11 +3,9 @@ import { stopTracing } from '~/instrumentation';
 import { closeDb, configureDb, runMigrations, runtimeRole } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
-import { startMaintenance } from '~/lib/maintenance';
 import { startDraining } from '~/lib/lifecycle';
 import { loadSigningKeys } from '~/lib/signing';
-import { startEventProcessor } from '~/modules/events/processor';
-import { startJobWorker } from '~/modules/jobs/jobs';
+import { startJobs, stopJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
 import { liveHub } from '~/modules/live/hub';
 import { syncPluginSecrets } from '~/modules/plugins/plugins.service';
@@ -47,16 +45,13 @@ const start = async () => {
   }
 
   await syncPluginSecrets();
+  await startJobs(JOBS, { work: true });
 
   const server = createApp().listen(config.port, () => {
     log.info({ port: config.port, tracing: Boolean(config.otel.endpoint) }, 'api ready');
   });
 
-  const stopMaintenance = startMaintenance();
   liveHub.start();
-
-  const stopEvents = startEventProcessor();
-  const stopJobs = startJobWorker(JOBS);
 
   server.keepAliveTimeout = 120_000;
   server.headersTimeout = 121_000;
@@ -64,12 +59,12 @@ const start = async () => {
   /**
    * Graceful shutdown: fail readiness, stop taking connections, end live
    * streams (browsers reconnect to another server), let requests in flight
-   * finish (up to 15 s), stop jobs after their current run, then close the pool.
+   * finish (up to 15 s), let jobs in progress finish (up to 30 s), then close
+   * the pools.
    */
   const shutdown = (signal: string) => {
     log.info({ signal }, 'shutting down');
     startDraining();
-    stopMaintenance();
     liveHub.emit('closing');
 
     const forced = setTimeout(() => {
@@ -79,7 +74,7 @@ const start = async () => {
 
     forced.unref();
     server.close(() => {
-      Promise.all([stopEvents(), stopJobs(), liveHub.stop()])
+      Promise.all([stopJobs(), liveHub.stop()])
         .then(() => Promise.all([closeDb(), stopTracing()]))
         .then(() => log.info('stopped'))
         .catch((error: unknown) => {

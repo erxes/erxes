@@ -4,7 +4,30 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { getPool } from './client';
+import { PgBoss } from 'pg-boss';
+import { connectionSettings, getPool } from './client';
+
+/**
+ * The job queue's schema: pg-boss's tables (`apps/core-api/src/modules/jobs`).
+ * They have no `org_id`; a job carries its organisation in its data.
+ */
+export const QUEUE_SCHEMA = 'core_queue';
+
+/** Installs or upgrades pg-boss's schema, in its own transactions under its own advisory lock. */
+const migrateQueue = async () => {
+  const boss = new PgBoss({
+    ...connectionSettings(),
+    max: 1,
+    schema: QUEUE_SCHEMA,
+    supervise: false,
+    schedule: false,
+    registerInstance: false,
+    persistQueueStats: false,
+  });
+
+  await boss.start();
+  await boss.stop();
+};
 
 /** Core's own tracking table: plugins in the same database keep theirs. */
 export const MIGRATIONS_TABLE = '__drizzle_migrations_core';
@@ -63,7 +86,8 @@ END $lock$;
 export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
 /**
- * Applies pending migrations and returns their tags.
+ * Applies pending migrations and returns their tags. pg-boss's schema comes
+ * first, so a migration can move rows into its tables.
  *
  * One transaction under a transaction-scoped advisory lock: safe with several
  * replicas starting at once and through transaction poolers (PgBouncer,
@@ -80,6 +104,8 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
   const { entries } = Journal.parse(
     JSON.parse(readFileSync(join(folder, 'meta', '_journal.json'), 'utf8')),
   );
+
+  await migrateQueue();
 
   return drizzle(getPool()).transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('core:migrate'))`);

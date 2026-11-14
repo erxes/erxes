@@ -4,7 +4,7 @@ import { and, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { eventJson } from '~/modules/events/events.service';
-import type { EventConsumer } from '~/modules/events/processor';
+import type { EventConsumer } from '~/modules/events/consumers';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
 import { nextCursor, stepAt } from './cursor';

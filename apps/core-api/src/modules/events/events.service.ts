@@ -4,8 +4,8 @@ import {
   type EventFailure,
   type EventInput,
 } from '@erxes/core-contract';
-import { type Db, eventConsumers, eventFailures, events, newId } from '@erxes/core-db';
-import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { type Db, events, newId } from '@erxes/core-db';
+import { and, eq, inArray, like, sql } from 'drizzle-orm';
 import {
   type Actor,
   type Caller,
@@ -20,6 +20,14 @@ import { currentRunCause, currentImport } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches } from '~/lib/sequence';
 import { assertTargets } from '~/modules/activities/timelineAccess';
+import {
+  deleteJobs,
+  type FailedJob,
+  failedJobCounts,
+  failedJobs,
+  retryJobs,
+} from '~/modules/jobs/failed';
+import { storedError } from '~/modules/jobs/jobs';
 
 type EventRow = typeof events.$inferSelect;
 
@@ -188,6 +196,23 @@ export const listEvents = async (
 
 // ─── Failed deliveries ──────────────────────────────────────────────────────
 
+/** Each consumer's queue (`modules/events/consumers.ts`); the core_events insert trigger fills every `event.*` queue. */
+export const EVENT_QUEUE_PREFIX = 'event.';
+
+const STATUS = { retry: 'retrying', failed: 'dead' } as const;
+const STATE = { retrying: 'retry', dead: 'failed' } as const;
+
+type FailureRef = { consumer: string; eventId: string };
+
+/** A consumer's failed job for an event: its queue and its dedupe key, the event id. */
+const refsOf = (refs: FailureRef[]) =>
+  refs.map((ref) => ({ name: `${EVENT_QUEUE_PREFIX}${ref.consumer}`, key: ref.eventId }));
+
+const failureOf = (job: FailedJob) => ({
+  consumer: job.name.slice(EVENT_QUEUE_PREFIX.length),
+  eventId: job.key,
+});
+
 export const listEventFailures = async (
   client: Db,
   actor: Actor,
@@ -195,38 +220,50 @@ export const listEventFailures = async (
 ) => {
   requirePermission(actor, 'events.view');
 
-  const rows = await client
-    .select({ failure: eventFailures, event: events })
-    .from(eventFailures)
-    .innerJoin(events, eq(events.id, eventFailures.eventId))
-    .where(query.status ? eq(eventFailures.status, query.status) : undefined)
-    .orderBy(desc(eventFailures.updatedAt))
-    .limit(200);
+  const failed = await failedJobs(client, EVENT_QUEUE_PREFIX, {
+    state: query.status && STATE[query.status],
+    limit: 200,
+  });
 
-  const counts = await client
-    .select({ status: eventFailures.status, count: sql<number>`count(*)::int` })
-    .from(eventFailures)
-    .groupBy(eventFailures.status);
+  const rows = failed.length
+    ? await client
+        .select()
+        .from(events)
+        .where(
+          inArray(
+            events.id,
+            failed.map((job) => job.key),
+          ),
+        )
+    : [];
+
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const counts = await failedJobCounts(client, EVENT_QUEUE_PREFIX);
 
   return {
-    data: rows.map(({ failure, event }) => ({ ...failure, event: toEventDto(event) })),
-    counts: {
-      retrying: counts.find((row) => row.status === 'retrying')?.count ?? 0,
-      dead: counts.find((row) => row.status === 'dead')?.count ?? 0,
-    },
+    // An event removed by retention has nothing left to show or retry.
+    data: failed.flatMap((job) => {
+      const event = byId.get(job.key);
+
+      return event
+        ? [
+            {
+              consumer: failureOf(job).consumer,
+              status: STATUS[job.state],
+              attempts: job.attempts,
+              lastError: storedError(job.output),
+              failedAt: job.failedAt,
+              nextAttemptAt: job.nextAttemptAt,
+              event: toEventDto(event),
+            },
+          ]
+        : [];
+    }),
+    counts: { retrying: counts.retry, dead: counts.failed },
   };
 };
 
-type FailureRef = { consumer: string; eventId: string };
-
-const refsWhere = (refs: FailureRef[]) =>
-  or(
-    ...refs.map((ref) =>
-      and(eq(eventFailures.consumer, ref.consumer), eq(eventFailures.eventId, ref.eventId)),
-    ),
-  );
-
-/** Tries failed events again now (one more attempt each); wakes the processor. */
+/** Tries failed events again now (one more attempt each). */
 export const retryEventFailures = async (
   client: Db,
   actor: Actor,
@@ -238,22 +275,25 @@ export const retryEventFailures = async (
     throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
   }
 
-  const retried = await client
-    .update(eventFailures)
-    .set({ status: 'retrying', nextAttemptAt: sql`now()`, updatedAt: sql`now()` })
-    .where(input.failures?.length ? refsWhere(input.failures) : eq(eventFailures.status, 'dead'))
-    .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+  const failed = await failedJobs(
+    client,
+    EVENT_QUEUE_PREFIX,
+    input.failures?.length
+      ? { refs: refsOf(input.failures), limit: 200 }
+      : { state: 'failed', limit: 10_000 },
+  );
 
-  if (retried.length) {
+  await retryJobs(client, failed);
+
+  if (failed.length) {
     await recordAudit(client, userCaller(actor), {
       action: 'event.failures_retried',
       targetType: 'event',
-      metadata: { count: retried.length, failures: retried.slice(0, 50) },
+      metadata: { count: failed.length, failures: failed.slice(0, 50).map(failureOf) },
     });
-    await client.execute(sql`select pg_notify('core_events', '')`);
   }
 
-  return { retried: retried.length };
+  return { retried: failed.length };
 };
 
 /** Gives up on failed events: they won't be retried or shown again. */
@@ -264,59 +304,35 @@ export const dismissEventFailures = async (
 ) => {
   requirePermission(actor, 'events.view');
 
-  const dismissed = await client
-    .delete(eventFailures)
-    .where(refsWhere(input.failures))
-    .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+  const failed = await failedJobs(client, EVENT_QUEUE_PREFIX, {
+    refs: refsOf(input.failures),
+    limit: 200,
+  });
 
-  if (dismissed.length) {
+  await deleteJobs(client, failed);
+
+  if (failed.length) {
     await recordAudit(client, userCaller(actor), {
       action: 'event.failures_dismissed',
       targetType: 'event',
-      metadata: { count: dismissed.length, failures: dismissed.slice(0, 50) },
+      metadata: { count: failed.length, failures: failed.slice(0, 50).map(failureOf) },
     });
   }
 
-  return { dismissed: dismissed.length };
+  return { dismissed: failed.length };
 };
 
 /**
- * Removes events older than the retention period that every consumer has
- * passed and none still has to retry. Consumers that never ran hold
- * everything back.
+ * Removes events older than the retention period. A consumer job whose event
+ * is gone has nothing left to do and ends.
  */
-export const pruneEvents = async (
-  client: Db,
-  days: number,
-  consumerNames: string[],
-  batchSize = 5000,
-) => {
-  if (!consumerNames.length) return 0;
-
-  const positions = await client
-    .select({ name: eventConsumers.name })
-    .from(eventConsumers)
-    .where(inArray(eventConsumers.name, consumerNames));
-
-  if (positions.length < consumerNames.length) return 0;
-
-  return deleteInBatches(100, batchSize, () =>
+export const pruneEvents = (client: Db, days: number, batchSize = 5000) =>
+  deleteInBatches(100, batchSize, () =>
     client.execute(sql`
-      delete from ${events} e
-      where e.id in (
-        select id from ${events} old
-        where old.created_at < now() - make_interval(days => ${days})
-          and not exists (
-            select 1 from ${eventConsumers} c
-            where c.name in (${sql.join(
-              consumerNames.map((name) => sql`${name}`),
-              sql`, `,
-            )})
-              and (old.tx_id, old.seq) > (c.last_tx_id, c.last_seq)
-          )
-          and not exists (select 1 from ${eventFailures} f where f.event_id = old.id)
+      delete from ${events} where id in (
+        select id from ${events}
+        where created_at < now() - make_interval(days => ${days})
         limit ${batchSize}
       )
     `),
   );
-};

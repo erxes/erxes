@@ -1,8 +1,8 @@
 import type { ORPCError } from '@orpc/client';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/lib/crypto';
-import { processJobs } from '~/modules/jobs/jobs';
-import { JOBS } from '~/modules/jobs/registry';
+import { settle } from './settle';
+
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { useTestDatabase } from './db';
 import { useTestServer } from './support';
@@ -104,7 +104,7 @@ describe('sign-in (/core/v1/auth)', () => {
 
     await api.auth.onboarded({ exampleData: true, language: 'mn' });
     // Seeded by a job, right after.
-    await processJobs(JOBS);
+    await settle();
     expect(await customersIn('customer')).toBe(5);
     expect(await customersIn('lead')).toBe(5);
     expect((await api.companies.list({})).data.map((company) => company.primaryName)).toContain(
@@ -117,7 +117,7 @@ describe('sign-in (/core/v1/auth)', () => {
 
     // Again (another browser, a second click): nothing more.
     await (await signedIn(umbrella)).api.auth.onboarded({ exampleData: true, language: 'mn' });
-    await processJobs(JOBS);
+    await settle();
     expect(await customersIn('customer')).toBe(5);
     expect((await api.companies.list({})).totalCount).toBe(4);
   }, 600_000);

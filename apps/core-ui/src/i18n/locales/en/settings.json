@@ -586,7 +586,7 @@
     "empty": "Every event was delivered",
     "empty-description": "Timelines and notifications handled every event from core and plugins.",
     "attempts": "{{count}} attempts",
-    "first-failed": "first failed",
+    "last-failed": "last failed",
     "next-attempt": "next attempt",
     "retry": "Retry now",
     "retried": "Retrying {{count}} events",

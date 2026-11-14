@@ -43,29 +43,41 @@ export const configureDb = (next: DbOptions) => {
   options = next;
 };
 
-export const getPool = (): Pool => {
-  if (pool) return pool;
-
+/**
+ * How to connect, for core's pool and the job queue's (`QUEUE_SCHEMA`): the
+ * same server, TLS and role.
+ */
+export const connectionSettings = () => {
   if (!options) throw new Error('configureDb() must run before the database is used');
 
-  const { role, onIdleError } = options;
+  const { role } = options;
 
   if (role && !/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
 
-  pool = new Pool({
+  return {
     connectionString: options.url,
-    max: options.poolMax ?? 10,
-    idleTimeoutMillis: 30_000,
-    statement_timeout: options.statementTimeoutMs ?? 15_000,
     application_name: options.applicationName ?? 'erxes-core',
     ssl: sslOptions(options),
     // Set when the connection starts: a role that can't be taken refuses the
     // connection instead of leaving it acting as the login (which may bypass RLS).
     ...(role ? { options: `-c role=${role}` } : {}),
+  };
+};
+
+export const getPool = (): Pool => {
+  if (pool) return pool;
+
+  const settings = connectionSettings();
+
+  pool = new Pool({
+    ...settings,
+    max: options?.poolMax ?? 10,
+    idleTimeoutMillis: 30_000,
+    statement_timeout: options?.statementTimeoutMs ?? 15_000,
   });
 
   pool.on('error', (error) => {
-    if (onIdleError) onIdleError(error);
+    if (options?.onIdleError) options.onIdleError(error);
     else process.emitWarning(`idle postgres connection error: ${error.message}`);
   });
 

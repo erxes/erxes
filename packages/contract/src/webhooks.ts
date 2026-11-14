@@ -223,7 +223,6 @@ export const WebhookDelivery = createSelectSchema(webhookDeliveries, {
   attempts: int,
   responseStatus: int,
   durationMs: int,
-  nextAttemptAt: isoDate,
   deliveredAt: isoDate,
   createdAt: isoDate,
 }).pick({
@@ -237,7 +236,6 @@ export const WebhookDelivery = createSelectSchema(webhookDeliveries, {
   responseBody: true,
   error: true,
   durationMs: true,
-  nextAttemptAt: true,
   deliveredAt: true,
   createdAt: true,
 });

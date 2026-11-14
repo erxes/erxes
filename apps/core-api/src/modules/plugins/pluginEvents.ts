@@ -1,16 +1,13 @@
 import { events, plugins, pluginInstallations, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { logger } from '~/logger';
 import { sha256 } from '~/lib/crypto';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
-import type { EventConsumer } from '~/modules/events/processor';
+import type { EventConsumer } from '~/modules/events/consumers';
 import { eventJson } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { matchesPattern } from '~/modules/webhooks/webhooks.service';
-
-const log = logger.child({ component: 'plugins' });
 
 type EventRow = typeof events.$inferSelect;
 
@@ -86,12 +83,14 @@ const loadDelivery = (orgId: string, plugin: string, eventId: string) =>
  * One delivery: POST `{ id, type, organizationId, createdAt, data }` to
  * `<api.url>/events` with a 5-minute core token (`aud` the plugin, `sha` the
  * body's digest) and `Idempotency-Key: <event id>`. Anything but 2xx retries:
- * 1 min, 5 min, 30 min, 2 h, then every 8 h (about two days in all).
+ * 10 attempts, each wait about twice the last (2 min first), up to 8 hours
+ * apart: 9 to 17 hours in all.
  */
 export const pluginEventJob = defineJob({
   queue: 'plugin.event',
-  leaseSeconds: 60,
-  backoff: (attempt) => [60, 300, 1800, 7200][attempt - 1] ?? 28_800,
+  timeoutSeconds: 60,
+  retry: { attempts: 10, delay: 120, maxDelay: 8 * 3600 },
+  concurrency: 5,
   payload: z.object({ plugin: z.string(), eventId: z.string() }),
   async handle(job) {
     const { plugin } = job.payload;
@@ -132,12 +131,6 @@ export const pluginEventJob = defineJob({
       throw new Error(`${plugin} answered ${response.status}: ${response.body.slice(0, 300)}`);
     }
   },
-  async onDead(job, error) {
-    log.error(
-      { plugin: job.payload.plugin, event: job.payload.eventId, err: error },
-      'a plugin never accepted an event',
-    );
-  },
 });
 
 /**
@@ -170,7 +163,6 @@ export const pluginEventsConsumer: EventConsumer = {
         orgId: event.orgId,
         payload: { plugin: row.plugin, eventId: event.id },
         dedupeKey: `${row.plugin}:${event.id}`,
-        maxAttempts: 10,
       })),
     );
   },

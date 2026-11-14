@@ -9,7 +9,7 @@ import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { seal } from '~/lib/secrets';
 import { recordAudit } from './audit.service';
-import { organizationOf, sendBatch, startStreamLoop } from './streamDelivery';
+import { organizationOf, sendBatch, queueStreamRound } from './streamDelivery';
 import { formatBatch, type StreamEntry } from './streamFormat';
 
 type StreamRow = typeof auditStreams.$inferSelect;
@@ -82,7 +82,7 @@ export const createStream = async (
       .returning(),
   );
 
-  await startStreamLoop(client, row);
+  await queueStreamRound(client, row);
   await recordAudit(client, userCaller(actor), {
     action: 'audit.stream_created',
     targetType: 'audit_stream',
@@ -143,7 +143,7 @@ export const updateStream = async (
   );
 
   if (row.status === 'active' && (before.status !== 'active' || input.url))
-    await startStreamLoop(client, row);
+    await queueStreamRound(client, row);
 
   await recordAudit(client, userCaller(actor), {
     action:

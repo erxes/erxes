@@ -169,7 +169,7 @@ export const fireJob = defineJob({
   queue: 'automation.fire',
   payload: FirePayload,
   atomic: true,
-  leaseSeconds: 600,
+  timeoutSeconds: 600,
   async handle(job, tx) {
     const [automation] = await tx
       .select()

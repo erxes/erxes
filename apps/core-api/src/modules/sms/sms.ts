@@ -25,16 +25,14 @@ const DRIVERS: Record<typeof config.sms.driver, (message: SmsPayload) => Promise
 
 export const smsJob = defineJob({
   queue: 'sms.send',
-  leaseSeconds: 60,
+  timeoutSeconds: 60,
+  retry: { attempts: 4 },
   payload: SmsPayload,
   async handle(job) {
     await DRIVERS[config.sms.driver](job.payload);
-  },
-  async onDead(job, error) {
-    log.error({ job: job.id, err: error }, 'sms could not be sent');
   },
 });
 
 /** Queues a text message in the caller's transaction; the `sms.send` job delivers it. */
 export const sendSms = (client: Db, orgId: string, message: SmsPayload) =>
-  smsJob.enqueue(client, { orgId, payload: message, maxAttempts: 4 });
+  smsJob.enqueue(client, { orgId, payload: message });

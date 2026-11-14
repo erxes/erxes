@@ -1,9 +1,9 @@
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
-import { type DefinitionInput, makeDue, useAutomations } from './automations.fixture';
+import { type DefinitionInput, useAutomations } from './automations.fixture';
 import { useTestDatabase } from './db';
-import { settle } from './settle';
+import { makeDue, settle } from './settle';
 
 /** The automation an audit entry was made by. */
 const ByAutomation = z.object({ automation: z.object({ id: z.string() }) });

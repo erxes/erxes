@@ -2,9 +2,9 @@ import { automations } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
 import { tickAutomations } from '~/modules/automations/triggers';
-import { makeDue, useAutomations } from './automations.fixture';
+import { useAutomations } from './automations.fixture';
 import { adminDb, useTestDatabase } from './db';
-import { settle } from './settle';
+import { makeDue, settle } from './settle';
 
 /** When the automation next fires on its own. */
 const nextRunOf = async (id: string) => {

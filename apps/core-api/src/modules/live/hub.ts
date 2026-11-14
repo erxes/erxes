@@ -36,8 +36,7 @@ const parseSignal = (payload: string) => {
 
 /**
  * One LISTEN connection per API server, shared by every open stream:
- * `signal` for each committed change, `events` when new events wait for the
- * processor, `state` when the connection is up or lost, `resync` after a
+ * `signal` for each committed change, `state` when the connection is up or lost, `resync` after a
  * reconnect (notifications sent meanwhile were missed, so clients refetch).
  */
 class LiveHub extends EventEmitter {
@@ -66,18 +65,6 @@ class LiveHub extends EventEmitter {
     });
 
     client.on('notification', (message) => {
-      if (message.channel === 'core_events') {
-        this.emit('events');
-
-        return;
-      }
-
-      if (message.channel === 'core_jobs') {
-        this.emit('jobs');
-
-        return;
-      }
-
       const signal = parseSignal(message.payload ?? '');
 
       if (signal) this.emit('signal', signal);
@@ -93,8 +80,6 @@ class LiveHub extends EventEmitter {
     try {
       await client.connect();
       await client.query('LISTEN core_live');
-      await client.query('LISTEN core_events');
-      await client.query('LISTEN core_jobs');
       this.client = client;
 
       const reconnected = this.attempt > 0;
@@ -104,8 +89,6 @@ class LiveHub extends EventEmitter {
       log.info('live updates: listening');
 
       if (reconnected) this.emit('resync');
-      // Events published while nobody listened.
-      this.emit('events');
     } catch (error) {
       log.error({ err: error }, 'live updates: could not listen');
       await client.end().catch(() => undefined);

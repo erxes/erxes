@@ -152,6 +152,7 @@ export const refresh = async (orgId: string, id: string) => {
 /** Background check of pending invoices (callbacks can be lost). Calls out: not atomic. */
 export const paymentCheckJob = defineJob({
   queue: 'payment.check',
+  retry: { attempts: 3 },
   payload: z.object({ invoiceId: z.string(), round: z.number() }),
   async handle(job) {
     const { invoiceId, round } = job.payload;
@@ -174,5 +175,4 @@ export const queueCheck = (client: Db, invoice: InvoiceRow, round: number) =>
     payload: { invoiceId: invoice.id, round },
     runAt: new Date(Date.now() + (round < 20 ? 30_000 : 120_000)),
     dedupeKey: `${invoice.id}:${round}`,
-    maxAttempts: 3,
   });

@@ -26,7 +26,8 @@ import { renderInput, runStep } from './steps';
 /** A run that loops through steps (branches can't, but be safe) stops after this many. */
 const MAX_STEPS_PER_RUN = 500;
 
-const backoff = (attempt: number) => [30, 120, 600, 1800][attempt - 1] ?? 3600;
+/** 5 attempts, 30 s first, each wait about twice the last, up to an hour. */
+const RETRY = { attempts: 5, delay: 30, maxDelay: 3600 };
 
 /** The run's automation, its version's definition and the step at its cursor; else the run ends. */
 const loadStep = async (tx: Db, run: RunRow) => {
@@ -76,8 +77,8 @@ const CallPayload = RunPayload.extend({ cursor: z.array(z.union([z.number(), z.s
 export const callJob = defineJob({
   queue: 'automation.call',
   payload: CallPayload,
-  leaseSeconds: 120,
-  backoff,
+  timeoutSeconds: 120,
+  retry: RETRY,
   async handle(job) {
     const startedAt = new Date();
     const prepared = await withOrg(job.orgId, (tx) => prepareCall(tx, job.orgId, job.payload));
@@ -102,7 +103,7 @@ export const callJob = defineJob({
           input: prepared.input,
           output,
           next: nextCursor(prepared.steps, run.cursor),
-          attempt: job.attempts,
+          attempt: job.attempt,
           startedAt,
         },
       );
@@ -160,8 +161,8 @@ export const advanceJob = defineJob({
   queue: ADVANCE_QUEUE,
   payload: RunPayload,
   atomic: true,
-  leaseSeconds: 120,
-  backoff,
+  timeoutSeconds: 120,
+  retry: RETRY,
   async handle(job, tx) {
     const run = await lockLiveRun(tx, job.payload.runId);
     const loaded = run ? await loadStep(tx, run) : null;
@@ -193,7 +194,6 @@ export const advanceJob = defineJob({
         orgId: run.orgId,
         payload: { runId: run.id, cursor: run.cursor },
         dedupeKey: `call:${job.id}`,
-        maxAttempts: 5,
       });
 
       return;
@@ -221,7 +221,7 @@ export const advanceJob = defineJob({
         ? { ...context, subject: await subjectOf(tx, run.subjectType, run.subjectId) }
         : context;
 
-    await continueAfter(tx, run, step, after, { ...outcome, attempt: job.attempts, startedAt });
+    await continueAfter(tx, run, step, after, { ...outcome, attempt: job.attempt, startedAt });
   },
   onDead: (job, error, tx) => failRun(tx, job, error),
 });

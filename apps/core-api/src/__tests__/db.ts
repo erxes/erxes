@@ -64,9 +64,18 @@ export const useTestDatabase = () => {
     const { syncPluginSecrets } = await import('~/modules/plugins/plugins.service');
 
     await syncPluginSecrets();
+
+    // Queues only: settle() runs the workers until the work is done.
+    const { startJobs } = await import('~/modules/jobs/jobs');
+    const { JOBS } = await import('~/modules/jobs/registry');
+
+    await startJobs(JOBS, { work: false });
   });
 
   afterAll(async () => {
+    const { stopJobs } = await import('~/modules/jobs/jobs');
+
+    await stopJobs();
     await closeDb();
     await ownerPool?.end();
     ownerPool = null;

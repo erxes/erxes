@@ -45,16 +45,12 @@ export const appLink = async (client: Db, orgId: string, path: string) => {
 
 export const emailJob = defineJob({
   queue: 'email.send',
-  leaseSeconds: 60,
+  timeoutSeconds: 60,
+  retry: { attempts: 6 },
+  concurrency: 5,
   payload: EmailPayload,
   async handle(job) {
     await deliver({ to: job.payload.to, ...renderEmail(job.payload) });
-  },
-  async onDead(job, error) {
-    log.error(
-      { job: job.id, template: job.payload.template, err: error },
-      'email could not be sent',
-    );
   },
 });
 
@@ -65,5 +61,5 @@ export const emailJob = defineJob({
 export const sendEmail = (client: Db, orgId: string, email: EmailPayload | EmailPayload[]) =>
   emailJob.enqueueAll(
     client,
-    (Array.isArray(email) ? email : [email]).map((payload) => ({ orgId, payload, maxAttempts: 6 })),
+    (Array.isArray(email) ? email : [email]).map((payload) => ({ orgId, payload })),
   );

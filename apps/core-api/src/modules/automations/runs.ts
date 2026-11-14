@@ -196,7 +196,6 @@ export const advanceJob = (run: Pick<RunRow, 'id' | 'orgId'>, cursor: Cursor, ru
   runAt,
   // One job per run, position and time: a step is never queued twice.
   dedupeKey: `${run.id}:${cursor.join('.')}:${runAt ? runAt.getTime() : 'now'}`,
-  maxAttempts: 5,
 });
 
 export const queueAdvance = (
@@ -239,7 +238,7 @@ const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
 /** After a step's last attempt: the run fails at that step and its owner hears. */
 export const failRun = async (
   tx: Db,
-  job: { orgId: string; attempts: number; payload: { runId: string; cursor?: Cursor } },
+  job: { orgId: string; attempt: number; payload: { runId: string; cursor?: Cursor } },
   error: string,
 ) => {
   const run = await lockLiveRun(tx, job.payload.runId);
@@ -255,7 +254,7 @@ export const failRun = async (
     await logStep(tx, run, step, {
       status: 'failed',
       error,
-      attempt: job.attempts,
+      attempt: job.attempt,
       startedAt: new Date(),
     });
 
