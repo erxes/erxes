@@ -1,7 +1,17 @@
 import { LIVE_MODES } from '@erxes/core-db/enums';
 import { EventSourceParserStream, type EventSourceMessage } from 'eventsource-parser/stream';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vite-plus/test';
 import { z } from 'zod';
+import { signAccessToken } from '~/http/session';
 import { startWorkers, stopWorkers } from '~/modules/jobs/jobs';
 import { liveHub } from '~/modules/live/hub';
 import { testDatabaseUrl, useTestDatabase } from './db';
@@ -16,6 +26,13 @@ const Timeline = z.object({
 
 /** The records a `timeline` event says changed. */
 const targetsOf = (message: EventSourceMessage) => Timeline.parse(JSON.parse(message.data)).targets;
+
+/** Two minutes on the clock, and the stream's once-a-minute check runs. */
+const aMinuteLater = () => {
+  vi.setSystemTime(Date.now() + 2 * 60_000);
+
+  return vi.advanceTimersByTimeAsync(60_000);
+};
 
 const of = (events: EventSourceMessage[], type: string) =>
   events.filter((message) => message.event === type);
@@ -39,6 +56,8 @@ const openStream = async (url: string, headers: Record<string, string>) => {
   return {
     status: response.status,
     events,
+    /** Settles when the server ends the stream. */
+    ended: reading,
     /** The first event of this type, waiting up to 8 s for it. */
     next: (type: string, match: (message: EventSourceMessage) => boolean = () => true) =>
       vi.waitFor(
@@ -149,6 +168,37 @@ describe('live updates (/core/v1/stream)', () => {
 
     await stopWorkers();
     await owner.close();
+  });
+
+  describe('when the session changes under an open stream', () => {
+    // The stream re-checks its member every minute: these tests move that minute along.
+    beforeEach(() => vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] }));
+    afterEach(() => vi.useRealTimers());
+
+    it('closes without a goodbye when the cookie it opened with expires, so the browser reconnects', async () => {
+      const token = await signAccessToken(t.ids.member, t.ids.org, { ttlSeconds: 60 });
+
+      const open = await openStream(t.url('/core/v1/stream'), {
+        cookie: `erxes_session=${token}`,
+      });
+
+      await open.next('hello');
+      await aMinuteLater();
+      await open.ended;
+
+      expect(of(open.events, 'bye')).toEqual([]);
+    });
+
+    it('says goodbye when the member signs out everywhere', async () => {
+      const open = await stream(t.ids.member);
+
+      await open.next('hello');
+      await t.member().auth.signOutEverywhere();
+      await aMinuteLater();
+
+      expect(JSON.parse((await open.next('bye')).data)).toEqual({ reason: 'session-ended' });
+      await open.close();
+    });
   });
 
   it('limits open streams per member', async () => {

@@ -3,7 +3,7 @@ import { stopTracing } from '~/instrumentation';
 import pino from 'pino';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
-import { signAccessToken } from '~/http/auth';
+import { signAccessToken } from '~/http/session';
 import { loggerOptions } from '~/logger';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { useTestDatabase } from './db';

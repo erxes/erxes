@@ -103,10 +103,14 @@ const signalBatcher = (actor: Listener, send: Send) => {
   return { onSignal, stop };
 };
 
-/** Why a stream must end now (a stream outlives requests), or null while it may stay open. */
+/**
+ * Why a stream must end now (a stream outlives requests), or null while it may
+ * stay open. `reconnect`: the cookie it opened with has expired, but requests
+ * since may have renewed it, so the browser reconnects with the cookie it has
+ * now and core checks that one.
+ */
 const endReason = async (req: Request, actor: Listener) => {
-  // A cookie session can expire while the stream is open.
-  if (!req.headers.authorization && !(await sessionClaims(req))) return 'session-expired';
+  if (!req.headers.authorization && !(await sessionClaims(req))) return 'reconnect';
 
   const [user] = await withOrg(actor.orgId, (tx) =>
     tx
@@ -133,7 +137,10 @@ const endReason = async (req: Request, actor: Listener) => {
  *
  * - `hello { mode }`: `live`, or `polling` while the server can't listen;
  * - `resync`: something may have been missed (reconnects, big bursts): refetch;
- * - `bye`: the session ended (expired, member disabled); don't reconnect.
+ * - `bye`: the session ended (signed out everywhere, member disabled); don't reconnect.
+ *
+ * When the cookie the stream opened with expires, the stream just closes: the
+ * browser reconnects with the cookie it has now, renewed if the member is active.
  */
 export const streamRouter = Router();
 
@@ -180,7 +187,10 @@ streamRouter.get('/stream', (req, res) => {
 
   const revalidate = setInterval(() => {
     endReason(req, actor).then(
-      (reason) => reason && res.end(`event: bye\ndata: ${JSON.stringify({ reason })}\n\n`),
+      (reason) =>
+        reason === 'reconnect'
+          ? res.end()
+          : reason && res.end(`event: bye\ndata: ${JSON.stringify({ reason })}\n\n`),
       (error: unknown) =>
         req.log.warn({ err: error }, 'live stream: could not re-check the member'),
     );

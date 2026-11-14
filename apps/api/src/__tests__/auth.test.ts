@@ -1,6 +1,7 @@
 import type { ORPCError } from '@orpc/client';
-import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { hashPassword } from '~/lib/crypto';
+import { inOrder } from '~/lib/sequence';
 import { settle } from './settle';
 
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -19,6 +20,9 @@ const failure = (call: Promise<unknown>) =>
   );
 
 const OWNER = { email: 'owner@acme.mn', password: 'correct horse' };
+
+/** In hours. */
+const THIRTY_DAYS = 30 * 24;
 
 describe('sign-in (/core/v1/auth)', () => {
   useTestDatabase();
@@ -160,6 +164,68 @@ describe('sign-in (/core/v1/auth)', () => {
     expect(
       (await fetch(users, { headers: { cookie, 'sec-fetch-site': 'cross-site' } })).status,
     ).toBe(200);
+  });
+
+  describe('a session in use', () => {
+    const HOUR = 60 * 60 * 1000;
+    let now = 0;
+
+    beforeEach(() => {
+      now = Date.now();
+      vi.useFakeTimers({ toFake: ['Date'] });
+    });
+
+    afterEach(() => vi.useRealTimers());
+
+    const at = (hours: number) => vi.setSystemTime(now + hours * HOUR);
+
+    it('lasts 12 hours from the last request, not from the sign-in', async () => {
+      const browser = await signedIn();
+      const signedInWith = browser.cookie();
+
+      at(11);
+      await browser.api.auth.me();
+      expect(browser.cookie()).not.toBe(signedInWith);
+
+      // 20 hours after signing in, 9 after the last request: still signed in.
+      at(20);
+      expect(await failure(browser.api.auth.me())).toBeNull();
+
+      // Then 13 hours away: signed out, the plugin's sessions with it.
+      at(33);
+      expect(await failure(browser.api.auth.me())).toMatchObject({ code: 'UNAUTHORIZED' });
+      expect(await failure(browser.api.plugins.session({ name: 'hr' }))).toMatchObject({
+        code: 'UNAUTHORIZED',
+      });
+    });
+
+    it('does not renew a fresh cookie', async () => {
+      const browser = await signedIn();
+      const signedInWith = browser.cookie();
+
+      at(0.1);
+      await browser.api.auth.me();
+      expect(browser.cookie()).toBe(signedInWith);
+    });
+
+    it('ends 30 days after the sign-in, however active the member is', async () => {
+      const browser = await signedIn();
+
+      // A request every 11 hours keeps it going ...
+      const steps = Array.from(
+        { length: Math.floor(THIRTY_DAYS / 11) },
+        (_, index) => (index + 1) * 11,
+      );
+
+      await inOrder(steps, async (hours) => {
+        at(hours);
+        expect(await failure(browser.api.auth.me())).toBeNull();
+      });
+
+      // ... until 30 days are up.
+      at(THIRTY_DAYS + 0.1);
+      expect(await failure(browser.api.auth.me())).toMatchObject({ code: 'UNAUTHORIZED' });
+    });
   });
 
   it('refuses invited members (no password yet) and signs out', async () => {
