@@ -3323,7 +3323,9 @@
       "title-label": "Гарчиг",
       "unnamed-category": "Нэргүй ангилал",
       "unnamed-topic": "Нэргүй сэдэв",
-      "updated-at": "Шинэчилсэн огноо"
+      "updated-at": "Шинэчилсэн огноо",
+      "kb-article-load-failed": "Энэ нийтлэлийг ачаалж чадсангүй.",
+      "kb-activity-unavailable": "Мэдлэгийн сангийн бичлэгүүдэд үйлдлийн түүх байхгүй."
     },
     "ticket": {
       "actions": "Үйлдлүүд",

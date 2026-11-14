@@ -3323,7 +3323,9 @@
       "title-label": "Title",
       "unnamed-category": "Unnamed category",
       "unnamed-topic": "Unnamed topic",
-      "updated-at": "Updated at"
+      "updated-at": "Updated at",
+      "kb-article-load-failed": "This article could not be loaded.",
+      "kb-activity-unavailable": "Activity history is not available for knowledge base records."
     },
     "ticket": {
       "actions": "Actions",
