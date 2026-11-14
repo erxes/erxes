@@ -1,8 +1,6 @@
-import { extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
 import { z } from 'zod';
 import type { DocumentFormat, DocumentJob } from './documentText.worker';
+import { runWorker, workerGate } from './workers';
 
 const PARSE_TIMEOUT_MS = 20_000;
 
@@ -11,11 +9,6 @@ const PARSES_AT_ONCE = 2;
 const PARSES_WAITING = 4;
 
 const WORKER_HEAP_MB = 384;
-
-const WORKER = new URL(
-  `./documentText.worker${extname(fileURLToPath(import.meta.url))}`,
-  import.meta.url,
-);
 
 const Result = z.discriminatedUnion('ok', [
   z.object({ ok: z.literal(true), text: z.string(), truncated: z.boolean(), scanned: z.boolean() }),
@@ -66,92 +59,35 @@ const MARKERS: Record<DocumentFormat, (bytes: Buffer) => boolean> = {
 
 const isZip = (bytes: Buffer) => bytes.subarray(0, 4).toString('latin1') === 'PK\u0003\u0004';
 
-const gate = { running: 0, waiting: [] as (() => void)[] };
+const gate = workerGate(PARSES_AT_ONCE, PARSES_WAITING);
 
-const acquire = (signal: AbortSignal) => {
-  if (gate.running < PARSES_AT_ONCE) {
-    gate.running += 1;
+const parse = async (job: DocumentJob, signal: AbortSignal) => {
+  const end = await runWorker(
+    'documentText.worker',
+    { data: job, heapMb: WORKER_HEAP_MB, signal },
+    (message) => Result.safeParse(message),
+  ).finally(gate.release);
 
-    return Promise.resolve();
-  }
+  if (end.ended === 'aborted') throw new DocumentTextError(TIMED_OUT);
 
-  if (gate.waiting.length >= PARSES_WAITING) {
-    return Promise.reject(new DocumentTextError(BUSY, true));
-  }
+  if (end.ended === 'out-of-memory') throw new DocumentTextError(TOO_LARGE);
 
-  return new Promise<void>((resolve, reject) => {
-    const grant = () => {
-      signal.removeEventListener('abort', cancel);
-      resolve();
-    };
+  if (end.ended === 'failed' || !end.answer.success) throw new DocumentTextError(UNREADABLE);
 
-    const cancel = () => {
-      gate.waiting.splice(gate.waiting.indexOf(grant), 1);
-      reject(new DocumentTextError(TIMED_OUT));
-    };
-
-    gate.waiting.push(grant);
-    signal.addEventListener('abort', cancel, { once: true });
-  });
+  return end.answer.data;
 };
-
-const release = () => {
-  const next = gate.waiting.shift();
-
-  if (next) next();
-  else gate.running -= 1;
-};
-
-const runWorker = (job: DocumentJob, signal: AbortSignal) =>
-  new Promise<z.infer<typeof Result>>((resolve, reject) => {
-    const worker = new Worker(WORKER, {
-      workerData: job,
-      execArgv: [],
-      resourceLimits: { maxOldGenerationSizeMb: WORKER_HEAP_MB, maxYoungGenerationSizeMb: 16 },
-    });
-
-    let settled = false;
-
-    const finish = (settle: () => void) => {
-      if (settled) return;
-
-      settled = true;
-      signal.removeEventListener('abort', abort);
-      void worker.terminate();
-      settle();
-    };
-
-    const abort = () => finish(() => reject(new DocumentTextError(TIMED_OUT)));
-
-    signal.addEventListener('abort', abort, { once: true });
-    worker.once('message', (message: unknown) => {
-      const parsed = Result.safeParse(message);
-
-      finish(() =>
-        parsed.success ? resolve(parsed.data) : reject(new DocumentTextError(UNREADABLE)),
-      );
-    });
-    worker.once('error', (error: Error & { code?: string }) =>
-      finish(() =>
-        reject(
-          new DocumentTextError(error.code === 'ERR_WORKER_OUT_OF_MEMORY' ? TOO_LARGE : UNREADABLE),
-        ),
-      ),
-    );
-    worker.once('exit', () => finish(() => reject(new DocumentTextError(UNREADABLE))));
-  });
 
 export const documentText = async (bytes: Buffer, format: DocumentFormat, maxChars: number) => {
   if (!MARKERS[format](bytes)) throw new DocumentTextError(UNREADABLE);
 
   const signal = AbortSignal.timeout(PARSE_TIMEOUT_MS);
+  const granted = await gate.acquire(signal);
 
-  await acquire(signal);
+  if (granted === 'full') throw new DocumentTextError(BUSY, true);
 
-  const result = await runWorker(
-    { bytes: new Uint8Array(bytes), format, maxChars },
-    signal,
-  ).finally(release);
+  if (granted === 'timed-out') throw new DocumentTextError(TIMED_OUT);
+
+  const result = await parse({ bytes: new Uint8Array(bytes), format, maxChars }, signal);
 
   if (!result.ok) throw new DocumentTextError(messageFor(result.code));
 
