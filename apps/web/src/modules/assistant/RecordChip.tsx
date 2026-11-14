@@ -9,12 +9,19 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { badgeVariants, cn } from 'erxes-ui';
+import { createContext, type ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { orpc } from '~/lib/api';
 import { recordPath } from './recordPages';
 
 const CHIP = 'mx-0.5 max-w-full align-middle';
+
+const InTable = createContext(false);
+
+export const TableChips = ({ children }: { children: ReactNode }) => (
+  <InTable value>{children}</InTable>
+);
 
 export const RecordIcon = ({ type }: { type: AssistantRecordType }) => {
   const props = { 'aria-hidden': true, className: 'size-3.5 shrink-0' };
@@ -41,12 +48,20 @@ export const RecordChip = ({
   type: AssistantRecordType;
   id: string;
   label: string;
-}) => (
-  <Link to={recordPath(type, id)} className={cn(badgeVariants(), CHIP)}>
-    <RecordIcon type={type} />
-    <span className="truncate">{label}</span>
-  </Link>
-);
+}) => {
+  const inTable = useContext(InTable);
+
+  return (
+    <Link
+      to={recordPath(type, id)}
+      title={label}
+      className={cn(badgeVariants(), CHIP, inTable && 'max-w-40')}
+    >
+      <RecordIcon type={type} />
+      <span className="truncate">{label}</span>
+    </Link>
+  );
+};
 
 const PendingChip = () => {
   const { t } = useTranslation('assistant');
