@@ -15,4 +15,5 @@ overrides:
   'vitest@*': '5.1.0'
 
 patchedDependencies:
+  '@dnd-kit/core@6.3.1': patches/@dnd-kit__core@6.3.1.patch
   drizzle-zod@0.8.3: patches/drizzle-zod@0.8.3.patch
