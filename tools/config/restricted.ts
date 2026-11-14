@@ -1,4 +1,4 @@
-// The `no-restricted-imports` and `no-restricted-properties` entries each part of the repo
+// The `no-restricted-imports`, `-properties` and `-globals` entries each part of the repo
 // gets, and where it gets them.
 import type { OxlintConfig } from 'vite-plus/lint';
 
@@ -15,11 +15,11 @@ const routerBuilder = {
 const decided = [
   {
     name: 'graphile-worker',
-    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
+    message: 'Durable work goes through pg-boss (apps/core-api/src/modules/jobs).',
   },
   {
     name: 'bullmq',
-    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
+    message: 'Durable work goes through pg-boss (apps/core-api/src/modules/jobs).',
   },
   {
     name: 'ioredis',
@@ -100,6 +100,13 @@ const oneTransaction = {
     "The request's withOrg/withSystem scope is already one transaction. To undo only part of it when you catch its error, use savepoint() from @erxes/core-db.",
 };
 
+// Work on a clock is a pg-boss schedule: it runs once per occurrence across replicas,
+// retries, and stops with the queue.
+const noTimers = {
+  name: 'setInterval',
+  message: 'Periodic work is a schedule: defineSchedule() in apps/core-api/src/modules/jobs.',
+};
+
 export const restrictedRules = {
   'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }],
 } satisfies OxlintConfig['rules'];
@@ -136,13 +143,20 @@ export const restrictedOverrides = [
     },
   },
   {
-    // Core's hashing, comparisons and random tokens all go through lib/crypto.ts, and its
-    // transactions through withOrg/withSystem and savepoint().
+    // Core's hashing, comparisons and random tokens all go through lib/crypto.ts, its
+    // transactions through withOrg/withSystem and savepoint(), its periodic work through
+    // pg-boss schedules.
     files: ['apps/core-api/**'],
     rules: {
       'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
       'no-restricted-properties': ['error', oneTransaction],
+      'no-restricted-globals': ['error', noTimers],
     },
+  },
+  {
+    // A live stream's heartbeat and member re-check belong to its connection and end with it.
+    files: ['apps/core-api/src/modules/live/stream.http.ts'],
+    rules: { 'no-restricted-globals': 'off' },
   },
   {
     files: ['apps/core-api/src/lib/crypto.ts'],
