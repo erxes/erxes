@@ -56,6 +56,8 @@ const PageHeaderStart = ({
   ...props
 }: React.ComponentProps<'div'> & VariantProps<typeof pageHeaderStartVariants>) => (
   <div ref={ref} className={cn(pageHeaderStartVariants({ variant }), className)} {...props}>
+    {/* A collapsed Sidebar.Panel on the page puts its expand button here. */}
+    <span data-sidebar-panel-slot="" className="contents" />
     {children}
   </div>
 );
