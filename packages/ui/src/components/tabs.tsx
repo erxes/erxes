@@ -84,7 +84,11 @@ const tabButtonVariants = cva(
     },
     compoundVariants: [
       { variant: 'pill', active: true, className: 'bg-accent font-medium hover:bg-accent' },
-      { variant: 'raised', active: true, className: 'border-border bg-background shadow-xs' },
+      {
+        variant: 'raised',
+        active: true,
+        className: 'border-border bg-background shadow-xs hover:bg-background',
+      },
     ],
     defaultVariants: { variant: 'pill' },
   },

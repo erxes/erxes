@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsdown';
 
-const CSS = ['styles.css', 'fonts.css', 'theme.css', 'base.css'];
+const CSS = ['styles.css', 'fonts.css', 'theme.css', 'base.css', 'components.css'];
 
 // The publishable build: one ES module per source file, so `erxes-ui/<path>` keeps
 // working. The workspace imports the sources (core-ui aliases erxes-ui to src/):

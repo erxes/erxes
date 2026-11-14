@@ -23,6 +23,7 @@
     "./fonts.css": "./src/fonts.css",
     "./theme.css": "./src/theme.css",
     "./base.css": "./src/base.css",
+    "./components.css": "./src/components.css",
     "./*": "./src/*"
   },
   "publishConfig": {
@@ -33,6 +34,7 @@
       "./fonts.css": "./dist/fonts.css",
       "./theme.css": "./dist/theme.css",
       "./base.css": "./dist/base.css",
+      "./components.css": "./dist/components.css",
       "./*": {
         "types": "./dist/*.d.ts",
         "default": "./dist/*.js"

@@ -171,10 +171,15 @@ const commandItemVariants = cva(
       variant: {
         default: '',
         destructive: 'text-destructive',
+        /** A card in a grid of choices; checked, it is outlined and tinted primary. */
+        tile: 'h-auto gap-2.5 rounded-md border border-transparent py-2',
       },
       /** The current value among the items, such as the picked icon or the open filter. */
       checked: { true: 'text-primary-text' },
     },
+    compoundVariants: [
+      { variant: 'tile', checked: true, className: 'border-primary/30 bg-primary/5' },
+    ],
     defaultVariants: { variant: 'default' },
   },
 );
