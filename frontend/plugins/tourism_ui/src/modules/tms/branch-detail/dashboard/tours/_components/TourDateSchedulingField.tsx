@@ -16,19 +16,16 @@ import {
 } from '@tabler/icons-react';
 import { Switch } from 'erxes-ui';
 import { PanelFormRow } from 'ui-modules';
-import { TOURISM_PANEL_INPUT_CLASS_NAME } from '@/tms/side-panel/TourismPanelForm';
+import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
+  toShortPanelLabel,
+} from '@/tms/side-panel/TourismPanelForm';
 import { RHFDatePicker } from './RHFDatePicker';
 import { TourFormValues } from '../constants/formSchema';
 
 type Props = {
   control: Control<TourFormValues>;
   setValue: UseFormSetValue<TourFormValues>;
-};
-
-const toShortLabel = (label: string) => {
-  const hintStart = label.indexOf('(');
-
-  return hintStart === -1 ? label : label.slice(0, hintStart).trimEnd();
 };
 
 const getErrorMessage = (
@@ -52,7 +49,7 @@ const SwitchRow = ({
   onCheckedChange: (checked: boolean) => void;
 }) => (
   <PanelFormRow
-    label={<span title={label}>{toShortLabel(label)}</span>}
+    label={<span title={label}>{toShortPanelLabel(label)}</span>}
     icon={icon}
   >
     <div className="flex h-7 items-center px-2">

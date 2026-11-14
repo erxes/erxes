@@ -21,6 +21,7 @@ export const useRecordPanelPlugin = (
   hasDraftTitle: boolean;
   tabs: TRecordPanelPluginTab[];
   detailPath: ((recordId: string, pathname: string) => string) | null;
+  newPath: ((pathname: string) => string) | null;
 } => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
@@ -47,6 +48,7 @@ export const useRecordPanelPlugin = (
         hasDraftTitle: false,
         tabs: [],
         detailPath: null,
+        newPath: null,
       };
     }
 
@@ -57,6 +59,7 @@ export const useRecordPanelPlugin = (
       hasDraftTitle: panel?.draftTitle === true,
       tabs: panel?.tabs ?? [],
       detailPath: panel?.detailPath ?? null,
+      newPath: panel?.newPath ?? null,
     };
   }, [pluginsMetaData, contentType, isLoaded, isWildcard, hasPluginPermission]);
 };

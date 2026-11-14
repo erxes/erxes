@@ -18,10 +18,12 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Editor, Input, Select } from 'erxes-ui';
 import { PanelFormRow } from 'ui-modules';
+import { IconLanguage } from '@tabler/icons-react';
 import {
   TOURISM_PANEL_INPUT_CLASS_NAME,
   TourismPanelFormField,
   TourismPanelLanguageRow,
+  toShortPanelLabel,
 } from '@/tms/side-panel/TourismPanelForm';
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
@@ -49,6 +51,8 @@ import {
   TourPricingOptionsField,
 } from './TourFormFields';
 import { SelectTourCategory } from './SelectTourCategory';
+import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 const TOUR_STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
@@ -214,6 +218,7 @@ export const useTourPanelForm = ({
     resolver: zodResolver(TourCreateFormSchema),
     defaultValues: buildTourFormDefaults(isNew),
   });
+  useTourismDraftValues(TMS_TOUR_CONTENT_TYPE, form, isNew);
 
   useFieldArray({ control: form.control, name: 'translations' });
 
@@ -342,9 +347,11 @@ export const TourPanelSection = ({
   title?: ReactNode;
   children: ReactNode;
 }) => (
-  <div className="flex flex-col gap-1 pt-3 mt-2 border-t first:pt-0 first:mt-0 first:border-t-0">
+  <div className="flex flex-col gap-1 pt-4 first:pt-0">
     {title && (
-      <div className="pb-1 text-xs font-semibold text-foreground">{title}</div>
+      <div className="pb-1 text-xs font-medium text-muted-foreground">
+        {title}
+      </div>
     )}
     {children}
   </div>
@@ -440,14 +447,23 @@ interface ITourPanelMediaFieldsProps extends ITourPanelPricingFieldsProps {
   editorKey?: number;
 }
 
-const useSuffixedLabel = (labelSuffix: string) => {
+const useSuffixedLabel = (labelSuffix: string, isMainLang: boolean) => {
   const { t } = useTranslation('tourism');
+  const language = isMainLang ? '' : labelSuffix.trim().slice(1, -1);
 
   return (key: string) => (
-    <>
-      {t(key)}
-      <span className="text-primary">{labelSuffix}</span>
-    </>
+    <span className="inline-flex min-w-0 items-center gap-1">
+      <span className="truncate">{t(key)}</span>
+      {language && (
+        <span
+          title={language}
+          className="inline-flex shrink-0 items-center gap-0.5 text-primary"
+        >
+          <IconLanguage className="size-3" aria-hidden="true" />
+          <span className="uppercase">{language}</span>
+        </span>
+      )}
+    </span>
   );
 };
 
@@ -459,12 +475,12 @@ const TourPanelGeneralFields = ({
   const { t } = useTranslation('tourism');
   const { form, language, customTypes } = state;
   const { control } = form;
-  const { selectedLang, labelSuffix, fieldPaths } = language;
-  const suffixedLabel = useSuffixedLabel(labelSuffix);
+  const { selectedLang, labelSuffix, fieldPaths, isMainLang } = language;
+  const suffixedLabel = useSuffixedLabel(labelSuffix, isMainLang);
 
   return (
     <>
-      <TourPanelSection title={t('general-information')}>
+      <TourPanelSection>
         <TourismPanelFormField
           key={fieldPaths.name}
           control={control}
@@ -578,6 +594,7 @@ const TourPanelGeneralFields = ({
             initialContent={field.value}
             onChange={field.onChange}
             isHTML
+            className="h-auto min-h-16 max-h-80"
           />
         )}
       />
@@ -596,7 +613,7 @@ const TourPanelScheduleFields = ({ state }: ITourPanelStateProps) => {
         <TourismPanelFormField
           control={control}
           name="duration"
-          label={t('duration-days')}
+          label={toShortPanelLabel(t('duration-days'))}
           render={(field) => (
             <Input
               type="number"

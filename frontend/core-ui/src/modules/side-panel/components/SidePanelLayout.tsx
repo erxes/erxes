@@ -724,10 +724,16 @@ export const SidePanelLayout = () => {
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { detailPath } = useRecordPanelPlugin(record?.contentType ?? '');
-  // Records with detail routes expand into their own pages.
+  const { detailPath, newPath } = useRecordPanelPlugin(
+    record?.contentType ?? '',
+  );
   const getRecordPage = () => {
-    if (!record || record.contentId === NEW_RECORD_ID) return null;
+    if (!record) return null;
+
+    if (record.contentId === NEW_RECORD_ID) {
+      return newPath ? newPath(pathname) : null;
+    }
+
     if (isContactContentType(record.contentType)) {
       return getContactDetailPath(
         record.contentType,

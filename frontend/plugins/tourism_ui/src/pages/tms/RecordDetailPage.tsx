@@ -62,7 +62,7 @@ const RecordHeading = ({
   );
 };
 
-const RecordPageBreadcrumb = ({
+export const RecordPageBreadcrumb = ({
   branchId,
   contentType,
   contentId,

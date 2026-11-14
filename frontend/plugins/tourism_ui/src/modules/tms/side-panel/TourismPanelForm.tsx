@@ -34,6 +34,12 @@ import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_componen
 
 export const TOURISM_PANEL_INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
 
+export const toShortPanelLabel = (label: string) => {
+  const hintStart = label.indexOf('(');
+
+  return hintStart === -1 ? label : label.slice(0, hintStart).trimEnd();
+};
+
 export const TOURISM_PANEL_FIELDS_CLASS_NAME = [
   '[&_.border-input]:border-transparent',
   '[&_input]:shadow-none',
@@ -43,6 +49,11 @@ export const TOURISM_PANEL_FIELDS_CLASS_NAME = [
   '[&_input:not(:disabled):hover]:bg-accent',
   '[&_textarea:not(:disabled):hover]:bg-accent',
   '[&_[role=combobox]:not(:disabled):hover]:bg-accent',
+  '[&_[role=combobox]>svg:last-child]:opacity-0',
+  '[&_[role=combobox]:hover>svg:last-child]:opacity-50',
+  '[&_[role=combobox][data-state=open]>svg:last-child]:opacity-50',
+  '[&_[role=combobox]:focus-visible>svg:last-child]:opacity-50',
+  '[@media(hover:none)]:[&_[role=combobox]>svg:last-child]:opacity-50',
 ].join(' ');
 
 const FIELD_ICONS: Record<string, Icon> = {
