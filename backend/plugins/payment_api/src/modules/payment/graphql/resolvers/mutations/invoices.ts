@@ -95,7 +95,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     );
 
     // notify only if this call moved the invoice to paid; if this fails,
-    // notifyPending stays set and the pending-invoice cron retries
+    // notifyPending stays set and the invoice re-check worker retries
     if (status === 'paid' && claimed) {
       try {
         await notifyPaidInvoice(models, subdomain, _id);
@@ -122,7 +122,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     );
 
     // notify only if this call moved the invoice to paid; if this fails,
-    // notifyPending stays set and the pending-invoice cron retries
+    // notifyPending stays set and the invoice re-check worker retries
     if (status === 'paid' && claimed) {
       try {
         await notifyPaidInvoice(models, subdomain, _id);
