@@ -31,7 +31,7 @@ export const AddPropertyGroup = ({
       <Sheet.Trigger render={trigger ?? <Button variant="outline" />}>
         {trigger ? undefined : t('add-group', 'Add Group')}
       </Sheet.Trigger>
-      <Sheet.View className="p-0">
+      <Sheet.View>
         {open && (
           <PropertyGroupForm
             onSubmit={(data) =>

@@ -12,7 +12,7 @@ export const PropertyGroupEditSheet = () => {
 
   return (
     <Sheet open={!!group} onOpenChange={(open) => !open && close()}>
-      <Sheet.View className="p-0">
+      <Sheet.View>
         {group && (
           <PropertyGroupForm
             key={group.id}

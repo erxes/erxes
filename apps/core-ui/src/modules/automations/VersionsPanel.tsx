@@ -98,10 +98,10 @@ export const VersionsPanel = ({
       >
         <IconHistory />
       </Sheet.Trigger>
-      <Sheet.View className="flex w-full flex-col gap-4 p-4 sm:max-w-md">
+      <Sheet.View className="flex w-full flex-col sm:max-w-md">
         <Sheet.Header>
           <Sheet.Title>{t('versions', 'Versions')}</Sheet.Title>
-          <Sheet.Description className="text-sm text-muted-foreground">
+          <Sheet.Description>
             {t(
               'versions-description',
               'Each time it was turned on or changed while on. Runs keep the version they started with.',
@@ -109,7 +109,9 @@ export const VersionsPanel = ({
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        {open && <VersionList automationId={automationId} active={active} />}
+        <Sheet.Content className="min-h-0 overflow-y-auto">
+          {open && <VersionList automationId={automationId} active={active} />}
+        </Sheet.Content>
       </Sheet.View>
     </Sheet>
   );
