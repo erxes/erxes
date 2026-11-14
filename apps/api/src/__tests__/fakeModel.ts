@@ -28,11 +28,23 @@ export type Reply =
 
 export type Script = (request: ChatRequest) => Reply;
 
+export type Titles = (prompt: string) => string;
+
 const textOf = (content: ChatRequest['messages'][number]['content']) =>
   typeof content === 'string' ? content : (content ?? []).map((part) => part.text ?? '').join('');
 
 const isTitleRequest = (request: ChatRequest) =>
   request.messages.some((message) => textOf(message.content).includes('short title'));
+
+const firstWords: Titles = (prompt) =>
+  prompt
+    .replace(/[?!.]+$/, '')
+    .split(/\s+/)
+    .slice(0, 6)
+    .join(' ');
+
+const titleOf = (request: ChatRequest, titles: Titles) =>
+  titles(textOf(request.messages.findLast((message) => message.role === 'user')?.content ?? null));
 
 export const lastToolResult = (request: ChatRequest) => {
   const last = request.messages.at(-1);
@@ -100,8 +112,9 @@ const jsonReply = (res: ServerResponse, reply: Reply) => {
 export const fakeModel = async (apiKey: string, port = 0) => {
   const requests: ChatRequest[] = [];
 
-  const state: { script: Script; models: string[]; listStatus: number } = {
+  const state: { script: Script; titles: Titles; models: string[]; listStatus: number } = {
     script: () => ({ text: 'Hello there' }),
+    titles: firstWords,
     models: ['kimi-k3', 'kimi-embedding-v1'],
     listStatus: 200,
   };
@@ -135,7 +148,9 @@ export const fakeModel = async (apiKey: string, port = 0) => {
 
       requests.push(request);
 
-      const reply = isTitleRequest(request) ? { text: 'Test title' } : state.script(request);
+      const reply = isTitleRequest(request)
+        ? { text: titleOf(request, state.titles) }
+        : state.script(request);
 
       if (request.stream) void streamReply(res, reply, requests.length);
       else jsonReply(res, reply);
@@ -159,6 +174,9 @@ export const fakeModel = async (apiKey: string, port = 0) => {
     },
     script: (next: Script) => {
       state.script = next;
+    },
+    titles: (next: Titles) => {
+      state.titles = next;
     },
     models: (ids: string[], status = 200) => {
       state.models = ids;

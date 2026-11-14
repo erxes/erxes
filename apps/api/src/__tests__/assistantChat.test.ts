@@ -28,7 +28,10 @@ describe('assistant chat (POST /core/v1/assistant/chat)', () => {
   it('streams a reply, saves the conversation and titles it', async () => {
     model.script(() => ({ text: 'Hello there, how can I help?' }));
 
-    const reply = await chat({ message: userMessage('Hi'), model: 'kimi-k3' });
+    const reply = await chat({
+      message: userMessage('Plan the spring sales campaign for our wholesale customers'),
+      model: 'kimi-k3',
+    });
 
     expect(reply.status).toBe(200);
     expect(textOf(reply.chunks)).toBe('Hello there, how can I help?');
@@ -39,7 +42,10 @@ describe('assistant chat (POST /core/v1/assistant/chat)', () => {
       async () => {
         const thread = await t.owner().assistant.thread({ id: threadId });
 
-        expect(thread).toMatchObject({ title: 'Test title', running: false });
+        expect(thread).toMatchObject({
+          title: 'Plan the spring sales campaign for',
+          running: false,
+        });
         expect(thread.messages.map((row) => row.role)).toEqual(['user', 'assistant']);
         expect(thread.messages[1]?.parts).toContainEqual(
           expect.objectContaining({ type: 'text', text: 'Hello there, how can I help?' }),
@@ -48,7 +54,10 @@ describe('assistant chat (POST /core/v1/assistant/chat)', () => {
       { timeout: 5000, interval: 100 },
     );
 
-    expect(model.chats().at(-1)?.messages.at(-1)).toMatchObject({ role: 'user', content: 'Hi' });
+    expect(model.chats().at(-1)?.messages.at(-1)).toMatchObject({
+      role: 'user',
+      content: 'Plan the spring sales campaign for our wholesale customers',
+    });
   });
 
   it('carries on and saves the reply when the browser leaves mid-answer', async () => {
