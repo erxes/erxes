@@ -125,7 +125,8 @@ const CustomImagePreview: FC<
 
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <Dialog.Content
-              className="w-auto max-w-[90vw] border-0 bg-transparent p-0 shadow-none"
+              variant="bare"
+              className="w-auto max-w-[90vw]"
               aria-describedby={undefined}
             >
               <Dialog.Title className="sr-only">

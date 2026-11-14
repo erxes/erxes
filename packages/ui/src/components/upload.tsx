@@ -74,7 +74,7 @@ const UploadRoot = ({
       }}
     >
       <Dialog open={isImageFocused} onOpenChange={setIsImageFocused}>
-        <Dialog.Content className="max-w-none w-auto bg-transparent border-0 p-0">
+        <Dialog.Content variant="bare" className="max-w-none w-auto">
           <img
             src={readImage(url)}
             alt="Focused view"

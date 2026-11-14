@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
@@ -18,19 +19,31 @@ const DialogBackdrop = ({ className, ...props }: DialogPrimitive.Backdrop.Props)
   />
 );
 
+const dialogContentVariants = cva(
+  'grid w-full max-w-lg gap-4 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 duration-200 ease-out will-change-transform sm:rounded-lg outline-hidden',
+  {
+    variants: {
+      variant: {
+        default: 'border bg-background p-6 shadow-lg',
+        /** No panel: what it holds, such as an image in a lightbox, floats on the backdrop. */
+        bare: '',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
+
 /** The backdrop dims the page and the viewport centers the popup; a press on either closes the dialog. */
-const DialogContent = ({ className, ...props }: DialogPrimitive.Popup.Props) => (
+const DialogContent = ({
+  className,
+  variant,
+  ...props
+}: DialogPrimitive.Popup.Props & VariantProps<typeof dialogContentVariants>) => (
   <DialogPrimitive.Portal>
     <DialogBackdrop />
     <DialogPrimitive.Viewport className="fixed inset-0 z-50 grid place-items-center">
       <DialogPrimitive.Popup
-        className={cn(
-          'grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg',
-          'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0',
-          'duration-200 ease-out will-change-transform',
-          'sm:rounded-lg outline-hidden',
-          className,
-        )}
+        className={cn(dialogContentVariants({ variant }), className)}
         {...props}
       />
     </DialogPrimitive.Viewport>
@@ -83,7 +96,7 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:space-x-2', className)}
+    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-4', className)}
     {...props}
   />
 );
