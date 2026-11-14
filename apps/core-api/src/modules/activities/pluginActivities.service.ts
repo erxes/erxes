@@ -1,7 +1,6 @@
 import type { ActivityInput } from '@erxes/core-contract';
-import { activities, companies, customers, type Db, newId } from '@erxes/core-db';
+import { activities, caller, companies, customers, type Db, newId } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { type PluginCaller, pluginCaller } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
@@ -14,12 +13,7 @@ import { assertTimelineAccess, isCoreTarget } from './timelineAccess';
  * A plugin event on a record someone owns reaches the owner's inbox for that
  * plugin (muting the plugin mutes these too).
  */
-const notifyTargetOwner = async (
-  client: Db,
-  caller: PluginCaller,
-  input: ActivityInput,
-  activity: ActivityRow,
-) => {
+const notifyTargetOwner = async (client: Db, input: ActivityInput, activity: ActivityRow) => {
   if (!isCoreTarget(input.targetType)) return;
 
   const table = input.targetType === 'customer' ? customers : companies;
@@ -34,7 +28,7 @@ const notifyTargetOwner = async (
     return;
   }
 
-  await notify(client, pluginCaller(caller), {
+  await notify(client, {
     userIds: [target.ownerId],
     kind: input.type,
     title: input.summary,
@@ -52,18 +46,11 @@ const notifyTargetOwner = async (
  * A plugin adds an entry to a customer's or company's timeline. With a
  * `dedupeKey`, a retry returns the entry made the first time (`created: false`).
  */
-export const createPluginActivity = async (
-  client: Db,
-  caller: PluginCaller,
-  input: ActivityInput,
-) => {
-  assertPluginNamespace(caller.plugin, input.type);
-  await assertTimelineAccess(
-    client,
-    { plugin: caller, orgId: caller.orgId },
-    input.targetType,
-    input.targetId,
-  );
+export const createPluginActivity = async (client: Db, input: ActivityInput) => {
+  const { plugin } = caller('plugin');
+
+  assertPluginNamespace(plugin, input.type);
+  await assertTimelineAccess(client, input.targetType, input.targetId);
   await assertMembers(client, [input.actorUserId]);
 
   const [inserted] = await client
@@ -72,7 +59,7 @@ export const createPluginActivity = async (
       id: newId(),
       targetType: input.targetType,
       targetId: input.targetId,
-      source: caller.plugin,
+      source: plugin,
       type: input.type,
       summary: input.summary,
       data: input.data ?? {},
@@ -80,7 +67,7 @@ export const createPluginActivity = async (
       entityId: input.entity?.id ?? null,
       link: input.link ?? null,
       actorType: input.actorUserId ? 'user' : 'plugin',
-      actorId: input.actorUserId ?? caller.plugin,
+      actorId: input.actorUserId ?? plugin,
       dedupeKey: input.dedupeKey ?? null,
       occurredAt: input.occurredAt ? new Date(input.occurredAt) : sql`now()`,
     })
@@ -88,7 +75,7 @@ export const createPluginActivity = async (
     .returning();
 
   if (inserted) {
-    await notifyTargetOwner(client, caller, input, inserted);
+    await notifyTargetOwner(client, input, inserted);
 
     return { activity: toActivityDto(inserted), created: true };
   }
@@ -97,9 +84,7 @@ export const createPluginActivity = async (
     await client
       .select()
       .from(activities)
-      .where(
-        and(eq(activities.source, caller.plugin), eq(activities.dedupeKey, input.dedupeKey ?? '')),
-      )
+      .where(and(eq(activities.source, plugin), eq(activities.dedupeKey, input.dedupeKey ?? '')))
       .limit(1),
   );
 
@@ -107,13 +92,13 @@ export const createPluginActivity = async (
 };
 
 /** A plugin's own entry, by id or by `key:<dedupeKey>`. */
-const pluginEntry = async (client: Db, caller: PluginCaller, ref: string) => {
+const pluginEntry = async (client: Db, ref: string) => {
   const [row] = await client
     .select()
     .from(activities)
     .where(
       and(
-        eq(activities.source, caller.plugin),
+        eq(activities.source, caller('plugin').plugin),
         ref.startsWith('key:') ? eq(activities.dedupeKey, ref.slice(4)) : eq(activities.id, ref),
       ),
     )
@@ -127,22 +112,19 @@ const pluginEntry = async (client: Db, caller: PluginCaller, ref: string) => {
 /** The order was refunded, the line changes: a plugin updates its own entry. */
 export const updatePluginActivity = async (
   client: Db,
-  caller: PluginCaller,
   ref: string,
-  input: { summary?: string; data?: Record<string, unknown>; link?: string | null },
+  { data, ...changes }: { summary?: string; data?: Record<string, unknown>; link?: string | null },
 ) => {
-  const row = await pluginEntry(client, caller, ref);
+  const row = await pluginEntry(client, ref);
   const reactions = reactionsOf(row.data);
 
   const saved = oneRow(
     await client
       .update(activities)
       .set({
-        ...(input.summary !== undefined ? { summary: input.summary } : {}),
-        ...(input.data !== undefined
-          ? { data: { ...input.data, ...(reactions ? { reactions } : {}) } }
-          : {}),
-        ...(input.link !== undefined ? { link: input.link } : {}),
+        ...changes,
+        // Members' reactions stay when the plugin replaces the data.
+        data: data && { ...data, ...(reactions ? { reactions } : {}) },
         editedAt: sql`now()`,
       })
       .where(eq(activities.id, row.id))
@@ -152,10 +134,10 @@ export const updatePluginActivity = async (
   return toActivityDto(saved);
 };
 
-export const removePluginActivity = async (client: Db, caller: PluginCaller, ref: string) => {
-  const row = await pluginEntry(client, caller, ref);
+export const removePluginActivity = async (client: Db, ref: string) => {
+  const row = await pluginEntry(client, ref);
 
-  await guardDeletions(client, pluginCaller(caller), 1, 'timeline entries');
+  await guardDeletions(client, 1, 'timeline entries');
 
   await client.delete(activities).where(eq(activities.id, row.id));
 

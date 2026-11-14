@@ -12,36 +12,26 @@ import {
   updateCustomer,
 } from '~/modules/customers/customers.service';
 import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
-import { authed, anyone } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const customersRouter = {
-  list: authed.customers.list.handler(({ input, context }) =>
-    listCustomers(db(), context.actor, input),
+  list: scoped.customers.list.handler(({ input }) => listCustomers(db(), input)),
+  get: scoped.customers.get.handler(({ input }) => getCustomer(db(), input.id)),
+  findOrCreate: scoped.customers.findOrCreate.handler(({ input }) =>
+    findOrCreateCustomer(db(), input),
   ),
-  get: anyone.customers.get.handler(({ input }) => getCustomer(db(), input.id)),
-  findOrCreate: anyone.customers.findOrCreate.handler(({ input, context }) =>
-    findOrCreateCustomer(db(), context.caller, input),
+  create: scoped.customers.create.handler(({ input }) => createCustomer(db(), input)),
+  update: scoped.customers.update.handler(({ input: { id, ...changes } }) =>
+    updateCustomer(db(), id, changes),
   ),
-  create: authed.customers.create.handler(({ input, context }) =>
-    createCustomer(db(), context.actor, input),
+  remove: scoped.customers.remove.handler(({ input }) => removeCustomers(db(), input.ids)),
+  merge: scoped.customers.merge.handler(({ input }) => mergeCustomers(input)),
+  tag: scoped.customers.tag.handler(({ input }) => tagCustomers(db(), input)),
+  companies: scoped.customers.companies.handler(({ input }) => customerCompaniesOf(db(), input.id)),
+  linkCompany: scoped.customers.linkCompany.handler(({ input }) =>
+    linkCustomerCompany(db(), input.id, input.companyId, input),
   ),
-  update: authed.customers.update.handler(({ input: { id, ...changes }, context }) =>
-    updateCustomer(db(), context.actor, id, changes),
-  ),
-  remove: authed.customers.remove.handler(({ input, context }) =>
-    removeCustomers(db(), context.actor, input.ids),
-  ),
-  merge: authed.customers.merge.handler(({ input, context }) =>
-    mergeCustomers(context.actor, input),
-  ),
-  tag: authed.customers.tag.handler(({ input, context }) =>
-    tagCustomers(db(), context.actor, input),
-  ),
-  companies: authed.customers.companies.handler(({ input }) => customerCompaniesOf(db(), input.id)),
-  linkCompany: authed.customers.linkCompany.handler(({ input, context }) =>
-    linkCustomerCompany(db(), context.actor, input.id, input.companyId, input),
-  ),
-  unlinkCompany: authed.customers.unlinkCompany.handler(({ input, context }) =>
-    unlinkCustomerCompany(db(), context.actor, input.id, input.companyId),
+  unlinkCompany: scoped.customers.unlinkCompany.handler(({ input }) =>
+    unlinkCustomerCompany(db(), input.id, input.companyId),
   ),
 };

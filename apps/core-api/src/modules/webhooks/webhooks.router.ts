@@ -8,30 +8,22 @@ import {
   rotateWebhookSecret,
   updateWebhook,
 } from '~/modules/webhooks/webhooks.service';
-import { authed } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const webhooksRouter = {
-  eventTypes: authed.webhooks.eventTypes.handler(async () => ({
+  eventTypes: scoped.webhooks.eventTypes.handler(async () => ({
     data: await eventTypeCatalog(db()),
   })),
-  list: authed.webhooks.list.handler(() => listWebhooks(db())),
-  create: authed.webhooks.create.handler(({ input, context }) =>
-    createWebhook(db(), context.actor, input),
+  list: scoped.webhooks.list.handler(() => listWebhooks(db())),
+  create: scoped.webhooks.create.handler(({ input }) => createWebhook(db(), input)),
+  update: scoped.webhooks.update.handler(({ input: { id, ...changes } }) =>
+    updateWebhook(db(), id, changes),
   ),
-  update: authed.webhooks.update.handler(({ input: { id, ...changes }, context }) =>
-    updateWebhook(db(), context.actor, id, changes),
+  remove: scoped.webhooks.remove.handler(({ input }) => removeWebhook(db(), input.id)),
+  rotateSecret: scoped.webhooks.rotateSecret.handler(({ input }) =>
+    rotateWebhookSecret(db(), input.id),
   ),
-  remove: authed.webhooks.remove.handler(({ input, context }) =>
-    removeWebhook(db(), context.actor, input.id),
-  ),
-  rotateSecret: authed.webhooks.rotateSecret.handler(({ input, context }) =>
-    rotateWebhookSecret(db(), context.actor, input.id),
-  ),
-  test: authed.webhooks.test.handler(({ input, context }) =>
-    testWebhook(db(), context.actor, input.id),
-  ),
-  deliveries: authed.webhooks.deliveries.handler(({ input }) => listDeliveries(db(), input)),
-  redeliver: authed.webhooks.redeliver.handler(({ input, context }) =>
-    redeliver(db(), context.actor, input.deliveryId),
-  ),
+  test: scoped.webhooks.test.handler(({ input }) => testWebhook(db(), input.id)),
+  deliveries: scoped.webhooks.deliveries.handler(({ input }) => listDeliveries(db(), input)),
+  redeliver: scoped.webhooks.redeliver.handler(({ input }) => redeliver(db(), input.deliveryId)),
 };

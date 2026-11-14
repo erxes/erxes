@@ -1,5 +1,5 @@
 import { subdomainFromHost } from '~/modules/auth/auth.service';
-import { customer, pub, type CoreContext } from '~/orpc';
+import { unscoped, type CoreContext } from '~/orpc';
 import type { AppRequest } from './customerApps';
 import {
   confirmAddLogin,
@@ -23,40 +23,30 @@ const appRequest = ({ req }: CoreContext): AppRequest => ({
 });
 
 export const customerAuthRouter = {
-  sendCode: pub.customerAuth.sendCode.handler(({ input, context }) =>
+  sendCode: unscoped.customerAuth.sendCode.handler(({ input, context }) =>
     sendSignInCode(input, appRequest(context)),
   ),
-  signIn: pub.customerAuth.signIn.handler(({ input, context }) =>
+  signIn: unscoped.customerAuth.signIn.handler(({ input, context }) =>
     signInWithCode(input, appRequest(context)),
   ),
-  refresh: pub.customerAuth.refresh.handler(({ input, context }) =>
+  refresh: unscoped.customerAuth.refresh.handler(({ input, context }) =>
     refreshTokens(input, appRequest(context)),
   ),
-  signOut: pub.customerAuth.signOut.handler(({ input }) => signOut(input.refreshToken)),
+  signOut: unscoped.customerAuth.signOut.handler(({ input }) => signOut(input.refreshToken)),
 };
 
 export const customerAccountRouter = {
-  me: customer.customerAccount.me.handler(({ context }) => myProfile(context.customer)),
-  update: customer.customerAccount.update.handler(({ input, context }) =>
-    updateMyProfile(context.customer, input),
+  me: unscoped.customerAccount.me.handler(() => myProfile()),
+  update: unscoped.customerAccount.update.handler(({ input }) => updateMyProfile(input)),
+  logins: unscoped.customerAccount.logins.handler(() => myLogins()),
+  addLogin: unscoped.customerAccount.addLogin.handler(({ input }) => sendAddLoginCode(input)),
+  confirmLogin: unscoped.customerAccount.confirmLogin.handler(({ input }) =>
+    confirmAddLogin(input),
   ),
-  logins: customer.customerAccount.logins.handler(({ context }) => myLogins(context.customer)),
-  addLogin: customer.customerAccount.addLogin.handler(({ input, context }) =>
-    sendAddLoginCode(context.customer, input),
+  removeLogin: unscoped.customerAccount.removeLogin.handler(({ input }) => removeMyLogin(input.id)),
+  sessions: unscoped.customerAccount.sessions.handler(() => mySessions()),
+  revokeSession: unscoped.customerAccount.revokeSession.handler(({ input }) =>
+    revokeMySession(input.id),
   ),
-  confirmLogin: customer.customerAccount.confirmLogin.handler(({ input, context }) =>
-    confirmAddLogin(context.customer, input),
-  ),
-  removeLogin: customer.customerAccount.removeLogin.handler(({ input, context }) =>
-    removeMyLogin(context.customer, input.id),
-  ),
-  sessions: customer.customerAccount.sessions.handler(({ context }) =>
-    mySessions(context.customer),
-  ),
-  revokeSession: customer.customerAccount.revokeSession.handler(({ input, context }) =>
-    revokeMySession(context.customer, input.id),
-  ),
-  signOutEverywhere: customer.customerAccount.signOutEverywhere.handler(({ context }) =>
-    signOutEverywhere(context.customer),
-  ),
+  signOutEverywhere: unscoped.customerAccount.signOutEverywhere.handler(() => signOutEverywhere()),
 };

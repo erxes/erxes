@@ -1,5 +1,11 @@
 import type { CUSTOMER_CODE_PURPOSES } from '@erxes/core-db/enums';
-import { type CustomerLoginKind, customerCodes, type Db, newId } from '@erxes/core-db';
+import {
+  type CustomerLoginKind,
+  customerCodes,
+  type Db,
+  newId,
+  requestOrgId,
+} from '@erxes/core-db';
 import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
@@ -32,9 +38,9 @@ type Purpose = (typeof CUSTOMER_CODE_PURPOSES)[number];
 const hashOf = (id: string, code: string) =>
   hmacSha256(config.auth.jwtSecret, `${id}:${code}`, 'hex');
 
-/** One code at a time per address, across replicas. */
-const lockAddress = (tx: Db, orgId: string, address: Address) =>
-  lockKeys(tx, [`customer-code:${orgId}:${address.kind}:${address.value}`]);
+/** One code at a time per address, across replicas (advisory locks span organisations). */
+const lockAddress = (tx: Db, address: Address) =>
+  lockKeys(tx, [`customer-code:${requestOrgId()}:${address.kind}:${address.value}`]);
 
 const forAddress = (address: Address) =>
   and(eq(customerCodes.kind, address.kind), eq(customerCodes.value, address.value));
@@ -51,7 +57,7 @@ export const sendCode = async (
   purpose: Purpose,
   options: { customerId?: string; ip?: string | null } = {},
 ) => {
-  await lockAddress(tx, organization.id, address);
+  await lockAddress(tx, address);
 
   const [recent] = await tx
     .select({
@@ -113,13 +119,12 @@ export const sendCode = async (
  */
 export const useCode = async (
   tx: Db,
-  orgId: string,
   address: Address,
   purpose: Purpose,
   code: string,
   customerId?: string,
 ) => {
-  await lockAddress(tx, orgId, address);
+  await lockAddress(tx, address);
 
   const [row] = await tx
     .select()

@@ -4,15 +4,16 @@ import {
   type EventFailure,
   type EventInput,
 } from '@erxes/core-contract';
-import { type Db, eventConsumers, eventFailures, events, newId } from '@erxes/core-db';
-import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 import {
-  type Actor,
-  type Caller,
-  type PluginCaller,
-  requirePermission,
-  userCaller,
-} from '~/http/auth';
+  actorOf,
+  caller,
+  type Db,
+  eventConsumers,
+  eventFailures,
+  events,
+  newId,
+} from '@erxes/core-db';
+import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { HttpError } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
@@ -44,11 +45,7 @@ export interface CoreEventInput {
  * Core publishes its own events (`core.customer.created`, …) in the same
  * transaction as the change, for automations and webhooks to come.
  */
-export const publishCoreEvents = async (
-  client: Db,
-  caller: Caller,
-  inputs: CoreEventInput | CoreEventInput[],
-) => {
+export const publishCoreEvents = async (client: Db, inputs: CoreEventInput | CoreEventInput[]) => {
   const list = Array.isArray(inputs) ? inputs : [inputs];
 
   if (!list.length) {
@@ -57,6 +54,7 @@ export const publishCoreEvents = async (
 
   const cause = currentRunCause();
   const imported = currentImport();
+  const actor = actorOf(caller());
 
   await client.insert(events).values(
     list.map((input) => ({
@@ -67,8 +65,7 @@ export const publishCoreEvents = async (
       subjectId: input.subject?.id ?? null,
       entityType: input.entity?.type ?? null,
       entityId: input.entity?.id ?? null,
-      actorType: caller.actorType,
-      actorId: caller.actorId,
+      ...actor,
       payload: imported
         ? { ...input.payload, _import: { id: imported.importId, quiet: imported.quiet } }
         : (input.payload ?? {}),
@@ -84,13 +81,11 @@ export const publishCoreEvents = async (
  * `core_publish_event()` in their own transaction instead). Each event is
  * checked here, so mistakes come back as errors rather than being dropped.
  */
-export const publishPluginEvents = async (
-  client: Db,
-  caller: PluginCaller,
-  inputs: EventInput[],
-) => {
+export const publishPluginEvents = async (client: Db, inputs: EventInput[]) => {
+  const { plugin } = caller('plugin');
+
   for (const input of inputs) {
-    assertPluginNamespace(caller.plugin, input.type);
+    assertPluginNamespace(plugin, input.type);
 
     if (input.summary && !input.subject) {
       throw new HttpError(
@@ -115,7 +110,7 @@ export const publishPluginEvents = async (
     .values(
       inputs.map((input) => ({
         id: newId(),
-        source: caller.plugin,
+        source: plugin,
         type: input.type,
         version: input.version,
         subjectType: input.subject?.type ?? null,
@@ -123,7 +118,7 @@ export const publishPluginEvents = async (
         entityType: input.entity?.type ?? null,
         entityId: input.entity?.id ?? null,
         actorType: input.actorUserId ? ('user' as const) : ('plugin' as const),
-        actorId: input.actorUserId ?? caller.plugin,
+        actorId: input.actorUserId ?? plugin,
         payload: input.payload,
         summary: input.summary ?? null,
         link: input.link ?? null,
@@ -142,7 +137,6 @@ const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${ch
 
 export const listEvents = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & {
     source?: string;
     type?: string;
@@ -150,8 +144,6 @@ export const listEvents = async (
     subjectId?: string;
   },
 ) => {
-  requirePermission(actor, 'events.view');
-
   const filters = and(
     query.source ? eq(events.source, query.source) : undefined,
     query.type
@@ -188,13 +180,7 @@ export const listEvents = async (
 
 // ─── Failed deliveries ──────────────────────────────────────────────────────
 
-export const listEventFailures = async (
-  client: Db,
-  actor: Actor,
-  query: { status?: EventFailure['status'] },
-) => {
-  requirePermission(actor, 'events.view');
-
+export const listEventFailures = async (client: Db, query: { status?: EventFailure['status'] }) => {
   const rows = await client
     .select({ failure: eventFailures, event: events })
     .from(eventFailures)
@@ -229,11 +215,8 @@ const refsWhere = (refs: FailureRef[]) =>
 /** Tries failed events again now (one more attempt each); wakes the processor. */
 export const retryEventFailures = async (
   client: Db,
-  actor: Actor,
   input: { failures?: FailureRef[]; allDead?: boolean },
 ) => {
-  requirePermission(actor, 'events.view');
-
   if (!input.failures?.length && !input.allDead) {
     throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
   }
@@ -245,7 +228,7 @@ export const retryEventFailures = async (
     .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
   if (retried.length) {
-    await recordAudit(client, userCaller(actor), {
+    await recordAudit(client, {
       action: 'event.failures_retried',
       targetType: 'event',
       metadata: { count: retried.length, failures: retried.slice(0, 50) },
@@ -257,20 +240,14 @@ export const retryEventFailures = async (
 };
 
 /** Gives up on failed events: they won't be retried or shown again. */
-export const dismissEventFailures = async (
-  client: Db,
-  actor: Actor,
-  input: { failures: FailureRef[] },
-) => {
-  requirePermission(actor, 'events.view');
-
+export const dismissEventFailures = async (client: Db, input: { failures: FailureRef[] }) => {
   const dismissed = await client
     .delete(eventFailures)
     .where(refsWhere(input.failures))
     .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
   if (dismissed.length) {
-    await recordAudit(client, userCaller(actor), {
+    await recordAudit(client, {
       action: 'event.failures_dismissed',
       targetType: 'event',
       metadata: { count: dismissed.length, failures: dismissed.slice(0, 50) },

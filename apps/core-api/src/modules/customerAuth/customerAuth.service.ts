@@ -1,15 +1,18 @@
 import type { CustomerProfile, CustomerTokens } from '@erxes/core-contract';
 import {
+  caller,
   customerLogins,
   customers,
   customerSessions,
   type Db,
   newId,
   organizations,
+  requestOrgId,
+  runAs,
+  system,
   withOrg,
 } from '@erxes/core-db';
 import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
-import { type CustomerCaller, systemCaller } from '~/http/auth';
 import { HttpError, notFound, pgConstraint } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { wholeList } from '~/lib/keyset';
@@ -28,8 +31,9 @@ interface AppInput {
   organization?: string;
 }
 
-const lockLogin = (tx: Db, orgId: string, address: Address) =>
-  lockKeys(tx, [`customer-login:${orgId}:${address.kind}:${address.value}`]);
+/** One sign-up per address at a time (advisory locks span organisations). */
+const lockLogin = (tx: Db, address: Address) =>
+  lockKeys(tx, [`customer-login:${requestOrgId()}:${address.kind}:${address.value}`]);
 
 const findLogin = (tx: Db, address: Address) =>
   tx
@@ -76,8 +80,8 @@ const addLogin = async (tx: Db, customerId: string, address: Address) => {
  * The customer who signs in with this proven address: its login's, else the
  * customer who already has the address (it becomes their login), else a new one.
  */
-const customerForLogin = async (tx: Db, orgId: string, address: Address) => {
-  await lockLogin(tx, orgId, address);
+const customerForLogin = async (tx: Db, address: Address) => {
+  await lockLogin(tx, address);
 
   const login = await findLogin(tx, address);
 
@@ -90,7 +94,7 @@ const customerForLogin = async (tx: Db, orgId: string, address: Address) => {
     return { customerId: login.customerId, created: false, signedUp: false };
   }
 
-  const { customer, created } = await findOrCreateCustomer(tx, systemCaller(orgId), {
+  const { customer, created } = await findOrCreateCustomer(tx, {
     ...(address.kind === 'email'
       ? { primaryEmail: address.value }
       : { primaryPhone: address.value }),
@@ -130,35 +134,36 @@ export const signInWithCode = async (
   const address = addressOf(input);
 
   // Its own transaction: a wrong try counts even though this call fails.
-  const valid = await withOrg(organization.id, (tx) =>
-    useCode(tx, organization.id, address, 'sign_in', input.code),
-  );
+  const valid = await withOrg(organization.id, (tx) => useCode(tx, address, 'sign_in', input.code));
 
   if (!valid) throw invalidCode();
 
-  return withOrg(organization.id, async (tx) => {
-    const { customerId, created, signedUp } = await customerForLogin(tx, organization.id, address);
+  // Core signs the customer in (or up) on its own: nobody is signed in yet.
+  return withOrg(organization.id, (tx) =>
+    runAs(system('customer sign-in'), async () => {
+      const { customerId, created, signedUp } = await customerForLogin(tx, address);
 
-    const { ip, userAgent } = requestInfo();
+      const { ip, userAgent } = requestInfo();
 
-    const tokens = await createSession(tx, {
-      orgId: organization.id,
-      customerId,
-      clientId,
-      userAgent,
-      ip,
-    });
+      const tokens = await createSession(tx, {
+        orgId: organization.id,
+        customerId,
+        clientId,
+        userAgent,
+        ip,
+      });
 
-    const subject = { type: 'customer' as const, id: customerId };
-    const payload = { kind: address.kind, app: clientId };
+      const subject = { type: 'customer' as const, id: customerId };
+      const payload = { kind: address.kind, app: clientId };
 
-    await publishCoreEvents(tx, systemCaller(organization.id), [
-      ...(signedUp ? [{ type: 'core.customer.signed_up', subject, payload }] : []),
-      { type: 'core.customer.signed_in', subject, payload },
-    ]);
+      await publishCoreEvents(tx, [
+        ...(signedUp ? [{ type: 'core.customer.signed_up', subject, payload }] : []),
+        { type: 'core.customer.signed_in', subject, payload },
+      ]);
 
-    return { ...tokens, customer: await findCustomer(tx, customerId), created };
-  });
+      return { ...tokens, customer: await findCustomer(tx, customerId), created };
+    }),
+  );
 };
 
 const invalidToken = () =>
@@ -192,51 +197,50 @@ export const signOut = async (refreshToken: string) => {
   return { ok: true as const };
 };
 
-// The signed-in customer (`/customer/me`).
+// The signed-in customer (`caller('customer')`), in their organisation's scope.
 
-export const myProfile = (me: CustomerCaller) =>
-  withOrg(me.orgId, (tx) => findCustomer(tx, me.customerId));
+export const myProfile = () =>
+  withOrg(requestOrgId(), (tx) => findCustomer(tx, caller('customer').customerId));
 
 export const updateMyProfile = (
-  me: CustomerCaller,
   changes: Partial<Pick<CustomerProfile, 'firstName' | 'lastName' | 'avatarUrl' | 'birthDate'>>,
 ) =>
-  withOrg(me.orgId, async (tx) => {
-    const before = await findCustomer(tx, me.customerId);
+  withOrg(requestOrgId(), async (tx) => {
+    const { customerId } = caller('customer');
+    const before = await findCustomer(tx, customerId);
 
     await tx
       .update(customers)
       .set({ ...changes, updatedAt: sql`now()` })
-      .where(eq(customers.id, me.customerId));
+      .where(eq(customers.id, customerId));
 
-    const after = await findCustomer(tx, me.customerId);
+    const after = await findCustomer(tx, customerId);
 
-    await contactUpdated(tx, systemCaller(me.orgId), 'customer', before, after);
+    await contactUpdated(tx, 'customer', before, after);
 
-    return findCustomer(tx, me.customerId);
+    return after;
   });
 
-export const myLogins = (me: CustomerCaller) =>
-  withOrg(me.orgId, async (tx) => ({
+export const myLogins = () =>
+  withOrg(requestOrgId(), async (tx) => ({
     data: await wholeList((limit) =>
       tx
         .select()
         .from(customerLogins)
-        .where(eq(customerLogins.customerId, me.customerId))
+        .where(eq(customerLogins.customerId, caller('customer').customerId))
         .orderBy(asc(customerLogins.createdAt))
         .limit(limit),
     ),
   }));
 
 /** Sends a code to a new address; refused when it already signs someone in. */
-export const sendAddLoginCode = (me: CustomerCaller, input: Address) =>
-  withOrg(me.orgId, async (tx) => {
+export const sendAddLoginCode = (input: Address) =>
+  withOrg(requestOrgId(), async (tx) => {
     const address = addressOf(input);
 
     const [organization] = await tx
       .select({ id: organizations.id, name: organizations.name })
       .from(organizations)
-      .where(eq(organizations.id, me.orgId))
       .limit(1);
 
     if (!organization) throw notFound('Organisation');
@@ -244,43 +248,44 @@ export const sendAddLoginCode = (me: CustomerCaller, input: Address) =>
     if (await findLogin(tx, address)) throw loginTaken();
 
     return sendCode(tx, organization, address, 'add_login', {
-      customerId: me.customerId,
+      customerId: caller('customer').customerId,
       ip: requestInfo().ip,
     });
   });
 
-export const confirmAddLogin = async (me: CustomerCaller, input: Address & { code: string }) => {
+export const confirmAddLogin = async (input: Address & { code: string }) => {
+  const { customerId } = caller('customer');
   const address = addressOf(input);
 
-  const valid = await withOrg(me.orgId, (tx) =>
-    useCode(tx, me.orgId, address, 'add_login', input.code, me.customerId),
+  const valid = await withOrg(requestOrgId(), (tx) =>
+    useCode(tx, address, 'add_login', input.code, customerId),
   );
 
   if (!valid) throw invalidCode();
 
-  return withOrg(me.orgId, async (tx) => {
-    await lockLogin(tx, me.orgId, address);
+  return withOrg(requestOrgId(), async (tx) => {
+    await lockLogin(tx, address);
 
     if (await findLogin(tx, address)) throw loginTaken();
 
     // Another customer's primary email or phone can't become this one's.
-    const row = await addLogin(tx, me.customerId, address).catch((error: unknown) => {
+    return addLogin(tx, customerId, address).catch((error: unknown) => {
       throw pgConstraint(error)?.includes('primary') ? loginTaken() : error;
     });
-
-    return row;
   });
 };
 
-export const removeMyLogin = (me: CustomerCaller, id: string) =>
-  withOrg(me.orgId, async (tx) => {
+export const removeMyLogin = (id: string) =>
+  withOrg(requestOrgId(), async (tx) => {
+    const { customerId } = caller('customer');
+
     // One removal at a time per customer: two at once can't remove the last two.
-    await lockKeys(tx, [`customer-logins:${me.orgId}:${me.customerId}`]);
+    await lockKeys(tx, [`customer-logins:${requestOrgId()}:${customerId}`]);
 
     const mine = await tx
       .select({ id: customerLogins.id })
       .from(customerLogins)
-      .where(eq(customerLogins.customerId, me.customerId));
+      .where(eq(customerLogins.customerId, customerId));
 
     if (!mine.some((login) => login.id === id)) throw notFound('Login');
 
@@ -293,33 +298,34 @@ export const removeMyLogin = (me: CustomerCaller, id: string) =>
     return { ok: true as const };
   });
 
-const activeSessions = (me: CustomerCaller) =>
+/** The signed-in customer's live sessions. */
+const activeSessions = () =>
   and(
-    eq(customerSessions.customerId, me.customerId),
+    eq(customerSessions.customerId, caller('customer').customerId),
     isNull(customerSessions.revokedAt),
     gt(customerSessions.expiresAt, sql`now()`),
   );
 
-export const mySessions = (me: CustomerCaller) =>
-  withOrg(me.orgId, async (tx) => ({
+export const mySessions = () =>
+  withOrg(requestOrgId(), async (tx) => ({
     data: (
       await wholeList((limit) =>
         tx
           .select()
           .from(customerSessions)
-          .where(activeSessions(me))
+          .where(activeSessions())
           .orderBy(desc(customerSessions.lastUsedAt))
           .limit(limit),
       )
-    ).map((row) => ({ ...row, current: row.id === me.sessionId })),
+    ).map((row) => ({ ...row, current: row.id === caller('customer').sessionId })),
   }));
 
-export const revokeMySession = (me: CustomerCaller, id: string) =>
-  withOrg(me.orgId, async (tx) => {
+export const revokeMySession = (id: string) =>
+  withOrg(requestOrgId(), async (tx) => {
     const [revoked] = await tx
       .update(customerSessions)
       .set({ revokedAt: sql`now()` })
-      .where(and(activeSessions(me), eq(customerSessions.id, id)))
+      .where(and(activeSessions(), eq(customerSessions.id, id)))
       .returning({ id: customerSessions.id });
 
     if (!revoked) throw notFound('Session');
@@ -327,12 +333,12 @@ export const revokeMySession = (me: CustomerCaller, id: string) =>
     return { ok: true as const };
   });
 
-export const signOutEverywhere = (me: CustomerCaller) =>
-  withOrg(me.orgId, async (tx) => {
+export const signOutEverywhere = () =>
+  withOrg(requestOrgId(), async (tx) => {
     await tx
       .update(customerSessions)
       .set({ revokedAt: sql`now()` })
-      .where(activeSessions(me));
+      .where(activeSessions());
 
     return { ok: true as const };
   });

@@ -6,20 +6,16 @@ import {
   publishPluginEvents,
   retryEventFailures,
 } from '~/modules/events/events.service';
-import { authed, plugin } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const eventsRouter = {
-  publish: plugin.events.publish.handler(({ input, context }) =>
-    publishPluginEvents(db(), context.plugin, input.events),
+  publish: scoped.events.publish.handler(({ input }) => publishPluginEvents(db(), input.events)),
+  list: scoped.events.list.handler(({ input }) => listEvents(db(), input)),
+  failures: scoped.events.failures.handler(({ input }) => listEventFailures(db(), input)),
+  retryFailures: scoped.events.retryFailures.handler(({ input }) =>
+    retryEventFailures(db(), input),
   ),
-  list: authed.events.list.handler(({ input, context }) => listEvents(db(), context.actor, input)),
-  failures: authed.events.failures.handler(({ input, context }) =>
-    listEventFailures(db(), context.actor, input),
-  ),
-  retryFailures: authed.events.retryFailures.handler(({ input, context }) =>
-    retryEventFailures(db(), context.actor, input),
-  ),
-  dismissFailures: authed.events.dismissFailures.handler(({ input, context }) =>
-    dismissEventFailures(db(), context.actor, input),
+  dismissFailures: scoped.events.dismissFailures.handler(({ input }) =>
+    dismissEventFailures(db(), input),
   ),
 };

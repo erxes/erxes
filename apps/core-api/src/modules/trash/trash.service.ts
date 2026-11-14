@@ -2,6 +2,8 @@ import type { CursorQuery } from '@erxes/core-contract';
 import {
   type ContentType,
   activities,
+  actorOf,
+  caller,
   companyTags,
   customerTags,
   companies,
@@ -16,7 +18,6 @@ import {
 import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { CasingCache } from 'drizzle-orm/casing';
 import type { PgTable } from 'drizzle-orm/pg-core';
-import { type Actor, type Caller, requirePermission, userCaller } from '~/http/auth';
 import { pgCode } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { inOrder } from '~/lib/sequence';
@@ -74,7 +75,7 @@ const companionsOf = async (tx: Db, type: ContentType, ids: string[]) => {
  * Before deleting: the records, their tags, links and timeline go to the bin
  * (same transaction). Restorable for 30 days.
  */
-export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids: string[]) => {
+export const moveToTrash = async (tx: Db, type: ContentType, ids: string[]) => {
   if (!ids.length) return;
 
   const table = tableOf(type);
@@ -87,6 +88,7 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids
 
   if (!rows.length) return;
 
+  const by = actorOf(caller());
   const companions = await companionsOf(tx, type, ids);
 
   await tx
@@ -98,8 +100,8 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids
         recordId: row.id,
         label: labelOf(type, row),
         snapshot: { row, ...companions(row.id) },
-        deletedByType: caller.actorType,
-        deletedBy: caller.actorId,
+        deletedByType: by.actorType,
+        deletedBy: by.actorId,
         purgeAt: sql`now() + make_interval(days => ${TRASH_DAYS})`,
       })),
     )
@@ -113,13 +115,7 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids
     });
 };
 
-export const listTrash = async (
-  client: Db,
-  actor: Actor,
-  query: CursorQuery & { type?: ContentType },
-) => {
-  requirePermission(actor, 'contacts.delete');
-
+export const listTrash = async (client: Db, query: CursorQuery & { type?: ContentType }) => {
   // A record deleted again moves to the top: `deletedAt` is the position.
   const page = await keysetPage(
     client,
@@ -236,7 +232,7 @@ const restoreRelations = async (tx: Db, item: TrashRow) => {
 };
 
 /** One record back, with its custom field values (of fields still existing), relations and timeline. */
-const restoreItem = async (tx: Db, actor: Actor, item: TrashRow) => {
+const restoreItem = async (tx: Db, item: TrashRow) => {
   const type = item.recordType;
   const { row, activities: entries } = item.snapshot;
 
@@ -250,11 +246,11 @@ const restoreItem = async (tx: Db, actor: Actor, item: TrashRow) => {
   await reinsert(tx, activities, entries, { skipExisting: true });
 
   await tx.delete(trash).where(eq(trash.id, item.id));
-  await publishCoreEvents(tx, userCaller(actor), {
+  await publishCoreEvents(tx, {
     type: `core.${type}.restored`,
     subject: { type, id: item.recordId },
   });
-  await recordAudit(tx, userCaller(actor), {
+  await recordAudit(tx, {
     action: `${type}.restored`,
     targetType: type,
     targetId: item.recordId,
@@ -267,9 +263,7 @@ const restoreItem = async (tx: Db, actor: Actor, item: TrashRow) => {
  * (to records still existing) and its timeline. Each in its own savepoint: one
  * whose email is taken by now fails alone.
  */
-export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) => {
-  requirePermission(actor, 'contacts.delete');
-
+export const restoreFromTrash = async (client: Db, ids: string[]) => {
   const items = await client.select().from(trash).where(inArray(trash.id, ids));
 
   const failed: { id: string; reason: string }[] = [];
@@ -278,7 +272,7 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
   // One savepoint after another on the request's connection, so each item fails alone.
   await inOrder(items, async (item) => {
     try {
-      await savepoint((tx) => restoreItem(tx, actor, item));
+      await savepoint((tx) => restoreItem(tx, item));
       restored += 1;
     } catch (error) {
       failed.push({
@@ -297,9 +291,7 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
 };
 
 /** Gone for good now (privacy requests). Owners only. */
-export const purgeFromTrash = async (client: Db, actor: Actor, ids: string[]) => {
-  requirePermission(actor, 'trash.purge');
-
+export const purgeFromTrash = async (client: Db, ids: string[]) => {
   const removed = await client
     .delete(trash)
     .where(inArray(trash.id, ids))
@@ -308,7 +300,6 @@ export const purgeFromTrash = async (client: Db, actor: Actor, ids: string[]) =>
   if (removed.length) {
     await recordAudit(
       client,
-      userCaller(actor),
       removed.map((row) => ({
         action: `${row.recordType}.purged`,
         targetType: row.recordType,

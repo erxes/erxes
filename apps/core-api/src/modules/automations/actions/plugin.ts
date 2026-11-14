@@ -1,4 +1,10 @@
-import { type Db, pluginInstallations, plugins, type StoredPluginManifest } from '@erxes/core-db';
+import {
+  caller,
+  type Db,
+  pluginInstallations,
+  plugins,
+  type StoredPluginManifest,
+} from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
@@ -45,7 +51,7 @@ export const runPluginAction = async (ctx: CallContext, plugin: ActionPlugin, ty
   const token = await signJwt(
     {
       org: ctx.orgId,
-      user: ctx.actor.userId,
+      user: caller('user').userId,
       automation: ctx.automation.id,
       run: ctx.run.id,
       step: ctx.step.id,

@@ -1,14 +1,13 @@
 import type { CursorQuery, Notification } from '@erxes/core-contract';
-import { type Db, notifications } from '@erxes/core-db';
+import { caller, type Db, notifications } from '@erxes/core-db';
 import { and, count, eq, inArray, isNotNull, isNull, like, sql } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches } from '~/lib/sequence';
 
 /** The member's own notifications. */
-export const mine = (actor: Actor) => eq(notifications.userId, actor.userId);
+export const mine = () => eq(notifications.userId, caller('user').userId);
 
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
@@ -20,7 +19,6 @@ const kindFilter = (kind: string) =>
 
 export const listNotifications = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & {
     unread?: boolean;
     source?: string;
@@ -42,7 +40,7 @@ export const listNotifications = async (
       table: notifications,
       id: notifications.id,
       createdAt: notifications.createdAt,
-      scope: mine(actor),
+      scope: mine(),
     },
     filters,
     query,
@@ -70,13 +68,13 @@ export const listNotifications = async (
  * Unread notifications, in total and per inbox (`core` and each plugin);
  * with `source`, only that plugin's inbox.
  */
-export const unreadCount = async (client: Db, actor: Actor, source?: string) => {
+export const unreadCount = async (client: Db, source?: string) => {
   const rows = await client
     .select({ source: notifications.source, count: count() })
     .from(notifications)
     .where(
       and(
-        mine(actor),
+        mine(),
         isNull(notifications.readAt),
         source ? eq(notifications.source, source) : undefined,
       ),
@@ -91,7 +89,6 @@ export const unreadCount = async (client: Db, actor: Actor, source?: string) => 
 /** Marks the given (or all) of the member's notifications read or unread. */
 export const markRead = async (
   client: Db,
-  actor: Actor,
   input: { ids?: string[]; source?: string; read: boolean },
 ) => {
   if (input.ids && !input.ids.length) {
@@ -103,7 +100,7 @@ export const markRead = async (
     .set({ readAt: input.read ? sql`now()` : null })
     .where(
       and(
-        mine(actor),
+        mine(),
         input.ids ? inArray(notifications.id, unique(input.ids)) : undefined,
         input.source ? eq(notifications.source, input.source) : undefined,
         input.read ? isNull(notifications.readAt) : isNotNull(notifications.readAt),
@@ -113,10 +110,8 @@ export const markRead = async (
   return { updated: result.rowCount ?? 0 };
 };
 
-export const removeNotification = async (client: Db, actor: Actor, id: string) => {
-  const result = await client
-    .delete(notifications)
-    .where(and(mine(actor), eq(notifications.id, id)));
+export const removeNotification = async (client: Db, id: string) => {
+  const result = await client.delete(notifications).where(and(mine(), eq(notifications.id, id)));
 
   if (!result.rowCount) {
     throw notFound('Notification');

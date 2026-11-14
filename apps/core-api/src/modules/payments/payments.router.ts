@@ -17,40 +17,26 @@ import {
   updatePluginSettings,
 } from '~/modules/payments/pluginSettings.service';
 import { listRefunds, refundInvoice } from '~/modules/payments/refunds.service';
-import { anyone, anyoneUnscoped, authed, authedUnscoped } from '~/orpc';
+import { scoped, unscoped } from '~/orpc';
 
 export const paymentsRouter = {
-  gateways: authed.payments.gateways.handler(() => listGateways(db())),
-  addGateway: authed.payments.addGateway.handler(({ input, context }) =>
-    addGateway(db(), context.actor, input),
+  gateways: scoped.payments.gateways.handler(() => listGateways(db())),
+  addGateway: scoped.payments.addGateway.handler(({ input }) => addGateway(db(), input)),
+  updateGateway: scoped.payments.updateGateway.handler(({ input: { id, ...changes } }) =>
+    updateGateway(db(), id, changes),
   ),
-  updateGateway: authed.payments.updateGateway.handler(({ input: { id, ...changes }, context }) =>
-    updateGateway(db(), context.actor, id, changes),
+  removeGateway: scoped.payments.removeGateway.handler(({ input }) =>
+    removeGateway(db(), input.id),
   ),
-  removeGateway: authed.payments.removeGateway.handler(({ input, context }) =>
-    removeGateway(db(), context.actor, input.id),
+  createInvoice: unscoped.payments.createInvoice.handler(({ input }) => createInvoice(input)),
+  getInvoice: unscoped.payments.getInvoice.handler(({ input }) => getInvoice(input.id)),
+  cancelInvoice: unscoped.payments.cancelInvoice.handler(({ input }) => cancelInvoice(input.id)),
+  invoices: scoped.payments.invoices.handler(({ input }) => listInvoices(db(), input)),
+  refund: scoped.payments.refund.handler(({ input }) => refundInvoice(db(), input)),
+  refunds: scoped.payments.refunds.handler(({ input }) => listRefunds(db(), input.id)),
+  pluginSettings: scoped.payments.pluginSettings.handler(() => listPluginSettings(db())),
+  updatePluginSettings: scoped.payments.updatePluginSettings.handler(({ input }) =>
+    updatePluginSettings(db(), input),
   ),
-  createInvoice: anyoneUnscoped.payments.createInvoice.handler(({ input, context }) =>
-    createInvoice(context.caller, input),
-  ),
-  getInvoice: anyoneUnscoped.payments.getInvoice.handler(({ input, context }) =>
-    getInvoice(context.caller, input.id),
-  ),
-  cancelInvoice: anyoneUnscoped.payments.cancelInvoice.handler(({ input, context }) =>
-    cancelInvoice(context.caller, input.id),
-  ),
-  invoices: authed.payments.invoices.handler(({ input }) => listInvoices(db(), input)),
-  refund: anyone.payments.refund.handler(({ input, context }) =>
-    refundInvoice(db(), context.caller, input),
-  ),
-  refunds: anyone.payments.refunds.handler(({ input, context }) =>
-    listRefunds(db(), context.caller, input.id),
-  ),
-  pluginSettings: authed.payments.pluginSettings.handler(() => listPluginSettings(db())),
-  updatePluginSettings: authed.payments.updatePluginSettings.handler(({ input, context }) =>
-    updatePluginSettings(db(), context.actor, input),
-  ),
-  payTestInvoice: authedUnscoped.payments.payTestInvoice.handler(({ input, context }) =>
-    payTestInvoice(context.actor, input.id),
-  ),
+  payTestInvoice: unscoped.payments.payTestInvoice.handler(({ input }) => payTestInvoice(input.id)),
 };

@@ -81,6 +81,11 @@ export const areas = [
     rules: { 'erxes/no-org-filter': 'error' },
   },
   {
+    // A procedure's permission is its ACCESS policy (src/http/policies.ts), checked before it runs.
+    files: ['apps/core-api/src/modules/**'],
+    rules: { 'erxes/no-service-permission': 'error' },
+  },
+  {
     // A test takes its steps in order (a race, a session's lifetime); N+1s are a server concern.
     // Fixtures write through the owner's connection, outside any organisation's scope.
     files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],

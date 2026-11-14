@@ -1,9 +1,10 @@
 import type { LIVE_MODES } from '@erxes/core-db/enums';
-import { users, withOrg } from '@erxes/core-db';
+import { caller, requestOrgId, users, withOrg } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { Router, type Request } from 'express';
 import { config } from '~/config';
-import { type Actor, actorOf, sessionClaims } from '~/http/auth';
+import { sessionClaims } from '~/http/auth';
+import { HttpError } from '~/http/errors';
 import { type LiveSignal, liveHub } from './hub';
 
 const HEARTBEAT_MS = 25_000;
@@ -31,8 +32,21 @@ type StreamData =
 
 type Send = (event: string, data?: StreamData) => void;
 
+/** The member the stream is for (an Express route: `ACCESS` doesn't check it). */
+const listenerOf = () => {
+  const who = caller();
+
+  if (who.type === 'plugin') throw new HttpError(403, 'MEMBERS_ONLY', 'Plugins cannot do this');
+
+  if (who.type !== 'user') throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+
+  return { orgId: requestOrgId(), userId: who.userId };
+};
+
+type Listener = ReturnType<typeof listenerOf>;
+
 /** Collects the member's signals and sends them as one message every `FLUSH_MS`. */
-const signalBatcher = (actor: Actor, send: Send) => {
+const signalBatcher = (actor: Listener, send: Send) => {
   let inbox = false;
   let resync = false;
   const pluginTopics = new Map<string, Set<string>>();
@@ -90,7 +104,7 @@ const signalBatcher = (actor: Actor, send: Send) => {
 };
 
 /** Why a stream must end now (a stream outlives requests), or null while it may stay open. */
-const endReason = async (req: Request, actor: Actor) => {
+const endReason = async (req: Request, actor: Listener) => {
   // A cookie session can expire while the stream is open.
   if (!req.headers.authorization && !(await sessionClaims(req))) return 'session-expired';
 
@@ -124,7 +138,7 @@ const endReason = async (req: Request, actor: Actor) => {
 export const streamRouter = Router();
 
 streamRouter.get('/stream', (req, res) => {
-  const actor = actorOf(req);
+  const actor = listenerOf();
   const key = `${actor.orgId}:${actor.userId}`;
   const open = openStreams.get(key) ?? 0;
 

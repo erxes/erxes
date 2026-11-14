@@ -1,17 +1,16 @@
 import { EventNotify } from '@erxes/core-contract';
-import { activities, companies, customers, type events } from '@erxes/core-db';
+import { activities, type Caller, companies, customers, type events, runAs } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import type { Caller } from '~/http/auth';
 import { notify } from '~/modules/notifications/notifications.service';
 import type { EventConsumer } from './processor';
 
 type EventRow = typeof events.$inferSelect;
 
-const callerOf = (event: EventRow): Caller => ({
-  orgId: event.orgId,
-  actorType: event.actorType === 'user' ? 'user' : 'plugin',
-  actorId: event.actorId ?? event.source,
-  source: event.source,
+/** The plugin that published the event (both consumers skip core's own). */
+const publisherOf = (event: EventRow): Caller => ({
+  type: 'plugin',
+  plugin: event.source,
+  scopes: [],
 });
 
 const actorUserOf = (event: EventRow) =>
@@ -42,6 +41,8 @@ export const timelineConsumer: EventConsumer = {
       return;
     }
 
+    const { ownerId } = subject;
+
     const [entry] = await tx
       .insert(activities)
       .values({
@@ -63,19 +64,21 @@ export const timelineConsumer: EventConsumer = {
       .onConflictDoNothing()
       .returning({ id: activities.id });
 
-    if (entry && subject.ownerId && subject.ownerId !== event.actorId) {
-      await notify(tx, callerOf(event), {
-        userIds: [subject.ownerId],
-        kind: event.type,
-        title: summary,
-        link:
-          event.link ??
-          `/contacts/${subjectType === 'customer' ? 'customers' : 'companies'}/${subjectId}`,
-        entity: { type: event.entityType ?? subjectType, id: event.entityId ?? subjectId },
-        data: { targetType: subjectType, targetId: subjectId },
-        actorUserId: actorUserOf(event),
-        dedupeKey: `event:${event.id}:owner`,
-      });
+    if (entry && ownerId && ownerId !== event.actorId) {
+      await runAs(publisherOf(event), () =>
+        notify(tx, {
+          userIds: [ownerId],
+          kind: event.type,
+          title: summary,
+          link:
+            event.link ??
+            `/contacts/${subjectType === 'customer' ? 'customers' : 'companies'}/${subjectId}`,
+          entity: { type: event.entityType ?? subjectType, id: event.entityId ?? subjectId },
+          data: { targetType: subjectType, targetId: subjectId },
+          actorUserId: actorUserOf(event),
+          dedupeKey: `event:${event.id}:owner`,
+        }),
+      );
     }
   },
 };
@@ -90,19 +93,21 @@ export const notificationsConsumer: EventConsumer = {
 
     const request = EventNotify.parse(event.notify);
 
-    await notify(tx, callerOf(event), {
-      userIds: request.userIds,
-      kind: event.type,
-      title: request.title,
-      body: request.body,
-      link: request.link ?? event.link ?? undefined,
-      priority: request.priority,
-      entity:
-        event.entityType && event.entityId
-          ? { type: event.entityType, id: event.entityId }
-          : undefined,
-      actorUserId: actorUserOf(event),
-      dedupeKey: `event:${event.id}`,
-    });
+    await runAs(publisherOf(event), () =>
+      notify(tx, {
+        userIds: request.userIds,
+        kind: event.type,
+        title: request.title,
+        body: request.body,
+        link: request.link ?? event.link ?? undefined,
+        priority: request.priority,
+        entity:
+          event.entityType && event.entityId
+            ? { type: event.entityType, id: event.entityId }
+            : undefined,
+        actorUserId: actorUserOf(event),
+        dedupeKey: `event:${event.id}`,
+      }),
+    );
   },
 };

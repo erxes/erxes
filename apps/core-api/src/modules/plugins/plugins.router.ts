@@ -1,4 +1,3 @@
-import { HttpError } from '~/http/errors';
 import {
   installPlugin,
   listPlugins,
@@ -7,26 +6,16 @@ import {
   uninstallPlugin,
 } from '~/modules/plugins/installations.service';
 import { issuePluginToken, registerManifest } from '~/modules/plugins/plugins.service';
-import { pub, authed, plugin } from '~/orpc';
+import { scoped, unscoped } from '~/orpc';
 
 export const pluginsRouter = {
-  token: pub.plugins.token.handler(({ input }) => issuePluginToken(input)),
-  registerManifest: pub.plugins.registerManifest.handler(({ input, context }) => {
-    if (!context.req.pluginService) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
-
-    return registerManifest(context.req.pluginService, input);
-  }),
-  list: authed.plugins.list.handler(() => listPlugins()),
-  install: authed.plugins.install.handler(({ input, context }) =>
-    installPlugin(context.actor, input.name),
+  token: unscoped.plugins.token.handler(({ input }) => issuePluginToken(input)),
+  registerManifest: unscoped.plugins.registerManifest.handler(({ input }) =>
+    registerManifest(input),
   ),
-  uninstall: authed.plugins.uninstall.handler(({ input, context }) =>
-    uninstallPlugin(context.actor, input.name),
-  ),
-  session: authed.plugins.session.handler(({ input, context }) =>
-    pluginSession(context.actor, input.name),
-  ),
-  signal: plugin.plugins.signal.handler(({ input, context }) =>
-    pluginSignal(context.plugin, input),
-  ),
+  list: scoped.plugins.list.handler(() => listPlugins()),
+  install: scoped.plugins.install.handler(({ input }) => installPlugin(input.name)),
+  uninstall: scoped.plugins.uninstall.handler(({ input }) => uninstallPlugin(input.name)),
+  session: scoped.plugins.session.handler(({ input }) => pluginSession(input.name)),
+  signal: scoped.plugins.signal.handler(({ input }) => pluginSignal(input)),
 };

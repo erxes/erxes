@@ -1,7 +1,6 @@
 import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
-import { customers, type Db, newId } from '@erxes/core-db';
+import { caller, customers, type Db, newId, requestOrgId } from '@erxes/core-db';
 import { arrayContains, eq, or, sql } from 'drizzle-orm';
-import type { Caller } from '~/http/auth';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { lockKeys } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
@@ -45,13 +44,16 @@ const findByContact = async (client: Db, email: string | null, phone: string | n
  * phones), or a new one. Calls for the same email or phone run one at a time,
  * so two at once never make two customers.
  */
-export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Contact) => {
+export const findOrCreateCustomer = async (client: Db, input: Contact) => {
   const email = input.primaryEmail ? normalizeEmail(input.primaryEmail) : null;
   const phone = input.primaryPhone ? normalizePhone(input.primaryPhone) : null;
 
+  // Advisory locks span organisations, so the key names the organisation.
+  const orgId = requestOrgId();
+
   await lockKeys(client, [
-    ...(email ? [`customer:${caller.orgId}:email:${email}`] : []),
-    ...(phone ? [`customer:${caller.orgId}:phone:${phone}`] : []),
+    ...(email ? [`customer:${orgId}:email:${email}`] : []),
+    ...(phone ? [`customer:${orgId}:phone:${phone}`] : []),
   ]);
 
   const found = await findByContact(client, email, phone);
@@ -62,11 +64,13 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
       created: false,
     };
 
-  const lead = await planLeadOnCreate(client, caller, {
+  const lead = await planLeadOnCreate(client, {
     state: input.state ?? 'customer',
     source: input.source,
     sourceDetails: input.sourceDetails,
   });
+
+  const who = caller();
 
   const row = oneRow(
     await client
@@ -81,13 +85,13 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
         emails: email ? [email] : [],
         primaryPhone: phone,
         phones: phone ? [phone] : [],
-        createdBy: caller.actorType === 'user' ? caller.actorId : null,
+        createdBy: who.type === 'user' ? who.userId : null,
       })
       .returning({ id: customers.id }),
   );
 
-  await recordLeadSteps(client, caller, 'customer', [{ id: row.id, steps: lead.steps }]);
-  await contactCreated(client, caller, 'customer', await findCustomer(client, row.id));
+  await recordLeadSteps(client, 'customer', [{ id: row.id, steps: lead.steps }]);
+  await contactCreated(client, 'customer', await findCustomer(client, row.id));
 
   return {
     customer: await findCustomer(client, row.id),

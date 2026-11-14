@@ -1,7 +1,6 @@
 import type { CursorQuery, TransferRecordType } from '@erxes/core-contract';
-import { type Db, type ImportOptions, importRows, imports, newId } from '@erxes/core-db';
+import { caller, type Db, type ImportOptions, importRows, imports, newId } from '@erxes/core-db';
 import { and, asc, eq, sql } from 'drizzle-orm';
-import { type Actor, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
@@ -69,7 +68,6 @@ export const getImport = async (client: Db, id: string) => {
 /** Starts an import from an uploaded file: it is read in the background, then columns are suggested. */
 export const createImport = async (
   client: Db,
-  actor: Actor,
   input: { recordType: TransferRecordType; fileId: string },
 ) => {
   const file = await readyFile(client, input.fileId);
@@ -86,7 +84,7 @@ export const createImport = async (
         fileId: file.id,
         fileName: file.name,
         options: defaults(input.recordType),
-        createdBy: actor.userId,
+        createdBy: caller('user').userId,
       })
       .returning(),
   );
@@ -192,7 +190,7 @@ export const checkImport = (client: Db, id: string) => begin(client, id, 'checki
 export const startImport = (client: Db, id: string) => begin(client, id, 'running');
 
 /** Removes the records it created (to the recycle bin), within 30 days; what it updated stays. */
-export const undoImport = async (client: Db, actor: Actor, id: string) => {
+export const undoImport = async (client: Db, id: string) => {
   const row = await importOrThrow(client, id, true);
 
   if (!undoable(row))
@@ -212,11 +210,11 @@ export const undoImport = async (client: Db, actor: Actor, id: string) => {
 
   await importUndoJob.enqueue(client, {
     orgId: next.orgId,
-    payload: { importId: next.id, by: actor.userId },
+    payload: { importId: next.id, by: caller('user').userId },
     maxAttempts: 3,
     dedupeKey: stepKey(next.id, importUndoJob.queue),
   });
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'import.undone',
     targetType: 'import',
     targetId: id,

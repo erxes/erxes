@@ -1,8 +1,15 @@
 import type { AUDIT_STREAM_STARTS, AUDIT_STREAM_STATUSES } from '@erxes/core-db/enums';
-import { auditLogs, auditStreams, type Db, newId, withOrg } from '@erxes/core-db';
+import {
+  auditLogs,
+  auditStreams,
+  caller,
+  type Db,
+  newId,
+  requestOrgId,
+  withOrg,
+} from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
@@ -51,7 +58,6 @@ export const listStreams = async (client: Db) => {
 
 export const createStream = async (
   client: Db,
-  actor: Actor,
   input: {
     name: string;
     url: string;
@@ -77,13 +83,13 @@ export const createStream = async (
         authHeaderName: input.authHeader?.name ?? null,
         authHeaderValueSealed: input.authHeader ? seal(input.authHeader.value) : null,
         cursorSeq: input.from === 'now' ? latest : 0,
-        createdBy: actor.userId,
+        createdBy: caller('user').userId,
       })
       .returning(),
   );
 
   await startStreamLoop(client, row);
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'audit.stream_created',
     targetType: 'audit_stream',
     targetId: row.id,
@@ -104,7 +110,6 @@ const streamOrThrow = async (client: Db, id: string) => {
 
 export const updateStream = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: {
     name?: string;
@@ -118,20 +123,20 @@ export const updateStream = async (
 
   if (input.url) checkUrl(input.url);
 
+  const { authHeader, ...changes } = input;
+
   const row = oneRow(
     await client
       .update(auditStreams)
       .set({
-        ...(input.name ? { name: input.name } : {}),
-        ...(input.url ? { url: input.url } : {}),
-        ...(input.format ? { format: input.format } : {}),
-        ...(input.authHeader !== undefined
+        ...changes,
+        // null removes the header; undefined leaves it.
+        ...(authHeader !== undefined
           ? {
-              authHeaderName: input.authHeader?.name ?? null,
-              authHeaderValueSealed: input.authHeader ? seal(input.authHeader.value) : null,
+              authHeaderName: authHeader?.name ?? null,
+              authHeaderValueSealed: authHeader ? seal(authHeader.value) : null,
             }
           : {}),
-        ...(input.status ? { status: input.status } : {}),
         // A new address or a resume starts over the failure count.
         ...(input.url || input.status === 'active'
           ? { consecutiveFailures: 0, lastError: null }
@@ -145,7 +150,7 @@ export const updateStream = async (
   if (row.status === 'active' && (before.status !== 'active' || input.url))
     await startStreamLoop(client, row);
 
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action:
       input.status === 'paused'
         ? 'audit.stream_paused'
@@ -158,7 +163,8 @@ export const updateStream = async (
     metadata: {
       ...(input.url ? { url: { before: before.url, after: input.url } } : {}),
       ...(input.format ? { format: input.format } : {}),
-      ...(input.authHeader !== undefined ? { authHeaderChanged: true } : {}),
+      // JSON drops undefined keys.
+      authHeaderChanged: input.authHeader === undefined ? undefined : true,
       ...(input.status ? { status: input.status } : {}),
     },
   });
@@ -166,11 +172,11 @@ export const updateStream = async (
   return toDto(row, await latestSeq(client));
 };
 
-export const removeStream = async (client: Db, actor: Actor, id: string) => {
+export const removeStream = async (client: Db, id: string) => {
   const row = await streamOrThrow(client, id);
 
   await client.delete(auditStreams).where(eq(auditStreams.id, id));
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'audit.stream_removed',
     targetType: 'audit_stream',
     targetId: id,
@@ -185,10 +191,10 @@ export const removeStream = async (client: Db, actor: Actor, id: string) => {
  * Sends one made-up entry now (nothing is advanced), to check the address and
  * credentials. Reads in a short scope and calls out after it.
  */
-export const testStream = async (actor: Actor, id: string) => {
-  const { row, organization } = await withOrg(actor.orgId, async (tx) => ({
+export const testStream = async (id: string) => {
+  const { row, organization } = await withOrg(requestOrgId(), async (tx) => ({
     row: await streamOrThrow(tx, id),
-    organization: await organizationOf(tx, actor.orgId),
+    organization: await organizationOf(tx),
   }));
 
   const sample: StreamEntry = {
@@ -199,7 +205,7 @@ export const testStream = async (actor: Actor, id: string) => {
     createdAt: new Date().toISOString(),
     source: 'core',
     action: 'audit.stream_test',
-    actor: { type: 'user', id: actor.userId },
+    actor: { type: 'user', id: caller('user').userId },
     target: null,
     changes: null,
     metadata: { test: true },

@@ -1,7 +1,17 @@
-import { auditLogs, type Db, organizations, roles, savepoint, users } from '@erxes/core-db';
+import {
+  type actorOf,
+  auditLogs,
+  type Db,
+  organizations,
+  roles,
+  runAs,
+  savepoint,
+  system,
+  users,
+} from '@erxes/core-db';
 import { and, eq, gte, inArray, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { systemCaller } from '~/http/auth';
+import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { appLink, sendEmail } from '~/modules/email/email';
@@ -33,55 +43,62 @@ interface AlertInput {
   actorUserId?: string | null;
 }
 
-const emailAlert = async (client: Db, orgId: string, input: AlertInput, recipients: string[]) => {
-  const [org] = await client
-    .select({ name: organizations.name })
-    .from(organizations)
-    .where(eq(organizations.id, orgId))
-    .limit(1);
+const emailAlert = async (client: Db, input: AlertInput, recipients: string[]) => {
+  const org = oneRow(
+    await client
+      .select({ id: organizations.id, name: organizations.name })
+      .from(organizations)
+      .limit(1),
+  );
 
   const people = await client
     .select({ email: users.email })
     .from(users)
     .where(and(inArray(users.id, recipients), eq(users.status, 'active')));
 
-  const link = await appLink(client, orgId, input.link);
+  const link = await appLink(client, input.link);
 
   await sendEmail(
     client,
-    orgId,
+    org.id,
     people.map((person) => ({
       to: person.email,
       template: 'security_alert',
-      data: { organization: org?.name ?? 'erxes', title: input.title, body: input.body, link },
+      data: { organization: org.name, title: input.title, body: input.body, link },
     })),
   );
 };
 
-/** A security notice: in the core inbox (can't be muted), and by email when it matters. */
-export const securityAlert = async (client: Db, orgId: string, input: AlertInput) => {
+/**
+ * A security notice to the scope's organisation (`withOrg`): in the core
+ * inbox (can't be muted), and by email when it matters. Core sends it, not
+ * whoever caused it.
+ */
+export const securityAlert = async (client: Db, input: AlertInput) => {
   const recipients = input.userIds ?? (await ownerIds(client));
 
   if (!recipients.length) return;
 
   const hour = new Date().toISOString().slice(0, 13);
 
-  await notify(client, systemCaller(orgId), {
-    userIds: recipients,
-    kind: input.userIds ? 'core.security.new_sign_in' : 'core.security.alert',
-    title: input.title,
-    body: input.body,
-    link: input.link,
-    priority: 'high',
-    actorUserId: input.actorUserId ?? undefined,
-    data: { key: input.key },
-    dedupeKey: `security:${input.key}:${hour}`,
-  });
+  await runAs(system('security alert'), () =>
+    notify(client, {
+      userIds: recipients,
+      kind: input.userIds ? 'core.security.new_sign_in' : 'core.security.alert',
+      title: input.title,
+      body: input.body,
+      link: input.link,
+      priority: 'high',
+      actorUserId: input.actorUserId ?? undefined,
+      data: { key: input.key },
+      dedupeKey: `security:${input.key}:${hour}`,
+    }),
+  );
 
-  if (input.email) await emailAlert(client, orgId, input, recipients);
+  if (input.email) await emailAlert(client, input, recipients);
 };
 
-const failedSignIns = async (client: Db, orgId: string, entry: Entry) => {
+const failedSignIns = async (client: Db, entry: Entry) => {
   const key = entry.targetId ?? entry.targetLabel;
 
   if (!key) return;
@@ -100,7 +117,7 @@ const failedSignIns = async (client: Db, orgId: string, entry: Entry) => {
   // Once, when the line is crossed (later failures in the hour are the same alert).
   if (count !== config.auth.failedSignInAlert) return;
 
-  await securityAlert(client, orgId, {
+  await securityAlert(client, {
     key: `failed-sign-ins:${key}`,
     title: `${count} failed sign-ins to ${entry.targetLabel ?? 'an account'} in 15 minutes`,
     body: `The latest from ${entry.ip ?? 'an unknown address'}. Someone may be guessing the password: two-step sign-in stops them.`,
@@ -109,7 +126,7 @@ const failedSignIns = async (client: Db, orgId: string, entry: Entry) => {
   });
 };
 
-const newDevice = async (client: Db, orgId: string, entry: Entry) => {
+const newDevice = async (client: Db, entry: Entry) => {
   if (!entry.targetId) return;
 
   // This sign-in is already in the log: it is one of these.
@@ -136,7 +153,7 @@ const newDevice = async (client: Db, orgId: string, entry: Entry) => {
 
   if (seen > 1) return;
 
-  await securityAlert(client, orgId, {
+  await securityAlert(client, {
     key: `new-sign-in:${entry.targetId}:${entry.ip ?? ''}:${entry.userAgent ?? ''}`,
     title: `New sign-in to your account from ${describeDevice(entry.userAgent)}`,
     body: `${entry.ip ? `Address ${entry.ip}. ` : ''}If it was you, there's nothing to do. If not, change your password and sign out everywhere (Settings › Profile).`,
@@ -146,10 +163,10 @@ const newDevice = async (client: Db, orgId: string, entry: Entry) => {
   });
 };
 
-const recoveryCodeUsed = async (client: Db, orgId: string, entry: Entry) => {
+const recoveryCodeUsed = async (client: Db, entry: Entry) => {
   if (!entry.targetId) return;
 
-  await securityAlert(client, orgId, {
+  await securityAlert(client, {
     key: `recovery:${entry.targetId}`,
     title: 'A recovery code was used to sign in to your account',
     body: `From ${describeDevice(entry.userAgent)}${entry.ip ? ` (${entry.ip})` : ''}. If it wasn't you, change your password and renew your recovery codes.`,
@@ -160,7 +177,7 @@ const recoveryCodeUsed = async (client: Db, orgId: string, entry: Entry) => {
 };
 
 /** Rules that tell the member concerned, or count before they tell anyone. */
-const MEMBER_RULES: Record<string, (client: Db, orgId: string, entry: Entry) => Promise<void>> = {
+const MEMBER_RULES: Record<string, (client: Db, entry: Entry) => Promise<void>> = {
   'auth.recovery_code_used': recoveryCodeUsed,
   'auth.sign_in_failed': failedSignIns,
   'auth.signed_in': newDevice,
@@ -168,7 +185,8 @@ const MEMBER_RULES: Record<string, (client: Db, orgId: string, entry: Entry) => 
 
 const WATCHED = new Set([...Object.keys(OWNER_RULES), ...Object.keys(MEMBER_RULES)]);
 
-type AlertActor = { orgId: string; actorType: string; actorId?: string | null };
+/** The actor columns the entries were recorded with (a member acting through a plugin is the member). */
+type AlertActor = ReturnType<typeof actorOf>;
 
 /**
  * Turns audit entries into alerts: the owners hear about risky changes
@@ -198,13 +216,13 @@ const alertsFor = async (client: Db, actor: AlertActor, entries: Entry[]) => {
   await inOrder(entries, async (entry) => {
     const memberRule = MEMBER_RULES[entry.action];
 
-    if (memberRule) return memberRule(client, actor.orgId, entry);
+    if (memberRule) return memberRule(client, entry);
 
     const alert = OWNER_RULES[entry.action]?.(entry.targetLabel ?? entry.targetId ?? '', entry);
 
     if (!alert) return;
 
-    await securityAlert(client, actor.orgId, {
+    await securityAlert(client, {
       key: `${entry.action}:${entry.targetId ?? ''}`,
       title: alert.title,
       body: alert.body(await who()),

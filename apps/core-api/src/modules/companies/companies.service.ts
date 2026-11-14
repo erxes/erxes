@@ -1,8 +1,7 @@
 import type { Db } from '@erxes/core-db';
 import type { CompanyInput } from '@erxes/core-contract';
-import { companies, newId, savepoint } from '@erxes/core-db';
+import { caller, companies, newId, savepoint } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
-import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import {
   normalizeEmail,
@@ -53,11 +52,7 @@ const scalarFields = (input: CompanyInput) => {
 
 const nameRequired = () => new HttpError(400, 'INVALID_INPUT', 'A company needs a name');
 
-export const createCompany = async (
-  client: Db,
-  actor: Actor,
-  input: CompanyInput & { primaryName: string },
-) => {
+export const createCompany = async (client: Db, input: CompanyInput & { primaryName: string }) => {
   await assertOwner(client, input.ownerId);
 
   const none = { primary: null, list: [] };
@@ -72,7 +67,7 @@ export const createCompany = async (
 
   const customFields = await applyCustomFields(client, 'company', {}, input.customFields);
 
-  const lead = await planLeadOnCreate(client, userCaller(actor), {
+  const lead = await planLeadOnCreate(client, {
     ...input,
     state: input.state ?? 'customer',
   });
@@ -92,15 +87,15 @@ export const createCompany = async (
             primaryPhone: phone.primary,
             phones: phone.list,
             ...lead.set,
-            createdBy: actor.userId,
+            createdBy: caller('user').userId,
           })
           .returning({ id: companies.id }),
       );
 
       await saveCustomFields(tx, 'company', created, customFields, Object.keys(customFields));
-      await recordLeadSteps(tx, userCaller(actor), 'company', [{ id: created, steps: lead.steps }]);
+      await recordLeadSteps(tx, 'company', [{ id: created, steps: lead.steps }]);
       await setRecordTags(tx, 'company', created, tagIds);
-      await contactCreated(tx, actor, 'company', await findCompany(tx, created));
+      await contactCreated(tx, 'company', await findCompany(tx, created));
 
       return created;
     });
@@ -156,7 +151,7 @@ const contactColumns = (current: CompanyRow, input: CompanyInput) => {
   return changes;
 };
 
-export const updateCompany = async (client: Db, actor: Actor, id: string, input: CompanyInput) => {
+export const updateCompany = async (client: Db, id: string, input: CompanyInput) => {
   await lockRows(client, 'core_companies', [id]);
 
   const current = await findCompany(client, id);
@@ -173,7 +168,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
       ? undefined
       : await applyCustomFields(client, 'company', current.customFields, input.customFields);
 
-  const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
+  const lead = await planLeadOnUpdate(client, current, input);
 
   try {
     await savepoint(async (tx) => {
@@ -187,7 +182,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
         throw notFound('Company');
       }
 
-      await recordLeadSteps(tx, userCaller(actor), 'company', [{ id, steps: lead.steps }]);
+      await recordLeadSteps(tx, 'company', [{ id, steps: lead.steps }]);
 
       if (customFields) {
         const keys = Object.keys(input.customFields ?? {});
@@ -199,7 +194,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
         await setRecordTags(tx, 'company', id, tagIds);
       }
 
-      await contactUpdated(tx, actor, 'company', current, await findCompany(tx, id));
+      await contactUpdated(tx, 'company', current, await findCompany(tx, id));
     });
 
     return await findCompany(client, id);
@@ -210,21 +205,16 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
 
 export const removeCompanies = async (
   client: Db,
-  actor: Actor,
   ids: string[],
   options: { undoingImport?: boolean } = {},
 ) => {
-  // Undoing an import removes only what it created (its own permission is checked there).
-  if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
-
   // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
-  if (!options.undoingImport)
-    await guardDeletions(client, userCaller(actor), ids.length, 'companies', actor.role);
-  await moveToTrash(client, userCaller(actor), 'company', ids);
+  if (!options.undoingImport) await guardDeletions(client, ids.length, 'companies');
+  await moveToTrash(client, 'company', ids);
 
   const rows = await client.delete(companies).where(inArray(companies.id, ids)).returning();
 
-  await contactsRemoved(client, actor, 'company', rows);
+  await contactsRemoved(client, 'company', rows);
 
   return { removed: rows.length };
 };
@@ -240,7 +230,6 @@ const tagsByCompany = async (client: Db, ids: string[]) => {
 
 export const tagCompanies = async (
   client: Db,
-  actor: Actor,
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
   const add = await checkTagIds(client, 'company', input.add);
@@ -252,7 +241,7 @@ export const tagCompanies = async (
     remove: unique(input.remove),
   });
 
-  await contactsTagged(client, actor, 'company', before, await tagsByCompany(client, input.ids));
+  await contactsTagged(client, 'company', before, await tagsByCompany(client, input.ids));
 
   return { updated: count };
 };

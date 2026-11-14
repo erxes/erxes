@@ -44,7 +44,7 @@ export const LEAD_ACTIONS: CoreAction[] = [
 
       const reason = text(ctx.input.reason);
 
-      await updateCustomer(ctx.tx, ctx.actor, id, {
+      await updateCustomer(ctx.tx, id, {
         leadStageId: stage.id,
         ...(reason ? { disqualifyReason: reason } : {}),
       });
@@ -59,7 +59,7 @@ export const LEAD_ACTIONS: CoreAction[] = [
     subject: 'customer',
     fields: [],
     run: async (ctx) => {
-      await updateCustomer(ctx.tx, ctx.actor, needSubject(ctx, 'customer'), { state: 'customer' });
+      await updateCustomer(ctx.tx, needSubject(ctx, 'customer'), { state: 'customer' });
 
       return { converted: true };
     },
@@ -96,7 +96,7 @@ export const LEAD_ACTIONS: CoreAction[] = [
           state: sql`jsonb_set(${automations.state}, '{turns}', ${JSON.stringify({ ...turns, [ctx.step.id]: position })}::jsonb)`,
         })
         .where(eq(automations.id, ctx.automation.id));
-      await updateCustomer(ctx.tx, ctx.actor, id, { ownerId });
+      await updateCustomer(ctx.tx, id, { ownerId });
 
       return { ownerId };
     },

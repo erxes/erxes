@@ -120,20 +120,16 @@ describe('QPay gateways', () => {
 
       await expect(
         withOrg(orgId, (tx) =>
-          addGateway(
-            tx,
-            { userId: 'x', orgId, role: 'owner', permissions: ['*'] },
-            {
-              name: 'QPay',
-              config: {
-                kind: 'qpay',
-                clientId: 'bad',
-                clientSecret: 'bad',
-                invoiceCode: 'X',
-                sandbox: true,
-              },
+          addGateway(tx, {
+            name: 'QPay',
+            config: {
+              kind: 'qpay',
+              clientId: 'bad',
+              clientSecret: 'bad',
+              invoiceCode: 'X',
+              sandbox: true,
             },
-          ),
+          }),
         ),
       ).rejects.toMatchObject({ code: 'GATEWAY_REFUSED' });
     } finally {

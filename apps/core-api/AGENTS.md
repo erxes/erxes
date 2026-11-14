@@ -10,17 +10,24 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
 
 ## Rules
 
-- Handlers are built from `src/orpc.ts`: `authed` for members (`context.actor`), `plugin` for plugin
-  tokens (`context.plugin`), `anyone` for both (`context.caller`), `customer` for signed-in
-  customers, `pub` for public. The first three run the handler inside `withOrg` for the caller's
-  organisation; `customer` services and the `*Unscoped` builders open their own.
+- Services take their input and nothing about who calls. `authenticate` (`src/http/auth.ts`) puts
+  the `Caller` (a member, plugin, customer or `system`) and the organisation in the request's scope;
+  a service that needs it calls `caller()` or `caller('user')` from `@erxes/core-db`, as it calls
+  `db()`. Core acting on its own inside someone's request (a notice to the member, an alert to the
+  owners) runs that part in `runAs(system('why'), fn)`; a job acting for a member (an import, an
+  automation) runs in `runAs(member, fn)`, with the member from `memberOf`.
+- Handlers are built from `src/orpc.ts`: `scoped` runs the handler inside `withOrg` for the
+  caller's organisation, `unscoped` opens no transaction (public and customer procedures, and those
+  that call out; their services open a short `withOrg(requestOrgId(), ...)`).
 - Every procedure has a policy in `ACCESS`: `PUBLIC`, `MEMBER` (any member), `needs('<permission>')`
   (the member's role holds it), `CUSTOMER`, or `{ plugin: '<scope>' }` (`manifest` for the plugin's
   token without an organisation, `installed` for any token of an organisation that has the plugin).
-  A procedure without an entry doesn't compile.
+  A procedure without an entry doesn't compile. That is the procedure's permission check: a service
+  checks only a rule that depends on the record (an author's own note, a shared view), in a named
+  helper built on `can()` or `callerCan()` (`erxes/no-service-permission`).
 - No network call inside a transaction: a slow remote would hold it and its row locks.
   `postOutbound` (`src/lib/outbound.ts`) throws inside a tenant scope. A member procedure that
-  calls out uses `authedUnscoped`, reads in a short `withOrg` and calls out after it (see
+  calls out is `unscoped`, reads in a short `withOrg` and calls out after it (see
   `testStream`); a job reads, calls out, then writes in a second scope (`streamDelivery.ts`).
 - A request or job is one transaction, its `withOrg` or `withSystem` scope, so services never open
   another (lint bans `.transaction`). When you catch an error and go on (a unique violation you
@@ -31,9 +38,9 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   fails the filter. A `withSystem` job that needs one organisation's rows runs that part in
   `withOrg(orgId, ...)`, which narrows the system scope until it returns. Only inserts under
   `withSystem` (setup, plugin installs, audit, jobs, notifications) name `orgId`.
-- A write and its audit entry share that transaction: `audited(...)` in the router, or
-  `recordAudit(tx, ...)` in the service. Core events go out in it too, with
-  `publishCoreEvents(tx, ...)`.
+- A write and its audit entry share that transaction: `audited(run, entry)` in the router, or
+  `recordAudit(tx, entry)` in the service. Core events go out in it too, with
+  `publishCoreEvents(tx, ...)`. Both record the scope's caller.
 - Services return rows, Dates and all. oRPC runs every answer through the output schema, which
   drops unpicked columns and encodes dates with `isoDate`, so there is no hand mapper and no
   `.toISOString()` for a response. A service adds only what the row lacks

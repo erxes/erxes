@@ -2,6 +2,7 @@ import type { TIMELINE_KINDS } from '@erxes/core-db/enums';
 import type { CursorQuery } from '@erxes/core-contract';
 import {
   activities,
+  caller,
   customerCompanies,
   type Db,
   pluginInstallations,
@@ -9,7 +10,6 @@ import {
   users,
 } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, ne, notLike, or, type SQL, sql } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { allOf, anyOf } from '~/lib/conditions';
 import { unique } from '~/lib/contacts';
@@ -98,13 +98,8 @@ const membersOf = async (client: Db, memberIds: string[]) => {
   return new Map(members.map((member) => [member.id, member]));
 };
 
-export const listActivities = async (client: Db, actor: Actor, query: TimelineQuery) => {
-  await assertTimelineAccess(
-    client,
-    { actor, orgId: actor.orgId },
-    query.targetType,
-    query.targetId,
-  );
+export const listActivities = async (client: Db, query: TimelineQuery) => {
+  await assertTimelineAccess(client, query.targetType, query.targetId);
 
   const page = await keysetPage(
     client,
@@ -149,7 +144,9 @@ export const listActivities = async (client: Db, actor: Actor, query: TimelineQu
 };
 
 /** Adds or takes back the member's reaction (row locked: two at once both count). */
-export const reactToActivity = async (client: Db, actor: Actor, id: string, emoji: string) => {
+export const reactToActivity = async (client: Db, id: string, emoji: string) => {
+  const { userId } = caller('user');
+
   const [row] = await client
     .select()
     .from(activities)
@@ -159,16 +156,16 @@ export const reactToActivity = async (client: Db, actor: Actor, id: string, emoj
 
   if (!row) throw notFound('Entry');
 
-  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
+  await assertTimelineAccess(client, row.targetType, row.targetId);
 
   const reactions = { ...reactionsOf(row.data) };
   const people = new Set(reactions[emoji] ?? []);
 
-  if (people.has(actor.userId)) people.delete(actor.userId);
+  if (people.has(userId)) people.delete(userId);
   else {
     if (!reactions[emoji] && Object.keys(reactions).length >= 20)
       throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
-    people.add(actor.userId);
+    people.add(userId);
   }
 
   if (people.size) reactions[emoji] = [...people];

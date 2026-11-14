@@ -1,8 +1,7 @@
 import { FIELD_TYPE_FAMILIES } from '@erxes/core-contract';
-import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
+import { caller, type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import type { Actor, Caller } from '~/http/auth';
 import { forbidden, HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
@@ -16,7 +15,6 @@ import {
   inUse,
   nextOrder,
   optionCounts,
-  requireFieldManager,
   taken,
   toFieldDto,
   usageOf,
@@ -82,11 +80,10 @@ const fieldDto = async (client: Db, row: FieldRow) =>
 
 export const listFields = async (
   client: Db,
-  caller: Caller,
   input: { contentType: FieldContentType; groupId?: string; archived?: boolean },
 ) => {
   // Plugins read product fields (with products:read) to show product values; contacts' fields stay members'.
-  if (caller.actorType === 'plugin' && input.contentType !== 'product') {
+  if (caller().type === 'plugin' && input.contentType !== 'product') {
     throw forbidden('FORBIDDEN', 'Plugins read product fields only');
   }
 
@@ -135,7 +132,6 @@ export const fieldUsage = async (client: Db, input: { ids?: string[]; groupId?: 
 
 export const createField = async (
   client: Db,
-  actor: Actor,
   input: {
     contentType: FieldContentType;
     label: string;
@@ -149,7 +145,6 @@ export const createField = async (
     isVisible?: boolean;
   },
 ) => {
-  requireFieldManager(actor);
   await checkGroup(client, input.contentType, input.groupId);
 
   const order = await nextOrder(client, fields, input.contentType);
@@ -218,13 +213,13 @@ const typeChange = async (client: Db, field: FieldRow, input: FieldChanges) => {
   return { type, options, validation: TEXT_TYPES.includes(type) ? validation : null };
 };
 
-export const updateField = async (client: Db, actor: Actor, id: string, input: FieldChanges) => {
-  requireFieldManager(actor);
+export const updateField = async (client: Db, id: string, input: FieldChanges) => {
   // Type changes wait for values being written against this field, and the other way round.
   await lockRows(client, 'core_fields', [id]);
 
   const field = await findField(client, id);
   const typed = await typeChange(client, field, input);
+  const { code, description, icon, ...rest } = input;
 
   if (input.groupId !== undefined && input.groupId !== field.groupId) {
     await checkGroup(client, field.contentType, input.groupId);
@@ -235,13 +230,10 @@ export const updateField = async (client: Db, actor: Actor, id: string, input: F
       await client
         .update(fields)
         .set({
-          ...(input.label !== undefined ? { label: input.label } : {}),
-          ...(input.order !== undefined ? { order: input.order } : {}),
-          ...(input.groupId !== undefined ? { groupId: input.groupId } : {}),
-          ...(input.code !== undefined ? { code: input.code || null } : {}),
-          ...(input.description !== undefined ? { description: input.description || null } : {}),
-          ...(input.icon !== undefined ? { icon: input.icon || null } : {}),
-          ...(input.isVisible !== undefined ? { isVisible: input.isVisible } : {}),
+          ...rest,
+          code: code === '' ? null : code,
+          description: description === '' ? null : description,
+          icon: icon === '' ? null : icon,
           ...typed,
           updatedAt: sql`now()`,
         })
@@ -255,18 +247,10 @@ export const updateField = async (client: Db, actor: Actor, id: string, input: F
   }
 };
 
-export const reorderFields = (
-  client: Db,
-  actor: Actor,
-  orders: { id: string; order: number }[],
-) => {
-  requireFieldManager(actor);
+export const reorderFields = (client: Db, orders: { id: string; order: number }[]) =>
+  setOrders(client, fields, orders);
 
-  return setOrders(client, fields, orders);
-};
-
-export const archiveFields = async (client: Db, actor: Actor, ids: string[]) => {
-  requireFieldManager(actor);
+export const archiveFields = async (client: Db, ids: string[]) => {
   await lockRows(client, 'core_fields', ids);
 
   await client
@@ -277,8 +261,7 @@ export const archiveFields = async (client: Db, actor: Actor, ids: string[]) => 
   return { ok: true as const };
 };
 
-export const restoreField = async (client: Db, actor: Actor, id: string) => {
-  requireFieldManager(actor);
+export const restoreField = async (client: Db, id: string) => {
   await findField(client, id);
 
   const row = oneRow(
@@ -293,9 +276,7 @@ export const restoreField = async (client: Db, actor: Actor, id: string) => {
 };
 
 /** Deletes fields no record holds a value of. */
-export const removeUnusedFields = async (client: Db, actor: Actor, ids: string[]) => {
-  requireFieldManager(actor);
-
+export const removeUnusedFields = async (client: Db, ids: string[]) => {
   await lockRows(client, 'core_fields', ids);
 
   const rows = await client.select().from(fields).where(inArray(fields.id, ids));
@@ -314,9 +295,7 @@ export const removeUnusedFields = async (client: Db, actor: Actor, ids: string[]
 };
 
 /** Deletes the field and its values on every record. */
-export const removeField = async (client: Db, actor: Actor, id: string) => {
-  requireFieldManager(actor);
-
+export const removeField = async (client: Db, id: string) => {
   await lockRows(client, 'core_fields', [id]);
 
   await findField(client, id);

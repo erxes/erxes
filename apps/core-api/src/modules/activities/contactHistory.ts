@@ -1,6 +1,5 @@
-import { type ContentType, companies, customers, type Db } from '@erxes/core-db';
+import { caller, type ContentType, companies, customers, type Db } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
-import { type Actor, userCaller, type Caller } from '~/http/auth';
 import { currentImport } from '~/lib/causation';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -26,21 +25,14 @@ import {
 const NOUN = { customer: 'Customer', company: 'Company' } as const;
 const PLURAL = { customer: 'Customers', company: 'Companies' } as const;
 
-export const contactCreated = async (
-  tx: Db,
-  actor: Actor | Caller,
-  type: ContentType,
-  row: ContactRow,
-) => {
-  const caller = 'actorType' in actor ? actor : userCaller(actor);
-
-  await recordActivity(tx, caller, { targetType: type, targetId: row.id, type: `${type}.created` });
-  await publishCoreEvents(tx, caller, {
+export const contactCreated = async (tx: Db, type: ContentType, row: ContactRow) => {
+  await recordActivity(tx, { targetType: type, targetId: row.id, type: `${type}.created` });
+  await publishCoreEvents(tx, {
     type: `core.${type}.created`,
     subject: { type, id: row.id },
     payload: { label: contactLabel(type, row), ownerId: row.ownerId },
   });
-  await recordAudit(tx, caller, {
+  await recordAudit(tx, {
     action: `${type}.created`,
     targetType: type,
     targetId: row.id,
@@ -48,14 +40,12 @@ export const contactCreated = async (
   });
 
   // Created by a plugin: no owner was chosen, nobody to tell.
-  if (!('actorType' in actor))
-    await notify(tx, userCaller(actor), newOwnerNotice(actor, type, row, null));
+  if (caller().type === 'user') await notify(tx, newOwnerNotice(type, row, null));
 };
 
 /** Records changed at once (bulk lead conversion): every timeline entry, event, audit entry and notification in one write each. */
 export const contactsUpdated = async (
   tx: Db,
-  actor: Actor | Caller,
   type: ContentType,
   versions: { before: ContactRow; after: ContactRow }[],
 ) => {
@@ -65,11 +55,8 @@ export const contactsUpdated = async (
     return changes ? [{ before, after, changes }] : [];
   });
 
-  const caller = 'actorType' in actor ? actor : userCaller(actor);
-
   await recordActivity(
     tx,
-    caller,
     changed.map(({ after, changes }) => ({
       targetType: type,
       targetId: after.id,
@@ -79,7 +66,6 @@ export const contactsUpdated = async (
   );
   await publishCoreEvents(
     tx,
-    caller,
     changed.map(({ after, changes }) => ({
       type: `core.${type}.updated`,
       subject: { type, id: after.id },
@@ -88,7 +74,6 @@ export const contactsUpdated = async (
   );
   await recordAudit(
     tx,
-    caller,
     changed.map(({ after, changes }) => ({
       action: `${type}.updated`,
       targetType: type,
@@ -98,17 +83,16 @@ export const contactsUpdated = async (
     })),
   );
 
-  // Changed by the customer (core on their behalf): the owner sees it on the timeline.
-  if ('actorType' in actor) return;
+  // Changed by a plugin or the customer: the owner sees it on the timeline.
+  if (caller().type !== 'user') return;
 
   await notify(
     tx,
-    userCaller(actor),
     changed.flatMap(({ before, after, changes }) => [
-      ...newOwnerNotice(actor, type, after, before.ownerId),
+      ...newOwnerNotice(type, after, before.ownerId),
       // The owner kept their record: tell them what changed (a new owner is told above).
       ...(after.ownerId && after.ownerId === before.ownerId && !currentImport()?.quiet
-        ? ownerNotice(actor, type, [after.ownerId], {
+        ? ownerNotice(type, [after.ownerId], {
             verb: 'updated',
             title: `${NOUN[type]} updated`,
             body: contactLabel(type, after),
@@ -121,20 +105,10 @@ export const contactsUpdated = async (
   );
 };
 
-export const contactUpdated = (
-  tx: Db,
-  actor: Actor | Caller,
-  type: ContentType,
-  before: ContactRow,
-  after: ContactRow,
-) => contactsUpdated(tx, actor, type, [{ before, after }]);
+export const contactUpdated = (tx: Db, type: ContentType, before: ContactRow, after: ContactRow) =>
+  contactsUpdated(tx, type, [{ before, after }]);
 
-export const contactsRemoved = async (
-  tx: Db,
-  actor: Actor,
-  type: ContentType,
-  rows: ContactRecord[],
-) => {
+export const contactsRemoved = async (tx: Db, type: ContentType, rows: ContactRecord[]) => {
   await removeActivities(
     tx,
     type,
@@ -142,7 +116,6 @@ export const contactsRemoved = async (
   );
   await publishCoreEvents(
     tx,
-    userCaller(actor),
     rows.map((row) => ({
       type: `core.${type}.deleted`,
       subject: { type, id: row.id },
@@ -152,9 +125,8 @@ export const contactsRemoved = async (
 
   await notify(
     tx,
-    userCaller(actor),
     rows.flatMap((row) =>
-      ownerNotice(actor, type, [row.ownerId], {
+      ownerNotice(type, [row.ownerId], {
         verb: 'deleted',
         title: `${NOUN[type]} deleted`,
         body: contactLabel(type, row),
@@ -165,7 +137,6 @@ export const contactsRemoved = async (
 
   await recordAudit(
     tx,
-    userCaller(actor),
     rows.map((row) => ({
       action: `${type}.deleted`,
       targetType: type,
@@ -177,22 +148,20 @@ export const contactsRemoved = async (
 
 export const contactsMerged = async (
   tx: Db,
-  actor: Actor,
   type: ContentType,
   keep: ContactRow,
   others: ContactRecord[],
 ) => {
-  const caller = userCaller(actor);
   const mergedIds = others.map((other) => other.id);
   const mergedNames = others.map((other) => contactLabel(type, other));
 
   await moveActivities(tx, type, mergedIds, keep.id);
-  await publishCoreEvents(tx, caller, {
+  await publishCoreEvents(tx, {
     type: `core.${type}.merged`,
     subject: { type, id: keep.id },
     payload: { mergedIds },
   });
-  await recordActivity(tx, caller, {
+  await recordActivity(tx, {
     targetType: type,
     targetId: keep.id,
     type: `${type}.merged`,
@@ -200,8 +169,7 @@ export const contactsMerged = async (
   });
   await notify(
     tx,
-    caller,
-    ownerNotice(actor, type, [keep.ownerId, ...others.map((other) => other.ownerId)], {
+    ownerNotice(type, [keep.ownerId, ...others.map((other) => other.ownerId)], {
       verb: 'merged',
       title: `${PLURAL[type]} merged`,
       body: `${mergedNames.join(', ')} → ${contactLabel(type, keep)}`,
@@ -210,7 +178,7 @@ export const contactsMerged = async (
       data: { mergedIds },
     }),
   );
-  await recordAudit(tx, caller, {
+  await recordAudit(tx, {
     action: `${type}.merged`,
     targetType: type,
     targetId: keep.id,
@@ -222,7 +190,6 @@ export const contactsMerged = async (
 /** Tags added or removed in bulk: one timeline entry per record that changed. */
 export const contactsTagged = async (
   tx: Db,
-  actor: Actor,
   type: ContentType,
   before: Map<string, string[]>,
   after: Map<string, string[]>,
@@ -238,10 +205,9 @@ export const contactsTagged = async (
       : [];
   });
 
-  await recordActivity(tx, userCaller(actor), entries);
+  await recordActivity(tx, entries);
   await publishCoreEvents(
     tx,
-    userCaller(actor),
     entries.map((entry) => ({
       type: `core.${type}.tagged`,
       subject: { type, id: entry.targetId },
@@ -253,7 +219,6 @@ export const contactsTagged = async (
 /** Customer–company links, on both timelines. */
 export const contactsLinked = async (
   tx: Db,
-  actor: Actor,
   links: { customerId: string; companyId: string }[],
   linked: boolean,
 ) => {
@@ -293,7 +258,6 @@ export const contactsLinked = async (
 
   await publishCoreEvents(
     tx,
-    userCaller(actor),
     links.map(({ customerId, companyId }) => ({
       type: `core.customer.company_${verb}`,
       subject: { type: 'customer', id: customerId },
@@ -303,7 +267,6 @@ export const contactsLinked = async (
 
   await recordActivity(
     tx,
-    userCaller(actor),
     links.flatMap(({ customerId, companyId }) => [
       {
         targetType: 'customer',

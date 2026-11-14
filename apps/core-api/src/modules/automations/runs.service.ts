@@ -3,7 +3,6 @@ import { automationRuns, automationRunSteps, type Db } from '@erxes/core-db';
 import { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
 import { and, asc, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -97,12 +96,7 @@ export const cancelAutomationRun = async (client: Db, runId: string) => {
 };
 
 /** A member starts an active automation now, on the given records or its audience. */
-export const startAutomation = async (
-  client: Db,
-  actor: Actor,
-  id: string,
-  subjects?: string[],
-) => {
+export const startAutomation = async (client: Db, id: string, subjects?: string[]) => {
   const row = await findAutomation(client, id);
 
   const definition =
@@ -114,7 +108,7 @@ export const startAutomation = async (
 
   const result = await startNow(client, row, definition, subjects);
 
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'automation.started',
     targetType: 'automation',
     targetId: id,

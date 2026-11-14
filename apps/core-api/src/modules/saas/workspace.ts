@@ -94,7 +94,7 @@ export const applyWorkspace = async (orgId: string, input: SaasWorkspace) => {
 /** What erxes.io may read back: the workspace and its usage. */
 export const workspaceUsage = (orgId: string) =>
   withOrg(orgId, async (tx) => {
-    const [org] = await tx.select().from(organizations).where(eq(organizations.id, orgId)).limit(1);
+    const [org] = await tx.select().from(organizations).limit(1);
 
     if (!org) throw new HttpError(404, 'NOT_FOUND', 'No such workspace');
 

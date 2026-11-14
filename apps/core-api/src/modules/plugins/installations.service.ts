@@ -1,7 +1,6 @@
-import { type Db, db, pluginInstallations, plugins } from '@erxes/core-db';
+import { caller, type Db, db, pluginInstallations, plugins, requestOrgId } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { type Actor, type PluginCaller, userCaller } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
@@ -66,7 +65,11 @@ const pluginOrThrow = async (client: Db, name: string) => {
   return row;
 };
 
-const installPluginTx = async (actor: Actor, name: string) => {
+/** Installs a plugin, or grants the scopes a newer version asks for. */
+export const installPlugin = async (name: string) => {
+  await assertPluginInPlan(requestOrgId(), name);
+
+  const { userId } = caller('user');
   const tx = db();
 
   const row = await pluginOrThrow(tx, name);
@@ -83,7 +86,7 @@ const installPluginTx = async (actor: Actor, name: string) => {
     .values({
       plugin: name,
       grantedScopes: scopes,
-      installedBy: actor.userId,
+      installedBy: userId,
     })
     .onConflictDoUpdate({
       target: [pluginInstallations.orgId, pluginInstallations.plugin],
@@ -91,14 +94,14 @@ const installPluginTx = async (actor: Actor, name: string) => {
         status: 'active',
         statusReason: null,
         grantedScopes: scopes,
-        installedBy: actor.userId,
+        installedBy: userId,
         updatedAt: sql`now()`,
         installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
       },
     })
     .returning();
 
-  await recordAudit(tx, userCaller(actor), {
+  await recordAudit(tx, {
     action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',
     targetType: 'plugin',
     targetId: name,
@@ -109,15 +112,8 @@ const installPluginTx = async (actor: Actor, name: string) => {
   return toPluginDto(row, installation);
 };
 
-/** Installs a plugin, or grants the scopes a newer version asks for. */
-export const installPlugin = async (actor: Actor, name: string) => {
-  await assertPluginInPlan(actor.orgId, name);
-
-  return installPluginTx(actor, name);
-};
-
 /** Uninstalls: tokens stop working on the next request. Data stays in the plugin. */
-export const uninstallPlugin = async (actor: Actor, name: string) => {
+export const uninstallPlugin = async (name: string) => {
   const tx = db();
 
   const row = await pluginOrThrow(tx, name);
@@ -130,7 +126,7 @@ export const uninstallPlugin = async (actor: Actor, name: string) => {
 
   if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
 
-  await recordAudit(tx, userCaller(actor), {
+  await recordAudit(tx, {
     action: 'plugin.uninstalled',
     targetType: 'plugin',
     targetId: name,
@@ -145,7 +141,10 @@ export const uninstallPlugin = async (actor: Actor, name: string) => {
  * core's public keys (JWKS), never sees core's session cookie, and can't use
  * it anywhere else (`aud` is the plugin).
  */
-export const pluginSession = async (actor: Actor, name: string) => {
+export const pluginSession = async (name: string) => {
+  const me = caller('user');
+  const orgId = requestOrgId();
+
   const [row] = await db()
     .select({ plugin: plugins, installation: pluginInstallations })
     .from(plugins)
@@ -163,7 +162,7 @@ export const pluginSession = async (actor: Actor, name: string) => {
     throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
 
   // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
-  const plan = await entitlementsOf(actor.orgId);
+  const plan = await entitlementsOf(orgId);
   const access = accessOf(plan, name);
 
   if (access === 'off') throw new HttpError(402, 'NOT_IN_PLAN', `${name} is not in your plan`);
@@ -171,14 +170,14 @@ export const pluginSession = async (actor: Actor, name: string) => {
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
   const permissions = (row.plugin.manifest?.permissions ?? [])
     .map((permission) => permission.action)
-    .filter((action) => can(actor, action));
+    .filter((action) => can(me, action));
 
   const token = await signJwt(
-    { org: actor.orgId, role: actor.role, permissions, tier: tierOf(plan, name), access },
+    { org: orgId, role: me.role, permissions, tier: tierOf(plan, name), access },
     {
       typ: PLUGIN_SESSION_TYP,
       audience: name,
-      subject: actor.userId,
+      subject: me.userId,
       expiresInSeconds: PLUGIN_SESSION_TTL_SECONDS,
     },
   );
@@ -191,13 +190,10 @@ export const pluginSession = async (actor: Actor, name: string) => {
 };
 
 /** Live signals to the plugin's open UIs (sent on commit, like core's). */
-export const pluginSignal = async (
-  caller: PluginCaller,
-  input: { topics: string[]; userIds?: string[] },
-) => {
+export const pluginSignal = async (input: { topics: string[]; userIds?: string[] }) => {
   if (input.topics.length)
     await db().execute(
-      sql`select core_live_signal(${caller.orgId}, ${caller.plugin}, topic, ${input.userIds?.length ? textArray(input.userIds) : sql`null::text[]`}) from unnest(${textArray(input.topics)}) as topic`,
+      sql`select core_live_signal(${requestOrgId()}, ${caller('plugin').plugin}, topic, ${input.userIds?.length ? textArray(input.userIds) : sql`null::text[]`}) from unnest(${textArray(input.topics)}) as topic`,
     );
 
   return { ok: true as const };

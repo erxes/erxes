@@ -1,6 +1,7 @@
 import {
-  type ActorType,
+  type Caller,
   db,
+  enterScope,
   pluginInstallations,
   plugins,
   roles,
@@ -13,101 +14,20 @@ import { decodeProtectedHeader, jwtVerify, SignJWT } from 'jose';
 import { z } from 'zod';
 import { config } from '~/config';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
-import { can, publicPaths } from '~/http/access';
+import { publicPaths } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { verifyJwt } from '~/lib/signing';
 import { appServes } from '~/modules/customerAuth/customerApps';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
 
-/** A role key: `owner`, `admin`, `member` or a custom `r_…`. */
-export type Role = string;
-
-/** Who is calling, resolved from the access token on every request. */
-export interface Actor {
-  userId: string;
-  orgId: string;
-  role: Role;
-  /** The role's permission actions (`*`: every grantable one), loaded with the member. */
-  permissions: readonly string[];
-}
-
-export const requirePermission = (
-  actor: Actor,
-  action: string,
-  message = "Your role doesn't allow this",
-) => {
-  if (!can(actor, action)) {
-    throw new HttpError(403, 'NOT_ALLOWED', message, { permission: action });
-  }
-};
-
-/** A plugin calling core with a token for one organisation that installed it. */
-export interface PluginCaller {
-  plugin: string;
-  orgId: string;
-  /** Scopes the organisation granted (and the token carries). */
-  scopes: string[];
-}
-
-/** A plugin calling with its deployment-wide token (no organisation): manifest only. */
-export interface PluginService {
-  plugin: string;
-}
-
-/**
- * Whoever is calling, as recorded in audit, activity and notifications:
- * a team member, a plugin, or core itself (automations, payments). `source` is
- * `core` for members and core, else the plugin.
- */
-export type Caller = { orgId: string; source: string } & (
-  | { actorType: Exclude<ActorType, 'system'>; actorId: string }
-  | { actorType: 'system'; actorId: null }
-);
-
 declare global {
   namespace Express {
     interface Request {
-      actor?: Actor;
-      plugin?: PluginCaller;
-      pluginService?: PluginService;
-      /** The member token's session version. */
+      /** The member token's session version (the live stream ends when it changes). */
       sessionVersion?: number;
-      /** A signed-in customer (`/customer/*` only). */
-      customer?: CustomerCaller;
     }
   }
 }
-
-/** A customer calling `/customer/*` with an access token from a plugin's app. */
-export interface CustomerCaller {
-  orgId: string;
-  customerId: string;
-  sessionId: string;
-  /** The plugin whose app the token was issued to. */
-  clientId: string;
-}
-
-export const userCaller = (actor: Actor): Caller => ({
-  orgId: actor.orgId,
-  actorType: 'user',
-  actorId: actor.userId,
-  source: 'core',
-});
-
-export const pluginCaller = (plugin: Pick<PluginCaller, 'plugin' | 'orgId'>): Caller => ({
-  orgId: plugin.orgId,
-  actorType: 'plugin',
-  actorId: plugin.plugin,
-  source: plugin.plugin,
-});
-
-/** Core acting on its own: no member or plugin caused it. */
-export const systemCaller = (orgId: string): Caller => ({
-  orgId,
-  actorType: 'system',
-  actorId: null,
-  source: 'core',
-});
 
 const AccessClaims = z.object({
   typ: z.literal('core_access'),
@@ -187,13 +107,16 @@ const isCrossSiteWrite = (req: Request) => {
   return Boolean(origin) && origin !== `${req.protocol}://${req.get('host')}`;
 };
 
-/** The member a token names, if still active at the token's session version. */
-const activeMember = async (claims: z.output<typeof AccessClaims>) => {
-  const [user] = await withOrg(claims.org, (tx) =>
+/**
+ * The member a token names, if still active at the token's session version,
+ * with their role's permissions. Role and status are read on every request,
+ * so a disabled member or a role change applies at once.
+ */
+export const memberOf = async (orgId: string, userId: string, sessionVersion?: number) => {
+  const [user] = await withOrg(orgId, (tx) =>
     tx
       .select({
         id: users.id,
-        orgId: users.orgId,
         role: users.role,
         status: users.status,
         sessionVersion: users.sessionVersion,
@@ -201,51 +124,44 @@ const activeMember = async (claims: z.output<typeof AccessClaims>) => {
       })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(eq(users.id, claims.sub))
+      .where(eq(users.id, userId))
       .limit(1),
   );
 
   // Disabled, or the session predates a password change, reset or sign-out everywhere.
-  if (!user || user.status !== 'active' || user.sessionVersion !== claims.sv) return null;
+  if (user?.status !== 'active') return null;
 
-  return { userId: user.id, orgId: user.orgId, role: user.role, permissions: user.permissions };
+  if (sessionVersion !== undefined && user.sessionVersion !== sessionVersion) return null;
+
+  return {
+    type: 'user',
+    userId: user.id,
+    role: user.role,
+    permissions: user.permissions,
+  } satisfies Caller;
 };
 
-/**
- * Requires a valid access token (Bearer header, or the session cookie set at
- * sign-in) whose user is still active in the token's organisation. Role and
- * status are read from the database, so a disabled member or a role change
- * applies on the next request.
- */
-export const authenticate = async (req: Request, _res: Response, next: NextFunction) => {
-  if (PUBLIC_PATHS.has(req.path) || isSignedFilePath(req.path)) {
-    return next();
+interface Resolved {
+  caller: Caller;
+  orgId: string | null;
+}
+
+/** A signed-in customer: their own routes only, from an app that still serves the organisation. */
+const resolveCustomer = async (req: Request, bearer: string): Promise<Resolved> => {
+  const customer = bearer ? await customerOfToken(bearer) : null;
+
+  if (!customer || !(await appServes(customer.clientId, customer.orgId, req.get('origin')))) {
+    throw unauthorized();
   }
 
-  const header = req.headers.authorization ?? '';
-  const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  req.log.setBindings({ orgId: customer.orgId, customerId: customer.customerId });
 
-  // A signed-in customer: their own routes only, and nobody else's token works there.
-  // The token's app must still serve the organisation, and a browser call its origin.
-  if (req.path.startsWith('/customer/')) {
-    const customer = bearer ? await customerOfToken(bearer) : null;
+  const { orgId, ...ids } = customer;
 
-    if (!customer || !(await appServes(customer.clientId, customer.orgId, req.get('origin')))) {
-      throw unauthorized();
-    }
+  return { caller: { type: 'customer', ...ids }, orgId };
+};
 
-    req.customer = customer;
-    req.log.setBindings({ orgId: customer.orgId, customerId: customer.customerId });
-
-    return next();
-  }
-
-  if (bearer && isPluginToken(bearer)) {
-    await authenticatePlugin(req, bearer);
-
-    return next();
-  }
-
+const resolveMember = async (req: Request, bearer: string): Promise<Resolved> => {
   const cookie = bearer ? '' : (readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '');
   const token = bearer || cookie;
 
@@ -256,15 +172,14 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
   }
 
   const claims = await accessClaimsOf(token);
-  const actor = claims && (await activeMember(claims));
+  const member = claims && (await memberOf(claims.org, claims.sub, claims.sv));
 
-  if (!claims || !actor) throw unauthorized();
+  if (!claims || !member) throw unauthorized();
 
-  req.actor = actor;
   req.sessionVersion = claims.sv;
-  req.log.setBindings({ orgId: actor.orgId, actorId: actor.userId });
+  req.log.setBindings({ orgId: claims.org, actorId: member.userId });
 
-  return next();
+  return { caller: member, orgId: claims.org };
 };
 
 const PluginClaims = z.object({
@@ -276,9 +191,10 @@ const PluginClaims = z.object({
 /**
  * A plugin token (`POST /plugins/token`), checked on every request against
  * the registry and the organisation's installation: disabling a plugin or
- * uninstalling it cuts it off at once, and scopes can only shrink.
+ * uninstalling it cuts it off at once, and scopes can only shrink. A token
+ * without an organisation is the plugin's own (its manifest only).
  */
-const authenticatePlugin = async (req: Request, token: string) => {
+const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => {
   const claims = await verifyJwt(token, PluginClaims, {
     typ: PLUGIN_ACCESS_TYP,
     audience: AUDIENCE,
@@ -297,10 +213,9 @@ const authenticatePlugin = async (req: Request, token: string) => {
   const { org } = claims;
 
   if (!org) {
-    req.pluginService = { plugin: claims.sub };
     req.log.setBindings({ actorId: claims.sub });
 
-    return;
+    return { caller: { type: 'plugin', plugin: claims.sub, scopes: [] }, orgId: null };
   }
 
   const [installation] = await withOrg(org, (tx) =>
@@ -318,34 +233,39 @@ const authenticatePlugin = async (req: Request, token: string) => {
 
   const granted = new Set(installation.grantedScopes);
 
-  req.plugin = {
-    plugin: claims.sub,
-    orgId: org,
-    scopes: (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
-  };
   req.log.setBindings({ orgId: org, actorId: claims.sub });
+
+  return {
+    caller: {
+      type: 'plugin',
+      plugin: claims.sub,
+      scopes: (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
+    },
+    orgId: org,
+  };
 };
 
-/** The calling plugin; 403 for team members. */
-export const pluginOf = (req: { plugin?: PluginCaller; actor?: Actor }): PluginCaller => {
-  if (req.plugin) {
-    return req.plugin;
+/**
+ * Requires a valid access token (Bearer header, or the session cookie set at
+ * sign-in) and runs the rest of the request with its caller and organisation
+ * in scope (`caller()`, `scopedOrgId()` from `@erxes/core-db`).
+ */
+export const authenticate = async (req: Request, _res: Response, next: NextFunction) => {
+  if (PUBLIC_PATHS.has(req.path) || isSignedFilePath(req.path)) {
+    return next();
   }
 
-  if (req.actor) {
-    throw new HttpError(403, 'PLUGIN_ONLY', 'Only plugins can do this');
-  }
+  const header = req.headers.authorization ?? '';
+  const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
 
-  throw unauthorized();
-};
+  // Nobody else's token works on the customer routes.
+  const resolved = req.path.startsWith('/customer/')
+    ? await resolveCustomer(req, bearer)
+    : bearer && isPluginToken(bearer)
+      ? await resolvePlugin(req, bearer)
+      : await resolveMember(req, bearer);
 
-/** A team member or a plugin. */
-export const callerOf = (req: { plugin?: PluginCaller; actor?: Actor }): Caller => {
-  if (req.plugin) {
-    return pluginCaller(req.plugin);
-  }
-
-  return userCaller(actorOf(req));
+  enterScope(resolved.caller, resolved.orgId, next);
 };
 
 /** Who a session cookie belongs to, if it is still valid (for sign-out). */
@@ -359,16 +279,4 @@ export const sessionClaims = async (
   const claims = await accessClaimsOf(token);
 
   return claims && { userId: claims.sub, orgId: claims.org, sessionVersion: claims.sv };
-};
-
-export const actorOf = (req: { actor?: Actor; plugin?: PluginCaller }): Actor => {
-  if (req.plugin) {
-    throw new HttpError(403, 'MEMBERS_ONLY', 'Plugins cannot do this');
-  }
-
-  if (!req.actor) {
-    throw unauthorized();
-  }
-
-  return req.actor;
 };

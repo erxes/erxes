@@ -10,32 +10,22 @@ import {
   listActivities,
   reactToActivity,
 } from '~/modules/activities/timeline.service';
-import { authed, plugin } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const activitiesRouter = {
-  list: authed.activities.list.handler(({ input, context }) =>
-    listActivities(db(), context.actor, input),
+  list: scoped.activities.list.handler(({ input }) => listActivities(db(), input)),
+  create: scoped.activities.create.handler(({ input }) => createPluginActivity(db(), input)),
+  addNote: scoped.activities.addNote.handler(({ input }) => addNote(db(), input)),
+  updateNote: scoped.activities.updateNote.handler(({ input: { id, ...changes } }) =>
+    updateNote(db(), id, changes),
   ),
-  create: plugin.activities.create.handler(({ input, context }) =>
-    createPluginActivity(db(), context.plugin, input),
+  removeNote: scoped.activities.removeNote.handler(({ input }) => removeNote(db(), input.id)),
+  react: scoped.activities.react.handler(({ input }) =>
+    reactToActivity(db(), input.id, input.emoji),
   ),
-  addNote: authed.activities.addNote.handler(({ input, context }) =>
-    addNote(db(), context.actor, input),
+  types: scoped.activities.types.handler(() => activityTypes(db())),
+  update: scoped.activities.update.handler(({ input: { id, ...changes } }) =>
+    updatePluginActivity(db(), id, changes),
   ),
-  updateNote: authed.activities.updateNote.handler(({ input: { id, ...changes }, context }) =>
-    updateNote(db(), context.actor, id, changes),
-  ),
-  removeNote: authed.activities.removeNote.handler(({ input, context }) =>
-    removeNote(db(), context.actor, input.id),
-  ),
-  react: authed.activities.react.handler(({ input, context }) =>
-    reactToActivity(db(), context.actor, input.id, input.emoji),
-  ),
-  types: authed.activities.types.handler(() => activityTypes(db())),
-  update: plugin.activities.update.handler(({ input: { id, ...changes }, context }) =>
-    updatePluginActivity(db(), context.plugin, id, changes),
-  ),
-  remove: plugin.activities.remove.handler(({ input, context }) =>
-    removePluginActivity(db(), context.plugin, input.id),
-  ),
+  remove: scoped.activities.remove.handler(({ input }) => removePluginActivity(db(), input.id)),
 };

@@ -1,4 +1,5 @@
 import {
+  caller,
   companies,
   companyTags,
   customers,
@@ -9,16 +10,14 @@ import {
   users,
 } from '@erxes/core-db';
 import { and, eq, inArray, or, sql, type SQL } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { inOrder } from '~/lib/sequence';
 import { createCompany } from '~/modules/companies/companies.service';
 import { CellError, type Column } from './columns';
 import type { ImportRow } from './importState';
 
-/** Lookups an import needs for every row, kept for the whole batch. */
+/** Lookups an import needs for every row, kept for the whole batch (run as the importer). */
 export interface Context {
-  actor: Actor;
   imp: ImportRow;
   isCompany: boolean;
   columns: Map<string, Column>;
@@ -175,12 +174,8 @@ export const tagIds = async (tx: Db, ctx: Context, names: string[], created: Cre
   if (first !== undefined && !ctx.imp.options.createMissing)
     throw new CellError(`Tags: no tag named “${first}”`);
 
-  const rows = missing.map((name) => ({
-    id: newId(),
-    type,
-    name,
-    createdBy: ctx.actor.userId,
-  }));
+  const createdBy = caller('user').userId;
+  const rows = missing.map((name) => ({ id: newId(), type, name, createdBy }));
 
   if (rows.length) await tx.insert(tags).values(rows);
 
@@ -206,7 +201,7 @@ export const companyIds = async (tx: Db, ctx: Context, names: string[], created:
     throw new CellError(`Companies: no company named “${first}”`);
 
   await inOrder(missing, async (name) => {
-    const { id } = await createCompany(tx, ctx.actor, { primaryName: name });
+    const { id } = await createCompany(tx, { primaryName: name });
 
     created.set(`company:${name.toLowerCase()}`, id);
     byKey.set(name.toLowerCase(), id);

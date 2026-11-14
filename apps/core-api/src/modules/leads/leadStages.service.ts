@@ -2,7 +2,6 @@ import type { LeadStageKind } from '@erxes/core-contract';
 import { companies, customers, type Db, leadStages, newId } from '@erxes/core-db';
 import { eq, max, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { setOrders } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -57,8 +56,8 @@ const stageTaken = (error: unknown): never => {
   throw error;
 };
 
-const audit = (tx: Db, actor: Actor, action: string, stage: Pick<StageRow, 'id' | 'name'>) =>
-  recordAudit(tx, userCaller(actor), {
+const audit = (tx: Db, action: string, stage: Pick<StageRow, 'id' | 'name'>) =>
+  recordAudit(tx, {
     action,
     targetType: 'lead_stage',
     targetId: stage.id,
@@ -67,7 +66,6 @@ const audit = (tx: Db, actor: Actor, action: string, stage: Pick<StageRow, 'id' 
 
 export const createLeadStage = async (
   client: Db,
-  actor: Actor,
   input: { name: string; kind?: LeadStageKind; color?: string },
 ) => {
   const [last] = await client.select({ order: max(leadStages.order) }).from(leadStages);
@@ -81,7 +79,7 @@ export const createLeadStage = async (
   };
 
   await client.insert(leadStages).values(stage).catch(stageTaken);
-  await audit(client, actor, 'lead_stage.created', stage);
+  await audit(client, 'lead_stage.created', stage);
 
   return toStageDto(stage);
 };
@@ -99,7 +97,6 @@ const assertOpenStageLeft = (stages: StageRow[], without: (stage: StageRow) => b
 
 export const updateLeadStage = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: { name?: string; kind?: LeadStageKind; color?: string },
 ) => {
@@ -118,7 +115,7 @@ export const updateLeadStage = async (
 
   if (!stage) throw notFound('Lead stage');
 
-  await audit(client, actor, 'lead_stage.updated', stage);
+  await audit(client, 'lead_stage.updated', stage);
 
   return toStageDto(stage, ...(await countsOf(client)));
 };
@@ -167,12 +164,7 @@ const moveEveryone = async (tx: Db, from: string, to: string) => {
 };
 
 /** Deletes a stage; everyone in it (leads, and customers who converted from it) moves to `moveTo`. */
-export const removeLeadStage = async (
-  client: Db,
-  actor: Actor,
-  id: string,
-  moveTo: string | undefined,
-) => {
+export const removeLeadStage = async (client: Db, id: string, moveTo: string | undefined) => {
   const stages = await stagesOf(client);
   const stage = stages.find((item) => item.id === id);
 
@@ -194,7 +186,7 @@ export const removeLeadStage = async (
   }
 
   await client.delete(leadStages).where(eq(leadStages.id, id));
-  await audit(client, actor, 'lead_stage.deleted', stage);
+  await audit(client, 'lead_stage.deleted', stage);
 
   return { moved: count };
 };

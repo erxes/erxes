@@ -155,10 +155,11 @@ export const ENTITLEMENT_STATUSES = ['active', 'past_due', 'canceling'] as const
 export const PLUGIN_ACCESS = ['full', 'warning', 'read_only', 'off'] as const;
 
 /**
- * Who did something: a team member, a plugin (by name, e.g. `hr`) or core
- * itself (`system`: cleanups, imports). Ids only: names are resolved when shown.
+ * Who did something: a team member, a plugin (by name, e.g. `hr`), a signed-in
+ * customer, or core itself (`system`: cleanups, imports). Ids only: names are
+ * resolved when shown.
  */
-export const ACTOR_TYPES = ['user', 'plugin', 'system'] as const;
+export const ACTOR_TYPES = ['user', 'plugin', 'customer', 'system'] as const;
 
 // ─── Platform ───────────────────────────────────────────────────────────────
 

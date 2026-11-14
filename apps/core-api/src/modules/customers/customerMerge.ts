@@ -7,7 +7,6 @@ import {
   type Db,
 } from '@erxes/core-db';
 import { asc, inArray, sql } from 'drizzle-orm';
-import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
@@ -87,9 +86,7 @@ const mergedColumns = (keep: CustomerRow, others: CustomerRow[]) => {
  * custom field values are added where it has none, and the others are deleted.
  * Their ids keep resolving to the kept customer (`mergedIds`).
  */
-export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepId: string }) => {
-  requirePermission(actor, 'contacts.merge');
-
+export const mergeCustomers = async (input: { ids: string[]; keepId: string }) => {
   const ids = unique(input.ids);
 
   if (ids.length < 2) {
@@ -129,7 +126,7 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
 
   const merged = await findCustomer(tx, keep.id);
 
-  await contactsMerged(tx, actor, 'customer', merged, others);
+  await contactsMerged(tx, 'customer', merged, others);
 
   return merged;
 };

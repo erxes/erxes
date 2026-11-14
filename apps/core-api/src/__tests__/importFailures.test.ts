@@ -11,10 +11,7 @@ describe('imports of files that cannot be read', { timeout: 120_000 }, () => {
 
   /** A file as if uploaded through /files. */
   const upload = (name: string, body: string) =>
-    storeServerFile(
-      { orgId: t.ids.org, actorType: 'user', actorId: t.ids.owner, source: 'core' },
-      { name, contentType: 'text/csv', body: Buffer.from(body) },
-    );
+    storeServerFile(t.ids.org, { name, contentType: 'text/csv', body: Buffer.from(body) });
 
   it('fails the import with the reason the file could not be read', async () => {
     const file = await upload('empty.csv', 'Name,Email\n');

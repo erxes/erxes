@@ -1,4 +1,4 @@
-import { organizations, usedTokens, users, withOrg, withSystem } from '@erxes/core-db';
+import { organizations, runAs, usedTokens, users, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { jwtVerify } from 'jose';
 import { z } from 'zod';
@@ -6,6 +6,7 @@ import { config } from '~/config';
 import { sha256 } from '~/lib/crypto';
 import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { asMember } from '~/modules/auth/account.service';
 import { subdomainFromHost } from '~/modules/auth/auth.service';
 
 /** erxes.io's claims; a claim of the wrong type makes it not a sign-in link. */
@@ -81,7 +82,7 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
 
   const [user] = await withOrg(orgId, (tx) =>
     tx
-      .select({ id: users.id, status: users.status })
+      .select({ id: users.id, role: users.role, status: users.status })
       .from(users)
       .where(and(eq(sql`lower(${users.email})`, email.toLowerCase()), ne(users.status, 'disabled')))
       .limit(1),
@@ -97,16 +98,14 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
         .set({ status: 'active', updatedAt: sql`now()` })
         .where(eq(users.id, user.id));
 
-    await recordAudit(
-      tx,
-      { orgId, actorType: 'user', actorId: user.id, source: 'core' },
-      {
+    await runAs(asMember(user), () =>
+      recordAudit(tx, {
         action: 'auth.signed_in',
         targetType: 'user',
         targetId: user.id,
         targetLabel: email,
         metadata: { method: 'erxes_io' },
-      },
+      }),
     );
   });
 

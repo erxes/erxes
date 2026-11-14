@@ -1,6 +1,5 @@
-import { type ContentType, type Db, newId, tags } from '@erxes/core-db';
+import { caller, type ContentType, type Db, newId, tags } from '@erxes/core-db';
 import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm';
-import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { containsPattern, wholeList } from '~/lib/keyset';
@@ -44,24 +43,15 @@ export const listTags = async (client: Db, query: { type: ContentType; search?: 
 
 export const createTag = async (
   client: Db,
-  actor: Actor,
   input: { type: ContentType; name: string; colorCode?: string | null },
 ) => {
   try {
-    const row = oneRow(
+    return oneRow(
       await client
         .insert(tags)
-        .values({
-          id: newId(),
-          type: input.type,
-          name: input.name,
-          colorCode: input.colorCode ?? null,
-          createdBy: actor.userId,
-        })
+        .values({ id: newId(), ...input, createdBy: caller('user').userId })
         .returning(),
     );
-
-    return row;
   } catch (error) {
     return taken(error);
   }
@@ -70,33 +60,25 @@ export const createTag = async (
 export const updateTag = async (
   client: Db,
   id: string,
-  input: { name?: string; colorCode?: string | null },
+  changes: { name?: string; colorCode?: string | null },
 ) => {
   await findTag(client, id);
 
   try {
-    const row = oneRow(
+    return oneRow(
       await client
         .update(tags)
-        .set({
-          ...(input.name !== undefined ? { name: input.name } : {}),
-          ...(input.colorCode !== undefined ? { colorCode: input.colorCode } : {}),
-          updatedAt: sql`now()`,
-        })
+        .set({ ...changes, updatedAt: sql`now()` })
         .where(eq(tags.id, id))
         .returning(),
     );
-
-    return row;
   } catch (error) {
     return taken(error);
   }
 };
 
 /** Deletes the tag; its links to customers or companies go with it (foreign keys). */
-export const removeTag = async (client: Db, actor: Actor, id: string) => {
-  requirePermission(actor, 'tags.delete');
-
+export const removeTag = async (client: Db, id: string) => {
   await findTag(client, id);
   await client.delete(tags).where(eq(tags.id, id));
 

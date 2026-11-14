@@ -1,9 +1,18 @@
 import { CORE_API_PREFIX } from '@erxes/core-contract';
-import { type Db, files, newId, withOrg, withSystem } from '@erxes/core-db';
+import {
+  actorOf,
+  caller,
+  type Db,
+  files,
+  newId,
+  requestOrgId,
+  sourceOf,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import type { Actor, Caller } from '~/http/auth';
-import { can } from '~/http/access';
+import { callerCan } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { randomToken } from '~/lib/crypto';
@@ -40,20 +49,26 @@ const storageKey = (orgId: string, id: string) => {
   return `${orgId}/${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, '0')}/${id}`;
 };
 
+/** The `source`, `actor_type` and `actor_id` of a file the caller stores. */
+const uploadedBy = () => {
+  const who = caller();
+
+  return { source: sourceOf(who), ...actorOf(who) };
+};
+
 /**
  * Step 1 of an upload: checks the file against the organisation's settings,
  * records it as pending and returns where to send the bytes.
  */
 export const createUpload = async (
   client: Db,
-  caller: Caller,
   input: { name: string; contentType: string; size: number },
 ) => {
-  assertUploadAllowed(await fileSettingsOf(client, caller.orgId), input);
+  assertUploadAllowed(await fileSettingsOf(client), input);
 
   const id = newId();
   // The upload link writes here; the file's own key is only written by core, after checking.
-  const key = uploadKey(caller.orgId, id);
+  const key = uploadKey(requestOrgId(), id);
   const expiresIn = config.files.linkTtlSeconds;
 
   const target = await storage().uploadTarget(key, {
@@ -72,9 +87,7 @@ export const createUpload = async (
         contentType: input.contentType,
         size: input.size,
         status: 'pending',
-        source: caller.source,
-        actorType: caller.actorType,
-        actorId: caller.actorId,
+        ...uploadedBy(),
       })
       .returning(),
   );
@@ -100,8 +113,11 @@ const findFile = async (client: Db, id: string) => {
   return row;
 };
 
-const isUploader = (row: FileRow, caller: Caller) =>
-  row.actorType === caller.actorType && row.actorId === caller.actorId;
+const isUploader = (row: FileRow) => {
+  const { actorType, actorId } = actorOf(caller());
+
+  return row.actorType === actorType && row.actorId === actorId;
+};
 
 /**
  * Step 2: once the bytes are sent, core checks them and promotes exactly
@@ -109,12 +125,12 @@ const isUploader = (row: FileRow, caller: Caller) =>
  * a second completion waits and returns the ready file (one audit entry), and
  * the cleanup of unfinished uploads can't take a file being completed.
  */
-export const completeUpload = async (client: Db, caller: Caller, id: string) => {
+export const completeUpload = async (client: Db, id: string) => {
   await lockRows(client, 'core_files', [id]);
 
   const row = await findFile(client, id);
 
-  if (!isUploader(row, caller) || row.status === 'deleting') {
+  if (!isUploader(row) || row.status === 'deleting') {
     throw notFound('File');
   }
 
@@ -137,7 +153,7 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) => 
     );
   }
 
-  const finalKey = storageKey(caller.orgId, id);
+  const finalKey = storageKey(requestOrgId(), id);
 
   try {
     await storage().promote(row.key, finalKey, stored);
@@ -157,7 +173,7 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) => 
       .returning(),
   );
 
-  await recordAudit(client, caller, {
+  await recordAudit(client, {
     action: 'file.uploaded',
     targetType: 'file',
     targetId: id,
@@ -217,25 +233,30 @@ export const listFiles = async (client: Db, ids: string[]) => {
   return { data: wanted.flatMap((id) => byId.get(id) ?? []) };
 };
 
-/**
- * The uploader can delete a file; so can members allowed to moderate files.
- * The row is kept as a tombstone (`deleting`) until storage confirms the
- * bytes are gone; a failed removal is retried by the cleanup, never lost.
- */
-export const removeFile = async (client: Db, caller: Caller, actor: Actor | null, id: string) => {
-  const row = await findFile(client, id);
-
-  if (row.status === 'deleting') throw notFound('File');
-
-  if (!isUploader(row, caller) && !(actor && can(actor, 'files.moderate'))) {
+/** The uploader may delete a file, and so may members allowed to moderate files. */
+const assertCanRemove = (row: FileRow) => {
+  if (!isUploader(row) && !callerCan('files.moderate')) {
     throw new HttpError(
       403,
       'NOT_ALLOWED',
       'Only the uploader or someone who moderates files can delete this file',
     );
   }
+};
 
-  await guardDeletions(client, caller, 1, 'files', actor?.role);
+/**
+ * The uploader can delete a file; so can members allowed to moderate files.
+ * The row is kept as a tombstone (`deleting`) until storage confirms the
+ * bytes are gone; a failed removal is retried by the cleanup, never lost.
+ */
+export const removeFile = async (client: Db, id: string) => {
+  const row = await findFile(client, id);
+
+  if (row.status === 'deleting') throw notFound('File');
+
+  assertCanRemove(row);
+
+  await guardDeletions(client, 1, 'files');
 
   const [claimed] = await client
     .update(files)
@@ -246,7 +267,7 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
   if (!claimed) throw notFound('File');
 
   if (row.status === 'ready') {
-    await recordAudit(client, caller, {
+    await recordAudit(client, {
       action: 'file.deleted',
       targetType: 'file',
       targetId: id,
@@ -326,15 +347,15 @@ export const pruneUploads = async (client: Db, hours: number) => {
  * the row's own short scope: call it outside any scope.
  */
 export const storeServerFile = async (
-  caller: Caller,
+  orgId: string,
   input: { name: string; contentType: string; body: Buffer },
 ) => {
   const id = newId();
-  const key = storageKey(caller.orgId, id);
+  const key = storageKey(orgId, id);
 
   await storage().write(key, input.body, input.contentType);
 
-  return withOrg(caller.orgId, async (tx) =>
+  return withOrg(orgId, async (tx) =>
     oneRow(
       await tx
         .insert(files)
@@ -345,9 +366,7 @@ export const storeServerFile = async (
           contentType: input.contentType,
           size: input.body.length,
           status: 'ready',
-          source: caller.source,
-          actorType: caller.actorType,
-          actorId: caller.actorId,
+          ...uploadedBy(),
         })
         .returning(),
     ),

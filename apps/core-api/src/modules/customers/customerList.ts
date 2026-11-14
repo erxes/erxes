@@ -1,7 +1,6 @@
 import type { CursorQuery } from '@erxes/core-contract';
 import { customerCompanies, customers, type Db } from '@erxes/core-db';
 import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
@@ -39,15 +38,10 @@ const searchFor = (search: string) =>
   );
 
 /** The list's conditions (filters, advanced filter, search): the list and exports use the same. */
-export const customerListWhere = async (client: Db, actor: Actor, query: CustomerQuery) => {
+export const customerListWhere = async (client: Db, query: CustomerQuery) => {
   const filters: (SQL | undefined)[] = [
     // Advanced filter (views): leads list is customers with the lead state.
-    await compileRecordFilter(
-      client,
-      actor,
-      query.state === 'lead' ? 'lead' : 'customer',
-      query.filter,
-    ),
+    await compileRecordFilter(client, query.state === 'lead' ? 'lead' : 'customer', query.filter),
     query.state ? eq(customers.state, query.state) : undefined,
     query.ownerId ? eq(customers.ownerId, query.ownerId) : undefined,
     query.leadStageId ? eq(customers.leadStageId, query.leadStageId) : undefined,
@@ -60,7 +54,7 @@ export const customerListWhere = async (client: Db, actor: Actor, query: Custome
   return and(...filters);
 };
 
-export const listCustomers = (client: Db, actor: Actor, query: CursorQuery & CustomerQuery) =>
+export const listCustomers = (client: Db, query: CursorQuery & CustomerQuery) =>
   boundedList(Boolean(query.filter || query.search), async () =>
     keysetPage(
       client,
@@ -71,7 +65,7 @@ export const listCustomers = (client: Db, actor: Actor, query: CursorQuery & Cus
 
         countCap: LIST_COUNT_CAP,
       },
-      await customerListWhere(client, actor, query),
+      await customerListWhere(client, query),
       query,
       (where, orderBy, limit) =>
         selectCustomers(client)

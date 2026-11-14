@@ -1,4 +1,5 @@
 import {
+  caller,
   type CustomValue,
   type Db,
   files,
@@ -8,7 +9,6 @@ import {
 } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, ne, type SQL, sql } from 'drizzle-orm';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
-import type { Caller } from '~/http/auth';
 import { forbidden, HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
@@ -73,10 +73,9 @@ export const checkImages = async (client: Db, ids: string[] | undefined) => {
  */
 export const pluginsFor = async (
   client: Db,
-  caller: Caller,
   requested: string[] | undefined,
 ): Promise<string[] | undefined> => {
-  if (caller.actorType === 'plugin') {
+  if (caller().type === 'plugin') {
     if (requested) {
       throw forbidden('FORBIDDEN', 'Plugins start or stop using products with products.use');
     }

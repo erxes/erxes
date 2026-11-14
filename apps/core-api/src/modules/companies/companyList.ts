@@ -2,7 +2,6 @@ import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import type { CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, customers, type Db } from '@erxes/core-db';
 import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
@@ -47,12 +46,11 @@ const searchFor = (search: string) =>
   );
 
 /** The list's conditions (filters, advanced filter, search): the list and exports use the same. */
-export const companyListWhere = async (client: Db, actor: Actor, query: CompanyQuery) => {
+export const companyListWhere = async (client: Db, query: CompanyQuery) => {
   const filters: (SQL | undefined)[] = [
     // Company leads have their own views (and lead fields).
     await compileRecordFilter(
       client,
-      actor,
       query.state === 'lead' ? 'company_lead' : 'company',
       query.filter,
     ),
@@ -68,7 +66,7 @@ export const companyListWhere = async (client: Db, actor: Actor, query: CompanyQ
   return and(...filters);
 };
 
-export const listCompanies = (client: Db, actor: Actor, query: CursorQuery & CompanyQuery) =>
+export const listCompanies = (client: Db, query: CursorQuery & CompanyQuery) =>
   boundedList(Boolean(query.filter || query.search), async () =>
     keysetPage(
       client,
@@ -79,7 +77,7 @@ export const listCompanies = (client: Db, actor: Actor, query: CursorQuery & Com
 
         countCap: LIST_COUNT_CAP,
       },
-      await companyListWhere(client, actor, query),
+      await companyListWhere(client, query),
       query,
       (where, orderBy, limit) =>
         selectCompanies(client)

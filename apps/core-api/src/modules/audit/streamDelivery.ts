@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { describeError, defineJob } from '~/modules/jobs/jobs';
 import { logger } from '~/logger';
 import { postOutbound } from '~/lib/outbound';
+import { oneRow } from '~/lib/rows';
 import { unseal } from '~/lib/secrets';
 import { signPayload } from '~/modules/webhooks/webhookDelivery';
 import { securityAlert } from './alerts';
@@ -22,15 +23,14 @@ const IDLE_SECONDS = 10;
 /** Owners hear about a stream failing this many times in a row. */
 const ALERT_AFTER_FAILURES = 10;
 
-export const organizationOf = async (client: Db, orgId: string) => {
-  const [org] = await client
-    .select({ id: organizations.id, subdomain: organizations.subdomain })
-    .from(organizations)
-    .where(eq(organizations.id, orgId))
-    .limit(1);
-
-  return org ?? { id: orgId, subdomain: orgId };
-};
+/** The scope's organisation (`withOrg`), as a batch names it. */
+export const organizationOf = async (client: Db) =>
+  oneRow(
+    await client
+      .select({ id: organizations.id, subdomain: organizations.subdomain })
+      .from(organizations)
+      .limit(1),
+  );
 
 /** POSTs a batch to the stream's endpoint, signed; outside any transaction. */
 export const sendBatch = async (row: StreamRow, body: string) => {
@@ -83,7 +83,7 @@ const nextBatch = (orgId: string, streamId: string, chainId: string) =>
       .orderBy(asc(auditLogs.chainSeq))
       .limit(BATCH);
 
-    return { row, entries, organization: await organizationOf(tx, orgId) };
+    return { row, entries, organization: await organizationOf(tx) };
   });
 
 const StreamPayload = z.object({ streamId: z.string(), chainId: z.string() });
@@ -177,7 +177,7 @@ export const auditStreamJob = defineJob({
       if (!failed) return;
 
       if (failed.failures === ALERT_AFTER_FAILURES) {
-        await securityAlert(tx, job.orgId, {
+        await securityAlert(tx, {
           key: `audit-stream-failing:${streamId}`,
           title: `The audit log can't reach ${row.name}`,
           body: `${failed.failures} tries in a row failed (${result.error}). Entries wait and are sent once it answers again.`,

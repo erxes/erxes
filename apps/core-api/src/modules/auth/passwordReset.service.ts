@@ -1,8 +1,9 @@
-import { authTokens, organizations, users, withOrg, withSystem } from '@erxes/core-db';
+import { authTokens, organizations, runAs, users, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { hashPassword } from '~/lib/crypto';
+import { asMember } from './account.service';
 import { invalidLink, issue, redeem, RESET_MINUTES } from './tokens.service';
 
 /**
@@ -18,6 +19,7 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
       .select({
         id: users.id,
         orgId: users.orgId,
+        role: users.role,
         organization: organizations.name,
         subdomain: organizations.subdomain,
       })
@@ -53,7 +55,7 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
         if ((recent?.count ?? 0) >= 5) return;
 
         const issued = await issue(tx, [member], 'password_reset');
-        const app = await appLink(tx, member.orgId, '');
+        const app = await appLink(tx, '');
 
         await sendEmail(
           tx,
@@ -68,15 +70,13 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
             },
           })),
         );
-        await recordAudit(
-          tx,
-          { orgId: member.orgId, actorType: 'user', actorId: member.id, source: 'core' },
-          {
+        await runAs(asMember(member), () =>
+          recordAudit(tx, {
             action: 'auth.password_reset_requested',
             targetType: 'user',
             targetId: member.id,
             targetLabel: email,
-          },
+          }),
         );
       }),
     ),
@@ -108,19 +108,17 @@ export const resetPassword = async (input: { token: string; password: string }) 
         updatedAt: sql`now()`,
       })
       .where(and(eq(users.id, row.userId), eq(users.status, 'active')))
-      .returning({ email: users.email });
+      .returning({ id: users.id, role: users.role, email: users.email });
 
     if (!user) throw invalidLink();
 
-    await recordAudit(
-      tx,
-      { orgId: row.orgId, actorType: 'user', actorId: row.userId, source: 'core' },
-      {
+    await runAs(asMember(user), () =>
+      recordAudit(tx, {
         action: 'auth.password_reset',
         targetType: 'user',
         targetId: row.userId,
         targetLabel: user.email,
-      },
+      }),
     );
   });
 

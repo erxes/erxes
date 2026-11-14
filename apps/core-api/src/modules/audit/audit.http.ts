@@ -1,10 +1,11 @@
 import { AUDIT_EXPORT_FORMATS } from '@erxes/core-db/enums';
-import { auditLogs, withOrg } from '@erxes/core-db';
+import { auditLogs, requestOrgId, withOrg } from '@erxes/core-db';
 import { stringify } from 'csv-stringify/sync';
 import { and, desc, type SQL, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { type Actor, actorOf, requirePermission, userCaller } from '~/http/auth';
+import { callerCan } from '~/http/access';
+import { HttpError } from '~/http/errors';
 import { defuse } from '~/lib/csv';
 import { repeatWhile } from '~/lib/sequence';
 import { auditFilters, recordAudit } from './audit.service';
@@ -67,7 +68,6 @@ const line = (format: (typeof AUDIT_EXPORT_FORMATS)[number], row: AuditRow, firs
 /** Writes the matching entries, newest first, in batches; returns how many. */
 const writeEntries = async (
   res: Response,
-  actor: Actor,
   format: (typeof AUDIT_EXPORT_FORMATS)[number],
   scope: SQL | undefined,
 ) => {
@@ -79,7 +79,7 @@ const writeEntries = async (
     const cursor = after;
     const limit = Math.min(BATCH, MAX_ROWS - written);
 
-    const rows = await withOrg(actor.orgId, (tx) =>
+    const rows = await withOrg(requestOrgId(), (tx) =>
       tx
         .select()
         .from(auditLogs)
@@ -116,9 +116,11 @@ const writeEntries = async (
 export const auditExportRouter = Router();
 
 auditExportRouter.get('/audit/export', async (req: Request, res: Response) => {
-  const actor = actorOf(req);
-
-  requirePermission(actor, 'audit.view');
+  if (!callerCan('audit.view')) {
+    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+      permission: 'audit.view',
+    });
+  }
 
   const parsed = ExportQuery.safeParse(req.query);
 
@@ -148,15 +150,17 @@ auditExportRouter.get('/audit/export', async (req: Request, res: Response) => {
   try {
     res.write(format === 'csv' ? `${COLUMNS.join(',')}\n` : '[');
 
-    const written = await writeEntries(res, actor, format, scope);
+    const written = await writeEntries(res, format, scope);
 
     if (format === 'json') res.write('\n]\n');
 
-    await withOrg(actor.orgId, (tx) =>
-      recordAudit(tx, userCaller(actor), {
+    const orgId = requestOrgId();
+
+    await withOrg(orgId, (tx) =>
+      recordAudit(tx, {
         action: 'audit.exported',
         targetType: 'organization',
-        targetId: actor.orgId,
+        targetId: orgId,
         metadata: { format, rows: written, filters },
       }),
     );

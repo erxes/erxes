@@ -1,5 +1,6 @@
-import { oauthCodes, oauthRefreshTokens, users, withOrg, withSystem } from '@erxes/core-db';
+import { oauthCodes, oauthRefreshTokens, runAs, users, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, isNull, sql } from 'drizzle-orm';
+import { memberOf } from '~/http/auth';
 import { sha256 } from '~/lib/crypto';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -61,17 +62,16 @@ export const exchangeCode = async (
     if (!used || !(await installed(tx, client.name))) return null;
 
     const issued = await issueTokens(tx, code);
+    const member = issued && (await memberOf(code.orgId, code.userId));
 
-    if (issued) {
-      await recordAudit(
-        tx,
-        { orgId: code.orgId, actorType: 'user', actorId: code.userId, source: 'core' },
-        {
+    if (member) {
+      await runAs(member, () =>
+        recordAudit(tx, {
           action: 'auth.oauth_signed_in',
           targetType: 'plugin',
           targetId: client.name,
           targetLabel: clientTitle(client),
-        },
+        }),
       );
     }
 

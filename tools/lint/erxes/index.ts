@@ -194,13 +194,105 @@ const noOrgFilterRule = defineRule({
   },
 });
 
+const isUndefined = (node: ESTree.Node) => node.type === 'Identifier' && node.name === 'undefined';
+
+const isEmptyObject = (node: ESTree.Node) =>
+  node.type === 'ObjectExpression' && node.properties.length === 0;
+
+/**
+ * `...(input.x !== undefined ? { x: input.x } : {})` repeats what Drizzle does: `.set()` and
+ * `.values()` skip undefined keys. Pass the input on.
+ */
+const noUndefinedSpreadRule = defineRule({
+  meta: {
+    type: 'suggestion',
+    docs: { description: 'Disallow spreading a key only when it is not undefined.' },
+    messages: {
+      spread:
+        "Drizzle's .set() and .values() skip undefined keys: pass the input (or its rest) as it is.",
+    },
+  },
+  createOnce(context) {
+    return {
+      SpreadElement(node) {
+        const spread = node.argument;
+
+        if (spread.type !== 'ConditionalExpression' || spread.test.type !== 'BinaryExpression')
+          return;
+
+        const { operator, left, right } = spread.test;
+        const againstUndefined = isUndefined(left) || isUndefined(right);
+        const empty = operator === '!==' ? spread.alternate : spread.consequent;
+
+        if ((operator === '!==' || operator === '===') && againstUndefined && isEmptyObject(empty))
+          context.report({ node, messageId: 'spread' });
+      },
+    };
+  },
+});
+
+const DTO_MAPPER = /^to[A-Z]\w*Dto$/;
+
+/**
+ * Services return rows and the procedure's output schema picks and encodes them; a value the row
+ * lacks comes from the query (`select({ ...})`). A `to…Dto` mapper reshapes rows by hand.
+ */
+const noDtoMapperRule = defineRule({
+  meta: {
+    type: 'problem',
+    docs: { description: 'Disallow to…Dto row mappers.' },
+    messages: {
+      mapper:
+        'Return the row: the output schema (createSelectSchema(table).pick) picks and encodes it. Select a value the row lacks in the query.',
+    },
+  },
+  createOnce(context) {
+    return {
+      VariableDeclarator(node) {
+        if (node.id.type === 'Identifier' && DTO_MAPPER.test(node.id.name))
+          context.report({ node, messageId: 'mapper' });
+      },
+      FunctionDeclaration(node) {
+        if (node.id && DTO_MAPPER.test(node.id.name)) context.report({ node, messageId: 'mapper' });
+      },
+    };
+  },
+});
+
+/**
+ * A procedure's permission is its policy in `ACCESS` (apps/core-api/src/http/policies.ts),
+ * checked before the handler runs. A service checks only what depends on the record, in a
+ * named helper.
+ */
+const noServicePermissionRule = defineRule({
+  meta: {
+    type: 'problem',
+    docs: { description: 'Disallow requirePermission in services.' },
+    messages: {
+      permission:
+        "Put the procedure's permission in ACCESS (needs('...')). A check that depends on the record is a named helper built on can().",
+    },
+  },
+  createOnce(context) {
+    return {
+      CallExpression(node) {
+        if (node.callee.type === 'Identifier' && node.callee.name === 'requirePermission')
+          context.report({ node, messageId: 'permission' });
+      },
+    };
+  },
+});
+
 /** Rules for erxes core's own conventions. */
 const erxesPlugin = eslintCompatPlugin({
   meta: { name: 'erxes' },
   rules: {
+    'no-dto-mapper': noDtoMapperRule,
     'no-inline-enum': noInlineEnumRule,
     'no-org-filter': noOrgFilterRule,
+    'no-service-permission': noServicePermissionRule,
     'no-session-advisory-lock': noSessionAdvisoryLockRule,
+    'no-undefined-spread': noUndefinedSpreadRule,
   },
 });
 

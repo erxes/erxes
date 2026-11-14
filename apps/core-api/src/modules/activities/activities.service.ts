@@ -1,9 +1,8 @@
 import type { ActivityTarget } from '@erxes/core-contract';
-import { activities, type Db, files, newId } from '@erxes/core-db';
+import { activities, actorOf, caller, type Db, files, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { can } from '~/http/access';
-import { type Actor, type Caller, userCaller } from '~/http/auth';
+import { callerCan } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMembers } from '~/lib/guards';
@@ -38,27 +37,16 @@ export interface CoreActivity {
  * Adds core's own entries to the timeline. Call it in the same transaction as
  * the change it describes.
  */
-export const recordActivity = async (
-  client: Db,
-  caller: Caller,
-  entries: CoreActivity | CoreActivity[],
-) => {
+export const recordActivity = async (client: Db, entries: CoreActivity | CoreActivity[]) => {
   const list = Array.isArray(entries) ? entries : [entries];
 
   if (!list.length) return;
 
-  await client.insert(activities).values(
-    list.map((entry) => ({
-      id: newId(),
-      targetType: entry.targetType,
-      targetId: entry.targetId,
-      source: 'core',
-      type: entry.type,
-      data: entry.data ?? {},
-      actorType: caller.actorType,
-      actorId: caller.actorId,
-    })),
-  );
+  const actor = actorOf(caller());
+
+  await client
+    .insert(activities)
+    .values(list.map((entry) => ({ id: newId(), source: 'core', ...entry, ...actor })));
 };
 
 const targetsOf = (targetType: ActivityTarget, ids: string[]) =>
@@ -121,15 +109,14 @@ const checkFiles = async (client: Db, fileIds: string[]) => {
 /** Mentioned members hear about it (people already mentioned before an edit don't, again). */
 const notifyMentions = async (
   tx: Db,
-  actor: Actor,
   note: { id: string; targetType: string; targetId: string; body: string },
   userIds: string[],
 ) => {
-  const recipients = userIds.filter((id) => id !== actor.userId);
+  const recipients = userIds.filter((id) => id !== caller('user').userId);
 
   if (!recipients.length) return;
 
-  await notify(tx, userCaller(actor), {
+  await notify(tx, {
     userIds: recipients,
     kind: 'core.note.mentioned',
     title: 'You were mentioned in a note',
@@ -154,7 +141,6 @@ const findNote = async (client: Db, id: string) => {
 
 export const addNote = async (
   client: Db,
-  actor: Actor,
   input: {
     targetType: string;
     targetId: string;
@@ -163,12 +149,7 @@ export const addNote = async (
     fileIds: string[];
   },
 ) => {
-  await assertTimelineAccess(
-    client,
-    { actor, orgId: actor.orgId },
-    input.targetType,
-    input.targetId,
-  );
+  await assertTimelineAccess(client, input.targetType, input.targetId);
 
   const mentions = unique(input.mentions);
 
@@ -186,13 +167,12 @@ export const addNote = async (
         source: 'core',
         type: `${input.targetType}.note`,
         data: { body: input.body, mentions, fileIds },
-        actorType: 'user',
-        actorId: actor.userId,
+        ...actorOf(caller('user')),
       })
       .returning(),
   );
 
-  await notifyMentions(client, actor, { ...input, id: row.id }, mentions);
+  await notifyMentions(client, { ...input, id: row.id }, mentions);
 
   return toActivityDto(row);
 };
@@ -233,9 +213,26 @@ const editedData = async (
 };
 
 /** The author edits the text; anyone in the organisation pins or unpins. */
+/** 403 NOT_AUTHOR unless the member wrote the note. */
+const assertAuthor = (note: ActivityRow) => {
+  if (note.actorId !== caller('user').userId) {
+    throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
+  }
+};
+
+/** 403 NOT_ALLOWED unless the member wrote the note or may moderate notes. */
+const assertCanModerate = (note: ActivityRow) => {
+  if (note.actorId !== caller('user').userId && !callerCan('notes.moderate')) {
+    throw new HttpError(
+      403,
+      'NOT_ALLOWED',
+      'Only the author or an owner or admin can delete a note',
+    );
+  }
+};
+
 export const updateNote = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
 ) => {
@@ -244,9 +241,7 @@ export const updateNote = async (
   const editing =
     input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
 
-  if (editing && note.actorId !== actor.userId) {
-    throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
-  }
+  if (editing) assertAuthor(note);
 
   const edit = await editedData(client, note, input);
 
@@ -263,7 +258,6 @@ export const updateNote = async (
 
   await notifyMentions(
     client,
-    actor,
     { id, targetType: note.targetType, targetId: note.targetId, body: edit.data.body },
     edit.added,
   );
@@ -271,16 +265,8 @@ export const updateNote = async (
   return toActivityDto(row);
 };
 
-export const removeNote = async (client: Db, actor: Actor, id: string) => {
-  const note = await findNote(client, id);
-
-  if (note.actorId !== actor.userId && !can(actor, 'notes.moderate')) {
-    throw new HttpError(
-      403,
-      'NOT_ALLOWED',
-      'Only the author or an owner or admin can delete a note',
-    );
-  }
+export const removeNote = async (client: Db, id: string) => {
+  assertCanModerate(await findNote(client, id));
 
   await client.delete(activities).where(eq(activities.id, id));
 

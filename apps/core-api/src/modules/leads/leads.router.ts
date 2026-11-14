@@ -8,26 +8,22 @@ import {
   updateLeadStage,
 } from '~/modules/leads/leadStages.service';
 import { leadReport } from '~/modules/leads/report';
-import { authed } from '~/orpc';
+import { scoped } from '~/orpc';
 
 export const leadsRouter = {
-  stages: authed.leads.stages.handler(() => listLeadStages(db())),
-  createStage: authed.leads.createStage.handler(({ input, context }) =>
-    createLeadStage(db(), context.actor, input),
+  stages: scoped.leads.stages.handler(() => listLeadStages(db())),
+  createStage: scoped.leads.createStage.handler(({ input }) => createLeadStage(db(), input)),
+  updateStage: scoped.leads.updateStage.handler(({ input: { id, ...changes } }) =>
+    updateLeadStage(db(), id, changes),
   ),
-  updateStage: authed.leads.updateStage.handler(({ input: { id, ...changes }, context }) =>
-    updateLeadStage(db(), context.actor, id, changes),
-  ),
-  reorderStages: authed.leads.reorderStages.handler(({ input }) =>
+  reorderStages: scoped.leads.reorderStages.handler(({ input }) =>
     reorderLeadStages(db(), input.ids),
   ),
-  removeStage: authed.leads.removeStage.handler(({ input, context }) =>
-    removeLeadStage(db(), context.actor, input.id, input.moveTo),
+  removeStage: scoped.leads.removeStage.handler(({ input }) =>
+    removeLeadStage(db(), input.id, input.moveTo),
   ),
-  move: authed.leads.move.handler(({ input, context }) => moveLeads(db(), context.actor, input)),
-  convert: authed.leads.convert.handler(({ input, context }) =>
-    convertLeads(db(), context.actor, input),
-  ),
-  history: authed.leads.history.handler(({ input }) => leadHistory(db(), input)),
-  report: authed.leads.report.handler(({ input }) => leadReport(db(), input)),
+  move: scoped.leads.move.handler(({ input }) => moveLeads(db(), input)),
+  convert: scoped.leads.convert.handler(({ input }) => convertLeads(db(), input)),
+  history: scoped.leads.history.handler(({ input }) => leadHistory(db(), input)),
+  report: scoped.leads.report.handler(({ input }) => leadReport(db(), input)),
 };

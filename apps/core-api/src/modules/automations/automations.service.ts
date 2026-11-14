@@ -1,8 +1,14 @@
 import { type Automation, AutomationDefinition } from '@erxes/core-contract';
-import { automationRuns, automations, automationVersions, type Db, newId } from '@erxes/core-db';
+import {
+  automationRuns,
+  automations,
+  automationVersions,
+  caller,
+  type Db,
+  newId,
+} from '@erxes/core-db';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { type Actor, userCaller } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkDefinition } from './definitions';
@@ -57,19 +63,14 @@ export const findAutomation = async (client: Db, id: string) => {
   return row;
 };
 
-const publish = async (
-  client: Db,
-  actor: Actor,
-  row: AutomationRow,
-  definition: AutomationDefinition,
-) => {
+const publish = async (client: Db, row: AutomationRow, definition: AutomationDefinition) => {
   const version = (row.activeVersion ?? 0) + 1;
 
   await client.insert(automationVersions).values({
     automationId: row.id,
     version,
     definition,
-    publishedBy: actor.userId,
+    publishedBy: caller('user').userId,
   });
 
   return version;
@@ -101,7 +102,6 @@ export const getAutomation = async (client: Db, id: string) => {
 
 export const createAutomation = async (
   client: Db,
-  actor: Actor,
   input: { name: string; description?: string | null; definition: AutomationDefinition },
 ) => {
   const values = {
@@ -110,11 +110,11 @@ export const createAutomation = async (
     description: input.description ?? null,
     definition: input.definition,
     triggerEvent: triggerKey(input.definition),
-    createdBy: actor.userId,
+    createdBy: caller('user').userId,
   };
 
   await client.insert(automations).values(values);
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'automation.created',
     targetType: 'automation',
     targetId: values.id,
@@ -126,7 +126,6 @@ export const createAutomation = async (
 
 export const updateAutomation = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: { name?: string; description?: string | null; definition?: AutomationDefinition },
 ) => {
@@ -136,9 +135,7 @@ export const updateAutomation = async (
 
   if (published) await checkDefinition(client, published);
 
-  const activeVersion = published
-    ? await publish(client, actor, before, published)
-    : before.activeVersion;
+  const activeVersion = published ? await publish(client, before, published) : before.activeVersion;
 
   await client
     .update(automations)
@@ -148,11 +145,13 @@ export const updateAutomation = async (
       definition: input.definition,
       triggerEvent: input.definition && triggerKey(input.definition),
       activeVersion,
-      ...(published ? { activatedBy: actor.userId, nextRunAt: firstRunAt(published) } : {}),
+      ...(published
+        ? { activatedBy: caller('user').userId, nextRunAt: firstRunAt(published) }
+        : {}),
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id));
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'automation.updated',
     targetType: 'automation',
     targetId: id,
@@ -164,25 +163,25 @@ export const updateAutomation = async (
 };
 
 /** Checks the definition, publishes it as a new version and turns the automation on, acting as this member. */
-export const activateAutomation = async (client: Db, actor: Actor, id: string) => {
+export const activateAutomation = async (client: Db, id: string) => {
   const row = await findAutomation(client, id);
   const definition = AutomationDefinition.parse(row.definition);
 
   await checkDefinition(client, definition);
 
-  const version = await publish(client, actor, row, definition);
+  const version = await publish(client, row, definition);
 
   await client
     .update(automations)
     .set({
       status: 'active',
       activeVersion: version,
-      activatedBy: actor.userId,
+      activatedBy: caller('user').userId,
       nextRunAt: firstRunAt(definition),
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id));
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'automation.activated',
     targetType: 'automation',
     targetId: id,
@@ -194,14 +193,14 @@ export const activateAutomation = async (client: Db, actor: Actor, id: string) =
 };
 
 /** No new runs start; runs in progress finish. */
-export const pauseAutomation = async (client: Db, actor: Actor, id: string) => {
+export const pauseAutomation = async (client: Db, id: string) => {
   const row = await findAutomation(client, id);
 
   await client
     .update(automations)
     .set({ status: 'paused', nextRunAt: null, updatedAt: sql`now()` })
     .where(eq(automations.id, id));
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'automation.paused',
     targetType: 'automation',
     targetId: id,
@@ -211,11 +210,11 @@ export const pauseAutomation = async (client: Db, actor: Actor, id: string) => {
   return getAutomation(client, id);
 };
 
-export const removeAutomation = async (client: Db, actor: Actor, id: string) => {
+export const removeAutomation = async (client: Db, id: string) => {
   const row = await findAutomation(client, id);
 
   await client.delete(automations).where(eq(automations.id, id));
-  await recordAudit(client, userCaller(actor), {
+  await recordAudit(client, {
     action: 'automation.deleted',
     targetType: 'automation',
     targetId: id,
@@ -241,7 +240,7 @@ export const listVersions = async (client: Db, id: string) => {
 };
 
 /** An older version becomes the working copy; an active automation publishes it at once. */
-export const restoreVersion = async (client: Db, actor: Actor, id: string, version: number) => {
+export const restoreVersion = async (client: Db, id: string, version: number) => {
   const [row] = await client
     .select()
     .from(automationVersions)
@@ -250,7 +249,7 @@ export const restoreVersion = async (client: Db, actor: Actor, id: string, versi
 
   if (!row) throw notFound('Version');
 
-  return updateAutomation(client, actor, id, {
+  return updateAutomation(client, id, {
     definition: AutomationDefinition.parse(row.definition),
   });
 };

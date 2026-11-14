@@ -1,7 +1,6 @@
-import { type Db, newId, productCategories, products } from '@erxes/core-db';
+import { actorOf, caller, type Db, newId, productCategories, products } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import type { Caller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -58,7 +57,6 @@ export const listCategories = async (client: Db) => {
 
 export const createCategory = async (
   client: Db,
-  caller: Caller,
   input: { name: string; parentId?: string | null },
 ) => {
   await checkCategory(client, input.parentId);
@@ -71,12 +69,12 @@ export const createCategory = async (
           id: newId(),
           name: input.name,
           parentId: input.parentId ?? null,
-          createdBy: caller.actorId,
+          createdBy: actorOf(caller()).actorId,
         })
         .returning(),
     );
 
-    await recordAudit(client, caller, {
+    await recordAudit(client, {
       action: 'product_category.created',
       targetType: 'product_category',
       targetId: row.id,
@@ -91,7 +89,6 @@ export const createCategory = async (
 
 export const updateCategory = async (
   client: Db,
-  caller: Caller,
   id: string,
   changes: { name?: string; parentId?: string | null },
 ) => {
@@ -111,7 +108,7 @@ export const updateCategory = async (
         .returning(),
     );
 
-    await recordAudit(client, caller, {
+    await recordAudit(client, {
       action: 'product_category.updated',
       targetType: 'product_category',
       targetId: row.id,
@@ -125,7 +122,7 @@ export const updateCategory = async (
 };
 
 /** Deletes a category without subcategories (409 CATEGORY_HAS_CHILDREN); its products lose it. */
-export const removeCategory = async (client: Db, caller: Caller, id: string) => {
+export const removeCategory = async (client: Db, id: string) => {
   const row = await findCategory(client, id);
 
   const [child] = await client
@@ -143,7 +140,7 @@ export const removeCategory = async (client: Db, caller: Caller, id: string) => 
     .set({ categoryId: null, updatedAt: sql`now()` })
     .where(eq(products.categoryId, id));
   await client.delete(productCategories).where(eq(productCategories.id, id));
-  await recordAudit(client, caller, {
+  await recordAudit(client, {
     action: 'product_category.deleted',
     targetType: 'product_category',
     targetId: id,

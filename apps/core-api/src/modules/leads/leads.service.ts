@@ -1,7 +1,6 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, leadEvents } from '@erxes/core-db';
 import { desc, eq, inArray, sql } from 'drizzle-orm';
-import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { assertOwner } from '~/lib/guards';
 import { lockRows } from '~/lib/locks';
@@ -57,7 +56,6 @@ const updateLeads = (tx: Db, type: LeadRecordType, ids: string[], set: LeadPlan[
  */
 const writePlans = async (
   tx: Db,
-  actor: Actor,
   type: LeadRecordType,
   planned: { row: LeadRow; plan: LeadPlan }[],
   extra: LeadPlan['set'],
@@ -78,13 +76,11 @@ const writePlans = async (
   await inOrder(groups.values(), ({ set, ids }) => updateLeads(tx, type, ids, set));
   await recordLeadSteps(
     tx,
-    userCaller(actor),
     type,
     planned.map(({ row, plan }) => ({ id: row.id, steps: plan.steps })),
   );
   await contactsUpdated(
     tx,
-    actor,
     type,
     planned.map(({ row, plan }) => ({ before: row, after: { ...row, ...plan.set, ...extra } })),
   );
@@ -92,7 +88,6 @@ const writePlans = async (
 
 export const moveLeads = async (
   client: Db,
-  actor: Actor,
   input: { recordType?: LeadRecordType; ids: string[]; stageId: string; reason?: string },
 ) => {
   const type = input.recordType ?? 'customer';
@@ -110,7 +105,6 @@ export const moveLeads = async (
   const planned = rows.map((row) => ({
     row,
     plan: planLeadChange({
-      caller: userCaller(actor),
       stages,
       current: row,
       input: leadInput,
@@ -119,14 +113,13 @@ export const moveLeads = async (
     }),
   }));
 
-  await writePlans(client, actor, type, planned, {});
+  await writePlans(client, type, planned, {});
 
   return { moved: rows.length };
 };
 
 export const convertLeads = async (
   client: Db,
-  actor: Actor,
   input: { recordType?: LeadRecordType; ids: string[]; ownerId?: string; companyId?: string },
 ) => {
   const type = input.recordType ?? 'customer';
@@ -144,7 +137,6 @@ export const convertLeads = async (
   const planned = rows.map((row) => ({
     row,
     plan: planLeadChange({
-      caller: userCaller(actor),
       stages,
       current: row,
       input: { state: 'customer' },
@@ -153,7 +145,7 @@ export const convertLeads = async (
     }),
   }));
 
-  await writePlans(client, actor, type, planned, {
+  await writePlans(client, type, planned, {
     state: 'customer',
     ...(input.ownerId ? { ownerId: input.ownerId } : {}),
   });
@@ -161,7 +153,6 @@ export const convertLeads = async (
   if (input.companyId)
     await linkCustomersToCompany(
       client,
-      actor,
       rows.map((row) => row.id),
       input.companyId,
     );

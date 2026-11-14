@@ -1,7 +1,6 @@
 import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { oneRow, setOrders } from '~/lib/rows';
 import {
@@ -10,7 +9,6 @@ import {
   type GroupRow,
   inUse,
   nextOrder,
-  requireFieldManager,
   taken,
   usageOf,
 } from './fieldRows';
@@ -60,7 +58,6 @@ const groupCode = (code: string | undefined, name: string) => {
 
 export const createFieldGroup = async (
   client: Db,
-  actor: Actor,
   input: {
     contentType: FieldContentType;
     name: string;
@@ -68,8 +65,6 @@ export const createFieldGroup = async (
     description?: string | null;
   },
 ) => {
-  requireFieldManager(actor);
-
   const code = groupCode(input.code, input.name);
   const order = await nextOrder(client, fieldGroups, input.contentType);
 
@@ -112,54 +107,41 @@ const updateGroupRow = async (
 
 export const updateFieldGroup = async (
   client: Db,
-  actor: Actor,
   id: string,
-  input: { name?: string; code?: string; description?: string | null; order?: number },
+  {
+    description,
+    ...rest
+  }: { name?: string; code?: string; description?: string | null; order?: number },
 ) => {
-  requireFieldManager(actor);
   await findGroup(client, id);
 
   try {
     return await updateGroupRow(client, id, {
-      ...(input.name !== undefined ? { name: input.name } : {}),
-      ...(input.code !== undefined ? { code: input.code } : {}),
-      ...(input.description !== undefined ? { description: input.description || null } : {}),
-      ...(input.order !== undefined ? { order: input.order } : {}),
+      ...rest,
+      description: description === '' ? null : description,
     });
   } catch (error) {
     return taken(error);
   }
 };
 
-export const reorderFieldGroups = (
-  client: Db,
-  actor: Actor,
-  orders: { id: string; order: number }[],
-) => {
-  requireFieldManager(actor);
+export const reorderFieldGroups = (client: Db, orders: { id: string; order: number }[]) =>
+  setOrders(client, fieldGroups, orders);
 
-  return setOrders(client, fieldGroups, orders);
-};
-
-export const archiveFieldGroup = async (client: Db, actor: Actor, id: string) => {
-  requireFieldManager(actor);
-
+export const archiveFieldGroup = async (client: Db, id: string) => {
   const group = await findGroup(client, id);
 
   return group.archivedAt ? group : updateGroupRow(client, id, { archivedAt: sql`now()` });
 };
 
-export const restoreFieldGroup = async (client: Db, actor: Actor, id: string) => {
-  requireFieldManager(actor);
+export const restoreFieldGroup = async (client: Db, id: string) => {
   await findGroup(client, id);
 
   return updateGroupRow(client, id, { archivedAt: null });
 };
 
 /** Deletes a group and its fields when no record holds their values. */
-export const removeFieldGroup = async (client: Db, actor: Actor, id: string) => {
-  requireFieldManager(actor);
-
+export const removeFieldGroup = async (client: Db, id: string) => {
   await findGroup(client, id);
 
   const rows = await fieldsOfGroup(client, id);

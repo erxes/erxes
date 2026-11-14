@@ -1,15 +1,16 @@
 import type { ActionInfo } from '@erxes/core-contract';
 import type { ContentType, Db } from '@erxes/core-db';
 import { z } from 'zod';
-import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import type { RunContext, SubjectRef } from '../runs';
 
-/** What an action that reaches another system gets: no transaction. */
+/**
+ * What an action that reaches another system gets: no transaction. Every
+ * action runs as the member who turned the automation on (`caller('user')`),
+ * so their permissions apply.
+ */
 export interface CallContext {
   orgId: string;
-  /** The member the automation acts as (their permissions apply). */
-  actor: Actor;
   automation: { id: string; name: string };
   run: { id: string };
   step: { id: string };

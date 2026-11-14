@@ -1,7 +1,14 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import type { CUSTOMER_STATES, LEAD_EVENTS } from '@erxes/core-db/enums';
-import { type companies, type customers, type Db, leadEvents, newId } from '@erxes/core-db';
-import type { Caller } from '~/http/auth';
+import {
+  actorOf,
+  caller,
+  type companies,
+  type customers,
+  type Db,
+  leadEvents,
+  newId,
+} from '@erxes/core-db';
 import { HttpError } from '~/http/errors';
 import { currentImport } from '~/lib/causation';
 import { recordActivity } from '~/modules/activities/activities.service';
@@ -38,23 +45,19 @@ interface LeadInput {
 }
 
 /** Where someone came from when nobody said: an import, a plugin, or a member typing them in. */
-const callerSource = (
-  caller: Caller,
-): { source: string; sourceDetails: Record<string, string> } => {
+const callerSource = (): { source: string; sourceDetails: Record<string, string> } => {
   if (currentImport()) return { source: 'import', sourceDetails: {} };
 
-  return caller.actorType === 'plugin'
-    ? { source: 'plugin', sourceDetails: { plugin: caller.actorId } }
+  const who = caller();
+
+  return who.type === 'plugin'
+    ? { source: 'plugin', sourceDetails: { plugin: who.plugin } }
     : { source: 'manual', sourceDetails: {} };
 };
 
 /** A new customer or lead: its source, and a lead's first stage. */
-export const planLeadOnCreate = async (
-  client: Db,
-  caller: Caller,
-  input: LeadInput,
-): Promise<LeadPlan> => {
-  const fallback = callerSource(caller);
+export const planLeadOnCreate = async (client: Db, input: LeadInput): Promise<LeadPlan> => {
+  const fallback = callerSource();
 
   const origin = {
     source: input.source ?? fallback.source,
@@ -85,7 +88,6 @@ export const planLeadOnCreate = async (
 };
 
 interface Change {
-  caller: Caller;
   stages: StageRow[];
   current: Pick<CustomerRow, 'state' | 'leadStageId'>;
   currentStage: StageRow | null;
@@ -99,14 +101,16 @@ const firstOf = (stages: StageRow[], kind: StageRow['kind']) =>
   stages.find((stage) => stage.kind === kind) ?? null;
 
 /** Lead → customer: moved to the first qualified stage unless already in one. */
-const convert = ({ caller, stages, current, currentStage, wanted, now }: Change): LeadPlan => {
+const convert = ({ stages, current, currentStage, wanted, now }: Change): LeadPlan => {
   let to = wanted ?? currentStage;
 
   if (to?.kind !== 'qualified') to = firstOf(stages, 'qualified') ?? to;
 
+  const who = caller();
+
   const set: LeadPlan['set'] = {
     convertedAt: now,
-    convertedBy: caller.actorType === 'user' ? caller.actorId : null,
+    convertedBy: who.type === 'user' ? who.userId : null,
     leadStageId: to?.id ?? null,
     disqualifyReason: null,
     ...(to?.id === current.leadStageId ? {} : { leadStageChangedAt: now }),
@@ -170,14 +174,12 @@ const lifecyclePlan = (
  * `asked` is the stage `input.leadStageId` names, found already.
  */
 export const planLeadChange = ({
-  caller,
   stages,
   current,
   input,
   asked,
   now = new Date(),
 }: {
-  caller: Caller;
   stages: StageRow[];
   current: Pick<CustomerRow, 'state' | 'leadStageId'>;
   input: LeadInput;
@@ -186,7 +188,6 @@ export const planLeadChange = ({
 }): LeadPlan => {
   const plan = lifecyclePlan(
     {
-      caller,
       stages,
       current,
       currentStage: stages.find((stage) => stage.id === current.leadStageId) ?? null,
@@ -208,7 +209,6 @@ export const planLeadChange = ({
 /** `planLeadChange` for one record, loading only the stages it needs. */
 export const planLeadOnUpdate = async (
   client: Db,
-  caller: Caller,
   current: Pick<CustomerRow, 'state' | 'leadStageId'>,
   input: LeadInput,
 ): Promise<LeadPlan> => {
@@ -223,7 +223,7 @@ export const planLeadOnUpdate = async (
       ? await stagesOf(client)
       : [];
 
-  return planLeadChange({ caller, stages, current, input, asked });
+  return planLeadChange({ stages, current, input, asked });
 };
 
 const stageRef = (stage: StageRow | null) =>
@@ -232,13 +232,14 @@ const stageRef = (stage: StageRow | null) =>
 /** Writes the records' steps: their history, their timelines, and `core.lead.*` events for automations and webhooks. */
 export const recordLeadSteps = async (
   tx: Db,
-  caller: Caller,
   recordType: LeadRecordType,
   records: { id: string; steps: LeadStep[] }[],
 ) => {
   const steps = records.flatMap(({ id, steps: own }) => own.map((step) => ({ id, step })));
 
   if (!steps.length) return;
+
+  const actor = actorOf(caller());
 
   await tx.insert(leadEvents).values(
     steps.map(({ id, step }) => ({
@@ -249,8 +250,7 @@ export const recordLeadSteps = async (
       fromStageId: step.from?.id ?? null,
       toStageId: step.to?.id ?? null,
       reason: step.reason,
-      actorType: caller.actorType,
-      actorId: caller.actorId,
+      ...actor,
     })),
   );
 
@@ -269,7 +269,6 @@ export const recordLeadSteps = async (
 
   await recordActivity(
     tx,
-    caller,
     changes.map(({ id, data }) => ({
       targetType: recordType,
       targetId: id,
@@ -279,7 +278,6 @@ export const recordLeadSteps = async (
   );
   await publishCoreEvents(
     tx,
-    caller,
     changes.map(({ id, data }) => ({
       type: data.event === 'converted' ? 'core.lead.converted' : 'core.lead.stage_changed',
       subject: { type: recordType, id },
