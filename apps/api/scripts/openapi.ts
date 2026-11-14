@@ -1,27 +1,25 @@
 /**
- * Writes the contract's generated files:  pnpm openapi
- * - packages/contract/openapi.json, the OpenAPI document the API serves.
+ * Writes the contract's generated files:  pnpm openapi [document.json]
  * - packages/contract/routes.json, every procedure's method and path without its
  *   schemas, which clients pass to `OpenAPILink` so they never load the tables.
- * `pnpm check:generated` fails when a committed copy differs.
+ *   `pnpm check:generated` fails when the committed copy differs.
+ * - the OpenAPI document the API serves at `/core/v1/openapi.json`, to the path given,
+ *   so a contract change can be read as a diff of two documents. It isn't committed.
  */
-import { writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
 import { coreContract } from '@erxes/core-contract';
 import { isContractProcedure, minifyContractRouter } from '@orpc/contract';
 import { generateOpenApi } from '~/rpc';
 import { runCli, say } from './cli';
 
-const contractDir = resolve(import.meta.dirname, '../../../packages/contract');
-
-const write = async (name: string, json: string) => {
-  const target = resolve(contractDir, name);
-
+const write = async (target: string, json: string) => {
+  await mkdir(dirname(target), { recursive: true });
   await writeFile(target, `${json}\n`);
   say(`wrote ${target}`);
 };
 
-/** Keeps the route fields `OpenAPILink` reads; summaries stay in openapi.json. */
+/** Keeps the route fields `OpenAPILink` reads; summaries stay in the OpenAPI document. */
 const clientRoute = (_key: string, value: unknown) => {
   if (!isContractProcedure(value)) return value;
 
@@ -33,6 +31,17 @@ const clientRoute = (_key: string, value: unknown) => {
 };
 
 runCli(async () => {
-  await write('openapi.json', JSON.stringify(await generateOpenApi(), null, 2));
-  await write('routes.json', JSON.stringify(minifyContractRouter(coreContract), clientRoute, 2));
+  await write(
+    resolve(import.meta.dirname, '../../../packages/contract/routes.json'),
+    JSON.stringify(minifyContractRouter(coreContract), clientRoute, 2),
+  );
+
+  const document = process.argv[2];
+
+  // Relative to where pnpm ran, not apps/api.
+  if (document) {
+    const target = resolve(process.env.INIT_CWD ?? '.', document);
+
+    await write(target, JSON.stringify(await generateOpenApi(), null, 2));
+  }
 });

@@ -55,7 +55,7 @@ jobs:
       - name: No bundle budget grew against the base
         if: env.BASE_SHA != '' && env.BASE_SHA != '0000000000000000000000000000000000000000' && !contains(github.event.pull_request.labels.*.name, 'gate-change')
         run: node tools/check-escapes.ts "$BASE_SHA"
-      - name: Migrations and openapi.json match the schema and contract
+      - name: Migrations, routes.json and cn tables match their sources
         run: pnpm check:generated
       - name: Applied migrations unchanged
         run: pnpm --filter @erxes/core-db db:check-applied "$BASE_SHA"

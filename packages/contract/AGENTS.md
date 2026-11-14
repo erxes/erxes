@@ -1,10 +1,11 @@
 # @erxes/core-contract
 
 The `/core/v1` API contract (zod 4 + `@orpc/contract`) and event schemas. Core implements it,
-web and plugins call it with a typed client, and `openapi.json` describes it for everyone else.
+web and plugins call it with a typed client, and the OpenAPI document core serves at
+`/core/v1/openapi.json` describes it for everyone else.
 
 Types flow one way: the Drizzle table (`@erxes/core-db/schema`) → drizzle-zod → these schemas →
-the oRPC router and `openapi.json` → `@orpc/tanstack-query` in web. Renaming a column fails
+the oRPC router and the OpenAPI document → `@orpc/tanstack-query` in web. Renaming a column fails
 the type check in the contract, the services and web. Clients take only the types from that
 chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and import values from
 `src/values.ts`, so a browser never loads a table or drizzle.
@@ -17,7 +18,8 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
   has the event schemas plugins publish. The `/core/v1/stream` messages are Server-Sent Events
   outside the router: `StreamData` in `apps/api/src/modules/live/stream.http.ts`, read by
   `apps/web/src/lib/liveClient.ts`.
-- `openapi.json` and `routes.json` come from `pnpm openapi`.
+- `routes.json` comes from `pnpm openapi`. The OpenAPI document is generated, never committed:
+  `pnpm openapi <file>` also writes it to `<file>`.
 - The package has no import-time side effects (`sideEffects: false` in its package.json).
 
 ## Rules
@@ -35,7 +37,7 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
     private until someone picks it. Services return the row as it is: the schema drops the rest.
   - Timestamps in an output are `isoDate`, a codec from the row's `Date` to an ISO string
     (`isoDate().nullable()` in a hand-written `z.object`). The handler returns the `Date`, clients
-    and `openapi.json` see `string`/`date-time`. Inputs, and code that parses JSON from the wire
+    and the OpenAPI document see `string`/`date-time`. Inputs, and code that parses JSON from the wire
     (the plugin SDK's `DeliveredEvent`), use `z.iso.datetime()`, so an output schema with
     `isoDate` never goes inside an input.
   - Input: `createUpdateSchema(table, rules).pick({ ... })`; create adds `.required({ name: true })`,
@@ -45,6 +47,7 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
     schema value (`Id`) replaces it, so add `.nullable()` or `.optional()` yourself. Integers are
     `() => z.int()`, jsonb columns their real shape, enums `z.enum(CONTENT_TYPES)` from `@erxes/core-db/enums`.
     A new list goes into `enums.ts` first: lint fails a `z.enum` with the values written out.
-- Read the `openapi.json` diff after every change: zero difference unless the API is meant to
+- Before you edit the contract, write the document with `pnpm openapi .scratch/openapi.before.json`;
+  after, write `.scratch/openapi.json` and read the diff: zero difference unless the API is meant to
   change (properties moving within an object don't count). A change plugins see follows
   `.agents/skills/plugin-contract/SKILL.md`.

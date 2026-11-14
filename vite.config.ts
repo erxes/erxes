@@ -58,7 +58,6 @@ export default defineConfig({
       'dist/**',
       'coverage/**',
       'packages/db/drizzle/**',
-      'packages/contract/openapi.json',
       'packages/contract/routes.json',
       'packages/ui/src/lib/cn-tables.ts',
       'packages/create-erxes/templates/**',

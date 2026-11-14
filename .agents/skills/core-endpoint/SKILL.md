@@ -30,7 +30,8 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
 5. Test it in `apps/api/src/__tests__/` through `useTestServer().client(...)`: the happy path,
    each error code (`rejects.toMatchObject({ status, code })`), and a caller from the other
    organisation of `useTwoOrgs()`, who gets 404 or an empty list.
-6. Run `pnpm openapi` and read the `packages/contract/openapi.json` diff: every difference is a
+6. Diff the OpenAPI document from before and after the change (`pnpm openapi <file>`, as
+   `packages/contract/AGENTS.md` says): every difference is a
    change plugins see, except properties moving within an object. If plugins already call the
    procedure, follow `.agents/skills/plugin-contract/SKILL.md`.
 
