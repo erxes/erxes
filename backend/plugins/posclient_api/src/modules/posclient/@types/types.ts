@@ -1,3 +1,4 @@
+import type { IPricingReason } from '~/modules/posclient/utils/discountInfos';
 import {
   IUserDocument,
   IAttachment,
@@ -48,6 +49,7 @@ export interface IOrderItemInput {
     title?: string;
     amount?: number;
     percent?: number;
+    reasons?: IPricingReason[];
   }>;
   bonusCount?: number;
   bonusVoucherId?: string;
@@ -62,6 +64,7 @@ export interface IOrderItemInput {
 export interface IOrderInput {
   // Set ahead of saving when a voucher must be held under it.
   _id?: string;
+  createdAt?: Date;
   items: IOrderItemInput[];
   totalAmount: number;
   directDiscount?: number;

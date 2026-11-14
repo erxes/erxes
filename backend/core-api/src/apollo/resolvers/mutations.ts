@@ -8,8 +8,10 @@ import {
 import { supportAccessMutations } from '@/auth/graphql/resolvers/supportAccess';
 import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationMutations } from '@/automations/graphql/resolvers/mutations';
+import { automationFolderMutations } from '@/automations/graphql/resolvers/folders';
 import { emailTemplateMutations } from '@/emailTemplates/graphql/resolvers';
 import { notificationTemplateMutations } from '@/notificationTemplates/graphql/resolvers';
+import { currencyRateMutations } from '@/currencyRates/graphql/resolvers';
 import conformityMutations from '@/conformities/graphql/mutations';
 import { contactMutations } from '@/contacts/graphql/resolvers/mutations';
 import { documentMutations } from '@/documents/graphql/mutations';
@@ -17,6 +19,7 @@ import { internalNoteMutations } from '@/internalNote/graphql/mutations';
 import { brandMutations } from '@/organization/brand/graphql/mutations';
 import { organizationConfigMutations } from '@/organization/settings/graphql/configs/mutations';
 import { favoriteMutations } from '@/organization/settings/graphql/favorites/mutations';
+import { dashboardLayoutMutations } from '@/organization/settings/graphql/dashboardLayouts/mutations';
 import { structureMutations } from '@/organization/structure/graphql/resolvers/mutations';
 import { userMutations } from '@/organization/team-member/graphql/mutations';
 import { permissionMutations } from '~/modules/permissions/graphql/resolvers/mutations/permission';
@@ -26,6 +29,8 @@ import { productMutations } from '@/products/graphql/resolvers/mutations';
 import { relationsMutations } from '@/relations/graphql/mutations';
 import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
 import { tagMutations } from '@/tags/graphql/mutations';
+import { dataExtensionMutations } from '@/data-extensions/graphql/resolvers';
+import { isDataExtensionsServiceEnabled } from 'erxes-api-shared/core-modules';
 import { broadcastMutations } from '~/modules/broadcast/graphql/resolvers/mutations';
 import { notificationMutations } from '~/modules/notifications/graphql/resolver/mutations';
 import { propertiesMutations } from '~/modules/properties/graphql/resolvers/mutations';
@@ -38,7 +43,7 @@ import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUs
 import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/comment';
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
 import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
-import { templateMutations } from '@/template/graphql/mutations';
+import { templateMutations } from '@/template/graphql/resolvers';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
 import { agentsThreadMutations } from '@/agents/graphql/resolvers/mutations/threads';
 import { agentsSettingsMutations } from '@/agents/graphql/resolvers/mutations/settings';
@@ -60,6 +65,7 @@ export const mutations = {
   ...conformityMutations,
   ...relationsMutations,
   ...favoriteMutations,
+  ...dashboardLayoutMutations,
   ...structureMutations,
   ...brandMutations,
   ...permissionMutations,
@@ -67,8 +73,10 @@ export const mutations = {
   ...filesMutations,
   ...documentMutations,
   ...automationMutations,
+  ...automationFolderMutations,
   ...emailTemplateMutations,
   ...notificationTemplateMutations,
+  ...currencyRateMutations,
   ...notificationMutations,
   ...internalNoteMutations,
   ...broadcastMutations,
@@ -84,4 +92,6 @@ export const mutations = {
   ...agentsConnectionMutations,
   ...agentsThreadMutations,
   ...agentsSettingsMutations,
+  // Served by the standalone app when it runs (see apollo/schema/schema.ts).
+  ...(isDataExtensionsServiceEnabled() ? {} : dataExtensionMutations),
 };

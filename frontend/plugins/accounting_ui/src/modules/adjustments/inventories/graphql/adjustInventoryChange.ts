@@ -44,18 +44,6 @@ export const ADJUST_INVENTORY_RUN = gql(`
 mutation accountingAdjustInventoryRun($adjustId: String!) {
   adjustInventoryRun(adjustId: $adjustId) {
     _id
-    createdAt
-    createdBy
-    updatedAt
-    modifiedBy
-    date
-    description
-    status
-    error
-    warning
-    beginDate
-    successDate
-    checkedAt
   }
 }
 `);

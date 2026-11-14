@@ -49,7 +49,7 @@ export const BroadcastTabPreviewContent = ({
   }
 
   return (
-    <div className="w-full overflow-hidden px-8 py-5 space-y-5">
+    <div className="mx-auto w-full max-w-5xl overflow-hidden px-5 py-5 space-y-5">
       <Suspense fallback={null}>
         <BroadcastMethodTabContent message={message} />
       </Suspense>

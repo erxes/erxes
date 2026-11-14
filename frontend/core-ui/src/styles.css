@@ -1,84 +1,15 @@
 @import '@maily-to/core/style.css';
 @import 'tailwindcss' source(none);
 @import '../../libs/erxes-ui/src/theme.css';
+@import '../../libs/erxes-ui/src/base.css';
 @source '.';
 @source '../../libs/';
 @source '../../plugins/';
 
 @plugin 'tailwindcss-animate';
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
 @layer base {
   :root {
-    --font-sans: 'Inter', sans-serif;
-    --font-mono: 'Roboto Mono', monospace;
-
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.2102 0.006 285.87);
-
-    --primary: oklch(0.514 0.2276 276.98);
-    --primary-foreground: oklch(0.9848 0 0);
-
-    --secondary: oklch(0.8372 0.0563 288.17);
-    --muted: oklch(0.9619 0 0);
-    --muted-foreground: oklch(0.5509 0.0057 17.33);
-
-    --accent: oklch(0.9688 0.0008 286.38);
-    --accent-foreground: oklch(0.7258 0.0074 286.21);
-
-    --destructive: oklch(0.6368 0.2078 25.33);
-    --destructive-foreground: oklch(0.9848 0 0);
-
-    --success: oklch(0.7205 0.192 149.49);
-    --warning: oklch(0.7453 0.1322 54.63);
-    --info: oklch(0.6261 0.1859 259.6);
-
-    --scroll: oklch(0.8634 0.0059 286.27);
-    --border: oklch(0.9197 0.0041 286.32);
-    --input: oklch(0.9197 0.0041 286.32);
-    --ring: oklch(0.5146 0.2296 277.59);
-    --radius: 0.5rem;
-    --sidebar-background: oklch(0.9848 0 0);
-    --shadow: oklch(0 0 0 / 5%);
-    --border-shadow: oklch(0 0 0 / 5%);
-    --spacing: 0.25rem;
-
-    /* Charts */
-    --chart-1: oklch(0.811 0.111 293.571);
-    --chart-2: oklch(0.606 0.25 292.717);
-    --chart-3: oklch(0.541 0.281 293.009);
-    --chart-4: oklch(0.491 0.27 292.581);
-    --chart-5: oklch(0.432 0.232 292.759);
-
-    --chart-50: oklch(0.972 0.021 276.98);
-    --chart-100: oklch(0.925 0.054 276.98);
-    --chart-200: oklch(0.852 0.102 276.98);
-    --chart-300: oklch(0.765 0.165 276.98);
-    --chart-400: oklch(0.654 0.208 276.98);
-    --chart-500: oklch(0.514 0.2276 276.98);
-    --chart-600: oklch(0.452 0.215 276.98);
-    --chart-700: oklch(0.395 0.192 276.98);
-    --chart-800: oklch(0.325 0.161 276.98);
-    --chart-900: oklch(0.262 0.125 276.98);
-    --chart-950: oklch(0.185 0.095 276.98);
-
     /* Call center report */
 
     /* ── Card shadow (light) ──────────────────────────────────────────────── */
@@ -97,63 +28,8 @@
   }
 
   .dark {
-    --background: oklch(0.2044 0 0);
-    --foreground: oklch(0.9761 0.0012 286.38);
-
-    --primary: oklch(0.514 0.2276 276.98);
-    --primary-foreground: oklch(0.9848 0 0);
-
-    --secondary: oklch(0.2219 0.0798 280.68);
-    --muted: oklch(0.2591 0 0);
-    --muted-foreground: oklch(0.7132 0.0043 17.26);
-
-    --accent: oklch(0.245 0.0037 286.12);
-    --accent-foreground: oklch(0.5278 0.0102 286.05);
-
-    --destructive: oklch(0.6368 0.2078 25.33);
-    --destructive-foreground: oklch(0.98 0.01 257);
-
-    --success: oklch(0.7205 0.192 149.49);
-    --warning: oklch(0.7453 0.1322 54.63);
-    --info: oklch(0.6261 0.1859 259.6);
-
-    --scroll: oklch(0.3701 0.0113 285.84);
-    --border: oklch(0.28 0.0104 285.76);
-    --input: oklch(0.28 0.0104 285.76);
-    --ring: oklch(0.514 0.2276 276.98);
-    --sidebar-background: oklch(0.2267 0 0);
-    --border-shadow: oklch(0.9761 0.0012 286.38 / 8%);
-    --shadow: oklch(0 0 0 / 5%);
-
-    --chart-1: oklch(0.811 0.111 293.571);
-    --chart-2: oklch(0.606 0.25 292.717);
-    --chart-3: oklch(0.541 0.281 293.009);
-    --chart-4: oklch(0.491 0.27 292.581);
-    --chart-5: oklch(0.432 0.232 292.759);
-
     /* Call center report */
     --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 2px 6px oklch(0 0 0 / 0.25);
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
-  }
-  h1 {
-    @apply text-2xl font-bold;
-  }
-  h2 {
-    @apply text-xl font-bold;
-  }
-  h3 {
-    @apply text-base font-bold;
   }
 }
 
@@ -529,11 +405,20 @@
   svg {
   color: var(--foreground);
 }
-/* Sidebar body: leave room for the hover actions on plugin menu items */
 [data-navigation-context]
   [data-sidebar='menu-item']:has([data-nav-actions])
-  [data-sidebar='menu-button'] {
+  [data-sidebar='menu-button']:not(:has([data-nav-chevron])) {
   padding-right: 3.75rem;
+}
+[data-navigation-context]
+  [data-sidebar='menu-item']:has([data-nav-actions])
+  [data-nav-chevron] {
+  margin-left: 3.25rem;
+}
+[data-navigation-context]
+  [data-sidebar='menu-item']:has([data-nav-chevron])
+  [data-nav-actions] {
+  right: 1.75rem;
 }
 
 /* Assistant: a little movement around the conversation, never inside reports. */
@@ -584,4 +469,102 @@
 @keyframes agent-chip-arrive {
   from { opacity: 0; transform: translateY(4px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Framed layouts: seasonal frame motion, only in the frame, never for reduced motion. */
+.frame-fill {
+  background: var(--frame-light);
+}
+.dark .frame-fill {
+  background: var(--frame-dark);
+}
+.frame-glow {
+  position: absolute;
+  width: 45vmax;
+  height: 45vmax;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.4;
+  will-change: transform;
+}
+.frame-glow-violet {
+  top: -15vmax;
+  left: -15vmax;
+  background: oklch(0.55 0.25 295);
+}
+.frame-glow-cyan {
+  bottom: -20vmax;
+  left: -10vmax;
+  background: oklch(0.6 0.15 220);
+}
+.frame-glow-pink {
+  top: 20vh;
+  right: -20vmax;
+  background: oklch(0.55 0.22 340);
+}
+.frame-particle {
+  display: none;
+  position: absolute;
+  top: -12px;
+  width: var(--particle-size);
+  height: var(--particle-size);
+}
+.frame-snow {
+  border-radius: 9999px;
+  background: oklch(0.72 0.07 240 / 0.8);
+}
+.frame-petal {
+  border-radius: 80% 0 80% 0;
+  background: oklch(0.7 0.15 355 / 0.75);
+}
+.dark .frame-glow {
+  opacity: 0.75;
+}
+.dark .frame-snow {
+  background: rgb(255 255 255 / 0.75);
+  box-shadow: 0 0 4px rgb(255 255 255 / 0.5);
+}
+.dark .frame-petal {
+  background: oklch(0.82 0.1 355 / 0.8);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .frame-glow-violet {
+    animation: frame-drift-a 14s ease-in-out infinite alternate;
+  }
+  .frame-glow-cyan {
+    animation: frame-drift-b 18s ease-in-out infinite alternate;
+  }
+  .frame-glow-pink {
+    animation: frame-drift-c 16s ease-in-out infinite alternate;
+  }
+  .frame-particle {
+    display: block;
+    animation-name: frame-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  .frame-petal {
+    animation-name: frame-petal-fall;
+  }
+}
+@keyframes frame-drift-a {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(70vw, 60vh, 0); }
+}
+@keyframes frame-drift-b {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(60vw, -70vh, 0); }
+}
+@keyframes frame-drift-c {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-70vw, 30vh, 0); }
+}
+@keyframes frame-fall {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(24px, 105vh, 0); }
+}
+@keyframes frame-petal-fall {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-18px, 52vh, 0) rotate(160deg); }
+  to { transform: translate3d(14px, 105vh, 0) rotate(320deg); }
 }

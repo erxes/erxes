@@ -10,6 +10,7 @@ import { useCompaniesEdit } from 'ui-modules/modules/contacts/hooks';
 
 interface CompanyPhonesProps {
   _id: string;
+  maxVisible?: number;
   primaryPhone: string;
   phones: string[];
   phoneValidationStatus?: ValidationStatus;
@@ -19,6 +20,7 @@ interface CompanyPhonesProps {
 
 export function CompanyPhones({
   _id,
+  maxVisible,
   primaryPhone,
   phones: _phones,
   phoneValidationStatus,
@@ -54,7 +56,7 @@ export function CompanyPhones({
   return (
     <PopoverScoped scope={scope || ''}>
       <Trigger>
-        <PhoneDisplay {...phoneProps} />
+        <PhoneDisplay {...phoneProps} maxVisible={maxVisible} />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <PhoneField

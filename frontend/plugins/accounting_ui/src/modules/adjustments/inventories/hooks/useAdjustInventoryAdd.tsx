@@ -35,6 +35,7 @@ export const useAdjustInventoryAdd = (
         toast({
           title: t('success'),
           description: t('adjust-inventory-created-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },
@@ -52,7 +53,7 @@ export const useAdjustInventoryAdd = (
         const newId = data?.adjustInventoryAdd?._id;
 
         const pathname = newId
-          ? `/accounting/adjustment/inventory/edit?id=${newId}`
+          ? `/accounting/adjustment/inventory/detail?id=${newId}`
           : '/accounting/adjustment/inventory';
 
         navigate(pathname);

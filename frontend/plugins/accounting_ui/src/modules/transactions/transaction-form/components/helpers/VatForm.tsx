@@ -47,9 +47,9 @@ export const VatForm = ({
     return mainSide === TR_SIDES.DEBIT ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
   }, [mainSide, isSameSide]);
 
-  const handleVat = useWatch({
+  const isHandleVat = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.handleVat`,
+    name: `trDocs.${journalIndex}.isHandleVat`,
   });
 
   const details = useWatch({
@@ -60,7 +60,7 @@ export const VatForm = ({
   const { vat: vatPercent = 0, sum: sumPercent } = taxPercents;
 
   const calcedAmount = useMemo(() => {
-    if (handleVat) {
+    if (isHandleVat) {
       return trDoc.vatAmount ?? 0;
     }
     const sumAmount = details
@@ -71,7 +71,7 @@ export const VatForm = ({
     }
 
     return (sumAmount / 100) * vatPercent;
-  }, [details, handleVat, vatPercent, sumPercent, isWithTax, trDoc.vatAmount]);
+  }, [details, isHandleVat, vatPercent, sumPercent, isWithTax, trDoc.vatAmount]);
 
   const { configs } = useMainConfigs();
   const setFollowTrDocs = useSetAtom(followTrDocsState);
@@ -177,7 +177,7 @@ export const VatForm = ({
         <>
           <Form.Field
             control={form.control}
-            name={`trDocs.${journalIndex}.handleVat`}
+            name={`trDocs.${journalIndex}.isHandleVat`}
             render={({ field }) => (
               <Form.Item className="flex items-center space-x-2 space-y-0 pt-5">
                 <Form.Control>
@@ -231,9 +231,9 @@ export const VatForm = ({
               <Form.Item>
                 <Form.Label>{t('vat-amount-label')}</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleVat ? (field.value ?? 0) : calcedAmount}
+                  value={isHandleVat ? (field.value ?? 0) : calcedAmount}
                   onChange={field.onChange}
-                  disabled={!handleVat}
+                  disabled={!isHandleVat}
                 />
                 <Form.Message />
               </Form.Item>

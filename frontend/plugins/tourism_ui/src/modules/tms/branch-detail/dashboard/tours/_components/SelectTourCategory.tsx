@@ -1,5 +1,5 @@
 import { IconCheck } from '@tabler/icons-react';
-import { Button, Popover, Command } from 'erxes-ui';
+import { Button, Popover, Command, cn } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCategories } from '../../category/hooks/useCategories';
@@ -24,6 +24,7 @@ interface SelectTourCategoryProps {
   placeholder?: string;
   branchId?: string;
   language?: string;
+  className?: string;
 }
 
 export const SelectTourCategory = ({
@@ -32,6 +33,7 @@ export const SelectTourCategory = ({
   placeholder = 'Select categories',
   branchId,
   language,
+  className,
 }: SelectTourCategoryProps) => {
   const { t } = useTranslation('tourism');
   const [open, setOpen] = useState(false);
@@ -54,12 +56,12 @@ export const SelectTourCategory = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between w-full h-8 font-normal"
+          className={cn('justify-between w-full h-8 font-normal', className)}
           type="button"
         >
           <span className="truncate">
             {value.length > 0
-              ? t('categories-selected', { count: value.length })
+              ? t('n-categories', { count: value.length })
               : placeholder}
           </span>
         </Button>

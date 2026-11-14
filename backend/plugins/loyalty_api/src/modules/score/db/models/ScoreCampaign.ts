@@ -23,7 +23,6 @@ import {
   getLogChangeScore,
   prepareScoreLogChange,
   refundScoreChange,
-  getScoreValueBeforeLog,
   ScoreOwner,
   updateOwnerScoreCache,
 } from '@/score/services/scoreLedger';
@@ -428,7 +427,7 @@ export const loadScoreCampaignClass = (
 
   /**
    * One campaign's standing entry on a purchase: written the first time,
-   * moved by the difference when the purchase is recalculated, taken back
+   * reversed and replaced when the purchase is recalculated, taken back
    * when it comes to nothing.
    */
   const writeCampaignChange = async ({
@@ -503,7 +502,15 @@ export const loadScoreCampaignClass = (
     const currentChangeScore = getLogChangeScore(activeScoreLog);
     const next = prepareScoreLogChange({ action, changeScore });
     const difference = fixScoreNumber(next.changeScore - currentChangeScore);
-    // Only the difference to the log's current amount moves the balance.
+    // Entries are never edited: the standing one is reversed and a new one
+    // takes its place, while the balance moves only by the difference.
+    const replacementId = new models.ScoreLogs()._id;
+    // Each replacement carries the first entry's date on, so it is read once
+    // here instead of walking the chain back.
+    const earnedAt =
+      action === SCORE_ACTION.ADD
+        ? activeScoreLog.lotDatesFrom || activeScoreLog.createdAt
+        : undefined;
     const balance = await changeBalance({
       models,
       subdomain,
@@ -513,28 +520,54 @@ export const loadScoreCampaignClass = (
       fieldId: campaign.fieldId,
       change: difference,
       absolute: false,
-      // The change belongs to this earning: its lots grow or shrink.
-      logId: activeScoreLog._id,
+      logId: replacementId,
       sourceLogId: activeScoreLog._id,
       purchaseEarn: action === SCORE_ACTION.ADD && !!targetId,
-      // A smaller purchase takes back points that may be spent already.
-      preventNegativeBalance: action !== SCORE_ACTION.ADD,
+      // Points taken back may be spent already; the owner owes them.
+      preventNegativeBalance: false,
+      lotDatesFrom: earnedAt,
     });
 
-    activeScoreLog.changeScore = next.changeScore;
-    if (breakdown) {
-      activeScoreLog.breakdown = breakdown;
-    }
-    if (activeScoreLog.preScore === undefined) {
-      activeScoreLog.preScore = await getScoreValueBeforeLog(
-        models,
-        activeScoreLog,
-      );
-    }
-    await activeScoreLog.save();
+    await models.LoyaltyLots.moveToLog(activeScoreLog._id, replacementId);
+
+    const createdAt = new Date();
+    const entry = {
+      ownerType,
+      ownerId,
+      campaignId: campaign._id,
+      accountTypeId: balance.accountType?._id || activeScoreLog.accountTypeId,
+      accountId: balance.accountId || activeScoreLog.accountId,
+      serviceName: activeScoreLog.serviceName,
+      targetId: activeScoreLog.targetId,
+      targetType: activeScoreLog.targetType,
+      createdBy: input.actorId,
+      createdVia: input.createdVia,
+      createdAt,
+    };
+    const [, replacement] = await models.ScoreLogs.create([
+      {
+        ...entry,
+        action: SCORE_ACTION.REFUND,
+        changeScore: -currentChangeScore,
+        preScore: balance.previous,
+        sourceScoreLogId: activeScoreLog._id,
+        replacedByScoreLogId: replacementId,
+        description: 'Purchase recalculated',
+      },
+      {
+        ...entry,
+        _id: replacementId,
+        action: next.action,
+        changeScore: next.changeScore,
+        preScore: fixScoreNumber(balance.previous - currentChangeScore),
+        breakdown: breakdown || activeScoreLog.breakdown,
+        lotDatesFrom: earnedAt,
+        description: activeScoreLog.description,
+      },
+    ]);
 
     await models.ScoreLogs.recordActivity({
-      log: activeScoreLog,
+      log: replacement,
       actorId: input.actorId,
       changeScore: difference,
       previousScore: balance.previous,
@@ -542,7 +575,7 @@ export const loadScoreCampaignClass = (
       walletName: balance.accountType?.name,
     });
 
-    return activeScoreLog;
+    return replacement;
   };
 
   // The wallet may let only some owners earn; spending is never gated here.

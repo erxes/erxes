@@ -8,7 +8,6 @@ import { router as filesModuleRoutes } from '~/modules/files/routes';
 import { router as importExportRoutes } from '~/modules/import-export/routes';
 import { router as notificationRoutes } from '~/modules/notifications/routes';
 import { router as oauthRoutes } from '~/modules/auth/routes/oauth/routes';
-import { router as templateRoutes } from '~/modules/template/routes';
 
 const router: Router = Router();
 
@@ -19,7 +18,6 @@ router.use(documentRoutes);
 router.use(broadcastRoutes);
 router.use(notificationRoutes);
 router.use(importExportRoutes);
-router.use(templateRoutes);
 router.use(oauthRoutes);
 router.use(agentsRoutes);
 

@@ -4,6 +4,11 @@ import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { transactionSchema } from '~/modules/payment/db/definitions/transactions';
 import { PAYMENT_STATUS } from '~/constants';
+import {
+  markInvoicePaymentKindsStale,
+  syncMarkedInvoicePaymentKinds,
+} from '~/modules/payment/services/invoicePaymentKinds';
+import { scheduleInvoiceRecheck } from '~/modules/payment/services/invoiceRecheckQueue';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
@@ -98,6 +103,8 @@ export const loadTransactionClass = (models: IModels) => {
         code: await generateCode(models),
       };
 
+      await markInvoicePaymentKindsStale(models, [doc.invoiceId]);
+
       const transaction = await models.Transactions.create(updatedDoc);
 
 
@@ -107,12 +114,27 @@ export const loadTransactionClass = (models: IModels) => {
         console.log('[MODEL] api.createInvoice returned', reponse); // reponse, not response
         transaction.response = reponse;
         await transaction.save();
-
-        return transaction;
       } catch (e) {
         await models.Transactions.deleteOne({ _id: transaction._id });
+        await syncMarkedInvoicePaymentKinds(models, [transaction.invoiceId]);
         throw new Error(`Error creating transaction: ${e.message}`);
       }
+
+      // outside the try: a failure here must not delete a created transaction
+      await syncMarkedInvoicePaymentKinds(models, [transaction.invoiceId]);
+
+      // Re-checks the invoice with its provider later, in case the paid
+      // callback never arrives (customer closed the page, provider push lost).
+      // A failure to queue must not fail the payment the customer is making.
+      try {
+        await scheduleInvoiceRecheck(subdomain, transaction.invoiceId);
+      } catch (e) {
+        console.error(
+          `Failed to schedule re-check for invoice ${transaction.invoiceId}: ${e.message}`,
+        );
+      }
+
+      return transaction;
     }
 
     public static async updateTransaction(_id: string, doc: any) {
@@ -140,6 +162,8 @@ export const loadTransactionClass = (models: IModels) => {
       );
       const api = new ErxesPayment(payment);
 
+      await markInvoicePaymentKindsStale(models, [transaction.invoiceId]);
+
       try {
         api.cancelInvoice(transaction);
         await models.Transactions.deleteOne({ _id });
@@ -147,6 +171,8 @@ export const loadTransactionClass = (models: IModels) => {
         console.error(e);
 
         return 'error';
+      } finally {
+        await syncMarkedInvoicePaymentKinds(models, [transaction.invoiceId]);
       }
 
       return 'success';
@@ -192,7 +218,15 @@ export const loadTransactionClass = (models: IModels) => {
         throw new Error('Transactions not found');
       }
 
+      const invoiceIds = transactions.map(
+        (transaction) => transaction.invoiceId,
+      );
+
+      await markInvoicePaymentKindsStale(models, invoiceIds);
+
       await models.Transactions.deleteMany({ _id: { $in: _ids } });
+
+      await syncMarkedInvoicePaymentKinds(models, invoiceIds);
 
       return 'success';
     }

@@ -7,6 +7,8 @@ export interface ISupportStaff {
   name: string;
   email: string;
   reason: string;
+  /** A master key holder global-profile vouches for: enters without the owner's approval, never when off. */
+  trusted: boolean;
 }
 
 const ISSUER = 'erxes-saas';
@@ -128,5 +130,11 @@ export const verifySupportToken = async (
     return null;
   }
 
-  return { staffId: sub, name, email: clean(payload.email, 200), reason };
+  return {
+    staffId: sub,
+    name,
+    email: clean(payload.email, 200),
+    reason,
+    trusted: payload.trusted === true,
+  };
 };

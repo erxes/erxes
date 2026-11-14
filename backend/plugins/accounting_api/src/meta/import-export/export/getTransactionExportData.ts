@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { escapeRegExp, getPureDate } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { getAccountCategoryIds } from '~/modules/accounting/graphql/resolvers/queries/accounts';
 import {
   ITransactionDocument,
   ITrDetail,
@@ -75,7 +76,10 @@ const addRegexFilter = (query: ExportQuery, field: string, value?: string) => {
   }
 };
 
-const buildAccountQuery = (filters: ExportFilters): ExportQuery | undefined => {
+const buildAccountQuery = async (
+  models: IModels,
+  filters: ExportFilters,
+): Promise<ExportQuery | undefined> => {
   const accountQuery: ExportQuery = {};
   const accountIds = asStringArray(filters.accountIds);
 
@@ -88,7 +92,6 @@ const buildAccountQuery = (filters: ExportFilters): ExportQuery | undefined => {
   const directFields: Array<[string, string]> = [
     ['accountKind', 'kind'],
     ['accountStatus', 'status'],
-    ['accountCategoryId', 'categoryId'],
     ['accountBrand', 'scopeBrandIds'],
     ['accountBranchId', 'branchId'],
     ['accountDepartmentId', 'departmentId'],
@@ -102,6 +105,13 @@ const buildAccountQuery = (filters: ExportFilters): ExportQuery | undefined => {
       accountQuery[queryKey] =
         queryKey === 'scopeBrandIds' ? { $in: [value] } : value;
     }
+  }
+
+  const accountCategoryId = asString(filters.accountCategoryId);
+  if (accountCategoryId) {
+    accountQuery.categoryId = {
+      $in: await getAccountCategoryIds(models, accountCategoryId),
+    };
   }
 
   const accountIsOutBalance = asBoolean(filters.accountIsOutBalance);
@@ -126,7 +136,7 @@ const addAccountFilter = async (
   query: ExportQuery,
   filters: ExportFilters,
 ) => {
-  const accountQuery = buildAccountQuery(filters);
+  const accountQuery = await buildAccountQuery(models, filters);
   if (!accountQuery) {
     return;
   }
@@ -176,8 +186,8 @@ const buildTransactionQuery = async (
       key === 'createdUserId'
         ? 'createdBy'
         : key === 'modifiedUserId'
-        ? 'modifiedBy'
-        : key;
+          ? 'modifiedBy'
+          : key;
 
     query[queryKey] = value;
   }
@@ -297,8 +307,8 @@ const buildExportRow = (
     customRate: detail.customRate,
     productId: detail.productId,
     fixedAssetId: detail.fixedAssetId,
-    fixedAssetCode: detail.fixedAssetCode,
-    fixedAssetName: detail.fixedAssetName,
+    fixedAssetCode: detail.followInfos?.fixedAssetCode,
+    fixedAssetName: detail.followInfos?.fixedAssetName,
     count: detail.count,
     unitPrice: detail.unitPrice,
     weight: detail.weight,

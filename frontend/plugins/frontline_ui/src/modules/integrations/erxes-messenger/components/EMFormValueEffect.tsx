@@ -1,110 +1,32 @@
-import { z } from 'zod';
-import { useAtomValue, useSetAtom, WritableAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useAtomValue, useSetAtom, type WritableAtom } from 'jotai';
+import { useEffect, type SetStateAction } from 'react';
+import { isDeeplyEqual } from 'erxes-ui';
+import { type FieldValues, type UseFormReturn } from 'react-hook-form';
 
-export const EMFormValueEffectComponent = ({
+type MessengerFormAtom<T extends FieldValues> = WritableAtom<
+  T | null,
+  [SetStateAction<T | null>],
+  unknown
+>;
+
+export const EMFormValueEffectComponent = <T extends FieldValues>({
   form,
   atom,
 }: {
-  atom: WritableAtom<any, [value: any], void>;
-  form: UseFormReturn<z.infer<any>>;
+  atom: MessengerFormAtom<T>;
+  form: UseFormReturn<T>;
 }) => {
-  // `persistValueTaken` becomes true once it is safe for the setter effect to
-  // start writing form values back into the atom.
-  //
-  // • When atomValue is already null on mount (fresh "Add" flow with no saved
-  //   data) we start as true immediately — there is nothing to restore, so the
-  //   setter can begin syncing right away.
-  // • When atomValue is non-null on mount (edit flow or saved draft) we start
-  //   as false and let EMFormResetEffectComponent do one reset first, then flip
-  //   the flag so subsequent keystrokes are synced without triggering a re-reset.
-  const atomValue = useAtomValue(atom);
-  const [persistValueTaken, setPersistValueTaken] = useState(
-    () => atomValue === null,
-  );
-
-  return (
-    <>
-      <EMFormResetEffectComponent
-        form={form}
-        atom={atom}
-        persistValueTaken={persistValueTaken}
-        setPersistValueTaken={setPersistValueTaken}
-      />
-      <EMFormValueSetterEffectComponent
-        form={form}
-        atom={atom}
-        persistValueTaken={persistValueTaken}
-      />
-    </>
-  );
-};
-
-export const EMFormResetEffectComponent = ({
-  form,
-  atom,
-  persistValueTaken,
-  setPersistValueTaken,
-}: {
-  form: UseFormReturn<z.infer<any>>;
-  atom: WritableAtom<any, [value: any], void>;
-  persistValueTaken: boolean;
-  setPersistValueTaken: (value: boolean) => void;
-}) => {
-  const { reset } = form;
-  const atomValue = useAtomValue(atom);
-
-  const resetForm = useCallback(
-    (value: any) => {
-      setTimeout(() => {
-        reset(value);
-      });
-    },
-    [reset],
-  );
-
-  // Watch atomValue until it's non-null, then reset the form once and lock
-  // the gate. This handles two cases correctly:
-  //
-  //  • Sync  — atom already has data in localStorage on mount → fires
-  //             immediately on the first render.
-  //  • Async — atom starts null (cleared by EditErxesMessengerSheet reset
-  //             while the API query is in-flight). The effect keeps watching
-  //             until setEMSetupValues() populates the atom, then fires once.
-  //
-  // After locking (persistValueTaken = true) the setter effect takes over and
-  // writes form changes back into the atom. This effect is now fully blocked,
-  // so user keystrokes never trigger a re-reset.
+  const value = useAtomValue(atom);
+  const setValue = useSetAtom(atom);
   useEffect(() => {
-    if (persistValueTaken) return; // already initialised — do nothing
-    if (!atomValue) return; // still waiting for data
-    setPersistValueTaken(true);
-    resetForm(atomValue);
-  }, [atomValue, persistValueTaken, resetForm, setPersistValueTaken]);
-
-  return null;
-};
-
-export const EMFormValueSetterEffectComponent = ({
-  form,
-  atom,
-  persistValueTaken,
-}: {
-  form: UseFormReturn<z.infer<any>>;
-  atom: WritableAtom<any, [value: any], void>;
-  persistValueTaken: boolean;
-}) => {
-  const formValues = useWatch({
-    control: form.control,
-  });
-  const setAtomValue = useSetAtom(atom);
-
+    if (value && !isDeeplyEqual(form.getValues(), value, { strict: true }))
+      form.reset(value);
+  }, [value, form]);
   useEffect(() => {
-    if (persistValueTaken) {
-      setAtomValue(formValues);
-    }
-  }, [formValues, persistValueTaken, setAtomValue]);
-
+    const subscription = form.watch((_values, { name }) => {
+      if (name) setValue(form.getValues());
+    });
+    return () => subscription.unsubscribe();
+  }, [form, setValue]);
   return null;
 };

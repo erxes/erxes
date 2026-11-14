@@ -199,10 +199,29 @@ export const buildOpenAiCompatibleChatBody = ({
   return body;
 };
 
+const readProviderErrorMessage = (json: unknown) => {
+  if (typeof json !== 'object' || json === null) {
+    return undefined;
+  }
+
+  const { error, message } = json as { error?: unknown; message?: unknown };
+  const nested =
+    typeof error === 'object' && error !== null
+      ? (error as { message?: unknown }).message
+      : error;
+
+  return [nested, message].find(
+    (value): value is string => typeof value === 'string' && !!value.trim(),
+  );
+};
+
+// The provider's own message, not its whole JSON body
 export const formatOpenAiCompatibleError = (
   response: TOpenAiCompatibleResponse,
 ) => {
-  const responseBody = response.text.trim();
+  const responseBody = (
+    readProviderErrorMessage(response.json) ?? response.text
+  ).trim();
   const loweredBody = responseBody.toLowerCase();
   const shouldHideBody =
     loweredBody.includes('authorization') ||

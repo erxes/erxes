@@ -5,7 +5,15 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
-import { useCmsTranslation } from '../../shared/hooks/useCmsTranslation';
+import {
+  getCmsDefaultLanguage,
+  getInitialCmsLanguage,
+} from '../../shared/utils';
+import {
+  CMS_TRANSLATION_FIELDS,
+  useCmsTranslation,
+  useRecordInDefaultLanguage,
+} from '../../shared/hooks/useCmsTranslation';
 import {
   CMS_MENU_ADD,
   CMS_MENU_EDIT,
@@ -26,7 +34,7 @@ import {
   GraphQLErrorEntry,
   MenuContentItem,
   MenuCustomType,
-  MenuDrawerProps,
+  MenuPanelFormProps,
   MenuFormData,
   MenuInput,
   TranslationInput,
@@ -81,29 +89,38 @@ function buildMenuTranslations(
   }
 
   if (isCreating && isNonDefaultLang) {
-    entries.push({ language: selectedLanguage, title: currentLabel, type: 'menu' });
+    entries.push({
+      language: selectedLanguage,
+      title: currentLabel,
+      type: 'menu',
+    });
   }
 
   return entries;
 }
 
-export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }: MenuDrawerProps) {
+export function useMenuDrawer({
+  clientPortalId,
+  menu: storedMenu,
+  onCreated,
+  onUpdated,
+}: MenuPanelFormProps) {
   const { t } = useTranslation('content');
   const [hasPermissionError, setHasPermissionError] = useState(false);
-  const isEditing = Boolean(menu?._id);
+  const isEditing = Boolean(storedMenu?._id);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,
@@ -112,13 +129,23 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     handleLanguageChange,
     defaultLangData,
     translations,
+    savedRowLoad,
   } = useCmsTranslation({
-    objectId: menu?._id,
+    objectId: storedMenu?._id,
     type: 'menu',
     availableLanguages,
     defaultLanguage,
-    resetKey: isOpen,
+    cmsConfig,
+    cmsQuery,
+    resetKey: `${clientPortalId}-${storedMenu?._id || 'new'}`,
   });
+
+  const menu = useRecordInDefaultLanguage(
+    storedMenu,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.menu,
+  );
 
   const form = useForm<MenuFormData>({
     defaultValues: {
@@ -133,23 +160,27 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   });
 
   useEffect(() => {
-    if (isOpen) {
-      form.reset({
-        label: menu?.label || '',
+    form.reset(
+      {
+        label:
+          (isTranslationMode
+            ? translations[selectedLanguage]?.title
+            : menu?.label) || '',
         url: menu?.url || '',
         kind: menu?.kind || '',
         clientPortalId,
         parentId: menu?.parentId || '',
         linkType: detectLinkType(menu?.url || ''),
         target: menu?.target === '_blank',
-      });
-      setHasPermissionError(false);
-    }
-  }, [isOpen, clientPortalId, menu]);
+      },
+      { keepDirtyValues: menu !== storedMenu },
+    );
+    setHasPermissionError(false);
+  }, [clientPortalId, menu, storedMenu]);
 
   const { data: menusData } = useQuery(CMS_MENU_LIST, {
     variables: { clientPortalId, limit: 100 },
-    skip: !isOpen || !clientPortalId,
+    skip: !clientPortalId,
     fetchPolicy: 'cache-and-network',
   });
 
@@ -171,37 +202,41 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
   const { data: customTypesData } = useQuery(MENU_CUSTOM_TYPES_QUERY, {
     variables: { clientPortalId },
-    skip: !isOpen || !clientPortalId,
+    skip: !clientPortalId,
     fetchPolicy: 'cache-first',
   });
 
   const { data: pagesData } = useQuery(MENU_PAGES_QUERY, {
     variables: { clientPortalId, limit: 100 },
-    skip: !isOpen || !clientPortalId || linkType !== 'page',
+    skip: !clientPortalId || linkType !== 'page',
     fetchPolicy: 'cache-first',
   });
 
   const { data: postsData } = useQuery(MENU_POSTS_QUERY, {
-    variables: { clientPortalId, limit: 100, type: isCustomType ? linkType : undefined },
-    skip: !isOpen || !clientPortalId || !isPostType,
+    variables: {
+      clientPortalId,
+      limit: 100,
+      type: isCustomType ? linkType : undefined,
+    },
+    skip: !clientPortalId || !isPostType,
     fetchPolicy: 'cache-first',
   });
 
   const { data: categoriesData } = useQuery(MENU_CATEGORIES_QUERY, {
     variables: { clientPortalId, limit: 100 },
-    skip: !isOpen || !clientPortalId || linkType !== 'category',
+    skip: !clientPortalId || linkType !== 'category',
     fetchPolicy: 'cache-first',
   });
 
   const { data: tagsData } = useQuery(MENU_TAGS_QUERY, {
     variables: { clientPortalId, language: selectedLanguage || cmsLanguage },
-    skip: !isOpen || !clientPortalId || linkType !== 'tag',
+    skip: !clientPortalId || linkType !== 'tag',
     fetchPolicy: 'cache-first',
   });
 
   const { data: detectData } = useQuery(MENU_DETECT_QUERY, {
     variables: { clientPortalId, limit: 100 },
-    skip: !isOpen || !isEditing || !clientPortalId,
+    skip: !isEditing || !clientPortalId,
     fetchPolicy: 'cache-first',
   });
 
@@ -213,8 +248,11 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
     const detectedPages: { _id: string; slug: string }[] =
       detectData.cmsPageList?.pages || [];
-    const detectedPosts: { _id: string; slug: string; customPostType?: { _id: string } }[] =
-      detectData.cmsPostList?.posts || [];
+    const detectedPosts: {
+      _id: string;
+      slug: string;
+      customPostType?: { _id: string };
+    }[] = detectData.cmsPostList?.posts || [];
 
     const matchedPage = detectedPages.find((p) => `/${p.slug}` === url);
     if (matchedPage) {
@@ -228,10 +266,12 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     }
   }, [detectData, isEditing, menu?.url]);
 
-  const customTypes: MenuCustomType[] = customTypesData?.cmsCustomPostTypes || [];
+  const customTypes: MenuCustomType[] =
+    customTypesData?.cmsCustomPostTypes || [];
   const pages: MenuContentItem[] = pagesData?.cmsPageList?.pages || [];
   const posts: MenuContentItem[] = postsData?.cmsPostList?.posts || [];
-  const categories: MenuContentItem[] = categoriesData?.cmsCategories?.list || [];
+  const categories: MenuContentItem[] =
+    categoriesData?.cmsCategories?.list || [];
   const tags: MenuContentItem[] = tagsData?.cmsTags?.tags || [];
 
   function handleError(error: ApolloError) {
@@ -260,20 +300,30 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   }
 
   const [addMenu, { loading: adding }] = useMutation(CMS_MENU_ADD, {
-    onCompleted: () => {
-      onClose();
-      form.reset();
-      onSuccess?.();
-      toast({ title: t('success'), description: t('menu-created-successfully'), variant: 'default' });
+    refetchQueries: ['cmsMenuList'],
+    onCompleted: (data) => {
+      toast({
+        title: t('success'),
+        description: t('menu-created-successfully'),
+        variant: 'default',
+      });
+
+      if (data?.cmsAddMenu?._id) {
+        onCreated?.(data.cmsAddMenu._id);
+      }
     },
     onError: handleError,
   });
 
   const [editMenu, { loading: editing }] = useMutation(CMS_MENU_EDIT, {
+    refetchQueries: ['cmsMenuList'],
     onCompleted: () => {
-      onClose();
-      onSuccess?.();
-      toast({ title: t('success'), description: t('menu-updated-successfully'), variant: 'default' });
+      onUpdated?.();
+      toast({
+        title: t('success'),
+        description: t('menu-updated-successfully'),
+        variant: 'default',
+      });
     },
     onError: handleError,
   });
@@ -281,6 +331,8 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   const saving = adding || editing;
 
   const onSubmit = (data: MenuFormData) => {
+    if (savedRowLoad.isBlocked) return;
+
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
@@ -290,7 +342,12 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
     const input: MenuInput = {
       clientPortalId: data.clientPortalId,
-      label: resolveMainLabel(currentLabel, isCreating, isNonDefaultLang, defaultLangData),
+      label: resolveMainLabel(
+        currentLabel,
+        isCreating,
+        isNonDefaultLang,
+        defaultLangData,
+      ),
       url: data.url,
       kind: data.kind,
       target: data.target ? '_blank' : '',
@@ -301,12 +358,22 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     }
 
     if (selectedLanguage) {
-      input.language = resolveLanguage(selectedLanguage, defaultLanguage, isCreating, isNonDefaultLang);
+      input.language = resolveLanguage(
+        selectedLanguage,
+        defaultLanguage,
+        isCreating,
+        isNonDefaultLang,
+      );
     }
 
     if (defaultLanguage) {
       const translationEntries = buildMenuTranslations(
-        translations, defaultLanguage, selectedLanguage, currentLabel, isCreating, isNonDefaultLang,
+        translations,
+        defaultLanguage,
+        selectedLanguage,
+        currentLabel,
+        isCreating,
+        isNonDefaultLang,
       );
       if (translationEntries.length > 0) {
         input.translations = translationEntries;
@@ -324,32 +391,37 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     handleLanguageChange(
       lang,
       () => ({ title: form.getValues('label') || '' }),
-      (data) => { form.setValue('label', data.title || ''); },
+      (data) => {
+        form.setValue('label', data.title || '');
+      },
       menu ? { title: menu.label || '' } : undefined,
     );
     setCmsLanguage(lang);
   };
 
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   const appliedInitialLangRef = useRef(false);
   useEffect(() => {
-    if (!isOpen) {
-      appliedInitialLangRef.current = false;
-      return;
-    }
     if (appliedInitialLangRef.current) return;
-    if (!defaultLanguage || !cmsLanguage || cmsLanguage === defaultLanguage) return;
+    if (!defaultLanguage || initialLanguage === defaultLanguage) return;
     if (selectedLanguage !== defaultLanguage) return;
 
     appliedInitialLangRef.current = true;
-    onLanguageChange(cmsLanguage);
+    onLanguageChange(initialLanguage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, defaultLanguage, cmsLanguage, selectedLanguage]);
+  }, [defaultLanguage, initialLanguage, selectedLanguage]);
 
   return {
     form,
     isEditing,
     hasPermissionError,
     saving,
+    savedRowLoad,
     selectedLanguage,
     isTranslationMode,
     languageOptions,

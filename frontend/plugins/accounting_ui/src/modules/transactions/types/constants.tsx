@@ -8,7 +8,6 @@ import {
 import type { Icon } from '@tabler/icons-react';
 
 export const ACC_TRS__PER_PAGE = 30;
-export const RECEIPTS_STRUCTURE_PAGE_SIZE = 100;
 
 export enum TrJournalEnum {
   MAIN = 'main',
@@ -44,6 +43,10 @@ export enum TrJournalEnum {
   FXA_MOVE = 'fxaMove',
   FXA_MOVE_IN = 'fxaMoveIn',
   FXA_SALE = 'fxaSale',
+  FXA_CAPITAL = 'fxaCapital',
+  FXA_REVALUATION = 'fxaRevaluation',
+  FXA_REVALUATION_RESULT = 'fxaRevaluationResult',
+  FXA_DEFERRED_TAX = 'fxaDeferredTax',
 }
 
 export const TR_JOURNAL_LABELS = {
@@ -70,6 +73,10 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_RETURN_OUT]: 'sales-return-inventory-issue',
   [TrJournalEnum.INV_SALE_RETURN_COST]: 'sales-return-cost-of-goods-sold',
 
+  [TrJournalEnum.FXA_CAPITAL]: 'fixed-asset-capitalization',
+  [TrJournalEnum.FXA_REVALUATION]: 'fixed-asset-revaluation',
+  [TrJournalEnum.FXA_REVALUATION_RESULT]: 'fixed-asset-revaluation-result',
+  [TrJournalEnum.FXA_DEFERRED_TAX]: 'fixed-asset-deferred-tax',
   [TrJournalEnum.FXA_INCOME]: 'fixed-asset-acquisition',
   [TrJournalEnum.FXA_OUT]: 'fixed-asset-disposal',
   [TrJournalEnum.FXA_DEP]: 'fixed-asset-depreciation',
@@ -86,6 +93,7 @@ export const TR_JOURNAL_LABELS = {
 export const TR_PERFECT_JOURNALS = [
   TrJournalEnum.INV_MOVE,
   TrJournalEnum.FXA_MOVE,
+  TrJournalEnum.FXA_REVALUATION,
 ];
 
 export type TrJournalGroupItem = {
@@ -150,6 +158,14 @@ export const TR_JOURNAL_GROUPS: TrJournalGroup[] = [
       { journal: TrJournalEnum.FXA_OUT, label: 'disposal' },
       { journal: TrJournalEnum.FXA_MOVE, label: 'movement' },
       { journal: TrJournalEnum.FXA_SALE, label: 'sale' },
+      {
+        journal: TrJournalEnum.FXA_CAPITAL,
+        label: 'fixed-asset-capitalization',
+      },
+      {
+        journal: TrJournalEnum.FXA_REVALUATION,
+        label: 'fixed-asset-revaluation',
+      },
     ],
   },
 ];
@@ -215,6 +231,10 @@ export const TR_RECORD_JOURNAL_GROUPS: TrRecordJournalGroup[] = [
       TrJournalEnum.FXA_SALE,
       TrJournalEnum.FXA_SALE_OUT,
       TrJournalEnum.FXA_SALE_COST,
+      TrJournalEnum.FXA_CAPITAL,
+      TrJournalEnum.FXA_REVALUATION,
+      TrJournalEnum.FXA_REVALUATION_RESULT,
+      TrJournalEnum.FXA_DEFERRED_TAX,
     ],
   },
 ];

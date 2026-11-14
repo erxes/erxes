@@ -18,3 +18,13 @@ export const PERMISSION_GROUP_SCHEMA = z.object({
 });
 
 export type IPermissionGroupSchema = z.infer<typeof PERMISSION_GROUP_SCHEMA>;
+
+export const permissionGroupToInput = (
+  data: IPermissionGroupSchema,
+): Omit<IPermissionGroupSchema, 'description'> & {
+  description: string | null;
+} => ({
+  name: data.name.trim(),
+  description: data.description?.trim() || null,
+  permissions: data.permissions,
+});

@@ -1,8 +1,10 @@
 import { useGetPos } from '@/pos/hooks/useGetPos';
+import { useLoyaltyEnabled } from '@/deals/loyaltyRules/hooks/useLoyaltyEnabled';
 import {
   IconChecklist,
   IconChevronRight,
   IconClipboard,
+  IconCoins,
   IconDotsVertical,
   IconLink,
   IconSettings,
@@ -128,6 +130,7 @@ export function PosOrderNavigation() {
   const location = useLocation();
   const { pos, loading } = useGetPos();
 
+  const loyaltyEnabled = useLoyaltyEnabled();
   const isPos = location.pathname.startsWith('/sales/pos');
 
   if (!isPos) return null;
@@ -137,17 +140,36 @@ export function PosOrderNavigation() {
   }
 
   return (
-    <NavigationMenuGroup name={t('pos-order')}>
-      {loading ? (
-        <LoadingSkeleton />
-      ) : (
-        <div>
-          {pos?.map((pos) => (
-            <PosItem key={pos._id} pos={pos} />
-          ))}
-        </div>
+    <>
+      {loyaltyEnabled && (
+        <>
+          {/* Sets the module's own pages apart from the plugin menu above. */}
+          <Sidebar.Separator />
+          <Sidebar.Group className="px-2 py-1">
+            <Sidebar.GroupContent>
+              <Sidebar.Menu>
+                <NavigationMenuLinkItem
+                  name={t('loyalty-deal-points')}
+                  path="sales/pos/loyalty"
+                  icon={IconCoins}
+                />
+              </Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </Sidebar.Group>
+        </>
       )}
-    </NavigationMenuGroup>
+      <NavigationMenuGroup name={t('pos-order')}>
+        {loading ? (
+          <LoadingSkeleton />
+        ) : (
+          <div>
+            {pos?.map((pos) => (
+              <PosItem key={pos._id} pos={pos} />
+            ))}
+          </div>
+        )}
+      </NavigationMenuGroup>
+    </>
   );
 }
 

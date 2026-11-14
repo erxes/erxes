@@ -106,6 +106,8 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
   const dropzoneProps = useDropzone({
     onDrop,
     noClick: true,
+    // A document-wide drop blocker would also swallow text drops elsewhere
+    preventDropOnDocument: false,
     accept: allowedMimeTypes.reduce(
       (acc, type) => ({ ...acc, [type]: [] }),
       {},

@@ -14,6 +14,9 @@ export const useProductGroups = (posId?: string) => {
     () =>
       (data?.productGroups ?? []).filter(hasId).map((group) => ({
         ...group,
+        productIds: (group.productIds ?? []).filter(isDefined),
+        tagIds: (group.tagIds ?? []).filter(isDefined),
+        excludeTagIds: (group.excludeTagIds ?? []).filter(isDefined),
         categoryIds: (group.categoryIds ?? []).filter(isDefined),
         excludedCategoryIds: (group.excludedCategoryIds ?? []).filter(
           isDefined,

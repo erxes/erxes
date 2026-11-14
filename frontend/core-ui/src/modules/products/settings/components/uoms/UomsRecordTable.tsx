@@ -4,7 +4,6 @@ import { useUoms } from '../../hooks/useUoms';
 import { uomsColumns } from './UomsColumns';
 import { IconRulerMeasure } from '@tabler/icons-react';
 import { UomsCommandBar } from './UomsCommandBar';
-import { AddUomSheet } from './AddUomSheet';
 
 export const UomsRecordTable = () => {
   const { uoms, loading } = useUoms();
@@ -48,7 +47,6 @@ function EmptyStateRow() {
         {t('empty-title')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
-      <AddUomSheet />
     </div>
   );
 }

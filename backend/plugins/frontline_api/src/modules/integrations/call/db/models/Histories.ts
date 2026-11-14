@@ -45,6 +45,8 @@ const CALL_HISTORY_CONSTANTS = {
   },
 } as const;
 
+const NO_CALL_LEGS = '__none__';
+
 const ERROR_MESSAGES = {
   INTEGRATION_NOT_FOUND: 'Integration not found',
   OPERATOR_NOT_FOUND: 'Operator not found',
@@ -281,6 +283,46 @@ export const loadCallHistoryClass = (models: IModels) => {
             customerPhone: { $regex: escapeRegExp(searchValue), $options: 'i' },
           },
         });
+      }
+
+      if (callStatus !== CALL_HISTORY_CONSTANTS.CALL_STATUS.CONNECTED) {
+        pipeline.push(
+          {
+            $addFields: {
+              _unansweredCall: {
+                $cond: [
+                  '$isAnswered',
+                  NO_CALL_LEGS,
+                  { $ifNull: ['$_id', NO_CALL_LEGS] },
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: models.CallCdrs.collection.name,
+              localField: '_unansweredCall',
+              foreignField: 'uniqueid',
+              as: '_callLegs',
+            },
+          },
+          {
+            $match: {
+              _callLegs: {
+                $not: {
+                  $elemMatch: {
+                    disposition: /^answered$/i,
+                    billsec: { $gt: 0 },
+                    lastapp: { $in: ['Queue', 'Dial'] },
+                    actionType: { $not: /VM/ },
+                    dstchannelExt: { $nin: extVals },
+                  },
+                },
+              },
+            },
+          },
+          { $project: { _callLegs: 0, _unansweredCall: 0 } },
+        );
       }
 
       if (forCount) {

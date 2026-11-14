@@ -88,6 +88,13 @@ jest.mock('erxes-ui', () => {
     ),
     RecordTable: { MoreButton: 'button' },
     Button: 'button',
+    Tooltip: Object.assign(
+      ({ children }: { children: ReactNode }) => children,
+      {
+        Trigger: ({ children }: { children: ReactNode }) => children,
+        Content: () => null,
+      },
+    ),
     Textarea: 'textarea',
     Sheet: Object.assign(SheetRoot, {
       Trigger: ({ children }: { children: ReactElement }) => {

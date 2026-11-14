@@ -102,25 +102,25 @@ const adjustDebtRateMutations = {
   async adjustDebtRateCalculate(
     _root: unknown,
     { _id }: { _id: string },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustDebtRates');
 
     const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
 
-    return calculateAdjustDebtRate(models, user._id, adjust);
+    return calculateAdjustDebtRate(subdomain, models, user._id, adjust);
   },
 
   async adjustDebtRateDoTransaction(
     _root: unknown,
     { _id }: { _id: string },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustDebtRates');
 
     const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
 
-    return runAdjustDebtRate(models, user._id, adjust);
+    return runAdjustDebtRate(subdomain, models, user._id, adjust);
   },
 };
 

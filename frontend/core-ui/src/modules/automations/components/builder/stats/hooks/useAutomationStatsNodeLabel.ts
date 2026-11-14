@@ -1,12 +1,20 @@
-import { useAutomation } from '@/automations/context/AutomationProvider';
-import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
-import { TAutomationStatsNode } from '@/automations/types';
+import { useAutomationStatsNodes } from '@/automations/components/builder/stats/context/AutomationStatsNodesContext';
+import { AUTOMATION_CONSTANTS } from '@/automations/graphql/automationQueries';
+import {
+  ConstantsQueryResponse,
+  TAutomationStatsNode,
+} from '@/automations/types';
+import { useQuery } from '@apollo/client';
 import { useCallback } from 'react';
 
 /** Resolves a stats actionId back to the node label shown on the canvas. */
 export const useAutomationStatsNodeLabel = () => {
-  const { actions, workflows } = useAutomationNodes();
-  const { actionsConst } = useAutomation();
+  const { actions, workflows } = useAutomationStatsNodes();
+  const { data } = useQuery<ConstantsQueryResponse>(AUTOMATION_CONSTANTS, {
+    fetchPolicy: 'cache-first',
+    nextFetchPolicy: 'cache-only',
+  });
+  const actionsConst = data?.automationConstants?.actionsConst;
 
   return useCallback(
     ({
@@ -19,7 +27,7 @@ export const useAutomationStatsNodeLabel = () => {
           .flatMap(({ actions: memberActions = [] }) => memberActions)
           .find(({ id }) => id === actionId);
 
-      const typeLabel = actionsConst.find(
+      const typeLabel = actionsConst?.find(
         ({ type }) => type === (node?.type || actionType),
       )?.label;
 

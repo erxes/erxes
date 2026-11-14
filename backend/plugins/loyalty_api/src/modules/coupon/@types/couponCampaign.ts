@@ -14,6 +14,14 @@ export interface ICouponCodeRule {
   pattern?: string;
 }
 
+/** What the campaign form stores in `codeRule` in place of size, prefix, postfix and charSet. */
+export interface ICouponCodeRuleFormFields {
+  numberOfCodes?: number;
+  prefixUppercase?: string;
+  postfixUppercase?: string;
+  characterSet?: string;
+}
+
 export interface ICouponCampaign extends ICommonCampaignFields {
   kind: 'amount' | 'percent';
   value: number;

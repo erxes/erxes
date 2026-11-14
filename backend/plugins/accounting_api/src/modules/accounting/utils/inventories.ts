@@ -1,4 +1,5 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { FilterQuery, PipelineStage } from 'mongoose';
 import {
   fixNum,
   getPureDate,
@@ -13,6 +14,7 @@ import {
   IAdjustInventory,
   IAdjustInventoryDocument,
   ICommonAdjInvDetailInfo,
+  TAdjustInventoryModifier,
 } from '../@types/adjustInventory';
 import {
   JOURNALS,
@@ -227,27 +229,26 @@ export const activeCost = async (
 };
 
 export const modifierWrapper = async (
+  subdomain: string,
   models: IModels,
   adjustInventory: IAdjustInventoryDocument,
-  modifier: any,
-  hasObj = false,
+  modifier: TAdjustInventoryModifier,
 ) => {
   const adjustId = adjustInventory._id;
 
-  await models.AdjustInventories.updateAdjustInventory(adjustId, modifier);
+  const adjust = await models.AdjustInventories.updateAdjustInventory(
+    adjustId,
+    modifier,
+  );
 
-  graphqlPubsub.publish(`accountingAdjustInventoryChanged:${adjustId}`, {
-    accountingAdjustInventoryChanged: {
-      ...adjustInventory,
-      ...modifier,
+  graphqlPubsub.publish(
+    `accountingAdjustInventoryChanged:${subdomain}:${adjustId}`,
+    {
+      accountingAdjustInventoryChanged: adjust,
     },
-  });
+  );
 
-  if (hasObj) {
-    return await models.AdjustInventories.getAdjustInventory(adjustId);
-  }
-
-  return;
+  return adjust;
 };
 
 export const checkValidDate = async (
@@ -305,6 +306,7 @@ export const checkValidDate = async (
 };
 
 export const detailsClear = async (
+  subdomain: string,
   models: IModels,
   user: IUserDocument,
   adjustInventory: IAdjustInventoryDocument,
@@ -320,21 +322,17 @@ export const detailsClear = async (
       });
     }
 
-    return await modifierWrapper(
-      models,
-      adjustInventory,
-      { successDate: null, modifiedBy: user._id },
-      true,
-    );
+    return await modifierWrapper(subdomain, models, adjustInventory, {
+      successDate: null,
+      modifiedBy: user._id,
+    });
   }
 
-  if (
-    !(
-      date &&
-      ((adjustInventory.beginDate && adjustInventory.beginDate < date) ||
-        (adjustInventory.successDate && adjustInventory.successDate > date))
-    )
-  ) {
+  if (!(
+    date &&
+    ((adjustInventory.beginDate && adjustInventory.beginDate < date) ||
+      (adjustInventory.successDate && adjustInventory.successDate > date))
+  )) {
     throw new Error('wrong date');
   }
 
@@ -364,12 +362,10 @@ export const detailsClear = async (
       },
     );
   }
-  return await modifierWrapper(
-    models,
-    adjustInventory,
-    { successDate: date, modifiedBy: user._id },
-    true,
-  );
+  return await modifierWrapper(subdomain, models, adjustInventory, {
+    successDate: date,
+    modifiedBy: user._id,
+  });
 };
 
 const recheckValidDate = async (
@@ -447,120 +443,6 @@ const calcTrs = async (
   }
 };
 
-const calcInvTrs = async (
-  models: IModels,
-  {
-    adjustId,
-    beginDate,
-    endDate,
-    trFilter,
-  }: {
-    adjustId: string;
-    beginDate: Date;
-    endDate: Date;
-    trFilter: any;
-    beforeAdjInvId?: string;
-  },
-) => {
-  const commonMatch: any = {
-    date: { $gte: beginDate, $lt: endDate },
-    ...trFilter,
-  };
-  const commonAggregates: any[] = [
-    { $unwind: '$details' },
-    {
-      $addFields: {
-        locationBranchId: {
-          $cond: [
-            { $gt: [{ $strLenCP: { $ifNull: ['$details.branchId', ''] } }, 0] },
-            '$details.branchId',
-            '$branchId',
-          ],
-        },
-        locationDepartmentId: {
-          $cond: [
-            {
-              $gt: [
-                { $strLenCP: { $ifNull: ['$details.departmentId', ''] } },
-                0,
-              ],
-            },
-            '$details.departmentId',
-            '$departmentId',
-          ],
-        },
-      },
-    },
-    { $sort: { updatedAt: 1 } },
-    {
-      $group: {
-        _id: {
-          accountId: '$details.accountId',
-          branchId: '$locationBranchId',
-          departmentId: '$locationDepartmentId',
-          productId: '$details.productId',
-        },
-        records: { $push: '$$ROOT' },
-      },
-    },
-  ];
-
-  const incomeAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_INCOME } },
-    ...commonAggregates,
-  ]);
-  await calcTrs(models, { adjustId, aggregateTrs: incomeAggrs });
-
-  const moveOutAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE } },
-    ...commonAggregates,
-  ]);
-  const moveInAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE_IN } },
-    ...commonAggregates,
-  ]);
-  await calcTrs(models, {
-    adjustId,
-    aggregateTrs: moveOutAggrs,
-    multiplier: -1,
-  });
-  await calcTrs(models, { adjustId, aggregateTrs: moveInAggrs });
-
-  const outAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_OUT } },
-    ...commonAggregates,
-  ]);
-  await calcTrs(models, { adjustId, aggregateTrs: outAggrs, multiplier: -1 });
-
-  const justifyUpAggrs = await models.Transactions.aggregate([
-    {
-      $match: {
-        ...commonMatch,
-        journal: JOURNALS.INV_JUSTIFY,
-        side: TR_SIDES.DEBIT,
-      },
-    },
-    ...commonAggregates,
-  ]);
-  await calcTrs(models, { adjustId, aggregateTrs: justifyUpAggrs });
-
-  const justifyDownAggrs = await models.Transactions.aggregate([
-    {
-      $match: {
-        ...commonMatch,
-        journal: JOURNALS.INV_JUSTIFY,
-        side: TR_SIDES.CREDIT,
-      },
-    },
-    ...commonAggregates,
-  ]);
-  await calcTrs(models, {
-    adjustId,
-    aggregateTrs: justifyDownAggrs,
-    multiplier: -1,
-  });
-};
-
 const detailAmountEquals = (detail: ITrDetail, amount: number) =>
   fixNum(detail.amount ?? 0) === fixNum(amount);
 
@@ -573,9 +455,7 @@ const getRelatedDebitDetail = (details: ITrDetail[], oldAmount: number) => {
     return matchedDetail;
   }
 
-  if (details.length === 1) {
-    return details[0];
-  }
+  return details.length === 1 ? details[0] : undefined;
 };
 
 const selectRelatedDebitTransaction = (
@@ -590,9 +470,7 @@ const selectRelatedDebitTransaction = (
     return matchedByTotal;
   }
 
-  if (transactions.length === 1) {
-    return transactions[0];
-  }
+  return transactions.length === 1 ? transactions[0] : undefined;
 };
 
 export const fixRelatedMainJournal = async (
@@ -700,76 +578,75 @@ const afterCalc = async (models: IModels, trIds: string[]) => {
   ]);
 };
 
-const getErrorDesc = async (
+type InventoryErrorRecord = {
+  code?: string;
+  name?: string;
+  title?: string;
+};
+
+export const getInventoryShortageError = async (
   subdomain: string,
   models: IModels,
-  errFormat: string,
-  args: any,
-) => {
-  let result = errFormat;
+  params: IAdjustInvDetailParams & {
+    date: Date;
+    journal: 'out' | 'move' | 'sale';
+    remainder: number;
+    required: number;
+  },
+): Promise<string> => {
+  const { productId, accountId, branchId, departmentId } = params;
+  const findCoreRecord = (
+    module: 'products' | 'branches' | 'departments',
+    id: string,
+  ): Promise<InventoryErrorRecord | null> =>
+    id && id !== '_'
+      ? sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module,
+          action: 'findOne',
+          defaultValue: null,
+          input: { query: { _id: id } },
+        })
+      : Promise.resolve(null);
 
-  if (errFormat.includes('{productId}') && args.productId) {
-    const product = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'products',
-      action: 'findOne',
-      defaultValue: {},
-      input: { query: { _id: args.productId } },
-    });
-    if (product?._id) {
-      result = result.replace(
-        /{productId}/g,
-        `${product.code} - ${product.name}`,
-      );
-    }
-  }
+  const [product, account, branch, department] = await Promise.allSettled([
+    findCoreRecord('products', productId),
+    models.Accounts.findOne({ _id: accountId }),
+    findCoreRecord('branches', branchId),
+    findCoreRecord('departments', departmentId),
+  ]);
 
-  if (errFormat.includes('{accountId}') && args.accountId) {
-    const account = await models.Accounts.findOne({ _id: args.accountId });
+  const label = (
+    result: PromiseSettledResult<InventoryErrorRecord | null>,
+    fallback: string,
+  ): string => {
+    const record = result.status === 'fulfilled' ? result.value : null;
+    return (
+      [record?.code, record?.name || record?.title]
+        .filter(Boolean)
+        .join(' - ') || fallback
+    );
+  };
 
-    if (account?._id) {
-      result = result.replace(
-        /{accountId}/g,
-        `${account.code} - ${account.name}`,
-      );
-    }
-  }
-
-  if (errFormat.includes('{branchId}') && args.branchId) {
-    const branch = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'branches',
-      action: 'findOne',
-      defaultValue: {},
-      input: { query: { _id: args.branchId } },
-    });
-    if (branch?._id) {
-      result = result.replace(
-        /{branchId}/g,
-        `${branch.code} - ${branch.title}`,
-      );
-    }
-  }
-
-  if (errFormat.includes('{departmentId}') && args.departmentId) {
-    const department = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'departments',
-      action: 'findOne',
-      defaultValue: {},
-      input: { query: { _id: args.departmentId } },
-    });
-    if (department?._id) {
-      result = result.replace(
-        /{departmentId}/g,
-        `${department.code} - ${department.title}`,
-      );
-    }
-  }
-  return result;
+  return [
+    `Not enough stock (${params.journal}). Date: ${params.date
+      .toISOString()
+      .slice(0, 10)}`,
+    `Product: ${label(product, 'Unknown product')}`,
+    `Account: ${label(account, 'Unknown account')}`,
+    `Branch: ${label(
+      branch,
+      branchId && branchId !== '_' ? 'Unknown branch' : 'Unassigned',
+    )}`,
+    `Department: ${label(
+      department,
+      departmentId && departmentId !== '_' ? 'Unknown department' : 'Unassigned',
+    )}`,
+    `Available: ${params.remainder}`,
+    `Required: ${params.required}`,
+    `Shortage: ${fixNum(params.required - params.remainder)}`,
+  ].join('; ');
 };
 
 export const getInventoryOutAdjustment = (
@@ -835,12 +712,16 @@ export const fixOutTrs = async (
         const unitCost = fixNum(cost / (remainder ?? 1));
 
         if (remainder < sumCount) {
-          const error = await getErrorDesc(
-            subdomain,
-            models,
-            `Not enough stock for {productId} in {accountId} {branchId} {departmentId} (out)`,
-            { productId, accountId, branchId, departmentId },
-          );
+          const error = await getInventoryShortageError(subdomain, models, {
+            productId,
+            accountId,
+            branchId,
+            departmentId,
+            date: records[0].date,
+            journal: 'out',
+            remainder,
+            required: sumCount,
+          });
           await models.AdjustInvDetails.updateOne(
             { _id: adjustDetail._id },
             { $set: { error } },
@@ -990,12 +871,16 @@ const fixMoveTrs = async (
     const unitCost = fixNum(cost / (remainder ?? 1));
 
     if (remainder < sumCount) {
-      const error = await getErrorDesc(
-        subdomain,
-        models,
-        'Not enough stock for {productId} in {accountId} {branchId} {departmentId}, (move)',
-        { productId, accountId, branchId, departmentId },
-      );
+      const error = await getInventoryShortageError(subdomain, models, {
+        productId,
+        accountId,
+        branchId,
+        departmentId,
+        date: records[0].date,
+        journal: 'move',
+        remainder,
+        required: sumCount,
+      });
       await models.AdjustInvDetails.updateOne(
         { _id: adjustDetail._id },
         { $set: { error } },
@@ -1145,12 +1030,16 @@ const fixSaleOutTrs = async (
     const unitCost = fixNum(cost / (remainder ?? 1));
 
     if (remainder < sumCount) {
-      const error = await getErrorDesc(
-        subdomain,
-        models,
-        'Not enough stock for {productId} in {accountId} {branchId} {departmentId} (sale)',
-        { productId, accountId, branchId, departmentId },
-      );
+      const error = await getInventoryShortageError(subdomain, models, {
+        productId,
+        accountId,
+        branchId,
+        departmentId,
+        date: records[0].date,
+        journal: 'sale',
+        remainder,
+        required: sumCount,
+      });
       await models.AdjustInvDetails.updateOne(
         { _id: adjustDetail._id },
         { $set: { error } },
@@ -1250,14 +1139,14 @@ const fixInvTrs = async (
     adjustId: string;
     beginDate: Date;
     endDate: Date;
-    trFilter: any;
+    trFilter: FilterQuery<ITransactionDocument>;
   },
 ) => {
-  const commonMatch: any = {
+  const commonMatch: FilterQuery<ITransactionDocument> = {
     date: { $gte: beginDate, $lt: endDate },
     ...trFilter,
   };
-  const commonAggregates: any[] = [
+  const commonAggregates: PipelineStage[] = [
     { $unwind: '$details' },
     {
       $addFields: {
@@ -1296,60 +1185,78 @@ const fixInvTrs = async (
     },
   ];
 
-  const incomeAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_INCOME } },
-    ...commonAggregates,
-  ]);
+  const incomeAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_INCOME } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await calcTrs(models, { adjustId, aggregateTrs: incomeAggrs });
 
-  const moveOutAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE } },
-    ...commonAggregates,
-  ]);
+  const moveOutAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await fixMoveTrs(subdomain, models, { adjustId, moveAggrs: moveOutAggrs });
 
-  const outAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_OUT } },
-    ...commonAggregates,
-  ]);
+  const outAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_OUT } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await fixOutTrs(subdomain, models, { adjustId, outAggrs });
 
-  const justifyUpAggrs = await models.Transactions.aggregate([
-    {
-      $match: {
-        ...commonMatch,
-        journal: JOURNALS.INV_JUSTIFY,
-        side: TR_SIDES.DEBIT,
+  const justifyUpAggrs = await models.Transactions.aggregate(
+    [
+      {
+        $match: {
+          ...commonMatch,
+          journal: JOURNALS.INV_JUSTIFY,
+          side: TR_SIDES.DEBIT,
+        },
       },
-    },
-    ...commonAggregates,
-  ]);
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await calcTrs(models, { adjustId, aggregateTrs: justifyUpAggrs });
 
-  const justifyDownAggrs = await models.Transactions.aggregate([
-    {
-      $match: {
-        ...commonMatch,
-        journal: JOURNALS.INV_JUSTIFY,
-        side: TR_SIDES.CREDIT,
+  const justifyDownAggrs = await models.Transactions.aggregate(
+    [
+      {
+        $match: {
+          ...commonMatch,
+          journal: JOURNALS.INV_JUSTIFY,
+          side: TR_SIDES.CREDIT,
+        },
       },
-    },
-    ...commonAggregates,
-  ]);
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await calcTrs(models, {
     adjustId,
     aggregateTrs: justifyDownAggrs,
     multiplier: -1,
   });
 
-  const saleOutAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_SALE_OUT } },
-    ...commonAggregates,
-  ]);
+  const saleOutAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_SALE_OUT } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await fixSaleOutTrs(subdomain, models, { adjustId, saleOutAggrs });
 };
 
-const getUncompletedInventoryTransaction = async (
+const getUncompletedInventoryTransaction = (
   models: IModels,
   beginDate: Date,
   endDate: Date,
@@ -1371,11 +1278,9 @@ export const adjustRunning = async (
   {
     adjustInventory,
     beginDate,
-    beforeAdjInv,
   }: {
     adjustInventory: IAdjustInventoryDocument;
     beginDate: Date;
-    beforeAdjInv?: IAdjustInventoryDocument | null;
   },
 ) => {
   try {
@@ -1387,7 +1292,7 @@ export const adjustRunning = async (
     const date = adjustInventory.date;
     const adjustId = adjustInventory._id;
 
-    await detailsClear(models, user, adjustInventory, currentDate);
+    await detailsClear(subdomain, models, user, adjustInventory, currentDate);
 
     const trFilter = {
       'details.productId': { $exists: true, $ne: '' },
@@ -1415,7 +1320,7 @@ export const adjustRunning = async (
             uncompletedTr.number || uncompletedTr._id
           }`;
 
-          await modifierWrapper(models, adjustInventory, {
+          await modifierWrapper(subdomain, models, adjustInventory, {
             checkedAt: new Date(),
             successDate: currentDate,
             warning,
@@ -1449,6 +1354,7 @@ export const adjustRunning = async (
           bulkOps = [];
           const details = await models.AdjustInvDetails.find({ adjustId })
             .sort({ accountId: 1, branchId: 1, departmentId: 1, productId: 1 })
+            .allowDiskUse(true)
             .skip(step * per)
             .limit(per)
             .lean();
@@ -1478,7 +1384,7 @@ export const adjustRunning = async (
         }
         // end toCache
 
-        await modifierWrapper(models, adjustInventory, {
+        await modifierWrapper(subdomain, models, adjustInventory, {
           checkedAt: new Date(),
           successDate: nextDate,
         });
@@ -1489,7 +1395,7 @@ export const adjustRunning = async (
       currentDate = nextDate;
     }
 
-    await modifierWrapper(models, adjustInventory, {
+    await modifierWrapper(subdomain, models, adjustInventory, {
       checkedAt: new Date(),
       status: ADJ_INV_STATUSES.COMPLETE,
       error: '',
@@ -1497,8 +1403,8 @@ export const adjustRunning = async (
     });
   } catch (e) {
     const now = new Date();
-    await modifierWrapper(models, adjustInventory, {
-      checkedDate: now,
+    await modifierWrapper(subdomain, models, adjustInventory, {
+      checkedAt: now,
       error: e.message,
       status: ADJ_INV_STATUSES.PROCESS,
     });

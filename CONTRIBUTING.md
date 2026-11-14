@@ -109,12 +109,12 @@ cleanup makes review harder and should be submitted separately.
 ### 2. Fork and branch
 
 Fork the repository, clone your fork, and create a branch from the latest
-upstream `develop` branch.
+upstream `main` branch.
 
 ```bash
 git fetch upstream
-git switch develop
-git pull --ff-only upstream develop
+git switch main
+git pull --ff-only upstream main
 git switch -c <prefix>/<short-description>
 ```
 
@@ -260,14 +260,17 @@ or unrelated formatting changes unless the repository explicitly tracks them.
 
 ## Pull Requests
 
-Open pull requests against `develop`. Link the issue and include:
+Open pull requests against `main` and fill in the
+[pull request template](.github/pull_request_template.md):
 
-- **What:** the behavior or contract changed
-- **Why:** the problem being solved
-- **How:** the implementation approach and important tradeoffs
-- **Verification:** exact commands and manual scenarios exercised
-- **Screenshots or recordings:** required for visible UI changes
-- **Migration or deployment notes:** required when operators must take action
+- **Why:** the problem being solved; review bots already summarize what changed
+- **Start reviewing here:** links to the 1-3 lines that carry the real decision
+- **What I checked myself:** exact commands and manual scenarios exercised
+- **Screenshots or recordings:** required for visible UI changes; never
+  screenshots of code
+- **Risk and deploy notes:** migrations, env vars, contract changes or "None"
+- **AI use:** disclose AI tools; you must have read every changed line and be
+  able to explain it in review
 
 Before requesting review:
 

@@ -47,7 +47,7 @@ export const automationFacebookBotsColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label={t('name')} />,
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate font-medium">
         {cell.getValue() as string}
@@ -58,7 +58,7 @@ export const automationFacebookBotsColumns = (
   {
     id: 'account',
     accessorKey: 'account',
-    header: () => <RecordTable.InlineHead label={t('account')} />,
+    header: () => <RecordTable.InlineHead label={t('account', 'Account')} />,
     cell: ({ cell }) => {
       const name = cell.row.original.account?.name ?? '-';
       return (
@@ -72,7 +72,7 @@ export const automationFacebookBotsColumns = (
   {
     id: 'page',
     accessorKey: 'page',
-    header: () => <RecordTable.InlineHead label={t('page')} />,
+    header: () => <RecordTable.InlineHead label={t('page', 'Page')} />,
     cell: ({ cell }) => {
       const { profileUrl = '' } = cell.row.original || {};
       const name = cell.row.original.page?.name ?? '-';
@@ -93,7 +93,7 @@ export const automationFacebookBotsColumns = (
   {
     id: 'health',
     accessorKey: 'health',
-    header: () => <RecordTable.InlineHead label={t('health')} />,
+    header: () => <RecordTable.InlineHead label={t('health', 'Health')} />,
     cell: ({ cell }) => (
       <FacebookBotHealthCell health={cell.row.original.health} />
     ),
@@ -102,7 +102,9 @@ export const automationFacebookBotsColumns = (
   {
     id: 'createdBy',
     accessorFn: (row) => row.createdUser,
-    header: () => <RecordTable.InlineHead label={t('created-by')} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('created-by', 'Created by')} />
+    ),
     cell: ({ cell }) => (
       <FacebookBotUserCell
         user={cell.row.original.createdUser}
@@ -114,7 +116,9 @@ export const automationFacebookBotsColumns = (
   {
     id: 'updatedBy',
     accessorFn: (row) => row.updatedUser,
-    header: () => <RecordTable.InlineHead label={t('updated-by')} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('updated-by', 'Updated by')} />
+    ),
     cell: ({ cell }) => (
       <FacebookBotUserCell
         user={cell.row.original.updatedUser}
@@ -126,7 +130,7 @@ export const automationFacebookBotsColumns = (
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label={t('created')} />,
+    header: () => <RecordTable.InlineHead label={t('created', 'Created')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate text-sm">
         <RelativeDateDisplay value={cell.getValue() as string}>
@@ -139,7 +143,7 @@ export const automationFacebookBotsColumns = (
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',
-    header: () => <RecordTable.InlineHead label={t('updated')} />,
+    header: () => <RecordTable.InlineHead label={t('updated', 'Updated')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate text-sm">
         <RelativeDateDisplay value={cell.getValue() as string}>

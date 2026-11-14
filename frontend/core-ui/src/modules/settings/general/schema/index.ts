@@ -13,6 +13,7 @@ const generalSettingsSchema = z.object({
   BRANCHES_MASTER_TEAM_MEMBERS_IDS: z.string().array(),
   DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS: z.string().array(),
   TIMEZONE: z.string(),
+  USER_ACTIVITY_TRACKING: z.boolean(),
 });
 
 export { generalSettingsSchema };

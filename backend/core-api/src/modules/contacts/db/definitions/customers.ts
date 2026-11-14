@@ -1,6 +1,8 @@
 import { Schema } from 'mongoose';
 
+import { CONTACT_ROLES } from '@/contacts/constants';
 import {
+  applyDataExtensionsNamespace,
   CUSTOMER_SELECT_OPTIONS,
   customFieldSchema,
 } from 'erxes-api-shared/core-modules';
@@ -259,6 +261,12 @@ export const customerSchema = schemaWrapper(
       },
       visitorId: { type: String, optional: true },
       data: { type: Object, optional: true },
+      contactRoles: {
+        type: [String],
+        enum: CONTACT_ROLES,
+        default: undefined,
+        label: 'Contact roles',
+      },
     },
     {
       timestamps: true,
@@ -267,7 +275,10 @@ export const customerSchema = schemaWrapper(
   { search: customerSearchTokenConfig },
 );
 
+applyDataExtensionsNamespace(customerSchema);
+
 customerSchema.index({ _id: 1, createdAt: 1, searchText: 1 });
+customerSchema.index({ contactRoles: 1 }, { sparse: true });
 customerSchema.index({ state: 1, status: 1, createdAt: -1 });
 customerSchema.index({ state: 1, createdAt: -1, _id: 1 });
 customerSchema.index({ searchTokens: 1, state: 1, status: 1 });

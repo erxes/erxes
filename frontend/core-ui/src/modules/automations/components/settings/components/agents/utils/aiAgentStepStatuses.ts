@@ -282,6 +282,19 @@ const getBrainState = (input: TAiAgentStepStatusInput): TAiAgentStepState =>
     'Pick a model',
   );
 
+// Off is a valid choice: an agent without lookups still answers from memory.
+const getLookupState = ({
+  values,
+}: TAiAgentStepStatusInput): TAiAgentStepState =>
+  values.context?.lookups?.length
+    ? { status: 'done' }
+    : {
+        status: 'hint',
+        message: "I can't see live records",
+        detail:
+          "Turn on a lookup to let me read the customer's own records, such as their profile, as they are now.",
+      };
+
 export const getAiAgentStepStates = (
   input: TAiAgentStepStatusInput,
 ): TAiAgentStepStates => ({
@@ -289,6 +302,7 @@ export const getAiAgentStepStates = (
   connection: getConnectionState(input),
   brain: getBrainState(input),
   memory: getMemoryState(input),
+  lookup: getLookupState(input),
   test: getTestState(input),
 });
 
@@ -305,6 +319,7 @@ const MISSING_CTA: Record<TAiAgentStep, string> = {
   connection: 'Connect provider',
   brain: 'Pick a model',
   memory: 'Add memory',
+  lookup: 'Turn on a lookup',
   test: 'Run check',
 };
 

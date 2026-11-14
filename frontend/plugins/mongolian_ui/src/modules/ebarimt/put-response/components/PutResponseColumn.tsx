@@ -7,22 +7,37 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  RelativeDateDisplay,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { MembersInline } from 'ui-modules';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
+import {
+  getDisplayDate,
+  getPutResponseStatus,
+} from '~/modules/ebarimt/put-response/utils/putResponsePrint';
 import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
-const getDisplayDate = (putResponse: IPutResponse) => {
-  const value = putResponse.date || putResponse.createdAt;
+const PutResponseStatusCell = ({
+  putResponse,
+}: {
+  putResponse: IPutResponse;
+}) => {
+  const { t } = useTranslation('mongolian');
+  const { variant, label } = getPutResponseStatus(putResponse);
 
-  return value && !Number.isNaN(Date.parse(value)) ? value : null;
+  return (
+    <RecordTableInlineCell>
+      <Badge variant={variant}>{t(label)}</Badge>
+    </RecordTableInlineCell>
+  );
 };
 
-export const putResponseColumns: ColumnDef<IPutResponse>[] = [
-  putResponseMoreColumn,
+export const putResponseColumns = (timeZone: string): ColumnDef<IPutResponse>[] => [
+  putResponseMoreColumn(timeZone),
   {
     id: 'id',
     accessorKey: 'id',
@@ -67,22 +82,12 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
     accessorKey: 'date',
     header: () => <HeaderCell icon={IconUser} label="date" />,
     cell: ({ row }) => {
-      const displayDate = getDisplayDate(row.original);
-
-      if (!displayDate) {
-        return (
-          <RecordTableInlineCell>
-            <TextOverflowTooltip value="-" />
-          </RecordTableInlineCell>
-        );
-      }
+      const displayDate = getDisplayDate(row.original, timeZone);
 
       return (
-        <RelativeDateDisplay value={displayDate} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={displayDate} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={displayDate} />
+        </RecordTableInlineCell>
       );
     },
   },
@@ -90,13 +95,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => <HeaderCell icon={IconCategory} label="status" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => <PutResponseStatusCell putResponse={row.original} />,
   },
   {
     id: 'type',
@@ -182,14 +181,16 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
 
   {
     id: 'user',
-    accessorKey: 'user',
-    header: () => <HeaderCell icon={IconCategory} label="user" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    accessorKey: 'userId',
+    header: () => <HeaderCell icon={IconUser} label="user" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        {row.original.userId ? (
+          <MembersInline memberIds={[row.original.userId]} />
+        ) : (
+          <TextOverflowTooltip value="-" />
+        )}
+      </RecordTableInlineCell>
+    ),
   },
 ];

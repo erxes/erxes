@@ -3,13 +3,8 @@ import { useAgentReferenceRegistry } from '../references/AgentReferenceScope';
 import { referenceIdentity } from '../references/referenceRegistry';
 import { Tooltip, cn } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import {
-  pluginsConfigState,
-  SIDE_PANEL_CHAT_PATH,
-  SIDE_PANEL_QUERY_KEY,
-  usePermissionCheck,
-} from 'ui-modules';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
 import {
@@ -42,7 +37,6 @@ export const AgentReferenceChip = ({
     keyPrefix: 'agent.reference-types',
   });
   const navigate = useNavigate();
-  const { search } = useLocation();
   const pluginsConfig = useAtomValue(pluginsConfigState);
   const { isLoaded, hasModulePermission } = usePermissionCheck();
   const [resolution, setResolution] = useState<{
@@ -103,23 +97,8 @@ export const AgentReferenceChip = ({
   const handleClick = () => {
     if (resolving || !clickable) return;
 
-    const navigateToTarget = (path: string) => {
-      const panelOpen =
-        new URLSearchParams(search).get(SIDE_PANEL_QUERY_KEY) ===
-        SIDE_PANEL_CHAT_PATH;
-      if (panelOpen) {
-        const destination = new URL(path, window.location.origin);
-        destination.searchParams.set(
-          SIDE_PANEL_QUERY_KEY,
-          SIDE_PANEL_CHAT_PATH,
-        );
-        navigate({
-          pathname: destination.pathname,
-          search: destination.search,
-          hash: destination.hash,
-        });
-      } else navigate(path);
-    };
+    // Assistant lives in the global sidebar, so plain navigation keeps it open.
+    const navigateToTarget = (path: string) => navigate(path);
 
     if (reference.type === 'page') {
       if (pagePath && pageKnown) {

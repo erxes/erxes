@@ -6,7 +6,14 @@ import {
   getProductIdsForPlan,
 } from '../../../utils/product';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+import { IActiveWindow, ScheduleMoment } from '@/pricing/@types/schedule';
 import { checkPricing } from '../../../utils';
+import {
+  activeWindowOnClock,
+  matchScheduleMoment,
+  wallClockFromLocal,
+} from '../../../utils/schedule';
+import { loyaltyTimeZone } from '@/score/services/periodSchedule';
 
 const buildDateFilter = (date: string | Date) => {
   const now = dayjs(date);
@@ -211,6 +218,47 @@ export const pricingPlanQueries = {
     return await models.PricingPlans.getPricingPlan(id);
   },
 
+  // Checks an unsaved schedule at wall-clock times the user picks.
+  pricingPlanScheduleCheck: async (
+    _root: undefined,
+    params: {
+      activeWindows?: IActiveWindow[];
+      closedDates?: string[];
+      scheduleMoment?: ScheduleMoment;
+      checkoutAt: string;
+      orderCreatedAt?: string;
+    },
+    { subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('pricingPlanView');
+
+    const schedule = {
+      activeWindows: params.activeWindows,
+      closedDates: params.closedDates,
+    };
+    const checkout = wallClockFromLocal(params.checkoutAt);
+    const orderCreated = params.orderCreatedAt
+      ? wallClockFromLocal(params.orderCreatedAt)
+      : undefined;
+
+    const matchedMoment = matchScheduleMoment(
+      params.scheduleMoment,
+      { checkout, orderCreated },
+      (clock) => !!activeWindowOnClock(schedule, clock),
+    );
+    const matchedClock =
+      matchedMoment === 'orderCreated' ? orderCreated || checkout : checkout;
+
+    return {
+      active: !!matchedMoment,
+      matchedMoment,
+      window: matchedMoment
+        ? activeWindowOnClock(schedule, matchedClock)
+        : null,
+      timeZone: await loyaltyTimeZone(subdomain),
+    };
+  },
+
   cpPricingPlanDetail: async (
     _root: any,
     { id }: { id: string },
@@ -332,8 +380,10 @@ export const pricingPlanQueries = {
   },
 
   pricingCheckDiscount: async (
-    _root: any,
+    _root: unknown,
     params: {
+      date?: Date;
+      orderCreatedAt?: Date;
       prioritizeRule?: string;
       totalAmount: number;
       departmentId: string;
@@ -354,6 +404,8 @@ export const pricingPlanQueries = {
     { models, subdomain }: IContext,
   ) => {
     const {
+      date,
+      orderCreatedAt,
       prioritizeRule = 'exclude',
       totalAmount,
       departmentId,
@@ -367,6 +419,8 @@ export const pricingPlanQueries = {
     } = params;
 
     return checkPricing({
+      date,
+      orderCreatedAt,
       models,
       subdomain,
       prioritizeRule,

@@ -16,6 +16,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { getErrorMessage } from '@/integrations/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { z } from 'zod';
 import {
   getOrCreateInstagramRecord,
@@ -224,6 +225,21 @@ export const getOrCreateComment = async (
           createdAt: stored.createdAt || new Date(),
           providerData: { messageId: commentId },
         },
+      );
+
+      sendAutomationTrigger(
+        subdomain,
+        {
+          type: 'frontline:instagram.comments',
+          targets: [
+            {
+              ...stored.toObject(),
+              erxesApiId: conversation.erxesApiId,
+              conversationId: conversation.erxesApiId,
+            },
+          ],
+        },
+        { transport: 'trpc' },
       );
     },
   );

@@ -1,3 +1,4 @@
+import { ProductEditorHeader } from '@/products/components/ProductEditorPanel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
@@ -83,8 +84,19 @@ const uomFormSchema = z
     }
   });
 
+type ProductUom = IUom & {
+  isForSubscription?: boolean;
+  subscriptionConfig?: {
+    period?: string;
+    rule?: string;
+    subsRenewable?: boolean;
+    specificDay?: string;
+  };
+  timely?: string;
+};
+
 interface IUomFormProps {
-  uom?: IUom;
+  uom?: ProductUom;
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -104,15 +116,13 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
     defaultValues: {
       name: uom?.name || '',
       code: uom?.code || '',
-      isForSubscription: Boolean((uom as any)?.isForSubscription),
-      subscriptionPeriod: (uom as any)?.subscriptionConfig?.period || '',
-      subscriptionRule: (uom as any)?.subscriptionConfig?.rule || '',
-      subscriptionRenewable: Boolean(
-        (uom as any)?.subscriptionConfig?.subsRenewable,
-      ),
-      subscriptionSpecificDay: (uom as any)?.subscriptionConfig?.specificDay,
-      isTimely: Boolean((uom as any)?.timely),
-      timely: (uom as any)?.timely || '',
+      isForSubscription: Boolean(uom?.isForSubscription),
+      subscriptionPeriod: uom?.subscriptionConfig?.period || '',
+      subscriptionRule: uom?.subscriptionConfig?.rule || '',
+      subscriptionRenewable: Boolean(uom?.subscriptionConfig?.subsRenewable),
+      subscriptionSpecificDay: uom?.subscriptionConfig?.specificDay,
+      isTimely: Boolean(uom?.timely),
+      timely: uom?.timely || '',
     },
     resolver: zodResolver(uomFormSchema),
   });
@@ -177,6 +187,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
       uomsAdd({
         variables: { ...payload },
         onCompleted: () => {
+          toast({ title: t('uom-created', 'UOM created'), variant: 'success' });
           form.reset();
           onOpenChange?.(false);
         },
@@ -197,14 +208,8 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex overflow-hidden flex-col h-full"
       >
-        <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
-          <Sheet.Title>{uom ? t('edit-uom') : t('add-uom')}</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            {uom ? t('edit-uom') : t('add-uom')}
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
+        <ProductEditorHeader title={uom ? t('edit-uom') : t('add-uom')} />
+        <Sheet.Content className="min-h-0 overflow-y-auto flex-auto">
           <div className="flex flex-col gap-6 p-5 w-full">
             <div className="flex gap-2 w-full">
               <Form.Field

@@ -42,14 +42,6 @@ const aiAgentKnowledgeSourceSchema = z.object({
   config: z.record(z.unknown()).default({}),
 });
 
-const aiAgentToolSchema = z.object({
-  pluginName: z.string(),
-  moduleName: z.string(),
-  key: z.string(),
-  enabled: z.boolean().default(true),
-  config: z.record(z.unknown()).default({}),
-});
-
 const baseAiAgentFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().max(500).default(''),
@@ -73,7 +65,8 @@ const baseAiAgentFormSchema = z.object({
       .default({}),
     files: z.array(aiAgentFileSchema).max(10).default([]),
     knowledgeSources: z.array(aiAgentKnowledgeSourceSchema).max(20).default([]),
-    tools: z.array(aiAgentToolSchema).max(20).default([]),
+    // Find object types the agent may look up for the customer it talks to
+    lookups: z.array(z.string()).max(20).default([]),
   }),
 });
 
@@ -153,14 +146,6 @@ type TAiAgentKnowledgeSourceInput = {
   config?: unknown;
 };
 
-type TAiAgentToolInput = {
-  pluginName?: unknown;
-  moduleName?: unknown;
-  key?: unknown;
-  enabled?: unknown;
-  config?: unknown;
-};
-
 export type TAiAgentFormDetail = {
   usage?: {
     total: number;
@@ -192,7 +177,7 @@ export type TAiAgentFormDetail = {
     };
     files?: unknown;
     knowledgeSources?: unknown;
-    tools?: unknown;
+    lookups?: unknown;
   };
 };
 
@@ -351,25 +336,16 @@ const normalizeAiAgentKnowledgeSources = (sources: unknown[] = []) =>
     })
     .filter((source) => source.pluginName && source.moduleName && source.key);
 
-const normalizeAiAgentTools = (tools: unknown[] = []) =>
-  tools
-    .map((tool) => {
-      const current = isRecord(tool) ? (tool as TAiAgentToolInput) : {};
-      const pluginName =
-        typeof current.pluginName === 'string' ? current.pluginName.trim() : '';
-      const moduleName =
-        typeof current.moduleName === 'string' ? current.moduleName.trim() : '';
-      const key = typeof current.key === 'string' ? current.key.trim() : '';
-
-      return {
-        pluginName,
-        moduleName,
-        key,
-        enabled: typeof current.enabled === 'boolean' ? current.enabled : true,
-        config: isRecord(current.config) ? { ...current.config } : {},
-      };
-    })
-    .filter((tool) => tool.pluginName && tool.moduleName && tool.key);
+const normalizeAiAgentLookups = (lookups: unknown) =>
+  Array.isArray(lookups)
+    ? [
+        ...new Set(
+          lookups.filter(
+            (value): value is string => typeof value === 'string' && !!value,
+          ),
+        ),
+      ]
+    : [];
 
 export const normalizeAiAgentFormValues = (
   detail?: TAiAgentFormDetail,
@@ -416,8 +392,6 @@ export const normalizeAiAgentFormValues = (
         ? detail.context.knowledgeSources
         : [],
     ),
-    tools: normalizeAiAgentTools(
-      Array.isArray(detail?.context?.tools) ? detail.context.tools : [],
-    ),
+    lookups: normalizeAiAgentLookups(detail?.context?.lookups),
   },
 });

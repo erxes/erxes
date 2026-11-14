@@ -56,10 +56,15 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
   };
 
   return (
-    <Sheet.Header className="gap-2 flex-row items-center space-y-0 pr-0 h-auto py-2">
+    <Sheet.Header className="gap-2 flex-row flex-wrap sm:flex-nowrap items-center space-y-0 pr-0 h-auto py-2">
       <Button
         variant="ghost"
         size="icon"
+        aria-label={
+          isSidebarOpen
+            ? t('collapse-sidebar', 'Collapse sidebar')
+            : t('expand-sidebar', 'Expand sidebar')
+        }
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         {isSidebarOpen ? (
@@ -71,7 +76,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
       <div className="flex flex-col flex-1 min-w-0">
         <Sheet.Title>
           <Input
-            className="h-8 w-auto min-w-32 max-w-full border-0 bg-transparent px-2 py-1 text-lg font-semibold shadow-none"
+            className="h-8 w-auto min-w-0 max-w-full border-0 bg-transparent px-2 py-1 text-lg font-semibold shadow-none"
             placeholder={t('deal-name')}
             size={Math.min(Math.max(name.length, 12), 48)}
             value={name}
@@ -91,7 +96,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
         )}
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex flex-wrap items-center gap-2 shrink-0 max-sm:order-last max-sm:w-full max-sm:justify-end max-sm:pr-4">
         {deal?.status === 'archived' && (
           <span className="text-sm py-1 px-2 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-sm whitespace-nowrap ">
             {t('archived')}
@@ -109,7 +114,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
         <DealsActions deals={[deal]} variant="menu" />
       </div>
       <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
-        <Sheet.Close className="ml-0" />
+        <Sheet.Close className="ml-0" aria-label={t('close')} />
       </div>
     </Sheet.Header>
   );

@@ -140,6 +140,7 @@ type Props<T extends FieldValues> = {
   mode?: Mode;
   disabled?: boolean;
   fromDate?: Date;
+  className?: string;
 };
 
 const isDateDisabled = (date: Date, fromDate?: Date) => {
@@ -159,6 +160,7 @@ export const RHFDatePicker = <T extends FieldValues>({
   mode = 'single',
   disabled = false,
   fromDate,
+  className,
 }: Props<T>) => {
   return (
     <Controller
@@ -168,6 +170,7 @@ export const RHFDatePicker = <T extends FieldValues>({
         if (mode === 'single') {
           return (
             <TourDatePicker
+              className={className}
               mode="single"
               value={toDate(field.value)}
               isDisabled={disabled}
@@ -181,6 +184,7 @@ export const RHFDatePicker = <T extends FieldValues>({
 
         return (
           <TourDatePicker
+            className={className}
             mode="multiple"
             value={toDates(field.value)}
             isDisabled={disabled}
