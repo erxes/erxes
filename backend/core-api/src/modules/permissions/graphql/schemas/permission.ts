@@ -37,7 +37,7 @@ export const types = `
   }
 
   type PermissionGroupPermission {
-    plugin: String!
+    plugin: String
     module: String!
     actions: [String]!
     scope: String!

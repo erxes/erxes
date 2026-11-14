@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
+import { usePermissionLabels } from '@/settings/permissions/hooks/usePermissionLabels';
 import {
   IDefaultPermissionGroup,
   IPermissionGroup,
@@ -48,6 +49,246 @@ function createFallbackModule(perm: IPermissionGroupPermission): {
   };
 }
 
+const PermissionGroupMembersTab = ({
+  members,
+}: {
+  members: IPermissionGroupMember[];
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
+
+  if (members.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <p className="text-muted-foreground font-medium">{t('no-members')}</p>
+        <p className="text-sm text-muted-foreground/70 mt-1">
+          {t('no-members-description')}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {members.map((member: IPermissionGroupMember) => {
+        const name =
+          [member.details?.firstName, member.details?.lastName]
+            .filter(Boolean)
+            .join(' ') || member.email;
+        return (
+          <div
+            key={member._id}
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-background"
+          >
+            <Avatar size="lg">
+              <Avatar.Image
+                src={readImage(member.details?.avatar || '')}
+                alt={name}
+              />
+              <Avatar.Fallback>{name.charAt(0).toUpperCase()}</Avatar.Fallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate">{name}</p>
+              {name !== member.email && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {member.email}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const PermissionGroupPermissionsTab = ({
+  permissions,
+}: {
+  permissions: IPermissionGroupPermission[];
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
+  const { permissionModulesByPlugin, loading: modulesLoading } =
+    useGetPermissionModules();
+  const {
+    ready: labelsReady,
+    getModuleName,
+    getModuleDescription,
+    getScopeDescription,
+    getActionTitle,
+    getActionDescription,
+  } = usePermissionLabels();
+
+  const getModuleInfo = (
+    perm: IPermissionGroupPermission,
+  ): { module: IPermissionModule; plugin: string } | null => {
+    const candidates = perm.plugin
+      ? permissionModulesByPlugin.filter((p) => p.plugin === perm.plugin)
+      : permissionModulesByPlugin;
+    for (const pluginData of candidates) {
+      const found = pluginData.modules.find((m) => m.name === perm.module);
+      if (found) return { module: found, plugin: pluginData.plugin };
+    }
+    return null;
+  };
+
+  const groupedByPlugin: IGroupedByPlugin = {};
+
+  for (const perm of permissions) {
+    const resolved = getModuleInfo(perm) ?? createFallbackModule(perm);
+    const { module, plugin } = resolved;
+
+    if (!groupedByPlugin[plugin]) {
+      groupedByPlugin[plugin] = [];
+    }
+    groupedByPlugin[plugin].push({ module, permission: perm });
+  }
+
+  if (modulesLoading || !labelsReady) {
+    return (
+      <div className="flex justify-center py-16">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (permissions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <p className="text-muted-foreground font-medium">
+          {t('no-permissions-configured')}
+        </p>
+        <p className="text-sm text-muted-foreground/70 mt-1">
+          {t('no-permissions-description')}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {Object.entries(groupedByPlugin).map(([plugin, items]) => (
+        <Collapsible key={plugin} defaultOpen>
+          <Collapsible.Trigger asChild>
+            <Button
+              variant="ghost"
+              className="group w-full justify-start px-4 py-2.5 bg-muted/30 hover:bg-muted/50 rounded-lg"
+            >
+              <Collapsible.TriggerIcon className="mr-2 shrink-0 transition-transform duration-200 ease-out" />
+              <span className="font-medium text-sm">{plugin}</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                {items.length} {items.length === 1 ? t('module') : t('modules')}
+              </span>
+            </Button>
+          </Collapsible.Trigger>
+
+          <Collapsible.Content className="pt-3 space-y-3">
+            {items.map(({ module, permission }) => {
+              const scope = module.scopes?.find(
+                (s) => s.name === permission.scope,
+              );
+              const scopeDescription = scope?.description
+                ? getScopeDescription(plugin, module.name, scope)
+                : '';
+
+              return (
+                <div
+                  key={permission.module}
+                  className="rounded-lg border border-border overflow-hidden"
+                >
+                  <div className="px-4 py-3 bg-muted/20">
+                    <p className="font-medium capitalize text-foreground">
+                      {getModuleName(plugin, module)}
+                    </p>
+                    {module.description && (
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        {getModuleDescription(plugin, module)}
+                      </p>
+                    )}
+                  </div>
+                  {scopeDescription && (
+                    <div className="px-4 py-2 border-t border-border">
+                      <p className="text-sm text-muted-foreground">
+                        {scopeDescription}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="divide-y divide-border">
+                    {(module.actions ?? []).length > 0
+                      ? (module.actions ?? []).map((action) => {
+                          const hasPermission =
+                            permission.actions.includes('*') ||
+                            permission.actions.includes(action.name);
+
+                          return (
+                            <div
+                              key={action.name}
+                              className={`flex items-center justify-between px-4 py-2.5 ${
+                                hasPermission
+                                  ? 'bg-background'
+                                  : 'bg-muted/5 opacity-70'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                {action.always && (
+                                  <IconLock
+                                    size={12}
+                                    className="text-muted-foreground shrink-0"
+                                  />
+                                )}
+                                <div className="min-w-0">
+                                  <p
+                                    className={`text-sm ${
+                                      hasPermission
+                                        ? 'text-foreground'
+                                        : 'text-muted-foreground'
+                                    }`}
+                                  >
+                                    {getActionTitle(
+                                      plugin,
+                                      module.name,
+                                      action,
+                                    )}
+                                  </p>
+                                  {action.description && (
+                                    <p className="text-xs text-muted-foreground">
+                                      {getActionDescription(
+                                        plugin,
+                                        module.name,
+                                        action,
+                                      )}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <span
+                                className={`text-xs shrink-0 ml-2 ${
+                                  hasPermission
+                                    ? 'text-success'
+                                    : 'text-muted-foreground'
+                                }`}
+                              >
+                                {hasPermission ? t('yes') : t('no')}
+                              </span>
+                            </div>
+                          );
+                        })
+                      : permission.actions.length > 0 && (
+                          <div className="px-4 py-2.5 text-sm text-muted-foreground">
+                            {permission.actions.join(', ')}
+                          </div>
+                        )}
+                  </div>
+                </div>
+              );
+            })}
+          </Collapsible.Content>
+        </Collapsible>
+      ))}
+    </>
+  );
+};
+
 export const PermissionGroupDetails = ({
   group,
   isDefault,
@@ -56,20 +297,8 @@ export const PermissionGroupDetails = ({
   const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'permissions' | 'members'>('permissions');
-  const { permissionModulesByPlugin, loading: modulesLoading } =
-    useGetPermissionModules();
 
   const members: IPermissionGroupMember[] = group.members ?? [];
-
-  const getModuleInfo = (
-    moduleName: string,
-  ): { module: IPermissionModule; plugin: string } | null => {
-    for (const pluginData of permissionModulesByPlugin) {
-      const found = pluginData.modules.find((m) => m.name === moduleName);
-      if (found) return { module: found, plugin: pluginData.plugin };
-    }
-    return null;
-  };
 
   const permissions: IPermissionGroupPermission[] = Array.isArray(
     group.permissions,
@@ -77,17 +306,11 @@ export const PermissionGroupDetails = ({
     ? group.permissions
     : [];
 
-  const groupedByPlugin: IGroupedByPlugin = {};
-
-  for (const perm of permissions) {
-    const resolved = getModuleInfo(perm.module) ?? createFallbackModule(perm);
-    const { module, plugin } = resolved;
-
-    if (!groupedByPlugin[plugin]) {
-      groupedByPlugin[plugin] = [];
-    }
-    groupedByPlugin[plugin].push({ module, permission: perm });
-  }
+  const { ready: labelsReady, getGroupDescription } = usePermissionLabels();
+  const defaultGroup = isDefault && 'id' in group ? group : null;
+  const groupDescription = defaultGroup
+    ? getGroupDescription(defaultGroup)
+    : group.description;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -117,9 +340,9 @@ export const PermissionGroupDetails = ({
                   </span>
                 )}
               </div>
-              {group.description && (
+              {labelsReady && groupDescription && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {group.description}
+                  {groupDescription}
                 </p>
               )}
             </div>
@@ -153,172 +376,9 @@ export const PermissionGroupDetails = ({
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 styled-scroll">
           {tab === 'members' ? (
-            members.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-muted-foreground font-medium">
-                  {t('no-members')}
-                </p>
-                <p className="text-sm text-muted-foreground/70 mt-1">
-                  {t('no-members-description')}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {members.map((member: IPermissionGroupMember) => {
-                  const name =
-                    [member.details?.firstName, member.details?.lastName]
-                      .filter(Boolean)
-                      .join(' ') || member.email;
-                  return (
-                    <div
-                      key={member._id}
-                      className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-background"
-                    >
-                      <Avatar size="lg">
-                        <Avatar.Image
-                          src={readImage(member.details?.avatar || '')}
-                          alt={name}
-                        />
-                        <Avatar.Fallback>
-                          {name.charAt(0).toUpperCase()}
-                        </Avatar.Fallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{name}</p>
-                        {name !== member.email && (
-                          <p className="text-xs text-muted-foreground truncate">
-                            {member.email}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )
-          ) : modulesLoading ? (
-            <div className="flex justify-center py-16">
-              <Spinner />
-            </div>
-          ) : permissions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="text-muted-foreground font-medium">
-                {t('no-permissions-configured')}
-              </p>
-              <p className="text-sm text-muted-foreground/70 mt-1">
-                {t('no-permissions-description')}
-              </p>
-            </div>
+            <PermissionGroupMembersTab members={members} />
           ) : (
-            Object.entries(groupedByPlugin).map(([plugin, items]) => (
-              <Collapsible key={plugin} defaultOpen>
-                <Collapsible.Trigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="group w-full justify-start px-4 py-2.5 bg-muted/30 hover:bg-muted/50 rounded-lg"
-                  >
-                    <Collapsible.TriggerIcon className="mr-2 shrink-0 transition-transform duration-200 ease-out" />
-                    <span className="font-medium text-sm">{plugin}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">
-                      {items.length}{' '}
-                      {items.length === 1 ? t('module') : t('modules')}
-                    </span>
-                  </Button>
-                </Collapsible.Trigger>
-
-                <Collapsible.Content className="pt-3 space-y-3">
-                  {items.map(({ module, permission }) => {
-                    const scopeDescription = module.scopes?.find(
-                      (s) => s.name === permission.scope,
-                    )?.description;
-
-                    return (
-                      <div
-                        key={permission.module}
-                        className="rounded-lg border border-border overflow-hidden"
-                      >
-                        <div className="px-4 py-3 bg-muted/20">
-                          <p className="font-medium capitalize text-foreground">
-                            {module.name}
-                          </p>
-                          {module.description && (
-                            <p className="text-sm text-muted-foreground mt-0.5">
-                              {module.description}
-                            </p>
-                          )}
-                        </div>
-                        {scopeDescription && (
-                          <div className="px-4 py-2 border-t border-border">
-                            <p className="text-sm text-muted-foreground">
-                              {scopeDescription}
-                            </p>
-                          </div>
-                        )}
-
-                        <div className="divide-y divide-border">
-                          {(module.actions ?? []).length > 0
-                            ? (module.actions ?? []).map((action) => {
-                                const hasPermission =
-                                  permission.actions.includes('*') ||
-                                  permission.actions.includes(action.name);
-
-                                return (
-                                  <div
-                                    key={action.name}
-                                    className={`flex items-center justify-between px-4 py-2.5 ${
-                                      hasPermission
-                                        ? 'bg-background'
-                                        : 'bg-muted/5 opacity-70'
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      {action.always && (
-                                        <IconLock
-                                          size={12}
-                                          className="text-muted-foreground shrink-0"
-                                        />
-                                      )}
-                                      <div className="min-w-0">
-                                        <p
-                                          className={`text-sm ${
-                                            hasPermission
-                                              ? 'text-foreground'
-                                              : 'text-muted-foreground'
-                                          }`}
-                                        >
-                                          {action.title || action.name}
-                                        </p>
-                                        {action.description && (
-                                          <p className="text-xs text-muted-foreground">
-                                            {action.description}
-                                          </p>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <span
-                                      className={`text-xs shrink-0 ml-2 ${
-                                        hasPermission
-                                          ? 'text-success'
-                                          : 'text-muted-foreground'
-                                      }`}
-                                    >
-                                      {hasPermission ? t('yes') : t('no')}
-                                    </span>
-                                  </div>
-                                );
-                              })
-                            : permission.actions.length > 0 && (
-                                <div className="px-4 py-2.5 text-sm text-muted-foreground">
-                                  {permission.actions.join(', ')}
-                                </div>
-                              )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </Collapsible.Content>
-              </Collapsible>
-            ))
+            <PermissionGroupPermissionsTab permissions={permissions} />
           )}
         </div>
 

@@ -2,9 +2,10 @@ import { useTranslation } from 'react-i18next';
 // PermissionModulesForm.tsx
 
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
+import { usePermissionLabels } from '@/settings/permissions/hooks/usePermissionLabels';
 import { UseFormReturn } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
+import { Label, Select, Separator, Sidebar, Spinner, Switch } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import {
   IPermissionModule,
@@ -43,6 +44,14 @@ export const PermissionModulesForm = ({
   const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
   const { permissionModulesByPlugin } = useGetPermissionModules();
   const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+  const {
+    ready: labelsReady,
+    getModuleName,
+    getModuleDescription,
+    getScopeDescription,
+    getActionTitle,
+    getActionDescription,
+  } = usePermissionLabels();
 
   const permissions = form.watch('permissions');
 
@@ -229,7 +238,12 @@ export const PermissionModulesForm = ({
       </Sidebar.Content>
       <div className="w-[80%] overflow-auto styled-scroll">
         <div className="mx-auto max-w-3xl px-6">
-          {selectedPluginData ? (
+          {selectedPluginData && !labelsReady && (
+            <div className="flex justify-center py-16">
+              <Spinner />
+            </div>
+          )}
+          {selectedPluginData && labelsReady && (
             <div className="py-8 space-y-8">
               <div className="space-y-4">
                 {selectedPluginData.modules.map((module) => {
@@ -256,12 +270,12 @@ export const PermissionModulesForm = ({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-semibold text-foreground capitalize">
-                              {module.name}
+                              {getModuleName(plugin, module)}
                             </span>
                           </div>
                           {module.description && (
                             <p className="text-sm text-muted-foreground">
-                              {module.description}
+                              {getModuleDescription(plugin, module)}
                             </p>
                           )}
                         </div>
@@ -305,7 +319,11 @@ export const PermissionModulesForm = ({
                                       value={s.name}
                                       className="[&_svg]:text-primary"
                                     >
-                                      {s.description}
+                                      {getScopeDescription(
+                                        plugin,
+                                        module.name,
+                                        s,
+                                      )}
                                     </Select.Item>
                                   ))}
                                 </Select.Content>
@@ -324,12 +342,20 @@ export const PermissionModulesForm = ({
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center gap-2 mb-0.5">
                                         <span className="text-sm font-medium text-foreground">
-                                          {action.title || action.name}
+                                          {getActionTitle(
+                                            plugin,
+                                            module.name,
+                                            action,
+                                          )}
                                         </span>
                                       </div>
                                       {action.description && (
                                         <span className="text-xs text-muted-foreground font-normal">
-                                          {action.description}
+                                          {getActionDescription(
+                                            plugin,
+                                            module.name,
+                                            action,
+                                          )}
                                         </span>
                                       )}
                                     </div>
@@ -363,7 +389,8 @@ export const PermissionModulesForm = ({
                 })}
               </div>
             </div>
-          ) : (
+          )}
+          {!selectedPluginData && (
             <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
               <div className="mb-4 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary">
                 <IconPlugConnected size={32} stroke={1.5} />

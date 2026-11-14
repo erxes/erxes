@@ -29,6 +29,7 @@ import { PermissionGroupAdd } from '@/settings/permissions/components/form/Permi
 import { useRemovePermissionGroup } from '@/settings/permissions/hooks/useRemovePermissionGroup';
 import { PermissionGroupEdit } from './form/PermissionGroupEdit';
 import { PermissionGroupDetails } from './PermissionGroupDetails';
+import { usePermissionLabels } from '@/settings/permissions/hooks/usePermissionLabels';
 import { Can } from 'ui-modules';
 
 export const PermissionGroups = () => {
@@ -36,8 +37,9 @@ export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =
     useGetPermissionDefaultGroups();
   const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
+  const { getGroupDescription, ready } = usePermissionLabels();
 
-  if (defaultLoading || customLoading) {
+  if (defaultLoading || customLoading || !ready) {
     return (
       <div className="m-3">
         <div className="max-w-lg mx-auto flex flex-col gap-2">
@@ -111,7 +113,7 @@ export const PermissionGroups = () => {
                       </Table.Cell>
                       <Table.Cell>
                         <TextOverflowTooltip
-                          value={group.description}
+                          value={getGroupDescription(group)}
                           className="block text-muted-foreground"
                         />
                       </Table.Cell>
