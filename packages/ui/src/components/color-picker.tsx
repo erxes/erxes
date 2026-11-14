@@ -98,7 +98,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
   const { value, onValueChange, colors } = useColorPickerContext();
 
   return (
-    <Popover.Content className="p-1 w-64" align="start" sideOffset={8}>
+    <Popover.Content variant="compact" className="w-64" align="start" sideOffset={8}>
       <div className="grid grid-cols-5 gap-1">
         {Object.entries(colors).map(([key, color]) => (
           <button

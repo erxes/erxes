@@ -124,7 +124,7 @@ export const IntegrityCheck = () => {
         <IconShieldCheck />
         {t('verify', 'Check integrity')}
       </Popover.Trigger>
-      <Popover.Content align="end" className="w-80 text-sm">
+      <Popover.Content align="end" className="w-80">
         {verify.isError ? (
           <p role="alert" className="text-destructive">
             {messageOf(verify.error)}
@@ -216,18 +216,22 @@ export const Retention = ({ isOwner }: { isOwner: boolean }) => {
       <Popover.Trigger render={<Button variant="ghost" tone="muted" />}>
         {t('kept-for', { days: retentionDays, defaultValue: `Kept ${retentionDays} days` })}
       </Popover.Trigger>
-      <Popover.Content align="end" className="w-72 space-y-3 text-sm">
-        <p>
-          {t('retention-description', {
-            max: maxRetentionDays,
-            defaultValue: `Older entries are deleted automatically. This server keeps them up to ${maxRetentionDays} days.`,
-          })}
-        </p>
-        {isOwner ? (
-          <RetentionForm saved={retentionDays} max={maxRetentionDays} />
-        ) : (
-          <p className="text-muted-foreground">{t('owner-only', 'Only owners can change this.')}</p>
-        )}
+      <Popover.Content align="end" className="w-72">
+        <div className="space-y-3">
+          <p>
+            {t('retention-description', {
+              max: maxRetentionDays,
+              defaultValue: `Older entries are deleted automatically. This server keeps them up to ${maxRetentionDays} days.`,
+            })}
+          </p>
+          {isOwner ? (
+            <RetentionForm saved={retentionDays} max={maxRetentionDays} />
+          ) : (
+            <p className="text-muted-foreground">
+              {t('owner-only', 'Only owners can change this.')}
+            </p>
+          )}
+        </div>
       </Popover.Content>
     </Popover>
   );

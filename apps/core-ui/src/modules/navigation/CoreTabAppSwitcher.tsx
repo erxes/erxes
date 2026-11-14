@@ -81,7 +81,8 @@ export const CoreTabAppSwitcher = ({
         align="start"
         side="bottom"
         sideOffset={8}
-        className="w-80 rounded-xl border-border/60 p-1.5 shadow-lg"
+        variant="compact"
+        className="w-80"
       >
         <AppGroup
           label="Plugins"

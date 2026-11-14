@@ -105,12 +105,15 @@ const SheetHeader = ({ className, children, ...props }: React.HTMLAttributes<HTM
 };
 
 const SheetContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('rounded-b-lg bg-background border-b flex-1', className)} {...props} />
+  <div
+    className={cn('rounded-b-lg bg-background border-b flex-1 px-5 py-4', className)}
+    {...props}
+  />
 );
 
 const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex flex-row sm:justify-end sm:items-center sm:space-x-2 h-14 px-5', className)}
+    className={cn('flex flex-row gap-2 sm:justify-end sm:items-center h-14 px-5', className)}
     {...props}
   />
 );

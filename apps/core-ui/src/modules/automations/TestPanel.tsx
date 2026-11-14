@@ -160,10 +160,10 @@ export const TestPanel = ({
         <IconFlask />
         {t('test', 'Test')}
       </Sheet.Trigger>
-      <Sheet.View className="flex w-full flex-col gap-4 p-4 sm:max-w-xl">
+      <Sheet.View className="flex w-full flex-col sm:max-w-xl">
         <Sheet.Header>
           <Sheet.Title>{t('test-title', 'Test without changing anything')}</Sheet.Title>
-          <Sheet.Description className="text-sm text-muted-foreground">
+          <Sheet.Description>
             {t(
               'test-description',
               'Shows what the saved version would do for a record. Nothing is sent or changed.',
@@ -171,7 +171,9 @@ export const TestPanel = ({
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        {open && <TestForm automationId={automationId} type={subject ?? 'customer'} />}
+        <Sheet.Content className="min-h-0 overflow-y-auto">
+          {open && <TestForm automationId={automationId} type={subject ?? 'customer'} />}
+        </Sheet.Content>
       </Sheet.View>
     </Sheet>
   );

@@ -150,7 +150,7 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
           </DropdownMenu.Item>
         )}
         {(mine || manager) && (
-          <DropdownMenu.Item className="text-destructive" onClick={() => void onDelete()}>
+          <DropdownMenu.Item variant="destructive" onClick={() => void onDelete()}>
             <IconX />
             {t('delete', 'Delete')}
           </DropdownMenu.Item>

@@ -165,7 +165,7 @@ export const NotificationsBell = () => {
           <BellIndicators count={count} />
         </Popover.Trigger>
       </CoreTabTooltip>
-      <Popover.Content align="end" className="w-[26rem] p-0">
+      <Popover.Content align="end" variant="flush" className="w-[26rem]">
         <BellHeader source={source} unread={unreadHere} onLeave={() => setOpen(false)} />
         <div className="flex items-stretch justify-between gap-2 border-b px-2">
           <NotificationTabs value={tab} onChange={setTab} unread={unreadHere} />

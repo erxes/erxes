@@ -62,7 +62,7 @@ const CountrySelect = ({
       >
         {selected?.flag}
       </Combobox.TriggerBase>
-      <Popover.Content className="w-56 p-0" align="start">
+      <Popover.Content variant="flush" className="w-56" align="start">
         <Command>
           <Command.Input placeholder="Search country..." className="h-9" />
           <Command.List className="max-h-[300px] overflow-auto">
@@ -75,7 +75,7 @@ const CountrySelect = ({
                     onSelect(country);
                     setOpen(false);
                   }}
-                  className="flex items-center justify-between px-2 py-1.5"
+                  className="justify-between"
                 >
                   <div className="flex items-center">
                     <span className="mr-2">{country.flag}</span>

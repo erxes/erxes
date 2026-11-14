@@ -25,7 +25,7 @@ export const OptionFilter = {
     return (
       <Filter.View filterKey={filterKey}>
         <Command>
-          <Command.List className="p-1">
+          <Command.List>
             {options.map((option) => (
               <Filter.CommandItem
                 key={option.value}

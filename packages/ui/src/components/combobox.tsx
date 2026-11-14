@@ -94,8 +94,9 @@ const ComboboxContent = ({
       ref={ref}
       align="start"
       sideOffset={8}
+      variant="flush"
       {...props}
-      className={cn('p-0 min-w-72 w-(--anchor-width) max-w-96', className)}
+      className={cn('min-w-72 w-(--anchor-width) max-w-96', className)}
     />
   );
 };
@@ -231,7 +232,7 @@ const ComboboxEmpty = ({
   error?: Pick<Error, 'message'> | null;
 }) => {
   return (
-    <Command.Empty ref={ref} {...props} className={cn(className)}>
+    <Command.Empty ref={ref} {...props} className={cn('py-0', className)}>
       {loading ? (
         <div className="flex flex-col gap-2 items-start p-4">
           <Skeleton className="w-2/3 h-4" />

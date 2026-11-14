@@ -1,5 +1,5 @@
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
-import { cn, Collapsible, Input } from 'erxes-ui';
+import { Button, cn, Collapsible, Input } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../context/DashboardProvider';
 import { type TDashboardCatalogEntry, useDashboardCatalog } from '../hooks/useDashboardCatalog';
@@ -76,15 +76,19 @@ export const DashboardWidgetCatalog = () => {
         )}
         {groups.map(({ group, label, entries }) => (
           <Collapsible key={group} defaultOpen className="group/catalog">
-            <Collapsible.Trigger className="flex h-8 w-full items-center gap-1.5 rounded-md px-1.5 text-xs font-semibold text-muted-foreground hover:bg-accent/60">
+            <Collapsible.Trigger
+              render={<Button variant="ghost" size="sm" className="h-8 w-full justify-start" />}
+            >
               <IconChevronRight className="size-3.5 transition-transform group-data-open/catalog:rotate-90" />
               <span className="flex-1 text-left">{label}</span>
               <span className="tabular-nums">{entries.length}</span>
             </Collapsible.Trigger>
-            <Collapsible.Panel className="grid grid-cols-2 gap-2 pb-3 pt-1">
-              {entries.map((entry) => (
-                <CatalogCard key={entry.widget.type} entry={entry} />
-              ))}
+            <Collapsible.Panel className="mb-3 mt-1">
+              <div className="grid grid-cols-2 gap-2">
+                {entries.map((entry) => (
+                  <CatalogCard key={entry.widget.type} entry={entry} />
+                ))}
+              </div>
             </Collapsible.Panel>
           </Collapsible>
         ))}

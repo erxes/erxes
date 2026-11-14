@@ -100,12 +100,12 @@ const LinkMenu = ({
             {former ? 'Works there again' : 'Left the company'}
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
-          <DropdownMenu.Item className="text-destructive" onClick={onUnlink}>
+          <DropdownMenu.Item variant="destructive" onClick={onUnlink}>
             Unlink
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>
-      <Popover.Content anchor={menuButton} align="end" className="w-72 p-1">
+      <Popover.Content anchor={menuButton} align="end" variant="compact" className="w-72">
         <RoleEditor
           value={row.link.role}
           onSave={(role) => {

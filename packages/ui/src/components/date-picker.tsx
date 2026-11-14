@@ -137,8 +137,9 @@ const PickerPopover = ({
       <Popover.Content
         align="start"
         anchor={anchorRef}
+        variant="flush"
         {...contentProps}
-        className={cn('w-auto p-0', contentProps?.className)}
+        className={cn('w-auto', contentProps?.className)}
       >
         {children}
       </Popover.Content>

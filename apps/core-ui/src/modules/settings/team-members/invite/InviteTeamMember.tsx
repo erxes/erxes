@@ -1,4 +1,4 @@
-import { IconPlus, IconUsersGroup, IconX } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { Button, Dialog } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,27 +14,12 @@ export function InviteTeamMember() {
         <IconPlus />
         {t('invite-team-members')}
       </Dialog.Trigger>
-      <Dialog.Content className="max-w-md xl:max-w-lg p-0">
-        <Dialog.Header className="px-3 py-[13px] border-b border-muted">
-          <Dialog.Title className="flex items-center gap-2 text-sm">
-            <IconUsersGroup size={14} />
-            {t('invite-team-members')}
-          </Dialog.Title>
-          <Dialog.Description className="sr-only">{t('add-new-account')}</Dialog.Description>
-          <Dialog.Close
-            render={
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute right-2 top-2"
-                aria-label={t('close', { ns: 'common' })}
-              />
-            }
-          >
-            <IconX />
-          </Dialog.Close>
-        </Dialog.Header>
-        <div className="flex flex-col gap-6 px-3 pb-3">
+      <Dialog.Content className="max-w-md xl:max-w-lg">
+        <Dialog.HeaderCombined
+          title={t('invite-team-members')}
+          description={t('add-new-account')}
+        />
+        <div className="flex flex-col gap-6">
           {/* Core sends no invitation email, so this says what a password does. */}
           <span className="text-accent-foreground">
             {t(

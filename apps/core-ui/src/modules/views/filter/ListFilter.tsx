@@ -70,7 +70,7 @@ const RootMenu = ({ loading, error }: { loading: boolean; error: Error | null })
         className="bg-background"
         focusOnMount
       />
-      <Command.List className="max-h-[min(26rem,60vh)] p-1">
+      <Command.List className="max-h-[min(26rem,60vh)]">
         <Command.Empty>{t('no-match')}</Command.Empty>
         <Filter.Item value="searchValue" keywords={[t('search')]} inDialog>
           <IconSearch />

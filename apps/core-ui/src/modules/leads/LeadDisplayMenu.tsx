@@ -23,7 +23,7 @@ export const LeadDisplayMenu = () => {
           <IconAdjustmentsHorizontal className="size-4" />
         </Popover.Trigger>
       </IconTip>
-      <Popover.Content align="end" className="w-64 p-3">
+      <Popover.Content align="end" className="w-64">
         <p className="mb-2 text-xs font-medium text-muted-foreground">{t('view')}</p>
         <div className="grid grid-cols-2 gap-2">
           {VIEWS.map(({ value, label, icon: Icon }) => (

@@ -101,7 +101,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
 
   return (
     <>
-      <Sheet.Content className="flex flex-col gap-2 overflow-y-auto px-5 py-4">
+      <Sheet.Content className="overflow-y-auto">
         {items.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">
             {t('no-fields-found', 'No fields found')}
@@ -151,11 +151,11 @@ export const PropertyGroupLayoutSheet = ({
 
   return (
     <Sheet open={!!group} onOpenChange={(open) => !open && close()}>
-      <Sheet.View className="flex flex-col p-0">
+      <Sheet.View className="flex flex-col">
         {group && (
           <>
             <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground">
+              <Sheet.Title>
                 {t('layout', 'Layout')} — {group.name}
               </Sheet.Title>
               <Sheet.Description className="sr-only">{t('layout', 'Layout')}</Sheet.Description>

@@ -1,6 +1,6 @@
 import type { Activity } from '@erxes/core-contract';
 import { IconMoodPlus } from '@tabler/icons-react';
-import { cn, Popover } from 'erxes-ui';
+import { Button, cn, Popover } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '~/modules/auth/session';
 import { useNoteActions } from './useActivities';
@@ -33,12 +33,18 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
       ))}
       <Popover>
         <Popover.Trigger
-          className="inline-flex h-5 items-center rounded-full px-1 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover/note:opacity-100 hover:bg-accent data-popup-open:opacity-100"
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-5 opacity-0 group-hover:opacity-100 group-hover/note:opacity-100 data-popup-open:opacity-100"
+            />
+          }
           aria-label={t('react', 'React')}
         >
           <IconMoodPlus className="size-3.5" />
         </Popover.Trigger>
-        <Popover.Content className="w-auto p-1" align="start">
+        <Popover.Content variant="compact" className="w-auto" align="start">
           <div className="flex gap-1">
             {QUICK.map((emoji) => (
               <button
@@ -63,19 +69,23 @@ export const NoteHistory = ({ history }: { history: { body: string; editedAt: st
 
   return (
     <Popover>
-      <Popover.Trigger className="hover:underline">· {t('edited', 'edited')}</Popover.Trigger>
-      <Popover.Content className="w-80 space-y-2 text-sm" align="start">
-        <p className="text-xs font-medium text-muted-foreground">
-          {t('earlier-versions', 'Earlier versions')}
-        </p>
-        {history.toReversed().map((entry) => (
-          <div key={entry.editedAt} className="rounded border p-2">
-            <p className="text-xs text-muted-foreground">
-              {new Date(entry.editedAt).toLocaleString()}
-            </p>
-            <p className="whitespace-pre-wrap">{entry.body}</p>
-          </div>
-        ))}
+      <Popover.Trigger>
+        <span className="hover:underline">· {t('edited', 'edited')}</span>
+      </Popover.Trigger>
+      <Popover.Content className="w-80" align="start">
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            {t('earlier-versions', 'Earlier versions')}
+          </p>
+          {history.toReversed().map((entry) => (
+            <div key={entry.editedAt} className="rounded border p-2">
+              <p className="text-xs text-muted-foreground">
+                {new Date(entry.editedAt).toLocaleString()}
+              </p>
+              <p className="whitespace-pre-wrap">{entry.body}</p>
+            </div>
+          ))}
+        </div>
       </Popover.Content>
     </Popover>
   );

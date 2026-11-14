@@ -43,7 +43,7 @@ const CreateTagItem = ({
             },
           )
         }
-        className="justify-start gap-2"
+        className="justify-start"
       >
         <IconPlus className="size-4 shrink-0" />
         <span className="shrink-0">Add {type} tag:</span>

@@ -77,7 +77,7 @@ export const ContactFieldOptions = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
         side="right"
-        className="min-w-48 text-sm"
+        className="min-w-48"
         sideOffset={8}
         alignOffset={-4}
         align="start"
@@ -112,7 +112,7 @@ export const ContactFieldOptions = ({
           </>
         )}
         <DropdownMenu.Separator />
-        <DropdownMenu.Item className="text-destructive" onClick={onDelete}>
+        <DropdownMenu.Item variant="destructive" onClick={onDelete}>
           <IconTrash />
           Delete
         </DropdownMenu.Item>

@@ -143,10 +143,16 @@ export const ContactPanelActions = ({
         >
           <IconDots className="size-4" />
         </Popover.Trigger>
-        <Popover.Content className="min-w-[280px] p-0" align="end" side="bottom" sideOffset={8}>
+        <Popover.Content
+          variant="flush"
+          className="min-w-[280px]"
+          align="end"
+          side="bottom"
+          sideOffset={8}
+        >
           <Command>
-            <Command.List className="p-0">
-              <Command.Group className="p-1">
+            <Command.List>
+              <Command.Group>
                 {canReopen && (
                   <Command.Item
                     onSelect={() => {
@@ -163,7 +169,7 @@ export const ContactPanelActions = ({
                 )}
                 {canDelete && (
                   <Command.Item
-                    className="text-destructive"
+                    variant="destructive"
                     disabled={deleting}
                     onSelect={() => {
                       setOpen(false);

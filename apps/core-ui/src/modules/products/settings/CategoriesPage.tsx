@@ -108,10 +108,7 @@ const CategoryRow = ({
             <DropdownMenu.Item onClick={() => onOpen({ mode: 'edit', category })}>
               <IconEdit /> {t('category.edit', 'Rename or move category')}
             </DropdownMenu.Item>
-            <DropdownMenu.Item
-              className="text-destructive"
-              onClick={() => removeCategory(category)}
-            >
+            <DropdownMenu.Item variant="destructive" onClick={() => removeCategory(category)}>
               <IconTrash /> {t('actions.delete', 'Delete')}
             </DropdownMenu.Item>
           </DropdownMenu.Content>

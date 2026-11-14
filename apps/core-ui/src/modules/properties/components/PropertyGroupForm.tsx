@@ -105,7 +105,7 @@ export const PropertyGroupForm = ({
         className="flex h-full w-full flex-col gap-0"
       >
         <Sheet.Header>
-          <Sheet.Title className="flex items-center gap-1 text-lg text-foreground">
+          <Sheet.Title>
             {isEdit ? t('edit-group', 'Edit Group') : t('add-group', 'Add Group')}
           </Sheet.Title>
           <Sheet.Description className="sr-only">
@@ -115,8 +115,10 @@ export const PropertyGroupForm = ({
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-5">
-          <GroupFields form={form} />
+        <Sheet.Content className="grow size-full h-auto">
+          <div className="flex flex-col gap-5">
+            <GroupFields form={form} />
+          </div>
         </Sheet.Content>
         <Sheet.Footer>
           <Button type="button" variant="ghost" onClick={onCancel}>
