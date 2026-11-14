@@ -19,8 +19,9 @@ const FailedJob = z.object({
   key: z.string(),
   attempts: z.number(),
   output: z.unknown(),
-  failedAt: z.date(),
-  nextAttemptAt: z.date().nullable(),
+  // Drizzle's driver hands timestamps over as text.
+  failedAt: z.coerce.date(),
+  nextAttemptAt: z.coerce.date().nullable(),
 });
 
 export type FailedJob = z.infer<typeof FailedJob>;
