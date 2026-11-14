@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Form, Input, Spinner } from 'erxes-ui';
+import { Button, Form, Input, InputGroup, Spinner } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { type ControllerRenderProps, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -13,8 +13,6 @@ import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLay
 import { TwoFactorStep } from './TwoFactorStep';
 
 const PASSWORD_REVEAL_MS = 10_000;
-
-const LABEL = 'font-sans text-sm font-medium normal-case leading-none text-foreground';
 
 const schema = z.object({
   email: z.string().trim().check(z.email('Enter your email')),
@@ -42,25 +40,27 @@ const PasswordInput = ({
   }, [shown]);
 
   return (
-    <div ref={ref} {...slotProps} className="relative">
-      <Input
+    <InputGroup ref={ref} {...slotProps}>
+      <InputGroup.Input
         {...field}
         type={shown ? 'text' : 'password'}
         autoComplete="current-password"
         placeholder={t('enter-your-password')}
-        className="pr-9"
       />
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={() => setShown((value) => !value)}
-        aria-label={shown ? t('hide-password') : t('show-password')}
-        className="absolute inset-y-0 right-1 my-auto size-6 rounded-sm p-0 text-accent-foreground/60 hover:text-foreground"
-      >
-        {shown ? <IconEyeOff size={15} stroke={1.75} /> : <IconEye size={15} stroke={1.75} />}
-      </Button>
-    </div>
+      <InputGroup.Addon align="end">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          tone="muted"
+          onClick={() => setShown((value) => !value)}
+          aria-label={shown ? t('hide-password') : t('show-password')}
+          className="size-6"
+        >
+          {shown ? <IconEyeOff size={15} stroke={1.75} /> : <IconEye size={15} stroke={1.75} />}
+        </Button>
+      </InputGroup.Addon>
+    </InputGroup>
   );
 };
 
@@ -85,7 +85,7 @@ const SignInTextField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label className={LABEL}>{label}</Form.Label>
+          <Form.Label variant="plain">{label}</Form.Label>
           <Form.Control>
             <Input {...field} type={type} autoComplete={autoComplete} placeholder={placeholder} />
           </Form.Control>
@@ -140,7 +140,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
           name="password"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label className={LABEL}>{t('password')}</Form.Label>
+              <Form.Label variant="plain">{t('password')}</Form.Label>
               <Form.Control>
                 <PasswordInput field={field} />
               </Form.Control>

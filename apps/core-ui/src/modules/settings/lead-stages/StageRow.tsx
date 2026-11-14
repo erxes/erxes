@@ -2,7 +2,7 @@ import type { LeadStage, LeadStageKind } from '@erxes/core-contract';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
-import { Button, Input, Select } from 'erxes-ui';
+import { Button, cn, Input, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 import { useLeadStageMutations } from '~/modules/leads/useLeads';
@@ -59,8 +59,14 @@ export const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () =
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex items-center gap-2 border-b bg-background px-3 py-2 last:border-b-0 ${isDragging ? 'relative z-10 shadow-md' : ''}`}
+      style={{
+        '--sortable-transform': CSS.Transform.toString(transform),
+        '--sortable-transition': transition,
+      }}
+      className={cn(
+        'sortable flex items-center gap-2 border-b bg-background px-3 py-2 last:border-b-0',
+        isDragging && 'relative z-10 shadow-md',
+      )}
     >
       <button
         type="button"
@@ -72,8 +78,8 @@ export const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () =
         <IconGripVertical className="size-4" />
       </button>
       <label
-        className="relative size-6 shrink-0 cursor-pointer overflow-hidden rounded-full border"
-        style={{ background: stage.color }}
+        className="relative size-6 shrink-0 cursor-pointer overflow-hidden rounded-full border bg-(--stage-color)"
+        style={{ '--stage-color': stage.color }}
         title={t('settings.colour')}
       >
         <input

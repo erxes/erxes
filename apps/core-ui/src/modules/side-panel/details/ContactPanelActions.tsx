@@ -98,6 +98,18 @@ const useDeleteContact = (contentType: ContactType, contentId: string) => {
   return { deleteContact, deleting: remove.isPending };
 };
 
+/** Makes the customer or company a lead again. */
+const useMakeLead = (contentType: ContactType, contentId: string) => {
+  const editCustomer = useCustomerEdit();
+  const editCompany = useCompanyEdit();
+
+  return () =>
+    (contentType === 'core:customer' ? editCustomer : editCompany).mutate({
+      id: contentId,
+      state: 'lead',
+    });
+};
+
 /**
  * The record's "more" menu: make a customer a lead again (editors), and
  * Delete (owners and admins).
@@ -118,8 +130,7 @@ export const ContactPanelActions = ({
   const can = useCan();
   const canDelete = can('contacts.delete');
   const canReopen = state === 'customer' && can('contacts.edit');
-  const editCustomer = useCustomerEdit();
-  const editCompany = useCompanyEdit();
+  const makeLead = useMakeLead(contentType, contentId);
   const { deleteContact, deleting } = useDeleteContact(contentType, contentId);
 
   if (!canDelete && !canReopen) return null;
@@ -143,18 +154,21 @@ export const ContactPanelActions = ({
         >
           <IconDots className="size-4" />
         </Popover.Trigger>
-        <Popover.Content className="min-w-[280px] p-0" align="end" side="bottom" sideOffset={8}>
+        <Popover.Content
+          variant="flush"
+          className="min-w-70"
+          align="end"
+          side="bottom"
+          sideOffset={8}
+        >
           <Command>
-            <Command.List className="p-0">
-              <Command.Group className="p-1">
+            <Command.List>
+              <Command.Group>
                 {canReopen && (
                   <Command.Item
                     onSelect={() => {
                       setOpen(false);
-                      (contentType === 'core:customer' ? editCustomer : editCompany).mutate({
-                        id: contentId,
-                        state: 'lead',
-                      });
+                      makeLead();
                     }}
                   >
                     <IconArrowBackUp />
@@ -163,7 +177,7 @@ export const ContactPanelActions = ({
                 )}
                 {canDelete && (
                   <Command.Item
-                    className="text-destructive"
+                    variant="destructive"
                     disabled={deleting}
                     onSelect={() => {
                       setOpen(false);

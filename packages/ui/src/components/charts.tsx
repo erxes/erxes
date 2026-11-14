@@ -3,63 +3,43 @@ import * as RechartsPrimitive from 'recharts';
 import type { LegendPayload } from 'recharts/types/component/DefaultLegendContent';
 import type { Payload } from 'recharts/types/component/DefaultTooltipContent';
 import { cn } from '../lib/utils';
-import {
-  ChartContext,
-  configFor,
-  fillOf,
-  keyOf,
-  THEMES,
-  useChart,
-  type ChartConfig,
-} from './chart-config';
+import { ChartContext, configFor, fillOf, keyOf, useChart, type ChartConfig } from './chart-config';
 
-/** The series colours as `--color-<key>` variables, per theme. */
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colored = Object.entries(config).filter(([, item]) => item.theme ?? item.color);
+/** The series colours as `--color-<key>` variables. */
+const colorVariables = (config: ChartConfig) => {
+  const variables: Record<`--${string}`, string> = {};
 
-  if (colored.length === 0) return null;
+  for (const [key, { color }] of Object.entries(config)) {
+    if (color) variables[`--color-${key}`] = color;
+  }
 
-  const css = (['light', 'dark'] as const)
-    .map((theme) => {
-      const variables = colored.flatMap(([key, item]) => {
-        const color = item.theme?.[theme] ?? item.color;
-
-        return color ? [`  --color-${key}: ${color};`] : [];
-      });
-
-      return `${THEMES[theme]} [data-chart=${id}] {\n${variables.join('\n')}\n}`;
-    })
-    .join('\n');
-
-  return <style>{css}</style>;
+  return variables;
 };
 
 const ChartContainer = ({
   ref,
-  id,
   className,
   children,
   config,
+  style,
   ...props
 }: React.ComponentProps<'div'> & {
   config: ChartConfig;
   children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
 }) => {
-  const uniqueId = React.useId();
-  const chartId = `chart-${id ?? uniqueId.replace(/:/g, '')}`;
+  const cssVariables = colorVariables(config);
 
   return (
     <ChartContext.Provider value={{ config }}>
       <div
-        data-chart={chartId}
         ref={ref}
+        style={{ ...cssVariables, ...style }}
         className={cn(
           "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
           className,
         )}
         {...props}
       >
-        <ChartStyle id={chartId} config={config} />
         <RechartsPrimitive.ResponsiveContainer>{children}</RechartsPrimitive.ResponsiveContainer>
       </div>
     </ChartContext.Provider>
@@ -115,13 +95,13 @@ const TooltipIndicator = ({
   nested: boolean;
 }) => (
   <div
-    className={cn('shrink-0 rounded-[2px] border-border', {
+    className={cn('shrink-0 rounded-xs border-border bg-(--indicator-color)', {
       'h-2.5 w-2.5': indicator === 'dot',
       'w-1': indicator === 'line',
-      'w-0 border-[1.5px] border-dashed bg-transparent': indicator === 'dashed',
+      'w-0 border-2 border-dashed bg-transparent': indicator === 'dashed',
       'my-0.5': nested && indicator === 'dashed',
     })}
-    style={{ backgroundColor: indicator === 'dashed' ? undefined : color }}
+    style={{ '--indicator-color': indicator === 'dashed' ? undefined : color }}
   />
 );
 
@@ -262,8 +242,8 @@ const ChartLegendContent = ({
               <itemConfig.icon />
             ) : (
               <div
-                className="h-2 w-2 shrink-0 rounded-[2px]"
-                style={{ backgroundColor: item.color }}
+                className="h-2 w-2 shrink-0 rounded-xs bg-(--item-color)"
+                style={{ '--item-color': item.color }}
               />
             )}
             {itemConfig?.label}

@@ -112,12 +112,12 @@ export const ProductPanel = ({ record, onBack, onClose }: IRecordViewProps) => {
     return (
       <>
         <RecordSidePanel.Header
-          avatar={<Skeleton className="size-7 flex-none rounded" />}
+          avatar={<Skeleton radius="sm" className="size-7 flex-none" />}
           title={<Skeleton className="h-4 w-32" />}
           onBack={onBack}
           onClose={onClose}
         />
-        <Spinner containerClassName="py-12" />
+        <Spinner area="lg" />
       </>
     );
   }

@@ -43,7 +43,7 @@ const CreateTagItem = ({
             },
           )
         }
-        className="justify-start gap-2"
+        className="justify-start"
       >
         <IconPlus className="size-4 shrink-0" />
         <span className="shrink-0">Add {type} tag:</span>
@@ -137,7 +137,7 @@ const TagsSelectValue = ({
   if (showValue && selectedIds.length > 0) {
     return (
       <span className="flex items-center gap-1 text-muted-foreground">
-        <IconTag className="h-4 w-4 text-gray-400" /> Tag +{selectedIds.length}
+        <IconTag className="h-4 w-4" /> Tag +{selectedIds.length}
       </span>
     );
   }
@@ -162,17 +162,10 @@ const TagsSelectRoot = ({
   placeholder?: string;
 }) => (
   <TagsSelectProvider {...props}>
-    <Popover.Trigger
-      render={
-        <Button
-          variant={variant}
-          className={cn('w-min text-sm font-medium shadow-xs', className)}
-        />
-      }
-    >
+    <Popover.Trigger render={<Button variant={variant} className={cn('w-min', className)} />}>
       <TagsSelectValue placeholder={placeholder} />
     </Popover.Trigger>
-    <Combobox.Content className="w-[200px] p-0" align="start">
+    <Combobox.Content className="w-50" align="start">
       <TagsSelectContent />
     </Combobox.Content>
   </TagsSelectProvider>

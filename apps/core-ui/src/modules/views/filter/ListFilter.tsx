@@ -3,7 +3,6 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
 import {
   Button,
-  cn,
   Combobox,
   Command,
   Filter,
@@ -65,13 +64,8 @@ const RootMenu = ({ loading, error }: { loading: boolean; error: Error | null })
 
   return (
     <Command>
-      <Filter.CommandInput
-        placeholder={t('add')}
-        variant="secondary"
-        className="bg-background"
-        focusOnMount
-      />
-      <Command.List className="max-h-[min(26rem,60vh)] p-1">
+      <Filter.CommandInput placeholder={t('add')} variant="secondary" focusOnMount />
+      <Command.List className="max-h-popup">
         <Command.Empty>{t('no-match')}</Command.Empty>
         <Filter.Item value="searchValue" keywords={[t('search')]} inDialog>
           <IconSearch />
@@ -120,14 +114,12 @@ const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }
       <Popover.Trigger
         render={
           <Button
-            variant="ghost"
             size="sm"
             aria-label={t('label')}
             aria-keyshortcuts="F"
-            className={cn(
-              'h-7 min-w-7 gap-1 px-1.5 text-muted-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
-              count > 0 && 'bg-accent text-foreground',
-            )}
+            variant={count > 0 ? 'secondary' : 'ghost'}
+            tone={count > 0 ? 'default' : 'muted'}
+            className="h-7 min-w-7"
             onClick={onClick}
           />
         }
@@ -196,7 +188,7 @@ const ListFilterBar = ({
     <ListFilterContext.Provider value={state}>
       <div
         ref={chipsRef}
-        className="flex min-w-0 items-center gap-1 overflow-x-auto py-1 [scrollbar-width:none]"
+        className="flex min-w-0 items-center gap-1 overflow-x-auto py-1 hide-scroll"
       >
         <SearchChip />
         <RuleChips />
@@ -242,7 +234,7 @@ export const ListFilter = ({ sessionKey, ...props }: ListFilterProps & { session
 
   return (
     <Filter id={`${props.recordType}-list-filter`} sessionKey={sessionKey}>
-      <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end gap-1">
+      <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end">
         <ListFilterBar {...props} />
       </Filter.Bar>
     </Filter>

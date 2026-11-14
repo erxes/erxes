@@ -126,7 +126,7 @@ export const LeadStagesPage = () => {
           {error ? (
             <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
           ) : loading ? (
-            <Spinner containerClassName="py-12" />
+            <Spinner area="lg" />
           ) : (
             <div className="overflow-hidden rounded-lg border">
               <StageList stages={stages} onRemove={setRemoving} />

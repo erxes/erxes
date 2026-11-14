@@ -8,6 +8,7 @@ import { Spinner } from './spinner';
 import { useToast } from '../hooks/use-toast';
 import { useUpload } from '../hooks/use-upload';
 import { cn } from '../lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { readImage } from '../utils/core';
 
 /** The stored address, with what is known about the file; `url` is empty after a removal. */
@@ -74,11 +75,11 @@ const UploadRoot = ({
       }}
     >
       <Dialog open={isImageFocused} onOpenChange={setIsImageFocused}>
-        <Dialog.Content className="max-w-none w-auto bg-transparent border-0 p-0">
+        <Dialog.Content variant="bare" className="max-w-none w-auto">
           <img
             src={readImage(url)}
             alt="Focused view"
-            className="max-h-[90vh] max-w-[90vw] object-contain"
+            className="max-h-lightbox max-w-lightbox object-contain"
           />
         </Dialog.Content>
       </Dialog>
@@ -87,7 +88,19 @@ const UploadRoot = ({
   );
 };
 
-type UploadPreviewProps = {
+const uploadPreviewVariants = cva('relative overflow-hidden', {
+  variants: {
+    variant: {
+      default: '',
+      // A plain circle: no padding or drop shadow, which read lopsided at avatar size.
+      avatar: 'rounded-full border border-border p-0 shadow-none',
+    },
+    size: { default: 'size-16', sm: 'size-8' },
+  },
+  defaultVariants: { variant: 'default', size: 'default' },
+});
+
+type UploadPreviewProps = VariantProps<typeof uploadPreviewVariants> & {
   className?: string;
   onUploadStart?: (fileCount?: number) => void;
   onUploadProgress?: () => void;
@@ -99,7 +112,7 @@ const useUploadChosenFiles = ({
   onUploadStart,
   onUploadProgress,
   onAllUploadsComplete,
-}: Omit<UploadPreviewProps, 'className'>) => {
+}: Omit<UploadPreviewProps, 'className' | 'variant' | 'size'>) => {
   const { isLoading, upload } = useUpload();
   const { onChange, setPreviewUrl, previewRef } = useUploadContext();
 
@@ -132,7 +145,7 @@ const useUploadChosenFiles = ({
   return { isLoading, handleFileChange };
 };
 
-const UploadPreview = ({ className, ...callbacks }: UploadPreviewProps) => {
+const UploadPreview = ({ className, variant, size, ...callbacks }: UploadPreviewProps) => {
   const { url, multiple, fileInputRef, chooseFile, setIsImageFocused } = useUploadContext();
   const { isLoading, handleFileChange } = useUploadChosenFiles(callbacks);
 
@@ -142,7 +155,7 @@ const UploadPreview = ({ className, ...callbacks }: UploadPreviewProps) => {
         <Button
           type="button"
           variant="outline"
-          className="relative size-16 overflow-hidden"
+          className={uploadPreviewVariants({ variant, size })}
           onClick={url ? () => setIsImageFocused(true) : chooseFile}
           aria-label={url ? 'Change image' : 'Upload image'}
         >

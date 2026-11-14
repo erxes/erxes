@@ -74,7 +74,7 @@ const SubmitButton = ({
   >
     {saving ? <Spinner size="sm" /> : null}
     {label}
-    <kbd className="ml-0.5 hidden h-4 items-center gap-0.5 rounded bg-primary-foreground/20 px-1 font-sans text-[10px] font-normal sm:inline-flex">
+    <kbd className="ml-0.5 hidden h-4 items-center gap-0.5 rounded bg-primary-foreground/20 px-1 font-sans text-3xs font-normal sm:inline-flex">
       {IS_MAC ? <IconCommand className="size-2.5" /> : 'Ctrl'}
       <IconCornerDownLeft className="size-2.5" />
     </kbd>
@@ -166,7 +166,7 @@ export const NoteComposer = ({
 
   return (
     <div
-      className="relative rounded-lg border bg-background transition-[border-color,box-shadow] focus-within:border-primary/40 focus-within:ring-3 focus-within:ring-primary/10"
+      className="relative rounded-lg border bg-background transition focus-within:border-primary/40 focus-within:ring-3 focus-within:ring-primary/10"
       onFocus={() => setActive(true)}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setActive(false);
@@ -178,11 +178,10 @@ export const NoteComposer = ({
         rows={open ? 3 : 1}
         aria-label={t('note-placeholder', 'Write a note… type @ to mention a teammate')}
         placeholder={t('note-placeholder', 'Write a note… type @ to mention a teammate')}
-        className={cn(
-          'min-h-0 resize-none rounded-lg border-0 bg-transparent px-3 py-2 shadow-none focus-visible:shadow-none focus-visible:ring-0',
-          // Collapsed: one line, even when the hint is longer than the box (Mongolian).
-          !open && !body && 'overflow-hidden text-ellipsis whitespace-nowrap',
-        )}
+        variant="ghost"
+        // Collapsed: one line, even when the hint is longer than the box (Mongolian).
+        truncate={!open && !body}
+        className="min-h-0 resize-none"
         onChange={(event) => {
           setBody(event.target.value);
           mentions.onType(event.target.value, event.target.selectionStart);

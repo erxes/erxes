@@ -12,7 +12,7 @@ export interface Crumb {
 export const AppBreadcrumb = ({ items }: { items: Crumb[] }) => (
   <>
     <Breadcrumb>
-      <Breadcrumb.List className="gap-1">
+      <Breadcrumb.List>
         {items.map((item, index) => {
           const Icon = item.icon;
 

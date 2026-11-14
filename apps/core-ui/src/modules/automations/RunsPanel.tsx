@@ -58,7 +58,7 @@ const StepEntry = ({ step }: { step: RunStep }) => {
           <summary className="cursor-pointer text-xs text-muted-foreground">
             {t('details', 'Input and output')}
           </summary>
-          <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-[11px]">
+          <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-2xs">
             {JSON.stringify({ input: step.input, output: step.output }, null, 2)}
           </pre>
         </details>
@@ -173,7 +173,7 @@ const NoRuns = () => {
   const { t } = useTranslation('automations');
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Title>{t('no-runs', 'No runs yet')}</Empty.Title>
         <Empty.Description>
@@ -194,35 +194,37 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
 
   return (
     <div className="flex min-h-0 flex-1">
-      <ScrollArea className="w-80 shrink-0 border-r">
-        <ul>
-          {runs.map((run) => (
-            <li key={run.id}>
-              <button
-                type="button"
-                onClick={() => setSelected(run.id)}
-                className={cn(
-                  'flex w-full items-center gap-2 border-b px-3 py-2 text-left text-sm hover:bg-muted',
-                  current?.id === run.id && 'bg-muted',
-                )}
-              >
-                <Badge variant={STATUS_VARIANT[run.status]}>
-                  {t(`status.${run.status}`, run.status)}
-                </Badge>
-                <span className="truncate text-xs text-muted-foreground">
-                  {run.subject
-                    ? (run.subject.name ??
-                      t('deleted-subject', 'A deleted {{type}}', { type: run.subject.type }))
-                    : run.eventType}
-                </span>
-                <span className="ml-auto text-xs text-muted-foreground">
-                  <When value={run.startedAt} />
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </ScrollArea>
+      <div className="flex w-80 shrink-0 flex-col border-r">
+        <ScrollArea className="min-h-0 flex-1">
+          <ul>
+            {runs.map((run) => (
+              <li key={run.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelected(run.id)}
+                  className={cn(
+                    'flex w-full items-center gap-2 border-b px-3 py-2 text-left text-sm hover:bg-muted',
+                    current?.id === run.id && 'bg-muted',
+                  )}
+                >
+                  <Badge variant={STATUS_VARIANT[run.status]}>
+                    {t(`status.${run.status}`, run.status)}
+                  </Badge>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {run.subject
+                      ? (run.subject.name ??
+                        t('deleted-subject', 'A deleted {{type}}', { type: run.subject.type }))
+                      : run.eventType}
+                  </span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    <When value={run.startedAt} />
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </ScrollArea>
+      </div>
       <ScrollArea className="flex-1">
         {current && <RunDetail key={current.id} run={current} />}
       </ScrollArea>

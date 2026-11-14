@@ -13,7 +13,7 @@ const MemberLabel = ({ member }: { member: User }) =>
   ) : (
     <span className="inline-flex items-center gap-1">
       <span>{memberLabelText(member)}</span>
-      <Badge variant="destructive" className="h-5 shrink-0 px-1.5 text-[11px]">
+      <Badge variant="destructive" size="sm" className="h-5 shrink-0">
         Inactive
       </Badge>
     </span>
@@ -25,12 +25,7 @@ const MemberAvatars = ({ members, size }: { members: User[]; size: AvatarProps['
       <Tooltip key={member.id}>
         <Tooltip.Trigger
           delay={100}
-          render={
-            <Avatar
-              className={cn('bg-background', members.length > 1 && 'ring-2 ring-background')}
-              size={size}
-            />
-          }
+          render={<Avatar ring={members.length > 1 ? 'sm' : undefined} size={size} />}
         >
           <Avatar.Image src={readImage(member.avatarUrl)} />
           <Avatar.Fallback>{memberLabelText(member).charAt(0)}</Avatar.Fallback>

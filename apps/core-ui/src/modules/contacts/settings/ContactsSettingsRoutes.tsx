@@ -46,7 +46,7 @@ const ContactsSettingsSidebar = () => {
 
   return (
     <>
-      <Sidebar.Header className="px-2 pt-0 pb-1">
+      <Sidebar.Header variant="sticky">
         <Sidebar.Menu>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton
@@ -58,7 +58,7 @@ const ContactsSettingsSidebar = () => {
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Header>
-      <Sidebar.Content className="styled-scroll gap-1">
+      <Sidebar.Content>
         {/* No heading: the sidebar's title already says "Contacts settings". */}
         <Sidebar.Group>
           <Sidebar.GroupContent>

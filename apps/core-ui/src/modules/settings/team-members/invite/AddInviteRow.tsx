@@ -12,17 +12,12 @@ export const AddInviteRowButton = ({
 
   return (
     <>
-      <Button
-        variant="secondary"
-        className="bg-border"
-        onClick={() => append({ ...INVITE_ROW_DEFAULTS })}
-      >
+      <Button variant="secondary" onClick={() => append({ ...INVITE_ROW_DEFAULTS })}>
         <IconPlus />
         {t('add-invite')}
       </Button>
       <Button
         variant="secondary"
-        className="bg-border"
         onClick={() =>
           append([
             { ...INVITE_ROW_DEFAULTS },

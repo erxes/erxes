@@ -128,7 +128,8 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
           <Button
             variant="ghost"
             size="icon"
-            className="size-6 text-muted-foreground opacity-0 group-hover/note:opacity-100 data-popup-open:opacity-100"
+            tone="muted"
+            className="size-6 opacity-0 group-hover/note:opacity-100 data-popup-open:opacity-100"
             aria-label={t('note-actions', 'Note actions')}
           />
         }
@@ -149,7 +150,7 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
           </DropdownMenu.Item>
         )}
         {(mine || manager) && (
-          <DropdownMenu.Item className="text-destructive" onClick={() => void onDelete()}>
+          <DropdownMenu.Item variant="destructive" onClick={() => void onDelete()}>
             <IconX />
             {t('delete', 'Delete')}
           </DropdownMenu.Item>
@@ -230,7 +231,10 @@ export const NoteItem = ({
       <UserAvatar
         name={actor}
         src={member?.avatarUrl ?? activity.actor.avatarUrl ?? undefined}
-        className="relative z-[1] size-6 shrink-0 rounded-full text-[10px] ring-4 ring-background [&>*]:rounded-full"
+        corners="circle"
+        ring="lg"
+        size="sm"
+        className="relative z-1 size-6 shrink-0"
       />
       <div className="min-w-0 flex-1">
         <div className="flex h-6 min-w-0 items-center gap-1.5 text-sm">

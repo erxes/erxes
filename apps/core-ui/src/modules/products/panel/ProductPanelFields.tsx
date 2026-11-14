@@ -28,10 +28,6 @@ import { useProductEdit } from './useProductEdit';
 // Hotkey scopes; each field adds the product id, so stacked panels never share one.
 export const PRODUCT_PANEL_SCOPE = 'product-panel';
 
-/** Pickers drawn like the panel's other cells: no border until hovered. */
-export const PANEL_PICKER_CLASS_NAME =
-  'h-7 rounded-sm border-transparent bg-transparent px-2 text-xs shadow-none hover:bg-accent';
-
 /**
  * Read only for members without `products.manage`: every control inside is
  * disabled, its value still drawn as it is.
@@ -59,7 +55,7 @@ export const ProductPanelName = ({ product }: { product: Product }) => {
       scope={`${PRODUCT_PANEL_SCOPE}.${product.id}.name`}
       value={product.name}
       placeholder={t('fields.name', 'Name')}
-      className="rounded-sm px-1 font-medium shadow-none"
+      variant="title"
       onSave={(name) => {
         const next = name.trim();
 
@@ -88,7 +84,7 @@ export const ProductKindRow = ({ product }: { product: Product }) => {
         <PanelFieldTrigger>{label(product.kind)}</PanelFieldTrigger>
         <RecordTableInlineCell.Content>
           <Command>
-            <Command.List className="p-1">
+            <Command.List>
               {ProductKind.options.map((kind) => (
                 <Command.Item
                   key={kind}
@@ -162,7 +158,8 @@ export const ProductCategoryRow = ({ product }: { product: Product }) => {
       <CategoryPicker
         value={product.categoryId}
         noneLabel={t('category.none', 'No category')}
-        className={PANEL_PICKER_CLASS_NAME}
+        // Drawn like the panel's other cells: no border until hovered.
+        variant="ghost"
         onChange={(categoryId) => {
           if (categoryId !== product.categoryId) edit.mutate({ id: product.id, categoryId });
         }}
@@ -197,7 +194,6 @@ export const ProductPluginsRow = ({ product }: { product: Product }) => {
           </p>
         }
         hidePlaceholderWhenSelected
-        className="min-h-7 text-xs"
       />
       {error && <p className="text-xs text-destructive">{messageOf(error)}</p>}
     </PanelField>

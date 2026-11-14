@@ -39,7 +39,7 @@ const AdvancedFilterForm = ({
           />
         )}
       </QueryState>
-      <Dialog.Footer className="border-t pt-3">
+      <Dialog.Footer>
         <Button variant="ghost" onClick={() => apply(null)}>
           {t('clear')}
         </Button>
@@ -63,7 +63,7 @@ export const AdvancedFilterDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="space-y-3 sm:max-w-3xl">
+      <Dialog.Content className="sm:max-w-3xl">
         <Dialog.HeaderCombined title={t('advanced')} description={t('advanced-title')} />
         <AdvancedFilterForm recordType={recordType} onDone={() => onOpenChange(false)} />
       </Dialog.Content>

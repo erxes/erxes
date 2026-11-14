@@ -126,7 +126,7 @@ export const SidebarPanel = ({
       data-sidebar="panel"
       data-state={open ? 'expanded' : 'collapsed'}
       className={cn(
-        'relative flex h-full w-60 flex-col overflow-hidden bg-sidebar text-foreground transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+        'relative flex h-full w-60 flex-col overflow-hidden border-r bg-sidebar text-foreground transition-layout duration-300 ease-out-quint motion-reduce:transition-none',
         className,
         !open && 'w-0! overflow-visible border-0!',
       )}

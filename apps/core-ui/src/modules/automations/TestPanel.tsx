@@ -62,7 +62,7 @@ const TestTrace = ({ result }: { result: TestResult }) => {
             </div>
             {item.problem && <p className="mt-1 text-xs text-destructive">{item.problem}</p>}
             {item.input !== null && item.input !== undefined && (
-              <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-[11px]">
+              <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-2xs">
                 {JSON.stringify(item.input, null, 2)}
               </pre>
             )}
@@ -116,7 +116,7 @@ const TestForm = ({
         </Select>
         <div className="flex items-center gap-2 text-sm">
           <Switch id={`${id}-assume`} checked={assume} onCheckedChange={setAssume} />
-          <Label htmlFor={`${id}-assume`} className="font-normal">
+          <Label htmlFor={`${id}-assume`} variant="option">
             {t('assume-event', 'Waits for events: assume the event happens')}
           </Label>
         </div>
@@ -160,10 +160,10 @@ export const TestPanel = ({
         <IconFlask />
         {t('test', 'Test')}
       </Sheet.Trigger>
-      <Sheet.View className="flex w-full flex-col gap-4 p-4 sm:max-w-xl">
+      <Sheet.View size="xl">
         <Sheet.Header>
           <Sheet.Title>{t('test-title', 'Test without changing anything')}</Sheet.Title>
-          <Sheet.Description className="text-sm text-muted-foreground">
+          <Sheet.Description>
             {t(
               'test-description',
               'Shows what the saved version would do for a record. Nothing is sent or changed.',
@@ -171,7 +171,9 @@ export const TestPanel = ({
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        {open && <TestForm automationId={automationId} type={subject ?? 'customer'} />}
+        <Sheet.Content className="min-h-0 overflow-y-auto">
+          {open && <TestForm automationId={automationId} type={subject ?? 'customer'} />}
+        </Sheet.Content>
       </Sheet.View>
     </Sheet>
   );

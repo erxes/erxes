@@ -88,7 +88,7 @@ const FailureRow = ({
         className={
           failure.status === 'dead'
             ? 'mt-0.5 size-4 shrink-0 text-destructive'
-            : 'mt-0.5 size-4 shrink-0 text-amber-500'
+            : 'mt-0.5 size-4 shrink-0 text-warning'
         }
       />
       <div className="min-w-0 flex-1 space-y-1">
@@ -144,7 +144,7 @@ const NoFailures = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'event-delivery' });
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconPlugConnected />

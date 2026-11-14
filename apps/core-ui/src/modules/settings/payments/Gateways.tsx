@@ -148,7 +148,7 @@ export const NoGateways = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
 
   return (
-    <Empty className="py-10">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconCash />

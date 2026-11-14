@@ -80,7 +80,7 @@ const InviteTable = ({ form }: { form: UseFormReturn<TUserForm> }) => {
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'entries' });
 
   return (
-    <Table className="p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar">
+    <Table variant="card" className="overflow-hidden">
       <InviteMemberContext.Provider value={{ selectedUsers, setSelectedUsers, fields }}>
         <Table.Header>
           <Table.Row>
@@ -125,13 +125,13 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
   return (
     <FormProvider {...form}>
       <form onSubmit={(event) => void form.handleSubmit(submit)(event)} className="h-full">
-        <ScrollArea className="max-h-[400px] flex flex-col">
+        <ScrollArea className="max-h-100 flex flex-col">
           <InviteTable form={form} />
           <ScrollArea.Bar />
         </ScrollArea>
         <div className="mt-3 w-full flex gap-3 justify-end">
-          <Button type="submit" disabled={sending} className="text-sm">
-            {sending ? <Spinner size="sm" className="stroke-white" /> : <IconSend size={16} />}
+          <Button type="submit" disabled={sending}>
+            {sending ? <Spinner size="sm" /> : <IconSend size={16} />}
             {t('send-invites')}
           </Button>
         </div>

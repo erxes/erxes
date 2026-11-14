@@ -24,7 +24,7 @@ const TimelineSkeleton = () => (
   <div className="space-y-5 px-4 pt-4">
     {PLACEHOLDER_ROWS.map((row) => (
       <div key={row} className="flex gap-3">
-        <Skeleton className="size-6 shrink-0 rounded-full" />
+        <Skeleton radius="circle" className="size-6 shrink-0" />
         <div className="flex-1 space-y-2 pt-1">
           <Skeleton className="h-3.5 w-1/2" />
           {row % 2 === 1 && <Skeleton className="h-3.5 w-4/5" />}
@@ -38,7 +38,7 @@ const TimelineEmpty = () => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
 
   return (
-    <Empty className="py-12">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconHistory />

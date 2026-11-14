@@ -7,7 +7,7 @@ import {
   IconPackage,
   IconTag,
 } from '@tabler/icons-react';
-import { Button, cn, Form, Input, Select, useToast } from 'erxes-ui';
+import { Button, Form, Input, Select, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, useWatch, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,7 @@ import { CurrencySelect } from '~/components/RegionSelect';
 import { messageOf } from '~/lib/api';
 import { amountStep, fromAmountInput } from '~/lib/money';
 import { useSession } from '~/modules/auth/session';
-import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from '~/modules/side-panel/PanelForm';
+import { PanelFormRow } from '~/modules/side-panel/PanelForm';
 import { NewContactForm } from '~/modules/side-panel/details/NewContactForm';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
 import { CategoryPicker } from '../categories/CategoryPicker';
@@ -24,8 +24,6 @@ import { PRODUCT_CONTENT_TYPE, useOpenProduct, useProductCreate } from '../usePr
 import { productFieldError } from './productErrors';
 
 type Translate = (key: string, defaultValue: string) => string;
-
-const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
 
 /** A typed price (empty is free) with no more decimals than the currency has. */
 const isPrice = (text: string, currency: string) => {
@@ -118,14 +116,14 @@ const KindRow = () => {
               if (value === 'goods' || value === 'service') field.onChange(value);
             }}
           >
-            <Select.Trigger className={INPUT_CLASS_NAME}>
+            <Select.Trigger variant="bordered">
               <Select.Value />
             </Select.Trigger>
             <Select.Content align="start">
-              <Select.Item value="goods" className="h-7 text-xs">
+              <Select.Item value="goods" className="h-7">
                 {t('kind.goods', 'Goods')}
               </Select.Item>
-              <Select.Item value="service" className="h-7 text-xs">
+              <Select.Item value="service" className="h-7">
                 {t('kind.service', 'Service')}
               </Select.Item>
             </Select.Content>
@@ -151,7 +149,8 @@ const CategoryRow = () => {
             value={field.value}
             onChange={field.onChange}
             noneLabel={t('category.none', 'No category')}
-            className={cn(INPUT_CLASS_NAME, 'h-7')}
+            variant="bordered"
+            className="h-7"
           />
         )}
       />
@@ -179,18 +178,15 @@ const PriceRow = () => {
           step={amountStep(currency)}
           inputMode="decimal"
           placeholder="0"
-          className={INPUT_CLASS_NAME}
+          variant="bordered"
+          text="sm"
         />
         <Form.Field
           control={control}
           name="currency"
           render={({ field }) => (
             <div className="w-24 flex-none">
-              <CurrencySelect
-                value={field.value}
-                onChange={field.onChange}
-                className="h-7 rounded-sm text-xs"
-              />
+              <CurrencySelect value={field.value} onChange={field.onChange} />
             </div>
           )}
         />
@@ -239,7 +235,8 @@ export const ProductPanelNew = () => {
         <Input
           {...form.register('name')}
           placeholder={t('fields.name', 'Name')}
-          className={INPUT_CLASS_NAME}
+          variant="bordered"
+          text="sm"
         />
       </PanelFormRow>
       <KindRow />
@@ -249,7 +246,8 @@ export const ProductPanelNew = () => {
         <Input
           {...form.register('code')}
           placeholder={t('fields.code', 'Code')}
-          className={INPUT_CLASS_NAME}
+          variant="bordered"
+          text="sm"
         />
       </PanelFormRow>
       {existingId && (
@@ -257,8 +255,9 @@ export const ProductPanelNew = () => {
         <Button
           type="button"
           variant="ghost"
-          size="sm"
-          className="ml-28 h-6 self-start px-1 text-xs text-primary-text"
+          size="xs"
+          tone="primary"
+          className="ml-28 self-start"
           onClick={() => openProduct(existingId, { stack: true })}
         >
           {t('form.open-existing', 'Open that product')}

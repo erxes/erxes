@@ -19,7 +19,7 @@ export const Kbd = ({
       {...props}
       ref={ref}
       className={cn(
-        'opacity-70 inline-flex h-5 w-fit min-w-[20px] items-center justify-center rounded-md border px-1',
+        'opacity-70 inline-flex h-5 w-fit min-w-5 items-center justify-center rounded-md border px-1',
         'text-xs',
         variant === 'background' && 'bg-background/10 border-background/20',
         variant === 'foreground' && 'bg-foreground/10 border-foreground/20',

@@ -1,5 +1,5 @@
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
-import { cn, Collapsible, Input } from 'erxes-ui';
+import { Button, cn, Collapsible, InputGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../context/DashboardProvider';
 import { type TDashboardCatalogEntry, useDashboardCatalog } from '../hooks/useDashboardCatalog';
@@ -38,7 +38,7 @@ const CatalogCard = ({
       <DashboardWidgetPreview preview={widget.preview} icon={widget.icon} />
       <span className="min-w-0 space-y-0.5">
         <span className="line-clamp-1 text-xs font-medium">{label}</span>
-        <span className="line-clamp-2 text-[11px] leading-tight text-muted-foreground">
+        <span className="line-clamp-2 text-2xs leading-tight text-muted-foreground">
           {isPlaced ? t('already-placed') : description}
         </span>
       </span>
@@ -58,15 +58,16 @@ export const DashboardWidgetCatalog = () => {
           <h2 className="text-sm font-semibold">{t('add-widget')}</h2>
           <p className="text-xs text-muted-foreground">{t('catalog-hint')}</p>
         </div>
-        <div className="relative">
-          <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
+        <InputGroup>
+          <InputGroup.Addon>
+            <IconSearch className="size-4" />
+          </InputGroup.Addon>
+          <InputGroup.Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t('catalog-search')}
-            className="pl-8"
           />
-        </div>
+        </InputGroup>
       </div>
       <div className="styled-scroll flex-1 space-y-1 overflow-y-auto p-3">
         {groups.length === 0 && (
@@ -76,15 +77,19 @@ export const DashboardWidgetCatalog = () => {
         )}
         {groups.map(({ group, label, entries }) => (
           <Collapsible key={group} defaultOpen className="group/catalog">
-            <Collapsible.Trigger className="flex h-8 w-full items-center gap-1.5 rounded-md px-1.5 text-xs font-semibold text-muted-foreground hover:bg-accent/60">
+            <Collapsible.Trigger
+              render={<Button variant="ghost" size="sm" className="h-8 w-full justify-start" />}
+            >
               <IconChevronRight className="size-3.5 transition-transform group-data-open/catalog:rotate-90" />
               <span className="flex-1 text-left">{label}</span>
               <span className="tabular-nums">{entries.length}</span>
             </Collapsible.Trigger>
-            <Collapsible.Panel className="grid grid-cols-2 gap-2 pb-3 pt-1">
-              {entries.map((entry) => (
-                <CatalogCard key={entry.widget.type} entry={entry} />
-              ))}
+            <Collapsible.Panel className="mb-3 mt-1">
+              <div className="grid grid-cols-2 gap-2">
+                {entries.map((entry) => (
+                  <CatalogCard key={entry.widget.type} entry={entry} />
+                ))}
+              </div>
             </Collapsible.Panel>
           </Collapsible>
         ))}

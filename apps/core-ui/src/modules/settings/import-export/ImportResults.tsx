@@ -66,7 +66,7 @@ const Counts = ({ imp }: { imp: Import }) => {
   return (
     <div className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <Badge key={item.key} variant={item.tone} className="px-2.5 py-1 text-sm">
+        <Badge key={item.key} variant={item.tone} size="lg">
           {imp.counts[item.key].toLocaleString()} {finished ? item.done : item.label}
         </Badge>
       ))}
@@ -174,8 +174,8 @@ export const ImportProgress = ({ imp }: { imp: Import }) => {
       </p>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-primary transition-all"
-          style={{ width: `${percent}%` }}
+          className="h-full w-(--progress) rounded-full bg-primary transition-layout"
+          style={{ '--progress': `${percent}%` }}
         />
       </div>
     </section>

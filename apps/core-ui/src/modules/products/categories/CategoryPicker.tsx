@@ -1,5 +1,5 @@
 import { cn, Combobox, Command, Popover } from 'erxes-ui';
-import { useState } from 'react';
+import { type ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '~/lib/api';
 import { useProductCategories } from './useProductCategories';
@@ -17,6 +17,7 @@ export const CategoryPicker = ({
   noneLabel,
   exclude,
   disabled,
+  variant,
   className,
 }: {
   id?: string;
@@ -25,7 +26,8 @@ export const CategoryPicker = ({
   noneLabel: string;
   exclude?: Set<string>;
   disabled?: boolean;
-  /** The trigger's look, e.g. a side panel cell. */
+  /** The trigger's look, e.g. `ghost` for a side panel cell. */
+  variant?: ComponentProps<typeof Combobox.Trigger>['variant'];
   className?: string;
 }) => {
   const { t } = useTranslation('product');
@@ -40,7 +42,12 @@ export const CategoryPicker = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger id={id} disabled={disabled} className={cn('h-8', className)}>
+      <Combobox.Trigger
+        id={id}
+        disabled={disabled}
+        variant={variant}
+        className={cn('h-8', className)}
+      >
         <Combobox.Value
           value={selected?.path}
           placeholder={noneLabel}
@@ -50,7 +57,7 @@ export const CategoryPicker = ({
       <Combobox.Content>
         <Command>
           <Command.Input placeholder={t('category.search', 'Search categories')} />
-          <Command.List className="max-h-72 p-1">
+          <Command.List className="max-h-72">
             {query.isError && (
               <p role="alert" className="p-2 text-sm text-destructive">
                 {messageOf(query.error)}
@@ -69,7 +76,10 @@ export const CategoryPicker = ({
                   value={node.path}
                   onSelect={() => pick(node.category.id)}
                 >
-                  <span className="truncate" style={{ paddingLeft: `${node.depth * 0.75}rem` }}>
+                  <span
+                    className="truncate pl-(--indent)"
+                    style={{ '--indent': `${node.depth * 0.75}rem` }}
+                  >
                     {node.category.name}
                   </span>
                   <Combobox.Check checked={value === node.category.id} />

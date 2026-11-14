@@ -1,21 +1,18 @@
-import type { ButtonProps } from 'erxes-ui/components/button';
 import { Input } from 'erxes-ui/components/input';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
-import { cn } from 'erxes-ui/lib/utils';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 import React, { useState } from 'react';
 
-type TextFieldProps = ButtonProps &
-  React.RefAttributes<HTMLButtonElement> & {
-    placeholder?: string;
-    value: string;
-    scope?: string;
-    onValueChange?: (value: string) => void;
-    onSave?: (value: string) => void;
-    // Starts with the editor open, e.g. the first field of a new record.
-    defaultOpen?: boolean;
-  };
+type TextFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+  placeholder?: string;
+  value: string;
+  scope?: string;
+  onValueChange?: (value: string) => void;
+  onSave?: (value: string) => void;
+  // Starts with the editor open, e.g. the first field of a new record.
+  defaultOpen?: boolean;
+};
 
 export const TextField = ({
   ref,
@@ -25,6 +22,7 @@ export const TextField = ({
   onSave,
   onValueChange,
   defaultOpen = false,
+  variant = 'input',
   children,
   ...props
 }: TextFieldProps) => {
@@ -71,11 +69,7 @@ export const TextField = ({
         }
       }}
     >
-      <RecordTableInlineCell.Trigger
-        className={cn('shadow-xs rounded-sm', props.className)}
-        {...props}
-        ref={ref}
-      >
+      <RecordTableInlineCell.Trigger variant={variant} empty={!value} {...props} ref={ref}>
         {children}
         <TextOverflowTooltip value={(isOpen ? editingValue : value) || placeholder} />
       </RecordTableInlineCell.Trigger>

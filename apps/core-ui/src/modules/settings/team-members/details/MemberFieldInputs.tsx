@@ -1,6 +1,5 @@
 import { type Icon, IconAlignLeft, IconPhone } from '@tabler/icons-react';
 import {
-  cn,
   DatePicker,
   formatPhoneNumber,
   PhoneInput,
@@ -14,7 +13,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toYmd } from '~/components/inlineCells';
 import { formatMemberDate, ymdToDate } from '../record/TeamMemberInlineFields';
-import { PANEL_TEXT_FIELD_CLASS_NAME, PanelFieldTrigger } from './PanelField';
+import { PanelFieldTrigger } from './PanelField';
 
 export const MEMBER_PANEL_SCOPE = 'team-member-panel';
 
@@ -37,7 +36,7 @@ export const MemberPanelTextField = ({
     scope={`${MEMBER_PANEL_SCOPE}.${scope}`}
     value={value}
     placeholder={placeholder}
-    className={cn(PANEL_TEXT_FIELD_CLASS_NAME, !value && 'text-muted-foreground')}
+    variant="field"
     disabled={disabled}
     onSave={onSave}
   >
@@ -144,7 +143,6 @@ export const MemberPhoneField = ({
       <RecordTableInlineCell.Content>
         <PhoneInput
           value={phone}
-          className="bg-background"
           onChange={(next) => setPhone(next)}
           onEnter={() => handleOpenChange(false)}
           onValidationChange={setIsValid}
@@ -183,7 +181,9 @@ export const MemberDescriptionField = ({
         value={description}
         disabled={disabled}
         placeholder={t('description')}
-        className="min-h-20 rounded-sm text-xs shadow-none"
+        variant="flat"
+        text="sm"
+        className="min-h-20"
         onChange={(event) => setDescription(event.currentTarget.value)}
         onKeyDown={(event) => {
           if (event.key === 'Escape') setDescription(value);

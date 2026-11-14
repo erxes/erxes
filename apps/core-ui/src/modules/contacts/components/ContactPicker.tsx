@@ -49,9 +49,9 @@ const RelationChip = ({
     data-panel-inline=""
     className="group/chip inline-flex h-6 max-w-full items-center gap-1 rounded-sm bg-muted px-1.5 text-xs font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
   >
-    <Avatar className="size-4 flex-none">
+    <Avatar size="sm" className="size-4 flex-none">
       <Avatar.Image src={readImage(avatar ?? undefined)} />
-      <Avatar.Fallback className="text-[10px]">{name.charAt(0)}</Avatar.Fallback>
+      <Avatar.Fallback>{name.charAt(0)}</Avatar.Fallback>
     </Avatar>
     <span className="truncate">{name}</span>
     {/* It opens the record: say so on hover. */}
@@ -59,7 +59,7 @@ const RelationChip = ({
   </button>
 );
 
-const ChipSkeleton = () => <Skeleton className="h-5 w-20 rounded-sm" />;
+const ChipSkeleton = () => <Skeleton radius="sm" className="h-5 w-20" />;
 
 const CustomerChip = ({ id, onOpen }: { id: string; onOpen: () => void }) => {
   const { data: customer, isPending } = useCustomer(id);
@@ -166,7 +166,7 @@ const ContactOptionItem = ({
   onSelect: () => void;
 }) => (
   <Command.Item value={option.id} onSelect={onSelect}>
-    <Avatar className="bg-background">
+    <Avatar>
       <Avatar.Image src={readImage(option.avatarUrl ?? undefined)} />
       <Avatar.Fallback>{option.name.charAt(0)}</Avatar.Fallback>
     </Avatar>
@@ -211,7 +211,7 @@ export const SelectContactContent = ({
         wrapperClassName="flex-auto"
         focusOnMount
       />
-      <Command.List className="max-h-[300px] overflow-y-auto">
+      <Command.List className="max-h-75 overflow-y-auto">
         {selectedOptions.length > 0 && (
           <>
             {selectedOptions.map((option) => (

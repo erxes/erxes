@@ -1,5 +1,5 @@
 import { cn, Combobox, Command, Popover } from 'erxes-ui';
-import { useState } from 'react';
+import { type ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { countryOptions, currencyOptions, type RegionOption } from '~/lib/region';
 
@@ -8,7 +8,8 @@ interface SelectProps {
   value: string;
   disabled?: boolean;
   onChange: (value: string) => void;
-  /** The trigger's look, e.g. a side panel cell. */
+  /** The trigger's look, e.g. `ghost` for a side panel cell. */
+  variant?: ComponentProps<typeof Combobox.Trigger>['variant'];
   className?: string;
 }
 
@@ -18,6 +19,7 @@ const SearchSelect = ({
   value,
   disabled,
   onChange,
+  variant,
   className,
   options,
   placeholder,
@@ -28,16 +30,19 @@ const SearchSelect = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger id={id} className={cn('w-full shadow-xs', className)} disabled={disabled}>
+      <Combobox.Trigger
+        id={id}
+        variant={variant}
+        className={cn('w-full', className)}
+        disabled={disabled}
+      >
         <Combobox.Value value={chosen?.label ?? value} placeholder={placeholder} />
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
           <Command.Input placeholder={t('search', 'Search')} variant="secondary" focusOnMount />
-          <Command.List className="max-h-72 overflow-y-auto p-1">
-            <Command.Empty className="p-4 text-center text-sm text-muted-foreground">
-              {t('no-match', 'Nothing matches')}
-            </Command.Empty>
+          <Command.List className="max-h-72 overflow-y-auto">
+            <Command.Empty>{t('no-match', 'Nothing matches')}</Command.Empty>
             {options.map((option) => (
               <Command.Item
                 key={option.value}

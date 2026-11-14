@@ -14,9 +14,11 @@ export const IconTip = ({
   <Tooltip.Provider delay={300}>
     <Tooltip>
       <Tooltip.Trigger render={children} />
-      <Tooltip.Content side="bottom" className="flex items-center gap-1.5">
-        {label}
-        {hotkey && <Kbd>{hotkey}</Kbd>}
+      <Tooltip.Content side="bottom">
+        <span className="flex items-center gap-1.5">
+          {label}
+          {hotkey && <Kbd>{hotkey}</Kbd>}
+        </span>
       </Tooltip.Content>
     </Tooltip>
   </Tooltip.Provider>

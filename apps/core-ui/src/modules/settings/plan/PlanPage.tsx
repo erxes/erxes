@@ -69,7 +69,7 @@ const SelfHosted = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconCreditCard />
@@ -158,7 +158,7 @@ export const PlanPage = () => {
           {error ? (
             <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
           ) : isLoading ? (
-            <Spinner containerClassName="py-12" />
+            <Spinner area="lg" />
           ) : !data?.saas ? (
             <SelfHosted />
           ) : (

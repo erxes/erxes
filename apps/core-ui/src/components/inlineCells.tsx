@@ -30,7 +30,7 @@ export const DateInlineCell = ({
       <RecordTableInlineCell.Trigger>
         {value ? formatYmd(value) : <span className="text-muted-foreground" />}
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="w-auto p-0">
+      <RecordTableInlineCell.Content className="w-auto">
         <DatePicker
           inline
           value={value}

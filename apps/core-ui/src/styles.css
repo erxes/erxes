@@ -1,7 +1,33 @@
 /* One Tailwind build for the whole app: erxes-ui's source styles (theme, page
-   defaults, its own utilities), plus the utilities this app's code uses. */
+   defaults, component styles, its own utilities), plus the utilities this app's code uses. */
 @import '../../../packages/ui/src/styles.css';
-@import './app.css';
 @source './';
-/* BlockNote's shadcn skin styles its toolbar, menus and panels with Tailwind utilities. */
-@source '../node_modules/@blocknote/shadcn/dist';
+
+/* Layouts only one screen uses. */
+@theme {
+  /* The leads report's stage funnel: stage, now, reached, average stay. */
+  --grid-template-columns-lead-funnel: minmax(90px, 1fr) 2fr 2fr 64px;
+  /* The leads report's cohort tables: name, new leads, customers, rate. */
+  --grid-template-columns-lead-cohort: minmax(90px, 1fr) 2fr 70px 56px;
+  /* An automation condition: field and operator, then the remove button. */
+  --grid-template-columns-condition: minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
+/* The automation canvas: a dot every 18px. */
+@utility dot-grid {
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Scales an element and its layout by --zoom, as the automation canvas's zoom buttons do. */
+@utility zoom {
+  zoom: var(--zoom);
+}
+
+/* The sign-in screen's backdrop. */
+@utility auth-backdrop {
+  background-image: radial-gradient(#f0f1fe, #f7f8fa);
+  @variant dark {
+    background-image: radial-gradient(#0d0d0d, #161616);
+  }
+}

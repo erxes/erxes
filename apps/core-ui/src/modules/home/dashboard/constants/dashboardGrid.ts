@@ -1,5 +1,6 @@
 import type { TDashboardItem } from '../types/dashboardTypes';
 
+// HomeDashboard's grid-cols-12 auto-rows-10 gap-4 draws the grid these numbers measure.
 export const DASHBOARD_GRID_COLUMNS = 12;
 export const DASHBOARD_ROW_HEIGHT = 40;
 export const DASHBOARD_GRID_GAP = 16;

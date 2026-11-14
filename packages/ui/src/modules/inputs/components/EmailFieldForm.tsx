@@ -2,7 +2,6 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui/components/button';
 import { Input } from 'erxes-ui/components/input';
 import { Separator } from 'erxes-ui/components/separator';
-import { cn } from 'erxes-ui/lib/utils';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { useState } from 'react';
 import { useFocusWhenShown, type ContactFieldInput } from '../hooks/useContactFieldInput';
@@ -66,7 +65,7 @@ export const EmailFieldForm = ({
             ref={inputRef}
             placeholder={label}
             variant="secondary"
-            className={cn(invalid && 'focus-visible:shadow-destructive')}
+            aria-invalid={invalid}
             value={draft}
             onChange={(event) => {
               setDraft(event.target.value);

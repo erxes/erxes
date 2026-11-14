@@ -10,7 +10,6 @@ import {
 import { Button } from 'erxes-ui/components/button';
 import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
-import { cn } from 'erxes-ui/lib/utils';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 
 /*
@@ -29,11 +28,8 @@ export const ContactFieldValue = ({
 }) => (
   <Button
     variant="secondary"
-    className={cn(
-      'w-full font-medium text-left justify-start px-2 flex-auto overflow-hidden',
-      isPrimary && 'text-primary-text bg-primary/10 hover:bg-primary/20',
-    )}
-    size="lg"
+    tone={isPrimary ? 'primary' : 'default'}
+    className="h-8 w-full text-left justify-start flex-auto overflow-hidden"
   >
     {status === ValidationStatus.Valid ? (
       <IconCircleDashedCheck className="text-success" />
@@ -75,15 +71,13 @@ export const ContactFieldOptions = ({
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger
-        render={
-          <Button variant="secondary" className="w-full font-medium size-8 shrink-0" size="icon" />
-        }
+        render={<Button variant="secondary" className="size-8 shrink-0" size="icon" />}
       >
         <IconDots />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
         side="right"
-        className="min-w-48 text-sm"
+        className="min-w-48"
         sideOffset={8}
         alignOffset={-4}
         align="start"
@@ -118,7 +112,7 @@ export const ContactFieldOptions = ({
           </>
         )}
         <DropdownMenu.Separator />
-        <DropdownMenu.Item className="text-destructive" onClick={onDelete}>
+        <DropdownMenu.Item variant="destructive" onClick={onDelete}>
           <IconTrash />
           Delete
         </DropdownMenu.Item>

@@ -1,8 +1,7 @@
 import { IconGridDots } from '@tabler/icons-react';
-import { Button, cn, Popover } from 'erxes-ui';
+import { Button, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import type { NavApp } from './apps';
-import { coreTabIconClassName } from './coreTabClassName';
 import { CoreTabTooltip } from './CoreTabTooltip';
 
 const AppGroup = ({
@@ -18,7 +17,7 @@ const AppGroup = ({
 }) =>
   apps.length ? (
     <section className="py-1 first:pt-0">
-      <h2 className="flex h-7 items-center px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <h2 className="flex h-7 items-center px-2 text-3xs font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </h2>
       <div className="grid grid-cols-2 gap-0.5">
@@ -30,13 +29,9 @@ const AppGroup = ({
             <Button
               key={app.id}
               type="button"
-              variant="ghost"
+              variant="nav"
               aria-current={active ? 'page' : undefined}
-              className={cn(
-                'h-8 min-w-0 justify-start gap-2 px-2 text-sm font-medium',
-                active &&
-                  'bg-primary/10 text-primary-text hover:bg-primary/15 hover:text-primary-text',
-              )}
+              className="h-8 min-w-0 justify-start"
               onClick={() => onSelect(app)}
             >
               <Icon className="size-4 shrink-0" />
@@ -73,9 +68,9 @@ export const CoreTabAppSwitcher = ({
             <Button
               type="button"
               size="icon"
-              variant="ghost"
+              variant="nav"
               aria-label="Open app"
-              className={coreTabIconClassName(open)}
+              className="relative shrink-0"
             />
           }
         >
@@ -86,7 +81,8 @@ export const CoreTabAppSwitcher = ({
         align="start"
         side="bottom"
         sideOffset={8}
-        className="w-80 rounded-xl border-border/60 p-1.5 shadow-lg"
+        variant="compact"
+        className="w-80"
       >
         <AppGroup
           label="Plugins"

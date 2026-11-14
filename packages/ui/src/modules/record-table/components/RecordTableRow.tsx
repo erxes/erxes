@@ -38,7 +38,7 @@ export const RecordTableRow = ({
       data-state={selected ? 'selected' : undefined}
       {...props}
       ref={mergeRefs(ref, inViewRef)}
-      className={cn('h-cell', inView ? 'in-view' : 'out-of-view', className)}
+      className={cn('h-cell', className)}
       id={cursor ?? id}
     >
       {virtualize && !inView ? (

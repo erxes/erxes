@@ -1,11 +1,11 @@
 import type { Product } from '@erxes/core-contract';
 import { IconCoin, IconCurrencyDollar, IconRulerMeasure, IconWeight } from '@tabler/icons-react';
-import { cn, NumberField, useToast } from 'erxes-ui';
+import { NumberField, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CurrencySelect } from '~/components/RegionSelect';
 import { fromAmountInput, toAmountInput, useMoney } from '~/lib/money';
-import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField } from '~/modules/side-panel/PanelField';
-import { PANEL_PICKER_CLASS_NAME, PRODUCT_PANEL_SCOPE } from './ProductPanelFields';
+import { PanelField } from '~/modules/side-panel/PanelField';
+import { PRODUCT_PANEL_SCOPE } from './ProductPanelFields';
 import { useProductEdit } from './useProductEdit';
 
 /**
@@ -41,14 +41,14 @@ export const ProductPriceRows = ({ product }: { product: Product }) => {
           scope={`${PRODUCT_PANEL_SCOPE}.${id}.price`}
           value={Number(toAmountInput(price, currency))}
           formatValue={() => money(price, currency)}
-          className={PANEL_TEXT_FIELD_CLASS_NAME}
+          variant="field"
           onSave={savePrice}
         />
       </PanelField>
       <PanelField icon={IconCoin} label={t('fields.currency', 'Currency')}>
         <CurrencySelect
           value={currency}
-          className={PANEL_PICKER_CLASS_NAME}
+          variant="ghost"
           onChange={(next) => {
             if (next === currency) return;
             edit.mutate({
@@ -85,7 +85,8 @@ const ProductSizeRow = ({
         scope={`${PRODUCT_PANEL_SCOPE}.${product.id}.${code}`}
         value={value ?? 0}
         formatValue={(next) => (value === null ? label : next.toLocaleString())}
-        className={cn(PANEL_TEXT_FIELD_CLASS_NAME, value === null && 'text-muted-foreground')}
+        variant="field"
+        empty={value === null}
         onSave={(next) => {
           const size = next > 0 ? Math.round(next) : null;
 

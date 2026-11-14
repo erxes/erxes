@@ -19,7 +19,7 @@ import {
   buttonVariants,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { propertiesPath } from '../constants';
@@ -88,20 +88,10 @@ type GroupShellProps = {
   addPath: string;
   handle?: ReactNode;
   actions?: ReactNode;
-  className?: string;
-  style?: CSSProperties;
-} & React.RefAttributes<HTMLDivElement>;
+};
 
 /** A group's header and its fields table; `handle` and `actions` are the manager's controls. */
-const GroupShell = ({
-  name,
-  fields,
-  addPath,
-  handle,
-  actions,
-  className,
-  ...rest
-}: GroupShellProps) => {
+const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
   const [open, setOpen] = useState(fields.length > 0);
@@ -119,8 +109,7 @@ const GroupShell = ({
 
   return (
     <Collapsible
-      {...rest}
-      className={cn('group', className)}
+      className="group"
       open={open}
       onOpenChange={(value) => {
         toggled.current = true;
@@ -130,7 +119,7 @@ const GroupShell = ({
       <div className="relative flex items-center gap-1">
         {handle ?? <span className="size-7 shrink-0" />}
         <Collapsible.Trigger
-          render={<Button variant="secondary" className="w-full justify-start font-medium" />}
+          render={<Button variant="secondary" className="w-full justify-start" />}
         >
           <Collapsible.TriggerIcon />
           {name}
@@ -140,7 +129,7 @@ const GroupShell = ({
         </Collapsible.Trigger>
         {actions ?? <span className="size-7 shrink-0" />}
       </div>
-      <Collapsible.Panel className="pt-2">
+      <Collapsible.Panel className="mt-2">
         {fields.length === 0 ? (
           <div className="rounded-md border py-10 text-center text-sm text-muted-foreground">
             {t('no-fields-found', 'No fields found')}
@@ -150,7 +139,7 @@ const GroupShell = ({
             columns={columns}
             data={fields}
             stickyColumns={['more', 'checkbox', 'name']}
-            className="rounded-md border"
+            variant="inset"
           >
             <RecordTable.Scroll className="h-auto" viewportClassName="max-h-96">
               <RecordTable>
@@ -193,31 +182,38 @@ export const PropertiesGroupSection = ({
   });
 
   return (
-    <GroupShell
+    <div
       ref={setNodeRef}
-      name={group.name}
-      fields={fields}
-      addPath={`${propertiesPath(contentType)}/${group.id}/add`}
-      className={cn(isDragging && 'z-10 opacity-40')}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      handle={
-        manager ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7 shrink-0 cursor-grab text-muted-foreground"
-            aria-label={t('reorder-group', 'Reorder group')}
-            {...attributes}
-            {...listeners}
-          >
-            <IconGripVertical />
-          </Button>
-        ) : undefined
-      }
-      actions={
-        manager ? <PropertiesGroupActions group={group} contentType={contentType} /> : undefined
-      }
-    />
+      className={cn('sortable', isDragging && 'z-10 opacity-40')}
+      style={{
+        '--sortable-transform': CSS.Transform.toString(transform),
+        '--sortable-transition': transition,
+      }}
+    >
+      <GroupShell
+        name={group.name}
+        fields={fields}
+        addPath={`${propertiesPath(contentType)}/${group.id}/add`}
+        handle={
+          manager ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              tone="muted"
+              className="shrink-0 cursor-grab"
+              aria-label={t('reorder-group', 'Reorder group')}
+              {...attributes}
+              {...listeners}
+            >
+              <IconGripVertical />
+            </Button>
+          ) : undefined
+        }
+        actions={
+          manager ? <PropertiesGroupActions group={group} contentType={contentType} /> : undefined
+        }
+      />
+    </div>
   );
 };
 

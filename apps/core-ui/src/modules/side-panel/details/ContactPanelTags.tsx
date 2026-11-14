@@ -36,7 +36,7 @@ export const ContactPanelTags = ({
         }
       >
         {/* Named by what it shows (the tags, or "Add tags"), so the spoken name matches the visible one. */}
-        <RecordTableInlineCell.Trigger className="rounded-sm">
+        <RecordTableInlineCell.Trigger variant="field">
           <TagsSelect.SelectedList maxVisible={3} className="min-w-0 overflow-hidden" />
           {tagIds?.length ? (
             <span className="sr-only">{t('edit-tags', 'Edit tags')}</span>

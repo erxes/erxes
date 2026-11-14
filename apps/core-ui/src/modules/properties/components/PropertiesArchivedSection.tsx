@@ -58,7 +58,7 @@ const ArchivedRow = ({
           <Button
             variant="ghost"
             size="sm"
-            className="text-destructive"
+            tone="destructive"
             disabled={disabled}
             onClick={onDelete}
           >
@@ -94,12 +94,7 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: FieldC
       <div className="flex items-center gap-1">
         <span className="size-7 shrink-0" />
         <Collapsible.Trigger
-          render={
-            <Button
-              variant="secondary"
-              className="w-full justify-start font-medium text-muted-foreground"
-            />
-          }
+          render={<Button variant="secondary" tone="muted" className="w-full justify-start" />}
         >
           <Collapsible.TriggerIcon />
           {t('archived', 'Archived')}
@@ -108,7 +103,7 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: FieldC
           </Badge>
         </Collapsible.Trigger>
       </div>
-      <Collapsible.Panel className="pt-2">
+      <Collapsible.Panel className="mt-2">
         <div className="flex flex-col divide-y rounded-md border">
           {groups.map((group) => (
             <ArchivedRow

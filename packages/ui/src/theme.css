@@ -7,6 +7,9 @@
   utilities; see core-ui/src/styles.css for the host.
 */
 @custom-variant dark (&:is(.dark *));
+/* Inside an app layout whose navigation panel is closed, where its toggle button floats at the
+   top left; AppLayout sets the attribute. */
+@custom-variant navigation-collapsed (&:is([data-navigation-collapsed] *));
 
 @utility container {
   margin-inline: auto;
@@ -26,6 +29,10 @@
     'Courier New', monospace;
 
   --text-*: initial;
+  /* Counters, keyboard hints and initials in small avatars. They keep the surrounding line height. */
+  --text-4xs: 0.5rem;
+  --text-3xs: 0.625rem;
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-xs--line-height: 0.875rem;
   --text-sm: 0.8125rem;
@@ -62,6 +69,11 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  /* Status colours as text, readable on their own 10% tint. */
+  --color-success-text: var(--success-text);
+  --color-warning-text: var(--warning-text);
+  --color-destructive-text: var(--destructive-text);
+  --color-info-text: var(--info-text);
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -98,15 +110,36 @@
 
   --spacing-cell: 33px;
 
+  /* An image or video opened full size over the page. */
+  --max-width-lightbox: 90vw;
+  --max-height-lightbox: 90vh;
+  /* A record table's rows fill the page below its header bars. */
+  --min-height-table: calc(100vh - 8rem);
+
+  /* A content-sized first track and the rest: label and value, icon and text. */
+  --grid-template-columns-leading: auto minmax(0, 1fr);
+  --grid-template-rows-leading: auto minmax(0, 1fr);
+  /* Two scrolling halves around a bar. */
+  --grid-template-rows-split: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* A side panel's field labels. */
+  --grid-template-columns-field: 6.5rem minmax(0, 1fr);
+  /* A side column of 18 to 24rem beside the content. */
+  --grid-template-columns-aside: minmax(18rem, 24rem) minmax(0, 1fr);
+
+  /* Panels and sidebars sliding open or shut. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Overshoots a little, then settles. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* What changes when a panel or control grows, shrinks or slides in, fading as it goes. */
+  --transition-property-layout: width, height, margin, padding, left, right, opacity;
+
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-spinner: spinner 0.96s linear infinite;
-  --animate-bot-appear: bot-appear 0.3s ease-out 0.25s backwards;
-  --animate-bot-rock: bot-rock 2.6s ease-in-out infinite;
-  --animate-bot-glance: bot-glance 4.5s ease-in-out infinite;
-  --animate-bot-blink: bot-blink 4.5s infinite;
-  --animate-bot-dots: bot-dots 1.2s infinite;
-  --animate-text-shimmer: text-shimmer 1.8s linear infinite;
+  /* An entrance from an offset and scale the element sets as --appear-x, --appear-y and
+     --appear-scale, timed by --appear-duration, --appear-easing and --appear-delay. */
+  --animate-appear: appear var(--appear-duration, 500ms) var(--appear-easing, ease-out)
+    var(--appear-delay, 0ms) both;
 
   --animate-first: move-vertical 30s ease infinite;
   --animate-second: move-in-circle 20s reverse infinite;
@@ -156,65 +189,11 @@
       opacity: 0.15;
     }
   }
-  /* Waiting bot: hugs its knees and rocks, glancing around; dots pulse. */
-  @keyframes bot-appear {
+  @keyframes appear {
     from {
       opacity: 0;
-    }
-  }
-  @keyframes bot-rock {
-    0%,
-    100% {
-      transform: rotate(-5deg);
-    }
-    50% {
-      transform: rotate(5deg);
-    }
-  }
-  @keyframes bot-glance {
-    0%,
-    20%,
-    80%,
-    100% {
-      transform: translateX(0);
-    }
-    30%,
-    45% {
-      transform: translateX(-5px);
-    }
-    55%,
-    70% {
-      transform: translateX(5px);
-    }
-  }
-  @keyframes bot-blink {
-    0%,
-    46%,
-    50%,
-    96%,
-    100% {
-      transform: scaleY(1);
-    }
-    48%,
-    98% {
-      transform: scaleY(0.1);
-    }
-  }
-  @keyframes bot-dots {
-    0%,
-    100% {
-      opacity: 0.25;
-    }
-    40% {
-      opacity: 1;
-    }
-  }
-  @keyframes text-shimmer {
-    from {
-      background-position: 100% 0;
-    }
-    to {
-      background-position: 0% 0;
+      transform: translate3d(var(--appear-x, 0), var(--appear-y, 0), 0)
+        scale(var(--appear-scale, 1));
     }
   }
 
@@ -253,6 +232,44 @@
   }
 }
 
+/* Inline, because the variable resolves on the popup, not on :root. A popup is at most 24rem
+   tall, or the room Base UI measures beside its anchor; BlockNote's menus, which don't measure,
+   get half the viewport. */
+@theme inline {
+  --max-height-popup: min(24rem, var(--available-height, 50dvh));
+}
+
+/* Spoke --spoke (0 to 9) of Spinner's ten: a bar left of the centre, turned about a point one
+   bar length further left, its fade a tenth of a turn behind the one before. */
+@utility spinner-spoke {
+  position: absolute;
+  top: -3.9%;
+  left: -10%;
+  width: 24%;
+  height: 8%;
+  transform-origin: -100%;
+  transform: translate(146%) rotate(calc(var(--spoke) * 36deg + 0.001deg));
+  animation: spinner 0.96s linear calc((var(--spoke) - 10) * 0.096s) infinite;
+}
+
+/* A scroll viewport or list takes its popup's corners and height limit; a button inside
+   BlockNote's markup takes the editor's font. */
+/* Base UI keeps a closing popup mounted until its exit animation ends; this holds the last
+   frame so it doesn't flash back first. */
+@utility animation-forwards {
+  animation-fill-mode: forwards;
+}
+
+@utility rounded-inherit {
+  border-radius: inherit;
+}
+@utility max-h-inherit {
+  max-height: inherit;
+}
+@utility font-inherit {
+  font: inherit;
+}
+
 @utility hide-scroll {
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
@@ -285,4 +302,12 @@
   & > * {
     @apply block!;
   }
+}
+
+/* A dnd-kit sortable item. useSortable's transform and transition reach it as
+   --sortable-transform and --sortable-transition. The element's own transition-* classes
+   come after this rule, so an element that has them sets them only while no drag runs. */
+@utility sortable {
+  transform: var(--sortable-transform);
+  transition: var(--sortable-transition);
 }

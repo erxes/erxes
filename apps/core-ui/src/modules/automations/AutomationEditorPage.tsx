@@ -171,7 +171,7 @@ const EditorTabBar = ({
 
   return (
     <div className="flex items-center border-b px-4">
-      <Tabs.List className="h-9 border-b-0">
+      <Tabs.List variant="flush" className="h-9">
         <Tabs.Trigger value="build">{t('build', 'Build')}</Tabs.Trigger>
         <Tabs.Trigger value="runs">
           {t('runs', 'Runs')}

@@ -52,18 +52,11 @@ export const PanelLabel = ({
     <Tooltip.Provider delay={100}>
       <Tooltip>
         <Tooltip.Trigger
-          render={
-            <span
-              ref={ref}
-              className={cn(
-                'my-1 block min-w-0 wrap-break-word',
-                !expanded && 'line-clamp-2',
-                className,
-              )}
-            />
-          }
+          render={<span className={cn('my-1 block min-w-0 wrap-break-word', className)} />}
         >
-          {children}
+          <span ref={ref} className={cn('block', !expanded && 'line-clamp-2')}>
+            {children}
+          </span>
         </Tooltip.Trigger>
         {showTooltip && <Tooltip.Content>{tooltip ?? children}</Tooltip.Content>}
       </Tooltip>

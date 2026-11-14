@@ -56,7 +56,7 @@ export const FilterDialogStringView = ({
     <Dialog.Content>
       <form onSubmit={onSubmit}>
         <Dialog.Header>
-          <Dialog.Title className="font-medium text-lg">
+          <Dialog.Title>
             {isSearch ? t('filter.search', 'Search') : `Filter by ${label || filterKey}...`}
           </Dialog.Title>
         </Dialog.Header>
@@ -68,7 +68,7 @@ export const FilterDialogStringView = ({
           value={dialogSearch}
           onChange={(e) => setDialogSearch(e.target.value)}
         />
-        <Dialog.Footer className="sm:space-x-3">
+        <Dialog.Footer>
           <Dialog.Close render={<Button variant="outline" size="lg" />}>Cancel</Dialog.Close>
           <Button size="lg" type="submit">
             Apply

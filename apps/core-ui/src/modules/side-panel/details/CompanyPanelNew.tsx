@@ -22,7 +22,7 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
-import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from '../PanelForm';
+import { PanelFormRow } from '../PanelForm';
 import { useSidePanelDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 import {
@@ -66,8 +66,6 @@ const TEXT_FIELD_ICONS: Record<TCompanyTextField, Icon> = {
   website: IconWorld,
 };
 
-const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
-
 const orNull = (value?: string) => value?.trim() || null;
 
 /** A registered text input with its field label and validation error. */
@@ -89,7 +87,7 @@ const TextRow = ({
       required={required}
       error={formState.errors[name]?.message}
     >
-      <Input {...register(name)} placeholder={label} className={INPUT_CLASS_NAME} />
+      <Input {...register(name)} placeholder={label} variant="bordered" text="sm" />
     </PanelFormRow>
   );
 };
@@ -112,7 +110,7 @@ const BusinessRows = () => {
               options={INDUSTRY_OPTIONS}
               value={field.value}
               onChange={field.onChange}
-              className="min-h-7 text-xs"
+              className="min-h-7"
             />
           )}
         />
@@ -123,12 +121,12 @@ const BusinessRows = () => {
           name="businessType"
           render={({ field }) => (
             <Select value={field.value || ''} onValueChange={field.onChange}>
-              <Select.Trigger className={INPUT_CLASS_NAME}>
+              <Select.Trigger variant="bordered">
                 <Select.Value placeholder={t('field.businessType', 'Business type')} />
               </Select.Trigger>
               <Select.Content>
                 {COMPANY_BUSINESS_TYPES.filter(Boolean).map((type) => (
-                  <Select.Item key={type} value={type} className="text-xs">
+                  <Select.Item key={type} value={type}>
                     {type}
                   </Select.Item>
                 ))}
@@ -143,7 +141,8 @@ const BusinessRows = () => {
           type="number"
           placeholder={t('field.size', 'Size')}
           min={0}
-          className={INPUT_CLASS_NAME}
+          variant="bordered"
+          text="sm"
         />
       </PanelFormRow>
     </>

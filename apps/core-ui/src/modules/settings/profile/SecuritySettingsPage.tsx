@@ -63,7 +63,7 @@ const PasswordField = ({
     name={name}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label className="text-xs">{label}</Form.Label>
+        <Form.Label>{label}</Form.Label>
         <Form.Control>
           <Input {...field} type="password" autoComplete={autoComplete} />
         </Form.Control>
@@ -200,23 +200,18 @@ const SignIns = () => {
             {data.map((entry) => (
               <li key={entry.id} className="flex items-center gap-3 py-2">
                 {entry.success ? (
-                  <IconCircleCheck className="size-4 text-green-600" />
+                  <IconCircleCheck className="size-4 text-success-text" />
                 ) : (
                   <IconCircleX className="size-4 text-destructive" />
                 )}
                 <span className="flex-1">{deviceOf(entry.userAgent)}</span>
                 <span className="text-muted-foreground">{entry.ip ?? '—'}</span>
-                {!entry.success && (
-                  <Badge variant="destructive" className="font-normal">
-                    {t('failed', 'Failed')}
-                  </Badge>
-                )}
-                <RelativeDateDisplay
-                  value={entry.createdAt}
-                  render={<span className="w-28 text-right text-muted-foreground" />}
-                >
-                  <RelativeDateDisplay.Value value={entry.createdAt} />
-                </RelativeDateDisplay>
+                {!entry.success && <Badge variant="destructive">{t('failed', 'Failed')}</Badge>}
+                <span className="w-28 text-right text-muted-foreground">
+                  <RelativeDateDisplay value={entry.createdAt} render={<span />}>
+                    <RelativeDateDisplay.Value value={entry.createdAt} />
+                  </RelativeDateDisplay>
+                </span>
               </li>
             ))}
           </ul>

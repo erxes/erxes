@@ -104,12 +104,12 @@ const LinkMenu = ({
             {former ? t('works-again', 'Works there again') : t('left-company', 'Left the company')}
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
-          <DropdownMenu.Item className="text-destructive" onClick={onUnlink}>
+          <DropdownMenu.Item variant="destructive" onClick={onUnlink}>
             {t('unlink', 'Unlink')}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>
-      <Popover.Content anchor={menuButton} align="end" className="w-72 p-1">
+      <Popover.Content anchor={menuButton} align="end" variant="compact" className="w-72">
         <RoleEditor
           value={row.link.role}
           onSave={(role) => {
@@ -188,9 +188,7 @@ const AddLink = ({
 
   return (
     <Popover open={adding} onOpenChange={setAdding}>
-      <Popover.Trigger
-        render={<Button variant="ghost" size="sm" className="w-fit text-muted-foreground" />}
-      >
+      <Popover.Trigger render={<Button variant="ghost" size="sm" tone="muted" className="w-fit" />}>
         <IconPlus />
         {side === 'core:customer'
           ? t('link-company', 'Link a company')
@@ -223,7 +221,7 @@ export const ContactLinks = ({ side, id }: { side: ContactSide; id: string }) =>
     <QueryState
       query={query}
       className="justify-start p-2"
-      loading={<Spinner containerClassName="h-8 justify-start px-2" size="sm" />}
+      loading={<Spinner containerClassName="h-8 justify-start" size="sm" />}
     >
       {(rows) => (
         <div className="flex flex-col">

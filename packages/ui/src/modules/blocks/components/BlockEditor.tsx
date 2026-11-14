@@ -11,10 +11,26 @@ import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
 import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
 import { Toolbar } from 'erxes-ui/modules/blocks/components/BlockToolbar';
 import { cn } from 'erxes-ui/lib/utils';
+import { cva } from 'class-variance-authority';
 import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
 import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
 import { themeState } from 'erxes-ui/state/themeState';
 import { useAtomValue } from 'jotai';
+
+const blockEditorVariants = cva('erxes-blocknote transition', {
+  variants: {
+    variant: {
+      // Bare text: the screen draws any box around it.
+      default: '',
+      // A field: the drop shadow of an input, and its focus ring.
+      outline: 'rounded-md pt-1 styled-scroll shadow-xs data-focused:shadow-focus',
+      // A value in a side panel: no border until hovered or focused.
+      ghost:
+        'rounded-sm pt-1 styled-scroll hover:bg-accent focus-within:bg-background focus-within:shadow-focus',
+    },
+  },
+  defaultVariants: { variant: 'default' },
+});
 
 export const BlockEditor = ({
   editor,
@@ -26,7 +42,7 @@ export const BlockEditor = ({
   className,
   style,
   disabled,
-  variant = 'default',
+  variant,
   sideMenu = true,
   formattingToolbar = true,
   linkToolbar = true,
@@ -47,12 +63,8 @@ export const BlockEditor = ({
       onKeyDownCapture={onKeyDownCapture}
       onKeyUpCapture={onKeyUpCapture}
       onMouseDownCapture={keepSelectionOnToolbarClick}
-      className={cn(
-        'erxes-blocknote',
-        'transition-shadow',
-        variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
-        className,
-      )}
+      data-focused={focus || undefined}
+      className={cn(blockEditorVariants({ variant }), className)}
     >
       <BlockEditorEditableContext.Provider value={editable}>
         <BlockNoteView

@@ -83,10 +83,7 @@ export const BarcodeSizeSettings = ({
       >
         <IconSettings />
       </Popover.Trigger>
-      <Popover.Content
-        className="w-64 text-foreground"
-        onClick={(event) => event.stopPropagation()}
-      >
+      <Popover.Content className="w-64" onClick={(event) => event.stopPropagation()}>
         <Form {...form}>
           <div className="space-y-3">
             <p className="text-sm font-medium">Barcode size</p>

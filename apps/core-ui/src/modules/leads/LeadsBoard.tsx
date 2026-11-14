@@ -85,7 +85,7 @@ export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
     return (
       <div className="flex min-h-0 flex-1 gap-3 p-3">
         {COLUMN_SKELETONS.map((key) => (
-          <Skeleton key={key} className="h-full w-72 shrink-0 rounded-xl" />
+          <Skeleton key={key} radius="xl" className="h-full w-72 shrink-0" />
         ))}
       </div>
     );
@@ -112,10 +112,7 @@ export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
       <DragOverlay dropAnimation={DROP_ANIMATION}>
         {dragging && (
           <div
-            className={cn(
-              CARD,
-              'w-[272px] rotate-[1.5deg] cursor-grabbing shadow-lg ring-1 ring-primary/20',
-            )}
+            className={cn(CARD, 'w-68 rotate-2 cursor-grabbing shadow-lg ring-1 ring-primary/20')}
           >
             <CardBody lead={dragging} />
           </div>

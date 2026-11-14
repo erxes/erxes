@@ -121,7 +121,7 @@ export const AutomationInspector = (props: InspectorProps) => {
     selected !== 'settings' && selected !== 'trigger' ? findStep(definition.steps, selected) : null;
 
   return (
-    <aside className="flex w-[440px] shrink-0 flex-col border-l bg-background">
+    <aside className="flex w-110 shrink-0 flex-col border-l bg-background">
       <InspectorTabs selected={selected} onSelect={onSelect} stepType={selectedStep?.type} />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-5 p-4">

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 import { IconCheck } from '@tabler/icons-react';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
 
@@ -87,7 +88,7 @@ const DropdownMenuContent = ({
     sideOffset={sideOffset}
     align={align}
     className={cn(
-      'min-w-[300px] overflow-hidden rounded-lg bg-background p-1 shadow-lg outline-hidden',
+      'min-w-75 overflow-hidden rounded-lg bg-background p-1 text-sm shadow-lg outline-hidden',
       popupAnimation,
       className,
     )}
@@ -95,27 +96,42 @@ const DropdownMenuContent = ({
   />
 );
 
-export const menuItemClassName =
-  'relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-sm px-2 text-sm outline-hidden transition-colors data-highlighted:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground';
+const menuItemVariants = cva(
+  'relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-sm px-2 text-sm outline-hidden transition-colors data-highlighted:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
+  {
+    variants: {
+      variant: {
+        default: '',
+        destructive: 'text-destructive',
+      },
+      inset: { true: 'pl-8' },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
+
+type MenuItemVariants = VariantProps<typeof menuItemVariants>;
 
 const DropdownMenuItem = ({
   className,
+  variant,
   inset,
   ...props
-}: MenuPrimitive.Item.Props & { inset?: boolean }) => (
-  <MenuPrimitive.Item className={cn(menuItemClassName, inset && 'pl-8', className)} {...props} />
+}: MenuPrimitive.Item.Props & MenuItemVariants) => (
+  <MenuPrimitive.Item className={cn(menuItemVariants({ variant, inset }), className)} {...props} />
 );
 
 /** A menu item that navigates; it closes the menu like any other item. */
 const DropdownMenuLinkItem = ({
   className,
+  variant,
   inset,
   closeOnClick = true,
   ...props
-}: MenuPrimitive.LinkItem.Props & { inset?: boolean }) => (
+}: MenuPrimitive.LinkItem.Props & MenuItemVariants) => (
   <MenuPrimitive.LinkItem
     closeOnClick={closeOnClick}
-    className={cn(menuItemClassName, inset && 'pl-8', className)}
+    className={cn(menuItemVariants({ variant, inset }), className)}
     {...props}
   />
 );

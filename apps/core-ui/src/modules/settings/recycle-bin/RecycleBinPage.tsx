@@ -142,7 +142,7 @@ const EmptyBin = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'recycle-bin' });
 
   return (
-    <Empty className="py-16">
+    <Empty>
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconTrash />
@@ -202,7 +202,7 @@ export const RecycleBinPage = () => {
           {can('trash.purge') && (
             <Button
               variant="outline"
-              className="text-destructive"
+              tone="destructive"
               disabled={!selected.size || purge.isPending}
               onClick={() =>
                 void confirm({

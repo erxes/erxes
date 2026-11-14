@@ -26,9 +26,7 @@ const GroupedFieldItems = ({ fields }: { fields: FieldInfo[] }) => {
 
   return [...new Set(fields.map(groupOf))].map((group) => (
     <Select.Group key={group}>
-      <Select.Label className="text-xs text-muted-foreground">
-        {t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}
-      </Select.Label>
+      <Select.Label>{t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}</Select.Label>
       <FieldItems fields={fields.filter((field) => groupOf(field) === group)} />
     </Select.Group>
   ));
@@ -69,7 +67,8 @@ export const PathPicker = ({
       </Select>
       {!known && (
         <Input
-          className="h-8 w-full min-w-0 font-mono text-xs"
+          text="code"
+          className="h-8 w-full min-w-0"
           placeholder="event.payload.amount"
           value={value}
           disabled={disabled}

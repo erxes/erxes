@@ -78,17 +78,15 @@ const SortableColumnItem = ({
     disabled: pinned,
   });
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
-
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        '--sortable-transform': CSS.Translate.toString(transform),
+        '--sortable-transition': transition,
+      }}
       className={cn(
-        'flex items-center gap-2 px-2 py-1.5 hover:bg-muted/50 rounded-sm',
+        'sortable flex items-center gap-2 px-2 py-1.5 hover:bg-muted/50 rounded-sm',
         isDragging && 'opacity-50 bg-muted',
       )}
     >
@@ -112,9 +110,10 @@ const SortableColumnItem = ({
 
       <Label
         htmlFor={`col-visibility-${column.id}`}
-        className="cursor-pointer select-none font-normal truncate w-full"
+        variant="option"
+        className="cursor-pointer select-none w-full"
       >
-        {label}
+        <span className="block truncate">{label}</span>
       </Label>
 
       <Button
@@ -122,7 +121,8 @@ const SortableColumnItem = ({
         size="icon"
         title={pinned ? 'Unpin column' : 'Pin column to left'}
         aria-label={pinned ? 'Unpin column' : 'Pin column to left'}
-        className="h-5 w-5 flex-none text-muted-foreground hover:text-foreground"
+        tone="muted"
+        className="size-5 flex-none"
         onClick={(e) => {
           e.preventDefault();
           column.pin(pinned ? false : 'start');
@@ -177,7 +177,7 @@ export const RecordTableColumnSelector = ({
   return (
     <DropdownMenu open={columnSelectorOpen} onOpenChange={setColumnSelectorOpen}>
       <DropdownMenu.Trigger
-        render={<Button variant="ghost" className="h-full w-full rounded-none px-0" />}
+        render={<Button variant="cell" size="icon" className="h-full w-full" />}
         aria-label="Columns"
       >
         <IconSettings />
@@ -185,7 +185,7 @@ export const RecordTableColumnSelector = ({
 
       <DropdownMenu.Content
         align={align}
-        className="hide-scroll max-h-(--available-height) w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain p-1"
+        className="hide-scroll max-h-(--available-height) w-72 max-w-(--available-width) overflow-y-auto overscroll-contain"
       >
         <DndContext
           sensors={sensors}

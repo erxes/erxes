@@ -1,10 +1,21 @@
-import { type ClassValue, clsx } from 'clsx';
+import { createCn } from 'cn/engine';
 import type { Ref, RefCallback } from 'react';
-import { twMerge } from 'tailwind-merge';
+import tables from './cn-tables';
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+// A value only known at runtime reaches a class through a CSS variable:
+// `style={{ '--panel-width': `${width}px` }}` read by `w-(--panel-width)`.
+declare module 'react' {
+  interface CSSProperties {
+    [variable: `--${string}`]: string | number | undefined;
+  }
 }
+
+/**
+ * Joins classes and drops the ones a later class overrides. The merge tables include the
+ * scales theme.css and styles.css declare in `@theme`, so `cn('shadow-sm', 'shadow-focus')`
+ * keeps only the last; `pnpm check:generated` fails when they are older than the theme.
+ */
+export const cn = createCn(tables);
 
 /** One ref callback that sets every given ref, for an element both the component and its caller need. */
 export const mergeRefs =

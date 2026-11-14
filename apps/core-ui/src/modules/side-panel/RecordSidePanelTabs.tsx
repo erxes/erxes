@@ -8,26 +8,16 @@ import { useTabFit } from './useTabFit';
 
 /** Collapsed: a row of tabs over the content. Expanded: a sidebar, or an overview column beside the tabs. */
 const layoutOf = (expanded: boolean, splitOverview: boolean) => {
-  if (splitOverview) {
-    return {
-      content:
-        'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]',
-      navigation:
-        'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1',
-    };
-  }
+  if (splitOverview) return 'split';
 
-  if (expanded) {
-    return {
-      content: 'flex flex-row',
-      navigation: 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3',
-    };
-  }
+  return expanded ? 'sidebar' : 'bar';
+};
 
-  return {
-    content: 'flex flex-col',
-    navigation: 'box-content items-center gap-1 h-9 px-2 border-b bg-background',
-  };
+const NAVIGATION = {
+  split:
+    'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1',
+  sidebar: 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3',
+  bar: 'box-content items-center gap-1 h-9 px-2 border-b bg-background',
 };
 
 /** The tab triggers that fit, and a "+N More" menu with the rest. */
@@ -59,10 +49,8 @@ const TabBar = ({
     <div ref={barRef} className={cn('flex flex-none min-w-0 overflow-hidden', className)}>
       <Tabs.List
         aria-label={t('navigation', 'Record navigation')}
-        className={cn(
-          'flex min-w-0 items-stretch border-b-0 gap-1 py-0',
-          sidebar ? 'flex-col' : 'h-full',
-        )}
+        variant={sidebar ? 'vertical' : 'flush'}
+        className={cn('min-w-0', !sidebar && 'h-full')}
       >
         {visible.map((tab) => (
           // Full row height, so the active underline lands on the row's bottom border.
@@ -71,12 +59,7 @@ const TabBar = ({
             value={tab.value}
             data-panel-tab={tab.value}
             title={expanded ? tab.label : undefined}
-            className={cn(
-              'text-xs motion-reduce:transition-none',
-              sidebar
-                ? 'h-9 justify-start gap-2.5 rounded-md px-2.5 after:hidden data-active:bg-primary/10 data-active:hover:bg-primary/10'
-                : 'h-full gap-1.5 rounded-none after:-mb-px',
-            )}
+            size="sm"
           >
             <tab.icon
               className={cn('size-4 shrink-0', compact && !sidebar && 'hidden')}
@@ -88,9 +71,7 @@ const TabBar = ({
       </Tabs.List>
       {overflow.length > 0 && (
         <DropdownMenu>
-          <DropdownMenu.Trigger
-            render={<Button variant="ghost" size="sm" className="text-accent-foreground" />}
-          >
+          <DropdownMenu.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>
             {t('more', '+{{count}} More', { count: overflow.length })}
             <IconChevronDown />
           </DropdownMenu.Trigger>
@@ -130,12 +111,12 @@ const TabContent = ({
     inert={splitOverview && isOverview ? false : undefined}
     // A widget's own header lines up with a page's filter row (37px). A quick fade when
     // switching tabs or opening another record in the panel; a record's page opens without one.
+    variant={splitOverview && isOverview ? 'aside' : 'default'}
+    fade={!splitOverview}
     className={cn(
       'flex-1 min-h-0 min-w-0 flex-col [&_[data-side-menu-header]]:h-9',
-      !splitOverview &&
-        'not-data-hidden:animate-in not-data-hidden:fade-in-0 not-data-hidden:duration-150 motion-reduce:animate-none',
       splitOverview && isOverview
-        ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
+        ? 'col-start-1 row-start-1 flex md:row-span-2'
         : 'not-data-hidden:flex data-hidden:hidden',
       splitOverview && !isOverview && 'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
     )}
@@ -209,11 +190,17 @@ export const RecordSidePanelTabs = ({
       value={selectedValue}
       onValueChange={onValueChange}
       orientation={sidebar ? 'vertical' : 'horizontal'}
-      className={cn('flex-1 min-h-0 min-w-0', layout.content)}
+      className={cn(
+        'flex-1 min-h-0 min-w-0',
+        layout === 'split' &&
+          'grid grid-cols-1 grid-rows-split md:grid-cols-aside md:grid-rows-leading',
+        layout === 'sidebar' && 'flex flex-row',
+        layout === 'bar' && 'flex flex-col',
+      )}
     >
       <TabBar
         barRef={barRef}
-        className={layout.navigation}
+        className={NAVIGATION[layout]}
         visible={visible}
         overflow={navigationTabs.filter((tab) => !visible.includes(tab))}
         sidebar={sidebar}

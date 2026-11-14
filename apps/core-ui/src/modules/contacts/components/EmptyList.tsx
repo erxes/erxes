@@ -6,7 +6,7 @@ export const EmptyList = () => {
   const { t } = useTranslation('common');
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-[40%] flex flex-col items-center gap-2 text-center">
+    <div className="pointer-events-none absolute inset-x-0 top-2/5 flex flex-col items-center gap-2 text-center">
       <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
         <IconInbox className="size-5" />
       </span>

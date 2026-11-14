@@ -42,7 +42,7 @@ const SelectorField = ({
     <Combobox.Chips
       ref={fieldRef}
       className={cn(
-        'relative min-h-7 rounded shadow-xs transition-[color,box-shadow] text-sm focus-within:outline-hidden focus-within:shadow-focus has-disabled:cursor-not-allowed has-disabled:opacity-50 pe-9',
+        'relative min-h-7 rounded shadow-xs transition text-sm focus-within:outline-hidden focus-within:shadow-focus has-disabled:cursor-not-allowed has-disabled:opacity-50 pe-9',
         // Not p-1: tailwind-merge would drop the pe-9 that keeps the chips clear of Clear all.
         !empty && 'py-1 ps-1',
         !disabled && !empty && 'cursor-text',
@@ -53,7 +53,7 @@ const SelectorField = ({
         {value.map((option) => (
           <Combobox.Chip
             key={option.value}
-            className="animate-fadeIn relative inline-flex h-7 cursor-default items-center rounded-md border border-solid bg-background pe-7 pl-2 ps-2 text-xs font-medium text-secondary-foreground transition-all hover:bg-background data-disabled:cursor-not-allowed data-disabled:opacity-50"
+            className="relative inline-flex h-7 cursor-default items-center rounded-md border border-solid bg-background pe-7 pl-2 ps-2 text-xs font-medium text-secondary-foreground transition-all hover:bg-background data-disabled:cursor-not-allowed data-disabled:opacity-50"
           >
             {option.label}
             <Combobox.ChipRemove

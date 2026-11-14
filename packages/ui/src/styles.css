@@ -1,7 +1,10 @@
 @import 'tailwindcss' source(none);
 @import './theme.css';
 @import './base.css';
+@import './components.css';
 @source '.';
+/* BlockNote's shadcn skin styles its toolbar, menus and panels with Tailwind utilities. */
+@source '../node_modules/@blocknote/shadcn/dist';
 @source not './**/*.stories.*';
 @source not './**/__stories__';
 @source not './**/__tests__';

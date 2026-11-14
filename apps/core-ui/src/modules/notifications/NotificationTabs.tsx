@@ -9,13 +9,11 @@ export const NotificationTabs = ({
   onChange,
   unread,
   className,
-  listClassName,
 }: {
   value: NotificationTab;
   onChange: (tab: NotificationTab) => void;
   unread: number;
   className?: string;
-  listClassName?: string;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications' });
 
@@ -25,11 +23,9 @@ export const NotificationTabs = ({
       onValueChange={(next) => onChange(next === 'unread' ? 'unread' : 'all')}
       className={cn('flex', className)}
     >
-      <Tabs.List className={cn('flex min-h-9 items-stretch self-stretch py-0', listClassName)}>
-        <Tabs.Trigger value="all" className="after:-mb-px">
-          {t('all', 'All')}
-        </Tabs.Trigger>
-        <Tabs.Trigger value="unread" className="after:-mb-px">
+      <Tabs.List variant="flush" className="min-h-9 self-stretch">
+        <Tabs.Trigger value="all">{t('all', 'All')}</Tabs.Trigger>
+        <Tabs.Trigger value="unread">
           {t('unread', 'Unread')}
           {unread > 0 && <span className="ml-1 text-xs text-muted-foreground">{unread}</span>}
         </Tabs.Trigger>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { Input } from 'erxes-ui/components/input';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
@@ -16,12 +17,29 @@ export const SidebarInput = ({ ref, className, ...props }: React.ComponentProps<
   );
 };
 
-export const SidebarHeader = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+const sidebarHeaderVariants = cva('flex flex-col gap-2', {
+  variants: {
+    variant: {
+      default: 'p-2',
+      // Stays above the menu as it scrolls, and fades the items passing under it.
+      sticky:
+        'sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-linear-to-b after:from-sidebar after:to-transparent',
+    },
+  },
+  defaultVariants: { variant: 'default' },
+});
+
+export const SidebarHeader = ({
+  ref,
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<'div'> & VariantProps<typeof sidebarHeaderVariants>) => {
   return (
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn('flex flex-col gap-2 p-2', className)}
+      className={cn(sidebarHeaderVariants({ variant }), className)}
       {...props}
     />
   );

@@ -1,5 +1,5 @@
 import { IconBraces, IconBuilding, IconClock, IconRoute, IconUser } from '@tabler/icons-react';
-import { cn, Command, Input, Popover, Textarea } from 'erxes-ui';
+import { Button, Command, InputGroup, Popover } from 'erxes-ui';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FieldInfo } from './useAutomationFields';
@@ -41,7 +41,7 @@ const DataPicker = ({
                 <RecordIcon className="text-muted-foreground" />
                 <span className="truncate">{field.label.replace(/ \(custom\)$/, '')}</span>
                 {field.path.startsWith('subject.customFields.') && (
-                  <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
+                  <span className="ml-auto shrink-0 text-3xs text-muted-foreground">
                     {t('custom', 'Custom')}
                   </span>
                 )}
@@ -131,29 +131,30 @@ export const TemplateInput = ({
   };
 
   return (
-    <div className="relative">
-      {multiline ? (
-        <Textarea {...shared} rows={4} className="pr-10" />
-      ) : (
-        <Input {...shared} className="pr-10" />
-      )}
+    <InputGroup>
+      {multiline ? <InputGroup.Textarea {...shared} rows={4} /> : <InputGroup.Input {...shared} />}
       {!disabled && (
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger
-            title={t('insert-data', 'Insert data')}
-            aria-label={t('insert-data', 'Insert data')}
-            className={cn(
-              'absolute right-1.5 flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
-              multiline ? 'top-1.5' : 'top-1/2 -translate-y-1/2',
-            )}
-          >
-            <IconBraces className="size-4" />
-          </Popover.Trigger>
-          <Popover.Content align="end" sideOffset={6} collisionPadding={12} className="w-72 p-0">
-            <DataPicker fields={fields} subject={subject} onPick={insert} />
-          </Popover.Content>
-        </Popover>
+        <InputGroup.Addon align="end">
+          <Popover open={open} onOpenChange={setOpen}>
+            <Popover.Trigger
+              title={t('insert-data', 'Insert data')}
+              aria-label={t('insert-data', 'Insert data')}
+              render={<Button variant="ghost" size="icon" tone="muted" className="size-6" />}
+            >
+              <IconBraces className="size-4" />
+            </Popover.Trigger>
+            <Popover.Content
+              align="end"
+              sideOffset={6}
+              collisionPadding={12}
+              variant="flush"
+              className="w-72"
+            >
+              <DataPicker fields={fields} subject={subject} onPick={insert} />
+            </Popover.Content>
+          </Popover>
+        </InputGroup.Addon>
       )}
-    </div>
+    </InputGroup>
   );
 };

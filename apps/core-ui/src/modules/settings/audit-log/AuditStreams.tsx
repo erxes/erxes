@@ -125,7 +125,7 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
           <Button
             size="icon"
             variant="ghost"
-            className="text-destructive"
+            tone="destructive"
             title={t('remove', 'Remove')}
             aria-label={t('remove', 'Remove')}
             onClick={() =>
@@ -206,10 +206,10 @@ export const AuditStreams = () => {
         <IconBroadcast />
         {t('button', 'Streaming')}
       </Button>
-      <Sheet.View className="flex w-full flex-col p-0 sm:max-w-lg">
+      <Sheet.View size="lg">
         <Sheet.Header>
           <Sheet.Title>{t('title', 'Stream the audit log')}</Sheet.Title>
-          <Sheet.Description className="text-sm text-muted-foreground">
+          <Sheet.Description>
             {t(
               'description',
               'Every entry, as it is written, to your SIEM or log service: in order, signed, and resent after outages.',
@@ -217,10 +217,12 @@ export const AuditStreams = () => {
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="min-h-0 space-y-4 overflow-y-auto px-5 py-4">
-          {secret && <SecretNotice secret={secret} />}
-          {open && <StreamList />}
-          <AddStream onAdded={setSecret} />
+        <Sheet.Content className="min-h-0 overflow-y-auto">
+          <div className="space-y-4">
+            {secret && <SecretNotice secret={secret} />}
+            {open && <StreamList />}
+            <AddStream onAdded={setSecret} />
+          </div>
         </Sheet.Content>
       </Sheet.View>
     </Sheet>

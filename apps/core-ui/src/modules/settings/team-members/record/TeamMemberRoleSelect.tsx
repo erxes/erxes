@@ -45,7 +45,6 @@ export const TeamMemberRoleSelect = ({ user }: { user: User }) => {
                   key={role.key}
                   value={role.name}
                   onSelect={() => handleRoleChange(role.key)}
-                  className="font-medium"
                 >
                   <span className="flex items-center gap-2">
                     {role.name}

@@ -19,11 +19,11 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical } from '@tabler/icons-react';
-import { Button, cn, IconComponent, Sheet, Spinner } from 'erxes-ui';
+import { Button, cn, Sheet, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FIELD_TYPES_OBJECT } from '../fieldTypes';
+import { FieldIcon } from './FieldIcon';
 import { withOrders } from '../reorder';
 import { activeLayoutGroupState } from '../states';
 import { useReorder } from '../usePropertyMutations';
@@ -33,14 +33,15 @@ const LayoutItem = ({ field }: { field: Field }) => {
     id: field.id,
   });
 
-  const TypeIcon = FIELD_TYPES_OBJECT[field.type].icon;
-
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
+      style={{
+        '--sortable-transform': CSS.Transform.toString(transform),
+        '--sortable-transition': transition,
+      }}
       className={cn(
-        'flex items-center gap-2 rounded-md border bg-background px-2 py-1.5 text-sm',
+        'sortable flex items-center gap-2 rounded-md border bg-background px-2 py-1.5 text-sm',
         isDragging && 'z-10 opacity-40',
         !field.isVisible && 'text-muted-foreground',
       )}
@@ -48,17 +49,14 @@ const LayoutItem = ({ field }: { field: Field }) => {
       <Button
         variant="ghost"
         size="icon"
-        className="size-6 shrink-0 cursor-grab text-muted-foreground"
+        tone="muted"
+        className="size-6 shrink-0 cursor-grab"
         {...attributes}
         {...listeners}
       >
         <IconGripVertical />
       </Button>
-      {field.icon ? (
-        <IconComponent name={field.icon} className="size-4 shrink-0 text-muted-foreground" />
-      ) : (
-        <TypeIcon className="size-4 shrink-0 text-muted-foreground" />
-      )}
+      <FieldIcon icon={field.icon} type={field.type} />
       <span className="truncate">{field.label}</span>
     </div>
   );
@@ -100,7 +98,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
 
   return (
     <>
-      <Sheet.Content className="flex flex-col gap-2 overflow-y-auto px-5 py-4">
+      <Sheet.Content className="overflow-y-auto">
         {items.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">
             {t('no-fields-found', 'No fields found')}
@@ -150,11 +148,11 @@ export const PropertyGroupLayoutSheet = ({
 
   return (
     <Sheet open={!!group} onOpenChange={(open) => !open && close()}>
-      <Sheet.View className="flex flex-col p-0">
+      <Sheet.View>
         {group && (
           <>
             <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground">
+              <Sheet.Title>
                 {t('layout', 'Layout')} — {group.name}
               </Sheet.Title>
               <Sheet.Description className="sr-only">{t('layout', 'Layout')}</Sheet.Description>

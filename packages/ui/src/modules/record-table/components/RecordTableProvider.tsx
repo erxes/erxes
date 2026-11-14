@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { shallow, useSelector } from '@tanstack/react-store';
+import type { VariantProps } from 'class-variance-authority';
 import {
   columnOrderingFeature,
   columnPinningFeature,
@@ -23,7 +24,7 @@ import {
 } from '@tanstack/react-table';
 import { useColumnLayout } from '../hooks/useColumnLayout';
 import { readRow } from '../utils/rowFields';
-import { RecordTableContainer } from './RecordTableContainer';
+import { RecordTableContainer, type recordTableContainerVariants } from './RecordTableContainer';
 import { RecordTableDnDProvider } from './RecordTableDnDProvider';
 
 /** What every record table can do: reorder, pin, size, resize and hide columns, select rows. */
@@ -82,9 +83,8 @@ export const useRecordTableState = <T,>(
 const getRowId = (row: unknown, index: number, parent?: { id: string }) =>
   readRow(row).id ?? (parent ? `${parent.id}.${index}` : String(index));
 
-export interface RecordTableProviderProps<
-  TData extends RowData,
-> extends HTMLAttributes<HTMLDivElement> {
+export interface RecordTableProviderProps<TData extends RowData>
+  extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof recordTableContainerVariants> {
   children: ReactNode;
   columns: RecordTableColumnDef<TData>[];
   data: TData[];

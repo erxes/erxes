@@ -10,7 +10,13 @@ const labelVariants = cva(
   {
     variants: {
       variant: {
-        default: 'font-mono uppercase font-semibold text-xs text-accent-foreground ',
+        default: 'font-mono uppercase font-semibold text-xs text-accent-foreground',
+        // Beside a switch or checkbox: the default label at regular weight.
+        option: 'font-mono uppercase text-xs text-accent-foreground',
+        // A sentence-case label above a field, as on the sign-in forms.
+        plain: 'text-sm font-medium text-foreground',
+        // A field name beside its value, with an optional icon before it.
+        muted: 'gap-1.5 text-xs font-medium text-accent-foreground',
         peer: '',
       },
     },

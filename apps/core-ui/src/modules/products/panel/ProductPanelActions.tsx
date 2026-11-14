@@ -34,9 +34,15 @@ export const ProductPanelActions = ({ product }: { product: Product }) => {
           >
             <IconDots className="size-4" />
           </Popover.Trigger>
-          <Popover.Content className="min-w-56 p-0" align="end" side="bottom" sideOffset={8}>
+          <Popover.Content
+            variant="flush"
+            className="min-w-56"
+            align="end"
+            side="bottom"
+            sideOffset={8}
+          >
             <Command>
-              <Command.List className="p-1">
+              <Command.List>
                 <Command.Item
                   disabled={archive.isPending || restore.isPending}
                   onSelect={() => {

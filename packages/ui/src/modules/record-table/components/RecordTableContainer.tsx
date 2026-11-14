@@ -1,3 +1,4 @@
+import { cva, type VariantProps } from 'class-variance-authority';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from 'erxes-ui/lib/utils';
 import { isFixedWidthColumn } from '../utils/columnUtils';
@@ -41,22 +42,43 @@ const columnSizeVariables = (table: RecordTableInstance) => {
   return variables;
 };
 
+export const recordTableContainerVariants = cva(
+  'grow-0 basis-full overflow-hidden bg-sidebar border-sidebar',
+  {
+    variants: {
+      variant: {
+        // A page's main table, framed by the sidebar colour.
+        default: 'rounded-lg border-t-4 border-l-4',
+        // A table inside a settings section: a 1px frame.
+        inset: 'rounded-md border',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
+
 /** Renders again whenever the table's options change, which includes every layout change. */
 export const RecordTableContainer = ({
   table,
+  variant,
   className,
   children,
   style,
   ...props
-}: HTMLAttributes<HTMLDivElement> & { table: RecordTableInstance; children: ReactNode }) => (
-  <div
-    {...props}
-    style={{ ...columnSizeVariables(table), ...style }}
-    className={cn(
-      'grow-0 basis-full overflow-hidden rounded-lg bg-sidebar border-t-4 border-l-4 border-sidebar',
-      className,
-    )}
-  >
-    {children}
-  </div>
-);
+}: HTMLAttributes<HTMLDivElement> &
+  VariantProps<typeof recordTableContainerVariants> & {
+    table: RecordTableInstance;
+    children: ReactNode;
+  }) => {
+  const cssVariables = columnSizeVariables(table);
+
+  return (
+    <div
+      {...props}
+      style={{ ...cssVariables, ...style }}
+      className={cn(recordTableContainerVariants({ variant }), className)}
+    >
+      {children}
+    </div>
+  );
+};

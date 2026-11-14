@@ -141,7 +141,7 @@ const JsonInput = ({ field, value, onChange, disabled }: ActionInputProps) => {
     <>
       <Textarea
         rows={4}
-        className="font-mono text-xs"
+        text="code"
         disabled={disabled}
         placeholder={field.placeholder}
         aria-invalid={invalid}

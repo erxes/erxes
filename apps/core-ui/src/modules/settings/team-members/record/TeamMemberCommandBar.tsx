@@ -87,11 +87,17 @@ export const TeamMemberCommandBar = ({ rows }: { rows: User[] }) => {
               <IconRepeat />
               {t('actions')}
             </Popover.Trigger>
-            <Popover.Content className="min-w-[280px] p-0" align="end" side="top" sideOffset={10}>
+            <Popover.Content
+              variant="flush"
+              className="min-w-70"
+              align="end"
+              side="top"
+              sideOffset={10}
+            >
               <Command>
                 <Command.Input />
-                <Command.List className="p-0">
-                  <Command.Group className="p-1">
+                <Command.List>
+                  <Command.Group>
                     <TeamMemberDeactivate
                       teamMembers={teamMembers}
                       onCompleted={() => setOpen(false)}

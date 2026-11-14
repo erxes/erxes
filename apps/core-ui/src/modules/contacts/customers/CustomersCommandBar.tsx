@@ -35,11 +35,11 @@ const CustomersDeleteMenu = ({ ids }: { ids: string[] }) => {
         <IconRepeat />
         {t('actions')}
       </Popover.Trigger>
-      <Popover.Content className="min-w-[280px] p-0" align="end" side="top" sideOffset={10}>
+      <Popover.Content variant="flush" className="min-w-70" align="end" side="top" sideOffset={10}>
         <Command>
-          <Command.List className="p-0">
-            <Command.Group className="p-1">
-              <Command.Item className="text-destructive" onSelect={deleteSelected}>
+          <Command.List>
+            <Command.Group>
+              <Command.Item variant="destructive" onSelect={deleteSelected}>
                 <IconTrash />
                 {tContact('action-delete')}
               </Command.Item>
@@ -117,7 +117,6 @@ export const CustomersCommandBar = ({ rows }: { rows: Customer[] }) => {
             type="customer"
             mode="multiple"
             variant="secondary"
-            className="shadow-none"
             value={tagIds}
             onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}
           />

@@ -11,7 +11,7 @@ export const PropertiesSidebar = ({ types }: { types: readonly FieldContentType[
   const { type } = useParams<{ type: string }>();
 
   return (
-    <Sidebar.Panel className="border-r flex-none" label={tSidebar('properties', 'Properties')}>
+    <Sidebar.Panel className="flex-none" label={tSidebar('properties', 'Properties')}>
       <Sidebar.Group>
         <Sidebar.GroupLabel>{t('plugin.core', 'core properties')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>

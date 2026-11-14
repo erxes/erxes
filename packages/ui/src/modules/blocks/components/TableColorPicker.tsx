@@ -9,7 +9,6 @@ import {
   useExtensionState,
   usePortalElement,
 } from '@blocknote/react';
-import type { CSSProperties } from 'react';
 
 const COLORS = [
   'default',
@@ -28,19 +27,9 @@ type ColorProp = 'textColor' | 'backgroundColor';
 
 const ColorIcon = ({ prop, color }: { prop: ColorProp; color: string }) => (
   <span
-    className="bn-color-icon"
+    className="bn-color-icon pointer-events-none size-4.5 text-center text-sm leading-4.5"
     data-background-color={prop === 'backgroundColor' ? color : 'default'}
     data-text-color={prop === 'textColor' ? color : 'default'}
-    style={
-      {
-        pointerEvents: 'none',
-        fontSize: '13.5px',
-        height: '18px',
-        lineHeight: '18px',
-        textAlign: 'center',
-        width: '18px',
-      } satisfies CSSProperties
-    }
   >
     A
   </span>

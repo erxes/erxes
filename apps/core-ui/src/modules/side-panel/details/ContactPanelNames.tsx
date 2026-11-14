@@ -26,7 +26,7 @@ export const CustomerPanelName = ({ customer }: { customer: Customer }) => {
       }
     >
       {/* Keeps the cell's 32px height, which its editor's position assumes. */}
-      <PanelFieldTrigger className="px-1 font-medium">
+      <PanelFieldTrigger variant="title">
         <FullNameValue />
       </PanelFieldTrigger>
     </ContactName>
@@ -43,7 +43,7 @@ export const CompanyPanelName = ({ company }: { company: Company }) => {
       scope={`side-panel-company.${company.id}.name`}
       value={company.primaryName || ''}
       placeholder={t('field.primaryName', 'Name')}
-      className="rounded-sm px-1 font-medium shadow-none"
+      variant="title"
       onSave={(primaryName) => {
         if (primaryName.trim() && primaryName.trim() !== company.primaryName) {
           edit.mutate({ id: company.id, primaryName: primaryName.trim() });

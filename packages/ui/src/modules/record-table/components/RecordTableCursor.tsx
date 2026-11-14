@@ -109,7 +109,7 @@ export const RecordTableCursorProvider = ({
     >
       <ScrollArea.Root className="h-full w-full pb-2 pr-2 relative">
         <ScrollArea.Viewport ref={mergeRefs(scrollRef, setViewport)} onScroll={handleScroll}>
-          <div className="min-h-[calc(100vh-8rem)]">{children}</div>
+          <div className="min-h-table">{children}</div>
         </ScrollArea.Viewport>
 
         <ScrollArea.Bar orientation="vertical" />

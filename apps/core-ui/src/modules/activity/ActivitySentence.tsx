@@ -93,7 +93,10 @@ export const LinkedRecord = ({
 const Stage = ({ stage }: { stage: { name?: string; color?: string } | null | undefined }) =>
   stage ? (
     <span className="inline-flex items-center gap-1 font-medium">
-      <span className="size-2 rounded-full" style={{ background: stage.color }} />
+      <span
+        className="size-2 rounded-full bg-(--stage-color)"
+        style={{ '--stage-color': stage.color }}
+      />
       {stage.name}
     </span>
   ) : null;

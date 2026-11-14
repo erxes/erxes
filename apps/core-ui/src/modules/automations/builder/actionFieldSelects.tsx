@@ -80,7 +80,10 @@ export const LeadStageSelect = ({ value, onChange, disabled }: ActionInputProps)
         {stages.map((stage) => (
           <Select.Item key={stage.id} value={stage.id}>
             <span className="flex items-center gap-2">
-              <span className="size-2 shrink-0 rounded-full" style={{ background: stage.color }} />
+              <span
+                className="size-2 shrink-0 rounded-full bg-(--stage-color)"
+                style={{ '--stage-color': stage.color }}
+              />
               {stageName(stage.name)}
             </span>
           </Select.Item>

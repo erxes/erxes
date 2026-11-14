@@ -74,10 +74,10 @@ export const ColorSwatches = ({
         aria-pressed={value === color}
         onClick={() => onChange(color)}
         className={cn(
-          'size-6 rounded-full outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring',
+          'size-6 rounded-full bg-(--swatch) outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring',
           value === color && 'ring-2 ring-primary',
         )}
-        style={{ backgroundColor: color }}
+        style={{ '--swatch': color }}
       />
     ))}
   </div>
@@ -92,7 +92,7 @@ const ColorCell = ({ tag }: { tag: Tag }) => {
       <RecordTableInlineCell.Trigger>
         <TagDot color={tag.colorCode} className="size-3" />
       </RecordTableInlineCell.Trigger>
-      <Popover.Content className="w-auto p-3">
+      <Popover.Content className="w-auto">
         <ColorSwatches
           value={tag.colorCode}
           onChange={(colorCode) => {
@@ -124,9 +124,10 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
 
   return (
     <Button
-      variant="ghost"
+      variant="cell"
       size="icon"
-      className="h-full w-full rounded-none text-muted-foreground hover:text-destructive"
+      tone="muted"
+      className="h-full w-full"
       aria-label={`Delete ${tag.name}`}
       onClick={() =>
         void confirm({
@@ -145,10 +146,7 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
 };
 
 const CreatedCell = ({ tag }: { tag: Tag }) => (
-  <RelativeDateDisplay
-    value={tag.createdAt}
-    render={<RecordTableInlineCell className="text-xs font-medium text-muted-foreground" />}
-  >
+  <RelativeDateDisplay value={tag.createdAt} render={<RecordTableInlineCell variant="muted" />}>
     <RelativeDateDisplay.Value value={tag.createdAt} />
   </RelativeDateDisplay>
 );

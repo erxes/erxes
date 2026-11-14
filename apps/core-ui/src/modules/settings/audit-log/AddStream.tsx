@@ -134,8 +134,8 @@ const HeaderFields = ({
         : t('optional', 'optional');
 
   return (
-    <div className="grid grid-cols-[10rem_1fr] gap-3">
-      <div className="space-y-1.5">
+    <div className="grid grid-cols-leading gap-3">
+      <div className="w-40 space-y-1.5">
         <Label htmlFor={`${id}-header`}>{t('header', 'Auth header')}</Label>
         <Input
           id={`${id}-header`}

@@ -7,7 +7,6 @@ import { useSession } from '~/modules/auth/session';
 import { SETTINGS_APP, useNavApps } from './apps';
 import { CoreTabAppSwitcher } from './CoreTabAppSwitcher';
 import { CoreTabAppTabs } from './CoreTabAppTabs';
-import { coreTabIconClassName } from './coreTabClassName';
 import { CoreTabTooltip } from './CoreTabTooltip';
 import { CoreTabUserMenu } from './CoreTabUserMenu';
 import { useAppTabs } from './useAppTabs';
@@ -28,11 +27,7 @@ export const CoreTab = () => {
           <Link
             to="/"
             aria-label={organization.name}
-            className={cn(
-              buttonVariants({ size: 'icon', variant: 'ghost' }),
-              coreTabIconClassName(),
-              'px-0',
-            )}
+            className={cn(buttonVariants({ size: 'icon', variant: 'nav' }), 'relative shrink-0')}
           >
             <span className="flex size-6 items-center justify-center rounded-md border border-border/60 bg-background shadow-xs [&>svg]:size-4!">
               <OrgLogoIcon className="text-primary-text" />
@@ -55,9 +50,10 @@ export const CoreTab = () => {
             <Button
               type="button"
               size="icon"
-              variant="ghost"
+              variant="nav"
               aria-label={SETTINGS_APP.label}
-              className={coreTabIconClassName(routeApp?.id === SETTINGS_APP.id)}
+              aria-current={routeApp?.id === SETTINGS_APP.id ? 'page' : undefined}
+              className="relative shrink-0"
               onClick={() => open(SETTINGS_APP)}
             >
               <IconSettings className="size-4" />

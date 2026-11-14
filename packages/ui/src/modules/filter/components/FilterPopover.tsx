@@ -42,7 +42,7 @@ export const FilterTrigger = ({
                   size={isFiltered ? 'icon' : 'default'}
                   // Its icon lines up with the page's content, as the first
                   // breadcrumb's does, with or without the label.
-                  className={cn(isFiltered ? '-ml-1.5' : '-ml-2 pl-2', className)}
+                  className={cn(isFiltered ? '-ml-1.5' : '-ml-3', className)}
                   {...props}
                 />
               }
@@ -126,7 +126,8 @@ export const FilterItem = ({
       value={value}
       onSelect={onSelect}
       ref={ref}
-      className={cn('h-8', active && 'text-primary-text', className)}
+      checked={active}
+      className={className}
       {...props}
     >
       {children}
@@ -214,12 +215,12 @@ export const FilterCommandInput = ({
 }: React.ComponentPropsWithoutRef<typeof Command.Input> &
   React.RefAttributes<HTMLInputElement>) => {
   return (
-    <div className="relative">
-      <Command.Input ref={ref} className={cn('pr-8', className)} {...props} />
-      <Kbd className="absolute right-2 top-1/2 -translate-y-1/2" variant="foreground">
-        F
-      </Kbd>
-    </div>
+    <Command.Input
+      ref={ref}
+      className={className}
+      trailing={<Kbd variant="foreground">F</Kbd>}
+      {...props}
+    />
   );
 };
 

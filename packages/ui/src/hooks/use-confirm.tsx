@@ -1,7 +1,7 @@
 import { useCallback, useId, useRef, useState, type SubmitEvent, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AlertDialog } from 'erxes-ui/components/alert-dialog';
-import { buttonVariants, type ButtonProps } from 'erxes-ui/components/button';
+import type { ButtonProps } from 'erxes-ui/components/button';
 import { Input } from 'erxes-ui/components/input';
 import { Label } from 'erxes-ui/components/label';
 
@@ -43,8 +43,10 @@ const ConfirmationField = ({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-xs select-none" variant="peer">
-        Type <span className="font-semibold">{expected}</span> in the field below to confirm.
+      <Label htmlFor={id} className="select-none" variant="peer">
+        <span className="text-xs">
+          Type <span className="font-semibold">{expected}</span> in the field below to confirm.
+        </span>
       </Label>
       <Input
         id={id}
@@ -112,17 +114,10 @@ const ConfirmDialog = ({ message, options = {}, onConfirm, onDismiss }: ConfirmD
           )}
           <br />
           <AlertDialog.Footer>
-            <AlertDialog.Cancel
-              onClick={onDismiss}
-              type="button"
-              className={variants.cancel ? buttonVariants({ variant: variants.cancel }) : undefined}
-            >
+            <AlertDialog.Cancel onClick={onDismiss} type="button" variant={variants.cancel}>
               {cancelLabel}
             </AlertDialog.Cancel>
-            <AlertDialog.Action
-              type="submit"
-              className={variants.ok ? buttonVariants({ variant: variants.ok }) : undefined}
-            >
+            <AlertDialog.Action type="submit" variant={variants.ok}>
               {okLabel}
             </AlertDialog.Action>
           </AlertDialog.Footer>

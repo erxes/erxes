@@ -256,7 +256,7 @@ const SettingsBody = () => {
     return <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>;
   }
 
-  if (loading || !settings) return <Spinner containerClassName="py-12" />;
+  if (loading || !settings) return <Spinner area="lg" />;
 
   return (
     <>

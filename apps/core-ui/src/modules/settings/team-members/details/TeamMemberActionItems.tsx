@@ -52,7 +52,7 @@ export const TeamMemberActionItems = ({
         {permissions?.canToggle && (
           <Command.Item
             value="toggle-status"
-            className={isActive ? 'text-destructive' : undefined}
+            variant={isActive ? 'destructive' : 'default'}
             onSelect={select(() => toggle.mutate({ id: user.id, disabled: isActive }))}
           >
             {toggle.isPending ? (

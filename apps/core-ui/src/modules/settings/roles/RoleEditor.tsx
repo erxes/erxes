@@ -98,7 +98,7 @@ const PermissionList = ({
                   <span className="flex-1">
                     {permission.label}
                     {permission.ownerOnly && (
-                      <Badge variant="secondary" className="ml-2 font-normal">
+                      <Badge variant="secondary" className="ml-2">
                         {t('owner-only', 'Owner only')}
                       </Badge>
                     )}
@@ -160,7 +160,7 @@ const RoleNameFields = ({
       <Input
         value={name}
         onChange={(event) => onChange({ name: event.target.value })}
-        className="text-base font-medium"
+        text="title"
         aria-label={t('name', 'Name')}
         maxLength={60}
       />

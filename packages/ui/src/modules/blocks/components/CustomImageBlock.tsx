@@ -1,35 +1,23 @@
-import { createImageBlockConfig } from '@blocknote/core';
-import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import { createReactBlockSpec, useResolveUrl, useUploadLoading } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
-import type { CSSProperties, FC, SyntheticEvent } from 'react';
+import type { FC, SyntheticEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
+import { cn } from 'erxes-ui/lib/utils';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { Spinner } from 'erxes-ui/components/spinner';
+import {
+  customImageBlockConfig,
+  getImageStyle,
+  IMAGE_STYLE_PRESETS,
+  type ImageRenderProps,
+  type ImageStyle,
+} from 'erxes-ui/modules/blocks/constant/imageBlockConfig';
+import { ImageExternalHtml } from './ImageExternalHtml';
 import { MediaBlockWrapper } from './MediaBlockWrapper';
 
+// The preview image is at most max-h-80 tall.
 const MAX_IMAGE_HEIGHT = 320;
-
-const IMAGE_STYLES = ['normal', 'wide', 'float-left', 'float-right'] as const;
-
-export type ImageStyle = (typeof IMAGE_STYLES)[number];
-
-export const IMAGE_STYLE_PRESETS: Record<
-  ImageStyle,
-  {
-    previewWidth: number;
-    maxWidth: number;
-  }
-> = {
-  normal: { previewWidth: 480, maxWidth: 480 },
-  wide: { previewWidth: 720, maxWidth: 720 },
-  'float-left': { previewWidth: 300, maxWidth: 400 },
-  'float-right': { previewWidth: 300, maxWidth: 400 },
-};
-
-const getImageStyle = (value?: string): ImageStyle =>
-  IMAGE_STYLES.find((style) => style === value) ?? 'normal';
 
 // A missing or zero size sets no limit.
 const sizeLimit = (size: number | undefined) => (size !== undefined && size > 0 ? size : Infinity);
@@ -55,21 +43,6 @@ const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
 
   return getImageStyle(explicitStyle);
 };
-
-const imageBlockConfig = createImageBlockConfig({});
-
-const customImageBlockConfig = {
-  ...imageBlockConfig,
-  propSchema: {
-    ...imageBlockConfig.propSchema,
-    imageStyle: {
-      default: 'normal' as const,
-      values: IMAGE_STYLES,
-    },
-  },
-};
-
-type ImageRenderProps = ReactCustomBlockRenderProps<typeof customImageBlockConfig>;
 
 const CustomImagePreview: FC<
   Pick<ImageRenderProps, 'block'> & {
@@ -100,9 +73,9 @@ const CustomImagePreview: FC<
         <>
           <Button
             variant="ghost"
+            size="flush"
             aria-label="Preview image"
-            className="bn-visual-media mx-auto h-auto max-w-full cursor-pointer border-0 bg-transparent p-0 hover:bg-transparent"
-            style={imgLoaded ? undefined : { display: 'none' }}
+            className={cn('mx-auto w-full max-w-full', !imgLoaded && 'hidden')}
             contentEditable={false}
             onMouseDown={(event) => event.preventDefault()}
             onClick={(event) => {
@@ -111,13 +84,10 @@ const CustomImagePreview: FC<
             }}
           >
             <img
-              className="block h-auto w-full max-w-full object-contain"
+              className="bn-visual-media block h-auto max-h-80 w-full max-w-full object-contain"
               src={src}
               alt={block.props.caption || block.props.name || ''}
               draggable={false}
-              style={{
-                maxHeight: MAX_IMAGE_HEIGHT,
-              }}
               onLoad={handleImageLoad}
               onError={() => setImgLoaded(true)}
             />
@@ -125,7 +95,8 @@ const CustomImagePreview: FC<
 
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <Dialog.Content
-              className="w-auto max-w-[90vw] border-0 bg-transparent p-0 shadow-none"
+              variant="bare"
+              className="w-auto max-w-lightbox"
               aria-describedby={undefined}
             >
               <Dialog.Title className="sr-only">
@@ -134,72 +105,13 @@ const CustomImagePreview: FC<
               <img
                 src={src}
                 alt={block.props.caption || block.props.name || ''}
-                className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
+                className="max-h-lightbox max-w-lightbox rounded object-contain shadow-2xl"
               />
             </Dialog.Content>
           </Dialog>
         </>
       )}
     </div>
-  );
-};
-
-const getFloatContainerStyle = (imageStyle: ImageStyle, maxWidth: number): CSSProperties => {
-  const base: CSSProperties = {
-    width: '100%',
-    maxWidth: `${maxWidth}px`,
-  };
-
-  if (imageStyle === 'float-left') {
-    return {
-      ...base,
-      float: 'left',
-      marginRight: '1.25em',
-      marginBottom: '0.5em',
-    };
-  }
-
-  if (imageStyle === 'float-right') {
-    return {
-      ...base,
-      float: 'right',
-      marginLeft: '1.25em',
-      marginBottom: '0.5em',
-    };
-  }
-
-  return { ...base, margin: '0 auto' };
-};
-
-const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
-  const { url, caption, name, previewWidth } = block.props;
-  const imageStyle = getImageStyle(block.props.imageStyle);
-
-  if (!url) return <p>Add image</p>;
-
-  const maxWidth = previewWidth || IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
-  const containerStyle = getFloatContainerStyle(imageStyle, maxWidth);
-
-  const img = (
-    <img
-      src={url}
-      alt={caption || name || ''}
-      className={`erxes-editor-image erxes-editor-image--${imageStyle}`}
-      data-image-style={imageStyle}
-      style={{ width: '100%', height: 'auto', display: 'block' }}
-      {...(previewWidth ? { width: previewWidth } : {})}
-    />
-  );
-
-  return (
-    <figure
-      className={`erxes-editor-image erxes-editor-image--${imageStyle}`}
-      data-image-style={imageStyle}
-      style={containerStyle}
-    >
-      {img}
-      {caption && <figcaption>{caption}</figcaption>}
-    </figure>
   );
 };
 
@@ -273,8 +185,8 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
 
   return (
     <div
-      className="max-w-full [&>.bn-file-block-content-wrapper]:max-w-full"
-      style={{ maxWidth: `min(100%, ${maxWidth}px)` }}
+      className="max-w-(--image-max-width) [&>.bn-file-block-content-wrapper]:max-w-full"
+      style={{ '--image-max-width': `min(100%, ${maxWidth}px)` }}
     >
       <MediaBlockWrapper
         block={props.block}
@@ -293,7 +205,7 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
   meta: { fileBlockAccept: ['image/*'] },
   runsBefore: ['file'],
   render: CustomImageBlockContent,
-  toExternalHTML: ExternalImageHtml,
+  toExternalHTML: ImageExternalHtml,
   parse: (element) => {
     if (element instanceof HTMLImageElement) {
       if (element.closest('figure')) return undefined;

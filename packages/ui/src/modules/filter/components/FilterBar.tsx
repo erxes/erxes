@@ -12,7 +12,7 @@ export const FilterBar = ({ ref, className, ...props }: React.ComponentProps<'di
   return (
     <div
       ref={ref}
-      className={cn('flex flex-wrap items-center gap-2 flex-1', className)}
+      className={cn('flex flex-wrap items-center gap-1 flex-1', className)}
       {...props}
     />
   );
@@ -31,9 +31,9 @@ export const FilterBarCloseButton = ({
   return (
     <Button
       ref={ref}
-      variant="ghost"
+      variant="segment"
       size="icon"
-      className={cn('rounded-l-none', !props.variant && 'bg-background', className)}
+      className={className}
       onClick={() => removeQuery(filterKey ?? '')}
       {...props}
     >
@@ -100,12 +100,8 @@ export const FilterBarButton = ({
   return (
     <Button
       ref={ref}
-      variant="ghost"
-      className={cn(
-        'rounded-none focus-visible:z-10 max-w-72 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent',
-        !props.variant && 'bg-background',
-        className,
-      )}
+      variant="segment"
+      className={cn('max-w-72', className)}
       onClick={() => {
         if (inDialog) {
           setDialogView(filterKey ?? 'root');

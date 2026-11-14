@@ -37,9 +37,9 @@ export const NavigationMenuLinkItem = ({
 
   return (
     <Sidebar.MenuItem
-      className={itemClassName}
+      className={cn(itemClassName, order !== undefined && 'order-(--order)')}
       data-nav-path={controls ? fullPath : undefined}
-      style={order === undefined ? undefined : { order }}
+      style={{ '--order': order }}
     >
       <Sidebar.MenuButton
         isActive={isActiveProp === true || isActive}

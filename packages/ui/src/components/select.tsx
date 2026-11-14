@@ -1,5 +1,6 @@
 import React, { createContext, use, useCallback, useLayoutEffect, useState } from 'react';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
@@ -47,14 +48,29 @@ const SelectRoot = <Value extends string>({
 const SelectGroup = (props: SelectPrimitive.Group.Props) =>
   use(CollectingContext) ? props.children : <SelectPrimitive.Group {...props} />;
 
-const SelectTrigger = ({ className, children, ...props }: SelectPrimitive.Trigger.Props) => (
-  <SelectPrimitive.Trigger
-    className={cn(
-      'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition-[color,box-shadow] text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1',
-      className,
-    )}
-    {...props}
-  >
+const selectTriggerVariants = cva(
+  'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1',
+  {
+    variants: {
+      variant: {
+        default: '',
+        // A 1px border instead of the drop shadow, for dense forms.
+        bordered: 'border border-input font-normal shadow-none',
+        // No border or corners: a cell in a grid that draws its own lines.
+        flush: 'rounded-none shadow-none',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
+
+const SelectTrigger = ({
+  className,
+  children,
+  variant,
+  ...props
+}: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>) => (
+  <SelectPrimitive.Trigger className={cn(selectTriggerVariants({ variant }), className)} {...props}>
     {children}
     <IconChevronDown aria-hidden className="w-4 h-4 opacity-50" />
   </SelectPrimitive.Trigger>
@@ -79,7 +95,7 @@ const SelectContent = ({
       >
         <SelectPrimitive.Popup
           className={cn(
-            'relative max-h-[min(24rem,var(--available-height))] min-w-32 overflow-hidden flex flex-col rounded-md bg-background shadow-lg data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+            'relative max-h-popup min-w-32 overflow-hidden flex flex-col rounded-md bg-background shadow-lg data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
             'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
             className,
           )}
@@ -88,7 +104,7 @@ const SelectContent = ({
           <SelectPrimitive.ScrollUpArrow className="flex cursor-default items-center justify-center py-1">
             <IconChevronUp className="w-4 h-4" />
           </SelectPrimitive.ScrollUpArrow>
-          <SelectPrimitive.List className="max-h-[inherit] w-full min-w-(--anchor-width) overflow-y-auto p-1">
+          <SelectPrimitive.List className="max-h-inherit w-full min-w-(--anchor-width) overflow-y-auto p-1">
             {children}
           </SelectPrimitive.List>
           <SelectPrimitive.ScrollDownArrow className="flex cursor-default items-center justify-center py-1">
@@ -103,7 +119,7 @@ const SelectContent = ({
 const SelectLabel = ({ className, ...props }: SelectPrimitive.GroupLabel.Props) =>
   use(CollectingContext) ? null : (
     <SelectPrimitive.GroupLabel
-      className={cn('px-2 py-1.5 text-sm font-semibold', className)}
+      className={cn('px-2 py-1.5 text-xs font-semibold text-muted-foreground', className)}
       {...props}
     />
   );

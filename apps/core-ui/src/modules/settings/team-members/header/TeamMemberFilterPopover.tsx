@@ -17,10 +17,10 @@ export function TeamMemberFilterPopover() {
         <Filter.View>
           <Command>
             <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
-            <Command.List className="p-1">
+            <Command.List>
               <Filter.SearchValueTrigger />
               <OptionFilter.Item {...role} />
-              <Command.Item className="flex items-center gap-1">
+              <Command.Item>
                 <IconChecks />
                 {t('is-active')}
                 <IsActiveBar />

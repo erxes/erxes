@@ -85,7 +85,6 @@ export const CompaniesCommandBar = ({ rows }: { rows: Company[] }) => {
             type="company"
             mode="multiple"
             variant="secondary"
-            className="shadow-none"
             value={tagIds}
             onValueChange={(next) => tag.mutate({ ids: companyIds, ...tagChange(tagIds, next) })}
           />
@@ -105,7 +104,7 @@ export const CompaniesCommandBar = ({ rows }: { rows: Company[] }) => {
                 onClick={() => setMerging(true)}
               />
               <Separator.Inline />
-              <Button variant="secondary" className="text-destructive" onClick={deleteSelected}>
+              <Button variant="secondary" tone="destructive" onClick={deleteSelected}>
                 <IconTrash />
                 {t('action-delete')}
               </Button>

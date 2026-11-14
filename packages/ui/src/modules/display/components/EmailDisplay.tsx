@@ -97,7 +97,7 @@ export const EmailDisplay = ({
           ),
       )}
       {remaining > 0 && (
-        <Badge variant="secondary" className="shrink-0 text-muted-foreground">
+        <Badge variant="muted" className="shrink-0">
           +{remaining}
         </Badge>
       )}

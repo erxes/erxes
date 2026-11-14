@@ -1,6 +1,6 @@
 import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Input, PageSubHeader, Select } from 'erxes-ui';
+import { Input, InputGroup, PageSubHeader, Select } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
@@ -50,17 +50,18 @@ export const AuditFilterBar = ({
   const sources = ['core', ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase()))];
 
   return (
-    <PageSubHeader className="flex-wrap items-center gap-2">
-      <div className="relative">
-        <IconSearch className="absolute top-1.5 left-2 size-4 text-muted-foreground" />
-        <Input
+    <PageSubHeader className="flex-wrap items-center">
+      <InputGroup className="w-56">
+        <InputGroup.Addon>
+          <IconSearch className="size-4" />
+        </InputGroup.Addon>
+        <InputGroup.Input
           value={filters.q}
           onChange={(event) => onChange({ q: event.target.value })}
           placeholder={t('search', 'Search actions and records')}
           aria-label={t('search', 'Search actions and records')}
-          className="h-7 w-56 pl-7"
         />
-      </div>
+      </InputGroup>
       <Select value={filters.area} onValueChange={(area) => onChange({ area })}>
         <Select.Trigger className="h-7 w-36" aria-label={t('area', 'Area')}>
           <Select.Value />

@@ -28,8 +28,6 @@ const schema = z
 
 type Values = z.infer<typeof schema>;
 
-const LABEL_CLASS_NAME = 'font-sans text-sm font-medium normal-case leading-none text-foreground';
-
 const Field = ({
   name,
   label,
@@ -45,7 +43,7 @@ const Field = ({
     name={name}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label className={LABEL_CLASS_NAME}>{label}</Form.Label>
+        <Form.Label variant="plain">{label}</Form.Label>
         <Form.Control>
           <Input {...field} type={type} autoComplete={autoComplete} />
         </Form.Control>
@@ -67,7 +65,7 @@ const RegionFields = () => {
         name="country"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label className={LABEL_CLASS_NAME}>{t('country', 'Country')}</Form.Label>
+            <Form.Label variant="plain">{t('country', 'Country')}</Form.Label>
             <Form.Control>
               <CountrySelect
                 value={field.value}
@@ -85,7 +83,7 @@ const RegionFields = () => {
         name="currency"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label className={LABEL_CLASS_NAME}>{t('currency', 'Currency')}</Form.Label>
+            <Form.Label variant="plain">{t('currency', 'Currency')}</Form.Label>
             <Form.Control>
               <CurrencySelect value={field.value} onChange={field.onChange} />
             </Form.Control>

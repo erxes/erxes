@@ -36,7 +36,8 @@ export const PanelDescriptionField = ({
           label={label}
           readonly={readonly}
           isHTML={isHTML}
-          className="h-auto min-h-20 rounded-sm shadow-none hover:bg-accent focus-within:bg-background focus-within:shadow-focus"
+          variant="ghost"
+          className="h-auto min-h-20"
         />
       </div>
     </div>

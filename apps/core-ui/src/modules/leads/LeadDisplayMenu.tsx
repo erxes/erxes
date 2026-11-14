@@ -18,19 +18,12 @@ export const LeadDisplayMenu = () => {
     <Popover>
       <IconTip label={t('display')}>
         <Popover.Trigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={t('display')}
-              className="size-7 text-muted-foreground data-popup-open:bg-accent data-popup-open:text-foreground"
-            />
-          }
+          render={<Button variant="ghost" size="icon" aria-label={t('display')} tone="muted" />}
         >
           <IconAdjustmentsHorizontal className="size-4" />
         </Popover.Trigger>
       </IconTip>
-      <Popover.Content align="end" className="w-64 p-3">
+      <Popover.Content align="end" className="w-64">
         <p className="mb-2 text-xs font-medium text-muted-foreground">{t('view')}</p>
         <div className="grid grid-cols-2 gap-2">
           {VIEWS.map(({ value, label, icon: Icon }) => (

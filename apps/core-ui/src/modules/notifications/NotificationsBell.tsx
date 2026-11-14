@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useLiveMode } from '~/lib/live';
-import { coreTabIconClassName } from '~/modules/navigation/coreTabClassName';
 import { CoreTabTooltip } from '~/modules/navigation/CoreTabTooltip';
 import { NotificationList } from './NotificationList';
 import { type NotificationTab, NotificationTabs } from './NotificationTabs';
@@ -35,12 +34,12 @@ const BellIndicators = ({ count }: { count: number }) => {
       {/* Reconnecting, or the server can't listen: counts refresh every 30 s. */}
       {mode === 'polling' && (
         <span
-          className="absolute bottom-1 right-1 size-1.5 rounded-full bg-amber-500"
+          className="absolute bottom-1 right-1 size-1.5 rounded-full bg-warning"
           title={t('polling', 'Live updates paused; refreshing every 30 seconds')}
         />
       )}
       {count > 0 && (
-        <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[9px] leading-none font-semibold text-destructive-foreground">
+        <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-3xs leading-none font-semibold text-destructive-foreground">
           {count > 99 ? '99+' : count}
         </span>
       )}
@@ -152,13 +151,13 @@ export const NotificationsBell = () => {
             <Button
               type="button"
               size="icon"
-              variant="ghost"
+              variant="nav"
               aria-label={
                 count
                   ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
                   : t('title', 'Notifications')
               }
-              className={cn(coreTabIconClassName(open), 'relative')}
+              className="relative shrink-0"
             />
           }
         >
@@ -166,15 +165,10 @@ export const NotificationsBell = () => {
           <BellIndicators count={count} />
         </Popover.Trigger>
       </CoreTabTooltip>
-      <Popover.Content align="end" className="w-[26rem] p-0">
+      <Popover.Content align="end" variant="flush" className="w-104">
         <BellHeader source={source} unread={unreadHere} onLeave={() => setOpen(false)} />
         <div className="flex items-stretch justify-between gap-2 border-b px-2">
-          <NotificationTabs
-            value={tab}
-            onChange={setTab}
-            unread={unreadHere}
-            listClassName="rounded-none border-0"
-          />
+          <NotificationTabs value={tab} onChange={setTab} unread={unreadHere} />
           {inboxes.length > 1 && (
             <InboxChips
               inboxes={inboxes}
@@ -184,7 +178,7 @@ export const NotificationsBell = () => {
             />
           )}
         </div>
-        <ScrollArea className="max-h-[28rem]">
+        <ScrollArea className="max-h-112">
           <NotificationList
             {...list}
             inboxes={inboxes}

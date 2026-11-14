@@ -13,7 +13,7 @@ import {
   IconTrash,
   IconUsers,
 } from '@tabler/icons-react';
-import { Button, cn, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
+import { Button, DropdownMenu, TabButton, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
@@ -24,13 +24,6 @@ import { useCanShareViews, useViewMutations, useViewState } from './useViews';
 
 /** Tabs before the rest go under "More". */
 const VISIBLE = 5;
-
-const TAB =
-  'flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0';
-
-const ACTIVE = 'bg-accent font-medium text-foreground hover:bg-accent';
-
-const FOCUS = 'outline-none focus-visible:ring-2 focus-visible:ring-ring/50';
 
 /** Scrolls the open tab into sight when the tabs overflow. */
 const reveal = (node: HTMLElement | null) =>
@@ -117,12 +110,15 @@ const ViewMenu = ({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenu.Trigger
-          aria-label={t('actions', { name: view.name })}
-          className="flex h-5 w-0 shrink-0 items-center justify-center overflow-hidden rounded text-muted-foreground opacity-0 transition-[width,margin,opacity] duration-150 hover:bg-muted hover:text-foreground focus-visible:ml-1 focus-visible:w-5 focus-visible:opacity-100 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 data-popup-open:ml-1 data-popup-open:w-5 data-popup-open:opacity-100 motion-reduce:transition-none"
-        >
-          <IconDotsVertical className="size-3.5" />
-        </DropdownMenu.Trigger>
+        {/* Folded away until the tab is hovered, or the button is focused or open. */}
+        <span className="flex w-0 shrink-0 overflow-hidden opacity-0 transition-layout duration-150 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 has-focus-visible:ml-1 has-focus-visible:w-5 has-focus-visible:opacity-100 has-data-popup-open:ml-1 has-data-popup-open:w-5 has-data-popup-open:opacity-100 motion-reduce:transition-none">
+          <DropdownMenu.Trigger
+            aria-label={t('actions', { name: view.name })}
+            render={<Button variant="ghost" size="icon" className="size-5 shrink-0" />}
+          >
+            <IconDotsVertical className="size-3.5" />
+          </DropdownMenu.Trigger>
+        </span>
         <DropdownMenu.Content align="start" className="min-w-48">
           {view.editable && (
             <DropdownMenu.Item onClick={() => setRenaming(true)}>
@@ -147,7 +143,7 @@ const ViewMenu = ({
           {view.editable && (
             <>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item className="text-destructive" onClick={deleteView}>
+              <DropdownMenu.Item variant="destructive" onClick={deleteView}>
                 <IconTrash />
                 {t('delete')}
               </DropdownMenu.Item>
@@ -176,7 +172,7 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger className={cn(TAB, FOCUS, 'data-popup-open:bg-accent/60')}>
+      <DropdownMenu.Trigger render={<TabButton />}>
         <IconStack2 />
         {t('more', { count: views.length })}
         <IconChevronDown className="opacity-60" />
@@ -207,7 +203,8 @@ const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
           variant="ghost"
           size="icon"
           aria-label={t('new-view')}
-          className="size-7 shrink-0 text-muted-foreground"
+          tone="muted"
+          className="shrink-0"
           onClick={() => setAdding(true)}
         >
           <IconPlus className="size-4" />
@@ -261,31 +258,34 @@ export const ViewTabs = ({
 
   return (
     <>
-      <button
+      <TabButton
         type="button"
         aria-current={current ? undefined : 'page'}
-        className={cn(TAB, FOCUS, !current && ACTIVE)}
+        active={!current}
         onClick={() => query.openView(null)}
       >
         <IconLayoutList />
         {allLabel}
         {!current && changed && <EditedDot />}
-      </button>
+      </TabButton>
       {error && (
         <span role="alert" className="text-xs text-destructive">
           {messageOf(error)}
         </span>
       )}
       {shown.map((view) => (
-        <div
+        <TabButton
           key={view.id}
           ref={current?.id === view.id ? reveal : undefined}
-          className={cn('group/tab', TAB, 'gap-0', current?.id === view.id && ACTIVE)}
+          render={<div />}
+          active={current?.id === view.id}
+          split
+          className="group/tab"
         >
           <button
             type="button"
             aria-current={current?.id === view.id ? 'page' : undefined}
-            className={cn('flex items-center gap-1.5 rounded-sm', FOCUS)}
+            className="flex items-center gap-1.5 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={() => query.openView(view)}
             title={view.shared ? t('shared') : t('mine')}
           >
@@ -301,7 +301,7 @@ export const ViewTabs = ({
               if (current?.id === view.id) query.openView(null);
             }}
           />
-        </div>
+        </TabButton>
       ))}
       {more.length > 0 && <MoreViews views={more} onOpen={query.openView} />}
       <NewViewButton recordType={recordType} />

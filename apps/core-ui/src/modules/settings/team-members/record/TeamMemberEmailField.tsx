@@ -21,7 +21,7 @@ export const TeamMemberEmailField = ({ user }: { user: User }) => {
   const permissions = useMemberPermissions(user);
 
   const badge = (
-    <Badge variant="secondary" className="flex items-center gap-1">
+    <Badge variant="secondary" className="flex">
       <EmailStatus status={status} />
       {email}
     </Badge>

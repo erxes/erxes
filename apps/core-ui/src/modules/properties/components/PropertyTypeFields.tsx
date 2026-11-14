@@ -109,7 +109,7 @@ export const PropertyValidationField = ({ form }: { form: PropertyFormApi }) => 
       control={form.control}
       name="validation"
       render={({ field }) => (
-        <Form.Item className="flex flex-col gap-3">
+        <Form.Item>
           <Form.Label>{t('validation', 'Validation')}</Form.Label>
           <Form.Control>
             <ToggleGroup

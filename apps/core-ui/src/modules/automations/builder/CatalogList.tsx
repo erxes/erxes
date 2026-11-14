@@ -24,7 +24,7 @@ const Row = ({
       value={`${keyPrefix}${item.type}`}
       keywords={[item.label, item.description ?? '', group.label, item.source]}
       onSelect={onSelect}
-      className="h-auto items-start gap-2.5 px-2.5 py-1.5"
+      className="h-auto items-start"
     >
       {showIcon && (
         <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
@@ -132,37 +132,34 @@ const Categories = ({
           ))}
         </Command.Group>
       )}
-      <Command.Group
-        heading={t('catalog-categories', 'Categories')}
-        className="[&_[cmdk-group-items]]:grid [&_[cmdk-group-items]]:grid-cols-2 [&_[cmdk-group-items]]:gap-1"
-      >
-        {groups.map(({ group, items }) => (
-          <Command.Item
-            key={group.key}
-            value={`category:${group.key}`}
-            onSelect={() => onOpen(group.key)}
-            className={cn(
-              'h-auto gap-2.5 rounded-md border border-transparent px-2 py-2',
-              selectedKey === group.key && 'border-primary/30 bg-primary/5',
-            )}
-          >
-            <span
-              className={cn(
-                'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
-                group.source !== 'core' && 'bg-primary/10 text-primary-text',
-              )}
+      <Command.Group heading={t('catalog-categories', 'Categories')}>
+        <div className="grid grid-cols-2 gap-1">
+          {groups.map(({ group, items }) => (
+            <Command.Item
+              key={group.key}
+              value={`category:${group.key}`}
+              onSelect={() => onOpen(group.key)}
+              checked={selectedKey === group.key}
+              className="h-auto"
             >
-              <group.icon className="size-4" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium">{groupName(group)}</span>
-              <span className="block truncate text-xs text-muted-foreground">
-                {group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
-                {countLabel(items.length)}
+              <span
+                className={cn(
+                  'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
+                  group.source !== 'core' && 'bg-primary/10 text-primary-text',
+                )}
+              >
+                <group.icon className="size-4" />
               </span>
-            </span>
-          </Command.Item>
-        ))}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">{groupName(group)}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
+                  {countLabel(items.length)}
+                </span>
+              </span>
+            </Command.Item>
+          ))}
+        </div>
       </Command.Group>
     </>
   );

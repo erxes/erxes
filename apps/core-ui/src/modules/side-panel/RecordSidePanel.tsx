@@ -91,9 +91,10 @@ const RecordSidePanelRoot = ({
         onAnimationEnd={(event) => {
           if (event.target === event.currentTarget) setEntering(false);
         }}
-        style={{ width: expanded ? '100%' : panelWidth }}
+        style={{ '--panel-width': `${panelWidth}px` }}
         className={cn(
           '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
+          expanded ? 'w-full' : 'w-(--panel-width)',
           expanded &&
             (expandedMode === 'page'
               ? 'relative h-full min-w-0 flex-1 border-l-0'

@@ -135,7 +135,7 @@ const AppLayoutSidebarHeader = ({
     <Button
       aria-expanded
       aria-label="Collapse sidebar"
-      className="size-8 shrink-0 rounded-md"
+      className="size-8 shrink-0"
       size="icon"
       title="Collapse sidebar"
       type="button"
@@ -169,9 +169,9 @@ const AppLayoutDesktop = ({
 
   return (
     <div
+      data-navigation-collapsed={!open || undefined}
       className={cn(
         'relative flex min-h-0 min-w-0 flex-1',
-        !open && '[--navigation-panel-toggle-space:2.5rem]',
         resizing && 'cursor-col-resize select-none',
       )}
     >
@@ -179,14 +179,14 @@ const AppLayoutDesktop = ({
         ref={asideRef}
         aria-hidden={!open}
         className={cn(
-          'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar',
+          'relative flex w-(--app-layout-width) shrink-0 flex-col overflow-hidden border-r bg-sidebar',
           !resizing &&
-            'transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
-          !open && 'border-r-0',
+            'transition-layout duration-300 ease-out-quint motion-reduce:transition-none',
+          !open && 'w-0 border-r-0',
         )}
-        style={{ width: open ? currentWidth : 0 }}
+        style={{ '--app-layout-width': `${currentWidth}px` }}
       >
-        <div className="flex h-full flex-col" style={{ minWidth: currentWidth }}>
+        <div className="flex h-full min-w-(--app-layout-width) flex-col">
           <AppLayoutSidebarHeader title={title} onCollapse={() => setOpen(false)} />
           <div
             data-navigation-context
@@ -234,9 +234,16 @@ const AppLayoutMobile = ({
   const { toggleSidebar } = Sidebar.useSidebar();
 
   return (
-    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden [--navigation-panel-toggle-space:2.5rem]">
+    <div
+      data-navigation-collapsed
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+    >
       <Sidebar collapsible="offcanvas">
-        {title && <Sidebar.Header className="px-4 text-sm font-medium">{title}</Sidebar.Header>}
+        {title && (
+          <Sidebar.Header>
+            <span className="px-2 text-sm font-medium">{title}</span>
+          </Sidebar.Header>
+        )}
         <div data-navigation-context className="styled-scroll min-h-0 flex-1 overflow-y-auto pb-1">
           {sidebar}
         </div>

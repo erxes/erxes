@@ -5,8 +5,10 @@ import {
   useSelectedBlocks,
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
-import { IMAGE_STYLE_PRESETS } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
-import type { ImageStyle } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
+import {
+  IMAGE_STYLE_PRESETS,
+  type ImageStyle,
+} from 'erxes-ui/modules/blocks/constant/imageBlockConfig';
 import { IMAGE_STYLE_OPTIONS } from 'erxes-ui/modules/blocks/constant/toolbar/imageStyleOptions';
 import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/TextEditor';
 

@@ -56,7 +56,7 @@ const OptionsMenu = ({ field }: { field: ListField }) => {
   return (
     <Command>
       <Command.Input placeholder={field.label} variant="secondary" focusOnMount />
-      <Command.List className="p-1">
+      <Command.List>
         <Command.Empty>{t('no-options')}</Command.Empty>
         {options.map((option) => (
           <Command.Item
@@ -81,7 +81,7 @@ const DateMenu = ({ field }: { field: ListField }) => {
 
   return (
     <Command>
-      <Command.List className="p-1">
+      <Command.List>
         {DATE_PRESETS.map((preset) => (
           <Command.Item
             key={preset.key}
@@ -104,7 +104,7 @@ const BooleanMenu = ({ field }: { field: ListField }) => {
 
   return (
     <Command>
-      <Command.List className="p-1">
+      <Command.List>
         {(['true', 'false'] as const).map((option) => (
           <Command.Item
             key={option}

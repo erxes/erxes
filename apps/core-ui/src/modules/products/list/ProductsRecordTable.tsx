@@ -19,7 +19,7 @@ const NoProducts = () => {
   const manage = useCanManageProducts();
 
   return (
-    <Empty className="absolute inset-x-0 top-[25%]">
+    <Empty className="absolute inset-x-0 top-1/4">
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconPackage />

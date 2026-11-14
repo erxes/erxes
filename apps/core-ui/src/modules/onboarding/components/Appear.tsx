@@ -1,20 +1,19 @@
 import { cn } from 'erxes-ui';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-export const EASE_OUT_QUAD = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-export const EASE_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+export const EASE_OUT_QUAD = 'var(--ease-out-quad)';
+export const EASE_SPRING = 'var(--ease-spring)';
 
-/**
- * An entrance animation: fades in from an offset and/or scale, through
- * tailwindcss-animate's `animate-in`.
- */
-export const appearStyle = ({
+/** An entrance animation (`animate-appear`): fades in from an offset and/or scale. */
+export const Appear = ({
   x = 0,
   y = 0,
   scale = 1,
   duration = 500,
   delay = 0,
   easing = 'ease-out',
+  className,
+  children,
 }: {
   x?: number;
   y?: number;
@@ -22,24 +21,20 @@ export const appearStyle = ({
   duration?: number;
   delay?: number;
   easing?: string;
-}) =>
-  ({
-    '--tw-enter-opacity': '0',
-    '--tw-enter-translate-x': `${x}px`,
-    '--tw-enter-translate-y': `${y}px`,
-    '--tw-enter-scale': String(scale),
-    animationDuration: `${duration}ms`,
-    animationDelay: `${delay}ms`,
-    animationTimingFunction: easing,
-    animationFillMode: 'both',
-  }) as CSSProperties;
-
-export const Appear = ({
-  className,
-  children,
-  ...options
-}: Parameters<typeof appearStyle>[0] & { className?: string; children?: ReactNode }) => (
-  <div className={cn('animate-in', className)} style={appearStyle(options)}>
+  className?: string;
+  children?: ReactNode;
+}) => (
+  <div
+    className={cn('animate-appear', className)}
+    style={{
+      '--appear-x': `${x}px`,
+      '--appear-y': `${y}px`,
+      '--appear-scale': scale,
+      '--appear-duration': `${duration}ms`,
+      '--appear-delay': `${delay}ms`,
+      '--appear-easing': easing,
+    }}
+  >
     {children}
   </div>
 );

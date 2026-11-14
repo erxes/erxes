@@ -6,12 +6,12 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { cn, NumberField, Spinner } from 'erxes-ui';
+import { NumberField, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
-import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField } from '../PanelField';
+import { PanelField } from '../PanelField';
 import { usePanelExpanded } from '../RecordSidePanel';
 import {
   ContactChannelsSection,
@@ -80,7 +80,8 @@ const CompanyBusinessSection = ({ company }: { company: Company }) => {
           scope={`${SCOPE}.size`}
           value={company.size ?? 0}
           formatValue={(value) => (noSize ? t('field.size', 'Size') : value.toLocaleString())}
-          className={cn(PANEL_TEXT_FIELD_CLASS_NAME, noSize && 'text-muted-foreground')}
+          variant="field"
+          empty={noSize}
           onSave={(size) => {
             if (size !== company.size) edit.mutate({ id: company.id, size });
           }}
@@ -137,7 +138,7 @@ const CompanyFields = ({ company }: { company: Company }) => {
 export const CompanyPanelDetail = ({ companyId }: { companyId: string }) => {
   const { data: company, isPending } = useCompany(companyId);
 
-  if (isPending) return <Spinner containerClassName="py-12" />;
+  if (isPending) return <Spinner area="lg" />;
 
   if (!company) return null;
 

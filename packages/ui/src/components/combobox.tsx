@@ -8,27 +8,35 @@ import { useOnInView } from 'react-intersection-observer';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
 
+type ComboboxTriggerProps = Omit<React.ComponentProps<typeof Button>, 'variant'> & {
+  // Button's looks, or `bordered`: a 1px border instead of the drop shadow, for dense forms.
+  variant?: React.ComponentProps<typeof Button>['variant'] | 'bordered';
+  hideChevron?: boolean;
+};
+
 const ComboboxTriggerBase = ({
   ref,
   className,
   children,
   hideChevron = false,
+  variant = 'outline',
   ...props
-}: React.ComponentProps<typeof Button> & {
-  hideChevron?: boolean;
-}) => {
+}: ComboboxTriggerProps) => {
   return (
     <Popover.Trigger
       render={
         <Button
           ref={ref}
-          variant="outline"
+          variant={variant === 'bordered' ? 'outline' : variant}
           {...props}
           type="button"
           className={cn(
-            'flex truncate h-7 rounded pl-3 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-start overflow-hidden font-normal text-left w-full gap-1',
-            (!props.variant || props.variant === 'outline') && 'shadow-xs',
+            'flex truncate h-7 rounded pl-3 transition focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-start overflow-hidden font-normal text-left w-full gap-1',
+            variant === 'outline' && 'shadow-xs',
+            variant === 'bordered' && 'border border-input shadow-none',
+            variant === 'ghost' && 'px-2',
             props.size === 'lg' && 'gap-2',
+            props.size === 'icon' && 'justify-center px-0',
             className,
           )}
         />
@@ -44,9 +52,7 @@ const ComboboxTrigger = ({
   children,
   hideChevron = false,
   ...props
-}: React.ComponentProps<typeof Button> & {
-  hideChevron?: boolean;
-}) => {
+}: ComboboxTriggerProps) => {
   return (
     <ComboboxTriggerBase {...props} ref={ref}>
       {children}
@@ -94,8 +100,9 @@ const ComboboxContent = ({
       ref={ref}
       align="start"
       sideOffset={8}
+      variant="flush"
       {...props}
-      className={cn('p-0 min-w-72 w-(--anchor-width) max-w-96', className)}
+      className={cn('min-w-72 w-(--anchor-width) max-w-96', className)}
     />
   );
 };
@@ -231,7 +238,7 @@ const ComboboxEmpty = ({
   error?: Pick<Error, 'message'> | null;
 }) => {
   return (
-    <Command.Empty ref={ref} {...props} className={cn(className)}>
+    <Command.Empty ref={ref} {...props} className={cn('py-0', className)}>
       {loading ? (
         <div className="flex flex-col gap-2 items-start p-4">
           <Skeleton className="w-2/3 h-4" />

@@ -22,12 +22,12 @@ const ContactRelationTriggerLabel = ({
 }) => {
   if (saving) return <Spinner size="sm" />;
 
-  if (moreCount > 0) return <span>+{moreCount}</span>;
+  if (moreCount > 0) return <span className="font-normal">+{moreCount}</span>;
 
   return (
     <>
       <IconPlus className="size-3.5" aria-hidden="true" />
-      {!hasLinks && addLabel}
+      {!hasLinks && <span className="font-normal">{addLabel}</span>}
     </>
   );
 };
@@ -90,17 +90,17 @@ const ContactRelationPopover = ({
       <Popover.Trigger
         render={
           <Button
-            variant="ghost"
-            size="sm"
+            variant={moreCount > 0 ? 'secondary' : 'ghost'}
+            size="xs"
+            tone="muted"
             data-panel-inline=""
             disabled={disabled}
             aria-label={hasLinks ? editLabel : addLabel}
             className={cn(
-              'h-6 shrink-0 gap-1.5 px-1 text-xs font-normal text-muted-foreground [&>svg]:size-3.5',
+              'shrink-0 [&>svg]:size-3.5',
               hasLinks &&
                 !moreCount &&
                 'opacity-0 group-hover/relations:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100',
-              moreCount > 0 && 'bg-muted hover:bg-accent',
             )}
           />
         }

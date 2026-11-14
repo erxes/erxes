@@ -83,7 +83,7 @@ const SetupStep = ({
 
   return (
     <div className="flex flex-wrap items-start gap-4 rounded-md border p-3">
-      <img src={setup.qr} alt="" className="size-[180px] rounded bg-white p-1" />
+      <img src={setup.qr} alt="" className="size-45 rounded bg-white p-1" />
       <div className="min-w-0 flex-1 space-y-2">
         <p className="text-sm">
           {t('scan', 'Scan this with your authenticator app, or type the key:')}
@@ -91,7 +91,8 @@ const SetupStep = ({
         <code className="block break-all rounded bg-muted p-2 text-xs">{setup.secret}</code>
         <div className="flex gap-2">
           <Input
-            className="w-32 text-center font-mono tracking-widest"
+            text="otp"
+            className="w-32"
             inputMode="numeric"
             maxLength={6}
             placeholder="123456"

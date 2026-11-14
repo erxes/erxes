@@ -28,13 +28,8 @@ export const PanelField = ({
   const labelId = useId();
 
   return (
-    <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 min-h-7">
-      <Label
-        id={labelId}
-        htmlFor={htmlFor}
-        variant="peer"
-        className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
-      >
+    <div className="grid grid-cols-field items-center gap-x-2 min-h-7">
+      <Label id={labelId} htmlFor={htmlFor} variant="muted" className="flex min-w-0 items-center">
         {Icon && <Icon className="size-3.5 shrink-0" aria-hidden="true" />}
         <PanelLabel>{label}</PanelLabel>
       </Label>
@@ -65,16 +60,12 @@ export const PanelField = ({
 // of its own, so screen readers name it by the field's label.
 export const PanelFieldTrigger = ({
   ref,
-  className,
   ...props
 }: React.ComponentProps<typeof RecordTableInlineCell.Trigger>) => (
   <RecordTableInlineCell.Trigger
     ref={ref}
     aria-labelledby={use(EmptyFieldLabel)}
-    className={cn('rounded-sm font-normal', className)}
+    variant="field"
     {...props}
   />
 );
-
-// Text fields from erxes-ui draw a shadow; in the panel they stay flat.
-export const PANEL_TEXT_FIELD_CLASS_NAME = 'rounded-sm shadow-none font-normal';

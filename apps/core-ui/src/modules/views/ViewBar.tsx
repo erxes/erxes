@@ -24,11 +24,11 @@ export const ViewBar = ({
       {/* The padding keeps focus rings inside the scrolling box. */}
       <div
         ref={tabsRef}
-        className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto p-1 [scrollbar-width:none]"
+        className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto p-1 hide-scroll"
       >
         <ViewTabs recordType={recordType} allLabel={allLabel} />
       </div>
-      <div className="flex min-w-0 max-w-[65%] shrink-0 items-center justify-end">{children}</div>
+      <div className="flex min-w-0 max-w-13/20 shrink-0 items-center justify-end">{children}</div>
     </div>
   );
 };

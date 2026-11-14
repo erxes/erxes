@@ -1,6 +1,6 @@
 import type { User } from '@erxes/core-contract';
 import { IconAdjustmentsHorizontal, IconSearch, IconX } from '@tabler/icons-react';
-import { Button, cn, Input, Label, Popover, Select, Switch } from 'erxes-ui';
+import { Button, cn, InputGroup, Label, Popover, Select, Switch } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { memberName, pluginLabel } from '~/lib/members';
@@ -49,7 +49,7 @@ const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) =>
           value={filters.actorId}
           onValueChange={(actorId) => onChange({ ...filters, actorId })}
         >
-          <Select.Trigger className="h-8 w-full text-sm">
+          <Select.Trigger className="h-8 w-full">
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
@@ -69,7 +69,7 @@ const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) =>
             value={filters.source}
             onValueChange={(source) => onChange({ ...filters, source })}
           >
-            <Select.Trigger className="h-8 w-full text-sm">
+            <Select.Trigger className="h-8 w-full">
               <Select.Value />
             </Select.Trigger>
             <Select.Content>
@@ -105,42 +105,45 @@ const FilterPopover = (props: FiltersProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className={cn('relative size-7 text-muted-foreground', count > 0 && 'text-foreground')}
+            tone={count > 0 ? 'default' : 'muted'}
+            className="relative"
             aria-label={t('filters', 'Filters')}
           />
         }
       >
         <IconAdjustmentsHorizontal className="size-4" />
         {count > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+          <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-3xs font-medium text-primary-foreground">
             {count}
           </span>
         )}
       </Popover.Trigger>
-      <Popover.Content align="end" className="w-64 space-y-3 p-3">
-        <FilterSelects {...props} />
-        {canIncludeRelated && (
-          <div className="flex items-center justify-between gap-2 text-sm">
-            <Label htmlFor="timeline-include-related">
-              {t('include-customers', 'Include its customers')}
-            </Label>
-            <Switch
-              id="timeline-include-related"
-              checked={filters.includeRelated}
-              onCheckedChange={(includeRelated) => onChange({ ...filters, includeRelated })}
-            />
-          </div>
-        )}
-        {count > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-full text-xs"
-            onClick={() => onChange({ ...NO_FILTERS, kind: filters.kind })}
-          >
-            {t('clear-filters', 'Clear filters')}
-          </Button>
-        )}
+      <Popover.Content align="end" className="w-64">
+        <div className="space-y-3">
+          <FilterSelects {...props} />
+          {canIncludeRelated && (
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <Label htmlFor="timeline-include-related">
+                {t('include-customers', 'Include its customers')}
+              </Label>
+              <Switch
+                id="timeline-include-related"
+                checked={filters.includeRelated}
+                onCheckedChange={(includeRelated) => onChange({ ...filters, includeRelated })}
+              />
+            </div>
+          )}
+          {count > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-full"
+              onClick={() => onChange({ ...NO_FILTERS, kind: filters.kind })}
+            >
+              {t('clear-filters', 'Clear filters')}
+            </Button>
+          )}
+        </div>
       </Popover.Content>
     </Popover>
   );
@@ -187,11 +190,12 @@ export const TimelineSearch = ({
   useEffect(() => input.current?.focus(), []);
 
   return (
-    <div className="relative">
-      <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
-      <Input
+    <InputGroup className="h-8">
+      <InputGroup.Addon>
+        <IconSearch className="pointer-events-none size-3.5" />
+      </InputGroup.Addon>
+      <InputGroup.Input
         ref={input}
-        className="h-8 pr-8 pl-8 text-sm"
         placeholder={t('search', 'Search the timeline…')}
         aria-label={t('search', 'Search the timeline…')}
         value={value}
@@ -200,15 +204,17 @@ export const TimelineSearch = ({
           if (event.key === 'Escape') onClose();
         }}
       />
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute top-1/2 right-1.5 flex size-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
-        aria-label={t('close-search', 'Close search')}
-      >
-        <IconX className="size-3.5" />
-      </button>
-    </div>
+      <InputGroup.Addon align="end">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex size-5 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+          aria-label={t('close-search', 'Close search')}
+        >
+          <IconX className="size-3.5" />
+        </button>
+      </InputGroup.Addon>
+    </InputGroup>
   );
 };
 
@@ -227,7 +233,7 @@ export const TimelineToolbar = ({
         <Button
           variant="ghost"
           size="icon"
-          className={cn('size-7 text-muted-foreground', searching && 'bg-accent text-foreground')}
+          tone="muted"
           aria-label={t('search', 'Search the timeline…')}
           aria-pressed={searching}
           onClick={onToggleSearch}

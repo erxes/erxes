@@ -11,7 +11,7 @@ import {
   IconPlus,
   IconRoute,
 } from '@tabler/icons-react';
-import { cn, DropdownMenu } from 'erxes-ui';
+import { Button, cn, DropdownMenu } from 'erxes-ui';
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { STEP_TITLES, type StepType } from './flowModel';
@@ -48,10 +48,7 @@ const AddButton = ({ onAdd }: { onAdd: (type: StepType) => void }) => {
     <DropdownMenu>
       <DropdownMenu.Trigger
         aria-label={t('add-step', 'Add step')}
-        className={cn(
-          'relative z-10 flex size-6 items-center justify-center gap-1 rounded-full border bg-background text-muted-foreground shadow-xs transition',
-          'hover:border-primary hover:text-primary-text focus-visible:border-primary focus-visible:text-primary-text focus-visible:outline-none',
-        )}
+        render={<Button variant="outline" size="icon" className="relative z-10 size-6" />}
       >
         <IconPlus className="size-3.5" />
       </DropdownMenu.Trigger>
@@ -60,25 +57,23 @@ const AddButton = ({ onAdd }: { onAdd: (type: StepType) => void }) => {
           const Icon = LOOK[type].icon;
 
           return (
-            <DropdownMenu.Item
-              key={type}
-              onClick={() => onAdd(type)}
-              className="items-start gap-3 py-2"
-            >
-              <span
-                className={cn(
-                  'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md',
-                  LOOK[type].tone,
-                )}
-              >
-                <Icon className="size-4" />
-              </span>
-              <span>
-                <span className="block text-sm font-medium">
-                  {t(`step-type.${type}`, STEP_TITLES[type])}
+            <DropdownMenu.Item key={type} onClick={() => onAdd(type)}>
+              <span className="flex items-start gap-3 py-2">
+                <span
+                  className={cn(
+                    'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md',
+                    LOOK[type].tone,
+                  )}
+                >
+                  <Icon className="size-4" />
                 </span>
-                <span className="block text-xs text-muted-foreground">
-                  {t(`step-hint.${type}`, hint)}
+                <span>
+                  <span className="block text-sm font-medium">
+                    {t(`step-type.${type}`, STEP_TITLES[type])}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {t(`step-hint.${type}`, hint)}
+                  </span>
                 </span>
               </span>
             </DropdownMenu.Item>
@@ -160,7 +155,7 @@ export const Node = ({
         <Icon className="size-4" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="block text-2xs font-medium uppercase tracking-wide text-muted-foreground">
           {kind}
         </span>
         <span className="line-clamp-2 block text-sm font-medium break-words">{title}</span>
@@ -169,7 +164,7 @@ export const Node = ({
       {!!problems?.length && <IconAlertTriangle className="size-4 shrink-0 text-destructive" />}
     </div>
     {stats && (
-      <span className="flex items-center gap-3 border-t px-3 py-1.5 text-[11px] text-muted-foreground">
+      <span className="flex items-center gap-3 border-t px-3 py-1.5 text-2xs text-muted-foreground">
         <NodeStats stats={stats} />
       </span>
     )}

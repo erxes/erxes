@@ -1,6 +1,6 @@
 import { Button, useScopedHotkeys } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Appear, appearStyle } from './Appear';
+import { Appear } from './Appear';
 import type { OnboardingStepDef } from './onboardingSteps';
 
 const BRAND_NAME = 'erxes';
@@ -21,7 +21,7 @@ export const WelcomeSection = ({
   return (
     <div className="flex w-full max-w-md flex-col gap-6">
       <Appear y={20} duration={600} delay={100} className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           {t('lets-get-started')}
         </h1>
         <p className="text-lg text-muted-foreground">
@@ -33,8 +33,12 @@ export const WelcomeSection = ({
         {milestoneRows.map(({ step, cardTitle, cardSubtitle, icon: Icon }, index) => (
           <li
             key={step}
-            className="flex items-center gap-4 border-b py-4 last:border-b-0 animate-in"
-            style={appearStyle({ y: 12, duration: 400, delay: 300 + index * 80 })}
+            className="flex items-center gap-4 border-b py-4 last:border-b-0 animate-appear"
+            style={{
+              '--appear-y': '12px',
+              '--appear-duration': '400ms',
+              '--appear-delay': `${300 + index * 80}ms`,
+            }}
           >
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-text">
               <Icon className="size-5" />
@@ -54,7 +58,7 @@ export const WelcomeSection = ({
         </Button>
         <p className="text-xs text-muted-foreground">
           Press
-          <kbd className="mx-1 rounded-md border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">
+          <kbd className="mx-1 rounded-md border bg-muted px-1.5 py-0.5 font-mono text-3xs text-foreground">
             Enter
           </kbd>
           to continue

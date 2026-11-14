@@ -49,7 +49,7 @@ const Thumbnail = ({
     <div className="group relative size-20 overflow-hidden rounded-md border bg-muted">
       <img src={fileUrl(id)} alt="" className="size-full object-cover" />
       {main && (
-        <Badge variant="secondary" className="absolute bottom-1 left-1 h-5 px-1 text-[10px]">
+        <Badge variant="secondary" size="sm" className="absolute bottom-1 left-1 h-5">
           {t('images.main', 'Main')}
         </Badge>
       )}
@@ -161,13 +161,15 @@ export const ProductPanelImages = ({ product }: { product: Product }) => {
       {manage && (
         <Button
           type="button"
-          variant="outline"
+          variant="dashed"
           onClick={() => input.current?.click()}
           disabled={uploading}
-          className="size-20 flex-col border-dashed text-xs text-muted-foreground"
+          className="size-20 flex-col"
         >
           {uploading ? <Spinner size="sm" /> : <IconPhotoPlus />}
-          {uploading ? t('images.uploading', 'Uploading') : t('images.add', 'Add')}
+          <span className="text-xs">
+            {uploading ? t('images.uploading', 'Uploading') : t('images.add', 'Add')}
+          </span>
         </Button>
       )}
       <input

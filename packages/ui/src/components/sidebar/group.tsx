@@ -1,16 +1,35 @@
 import React from 'react';
 
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const SidebarGroup = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+const sidebarGroupVariants = cva(
+  'relative flex w-full min-w-0 flex-col group-data-[collapsible=icon]:px-2',
+  {
+    variants: {
+      variant: {
+        default: 'px-4 py-3',
+        // Labelled groups stacked close together.
+        compact: 'px-4 py-1',
+        // Its menu lines up with the sidebar header's.
+        flush: 'px-2 py-1',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
+
+export const SidebarGroup = ({
+  ref,
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<'div'> & VariantProps<typeof sidebarGroupVariants>) => {
   return (
     <div
       ref={ref}
       data-sidebar="group"
-      className={cn(
-        'relative flex w-full min-w-0 flex-col px-4 py-3 group-data-[collapsible=icon]:px-2',
-        className,
-      )}
+      className={cn(sidebarGroupVariants({ variant }), className)}
       {...props}
     />
   );
@@ -21,7 +40,7 @@ export const SidebarGroupLabel = ({ className, ...props }: React.ComponentProps<
     <div
       data-sidebar="group-label"
       className={cn(
-        'flex h-6 shrink-0 items-center rounded-lg px-2 font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'flex h-6 shrink-0 items-center rounded-lg px-2 font-sans text-3xs font-semibold uppercase tracking-wider text-muted-foreground outline-hidden transition-layout duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
         'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         className,
       )}

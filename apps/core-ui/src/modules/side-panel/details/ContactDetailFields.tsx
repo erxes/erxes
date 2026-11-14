@@ -1,9 +1,9 @@
 import { type Icon, IconMail, IconPhone, IconUser } from '@tabler/icons-react';
-import { cn, ScrollArea, TextField } from 'erxes-ui';
+import { ScrollArea, TextField } from 'erxes-ui';
 import { type ReactNode, useId } from 'react';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
-import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField, PanelFieldTrigger } from '../PanelField';
+import { PanelField, PanelFieldTrigger } from '../PanelField';
 import { ContactDetailSection } from './ContactDetailSection';
 
 /** A contact's Detail tab scrolling under the panel header. */
@@ -33,7 +33,7 @@ export const ContactTextField = ({
     scope={scope}
     value={value}
     placeholder={placeholder}
-    className={cn(PANEL_TEXT_FIELD_CLASS_NAME, !value && 'text-muted-foreground')}
+    variant="field"
     onSave={(next) => {
       if (next.trim() !== value) onSave(next.trim() || null);
     }}

@@ -25,7 +25,7 @@ export const SlashMenu = ({
   onItemClick,
 }: SuggestionMenuProps<DefaultReactSuggestionItem>) => {
   return (
-    <SuggestionMenu className="max-h-72 [&>div]:max-h-[17rem]">
+    <SuggestionMenu className="max-h-72 [&>div]:max-h-popup">
       {items.map((item, index) => (
         <SuggestionMenuItem
           isSelected={selectedIndex === index}
@@ -36,7 +36,7 @@ export const SlashMenu = ({
             {icons.get(item.title) ?? item.icon}
             {item.title}
           </span>
-          <span className="text-[11px] font-normal text-muted-foreground">
+          <span className="text-2xs font-normal text-muted-foreground">
             {item.badge?.replace(/-/g, ' ')}
           </span>
         </SuggestionMenuItem>

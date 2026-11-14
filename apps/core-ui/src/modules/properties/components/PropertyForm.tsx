@@ -162,7 +162,7 @@ const PropertyVisibleField = ({ form }: { form: PropertyFormApi }) => {
       control={form.control}
       name="isVisible"
       render={({ field }) => (
-        <Form.Item className="flex-auto flex flex-row items-center justify-between space-y-0">
+        <Form.Item orientation="horizontal" className="flex-auto">
           <Form.Label>{t('visible', 'Visible')}</Form.Label>
           <Form.Control>
             <Switch checked={field.value} onCheckedChange={field.onChange} />

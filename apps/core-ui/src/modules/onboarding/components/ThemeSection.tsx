@@ -36,7 +36,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
           <div key={value} className="flex flex-col gap-2 items-center">
             <div
               className={cn(
-                'aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-lg bg-muted transition-all',
+                'aspect-4/3 w-full max-w-55 overflow-hidden rounded-lg bg-muted transition-all',
                 theme === value
                   ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
                   : 'hover:shadow-md',
@@ -76,7 +76,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
         className="w-full px-6 sm:px-12 lg:px-20"
       >
         <Button
-          className="w-full cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full hover:scale-102 active:scale-98"
           size="lg"
           variant="secondary"
           onClick={onContinue}

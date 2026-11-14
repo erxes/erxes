@@ -167,8 +167,8 @@ export const SetupScreen = ({
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background px-6">
       <div className="fixed inset-x-0 top-0 h-0.5 bg-muted">
         <div
-          className="h-full bg-primary transition-[width] duration-500 ease-out"
-          style={{ width: `${Math.max(progress, 4)}%` }}
+          className="h-full w-(--progress) bg-primary transition-layout duration-500 ease-out"
+          style={{ '--progress': `${Math.max(progress, 4)}%` }}
         />
       </div>
       <Appear y={16} duration={500} className="flex w-full max-w-sm flex-col items-center gap-8">
@@ -198,12 +198,7 @@ export const SetupScreen = ({
           </div>
         ) : (
           setup.canSkip && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground"
-              onClick={setup.skip}
-            >
+            <Button variant="ghost" size="sm" tone="muted" onClick={setup.skip}>
               {t('setup-skip', 'Continue — the examples will appear in a moment')}
             </Button>
           )

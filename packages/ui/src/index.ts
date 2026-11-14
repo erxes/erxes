@@ -63,6 +63,8 @@ export { InfoCard } from './components/info-card';
 
 export { Input } from './components/input';
 
+export { InputGroup } from './components/input-group';
+
 export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
@@ -97,7 +99,7 @@ export { Switch } from './components/switch';
 
 export { Table } from './components/table';
 
-export { Tabs } from './components/tabs';
+export { TabButton, Tabs } from './components/tabs';
 
 export { TextOverflowTooltip } from './components/text-overflow';
 

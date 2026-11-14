@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ContentType } from '@erxes/core-contract';
-import { Button, cn, useQueryState } from 'erxes-ui';
+import { ToggleGroup, useQueryState } from 'erxes-ui';
 
 /** Customers / Companies switch for settings that exist per record type (`?type=`). */
 export const useContentTypeParam = (): [ContentType, (type: ContentType) => void] => {
@@ -16,27 +16,24 @@ export const ContentTypeSwitch = () => {
   const [type, setType] = useContentTypeParam();
 
   return (
-    <div className="flex items-center gap-1 rounded-lg bg-foreground/5 p-1">
+    <ToggleGroup
+      variant="outline"
+      size="sm"
+      value={[type]}
+      onValueChange={([next]) => {
+        if (next) setType(next);
+      }}
+    >
       {(
         [
           ['customer', 'Customers'],
           ['company', 'Companies'],
         ] as const
       ).map(([value, label]) => (
-        <Button
-          key={value}
-          variant="ghost"
-          size="sm"
-          aria-pressed={type === value}
-          className={cn(
-            'h-6 px-3',
-            type === value && 'bg-background text-primary-text shadow-sm hover:bg-background',
-          )}
-          onClick={() => setType(value)}
-        >
+        <ToggleGroup.Item key={value} value={value}>
           {label}
-        </Button>
+        </ToggleGroup.Item>
       ))}
-    </div>
+    </ToggleGroup>
   );
 };

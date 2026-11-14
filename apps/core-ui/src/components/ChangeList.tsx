@@ -114,7 +114,7 @@ export const ChangeList = ({
   return (
     <dl
       className={cn(
-        'grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 rounded-md bg-muted/60 px-2.5 py-1.5 text-xs',
+        'grid grid-cols-leading gap-x-3 gap-y-1 rounded-md bg-muted/60 px-2.5 py-1.5 text-xs',
         className,
       )}
     >

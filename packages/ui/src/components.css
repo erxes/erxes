@@ -1,6 +1,6 @@
 /*
- * App-level styles: the BlockNote editor (slash menu, toolbar, drag handle,
- * headings, theme variables) and the sidebar menu look.
+ * Styles utilities can't reach: the BlockNote editor's own markup (slash menu, toolbar, drag
+ * handle, headings, theme variables) and the sidebar menu's nested selectors.
  */
 .bn-shadcn {
   --background: 0 0% 100%;
@@ -270,4 +270,56 @@
   background-color: hsl(var(--background));
   border-color: hsl(var(--border));
   color: hsl(var(--foreground));
+}
+
+/* BackgroundGradientAnimation: five colour blobs orbit over a violet to navy backdrop. They
+   fill the middle 80%, blend in hard light, and goo merges them through the component's
+   #blurMe SVG filter. */
+@utility gradient-backdrop {
+  background-image: linear-gradient(40deg, rgb(108 0 162), rgb(0 17 82));
+}
+@utility gradient-blob {
+  position: absolute;
+  inset: 10%;
+  mix-blend-mode: hard-light;
+  background-repeat: no-repeat;
+}
+@utility gradient-blob-1 {
+  background-image: radial-gradient(circle at center, rgb(18 113 255) 0, rgb(18 113 255) 50%);
+  transform-origin: center;
+}
+@utility gradient-blob-2 {
+  background-image: radial-gradient(
+    circle at center,
+    rgb(221 74 255 / 0.8) 0,
+    rgb(221 74 255 / 0) 50%
+  );
+  transform-origin: calc(50% - 400px);
+}
+@utility gradient-blob-3 {
+  background-image: radial-gradient(
+    circle at center,
+    rgb(100 220 255 / 0.8) 0,
+    rgb(100 220 255 / 0) 50%
+  );
+  transform-origin: calc(50% + 400px);
+}
+@utility gradient-blob-4 {
+  background-image: radial-gradient(
+    circle at center,
+    rgb(200 50 50 / 0.8) 0,
+    rgb(200 50 50 / 0) 50%
+  );
+  transform-origin: calc(50% - 200px);
+}
+@utility gradient-blob-5 {
+  background-image: radial-gradient(
+    circle at center,
+    rgb(180 180 50 / 0.8) 0,
+    rgb(180 180 50 / 0) 50%
+  );
+  transform-origin: calc(50% - 800px) calc(50% + 800px);
+}
+@utility goo {
+  filter: url(#blurMe) blur(40px);
 }

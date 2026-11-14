@@ -46,7 +46,7 @@ const OwnerPicker = ({
         setOpen={setOpen}
       >
         <Popover open={open} onOpenChange={setOpen}>
-          <Combobox.Trigger id={id} className="w-full shadow-xs">
+          <Combobox.Trigger id={id} className="w-full">
             <SelectMemberValue
               placeholder={leads.length === 1 ? t('actions.keep-owner') : t('actions.keep-owners')}
             />
@@ -75,7 +75,7 @@ const CompanyPicker = ({
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{t('actions.company')}</Label>
       <Popover open={open} onOpenChange={setOpen}>
-        <Combobox.Trigger id={id} className="w-full shadow-xs">
+        <Combobox.Trigger id={id} className="w-full">
           <span className="flex min-w-0 items-center gap-2">
             <IconBuilding className="size-4 shrink-0 text-muted-foreground" />
             {value ? (

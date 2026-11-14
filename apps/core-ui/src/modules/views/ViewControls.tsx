@@ -49,7 +49,9 @@ const ViewForm = ({
       {canShare && (
         <div className="flex items-center gap-2 text-sm">
           <Switch id="view-shared" checked={shared} onCheckedChange={setShared} />
-          <Label htmlFor="view-shared">{t('share')}</Label>
+          <Label htmlFor="view-shared" variant="option">
+            {t('share')}
+          </Label>
         </div>
       )}
       <Button type="submit" className="w-full" disabled={!name.trim() || pending}>
@@ -110,7 +112,7 @@ export const ViewChanges = ({ recordType }: { recordType: ViewRecordType }) => {
           variant="ghost"
           size="icon"
           aria-label={t('reset')}
-          className="size-7 text-muted-foreground"
+          tone="muted"
           onClick={() => query.openView(current)}
         >
           <IconArrowBackUp />
@@ -122,7 +124,7 @@ export const ViewChanges = ({ recordType }: { recordType: ViewRecordType }) => {
             <Button
               size="sm"
               variant="secondary"
-              className="h-7 px-2"
+              className="h-7"
               disabled={update.isPending}
               onClick={() => update.mutate({ id: current.id, ...values })}
             >
@@ -135,7 +137,7 @@ export const ViewChanges = ({ recordType }: { recordType: ViewRecordType }) => {
               variant="ghost"
               size="icon"
               aria-label={saveNew}
-              className="size-7 text-muted-foreground"
+              tone="muted"
               onClick={() => setOpen(true)}
             >
               <IconCopyPlus />
@@ -143,7 +145,7 @@ export const ViewChanges = ({ recordType }: { recordType: ViewRecordType }) => {
           </IconTip>
         </>
       ) : (
-        <Button size="sm" variant="secondary" className="h-7 px-2" onClick={() => setOpen(true)}>
+        <Button size="sm" variant="secondary" className="h-7" onClick={() => setOpen(true)}>
           <IconDeviceFloppy />
           {saveNew}
         </Button>

@@ -17,8 +17,11 @@ export const LeadStageBadge = ({
   return (
     <span className={cn('inline-flex min-w-0 items-center gap-1.5 text-sm', className)}>
       <span
-        className="size-2 shrink-0 rounded-full"
-        style={{ background: stage?.color ?? 'var(--muted-foreground)' }}
+        className={cn(
+          'size-2 shrink-0 rounded-full',
+          stage ? 'bg-(--stage-color)' : 'bg-muted-foreground',
+        )}
+        style={{ '--stage-color': stage?.color }}
       />
       <span className="truncate">{stage ? stageName(stage.name) : t('no-stage')}</span>
     </span>
@@ -58,12 +61,10 @@ export const LeadStageMenu = ({
 /** The stage as a status pill, tinted with its colour (inside a trigger of its own). */
 export const LeadStagePill = ({ stage }: { stage?: LeadStage | null }) => (
   <span
-    style={{
-      background: stage ? `color-mix(in srgb, ${stage.color} 16%, transparent)` : undefined,
-    }}
+    style={{ '--stage-color': stage?.color }}
     className={cn(
       'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium',
-      !stage && 'border-dashed border-border text-muted-foreground',
+      stage ? 'bg-(--stage-color)/16' : 'border-dashed border-border text-muted-foreground',
     )}
   >
     <LeadStageBadge stage={stage} className="text-xs" />
@@ -86,13 +87,10 @@ export const LeadStageTrigger = ({
     ref={ref}
     type="button"
     {...props}
-    style={{
-      background: stage ? `color-mix(in srgb, ${stage.color} 16%, transparent)` : undefined,
-      ...props.style,
-    }}
+    style={{ '--stage-color': stage?.color, ...props.style }}
     className={cn(
-      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium transition-[filter] hover:brightness-95 data-popup-open:border-border',
-      !stage && 'border-dashed border-border text-muted-foreground',
+      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium transition hover:brightness-95 data-popup-open:border-border',
+      stage ? 'bg-(--stage-color)/16' : 'border-dashed border-border text-muted-foreground',
       props.className,
     )}
   >

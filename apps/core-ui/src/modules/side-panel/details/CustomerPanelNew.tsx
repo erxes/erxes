@@ -19,7 +19,7 @@ import { z } from 'zod';
 import { toYmd } from '~/components/inlineCells';
 import { errorData, isApiError, messageOf } from '~/lib/api';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
-import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from '../PanelForm';
+import { PanelFormRow } from '../PanelForm';
 import { useSidePanelDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 import {
@@ -86,8 +86,6 @@ const TEXT_FIELD_ICONS: Record<TTextCode, Icon> = {
   position: IconBriefcase,
 };
 
-const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
-
 const orNull = (value: string) => value.trim() || null;
 
 /** A registered text input with its field label and validation error. */
@@ -100,7 +98,7 @@ const TextRow = ({ code, label }: { code: TTextCode; label: string }) => {
       label={label}
       error={formState.errors[code]?.message}
     >
-      <Input {...register(code)} placeholder={label} className={INPUT_CLASS_NAME} />
+      <Input {...register(code)} placeholder={label} variant="bordered" text="sm" />
     </PanelFormRow>
   );
 };
@@ -119,12 +117,12 @@ const SexRow = () => {
             value={String(field.value ?? 0)}
             onValueChange={(value) => field.onChange(Number(value))}
           >
-            <Select.Trigger className={INPUT_CLASS_NAME} aria-label={t('pronoun', 'Pronoun')}>
+            <Select.Trigger variant="bordered" aria-label={t('pronoun', 'Pronoun')}>
               <Select.Value placeholder={t('pronoun', 'Pronoun')} />
             </Select.Trigger>
             <Select.Content align="start">
               {CUSTOMER_SEX_OPTIONS.map((option) => (
-                <Select.Item key={option.value} value={option.value} className="h-7 text-xs">
+                <Select.Item key={option.value} value={option.value} className="h-7">
                   {option.label}
                 </Select.Item>
               ))}

@@ -14,6 +14,9 @@ export const toggleVariants = cva(
         default: 'h-7 px-3 min-w-10',
         sm: 'h-6 px-3 min-w-9 font-normal text-xs',
         lg: 'h-8 px-5 min-w-11',
+        // An icon only, as in a toolbar or a segmented switch.
+        icon: 'size-7 min-w-7 px-0',
+        'icon-sm': 'size-6 min-w-6 px-0',
       },
     },
     defaultVariants: {

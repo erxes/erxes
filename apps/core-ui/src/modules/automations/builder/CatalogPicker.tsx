@@ -1,5 +1,5 @@
-import { IconArrowLeft, IconBolt, IconChevronDown } from '@tabler/icons-react';
-import { Command, Popover } from 'erxes-ui';
+import { IconArrowLeft, IconBolt } from '@tabler/icons-react';
+import { Combobox, Command, Popover } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CatalogList } from './CatalogList';
@@ -50,10 +50,7 @@ const PickerTrigger = ({
       : t('catalog-choose-event', 'Choose an event');
 
   return (
-    <Popover.Trigger
-      disabled={disabled}
-      className="flex h-auto min-h-9 w-full items-center gap-2.5 rounded-md border bg-background px-2.5 py-1.5 text-left shadow-xs transition-colors hover:bg-muted/40 focus-visible:outline-hidden focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-60 data-popup-open:border-primary/40"
-    >
+    <Combobox.Trigger disabled={disabled} className="h-auto min-h-9">
       <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary-text">
         <SelectedIcon className="size-4" />
       </span>
@@ -71,8 +68,7 @@ const PickerTrigger = ({
           </span>
         )}
       </span>
-      <IconChevronDown className="size-4 shrink-0 text-muted-foreground" />
-    </Popover.Trigger>
+    </Combobox.Trigger>
   );
 };
 
@@ -161,7 +157,8 @@ export const CatalogPicker = ({
         collisionPadding={12}
         // Never taller than the room on its side: the list scrolls instead of
         // the header and search being pushed off screen.
-        className="flex max-h-(--available-height) w-(--anchor-width) min-w-80 max-w-[40rem] flex-col p-0"
+        variant="flush"
+        className="flex max-h-(--available-height) w-(--anchor-width) min-w-80 max-w-160 flex-col"
       >
         <Command loop filter={matchWords} shouldFilter={searching} className="min-h-0 flex-1">
           {current && (

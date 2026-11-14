@@ -135,7 +135,7 @@ export const DashboardWidgetPreview = ({
   preview?: TDashboardWidgetPreview;
   icon: ElementType;
 }) => (
-  <div className="flex aspect-[15/8] w-full items-center justify-center overflow-hidden rounded-md border bg-muted/40">
+  <div className="flex aspect-15/8 w-full items-center justify-center overflow-hidden rounded-md border bg-muted/40">
     {preview ? (
       <svg viewBox="0 0 120 64" className="size-full" aria-hidden>
         {PREVIEWS[preview]}
