@@ -6,13 +6,13 @@ import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped'
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
 type NumberFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-    placeholder?: string;
-    value: number;
-    scope: string;
-    onValueChange?: (value: number) => void;
-    onSave?: (value: number) => void;
-    formatValue?: (value: number) => string;
-  };
+  placeholder?: string;
+  value: number;
+  scope: string;
+  onValueChange?: (value: number) => void;
+  onSave?: (value: number) => void;
+  formatValue?: (value: number) => string;
+};
 
 export const NumberField = ({
   placeholder,

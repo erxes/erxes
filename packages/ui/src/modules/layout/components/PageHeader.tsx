@@ -5,7 +5,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 
 // The left padding leaves room for the app sidebar's expand button while the sidebar is collapsed.
 const pageHeaderVariants = cva(
-  'box-border flex shrink-0 items-center justify-between bg-background pr-3 pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem))] styled-scroll',
+  'box-border flex shrink-0 items-center justify-between bg-background px-3 navigation-collapsed:pl-13 styled-scroll',
   {
     variants: {
       variant: {

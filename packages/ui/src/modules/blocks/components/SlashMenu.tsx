@@ -25,7 +25,7 @@ export const SlashMenu = ({
   onItemClick,
 }: SuggestionMenuProps<DefaultReactSuggestionItem>) => {
   return (
-    <SuggestionMenu className="max-h-72 [&>div]:max-h-[17rem]">
+    <SuggestionMenu className="max-h-72 [&>div]:max-h-popup">
       {items.map((item, index) => (
         <SuggestionMenuItem
           isSelected={selectedIndex === index}

@@ -33,7 +33,7 @@ export const IconPicker = ({
       <Combobox.Content className="w-60 min-w-60">
         <Command>
           <Command.Input placeholder="Search icon..." />
-          <Command.List className="max-h-[200px] overflow-y-auto hide-scroll">
+          <Command.List className="max-h-50 overflow-y-auto hide-scroll">
             <div className="flex flex-wrap gap-2">
               {selectedFirst.map(([key, Icon]) => (
                 <Command.Item

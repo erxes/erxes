@@ -12,7 +12,7 @@ export const FilterBar = ({ ref, className, ...props }: React.ComponentProps<'di
   return (
     <div
       ref={ref}
-      className={cn('flex flex-wrap items-center gap-2 flex-1', className)}
+      className={cn('flex flex-wrap items-center gap-1 flex-1', className)}
       {...props}
     />
   );

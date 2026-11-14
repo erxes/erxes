@@ -35,7 +35,10 @@ export const FontFamilyButton = () => {
             checked={currentFont === font.value}
             onClick={() => handleFontChange(font.value)}
           >
-            <div className="flex items-center gap-2 w-full" style={{ fontFamily: font.value }}>
+            <div
+              className="flex items-center gap-2 w-full font-(family-name:--font)"
+              style={{ '--font': font.value }}
+            >
               {font.name}
             </div>
           </Components.Generic.Menu.Item>

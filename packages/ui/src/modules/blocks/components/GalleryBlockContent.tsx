@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { cn } from 'erxes-ui/lib/utils';
 import { AttachmentPreview } from 'erxes-ui/modules/attachments/attachment-media';
 import type { GalleryRenderProps } from 'erxes-ui/modules/blocks/constant/galleryBlockConfig';
 import { useGalleryUpload } from 'erxes-ui/modules/blocks/hooks/useGalleryUpload';
@@ -76,6 +77,13 @@ const GalleryEditBar = ({
   );
 };
 
+// parseGalleryColumns keeps a gallery at 2 to 4 columns.
+const GRID_COLUMNS: Record<number, string> = {
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+};
+
 export const GalleryBlockContent = (props: GalleryRenderProps) => {
   const { block, editor } = props;
   const keyedImages = keyGalleryImages(parseGalleryImages(block.props.images));
@@ -100,7 +108,7 @@ export const GalleryBlockContent = (props: GalleryRenderProps) => {
             name: image.caption ?? '',
           }))}
           renderThumbnails={(openPreview) => (
-            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+            <div className={cn('grid gap-2', GRID_COLUMNS[columns])}>
               {keyedImages.map(({ image, key }, index) => (
                 <GalleryItem
                   key={key}

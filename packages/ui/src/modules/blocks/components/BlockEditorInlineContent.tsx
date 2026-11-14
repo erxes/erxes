@@ -79,7 +79,7 @@ export const Attribute = createReactInlineContentSpec(
           }
         />
       ) : (
-        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
+        <span className="bg-warning/10 p-1 rounded font-bold text-sm text-warning-text inline-flex items-center">
           {props.inlineContent.props.name}
         </span>
       ),

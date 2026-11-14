@@ -32,7 +32,7 @@ export const RecordTableCell = ({
           'bg-background',
           'group-hover/table-row:bg-background',
           'group-data-[state=selected]/table-row:bg-background',
-          'before:content-[""] before:absolute before:inset-0 before:-z-1',
+          'before:absolute before:inset-0 before:-z-1',
           'group-hover/table-row:before:bg-muted',
           'group-data-[state=selected]/table-row:before:bg-primary/10',
         ],

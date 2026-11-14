@@ -14,7 +14,7 @@ export const SuggestionMenu = ({
     ref={ref}
     {...props}
     className={cn(
-      'erxes-suggestion-menu w-60 rounded-md bg-background shadow-md border border/50 p-1 outline-hidden overflow-hidden',
+      'erxes-suggestion-menu w-60 rounded-md bg-background shadow-md border border-border/50 p-1 outline-hidden overflow-hidden',
       className,
     )}
   >
@@ -55,7 +55,7 @@ export const SuggestionMenuItem = ({
       }}
       className={cn(
         buttonVariants({ variant: 'ghost' }),
-        'justify-between rounded px-2 text-[13px] font-medium [&>svg]:size-4 hover:bg-muted/60',
+        'justify-between rounded px-2 text-sm font-medium [&>svg]:size-4 hover:bg-muted/60',
         isSelected && 'bg-muted',
         props.className,
       )}

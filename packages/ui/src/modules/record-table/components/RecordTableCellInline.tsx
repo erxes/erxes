@@ -71,7 +71,7 @@ const RecordTableCellContent = ({ className, ...props }: PopoverContentProps) =>
       variant="flush"
       className={cn(
         'w-(--anchor-width) min-w-56',
-        !className && 'has-[>input]:w-[var(--anchor-width)] has-[>input]:min-w-0 [&>input]:h-8',
+        !className && 'has-[>input]:w-(--anchor-width) has-[>input]:min-w-0 [&>input]:h-8',
         className,
       )}
       {...props}
@@ -99,7 +99,11 @@ const RecordTableCellDisplay = ({
   ...props
 }: React.ComponentProps<'div'> & VariantProps<typeof cellDisplayVariants>) => (
   <div
-    className={cn(buttonVariants({ variant: 'ghost' }), cellDisplayVariants({ variant }), className)}
+    className={cn(
+      buttonVariants({ variant: 'ghost' }),
+      cellDisplayVariants({ variant }),
+      className,
+    )}
     tabIndex={-1}
     {...props}
   />

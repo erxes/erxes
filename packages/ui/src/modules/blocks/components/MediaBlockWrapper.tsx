@@ -25,7 +25,7 @@ const AddMediaButton = ({ block, icon }: { block: MediaBlock; icon: ReactNode })
     <div className="bn-file-block-content-wrapper">
       <button
         type="button"
-        className="bn-add-file-button w-full border-0 text-left font-[inherit]"
+        className="bn-add-file-button w-full border-0 text-left font-inherit"
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           if (editor.isEditable) filePanel.showMenu(block.id);
@@ -102,8 +102,11 @@ export const MediaBlockWrapper = ({
 
   return (
     <Wrapper
-      className="bn-file-block-content-wrapper group/media"
-      style={{ width: width ? `${width}px` : 'fit-content' }}
+      className={cn(
+        'bn-file-block-content-wrapper group/media',
+        width ? 'w-(--media-width)' : 'w-fit',
+      )}
+      style={{ '--media-width': width ? `${width}px` : undefined }}
     >
       <div className="bn-visual-media-wrapper relative" ref={mediaRef}>
         {children}
@@ -116,8 +119,8 @@ export const MediaBlockWrapper = ({
               className={cn(
                 'bn-resize-handle opacity-0 group-hover/media:opacity-100 hover:opacity-100 pointer-coarse:opacity-100',
                 drag && 'opacity-100',
+                side === 'left' ? 'left-1' : 'right-1',
               )}
-              style={{ [side]: '4px' }}
               onPointerDown={startResize(side)}
               onPointerMove={resize}
               onPointerUp={endResize}

@@ -27,10 +27,7 @@ export const Editor = ({
   return (
     <BlockEditor
       variant={variant}
-      className={cn(
-        'min-w-0 w-full overflow-x-hidden overflow-y-auto h-28 min-h-28',
-        className,
-      )}
+      className={cn('min-w-0 w-full overflow-x-hidden overflow-y-auto h-28 min-h-28', className)}
       {...props}
       editor={editor}
       onChange={handleChange}

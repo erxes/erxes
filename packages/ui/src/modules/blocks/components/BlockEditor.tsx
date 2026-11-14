@@ -17,23 +17,20 @@ import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuIte
 import { themeState } from 'erxes-ui/state/themeState';
 import { useAtomValue } from 'jotai';
 
-const blockEditorVariants = cva(
-  'erxes-blocknote transition-[color,box-shadow]',
-  {
-    variants: {
-      variant: {
-        // Bare text: the screen draws any box around it.
-        default: '',
-        // A field: the drop shadow of an input, and its focus ring.
-        outline: 'rounded-md pt-1 styled-scroll shadow-xs data-focused:shadow-focus',
-        // A value in a side panel: no border until hovered or focused.
-        ghost:
-          'rounded-sm pt-1 styled-scroll hover:bg-accent focus-within:bg-background focus-within:shadow-focus',
-      },
+const blockEditorVariants = cva('erxes-blocknote transition', {
+  variants: {
+    variant: {
+      // Bare text: the screen draws any box around it.
+      default: '',
+      // A field: the drop shadow of an input, and its focus ring.
+      outline: 'rounded-md pt-1 styled-scroll shadow-xs data-focused:shadow-focus',
+      // A value in a side panel: no border until hovered or focused.
+      ghost:
+        'rounded-sm pt-1 styled-scroll hover:bg-accent focus-within:bg-background focus-within:shadow-focus',
     },
-    defaultVariants: { variant: 'default' },
   },
-);
+  defaultVariants: { variant: 'default' },
+});
 
 export const BlockEditor = ({
   editor,

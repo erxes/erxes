@@ -5,14 +5,14 @@ import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/
 import React, { useState } from 'react';
 
 type TextFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-    placeholder?: string;
-    value: string;
-    scope?: string;
-    onValueChange?: (value: string) => void;
-    onSave?: (value: string) => void;
-    // Starts with the editor open, e.g. the first field of a new record.
-    defaultOpen?: boolean;
-  };
+  placeholder?: string;
+  value: string;
+  scope?: string;
+  onValueChange?: (value: string) => void;
+  onSave?: (value: string) => void;
+  // Starts with the editor open, e.g. the first field of a new record.
+  defaultOpen?: boolean;
+};
 
 export const TextField = ({
   ref,

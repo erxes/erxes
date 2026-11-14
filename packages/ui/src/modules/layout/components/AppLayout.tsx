@@ -169,9 +169,9 @@ const AppLayoutDesktop = ({
 
   return (
     <div
+      data-navigation-collapsed={!open || undefined}
       className={cn(
         'relative flex min-h-0 min-w-0 flex-1',
-        !open && '[--navigation-panel-toggle-space:2.5rem]',
         resizing && 'cursor-col-resize select-none',
       )}
     >
@@ -179,14 +179,14 @@ const AppLayoutDesktop = ({
         ref={asideRef}
         aria-hidden={!open}
         className={cn(
-          'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar',
+          'relative flex w-(--app-layout-width) shrink-0 flex-col overflow-hidden border-r bg-sidebar',
           !resizing &&
             'transition-layout duration-300 ease-out-quint motion-reduce:transition-none',
-          !open && 'border-r-0',
+          !open && 'w-0 border-r-0',
         )}
-        style={{ width: open ? currentWidth : 0 }}
+        style={{ '--app-layout-width': `${currentWidth}px` }}
       >
-        <div className="flex h-full flex-col" style={{ minWidth: currentWidth }}>
+        <div className="flex h-full min-w-(--app-layout-width) flex-col">
           <AppLayoutSidebarHeader title={title} onCollapse={() => setOpen(false)} />
           <div
             data-navigation-context
@@ -234,7 +234,10 @@ const AppLayoutMobile = ({
   const { toggleSidebar } = Sidebar.useSidebar();
 
   return (
-    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden [--navigation-panel-toggle-space:2.5rem]">
+    <div
+      data-navigation-collapsed
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+    >
       <Sidebar collapsible="offcanvas">
         {title && (
           <Sidebar.Header>

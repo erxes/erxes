@@ -38,7 +38,7 @@ export const GalleryItem = ({
           <img
             src={src}
             alt={image.caption ?? ''}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            className="block size-full object-cover"
             draggable={false}
           />
         </Button>
