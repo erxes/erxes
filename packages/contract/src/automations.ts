@@ -184,14 +184,21 @@ export const automationsContract = {
         'Dry run of the working copy: what each step would do for a record (nothing is changed)',
     })
     .input(
-      z.object({
-        id: Id,
-        subject: z.object({ type: z.enum(CONTENT_TYPES), id: Id }).optional(),
-        /** Event fields for the trigger (type, payload); defaults to the trigger's event. */
-        payload: z.record(z.string(), z.unknown()).optional(),
-        /** Pretend waits for events end with the event happening. */
-        assumeEventHappens: z.boolean().default(false),
-      }),
+      z
+        .object({
+          id: Id,
+          /** The record to run for: send both, or neither for a run without one. */
+          subjectType: z.enum(CONTENT_TYPES).optional(),
+          subjectId: Id.optional(),
+          /** Event fields for the trigger (type, payload); defaults to the trigger's event. */
+          payload: z.record(z.string(), z.unknown()).optional(),
+          /** Pretend waits for events end with the event happening. */
+          assumeEventHappens: z.boolean().default(false),
+        })
+        .refine((input) => (input.subjectType === undefined) === (input.subjectId === undefined), {
+          message: 'Send subjectType and subjectId together',
+          path: ['subjectId'],
+        }),
     )
     .output(
       z.object({

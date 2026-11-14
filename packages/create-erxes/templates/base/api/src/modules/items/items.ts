@@ -1,5 +1,6 @@
 import { type ORPCErrorConstructorMap, ORPCError } from '@orpc/server';
 import { and, desc, eq, getTableColumns, ilike, sql } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { PERMISSIONS } from '#/core.ts';
 import { uniqueViolation } from '#/db/client.ts';
@@ -12,14 +13,11 @@ const { orgId, ...columns } = getTableColumns(items);
 const Name = z.string().trim().min(1).max(200);
 const Description = z.string().trim().max(5000);
 
-const Item = z.object({
-  id: z.string(),
-  name: Name,
-  description: Description,
-  createdBy: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
+/**
+ * The row as the table stores it, flat and under its column names. A value the row lacks is
+ * selected by the query and added with `.extend()`; no mapper reshapes rows.
+ */
+const Item = createSelectSchema(items).omit({ orgId: true });
 
 /** The failures a client can branch on: `isDefinedError(error) && error.code === ...`. */
 const itemErrors = {

@@ -177,7 +177,8 @@ export const testAutomation = async (
   client: Db,
   id: string,
   input: {
-    subject?: { type: ContentType; id: string };
+    subjectType?: ContentType;
+    subjectId?: string;
     payload?: Record<string, unknown>;
     assumeEventHappens: boolean;
   },
@@ -186,19 +187,19 @@ export const testAutomation = async (
   const { definition } = row;
   const { trigger } = definition;
 
-  const subject = input.subject
-    ? await subjectOf(client, input.subject.type, input.subject.id)
-    : null;
+  const { subjectType = null, subjectId = null } = input;
+  const subject = await subjectOf(client, subjectType, subjectId);
 
-  if (input.subject && !subject)
-    throw notFound(input.subject.type === 'customer' ? 'Customer' : 'Company');
+  if (subjectId && !subject) throw notFound(subjectType === 'customer' ? 'Customer' : 'Company');
 
+  // Shaped like a delivered event, so conditions on `event.subjectId` read the same as in a run.
   const context = {
     event: {
       type: trigger.kind === 'event' ? trigger.event : trigger.kind,
       occurredAt: new Date().toISOString(),
       payload: input.payload ?? {},
-      subject: input.subject ?? null,
+      subjectType,
+      subjectId,
     },
     subject,
     steps: {},
@@ -209,7 +210,7 @@ export const testAutomation = async (
     actions: (await automationCatalog(client)).actions,
     context,
     hasSubject: subject !== null,
-    seed: `test:${input.subject?.id ?? 'none'}`,
+    seed: `test:${subjectId ?? 'none'}`,
     assumeEventHappens: input.assumeEventHappens,
   };
 
