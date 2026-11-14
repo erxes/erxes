@@ -98,7 +98,11 @@ const exportThread = async (thread: StoredThread, title: string) => {
 
   if (!result.success) throw result.error;
 
-  downloadText(`${title}.md`, threadMarkdown(title, result.data), 'text/markdown');
+  downloadText(
+    `${title}.md`,
+    threadMarkdown(title, result.data, window.location.origin),
+    'text/markdown',
+  );
 };
 
 const ThreadMenu = ({

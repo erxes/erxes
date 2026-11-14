@@ -171,30 +171,34 @@ describe('modelToRun', () => {
 
 describe('threadMarkdown', () => {
   it('writes the conversation as Markdown, with answered questions and without tool calls', () => {
-    const markdown = threadMarkdown('Top customers', [
-      user('u1', 'Who are our top customers?'),
-      {
-        id: 'a1',
-        role: 'assistant',
-        parts: [
-          {
-            type: 'tool-ask_user',
-            toolCallId: 'q',
-            state: 'output-available',
-            input: { questions: [{ question: 'Which period?' }] },
-            output: { answers: ['This quarter'] },
-          },
-          {
-            type: 'tool-callApi',
-            toolCallId: 'c',
-            state: 'output-available',
-            input: { procedure: 'customers.list', input: {} },
-            output: { ok: true },
-          },
-          { type: 'text', text: '| Name |\n| --- |\n| Ada |', state: 'done' },
-        ],
-      },
-    ]);
+    const markdown = threadMarkdown(
+      'Top customers',
+      [
+        user('u1', 'Who are our top customers?'),
+        {
+          id: 'a1',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-ask_user',
+              toolCallId: 'q',
+              state: 'output-available',
+              input: { questions: [{ question: 'Which period?' }] },
+              output: { answers: ['This quarter'] },
+            },
+            {
+              type: 'tool-callApi',
+              toolCallId: 'c',
+              state: 'output-available',
+              input: { procedure: 'customers.list', input: {} },
+              output: { ok: true },
+            },
+            { type: 'text', text: '| Name |\n| --- |\n| Ada |', state: 'done' },
+          ],
+        },
+      ],
+      'https://acme.erxes.io',
+    );
 
     expect(markdown).toBe(
       [
@@ -213,5 +217,69 @@ describe('threadMarkdown', () => {
         '',
       ].join('\n'),
     );
+  });
+
+  it('lists attachments as links and writes each artifact into the export', () => {
+    const markdown = threadMarkdown(
+      'Q3 review',
+      [
+        {
+          id: 'u1',
+          role: 'user',
+          parts: [
+            { type: 'text', text: 'Compare with this quote' },
+            {
+              type: 'data-files',
+              data: {
+                files: [
+                  { id: 'f1', name: 'quote.pdf', contentType: 'application/pdf', size: 125_000 },
+                ],
+              },
+            },
+          ],
+        },
+        {
+          id: 'a1',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-createArtifact',
+              toolCallId: 'c1',
+              state: 'output-available',
+              input: {},
+              output: {
+                format: 'csv',
+                title: 'Top customers',
+                filename: 'Top-customers.csv',
+                content: 'Customer,Deals\n"Altai, LLC",3',
+              },
+            },
+            {
+              type: 'tool-createArtifact',
+              toolCallId: 'c2',
+              state: 'output-available',
+              input: {},
+              output: {
+                format: 'html',
+                title: 'Sales report',
+                filename: 'Sales-report.html',
+                content: '<p class="scope">Q3</p>',
+              },
+            },
+            { type: 'text', text: 'Here they are.', state: 'done' },
+          ],
+        },
+      ],
+      'https://acme.erxes.io',
+    );
+
+    expect(markdown).toContain(
+      '- [quote.pdf](https://acme.erxes.io/core/v1/files/f1/download) (PDF · 122 KB)',
+    );
+    expect(markdown).toContain(
+      '### Top customers\n\n| Customer | Deals |\n| --- | --- |\n| Altai, LLC | 3 |',
+    );
+    expect(markdown).toContain('### Sales report\n\n```html\n<p class="scope">Q3</p>\n```');
+    expect(markdown.indexOf('### Sales report')).toBeLessThan(markdown.indexOf('Here they are.'));
   });
 });
