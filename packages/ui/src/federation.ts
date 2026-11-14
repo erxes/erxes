@@ -9,6 +9,8 @@
  * `@tanstack/react-query` because `@orpc/tanstack-query` imports it directly: a
  * plugin's own copy would hold a different `skipToken`, so `input: skipToken`
  * (from the host's `@tanstack/react-query`) would run the query, not disable it.
+ * `nuqs` is shared so a plugin's URL state reads web's `NuqsAdapter`: a plugin's
+ * own copy would find no adapter and throw.
  */
 export const SHARED = [
   'react',
@@ -23,4 +25,5 @@ export const SHARED = [
   'react-i18next',
   '@tanstack/react-query',
   '@tanstack/query-core',
+  'nuqs',
 ];

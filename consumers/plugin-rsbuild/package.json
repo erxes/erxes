@@ -12,6 +12,7 @@
     "erxes-ui": "file:../packs/erxes-ui.tgz",
     "i18next": "^24.2.3",
     "jotai": "^2.20.3",
+    "nuqs": "^2.10.3",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-i18next": "^15.7.4",

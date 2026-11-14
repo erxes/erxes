@@ -16,7 +16,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`), and its first module renders under `/<path>/*`.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
-     shared with `import: false` fails to load.
+     shared with `import: false` fails to load. Plugin UIs keep URL state with the shared `nuqs`
+     under web's `NuqsAdapter`, so they add no adapter of their own.
 2. Classify it. The packages are prereleases on npm's `v2-next` dist-tag (`0.1.0-v2.N` for the
    contract and SDK, `4.0.0-v2.N` for `@erxes/ui`); this policy holds from each one's first
    stable release.
