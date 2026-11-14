@@ -48,6 +48,7 @@ type Listener = ReturnType<typeof listenerOf>;
 /** Collects the member's signals and sends them as one message every `FLUSH_MS`. */
 const signalBatcher = (actor: Listener, send: Send) => {
   let inbox = false;
+  let assistant = false;
   let resync = false;
   const pluginTopics = new Map<string, Set<string>>();
   const timelines = new Map<string, Target>();
@@ -61,6 +62,8 @@ const signalBatcher = (actor: Listener, send: Send) => {
     } else {
       if (inbox) send('inbox');
 
+      if (assistant) send('assistant');
+
       if (timelines.size) send('timeline', { targets: [...timelines.values()] });
     }
 
@@ -68,6 +71,7 @@ const signalBatcher = (actor: Listener, send: Send) => {
     for (const [plugin, topics] of pluginTopics) send('plugin', { plugin, topics: [...topics] });
 
     inbox = false;
+    assistant = false;
     resync = false;
     pluginTopics.clear();
     timelines.clear();
@@ -89,6 +93,10 @@ const signalBatcher = (actor: Listener, send: Send) => {
       if (signal.u !== actor.userId) return;
 
       inbox = true;
+    } else if (signal.k === 'assistant') {
+      if (signal.u !== actor.userId) return;
+
+      assistant = true;
     } else {
       timelines.set(`${signal.t}:${signal.i}`, { targetType: signal.t, targetId: signal.i });
     }

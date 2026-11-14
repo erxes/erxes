@@ -34,6 +34,14 @@ const POLICIES = new Map<string, Policy>(Object.entries(ACCESS));
 
 const unauthorized = () => new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
+export const memberMayCall = (path: string, member: Member) => {
+  const policy = POLICIES.get(path);
+
+  if (!policy || !('member' in policy) || !policy.member) return false;
+
+  return policy.member === 'any' || can(member, policy.member);
+};
+
 const checkMember = (policy: Policy, member: Member) => {
   if (!('member' in policy) || !policy.member) {
     throw new HttpError(403, 'PLUGIN_ONLY', 'Only plugins can do this');

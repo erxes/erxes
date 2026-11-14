@@ -10,6 +10,7 @@ const log = logger.child({ component: 'live' });
 /** What a committed change announces (see migration 0008). */
 const LiveSignal = z.discriminatedUnion('k', [
   z.object({ o: z.string(), k: z.literal('inbox'), u: z.string() }),
+  z.object({ o: z.string(), k: z.literal('assistant'), u: z.string() }),
   /** A customer's or company's timeline. */
   z.object({ o: z.string(), k: z.literal('timeline'), t: z.string(), i: z.string() }),
   /** Many records changed at once (merge, import): refetch everything. */
