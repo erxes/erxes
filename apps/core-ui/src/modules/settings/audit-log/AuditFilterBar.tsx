@@ -50,67 +50,70 @@ export const AuditFilterBar = ({
   const sources = ['core', ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase()))];
 
   return (
-    <PageSubHeader className="flex-wrap items-center">
-      <InputGroup className="w-56">
-        <InputGroup.Addon>
-          <IconSearch className="size-4" />
-        </InputGroup.Addon>
-        <InputGroup.Input
-          value={filters.q}
-          onChange={(event) => onChange({ q: event.target.value })}
-          placeholder={t('search', 'Search actions and records')}
-          aria-label={t('search', 'Search actions and records')}
+    <PageSubHeader>
+      {/* Filters sit 8px apart so the whole set fits one row at 1440px. */}
+      <div className="flex flex-1 flex-wrap items-center gap-2">
+        <InputGroup className="w-56">
+          <InputGroup.Addon>
+            <IconSearch className="size-4" />
+          </InputGroup.Addon>
+          <InputGroup.Input
+            value={filters.q}
+            onChange={(event) => onChange({ q: event.target.value })}
+            placeholder={t('search', 'Search actions and records')}
+            aria-label={t('search', 'Search actions and records')}
+          />
+        </InputGroup>
+        <Select value={filters.area} onValueChange={(area) => onChange({ area })}>
+          <Select.Trigger className="h-7 w-36" aria-label={t('area', 'Area')}>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            {AREAS.map((item) => (
+              <Select.Item key={item.value} value={item.value}>
+                {t(`areas.${item.value.replace(/[.*]/g, '')}`, item.label)}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+        <Select value={filters.source} onValueChange={(source) => onChange({ source })}>
+          <Select.Trigger className="h-7 w-32" aria-label={t('source', 'Source')}>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
+            {sources.map((source) => (
+              <Select.Item key={source} value={source}>
+                {source === 'core' ? 'erxes' : pluginLabel(source)}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+        <ActorSelect value={filters.actorId} onChange={(actorId) => onChange({ actorId })} />
+        <Input
+          type="date"
+          value={filters.from}
+          onChange={(event) => onChange({ from: event.target.value })}
+          className="h-7 w-36"
+          aria-label={t('from', 'From')}
         />
-      </InputGroup>
-      <Select value={filters.area} onValueChange={(area) => onChange({ area })}>
-        <Select.Trigger className="h-7 w-36" aria-label={t('area', 'Area')}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          {AREAS.map((item) => (
-            <Select.Item key={item.value} value={item.value}>
-              {t(`areas.${item.value.replace(/[.*]/g, '')}`, item.label)}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-      <Select value={filters.source} onValueChange={(source) => onChange({ source })}>
-        <Select.Trigger className="h-7 w-32" aria-label={t('source', 'Source')}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
-          {sources.map((source) => (
-            <Select.Item key={source} value={source}>
-              {source === 'core' ? 'erxes' : pluginLabel(source)}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-      <ActorSelect value={filters.actorId} onChange={(actorId) => onChange({ actorId })} />
-      <Input
-        type="date"
-        value={filters.from}
-        onChange={(event) => onChange({ from: event.target.value })}
-        className="h-7 w-36"
-        aria-label={t('from', 'From')}
-      />
-      <span className="text-muted-foreground">–</span>
-      <Input
-        type="date"
-        value={filters.to}
-        onChange={(event) => onChange({ to: event.target.value })}
-        className="h-7 w-36"
-        aria-label={t('to', 'To')}
-      />
-      <Input
-        value={filters.ip}
-        onChange={(event) => onChange({ ip: event.target.value })}
-        placeholder="IP"
-        aria-label="IP"
-        className="h-7 w-32"
-      />
-      <span className="ml-auto text-sm text-muted-foreground">{total}</span>
+        <span className="text-muted-foreground">–</span>
+        <Input
+          type="date"
+          value={filters.to}
+          onChange={(event) => onChange({ to: event.target.value })}
+          className="h-7 w-36"
+          aria-label={t('to', 'To')}
+        />
+        <Input
+          value={filters.ip}
+          onChange={(event) => onChange({ ip: event.target.value })}
+          placeholder="IP"
+          aria-label="IP"
+          className="h-7 w-32"
+        />
+        <span className="ml-auto text-sm text-muted-foreground">{total}</span>
+      </div>
     </PageSubHeader>
   );
 };

@@ -48,7 +48,7 @@ const AddButton = ({ onAdd }: { onAdd: (type: StepType) => void }) => {
     <DropdownMenu>
       <DropdownMenu.Trigger
         aria-label={t('add-step', 'Add step')}
-        render={<Button variant="outline" size="icon" className="relative z-10 size-6" />}
+        render={<Button variant="insert" size="icon" className="relative z-10 size-6" />}
       >
         <IconPlus className="size-3.5" />
       </DropdownMenu.Trigger>

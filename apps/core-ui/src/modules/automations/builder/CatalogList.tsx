@@ -139,8 +139,8 @@ const Categories = ({
               key={group.key}
               value={`category:${group.key}`}
               onSelect={() => onOpen(group.key)}
+              variant="tile"
               checked={selectedKey === group.key}
-              className="h-auto"
             >
               <span
                 className={cn(

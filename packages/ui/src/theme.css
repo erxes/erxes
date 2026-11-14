@@ -136,11 +136,6 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  /* An entrance from an offset and scale the element sets as --appear-x, --appear-y and
-     --appear-scale, timed by --appear-duration, --appear-easing and --appear-delay. */
-  --animate-appear: appear var(--appear-duration, 500ms) var(--appear-easing, ease-out)
-    var(--appear-delay, 0ms) both;
-
   --animate-first: move-vertical 30s ease infinite;
   --animate-second: move-in-circle 20s reverse infinite;
   --animate-third: move-in-circle 40s linear infinite;
@@ -237,6 +232,11 @@
    get half the viewport. */
 @theme inline {
   --max-height-popup: min(24rem, var(--available-height, 50dvh));
+  /* An entrance from an offset and scale the element sets as --appear-x, --appear-y and
+     --appear-scale, timed by --appear-duration, --appear-easing and --appear-delay. Inline,
+     so those resolve on the element rather than on :root. */
+  --animate-appear: appear var(--appear-duration, 500ms) var(--appear-easing, ease-out)
+    var(--appear-delay, 0ms) both;
 }
 
 /* Spoke --spoke (0 to 9) of Spinner's ten: a bar left of the centre, turned about a point one

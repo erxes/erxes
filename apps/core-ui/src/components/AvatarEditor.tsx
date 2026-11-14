@@ -21,6 +21,8 @@ const AvatarUpload = ({
   compact?: boolean;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'avatar' });
+  // In a form row the buttons match the row's 28px inputs.
+  const buttonSize = compact ? 'default' : 'sm';
 
   return (
     <Upload.Root
@@ -36,11 +38,11 @@ const AvatarUpload = ({
     >
       <Upload.Preview variant="avatar" size={compact ? 'sm' : 'default'} />
       <div className={cn('flex gap-1.5', compact ? 'items-center' : 'flex-col')}>
-        <Upload.Button size="sm" variant="outline" type="button" />
+        <Upload.Button size={buttonSize} variant="outline" type="button" />
         {/* Clears the picture; the stored file stays (erxes-ui's remove button would delete it by name). */}
         {value && (
           <Button
-            size="sm"
+            size={buttonSize}
             variant="ghost"
             type="button"
             tone="muted"

@@ -69,15 +69,13 @@ export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
 
-export { MultipleSelector, Slider } from './components/on-demand';
+export { MultipleSelector, Resizable, Slider } from './components/on-demand';
 
 export { type MultiSelectOption } from './components/multiselect';
 
 export { Popover } from './components/popover';
 
 export { RadioGroup } from './components/radio-group';
-
-export { Resizable } from './components/resizable';
 
 export { ScrollArea } from './components/scroll-area';
 

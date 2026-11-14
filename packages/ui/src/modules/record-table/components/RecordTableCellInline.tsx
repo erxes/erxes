@@ -71,7 +71,8 @@ const RecordTableCellContent = ({ className, ...props }: PopoverContentProps) =>
       variant="flush"
       className={cn(
         'w-(--anchor-width) min-w-56',
-        !className && 'has-[>input]:w-(--anchor-width) has-[>input]:min-w-0 [&>input]:h-8',
+        !className &&
+          'has-[>input]:w-(--anchor-width) has-[>input]:min-w-0 [&>input]:h-8 [&>input]:px-2',
         className,
       )}
       {...props}
@@ -133,6 +134,8 @@ const RecordTableInlineAnchor = ({
 };
 
 export const RecordTableInlineCell = Object.assign(RecordTableCellDisplay, {
+  /** Names the triggers inside by the element with this id, as the column head does in a table. */
+  LabelledBy: CellColumnHead,
   Trigger: RecordTableCellTrigger,
   Content: RecordTableCellContent,
   Anchor: RecordTableInlineAnchor,

@@ -16,7 +16,6 @@ const variants = cva(
         outline: 'shadow-sm bg-background shadow-button-outline hover:bg-accent',
         secondary: 'bg-accent text-foreground hover:bg-border',
         ghost: 'hover:bg-accent-foreground/10',
-        link: 'bg-background shadow-button-outline hover:bg-accent text-primary-text',
         /** Top bar and app switcher: the current page and an open menu are tinted primary. */
         nav: 'hover:bg-accent-foreground/10 aria-[current=page]:bg-primary/10 aria-[current=page]:text-primary-text aria-[current=page]:hover:bg-primary/15 data-popup-open:bg-primary/10 data-popup-open:text-primary-text data-popup-open:hover:bg-primary/15',
         /** Fills a table cell edge to edge; focus is an inset ring. */
@@ -28,6 +27,9 @@ const variants = cva(
         dashed: 'border border-dashed text-muted-foreground hover:bg-muted',
         /** Floats over an image or a lightbox. */
         overlay: 'rounded-full bg-background/80 hover:bg-background',
+        /** A round "+" that inserts between two items, such as automation steps. */
+        insert:
+          'rounded-full border bg-background text-muted-foreground shadow-xs hover:border-primary hover:text-primary-text',
       },
       tone: {
         default: '',
