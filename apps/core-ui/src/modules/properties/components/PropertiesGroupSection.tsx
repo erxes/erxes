@@ -19,7 +19,7 @@ import {
   buttonVariants,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { propertiesPath } from '../constants';
@@ -88,9 +88,7 @@ type GroupShellProps = {
   addPath: string;
   handle?: ReactNode;
   actions?: ReactNode;
-  className?: string;
-  style?: CSSProperties;
-} & React.RefAttributes<HTMLDivElement>;
+};
 
 /** A group's header and its fields table; `handle` and `actions` are the manager's controls. */
 const GroupShell = ({
@@ -99,8 +97,6 @@ const GroupShell = ({
   addPath,
   handle,
   actions,
-  className,
-  ...rest
 }: GroupShellProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
@@ -119,8 +115,7 @@ const GroupShell = ({
 
   return (
     <Collapsible
-      {...rest}
-      className={cn('group', className)}
+      className="group"
       open={open}
       onOpenChange={(value) => {
         toggled.current = true;
@@ -193,32 +188,38 @@ export const PropertiesGroupSection = ({
   });
 
   return (
-    <GroupShell
+    <div
       ref={setNodeRef}
-      name={group.name}
-      fields={fields}
-      addPath={`${propertiesPath(contentType)}/${group.id}/add`}
-      className={cn(isDragging && 'z-10 opacity-40')}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      handle={
-        manager ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            tone="muted"
-            className="shrink-0 cursor-grab"
-            aria-label={t('reorder-group', 'Reorder group')}
-            {...attributes}
-            {...listeners}
-          >
-            <IconGripVertical />
-          </Button>
-        ) : undefined
-      }
-      actions={
-        manager ? <PropertiesGroupActions group={group} contentType={contentType} /> : undefined
-      }
-    />
+      className={cn('sortable', isDragging && 'z-10 opacity-40')}
+      style={{
+        '--sortable-transform': CSS.Transform.toString(transform),
+        '--sortable-transition': transition,
+      }}
+    >
+      <GroupShell
+        name={group.name}
+        fields={fields}
+        addPath={`${propertiesPath(contentType)}/${group.id}/add`}
+        handle={
+          manager ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              tone="muted"
+              className="shrink-0 cursor-grab"
+              aria-label={t('reorder-group', 'Reorder group')}
+              {...attributes}
+              {...listeners}
+            >
+              <IconGripVertical />
+            </Button>
+          ) : undefined
+        }
+        actions={
+          manager ? <PropertiesGroupActions group={group} contentType={contentType} /> : undefined
+        }
+      />
+    </div>
   );
 };
 

@@ -75,8 +75,8 @@ export const RecordTableHeader = ({
                     {isCovered ? <div className="pl-8">{headerContent}</div> : headerContent}
                     {isAnchor && (
                       <div
-                        className="absolute top-0 z-20 h-full w-8 border-r bg-sidebar"
-                        style={{ left: `${slot.offset}px` }}
+                        className="absolute top-0 left-(--selector-left) z-20 h-full w-8 border-r bg-sidebar"
+                        style={{ '--selector-left': `${slot.offset}px` }}
                       >
                         <RecordTableColumnSelector />
                       </div>

@@ -26,9 +26,9 @@ export const RecordTableCell = ({
     <Table.Cell
       ref={ref}
       className={cn(
-        'p-0 transition-colors isolate',
+        'p-0 transition-colors isolate w-(--cell-width)',
         pinned && [
-          'sticky z-1',
+          'sticky z-1 left-(--cell-start)',
           'bg-background',
           'group-hover/table-row:bg-background',
           'group-data-[state=selected]/table-row:bg-background',
@@ -39,8 +39,8 @@ export const RecordTableCell = ({
         className,
       )}
       style={{
-        width: `var(--col-${columnId}-width)`,
-        left: pinned ? `var(--col-${columnId}-start)` : undefined,
+        '--cell-width': `var(--col-${columnId}-width)`,
+        '--cell-start': pinned ? `var(--col-${columnId}-start)` : undefined,
         ...style,
       }}
       {...props}

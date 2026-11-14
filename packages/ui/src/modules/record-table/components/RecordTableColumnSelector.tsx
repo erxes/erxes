@@ -78,17 +78,15 @@ const SortableColumnItem = ({
     disabled: pinned,
   });
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
-
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        '--sortable-transform': CSS.Translate.toString(transform),
+        '--sortable-transition': transition,
+      }}
       className={cn(
-        'flex items-center gap-2 px-2 py-1.5 hover:bg-muted/50 rounded-sm',
+        'sortable flex items-center gap-2 px-2 py-1.5 hover:bg-muted/50 rounded-sm',
         isDragging && 'opacity-50 bg-muted',
       )}
     >

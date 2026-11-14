@@ -38,9 +38,12 @@ const LayoutItem = ({ field }: { field: Field }) => {
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
+      style={{
+        '--sortable-transform': CSS.Transform.toString(transform),
+        '--sortable-transition': transition,
+      }}
       className={cn(
-        'flex items-center gap-2 rounded-md border bg-background px-2 py-1.5 text-sm',
+        'sortable flex items-center gap-2 rounded-md border bg-background px-2 py-1.5 text-sm',
         isDragging && 'z-10 opacity-40',
         !field.isVisible && 'text-muted-foreground',
       )}
