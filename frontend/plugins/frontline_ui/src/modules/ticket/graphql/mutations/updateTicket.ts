@@ -21,6 +21,8 @@ export const UPDATE_TICKET_MUTATION = gql(`
     $propertiesData: JSON
     $state: String
     $attachments: [AttachmentInput]
+    $customerId: String
+    $companyId: String
   ) {
     updateTicket(
       _id: $_id
@@ -42,6 +44,8 @@ export const UPDATE_TICKET_MUTATION = gql(`
       propertiesData: $propertiesData
       state: $state
       attachments: $attachments
+      customerId: $customerId
+      companyId: $companyId
     ) {
       _id
       name
@@ -62,6 +66,8 @@ export const UPDATE_TICKET_MUTATION = gql(`
       isSubscribed
       state
       propertiesData
+      customerId
+      companyId
       attachments {
         name
         url
