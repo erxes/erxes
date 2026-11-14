@@ -13,9 +13,7 @@ are the reference feature: copy their shape for a new one.
 ## This repo
 
 - `vp run check` runs the escape guard, format, lint, types, knip, the docs guard
-  and `pnpm check:generated`. The drift check compares migrations with the schema
-  and `api/openapi.json` with the router's request and response schemas. After a
-  deliberate contract change, run `pnpm openapi` and commit the document.
+  and `pnpm check:generated`, which compares the migrations with the schema.
 - Other gates: `vp run test` on real Postgres via `DATA_TEST_URL`,
   `pnpm check:rls`, `pnpm build`. `vp run fix` formats and fixes lint.
 - Core finds the plugin by these names, so they stay fixed: plugin `__id__`,

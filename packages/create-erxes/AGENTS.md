@@ -17,8 +17,7 @@ has a flag (`src/cli.ts`); `-y` takes the defaults.
   version in `packages/lint/package.json` into the template's `package.json`, so a plugin depends
   on the `@erxes/lint` its CLI was packed with.
 - `vp run check` in a generated plugin also runs the shipped escape and docs guards, knip,
-  migration drift and the OpenAPI contract drift check. The plugin's `openapi` task updates
-  its committed document.
+  and migration drift. Plugins commit no OpenAPI document: that is for core's external integrations.
 - `src/__tests__/e2e.test.ts` packs nothing itself: CI's packages job packs core's packages and
   this one, then runs `vp test run --project create-erxes-e2e` with `CREATE_ERXES_PACKS` set to the
   tarballs. Each flow generates a plugin, points it at the tarballs and runs its `vp run check`,

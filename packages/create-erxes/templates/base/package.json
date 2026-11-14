@@ -9,7 +9,6 @@
     "db:generate": "pnpm --filter @__id__/api db:generate",
     "db:check": "pnpm --filter @__id__/api db:check",
     "db:migrate": "pnpm --filter @__id__/api db:migrate",
-    "openapi": "pnpm --filter @__id__/api openapi",
     "check:generated": "node tools/check-generated.ts",
     "check:rls": "bash tools/check-rls.sh",
     "dev:api": "pnpm --filter @__id__/api dev",

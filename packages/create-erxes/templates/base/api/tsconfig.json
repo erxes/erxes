@@ -5,5 +5,5 @@
     "moduleResolution": "nodenext",
     "types": ["node"]
   },
-  "include": ["src", "scripts", "drizzle.config.ts"]
+  "include": ["src", "drizzle.config.ts"]
 }

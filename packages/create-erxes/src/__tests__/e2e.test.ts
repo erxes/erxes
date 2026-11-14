@@ -186,13 +186,6 @@ describe.each([
     );
     await writeFile(agents, docs);
 
-    const contract = join(dir, 'api/openapi.json');
-    const document = await readFile(contract, 'utf8');
-
-    await writeFile(contract, document.replace('"v1"', '"drift"'));
-    await expect(run('pnpm', ['check:generated'], dir)).rejects.toThrow('Contract drift');
-    await writeFile(contract, document);
-
     const schema = join(dir, 'api/src/db/schema.ts');
     const tables = await readFile(schema, 'utf8');
 
