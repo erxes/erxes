@@ -3,7 +3,7 @@ import { plugins } from '@erxes/core-db';
 import { createCoreClient, verifyPluginSession } from '@erxes/plugin-sdk';
 import { eq, sql } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import type { z } from 'zod';
 import { signJwt } from '~/lib/signing';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
@@ -251,5 +251,74 @@ describe('plugin connection (registry, installations, tokens)', () => {
         'not an erxes erxes-plugin-session+jwt token',
       );
     }
+  });
+
+  it("allows a plugin server's clock to run up to a minute ahead of core's", async () => {
+    const coreUrl = t.url('');
+    const { token } = await t.member().plugins.session({ name: 'hr' });
+    const verify = () => verifyPluginSession(token, { coreUrl, plugin: 'hr' });
+    const issued = Date.now();
+
+    vi.useFakeTimers({ toFake: ['Date'] });
+
+    try {
+      // The token lasts 5 minutes; this server's clock says 5 minutes and 30 seconds.
+      vi.setSystemTime(issued + 5.5 * 60_000);
+      await expect(verify()).resolves.toMatchObject({ orgId: t.ids.org });
+
+      vi.setSystemTime(issued + 7 * 60_000);
+      await expect(verify()).rejects.toThrow('"exp" claim timestamp check failed');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('rides out a failed token request and core refusing its token, renewing once', async () => {
+    let tokenRequests = 0;
+    let firstToken = '';
+
+    const core = createCoreClient({
+      coreUrl: t.url(''),
+      plugin: 'hr',
+      clientSecret: await rotatePluginSecret('hr'),
+      fetch: (input, init) => {
+        const request = new Request(input, init);
+
+        if (request.url.endsWith('/plugins/token')) {
+          tokenRequests += 1;
+
+          // Core restarting: the first token request fails.
+          return tokenRequests === 1
+            ? Promise.resolve(new Response('restarting', { status: 503 }))
+            : fetch(request);
+        }
+
+        const token = request.headers.get('authorization') ?? '';
+
+        firstToken ||= token;
+
+        // Core no longer takes the first token, as after its signing key is replaced.
+        return token === firstToken
+          ? Promise.resolve(Response.json({ code: 'UNAUTHORIZED' }, { status: 401 }))
+          : fetch(request);
+      },
+    });
+
+    const titles = ['one', 'two', 'three', 'four', 'five'];
+
+    const sent = await Promise.all(
+      titles.map((title) =>
+        core.forOrg(t.ids.org).notifications.create({
+          userIds: [t.ids.owner],
+          kind: 'hr.leave.requested',
+          title,
+        }),
+      ),
+    );
+
+    // Every call went through with its body, sent a second time.
+    expect(sent.map((each) => each.created)).toEqual([1, 1, 1, 1, 1]);
+    // The failed request and its retry, then one new token for all five refused calls.
+    expect(tokenRequests).toBe(3);
   });
 });

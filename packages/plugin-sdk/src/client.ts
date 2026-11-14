@@ -38,13 +38,22 @@ const TokenAnswer = z.object({
   message: z.string().optional(),
 });
 
-export const createCoreClient = (options: CoreClientOptions) => {
-  const fetcher = options.fetch ?? globalThis.fetch;
-  const base = options.coreUrl.replace(/\/+$/, '');
+/** A cached token is replaced this long before it ends, so no call carries an expiring one. */
+const RENEW_BEFORE_MS = 60_000;
+
+/** The pause before the one retry of a token request that failed on core's side. */
+const TOKEN_RETRY_MS = 500;
+
+/** The plugin's core tokens, one per organisation (and one for the deployment), kept fresh. */
+const pluginTokens = (
+  options: CoreClientOptions,
+  fetcher: typeof globalThis.fetch,
+  base: string,
+) => {
   const tokens = new Map<string, Promise<CachedToken>>();
 
-  const requestToken = async (org?: string): Promise<CachedToken> => {
-    const response = await fetcher(`${base}${CORE_API_PREFIX}/plugins/token`, {
+  const askOnce = (org?: string) =>
+    fetcher(`${base}${CORE_API_PREFIX}/plugins/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -54,6 +63,26 @@ export const createCoreClient = (options: CoreClientOptions) => {
         org,
       }),
     });
+
+  /** Core restarting or a network blip gets one more try; the second failure is the answer. */
+  const ask = async (org?: string) => {
+    try {
+      const response = await askOnce(org);
+
+      if (response.status < 500) return response;
+
+      await response.body?.cancel();
+    } catch {
+      // The connection failed: the second try below reports it if it fails again.
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, TOKEN_RETRY_MS));
+
+    return askOnce(org);
+  };
+
+  const requestToken = async (org?: string): Promise<CachedToken> => {
+    const response = await ask(org);
 
     // An answer that isn't this shape carries no token: CoreTokenError below.
     const body = TokenAnswer.safeParse(await response.json().catch(() => null)).data ?? {};
@@ -69,42 +98,65 @@ export const createCoreClient = (options: CoreClientOptions) => {
     return { token: body.access_token, expiresAt: Date.now() + (body.expires_in ?? 900) * 1000 };
   };
 
-  /** A token for the organisation (or the deployment), renewed a minute before it ends. */
-  const tokenFor = async (org?: string, fresh = false): Promise<string> => {
+  /**
+   * The organisation's (or the deployment's) token, renewed a minute before it
+   * ends. `refused` is a token core just turned down: it is replaced once, for
+   * every call that failed with it at the same time.
+   */
+  return async (org?: string, refused?: string): Promise<string> => {
     const key = org ?? '';
     const cached = tokens.get(key);
 
-    if (cached && !fresh) {
+    if (cached) {
       const value = await cached.catch(() => null);
 
-      if (value && value.expiresAt - Date.now() > 60_000) return value.token;
+      if (value && value.token !== refused && value.expiresAt - Date.now() > RENEW_BEFORE_MS) {
+        return value.token;
+      }
+
+      // Another call is renewing it already.
+      const renewing = tokens.get(key);
+
+      if (renewing && renewing !== cached) return (await renewing).token;
     }
 
     const request = requestToken(org);
 
     tokens.set(key, request);
-    request.catch(() => tokens.delete(key));
+    request.catch(() => {
+      if (tokens.get(key) === request) tokens.delete(key);
+    });
 
     return (await request).token;
   };
+};
+
+export const createCoreClient = (options: CoreClientOptions) => {
+  const fetcher = options.fetch ?? globalThis.fetch;
+  const base = options.coreUrl.replace(/\/+$/, '');
+  const tokenFor = pluginTokens(options, fetcher, base);
 
   const clientFor = (org?: string): CoreClient =>
     createORPCClient(
       new OpenAPILink(coreRoutes, {
         url: `${base}${CORE_API_PREFIX}`,
         fetch: async (request, init) => {
-          const send = async (token: string) => {
+          // Read once: a request's body can be sent only once, and a 401 sends it again.
+          const body = request.body ? await request.arrayBuffer() : undefined;
+
+          const send = (token: string) => {
             const headers = new Headers(request.headers);
 
             headers.set('authorization', `Bearer ${token}`);
 
-            return fetcher(new Request(request, { headers }), init);
+            return fetcher(new Request(request, body ? { headers, body } : { headers }), init);
           };
 
-          const response = await send(await tokenFor(org));
+          const token = await tokenFor(org);
+          const response = await send(token);
 
-          // Uninstalled and reinstalled, or scopes changed: try once with a new token.
-          return response.status === 401 ? send(await tokenFor(org, true)) : response;
+          // Core refused a token it issued (its signing key replaced): once more with a new one.
+          return response.status === 401 ? send(await tokenFor(org, token)) : response;
         },
       }),
     );
