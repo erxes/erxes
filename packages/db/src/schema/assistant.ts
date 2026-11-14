@@ -1,4 +1,9 @@
-import { ASSISTANT_APPROVAL_MODES, ASSISTANT_MESSAGE_ROLES, ASSISTANT_PROVIDERS } from '../enums';
+import {
+  ASSISTANT_APPROVAL_MODES,
+  ASSISTANT_MESSAGE_ROLES,
+  ASSISTANT_PROVIDERS,
+  ASSISTANT_RECORD_TYPES,
+} from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -105,6 +110,40 @@ export const assistantMessages = pgTable(
       columns: [table.orgId],
       foreignColumns: [organizations.id],
       name: 'core_assistant_messages_org_id_fkey',
+    }).onDelete('cascade'),
+  ],
+);
+
+export const assistantReferences = pgTable(
+  'assistant_references',
+  {
+    id: text().primaryKey(),
+    orgId: orgIdColumn(),
+    threadId: text().notNull(),
+    recordType: text({ enum: ASSISTANT_RECORD_TYPES }).notNull(),
+    recordId: text().notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex('core_assistant_references_thread_record_key').on(
+      table.orgId,
+      table.threadId,
+      table.recordType,
+      table.recordId,
+    ),
+    check(
+      'core_assistant_references_record_type_check',
+      inList(table.recordType, ASSISTANT_RECORD_TYPES),
+    ),
+    foreignKey({
+      columns: [table.threadId],
+      foreignColumns: [assistantThreads.id],
+      name: 'core_assistant_references_thread_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_assistant_references_org_id_fkey',
     }).onDelete('cascade'),
   ],
 );

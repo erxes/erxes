@@ -302,6 +302,14 @@ export const ASSISTANT_MESSAGE_ROLES = ['user', 'assistant'] as const;
 
 export const ASSISTANT_QUESTION_MODES = ['single_select', 'multi_select'] as const;
 
+export const ASSISTANT_RECORD_TYPES = [
+  'customer',
+  'company',
+  'member',
+  'product',
+  'automation',
+] as const;
+
 // ─── Settings ───────────────────────────────────────────────────────────────
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;

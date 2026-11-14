@@ -18,6 +18,7 @@ export {
   activities,
   assistantConnections,
   assistantMessages,
+  assistantReferences,
   assistantSettings,
   assistantThreads,
   automationRuns,
