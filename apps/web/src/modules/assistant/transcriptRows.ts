@@ -21,6 +21,8 @@ const CallApiInput = z.object({
 
 const SearchApiInput = z.object({ query: z.string() });
 
+const LoadSkillInput = z.object({ name: z.string() });
+
 const Refusal = z.object({ ok: z.literal(false), message: z.string() });
 
 const Question = z.object({
@@ -97,11 +99,12 @@ const errorOf = (part: ToolPart) => {
 const stepOf = (part: ToolPart): Step => {
   const tool = getToolName(part);
   const call = tool === 'callApi' ? CallApiInput.safeParse(part.input).data : undefined;
+  const skill = tool === 'loadSkill' ? LoadSkillInput.safeParse(part.input).data : undefined;
 
   return {
     key: part.toolCallId,
     tool,
-    name: call?.procedure ?? tool,
+    name: call?.procedure ?? skill?.name ?? tool,
     query: tool === 'searchApi' ? (SearchApiInput.safeParse(part.input).data?.query ?? null) : null,
     status: statusOf(part),
     input: call?.input ?? part.input,

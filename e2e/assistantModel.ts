@@ -239,6 +239,24 @@ const explainSelection = ({ seen }: Turn): Reply => {
   };
 };
 
+const automationPlan = ({ calls }: Turn): Reply => {
+  if (calls.length === 0) return { tool: 'loadSkill', input: { name: 'author-automation' } };
+
+  if (calls.length === 1) return { tool: 'searchApi', input: { query: 'automation triggers' } };
+
+  return {
+    text: [
+      'Here is the draft I will save. It stays off until you turn it on in Automations:',
+      '',
+      '- **Name:** Tag website leads',
+      '- **When:** a lead is created with source *Website*',
+      '- **Then:** add the tag `website` and assign the lead to the sales team',
+      '',
+      'Shall I create the draft?',
+    ].join('\n'),
+  };
+};
+
 const NAMED = /^Add a customer named (.+)$/;
 
 export const script = (request: ChatRequest): Reply => {
@@ -250,6 +268,8 @@ export const script = (request: ChatRequest): Reply => {
   if (turn.asked.startsWith('Who are our top')) return topCustomers(turn);
 
   if (turn.asked.startsWith('Draft a welcome')) return welcome(turn);
+
+  if (turn.asked.startsWith('Set up an automation')) return automationPlan(turn);
 
   if (turn.asked.startsWith('Make a sales report'))
     return deliver(turn, {
@@ -288,6 +308,8 @@ export const titles: Titles = (prompt) => {
   if (prompt.startsWith('Who are our top')) return 'Top customers this quarter';
 
   if (prompt.startsWith('Draft a welcome')) return 'Welcome message for new customers';
+
+  if (prompt.startsWith('Set up an automation')) return 'Tag website leads';
 
   if (prompt.startsWith('Hello there')) return 'Greeting';
 

@@ -56,6 +56,22 @@ const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
 
   if (step.tool === 'createArtifact') return artifactStepLabel(step, t);
 
+  if (step.tool === 'loadSkill') {
+    return step.status === 'failed'
+      ? t('step.skill-failed', 'Could not read the {{name}} skill', { name: step.name })
+      : t('step.skill', 'Read the {{name}} skill', { name: step.name });
+  }
+
+  if (step.tool === 'runCode') {
+    return {
+      running: t('step.code-running', 'Running a program'),
+      waiting: t('step.code-running', 'Running a program'),
+      done: t('step.code-done', 'Ran a program'),
+      failed: t('step.code-failed', 'The program failed'),
+      declined: t('step.code-failed', 'The program failed'),
+    }[step.status];
+  }
+
   const labels: Record<StepStatus, string> = {
     running: t('step.running', 'Calling {{name}}', { name: step.name }),
     waiting: t('step.waiting', 'Waiting for approval: {{name}}', { name: step.name }),

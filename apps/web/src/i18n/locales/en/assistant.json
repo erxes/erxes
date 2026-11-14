@@ -114,7 +114,12 @@
     "read-file-failed": "Could not read an attachment",
     "reading-file": "Reading an attachment",
     "artifact": "Creating “{{title}}”",
-    "artifact-failed": "Could not create “{{title}}”"
+    "artifact-failed": "Could not create “{{title}}”",
+    "skill": "Read the {{name}} skill",
+    "skill-failed": "Could not read the {{name}} skill",
+    "code-running": "Running a program",
+    "code-done": "Ran a program",
+    "code-failed": "The program failed"
   },
   "attach": {
     "files": "Attach files",

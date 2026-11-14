@@ -187,3 +187,15 @@ test('a member edits the newest question, sees the note, and asks again', async 
   await expect(panel.getByText('Goodbye! Talk soon.')).toHaveCount(1);
   await expect(panel.getByText(`Hello there ${suffix}`)).toBeHidden();
 });
+
+test('the assistant reads a skill before it plans an automation, and says so', async ({ page }) => {
+  const panel = await openAssistant(page);
+
+  await ask(panel, `Set up an automation that tags website leads ${unique()}`);
+  await expect(panel.getByText('Shall I create the draft?')).toBeVisible();
+
+  await panel.getByRole('button', { name: '2 steps' }).click();
+  await expect(panel.getByText('Read the author-automation skill')).toBeVisible();
+  await expect(panel.getByText('Searched the API for “automation triggers”')).toBeVisible();
+  await expectAccessible(page);
+});

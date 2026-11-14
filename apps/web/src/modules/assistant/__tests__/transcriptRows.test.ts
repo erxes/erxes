@@ -63,6 +63,35 @@ describe('transcriptRows', () => {
     });
   });
 
+  it('names a loaded skill by the skill, and a program run by what it did', () => {
+    const rows = transcriptRows([
+      {
+        type: 'tool-loadSkill',
+        toolCallId: 's1',
+        state: 'output-available',
+        input: { name: 'author-automation' },
+        output: { ok: true, name: 'author-automation', instructions: '…' },
+      },
+      {
+        type: 'tool-runCode',
+        toolCallId: 'r1',
+        state: 'output-available',
+        input: { code: 'return 1;' },
+        output: { ok: false, code: 'TIMEOUT', message: 'The program ran past 10 seconds' },
+      },
+    ]);
+
+    expect(rows).toMatchObject([
+      {
+        kind: 'steps',
+        steps: [
+          { tool: 'loadSkill', name: 'author-automation', status: 'done' },
+          { tool: 'runCode', status: 'failed', error: 'The program ran past 10 seconds' },
+        ],
+      },
+    ]);
+  });
+
   it('marks a step failed when the tool errored or the API refused it', () => {
     const rows = transcriptRows([
       {
