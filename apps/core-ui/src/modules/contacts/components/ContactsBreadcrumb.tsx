@@ -23,7 +23,7 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
   return (
     <>
       <Breadcrumb>
-        <Breadcrumb.List className="gap-1">
+        <Breadcrumb.List>
           <Breadcrumb.Item>
             <Link to={ContactsPath.Index} className={buttonVariants({ variant: 'ghost' })}>
               <IconBookmarksFilled />
@@ -50,7 +50,8 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Breadcrumb.Page
-                  className="block max-w-64 truncate px-3 py-1 leading-5"
+                  variant="text"
+                  className="block max-w-64"
                   title={typeof title === 'string' ? title : undefined}
                 >
                   {title}

@@ -1,9 +1,8 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Kbd } from 'erxes-ui';
+import { Button, Kbd, PageHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
-import { ContactsPageHeader } from '../components/ContactsPageHeader';
 import { useCreateHotkey } from '../customers/CustomersHeader';
 import { ExportButton } from '~/modules/transfer/ExportButton';
 import { ImportButton } from '~/modules/transfer/ImportButton';
@@ -27,14 +26,14 @@ const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'custome
 };
 
 export const CompaniesHeader = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => (
-  <ContactsPageHeader>
-    <ContactsPageHeader.Start>
+  <PageHeader>
+    <PageHeader.Start variant="flush">
       <ContactsBreadcrumb />
-    </ContactsPageHeader.Start>
-    <ContactsPageHeader.End>
+    </PageHeader.Start>
+    <PageHeader.End>
       <ImportButton recordType="company" />
       <ExportButton recordType="company" />
       <CompanyCreateButton state={state} />
-    </ContactsPageHeader.End>
-  </ContactsPageHeader>
+    </PageHeader.End>
+  </PageHeader>
 );

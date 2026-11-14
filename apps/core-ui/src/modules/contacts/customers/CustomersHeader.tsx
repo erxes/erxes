@@ -1,11 +1,10 @@
 import type { CustomerState } from '@erxes/core-contract';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Kbd } from 'erxes-ui';
+import { Button, Kbd, PageHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { usePageHotkey } from '~/lib/usePageHotkey';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
-import { ContactsPageHeader } from '../components/ContactsPageHeader';
 import { ExportButton } from '~/modules/transfer/ExportButton';
 import { ImportButton } from '~/modules/transfer/ImportButton';
 
@@ -35,14 +34,14 @@ const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
 };
 
 export const CustomersHeader = ({ state }: { state: CustomerState }) => (
-  <ContactsPageHeader>
-    <ContactsPageHeader.Start>
+  <PageHeader>
+    <PageHeader.Start variant="flush">
       <ContactsBreadcrumb />
-    </ContactsPageHeader.Start>
-    <ContactsPageHeader.End>
+    </PageHeader.Start>
+    <PageHeader.End>
       <ImportButton recordType={state} />
       <ExportButton recordType={state} />
       <CustomerCreateButton state={state} />
-    </ContactsPageHeader.End>
-  </ContactsPageHeader>
+    </PageHeader.End>
+  </PageHeader>
 );

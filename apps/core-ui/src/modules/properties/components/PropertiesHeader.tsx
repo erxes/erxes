@@ -21,7 +21,7 @@ export const PropertiesHeader = ({ contentType }: { contentType: FieldContentTyp
     <PageHeader>
       <PageHeader.Start>
         <Breadcrumb>
-          <Breadcrumb.List className="gap-1">
+          <Breadcrumb.List>
             <Breadcrumb.Item>
               <Link to={propertyType.basePath} className={buttonVariants({ variant: 'ghost' })}>
                 <IconHierarchy2 />
@@ -39,7 +39,7 @@ export const PropertiesHeader = ({ contentType }: { contentType: FieldContentTyp
               <>
                 <Breadcrumb.Separator />
                 <Breadcrumb.Item>
-                  <Breadcrumb.Page className="px-3 text-sm font-medium">
+                  <Breadcrumb.Page variant="text">
                     {onAdd
                       ? t('add-property', 'Add Property')
                       : t('edit-property', 'Edit Property')}

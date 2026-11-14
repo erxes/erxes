@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { IconDots } from '@tabler/icons-react';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { Separator } from './separator';
 import { cn } from '../lib/utils';
 
@@ -32,11 +33,28 @@ const BreadcrumbLink = ({ className, children, ...props }: React.ComponentProps<
   </a>
 );
 
-const BreadcrumbPage = ({ ref, className, ...props }: React.ComponentProps<'span'>) => (
+const breadcrumbPageVariants = cva('font-medium text-foreground', {
+  variants: {
+    variant: {
+      // Wraps a link that brings its own look.
+      default: '',
+      // Plain text, padded to line up with the ghost-button crumbs beside it.
+      text: 'truncate px-3 py-1 leading-5',
+    },
+  },
+  defaultVariants: { variant: 'default' },
+});
+
+const BreadcrumbPage = ({
+  ref,
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<'span'> & VariantProps<typeof breadcrumbPageVariants>) => (
   <span
     ref={ref}
     aria-current="page"
-    className={cn('font-medium text-foreground', className)}
+    className={cn(breadcrumbPageVariants({ variant }), className)}
     {...props}
   />
 );
