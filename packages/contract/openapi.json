@@ -5995,11 +5995,22 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 64
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
                   "type",
-                  "id"
+                  "id",
+                  "name"
                 ]
               },
               {

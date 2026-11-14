@@ -32,8 +32,12 @@ test('a member creates an automation, turns it on and it runs', async ({ page, a
     )
     .toBe('succeeded');
 
+  // The tab counts the runs its list shows, without a reload.
+  await expect(page.getByRole('tab', { name: /^Runs \([1-9]\d*\)$/ })).toBeVisible({
+    timeout: 10_000,
+  });
   await page.getByRole('tab', { name: /^Runs/ }).click();
-  await page.getByRole('button', { name: new RegExp(`^Done ${customer.id}`) }).click();
+  await page.getByRole('button', { name: new RegExp(`^Done Ada ${suffix}`) }).click();
   await expect(page.getByText('core.note.add')).toBeVisible();
   await expectAccessible(page);
 

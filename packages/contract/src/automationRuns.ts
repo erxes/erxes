@@ -69,7 +69,14 @@ export const AutomationRun = createSelectSchema(automationRuns, {
     finishedAt: true,
   })
   .extend({
-    subject: z.object({ type: z.enum(CONTENT_TYPES), id: Id }).nullable(),
+    subject: z
+      .object({
+        type: z.enum(CONTENT_TYPES),
+        id: Id,
+        /** The customer's or company's name now; null once it is deleted. */
+        name: z.string().nullable(),
+      })
+      .nullable(),
     /** Left early because the automation's goal was met. */
     goalReached: z.boolean(),
   });

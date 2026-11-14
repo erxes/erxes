@@ -117,7 +117,7 @@ describe('automations', { timeout: 300_000 }, () => {
     expect(runs).toHaveLength(1);
     expect(runs[0]).toMatchObject({
       status: 'succeeded',
-      subject: { type: 'customer', id: vip.id },
+      subject: { type: 'customer', id: vip.id, name: 'Bold' },
     });
 
     const detail = await t.owner().automations.run({ runId: runs[0]?.id ?? '' });

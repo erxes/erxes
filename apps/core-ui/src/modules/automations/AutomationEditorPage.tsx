@@ -9,7 +9,7 @@ import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
-import { automationQuery, type Catalog, catalogQuery } from './automationQueries';
+import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automationQueries';
 import { FlowCanvas } from './builder/FlowCanvas';
 import { countSteps, flowProblems, stepOutputFields } from './builder/flowChecks';
 import { insertStep, newStep, removeStep } from './builder/flowModel';
@@ -156,24 +156,26 @@ const useEditorState = (automation: Automation, editable: boolean) => {
 
 /** Build and Runs, with the flow's size and how many problems are left. */
 const EditorTabBar = ({
-  runs,
+  automationId,
   steps,
   problemCount,
   statsError,
 }: {
-  runs: number;
+  automationId: string;
   steps: number;
   problemCount: number;
   statsError: Error | null;
 }) => {
   const { t } = useTranslation('automations');
+  const runs = useQuery(runsQuery(automationId)).data;
 
   return (
     <div className="flex items-center border-b px-4">
       <Tabs.List className="h-9 border-b-0">
         <Tabs.Trigger value="build">{t('build', 'Build')}</Tabs.Trigger>
         <Tabs.Trigger value="runs">
-          {t('runs', 'Runs')} ({runs})
+          {t('runs', 'Runs')}
+          {runs && ` (${runs.totalCount}${runs.totalCapped ? '+' : ''})`}
         </Tabs.Trigger>
       </Tabs.List>
       <span className="ml-auto text-xs text-muted-foreground">
@@ -266,10 +268,7 @@ const AutomationEditor = ({
       />
       <Tabs defaultValue="build" className="flex min-h-0 flex-1 flex-col">
         <EditorTabBar
-          runs={
-            stats.data?.runs.total ??
-            automation.stats.running + automation.stats.succeeded + automation.stats.failed
-          }
+          automationId={automation.id}
           steps={countSteps(definition.steps)}
           problemCount={problemCount}
           statsError={stats.error}
