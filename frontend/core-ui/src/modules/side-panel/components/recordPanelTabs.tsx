@@ -12,16 +12,16 @@ import { useMemo, useState, type ReactNode, type RefObject } from 'react';
 import {
   ContactOverviewSectionContext,
   type IRecordSidePanelTab,
+  type TRecordOverviewEntry,
   type TRelationEntity,
 } from 'ui-modules';
-import { ContactOverview } from '@/side-panel/components/relations/ContactOverview';
-import type { TContactOverviewEntry } from '@/side-panel/components/relations/contactOverviewEntries';
+import { RecordPanelOverview } from '@/side-panel/components/relations/RecordPanelOverview';
 import { SidePanelRelations } from '@/side-panel/components/relations/SidePanelRelations';
 import { RecordPanelActivity } from '@/side-panel/components/details/RecordPanelActivity';
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
 import type { TRecordPanelPluginTab } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import type { IContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
+import type { IRecordPanelOverview } from '@/side-panel/hooks/useRecordPanelOverview';
 
 const DETAIL_TAB = 'detail';
 const PROPERTIES_TAB = 'properties';
@@ -37,7 +37,7 @@ const PinnedModuleTab = ({
   access,
   onUnavailable,
 }: {
-  entry: TContactOverviewEntry;
+  entry: TRecordOverviewEntry;
   contactType: 'core:customer' | 'core:company';
   contentId: string;
   access: 'read' | 'write';
@@ -52,10 +52,10 @@ const PinnedModuleTab = ({
     <ContactOverviewSectionContext.Provider value={overview}>
       <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
         <RenderPluginsComponent
-          pluginName={`${entry.module.pluginName}_ui`}
+          pluginName={`${entry.section.pluginName}_ui`}
           remoteModuleName="contactWidget"
           props={{
-            module: entry.module.name,
+            module: entry.section.name,
             contentType: contactType,
             contentId,
             access,
@@ -79,7 +79,7 @@ interface IRecordPanelTabsOptions {
   expanded: boolean;
   pluginName: string | null;
   pluginTabs: TRecordPanelPluginTab[];
-  overview: IContactPanelOverview;
+  overview: IRecordPanelOverview;
   access: 'read' | 'write';
   noteRef: RefObject<HTMLDivElement>;
   labels: Record<
@@ -105,17 +105,7 @@ export const buildRecordPanelTabs = ({
   noteRef,
   labels,
 }: IRecordPanelTabsOptions): IRecordSidePanelTab[] => {
-  const {
-    contactType,
-    moreTabs,
-    allEntries,
-    pinned,
-    overviewEntries,
-    layout,
-    onUnavailable,
-    onReorder,
-    onToggleTab,
-  } = overview;
+  const { contactType, moreTabs, allEntries, pinned, onUnavailable } = overview;
   const conversationEntry =
     contactType === 'core:customer'
       ? pinned.find((entry) => entry.key === 'frontline.conversation')
@@ -139,18 +129,10 @@ export const buildRecordPanelTabs = ({
         }))
     : [];
   const relationsContent = contactType ? (
-    <ContactOverview
-      contactType={contactType}
+    <RecordPanelOverview
+      overview={overview}
       contentId={record.contentId}
       access={access}
-      entries={overviewEntries}
-      customize={{
-        entries: allEntries,
-        tabs: layout.tabs,
-        onReorder,
-        onToggleTab,
-      }}
-      onUnavailable={onUnavailable}
     />
   ) : (
     <SidePanelRelations tabs={moreTabs} />
