@@ -356,6 +356,36 @@
           "id"
         ]
       },
+      "AssistantAttachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "contentType": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "contentType",
+          "size"
+        ]
+      },
       "AssistantChatRequest": {
         "type": "object",
         "properties": {
@@ -392,6 +422,9 @@
               "role",
               "parts"
             ]
+          },
+          "edit": {
+            "type": "boolean"
           },
           "provider": {
             "enum": [
@@ -456,6 +489,22 @@
           "createdAt",
           "updatedAt",
           "hasKey"
+        ]
+      },
+      "AssistantFiles": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/AssistantAttachment"
+            }
+          }
+        },
+        "required": [
+          "files"
         ]
       },
       "AssistantMention": {
@@ -704,6 +753,69 @@
           "provider",
           "models",
           "error"
+        ]
+      },
+      "AssistantSelection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[\\w-]{1,64}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "path": {
+            "type": "string",
+            "maxLength": 200,
+            "pattern": "^\\/(?!\\/)[\\w\\-./~%]*$"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 8000
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "snapshot": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "path",
+          "text",
+          "width",
+          "height",
+          "snapshot"
+        ]
+      },
+      "AssistantSelections": {
+        "type": "object",
+        "properties": {
+          "selections": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "$ref": "#/components/schemas/AssistantSelection"
+            }
+          }
+        },
+        "required": [
+          "selections"
         ]
       },
       "AssistantSettings": {

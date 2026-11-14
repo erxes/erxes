@@ -52,6 +52,7 @@
     "ipaddr.js": "^2.5.0",
     "jose": "^6.2.17",
     "nodemailer": "^10.5.0",
+    "officeparser": "^8.7.1",
     "otpauth": "9.5.2",
     "pg": "^8.23.1",
     "pg-boss": "^12.38.2",

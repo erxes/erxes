@@ -18,6 +18,8 @@ import {
 import { createModel, DEFAULT_MODELS, describeProviderError } from './providers';
 import { apiTools, approvalFor, type ToolScope } from './tools/apiTools';
 import { askUser } from './tools/askUser';
+import { readAttachment } from './tools/readAttachment';
+import { type Contents, forModel } from './attachments';
 import { modelTextOf } from './turnContext';
 
 const MAX_STEPS = 32;
@@ -28,7 +30,11 @@ const TEMPERATURE = 0.2;
 
 const TITLE_LIMIT = 120;
 
-export const chatTools = (scope: ToolScope) => ({ ...apiTools(scope), ask_user: askUser });
+export const chatTools = (scope: ToolScope) => ({
+  ...apiTools(scope),
+  ask_user: askUser,
+  readAttachment: readAttachment(scope),
+});
 
 type ChatTools = ReturnType<typeof chatTools>;
 
@@ -39,6 +45,7 @@ export interface Run {
   apiKey: string;
   threadId: string;
   messages: UIMessage[];
+  contents: Contents;
   request: AssistantChatRequest;
 }
 
@@ -54,7 +61,10 @@ export const streamTurn = async (run: Run) => {
   const result = streamText({
     model: createModel(provider, model, apiKey),
     instructions: instructionsFor(new Date()),
-    messages: await convertToModelMessages(run.messages, { tools, convertDataPart: modelTextOf }),
+    messages: await convertToModelMessages(forModel(run.messages, run.contents), {
+      tools,
+      convertDataPart: modelTextOf,
+    }),
     tools,
     toolApproval: { callApi: (input) => approvalFor(scope, input) },
     stopWhen: stepCountIs(MAX_STEPS),

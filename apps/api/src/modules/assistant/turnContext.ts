@@ -1,15 +1,20 @@
 import {
   ASSISTANT_DATA_PARTS,
+  type AssistantAttachment,
   type AssistantChatRequest,
+  AssistantFiles,
   AssistantMentions,
   type AssistantMessagePart,
   AssistantPage,
+  type AssistantSelection,
+  AssistantSelections,
   referenceToken,
 } from '@erxes/core-contract';
-import type { Db } from '@erxes/core-db';
+import { type Db, db } from '@erxes/core-db';
 import type { DataUIPart, UIDataTypes } from 'ai';
 import { z } from 'zod';
 import { HttpError } from '~/http/errors';
+import { resolveAttachments } from './attachments';
 import { type RecordIdentity, readRecord, readRecords } from './records';
 import { issueReferences } from './references.service';
 
@@ -22,9 +27,18 @@ interface Mention extends RecordIdentity {
 export interface TurnContext {
   mentions: Mention[];
   page: { path: string; record: RecordIdentity | null } | null;
+  files: AssistantAttachment[];
+  selections: AssistantSelection[];
+  snapshots: AssistantAttachment[];
 }
 
-const NO_CONTEXT: TurnContext = { mentions: [], page: null };
+const NO_CONTEXT: TurnContext = {
+  mentions: [],
+  page: null,
+  files: [],
+  selections: [],
+  snapshots: [],
+};
 
 const DATA_NAMES = new Set(Object.keys(ASSISTANT_DATA_PARTS));
 
@@ -99,10 +113,19 @@ export const readTurnContext = async (
 
   if (message.role !== 'user') return NO_CONTEXT;
 
+  const other = message.parts.find(
+    (part) => part.type !== 'text' && !part.type.startsWith('data-'),
+  );
+
+  if (other) throw invalid(`A message cannot carry ${other.type} parts; attach files instead`);
+
   const mentions = await readMentions(message.parts);
   const page = await readPage(message.parts);
+  const files = dataOf(message.parts, 'files', AssistantFiles)?.files ?? [];
+  const selections = dataOf(message.parts, 'selections', AssistantSelections)?.selections ?? [];
+  const stored = await resolveAttachments(db(), files, selections);
 
-  return { mentions, page };
+  return { mentions, page, selections, ...stored };
 };
 
 export const withTurnContext = async (
@@ -139,6 +162,10 @@ export const withTurnContext = async (
             },
           },
         ]
+      : []),
+    ...(context.files.length ? [{ type: 'data-files', data: { files: context.files } }] : []),
+    ...(context.selections.length
+      ? [{ type: 'data-selections', data: { selections: context.selections } }]
       : []),
   ];
 };

@@ -310,6 +310,28 @@ export const ASSISTANT_RECORD_TYPES = [
   'automation',
 ] as const;
 
+export const ASSISTANT_IMAGE_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/gif',
+] as const;
+
+export const ASSISTANT_DOCUMENT_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+] as const;
+
+export const ASSISTANT_DOCUMENT_FORMATS = ['pdf', 'docx', 'xlsx'] as const;
+
+export const ASSISTANT_TEXT_TYPES = [
+  'text/plain',
+  'text/markdown',
+  'text/csv',
+  'application/json',
+] as const;
+
 // ─── Settings ───────────────────────────────────────────────────────────────
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;

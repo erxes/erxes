@@ -60,6 +60,8 @@ export * from './activities';
 
 export * from './assistant';
 
+export * from './assistantParts';
+
 export * from './automationDefinition';
 
 export * from './automationRuns';

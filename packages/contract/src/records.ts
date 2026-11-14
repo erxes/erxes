@@ -106,8 +106,6 @@ export const AssistantPage = z.object({
 
 export type AssistantPage = z.infer<typeof AssistantPage>;
 
-export const ASSISTANT_DATA_PARTS = { mentions: AssistantMentions, page: AssistantPage };
-
 export const REFERENCE_PATTERN = /\[\[ref:([\w-]{1,64})\]\]/g;
 
 export const referenceToken = (handle: string) => `[[ref:${handle}]]`;

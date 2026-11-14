@@ -6,6 +6,7 @@ import { Router, type Request, type Response } from 'express';
 import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { chatTools, generateTitle, type Run, streamTurn } from './agent';
+import { attachmentsOf, readContents } from './attachments';
 import { getSettings } from './settings.service';
 import { readTurnContext } from './turnContext';
 import { beginTurn, saveReply, setTitle } from './turns.service';
@@ -38,20 +39,33 @@ const parseRequest = (body: unknown) => {
   return parsed.data;
 };
 
+const contentsToContinue = (orgId: string, messages: UIMessage[]) =>
+  readContents(
+    orgId,
+    attachmentsOf(messages.findLast(({ role }) => role === 'user')?.parts ?? []),
+    {
+      strict: false,
+    },
+  );
+
 const startRun = async (req: Request, res: Response, orgId: string) => {
   const member = chatMember();
   const request = parseRequest(req.body);
   const threadId = request.threadId ?? newId();
   const context = { req, res, [CONTEXT_LOGGER_SYMBOL]: req.log };
+  const turnContext = await withOrg(orgId, () => readTurnContext(request.message));
 
-  return withOrg(orgId, async (tx) => {
-    const turnContext = await readTurnContext(request.message);
+  const sent = await readContents(orgId, [...turnContext.files, ...turnContext.snapshots], {
+    strict: true,
+  });
+
+  const { run, titled } = await withOrg(orgId, async (tx) => {
     const { approvalMode } = await getSettings(tx);
     const scope = { member, orgId, threadId, approvalMode, context };
     const tools = chatTools(scope);
     const turn = await beginTurn(tx, request, tools, { threadId, context: turnContext });
 
-    const run: Run = {
+    const started: Run = {
       scope,
       tools,
       request,
@@ -59,10 +73,15 @@ const startRun = async (req: Request, res: Response, orgId: string) => {
       apiKey: turn.apiKey,
       threadId: turn.thread.id,
       messages: turn.messages,
+      contents: sent,
     };
 
-    return { run, titled: turn.thread.title !== null };
+    return { run: started, titled: turn.thread.title !== null };
   });
+
+  if (request.message.role === 'user') return { run, titled };
+
+  return { run: { ...run, contents: await contentsToContinue(orgId, run.messages) }, titled };
 };
 
 const drain = (stream: ReadableStream<UIMessageChunk>) => stream.pipeTo(new WritableStream());

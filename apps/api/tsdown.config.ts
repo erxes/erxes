@@ -13,6 +13,8 @@ export default defineConfig({
     migrate: 'scripts/migrate.ts',
     grant: 'scripts/grant.ts',
     'plugin-role': 'scripts/plugin-role.ts',
+    // The assistant reads attached documents in this worker thread (documentText.ts).
+    'documentText.worker': 'src/modules/assistant/documentText.worker.ts',
   },
   platform: 'node',
   target: 'node26',

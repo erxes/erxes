@@ -233,6 +233,24 @@ export const listFiles = async (client: Db, ids: string[]) => {
   return { data: wanted.flatMap((id) => byId.get(id) ?? []) };
 };
 
+export const readyFilesOfCaller = (client: Db, ids: string[]) => {
+  const { actorType, actorId } = actorOf(caller());
+
+  if (!ids.length || actorId === null) return Promise.resolve([]);
+
+  return client
+    .select()
+    .from(files)
+    .where(
+      and(
+        eq(files.status, 'ready'),
+        inArray(files.id, unique(ids)),
+        eq(files.actorType, actorType),
+        eq(files.actorId, actorId),
+      ),
+    );
+};
+
 /** The uploader may delete a file, and so may members allowed to moderate files. */
 const assertCanRemove = (row: FileRow) => {
   if (!isUploader(row) && !callerCan('files.moderate')) {
