@@ -45,7 +45,6 @@ const EmailChip = ({
         buttonVariants({ size: 'sm', variant: 'secondary' }),
         'min-w-0 max-w-full h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring',
       )}
-      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- the chip sits inside table and detail triggers that are buttons, and a button may not contain a button
       role="button"
       tabIndex={0}
       onClick={(event) => {

@@ -1,9 +1,10 @@
-// The `no-restricted-imports` and `no-restricted-properties` entries vite.config.ts gives each
-// part of the repo.
+// The `no-restricted-imports` and `no-restricted-properties` entries each part of the repo
+// gets, and where it gets them.
+import type { OxlintConfig } from 'vite-plus/lint';
 
 // Procedures are built from the contract in one place, so every route goes
 // through the same context and access checks.
-export const routerBuilder = {
+const routerBuilder = {
   name: '@orpc/server',
   importNames: ['implement', 'os'],
   message:
@@ -11,7 +12,7 @@ export const routerBuilder = {
 };
 
 // Decisions recorded as bans: each message says what to use instead.
-export const decided = [
+const decided = [
   {
     name: 'graphile-worker',
     message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
@@ -51,14 +52,14 @@ export const decided = [
 ];
 
 // A stored hash, signature or token keeps its format only if one file makes it.
-export const nodeCrypto = ['node:crypto', 'crypto'].map((name) => ({
+const nodeCrypto = ['node:crypto', 'crypto'].map((name) => ({
   name,
   message:
     'Use apps/core-api/src/lib/crypto.ts (safeEqual, sha256, hmacSha256, randomToken), or add the helper there.',
 }));
 
 // Packages are shared with plugins and never reach into an app.
-export const noApps = {
+const noApps = {
   group: [
     '@erxes/core-api',
     '@erxes/core-api/*',
@@ -70,7 +71,7 @@ export const noApps = {
 };
 
 // Browser code runs without Node and without the database.
-export const serverOnly = {
+const serverOnly = {
   group: [
     '@erxes/core-db',
     '@erxes/core-db/*',
@@ -86,15 +87,75 @@ export const serverOnly = {
 // The contract builds its schemas from the tables (`@erxes/core-db/schema`) and
 // its published build copies them into dist, so table definitions import drizzle's
 // column builders, `../table`, `../enums` and nothing that needs Node or a database.
-export const noDriver = {
+const noDriver = {
   group: ['pg', 'pg/*', 'node:*', 'drizzle-orm/node-postgres', '../*', '!../table', '!../enums'],
   message: 'Table definitions ship inside the published contract: no Node, driver or client.',
 };
 
 // A request or job already runs in one transaction (withOrg / withSystem), so a nested
 // `.transaction()` only adds a savepoint, and that has one name.
-export const oneTransaction = {
+const oneTransaction = {
   property: 'transaction',
   message:
     "The request's withOrg/withSystem scope is already one transaction. To undo only part of it when you catch its error, use savepoint() from @erxes/core-db.",
 };
+
+export const restrictedRules = {
+  'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }],
+} satisfies OxlintConfig['rules'];
+
+export const restrictedOverrides = [
+  {
+    files: [
+      'packages/contract/**',
+      'packages/db/**',
+      'packages/plugin-sdk/**',
+      'packages/payment-gateways/**',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { paths: [routerBuilder, ...decided], patterns: [noApps] },
+      ],
+    },
+  },
+  {
+    // Table definitions ship inside the published contract (noDriver).
+    files: ['packages/db/src/schema/**', 'packages/db/src/table.ts', 'packages/db/src/enums.ts'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: decided, patterns: [noApps, noDriver] }],
+    },
+  },
+  {
+    files: ['apps/core-ui/src/**', 'packages/ui/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { paths: [routerBuilder, ...decided], patterns: [noApps, serverOnly] },
+      ],
+    },
+  },
+  {
+    // Core's hashing, comparisons and random tokens all go through lib/crypto.ts, and its
+    // transactions through withOrg/withSystem and savepoint().
+    files: ['apps/core-api/**'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
+      'no-restricted-properties': ['error', oneTransaction],
+    },
+  },
+  {
+    files: ['apps/core-api/src/lib/crypto.ts'],
+    rules: { 'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }] },
+  },
+  {
+    // The one place that implements the contract; feature routers import its builders.
+    files: ['apps/core-api/src/orpc.ts'],
+    rules: { 'no-restricted-imports': ['error', { paths: [...decided, ...nodeCrypto] }] },
+  },
+  {
+    // Test fixtures write through the owner's connection, outside any scope (`.transaction()`).
+    files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
+    rules: { 'no-restricted-properties': 'off' },
+  },
+] satisfies OxlintConfig['overrides'];

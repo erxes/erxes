@@ -5,15 +5,14 @@ description: Show that a behaviour change works in the running app, not only in 
 
 Use synthetic data only. Never point the app at a copy of production data.
 
-1. Start Postgres and the app on a fresh database, from the repo root: `docker compose up -d`
-   (Postgres on 127.0.0.1:5434), `cp .env.example .env` once, then
-   `docker compose exec postgres createdb -U erxes erxes_e2e_<n>` and
-   `DATA_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes_e2e_<n> pnpm dev` (API on 3400,
-   UI on 3500; development migrates the new database on start). On a shared machine pick free
-   ports with `PORT=<api> pnpm dev:api` and `WEB_PORT=<ui> CORE_API_URL=http://localhost:<api> pnpm dev:ui`.
+1. Start the stack from the repo root: `vp run dev:stack up`. It starts Postgres 18 on tmpfs,
+   migrates, creates the e2e owner's organisation with example data, starts the API and the UI,
+   and returns once both answer, printing their URLs and the sign-in. Ports and the container
+   name come from the checkout's path, so parallel checkouts never collide. `vp run dev:stack status`
+   shows it again; `vp run dev:stack down` stops it when you are done. Logs are in `.scratch/dev-stack/`.
 2. Run the daily flows: `pnpm exec playwright install chromium-headless-shell` once, then
-   `E2E_BASE_URL=http://localhost:<ui> pnpm e2e`. The setup project creates the organisation
-   (owner `owner@e2e.test`, password `E2e-owner-pass-1`, in `e2e/fixtures.ts`), and every spec
+   `E2E_BASE_URL=<the UI URL> pnpm e2e`. The setup project signs in as the stack's owner
+   (`owner@e2e.test`, password `E2e-owner-pass-1`, in `e2e/owner.ts`), and every spec
    seeds its own records through the API, so the specs run in parallel. Every spec runs in the
    light and the dark theme (the `light` and `dark` projects). Each page a spec visits goes
    through `expectAccessible(page)`, which fails on serious or critical axe violations and
@@ -36,9 +35,9 @@ Use synthetic data only. Never point the app at a copy of production data.
    brings it back with the top bar's state kept. A page inside a module keeps the module's
    sidebar, since every layout renders its route through `PageOutlet`.
 6. For API-only changes call the endpoint:
-   `curl -H "authorization: Bearer <token>" http://localhost:3400/core/v1/<path>`
+   `curl -H "authorization: Bearer <token>" <the API URL>/core/v1/<path>`
    (`pnpm bootstrap --subdomain acme --name "Acme" --email owner@acme.mn --password '<password>'`
-   prints a token).
+   prints a token; `.env.local` points it at the stack).
 7. Keep screenshots and logs in `.scratch/` (git ignores it), never in the repo.
 
 Done when `pnpm e2e` passes and the handoff lists the journey, what you saw at each step

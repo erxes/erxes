@@ -31,7 +31,6 @@ const EmbeddedVideo: FC<{ src: string; title: string }> = ({ src, title }) => (
     title={title || 'Video'}
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
     allowFullScreen
-    // oxlint-disable-next-line react/iframe-missing-sandbox -- src is always a YouTube, Vimeo or Cloudflare Stream player (cross-origin, so the frame can't reach this page), and those players need their own origin's storage to play
     sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
     referrerPolicy="strict-origin-when-cross-origin"
     contentEditable={false}

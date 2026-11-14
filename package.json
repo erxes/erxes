@@ -8,9 +8,6 @@
     "dev:api": "pnpm --filter @erxes/core-api dev",
     "dev:ui": "pnpm --filter @erxes/core-ui dev",
     "build": "pnpm -r build",
-    "check": "OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint vp check && knip",
-    "fix": "OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint vp check --fix",
-    "test": "vp test run",
     "prepare": "vp config --no-agent",
     "db:generate": "pnpm --filter @erxes/core-db db:generate",
     "db:check": "pnpm --filter @erxes/core-db db:check",
@@ -35,12 +32,15 @@
     "@orpc/openapi-client": "1.16.2",
     "@playwright/test": "^1.65.0",
     "@types/node": "^26.6.6",
+    "@types/semver": "^7.8.0",
     "knip": "^6.45.1",
     "publint": "^0.3.25",
+    "semver": "^7.8.6",
     "tsdown": "^0.23.7",
     "tsrs": "0.25.0-ts7.1.0-beta",
     "typescript": "~7.0.2",
-    "vite-plus": "1.6.0"
+    "vite-plus": "1.6.0",
+    "zod": "^4.6.7"
   },
   "engines": {
     "node": ">=26",

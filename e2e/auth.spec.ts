@@ -1,4 +1,5 @@
-import { expect, expectAccessible, OWNER, test } from './fixtures';
+import { expect, expectAccessible, test } from './fixtures';
+import { OWNER } from './owner';
 
 // Signs in on its own, so signing out never ends the session other specs share.
 test.use({ storageState: { cookies: [], origins: [] } });

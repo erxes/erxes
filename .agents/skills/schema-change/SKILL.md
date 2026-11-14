@@ -23,12 +23,12 @@ foreign key to `organizations` and a check constraint.
    (core_tenant_visible(org_id)) WITH CHECK (core_tenant_visible(org_id))`. A table without `org_id`
    goes into the list in `tools/check-rls.sql` with the reason. Only new migrations change:
    `db:check-applied` fails CI on an edited one. Never run `drizzle-kit push`.
-5. Run `pnpm check`. The contract builds its schemas from the tables, so a renamed or retyped
+5. Run `vp run check`. The contract builds its schemas from the tables, so a renamed or retyped
    column fails the type check where the contract, the services and core-ui still use the old one;
    fix each. A new column stays out of the API until the contract picks it
    (`.agents/skills/core-endpoint/SKILL.md`). Run `pnpm openapi` and read the `openapi.json` diff.
-6. Run `pnpm check:rls` and `pnpm test` with `DATA_TEST_URL`. Both migrate fresh databases, so a
+6. Run `pnpm check:rls` and `vp run test` with `DATA_TEST_URL`. Both migrate fresh databases, so a
    broken migration fails there.
 
 Done when the schema file and its migration are in one commit, a second `pnpm db:generate` writes
-nothing, and `pnpm check`, `pnpm check:generated`, `pnpm check:rls` and `pnpm test` pass.
+nothing, and `vp run check`, `pnpm check:generated`, `pnpm check:rls` and `vp run test` pass.

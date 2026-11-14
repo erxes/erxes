@@ -28,14 +28,12 @@ const MentionSuggestions = ({
 }) => (
   <div
     className="absolute top-full left-2 z-20 mt-1 w-64 rounded-md border bg-popover p-1 shadow-md"
-    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- the textarea's mention popup (ARIA combobox); a <select> can't keep the caret in the textarea
     role="listbox"
     tabIndex={-1}
   >
     {suggestions.map((member, index) => (
       <div
         key={member.id}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- an option of that popup, picked on mouse down so the textarea keeps focus
         role="option"
         tabIndex={-1}
         aria-selected={index === highlight}

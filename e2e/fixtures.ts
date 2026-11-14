@@ -7,15 +7,6 @@ import { test as base, expect, type APIRequestContext, type Page } from '@playwr
 import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 
-/** Synthetic owner the setup project creates on the fresh database. */
-export const OWNER = {
-  organizationName: 'E2E Org',
-  firstName: 'Olivia',
-  lastName: 'Owner',
-  email: 'owner@e2e.test',
-  password: 'E2e-owner-pass-1',
-};
-
 export const OWNER_STATE = resolve(import.meta.dirname, 'test-results/.auth/owner.json');
 
 /** A suffix that keeps records from parallel tests (and reruns) apart. */

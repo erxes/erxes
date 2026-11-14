@@ -55,7 +55,6 @@ const TestTrace = ({ result }: { result: TestResult }) => {
       </div>
       <ol className="space-y-2">
         {result.trace.map((item, index) => (
-          // oxlint-disable-next-line react/no-array-index-key -- a fixed trace where a step can repeat: its position is its identity
           <li key={`${item.stepId}-${index}`} className="rounded-md border p-2 text-sm">
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs text-muted-foreground">#{item.stepId}</span>

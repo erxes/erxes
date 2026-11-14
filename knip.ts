@@ -1,10 +1,11 @@
 import type { KnipConfig } from 'knip';
 
-// Unused files, exports and dependencies fail `pnpm check`.
+// Unused files, exports and dependencies fail `vp run check`.
 const config: KnipConfig = {
   workspaces: {
     '.': {
-      entry: ['tools/lint/*/rules/*.test.ts'],
+      // tools/*.ts are scripts the vp tasks in vite.config.ts run with node.
+      entry: ['tools/lint/*/rules/*.test.ts', 'tools/*.ts'],
       project: ['tools/**/*.ts', 'e2e/**/*.ts'],
       // The daily flows in Chromium (pnpm e2e); the config names the specs and the setup file.
       playwright: {
@@ -13,7 +14,7 @@ const config: KnipConfig = {
       },
       // Copied from the HR plugin as a whole, with its vendored ESLint Stylistic rule.
       ignore: ['tools/lint/anti-slop/**'],
-      // Oxlint runs its tsrs-lint binary through OXLINT_TSGOLINT_PATH in the check scripts.
+      // Oxlint runs its tsrs-lint binary through OXLINT_TSGOLINT_PATH in the check task.
       ignoreDependencies: ['tsrs'],
     },
     // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
