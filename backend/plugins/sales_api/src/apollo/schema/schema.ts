@@ -60,6 +60,11 @@ import {
   mutations as posCoverMutations,
 } from '@/pos/graphql/schemas/covers';
 import {
+  types as posPapaTypes,
+  queries as posPapaQueries,
+  mutations as posPapaMutations,
+} from '@/pos/graphql/schemas/papa';
+import {
   types as AddressTypes,
   queries as AddressQueries,
   mutations as AddressMutations,
@@ -112,6 +117,7 @@ export const types = `
   ${posTypes()},
   ${posOrderTypes()},
   ${posCoverTypes},
+  ${posPapaTypes},
   ${AddressTypes},
   ${LastViewedItemTypes},
   ${ProductReviewTypes},
@@ -129,6 +135,7 @@ export const queries = `
   ${posQueries}
   ${posOrderQueries}
   ${posCoverQueries}
+  ${posPapaQueries}
   ${AddressQueries}
   ${LastViewedItemQueries}
   ${ProductReviewQueries}
@@ -147,6 +154,7 @@ export const mutations = `
    ${posMutations}
    ${posOrderMutations}
    ${posCoverMutations}
+   ${posPapaMutations}
    ${AddressMutations}
    ${LastViewedItemMutations}
    ${ProductReviewMutations}

@@ -106,6 +106,20 @@
   Returned orders are retained; missing orders allow idempotent retries.
 - POS configuration exposes `isShowRemainder` for remainder display separately
   from `isCheckRemainder` and validation category exclusions.
+- Papa Logistic delivery for POS delivery orders (`modules/pos/papa`): one
+  tenant Papa client (`sales_papa_configs`), per-POS settings in
+  `deliveryConfig.papa` (`enabled`, `addressId`, `carTypeGroups` `car`/`light`,
+  `categoryId`, `conditionId`, `size`), and per-order state in
+  `pos_orders.papaDelivery`. Flow: `posOrderPapaQuote` (dynamic-price quote)
+  → `posOrderPapaSend` (dynamic create + confirm to all drivers) → Papa
+  callbacks / `posOrderPapaRefresh` → `posOrderPapaCancel` or
+  `posOrderPapaApprovePhoto` or `posOrderPapaMarkDelivered` (the store
+  closes a `START` cargo via `parcel_order/end_cargo`). The Papa staff id
+  comes from the token, then `/client/get`, then the first active admin in
+  `/staff`; when none exists, `salesPapaConfigSave`'s `staffPhone`,
+  `staffEmail`, `staffFirstName` and `staffLastName` create one through
+  `/staff/create` (`SUPER_ADMIN`). Car groups expand to Papa `car_type`
+  (`car` → `PASSANGER_CAR`; `light` → `ON_FOOT`, `MOPED`, `BICYCLE`).
 - POS configuration stores `customerCreateConfig` (`enabled`,
   `assignCashierAsOwner`, `layout`) for POS client customer registration and
   syncs it to POS client.
@@ -343,6 +357,7 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 | Agent metadata      | `src/meta/agent.ts`                                     | Core AI assistant skill and agent-hidden client portal operations     |
 | Documents           | `src/modules/sales/documents`                           | Generate sales document content and amount mappings                   |
 | POS and ecommerce   | `src/modules/pos`, `src/modules/ecommerce`              | Provide sales-owned POS and ecommerce behavior                        |
+| Papa delivery       | `src/modules/pos/papa`                                  | Papa API client, order mapping, delivery service, webhook route        |
 
 ## Contracts
 
@@ -382,8 +397,21 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   `company.deals`, and the `evaluateFields`, `listSegmentMembers` and
   `countSegmentMembers` segment producers on `/segments`.
 
+- Papa delivery GraphQL: queries `salesPapaConfig` (`posPapaConfigManage`,
+  secret never returned), `salesPapaReferences` (Papa `app/init`, cached 24h),
+  `salesPapaAddresses`, `posOrderPapaPhotoProof`; mutations
+  `salesPapaConfigSave`, `salesPapaAddressCreate` (`posPapaConfigManage`) and
+  `posOrderPapaQuote`, `posOrderPapaSend`, `posOrderPapaRefresh`,
+  `posOrderPapaCancel`, `posOrderPapaApprovePhoto`,
+  `posOrderPapaMarkDelivered` (`posOrderPapaManage`).
+  `PosOrderDetail.papaDelivery` (JSON).
+- HTTP `GET /papa-callback/:secret` (gateway `/pl:sales/papa-callback/...`),
+  registered with Papa by `salesPapaConfigSave` through `/client/configration`.
+
 ### Consumes
 
+- Papa Logistic REST API (`https://dev-api.papa.mn/api/v4` by default;
+  `apiUrl` is configurable for production), Business-owner endpoints only.
 - Mongolian `putResponses.find` verifies synced receipt state before POS
   deletion when that optional plugin is enabled; failed/unconfirmed reads
   block deletion. Loyalty `score.refund` reverses cancelled POS order points.
@@ -411,6 +439,14 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   of loyalty `score_logs`; points and balances are never copied to sales.
   `backend/saas-migrations/sales/commands/linkDealScoreLogs.ts` and
   `linkPosOrderScoreLogs.ts` backfill entries written before the links.
+- `sales_papa_configs` holds one document per tenant: Papa `clientId`,
+  `clientSecret`, `apiUrl`, `staffId` (from `/auth/token`), and the random
+  `callbackSecret` path segment. Papa access tokens are cached in Redis under
+  `sales_papa_token_<hash>` (45 min) and re-requested once on 401/403.
+- `pos_orders.papaDelivery` stores the quote, Papa order id/code/pincode,
+  status, driver/car, shipping id, end pincode, photo-proof flag and the last
+  50 callback events. Local statuses `QUOTED`, `SENDING`, `FAILED` precede
+  Papa's `parcel_order_status` values.
 - POS order items keep the optional `conditionCode` (core product condition code) the POS client sold a line under, for reporting.
 - POS `customerCreateConfig.layout` rows hold customer system field codes from
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
@@ -768,6 +804,41 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   `replacerIds` order: `Deals.find({ _id: { $in } })` returns Mongo natural
   order, which does not match the order the caller selected the deals in.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
+- `papaDelivery` is sales-owned: `PosOrders.createOrUpdate` drops it from
+  synced documents, like `scoreLogIds`. Never move Papa state into
+  `deliveryInfo`, which POS client sync overwrites.
+- Papa callbacks are unsigned GETs: the handler checks the `callbackSecret`
+  path segment, answers 200 before work (Papa times out at 10s and never
+  retries), and never trusts query values beyond `reference_id` — it re-reads
+  the order from Papa with the stored `papaOrderId`.
+- Every Papa order sets `reference_id` (and `cargo.reference_id`) to the POS
+  order `_id`; Papa sends no callback for objects without one.
+- `posOrderPapaSend` claims the order with a conditional `papaDelivery.status`
+  update before calling Papa and stores `papaOrderId` before confirming, so a
+  double click cannot create two Papa orders and a failed confirm retries
+  without a second create.
+- Papa accepts only `https://` callback URLs. `salesPapaConfigSave` registers
+  the callback only when the gateway domain is https; otherwise it saves the
+  credentials and `staffId` without one (local development), and delivery
+  status changes arrive only through `posOrderPapaRefresh`.
+- Every Papa request sends `updateversion: ios/1.1.1` (`PAPA_UPDATE_VERSION_HEADER`),
+  as Papa's docs do on organization endpoints. List calls send
+  `filter: { query: '' }` with `limit` at most 20.
+- Papa's dynamic quote and create accept only the docs' example bodies
+  (verified end to end on dev), not the field tables. Quote:
+  `{ order_type: 'PARCEL_ORDER', size, address_id, to_point_id }`, where
+  `to_point_id` is the nearest catalog point from `/point/elastic` (≈1 km);
+  with no point the client throws before quoting. Create: the quote goes in
+  `cargo.dynamic_price_id` with `schedule_type: 'THREE_HOURS'`. The pickup
+  address must itself be inside Papa's coverage. Stored delivery address
+  fields come from what erxes sent; the quote returns the point's address.
+- The dynamic get does not document `cargo.shipping_id`; once the order is in
+  a shipping status, `refreshPapaDelivery` reads it from the regular
+  `/parcel_order/get` `cargos[]`.
+- Papa `COMPLETED` means the delivery fee is paid; a delivered but unpaid
+  order stays `END` until Papa is paid (not yet handled in erxes).
+- Papa client secrets stay server-side: never expose them through GraphQL,
+  POS client sync, or `deliveryConfig`.
 
 ## Validation
 
@@ -796,6 +867,11 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   orders are rejected, and a missing order is an idempotent successful retry.
 - Paid POS order smoke: `pos.cancelOrder` rejects an order with `paidDate`
   before receipt/refund service calls or deletion, including `billType: '9'`.
+- `pnpm nx test sales_api --testPathPattern=papa` (Papa client and mapping)
+- Papa smoke (dev env): save credentials, create a pickup address, enable Papa
+  on a POS, quote and send a delivery order, then drive it with the Papa
+  driver-folder requests (accept, start pincode, end pincode or photo) and
+  check `papaDelivery` follows each callback.
 - `pnpm nx build:packageJson sales_api`
 - `pnpm nx test sales_api`
 - Agent smoke: with sales running, the core agent's capabilities catalog
@@ -827,6 +903,12 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   sync updates that deal instead of creating another.
 
 ## Recent Changes
+
+### `2026-11-10` — Papa Logistic delivery for POS orders
+
+- **Summary:** POS delivery orders can be quoted, sent to Papa Logistic, tracked through Papa webhooks and cancelled or photo-approved from erxes.
+- **Affected areas:** `modules/pos/papa/*` (+ `__tests__/papa.test.ts`), `modules/pos/{@types/papaConfigs.ts,db/definitions/papaConfigs.ts,db/models/PapaConfigs.ts}`, `modules/pos/graphql/{schemas,resolvers/queries,resolvers/mutations}/papa.ts`, `modules/pos/{@types/orders.ts,db/definitions/orders.ts,db/models/Orders.ts,graphql/schemas/orders.ts}`, `connectionResolvers.ts`, `routes.ts`, `meta/permissions.ts`, `apollo/*`.
+- **Contracts changed:** new Papa queries/mutations, `PosOrderDetail.papaDelivery`, route `GET /papa-callback/:secret`, permissions `posPapaConfigManage`, `posOrderPapaManage`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 

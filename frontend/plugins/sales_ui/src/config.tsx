@@ -10,6 +10,7 @@ import {
   IconTable,
   IconTrendingDown,
   IconTrophy,
+  IconTruckDelivery,
 } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
@@ -152,6 +153,13 @@ export const CONFIG: IUIConfig = {
             label: 'Payments',
             labelKey: 'payments',
             icon: IconCreditCard,
+            after: 'detail',
+          },
+          {
+            value: 'delivery',
+            label: 'Delivery',
+            labelKey: 'delivery',
+            icon: IconTruckDelivery,
             after: 'detail',
           },
         ],

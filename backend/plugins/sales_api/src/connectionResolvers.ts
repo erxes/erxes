@@ -50,6 +50,11 @@ import {
 import { IPosDocument } from './modules/pos/@types/pos';
 import { ICoverModel, loadCoverClass } from './modules/pos/db/models/Covers';
 import {
+  IPapaConfigModel,
+  loadPapaConfigClass,
+} from './modules/pos/db/models/PapaConfigs';
+import { IPapaConfigDocument } from './modules/pos/@types/papaConfigs';
+import {
   IPosOrderModel,
   loadPosOrderClass,
 } from './modules/pos/db/models/Orders';
@@ -100,6 +105,7 @@ export interface IModels {
   PosOrders: IPosOrderModel;
   PosSlots: IPosSlotModel;
   Covers: ICoverModel;
+  PapaConfigs: IPapaConfigModel;
   //ecommerce
   ProductReview: IProductReviewModel;
   Wishlist: IWishlistModel;
@@ -221,6 +227,10 @@ export const loadClasses = (
   models.Covers = db.model<ICoverDocument, ICoverModel>(
     'pos_covers',
     loadCoverClass(models),
+  );
+  models.PapaConfigs = db.model<IPapaConfigDocument, IPapaConfigModel>(
+    'sales_papa_configs',
+    loadPapaConfigClass(models),
   );
   models.ProductReview = db.model<IProductReviewDocument, IProductReviewModel>(
     'ecommerce_productreview',
