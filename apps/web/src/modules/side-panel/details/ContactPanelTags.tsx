@@ -1,8 +1,9 @@
 import { IconPlus } from '@tabler/icons-react';
 import { RecordTableInlineCell } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
-import { useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
+import { useCompaniesTag } from '~/modules/contacts/companies/useCompanies';
+import { tagChange } from '~/modules/contacts/components/MergeButton';
+import { useCustomersTag } from '~/modules/contacts/customers/useCustomers';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { ContactDetailSection } from './ContactDetailSection';
 
@@ -17,8 +18,10 @@ export const ContactPanelTags = ({
   tagIds?: string[];
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const customerEdit = useCustomerEdit();
-  const companyEdit = useCompanyEdit();
+  // Through the tag endpoint, as the list's command bar does, so the timeline says what was added
+  // or removed instead of "updated" with a tag diff.
+  const customerTag = useCustomersTag();
+  const companyTag = useCompaniesTag();
   const kind = contentType === 'core:customer' ? 'customer' : 'company';
 
   return (
@@ -29,9 +32,9 @@ export const ContactPanelTags = ({
         scope={`side-panel-${kind}.tags`}
         value={tagIds}
         onValueChange={(nextTagIds) =>
-          (kind === 'customer' ? customerEdit : companyEdit).mutate({
-            id: contentId,
-            tagIds: nextTagIds,
+          (kind === 'customer' ? customerTag : companyTag).mutate({
+            ids: [contentId],
+            ...tagChange(tagIds ?? [], nextTagIds),
           })
         }
       >
