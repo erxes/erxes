@@ -158,6 +158,7 @@ export const ERRORS = {
   PLUGIN_NOT_FOUND: { status: 404 },
   INVALID_SUBDOMAIN: { status: 400 },
   UNKNOWN_PERMISSION: { status: 400, data: Permissions },
+  DUPLICATE_PERMISSION_SET: { status: 400 },
   OWNER_ONLY_PERMISSION: { status: 400, data: Permissions },
   BEYOND_OWN_PERMISSIONS: { status: 403, data: Permissions.optional() },
   ROLE_NOT_FOUND: { status: 404 },

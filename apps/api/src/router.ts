@@ -1,5 +1,6 @@
 import { activitiesRouter } from '~/modules/activities/activities.router';
 import { auditRouter } from '~/modules/audit/audit.router';
+import { emailsRouter } from '~/modules/email/emails.router';
 import { eventsRouter } from '~/modules/events/events.router';
 import { filesRouter } from '~/modules/files/files.router';
 import { notificationsRouter } from '~/modules/notifications/notifications.router';
@@ -31,6 +32,7 @@ import { unscoped } from '~/orpc';
 export const coreRouter = unscoped.router({
   activities: activitiesRouter,
   audit: auditRouter,
+  emails: emailsRouter,
   events: eventsRouter,
   files: filesRouter,
   notifications: notificationsRouter,

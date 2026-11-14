@@ -71,6 +71,13 @@ export const runAs = <T>(who: Caller, fn: () => T): T => {
 /** Core acting on its own (`runAs(system('…'), fn)`). */
 export const system = (reason: string): Caller => ({ type: 'system', reason });
 
+/** The calling member's id, or null for a plugin, customer or core itself (`createdBy` columns). */
+export const callerUserId = () => {
+  const who = caller();
+
+  return who.type === 'user' ? who.userId : null;
+};
+
 /** The actor columns (`actor_type`, `actor_id`) a record of this caller's change stores. */
 export const actorOf = (who: Caller): { actorType: ActorType; actorId: string | null } => {
   switch (who.type) {

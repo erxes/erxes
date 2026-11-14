@@ -8,10 +8,16 @@ import { resolve } from 'node:path';
 import type * as pg from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 import {
+  CLIENT_PORTAL,
   CORE_CALLS,
+  WHOLE_MODULES,
   type Equivalent,
   HELPERS,
+  isClientPortal,
+  isStructureField,
+  OWN_TEAMS,
   pluginCall,
+  PUBLIC_ROUTE,
   REGISTRATIONS,
   UNMAPPED,
 } from './core-map.ts';
@@ -98,21 +104,27 @@ const RUNTIME_ENV =
 
 // Checklist items -------------------------------------------------------------
 
-type Item = { section: string; text: string; gap: boolean };
+type Item = { section: string; text: string; kind?: Equivalent['kind'] };
 
 const items = new Map<string, Item[]>();
 
-const add = (module: string, section: string, text: string, gap = false) => {
+const add = (module: string, section: string, text: string, kind?: Equivalent['kind']) => {
   const list = items.get(module) ?? [];
 
-  list.push({ section, text, gap });
+  list.push({ section, text, kind });
   items.set(module, list);
 };
 
+/** Whether the old plugin used core's departments or branches, by call or by field. */
+let usesTeams = false;
+const TEAMS = `${PLUGIN}_teams`;
+const TEAM_MEMBERS = `${PLUGIN}_team_members`;
+
 const describe = (equivalent: Equivalent) =>
-  equivalent.kind === 'gap'
-    ? `**gap**: ${equivalent.note ?? ''}`
-    : `${equivalent.kind} \`${equivalent.to.replaceAll('<plugin>', PLUGIN)}\`${equivalent.note ? ` (${equivalent.note})` : ''}`;
+  (equivalent.kind === 'gap' || equivalent.kind === 'drop'
+    ? `**${equivalent.kind}**: ${equivalent.note ?? ''}`
+    : `${equivalent.kind} \`${equivalent.to}\`${equivalent.note ? ` (${equivalent.note})` : ''}`
+  ).replaceAll('<plugin>', PLUGIN);
 
 const camel = (text: string) =>
   text.replaceAll(/[_-](\w)/g, (_match, char: string) => char.toUpperCase());
@@ -138,10 +150,15 @@ for (const collection of inventory.collections) {
 }
 
 for (const op of inventory.graphql.operations) {
+  const portal = isClientPortal(op);
+
   add(
     op.module,
     'Procedures',
-    `${op.kind} \`${op.name}\` → procedure \`${op.module}.${op.name}\` (returns \`${op.returns}\`) ${at(op)}`,
+    portal
+      ? `${op.kind} \`${op.name}\` → ${describe(CLIENT_PORTAL)} ${at(op)}`
+      : `${op.kind} \`${op.name}\` → procedure \`${op.module}.${op.name}\` (returns \`${op.returns}\`) ${at(op)}`,
+    portal ? 'drop' : undefined,
   );
 }
 
@@ -175,38 +192,66 @@ for (const call of inventory.trpcCalls) {
   const target = typeof call.pluginName === 'string' ? call.pluginName : undefined;
   const key = `${show(call.target)}.${show(call.action)}`;
 
-  const equivalent =
-    call.dynamic || !target
+  const equivalent = isClientPortal(call)
+    ? CLIENT_PORTAL
+    : call.dynamic || !target
       ? UNMAPPED
       : target === 'core'
-        ? (CORE_CALLS[key] ?? UNMAPPED)
-        : pluginCall(target, plugin);
+        ? (CORE_CALLS[key] ?? WHOLE_MODULES[show(call.target)] ?? UNMAPPED)
+        : pluginCall(target, plugin, show(call.action));
 
   add(
     call.module,
     'Core calls',
     `${target ?? '<dynamic>'} \`${key}\` → ${describe(equivalent)} ${at(call)}`,
-    equivalent.kind === 'gap',
+    equivalent.kind,
+  );
+
+  if (equivalent === OWN_TEAMS) usesTeams = true;
+}
+
+// Old core's structure: the plugin keeps its own departments and branches, imported with
+// their Mongo ids, so the ids its records hold stay valid.
+for (const schema of inventory.schemas) {
+  for (const field of schema.fields.filter((entry) => isStructureField(entry.name))) {
+    usesTeams = true;
+    add(
+      schema.module,
+      'Tables',
+      `\`${schema.name}.${field.name}\` → plugin-owned: ids in \`${TEAMS}\`, unchanged by the import ${at(schema)}`,
+      OWN_TEAMS.kind,
+    );
+  }
+}
+
+if (usesTeams) {
+  add(
+    '(plugin)',
+    'Tables',
+    `\`${TEAMS}\` and \`${TEAM_MEMBERS}\` from old core's \`departments\`, \`branches\` and the members' \`departmentIds\` and \`branchIds\` (drafts in migration/schema-draft.ts, imported by scripts/import-mongo.ts): core has no departments or branches`,
+    OWN_TEAMS.kind,
   );
 }
 
 for (const call of inventory.eventCalls) {
-  const equivalent = HELPERS[call.helper] ?? UNMAPPED;
+  const equivalent = isClientPortal(call) ? CLIENT_PORTAL : (HELPERS[call.helper] ?? UNMAPPED);
 
   add(
     call.module,
     'Events',
     `\`${call.helper}\`${call.type ? ` ${show(call.type)}` : ''} → ${describe(equivalent)} ${at(call)}`,
-    equivalent.kind === 'gap',
+    equivalent.kind,
   );
 }
 
 for (const route of inventory.routes) {
+  const equivalent = isClientPortal(route) ? CLIENT_PORTAL : PUBLIC_ROUTE;
+
   add(
     route.module,
     'Routes',
-    `${route.method} \`${route.path}\`${route.webhook ? ' (webhook)' : ''} → **gap**: a public route, and core can't yet tell a public request's organisation ${at(route)}`,
-    true,
+    `${route.method} \`${route.path}\`${route.webhook ? ' (webhook)' : ''} → ${describe(equivalent)} ${at(route)}`,
+    equivalent.kind,
   );
 }
 
@@ -225,7 +270,7 @@ for (const entry of inventory.registrations) {
     '(plugin)',
     'Registrations',
     `${entry.kind} \`${show(entry.id)}\`${entry.group ? ` (${entry.group})` : ''} → ${describe(equivalent)} ${at(entry)}`,
-    equivalent.kind === 'gap',
+    equivalent.kind,
   );
 }
 
@@ -250,7 +295,8 @@ const ticked = new Map(
 );
 
 const all = [...items.values()].flat();
-const gaps = all.filter((item) => item.gap).length;
+const gaps = all.filter((item) => item.kind === 'gap').length;
+const drops = all.filter((item) => item.kind === 'drop').length;
 
 const order = [
   '(plugin)',
@@ -275,8 +321,9 @@ const lines = [
   `# Migrating ${plugin} to the new core`,
   '',
   `From erxes/erxes \`${inventory.source.ref}\` (${inventory.source.sha.slice(0, 10)}), \`${plugin}_api\` and \`${plugin}_ui\`.`,
-  `${all.length} items, ${gaps} of them gaps. Follow \`.agents/skills/plugin-migrate\`: one module at a time,`,
-  'tick an item once it works on the new core and its old bugs and workarounds are gone, and tick a gap once filed, ending its line with `(filed <issue url>)`.',
+  `${all.length} items: ${gaps} gaps and ${drops} drops. Follow \`.agents/skills/plugin-migrate\`: one module at a time,`,
+  'tick an item once it works on the new core and its old bugs and workarounds are gone, tick a gap once filed, ending its line with `(filed <issue url>)`,',
+  'and tick a drop once its code is left out (segments, the client portal and brands are not migrated).',
   '',
   `The old UI imports ${symbols} symbols from \`ui-modules\` in ${inventory.uiModules.files} files; the host has no \`ui-modules\`, so each page rebuilds them from \`erxes-ui\` (members through its \`SelectMember\` and \`MemberInline\`, other records through \`EntityPicker\`). erxes-ui's own old-to-new component table is \`packages/ui/MIGRATION.md\` in erxes (branch \`postgre\`).`,
   `GraphQL types (${inventory.graphql.types.length}) are listed in \`migration/inventory.json\` for reference; procedures replace them.`,
@@ -343,7 +390,12 @@ for (const collection of inventory.collections) {
 
   drafted.add(table);
 
-  const fields = schema.fields.filter((entry) => entry.type !== 'spread' && entry.name !== '_id');
+  // `timestamps: true` adds createdAt and updatedAt below; a schema that also declares them gets them once.
+  const stamped = new Set(schema.timestamps ? ['createdAt', 'updatedAt'] : []);
+
+  const fields = schema.fields.filter(
+    (entry) => entry.type !== 'spread' && entry.name !== '_id' && !stamped.has(entry.name),
+  );
 
   const columns = fields.map((entry) => {
     const column = `${columnOf(entry.type)}${entry.required ? '.notNull()' : ''}`;
@@ -369,7 +421,9 @@ for (const collection of inventory.collections) {
       '    // The Mongo `_id`, kept as text so references survive the import.',
       '    id: text().primaryKey(),',
       '    orgId: text().notNull(),',
-      ...spreads.map((entry) => `    // TODO spread in the old schema: ${entry.name}`),
+      ...spreads.map(
+        (entry) => `    // Spread in the old schema, list its fields here: ${entry.name}`,
+      ),
       ...columns,
       ...stamps,
       '  },',
@@ -399,6 +453,72 @@ for (const collection of inventory.collections) {
   );
 }
 
+// The plugin's own departments and branches, in place of old core's structure.
+if (usesTeams) {
+  tables.push(
+    [
+      "/** Old core's departments and branches, now the plugin's. Ids are the Mongo `_id`s. */",
+      `export const ${camel(TEAMS)} = table(`,
+      "  'teams',",
+      '  {',
+      '    id: text().primaryKey(),',
+      '    orgId: text().notNull(),',
+      "    kind: text({ enum: ['department', 'branch'] }).notNull(),",
+      '    name: text(),',
+      '    code: text(),',
+      '    parentId: text(),',
+      '    supervisorId: text(),',
+      '    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),',
+      '    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),',
+      '  },',
+      `  (t) => [index('${TEAMS}_org_idx').on(t.orgId)],`,
+      ');',
+      '',
+      '/**',
+      " * Who is in which team, from old users' departmentIds and branchIds. User ids are core's,",
+      ' * which keep the Mongo `_id` of members imported from old erxes. Old users may point at',
+      ' * removed departments: drop those rows before adding a foreign key to the teams.',
+      ' */',
+      `export const ${camel(TEAM_MEMBERS)} = table(`,
+      "  'team_members',",
+      '  {',
+      '    orgId: text().notNull(),',
+      '    teamId: text().notNull(),',
+      '    userId: text().notNull(),',
+      '  },',
+      `  (t) => [primaryKey({ columns: [t.teamId, t.userId] }), index('${TEAM_MEMBERS}_user_idx').on(t.userId)],`,
+      ');',
+    ].join('\n'),
+  );
+
+  const structure = (collection: string, kind: string) =>
+    [
+      '  {',
+      `    collection: '${collection}',`,
+      `    table: '${TEAMS}',`,
+      `    values: { kind: '${kind}' },`,
+      "    columns: { _id: 'id', title: 'name', code: 'code', parentId: 'parent_id', supervisorId: 'supervisor_id', createdAt: 'created_at' },",
+      '  },',
+    ].join('\n');
+
+  const members = (field: string) =>
+    [
+      '  {',
+      "    collection: 'users',",
+      `    table: '${TEAM_MEMBERS}',`,
+      `    unwind: '${field}',`,
+      `    columns: { ${field}: 'team_id', _id: 'user_id' },`,
+      '  },',
+    ].join('\n');
+
+  imports.push(
+    structure('departments', 'department'),
+    structure('branches', 'branch'),
+    members('departmentIds'),
+    members('branchIds'),
+  );
+}
+
 writeFileSync(
   resolve(here, 'schema-draft.ts'),
   [
@@ -406,7 +526,7 @@ writeFileSync(
     '// schemas. Nothing imports this file: move a table into api/src/db/schema.ts when',
     '// you port its module, pick real types (integer, enums, foreign keys), then run',
     '// `pnpm db:generate` and add its core_enable_tenant_rls line (schema-change skill).',
-    "import { boolean, doublePrecision, index, jsonb, text, timestamp } from 'drizzle-orm/pg-core';",
+    `import { boolean, doublePrecision, index, jsonb, ${usesTeams ? 'primaryKey, ' : ''}text, timestamp } from 'drizzle-orm/pg-core';`,
     "import { table } from '../api/src/db/table.ts';",
     '',
     tables.join('\n\n'),
@@ -419,11 +539,20 @@ writeFileSync(
   [
     '// Which Mongo field goes to which column, per collection, for scripts/import-mongo.ts.',
     '// Written by migration/checklist.ts; edit it as the tables in api/src/db/schema.ts change.',
-    'export const IMPORT_MAP: { collection: string; table: string; columns: Record<string, string> }[] = [',
+    '// `values` are columns every row gets; `unwind` makes one row per item of that array field.',
+    'export const IMPORT_MAP: {',
+    '  collection: string;',
+    '  table: string;',
+    '  columns: Record<string, string>;',
+    '  values?: Record<string, string>;',
+    '  unwind?: string;',
+    '}[] = [',
     ...imports,
     '];',
     '',
   ].join('\n'),
 );
 
-console.info(`MIGRATION.md: ${all.length} items, ${gaps} gaps; ${tables.length} draft tables`);
+console.info(
+  `MIGRATION.md: ${all.length} items, ${gaps} gaps, ${drops} drops; ${tables.length} draft tables`,
+);

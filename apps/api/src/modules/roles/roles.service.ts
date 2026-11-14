@@ -2,6 +2,7 @@ import {
   CORE_PERMISSIONS,
   OWNER_ONLY_PERMISSIONS,
   type PermissionInfo,
+  type PermissionSet,
 } from '@erxes/core-contract';
 import {
   caller,
@@ -72,13 +73,29 @@ const selectRoles = (client: Db) =>
 const roleWithMembers = async (client: Db, key: string) =>
   oneRow(await selectRoles(client).where(eq(roles.key, key)).limit(1));
 
-/** Every action a role can hold: core's, and the installed plugins' (from their manifests). */
-export const permissionCatalog = async (client: Db): Promise<PermissionInfo[]> => {
-  const installed = await client
+/** The manifests of the plugins this organisation has on. */
+const installedManifests = (client: Db) =>
+  client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
     .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
+
+/** The installed plugins' ready-made bundles of their permissions. */
+export const permissionSets = async (client: Db): Promise<PermissionSet[]> =>
+  (await installedManifests(client)).flatMap((plugin) =>
+    (plugin.manifest?.permissionSets ?? []).map((set) => ({
+      source: plugin.name,
+      key: set.key,
+      label: set.label,
+      description: set.description ?? null,
+      permissions: set.permissions,
+    })),
+  );
+
+/** Every action a role can hold: core's, and the installed plugins' (from their manifests). */
+export const permissionCatalog = async (client: Db): Promise<PermissionInfo[]> => {
+  const installed = await installedManifests(client);
 
   return [
     ...CORE_PERMISSIONS.map((permission) => ({

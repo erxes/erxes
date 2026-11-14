@@ -135,6 +135,26 @@ export const PermissionInfo = z.object({
 
 export type PermissionInfo = z.infer<typeof PermissionInfo>;
 
+/** A plugin's ready-made bundle of its permissions (`frontline` `agent`), added to a role at once. */
+/** A bundle of a plugin's own permissions, as its manifest declares it. */
+export const ManifestPermissionSet = z.object({
+  key: z.string().regex(/^[a-z][a-z0-9_]{0,39}$/),
+  label: z.string().trim().min(1).max(100),
+  description: z.string().trim().max(300).optional(),
+  permissions: z.array(PermissionAction).min(1).max(500),
+});
+
+export const PermissionSet = z.object({
+  /** The plugin that offers it. */
+  source: z.string(),
+  key: z.string(),
+  label: z.string(),
+  description: z.string().nullable(),
+  permissions: z.array(z.string()),
+});
+
+export type PermissionSet = z.infer<typeof PermissionSet>;
+
 const RoleFields = createUpdateSchema(roles, {
   name: (name) => name.trim().min(1).max(60),
   description: (value) => value.trim().max(300),
@@ -180,6 +200,13 @@ export const rolesContract = {
       summary: "Every action a role can include: core's and installed plugins'",
     })
     .output(listOf(PermissionInfo)),
+  permissionSets: base
+    .route({
+      method: 'GET',
+      path: '/permission-sets',
+      summary: "Installed plugins' ready-made bundles of their permissions, to add to a role",
+    })
+    .output(listOf(PermissionSet)),
   create: base
     .route({
       method: 'POST',

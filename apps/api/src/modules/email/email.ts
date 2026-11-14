@@ -9,12 +9,25 @@ const log = logger.child({ component: 'email' });
 
 let transporter: Transporter | null = null;
 
-/** Sent emails while `EMAIL_DRIVER=log` (development, tests). */
-export const loggedEmails: { to: string; subject: string; text: string }[] = [];
+interface Message {
+  to: string;
+  replyTo?: string;
+  subject: string;
+  html: string;
+  text: string;
+}
 
-const deliver = async (message: { to: string; subject: string; html: string; text: string }) => {
+/** Sent emails while `EMAIL_DRIVER=log` (development, tests). */
+export const loggedEmails: Omit<Message, 'html'>[] = [];
+
+const deliver = async (message: Message) => {
   if (config.email.driver === 'log') {
-    loggedEmails.push({ to: message.to, subject: message.subject, text: message.text });
+    loggedEmails.push({
+      to: message.to,
+      replyTo: message.replyTo,
+      subject: message.subject,
+      text: message.text,
+    });
 
     if (loggedEmails.length > 100) loggedEmails.shift();
     log.info(
@@ -48,7 +61,13 @@ export const emailJob = defineJob({
   concurrency: 5,
   payload: EmailPayload,
   async handle(job) {
-    await deliver({ to: job.payload.to, ...renderEmail(job.payload) });
+    const { payload } = job;
+
+    await deliver({
+      to: payload.to,
+      replyTo: payload.template === 'message' ? payload.replyTo : undefined,
+      ...renderEmail(payload),
+    });
   },
 });
 
