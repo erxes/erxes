@@ -1,7 +1,12 @@
 /* One Tailwind build for the whole app: erxes-ui's source styles (theme, page
-   defaults, its own utilities), plus the utilities this app's code uses. */
+   defaults, component styles, its own utilities), plus the utilities this app's code uses. */
 @import '../../../packages/ui/src/styles.css';
-@import './app.css';
 @source './';
-/* BlockNote's shadcn skin styles its toolbar, menus and panels with Tailwind utilities. */
-@source '../node_modules/@blocknote/shadcn/dist';
+
+/* Layouts only one screen uses. */
+@theme {
+  /* The leads report's stage funnel: stage, now, reached, average stay. */
+  --grid-template-columns-lead-funnel: minmax(90px, 1fr) 2fr 2fr 64px;
+  /* The leads report's cohort tables: name, new leads, customers, rate. */
+  --grid-template-columns-lead-cohort: minmax(90px, 1fr) 2fr 70px 56px;
+}

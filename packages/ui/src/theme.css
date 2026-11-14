@@ -7,6 +7,9 @@
   utilities; see core-ui/src/styles.css for the host.
 */
 @custom-variant dark (&:is(.dark *));
+/* Inside an app layout whose navigation panel is closed, where its toggle button floats at the
+   top left; AppLayout sets the attribute. */
+@custom-variant navigation-collapsed (&:is([data-navigation-collapsed] *));
 
 @utility container {
   margin-inline: auto;
@@ -27,6 +30,7 @@
 
   --text-*: initial;
   /* Counters, keyboard hints and initials in small avatars. They keep the surrounding line height. */
+  --text-4xs: 0.5rem;
   --text-3xs: 0.625rem;
   --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
@@ -65,6 +69,11 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  /* Status colours as text, readable on their own 10% tint. */
+  --color-success-text: var(--success-text);
+  --color-warning-text: var(--warning-text);
+  --color-destructive-text: var(--destructive-text);
+  --color-info-text: var(--info-text);
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -100,6 +109,23 @@
   --radius-sm: calc(var(--radius) - 4px);
 
   --spacing-cell: 33px;
+
+  /* An image or video opened full size over the page. */
+  --max-width-lightbox: 90vw;
+  --max-height-lightbox: 90vh;
+
+  /* A content-sized first track and the rest: label and value, icon and text. */
+  --grid-template-columns-leading: auto minmax(0, 1fr);
+  --grid-template-rows-leading: auto minmax(0, 1fr);
+  /* A side panel's field labels. */
+  --grid-template-columns-field: 6.5rem minmax(0, 1fr);
+  /* A side column of 18 to 24rem beside the content. */
+  --grid-template-columns-aside: minmax(18rem, 24rem) minmax(0, 1fr);
+
+  /* Panels and sidebars sliding open or shut. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  /* What changes when a panel or control grows, shrinks or slides in, fading as it goes. */
+  --transition-property-layout: width, height, margin, padding, left, right, opacity;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -254,6 +280,37 @@
       transform: translateX(-50%) translateY(-10%);
     }
   }
+}
+
+/* Inline, because the variable resolves on the popup, not on :root. A popup is at most 24rem
+   tall, or the room Base UI measures beside its anchor; BlockNote's menus, which don't measure,
+   get half the viewport. */
+@theme inline {
+  --max-height-popup: min(24rem, var(--available-height, 50dvh));
+}
+
+/* One of Spinner's ten spokes: a bar left of the centre that turns about a point one bar
+   length further left. */
+@utility spinner-spoke {
+  position: absolute;
+  top: -3.9%;
+  left: -10%;
+  width: 24%;
+  height: 8%;
+  transform-origin: -100%;
+}
+
+/* Text painted with a bright band, which animate-text-shimmer sweeps across it. */
+@utility shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-muted-foreground) 40%,
+    var(--color-foreground) 50%,
+    var(--color-muted-foreground) 60%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  color: transparent;
 }
 
 @utility hide-scroll {

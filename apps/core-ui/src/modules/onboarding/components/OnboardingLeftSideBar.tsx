@@ -58,7 +58,7 @@ export const OnboardingLeftSideBar = ({
               className="flex flex-col items-center justify-center animate-in"
               style={appearStyle({ x: direction > 0 ? 48 : -48, duration: 160 })}
             >
-              <div className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
+              <div className="flex size-12 items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
                 <current.icon className="h-6 w-6" />
               </div>
               <h4 className="mt-3 max-w-[280px] text-center text-xl leading-tight text-white">

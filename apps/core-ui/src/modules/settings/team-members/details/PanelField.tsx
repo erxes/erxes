@@ -13,7 +13,7 @@ export const PanelField = ({
   icon?: Icon;
   children: ReactNode;
 }) => (
-  <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 min-h-7">
+  <div className="grid grid-cols-field items-center gap-x-2 min-h-7">
     <Label
       variant="peer"
       className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"

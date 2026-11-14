@@ -39,7 +39,7 @@ const BellIndicators = ({ count }: { count: number }) => {
         />
       )}
       {count > 0 && (
-        <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[9px] leading-none font-semibold text-destructive-foreground">
+        <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-3xs leading-none font-semibold text-destructive-foreground">
           {count > 99 ? '99+' : count}
         </span>
       )}

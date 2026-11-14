@@ -25,7 +25,7 @@ const AlertDialogContent = ({
         <AlertDialogPrimitive.Popup
           initialFocus={initialFocus ?? cancelRef}
           className={cn(
-            'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-closed:slide-out-to-top-[48%] data-open:slide-in-from-top-1/2 sm:rounded-lg',
+            'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-closed:slide-out-to-top-1/2 data-open:slide-in-from-top-1/2 sm:rounded-lg',
             className,
           )}
           {...props}

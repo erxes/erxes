@@ -9,8 +9,8 @@ import { cn } from '../lib/utils';
 const avatarVariants = cva('relative flex shrink-0 overflow-hidden rounded-full border-0', {
   variants: {
     size: {
-      xs: 'size-3 text-[8px]',
-      sm: 'size-3.5 text-[10px]',
+      xs: 'size-3 text-4xs',
+      sm: 'size-3.5 text-3xs',
       default: 'size-4 text-xs',
       lg: 'size-6 text-sm',
       xl: 'size-8 text-base',

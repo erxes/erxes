@@ -40,7 +40,7 @@ export const SidebarGroupLabel = ({ className, ...props }: React.ComponentProps<
     <div
       data-sidebar="group-label"
       className={cn(
-        'flex h-6 shrink-0 items-center rounded-lg px-2 font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'flex h-6 shrink-0 items-center rounded-lg px-2 font-sans text-3xs font-semibold uppercase tracking-wider text-muted-foreground outline-hidden transition-layout duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
         'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         className,
       )}

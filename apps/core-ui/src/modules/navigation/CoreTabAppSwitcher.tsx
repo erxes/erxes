@@ -17,7 +17,7 @@ const AppGroup = ({
 }) =>
   apps.length ? (
     <section className="py-1 first:pt-0">
-      <h2 className="flex h-7 items-center px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <h2 className="flex h-7 items-center px-2 text-3xs font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </h2>
       <div className="grid grid-cols-2 gap-0.5">

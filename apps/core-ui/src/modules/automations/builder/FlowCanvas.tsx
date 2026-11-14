@@ -60,7 +60,7 @@ const Arms = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
           <div key={arm.key} className="relative flex flex-col items-center px-4">
             <ArmRule at={at} count={arms.length} edge="top" />
             <div className="h-4 w-px shrink-0 bg-border" />
-            <span className="relative z-10 rounded-full border bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+            <span className="relative z-10 rounded-full border bg-muted px-2.5 py-0.5 text-2xs font-medium text-muted-foreground">
               {arm.label}
             </span>
             <StepList steps={arm.steps} address={{ parentId: step.id, arm: arm.key }} flow={flow} />

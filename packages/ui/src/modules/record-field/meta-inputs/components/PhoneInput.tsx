@@ -65,7 +65,7 @@ const CountrySelect = ({
       <Popover.Content variant="flush" className="w-56" align="start">
         <Command>
           <Command.Input placeholder="Search country..." className="h-9" />
-          <Command.List className="max-h-[300px] overflow-auto">
+          <Command.List className="max-h-75 overflow-auto">
             <Command.Group>
               {CountryPhoneCodes.map((country) => (
                 <Command.Item

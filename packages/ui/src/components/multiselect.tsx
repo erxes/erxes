@@ -42,7 +42,7 @@ const SelectorField = ({
     <Combobox.Chips
       ref={fieldRef}
       className={cn(
-        'relative min-h-7 rounded shadow-xs transition-[color,box-shadow] text-sm focus-within:outline-hidden focus-within:shadow-focus has-disabled:cursor-not-allowed has-disabled:opacity-50 pe-9',
+        'relative min-h-7 rounded shadow-xs transition text-sm focus-within:outline-hidden focus-within:shadow-focus has-disabled:cursor-not-allowed has-disabled:opacity-50 pe-9',
         // Not p-1: tailwind-merge would drop the pe-9 that keeps the chips clear of Clear all.
         !empty && 'py-1 ps-1',
         !disabled && !empty && 'cursor-text',

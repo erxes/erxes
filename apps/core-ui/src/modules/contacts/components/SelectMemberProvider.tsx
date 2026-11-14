@@ -116,7 +116,7 @@ export const SelectMemberContent = () => {
         wrapperClassName="flex-auto"
         focusOnMount
       />
-      <Command.List className="max-h-[300px] overflow-y-auto">
+      <Command.List className="max-h-75 overflow-y-auto">
         <Combobox.Empty loading={team.isPending} error={team.error ?? undefined} />
         {ordered.map((member, index) => (
           <div key={member.id} className="contents">

@@ -28,14 +28,9 @@ export const SidebarMenuItem = ({ ref, className, ...props }: React.ComponentPro
 );
 
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded p-2 text-left font-medium outline-hidden transition-[width,height,padding] hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary-text data-[active=true]:[&>svg]:text-primary-text data-[active=true]:[&>svg]:animate-icon-pop motion-reduce:[&>svg]:animate-none [&>svg]:transition-transform active:[&>svg]:scale-90 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:bg-foreground/5 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:text-foreground group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:[&>svg]:text-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+  'peer/menu-button flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded p-2 text-left font-medium outline-hidden transition-layout hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary-text data-[active=true]:[&>svg]:text-primary-text [&>svg]:transition-transform active:[&>svg]:scale-90 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:bg-foreground/5 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:text-foreground group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:[&>svg]:text-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
-      variant: {
-        default: 'hover:bg-accent',
-        outline:
-          'bg-background shadow-[0_0_0_1px_var(--border)] hover:bg-accent  hover:shadow-[0_0_0_1px_var(--accent)]',
-      },
       size: {
         default: 'h-7 text-sm',
         sm: 'h-6 text-xs',
@@ -43,7 +38,6 @@ const sidebarMenuButtonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: 'default',
       size: 'default',
     },
   },
@@ -53,7 +47,6 @@ const sidebarMenuButtonVariants = cva(
 export const SidebarMenuButton = ({
   render,
   isActive = false,
-  variant = 'default',
   size = 'default',
   tooltip,
   tooltipVisibility = 'collapsed',
@@ -74,7 +67,7 @@ export const SidebarMenuButton = ({
       'data-size': size,
       'data-active': isActive,
       ...props,
-      className: cn(sidebarMenuButtonVariants({ variant, size }), className),
+      className: cn(sidebarMenuButtonVariants({ size }), className),
     },
   });
 

@@ -37,7 +37,7 @@ const EntryDetails = ({ entry }: { entry: AuditEntry }) => (
       </table>
     )}
     {entry.metadata && (
-      <pre className="max-w-2xl overflow-x-auto rounded bg-background p-2 text-[11px]">
+      <pre className="max-w-2xl overflow-x-auto rounded bg-background p-2 text-2xs">
         {JSON.stringify(entry.metadata, null, 2)}
       </pre>
     )}

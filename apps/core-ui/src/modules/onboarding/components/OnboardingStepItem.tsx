@@ -43,7 +43,7 @@ export const OnboardingStepItem = ({
         style={{ transitionTimingFunction: EASE_SPRING }}
         onClick={() => isChecked && onSelect(step.step)}
       >
-        <span className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
+        <span className="flex size-12 items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
           <Icon className="h-6 w-6" />
         </span>
         <span className="flex flex-col gap-0.5">

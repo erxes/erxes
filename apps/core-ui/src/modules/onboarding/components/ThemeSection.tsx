@@ -76,7 +76,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
         className="w-full px-6 sm:px-12 lg:px-20"
       >
         <Button
-          className="w-full hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full hover:scale-102 active:scale-98"
           size="lg"
           variant="secondary"
           onClick={onContinue}

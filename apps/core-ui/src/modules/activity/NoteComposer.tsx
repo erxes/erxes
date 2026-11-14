@@ -74,7 +74,7 @@ const SubmitButton = ({
   >
     {saving ? <Spinner size="sm" /> : null}
     {label}
-    <kbd className="ml-0.5 hidden h-4 items-center gap-0.5 rounded bg-primary-foreground/20 px-1 font-sans text-[10px] font-normal sm:inline-flex">
+    <kbd className="ml-0.5 hidden h-4 items-center gap-0.5 rounded bg-primary-foreground/20 px-1 font-sans text-3xs font-normal sm:inline-flex">
       {IS_MAC ? <IconCommand className="size-2.5" /> : 'Ctrl'}
       <IconCornerDownLeft className="size-2.5" />
     </kbd>

@@ -41,7 +41,7 @@ const DataPicker = ({
                 <RecordIcon className="text-muted-foreground" />
                 <span className="truncate">{field.label.replace(/ \(custom\)$/, '')}</span>
                 {field.path.startsWith('subject.customFields.') && (
-                  <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
+                  <span className="ml-auto shrink-0 text-3xs text-muted-foreground">
                     {t('custom', 'Custom')}
                   </span>
                 )}

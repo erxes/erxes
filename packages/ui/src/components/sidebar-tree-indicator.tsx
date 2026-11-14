@@ -108,7 +108,7 @@ export const SidebarTreeIndicator = ({
       className={cn(
         'pointer-events-none absolute top-0 -left-[1.5px] w-0.5 list-none rounded-full bg-primary will-change-transform',
         animate &&
-          'transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+          'transition-transform duration-300 ease-out-quint motion-reduce:transition-none',
       )}
       style={{
         height: position.height - 8,

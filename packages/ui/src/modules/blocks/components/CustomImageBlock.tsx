@@ -127,7 +127,7 @@ const CustomImagePreview: FC<
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <Dialog.Content
               variant="bare"
-              className="w-auto max-w-[90vw]"
+              className="w-auto max-w-lightbox"
               aria-describedby={undefined}
             >
               <Dialog.Title className="sr-only">
@@ -136,7 +136,7 @@ const CustomImagePreview: FC<
               <img
                 src={src}
                 alt={block.props.caption || block.props.name || ''}
-                className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
+                className="max-h-lightbox max-w-lightbox rounded object-contain shadow-2xl"
               />
             </Dialog.Content>
           </Dialog>

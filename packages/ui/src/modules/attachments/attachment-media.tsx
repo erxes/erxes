@@ -65,7 +65,7 @@ export const AttachmentPreview = ({ images, renderThumbnails }: AttachmentPrevie
               key={current.url}
               src={readImage(current.url)}
               alt={current.name}
-              className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-2xl select-none"
+              className="max-w-lightbox max-h-lightbox object-contain rounded shadow-2xl select-none"
               draggable={false}
             />
             <Button
