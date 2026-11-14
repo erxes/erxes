@@ -53,9 +53,9 @@ describe('plugin connection (registry, installations, tokens)', () => {
     await expect(
       t.owner().notifications.create({ userIds: [t.ids.owner], kind: 'hr.x.y', title: 'x' }),
     ).rejects.toMatchObject({ code: 'PLUGIN_ONLY' });
-    await expect(t.client(token.access_token).customers.list({})).rejects.toMatchObject({
-      code: 'MEMBERS_ONLY',
-    });
+    await expect(
+      t.client(token.access_token).users.invite({ email: 'new@acme.mn' }),
+    ).rejects.toMatchObject({ code: 'MEMBERS_ONLY' });
   });
 
   it('cuts a plugin off the moment it is uninstalled, and only the owner decides', async () => {

@@ -945,6 +945,18 @@
       }
     }
   },
+  "emails": {
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/emails"
+        }
+      }
+    }
+  },
   "events": {
     "publish": {
       "~orpc": {
@@ -1765,6 +1777,16 @@
         "route": {
           "method": "GET",
           "path": "/permissions"
+        }
+      }
+    },
+    "permissionSets": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/permission-sets"
         }
       }
     },

@@ -53,6 +53,6 @@ describe('customers for plugins (find or create)', () => {
     await expect(
       narrow.customers.findOrCreate({ primaryEmail: 'x@mail.mn' }),
     ).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
-    await expect(narrow.customers.list({})).rejects.toMatchObject({ code: 'MEMBERS_ONLY' });
+    await expect(narrow.customers.list({})).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
   });
 });

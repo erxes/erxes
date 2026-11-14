@@ -5,8 +5,8 @@
 //     pnpm migrate:import [-- --only <collection>]
 //
 // Rows keep the Mongo `_id` as `id`, so running it again skips what it already
-// copied. Tables not in the database yet, and fields with no column, are skipped
-// and listed at the end.
+// copied (rows that hit any unique key are skipped). Tables not in the database
+// yet, and fields with no column, are skipped and listed at the end.
 import { parseArgs } from 'node:util';
 import { MongoClient, ObjectId } from 'mongodb';
 import { Pool } from 'pg';
@@ -54,7 +54,7 @@ const pool = new Pool({ connectionString: DATA_URL });
 const skipped: string[] = [];
 
 try {
-  for (const { collection, table, columns } of IMPORT_MAP) {
+  for (const { collection, table, columns, values = {}, unwind } of IMPORT_MAP) {
     if (args.only && args.only !== collection) continue;
 
     const { rows: described } = await pool.query<{ column_name: string; data_type: string }>(
@@ -81,7 +81,8 @@ try {
       return false;
     });
 
-    const names = ['org_id', ...fields.map(([, name]) => name)];
+    const constants = Object.entries(values);
+    const names = ['org_id', ...constants.map(([name]) => name), ...fields.map(([, name]) => name)];
     const cursor = mongo.db().collection(collection).find({}, { batchSize: BATCH });
     let copied = 0;
     let seen = 0;
@@ -98,7 +99,7 @@ try {
         await client.query("SELECT set_config('app.org_id', $1, true)", [ORG_ID]);
 
         const result = await client.query(
-          `INSERT INTO "${table}" (${names.map((name) => `"${name}"`).join(', ')}) VALUES ${placeholders.join(', ')} ON CONFLICT (id) DO NOTHING`,
+          `INSERT INTO "${table}" (${names.map((name) => `"${name}"`).join(', ')}) VALUES ${placeholders.join(', ')} ON CONFLICT DO NOTHING`,
           batch.flat(),
         );
 
@@ -116,24 +117,36 @@ try {
 
     for await (const document of cursor) {
       seen += 1;
-      batch.push([
-        ORG_ID,
-        ...fields.map(([field, name]) => {
-          const column = known.get(name) ?? { array: false, json: false };
 
-          return cell(document[field], column);
-        }),
-      ]);
+      // `unwind` turns one document into a row per item of that array field (a user's departmentIds).
+      const copies = unwind
+        ? [document[unwind]]
+            .flat()
+            .filter((item) => item !== undefined && item !== null)
+            .map((item) => ({ ...document, [unwind]: item }))
+        : [document];
 
-      if (batch.length === BATCH) {
-        await insert(batch);
-        batch = [];
+      for (const copy of copies) {
+        batch.push([
+          ORG_ID,
+          ...constants.map(([, value]) => value),
+          ...fields.map(([field, name]) => {
+            const column = known.get(name) ?? { array: false, json: false };
+
+            return cell(copy[field], column);
+          }),
+        ]);
+
+        if (batch.length === BATCH) {
+          await insert(batch);
+          batch = [];
+        }
       }
     }
 
     if (batch.length > 0) await insert(batch);
 
-    console.info(`${collection} → ${table}: ${copied} of ${seen} copied`);
+    console.info(`${collection} → ${table}: ${copied} rows copied from ${seen} documents`);
   }
 } finally {
   await mongo.close();

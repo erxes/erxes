@@ -3,6 +3,7 @@ import type { CUSTOMER_STATES, LEAD_EVENTS } from '@erxes/core-db/enums';
 import {
   actorOf,
   caller,
+  callerUserId,
   type companies,
   type customers,
   type Db,
@@ -106,11 +107,9 @@ const convert = ({ stages, current, currentStage, wanted, now }: Change): LeadPl
 
   if (to?.kind !== 'qualified') to = firstOf(stages, 'qualified') ?? to;
 
-  const who = caller();
-
   const set: LeadPlan['set'] = {
     convertedAt: now,
-    convertedBy: who.type === 'user' ? who.userId : null,
+    convertedBy: callerUserId(),
     leadStageId: to?.id ?? null,
     disqualifyReason: null,
     ...(to?.id === current.leadStageId ? {} : { leadStageChangedAt: now }),

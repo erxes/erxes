@@ -1,6 +1,6 @@
 import type { Db } from '@erxes/core-db';
 import type { CompanyInput } from '@erxes/core-contract';
-import { caller, companies, newId, savepoint } from '@erxes/core-db';
+import { callerUserId, companies, newId, savepoint } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import {
@@ -89,7 +89,7 @@ export const createCompany = async (client: Db, input: CompanyInput & { primaryN
           primaryPhone: phone.primary,
           phones: phone.list,
           ...lead.set,
-          createdBy: caller('user').userId,
+          createdBy: callerUserId(),
         })
         .returning({ id: companies.id }),
     );

@@ -200,6 +200,30 @@ const namespaced = (plugin: string, values: string[] | undefined, what: string) 
   }
 };
 
+/** Permission sets name only the manifest's own permissions, and each key once. */
+const ownPermissionSets = (manifest: PluginManifest) => {
+  const declared = new Set(manifest.permissions?.map((item) => item.action));
+  const keys = new Set<string>();
+
+  for (const set of manifest.permissionSets ?? []) {
+    const unknown = set.permissions.find((action) => !declared.has(action));
+
+    if (unknown) {
+      throw fail(
+        'UNKNOWN_PERMISSION',
+        `Permission set "${set.key}" names ${unknown}, which the manifest's permissions don't declare`,
+        { permissions: [unknown] },
+      );
+    }
+
+    if (keys.has(set.key)) {
+      throw fail('DUPLICATE_PERMISSION_SET', `Two permission sets are "${set.key}"`);
+    }
+
+    keys.add(set.key);
+  }
+};
+
 /** The plugin's own manifest (deployment-wide token). */
 export const registerManifest = async (manifest: PluginManifest) => {
   const { plugin } = caller('plugin');
@@ -209,6 +233,7 @@ export const registerManifest = async (manifest: PluginManifest) => {
     manifest.permissions?.map((item) => item.action),
     'Permission actions',
   );
+  ownPermissionSets(manifest);
   namespaced(
     plugin,
     manifest.notificationKinds?.map((item) => item.kind),

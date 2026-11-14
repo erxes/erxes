@@ -39,7 +39,13 @@ data only. The inventory reads code, never a database.
    `manifest.scopes`; `contract` is a call from the UI with the member's own
    session, through `orpc` from `@erxes/core-contract/client` (members through
    erxes-ui's `SelectMember` and `MemberInline`, `ui/AGENTS.md`);
-   `plugin-owned` lives in this plugin's tables or code.
+   `plugin-owned` lives in this plugin's tables or code; `drop` is left out on
+   purpose (segments, the client portal, brands): port none of it, and tick it
+   once nothing new calls it. Core has no departments or branches: a plugin
+   that used them gets its own `__id___teams` and `__id___team_members`,
+   drafted with their import from old core's `departments`, `branches` and the
+   members' `departmentIds` and `branchIds`. The ids stay the same, so the old
+   records' `departmentIds` still match.
 5. Pages. One per UI route, under `ui/src/<module>/`, built from `erxes-ui`
    the way `ui/src/items/` is. The old `ui-modules` components don't exist
    here. Member pickers and names become erxes-ui's `SelectMember` and

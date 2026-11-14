@@ -9,6 +9,7 @@ import { Id, isoDate, listOf } from './common';
 import { ActionField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
+import { ManifestPermissionSet } from './roles';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
 export const PluginName = z
@@ -26,6 +27,7 @@ export const PLUGIN_SCOPES = [
   'customers:read',
   'customers:write',
   'audit:write',
+  'emails:write',
   'events:read',
   'events:write',
   'files:read',
@@ -36,6 +38,7 @@ export const PLUGIN_SCOPES = [
   'payments:write',
   'products:read',
   'products:write',
+  'users:read',
 ] as const;
 
 export const PluginScope = z.enum(PLUGIN_SCOPES);
@@ -133,6 +136,12 @@ export const PluginManifest = z.object({
     )
     .max(500)
     .optional(),
+  /**
+   * Ready-made bundles of its own permissions (`agent`: reply, assign, view),
+   * which an owner adds to any role in one click. Members keep one role, so a
+   * plugin offers sets instead of roles of its own.
+   */
+  permissionSets: z.array(ManifestPermissionSet).max(20).optional(),
   notificationKinds: z
     .array(
       z.object({
@@ -272,22 +281,26 @@ export const TokenResponse = z.object({
  */
 const {
   CROSS_SITE,
+  DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
   LIMIT_EXCEEDED,
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_PERMISSION,
 } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
   CROSS_SITE,
+  DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
   LIMIT_EXCEEDED,
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_PERMISSION,
 });
 
 export const pluginsContract = {

@@ -14,11 +14,20 @@ import { useCan, useSession } from '~/modules/auth/session';
 const SCOPE_LABELS: Record<string, string> = {
   'activities:write': 'Add entries to customer and company timelines',
   'audit:write': 'Record its changes in the audit log',
+  'customers:read': 'Read and search customers and companies',
+  'customers:write': 'Create and edit customers and companies',
+  'emails:write': 'Send emails from erxes',
+  'events:read': 'Receive core events',
   'events:write': 'Publish events (timelines, notifications, automations)',
   'files:read': 'Read files',
   'files:write': 'Upload and delete files',
   'live:write': 'Refresh its screens live',
   'notifications:write': 'Send notifications to team members',
+  'payments:read': 'Read invoices and refunds',
+  'payments:write': 'Create invoices and refunds',
+  'products:read': 'Read the product catalog',
+  'products:write': 'Create and edit products',
+  'users:read': 'Read team members',
 };
 
 /** Installs (or approves) and uninstalls a plugin, updating the list in place. */
