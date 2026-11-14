@@ -14,7 +14,7 @@ import {
   fail,
   isEmptyDir,
 } from './ask';
-import { cloneErxes, DEFAULT_REF, type OldPlugin } from './existing-plugins';
+import { cloneErxes, DEFAULT_REF, erxesCacheDir, type OldPlugin } from './existing-plugins';
 import { derivePluginNames, type PluginNames, validateLine } from './naming';
 import { scaffold } from './scaffold';
 
@@ -90,7 +90,7 @@ const ask = async (directory: string | undefined, cli: CliOptions): Promise<Plan
   };
 };
 
-/** Runs a step under the spinner; a failure prints its output and returns false. */
+/** Runs a step under the spinner; a failure prints its output. */
 const step = async (
   label: string,
   done: string,
@@ -107,10 +107,10 @@ const step = async (
     p.log.message(result.output);
   }
 
-  return result.ok;
+  return result;
 };
 
-const cloned = async () => {
+const clone = async () => {
   try {
     return { ok: true, output: await cloneErxes() };
   } catch (error) {
@@ -137,20 +137,20 @@ const create = async (plan: Plan) => {
     if (!git.ok) p.log.warn(`git init failed: ${git.output}`);
   }
 
-  let from = migration?.from;
+  const cloned =
+    migration && !migration.from
+      ? await step('Cloning erxes/erxes', `Old erxes is in ${erxesCacheDir()}`, clone)
+      : undefined;
 
-  if (migration && !from) {
-    const clone = await cloned();
-
-    if (await step('Cloning erxes/erxes', `Old erxes is in ${clone.output}`, async () => clone))
-      from = clone.output;
-  }
+  const from = migration?.from ?? (cloned?.ok ? cloned.output : undefined);
 
   const installed =
     plan.install &&
-    (await step('Installing dependencies with pnpm', 'Dependencies installed', () =>
-      run('pnpm', ['install'], targetDir),
-    ));
+    (
+      await step('Installing dependencies with pnpm', 'Dependencies installed', () =>
+        run('pnpm', ['install'], targetDir),
+      )
+    ).ok;
 
   const inventoryArgs =
     migration && from ? ['--from', from, '--plugin', migration.plugin, '--ref', migration.ref] : [];
@@ -158,19 +158,21 @@ const create = async (plan: Plan) => {
   const inventoried =
     installed &&
     inventoryArgs.length > 0 &&
-    (await step(
-      `Reading ${migration?.plugin} at ${migration?.ref}`,
-      'Wrote MIGRATION.md',
-      async () => {
-        const inventory = await run(
-          'pnpm',
-          ['-s', 'migrate:inventory', '--', ...inventoryArgs],
-          targetDir,
-        );
+    (
+      await step(
+        `Reading ${migration?.plugin} at ${migration?.ref}`,
+        'Wrote MIGRATION.md',
+        async () => {
+          const inventory = await run(
+            'pnpm',
+            ['-s', 'migrate:inventory', '--', ...inventoryArgs],
+            targetDir,
+          );
 
-        return inventory.ok ? run('pnpm', ['-s', 'migrate:checklist'], targetDir) : inventory;
-      },
-    ));
+          return inventory.ok ? run('pnpm', ['-s', 'migrate:checklist'], targetDir) : inventory;
+        },
+      )
+    ).ok;
 
   // Names of different lengths shift Markdown tables and sorted keys.
   if (installed) await run('pnpm', ['exec', 'vp', 'fmt'], targetDir);
