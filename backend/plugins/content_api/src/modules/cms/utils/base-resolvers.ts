@@ -39,10 +39,13 @@ export class BaseQueryResolver {
   }
 
   protected buildTranslationMap(translations: any[]): Record<string, any> {
-    return translations.reduce((acc, translation) => {
-      acc[translation.objectId.toString()] = translation;
-      return acc;
-    }, {} as Record<string, any>);
+    return translations.reduce(
+      (acc, translation) => {
+        acc[translation.objectId.toString()] = translation;
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
   }
 
   protected applyTranslationsToList<T extends { _id: string }>(
@@ -215,7 +218,8 @@ export class BaseQueryResolver {
     const list = (await defaultPaginate(
       model
         .find(query)
-        .sort({ [sortField]: sortOrder })
+        // _id breaks ties so equal sort values keep one order across pages.
+        .sort({ [sortField]: sortOrder, _id: sortOrder })
         .lean(),
       { page, perPage },
     )) as T[];
