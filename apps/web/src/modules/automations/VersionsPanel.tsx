@@ -1,6 +1,6 @@
 import { IconHistory } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Sheet, useToast } from 'erxes-ui';
+import { Badge, Button, Sheet, useToast, useFormat } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
@@ -10,6 +10,7 @@ import { automationQuery } from './automationQueries';
 
 const VersionList = ({ automationId, active }: { automationId: string; active: number | null }) => {
   const { t } = useTranslation('automations');
+  const fmt = useFormat();
   const { toast } = useToast();
   const client = useQueryClient();
   const canManage = useCan()('automations.manage');
@@ -50,7 +51,7 @@ const VersionList = ({ automationId, active }: { automationId: string; active: n
                 <Badge variant="success">{t('current', 'current')}</Badge>
               )}
               <span className="text-xs text-muted-foreground">
-                {new Date(version.createdAt).toLocaleString()}
+                {fmt.dateTime(version.createdAt)}
               </span>
               <span className="text-xs text-muted-foreground">
                 {t('steps-count', '{{count}} steps', { count: version.definition.steps.length })}

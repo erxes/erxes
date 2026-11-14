@@ -2,7 +2,7 @@ import type { User } from '@erxes/core-contract';
 import { IconLock, IconToggleLeft, IconToggleRight } from '@tabler/icons-react';
 import { Command, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useQueryState } from 'nuqs';
 import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useMemberPermissions, useTeamMemberDisable } from '../useTeamMembers';
 
@@ -17,7 +17,7 @@ export const TeamMemberActionItems = ({
   onAction?: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
-  const [, setSearchParams] = useSearchParams();
+  const [, setResetPasswordId] = useQueryState(RESET_PASSWORD_QUERY_KEY);
   const toggle = useTeamMemberDisable();
   const permissions = useMemberPermissions(user);
   const isActive = user.status !== 'disabled';
@@ -36,15 +36,7 @@ export const TeamMemberActionItems = ({
         {permissions?.canSetPassword && (
           <Command.Item
             value="reset-password"
-            onSelect={select(() =>
-              setSearchParams((previous) => {
-                const next = new URLSearchParams(previous);
-
-                next.set(RESET_PASSWORD_QUERY_KEY, user.id);
-
-                return next;
-              }),
-            )}
+            onSelect={select(() => void setResetPasswordId(user.id))}
           >
             <IconLock /> {t('reset-password')}
           </Command.Item>

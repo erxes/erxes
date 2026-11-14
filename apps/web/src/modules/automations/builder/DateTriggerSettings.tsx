@@ -6,11 +6,11 @@ import {
   IconRepeatOnce,
   IconUser,
 } from '@tabler/icons-react';
-import { Input, Select } from 'erxes-ui';
+import { Input, Select, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useMinuteClock } from '~/lib/useMinuteClock';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 import { ConditionsEditor } from './ConditionsEditor';
 import { Segmented } from './Segmented';
 import { zoneLabel } from './timezones';
@@ -78,7 +78,7 @@ const DateFieldSelect = ({
         {trigger.subject === 'company'
           ? t('no-company-dates', 'Companies have no date fields yet.')
           : t('no-customer-dates', 'Customers have no date fields yet.')}{' '}
-        <Link to={CONTACT_SETTINGS.properties} className="text-primary-text hover:underline">
+        <Link to={paths.contacts.properties} className="text-primary-text hover:underline">
           {t('add-date-property', 'Add a date property')}
         </Link>
       </p>
@@ -158,7 +158,8 @@ const WhenField = ({ trigger, onChange, disabled, fieldName }: Props & { fieldNa
 
 /** The whole rule in a sentence, with an example: a date five weeks from now and its run. */
 const DateSummary = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: string }) => {
-  const { t, i18n } = useTranslation('automations');
+  const { t } = useTranslation('automations');
+  const fmt = useFormat();
   const now = useMinuteClock();
   const when = whenOf(trigger.offsetDays);
   const sample = new Date(now);
@@ -169,12 +170,7 @@ const DateSummary = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: 
 
   runDay.setDate(runDay.getDate() + trigger.offsetDays);
 
-  const dayText = (date: Date) =>
-    date.toLocaleDateString(i18n.language, {
-      month: 'long',
-      day: 'numeric',
-      year: trigger.yearly ? undefined : 'numeric',
-    });
+  const dayText = (date: Date) => fmt.date(date, trigger.yearly ? 'MMMM d' : 'PPP');
 
   const relation =
     when === 'on'

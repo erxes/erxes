@@ -1,35 +1,27 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { teamMemberPath } from '../constants';
+import { useNavigate } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import { MemberDetail } from './MemberDetail';
-import { RecordSidePanel } from './RecordSidePanel';
+import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { useMemberPanel } from './useMemberPanel';
 
 /** The member open beside the list (`?user_id=`); expanding opens their page. */
 export const TeamMemberSidePanel = () => {
-  const { memberId, close } = useMemberPanel();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { memberId, tab, setTab, close } = useMemberPanel();
   const navigate = useNavigate();
 
   if (!memberId) return null;
 
-  const tab = searchParams.get('tab');
-
   return (
-    <RecordSidePanel key={memberId}>
+    <RecordSidePanel key={memberId} expandable={false}>
       <MemberDetail
         memberId={memberId}
         tab={tab}
-        onTabChange={(next) =>
-          setSearchParams((previous) => {
-            const params = new URLSearchParams(previous);
-
-            params.set('tab', next);
-
-            return params;
-          })
-        }
+        onTabChange={setTab}
         onExpand={() => {
-          void navigate(`${teamMemberPath(memberId)}${tab ? `?tab=${tab}` : ''}`);
+          void navigate({
+            pathname: paths.settings.teamMember(memberId),
+            search: tab ? `?tab=${tab}` : '',
+          });
         }}
         onClose={close}
       />

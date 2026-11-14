@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { amountStep, fromAmountInput, toAmountInput } from '~/lib/money';
 import { oneOf, textOf } from '~/lib/text';
 import { LIST_VALUE, RELATIVE } from './conditionOperators';
-import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
+import { LookupPicker, useMemberOptions, useTagOptions } from './lookupOptions';
 import type { FieldInfo } from './useAutomationFields';
 
 const RELATIVE_UNITS = RelativeAmount.shape.unit.unwrap().options;
@@ -80,23 +80,22 @@ const LookupInput = ({ rule, field, onChange, disabled, subject }: ValueProps) =
   const isMember = field?.type === 'member';
   const members = useMemberOptions(isMember);
   const tags = useTagOptions(subject ?? 'customer', !isMember);
-  const { options: loaded, error } = isMember ? members : tags;
-  const options = isMember ? [{ value: 'me', label: t('me', 'Me') }, ...loaded] : loaded;
+  const lookup = isMember ? members : tags;
+  const value = textOf(rule.value);
 
   return (
-    <Select value={textOf(rule.value)} onValueChange={onChange} disabled={disabled}>
-      <Select.Trigger className="h-8 w-full min-w-0">
-        <Select.Value placeholder={t('choose', 'Choose…')} />
-      </Select.Trigger>
-      <Select.Content>
-        {options.map((option) => (
-          <Select.Item key={option.value} value={option.value}>
-            {option.label}
-          </Select.Item>
-        ))}
-        <LookupError error={error} />
-      </Select.Content>
-    </Select>
+    <LookupPicker
+      lookup={
+        isMember
+          ? { ...lookup, options: [{ value: 'me', label: t('me', 'Me') }, ...lookup.options] }
+          : lookup
+      }
+      value={value ? [value] : []}
+      onValueChange={([next]) => onChange(next ?? '')}
+      disabled={disabled}
+      placeholder={t('choose', 'Choose…')}
+      className="h-8 w-full min-w-0"
+    />
   );
 };
 

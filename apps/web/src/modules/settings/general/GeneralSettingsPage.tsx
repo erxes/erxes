@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { currencyOfCountry, type Organization } from '@erxes/core-contract';
 import { IconDeviceFloppy, IconSettings } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -165,7 +166,9 @@ export const GeneralSettingsPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'General'), to: '/settings/general', icon: IconSettings }]}
+            items={[
+              { label: t('title', 'General'), to: paths.settings.general, icon: IconSettings },
+            ]}
           />
         </PageHeader.Start>
       </PageHeader>

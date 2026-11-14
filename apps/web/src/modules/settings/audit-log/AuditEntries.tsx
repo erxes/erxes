@@ -8,6 +8,7 @@ import {
   type Member,
   RelativeDateDisplay,
   Spinner,
+  useFormat,
   useMembersById,
 } from 'erxes-ui';
 import { Fragment, useState } from 'react';
@@ -72,6 +73,7 @@ const EntryRow = ({
   onToggle: () => void;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'audit-log' });
+  const fmt = useFormat();
 
   const who = actorLabel(
     entry.actorType,
@@ -104,7 +106,7 @@ const EntryRow = ({
       </td>
       <td
         className="px-3 py-2 whitespace-nowrap text-muted-foreground"
-        aria-label={new Date(entry.createdAt).toLocaleString()}
+        aria-label={fmt.dateTime(entry.createdAt)}
       >
         <RelativeDateDisplay value={entry.createdAt} render={<span />}>
           <RelativeDateDisplay.Value value={entry.createdAt} />

@@ -68,7 +68,6 @@ export const ContactTagsCell = ({ record, scope }: CellProps) => {
   return (
     <TagsSelect.InlineCell
       type={'primaryName' in record ? 'company' : 'customer'}
-      mode="multiple"
       scope={scope}
       value={record.tagIds}
       onValueChange={(tagIds) => save({ id: record.id, tagIds })}

@@ -7,7 +7,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
-import { propertiesPath } from '../constants';
+import { propertyPaths } from '~/lib/paths';
 import { FIELD_TYPES_OBJECT } from '../fieldTypes';
 import { FieldIcon } from './FieldIcon';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
@@ -22,7 +22,7 @@ export const FieldLocation = z.object({
 
 /** The edit page of a field. */
 export const propertyEditPath = (field: z.infer<typeof FieldLocation>) =>
-  `${propertiesPath(field.contentType)}/${field.groupId ?? 'ungrouped'}/${field.id}`;
+  propertyPaths(field.contentType).field(field.groupId ?? 'ungrouped', field.id);
 
 // The table's own checkbox column names its boxes; these keep the selection across every group's
 // table, so they name themselves the same way.

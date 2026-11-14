@@ -1,34 +1,23 @@
-import { useSearchParams } from 'react-router-dom';
+import { parseAsString, useQueryStates } from 'nuqs';
 import { MEMBER_PANEL_QUERY_KEY } from '../constants';
+
+const memberPanelQuery = { [MEMBER_PANEL_QUERY_KEY]: parseAsString, tab: parseAsString };
 
 /** The member open beside the list (`?user_id=`), and the tab it shows (`?tab=`). */
 export const useMemberPanel = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [query, setQuery] = useQueryStates(memberPanelQuery);
 
-  const close = () =>
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-
-      next.delete(MEMBER_PANEL_QUERY_KEY);
-      next.delete('tab');
-
-      return next;
-    });
-
-  return { memberId: searchParams.get(MEMBER_PANEL_QUERY_KEY), close };
+  return {
+    memberId: query[MEMBER_PANEL_QUERY_KEY],
+    tab: query.tab,
+    setTab: (tab: string) => void setQuery({ tab }),
+    close: () => void setQuery({ [MEMBER_PANEL_QUERY_KEY]: null, tab: null }),
+  };
 };
 
 /** Opens a member in the side panel on its overview. */
 export const useOpenMemberPanel = () => {
-  const [, setSearchParams] = useSearchParams();
+  const [, setQuery] = useQueryStates(memberPanelQuery);
 
-  return (id: string) =>
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-
-      next.set(MEMBER_PANEL_QUERY_KEY, id);
-      next.set('tab', 'overview');
-
-      return next;
-    });
+  return (id: string) => void setQuery({ [MEMBER_PANEL_QUERY_KEY]: id, tab: 'overview' });
 };

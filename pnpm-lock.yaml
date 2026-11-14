@@ -48,6 +48,9 @@ importers:
       '@types/semver':
         specifier: ^7.8.0
         version: 7.8.0
+      jscpd:
+        specifier: ^5.4.3
+        version: 5.4.3
       knip:
         specifier: ^6.45.1
         version: 6.45.1
@@ -265,6 +268,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.62.0
         version: 5.107.1(@types/react@19.3.0)(react@19.3.1)
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
       erxes-ui:
         specifier: workspace:@erxes/ui@*
         version: link:../../packages/ui
@@ -277,6 +283,9 @@ importers:
       jotai:
         specifier: ^3.0.2
         version: 3.0.2(@types/react@19.3.0)(react@19.3.1)
+      nuqs:
+        specifier: ^2.10.3
+        version: 2.10.3(react-router-dom@7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-router@7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -292,12 +301,18 @@ importers:
       react-hook-form:
         specifier: 7.55.0
         version: 7.55.0(react@19.3.1)
+      react-hotkeys-hook:
+        specifier: 5.4.0
+        version: 5.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-i18next:
         specifier: ^18.0.1
         version: 18.0.1(@types/react@19.3.0)(i18next@27.1.1(typescript@7.0.2))(react@19.3.1)(typescript@7.0.2)
       react-router-dom:
         specifier: ^7.1.1
         version: 7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      use-debounce:
+        specifier: ^10.1.1
+        version: 10.1.1(react@19.3.1)
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -515,6 +530,9 @@ importers:
       libphonenumber-js:
         specifier: 1.12.6
         version: 1.12.6
+      nuqs:
+        specifier: ^2.10.3
+        version: 2.10.3(react-router-dom@7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-router@7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       react-day-picker:
         specifier: 10.0.2
         version: 10.0.2(@types/react@19.3.0)(react@19.3.1)
@@ -4821,6 +4839,55 @@ packages:
   jsbn@0.1.1:
     resolution: {integrity: sha512-UVU9dibq2JcFWxQPA6KCqj5O42VOmAY3zQUfEKxU0KpTGXwNoCjkX1e13eHNvw/xPynt6pU0rZ1htjWTNTSXsg==}
 
+  jscpd-darwin-arm64@5.4.3:
+    resolution: {integrity: sha512-2Zu6FrML6exhznj4hryUrnfVRM6dmfH0N7nldeY09cs7fA2TRQD+xzo5wA7SIqzhRDaUo0CBPBNVJz/XFmUEbg==}
+    cpu: [arm64]
+    os: [darwin]
+
+  jscpd-darwin-x64@5.4.3:
+    resolution: {integrity: sha512-Y4KykQqxMtVEV3pdjtfYbzONCmLOEgAyX8d2fUbwLW+uH/IZqUVCIwB3LrgCVv4Y+b/7mbOsdrGuIragTGpC/Q==}
+    cpu: [x64]
+    os: [darwin]
+
+  jscpd-linux-arm64-gnu@5.4.3:
+    resolution: {integrity: sha512-08d2DKt9BELglfZj0ZfhEs7I4gxiAk9Iflgjnsd0z4pB1OjWA4+DGDbfWmGOf6W2sVMDpwkVoa5Q5DWaOMPyoA==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  jscpd-linux-arm64-musl@5.4.3:
+    resolution: {integrity: sha512-YbgJ7tQzztL441UCKX6UVN6n8zXc7eEwuJ4MHCdFtTf5w6EGpfFDi7+lgBi+MtwampG2k1PoltCYYiRZyPg4/g==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  jscpd-linux-x64-gnu@5.4.3:
+    resolution: {integrity: sha512-BbL0HypadbjpxNfK/KY4CfpD4sCd2zf9HpFnGwwOjdryjdTG098isft/95BiS/XvZjVT3p6lwLf5ToI97OoqCg==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  jscpd-linux-x64-musl@5.4.3:
+    resolution: {integrity: sha512-0DlkzVDuuZ83JRZMOc4Fd2tBFKIrtXDHkHvxdF6d4HK+b954PZxuKhwBMArg76CtVSOQcuiICd/zxU9HtdT+mg==}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  jscpd-windows-arm64-msvc@5.4.3:
+    resolution: {integrity: sha512-BUD8kCzLyXUomw3vWRDbaBcIPByX6yU3VyqsKSf7/sjzr8y9ZmTRcn0cwmCV2WChrzD5JF4HeQl+hZlb7+s8lg==}
+    cpu: [arm64]
+    os: [win32]
+
+  jscpd-windows-x64-msvc@5.4.3:
+    resolution: {integrity: sha512-qYSVGZE2WP0NNdZU1S8DsfcCDpjwKSExvsUd86c4Vx9eWwZdw1i+V7h/9FWazo3PxEa+FzPLsCD5YjVawaarRA==}
+    cpu: [x64]
+    os: [win32]
+
+  jscpd@5.4.3:
+    resolution: {integrity: sha512-2Ult/j407sgAx4Z8kW4nOB3wfGwvtyKyPN9XE+tbvNEP/QemBN8pijKtG6zC+8nfMuIiiWjNcez7VZo5ZjJRtA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   jsdom@14.1.0:
     resolution: {integrity: sha512-O901mfJSuTdwU2w3Sn+74T+RnDVP+FuV5fH8tcPWyqrseRAb0s5xOtPgCFiPOtLcyK7CLIJwPyD83ZqQWvA5ng==}
     engines: {node: '>=8'}
@@ -5077,6 +5144,27 @@ packages:
   non-error@0.1.0:
     resolution: {integrity: sha512-TMB1uHiGsHRGv1uYclfhivcnf0/PdFp2pNqRxXjncaAsjYMoisaQJI+SSZCqRq+VliwRTC8tsMQfmrWjDMhkPQ==}
     engines: {node: '>=20'}
+
+  nuqs@2.10.3:
+    resolution: {integrity: sha512-dNGDsvpKFoxyDLOWZh+OiQ02od3RLJ52044I+Ld1wjTCVOv7ZZtBmd2Aq7CHFdDGYRn+hg6FPPh6FUMFX2YLaQ==}
+    peerDependencies:
+      '@remix-run/react': '>=2'
+      '@tanstack/react-router': ^1
+      next: '>=14.2.0'
+      react: '>=18.2.0 || ^19.0.0-0'
+      react-router: ^5 || ^6 || ^7 || ^8
+      react-router-dom: ^5 || ^6 || ^7
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@tanstack/react-router':
+        optional: true
+      next:
+        optional: true
+      react-router:
+        optional: true
+      react-router-dom:
+        optional: true
 
   nwsapi@2.2.28:
     resolution: {integrity: sha512-IlVB7OS7qrOsVYlpnFIkETjMwT9jwvmocJmmM+GZU/PAB3uGi9Ezd7vcWhWBUnSc0ya4ppmQITOyP1ez9gg8cg==}
@@ -10074,6 +10162,41 @@ snapshots:
   jsbn@0.1.1:
     optional: true
 
+  jscpd-darwin-arm64@5.4.3:
+    optional: true
+
+  jscpd-darwin-x64@5.4.3:
+    optional: true
+
+  jscpd-linux-arm64-gnu@5.4.3:
+    optional: true
+
+  jscpd-linux-arm64-musl@5.4.3:
+    optional: true
+
+  jscpd-linux-x64-gnu@5.4.3:
+    optional: true
+
+  jscpd-linux-x64-musl@5.4.3:
+    optional: true
+
+  jscpd-windows-arm64-msvc@5.4.3:
+    optional: true
+
+  jscpd-windows-x64-msvc@5.4.3:
+    optional: true
+
+  jscpd@5.4.3:
+    optionalDependencies:
+      jscpd-darwin-arm64: 5.4.3
+      jscpd-darwin-x64: 5.4.3
+      jscpd-linux-arm64-gnu: 5.4.3
+      jscpd-linux-arm64-musl: 5.4.3
+      jscpd-linux-x64-gnu: 5.4.3
+      jscpd-linux-x64-musl: 5.4.3
+      jscpd-windows-arm64-msvc: 5.4.3
+      jscpd-windows-x64-msvc: 5.4.3
+
   jsdom@14.1.0:
     dependencies:
       abab: 2.0.6
@@ -10306,6 +10429,14 @@ snapshots:
   nodemailer@10.5.0: {}
 
   non-error@0.1.0: {}
+
+  nuqs@2.10.3(react-router-dom@7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-router@7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1):
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      react: 19.3.1
+    optionalDependencies:
+      react-router: 7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react-router-dom: 7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
   nwsapi@2.2.28:
     optional: true

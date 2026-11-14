@@ -1,21 +1,21 @@
-import type { View, ViewRecordType } from '@erxes/core-contract';
+import { ConditionGroup, type View, type ViewRecordType } from '@erxes/core-contract';
+import { createSerializer, parseAsJson, parseAsString } from 'nuqs';
+import { LIST_PATHS } from '~/lib/paths';
 
-/** Where each list lives: a view opens on its own list. */
-export const VIEW_LIST_PATHS: Record<ViewRecordType, string> = {
-  customer: '/contacts/customers',
-  company: '/contacts/companies',
-  lead: '/contacts/leads',
-  company_lead: '/contacts/leads/companies',
-  product: '/products',
+/** A list's query: the advanced filter, the selected view and the search. */
+export const listQuery = {
+  // Anyone can edit a URL: a filter that doesn't parse reads as none.
+  advanced: parseAsJson((value) => ConditionGroup.safeParse(value).data ?? null),
+  view: parseAsString,
+  searchValue: parseAsString,
 };
+
+const serializeListQuery = createSerializer(listQuery);
 
 /** A view's address: its list with the view, its filter and its search in the query (as the list keeps them). */
-export const viewHref = (recordType: ViewRecordType, view: View) => {
-  const params = new URLSearchParams({ view: view.id });
-
-  if (view.filter?.rules.length) params.set('advanced', JSON.stringify(view.filter));
-
-  if (view.search) params.set('searchValue', view.search);
-
-  return `${VIEW_LIST_PATHS[recordType]}?${params.toString()}`;
-};
+export const viewHref = (recordType: ViewRecordType, view: View) =>
+  serializeListQuery(LIST_PATHS[recordType], {
+    view: view.id,
+    advanced: view.filter?.rules.length ? view.filter : null,
+    searchValue: view.search || null,
+  });

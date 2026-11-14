@@ -1,6 +1,15 @@
+import { paths } from '~/lib/paths';
 import { IconDownload, IconShieldCheck } from '@tabler/icons-react';
 import { type InfiniteData, skipToken, useInfiniteQuery } from '@tanstack/react-query';
-import { Button, DropdownMenu, Empty, PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
+import {
+  Button,
+  DropdownMenu,
+  Empty,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  useFormat,
+} from 'erxes-ui';
 import { useDeferredValue, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
@@ -65,13 +74,14 @@ const NothingRecorded = () => {
 
 const Total = ({ first }: { first: CursorPage<AuditEntry> | undefined }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
+  const fmt = useFormat();
 
   if (!first) return null;
 
   return first.totalCapped
     ? t('count-capped', {
         count: first.totalCount,
-        defaultValue: `${first.totalCount.toLocaleString()}+ entries`,
+        defaultValue: `${fmt.count(first.totalCount, true)} entries`,
       })
     : t('count', { count: first.totalCount, defaultValue: `${first.totalCount} entries` });
 };
@@ -92,7 +102,7 @@ export const AuditLogPage = () => {
     }),
   );
 
-  if (!canSee) return <Navigate to="/settings" replace />;
+  if (!canSee) return <Navigate to={paths.settings.root} replace />;
 
   return (
     <PageContainer>
@@ -100,7 +110,11 @@ export const AuditLogPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Audit log'), to: '/settings/audit-log', icon: IconShieldCheck },
+              {
+                label: t('title', 'Audit log'),
+                to: paths.settings.auditLog,
+                icon: IconShieldCheck,
+              },
             ]}
           />
         </PageHeader.Start>

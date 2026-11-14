@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconBell, IconChecks, IconInbox, IconSettings } from '@tabler/icons-react';
 import {
   Button,
@@ -60,7 +61,7 @@ const InboxNav = ({
       className="flex w-56 shrink-0 flex-col gap-0.5 border-r bg-sidebar p-2"
       aria-label={t('inboxes', 'Inboxes')}
     >
-      <Link to="/notifications" className={navLinkClassName(!source)}>
+      <Link to={paths.notifications} className={navLinkClassName(!source)}>
         <IconInbox className="size-4 text-muted-foreground" />
         {t('all-inboxes', 'All inboxes')}
         <Count value={count} active={!source} />
@@ -74,7 +75,7 @@ const InboxNav = ({
         return (
           <Link
             key={item.source}
-            to={`/notifications/${item.source}`}
+            to={paths.notificationSource(item.source)}
             className={navLinkClassName(source === item.source)}
           >
             <Icon className="size-4 text-primary-text" />
@@ -94,7 +95,7 @@ const PageActions = ({ source, unread }: { source?: string; unread: number }) =>
 
   return (
     <PageHeader.End>
-      <Link to="/settings/notifications" className={buttonVariants({ variant: 'ghost' })}>
+      <Link to={paths.settings.notifications} className={buttonVariants({ variant: 'ghost' })}>
         <IconSettings />
         {t('settings-link', 'Settings')}
       </Link>
@@ -133,8 +134,8 @@ export const NotificationsPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('inbox', 'Inbox'), to: '/notifications', icon: IconBell },
-              ...(source ? [{ label: title, to: `/notifications/${source}` }] : []),
+              { label: t('inbox', 'Inbox'), to: paths.notifications, icon: IconBell },
+              ...(source ? [{ label: title, to: paths.notificationSource(source) }] : []),
             ]}
           />
         </PageHeader.Start>

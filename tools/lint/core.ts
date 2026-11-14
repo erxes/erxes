@@ -1,5 +1,5 @@
-// Rules tied to core's own layout: its value lists in packages/db/src/enums.ts and its
-// procedures' ACCESS policies. What plugins share is in @erxes/lint (packages/lint).
+// Rules tied to core's own layout: its value lists in packages/db/src/enums.ts, its
+// procedures' ACCESS policies and its addresses in apps/web/src/lib/paths.ts. What plugins share is in @erxes/lint (packages/lint).
 import { defineRule, eslintCompatPlugin, type ESTree } from 'vite-plus/lint/plugins';
 
 /** `[...] as const` and `[...] satisfies T` are still the array. */
@@ -102,11 +102,84 @@ const noServicePermissionRule = defineRule({
   },
 });
 
+/** Where a link's address goes: `<Link to>`, `<Navigate to>`, breadcrumb items, `navigate()`. */
+const LINK_KEYS = new Set(['to', 'pathname']);
+
+const isStringValue = (node: ESTree.Node | null | undefined): boolean => {
+  const value =
+    node?.type === 'JSXExpressionContainer' && node.expression.type !== 'JSXEmptyExpression'
+      ? node.expression
+      : node;
+
+  if (value?.type === 'ConditionalExpression') {
+    return isStringValue(value.consequent) || isStringValue(value.alternate);
+  }
+
+  if (value?.type === 'LogicalExpression') return isStringValue(value.right);
+
+  return (
+    value?.type === 'TemplateLiteral' ||
+    (value?.type === 'Literal' && typeof value.value === 'string')
+  );
+};
+
+/** An address written out: `'/settings'`, or a template with a `/` (`${base}/${id}`). */
+const isAddress = (node: ESTree.Node) =>
+  (node.type === 'Literal' && typeof node.value === 'string' && node.value.startsWith('/')) ||
+  (node.type === 'TemplateLiteral' && node.quasis.some((quasi) => quasi.value.raw.includes('/')));
+
+const keyName = (key: ESTree.Node) =>
+  key.type === 'Identifier' || key.type === 'JSXIdentifier'
+    ? key.name
+    : key.type === 'Literal'
+      ? key.value
+      : undefined;
+
+const noStringLinkRule = defineRule({
+  meta: {
+    type: 'suggestion',
+    docs: { description: 'Disallow hand-written addresses in links and navigation.' },
+    messages: {
+      link: 'Take the address from `paths` (apps/web/src/lib/paths.ts): paths.contacts.customers, paths.contacts.customer(id).',
+    },
+  },
+  createOnce(context) {
+    return {
+      JSXAttribute(node) {
+        const name = keyName(node.name);
+
+        // `to`, and props that pass one on (`viewAllTo`).
+        if (typeof name === 'string' && /^to$|To$/.test(name) && isStringValue(node.value)) {
+          context.report({ node, messageId: 'link' });
+        }
+      },
+      Property(node) {
+        const name = keyName(node.key);
+
+        // `to` is also an email's recipient or a range's end: only addresses count there.
+        if (typeof name === 'string' && LINK_KEYS.has(name) && isAddress(node.value)) {
+          context.report({ node, messageId: 'link' });
+        }
+      },
+      CallExpression(node) {
+        if (
+          node.callee.type === 'Identifier' &&
+          node.callee.name === 'navigate' &&
+          isStringValue(node.arguments[0])
+        ) {
+          context.report({ node, messageId: 'link' });
+        }
+      },
+    };
+  },
+});
+
 const corePlugin = eslintCompatPlugin({
   meta: { name: 'core' },
   rules: {
     'no-inline-enum': noInlineEnumRule,
     'no-service-permission': noServicePermissionRule,
+    'no-string-link': noStringLinkRule,
   },
 });
 

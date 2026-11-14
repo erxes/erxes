@@ -10,6 +10,7 @@ import {
   type RecordTableColumnDef,
   RecordTableInlineCell,
   SelectMember,
+  useFormat,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +26,11 @@ const NameCell = ({ item }: { item: Item }) => {
     </Button>
   );
 };
+
+/** Dates and numbers go through erxes-ui's useFormat, in the UI's language. */
+const UpdatedCell = ({ item }: { item: Item }) => (
+  <span className="px-2">{useFormat().dateTime(item.updatedAt)}</span>
+);
 
 /** Where RecordTable keeps this list's column settings. */
 const TABLE_ID = '__id___items';
@@ -73,7 +79,7 @@ const columns: RecordTableColumnDef<Item>[] = [
     id: 'updatedAt',
     header: 'Updated',
     size: 200,
-    cell: ({ row }) => <span className="px-2">{row.original.updatedAt.toLocaleString()}</span>,
+    cell: ({ row }) => <UpdatedCell item={row.original} />,
   },
   {
     id: 'delete',

@@ -1,6 +1,6 @@
 import type { Product } from '@erxes/core-contract';
 import { IconCoin, IconCurrencyDollar, IconRulerMeasure, IconWeight } from '@tabler/icons-react';
-import { NumberField, useToast } from 'erxes-ui';
+import { NumberField, useToast, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CurrencySelect } from '~/components/RegionSelect';
 import { fromAmountInput, toAmountInput, useMoney } from '~/lib/money';
@@ -76,6 +76,7 @@ const ProductSizeRow = ({
   label: string;
 }) => {
   const edit = useProductEdit();
+  const fmt = useFormat();
   const value = product[code];
   const Icon = code === 'weightGrams' ? IconWeight : IconRulerMeasure;
 
@@ -84,7 +85,7 @@ const ProductSizeRow = ({
       <NumberField
         scope={`${PRODUCT_PANEL_SCOPE}.${product.id}.${code}`}
         value={value ?? 0}
-        formatValue={(next) => (value === null ? label : next.toLocaleString())}
+        formatValue={(next) => (value === null ? label : fmt.number(next))}
         variant="field"
         empty={value === null}
         onSave={(next) => {

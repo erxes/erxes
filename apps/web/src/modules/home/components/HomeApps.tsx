@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconApps } from '@tabler/icons-react';
 import type { MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
@@ -37,7 +38,7 @@ export const HomeApps = ({
               <Link
                 key={app.id}
                 className="flex min-w-0 items-center gap-3 rounded-lg border border-transparent p-3 text-sm font-medium transition-colors hover:border-border hover:bg-accent/60"
-                to={`/${app.path}`}
+                to={paths.app(app.path)}
                 onClick={(event) => {
                   if (isPlainClick(event)) {
                     event.preventDefault();

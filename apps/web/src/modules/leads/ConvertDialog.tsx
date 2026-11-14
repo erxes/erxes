@@ -1,22 +1,11 @@
 import type { LeadRecordType } from '@erxes/core-contract';
-import { IconBuilding, IconUserCheck } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { Button, Combobox, Dialog, Label, Popover, SelectMember, Spinner } from 'erxes-ui';
+import { memberQueries } from '@erxes/core-contract/client';
+import { IconUserCheck } from '@tabler/icons-react';
+import { Button, Dialog, Label, SelectMember, Spinner } from 'erxes-ui';
 import { useId, useState } from 'react';
-import { memberQueries, messageOf, orpc } from '@erxes/core-contract/client';
-import { SelectContactContent } from '~/modules/contacts/components/ContactPicker';
+import { ContactSelect } from '~/modules/contacts/components/ContactPicker';
 import { useLeadsT } from './i18n';
 import { type LeadRecord, useConvertLeads } from './useLeads';
-
-const CompanyName = ({ id }: { id: string }) => {
-  const company = useQuery(orpc.companies.get.queryOptions({ input: { id } }));
-
-  if (company.error) {
-    return <span className="truncate text-destructive">{messageOf(company.error)}</span>;
-  }
-
-  return <span className="truncate">{company.data?.primaryName ?? '…'}</span>;
-};
 
 /** Who owns the converted leads; it starts as the lead's owner when there is one lead. */
 const OwnerPicker = ({
@@ -54,33 +43,17 @@ const CompanyPicker = ({
 }) => {
   const t = useLeadsT();
   const id = useId();
-  const [open, setOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{t('actions.company')}</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <Combobox.Trigger id={id} className="w-full">
-          <span className="flex min-w-0 items-center gap-2">
-            <IconBuilding className="size-4 shrink-0 text-muted-foreground" />
-            {value ? (
-              <CompanyName id={value} />
-            ) : (
-              <span className="text-muted-foreground">{t('actions.none')}</span>
-            )}
-          </span>
-        </Combobox.Trigger>
-        <Combobox.Content>
-          <SelectContactContent
-            kind="company"
-            value={value ? [value] : []}
-            onValueChange={(ids) => {
-              onChange(ids.filter((item) => item !== value).at(-1));
-              setOpen(false);
-            }}
-          />
-        </Combobox.Content>
-      </Popover>
+      <ContactSelect
+        kind="company"
+        id={id}
+        value={value}
+        onValueChange={onChange}
+        noneLabel={t('actions.none')}
+      />
     </div>
   );
 };

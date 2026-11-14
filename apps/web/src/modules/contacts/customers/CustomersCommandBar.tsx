@@ -115,7 +115,6 @@ export const CustomersCommandBar = ({ rows }: { rows: Customer[] }) => {
           <Separator.Inline />
           <TagsSelect
             type="customer"
-            mode="multiple"
             variant="secondary"
             value={tagIds}
             onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}

@@ -67,7 +67,6 @@ export const ContactOwnerField = ({
         scope={scope}
         value={ownerId}
         placeholder={ownerId ? label : ''}
-        aria-label={ownerId ? undefined : label}
         variant="field"
         members={memberQueries}
         onValueChange={onChange}

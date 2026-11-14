@@ -1,9 +1,11 @@
+import { paths } from '~/lib/paths';
 import type { Session } from '@erxes/core-contract';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Input, Label, Spinner } from 'erxes-ui';
 import { type SubmitEvent, type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { parseAsString, useQueryState } from 'nuqs';
+import { Link, useNavigate } from 'react-router-dom';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignedIn } from '~/modules/auth/session';
 import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
@@ -35,7 +37,7 @@ const BackToSignIn = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
 
   return (
-    <Link to="/" className="text-center text-sm text-muted-foreground hover:underline">
+    <Link to={paths.home} className="text-center text-sm text-muted-foreground hover:underline">
       {t('back-to-sign-in', 'Back to sign in')}
     </Link>
   );
@@ -236,15 +238,14 @@ const useEnterApp = () => {
 
   return (session: Session) => {
     signedIn(session);
-    void navigate('/', { replace: true });
+    void navigate(paths.home, { replace: true });
   };
 };
 
 /** The emailed reset link: choose a new password; signs in on this browser. */
 export const ResetPasswordPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
-  const [params] = useSearchParams();
-  const token = params.get('token') ?? '';
+  const [token] = useQueryState('token', parseAsString.withDefault(''));
   const enterApp = useEnterApp();
   const reset = useMutation(orpc.auth.resetPassword.mutationOptions({ onSuccess: enterApp }));
 
@@ -266,8 +267,7 @@ export const ResetPasswordPage = () => {
 /** The invitation link: who invited you where; choose a password to join. */
 export const AcceptInvitationPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
-  const [params] = useSearchParams();
-  const token = params.get('token') ?? '';
+  const [token] = useQueryState('token', parseAsString.withDefault(''));
   const info = useQuery(orpc.auth.invitation.queryOptions({ input: { token }, retry: false }));
   const enterApp = useEnterApp();
   const accept = useMutation(orpc.auth.acceptInvitation.mutationOptions({ onSuccess: enterApp }));

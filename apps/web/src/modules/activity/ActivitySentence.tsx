@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { Activity, ActivityTarget } from '@erxes/core-contract';
 import { Skeleton } from 'erxes-ui';
 import type { ReactElement } from 'react';
@@ -61,7 +62,7 @@ const CoreRecord = ({
   return (
     <Link
       className="font-medium hover:underline"
-      to={`/contacts/${type === 'customer' ? 'customers' : 'companies'}/${id}`}
+      to={type === 'customer' ? paths.contacts.customer(id) : paths.contacts.company(id)}
     >
       {name || id}
     </Link>

@@ -11,12 +11,11 @@ import {
   IconPhone,
   IconUser,
 } from '@tabler/icons-react';
-import { DatePicker, Form, Input, Select, useToast } from 'erxes-ui';
+import { DatePicker, Form, Input, Select, useToast, toIsoDay } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { toYmd } from '~/components/inlineCells';
 import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
 import { PanelFormRow } from '../PanelForm';
@@ -182,7 +181,7 @@ const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[
         code: orNull(values.code),
         position: orNull(values.position),
         sex: values.sex ?? 0,
-        birthDate: values.birthDate ? toYmd(values.birthDate) : null,
+        birthDate: values.birthDate ? toIsoDay(values.birthDate) : null,
         description: values.description || null,
         avatarUrl: values.avatarUrl || null,
       });

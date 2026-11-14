@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { PageContainer, useQueryState } from 'erxes-ui';
+import { PageContainer } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { panelRecordType, type TPanelContentType } from './panelRecordTypes';
@@ -18,7 +18,7 @@ export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) 
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { openRecord } = useSidePanel();
-  const [tab, setTab] = useQueryState('tab', z.string());
+  const [tab, setTab] = useQueryState('tab');
   const listPath = panelRecordType(contentType)?.listPath(pathname) ?? '/';
   const record = useMemo(() => ({ contentType, contentId: id }), [contentType, id]);
 
@@ -29,7 +29,7 @@ export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) 
   const navigator: ISidePanelNavigator = {
     record,
     tab: tab ?? '',
-    setTab,
+    setTab: (next) => void setTab(next),
     openRecord,
     back: backToList,
     canGoBack: false,

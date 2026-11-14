@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { FileSettings } from '@erxes/core-contract';
 import { IconCloudUpload, IconServer } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -64,7 +65,7 @@ export const FileUploadSettingsPage = () => {
             items={[
               {
                 label: t('title', 'File upload'),
-                to: '/settings/file-upload',
+                to: paths.settings.fileUpload,
                 icon: IconCloudUpload,
               },
             ]}

@@ -7,12 +7,16 @@ import { AvatarEditor } from '~/components/AvatarEditor';
 import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { MemberAvatar } from '../record/TeamMemberColumns';
 import { useMemberPermissions, useTeamMember, useTeamMemberEdit } from '../useTeamMembers';
-import { MemberDetailEmptyState, MemberDetailErrorState } from './MemberDetailStates';
+import { PanelMessage } from '~/modules/side-panel/SidePanelEmpty';
 import { MemberLinks } from './MemberLinks';
 import { MemberPanelActions } from './MemberPanelActions';
 import { MemberPanelBreadcrumb } from './MemberPanelBreadcrumb';
 import { MemberPanelDetail, MemberPanelName } from './MemberPanelDetail';
-import { type IRecordSidePanelTab, RecordSidePanel, usePanelExpanded } from './RecordSidePanel';
+import {
+  type IRecordSidePanelTab,
+  RecordSidePanel,
+  usePanelExpanded,
+} from '~/modules/side-panel/RecordSidePanel';
 
 const DETAIL_TAB = 'overview';
 
@@ -109,15 +113,18 @@ export const MemberDetail = ({
   onExpand?: () => void;
   onClose?: () => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const expanded = usePanelExpanded();
   const { data: user, error, isPending } = useTeamMember(memberId);
   const { title, plainTitle, avatar } = useMemberHeading(user, isPending);
 
-  let body: ReactNode = <MemberDetailEmptyState />;
+  let body: ReactNode = (
+    <PanelMessage title={t('member-not-found')} description={t('member-not-found-description')} />
+  );
 
   if (isPending) body = <Spinner area="lg" />;
   else if (error && !isApiError(error, 'NOT_FOUND')) {
-    body = <MemberDetailErrorState message={messageOf(error)} />;
+    body = <PanelMessage title={t('error')} description={messageOf(error)} />;
   } else if (user) {
     body = (
       <MemberTabs

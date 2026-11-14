@@ -1,25 +1,14 @@
 import type { FieldContentType } from '@erxes/core-contract';
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { Spinner } from 'erxes-ui';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { IconListDetails } from '@tabler/icons-react';
+import { Empty, Spinner } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
+import { useSortSensors } from '~/lib/sortSensors';
 import { reorderItems } from '../reorder';
 import { selectedFieldIdsState } from '../states';
 import { groupFields, useAllFields, useFieldGroups } from '../useFields';
@@ -31,9 +20,23 @@ import { PropertyArchiveDialog } from './PropertyArchiveDialog';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 import { PropertyGroupLayoutSheet } from './PropertyGroupLayoutSheet';
 
+const NoGroups = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+
+  return (
+    <Empty>
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconListDetails />
+        </Empty.Media>
+        <Empty.Title>{t('no-groups-found', 'No field groups found')}</Empty.Title>
+      </Empty.Header>
+    </Empty>
+  );
+};
+
 /** A record type's properties: its groups (drag to reorder) with their fields, then Archived. */
 export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: FieldContentType }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
   const { fields, loading: fieldsLoading, error: fieldsError } = useAllFields(contentType);
   const error = groupsError ?? fieldsError;
@@ -46,11 +49,7 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Fiel
   // Selections belong to the record type on screen (the page is keyed by it).
   useEffect(() => () => setSelectedFieldIds({}), [setSelectedFieldIds]);
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
+  const sensors = useSortSensors();
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (
@@ -80,9 +79,7 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Fiel
         ) : loading ? (
           <Spinner area="lg" />
         ) : groups.length === 0 && ungrouped.length === 0 ? (
-          <div className="py-12 text-center text-muted-foreground">
-            {t('no-groups-found', 'No field groups found')}
-          </div>
+          <NoGroups />
         ) : (
           <>
             <DndContext

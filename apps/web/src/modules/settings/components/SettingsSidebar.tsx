@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import {
   IconBellCog,
   IconCash,
@@ -19,13 +20,13 @@ import {
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { Children, type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCan } from '~/modules/auth/session';
 import { usePlan } from '~/modules/saas/usePlan';
 
 interface SettingsPath {
   name: string;
-  path: string;
+  to: string;
   icon: Icon;
 }
 
@@ -36,29 +37,31 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const plan = usePlan().data;
 
   return [
-    { name: t('general', 'General'), path: 'general', icon: IconSettings },
-    { name: t('team-member'), path: 'team-members', icon: IconUsersGroup },
-    { name: t('roles', 'Roles'), path: 'roles', icon: IconShieldHalf },
-    { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
-    { name: t('plugins', 'Plugins'), path: 'plugins', icon: IconApps },
-    ...(plan?.saas ? [{ name: t('plan', 'Plan'), path: 'plan', icon: IconCreditCard }] : []),
+    { name: t('general', 'General'), to: paths.settings.general, icon: IconSettings },
+    { name: t('team-member'), to: paths.settings.teamMembers, icon: IconUsersGroup },
+    { name: t('roles', 'Roles'), to: paths.settings.roles, icon: IconShieldHalf },
+    { name: t('file-upload', 'File upload'), to: paths.settings.fileUpload, icon: IconCloudUpload },
+    { name: t('plugins', 'Plugins'), to: paths.settings.plugins, icon: IconApps },
+    ...(plan?.saas
+      ? [{ name: t('plan', 'Plan'), to: paths.settings.plan, icon: IconCreditCard }]
+      : []),
     ...(can('contacts.delete')
-      ? [{ name: t('recycle-bin', 'Recycle bin'), path: 'recycle-bin', icon: IconTrash }]
+      ? [{ name: t('recycle-bin', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash }]
       : []),
     ...(can('payments.manage')
-      ? [{ name: t('payments', 'Payments'), path: 'payments', icon: IconCash }]
+      ? [{ name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash }]
       : []),
     ...(can('webhooks.manage')
-      ? [{ name: t('webhooks', 'Webhooks'), path: 'webhooks', icon: IconWebhook }]
+      ? [{ name: t('webhooks', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook }]
       : []),
     ...(can('audit.view')
-      ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }]
+      ? [{ name: t('audit-log', 'Audit log'), to: paths.settings.auditLog, icon: IconShieldCheck }]
       : []),
     ...(can('events.view')
       ? [
           {
             name: t('event-delivery', 'Event delivery'),
-            path: 'event-delivery',
+            to: paths.settings.eventDelivery,
             icon: IconPlugConnected,
           },
         ]
@@ -82,36 +85,27 @@ function SettingsNavigationGroup({
   );
 }
 
-/** Router history index (react-router keeps it in `history.state.idx`). */
-const historyIndex = () => {
-  const state: unknown = window.history.state;
-
-  return state && typeof state === 'object' && 'idx' in state && typeof state.idx === 'number'
-    ? state.idx
-    : 0;
-};
-
-/** History index of the first settings page of this visit. */
-let settingsEntryIndex = 0;
-
-/** Remembers where settings were entered; `SettingsLayout` calls it once per visit. */
-export const useSettingsEntry = () => {
-  useEffect(() => {
-    settingsEntryIndex = historyIndex();
-  }, []);
-};
+/** The last address outside settings: where "Exit settings" goes. */
+let returnTo: string = paths.home;
 
 /**
- * Back to where settings were opened from; opened directly, it goes home.
+ * Keeps the return address current; `MainLayout` calls it on every page. A history distance
+ * would miscount, since nuqs adds entries for query changes without advancing the router's index.
  */
+export const useSettingsReturn = () => {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    if (!pathname.startsWith(paths.settings.root)) returnTo = pathname + search;
+  }, [pathname, search]);
+};
+
+/** Back to where settings were opened from; opened directly, it goes home. */
 function SettingsExitButton() {
   const navigate = useNavigate();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
-  const handleExitSettings = () => {
-    if (settingsEntryIndex > 0) void navigate(-(historyIndex() - settingsEntryIndex + 1));
-    else void navigate('/');
-  };
+  const handleExitSettings = () => void navigate(returnTo);
 
   return (
     <Sidebar.Header variant="sticky">
@@ -132,9 +126,13 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   return [
-    { name: t('profile', 'Profile'), path: 'profile', icon: IconUserCircle },
-    { name: t('security', 'Password & security'), path: 'security', icon: IconLock },
-    { name: t('notifications', 'Notifications'), path: 'notifications', icon: IconBellCog },
+    { name: t('profile', 'Profile'), to: paths.settings.profile, icon: IconUserCircle },
+    { name: t('security', 'Password & security'), to: paths.settings.security, icon: IconLock },
+    {
+      name: t('notifications', 'Notifications'),
+      to: paths.settings.notifications,
+      icon: IconBellCog,
+    },
   ];
 };
 
@@ -150,24 +148,12 @@ export function SettingsSidebar() {
       <Sidebar.Content>
         <SettingsNavigationGroup name={t('account', 'Account')}>
           {account.map((item) => (
-            <NavigationMenuLinkItem
-              key={item.path}
-              pathPrefix="settings"
-              path={item.path}
-              name={item.name}
-              icon={item.icon}
-            />
+            <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name={t('workspace')}>
           {workspace.map((item) => (
-            <NavigationMenuLinkItem
-              key={item.path}
-              pathPrefix="settings"
-              path={item.path}
-              name={item.name}
-              icon={item.icon}
-            />
+            <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>
       </Sidebar.Content>

@@ -1,23 +1,20 @@
+import { paths } from '~/lib/paths';
 import { IconChevronRight, IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
 import {
   Avatar,
   Button,
   DropdownMenu,
-  type ThemeOption,
+  ThemeOption,
   themeState,
   ToggleGroup,
   Tooltip,
+  LANGUAGES,
 } from 'erxes-ui';
-import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { LANGUAGES, type LanguageCode } from '~/i18n';
 import { useSession, useSignOut } from '~/modules/auth/session';
 import { CoreTabTooltip } from './CoreTabTooltip';
-
-const isThemeOption = (value: string): value is ThemeOption =>
-  value === 'light' || value === 'dark' || value === 'system';
 
 /** Name and email at the top of the menu. */
 const UserIdentity = () => {
@@ -52,7 +49,9 @@ const ThemeSelector = () => {
           variant="outline"
           className="ml-auto"
           onValueChange={([next]) => {
-            if (next && isThemeOption(next)) setTheme(next);
+            const option = ThemeOption.safeParse(next);
+
+            if (option.success) setTheme(option.data);
           }}
           size="icon-sm"
           value={[theme]}
@@ -71,10 +70,6 @@ const ThemeSelector = () => {
   );
 };
 
-/** The language's own name from the browser locale list (`mn` → Mongolian). */
-const languageName = (code: LanguageCode) =>
-  Object.entries(INTL_LANGUAGES).find(([, locale]) => locale.startsWith(`${code}-`))?.[0] ?? code;
-
 /** Language submenu. */
 const SelectLanguages = () => {
   const { t, i18n } = useTranslation('organization');
@@ -92,7 +87,7 @@ const SelectLanguages = () => {
         >
           {LANGUAGES.map((language) => (
             <DropdownMenu.RadioItem key={language.code} value={language.code}>
-              {languageName(language.code)}
+              {language.label}
             </DropdownMenu.RadioItem>
           ))}
         </DropdownMenu.RadioGroup>
@@ -129,7 +124,7 @@ export const CoreTabUserMenu = () => {
         </DropdownMenu.Trigger>
       </CoreTabTooltip>
       <DropdownMenu.Content align="end" className="w-56 min-w-56!" side="bottom" sideOffset={8}>
-        <DropdownMenu.LinkItem render={<Link to="/settings/profile" />}>
+        <DropdownMenu.LinkItem render={<Link to={paths.settings.profile} />}>
           <UserIdentity />
           <IconChevronRight className="text-muted-foreground" />
         </DropdownMenu.LinkItem>

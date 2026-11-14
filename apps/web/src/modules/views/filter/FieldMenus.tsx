@@ -1,19 +1,18 @@
 import type { ConditionRule } from '@erxes/core-contract';
-import { Button, Combobox, Command, Input, Select, useFilterContext } from 'erxes-ui';
+import { Button, Combobox, Command, EntityPicker, Input, Select, useFilterContext } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { amountStep, fromAmountInput, toAmountInput } from '~/lib/money';
 import { oneOf, textOf } from '~/lib/text';
 import { isRule } from '~/modules/automations/builder/conditionOperators';
-import { LookupError } from '~/modules/automations/builder/lookupOptions';
 import type { ListField } from '../useViews';
 import {
+  anyOf,
   DATE_PRESETS,
   NUMBER_OPS,
   NUMBER_SYMBOLS,
   presetOf,
   targetOf,
-  toggled,
   valuesOf,
 } from './filterRules';
 import { useFieldOptions, useListFilter } from './listFilterContext';
@@ -48,29 +47,20 @@ const useFocusOnMount = () => {
 
 /** Options (a choice, members, tags): each pick adds to or takes from one "is any of" rule; the menu stays open. */
 const OptionsMenu = ({ field }: { field: ListField }) => {
-  const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const { options, error } = useFieldOptions(field);
+  const { options, loading, error } = useFieldOptions(field);
   const { rule, set } = useTarget(field);
-  const picked = valuesOf(rule);
 
   return (
-    <Command>
-      <Command.Input placeholder={field.label} variant="secondary" focusOnMount />
-      <Command.List>
-        <Command.Empty>{t('no-options')}</Command.Empty>
-        {options.map((option) => (
-          <Command.Item
-            key={option.value}
-            value={`${option.label} ${option.value}`}
-            onSelect={() => set(toggled(field.path, picked, option.value))}
-          >
-            <span className="truncate">{option.label}</span>
-            <Combobox.Check checked={picked.includes(option.value)} />
-          </Command.Item>
-        ))}
-        <LookupError error={error} />
-      </Command.List>
-    </Command>
+    <EntityPicker
+      multiple
+      items={options}
+      itemKey={(option) => ({ id: option.value, label: option.label })}
+      value={valuesOf(rule)}
+      onValueChange={(values) => set(anyOf(field.path, values))}
+      loading={loading}
+      error={error}
+      searchPlaceholder={field.label}
+    />
   );
 };
 

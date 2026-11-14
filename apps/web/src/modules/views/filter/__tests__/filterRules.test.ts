@@ -1,6 +1,6 @@
 import type { ConditionRule, FilterField } from '@erxes/core-contract';
 import { describe, expect, it } from 'vite-plus/test';
-import { groupOf, partsOf, presetOf, targetOf, toggled, valuesOf, withPart } from '../filterRules';
+import { anyOf, groupOf, partsOf, presetOf, targetOf, valuesOf, withPart } from '../filterRules';
 
 const kind: FilterField = { path: 'subject.kind', label: 'Type', type: 'select', group: 'fields' };
 
@@ -50,15 +50,15 @@ describe('filter menu rules', () => {
     expect(targetOf([cheap, goods], price, 0)).toBe(0);
   });
 
-  it('picks and unpicks values of "is any of"', () => {
+  it('reads and builds "is any of"', () => {
     expect(valuesOf(goods)).toEqual(['goods']);
     expect(valuesOf({ path: 'subject.kind', op: 'eq', value: 'service' })).toEqual(['service']);
-    expect(toggled('subject.kind', ['goods'], 'service')).toEqual({
+    expect(anyOf('subject.kind', ['goods', 'service'])).toEqual({
       path: 'subject.kind',
       op: 'in',
       value: ['goods', 'service'],
     });
-    expect(toggled('subject.kind', ['goods'], 'goods')).toBeNull();
+    expect(anyOf('subject.kind', [])).toBeNull();
   });
 
   it('knows a date preset from its rule', () => {

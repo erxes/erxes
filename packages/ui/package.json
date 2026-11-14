@@ -70,6 +70,7 @@
     "date-fns": "4.1.0",
     "jotai-family": "1.1.0",
     "libphonenumber-js": "1.12.6",
+    "nuqs": "^2.10.3",
     "react-day-picker": "10.0.2",
     "react-hook-form": "7.55.0",
     "react-hotkeys-hook": "5.4.0",

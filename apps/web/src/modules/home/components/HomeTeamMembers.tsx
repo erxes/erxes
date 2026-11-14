@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { Badge } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '~/modules/auth/session';
@@ -17,7 +18,7 @@ export const HomeTeamMembers = () => {
   return (
     <HomeRecordList
       title={t('widgets.team-members')}
-      viewAllTo="/settings/team-members"
+      viewAllTo={paths.settings.teamMembers}
       emptyLabel={t('empty.team')}
       loading={isPending}
       error={isError}
@@ -35,7 +36,7 @@ export const HomeTeamMembers = () => {
               {t(`status.${member.status}`)}
             </Badge>
           ),
-        to: '/settings/team-members',
+        to: paths.settings.teamMembers,
       }))}
     />
   );

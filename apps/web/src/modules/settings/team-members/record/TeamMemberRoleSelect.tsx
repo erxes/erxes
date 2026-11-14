@@ -1,6 +1,5 @@
 import type { User, RoleKey } from '@erxes/core-contract';
-import { IconCheck } from '@tabler/icons-react';
-import { Command, PopoverScoped, RecordTableInlineCell } from 'erxes-ui';
+import { EntityPicker, PopoverScoped, RecordTableInlineCell } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TEAM_MEMBERS_HOTKEY_SCOPE } from '../constants';
@@ -34,26 +33,14 @@ export const TeamMemberRoleSelect = ({ user }: { user: User }) => {
     >
       <RecordTableInlineCell.Trigger>{value}</RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <Command>
-          <Command.Input placeholder={t('search-role')} />
-          <Command.List>
-            <Command.Empty>{t('no-results-found')}</Command.Empty>
-            {roles
-              .filter((role) => role.key !== 'owner' || permissions.canGrantOwner)
-              .map((role) => (
-                <Command.Item
-                  key={role.key}
-                  value={role.name}
-                  onSelect={() => handleRoleChange(role.key)}
-                >
-                  <span className="flex items-center gap-2">
-                    {role.name}
-                    {user.role === role.key && <IconCheck className="text-primary-text size-4" />}
-                  </span>
-                </Command.Item>
-              ))}
-          </Command.List>
-        </Command>
+        <EntityPicker
+          items={roles.filter((role) => role.key !== 'owner' || permissions.canGrantOwner)}
+          itemKey={(role) => ({ id: role.key, label: role.name })}
+          keepOrder
+          value={[user.role]}
+          onValueChange={([role = user.role]) => handleRoleChange(role)}
+          searchPlaceholder={t('search-role')}
+        />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { orpc } from '@erxes/core-contract/client';
 import { uploadErrorMessage, uploadFile } from '~/lib/files';
 import { useCan } from '~/modules/auth/session';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 
 /** "Import": pick a CSV or Excel file; it is uploaded and opens in the import wizard. */
 export const ImportButton = ({ recordType }: { recordType: TransferRecordType }) => {
@@ -26,7 +26,7 @@ export const ImportButton = ({ recordType }: { recordType: TransferRecordType })
       return orpc.transfer.createImport.call({ recordType, fileId: uploaded.id });
     },
     onSuccess: (created) => {
-      void navigate(`${CONTACT_SETTINGS.importExport}/${created.id}`);
+      void navigate(paths.contacts.importOrExport(created.id));
 
       return client.invalidateQueries({ queryKey: orpc.transfer.imports.key() });
     },

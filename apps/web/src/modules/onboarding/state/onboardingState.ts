@@ -1,3 +1,8 @@
-import { atomWithStorage } from 'jotai/utils';
+import { stored } from 'erxes-ui';
+import { z } from 'zod';
 
-export const onboardingStepState = atomWithStorage<number>('erxes-onboarding-step', 1);
+export const onboardingStepState = stored({
+  key: 'erxes:onboarding:step',
+  schema: z.int().positive(),
+  initial: 1,
+});

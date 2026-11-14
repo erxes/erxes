@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import React, { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +5,7 @@ import { Button } from 'erxes-ui/components/button';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { Input } from 'erxes-ui/components/input';
 import { useFilterContext } from '../hooks/useFilterContext';
-import { useFilterQueryState } from '../hooks/useFilterQueryState';
+import { useQueryState } from 'nuqs';
 import { openDialogState } from '../states/filterStates';
 
 export const FilterDialog = (props: React.ComponentPropsWithoutRef<typeof Dialog>) => {
@@ -35,13 +34,13 @@ export const FilterDialogStringView = ({
   label?: string;
 }) => {
   const { t } = useTranslation();
-  const { setDialogView, setOpenDialog, sessionKey } = useFilterContext();
-  const [query, setQuery] = useFilterQueryState(filterKey, z.string(), sessionKey ?? '');
+  const { setDialogView, setOpenDialog } = useFilterContext();
+  const [query, setQuery] = useQueryState(filterKey);
   const [dialogSearch, setDialogSearch] = useState(query ?? '');
 
   const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setQuery(dialogSearch.length > 0 ? dialogSearch : null);
+    void setQuery(dialogSearch.length > 0 ? dialogSearch : null);
     setDialogView('root');
     setOpenDialog(false);
   };

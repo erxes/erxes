@@ -2,7 +2,7 @@ import type { FieldContentType } from '@erxes/core-contract';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { propertiesPath } from '../constants';
+import { propertyPaths } from '~/lib/paths';
 import { hasOptions } from '../fieldTypes';
 import { useAddProperty } from '../usePropertyMutations';
 import { PropertyForm } from './PropertyForm';
@@ -16,7 +16,7 @@ export const PropertyAdd = ({ contentType }: { contentType: FieldContentType }) 
   const navigate = useNavigate();
 
   const handleClose = () => {
-    void navigate(propertiesPath(contentType));
+    void navigate(propertyPaths(contentType).list);
   };
 
   return (

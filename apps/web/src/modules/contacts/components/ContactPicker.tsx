@@ -1,9 +1,10 @@
 import type { Company, Customer } from '@erxes/core-contract';
 import { IconArrowUpRight } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Avatar, Combobox, Command, readImage, Skeleton } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { orpc } from '@erxes/core-contract/client';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { Avatar, Combobox, EntityPicker, Popover, readImage, Skeleton } from 'erxes-ui';
+import { useState } from 'react';
+import { useDebounce } from 'use-debounce';
 import { useCompany } from '../companies/useCompanies';
 import { customerName, useCustomer } from '../customers/useCustomers';
 
@@ -59,34 +60,26 @@ const RelationChip = ({
   </button>
 );
 
-const ChipSkeleton = () => <Skeleton radius="sm" className="h-5 w-20" />;
+/** A linked customer's or company's title and avatar. */
+const useContactRecord = (kind: TContactKind, id: string) => {
+  const customer = useCustomer(kind === 'customer' ? id : null);
+  const company = useCompany(kind === 'company' ? id : null);
 
-const CustomerChip = ({ id, onOpen }: { id: string; onOpen: () => void }) => {
-  const { data: customer, isPending } = useCustomer(id);
+  if (kind === 'customer') {
+    return {
+      title: customer.data && customerTitle(customer.data),
+      avatar: customer.data?.avatarUrl,
+      isPending: customer.isPending,
+      error: customer.error,
+    };
+  }
 
-  if (isPending) return <ChipSkeleton />;
-
-  return (
-    <RelationChip
-      name={(customer && customerTitle(customer)) || id}
-      avatar={customer?.avatarUrl}
-      onOpen={onOpen}
-    />
-  );
-};
-
-const CompanyChip = ({ id, onOpen }: { id: string; onOpen: () => void }) => {
-  const { data: company, isPending } = useCompany(id);
-
-  if (isPending) return <ChipSkeleton />;
-
-  return (
-    <RelationChip
-      name={(company && companyTitle(company)) || id}
-      avatar={company?.avatarUrl}
-      onOpen={onOpen}
-    />
-  );
+  return {
+    title: company.data && companyTitle(company.data),
+    avatar: company.data?.avatarUrl,
+    isPending: company.isPending,
+    error: company.error,
+  };
 };
 
 // A linked customer or company as a chip; clicking it calls `onOpen`.
@@ -98,23 +91,23 @@ export const ContactRecordChip = ({
   kind: TContactKind;
   id: string;
   onOpen: () => void;
-}) =>
-  kind === 'customer' ? (
-    <CustomerChip id={id} onOpen={onOpen} />
-  ) : (
-    <CompanyChip id={id} onOpen={onOpen} />
-  );
+}) => {
+  const record = useContactRecord(kind, id);
 
-const useDebounced = (value: string, delay: number) => {
-  const [debounced, setDebounced] = useState(value);
+  if (record.isPending) return <Skeleton radius="sm" className="h-5 w-20" />;
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
+  return <RelationChip name={record.title || id} avatar={record.avatar} onOpen={onOpen} />;
+};
 
-    return () => clearTimeout(timer);
-  }, [value, delay]);
+/** A customer's or company's title, or why it could not be read. */
+const ContactTitle = ({ kind, id }: { kind: TContactKind; id: string }) => {
+  const record = useContactRecord(kind, id);
 
-  return debounced;
+  if (record.error) {
+    return <span className="truncate text-destructive">{messageOf(record.error)}</span>;
+  }
+
+  return <Combobox.Value value={record.title || id} loading={record.isPending} />;
 };
 
 /** Up to 20 customers or companies: those matching `search`, or the ones with `ids`. */
@@ -154,97 +147,101 @@ const useContactOptions = (
   return kind === 'customer' ? customers : companies;
 };
 
-const ContactOptionItem = ({
-  option,
-  checked,
-  placeholder,
-  onSelect,
-}: {
-  option: IContactOption;
-  checked: boolean;
-  placeholder: string;
-  onSelect: () => void;
-}) => (
-  <Command.Item value={option.id} onSelect={onSelect}>
-    <Avatar>
-      <Avatar.Image src={readImage(option.avatarUrl ?? undefined)} />
-      <Avatar.Fallback>{option.name.charAt(0)}</Avatar.Fallback>
-    </Avatar>
-    <Combobox.Value value={option.name} placeholder={placeholder} />
-    <Combobox.Check checked={checked} />
-  </Command.Item>
-);
-
 /**
  * The searchable customer or company list of a picker: the selected ones
- * first, then the matches.
+ * first, then the matches, searched on the server.
  */
 export const SelectContactContent = ({
   kind,
   value,
   onValueChange,
+  multiple = true,
+  noneLabel,
 }: {
   kind: TContactKind;
   value: string[];
   onValueChange: (ids: string[]) => void;
+  multiple?: boolean;
+  noneLabel?: string;
 }) => {
   const [search, setSearch] = useState('');
-  const debounced = useDebounced(search.trim(), 500);
+  const [debounced] = useDebounce(search.trim(), 500);
   const placeholder = kind === 'customer' ? 'Unnamed customer' : 'Unnamed company';
 
   const selected = useContactOptions(kind, { ids: value });
   const matches = useContactOptions(kind, { search: debounced });
 
-  const toggle = (id: string) =>
-    onValueChange(value.includes(id) ? value.filter((item) => item !== id) : [...value, id]);
+  const found = matches.data ?? [];
 
-  const selectedOptions = value.length
-    ? (selected.data ?? []).filter((option) => value.includes(option.id))
-    : [];
+  // The picked ones the search did not find stay listed.
+  const items = [
+    ...(selected.data ?? []).filter(
+      (option) => value.includes(option.id) && !found.some((match) => match.id === option.id),
+    ),
+    ...found,
+  ];
 
   return (
-    <Command shouldFilter={false}>
-      <Command.Input
-        value={search}
-        onValueChange={setSearch}
-        variant="secondary"
-        wrapperClassName="flex-auto"
-        focusOnMount
-      />
-      <Command.List className="max-h-75 overflow-y-auto">
-        {selectedOptions.length > 0 && (
-          <>
-            {selectedOptions.map((option) => (
-              <ContactOptionItem
-                key={option.id}
-                option={option}
-                checked
-                placeholder={placeholder}
-                onSelect={() => toggle(option.id)}
-              />
-            ))}
-            <Command.Separator className="my-1" />
-          </>
+    <EntityPicker
+      multiple={multiple}
+      noneLabel={noneLabel}
+      items={items}
+      itemKey={(option) => ({ id: option.id, label: option.name })}
+      renderItem={(option) => (
+        <>
+          <Avatar>
+            <Avatar.Image src={readImage(option.avatarUrl ?? undefined)} />
+            <Avatar.Fallback>{option.name.charAt(0)}</Avatar.Fallback>
+          </Avatar>
+          <Combobox.Value value={option.name} placeholder={placeholder} />
+        </>
+      )}
+      value={value}
+      onValueChange={onValueChange}
+      onSearchChange={setSearch}
+      loading={matches.isPending}
+      error={matches.error ?? selected.error}
+    />
+  );
+};
+
+/** One customer or company on a button; `noneLabel` shows while there is none and clears it. */
+export const ContactSelect = ({
+  kind,
+  id,
+  value,
+  onValueChange,
+  noneLabel,
+}: {
+  kind: TContactKind;
+  id?: string;
+  value: string | undefined;
+  onValueChange: (id: string | undefined) => void;
+  noneLabel: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger id={id} className="w-full">
+        {value ? (
+          <ContactTitle kind={kind} id={value} />
+        ) : (
+          <Combobox.Value placeholder={noneLabel} />
         )}
-        <Combobox.Empty loading={matches.isPending} />
-        {(matches.error ?? selected.error) && (
-          <div role="alert" className="p-2 text-xs text-destructive">
-            {(matches.error ?? selected.error)?.message}
-          </div>
-        )}
-        {!matches.isPending &&
-          (matches.data ?? [])
-            .filter((option) => !value.includes(option.id))
-            .map((option) => (
-              <ContactOptionItem
-                key={option.id}
-                option={option}
-                checked={false}
-                placeholder={placeholder}
-                onSelect={() => toggle(option.id)}
-              />
-            ))}
-      </Command.List>
-    </Command>
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <SelectContactContent
+          kind={kind}
+          multiple={false}
+          noneLabel={noneLabel}
+          value={value ? [value] : []}
+          onValueChange={([next]) => {
+            onValueChange(next);
+            setOpen(false);
+          }}
+        />
+      </Combobox.Content>
+    </Popover>
   );
 };

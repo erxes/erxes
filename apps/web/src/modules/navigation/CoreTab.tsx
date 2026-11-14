@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconSettings } from '@tabler/icons-react';
 import { Button, cn, Tooltip, buttonVariants } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -26,7 +27,7 @@ export const CoreTab = () => {
       <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
         <CoreTabTooltip label={organization.name}>
           <Link
-            to="/"
+            to={paths.home}
             aria-label={organization.name}
             className={cn(buttonVariants({ size: 'icon', variant: 'nav' }), 'relative shrink-0')}
           >

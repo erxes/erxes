@@ -4,7 +4,15 @@ import { expect, expectAccessible, test, unique } from './fixtures';
 test('a member creates a contact, edits it and adds a note', async ({ page, api }) => {
   const name = `Ada ${unique()}`;
 
+  // A row with two tags: axe checks the tag cell's spoken name still holds the text it shows.
+  const vip = await api.tags.create({ type: 'customer', name: `VIP ${unique()}` });
+  const partner = await api.tags.create({ type: 'customer', name: `Partner ${unique()}` });
+  const grace = `Grace ${unique()}`;
+
+  await api.customers.create({ firstName: grace, tagIds: [vip.id, partner.id] });
+
   await page.goto('/contacts/customers');
+  await expect(page.getByRole('button', { name: `Name ${grace}` })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'NAME' })).toBeVisible();
   await expectAccessible(page);
 
@@ -43,6 +51,12 @@ test('a member creates a contact, edits it and adds a note', async ({ page, api 
   await page.keyboard.type('Analyst');
   await page.keyboard.press('Enter');
   await expect.poll(async () => (await api.customers.get({ id })).position).toBe('Analyst');
+
+  await page.getByRole('button', { name: 'Add tags' }).click();
+  await page.getByRole('option', { name: vip.name }).click();
+  await expect.poll(async () => (await api.customers.get({ id })).tagIds).toEqual([vip.id]);
+  await expectAccessible(page);
+  await page.keyboard.press('Escape');
 
   // A description change reads as its text in the timeline, not as the editor's JSON.
   await page.getByRole('tab', { name: 'Description' }).click();

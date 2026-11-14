@@ -1,6 +1,9 @@
 import { createInstance } from 'i18next';
+import { LANGUAGES, stored } from 'erxes-ui';
 import resourcesToBackend from 'i18next-resources-to-backend';
+import { getDefaultStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
+import { z } from 'zod';
 import enAutomations from './locales/en/automations.json';
 import enCommon from './locales/en/common.json';
 import enContact from './locales/en/contact.json';
@@ -14,22 +17,15 @@ import enViews from './locales/en/views.json';
  * bundled, as the fallback every string ends at; another language's locales
  * load as their own chunks when it is chosen, so no route carries them for
  * members who read English. Plugins share this instance through Module
- * Federation and add their own namespaces.
+ * Federation and add their own namespaces. The languages are erxes-ui's
+ * LANGUAGES, which also pick the date format.
  */
-export const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'mn', label: 'Монгол' },
-] as const;
 
-export type LanguageCode = (typeof LANGUAGES)[number]['code'];
+const LanguageCode = z.literal(LANGUAGES.map(({ code }) => code));
 
-const LANGUAGE_KEY = 'lng';
-
-const savedLanguage = (): LanguageCode => {
-  const saved = localStorage.getItem(LANGUAGE_KEY);
-
-  return LANGUAGES.find((language) => language.code === saved)?.code ?? 'en';
-};
+/** The language picked in this browser, read before the first render. */
+const languageState = stored({ key: 'erxes:ui:language', schema: LanguageCode, initial: 'en' });
+const store = getDefaultStore();
 
 const i18n = createInstance();
 
@@ -55,7 +51,7 @@ export const i18nReady = i18n
       },
     },
     partialBundledLanguages: true,
-    lng: savedLanguage(),
+    lng: store.get(languageState),
     fallbackLng: 'en',
     ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views'],
     defaultNS: 'common',
@@ -68,7 +64,9 @@ export const i18nReady = i18n
 document.documentElement.lang = i18n.language;
 
 i18n.on('languageChanged', (language) => {
-  localStorage.setItem(LANGUAGE_KEY, language);
+  const code = LanguageCode.safeParse(language);
+
+  if (code.success) store.set(languageState, code.data);
   document.documentElement.lang = language;
 });
 

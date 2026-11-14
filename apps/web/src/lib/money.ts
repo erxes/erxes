@@ -1,4 +1,5 @@
 import { currencyDigits } from '@erxes/core-contract';
+import { formatter } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 /*
@@ -10,7 +11,7 @@ const unit = (currency: string) => 10 ** currencyDigits(currency);
 
 /** An amount as people read it in `language`: 150000 MNT → "MNT 1,500.00". */
 export const formatMoney = (amount: number, currency: string, language: string) =>
-  new Intl.NumberFormat(language, { style: 'currency', currency }).format(amount / unit(currency));
+  formatter(language).currency(amount / unit(currency), currency);
 
 /** An amount for a number input, with all of the currency's decimals: 1250 USD → "12.50", 500 JPY → "500". */
 export const toAmountInput = (amount: number, currency: string) =>

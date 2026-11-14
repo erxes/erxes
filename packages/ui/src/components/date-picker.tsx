@@ -4,11 +4,10 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { Calendar } from './calendar';
 import { Button } from './button';
 import { Popover } from './popover';
+import { useFormat } from '../lib/format';
 import { cn } from '../lib/utils';
 import type { DatePickerMode, DatePickerValue, NormalizedValue } from './date-picker-value';
 import {
-  DEFAULT_DISPLAY_FORMAT,
-  DEFAULT_FORMAT,
   describeValue,
   getAnchorDate,
   getCalendarDisabled,
@@ -29,10 +28,6 @@ export type DatePickerProps = {
   minDate?: Date;
   maxDate?: Date;
   mode?: DatePickerMode;
-  /** Day.js tokens, e.g. `YYYY-MM-DD`. */
-  format?: string;
-  /** Day.js tokens, e.g. `DD.MM.YYYY`. */
-  displayFormat?: string;
   formatMultiple?: (count: number) => string;
   variant?: 'outline' | 'default' | 'ghost';
   allowNull?: boolean;
@@ -201,8 +196,6 @@ const resolveProps = ({
   disabled,
   className,
   mode = 'single',
-  format = DEFAULT_FORMAT,
-  displayFormat = format === DEFAULT_FORMAT ? DEFAULT_DISPLAY_FORMAT : format,
   formatMultiple = defaultFormatMultiple,
   variant = 'outline',
   allowNull,
@@ -223,8 +216,6 @@ const resolveProps = ({
   disabled,
   className,
   mode,
-  format,
-  displayFormat,
   formatMultiple,
   variant,
   clearable,
@@ -239,14 +230,13 @@ const resolveProps = ({
 export const DatePicker = (props: DatePickerProps) => {
   const { calendarProps, ...o } = resolveProps(props);
   const picker = useDatePicker(o);
+  const fmt = useFormat();
   const { normalizedValue, isDisabled, hasValue, setIsOpen } = picker;
 
   const singleInput = (
     <DateTextInput
       singleDate={normalizedValue instanceof Date ? normalizedValue : undefined}
       onChange={o.onChange}
-      format={o.format}
-      displayFormat={o.displayFormat}
       bounds={picker.bounds}
       calendarDisabled={picker.calendarDisabled}
       clearable={o.clearable}
@@ -300,7 +290,7 @@ export const DatePicker = (props: DatePickerProps) => {
             disabled={isDisabled}
             className={cn('w-full justify-start text-left font-normal', o.className)}
           >
-            {describeValue(normalizedValue, o.format, o.formatMultiple) ?? o.placeholder}
+            {describeValue(normalizedValue, fmt.date, o.formatMultiple) ?? o.placeholder}
           </Popover.Trigger>
         )
       }

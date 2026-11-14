@@ -1,10 +1,7 @@
-import { cn, Combobox, Command, Popover } from 'erxes-ui';
+import { cn, Combobox, EntityPicker, Popover } from 'erxes-ui';
 import { type ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '@erxes/core-contract/client';
 import { useProductCategories } from './useProductCategories';
-
-const NONE = '__none__';
 
 /**
  * Picks one category from the tree (indented under its parents), or none.
@@ -55,38 +52,25 @@ export const CategoryPicker = ({
         />
       </Combobox.Trigger>
       <Combobox.Content>
-        <Command>
-          <Command.Input placeholder={t('category.search', 'Search categories')} />
-          <Command.List className="max-h-72">
-            {query.isError && (
-              <p role="alert" className="p-2 text-sm text-destructive">
-                {messageOf(query.error)}
-              </p>
-            )}
-            <Command.Empty>{t('category.none-found', 'No categories found')}</Command.Empty>
-            <Command.Item value={NONE} onSelect={() => pick(null)}>
-              <span className="text-muted-foreground">{noneLabel}</span>
-              <Combobox.Check checked={value === null} />
-            </Command.Item>
-            {tree
-              .filter((node) => !exclude?.has(node.category.id))
-              .map((node) => (
-                <Command.Item
-                  key={node.category.id}
-                  value={node.path}
-                  onSelect={() => pick(node.category.id)}
-                >
-                  <span
-                    className="truncate pl-(--indent)"
-                    style={{ '--indent': `${node.depth * 0.75}rem` }}
-                  >
-                    {node.category.name}
-                  </span>
-                  <Combobox.Check checked={value === node.category.id} />
-                </Command.Item>
-              ))}
-          </Command.List>
-        </Command>
+        <EntityPicker
+          items={tree.filter((node) => !exclude?.has(node.category.id))}
+          keepOrder
+          itemKey={(node) => ({ id: node.category.id, label: node.path })}
+          renderItem={(node) => (
+            <span
+              className="truncate pl-(--indent)"
+              style={{ '--indent': `${node.depth * 0.75}rem` }}
+            >
+              {node.category.name}
+            </span>
+          )}
+          value={value ? [value] : []}
+          onValueChange={([categoryId]) => pick(categoryId ?? null)}
+          loading={query.isPending}
+          error={query.error}
+          searchPlaceholder={t('category.search', 'Search categories')}
+          noneLabel={noneLabel}
+        />
       </Combobox.Content>
     </Popover>
   );

@@ -10,7 +10,15 @@ The core React app (React 19 with the compiler, Rsbuild, React Query) and the Mo
   `useMutation(orpc.tags.create.mutationOptions({ onSuccess }))`. The contract makes every query
   key: invalidate with `orpc.<group>.key()` or `orpc.<group>.<proc>.key()`. A lookup used in many
   places is one exported options factory (`memberQueries` in `@erxes/core-contract/client`, which erxes-ui's `SelectMember`, `MemberInline` and `useMembersById` take).
-- Keyset lists read through `useCursorList` (`src/lib/cursorList.ts`) into `RecordTable.CursorProvider`.
+- Keyset lists read through `useCursorList` (`src/lib/cursorList.ts`) into `CursorRecordTable`
+  (`src/components`). Record pickers are lists in erxes-ui's `EntityPicker`, empty states are
+  erxes-ui's `Empty`, sortable lists take `useSortSensors()`.
+- `vp run check` fails on any copy of 80 tokens or more in apps/web or erxes-ui (jscpd,
+  `.jscpd.json`): move the shared part into one component or function.
+- One way each, enforced by lint: addresses from `paths` (`src/lib/paths.ts`), dates and numbers
+  through erxes-ui's `useFormat()`, browser storage through erxes-ui's `stored()`, URL query
+  state through nuqs, shortcuts through `usePageHotkey`. The format and storage rules come from
+  @erxes/lint, so plugin UIs follow them too.
 - Every query's failure is shown: render through `<QueryState query={…}>` from
   `~/components/QueryState`, or read `isError`. Every mutation has an error toast or inline message.
 - Branch on an error by its code with `isApiError(error, code)` from `@erxes/core-contract/client`.

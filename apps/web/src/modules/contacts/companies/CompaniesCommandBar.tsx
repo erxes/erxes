@@ -83,7 +83,6 @@ export const CompaniesCommandBar = ({ rows }: { rows: Company[] }) => {
           <Separator.Inline />
           <TagsSelect
             type="company"
-            mode="multiple"
             variant="secondary"
             value={tagIds}
             onValueChange={(next) => tag.mutate({ ids: companyIds, ...tagChange(tagIds, next) })}

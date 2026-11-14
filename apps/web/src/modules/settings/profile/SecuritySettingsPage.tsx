@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconCircleCheck, IconCircleX, IconKey, IconLock } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
@@ -254,7 +255,7 @@ export const SecuritySettingsPage = () => {
             items={[
               {
                 label: t('security-title', 'Password & security'),
-                to: '/settings/security',
+                to: paths.settings.security,
                 icon: IconLock,
               },
             ]}

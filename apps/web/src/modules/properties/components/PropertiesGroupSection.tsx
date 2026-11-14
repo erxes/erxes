@@ -10,6 +10,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import {
+  Empty,
   Badge,
   Button,
   cn,
@@ -22,7 +23,7 @@ import { useSetAtom } from 'jotai';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { propertiesPath } from '../constants';
+import { propertyPaths } from '~/lib/paths';
 import { activeLayoutGroupState, activePropertyGroupState, archiveTargetState } from '../states';
 import { useCanManageFields } from '../usePropertyMutations';
 import { propertiesColumns } from './propertiesColumns';
@@ -55,9 +56,7 @@ const PropertiesGroupActions = ({
         <IconDots />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-48" onClick={(event) => event.stopPropagation()}>
-        <DropdownMenu.LinkItem
-          render={<Link to={`${propertiesPath(contentType)}/${group.id}/add`} />}
-        >
+        <DropdownMenu.LinkItem render={<Link to={propertyPaths(contentType).add(group.id)} />}>
           <IconPlus />
           {t('add-field', 'Add field')}
         </DropdownMenu.LinkItem>
@@ -131,9 +130,9 @@ const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps)
       </div>
       <Collapsible.Panel className="mt-2">
         {fields.length === 0 ? (
-          <div className="rounded-md border py-10 text-center text-sm text-muted-foreground">
-            {t('no-fields-found', 'No fields found')}
-          </div>
+          <Empty variant="outline">
+            <Empty.Description>{t('no-fields-found', 'No fields found')}</Empty.Description>
+          </Empty>
         ) : (
           <RecordTable.Provider
             columns={columns}
@@ -193,7 +192,7 @@ export const PropertiesGroupSection = ({
       <GroupShell
         name={group.name}
         fields={fields}
-        addPath={`${propertiesPath(contentType)}/${group.id}/add`}
+        addPath={propertyPaths(contentType).add(group.id)}
         handle={
           manager ? (
             <Button
@@ -231,7 +230,7 @@ export const PropertiesUngroupedSection = ({
     <GroupShell
       name={t('ungrouped', 'Ungrouped')}
       fields={fields}
-      addPath={`${propertiesPath(contentType)}/add`}
+      addPath={propertyPaths(contentType).add()}
     />
   );
 };

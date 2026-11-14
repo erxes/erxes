@@ -2,6 +2,7 @@ import React from 'react';
 import * as RechartsPrimitive from 'recharts';
 import type { LegendPayload } from 'recharts/types/component/DefaultLegendContent';
 import type { Payload } from 'recharts/types/component/DefaultTooltipContent';
+import { useFormat } from '../lib/format';
 import { cn } from '../lib/utils';
 import { ChartContext, configFor, fillOf, keyOf, useChart, type ChartConfig } from './chart-config';
 
@@ -119,6 +120,7 @@ const TooltipRow = ({
   label: React.ReactNode;
 }) => {
   const { config } = useChart();
+  const fmt = useFormat();
   const { indicator = 'dot', formatter } = props;
   const nested = label !== null;
   const itemConfig = configFor(config, item, keyOf(props.nameKey, item.name, item.dataKey));
@@ -152,7 +154,7 @@ const TooltipRow = ({
         </div>
         {item.value !== undefined && (
           <span className="font-mono font-medium tabular-nums text-foreground">
-            {item.value.toLocaleString()}
+            {typeof item.value === 'number' ? fmt.number(item.value) : String(item.value)}
           </span>
         )}
       </div>

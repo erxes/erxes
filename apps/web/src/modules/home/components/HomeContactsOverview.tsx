@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { UseQueryResult } from '@tanstack/react-query';
 import {
   IconAddressBook,
@@ -6,7 +7,7 @@ import {
   IconUsers,
   type TablerIcon,
 } from '@tabler/icons-react';
-import { Skeleton } from 'erxes-ui';
+import { Skeleton, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useContactsOverview } from '../hooks';
@@ -23,7 +24,7 @@ const Stat = ({
   query: UseQueryResult<number>;
   to: string;
 }) => {
-  const { i18n } = useTranslation();
+  const fmt = useFormat();
 
   return (
     <Link
@@ -39,7 +40,7 @@ const Stat = ({
           <Skeleton className="mt-1 h-5 w-12" />
         ) : (
           <span className="text-lg font-semibold leading-tight tabular-nums">
-            {query.isError ? '—' : query.data.toLocaleString(i18n.language)}
+            {query.isError ? '—' : fmt.number(query.data)}
           </span>
         )}
       </span>
@@ -59,20 +60,20 @@ export const HomeContactsOverview = () => {
           label={t('kpi.customers')}
           icon={IconAddressBook}
           query={customers}
-          to="/contacts/customers"
+          to={paths.contacts.customers}
         />
-        <Stat label={t('kpi.leads')} icon={IconUserPlus} query={leads} to="/contacts/leads" />
+        <Stat label={t('kpi.leads')} icon={IconUserPlus} query={leads} to={paths.contacts.leads} />
         <Stat
           label={t('kpi.companies')}
           icon={IconBuilding}
           query={companies}
-          to="/contacts/companies"
+          to={paths.contacts.companies}
         />
         <Stat
           label={t('kpi.team-members')}
           icon={IconUsers}
           query={users}
-          to="/settings/team-members"
+          to={paths.settings.teamMembers}
         />
       </div>
     </section>

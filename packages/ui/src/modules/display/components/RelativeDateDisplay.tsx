@@ -1,22 +1,16 @@
-import { format } from 'date-fns';
 import { Tooltip } from 'erxes-ui/components/tooltip';
+import { useFormat } from 'erxes-ui/lib/format';
 import { isUndefinedOrNull } from 'erxes-ui/utils/IsUndefinedOrNull';
-import {
-  formatDateISOStringToRelativeDate,
-  formatDateISOStringToRelativeDateShort,
-} from 'erxes-ui/utils/localization/formatDateISOStringToRelativeDate';
 import React from 'react';
 import type { Except } from 'type-fest';
 
-type RelativeDateDisplayProps = {
-  value: string;
-  isShort?: boolean;
-};
-
+/** A date as how long ago it was, with the date and time on hover. */
 const RelativeDateDisplayTooltip = ({
   value,
   ...props
 }: Except<React.ComponentProps<typeof Tooltip.Trigger>, 'value'> & { value: string }) => {
+  const fmt = useFormat();
+
   if (isUndefinedOrNull(value)) {
     return null;
   }
@@ -24,20 +18,15 @@ const RelativeDateDisplayTooltip = ({
   return (
     <Tooltip>
       <Tooltip.Trigger delay={100} className="truncate" {...props} />
-      <Tooltip.Content>{format(value, 'MMM dd, yyyy HH:mm')}</Tooltip.Content>
+      <Tooltip.Content>{fmt.dateTime(value)}</Tooltip.Content>
     </Tooltip>
   );
 };
 
-const RelativeDateDisplayValue = ({ value, isShort }: RelativeDateDisplayProps) => {
-  if (isUndefinedOrNull(value)) {
-    return null;
-  }
+const RelativeDateDisplayValue = ({ value }: { value: string }) => {
+  const fmt = useFormat();
 
-  const relativeDate = formatDateISOStringToRelativeDate(value);
-  const relativeDateShort = formatDateISOStringToRelativeDateShort(value);
-
-  return isShort ? relativeDateShort : relativeDate;
+  return isUndefinedOrNull(value) ? null : fmt.relative(value);
 };
 
 export const RelativeDateDisplay = Object.assign(RelativeDateDisplayTooltip, {

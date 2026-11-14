@@ -47,7 +47,7 @@ const signIn = async () => {
   await page.getByRole('button', { name: 'Sign in' }).click();
   // Sign-in stays on `/`, so wait for its form to go.
   await page.getByLabel('Email').waitFor({ state: 'detached' });
-  await page.evaluate(() => localStorage.setItem('erxes_leads_view', JSON.stringify('table')));
+  await page.evaluate(() => localStorage.setItem('erxes:leads:view', JSON.stringify('table')));
 
   const state = await context.storageState();
 

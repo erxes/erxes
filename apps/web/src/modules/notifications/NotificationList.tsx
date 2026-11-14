@@ -1,7 +1,7 @@
 import type { Notification } from '@erxes/core-contract';
 import { IconBell } from '@tabler/icons-react';
 import { memberQueries, messageOf } from '@erxes/core-contract/client';
-import { Button, Empty, Spinner, useMembersById } from 'erxes-ui';
+import { Button, Empty, Spinner, formatter, useMembersById } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { actorLabel } from '~/lib/members';
 import { NotificationItem } from './NotificationItem';
@@ -18,11 +18,10 @@ const dayLabel = (iso: string, t: (key: string, fallback: string) => string, lan
 
   if (date.toDateString() === yesterday.toDateString()) return t('yesterday', 'Yesterday');
 
-  return date.toLocaleDateString(language, {
-    month: 'long',
-    day: 'numeric',
-    year: date.getFullYear() === today.getFullYear() ? undefined : 'numeric',
-  });
+  return formatter(language).date(
+    date,
+    date.getFullYear() === today.getFullYear() ? 'MMMM d' : 'PPP',
+  );
 };
 
 /** Consecutive notifications of one day, under that day's label. */

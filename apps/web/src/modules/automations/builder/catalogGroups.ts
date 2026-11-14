@@ -10,8 +10,8 @@ import {
   IconWebhook,
   type TablerIcon,
 } from '@tabler/icons-react';
-import { jsonOf } from 'erxes-ui';
-import { useState } from 'react';
+import { storedFamily } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { pluginLabel } from '~/lib/members';
@@ -138,31 +138,20 @@ export const useCatalogLabels = (kind: string) => {
 
 const RECENT_LIMIT = 4;
 
-const RecentTypes = z.array(z.string());
+const recentState = storedFamily({
+  key: 'erxes:automations:recent',
+  schema: z.array(z.string()).max(RECENT_LIMIT),
+  initial: [],
+});
 
-/** The last few picked of a kind, in this browser (none in a private window). */
+/** The last few picked of a kind (trigger or action), in this browser. */
 export const useRecent = (kind: string) => {
-  const key = `erxes_automation_recent_${kind}`;
+  const [recent, setRecent] = useAtom(recentState(kind));
 
-  const [recent, setRecent] = useState(() => {
-    try {
-      return jsonOf(RecentTypes).safeParse(localStorage.getItem(key)).data ?? [];
-    } catch {
-      return [];
-    }
-  });
-
-  const remember = (type: string) => {
-    const next = [type, ...recent.filter((item) => item !== type)].slice(0, RECENT_LIMIT);
-
-    setRecent(next);
-
-    try {
-      localStorage.setItem(key, JSON.stringify(next));
-    } catch (error) {
-      console.warn('Recent automation picks were not saved', error);
-    }
-  };
+  const remember = (type: string) =>
+    setRecent((current) =>
+      [type, ...current.filter((item) => item !== type)].slice(0, RECENT_LIMIT),
+    );
 
   return { recent, remember };
 };

@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useAtom } from 'jotai';
+import { useCallback } from 'react';
 import { z } from 'zod';
-import { jsonOf } from 'erxes-ui/utils/json';
+import { storedFamily } from 'erxes-ui/lib/stored';
 
 const ids = z.array(z.string());
 
@@ -16,46 +17,22 @@ const tablePrefsSchema = z.object({
 
 type TablePrefs = z.infer<typeof tablePrefsSchema>;
 
-const storageKey = (tableId: string) => `erxes_table_prefs_${tableId}`;
+const tablePrefsState = storedFamily({
+  key: 'erxes:table:prefs',
+  schema: tablePrefsSchema,
+  initial: {},
+});
 
-/** The saved layout; storage that is blocked, missing or malformed reads as none. */
-const readPrefs = (tableId: string | undefined): TablePrefs => {
-  if (!tableId) return {};
-
-  try {
-    return jsonOf(tablePrefsSchema).safeParse(localStorage.getItem(storageKey(tableId))).data ?? {};
-  } catch {
-    // localStorage itself throws when storage is blocked.
-    return {};
-  }
-};
-
-const writePrefs = (tableId: string, prefs: TablePrefs) => {
-  try {
-    localStorage.setItem(storageKey(tableId), JSON.stringify(prefs));
-  } catch {
-    // Storage is full or blocked: the layout lasts for this page only.
-  }
-};
-
-/** A table's column layout, kept in localStorage per `tableId`; without one nothing is kept. */
+/** A table's column layout, kept in this browser per `tableId`; without one nothing is kept. */
 export const useTablePreferences = (tableId: string | undefined) => {
-  const [prefs, setPrefs] = useState(() => readPrefs(tableId));
+  const [prefs, setPrefs] = useAtom(tablePrefsState(tableId ?? ''));
 
   const savePrefs = useCallback(
     (updates: Partial<TablePrefs>) => {
-      if (!tableId) return;
-
-      setPrefs((current) => {
-        const merged = { ...current, ...updates };
-
-        writePrefs(tableId, merged);
-
-        return merged;
-      });
+      if (tableId) setPrefs((current) => ({ ...current, ...updates }));
     },
-    [tableId],
+    [tableId, setPrefs],
   );
 
-  return { prefs, savePrefs };
+  return { prefs: tableId ? prefs : {}, savePrefs };
 };
