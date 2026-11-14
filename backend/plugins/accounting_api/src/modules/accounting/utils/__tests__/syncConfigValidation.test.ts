@@ -105,6 +105,18 @@ describe('sync rule validation on save', () => {
     ).not.toThrow();
   });
 
+  it('rejects a deal rule sent through the by-code settings save with no stage', () => {
+    expect(() =>
+      validateSyncConfig({ code: 'syncDeal', subId: '', value: dealRule }),
+    ).toThrow('Sync rule is missing required fields: stageId');
+  });
+
+  it('treats a code named like an object property as an ordinary setting', () => {
+    expect(() =>
+      validateSyncConfig({ code: 'constructor', subId: '', value: {} }),
+    ).not.toThrow();
+  });
+
   it('leaves non-sync configs such as an empty custom setting untouched', () => {
     expect(() =>
       validateSyncConfig({ code: 'erkhetConfig', subId: '', value: {} }),

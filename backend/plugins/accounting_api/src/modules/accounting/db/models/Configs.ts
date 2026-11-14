@@ -179,6 +179,8 @@ export const loadConfigClass = (
      * update subId must '' configs update by code
      */
     public static async updateSingleByCode(code: string, value: any) {
+      validateSyncConfig({ code, subId: '', value });
+
       const oldConf = await models.Configs.getConfig(code);
 
       if (oldConf) {

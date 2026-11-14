@@ -6,31 +6,39 @@ const SALE_ACCOUNT_FIELDS = [
   'saleCostAccountId',
 ];
 
-const SYNC_CONFIG_RULES: Record<
+const SYNC_CONFIG_RULES = new Map<
   string,
   { subIdLabel: string; requiredFields: string[]; checksTaxRows: boolean }
-> = {
-  syncDeal: {
-    subIdLabel: 'stageId',
-    requiredFields: SALE_ACCOUNT_FIELDS,
-    checksTaxRows: true,
-  },
-  syncDealReturn: {
-    subIdLabel: 'stageId',
-    requiredFields: [],
-    checksTaxRows: false,
-  },
-  syncDealMovement: {
-    subIdLabel: 'stageId',
-    requiredFields: ['sourceAccountId', 'destinationAccountId'],
-    checksTaxRows: false,
-  },
-  syncOrder: {
-    subIdLabel: 'posId',
-    requiredFields: SALE_ACCOUNT_FIELDS,
-    checksTaxRows: true,
-  },
-};
+>([
+  [
+    'syncDeal',
+    {
+      subIdLabel: 'stageId',
+      requiredFields: SALE_ACCOUNT_FIELDS,
+      checksTaxRows: true,
+    },
+  ],
+  [
+    'syncDealReturn',
+    { subIdLabel: 'stageId', requiredFields: [], checksTaxRows: false },
+  ],
+  [
+    'syncDealMovement',
+    {
+      subIdLabel: 'stageId',
+      requiredFields: ['sourceAccountId', 'destinationAccountId'],
+      checksTaxRows: false,
+    },
+  ],
+  [
+    'syncOrder',
+    {
+      subIdLabel: 'posId',
+      requiredFields: SALE_ACCOUNT_FIELDS,
+      checksTaxRows: true,
+    },
+  ],
+]);
 
 const isBlank = (value: unknown) => typeof value !== 'string' || !value.trim();
 
@@ -43,7 +51,7 @@ export const validateSyncConfig = ({
   subId?: string;
   value: TSyncConfigValue;
 }) => {
-  const rule = SYNC_CONFIG_RULES[code];
+  const rule = SYNC_CONFIG_RULES.get(code);
 
   if (!rule) {
     return;
