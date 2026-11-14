@@ -3,7 +3,8 @@
 The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON), bundled by tsdown as ESM.
 
 A request goes contract procedure → its policy in `ACCESS` (`src/http/policies.ts`) → handler in
-`src/modules/<feature>/<feature>.router.ts` → service → DTO. Copy `modules/tags` for a new feature.
+`src/modules/<feature>/<feature>.router.ts` → service → row → the procedure's output schema, which
+picks the fields and turns Dates into ISO strings. Copy `modules/tags` for a new feature.
 `<feature>.http.ts` is only for Express routes the contract can't describe: byte and event streams,
 OAuth's token and revoke endpoints, and callbacks from outside services (payments, SaaS).
 
@@ -21,9 +22,24 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   `postOutbound` (`src/lib/outbound.ts`) throws inside a tenant scope. A member procedure that
   calls out uses `authedUnscoped`, reads in a short `withOrg` and calls out after it (see
   `testStream`); a job reads, calls out, then writes in a second scope (`streamDelivery.ts`).
-- A write and its audit entry share one transaction: `audited(...)` in the router, or
-  `recordAudit(tx, ...)` in the service. Core events go out in the same transaction with
+- A request or job is one transaction, its `withOrg` or `withSystem` scope, so services never open
+  another (lint bans `.transaction`). When you catch an error and go on (a unique violation you
+  answer with the existing record, an import row or recycle-bin item that fails alone), run the
+  part that may fail in `savepoint(fn)` from `@erxes/core-db`.
+- Row level security keeps every query to the scope's organisation, so no query filters on
+  `orgId` and no insert in `withOrg` sets it (`orgIdColumn()` fills it). `erxes/no-org-filter`
+  fails the filter. A `withSystem` job that needs one organisation's rows runs that part in
+  `withOrg(orgId, ...)`, which narrows the system scope until it returns. Only inserts under
+  `withSystem` (setup, plugin installs, audit, jobs, notifications) name `orgId`.
+- A write and its audit entry share that transaction: `audited(...)` in the router, or
+  `recordAudit(tx, ...)` in the service. Core events go out in it too, with
   `publishCoreEvents(tx, ...)`.
+- Services return rows, Dates and all. oRPC runs every answer through the output schema, which
+  drops unpicked columns and encodes dates with `isoDate`, so there is no hand mapper and no
+  `.toISOString()` for a response. A service adds only what the row lacks
+  (`{ ...row, actor: { type: row.actorType, id: row.actorId } }`). A body sent outside oRPC
+  (webhooks, plugin deliveries, event payloads, automation context) goes through the contract
+  schema's `.parse(...)`, as `eventJson` and the product event payload do.
 - Errors are `HttpError(status, code, message, data?)`, an `ORPCError`. Clients branch on `code`, so
   a new failure gets a new code and old codes keep their meaning.
 - Lists of records that grow with use page with `keysetPage` (`cursorPageOf`; newest first, the

@@ -24,7 +24,8 @@ deploy/smoke.sh http://localhost:8080   # on an empty install only (it runs setu
 ```
 
 - `migrate` runs `node dist/migrate.js` as the owner before the API starts,
-  and grants `erxes_app` (the API's role, no BYPASSRLS) core's tables.
+  and grants `erxes_app` (the API's role, no BYPASSRLS) core's tables and the right to
+  act as `erxes_core_system`, the BYPASSRLS role background jobs run as.
 - Put TLS in front of the `ui` container (port 8080); it serves the UI and
   forwards `/core` to the API, live updates included.
 - Plugin database roles: `docker compose … run --rm migrate node dist/plugin-role.js <plugin>`.
@@ -32,7 +33,8 @@ deploy/smoke.sh http://localhost:8080   # on an empty install only (it runs setu
   volume mounts at `/var/lib/postgresql`. A volume written by Postgres 16 does not
   start under 18: `pg_dumpall` it on 16 and restore into the new volume.
 - Managed Postgres (Supabase, RDS): drop the `postgres` service and point
-  `DATA_URL` / `DATA_MIGRATION_URL` at it, with `DATA_SSL=true` and its CA.
+  `DATA_URL` / `DATA_MIGRATION_URL` at it, with `DATA_SSL=true` and its CA. The
+  owner in `DATA_MIGRATION_URL` must be able to create a BYPASSRLS role.
 
 ## Automatic deploys
 

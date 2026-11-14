@@ -10,11 +10,16 @@ import { z } from 'zod';
 export const Id = z.string().min(1).max(64);
 
 /**
- * A timestamp column as the API sends it, an ISO string. Give it to
- * `createSelectSchema` as a refinement (`{ createdAt: isoDate }`), so a
- * nullable column stays nullable.
+ * A timestamp column in an output schema: the handler returns the row's `Date`,
+ * the client gets an ISO string. Give it to `createSelectSchema` as a
+ * refinement (`{ createdAt: isoDate }`), so a nullable column stays nullable.
+ * Inputs and JSON bodies read from the wire take `z.iso.datetime()`.
  */
-export const isoDate = () => z.iso.datetime();
+export const isoDate = () =>
+  z.codec(z.date(), z.iso.datetime(), {
+    decode: (date) => date.toISOString(),
+    encode: (iso) => new Date(iso),
+  });
 
 /**
  * Keyset ("cursor") paging, newest first. A cursor is the id of a record in

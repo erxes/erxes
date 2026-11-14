@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { type AnyPgColumn, pgTableCreator } from 'drizzle-orm/pg-core';
+import { type AnyPgColumn, pgTableCreator, text } from 'drizzle-orm/pg-core';
 
 /**
  * Every core table is `core_<name>`: the database is shared with plugins
@@ -7,6 +7,17 @@ import { type AnyPgColumn, pgTableCreator } from 'drizzle-orm/pg-core';
  * so they repeat the full prefixed table name.
  */
 export const pgTable = pgTableCreator((name) => `core_${name}`);
+
+/**
+ * The organisation a row belongs to. An insert takes it from the scope
+ * (`withOrg` sets `app.org_id`), so services never pass it, and row level
+ * security checks it. A `withSystem` scope has no organisation: its inserts
+ * name one, or fail on NOT NULL.
+ */
+export const orgIdColumn = () =>
+  text()
+    .notNull()
+    .default(sql`nullif(current_setting('app.org_id', true), '')`);
 
 const literal = (value: string | number) =>
   typeof value === 'number' ? String(value) : `'${value.replaceAll("'", "''")}'`;

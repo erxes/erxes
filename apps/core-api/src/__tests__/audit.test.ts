@@ -1,3 +1,4 @@
+import { withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
 import { pruneAudit } from '~/modules/audit/audit.service';
@@ -146,7 +147,9 @@ describe('audit log', () => {
       retentionDays: 30,
       maxRetentionDays: 365,
     });
-    expect(await pruneAudit(adminDb(), 365)).toBeGreaterThanOrEqual(2);
+    expect(await withSystem('cleanup: audit', (tx) => pruneAudit(tx, 365))).toBeGreaterThanOrEqual(
+      2,
+    );
 
     const left = await adminDb().execute(
       sql`select id from core_audit_logs where id in ${['old-entry-1', 'old-entry-2']}`,

@@ -1,5 +1,5 @@
 import { type ContentType, companies, customers, type Db } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { inArray, sql } from 'drizzle-orm';
 import { type Actor, userCaller, type Caller } from '~/http/auth';
 import { currentImport } from '~/lib/causation';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -137,7 +137,6 @@ export const contactsRemoved = async (
 ) => {
   await removeActivities(
     tx,
-    actor.orgId,
     type,
     rows.map((row) => row.id),
   );
@@ -187,7 +186,7 @@ export const contactsMerged = async (
   const mergedIds = others.map((other) => other.id);
   const mergedNames = others.map((other) => contactLabel(type, other));
 
-  await moveActivities(tx, actor.orgId, type, mergedIds, keep.id);
+  await moveActivities(tx, type, mergedIds, keep.id);
   await publishCoreEvents(tx, caller, {
     type: `core.${type}.merged`,
     subject: { type, id: keep.id },
@@ -273,12 +272,9 @@ export const contactsLinked = async (
     })
     .from(customers)
     .where(
-      and(
-        eq(customers.orgId, actor.orgId),
-        inArray(
-          customers.id,
-          links.map((link) => link.customerId),
-        ),
+      inArray(
+        customers.id,
+        links.map((link) => link.customerId),
       ),
     )
     .unionAll(
@@ -286,12 +282,9 @@ export const contactsLinked = async (
         .select({ id: companies.id, name: sql<string | null>`${companies.primaryName}` })
         .from(companies)
         .where(
-          and(
-            eq(companies.orgId, actor.orgId),
-            inArray(
-              companies.id,
-              links.map((link) => link.companyId),
-            ),
+          inArray(
+            companies.id,
+            links.map((link) => link.companyId),
           ),
         ),
     );

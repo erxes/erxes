@@ -1,7 +1,7 @@
 import type { Db } from '@erxes/core-db';
 import type { CompanyInput } from '@erxes/core-contract';
-import { companies, newId } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { companies, newId, savepoint } from '@erxes/core-db';
+import { inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import {
@@ -27,10 +27,9 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
-import { type CompanyRow, conflictFrom, findCompany, inOrg, toCompanyDto } from './companyRows';
+import { type CompanyRow, conflictFrom, findCompany, inOrg } from './companyRows';
 
-export const getCompany = async (client: Db, orgId: string, id: string) =>
-  toCompanyDto(await findCompany(client, orgId, id, true));
+export const getCompany = (client: Db, id: string) => findCompany(client, id, true);
 
 const scalarFields = (input: CompanyInput) => {
   const {
@@ -59,7 +58,7 @@ export const createCompany = async (
   actor: Actor,
   input: CompanyInput & { primaryName: string },
 ) => {
-  await assertOwner(client, actor.orgId, input.ownerId);
+  await assertOwner(client, input.ownerId);
 
   const none = { primary: null, list: [] };
   const name = resolveContacts(input.primaryName, input.names, none, normalizeName);
@@ -69,15 +68,9 @@ export const createCompany = async (
 
   if (!primaryName) throw nameRequired();
 
-  const tagIds = await checkTagIds(client, actor.orgId, 'company', input.tagIds ?? []);
+  const tagIds = await checkTagIds(client, 'company', input.tagIds ?? []);
 
-  const customFields = await applyCustomFields(
-    client,
-    actor.orgId,
-    'company',
-    {},
-    input.customFields,
-  );
+  const customFields = await applyCustomFields(client, 'company', {}, input.customFields);
 
   const lead = await planLeadOnCreate(client, userCaller(actor), {
     ...input,
@@ -85,14 +78,13 @@ export const createCompany = async (
   });
 
   try {
-    const id = await client.transaction(async (tx) => {
+    const id = await savepoint(async (tx) => {
       const { id: created } = oneRow(
         await tx
           .insert(companies)
           .values({
             ...scalarFields(input),
             id: newId(),
-            orgId: actor.orgId,
             primaryName,
             names: name.list,
             primaryEmail: email.primary,
@@ -105,24 +97,17 @@ export const createCompany = async (
           .returning({ id: companies.id }),
       );
 
-      await saveCustomFields(
-        tx,
-        actor.orgId,
-        'company',
-        created,
-        customFields,
-        Object.keys(customFields),
-      );
+      await saveCustomFields(tx, 'company', created, customFields, Object.keys(customFields));
       await recordLeadSteps(tx, userCaller(actor), 'company', [{ id: created, steps: lead.steps }]);
-      await setRecordTags(tx, actor.orgId, 'company', created, tagIds);
-      await contactCreated(tx, actor, 'company', await findCompany(tx, actor.orgId, created));
+      await setRecordTags(tx, 'company', created, tagIds);
+      await contactCreated(tx, actor, 'company', await findCompany(tx, created));
 
       return created;
     });
 
-    return toCompanyDto(await findCompany(client, actor.orgId, id));
+    return await findCompany(client, id);
   } catch (error) {
-    return conflictFrom(client, actor.orgId, error, primaryName);
+    return conflictFrom(client, error, primaryName);
   }
 };
 
@@ -172,38 +157,30 @@ const contactColumns = (current: CompanyRow, input: CompanyInput) => {
 };
 
 export const updateCompany = async (client: Db, actor: Actor, id: string, input: CompanyInput) => {
-  await lockRows(client, 'core_companies', actor.orgId, [id]);
+  await lockRows(client, 'core_companies', [id]);
 
-  const current = await findCompany(client, actor.orgId, id);
+  const current = await findCompany(client, id);
 
-  await assertOwner(client, actor.orgId, input.ownerId);
+  await assertOwner(client, input.ownerId);
 
   const tagIds =
-    input.tagIds === undefined
-      ? undefined
-      : await checkTagIds(client, actor.orgId, 'company', input.tagIds);
+    input.tagIds === undefined ? undefined : await checkTagIds(client, 'company', input.tagIds);
 
   const changes = contactColumns(current, input);
 
   const customFields =
     input.customFields === undefined
       ? undefined
-      : await applyCustomFields(
-          client,
-          actor.orgId,
-          'company',
-          current.customFields,
-          input.customFields,
-        );
+      : await applyCustomFields(client, 'company', current.customFields, input.customFields);
 
   const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
   try {
-    await client.transaction(async (tx) => {
+    await savepoint(async (tx) => {
       const updated = await tx
         .update(companies)
         .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
-        .where(inOrg(actor.orgId, id))
+        .where(inOrg(id))
         .returning({ id: companies.id });
 
       if (!updated.length) {
@@ -215,19 +192,19 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
       if (customFields) {
         const keys = Object.keys(input.customFields ?? {});
 
-        await saveCustomFields(tx, actor.orgId, 'company', id, customFields, keys);
+        await saveCustomFields(tx, 'company', id, customFields, keys);
       }
 
       if (tagIds) {
-        await setRecordTags(tx, actor.orgId, 'company', id, tagIds);
+        await setRecordTags(tx, 'company', id, tagIds);
       }
 
-      await contactUpdated(tx, actor, 'company', current, await findCompany(tx, actor.orgId, id));
+      await contactUpdated(tx, actor, 'company', current, await findCompany(tx, id));
     });
 
-    return toCompanyDto(await findCompany(client, actor.orgId, id));
+    return await findCompany(client, id);
   } catch (error) {
-    return conflictFrom(client, actor.orgId, error, changes.primaryName ?? current.primaryName);
+    return conflictFrom(client, error, changes.primaryName ?? current.primaryName);
   }
 };
 
@@ -240,30 +217,23 @@ export const removeCompanies = async (
   // Undoing an import removes only what it created (its own permission is checked there).
   if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
 
-  const removed = await client.transaction(async (tx) => {
-    // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
-    if (!options.undoingImport)
-      await guardDeletions(tx, userCaller(actor), ids.length, 'companies', actor.role);
-    await moveToTrash(tx, userCaller(actor), 'company', ids);
+  // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
+  if (!options.undoingImport)
+    await guardDeletions(client, userCaller(actor), ids.length, 'companies', actor.role);
+  await moveToTrash(client, userCaller(actor), 'company', ids);
 
-    const rows = await tx
-      .delete(companies)
-      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
-      .returning();
+  const rows = await client.delete(companies).where(inArray(companies.id, ids)).returning();
 
-    await contactsRemoved(tx, actor, 'company', rows);
+  await contactsRemoved(client, actor, 'company', rows);
 
-    return rows;
-  });
-
-  return { removed: removed.length };
+  return { removed: rows.length };
 };
 
-const tagsByCompany = async (client: Db, orgId: string, ids: string[]) => {
+const tagsByCompany = async (client: Db, ids: string[]) => {
   const rows = await client
     .select({ id: companies.id, tagIds: tagIdsColumn('company', companies.id) })
     .from(companies)
-    .where(and(eq(companies.orgId, orgId), inArray(companies.id, ids)));
+    .where(inArray(companies.id, ids));
 
   return new Map(rows.map((row) => [row.id, row.tagIds]));
 };
@@ -273,26 +243,16 @@ export const tagCompanies = async (
   actor: Actor,
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
-  const add = await checkTagIds(client, actor.orgId, 'company', input.add);
+  const add = await checkTagIds(client, 'company', input.add);
 
-  const updated = await client.transaction(async (tx) => {
-    const before = await tagsByCompany(tx, actor.orgId, input.ids);
+  const before = await tagsByCompany(client, input.ids);
 
-    const count = await changeTags(tx, actor.orgId, 'company', input.ids, {
-      add,
-      remove: unique(input.remove),
-    });
-
-    await contactsTagged(
-      tx,
-      actor,
-      'company',
-      before,
-      await tagsByCompany(tx, actor.orgId, input.ids),
-    );
-
-    return count;
+  const count = await changeTags(client, 'company', input.ids, {
+    add,
+    remove: unique(input.remove),
   });
 
-  return { updated };
+  await contactsTagged(client, actor, 'company', before, await tagsByCompany(client, input.ids));
+
+  return { updated: count };
 };

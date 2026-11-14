@@ -1,5 +1,5 @@
 import type { CursorQuery } from '@erxes/core-contract';
-import { type Db, users, withTransaction } from '@erxes/core-db';
+import { db, type Db, users } from '@erxes/core-db';
 import { and, eq, ilike, inArray, ne, or, type SQL, sql } from 'drizzle-orm';
 import { type Actor, type Role, userCaller } from '~/http/auth';
 import { forbidden, HttpError } from '~/http/errors';
@@ -26,7 +26,6 @@ type Status = UserRow['status'];
 
 export const listUsers = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & {
     search?: string;
     status?: Status;
@@ -69,7 +68,7 @@ export const listUsers = async (
 
   const page = await keysetPage(
     client,
-    { table: users, id: users.id, createdAt: users.createdAt, scope: eq(users.orgId, actor.orgId) },
+    { table: users, id: users.id, createdAt: users.createdAt },
     and(...filters),
     query,
     (where, orderBy, limit) =>
@@ -84,8 +83,7 @@ export const listUsers = async (
   return { ...page, data: page.data.map(toUserDto) };
 };
 
-export const getUser = async (client: Db, actor: Actor, id: string) =>
-  toUserDto(await findUser(client, actor.orgId, id));
+export const getUser = async (client: Db, id: string) => toUserDto(await findUser(client, id));
 
 /** Who may change `target`'s email and role: owners guard owners, nobody changes their own role. */
 const checkUserChange = async (
@@ -126,7 +124,7 @@ const checkUserChange = async (
   if (
     target.role === 'owner' &&
     target.status === 'active' &&
-    (await otherActiveOwners(tx, actor.orgId, target.id)) === 0
+    (await otherActiveOwners(tx, target.id)) === 0
   ) {
     throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
   }
@@ -161,35 +159,36 @@ const announceUserChange = async (tx: Db, actor: Actor, before: UserRow, after: 
   });
 };
 
-export const updateUser = async (caller: Actor, id: string, input: UserChanges) =>
-  withTransaction(async (tx) => {
-    const actor = await lockTeam(tx, caller);
-    const target = await findUser(tx, actor.orgId, id, true);
-    const email = input.email?.trim().toLowerCase();
+export const updateUser = async (caller: Actor, id: string, input: UserChanges) => {
+  const tx = db();
 
-    await checkUserChange(tx, actor, target, { email, role: input.role });
+  const actor = await lockTeam(tx, caller);
+  const target = await findUser(tx, id, true);
+  const email = input.email?.trim().toLowerCase();
 
-    try {
-      const row = oneRow(
-        await tx
-          .update(users)
-          .set({
-            ...profileChanges(input, target),
-            ...(email !== undefined ? { email } : {}),
-            ...(input.role !== undefined ? { role: input.role } : {}),
-            updatedAt: sql`now()`,
-          })
-          .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
-          .returning(),
-      );
+  await checkUserChange(tx, actor, target, { email, role: input.role });
 
-      await announceUserChange(tx, actor, target, row);
+  try {
+    const row = oneRow(
+      await tx
+        .update(users)
+        .set({
+          ...profileChanges(input, target),
+          ...(email !== undefined ? { email } : {}),
+          ...(input.role !== undefined ? { role: input.role } : {}),
+          updatedAt: sql`now()`,
+        })
+        .where(eq(users.id, id))
+        .returning(),
+    );
 
-      return toUserDto(row);
-    } catch (error) {
-      return conflictFrom(error);
-    }
-  });
+    await announceUserChange(tx, actor, target, row);
+
+    return toUserDto(row);
+  } catch (error) {
+    return conflictFrom(error);
+  }
+};
 
 /** Old erxes "Reset password": a manager sets another member's password. */
 export const setUserPassword = async (caller: Actor, id: string, password: string) => {
@@ -197,103 +196,100 @@ export const setUserPassword = async (caller: Actor, id: string, password: strin
 
   const passwordHash = await hashPassword(password);
 
-  return withTransaction(async (tx) => {
-    const actor = await lockTeam(tx, caller);
+  const tx = db();
 
-    requireTeamManager(actor);
+  const actor = await lockTeam(tx, caller);
 
-    const target = await findUser(tx, actor.orgId, id, true);
+  requireTeamManager(actor);
 
-    if (target.id === actor.userId) {
-      throw forbidden('OWN_ACCOUNT', 'Change your own password from your profile');
-    }
+  const target = await findUser(tx, id, true);
 
-    if (target.role === 'owner' && actor.role !== 'owner') {
-      throw forbidden('OWNER_ONLY', 'Only an owner can set an owner’s password');
-    }
+  if (target.id === actor.userId) {
+    throw forbidden('OWN_ACCOUNT', 'Change your own password from your profile');
+  }
 
-    const row = oneRow(
-      await tx
-        .update(users)
-        .set({
-          passwordHash,
-          // Their sessions end: whoever had the old password is out.
-          sessionVersion: sql`${users.sessionVersion} + 1`,
-          // Someone invited can sign in now; a disabled member stays disabled.
-          ...(target.status === 'invited' ? { status: 'active' as const } : {}),
-          updatedAt: sql`now()`,
-        })
-        .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
-        .returning(),
-    );
+  if (target.role === 'owner' && actor.role !== 'owner') {
+    throw forbidden('OWNER_ONLY', 'Only an owner can set an owner’s password');
+  }
 
-    await notify(tx, userCaller(actor), {
-      userIds: [id],
-      kind: 'core.user.password_set',
-      title: 'Your password was changed by an admin',
-      body: 'If you did not ask for this, contact an owner of your organisation.',
-      priority: 'high',
-      entity: { type: 'user', id },
-    });
-    await recordAudit(tx, userCaller(actor), {
-      action: 'user.password_set',
-      targetType: 'user',
-      targetId: id,
-      targetLabel: row.email,
-    });
+  const row = oneRow(
+    await tx
+      .update(users)
+      .set({
+        passwordHash,
+        // Their sessions end: whoever had the old password is out.
+        sessionVersion: sql`${users.sessionVersion} + 1`,
+        // Someone invited can sign in now; a disabled member stays disabled.
+        ...(target.status === 'invited' ? { status: 'active' as const } : {}),
+        updatedAt: sql`now()`,
+      })
+      .where(eq(users.id, id))
+      .returning(),
+  );
 
-    return toUserDto(row);
+  await notify(tx, userCaller(actor), {
+    userIds: [id],
+    kind: 'core.user.password_set',
+    title: 'Your password was changed by an admin',
+    body: 'If you did not ask for this, contact an owner of your organisation.',
+    priority: 'high',
+    entity: { type: 'user', id },
   });
+  await recordAudit(tx, userCaller(actor), {
+    action: 'user.password_set',
+    targetType: 'user',
+    targetId: id,
+    targetLabel: row.email,
+  });
+
+  return toUserDto(row);
 };
 
-export const setUserDisabled = async (caller: Actor, id: string, disabled: boolean) =>
-  withTransaction(async (tx) => {
-    const actor = await lockTeam(tx, caller);
+export const setUserDisabled = async (caller: Actor, id: string, disabled: boolean) => {
+  const tx = db();
 
-    requireTeamManager(actor);
+  const actor = await lockTeam(tx, caller);
 
-    const target = await findUser(tx, actor.orgId, id, true);
+  requireTeamManager(actor);
 
-    if (target.id === actor.userId) {
-      throw forbidden('OWN_ACCOUNT', 'You cannot disable or enable your own account');
-    }
+  const target = await findUser(tx, id, true);
 
-    if (target.role === 'owner' && actor.role !== 'owner') {
-      throw forbidden('OWNER_ONLY', 'Only an owner can disable or enable an owner');
-    }
+  if (target.id === actor.userId) {
+    throw forbidden('OWN_ACCOUNT', 'You cannot disable or enable your own account');
+  }
 
-    if (
-      disabled &&
-      target.role === 'owner' &&
-      (await otherActiveOwners(tx, actor.orgId, target.id)) === 0
-    ) {
-      throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
-    }
+  if (target.role === 'owner' && actor.role !== 'owner') {
+    throw forbidden('OWNER_ONLY', 'Only an owner can disable or enable an owner');
+  }
 
-    // Enabling returns a member to where they were: someone invited who never
-    // set a password is still invited; everyone else is active again.
-    const status: Status = disabled
-      ? 'disabled'
-      : target.invitedBy && !target.passwordHash
-        ? 'invited'
-        : 'active';
+  if (disabled && target.role === 'owner' && (await otherActiveOwners(tx, target.id)) === 0) {
+    throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
+  }
 
-    const row = oneRow(
-      await tx
-        .update(users)
-        // Either way old sessions end: enabling doesn't bring back tokens issued before.
-        .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
-        .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
-        .returning(),
-    );
+  // Enabling returns a member to where they were: someone invited who never
+  // set a password is still invited; everyone else is active again.
+  const status: Status = disabled
+    ? 'disabled'
+    : target.invitedBy && !target.passwordHash
+      ? 'invited'
+      : 'active';
 
-    await recordAudit(tx, userCaller(actor), {
-      action: disabled ? 'user.disabled' : 'user.enabled',
-      targetType: 'user',
-      targetId: id,
-      targetLabel: row.email,
-      changes: { status: [target.status, status] },
-    });
+  const row = oneRow(
+    await tx
+      .update(users)
+      // Either way old sessions end: enabling doesn't bring back tokens issued before.
+      .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
+      .where(eq(users.id, id))
+      .returning(),
+  );
 
-    return toUserDto(row);
+  await recordAudit(tx, userCaller(actor), {
+    action: disabled ? 'user.disabled' : 'user.enabled',
+    targetType: 'user',
+    targetId: id,
+    targetLabel: row.email,
+    changes: { status: [target.status, status] },
   });
+
+  return toUserDto(row);
+};

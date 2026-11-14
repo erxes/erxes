@@ -12,13 +12,11 @@ import {
   nextOrder,
   requireFieldManager,
   taken,
-  toFieldGroupDto,
   usageOf,
 } from './fieldRows';
 
 export const listFieldGroups = async (
   client: Db,
-  actor: Actor,
   input: { contentType: FieldContentType; archived?: boolean },
 ) => {
   const rows = await wholeList((limit) =>
@@ -27,7 +25,6 @@ export const listFieldGroups = async (
       .from(fieldGroups)
       .where(
         and(
-          eq(fieldGroups.orgId, actor.orgId),
           eq(fieldGroups.contentType, input.contentType),
           input.archived ? isNotNull(fieldGroups.archivedAt) : isNull(fieldGroups.archivedAt),
         ),
@@ -36,7 +33,7 @@ export const listFieldGroups = async (
       .limit(limit),
   );
 
-  return { data: rows.map(toFieldGroupDto) };
+  return { data: rows };
 };
 
 /** A code from a name: lower-case Latin letters and digits joined by `_`. */
@@ -74,7 +71,7 @@ export const createFieldGroup = async (
   requireFieldManager(actor);
 
   const code = groupCode(input.code, input.name);
-  const order = await nextOrder(client, fieldGroups, actor.orgId, input.contentType);
+  const order = await nextOrder(client, fieldGroups, input.contentType);
 
   try {
     const row = oneRow(
@@ -82,7 +79,6 @@ export const createFieldGroup = async (
         .insert(fieldGroups)
         .values({
           id: newId(),
-          orgId: actor.orgId,
           contentType: input.contentType,
           name: input.name,
           code,
@@ -92,7 +88,7 @@ export const createFieldGroup = async (
         .returning(),
     );
 
-    return toFieldGroupDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }
@@ -100,7 +96,6 @@ export const createFieldGroup = async (
 
 const updateGroupRow = async (
   client: Db,
-  orgId: string,
   id: string,
   changes: Partial<GroupRow> | Record<string, SQL>,
 ) => {
@@ -108,11 +103,11 @@ const updateGroupRow = async (
     await client
       .update(fieldGroups)
       .set({ ...changes, updatedAt: sql`now()` })
-      .where(and(eq(fieldGroups.orgId, orgId), eq(fieldGroups.id, id)))
+      .where(eq(fieldGroups.id, id))
       .returning(),
   );
 
-  return toFieldGroupDto(row);
+  return row;
 };
 
 export const updateFieldGroup = async (
@@ -122,10 +117,10 @@ export const updateFieldGroup = async (
   input: { name?: string; code?: string; description?: string | null; order?: number },
 ) => {
   requireFieldManager(actor);
-  await findGroup(client, actor.orgId, id);
+  await findGroup(client, id);
 
   try {
-    return await updateGroupRow(client, actor.orgId, id, {
+    return await updateGroupRow(client, id, {
       ...(input.name !== undefined ? { name: input.name } : {}),
       ...(input.code !== undefined ? { code: input.code } : {}),
       ...(input.description !== undefined ? { description: input.description || null } : {}),
@@ -143,44 +138,38 @@ export const reorderFieldGroups = (
 ) => {
   requireFieldManager(actor);
 
-  return setOrders(client, actor.orgId, fieldGroups, orders);
+  return setOrders(client, fieldGroups, orders);
 };
 
 export const archiveFieldGroup = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
 
-  const group = await findGroup(client, actor.orgId, id);
+  const group = await findGroup(client, id);
 
-  return group.archivedAt
-    ? toFieldGroupDto(group)
-    : updateGroupRow(client, actor.orgId, id, { archivedAt: sql`now()` });
+  return group.archivedAt ? group : updateGroupRow(client, id, { archivedAt: sql`now()` });
 };
 
 export const restoreFieldGroup = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
-  await findGroup(client, actor.orgId, id);
+  await findGroup(client, id);
 
-  return updateGroupRow(client, actor.orgId, id, { archivedAt: null });
+  return updateGroupRow(client, id, { archivedAt: null });
 };
 
 /** Deletes a group and its fields when no record holds their values. */
 export const removeFieldGroup = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
 
-  return client.transaction(async (tx) => {
-    await findGroup(tx, actor.orgId, id);
+  await findGroup(client, id);
 
-    const rows = await fieldsOfGroup(tx, actor.orgId, id);
+  const rows = await fieldsOfGroup(client, id);
 
-    if ((await usageOf(tx, actor.orgId, rows)) > 0) {
-      throw inUse('its fields');
-    }
+  if ((await usageOf(client, rows)) > 0) {
+    throw inUse('its fields');
+  }
 
-    await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.groupId, id)));
-    await tx
-      .delete(fieldGroups)
-      .where(and(eq(fieldGroups.orgId, actor.orgId), eq(fieldGroups.id, id)));
+  await client.delete(fields).where(eq(fields.groupId, id));
+  await client.delete(fieldGroups).where(eq(fieldGroups.id, id));
 
-    return { ok: true as const };
-  });
+  return { ok: true as const };
 };

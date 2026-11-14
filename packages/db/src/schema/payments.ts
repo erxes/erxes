@@ -17,7 +17,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -42,7 +42,7 @@ export const paymentGateways = pgTable(
   'payment_gateways',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     kind: text({ enum: PAYMENT_GATEWAY_KINDS }).notNull(),
     name: text().notNull(),
     /** Sealed JSON of the gateway's settings (client id, secret, invoice code, …). */
@@ -73,7 +73,7 @@ export const paymentInvoices = pgTable(
   'payment_invoices',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     gatewayId: text().notNull(),
     /** `core` or the plugin that asked for it. */
     source: text().notNull(),
@@ -141,7 +141,7 @@ export const paymentRefunds = pgTable(
   'payment_refunds',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     invoiceId: text().notNull(),
     amount: bigint({ mode: 'number' }).notNull(),
     reason: text().notNull(),
@@ -180,7 +180,7 @@ export const paymentRefunds = pgTable(
 export const paymentPluginSettings = pgTable(
   'payment_plugin_settings',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     plugin: text().notNull(),
     defaultGatewayId: text(),
     allowedGatewayIds: text()

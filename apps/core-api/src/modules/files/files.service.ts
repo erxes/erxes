@@ -1,4 +1,3 @@
-import type { FileInfo } from '@erxes/core-contract';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { type Db, files, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
@@ -23,17 +22,12 @@ type FileRow = typeof files.$inferSelect;
 
 const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
 
-const toFileDto = (row: FileRow): FileInfo => ({
-  id: row.id,
-  name: row.name,
-  contentType: row.contentType,
-  size: row.size,
+const toFileDto = (row: FileRow) => ({
+  ...row,
   // Deleting files are never listed; to callers they are gone.
-  status: row.status === 'ready' ? 'ready' : 'pending',
-  source: row.source,
+  status: row.status === 'ready' ? ('ready' as const) : ('pending' as const),
   uploadedBy: { type: row.actorType, id: row.actorId },
   url: downloadPath(row.id),
-  createdAt: row.createdAt.toISOString(),
 });
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
@@ -73,7 +67,6 @@ export const createUpload = async (
       .insert(files)
       .values({
         id,
-        orgId: caller.orgId,
         key,
         name: input.name,
         contentType: input.contentType,
@@ -97,12 +90,8 @@ export const createUpload = async (
   };
 };
 
-const findFile = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(files)
-    .where(and(eq(files.orgId, orgId), eq(files.id, id)))
-    .limit(1);
+const findFile = async (client: Db, id: string) => {
+  const [row] = await client.select().from(files).where(eq(files.id, id)).limit(1);
 
   if (!row) {
     throw notFound('File');
@@ -120,69 +109,68 @@ const isUploader = (row: FileRow, caller: Caller) =>
  * a second completion waits and returns the ready file (one audit entry), and
  * the cleanup of unfinished uploads can't take a file being completed.
  */
-export const completeUpload = async (client: Db, caller: Caller, id: string) =>
-  client.transaction(async (tx) => {
-    await lockRows(tx, 'core_files', caller.orgId, [id]);
+export const completeUpload = async (client: Db, caller: Caller, id: string) => {
+  await lockRows(client, 'core_files', [id]);
 
-    const row = await findFile(tx, caller.orgId, id);
+  const row = await findFile(client, id);
 
-    if (!isUploader(row, caller) || row.status === 'deleting') {
-      throw notFound('File');
-    }
+  if (!isUploader(row, caller) || row.status === 'deleting') {
+    throw notFound('File');
+  }
 
-    if (row.status === 'ready') {
-      return toFileDto(row);
-    }
+  if (row.status === 'ready') {
+    return toFileDto(row);
+  }
 
-    const stored = await storage().stat(row.key);
+  const stored = await storage().stat(row.key);
 
-    if (!stored) {
-      throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
-    }
+  if (!stored) {
+    throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
+  }
 
-    if (stored.size !== row.size) {
-      await storage().remove(row.key);
-      throw new HttpError(
-        409,
-        'UPLOAD_INCOMPLETE',
-        'The uploaded file does not match the declared size; upload it again',
-      );
-    }
-
-    const finalKey = storageKey(caller.orgId, id);
-
-    try {
-      await storage().promote(row.key, finalKey, stored);
-    } catch {
-      throw new HttpError(
-        409,
-        'UPLOAD_CHANGED',
-        'The file changed while it was being checked; upload it again',
-      );
-    }
-
-    const ready = oneRow(
-      await tx
-        .update(files)
-        .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
-        .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), eq(files.status, 'pending')))
-        .returning(),
+  if (stored.size !== row.size) {
+    await storage().remove(row.key);
+    throw new HttpError(
+      409,
+      'UPLOAD_INCOMPLETE',
+      'The uploaded file does not match the declared size; upload it again',
     );
+  }
 
-    await recordAudit(tx, caller, {
-      action: 'file.uploaded',
-      targetType: 'file',
-      targetId: id,
-      targetLabel: row.name,
-      metadata: { contentType: row.contentType, size: row.size },
-    });
+  const finalKey = storageKey(caller.orgId, id);
 
-    return toFileDto(ready);
+  try {
+    await storage().promote(row.key, finalKey, stored);
+  } catch {
+    throw new HttpError(
+      409,
+      'UPLOAD_CHANGED',
+      'The file changed while it was being checked; upload it again',
+    );
+  }
+
+  const ready = oneRow(
+    await client
+      .update(files)
+      .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
+      .where(and(eq(files.id, id), eq(files.status, 'pending')))
+      .returning(),
+  );
+
+  await recordAudit(client, caller, {
+    action: 'file.uploaded',
+    targetType: 'file',
+    targetId: id,
+    targetLabel: row.name,
+    metadata: { contentType: row.contentType, size: row.size },
   });
 
+  return toFileDto(ready);
+};
+
 /** A ready file and a short-lived link to read it. */
-export const getFile = async (client: Db, caller: Caller, id: string) => {
-  const row = await findFile(client, caller.orgId, id);
+export const getFile = async (client: Db, id: string) => {
+  const row = await findFile(client, id);
 
   if (row.status === 'deleting') throw notFound('File');
 
@@ -202,8 +190,8 @@ export const downloadUrlOf = (row: FileRow, forceDownload: boolean) =>
   });
 
 /** For `GET /files/:id/download`: the ready file in the caller's organisation. */
-export const readyFile = async (client: Db, orgId: string, id: string) => {
-  const row = await findFile(client, orgId, id);
+export const readyFile = async (client: Db, id: string) => {
+  const row = await findFile(client, id);
 
   if (row.status !== 'ready') {
     throw notFound('File');
@@ -212,7 +200,7 @@ export const readyFile = async (client: Db, orgId: string, id: string) => {
   return row;
 };
 
-export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
+export const listFiles = async (client: Db, ids: string[]) => {
   const wanted = unique(ids);
 
   if (!wanted.length) {
@@ -222,9 +210,7 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
   const rows = await client
     .select()
     .from(files)
-    .where(
-      and(eq(files.orgId, caller.orgId), eq(files.status, 'ready'), inArray(files.id, wanted)),
-    );
+    .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   const byId = new Map(rows.map((row) => [row.id, toFileDto(row)]));
 
@@ -237,7 +223,7 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
  * bytes are gone; a failed removal is retried by the cleanup, never lost.
  */
 export const removeFile = async (client: Db, caller: Caller, actor: Actor | null, id: string) => {
-  const row = await findFile(client, caller.orgId, id);
+  const row = await findFile(client, id);
 
   if (row.status === 'deleting') throw notFound('File');
 
@@ -254,7 +240,7 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
   const [claimed] = await client
     .update(files)
     .set({ status: 'deleting', updatedAt: sql`now()` })
-    .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), sql`${files.status} <> 'deleting'`))
+    .where(and(eq(files.id, id), sql`${files.status} <> 'deleting'`))
     .returning();
 
   if (!claimed) throw notFound('File');
@@ -354,7 +340,6 @@ export const storeServerFile = async (
         .insert(files)
         .values({
           id,
-          orgId: caller.orgId,
           key,
           name: input.name,
           contentType: input.contentType,
@@ -374,7 +359,7 @@ export const storeServerFile = async (
  * read in a short scope and the bytes after it: call it outside any scope.
  */
 export const readFileBytes = async (orgId: string, id: string) => {
-  const row = await withOrg(orgId, (tx) => readyFile(tx, orgId, id));
+  const row = await withOrg(orgId, (tx) => readyFile(tx, id));
 
   return { row, body: await storage().read(row.key) };
 };

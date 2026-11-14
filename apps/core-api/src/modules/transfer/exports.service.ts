@@ -1,5 +1,5 @@
 import type { EXPORT_FORMATS } from '@erxes/core-db/enums';
-import type { CursorQuery, Export, ExportQuery, TransferRecordType } from '@erxes/core-contract';
+import type { CursorQuery, ExportQuery, TransferRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, exports, newId, users, withOrg } from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, gt, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -27,28 +27,13 @@ type ExportRow = typeof exports.$inferSelect;
 const MAX_EXPORT_ROWS = 100_000;
 const PAGE = 1000;
 
-const toDto = (row: ExportRow): Export => ({
-  id: row.id,
-  recordType: row.recordType,
-  format: row.format,
-  columns: row.columns,
-  status: row.status,
-  rowCount: row.rowCount,
-  fileId: row.fileId,
-  error: row.error,
-  createdBy: row.createdBy,
-  createdAt: row.createdAt.toISOString(),
-  finishedAt: row.finishedAt?.toISOString() ?? null,
-});
-
-export const listExports = async (client: Db, actor: Actor, query: CursorQuery) => {
-  const page = await keysetPage(
+export const listExports = (client: Db, query: CursorQuery) =>
+  keysetPage(
     client,
     {
       table: exports,
       id: exports.id,
       createdAt: exports.createdAt,
-      scope: eq(exports.orgId, actor.orgId),
     },
     undefined,
     query,
@@ -60,9 +45,6 @@ export const listExports = async (client: Db, actor: Actor, query: CursorQuery) 
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return { ...page, data: page.data.map(toDto) };
-};
 
 /** The list's conditions, exactly as the list shows them (leads are customers in the lead state). */
 const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query: ExportQuery) => {
@@ -117,7 +99,7 @@ export const createExport = async (
     query: ExportQuery;
   },
 ) => {
-  const available = await transferColumns(client, actor.orgId, input.recordType);
+  const available = await transferColumns(client, input.recordType);
 
   const unknown = input.columns.find(
     (key) => !available.some((item) => item.key === key && item.exportable),
@@ -133,7 +115,6 @@ export const createExport = async (
       .insert(exports)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         recordType: input.recordType,
         format: input.format,
         columns: input.columns,
@@ -157,7 +138,7 @@ export const createExport = async (
     metadata: { format: input.format, columns: input.columns, query: input.query },
   });
 
-  return toDto(row);
+  return row;
 };
 
 /** The member who asked, or null (and the export failed) when they are no longer active. */
@@ -165,7 +146,7 @@ const exporter = async (tx: Db, row: ExportRow): Promise<Actor | null> => {
   const [member] = await tx
     .select({ id: users.id, role: users.role, status: users.status })
     .from(users)
-    .where(and(eq(users.orgId, row.orgId), eq(users.id, row.createdBy)))
+    .where(eq(users.id, row.createdBy))
     .limit(1);
 
   if (member?.status === 'active') {
@@ -199,7 +180,7 @@ const pageOf = async (
         customFields: customFieldsColumn('company', companies.id),
       })
       .from(companies)
-      .where(and(eq(companies.orgId, row.orgId), where, last ? gt(companies.id, last) : undefined))
+      .where(and(where, last ? gt(companies.id, last) : undefined))
       .orderBy(asc(companies.id))
       .limit(PAGE);
   }
@@ -210,7 +191,7 @@ const pageOf = async (
       customFields: customFieldsColumn('customer', customers.id),
     })
     .from(customers)
-    .where(and(eq(customers.orgId, row.orgId), where, last ? gt(customers.id, last) : undefined))
+    .where(and(where, last ? gt(customers.id, last) : undefined))
     .orderBy(asc(customers.id))
     .limit(PAGE);
 };
@@ -231,7 +212,7 @@ const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
 
     if (!end) return false;
 
-    body.push(...(await pageCells(tx, row.orgId, row.recordType, page, row.columns)));
+    body.push(...(await pageCells(tx, row.recordType, page, row.columns)));
     last = end.id;
 
     return page.length === PAGE && body.length <= MAX_EXPORT_ROWS;
@@ -242,7 +223,7 @@ const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
 
 /** The export's file in memory: its rows read in one scope, written to storage after it. */
 const buildExport = async (tx: Db, actor: Actor, row: ExportRow) => {
-  const columns = await transferColumns(tx, row.orgId, row.recordType);
+  const columns = await transferColumns(tx, row.recordType);
   const header = row.columns.map((key) => columns.find((item) => item.key === key)?.label ?? key);
   const body = await collectRows(tx, actor, row);
   const rows = body.slice(0, MAX_EXPORT_ROWS);
@@ -268,11 +249,7 @@ const buildExport = async (tx: Db, actor: Actor, row: ExportRow) => {
 /** The running export and its file, or null when it is no longer running. */
 const prepareExport = (orgId: string, exportId: string) =>
   withOrg(orgId, async (tx) => {
-    const [row] = await tx
-      .select()
-      .from(exports)
-      .where(and(eq(exports.orgId, orgId), eq(exports.id, exportId)))
-      .limit(1);
+    const [row] = await tx.select().from(exports).where(eq(exports.id, exportId)).limit(1);
 
     if (!row || row.status !== 'running') return null;
 

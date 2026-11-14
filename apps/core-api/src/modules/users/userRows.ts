@@ -6,29 +6,10 @@ import { lockOrganization } from '~/lib/locks';
 
 export type UserRow = typeof users.$inferSelect;
 
-/** The API shape: never the password hash or internal flags. */
+/** The row with whether two-factor is on; the `User` schema leaves out the password hash and TOTP secret. */
 export const toUserDto = (row: UserRow) => ({
-  id: row.id,
-  email: row.email,
-  username: row.username,
-  fullName: row.fullName,
-  avatarUrl: row.avatarUrl,
-  role: row.role,
+  ...row,
   twoFactorEnabled: Boolean(row.totpEnabledAt),
-  status: row.status,
-  firstName: row.firstName,
-  middleName: row.middleName,
-  lastName: row.lastName,
-  shortName: row.shortName,
-  employeeId: row.employeeId,
-  phone: row.phone,
-  birthDate: row.birthDate,
-  workStartedDate: row.workStartedDate,
-  description: row.description,
-  links: row.links,
-  onboardedAt: row.onboardedAt?.toISOString() ?? null,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
 });
 
 export const requireTeamManager = (
@@ -48,7 +29,7 @@ export const lockTeam = async (tx: Db, actor: Actor): Promise<Actor> => {
     .select({ role: users.role, status: users.status, permissions: roles.permissions })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
+    .where(eq(users.id, actor.userId))
     .limit(1);
 
   if (!me || me.status !== 'active') {
@@ -67,12 +48,8 @@ export const conflictFrom = (error: unknown): never => {
   throw error;
 };
 
-export const findUser = async (client: Db, orgId: string, id: string, lock = false) => {
-  const query = client
-    .select()
-    .from(users)
-    .where(and(eq(users.orgId, orgId), eq(users.id, id)))
-    .limit(1);
+export const findUser = async (client: Db, id: string, lock = false) => {
+  const query = client.select().from(users).where(eq(users.id, id)).limit(1);
 
   const [row] = lock ? await query.for('update') : await query;
 
@@ -84,18 +61,11 @@ export const findUser = async (client: Db, orgId: string, id: string, lock = fal
 };
 
 /** Other active owners besides `exceptId` (an organisation always keeps one). */
-export const otherActiveOwners = async (client: Db, orgId: string, exceptId: string) => {
+export const otherActiveOwners = async (client: Db, exceptId: string) => {
   const [result] = await client
     .select({ total: count() })
     .from(users)
-    .where(
-      and(
-        eq(users.orgId, orgId),
-        eq(users.role, 'owner'),
-        eq(users.status, 'active'),
-        ne(users.id, exceptId),
-      ),
-    );
+    .where(and(eq(users.role, 'owner'), eq(users.status, 'active'), ne(users.id, exceptId)));
 
   return result?.total ?? 0;
 };

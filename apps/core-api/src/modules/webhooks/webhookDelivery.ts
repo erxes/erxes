@@ -1,11 +1,10 @@
 import type { WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
-import type { CursorQuery, WebhookDelivery } from '@erxes/core-contract';
+import type { CursorQuery } from '@erxes/core-contract';
 import { type Db, events, newId, webhookDeliveries, webhooks, withOrg } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
-import { allOf } from '~/lib/conditions';
 import { hmacSha256 } from '~/lib/crypto';
 import { keysetPage } from '~/lib/keyset';
 import { postOutbound } from '~/lib/outbound';
@@ -13,13 +12,11 @@ import { oneRow } from '~/lib/rows';
 import { unseal } from '~/lib/secrets';
 import { logger } from '~/logger';
 import type { EventConsumer } from '~/modules/events/processor';
-import { toEventDto } from '~/modules/events/events.service';
+import { eventJson } from '~/modules/events/events.service';
 import { describeError, defineJob } from '~/modules/jobs/jobs';
 import { findWebhook, matchesPattern } from './webhooks.service';
 
 const log = logger.child({ component: 'webhooks' });
-
-type DeliveryRow = typeof webhookDeliveries.$inferSelect;
 
 /** Deliveries retry for about a day (8 attempts), then the delivery is failed. */
 const DELIVERY_ATTEMPTS = 8;
@@ -30,22 +27,6 @@ const DISABLE_AFTER_FAILURES = 50;
 /** 1 min, 5 min, 30 min, 2 h, 5 h, 8 h, 8 h: about a day in all. */
 const backoff = (attempt: number) =>
   [60, 300, 1800, 7200, 18_000, 28_800, 28_800][attempt - 1] ?? 28_800;
-
-const toDeliveryDto = (row: DeliveryRow): WebhookDelivery => ({
-  id: row.id,
-  webhookId: row.webhookId,
-  eventId: row.eventId,
-  eventType: row.eventType,
-  status: row.status,
-  attempts: row.attempts,
-  responseStatus: row.responseStatus,
-  responseBody: row.responseBody,
-  error: row.error,
-  durationMs: row.durationMs,
-  nextAttemptAt: row.nextAttemptAt?.toISOString() ?? null,
-  deliveredAt: row.deliveredAt?.toISOString() ?? null,
-  createdAt: row.createdAt.toISOString(),
-});
 
 /** `Erxes-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256(secret, "<t>.<body>")>` (Stripe-style). */
 export const signPayload = (
@@ -61,7 +42,7 @@ const loadDelivery = (orgId: string, deliveryId: string) =>
       .from(webhookDeliveries)
       .innerJoin(webhooks, eq(webhooks.id, webhookDeliveries.webhookId))
       .leftJoin(events, eq(events.id, webhookDeliveries.eventId))
-      .where(and(eq(webhookDeliveries.orgId, orgId), eq(webhookDeliveries.id, deliveryId)))
+      .where(eq(webhookDeliveries.id, deliveryId))
       .limit(1);
 
     return row ?? null;
@@ -81,7 +62,7 @@ const send = async (
     type: event.type,
     createdAt: event.createdAt.toISOString(),
     organizationId: orgId,
-    data: toEventDto(event),
+    data: eventJson(event),
   });
 
   const headers = {
@@ -223,7 +204,6 @@ const queueDeliveries = async (
     .values(
       webhookIds.map((webhookId) => ({
         id: newId(),
-        orgId,
         webhookId,
         eventId: event.id,
         eventType: event.type,
@@ -246,14 +226,13 @@ const queueDeliveries = async (
 
 /** Sends a `core.webhook.test` event to the endpoint now (and logs it like any delivery). */
 export const testWebhook = async (client: Db, actor: Actor, id: string) => {
-  const webhook = await findWebhook(client, actor.orgId, id);
+  const webhook = await findWebhook(client, id);
 
   const event = oneRow(
     await client
       .insert(events)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         source: 'core',
         type: 'core.webhook.test',
         actorType: 'user',
@@ -263,26 +242,22 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
       .returning(),
   );
 
-  return toDeliveryDto(oneRow(await queueDeliveries(client, actor.orgId, [webhook.id], event)));
+  return oneRow(await queueDeliveries(client, actor.orgId, [webhook.id], event));
 };
 
 export const listDeliveries = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & { id: string; status?: (typeof WEBHOOK_DELIVERY_STATUSES)[number] },
 ) => {
-  await findWebhook(client, actor.orgId, query.id);
+  await findWebhook(client, query.id);
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: webhookDeliveries,
       id: webhookDeliveries.id,
       createdAt: webhookDeliveries.createdAt,
-      scope: allOf(
-        eq(webhookDeliveries.orgId, actor.orgId),
-        eq(webhookDeliveries.webhookId, query.id),
-      ),
+      scope: eq(webhookDeliveries.webhookId, query.id),
       countCap: 10_000,
     },
     query.status ? eq(webhookDeliveries.status, query.status) : undefined,
@@ -295,26 +270,22 @@ export const listDeliveries = async (
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return { ...page, data: page.data.map(toDeliveryDto) };
 };
 
 export const redeliver = async (client: Db, actor: Actor, deliveryId: string) => {
   const [delivery] = await client
     .select()
     .from(webhookDeliveries)
-    .where(and(eq(webhookDeliveries.orgId, actor.orgId), eq(webhookDeliveries.id, deliveryId)))
+    .where(eq(webhookDeliveries.id, deliveryId))
     .limit(1);
 
   if (!delivery) throw notFound('Delivery');
 
-  return toDeliveryDto(
-    oneRow(
-      await queueDeliveries(client, actor.orgId, [delivery.webhookId], {
-        id: delivery.eventId,
-        type: delivery.eventType,
-      }),
-    ),
+  return oneRow(
+    await queueDeliveries(client, actor.orgId, [delivery.webhookId], {
+      id: delivery.eventId,
+      type: delivery.eventType,
+    }),
   );
 };
 
@@ -328,7 +299,7 @@ export const webhooksConsumer: EventConsumer = {
     const endpoints = await tx
       .select({ id: webhooks.id, eventTypes: webhooks.eventTypes })
       .from(webhooks)
-      .where(and(eq(webhooks.orgId, event.orgId), eq(webhooks.status, 'active')));
+      .where(eq(webhooks.status, 'active'));
 
     await queueDeliveries(
       tx,

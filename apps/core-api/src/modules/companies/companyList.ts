@@ -6,10 +6,10 @@ import type { Actor } from '~/http/auth';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
-import { linkDto, linkOrder } from '~/modules/customers/customerLinks';
+import { linkOrder } from '~/modules/customers/customerLinks';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
-import { findCompany, selectCompanies, toCompanyDto } from './companyRows';
+import { findCompany, selectCompanies } from './companyRows';
 
 interface CompanyQuery {
   search?: string;
@@ -23,13 +23,13 @@ interface CompanyQuery {
 }
 
 /** Companies the customer is linked to. */
-const linkedTo = (client: Db, orgId: string, customerId: string) =>
+const linkedTo = (client: Db, customerId: string) =>
   inArray(
     companies.id,
     client
       .select({ id: customerCompanies.companyId })
       .from(customerCompanies)
-      .where(and(eq(customerCompanies.orgId, orgId), eq(customerCompanies.customerId, customerId))),
+      .where(eq(customerCompanies.customerId, customerId)),
   );
 
 const searchFor = (search: string) =>
@@ -60,7 +60,7 @@ export const companyListWhere = async (client: Db, actor: Actor, query: CompanyQ
     query.leadStageId ? eq(companies.leadStageId, query.leadStageId) : undefined,
     query.ownerId ? eq(companies.ownerId, query.ownerId) : undefined,
     query.tagIds?.length ? hasAnyTag('company', companies.id, query.tagIds) : undefined,
-    query.customerId ? linkedTo(client, actor.orgId, query.customerId) : undefined,
+    query.customerId ? linkedTo(client, query.customerId) : undefined,
     query.ids ? inArray(companies.id, query.ids.length ? query.ids : ['']) : undefined,
     query.search ? searchFor(query.search) : undefined,
   ];
@@ -68,19 +68,15 @@ export const companyListWhere = async (client: Db, actor: Actor, query: CompanyQ
   return and(...filters);
 };
 
-export const listCompanies = async (
-  client: Db,
-  actor: Actor,
-  query: CursorQuery & CompanyQuery,
-) => {
-  const page = await boundedList(Boolean(query.filter || query.search), async () =>
+export const listCompanies = (client: Db, actor: Actor, query: CursorQuery & CompanyQuery) =>
+  boundedList(Boolean(query.filter || query.search), async () =>
     keysetPage(
       client,
       {
         table: companies,
         id: companies.id,
         createdAt: companies.createdAt,
-        scope: eq(companies.orgId, actor.orgId),
+
         countCap: LIST_COUNT_CAP,
       },
       await companyListWhere(client, actor, query),
@@ -93,12 +89,9 @@ export const listCompanies = async (
     ),
   );
 
-  return { ...page, data: page.data.map(toCompanyDto) };
-};
-
 /** The company's people with their links: main contact first, then current, then former. */
-export const companyPeople = async (client: Db, actor: Actor, id: string) => {
-  await findCompany(client, actor.orgId, id);
+export const companyPeople = async (client: Db, id: string) => {
+  await findCompany(client, id);
 
   // A window, not a page: the company panel reads one list.
   const rows = await client
@@ -117,14 +110,14 @@ export const companyPeople = async (client: Db, actor: Actor, id: string) => {
     })
     .from(customerCompanies)
     .innerJoin(customers, eq(customers.id, customerCompanies.customerId))
-    .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, id)))
+    .where(eq(customerCompanies.companyId, id))
     .orderBy(...linkOrder)
     .limit(500);
 
   return {
     data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...person }) => ({
       ...person,
-      link: linkDto({ role, isPrimaryContact, endedAt, createdAt }),
+      link: { role, isPrimaryContact, endedAt, createdAt },
     })),
   };
 };

@@ -44,7 +44,6 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
           .from(authTokens)
           .where(
             and(
-              eq(authTokens.orgId, member.orgId),
               eq(authTokens.userId, member.id),
               eq(authTokens.purpose, 'password_reset'),
               gt(authTokens.createdAt, sql`now() - interval '1 hour'`),
@@ -53,7 +52,7 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
 
         if ((recent?.count ?? 0) >= 5) return;
 
-        const issued = await issue(tx, member.orgId, [member], 'password_reset');
+        const issued = await issue(tx, [member], 'password_reset');
         const app = await appLink(tx, member.orgId, '');
 
         await sendEmail(
@@ -108,7 +107,7 @@ export const resetPassword = async (input: { token: string; password: string }) 
         sessionVersion: sql`${users.sessionVersion} + 1`,
         updatedAt: sql`now()`,
       })
-      .where(and(eq(users.orgId, row.orgId), eq(users.id, row.userId), eq(users.status, 'active')))
+      .where(and(eq(users.id, row.userId), eq(users.status, 'active')))
       .returning({ email: users.email });
 
     if (!user) throw invalidLink();

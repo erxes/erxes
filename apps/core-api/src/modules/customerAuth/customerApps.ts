@@ -81,7 +81,7 @@ const organizationNamed = async (name: string) => {
 };
 
 const isInstalled = (orgId: string, plugin: string) =>
-  withOrg(orgId, (tx) => installed(tx, orgId, plugin));
+  withOrg(orgId, (tx) => installed(tx, plugin));
 
 /**
  * The app and organisation a customer signs in to. The organisation comes

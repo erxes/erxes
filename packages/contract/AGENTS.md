@@ -29,12 +29,17 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
 - A schema that mirrors a table starts from the table. Copy `src/tags.ts`:
   - Output: `createSelectSchema(table, refinements).pick({ ... })`, then `.extend({ ... })` for
     computed fields. Pick every column by name, so a new column (a hash, a secret, `orgId`) stays
-    private until someone picks it.
+    private until someone picks it. Services return the row as it is: the schema drops the rest.
+  - Timestamps in an output are `isoDate`, a codec from the row's `Date` to an ISO string
+    (`isoDate().nullable()` in a hand-written `z.object`). The handler returns the `Date`, clients
+    and `openapi.json` see `string`/`date-time`. Inputs, and code that parses JSON from the wire
+    (the plugin SDK's `DeliveredEvent`), use `z.iso.datetime()`, so an output schema with
+    `isoDate` never goes inside an input.
   - Input: `createUpdateSchema(table, rules).pick({ ... })`; create adds `.required({ name: true })`,
     update `.extend({ id: Id })`. Not `createInsertSchema` with refinements: drizzle-zod 0.8.3 types
     a refined optional column as required.
-  - A refinement (`(name) => name.trim().min(1)`) keeps the column's nullability; a schema value
-    (`Id`, `isoDate`) replaces it, so add `.nullable()` or `.optional()` yourself. Integers are
+  - A refinement (`(name) => name.trim().min(1)`, `isoDate`) keeps the column's nullability; a
+    schema value (`Id`) replaces it, so add `.nullable()` or `.optional()` yourself. Integers are
     `() => z.int()`, jsonb columns their real shape, enums `z.enum(CONTENT_TYPES)` from `@erxes/core-db/enums`.
     A new list goes into `enums.ts` first: lint fails a `z.enum` with the values written out.
 - Read the `openapi.json` diff after every change: zero difference unless the API is meant to

@@ -1,6 +1,6 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, leadEvents } from '@erxes/core-db';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { desc, eq, inArray, sql } from 'drizzle-orm';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { assertOwner } from '~/lib/guards';
@@ -20,15 +20,13 @@ import { findStage, stagesOf } from './stages';
  */
 
 /** The leads among `ids`, locked and read in one query each (others are refused). */
-const lockLeads = async (tx: Db, orgId: string, type: LeadRecordType, ids: string[]) => {
-  await lockRows(tx, type === 'company' ? 'core_companies' : 'core_customers', orgId, ids);
+const lockLeads = async (tx: Db, type: LeadRecordType, ids: string[]) => {
+  await lockRows(tx, type === 'company' ? 'core_companies' : 'core_customers', ids);
 
   const rows =
     type === 'company'
-      ? await selectCompanies(tx).where(and(eq(companies.orgId, orgId), inArray(companies.id, ids)))
-      : await selectCustomers(tx).where(
-          and(eq(customers.orgId, orgId), inArray(customers.id, ids)),
-        );
+      ? await selectCompanies(tx).where(inArray(companies.id, ids))
+      : await selectCustomers(tx).where(inArray(customers.id, ids));
 
   if (rows.length !== new Set(ids).size) throw notFound('Lead');
 
@@ -40,22 +38,16 @@ const lockLeads = async (tx: Db, orgId: string, type: LeadRecordType, ids: strin
 
 type LeadRow = Awaited<ReturnType<typeof lockLeads>>[number];
 
-const updateLeads = (
-  tx: Db,
-  orgId: string,
-  type: LeadRecordType,
-  ids: string[],
-  set: LeadPlan['set'],
-) =>
+const updateLeads = (tx: Db, type: LeadRecordType, ids: string[], set: LeadPlan['set']) =>
   type === 'company'
     ? tx
         .update(companies)
         .set({ ...set, updatedAt: sql`now()` })
-        .where(and(eq(companies.orgId, orgId), inArray(companies.id, ids)))
+        .where(inArray(companies.id, ids))
     : tx
         .update(customers)
         .set({ ...set, updatedAt: sql`now()` })
-        .where(and(eq(customers.orgId, orgId), inArray(customers.id, ids)));
+        .where(inArray(customers.id, ids));
 
 /**
  * Writes each lead's plan plus `extra` (columns every lead gets), one update
@@ -83,7 +75,7 @@ const writePlans = async (
   }
 
   // At most a few updates (one per outcome), one after another on the transaction.
-  await inOrder(groups.values(), ({ set, ids }) => updateLeads(tx, actor.orgId, type, ids, set));
+  await inOrder(groups.values(), ({ set, ids }) => updateLeads(tx, type, ids, set));
   await recordLeadSteps(
     tx,
     userCaller(actor),
@@ -105,33 +97,31 @@ export const moveLeads = async (
 ) => {
   const type = input.recordType ?? 'customer';
 
-  return client.transaction(async (tx) => {
-    const stage = await findStage(tx, actor.orgId, input.stageId);
-    const rows = await lockLeads(tx, actor.orgId, type, input.ids);
-    const stages = await stagesOf(tx, actor.orgId);
-    const now = new Date();
+  const stage = await findStage(client, input.stageId);
+  const rows = await lockLeads(client, type, input.ids);
+  const stages = await stagesOf(client);
+  const now = new Date();
 
-    const leadInput = {
-      leadStageId: stage.id,
-      ...(input.reason ? { disqualifyReason: input.reason } : {}),
-    };
+  const leadInput = {
+    leadStageId: stage.id,
+    ...(input.reason ? { disqualifyReason: input.reason } : {}),
+  };
 
-    const planned = rows.map((row) => ({
-      row,
-      plan: planLeadChange({
-        caller: userCaller(actor),
-        stages,
-        current: row,
-        input: leadInput,
-        asked: stage,
-        now,
-      }),
-    }));
+  const planned = rows.map((row) => ({
+    row,
+    plan: planLeadChange({
+      caller: userCaller(actor),
+      stages,
+      current: row,
+      input: leadInput,
+      asked: stage,
+      now,
+    }),
+  }));
 
-    await writePlans(tx, actor, type, planned, {});
+  await writePlans(client, actor, type, planned, {});
 
-    return { moved: rows.length };
-  });
+  return { moved: rows.length };
 };
 
 export const convertLeads = async (
@@ -144,46 +134,43 @@ export const convertLeads = async (
   if (type === 'company' && input.companyId)
     throw new HttpError(400, 'INVALID_INPUT', 'Companies are not linked to a company');
 
-  return client.transaction(async (tx) => {
-    const rows = await lockLeads(tx, actor.orgId, type, input.ids);
+  const rows = await lockLeads(client, type, input.ids);
 
-    await assertOwner(tx, actor.orgId, input.ownerId);
+  await assertOwner(client, input.ownerId);
 
-    const stages = await stagesOf(tx, actor.orgId);
-    const now = new Date();
+  const stages = await stagesOf(client);
+  const now = new Date();
 
-    const planned = rows.map((row) => ({
-      row,
-      plan: planLeadChange({
-        caller: userCaller(actor),
-        stages,
-        current: row,
-        input: { state: 'customer' },
-        asked: null,
-        now,
-      }),
-    }));
+  const planned = rows.map((row) => ({
+    row,
+    plan: planLeadChange({
+      caller: userCaller(actor),
+      stages,
+      current: row,
+      input: { state: 'customer' },
+      asked: null,
+      now,
+    }),
+  }));
 
-    await writePlans(tx, actor, type, planned, {
-      state: 'customer',
-      ...(input.ownerId ? { ownerId: input.ownerId } : {}),
-    });
-
-    if (input.companyId)
-      await linkCustomersToCompany(
-        tx,
-        actor,
-        rows.map((row) => row.id),
-        input.companyId,
-      );
-
-    return { converted: rows.length };
+  await writePlans(client, actor, type, planned, {
+    state: 'customer',
+    ...(input.ownerId ? { ownerId: input.ownerId } : {}),
   });
+
+  if (input.companyId)
+    await linkCustomersToCompany(
+      client,
+      actor,
+      rows.map((row) => row.id),
+      input.companyId,
+    );
+
+  return { converted: rows.length };
 };
 
 export const leadHistory = async (
   client: Db,
-  actor: Actor,
   input: { recordType?: LeadRecordType; id: string },
 ) => {
   const type = input.recordType ?? 'customer';
@@ -193,28 +180,12 @@ export const leadHistory = async (
     await client
       .select()
       .from(leadEvents)
-      .where(
-        and(
-          eq(leadEvents.orgId, actor.orgId),
-          eq(type === 'company' ? leadEvents.companyId : leadEvents.customerId, input.id),
-        ),
-      )
+      .where(eq(type === 'company' ? leadEvents.companyId : leadEvents.customerId, input.id))
       .orderBy(desc(leadEvents.createdAt), desc(leadEvents.id))
       .limit(200)
   ).toReversed();
 
   return {
-    data: rows.map((row) => ({
-      id: row.id,
-      recordType: type,
-      recordId: input.id,
-      event: row.event,
-      fromStageId: row.fromStageId,
-      toStageId: row.toStageId,
-      reason: row.reason,
-      actorType: row.actorType,
-      actorId: row.actorId,
-      createdAt: row.createdAt.toISOString(),
-    })),
+    data: rows.map((row) => ({ ...row, recordType: type, recordId: input.id })),
   };
 };

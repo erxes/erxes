@@ -14,38 +14,28 @@ import {
 import { authed } from '~/orpc';
 
 export const transferRouter = {
-  columns: authed.transfer.columns.handler(async ({ input, context }) => ({
-    data: (await transferColumns(db(), context.actor.orgId, input.recordType)).map(
+  columns: authed.transfer.columns.handler(async ({ input }) => ({
+    data: (await transferColumns(db(), input.recordType)).map(
       ({ aliases, fieldType, ...column }) => column,
     ),
   })),
-  imports: authed.transfer.imports.handler(({ input, context }) =>
-    listImports(db(), context.actor, input),
-  ),
-  import: authed.transfer.import.handler(({ input, context }) =>
-    getImport(db(), context.actor, input.id),
-  ),
+  imports: authed.transfer.imports.handler(({ input }) => listImports(db(), input)),
+  import: authed.transfer.import.handler(({ input }) => getImport(db(), input.id)),
   createImport: authed.transfer.createImport.handler(({ input, context }) =>
     createImport(db(), context.actor, input),
   ),
-  updateImport: authed.transfer.updateImport.handler(({ input: { id, ...changes }, context }) =>
-    updateImport(db(), context.actor, id, changes),
+  updateImport: authed.transfer.updateImport.handler(({ input: { id, ...changes } }) =>
+    updateImport(db(), id, changes),
   ),
-  checkImport: authed.transfer.checkImport.handler(({ input, context }) =>
-    checkImport(db(), context.actor, input.id),
-  ),
-  startImport: authed.transfer.startImport.handler(({ input, context }) =>
-    startImport(db(), context.actor, input.id),
-  ),
+  checkImport: authed.transfer.checkImport.handler(({ input }) => checkImport(db(), input.id)),
+  startImport: authed.transfer.startImport.handler(({ input }) => startImport(db(), input.id)),
   undoImport: authed.transfer.undoImport.handler(({ input, context }) =>
     undoImport(db(), context.actor, input.id),
   ),
-  importRows: authed.transfer.importRows.handler(({ input: { id, ...query }, context }) =>
-    listImportRows(db(), context.actor, id, query),
+  importRows: authed.transfer.importRows.handler(({ input: { id, ...query } }) =>
+    listImportRows(db(), id, query),
   ),
-  exports: authed.transfer.exports.handler(({ input, context }) =>
-    listExports(db(), context.actor, input),
-  ),
+  exports: authed.transfer.exports.handler(({ input }) => listExports(db(), input)),
   createExport: authed.transfer.createExport.handler(({ input, context }) =>
     createExport(db(), context.actor, input),
   ),

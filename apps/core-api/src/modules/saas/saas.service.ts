@@ -1,6 +1,6 @@
 import type { PluginPlan, SubscriptionInfo } from '@erxes/core-contract';
 import { type Db, organizations, pluginInstallations, plugins, withOrg } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { config } from '~/config';
 import type { Actor, PluginCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -80,7 +80,7 @@ export const standingGuard = async (
   return refusal ? next(refusal) : next();
 };
 
-const pluginRows = async (client: Db, orgId: string) => {
+const pluginRows = async (client: Db) => {
   const registered = await client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins);
@@ -88,7 +88,7 @@ const pluginRows = async (client: Db, orgId: string) => {
   const active = await client
     .select({ plugin: pluginInstallations.plugin })
     .from(pluginInstallations)
-    .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.status, 'active')));
+    .where(eq(pluginInstallations.status, 'active'));
 
   return {
     titles: new Map(registered.map((item) => [item.name, item.manifest?.title ?? item.name])),
@@ -126,7 +126,7 @@ const planOf = async (
 
   if (org) rememberSubdomain(actor.orgId, org.subdomain);
 
-  const { titles, active } = await pluginRows(client, actor.orgId);
+  const { titles, active } = await pluginRows(client);
 
   const codes = [
     ...new Set([

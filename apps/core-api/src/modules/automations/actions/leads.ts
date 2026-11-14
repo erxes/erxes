@@ -1,5 +1,5 @@
 import { automations, leadStages } from '@erxes/core-db';
-import { and, eq, or, sql } from 'drizzle-orm';
+import { eq, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { HttpError } from '~/http/errors';
 import { updateCustomer } from '~/modules/customers/customers.service';
@@ -34,10 +34,7 @@ export const LEAD_ACTIONS: CoreAction[] = [
         .select({ id: leadStages.id })
         .from(leadStages)
         .where(
-          and(
-            eq(leadStages.orgId, ctx.actor.orgId),
-            or(eq(leadStages.id, wanted), sql`lower(${leadStages.name}) = ${wanted.toLowerCase()}`),
-          ),
+          or(eq(leadStages.id, wanted), sql`lower(${leadStages.name}) = ${wanted.toLowerCase()}`),
         )
         .orderBy(sql`${leadStages.id} = ${wanted} desc`)
         .limit(1);

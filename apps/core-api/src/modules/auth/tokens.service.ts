@@ -27,7 +27,6 @@ export const invalidLink = () =>
  */
 export const issue = async <T extends { id: string }>(
   tx: Db,
-  orgId: string,
   members: T[],
   purpose: (typeof AUTH_TOKEN_PURPOSES)[number],
 ) => {
@@ -36,7 +35,6 @@ export const issue = async <T extends { id: string }>(
     .set({ usedAt: sql`now()` })
     .where(
       and(
-        eq(authTokens.orgId, orgId),
         inArray(
           authTokens.userId,
           members.map((member) => member.id),
@@ -51,7 +49,6 @@ export const issue = async <T extends { id: string }>(
   await tx.insert(authTokens).values(
     tokens.map(({ member, id, secret }) => ({
       id,
-      orgId,
       userId: member.id,
       purpose,
       secretHash: sha256(secret),
@@ -102,7 +99,7 @@ export const sendInvitations = async (
 ) => {
   if (!invited.length) return;
 
-  const issued = await issue(tx, actor.orgId, invited, 'invite');
+  const issued = await issue(tx, invited, 'invite');
 
   const [org] = await tx
     .select({ name: organizations.name })
@@ -140,7 +137,7 @@ export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => 
   const [user] = await tx
     .select({ id: users.id, email: users.email, status: users.status })
     .from(users)
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, userId)))
+    .where(eq(users.id, userId))
     .limit(1);
 
   if (!user) throw new HttpError(404, 'NOT_FOUND', 'Team member not found');
@@ -225,7 +222,7 @@ export const acceptInvitation = async (input: {
         sessionVersion: sql`${users.sessionVersion} + 1`,
         updatedAt: sql`now()`,
       })
-      .where(and(eq(users.orgId, row.orgId), eq(users.id, row.userId), eq(users.status, 'invited')))
+      .where(and(eq(users.id, row.userId), eq(users.status, 'invited')))
       .returning({ email: users.email });
 
     if (!user) throw invalidLink();

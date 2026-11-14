@@ -1,5 +1,5 @@
 import type { SORT_DIRECTIONS } from '@erxes/core-db/enums';
-import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
+import type { ConditionGroup, ViewRecordType } from '@erxes/core-contract';
 import { type Db, newId, views } from '@erxes/core-db';
 import { and, asc, eq, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -28,20 +28,7 @@ const assertSees = (actor: Actor, recordType: ViewRecordType) => {
 const mayEdit = (actor: Actor, row: Row) =>
   row.createdBy === actor.userId || (row.shared && can(actor, permissionsOf(row.recordType).share));
 
-const toDto = (actor: Actor, row: Row): View => ({
-  id: row.id,
-  recordType: row.recordType,
-  name: row.name,
-  filter: row.filter,
-  search: row.search,
-  columns: row.columns,
-  sort: row.sort,
-  shared: row.shared,
-  createdBy: row.createdBy,
-  editable: mayEdit(actor, row),
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-});
+const toDto = (actor: Actor, row: Row) => ({ ...row, editable: mayEdit(actor, row) });
 
 /** The member's own views and the team's shared ones, shared first, then by name. */
 export const listViews = async (client: Db, actor: Actor, recordType: ViewRecordType) => {
@@ -53,7 +40,6 @@ export const listViews = async (client: Db, actor: Actor, recordType: ViewRecord
       .from(views)
       .where(
         and(
-          eq(views.orgId, actor.orgId),
           eq(views.recordType, recordType),
           or(eq(views.shared, true), eq(views.createdBy, actor.userId)),
         ),
@@ -95,7 +81,6 @@ export const createView = async (
       .insert(views)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         recordType: input.recordType,
         name: input.name,
         filter: input.filter ?? null,
@@ -112,11 +97,7 @@ export const createView = async (
 };
 
 const viewOrThrow = async (client: Db, actor: Actor, id: string) => {
-  const [row] = await client
-    .select()
-    .from(views)
-    .where(and(eq(views.orgId, actor.orgId), eq(views.id, id)))
-    .limit(1);
+  const [row] = await client.select().from(views).where(eq(views.id, id)).limit(1);
 
   // Someone else's private view doesn't exist for this member.
   if (!row || (!row.shared && row.createdBy !== actor.userId)) throw notFound('View');
@@ -177,8 +158,12 @@ export const listFilterFields = async (client: Db, actor: Actor, recordType: Vie
   assertSees(actor, recordType);
 
   return {
-    data: (await filterFields(client, actor.orgId, recordType)).map(
-      ({ path, label, type, options, group }) => ({ path, label, type, options, group }),
-    ),
+    data: (await filterFields(client, recordType)).map(({ path, label, type, options, group }) => ({
+      path,
+      label,
+      type,
+      options,
+      group,
+    })),
   };
 };

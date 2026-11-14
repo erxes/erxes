@@ -1,5 +1,5 @@
 import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core-contract';
-import { automations, type Db, newId, withSystem } from '@erxes/core-db';
+import { automations, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
@@ -95,13 +95,7 @@ const enrollPage = async (
   enrollment: Enrollment,
   page: { after?: string; limit?: number } = {},
 ) => {
-  const subjects = await loadSubjects(
-    tx,
-    automation.orgId,
-    enrollment.type,
-    enrollment.where,
-    page,
-  );
+  const subjects = await loadSubjects(tx, enrollment.type, enrollment.where, page);
 
   const starts = subjects.flatMap((subject) => {
     const { eventId, event } = enrollment.startOf(subject);
@@ -242,26 +236,24 @@ export const tickAutomations = () =>
     await inOrder(due, (automation) => {
       const scheduledFor = automation.nextRunAt;
 
-      return tx
-        .transaction(async (savepoint) => {
-          const definition = automation.activeVersion
-            ? await definitionOf(savepoint, automation.id, automation.activeVersion)
-            : null;
+      return withOrg(automation.orgId, async (sp) => {
+        const definition = automation.activeVersion
+          ? await definitionOf(sp, automation.id, automation.activeVersion)
+          : null;
 
-          if (!definition || !scheduledFor) return;
+        if (!definition || !scheduledFor) return;
 
-          await savepoint
-            .update(automations)
-            .set({ nextRunAt: firstRunAt(definition, new Date()) })
-            .where(eq(automations.id, automation.id));
-          await queueFire(savepoint, automation, {
-            automationId: automation.id,
-            scheduledFor: scheduledFor.toISOString(),
-          });
-        })
-        .catch((error: unknown) =>
-          log.error({ automation: automation.id, err: error }, 'could not schedule an automation'),
-        );
+        await sp
+          .update(automations)
+          .set({ nextRunAt: firstRunAt(definition, new Date()) })
+          .where(eq(automations.id, automation.id));
+        await queueFire(sp, automation, {
+          automationId: automation.id,
+          scheduledFor: scheduledFor.toISOString(),
+        });
+      }).catch((error: unknown) =>
+        log.error({ automation: automation.id, err: error }, 'could not schedule an automation'),
+      );
     });
 
     return due.length;

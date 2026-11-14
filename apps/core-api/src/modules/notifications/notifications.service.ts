@@ -60,12 +60,7 @@ const recipientsOf = async (client: Db, caller: Caller, inputs: NotifyInput[]) =
       settings: users.notificationSettings,
     })
     .from(users)
-    .where(
-      and(
-        eq(users.orgId, caller.orgId),
-        inArray(users.id, unique(inputs.flatMap((input) => input.userIds))),
-      ),
-    );
+    .where(inArray(users.id, unique(inputs.flatMap((input) => input.userIds))));
 
   const members = new Map(rows.map((member) => [member.id, member]));
 
@@ -139,7 +134,6 @@ const collapseRecent = async (
     .from(notifications)
     .where(
       and(
-        eq(notifications.orgId, caller.orgId),
         inArray(notifications.userId, recipients),
         eq(notifications.kind, input.kind),
         eq(notifications.entityType, input.entity.type),
@@ -233,7 +227,6 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput | No
   inputs.forEach((one) => assertPluginNamespace(caller.source, one.kind));
   await assertMembers(
     client,
-    caller.orgId,
     inputs.map((one) => one.actorUserId),
   );
 

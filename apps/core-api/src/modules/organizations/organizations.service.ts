@@ -11,15 +11,6 @@ import { seedRoles } from '~/modules/roles/roles.service';
 
 const SUBDOMAIN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 
-export const toOrganizationDto = (row: typeof organizations.$inferSelect) => ({
-  id: row.id,
-  subdomain: row.subdomain,
-  name: row.name,
-  country: row.country,
-  currency: row.currency,
-  createdAt: row.createdAt.toISOString(),
-});
-
 interface Region {
   country?: string;
   currency?: string;
@@ -135,5 +126,5 @@ export const updateOrganization = async (
       .returning(),
   );
 
-  return { organization: toOrganizationDto(row), changes: diffRows(before, row, ['settings']) };
+  return { organization: row, changes: diffRows(before, row, ['settings']) };
 };

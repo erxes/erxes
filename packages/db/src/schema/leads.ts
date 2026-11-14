@@ -1,7 +1,7 @@
 import { LEAD_EVENTS } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { companies } from './companies';
 import { customers } from './customers';
 import { organizations } from './organizations';
@@ -16,7 +16,7 @@ export const leadEvents = pgTable(
   'lead_events',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     /** The person, or (`companyId`) the company: exactly one. */
     customerId: text(),
     companyId: text(),

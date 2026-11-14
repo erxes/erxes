@@ -202,7 +202,7 @@ const activeMember = async (claims: z.output<typeof AccessClaims>) => {
       })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(and(eq(users.id, claims.sub), eq(users.orgId, claims.org)))
+      .where(eq(users.id, claims.sub))
       .limit(1),
   );
 
@@ -311,7 +311,7 @@ const authenticatePlugin = async (req: Request, token: string) => {
         grantedScopes: pluginInstallations.grantedScopes,
       })
       .from(pluginInstallations)
-      .where(and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, claims.sub)))
+      .where(eq(pluginInstallations.plugin, claims.sub))
       .limit(1),
   );
 

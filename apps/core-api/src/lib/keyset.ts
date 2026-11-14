@@ -9,8 +9,8 @@ export interface KeysetSource {
   table: PgTable;
   id: PgColumn;
   createdAt: PgColumn;
-  /** Rows the actor may see at all (the organisation); the cursor must be one of them. */
-  scope: SQL;
+  /** Rows the list draws from, when fewer than the organisation's; the cursor must be one of them. */
+  scope?: SQL;
   /**
    * Stop counting at this many (`totalCount` = cap, `totalCapped` true), so
    * large logs page fast.

@@ -1,4 +1,3 @@
-import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import { configDefaults, defineConfig } from 'vite-plus';
 import {
@@ -6,9 +5,11 @@ import {
   noApps,
   noDriver,
   nodeCrypto,
+  oneTransaction,
   routerBuilder,
   serverOnly,
-} from './tools/lint/restricted-imports';
+} from './tools/lint/restricted';
+import { coreApiTestEnv } from './tools/test/core-api-env';
 import { noSkips } from './tools/test/no-skips';
 
 export default defineConfig({
@@ -208,13 +209,16 @@ export default defineConfig({
         rules: { 'erxes/no-inline-enum': 'off' },
       },
       {
-        // Core's hashing, comparisons and random tokens all go through lib/crypto.ts.
+        // Core's hashing, comparisons and random tokens all go through lib/crypto.ts, and its
+        // transactions through withOrg/withSystem and savepoint().
         // A query per item is an N+1 (here and in the packages above): batch it (`inArray`, a
         // set-based update), or go through `inOrder`/`repeatWhile` (src/lib/sequence.ts) on purpose.
         files: ['apps/core-api/**'],
         rules: {
           'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
           'no-await-in-loop': 'error',
+          'no-restricted-properties': ['error', oneTransaction],
+          'erxes/no-org-filter': 'error',
         },
       },
       {
@@ -229,8 +233,14 @@ export default defineConfig({
       {
         // A test file's describe callback holds all its cases; max-lines still bounds the file.
         // A test takes its steps in order (a race, a session's lifetime); N+1s are a server concern.
+        // Fixtures write through the owner's connection, outside any scope (`.transaction()`).
         files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
-        rules: { 'max-lines-per-function': 'off', 'no-await-in-loop': 'off' },
+        rules: {
+          'max-lines-per-function': 'off',
+          'no-await-in-loop': 'off',
+          'no-restricted-properties': 'off',
+          'erxes/no-org-filter': 'off',
+        },
       },
       {
         // Tools load these through their default export.
@@ -292,25 +302,7 @@ export default defineConfig({
           // Files run in parallel, each on its own copy of a template database that
           // globalSetup migrates once per run (src/__tests__/db.ts).
           globalSetup: [resolve(import.meta.dirname, 'apps/core-api/src/__tests__/globalSetup.ts')],
-          env: {
-            CORE_TEST_TEMPLATE: `core_test_template_${randomBytes(4).toString('hex')}`,
-            // A plugin key for the plugin-only endpoints (notifications, activities).
-            CORE_PLUGIN_KEYS: 'hr:test-hr-plugin-key-0123456789abcdefghijklmnop',
-            FILES_STORAGE: 'local',
-            FILES_LOCAL_DIR: resolve(import.meta.dirname, 'apps/core-api/.test-files'),
-            FILES_MAX_SIZE_MB: '5',
-            // Low lines, so tests reach them quickly.
-            MASS_DELETE_ALERT: '20',
-            MASS_DELETE_LIMIT: '40',
-            FAILED_SIGN_IN_ALERT: '3',
-            // One key for the whole run, so parallel files never race to write a key file.
-            CORE_SIGNING_KEY: generateKeyPairSync('ec', { namedCurve: 'P-256' }).privateKey.export({
-              format: 'pem',
-              type: 'pkcs8',
-            }),
-            // logging.test.ts logs to its own destination.
-            LOG_LEVEL: 'silent',
-          },
+          env: coreApiTestEnv,
           // Generous: tests may run against a remote Postgres (each query is a round trip).
           testTimeout: 60_000,
           hookTimeout: 300_000,

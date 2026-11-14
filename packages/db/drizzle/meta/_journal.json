@@ -358,6 +358,27 @@
       "when": 1794596742138,
       "tag": "0050_rate_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1794607796113,
+      "tag": "0051_rate_limits_unlogged",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1794608465286,
+      "tag": "0052_system_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1794608680290,
+      "tag": "0053_org_id_default",
+      "breakpoints": true
     }
   ]
 }

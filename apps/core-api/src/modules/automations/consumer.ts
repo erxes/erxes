@@ -1,9 +1,9 @@
-import type { AutomationDefinition } from '@erxes/core-contract';
+import type { AutomationDefinition, CoreEvent } from '@erxes/core-contract';
 import { automationRuns, automations, type Db, type events, newId } from '@erxes/core-db';
 import { and, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
-import { toEventDto } from '~/modules/events/events.service';
+import { eventJson } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/processor';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
@@ -147,7 +147,6 @@ export const startRuns = async (
     .values(
       allowed.map((start) => ({
         id: newId(),
-        orgId: automation.orgId,
         automationId: automation.id,
         version,
         eventId: start.eventId,
@@ -181,17 +180,11 @@ const QuietImport = z
   .object({ _import: z.object({ quiet: z.boolean() }) })
   .transform(({ _import: mark }) => mark.quiet);
 
-const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEventDto>) => {
+const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
   const candidates = await tx
     .select()
     .from(automations)
-    .where(
-      and(
-        eq(automations.orgId, event.orgId),
-        eq(automations.status, 'active'),
-        eq(automations.triggerEvent, event.type),
-      ),
-    );
+    .where(and(eq(automations.status, 'active'), eq(automations.triggerEvent, event.type)));
 
   if (!candidates.length) return;
 
@@ -203,7 +196,7 @@ const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof to
         .limit(1)
     : [];
 
-  const subject = await subjectOf(tx, event.orgId, event.subjectType, event.subjectId);
+  const subject = await subjectOf(tx, event.subjectType, event.subjectId);
   const context = { event: dto, subject, steps: {} };
 
   // Never an automation's own events.
@@ -247,22 +240,11 @@ const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof to
  * Runs waiting on this record: ends those whose goal this change met, and
  * resumes those waiting for this event.
  */
-const resumeWaiting = async (
-  tx: Db,
-  event: EventRow,
-  subjectId: string,
-  dto: ReturnType<typeof toEventDto>,
-) => {
+const resumeWaiting = async (tx: Db, event: EventRow, subjectId: string, dto: CoreEvent) => {
   const waiting = await tx
     .select()
     .from(automationRuns)
-    .where(
-      and(
-        eq(automationRuns.orgId, event.orgId),
-        eq(automationRuns.subjectId, subjectId),
-        eq(automationRuns.status, 'waiting'),
-      ),
-    )
+    .where(and(eq(automationRuns.subjectId, subjectId), eq(automationRuns.status, 'waiting')))
     .for('update', { skipLocked: true });
 
   if (!waiting.length) return;
@@ -273,7 +255,7 @@ const resumeWaiting = async (
   const subjects = new Map<string | null, Subject | null>();
 
   await inOrder(new Set(waiting.map((run) => run.subjectType)), async (type) => {
-    subjects.set(type, await subjectOf(tx, event.orgId, type, subjectId));
+    subjects.set(type, await subjectOf(tx, type, subjectId));
   });
 
   // Each run advances on its own (finished, or past its wait), in turn on one transaction.
@@ -317,7 +299,7 @@ const resumeWaiting = async (
 export const automationsConsumer: EventConsumer = {
   name: 'core.automations',
   async handle(tx, event: EventRow) {
-    const dto = toEventDto(event);
+    const dto = eventJson(event);
 
     if (event.subjectId) await resumeWaiting(tx, event, event.subjectId, dto);
 

@@ -1,4 +1,11 @@
-import { type Db, eventConsumers, eventFailures, events, withSystem } from '@erxes/core-db';
+import {
+  type Db,
+  eventConsumers,
+  eventFailures,
+  events,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { inOrder, repeatWhile } from '~/lib/sequence';
 import { liveHub } from '~/modules/live/hub';
@@ -31,9 +38,9 @@ export const CONSUMERS: EventConsumer[] = [
 const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
 export const MAX_ATTEMPTS = RETRY_DELAYS_SECONDS.length + 1;
 
-const handleOnce = async (tx: Db, consumer: EventConsumer, event: EventRow) => {
+const handleOnce = async (consumer: EventConsumer, event: EventRow) => {
   try {
-    await tx.transaction((savepoint) => consumer.handle(savepoint, event));
+    await withOrg(event.orgId, (tx) => consumer.handle(tx, event));
 
     return null;
   } catch (error) {
@@ -113,7 +120,7 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
     await inOrder(
       batch.flatMap((row) => byId.get(row.id) ?? []),
       async (event) => {
-        const error = await handleOnce(tx, consumer, event);
+        const error = await handleOnce(consumer, event);
 
         if (!error) return;
 
@@ -173,7 +180,7 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
     // Each retry in its own savepoint, one after another on this transaction.
     await inOrder(due.rows, async (failure) => {
       const event = byId.get(failure.event_id);
-      const error = event ? await handleOnce(tx, consumer, event) : null;
+      const error = event ? await handleOnce(consumer, event) : null;
 
       if (!error) {
         handled.push(failure.event_id);

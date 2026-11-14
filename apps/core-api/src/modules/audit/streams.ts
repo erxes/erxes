@@ -1,7 +1,6 @@
 import type { AUDIT_STREAM_STARTS, AUDIT_STREAM_STATUSES } from '@erxes/core-db/enums';
-import type { AuditStream } from '@erxes/core-contract';
 import { auditLogs, auditStreams, type Db, newId, withOrg } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -15,26 +14,15 @@ import { formatBatch, type StreamEntry } from './streamFormat';
 
 type StreamRow = typeof auditStreams.$inferSelect;
 
-const toDto = (row: StreamRow, latestSeq: number): AuditStream => ({
-  id: row.id,
-  name: row.name,
-  url: row.url,
-  format: row.format,
-  status: row.status,
-  authHeaderName: row.authHeaderName,
-  cursorSeq: row.cursorSeq,
+const toDto = (row: StreamRow, latestSeq: number) => ({
+  ...row,
   pending: Math.max(0, latestSeq - row.cursorSeq),
-  lastDeliveredAt: row.lastDeliveredAt?.toISOString() ?? null,
-  lastError: row.lastError,
-  consecutiveFailures: row.consecutiveFailures,
-  createdAt: row.createdAt.toISOString(),
 });
 
-const latestSeq = async (client: Db, orgId: string) => {
+const latestSeq = async (client: Db) => {
   const [row] = await client
     .select({ seq: sql`coalesce(max(${auditLogs.chainSeq}), 0)`.mapWith(Number) })
-    .from(auditLogs)
-    .where(eq(auditLogs.orgId, orgId));
+    .from(auditLogs);
 
   return row?.seq ?? 0;
 };
@@ -51,17 +39,12 @@ const checkUrl = (url: string) => {
   }
 };
 
-export const listStreams = async (client: Db, actor: Actor) => {
+export const listStreams = async (client: Db) => {
   const rows = await wholeList((limit) =>
-    client
-      .select()
-      .from(auditStreams)
-      .where(eq(auditStreams.orgId, actor.orgId))
-      .orderBy(auditStreams.createdAt)
-      .limit(limit),
+    client.select().from(auditStreams).orderBy(auditStreams.createdAt).limit(limit),
   );
 
-  const latest = await latestSeq(client, actor.orgId);
+  const latest = await latestSeq(client);
 
   return { data: rows.map((row) => toDto(row, latest)) };
 };
@@ -80,14 +63,13 @@ export const createStream = async (
   checkUrl(input.url);
 
   const secret = newSigningSecret();
-  const latest = await latestSeq(client, actor.orgId);
+  const latest = await latestSeq(client);
 
   const row = oneRow(
     await client
       .insert(auditStreams)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         name: input.name,
         url: input.url,
         format: input.format,
@@ -112,12 +94,8 @@ export const createStream = async (
   return { stream: toDto(row, latest), secret };
 };
 
-const streamOrThrow = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(auditStreams)
-    .where(and(eq(auditStreams.orgId, orgId), eq(auditStreams.id, id)))
-    .limit(1);
+const streamOrThrow = async (client: Db, id: string) => {
+  const [row] = await client.select().from(auditStreams).where(eq(auditStreams.id, id)).limit(1);
 
   if (!row) throw notFound('Stream');
 
@@ -136,7 +114,7 @@ export const updateStream = async (
     status?: (typeof AUDIT_STREAM_STATUSES)[number];
   },
 ) => {
-  const before = await streamOrThrow(client, actor.orgId, id);
+  const before = await streamOrThrow(client, id);
 
   if (input.url) checkUrl(input.url);
 
@@ -185,11 +163,11 @@ export const updateStream = async (
     },
   });
 
-  return toDto(row, await latestSeq(client, actor.orgId));
+  return toDto(row, await latestSeq(client));
 };
 
 export const removeStream = async (client: Db, actor: Actor, id: string) => {
-  const row = await streamOrThrow(client, actor.orgId, id);
+  const row = await streamOrThrow(client, id);
 
   await client.delete(auditStreams).where(eq(auditStreams.id, id));
   await recordAudit(client, userCaller(actor), {
@@ -209,7 +187,7 @@ export const removeStream = async (client: Db, actor: Actor, id: string) => {
  */
 export const testStream = async (actor: Actor, id: string) => {
   const { row, organization } = await withOrg(actor.orgId, async (tx) => ({
-    row: await streamOrThrow(tx, actor.orgId, id),
+    row: await streamOrThrow(tx, id),
     organization: await organizationOf(tx, actor.orgId),
   }));
 

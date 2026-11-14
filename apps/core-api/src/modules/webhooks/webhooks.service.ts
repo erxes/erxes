@@ -1,5 +1,5 @@
 import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
-import { CORE_EVENT_TYPES, type EventTypeInfo, type Webhook } from '@erxes/core-contract';
+import { CORE_EVENT_TYPES, type EventTypeInfo } from '@erxes/core-contract';
 import { type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -11,33 +11,13 @@ import { oneRow } from '~/lib/rows';
 import { seal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
 
-type WebhookRow = typeof webhooks.$inferSelect;
-
-const toWebhookDto = (row: WebhookRow): Webhook => ({
-  id: row.id,
-  url: row.url,
-  description: row.description,
-  eventTypes: row.eventTypes,
-  status: row.status,
-  disabledReason: row.disabledReason,
-  consecutiveFailures: row.consecutiveFailures,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-});
-
 /** Core's events and those of the plugins installed here. */
-export const eventTypeCatalog = async (client: Db, orgId: string): Promise<EventTypeInfo[]> => {
+export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => {
   const installed = await client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(
-      and(
-        eq(pluginInstallations.orgId, orgId),
-        eq(pluginInstallations.status, 'active'),
-        eq(plugins.status, 'active'),
-      ),
-    );
+    .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
 
   return [
     ...CORE_EVENT_TYPES.map((item) => ({
@@ -77,29 +57,18 @@ const checkUrl = (url: string) => {
   }
 };
 
-export const findWebhook = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(webhooks)
-    .where(and(eq(webhooks.orgId, orgId), eq(webhooks.id, id)))
-    .limit(1);
+export const findWebhook = async (client: Db, id: string) => {
+  const [row] = await client.select().from(webhooks).where(eq(webhooks.id, id)).limit(1);
 
   if (!row) throw notFound('Webhook');
 
   return row;
 };
 
-export const listWebhooks = async (client: Db, actor: Actor) => ({
-  data: (
-    await wholeList((limit) =>
-      client
-        .select()
-        .from(webhooks)
-        .where(eq(webhooks.orgId, actor.orgId))
-        .orderBy(desc(webhooks.createdAt))
-        .limit(limit),
-    )
-  ).map(toWebhookDto),
+export const listWebhooks = async (client: Db) => ({
+  data: await wholeList((limit) =>
+    client.select().from(webhooks).orderBy(desc(webhooks.createdAt)).limit(limit),
+  ),
 });
 
 export const createWebhook = async (
@@ -116,7 +85,6 @@ export const createWebhook = async (
       .insert(webhooks)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         url: input.url,
         description: input.description ?? null,
         eventTypes: [...new Set(input.eventTypes)],
@@ -134,7 +102,7 @@ export const createWebhook = async (
     metadata: { eventTypes: row.eventTypes },
   });
 
-  return { webhook: toWebhookDto(row), secret };
+  return { webhook: row, secret };
 };
 
 const statusChange = (status: (typeof WEBHOOK_STATUSES)[number] | undefined) =>
@@ -157,7 +125,7 @@ export const updateWebhook = async (
     status?: (typeof WEBHOOK_STATUSES)[number];
   },
 ) => {
-  const before = await findWebhook(client, actor.orgId, id);
+  const before = await findWebhook(client, id);
 
   if (input.url) checkUrl(input.url);
 
@@ -171,7 +139,7 @@ export const updateWebhook = async (
         ...statusChange(input.status),
         updatedAt: sql`now()`,
       })
-      .where(and(eq(webhooks.orgId, actor.orgId), eq(webhooks.id, id)))
+      .where(eq(webhooks.id, id))
       .returning(),
   );
 
@@ -191,13 +159,13 @@ export const updateWebhook = async (
     },
   });
 
-  return toWebhookDto(row);
+  return row;
 };
 
 export const removeWebhook = async (client: Db, actor: Actor, id: string) => {
-  const row = await findWebhook(client, actor.orgId, id);
+  const row = await findWebhook(client, id);
 
-  await client.delete(webhooks).where(and(eq(webhooks.orgId, actor.orgId), eq(webhooks.id, id)));
+  await client.delete(webhooks).where(eq(webhooks.id, id));
   await recordAudit(client, userCaller(actor), {
     action: 'webhook.deleted',
     targetType: 'webhook',
@@ -209,7 +177,7 @@ export const removeWebhook = async (client: Db, actor: Actor, id: string) => {
 };
 
 export const rotateWebhookSecret = async (client: Db, actor: Actor, id: string) => {
-  const row = await findWebhook(client, actor.orgId, id);
+  const row = await findWebhook(client, id);
   const secret = newSigningSecret();
 
   await client

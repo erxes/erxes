@@ -3,10 +3,10 @@ import {
   customerLogins,
   customers,
   customerSessions,
+  db,
   type Db,
-  withTransaction,
 } from '@erxes/core-db';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { asc, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -14,13 +14,7 @@ import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
-import {
-  type CustomerRow,
-  findCustomer,
-  inOrg,
-  selectCustomers,
-  toCustomerDto,
-} from './customerRows';
+import { type CustomerRow, findCustomer, inOrg, selectCustomers } from './customerRows';
 
 const MERGE_FILLED = [
   'firstName',
@@ -37,21 +31,21 @@ const MERGE_FILLED = [
 ] as const;
 
 /** Company links and tags move to the kept customer before the others go. */
-const moveRelations = async (tx: Db, orgId: string, keepId: string, otherIds: string[]) => {
+const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await tx.execute(sql`
-    INSERT INTO ${customerCompanies} (org_id, customer_id, company_id)
-    SELECT ${orgId}, ${keepId}, company_id FROM ${customerCompanies}
+    INSERT INTO ${customerCompanies} (customer_id, company_id)
+    SELECT ${keepId}, company_id FROM ${customerCompanies}
     WHERE customer_id IN (${sql.join(
       otherIds.map((id) => sql`${id}`),
       sql`, `,
     )})
     ON CONFLICT DO NOTHING
   `);
-  await copyTags(tx, orgId, 'customer', otherIds, keepId);
+  await copyTags(tx, 'customer', otherIds, keepId);
 
   // They sign in as the kept customer from now on, and stay signed in.
   const ofOthers = (table: typeof customerLogins | typeof customerSessions) =>
-    and(eq(table.orgId, orgId), inArray(table.customerId, otherIds));
+    inArray(table.customerId, otherIds);
 
   await tx.update(customerLogins).set({ customerId: keepId }).where(ofOthers(customerLogins));
   await tx.update(customerSessions).set({ customerId: keepId }).where(ofOthers(customerSessions));
@@ -102,42 +96,40 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
     throw new HttpError(400, 'INVALID_INPUT', 'Choose at least two customers to merge');
   }
 
-  return withTransaction(async (tx) => {
-    const rows = await selectCustomers(tx)
-      .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, ids)))
-      .orderBy(asc(customers.createdAt))
-      .for('update');
+  const tx = db();
 
-    const byId = new Map(rows.map((row) => [row.id, row]));
-    const keep = byId.get(input.keepId);
+  const rows = await selectCustomers(tx)
+    .where(inArray(customers.id, ids))
+    .orderBy(asc(customers.createdAt))
+    .for('update');
 
-    if (rows.length !== ids.length || !keep) {
-      throw notFound('Customer');
-    }
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const keep = byId.get(input.keepId);
 
-    // In the given order: the first other with a value fills an empty field.
-    const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
-    const otherIds = others.map((other) => other.id);
+  if (rows.length !== ids.length || !keep) {
+    throw notFound('Customer');
+  }
 
-    await moveRelations(tx, actor.orgId, keep.id, otherIds);
-    // Deleting first frees their primary email and phone for the kept customer.
-    await tx
-      .delete(customers)
-      .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, otherIds)));
+  // In the given order: the first other with a value fills an empty field.
+  const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
+  const otherIds = others.map((other) => other.id);
 
-    await tx.update(customers).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
+  await moveRelations(tx, keep.id, otherIds);
+  // Deleting first frees their primary email and phone for the kept customer.
+  await tx.delete(customers).where(inArray(customers.id, otherIds));
 
-    const combined = combineCustomFields(
-      keep.customFields,
-      others.map((other) => other.customFields),
-    );
+  await tx.update(customers).set(mergedColumns(keep, others)).where(inOrg(keep.id));
 
-    await saveCustomFields(tx, actor.orgId, 'customer', keep.id, combined, Object.keys(combined));
+  const combined = combineCustomFields(
+    keep.customFields,
+    others.map((other) => other.customFields),
+  );
 
-    const merged = await findCustomer(tx, actor.orgId, keep.id);
+  await saveCustomFields(tx, 'customer', keep.id, combined, Object.keys(combined));
 
-    await contactsMerged(tx, actor, 'customer', merged, others);
+  const merged = await findCustomer(tx, keep.id);
 
-    return toCustomerDto(merged);
-  });
+  await contactsMerged(tx, actor, 'customer', merged, others);
+
+  return merged;
 };

@@ -20,7 +20,7 @@ import { listRefunds, refundInvoice } from '~/modules/payments/refunds.service';
 import { anyone, anyoneUnscoped, authed, authedUnscoped } from '~/orpc';
 
 export const paymentsRouter = {
-  gateways: authed.payments.gateways.handler(({ context }) => listGateways(db(), context.actor)),
+  gateways: authed.payments.gateways.handler(() => listGateways(db())),
   addGateway: authed.payments.addGateway.handler(({ input, context }) =>
     addGateway(db(), context.actor, input),
   ),
@@ -39,18 +39,14 @@ export const paymentsRouter = {
   cancelInvoice: anyoneUnscoped.payments.cancelInvoice.handler(({ input, context }) =>
     cancelInvoice(context.caller, input.id),
   ),
-  invoices: authed.payments.invoices.handler(({ input, context }) =>
-    listInvoices(db(), context.actor, input),
-  ),
+  invoices: authed.payments.invoices.handler(({ input }) => listInvoices(db(), input)),
   refund: anyone.payments.refund.handler(({ input, context }) =>
     refundInvoice(db(), context.caller, input),
   ),
   refunds: anyone.payments.refunds.handler(({ input, context }) =>
     listRefunds(db(), context.caller, input.id),
   ),
-  pluginSettings: authed.payments.pluginSettings.handler(({ context }) =>
-    listPluginSettings(db(), context.actor),
-  ),
+  pluginSettings: authed.payments.pluginSettings.handler(() => listPluginSettings(db())),
   updatePluginSettings: authed.payments.updatePluginSettings.handler(({ input, context }) =>
     updatePluginSettings(db(), context.actor, input),
   ),

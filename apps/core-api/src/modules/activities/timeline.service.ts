@@ -32,14 +32,13 @@ interface TimelineQuery extends CursorQuery {
 }
 
 /** The timeline's own entries; a company's can include what happened with its customers. */
-const timelineScope = (client: Db, actor: Actor, query: TimelineQuery): SQL => {
+const timelineScope = (client: Db, query: TimelineQuery): SQL => {
   const own = allOf(
     eq(activities.targetType, query.targetType),
     eq(activities.targetId, query.targetId),
   );
 
-  if (!query.includeRelated || query.targetType !== 'company')
-    return allOf(eq(activities.orgId, actor.orgId), own);
+  if (!query.includeRelated || query.targetType !== 'company') return own;
 
   const related = allOf(
     eq(activities.targetType, 'customer'),
@@ -48,16 +47,11 @@ const timelineScope = (client: Db, actor: Actor, query: TimelineQuery): SQL => {
       client
         .select({ id: customerCompanies.customerId })
         .from(customerCompanies)
-        .where(
-          and(
-            eq(customerCompanies.orgId, actor.orgId),
-            eq(customerCompanies.companyId, query.targetId),
-          ),
-        ),
+        .where(eq(customerCompanies.companyId, query.targetId)),
     ),
   );
 
-  return allOf(eq(activities.orgId, actor.orgId), anyOf(own, related));
+  return anyOf(own, related);
 };
 
 const KIND_FILTERS = {
@@ -89,7 +83,7 @@ const timelineFilters = (query: TimelineQuery) => {
 };
 
 /** Names and avatars of the members behind the entries. */
-const membersOf = async (client: Db, orgId: string, memberIds: string[]) => {
+const membersOf = async (client: Db, memberIds: string[]) => {
   const members = memberIds.length
     ? await client
         .select({
@@ -98,7 +92,7 @@ const membersOf = async (client: Db, orgId: string, memberIds: string[]) => {
           avatarUrl: users.avatarUrl,
         })
         .from(users)
-        .where(and(eq(users.orgId, orgId), inArray(users.id, memberIds)))
+        .where(inArray(users.id, memberIds))
     : [];
 
   return new Map(members.map((member) => [member.id, member]));
@@ -119,7 +113,7 @@ export const listActivities = async (client: Db, actor: Actor, query: TimelineQu
       id: activities.id,
       // Timeline order is when it happened, which a plugin may backdate.
       createdAt: activities.occurredAt,
-      scope: timelineScope(client, actor, query),
+      scope: timelineScope(client, query),
     },
     timelineFilters(query),
     query,
@@ -136,7 +130,6 @@ export const listActivities = async (client: Db, actor: Actor, query: TimelineQu
   // instead of waiting for the team list.
   const byId = await membersOf(
     client,
-    actor.orgId,
     unique(
       page.data.flatMap((row) => (row.actorType === 'user' && row.actorId ? [row.actorId] : [])),
     ),
@@ -156,42 +149,41 @@ export const listActivities = async (client: Db, actor: Actor, query: TimelineQu
 };
 
 /** Adds or takes back the member's reaction (row locked: two at once both count). */
-export const reactToActivity = async (client: Db, actor: Actor, id: string, emoji: string) =>
-  client.transaction(async (tx) => {
-    const [row] = await tx
-      .select()
-      .from(activities)
-      .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
-      .for('update')
-      .limit(1);
+export const reactToActivity = async (client: Db, actor: Actor, id: string, emoji: string) => {
+  const [row] = await client
+    .select()
+    .from(activities)
+    .where(eq(activities.id, id))
+    .for('update')
+    .limit(1);
 
-    if (!row) throw notFound('Entry');
+  if (!row) throw notFound('Entry');
 
-    await assertTimelineAccess(tx, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
+  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
 
-    const reactions = { ...reactionsOf(row.data) };
-    const people = new Set(reactions[emoji] ?? []);
+  const reactions = { ...reactionsOf(row.data) };
+  const people = new Set(reactions[emoji] ?? []);
 
-    if (people.has(actor.userId)) people.delete(actor.userId);
-    else {
-      if (!reactions[emoji] && Object.keys(reactions).length >= 20)
-        throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
-      people.add(actor.userId);
-    }
+  if (people.has(actor.userId)) people.delete(actor.userId);
+  else {
+    if (!reactions[emoji] && Object.keys(reactions).length >= 20)
+      throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
+    people.add(actor.userId);
+  }
 
-    if (people.size) reactions[emoji] = [...people];
-    else delete reactions[emoji];
+  if (people.size) reactions[emoji] = [...people];
+  else delete reactions[emoji];
 
-    const saved = oneRow(
-      await tx
-        .update(activities)
-        .set({ data: { ...row.data, reactions } })
-        .where(eq(activities.id, id))
-        .returning(),
-    );
+  const saved = oneRow(
+    await client
+      .update(activities)
+      .set({ data: { ...row.data, reactions } })
+      .where(eq(activities.id, id))
+      .returning(),
+  );
 
-    return toActivityDto(saved);
-  });
+  return toActivityDto(saved);
+};
 
 const CORE_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
   note: { label: 'Note', icon: 'IconNote' },
@@ -202,18 +194,12 @@ const CORE_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
 };
 
 /** Entry types (with plugins' labels and icons) and plugins' record timelines. */
-export const activityTypes = async (client: Db, orgId: string) => {
+export const activityTypes = async (client: Db) => {
   const installed = await client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(
-      and(
-        eq(pluginInstallations.orgId, orgId),
-        eq(pluginInstallations.status, 'active'),
-        eq(plugins.status, 'active'),
-      ),
-    );
+    .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
 
   return {
     types: [

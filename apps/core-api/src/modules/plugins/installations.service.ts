@@ -1,4 +1,3 @@
-import type { Plugin } from '@erxes/core-contract';
 import { type Db, db, pluginInstallations, plugins } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -19,7 +18,7 @@ const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
 const toPluginDto = (
   row: typeof plugins.$inferSelect,
   installation?: typeof pluginInstallations.$inferSelect | null,
-): Plugin => {
+) => {
   const requested = requestedScopes(row);
   const installed = installation?.status === 'active';
   const granted = installed ? installation.grantedScopes : [];
@@ -37,22 +36,16 @@ const toPluginDto = (
     requestedScopes: requested,
     grantedScopes: granted,
     needsApproval: installed && requested.some((scope) => !granted.includes(scope)),
-    installedAt: installed ? installation.installedAt.toISOString() : null,
+    installedAt: installed ? installation.installedAt : null,
   };
 };
 
-export const listPlugins = async (actor: Actor) => {
+export const listPlugins = async () => {
   const rows = await wholeList((limit) =>
     db()
       .select({ plugin: plugins, installation: pluginInstallations })
       .from(plugins)
-      .leftJoin(
-        pluginInstallations,
-        and(
-          eq(pluginInstallations.plugin, plugins.name),
-          eq(pluginInstallations.orgId, actor.orgId),
-        ),
-      )
+      .leftJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
       .where(eq(plugins.status, 'active'))
       .orderBy(plugins.name)
       .limit(limit),
@@ -73,48 +66,48 @@ const pluginOrThrow = async (client: Db, name: string) => {
   return row;
 };
 
-const installPluginTx = (actor: Actor, name: string) =>
-  db().transaction(async (tx) => {
-    const row = await pluginOrThrow(tx, name);
-    const scopes = requestedScopes(row);
+const installPluginTx = async (actor: Actor, name: string) => {
+  const tx = db();
 
-    const [before] = await tx
-      .select()
-      .from(pluginInstallations)
-      .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
-      .limit(1);
+  const row = await pluginOrThrow(tx, name);
+  const scopes = requestedScopes(row);
 
-    const [installation] = await tx
-      .insert(pluginInstallations)
-      .values({
-        orgId: actor.orgId,
-        plugin: name,
+  const [before] = await tx
+    .select()
+    .from(pluginInstallations)
+    .where(eq(pluginInstallations.plugin, name))
+    .limit(1);
+
+  const [installation] = await tx
+    .insert(pluginInstallations)
+    .values({
+      plugin: name,
+      grantedScopes: scopes,
+      installedBy: actor.userId,
+    })
+    .onConflictDoUpdate({
+      target: [pluginInstallations.orgId, pluginInstallations.plugin],
+      set: {
+        status: 'active',
+        statusReason: null,
         grantedScopes: scopes,
         installedBy: actor.userId,
-      })
-      .onConflictDoUpdate({
-        target: [pluginInstallations.orgId, pluginInstallations.plugin],
-        set: {
-          status: 'active',
-          statusReason: null,
-          grantedScopes: scopes,
-          installedBy: actor.userId,
-          updatedAt: sql`now()`,
-          installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
-        },
-      })
-      .returning();
+        updatedAt: sql`now()`,
+        installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
+      },
+    })
+    .returning();
 
-    await recordAudit(tx, userCaller(actor), {
-      action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',
-      targetType: 'plugin',
-      targetId: name,
-      targetLabel: row.manifest?.title ?? name,
-      changes: { scopes: [before?.status === 'active' ? before.grantedScopes : [], scopes] },
-    });
-
-    return toPluginDto(row, installation);
+  await recordAudit(tx, userCaller(actor), {
+    action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',
+    targetType: 'plugin',
+    targetId: name,
+    targetLabel: row.manifest?.title ?? name,
+    changes: { scopes: [before?.status === 'active' ? before.grantedScopes : [], scopes] },
   });
+
+  return toPluginDto(row, installation);
+};
 
 /** Installs a plugin, or grants the scopes a newer version asks for. */
 export const installPlugin = async (actor: Actor, name: string) => {
@@ -124,27 +117,28 @@ export const installPlugin = async (actor: Actor, name: string) => {
 };
 
 /** Uninstalls: tokens stop working on the next request. Data stays in the plugin. */
-export const uninstallPlugin = (actor: Actor, name: string) =>
-  db().transaction(async (tx) => {
-    const row = await pluginOrThrow(tx, name);
+export const uninstallPlugin = async (actor: Actor, name: string) => {
+  const tx = db();
 
-    const [installation] = await tx
-      .update(pluginInstallations)
-      .set({ status: 'disabled', updatedAt: sql`now()` })
-      .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
-      .returning();
+  const row = await pluginOrThrow(tx, name);
 
-    if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
+  const [installation] = await tx
+    .update(pluginInstallations)
+    .set({ status: 'disabled', updatedAt: sql`now()` })
+    .where(eq(pluginInstallations.plugin, name))
+    .returning();
 
-    await recordAudit(tx, userCaller(actor), {
-      action: 'plugin.uninstalled',
-      targetType: 'plugin',
-      targetId: name,
-      targetLabel: row.manifest?.title ?? name,
-    });
+  if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
 
-    return toPluginDto(row, installation);
+  await recordAudit(tx, userCaller(actor), {
+    action: 'plugin.uninstalled',
+    targetType: 'plugin',
+    targetId: name,
+    targetLabel: row.manifest?.title ?? name,
   });
+
+  return toPluginDto(row, installation);
+};
 
 /**
  * A member's 5-minute token for one plugin's API: the plugin verifies it with
@@ -160,7 +154,6 @@ export const pluginSession = async (actor: Actor, name: string) => {
       and(
         eq(plugins.name, name),
         eq(plugins.status, 'active'),
-        eq(pluginInstallations.orgId, actor.orgId),
         eq(pluginInstallations.status, 'active'),
       ),
     )

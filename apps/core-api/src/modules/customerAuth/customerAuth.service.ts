@@ -1,9 +1,4 @@
-import type {
-  CustomerLogin,
-  CustomerProfile,
-  CustomerSession,
-  CustomerTokens,
-} from '@erxes/core-contract';
+import type { CustomerProfile, CustomerTokens } from '@erxes/core-contract';
 import {
   customerLogins,
   customers,
@@ -33,43 +28,14 @@ interface AppInput {
   organization?: string;
 }
 
-const profileOf = async (client: Db, orgId: string, id: string): Promise<CustomerProfile> => {
-  const row = await findCustomer(client, orgId, id);
-
-  return {
-    id: row.id,
-    firstName: row.firstName,
-    lastName: row.lastName,
-    avatarUrl: row.avatarUrl,
-    birthDate: row.birthDate,
-    primaryEmail: row.primaryEmail,
-    primaryPhone: row.primaryPhone,
-    createdAt: row.createdAt.toISOString(),
-  };
-};
-
-const toLoginDto = (row: typeof customerLogins.$inferSelect): CustomerLogin => ({
-  id: row.id,
-  kind: row.kind,
-  value: row.value,
-  createdAt: row.createdAt.toISOString(),
-  lastUsedAt: row.lastUsedAt?.toISOString() ?? null,
-});
-
 const lockLogin = (tx: Db, orgId: string, address: Address) =>
   lockKeys(tx, [`customer-login:${orgId}:${address.kind}:${address.value}`]);
 
-const findLogin = (tx: Db, orgId: string, address: Address) =>
+const findLogin = (tx: Db, address: Address) =>
   tx
     .select()
     .from(customerLogins)
-    .where(
-      and(
-        eq(customerLogins.orgId, orgId),
-        eq(customerLogins.kind, address.kind),
-        eq(customerLogins.value, address.value),
-      ),
-    )
+    .where(and(eq(customerLogins.kind, address.kind), eq(customerLogins.value, address.value)))
     .limit(1)
     .then(([row]) => row);
 
@@ -77,10 +43,10 @@ const loginTaken = () =>
   new HttpError(409, 'LOGIN_TAKEN', 'Someone already signs in with this address');
 
 /** Adds a proven address as a login, and to the customer's emails or phones. */
-const addLogin = async (tx: Db, orgId: string, customerId: string, address: Address) => {
+const addLogin = async (tx: Db, customerId: string, address: Address) => {
   const [row] = await tx
     .insert(customerLogins)
-    .values({ id: newId(), orgId, customerId, kind: address.kind, value: address.value })
+    .values({ id: newId(), customerId, kind: address.kind, value: address.value })
     .returning();
 
   if (!row) throw new Error('the login was not saved');
@@ -101,7 +67,7 @@ const addLogin = async (tx: Db, orgId: string, customerId: string, address: Addr
             primaryPhone: sql`coalesce(${primary}, ${address.value})`,
           },
     )
-    .where(and(eq(customers.orgId, orgId), eq(customers.id, customerId)));
+    .where(eq(customers.id, customerId));
 
   return row;
 };
@@ -113,7 +79,7 @@ const addLogin = async (tx: Db, orgId: string, customerId: string, address: Addr
 const customerForLogin = async (tx: Db, orgId: string, address: Address) => {
   await lockLogin(tx, orgId, address);
 
-  const login = await findLogin(tx, orgId, address);
+  const login = await findLogin(tx, address);
 
   if (login) {
     await tx
@@ -134,9 +100,9 @@ const customerForLogin = async (tx: Db, orgId: string, address: Address) => {
   const [existing] = await tx
     .select({ logins: count() })
     .from(customerLogins)
-    .where(and(eq(customerLogins.orgId, orgId), eq(customerLogins.customerId, customer.id)));
+    .where(eq(customerLogins.customerId, customer.id));
 
-  const saved = await addLogin(tx, orgId, customer.id, address);
+  const saved = await addLogin(tx, customer.id, address);
 
   await tx
     .update(customerLogins)
@@ -191,7 +157,7 @@ export const signInWithCode = async (
       { type: 'core.customer.signed_in', subject, payload },
     ]);
 
-    return { ...tokens, customer: await profileOf(tx, organization.id, customerId), created };
+    return { ...tokens, customer: await findCustomer(tx, customerId), created };
   });
 };
 
@@ -229,41 +195,37 @@ export const signOut = async (refreshToken: string) => {
 // The signed-in customer (`/customer/me`).
 
 export const myProfile = (me: CustomerCaller) =>
-  withOrg(me.orgId, (tx) => profileOf(tx, me.orgId, me.customerId));
+  withOrg(me.orgId, (tx) => findCustomer(tx, me.customerId));
 
 export const updateMyProfile = (
   me: CustomerCaller,
   changes: Partial<Pick<CustomerProfile, 'firstName' | 'lastName' | 'avatarUrl' | 'birthDate'>>,
 ) =>
   withOrg(me.orgId, async (tx) => {
-    const before = await findCustomer(tx, me.orgId, me.customerId);
+    const before = await findCustomer(tx, me.customerId);
 
     await tx
       .update(customers)
       .set({ ...changes, updatedAt: sql`now()` })
-      .where(and(eq(customers.orgId, me.orgId), eq(customers.id, me.customerId)));
+      .where(eq(customers.id, me.customerId));
 
-    const after = await findCustomer(tx, me.orgId, me.customerId);
+    const after = await findCustomer(tx, me.customerId);
 
     await contactUpdated(tx, systemCaller(me.orgId), 'customer', before, after);
 
-    return profileOf(tx, me.orgId, me.customerId);
+    return findCustomer(tx, me.customerId);
   });
 
 export const myLogins = (me: CustomerCaller) =>
   withOrg(me.orgId, async (tx) => ({
-    data: (
-      await wholeList((limit) =>
-        tx
-          .select()
-          .from(customerLogins)
-          .where(
-            and(eq(customerLogins.orgId, me.orgId), eq(customerLogins.customerId, me.customerId)),
-          )
-          .orderBy(asc(customerLogins.createdAt))
-          .limit(limit),
-      )
-    ).map(toLoginDto),
+    data: await wholeList((limit) =>
+      tx
+        .select()
+        .from(customerLogins)
+        .where(eq(customerLogins.customerId, me.customerId))
+        .orderBy(asc(customerLogins.createdAt))
+        .limit(limit),
+    ),
   }));
 
 /** Sends a code to a new address; refused when it already signs someone in. */
@@ -279,7 +241,7 @@ export const sendAddLoginCode = (me: CustomerCaller, input: Address) =>
 
     if (!organization) throw notFound('Organisation');
 
-    if (await findLogin(tx, me.orgId, address)) throw loginTaken();
+    if (await findLogin(tx, address)) throw loginTaken();
 
     return sendCode(tx, organization, address, 'add_login', {
       customerId: me.customerId,
@@ -299,14 +261,14 @@ export const confirmAddLogin = async (me: CustomerCaller, input: Address & { cod
   return withOrg(me.orgId, async (tx) => {
     await lockLogin(tx, me.orgId, address);
 
-    if (await findLogin(tx, me.orgId, address)) throw loginTaken();
+    if (await findLogin(tx, address)) throw loginTaken();
 
     // Another customer's primary email or phone can't become this one's.
-    const row = await addLogin(tx, me.orgId, me.customerId, address).catch((error: unknown) => {
+    const row = await addLogin(tx, me.customerId, address).catch((error: unknown) => {
       throw pgConstraint(error)?.includes('primary') ? loginTaken() : error;
     });
 
-    return toLoginDto(row);
+    return row;
   });
 };
 
@@ -318,7 +280,7 @@ export const removeMyLogin = (me: CustomerCaller, id: string) =>
     const mine = await tx
       .select({ id: customerLogins.id })
       .from(customerLogins)
-      .where(and(eq(customerLogins.orgId, me.orgId), eq(customerLogins.customerId, me.customerId)));
+      .where(eq(customerLogins.customerId, me.customerId));
 
     if (!mine.some((login) => login.id === id)) throw notFound('Login');
 
@@ -333,7 +295,6 @@ export const removeMyLogin = (me: CustomerCaller, id: string) =>
 
 const activeSessions = (me: CustomerCaller) =>
   and(
-    eq(customerSessions.orgId, me.orgId),
     eq(customerSessions.customerId, me.customerId),
     isNull(customerSessions.revokedAt),
     gt(customerSessions.expiresAt, sql`now()`),
@@ -350,14 +311,7 @@ export const mySessions = (me: CustomerCaller) =>
           .orderBy(desc(customerSessions.lastUsedAt))
           .limit(limit),
       )
-    ).map((row): CustomerSession => ({
-      id: row.id,
-      clientId: row.clientId,
-      userAgent: row.userAgent,
-      createdAt: row.createdAt.toISOString(),
-      lastUsedAt: row.lastUsedAt.toISOString(),
-      current: row.id === me.sessionId,
-    })),
+    ).map((row) => ({ ...row, current: row.id === me.sessionId })),
   }));
 
 export const revokeMySession = (me: CustomerCaller, id: string) =>

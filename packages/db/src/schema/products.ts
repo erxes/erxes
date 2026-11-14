@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -19,7 +19,7 @@ export const productCategories = pgTable(
   'product_categories',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     name: text().notNull(),
     parentId: text(),
     createdBy: text(),
@@ -59,7 +59,7 @@ export const products = pgTable(
   'products',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     kind: text({ enum: PRODUCT_KINDS }).notNull(),
     status: text({ enum: PRODUCT_STATUSES }).default('active').notNull(),
     name: text().notNull(),

@@ -1,4 +1,4 @@
-import type { Activity, ActivityTarget } from '@erxes/core-contract';
+import type { ActivityTarget } from '@erxes/core-contract';
 import { activities, type Db, files, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -19,21 +19,12 @@ const Reactions = z.record(z.string(), z.array(z.string()));
 export const reactionsOf = (data: Record<string, unknown>) =>
   Reactions.safeParse(data.reactions).data;
 
-export const toActivityDto = (row: ActivityRow): Activity => ({
-  id: row.id,
-  targetType: row.targetType,
-  targetId: row.targetId,
-  source: row.source,
-  type: row.type,
-  summary: row.summary,
-  data: row.data,
+export const toActivityDto = (row: ActivityRow) => ({
+  ...row,
   entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
-  link: row.link,
   actor: { type: row.actorType, id: row.actorId },
   pinned: row.pinnedAt !== null,
-  editedAt: row.editedAt?.toISOString() ?? null,
   reactions: reactionsOf(row.data) ?? {},
-  occurredAt: row.occurredAt.toISOString(),
 });
 
 export interface CoreActivity {
@@ -59,7 +50,6 @@ export const recordActivity = async (
   await client.insert(activities).values(
     list.map((entry) => ({
       id: newId(),
-      orgId: caller.orgId,
       targetType: entry.targetType,
       targetId: entry.targetId,
       source: 'core',
@@ -71,39 +61,26 @@ export const recordActivity = async (
   );
 };
 
-const targetsOf = (orgId: string, targetType: ActivityTarget, ids: string[]) =>
-  and(
-    eq(activities.orgId, orgId),
-    eq(activities.targetType, targetType),
-    inArray(activities.targetId, ids),
-  );
+const targetsOf = (targetType: ActivityTarget, ids: string[]) =>
+  and(eq(activities.targetType, targetType), inArray(activities.targetId, ids));
 
 /** Merged records: their timelines move to the record that was kept. */
 export const moveActivities = async (
   client: Db,
-  orgId: string,
   targetType: ActivityTarget,
   fromIds: string[],
   toId: string,
 ) => {
   if (!fromIds.length) return;
 
-  await client
-    .update(activities)
-    .set({ targetId: toId })
-    .where(targetsOf(orgId, targetType, fromIds));
+  await client.update(activities).set({ targetId: toId }).where(targetsOf(targetType, fromIds));
 };
 
 /** Deleted records: their timeline goes too (privacy: nothing is left behind). */
-export const removeActivities = async (
-  client: Db,
-  orgId: string,
-  targetType: ActivityTarget,
-  ids: string[],
-) => {
+export const removeActivities = async (client: Db, targetType: ActivityTarget, ids: string[]) => {
   if (!ids.length) return;
 
-  await client.delete(activities).where(targetsOf(orgId, targetType, ids));
+  await client.delete(activities).where(targetsOf(targetType, ids));
 };
 
 export const isNote = like(activities.type, '%.note');
@@ -124,7 +101,7 @@ const recordLink = (targetType: string, targetId: string) =>
 const snippet = (body: string) => (body.length > 140 ? `${body.slice(0, 140)}…` : body);
 
 /** 400 INVALID_FILE unless every file is a ready upload of the organisation. */
-const checkFiles = async (client: Db, orgId: string, fileIds: string[]) => {
+const checkFiles = async (client: Db, fileIds: string[]) => {
   const wanted = unique(fileIds);
 
   if (!wanted.length) return wanted;
@@ -132,7 +109,7 @@ const checkFiles = async (client: Db, orgId: string, fileIds: string[]) => {
   const found = await client
     .select({ id: files.id })
     .from(files)
-    .where(and(eq(files.orgId, orgId), eq(files.status, 'ready'), inArray(files.id, wanted)));
+    .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   if (found.length !== wanted.length) {
     throw new HttpError(400, 'INVALID_FILE', 'Attach files uploaded to this organisation');
@@ -163,11 +140,11 @@ const notifyMentions = async (
   });
 };
 
-const findNote = async (client: Db, orgId: string, id: string) => {
+const findNote = async (client: Db, id: string) => {
   const [row] = await client
     .select()
     .from(activities)
-    .where(and(eq(activities.orgId, orgId), eq(activities.id, id), isNote))
+    .where(and(eq(activities.id, id), isNote))
     .limit(1);
 
   if (!row) throw notFound('Note');
@@ -195,50 +172,44 @@ export const addNote = async (
 
   const mentions = unique(input.mentions);
 
-  await assertMembers(client, actor.orgId, mentions);
+  await assertMembers(client, mentions);
 
-  const fileIds = await checkFiles(client, actor.orgId, input.fileIds);
+  const fileIds = await checkFiles(client, input.fileIds);
 
-  return client.transaction(async (tx) => {
-    const row = oneRow(
-      await tx
-        .insert(activities)
-        .values({
-          id: newId(),
-          orgId: actor.orgId,
-          targetType: input.targetType,
-          targetId: input.targetId,
-          source: 'core',
-          type: `${input.targetType}.note`,
-          data: { body: input.body, mentions, fileIds },
-          actorType: 'user',
-          actorId: actor.userId,
-        })
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .insert(activities)
+      .values({
+        id: newId(),
+        targetType: input.targetType,
+        targetId: input.targetId,
+        source: 'core',
+        type: `${input.targetType}.note`,
+        data: { body: input.body, mentions, fileIds },
+        actorType: 'user',
+        actorId: actor.userId,
+      })
+      .returning(),
+  );
 
-    await notifyMentions(tx, actor, { ...input, id: row.id }, mentions);
+  await notifyMentions(client, actor, { ...input, id: row.id }, mentions);
 
-    return toActivityDto(row);
-  });
+  return toActivityDto(row);
 };
 
 /** The note's new data: text, mentions and files, with earlier wordings kept (the last 20). */
 const editedData = async (
   client: Db,
-  actor: Actor,
   note: ActivityRow,
   input: { body?: string; mentions?: string[]; fileIds?: string[] },
 ) => {
   const data = NoteData.parse(note.data);
   const mentions = input.mentions === undefined ? data.mentions : unique(input.mentions);
 
-  await assertMembers(client, actor.orgId, mentions);
+  await assertMembers(client, mentions);
 
   const fileIds =
-    input.fileIds === undefined
-      ? data.fileIds
-      : await checkFiles(client, actor.orgId, input.fileIds);
+    input.fileIds === undefined ? data.fileIds : await checkFiles(client, input.fileIds);
 
   const reworded = input.body !== undefined && input.body !== data.body;
   const editedAt = (note.editedAt ?? note.occurredAt).toISOString();
@@ -268,7 +239,7 @@ export const updateNote = async (
   id: string,
   input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
 ) => {
-  const note = await findNote(client, actor.orgId, id);
+  const note = await findNote(client, id);
 
   const editing =
     input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
@@ -277,33 +248,31 @@ export const updateNote = async (
     throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
   }
 
-  const edit = await editedData(client, actor, note, input);
+  const edit = await editedData(client, note, input);
 
-  return client.transaction(async (tx) => {
-    const row = oneRow(
-      await tx
-        .update(activities)
-        .set({
-          ...(editing ? { data: edit.data, editedAt: sql`now()` } : {}),
-          ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
-        })
-        .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .update(activities)
+      .set({
+        ...(editing ? { data: edit.data, editedAt: sql`now()` } : {}),
+        ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
+      })
+      .where(eq(activities.id, id))
+      .returning(),
+  );
 
-    await notifyMentions(
-      tx,
-      actor,
-      { id, targetType: note.targetType, targetId: note.targetId, body: edit.data.body },
-      edit.added,
-    );
+  await notifyMentions(
+    client,
+    actor,
+    { id, targetType: note.targetType, targetId: note.targetId, body: edit.data.body },
+    edit.added,
+  );
 
-    return toActivityDto(row);
-  });
+  return toActivityDto(row);
 };
 
 export const removeNote = async (client: Db, actor: Actor, id: string) => {
-  const note = await findNote(client, actor.orgId, id);
+  const note = await findNote(client, id);
 
   if (note.actorId !== actor.userId && !can(actor, 'notes.moderate')) {
     throw new HttpError(
@@ -313,9 +282,7 @@ export const removeNote = async (client: Db, actor: Actor, id: string) => {
     );
   }
 
-  await client
-    .delete(activities)
-    .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)));
+  await client.delete(activities).where(eq(activities.id, id));
 
   return { ok: true as const };
 };

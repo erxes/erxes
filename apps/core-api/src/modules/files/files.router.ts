@@ -16,10 +16,8 @@ export const filesRouter = {
   complete: anyone.files.complete.handler(({ input, context }) =>
     completeUpload(db(), context.caller, input.id),
   ),
-  get: anyone.files.get.handler(({ input, context }) => getFile(db(), context.caller, input.id)),
-  list: anyone.files.list.handler(({ input, context }) =>
-    listFiles(db(), context.caller, input.ids),
-  ),
+  get: anyone.files.get.handler(({ input }) => getFile(db(), input.id)),
+  list: anyone.files.list.handler(({ input }) => listFiles(db(), input.ids)),
   remove: anyone.files.remove.handler(({ input, context }) =>
     removeFile(db(), context.caller, context.actor, input.id),
   ),

@@ -5,7 +5,6 @@ import { twoFactorChallenge } from './twoFactor.service';
 import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
-import { toOrganizationDto } from '~/modules/organizations/organizations.service';
 import { toUserDto } from '~/modules/users/userRows';
 import { verifyPassword } from '~/lib/crypto';
 import type { Actor } from '~/http/auth';
@@ -66,7 +65,6 @@ const assertNotLockedOut = async ({ user }: Account) => {
       .from(auditLogs)
       .where(
         and(
-          eq(auditLogs.orgId, user.orgId),
           eq(auditLogs.targetId, user.id),
           eq(auditLogs.action, 'auth.sign_in_failed'),
           sql`${auditLogs.createdAt} > now() - interval '15 minutes'`,
@@ -204,7 +202,7 @@ export const getSession = async (orgId: string, userId: string) =>
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(and(eq(users.id, userId), eq(users.orgId, orgId)))
+      .where(eq(users.id, userId))
       .limit(1);
 
     if (!row) {
@@ -213,7 +211,7 @@ export const getSession = async (orgId: string, userId: string) =>
 
     return {
       user: toUserDto(row.user),
-      organization: toOrganizationDto(row.organization),
+      organization: row.organization,
       // Spelled out for the UI: what this member may do.
       permissions: await effectivePermissions(tx, {
         orgId,
@@ -238,7 +236,7 @@ export const markOnboarded = async (
     await tx
       .update(users)
       .set({ onboardedAt: sql`coalesce(${users.onboardedAt}, now())` })
-      .where(and(eq(users.orgId, orgId), eq(users.id, userId)));
+      .where(eq(users.id, userId));
 
     // Queued with the change: seeded right after (see `exampleDataJob`).
     if (input.exampleData && actor.role === 'owner') {

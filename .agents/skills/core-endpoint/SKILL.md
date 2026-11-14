@@ -10,8 +10,12 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
 1. Declare the procedure in `packages/contract/src/<domain>.ts` by the rules in
    `packages/contract/AGENTS.md`. A new group goes into `coreContract` in `src/index.ts`.
 2. Write the service in `apps/core-api/src/modules/<feature>/<feature>.service.ts`. It takes
-   `client: Db`, the `Actor` (or `Caller` for plugins) and the input, and returns a DTO without
-   credentials or `org_id`. Its queries carry no org filter: the handler runs inside `withOrg`.
+   `client: Db`, the input, and the `Actor` (or `Caller` for plugins) only when it records who
+   acted. It returns the row, with Dates; the output schema drops the columns it doesn't pick and
+   encodes dates with `isoDate`. Add only the fields the row lacks (`{ ...row, actor: { type, id } }`).
+   A body that leaves outside oRPC (webhook, plugin delivery, job payload) goes through the
+   schema's `.parse(row)` instead. The handler runs inside `withOrg`, so
+   queries carry no org filter and inserts leave out `orgId` (lint `erxes/no-org-filter`).
    Failures throw `HttpError(status, CODE, message)`.
 3. Give it a policy in `ACCESS` (`apps/core-api/src/http/policies.ts`): `MEMBER`,
    `needs('<permission>')`, `PUBLIC`, `CUSTOMER` or `{ plugin: '<scope>' }`; the type check fails

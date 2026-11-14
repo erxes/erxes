@@ -60,7 +60,6 @@ export const createSession = async (
 
   await tx.insert(customerSessions).values({
     id,
-    orgId: session.orgId,
     customerId: session.customerId,
     clientId: session.clientId,
     tokenHash: sha256(secret),
@@ -180,7 +179,6 @@ export const customerOfToken = async (token: string) => {
       .from(customerSessions)
       .where(
         and(
-          eq(customerSessions.orgId, claims.org),
           eq(customerSessions.id, claims.sid),
           eq(customerSessions.customerId, claims.sub),
           isNull(customerSessions.revokedAt),

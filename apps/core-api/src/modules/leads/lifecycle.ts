@@ -68,8 +68,8 @@ export const planLeadOnCreate = async (
   }
 
   const stage = input.leadStageId
-    ? await findStage(client, caller.orgId, input.leadStageId)
-    : await firstStage(client, caller.orgId, 'open');
+    ? await findStage(client, input.leadStageId)
+    : await firstStage(client, 'open');
 
   const reason = stage?.kind === 'disqualified' ? (input.disqualifyReason ?? null) : null;
 
@@ -214,13 +214,13 @@ export const planLeadOnUpdate = async (
 ): Promise<LeadPlan> => {
   const asked =
     input.leadStageId && input.leadStageId !== current.leadStageId
-      ? await findStage(client, caller.orgId, input.leadStageId)
+      ? await findStage(client, input.leadStageId)
       : null;
 
   // The stages are needed for the current one, and for a conversion or reopening.
   const stages =
     current.leadStageId || (input.state ?? current.state) !== current.state
-      ? await stagesOf(client, caller.orgId)
+      ? await stagesOf(client)
       : [];
 
   return planLeadChange({ caller, stages, current, input, asked });
@@ -243,7 +243,6 @@ export const recordLeadSteps = async (
   await tx.insert(leadEvents).values(
     steps.map(({ id, step }) => ({
       id: newId(),
-      orgId: caller.orgId,
       customerId: recordType === 'customer' ? id : null,
       companyId: recordType === 'company' ? id : null,
       event: step.event,

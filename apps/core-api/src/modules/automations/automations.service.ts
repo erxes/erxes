@@ -14,7 +14,7 @@ type Stats = Automation['stats'];
 
 const noRuns = (): Stats => ({ running: 0, succeeded: 0, failed: 0 });
 
-const statsOf = async (client: Db, orgId: string, ids: string[]) => {
+const statsOf = async (client: Db, ids: string[]) => {
   const stats = new Map<string, Stats>();
 
   if (!ids.length) return stats;
@@ -26,7 +26,7 @@ const statsOf = async (client: Db, orgId: string, ids: string[]) => {
       count: sql<number>`count(*)::int`,
     })
     .from(automationRuns)
-    .where(and(eq(automationRuns.orgId, orgId), inArray(automationRuns.automationId, ids)))
+    .where(inArray(automationRuns.automationId, ids))
     .groupBy(automationRuns.automationId, automationRuns.status);
 
   for (const row of rows) {
@@ -43,25 +43,14 @@ const statsOf = async (client: Db, orgId: string, ids: string[]) => {
   return stats;
 };
 
-const toAutomationDto = (row: AutomationRow, stats = noRuns()): Automation => ({
-  id: row.id,
-  name: row.name,
-  description: row.description,
-  status: row.status,
+const toAutomationDto = (row: AutomationRow, stats = noRuns()) => ({
+  ...row,
   definition: AutomationDefinition.parse(row.definition),
-  activeVersion: row.activeVersion,
-  activatedBy: row.activatedBy,
   stats,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
 });
 
-export const findAutomation = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(automations)
-    .where(and(eq(automations.orgId, orgId), eq(automations.id, id)))
-    .limit(1);
+export const findAutomation = async (client: Db, id: string) => {
+  const [row] = await client.select().from(automations).where(eq(automations.id, id)).limit(1);
 
   if (!row) throw notFound('Automation');
 
@@ -77,7 +66,6 @@ const publish = async (
   const version = (row.activeVersion ?? 0) + 1;
 
   await client.insert(automationVersions).values({
-    orgId: actor.orgId,
     automationId: row.id,
     version,
     definition,
@@ -87,38 +75,28 @@ const publish = async (
   return version;
 };
 
-export const listAutomations = async (
-  client: Db,
-  actor: Actor,
-  query: { status?: AutomationRow['status'] },
-) => {
+export const listAutomations = async (client: Db, query: { status?: AutomationRow['status'] }) => {
   const rows = await wholeList((limit) =>
     client
       .select()
       .from(automations)
-      .where(
-        and(
-          eq(automations.orgId, actor.orgId),
-          query.status ? eq(automations.status, query.status) : undefined,
-        ),
-      )
+      .where(query.status ? eq(automations.status, query.status) : undefined)
       .orderBy(desc(automations.updatedAt))
       .limit(limit),
   );
 
   const stats = await statsOf(
     client,
-    actor.orgId,
     rows.map((row) => row.id),
   );
 
   return { data: rows.map((row) => toAutomationDto(row, stats.get(row.id))) };
 };
 
-export const getAutomation = async (client: Db, actor: Actor, id: string) => {
-  const row = await findAutomation(client, actor.orgId, id);
+export const getAutomation = async (client: Db, id: string) => {
+  const row = await findAutomation(client, id);
 
-  return toAutomationDto(row, (await statsOf(client, actor.orgId, [id])).get(id));
+  return toAutomationDto(row, (await statsOf(client, [id])).get(id));
 };
 
 export const createAutomation = async (
@@ -128,7 +106,6 @@ export const createAutomation = async (
 ) => {
   const values = {
     id: newId(),
-    orgId: actor.orgId,
     name: input.name,
     description: input.description ?? null,
     definition: input.definition,
@@ -144,7 +121,7 @@ export const createAutomation = async (
     targetLabel: values.name,
   });
 
-  return getAutomation(client, actor, values.id);
+  return getAutomation(client, values.id);
 };
 
 export const updateAutomation = async (
@@ -153,11 +130,11 @@ export const updateAutomation = async (
   id: string,
   input: { name?: string; description?: string | null; definition?: AutomationDefinition },
 ) => {
-  const before = await findAutomation(client, actor.orgId, id);
+  const before = await findAutomation(client, id);
   // An active automation publishes the change at once (checked first); runs in progress keep their version.
   const published = input.definition && before.status === 'active' ? input.definition : null;
 
-  if (published) await checkDefinition(client, actor.orgId, published);
+  if (published) await checkDefinition(client, published);
 
   const activeVersion = published
     ? await publish(client, actor, before, published)
@@ -183,15 +160,15 @@ export const updateAutomation = async (
     metadata: published ? { publishedVersion: activeVersion } : undefined,
   });
 
-  return getAutomation(client, actor, id);
+  return getAutomation(client, id);
 };
 
 /** Checks the definition, publishes it as a new version and turns the automation on, acting as this member. */
 export const activateAutomation = async (client: Db, actor: Actor, id: string) => {
-  const row = await findAutomation(client, actor.orgId, id);
+  const row = await findAutomation(client, id);
   const definition = AutomationDefinition.parse(row.definition);
 
-  await checkDefinition(client, actor.orgId, definition);
+  await checkDefinition(client, definition);
 
   const version = await publish(client, actor, row, definition);
 
@@ -213,12 +190,12 @@ export const activateAutomation = async (client: Db, actor: Actor, id: string) =
     metadata: { version },
   });
 
-  return getAutomation(client, actor, id);
+  return getAutomation(client, id);
 };
 
 /** No new runs start; runs in progress finish. */
 export const pauseAutomation = async (client: Db, actor: Actor, id: string) => {
-  const row = await findAutomation(client, actor.orgId, id);
+  const row = await findAutomation(client, id);
 
   await client
     .update(automations)
@@ -231,11 +208,11 @@ export const pauseAutomation = async (client: Db, actor: Actor, id: string) => {
     targetLabel: row.name,
   });
 
-  return getAutomation(client, actor, id);
+  return getAutomation(client, id);
 };
 
 export const removeAutomation = async (client: Db, actor: Actor, id: string) => {
-  const row = await findAutomation(client, actor.orgId, id);
+  const row = await findAutomation(client, id);
 
   await client.delete(automations).where(eq(automations.id, id));
   await recordAudit(client, userCaller(actor), {
@@ -248,23 +225,18 @@ export const removeAutomation = async (client: Db, actor: Actor, id: string) => 
   return { ok: true as const };
 };
 
-export const listVersions = async (client: Db, actor: Actor, id: string) => {
-  await findAutomation(client, actor.orgId, id);
+export const listVersions = async (client: Db, id: string) => {
+  await findAutomation(client, id);
 
   const rows = await client
     .select()
     .from(automationVersions)
-    .where(and(eq(automationVersions.orgId, actor.orgId), eq(automationVersions.automationId, id)))
+    .where(eq(automationVersions.automationId, id))
     .orderBy(desc(automationVersions.version))
     .limit(100);
 
   return {
-    data: rows.map((row) => ({
-      version: row.version,
-      publishedBy: row.publishedBy,
-      createdAt: row.createdAt.toISOString(),
-      definition: AutomationDefinition.parse(row.definition),
-    })),
+    data: rows.map((row) => ({ ...row, definition: AutomationDefinition.parse(row.definition) })),
   };
 };
 
@@ -273,13 +245,7 @@ export const restoreVersion = async (client: Db, actor: Actor, id: string, versi
   const [row] = await client
     .select()
     .from(automationVersions)
-    .where(
-      and(
-        eq(automationVersions.orgId, actor.orgId),
-        eq(automationVersions.automationId, id),
-        eq(automationVersions.version, version),
-      ),
-    )
+    .where(and(eq(automationVersions.automationId, id), eq(automationVersions.version, version)))
     .limit(1);
 
   if (!row) throw notFound('Version');

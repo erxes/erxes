@@ -2,7 +2,7 @@ import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
-import { Id, listOf } from './common';
+import { Id, isoDate, listOf } from './common';
 import { ActionField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
@@ -236,7 +236,7 @@ export const Plugin = z.object({
   grantedScopes: z.array(z.string()),
   /** Asks for scopes the owner hasn't granted yet (a newer version). */
   needsApproval: z.boolean(),
-  installedAt: z.iso.datetime().nullable(),
+  installedAt: isoDate().nullable(),
 });
 
 export type Plugin = z.infer<typeof Plugin>;

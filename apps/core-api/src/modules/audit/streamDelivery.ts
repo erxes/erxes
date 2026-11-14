@@ -70,7 +70,7 @@ const nextBatch = (orgId: string, streamId: string, chainId: string) =>
     const [row] = await tx
       .select()
       .from(auditStreams)
-      .where(and(eq(auditStreams.orgId, orgId), eq(auditStreams.id, streamId)))
+      .where(eq(auditStreams.id, streamId))
       .limit(1);
 
     // Removed, paused, or another loop owns it now: this loop ends.
@@ -79,7 +79,7 @@ const nextBatch = (orgId: string, streamId: string, chainId: string) =>
     const entries = await tx
       .select()
       .from(auditLogs)
-      .where(and(eq(auditLogs.orgId, orgId), gt(auditLogs.chainSeq, row.cursorSeq)))
+      .where(gt(auditLogs.chainSeq, row.cursorSeq))
       .orderBy(asc(auditLogs.chainSeq))
       .limit(BATCH);
 

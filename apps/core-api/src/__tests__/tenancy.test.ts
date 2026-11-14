@@ -1,11 +1,16 @@
-import { db, rootDb, runtimeRole, withOrg, withSystem } from '@erxes/core-db';
+import { db, rootDb, runtimeRole, savepoint, withOrg, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { adminDb, dbError, useTestDatabase } from './db';
+import { TEST_RUNTIME_ROLE } from './globalSetup';
 import { useTwoOrgs } from './support';
 
 const tag = (id: string, org: string) =>
   sql`insert into core_tags (id, org_id, type, name) values (${id}, ${org}, 'customer', 'x')`;
+
+/** A tag in the scope's organisation (org_id from its default). */
+const named = (id: string) =>
+  sql`insert into core_tags (id, type, name) values (${id}, 'customer', ${id})`;
 
 /**
  * Tenant isolation in the database: scopes that fail closed and keep to their
@@ -69,20 +74,47 @@ describe('tenant isolation (database)', () => {
       withOrg(t.ids.org, () => Promise.reject(new Error('rolled back'))),
     ).rejects.toThrow('rolled back');
 
-    for (let index = 0; index < 8; index += 1) {
-      const leftover = await rootDb().execute<{ org: string | null; system: string | null }>(
-        sql`select nullif(current_setting('app.org_id', true), '') as org, nullif(current_setting('app.system', true), '') as system`,
-      );
-
-      expect(leftover.rows[0]).toEqual({ org: null, system: null });
-    }
-
-    // The system scope sees across organisations (jobs only).
+    // The system scope sees across organisations (jobs only), as its own role.
     const all = await withSystem('test', (tx) =>
-      tx.execute(sql`select count(distinct org_id)::int as n from core_customers`),
+      tx.execute(
+        sql`select count(distinct org_id)::int as n, current_user as role from core_customers`,
+      ),
     );
 
-    expect(all.rows[0]).toEqual({ n: 1 });
+    expect(all.rows[0]).toEqual({ n: 1, role: 'erxes_core_system' });
+
+    // withOrg inside it narrows to that organisation, and the system scope carries on after.
+    const count = sql`select count(distinct org_id)::int as n from core_users`;
+
+    const narrowed = await withSystem('test', async (tx) => ({
+      inside: (await withOrg(t.ids.otherOrg, (own) => own.execute(count))).rows[0],
+      after: (await tx.execute(count)).rows[0],
+    }));
+
+    expect(narrowed).toEqual({ inside: { n: 1 }, after: { n: 2 } });
+
+    // A savepoint inside a savepoint is its own: when both fail, both roll back.
+    const kept = await withOrg(t.ids.org, async (tx) => {
+      await savepoint(async (outer) => {
+        await outer.execute(named('sp-outer'));
+        await savepoint(async (inner) => {
+          await inner.execute(named('sp-inner'));
+          throw new Error('inner');
+        });
+      }).catch(() => undefined);
+
+      return (await tx.execute(sql`select id from core_tags where id like 'sp-%'`)).rows;
+    });
+
+    expect(kept).toEqual([]);
+
+    for (let index = 0; index < 8; index += 1) {
+      const leftover = await rootDb().execute<{ org: string | null; role: string }>(
+        sql`select nullif(current_setting('app.org_id', true), '') as org, current_user as role`,
+      );
+
+      expect(leftover.rows[0]).toEqual({ org: null, role: TEST_RUNTIME_ROLE });
+    }
   });
 
   it("can't link records across organisations, even bypassing row level security", async () => {

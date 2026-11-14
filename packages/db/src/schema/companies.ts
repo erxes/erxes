@@ -12,7 +12,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { customers } from './customers';
 import { leadStages } from './leadStages';
@@ -24,7 +24,7 @@ export const companies = pgTable(
   'companies',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     primaryName: text().notNull(),
     /** `lead`: not a customer yet; companies go through the same lead stages as people. */
     state: text({ enum: CUSTOMER_STATES }).default('customer').notNull(),
@@ -128,7 +128,7 @@ export const companies = pgTable(
 export const customerCompanies = pgTable(
   'customer_companies',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     customerId: text().notNull(),
     companyId: text().notNull(),
     /** "CEO", "Buyer", "Accountant" … */

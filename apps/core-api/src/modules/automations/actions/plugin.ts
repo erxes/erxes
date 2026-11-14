@@ -1,5 +1,5 @@
 import { type Db, pluginInstallations, plugins, type StoredPluginManifest } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 import { type CallContext, idempotencyKey, parseBody } from './context';
@@ -12,7 +12,7 @@ export interface ActionPlugin {
 }
 
 /** The plugin that owns an action type (`<plugin>.<…>`), active in the organisation, or an error. */
-export const pluginForAction = async (tx: Db, orgId: string, type: string) => {
+export const pluginForAction = async (tx: Db, type: string) => {
   const name = type.split('.')[0] ?? '';
 
   const [row] = await tx
@@ -22,10 +22,7 @@ export const pluginForAction = async (tx: Db, orgId: string, type: string) => {
       status: pluginInstallations.status,
     })
     .from(plugins)
-    .innerJoin(
-      pluginInstallations,
-      and(eq(pluginInstallations.plugin, plugins.name), eq(pluginInstallations.orgId, orgId)),
-    )
+    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
     .where(eq(plugins.name, name))
     .limit(1);
 

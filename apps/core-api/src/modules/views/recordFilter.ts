@@ -35,7 +35,6 @@ const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
 
 /** Whose list it is: the organisation, and the member "me" means (none for plugins). */
 export interface FilterScope {
-  orgId: string;
   userId: string | null;
 }
 
@@ -214,7 +213,7 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
   const record = RECORDS[custom.recordType];
 
   const has = (condition?: SQL) =>
-    sql`exists (select 1 from ${v} where ${v.orgId} = ${record.orgId} and ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
+    sql`exists (select 1 from ${v} where ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
 
   const positive = NEGATIVE[rule.op];
 
@@ -347,9 +346,7 @@ export const compileRecordFilter = async (
 
   const group = parseFilter(filter);
 
-  const specs = new Map(
-    (await filterFields(client, scope.orgId, recordType)).map((spec) => [spec.path, spec]),
-  );
+  const specs = new Map((await filterFields(client, recordType)).map((spec) => [spec.path, spec]));
 
   return compileGroup(group, { specs, recordType, scope }, 1);
 };

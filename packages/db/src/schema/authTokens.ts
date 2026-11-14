@@ -1,6 +1,6 @@
 import { AUTH_TOKEN_PURPOSES } from '../enums';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt } from './common';
 import { organizations } from './organizations';
 
@@ -15,7 +15,7 @@ export const authTokens = pgTable(
   'auth_tokens',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     userId: text().notNull(),
     purpose: text({ enum: AUTH_TOKEN_PURPOSES }).notNull(),
     secretHash: text().notNull(),

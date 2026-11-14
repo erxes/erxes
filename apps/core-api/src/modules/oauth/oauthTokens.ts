@@ -38,7 +38,7 @@ const memberOf = async (tx: Db, issued: Issued) => {
     .innerJoin(organizations, eq(organizations.id, users.orgId))
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
     .innerJoin(plugins, eq(plugins.name, issued.clientId))
-    .where(and(eq(users.orgId, issued.orgId), eq(users.id, issued.userId)))
+    .where(eq(users.id, issued.userId))
     .limit(1);
 
   return row?.user.status === 'active' ? row : null;
@@ -96,7 +96,6 @@ const refreshToken = async (tx: Db, issued: Issued, member: Member) => {
 
   await tx.insert(oauthRefreshTokens).values({
     id,
-    orgId: issued.orgId,
     clientId: issued.clientId,
     userId: issued.userId,
     familyId: issued.familyId ?? id,

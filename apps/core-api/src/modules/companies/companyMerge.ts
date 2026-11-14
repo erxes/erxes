@@ -1,5 +1,5 @@
-import { companies, customerCompanies, type Db, withTransaction } from '@erxes/core-db';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { companies, customerCompanies, db, type Db } from '@erxes/core-db';
+import { asc, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -7,7 +7,7 @@ import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
-import { type CompanyRow, findCompany, inOrg, selectCompanies, toCompanyDto } from './companyRows';
+import { type CompanyRow, findCompany, inOrg, selectCompanies } from './companyRows';
 
 const MERGE_FILLED = [
   'avatarUrl',
@@ -21,17 +21,17 @@ const MERGE_FILLED = [
 ] as const;
 
 /** People links and tags move to the kept company before the others go. */
-const moveRelations = async (tx: Db, orgId: string, keepId: string, otherIds: string[]) => {
+const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await tx.execute(sql`
-    INSERT INTO ${customerCompanies} (org_id, customer_id, company_id)
-    SELECT ${orgId}, customer_id, ${keepId} FROM ${customerCompanies}
+    INSERT INTO ${customerCompanies} (customer_id, company_id)
+    SELECT customer_id, ${keepId} FROM ${customerCompanies}
     WHERE company_id IN (${sql.join(
       otherIds.map((id) => sql`${id}`),
       sql`, `,
     )})
     ON CONFLICT DO NOTHING
   `);
-  await copyTags(tx, orgId, 'company', otherIds, keepId);
+  await copyTags(tx, 'company', otherIds, keepId);
 };
 
 /** The kept company's columns after the merge: the others' names become extra names. */
@@ -69,40 +69,38 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
     throw new HttpError(400, 'INVALID_INPUT', 'Choose at least two companies to merge');
   }
 
-  return withTransaction(async (tx) => {
-    const rows = await selectCompanies(tx)
-      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
-      .orderBy(asc(companies.createdAt))
-      .for('update');
+  const tx = db();
 
-    const byId = new Map(rows.map((row) => [row.id, row]));
-    const keep = byId.get(input.keepId);
+  const rows = await selectCompanies(tx)
+    .where(inArray(companies.id, ids))
+    .orderBy(asc(companies.createdAt))
+    .for('update');
 
-    if (rows.length !== ids.length || !keep) {
-      throw notFound('Company');
-    }
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const keep = byId.get(input.keepId);
 
-    const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
-    const otherIds = others.map((other) => other.id);
+  if (rows.length !== ids.length || !keep) {
+    throw notFound('Company');
+  }
 
-    await moveRelations(tx, actor.orgId, keep.id, otherIds);
-    await tx
-      .delete(companies)
-      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
+  const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
+  const otherIds = others.map((other) => other.id);
 
-    await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
+  await moveRelations(tx, keep.id, otherIds);
+  await tx.delete(companies).where(inArray(companies.id, otherIds));
 
-    const combined = combineCustomFields(
-      keep.customFields,
-      others.map((other) => other.customFields),
-    );
+  await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(keep.id));
 
-    await saveCustomFields(tx, actor.orgId, 'company', keep.id, combined, Object.keys(combined));
+  const combined = combineCustomFields(
+    keep.customFields,
+    others.map((other) => other.customFields),
+  );
 
-    const merged = await findCompany(tx, actor.orgId, keep.id);
+  await saveCustomFields(tx, 'company', keep.id, combined, Object.keys(combined));
 
-    await contactsMerged(tx, actor, 'company', merged, others);
+  const merged = await findCompany(tx, keep.id);
 
-    return toCompanyDto(merged);
-  });
+  await contactsMerged(tx, actor, 'company', merged, others);
+
+  return merged;
 };

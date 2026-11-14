@@ -16,7 +16,7 @@ export const pluginsRouter = {
 
     return registerManifest(context.req.pluginService, input);
   }),
-  list: authed.plugins.list.handler(({ context }) => listPlugins(context.actor)),
+  list: authed.plugins.list.handler(() => listPlugins()),
   install: authed.plugins.install.handler(({ input, context }) =>
     installPlugin(context.actor, input.name),
   ),

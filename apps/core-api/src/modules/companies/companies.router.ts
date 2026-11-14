@@ -15,9 +15,7 @@ export const companiesRouter = {
   list: authed.companies.list.handler(({ input, context }) =>
     listCompanies(db(), context.actor, input),
   ),
-  get: anyone.companies.get.handler(({ input, context }) =>
-    getCompany(db(), context.caller.orgId, input.id),
-  ),
+  get: anyone.companies.get.handler(({ input }) => getCompany(db(), input.id)),
   create: authed.companies.create.handler(({ input, context }) =>
     createCompany(db(), context.actor, input),
   ),
@@ -33,9 +31,7 @@ export const companiesRouter = {
   tag: authed.companies.tag.handler(({ input, context }) =>
     tagCompanies(db(), context.actor, input),
   ),
-  people: authed.companies.people.handler(({ input, context }) =>
-    companyPeople(db(), context.actor, input.id),
-  ),
+  people: authed.companies.people.handler(({ input }) => companyPeople(db(), input.id)),
   linkPerson: authed.companies.linkPerson.handler(({ input, context }) =>
     linkCustomerCompany(db(), context.actor, input.customerId, input.id, input),
   ),

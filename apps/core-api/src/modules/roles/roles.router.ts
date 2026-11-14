@@ -9,9 +9,9 @@ import {
 import { authed } from '~/orpc';
 
 export const rolesRouter = {
-  list: authed.roles.list.handler(({ context }) => listRoles(db(), context.actor)),
-  permissions: authed.roles.permissions.handler(async ({ context }) => ({
-    data: await permissionCatalog(db(), context.actor.orgId),
+  list: authed.roles.list.handler(() => listRoles(db())),
+  permissions: authed.roles.permissions.handler(async () => ({
+    data: await permissionCatalog(db()),
   })),
   create: authed.roles.create.handler(({ input, context }) => createRole(context.actor, input)),
   update: authed.roles.update.handler(({ input: { key, ...changes }, context }) =>

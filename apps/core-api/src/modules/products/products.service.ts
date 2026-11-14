@@ -1,6 +1,11 @@
-import type { CustomValue, ProductKind, ProductStatus } from '@erxes/core-contract';
+import {
+  type CustomValue,
+  Product,
+  type ProductKind,
+  type ProductStatus,
+} from '@erxes/core-contract';
 import { type Db, newId, products } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { forbidden, HttpError } from '~/http/errors';
 import { diffCustomFields, diffRows, mergeChanges } from '~/lib/changes';
@@ -21,7 +26,7 @@ import {
   type ProductRow,
   productTaken,
 } from './productChecks';
-import { lookupProducts, toProductDto } from './productList';
+import { lookupProducts } from './productList';
 
 type ProductFields = Omit<
   Partial<typeof products.$inferInsert>,
@@ -38,16 +43,14 @@ const writable = async (
   { customFields: patch, ...input }: ProductFields,
   before?: ProductRow,
 ) => {
-  await checkCategory(client, caller.orgId, input.categoryId);
-  await checkUnique(client, caller.orgId, input, before?.id);
+  await checkCategory(client, input.categoryId);
+  await checkUnique(client, input, before?.id);
 
-  const imageIds = input.imageIds
-    ? await checkImages(client, caller.orgId, input.imageIds)
-    : undefined;
+  const imageIds = input.imageIds ? await checkImages(client, input.imageIds) : undefined;
 
   const plugins = await pluginsFor(client, caller, input.plugins);
   const current = before?.customFields ?? {};
-  const customFields = await applyCustomFields(client, caller.orgId, 'product', current, patch);
+  const customFields = await applyCustomFields(client, 'product', current, patch);
 
   return {
     columns: { ...input, ...(imageIds ? { imageIds } : {}), plugins },
@@ -90,7 +93,7 @@ const announce = async (
     changed.map(({ row, changes }) => ({
       type: `core.product.${action}`,
       entity: { type: 'product', id: row.id },
-      payload: { product: toProductDto(row), changed: Object.keys(changes ?? {}) },
+      payload: { product: Product.parse(row), changed: Object.keys(changes ?? {}) },
     })),
   );
 };
@@ -114,27 +117,19 @@ export const createProduct = async (
       currency,
       plugins,
       id,
-      orgId: caller.orgId,
       createdBy: caller.actorId,
     });
   } catch (error) {
     return productTaken(error);
   }
 
-  await saveCustomFields(
-    client,
-    caller.orgId,
-    'product',
-    id,
-    customFields,
-    Object.keys(customFields),
-  );
+  await saveCustomFields(client, 'product', id, customFields, Object.keys(customFields));
 
-  const row = await findProduct(client, caller.orgId, id);
+  const row = await findProduct(client, id);
 
   await announce(client, caller, 'created', [{ row }]);
 
-  return toProductDto(row);
+  return row;
 };
 
 /** Changes a product; custom fields are merged with what is stored (others' edits wait, then build on it). */
@@ -144,27 +139,27 @@ export const updateProduct = async (
   id: string,
   changes: ProductFields,
 ) => {
-  await lockRows(client, 'core_products', caller.orgId, [id]);
+  await lockRows(client, 'core_products', [id]);
 
-  const before = await findProduct(client, caller.orgId, id);
+  const before = await findProduct(client, id);
   const { columns, customFields, changedFields } = await writable(client, caller, changes, before);
 
   try {
     await client
       .update(products)
       .set({ ...columns, updatedAt: sql`now()` })
-      .where(and(eq(products.orgId, caller.orgId), eq(products.id, id)));
+      .where(eq(products.id, id));
   } catch (error) {
     return productTaken(error);
   }
 
-  await saveCustomFields(client, caller.orgId, 'product', id, customFields, changedFields);
+  await saveCustomFields(client, 'product', id, customFields, changedFields);
 
-  const row = await findProduct(client, caller.orgId, id);
+  const row = await findProduct(client, id);
 
   await announce(client, caller, 'updated', [{ row, before }]);
 
-  return toProductDto(row);
+  return row;
 };
 
 /** A plugin starts or stops using products: they appear in, or leave, its lists. */
@@ -175,12 +170,12 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
 
   const wanted = unique(ids);
 
-  await lockRows(client, 'core_products', caller.orgId, wanted);
+  await lockRows(client, 'core_products', wanted);
 
   const before = await client
     .select(productColumns)
     .from(products)
-    .where(and(eq(products.orgId, caller.orgId), inArray(products.id, wanted)));
+    .where(inArray(products.id, wanted));
 
   if (before.length !== wanted.length) {
     throw new HttpError(400, 'INVALID_PRODUCT', 'Unknown product');
@@ -190,12 +185,9 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
   const changed = before.filter((row) => row.plugins.includes(plugin) !== used);
 
   if (changed.length) {
-    const where = and(
-      eq(products.orgId, caller.orgId),
-      inArray(
-        products.id,
-        changed.map((row) => row.id),
-      ),
+    const where = inArray(
+      products.id,
+      changed.map((row) => row.id),
     );
 
     await client
@@ -224,7 +216,7 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
     );
   }
 
-  return lookupProducts(client, caller, wanted);
+  return lookupProducts(client, wanted);
 };
 
 /** Archives (`archived`) or restores (`active`) a product; asking twice changes nothing. */
@@ -234,9 +226,9 @@ export const setProductStatus = async (
   id: string,
   status: ProductStatus,
 ) => {
-  const before = await findProduct(client, caller.orgId, id);
+  const before = await findProduct(client, id);
 
-  if (before.status === status) return toProductDto(before);
+  if (before.status === status) return before;
 
   await client
     .update(products)
@@ -245,13 +237,13 @@ export const setProductStatus = async (
       archivedAt: status === 'archived' ? sql`now()` : null,
       updatedAt: sql`now()`,
     })
-    .where(and(eq(products.orgId, caller.orgId), eq(products.id, id)));
+    .where(eq(products.id, id));
 
-  const row = await findProduct(client, caller.orgId, id);
+  const row = await findProduct(client, id);
 
   await announce(client, caller, status === 'archived' ? 'archived' : 'restored', [
     { row, before },
   ]);
 
-  return toProductDto(row);
+  return row;
 };

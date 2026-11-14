@@ -11,7 +11,7 @@ import { ParseError, parseSheet } from './parse';
 /** Stores the parsed rows and the suggested mapping, unless another run already did. */
 const storeSheet = (orgId: string, id: string, sheet: Awaited<ReturnType<typeof parseSheet>>) =>
   withOrg(orgId, async (tx) => {
-    const row = await importOrThrow(tx, orgId, id, true);
+    const row = await importOrThrow(tx, id, true);
 
     if (row.status !== 'parsing') return;
 
@@ -26,7 +26,6 @@ const storeSheet = (orgId: string, id: string, sheet: Awaited<ReturnType<typeof 
     await inOrder(starts, (start) =>
       tx.insert(importRows).values(
         rows.slice(start, start + 1000).map((cells, index) => ({
-          orgId,
           importId: row.id,
           rowNumber: start + index + 2,
           cells,
@@ -34,7 +33,7 @@ const storeSheet = (orgId: string, id: string, sheet: Awaited<ReturnType<typeof 
       ),
     );
 
-    const columns = await transferColumns(tx, orgId, row.recordType);
+    const columns = await transferColumns(tx, row.recordType);
 
     await tx
       .update(imports)
@@ -59,7 +58,7 @@ export const importParseJob = defineJob({
   async handle(job) {
     const { orgId } = job;
     const { importId } = job.payload;
-    const row = await withOrg(orgId, (tx) => importOrThrow(tx, orgId, importId));
+    const row = await withOrg(orgId, (tx) => importOrThrow(tx, importId));
 
     if (row.status !== 'parsing') return;
 

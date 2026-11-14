@@ -1,7 +1,7 @@
 import { type AUTOMATION_SUBJECTS, PLUGIN_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { orgIdColumn, pgTable } from '../table';
 import { type ContentType, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -83,7 +83,7 @@ export const plugins = pgTable('plugins', {
 export const pluginInstallations = pgTable(
   'plugin_installations',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     plugin: text().notNull(),
     status: text({ enum: PLUGIN_STATUSES }).default('active').notNull(),
     /** Why it is off (`Suspended: 600 deletions in 5 minutes`), for the owner. */

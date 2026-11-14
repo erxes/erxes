@@ -29,12 +29,8 @@ const TEXT_TYPES: readonly FieldType[] = ['text', 'textarea'];
 const sameFamily = (from: FieldType, to: FieldType) =>
   from === to || FIELD_TYPE_FAMILIES.some((family) => family.includes(from) && family.includes(to));
 
-const findField = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(fields)
-    .where(and(eq(fields.orgId, orgId), eq(fields.id, id)))
-    .limit(1);
+const findField = async (client: Db, id: string) => {
+  const [row] = await client.select().from(fields).where(eq(fields.id, id)).limit(1);
 
   if (!row) {
     throw notFound('Field');
@@ -46,7 +42,6 @@ const findField = async (client: Db, orgId: string, id: string) => {
 /** A group a field of `contentType` may be put in: same organisation and type, not archived. */
 const checkGroup = async (
   client: Db,
-  orgId: string,
   contentType: FieldContentType,
   groupId: string | null | undefined,
 ) => {
@@ -57,7 +52,7 @@ const checkGroup = async (
   const [group] = await client
     .select()
     .from(fieldGroups)
-    .where(and(eq(fieldGroups.orgId, orgId), eq(fieldGroups.id, groupId)))
+    .where(eq(fieldGroups.id, groupId))
     .limit(1);
 
   if (!group || group.contentType !== contentType || group.archivedAt) {
@@ -105,7 +100,6 @@ export const listFields = async (
       .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
       .where(
         and(
-          eq(fields.orgId, caller.orgId),
           eq(fields.contentType, input.contentType),
           input.groupId ? eq(fields.groupId, input.groupId) : undefined,
           input.archived ? archived : active,
@@ -118,29 +112,20 @@ export const listFields = async (
   return { data: rows.map((row) => toFieldDto(row.field, row.groupArchivedAt)) };
 };
 
-export const fieldUsage = async (
-  client: Db,
-  actor: Actor,
-  input: { ids?: string[]; groupId?: string },
-) => {
+export const fieldUsage = async (client: Db, input: { ids?: string[]; groupId?: string }) => {
   const rows = input.groupId
-    ? await fieldsOfGroup(
-        client,
-        actor.orgId,
-        (await findGroup(client, actor.orgId, input.groupId)).id,
-      )
+    ? await fieldsOfGroup(client, (await findGroup(client, input.groupId)).id)
     : await client
         .select()
         .from(fields)
-        .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, input.ids ?? [])));
+        .where(inArray(fields.id, input.ids ?? []));
 
-  const records = await usageOf(client, actor.orgId, rows);
+  const records = await usageOf(client, rows);
 
   const options =
     records > 0
       ? await optionCounts(
           client,
-          actor.orgId,
           rows.filter((field) => hasOptions(field.type)),
         )
       : {};
@@ -165,9 +150,9 @@ export const createField = async (
   },
 ) => {
   requireFieldManager(actor);
-  await checkGroup(client, actor.orgId, input.contentType, input.groupId);
+  await checkGroup(client, input.contentType, input.groupId);
 
-  const order = await nextOrder(client, fields, actor.orgId, input.contentType);
+  const order = await nextOrder(client, fields, input.contentType);
 
   try {
     const row = oneRow(
@@ -175,7 +160,6 @@ export const createField = async (
         .insert(fields)
         .values({
           id: newId(),
-          orgId: actor.orgId,
           contentType: input.contentType,
           groupId: input.groupId ?? null,
           label: input.label,
@@ -211,10 +195,10 @@ interface FieldChanges {
 }
 
 /** The type, options and validation a field ends up with; a type change must keep stored values readable. */
-const typeChange = async (client: Db, orgId: string, field: FieldRow, input: FieldChanges) => {
+const typeChange = async (client: Db, field: FieldRow, input: FieldChanges) => {
   const type = input.type ?? field.type;
 
-  if (!sameFamily(field.type, type) && (await usageOf(client, orgId, [field])) > 0) {
+  if (!sameFamily(field.type, type) && (await usageOf(client, [field])) > 0) {
     throw new HttpError(
       409,
       'FIELD_IN_USE',
@@ -237,13 +221,13 @@ const typeChange = async (client: Db, orgId: string, field: FieldRow, input: Fie
 export const updateField = async (client: Db, actor: Actor, id: string, input: FieldChanges) => {
   requireFieldManager(actor);
   // Type changes wait for values being written against this field, and the other way round.
-  await lockRows(client, 'core_fields', actor.orgId, [id]);
+  await lockRows(client, 'core_fields', [id]);
 
-  const field = await findField(client, actor.orgId, id);
-  const typed = await typeChange(client, actor.orgId, field, input);
+  const field = await findField(client, id);
+  const typed = await typeChange(client, field, input);
 
   if (input.groupId !== undefined && input.groupId !== field.groupId) {
-    await checkGroup(client, actor.orgId, field.contentType, input.groupId);
+    await checkGroup(client, field.contentType, input.groupId);
   }
 
   try {
@@ -261,7 +245,7 @@ export const updateField = async (client: Db, actor: Actor, id: string, input: F
           ...typed,
           updatedAt: sql`now()`,
         })
-        .where(and(eq(fields.orgId, actor.orgId), eq(fields.id, id)))
+        .where(eq(fields.id, id))
         .returning(),
     );
 
@@ -278,30 +262,30 @@ export const reorderFields = (
 ) => {
   requireFieldManager(actor);
 
-  return setOrders(client, actor.orgId, fields, orders);
+  return setOrders(client, fields, orders);
 };
 
 export const archiveFields = async (client: Db, actor: Actor, ids: string[]) => {
   requireFieldManager(actor);
-  await lockRows(client, 'core_fields', actor.orgId, ids);
+  await lockRows(client, 'core_fields', ids);
 
   await client
     .update(fields)
     .set({ archivedAt: sql`now()`, updatedAt: sql`now()` })
-    .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, ids), isNull(fields.archivedAt)));
+    .where(and(inArray(fields.id, ids), isNull(fields.archivedAt)));
 
   return { ok: true as const };
 };
 
 export const restoreField = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
-  await findField(client, actor.orgId, id);
+  await findField(client, id);
 
   const row = oneRow(
     await client
       .update(fields)
       .set({ archivedAt: null, updatedAt: sql`now()` })
-      .where(and(eq(fields.orgId, actor.orgId), eq(fields.id, id)))
+      .where(eq(fields.id, id))
       .returning(),
   );
 
@@ -312,39 +296,32 @@ export const restoreField = async (client: Db, actor: Actor, id: string) => {
 export const removeUnusedFields = async (client: Db, actor: Actor, ids: string[]) => {
   requireFieldManager(actor);
 
-  return client.transaction(async (tx) => {
-    await lockRows(tx, 'core_fields', actor.orgId, ids);
+  await lockRows(client, 'core_fields', ids);
 
-    const rows = await tx
-      .select()
-      .from(fields)
-      .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, ids)));
+  const rows = await client.select().from(fields).where(inArray(fields.id, ids));
 
-    if (rows.length !== unique(ids).length) {
-      throw notFound('Field');
-    }
+  if (rows.length !== unique(ids).length) {
+    throw notFound('Field');
+  }
 
-    if ((await usageOf(tx, actor.orgId, rows)) > 0) {
-      throw inUse(rows.length === 1 ? 'this field' : 'these fields');
-    }
+  if ((await usageOf(client, rows)) > 0) {
+    throw inUse(rows.length === 1 ? 'this field' : 'these fields');
+  }
 
-    await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, ids)));
+  await client.delete(fields).where(inArray(fields.id, ids));
 
-    return { ok: true as const };
-  });
+  return { ok: true as const };
 };
 
 /** Deletes the field and its values on every record. */
 export const removeField = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
 
-  return client.transaction(async (tx) => {
-    await lockRows(tx, 'core_fields', actor.orgId, [id]);
+  await lockRows(client, 'core_fields', [id]);
 
-    await findField(tx, actor.orgId, id);
-    // Its values go with it (foreign key).
-    await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.id, id)));
+  await findField(client, id);
+  // Its values go with it (foreign key).
+  await client.delete(fields).where(eq(fields.id, id));
 
-    return { ok: true as const };
-  });
+  return { ok: true as const };
 };

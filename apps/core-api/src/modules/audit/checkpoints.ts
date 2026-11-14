@@ -1,5 +1,5 @@
-import { auditCheckpoints, type Db } from '@erxes/core-db';
-import { and, asc, eq, gt, sql } from 'drizzle-orm';
+import { auditCheckpoints, type Db, withOrg } from '@erxes/core-db';
+import { asc, gt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { currentKeyId, signJwt, verifyJwt } from '~/lib/signing';
@@ -16,7 +16,7 @@ const CheckpointClaims = z.object({ org: z.string(), seq: z.number(), hash: z.st
  * entry) and returns the first position where it breaks: an entry whose hash
  * doesn't match its contents, or a link to the previous entry that doesn't hold.
  */
-export const findChainBreak = async (client: Db, orgId: string, fromSeq?: number) => {
+export const findChainBreak = async (client: Db, fromSeq?: number) => {
   const result = await client.execute<{
     checked: number;
     broken_at: number | null;
@@ -31,7 +31,7 @@ export const findChainBreak = async (client: Db, orgId: string, fromSeq?: number
              lag(a.hash) over (order by a.chain_seq) as previous_hash,
              lag(a.chain_seq) over (order by a.chain_seq) as previous_seq
       from core_audit_logs a
-      where a.org_id = ${orgId} and a.chain_seq is not null
+      where a.chain_seq is not null
         and (${fromSeq ?? null}::bigint is null or a.chain_seq >= ${fromSeq ?? null}::bigint)
     )
     select count(*)::int as checked,
@@ -67,7 +67,7 @@ const signHead = async (client: Db, head: ChainHead) => {
   if (head.last_seq !== null) {
     const [anchor] = await client
       .execute<{ hash: string }>(sql`
-      select hash from core_audit_logs where org_id = ${head.org_id} and chain_seq = ${head.last_seq}
+      select hash from core_audit_logs where chain_seq = ${head.last_seq}
     `)
       .then((result) => result.rows);
 
@@ -83,7 +83,7 @@ const signHead = async (client: Db, head: ChainHead) => {
     }
   }
 
-  const walk = await findChainBreak(client, head.org_id, head.last_seq ?? undefined);
+  const walk = await findChainBreak(client, head.last_seq ?? undefined);
 
   if (walk.brokenAt !== null) {
     log.error(
@@ -104,7 +104,6 @@ const signHead = async (client: Db, head: ChainHead) => {
   const inserted = await client
     .insert(auditCheckpoints)
     .values({
-      orgId: head.org_id,
       chainSeq: head.head_seq,
       hash: head.head_hash,
       keyId: currentKeyId(),
@@ -143,7 +142,7 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
 
   // One organisation at a time, so a full chain walk per organisation keeps the load flat.
   await inOrder(heads.rows, async (head) => {
-    signed += await signHead(client, head);
+    signed += await withOrg(head.org_id, (tx) => signHead(tx, head));
   });
 
   return signed;
@@ -165,7 +164,6 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
     select c.chain_seq::int, c.hash, c.signature, c.created_at, a.hash as entry_hash
     from core_audit_checkpoints c
     left join core_audit_logs a on a.org_id = c.org_id and a.chain_seq = c.chain_seq
-    where c.org_id = ${orgId}
     order by c.chain_seq
   `);
 
@@ -200,30 +198,13 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
   };
 };
 
-export const listCheckpoints = async (
-  client: Db,
-  orgId: string,
-  query: { after?: number; limit: number },
-) => {
+export const listCheckpoints = async (client: Db, query: { after?: number; limit: number }) => {
   const rows = await client
     .select()
     .from(auditCheckpoints)
-    .where(
-      and(
-        eq(auditCheckpoints.orgId, orgId),
-        query.after !== undefined ? gt(auditCheckpoints.chainSeq, query.after) : undefined,
-      ),
-    )
+    .where(query.after !== undefined ? gt(auditCheckpoints.chainSeq, query.after) : undefined)
     .orderBy(asc(auditCheckpoints.chainSeq))
     .limit(query.limit);
 
-  return {
-    data: rows.map((row) => ({
-      chainSeq: row.chainSeq,
-      hash: row.hash,
-      keyId: row.keyId,
-      signature: row.signature,
-      createdAt: row.createdAt.toISOString(),
-    })),
-  };
+  return { data: rows };
 };

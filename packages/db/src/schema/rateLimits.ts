@@ -6,7 +6,8 @@ import { pgTable } from '../table';
  * replica. rate-limiter-flexible's RateLimiterPostgres owns the rows and
  * inserts by position, so the columns keep its names and order: `expire` is
  * when the window ends, in epoch milliseconds. Deployment-wide (no
- * organisation): no row level security.
+ * organisation): no row level security. Unlogged (drizzle/0051): a crash
+ * empties it, which only resets the windows.
  */
 export const rateLimits = pgTable('rate_limits', {
   key: text().primaryKey(),

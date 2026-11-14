@@ -1,21 +1,11 @@
-import type { ProductCategory } from '@erxes/core-contract';
 import { type Db, newId, productCategories, products } from '@erxes/core-db';
-import { and, asc, eq, sql } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import type { Caller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkCategory } from './productChecks';
-
-type CategoryRow = typeof productCategories.$inferSelect;
-
-const toCategoryDto = (row: CategoryRow): ProductCategory => ({
-  id: row.id,
-  name: row.name,
-  parentId: row.parentId,
-  createdAt: row.createdAt.toISOString(),
-});
 
 const taken = (error: unknown): never => {
   if (pgCode(error) === '23505') {
@@ -25,11 +15,11 @@ const taken = (error: unknown): never => {
   throw error;
 };
 
-const findCategory = async (client: Db, orgId: string, id: string) => {
+const findCategory = async (client: Db, id: string) => {
   const [row] = await client
     .select()
     .from(productCategories)
-    .where(and(eq(productCategories.orgId, orgId), eq(productCategories.id, id)))
+    .where(eq(productCategories.id, id))
     .limit(1);
 
   if (!row) throw notFound('Product category');
@@ -38,13 +28,13 @@ const findCategory = async (client: Db, orgId: string, id: string) => {
 };
 
 /** 400 INVALID_CATEGORY when `parentId` is the category itself or one under it. */
-const checkNotUnder = async (client: Db, orgId: string, id: string, parentId: string) => {
+const checkNotUnder = async (client: Db, id: string, parentId: string) => {
   const result = await client.execute<{ id: string }>(sql`
     WITH RECURSIVE ancestors(id, parent_id) AS (
-      SELECT id, parent_id FROM ${productCategories} WHERE org_id = ${orgId} AND id = ${parentId}
+      SELECT id, parent_id FROM ${productCategories} WHERE id = ${parentId}
       UNION
       SELECT c.id, c.parent_id FROM ${productCategories} c
-        JOIN ancestors a ON c.id = a.parent_id AND c.org_id = ${orgId}
+        JOIN ancestors a ON c.id = a.parent_id
     )
     SELECT id FROM ancestors WHERE id = ${id}
   `);
@@ -54,17 +44,16 @@ const checkNotUnder = async (client: Db, orgId: string, id: string, parentId: st
   }
 };
 
-export const listCategories = async (client: Db, caller: Caller) => {
+export const listCategories = async (client: Db) => {
   const rows = await wholeList((limit) =>
     client
       .select()
       .from(productCategories)
-      .where(eq(productCategories.orgId, caller.orgId))
       .orderBy(asc(sql`lower(${productCategories.name})`))
       .limit(limit),
   );
 
-  return { data: rows.map(toCategoryDto) };
+  return { data: rows };
 };
 
 export const createCategory = async (
@@ -72,7 +61,7 @@ export const createCategory = async (
   caller: Caller,
   input: { name: string; parentId?: string | null },
 ) => {
-  await checkCategory(client, caller.orgId, input.parentId);
+  await checkCategory(client, input.parentId);
 
   try {
     const row = oneRow(
@@ -80,7 +69,6 @@ export const createCategory = async (
         .insert(productCategories)
         .values({
           id: newId(),
-          orgId: caller.orgId,
           name: input.name,
           parentId: input.parentId ?? null,
           createdBy: caller.actorId,
@@ -95,7 +83,7 @@ export const createCategory = async (
       targetLabel: row.name,
     });
 
-    return toCategoryDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }
@@ -107,11 +95,11 @@ export const updateCategory = async (
   id: string,
   changes: { name?: string; parentId?: string | null },
 ) => {
-  await findCategory(client, caller.orgId, id);
+  await findCategory(client, id);
 
   if (changes.parentId) {
-    await checkCategory(client, caller.orgId, changes.parentId);
-    await checkNotUnder(client, caller.orgId, id, changes.parentId);
+    await checkCategory(client, changes.parentId);
+    await checkNotUnder(client, id, changes.parentId);
   }
 
   try {
@@ -119,7 +107,7 @@ export const updateCategory = async (
       await client
         .update(productCategories)
         .set({ ...changes, updatedAt: sql`now()` })
-        .where(and(eq(productCategories.orgId, caller.orgId), eq(productCategories.id, id)))
+        .where(eq(productCategories.id, id))
         .returning(),
     );
 
@@ -130,7 +118,7 @@ export const updateCategory = async (
       targetLabel: row.name,
     });
 
-    return toCategoryDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }
@@ -138,12 +126,12 @@ export const updateCategory = async (
 
 /** Deletes a category without subcategories (409 CATEGORY_HAS_CHILDREN); its products lose it. */
 export const removeCategory = async (client: Db, caller: Caller, id: string) => {
-  const row = await findCategory(client, caller.orgId, id);
+  const row = await findCategory(client, id);
 
   const [child] = await client
     .select({ id: productCategories.id })
     .from(productCategories)
-    .where(and(eq(productCategories.orgId, caller.orgId), eq(productCategories.parentId, id)))
+    .where(eq(productCategories.parentId, id))
     .limit(1);
 
   if (child) {
@@ -153,10 +141,8 @@ export const removeCategory = async (client: Db, caller: Caller, id: string) => 
   await client
     .update(products)
     .set({ categoryId: null, updatedAt: sql`now()` })
-    .where(and(eq(products.orgId, caller.orgId), eq(products.categoryId, id)));
-  await client
-    .delete(productCategories)
-    .where(and(eq(productCategories.orgId, caller.orgId), eq(productCategories.id, id)));
+    .where(eq(products.categoryId, id));
+  await client.delete(productCategories).where(eq(productCategories.id, id));
   await recordAudit(client, caller, {
     action: 'product_category.deleted',
     targetType: 'product_category',

@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool, types } from 'pg';
 import * as schema from './schema';
 import { currentScope } from './scope';
-import type { Database, Db, Transaction } from './types';
+import type { Database, Db } from './types';
 
 // Counts and BIGINT columns fit JS numbers for core data.
 types.setTypeParser(types.builtins.INT8, (value: string) => Number(value));
@@ -86,8 +86,6 @@ export const rootDb = (): Database => {
  * fails closed.
  */
 export const db = (): Db => currentScope()?.tx ?? rootDb();
-
-export const withTransaction = <T>(fn: (tx: Transaction) => Promise<T>) => db().transaction(fn);
 
 export const closeDb = async () => {
   const current = pool;

@@ -205,7 +205,7 @@ export const automationsContract = {
             z.object({
               version: z.int(),
               publishedBy: z.string().nullable(),
-              createdAt: z.iso.datetime(),
+              createdAt: isoDate(),
               definition: AutomationDefinition,
             }),
           )

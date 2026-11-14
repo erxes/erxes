@@ -27,7 +27,7 @@ const notifyTargetOwner = async (
   const [target] = await client
     .select({ ownerId: table.ownerId })
     .from(table)
-    .where(and(eq(table.orgId, caller.orgId), eq(table.id, input.targetId)))
+    .where(eq(table.id, input.targetId))
     .limit(1);
 
   if (!target?.ownerId || target.ownerId === input.actorUserId) {
@@ -64,13 +64,12 @@ export const createPluginActivity = async (
     input.targetType,
     input.targetId,
   );
-  await assertMembers(client, caller.orgId, [input.actorUserId]);
+  await assertMembers(client, [input.actorUserId]);
 
   const [inserted] = await client
     .insert(activities)
     .values({
       id: newId(),
-      orgId: caller.orgId,
       targetType: input.targetType,
       targetId: input.targetId,
       source: caller.plugin,
@@ -99,11 +98,7 @@ export const createPluginActivity = async (
       .select()
       .from(activities)
       .where(
-        and(
-          eq(activities.orgId, caller.orgId),
-          eq(activities.source, caller.plugin),
-          eq(activities.dedupeKey, input.dedupeKey ?? ''),
-        ),
+        and(eq(activities.source, caller.plugin), eq(activities.dedupeKey, input.dedupeKey ?? '')),
       )
       .limit(1),
   );
@@ -118,7 +113,6 @@ const pluginEntry = async (client: Db, caller: PluginCaller, ref: string) => {
     .from(activities)
     .where(
       and(
-        eq(activities.orgId, caller.orgId),
         eq(activities.source, caller.plugin),
         ref.startsWith('key:') ? eq(activities.dedupeKey, ref.slice(4)) : eq(activities.id, ref),
       ),

@@ -1,4 +1,4 @@
-import type { AuditEntry, CursorQuery } from '@erxes/core-contract';
+import type { CursorQuery } from '@erxes/core-contract';
 import { auditLogs, type Db, newId, organizations } from '@erxes/core-db';
 import { and, eq, gte, ilike, like, lte, or, sql } from 'drizzle-orm';
 import { config } from '~/config';
@@ -13,8 +13,6 @@ import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches, inOrder } from '~/lib/sequence';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
 import { raiseAlerts } from './alerts';
-
-type AuditRow = typeof auditLogs.$inferSelect;
 
 /** Who an entry is recorded for: a member, a plugin, or core itself. */
 export type AuditActor = Caller | { orgId: string; actorType: 'system'; actorId?: null };
@@ -86,21 +84,6 @@ export const recordAudit = async (
   );
 };
 
-const toAuditDto = (row: AuditRow): AuditEntry => ({
-  id: row.id,
-  actor: { type: row.actorType, id: row.actorId },
-  action: row.action,
-  targetType: row.targetType,
-  targetId: row.targetId,
-  targetLabel: row.targetLabel,
-  changes: row.changes,
-  metadata: row.metadata,
-  ip: row.ip,
-  userAgent: row.userAgent,
-  source: row.source,
-  createdAt: row.createdAt.toISOString(),
-});
-
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
 export interface AuditFilters {
@@ -154,7 +137,7 @@ export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & A
       table: auditLogs,
       id: auditLogs.id,
       createdAt: auditLogs.createdAt,
-      scope: eq(auditLogs.orgId, actor.orgId),
+
       countCap: 10_000,
     },
     filters,
@@ -168,7 +151,10 @@ export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & A
         .limit(limit),
   );
 
-  return { ...page, data: page.data.map(toAuditDto) };
+  return {
+    ...page,
+    data: page.data.map((row) => ({ ...row, actor: { type: row.actorType, id: row.actorId } })),
+  };
 };
 
 /**
@@ -176,23 +162,22 @@ export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & A
  * deployment's AUDIT_RETENTION_DAYS). The table is append-only in the
  * database; only a transaction that sets `core.audit_prune` may delete.
  */
-export const pruneAudit = (client: Db, maxDays: number) =>
-  client.transaction(async (tx) => {
-    await tx.execute(sql`set local core.audit_prune = 'on'`);
+export const pruneAudit = async (client: Db, maxDays: number) => {
+  await client.execute(sql`set local core.audit_prune = 'on'`);
 
-    return deleteInBatches(200, 5000, () =>
-      tx.execute(sql`
-        delete from ${auditLogs} where id in (
-          select a.id from ${auditLogs} a join ${organizations} o on o.id = a.org_id
-          where a.created_at < now() - make_interval(days => least(
-            ${maxDays}::int,
-            coalesce((o.settings -> 'audit' ->> 'retentionDays')::int, ${maxDays}::int)
-          ))
-          limit 5000
-        )
-      `),
-    );
-  });
+  return deleteInBatches(200, 5000, () =>
+    client.execute(sql`
+      delete from ${auditLogs} where id in (
+        select a.id from ${auditLogs} a join ${organizations} o on o.id = a.org_id
+        where a.created_at < now() - make_interval(days => least(
+          ${maxDays}::int,
+          coalesce((o.settings -> 'audit' ->> 'retentionDays')::int, ${maxDays}::int)
+        ))
+        limit 5000
+      )
+    `),
+  );
+};
 
 /** Plugins record their own actions in the organisation's one audit log. */
 export const recordPluginAudit = async (
@@ -204,7 +189,6 @@ export const recordPluginAudit = async (
 
   await assertMembers(
     client,
-    caller.orgId,
     entries.map((entry) => entry.actorUserId),
   );
 
@@ -243,7 +227,7 @@ export const recordPluginAudit = async (
 export const verifyAudit = async (client: Db, actor: Actor) => {
   requirePermission(actor, 'audit.view');
 
-  const chain = await findChainBreak(client, actor.orgId);
+  const chain = await findChainBreak(client);
   const checkpoints = await verifyCheckpoints(client, actor.orgId, chain.firstSeq);
 
   // An intact log gets a fresh checkpoint now, not at the next scheduled one.
@@ -293,25 +277,23 @@ export const updateAuditSettings = async (
 
   const before = await auditSettings(client, actor.orgId);
 
-  await client.transaction(async (tx) => {
-    await tx
-      .update(organizations)
-      .set({
-        settings: sql`jsonb_set(${organizations.settings}, '{audit}', ${JSON.stringify({ retentionDays: input.retentionDays })}::jsonb)`,
-        updatedAt: sql`now()`,
-      })
-      .where(eq(organizations.id, actor.orgId));
-    await recordAudit(
-      tx,
-      { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
-      {
-        action: 'settings.audit_retention_changed',
-        targetType: 'organization',
-        targetId: actor.orgId,
-        changes: { retentionDays: [before.retentionDays, input.retentionDays] },
-      },
-    );
-  });
+  await client
+    .update(organizations)
+    .set({
+      settings: sql`jsonb_set(${organizations.settings}, '{audit}', ${JSON.stringify({ retentionDays: input.retentionDays })}::jsonb)`,
+      updatedAt: sql`now()`,
+    })
+    .where(eq(organizations.id, actor.orgId));
+  await recordAudit(
+    client,
+    { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
+    {
+      action: 'settings.audit_retention_changed',
+      targetType: 'organization',
+      targetId: actor.orgId,
+      changes: { retentionDays: [before.retentionDays, input.retentionDays] },
+    },
+  );
 
   return auditSettings(client, actor.orgId);
 };

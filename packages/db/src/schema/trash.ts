@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import type { CustomValue } from './common';
 import { organizations } from './organizations';
 
@@ -38,7 +38,7 @@ export const trash = pgTable(
   'trash',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     recordType: text({ enum: CONTENT_TYPES }).notNull(),
     recordId: text().notNull(),
     /** Its name at deletion, for the bin's list. */
@@ -70,7 +70,7 @@ export const trash = pgTable(
 export const deletionCounters = pgTable(
   'deletion_counters',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     /** `user:<id>` or `plugin:<name>`. */
     actor: text().notNull(),
     bucket: timestamp({ withTimezone: true, mode: 'date' }).notNull(),

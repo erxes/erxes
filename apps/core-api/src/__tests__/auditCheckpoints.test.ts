@@ -1,4 +1,4 @@
-import { auditCheckpoints } from '@erxes/core-db';
+import { auditCheckpoints, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { describe, expect, it } from 'vite-plus/test';
@@ -27,9 +27,13 @@ describe('audit checkpoints', () => {
   it('signs audit checkpoints and catches entries cut off the end of the chain', async () => {
     for (const id of ['c0', 'c1', 'c2']) await record(id);
 
-    expect(await signAuditCheckpoints(adminDb())).toBeGreaterThanOrEqual(1);
+    expect(
+      await withSystem('audit checkpoints', (tx) => signAuditCheckpoints(tx)),
+    ).toBeGreaterThanOrEqual(1);
     // Nothing new since: nothing to sign.
-    expect(await signAuditCheckpoints(adminDb(), t.ids.org)).toBe(0);
+    expect(await withSystem('audit checkpoints', (tx) => signAuditCheckpoints(tx, t.ids.org))).toBe(
+      0,
+    );
 
     const { data } = await t.owner().audit.checkpoints({ limit: 10 });
     const latest = data.at(-1);
@@ -68,7 +72,9 @@ describe('audit checkpoints', () => {
     expect(await dbError(adminDb().delete(auditCheckpoints))).toMatch(/append-only/);
     // And a tampered chain is never signed over.
     await record('c9');
-    expect(await signAuditCheckpoints(adminDb(), t.ids.org)).toBe(0);
+    expect(await withSystem('audit checkpoints', (tx) => signAuditCheckpoints(tx, t.ids.org))).toBe(
+      0,
+    );
   });
 
   it('publishes core’s public keys', async () => {

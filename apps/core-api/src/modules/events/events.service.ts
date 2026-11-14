@@ -1,4 +1,9 @@
-import type { CoreEvent, CursorQuery, EventFailure, EventInput } from '@erxes/core-contract';
+import {
+  CoreEvent,
+  type CursorQuery,
+  type EventFailure,
+  type EventInput,
+} from '@erxes/core-contract';
 import { type Db, eventConsumers, eventFailures, events, newId } from '@erxes/core-db';
 import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 import {
@@ -18,20 +23,15 @@ import { assertTargets } from '~/modules/activities/timelineAccess';
 
 type EventRow = typeof events.$inferSelect;
 
-export const toEventDto = (row: EventRow): CoreEvent => ({
-  id: row.id,
-  source: row.source,
-  type: row.type,
-  version: row.version,
+const toEventDto = (row: EventRow) => ({
+  ...row,
   subject: row.subjectType && row.subjectId ? { type: row.subjectType, id: row.subjectId } : null,
   entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
   actor: { type: row.actorType, id: row.actorId },
-  payload: row.payload,
-  summary: row.summary,
-  link: row.link,
-  occurredAt: row.occurredAt.toISOString(),
-  createdAt: row.createdAt.toISOString(),
 });
+
+/** The event as the API sends it, for bodies outside the API: webhooks, plugin deliveries, automation runs. */
+export const eventJson = (row: EventRow) => CoreEvent.parse(toEventDto(row));
 
 export interface CoreEventInput {
   type: string;
@@ -61,7 +61,6 @@ export const publishCoreEvents = async (
   await client.insert(events).values(
     list.map((input) => ({
       id: newId(),
-      orgId: caller.orgId,
       source: 'core',
       type: input.type,
       subjectType: input.subject?.type ?? null,
@@ -104,12 +103,10 @@ export const publishPluginEvents = async (
 
   await assertTargets(
     client,
-    caller.orgId,
     inputs.flatMap((input) => input.subject ?? []),
   );
   await assertMembers(
     client,
-    caller.orgId,
     inputs.map((input) => input.actorUserId),
   );
 
@@ -118,7 +115,6 @@ export const publishPluginEvents = async (
     .values(
       inputs.map((input) => ({
         id: newId(),
-        orgId: caller.orgId,
         source: caller.plugin,
         type: input.type,
         version: input.version,
@@ -173,7 +169,7 @@ export const listEvents = async (
       table: events,
       id: events.id,
       createdAt: events.createdAt,
-      scope: eq(events.orgId, actor.orgId),
+
       countCap: 10_000,
     },
     filters,
@@ -203,32 +199,17 @@ export const listEventFailures = async (
     .select({ failure: eventFailures, event: events })
     .from(eventFailures)
     .innerJoin(events, eq(events.id, eventFailures.eventId))
-    .where(
-      and(
-        eq(eventFailures.orgId, actor.orgId),
-        query.status ? eq(eventFailures.status, query.status) : undefined,
-      ),
-    )
+    .where(query.status ? eq(eventFailures.status, query.status) : undefined)
     .orderBy(desc(eventFailures.updatedAt))
     .limit(200);
 
   const counts = await client
     .select({ status: eventFailures.status, count: sql<number>`count(*)::int` })
     .from(eventFailures)
-    .where(eq(eventFailures.orgId, actor.orgId))
     .groupBy(eventFailures.status);
 
   return {
-    data: rows.map(({ failure, event }): EventFailure => ({
-      consumer: failure.consumer,
-      status: failure.status,
-      attempts: failure.attempts,
-      lastError: failure.lastError,
-      nextAttemptAt: failure.nextAttemptAt?.toISOString() ?? null,
-      firstFailedAt: failure.firstFailedAt.toISOString(),
-      updatedAt: failure.updatedAt.toISOString(),
-      event: toEventDto(event),
-    })),
+    data: rows.map(({ failure, event }) => ({ ...failure, event: toEventDto(event) })),
     counts: {
       retrying: counts.find((row) => row.status === 'retrying')?.count ?? 0,
       dead: counts.find((row) => row.status === 'dead')?.count ?? 0,
@@ -238,13 +219,10 @@ export const listEventFailures = async (
 
 type FailureRef = { consumer: string; eventId: string };
 
-const refsWhere = (orgId: string, refs: FailureRef[]) =>
-  and(
-    eq(eventFailures.orgId, orgId),
-    or(
-      ...refs.map((ref) =>
-        and(eq(eventFailures.consumer, ref.consumer), eq(eventFailures.eventId, ref.eventId)),
-      ),
+const refsWhere = (refs: FailureRef[]) =>
+  or(
+    ...refs.map((ref) =>
+      and(eq(eventFailures.consumer, ref.consumer), eq(eventFailures.eventId, ref.eventId)),
     ),
   );
 
@@ -260,28 +238,22 @@ export const retryEventFailures = async (
     throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
   }
 
-  return client.transaction(async (tx) => {
-    const retried = await tx
-      .update(eventFailures)
-      .set({ status: 'retrying', nextAttemptAt: sql`now()`, updatedAt: sql`now()` })
-      .where(
-        input.failures?.length
-          ? refsWhere(actor.orgId, input.failures)
-          : and(eq(eventFailures.orgId, actor.orgId), eq(eventFailures.status, 'dead')),
-      )
-      .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+  const retried = await client
+    .update(eventFailures)
+    .set({ status: 'retrying', nextAttemptAt: sql`now()`, updatedAt: sql`now()` })
+    .where(input.failures?.length ? refsWhere(input.failures) : eq(eventFailures.status, 'dead'))
+    .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
-    if (retried.length) {
-      await recordAudit(tx, userCaller(actor), {
-        action: 'event.failures_retried',
-        targetType: 'event',
-        metadata: { count: retried.length, failures: retried.slice(0, 50) },
-      });
-      await tx.execute(sql`select pg_notify('core_events', '')`);
-    }
+  if (retried.length) {
+    await recordAudit(client, userCaller(actor), {
+      action: 'event.failures_retried',
+      targetType: 'event',
+      metadata: { count: retried.length, failures: retried.slice(0, 50) },
+    });
+    await client.execute(sql`select pg_notify('core_events', '')`);
+  }
 
-    return { retried: retried.length };
-  });
+  return { retried: retried.length };
 };
 
 /** Gives up on failed events: they won't be retried or shown again. */
@@ -292,22 +264,20 @@ export const dismissEventFailures = async (
 ) => {
   requirePermission(actor, 'events.view');
 
-  return client.transaction(async (tx) => {
-    const dismissed = await tx
-      .delete(eventFailures)
-      .where(refsWhere(actor.orgId, input.failures))
-      .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+  const dismissed = await client
+    .delete(eventFailures)
+    .where(refsWhere(input.failures))
+    .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
-    if (dismissed.length) {
-      await recordAudit(tx, userCaller(actor), {
-        action: 'event.failures_dismissed',
-        targetType: 'event',
-        metadata: { count: dismissed.length, failures: dismissed.slice(0, 50) },
-      });
-    }
+  if (dismissed.length) {
+    await recordAudit(client, userCaller(actor), {
+      action: 'event.failures_dismissed',
+      targetType: 'event',
+      metadata: { count: dismissed.length, failures: dismissed.slice(0, 50) },
+    });
+  }
 
-    return { dismissed: dismissed.length };
-  });
+  return { dismissed: dismissed.length };
 };
 
 /**

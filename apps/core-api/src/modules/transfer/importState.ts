@@ -1,4 +1,4 @@
-import { type Import, ImportRow as ImportRowDto } from '@erxes/core-contract';
+import { ImportRow as ImportRowDto } from '@erxes/core-contract';
 import { type Db, type ImportCounts, type importRows, imports, roles, users } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { z } from 'zod';
@@ -28,30 +28,14 @@ export const undoable = (row: ImportRow) =>
   Date.now() - row.finishedAt.getTime() < UNDO_DAYS * 86_400_000 &&
   row.counts.create > 0;
 
-export const toDto = (row: ImportRow, sample: string[][] = []): Import => ({
-  id: row.id,
-  recordType: row.recordType,
-  fileName: row.fileName,
-  status: row.status,
-  headers: row.headers,
-  mapping: row.mapping,
-  options: row.options,
-  counts: row.counts,
-  processed: row.processed,
+export const toDto = (row: ImportRow, sample: string[][] = []) => ({
+  ...row,
   sample,
-  error: row.error,
   undoable: undoable(row),
-  createdBy: row.createdBy,
-  createdAt: row.createdAt.toISOString(),
-  finishedAt: row.finishedAt?.toISOString() ?? null,
 });
 
-export const importOrThrow = async (client: Db, orgId: string, id: string, lock = false) => {
-  const query = client
-    .select()
-    .from(imports)
-    .where(and(eq(imports.orgId, orgId), eq(imports.id, id)))
-    .limit(1);
+export const importOrThrow = async (client: Db, id: string, lock = false) => {
+  const query = client.select().from(imports).where(eq(imports.id, id)).limit(1);
 
   const [row] = await (lock ? query.for('update') : query);
 
@@ -81,7 +65,7 @@ export const memberActor = async (tx: Db, orgId: string, userId: string): Promis
     })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+    .where(eq(users.id, userId))
     .limit(1);
 
   if (!row || row.status !== 'active')
