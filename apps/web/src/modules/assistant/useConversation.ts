@@ -1,6 +1,7 @@
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { isDataUIPart, isTextUIPart, safeValidateUIMessages, type UIMessage } from 'ai';
+import { AssistantMentions } from '@erxes/core-contract';
+import { isDataUIPart, safeValidateUIMessages, type UIMessage } from 'ai';
 import { useSetAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { orpc } from '~/lib/api';
@@ -60,15 +61,31 @@ const useUnreadWhenClosed = (status: Status, open: boolean) => {
   }, [status, open, setUnread]);
 };
 
-const lastQuestion = (messages: UIMessage[]) =>
-  messages
-    .findLast((message) => message.role === 'user')
-    ?.parts.filter((part) => isTextUIPart(part) || isDataUIPart(part));
-
-const partsOf = ({ text, mentions, page }: ComposerMessage): UIMessage['parts'] => [
-  { type: 'text', text },
+const partsOf = ({
+  text,
+  mentions,
+  page,
+  files,
+  selections,
+}: ComposerMessage): UIMessage['parts'] => [
+  ...(text ? [{ type: 'text' as const, text }] : []),
   ...(mentions.length ? [{ type: 'data-mentions' as const, data: { mentions } }] : []),
   ...(page ? [{ type: 'data-page' as const, data: page }] : []),
+  ...(files.length ? [{ type: 'data-files' as const, data: { files } }] : []),
+  ...(selections.length ? [{ type: 'data-selections' as const, data: { selections } }] : []),
+];
+
+const editedParts = (message: UIMessage, text: string): UIMessage['parts'] => [
+  { type: 'text', text },
+  ...message.parts.flatMap((part) => {
+    if (part.type !== 'data-mentions') return isDataUIPart(part) ? [part] : [];
+
+    const mentions = (AssistantMentions.safeParse(part.data).data?.mentions ?? []).filter(
+      (mention) => text.includes(`@${mention.label}`),
+    );
+
+    return mentions.length ? [{ type: 'data-mentions' as const, data: { mentions } }] : [];
+  }),
 ];
 
 export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: boolean) => {
@@ -114,14 +131,18 @@ export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: bo
     },
     actions: {
       busy,
+      canEdit: !busy && !runningElsewhere && !model.noKey && session.threadId !== null,
       onRespond: (approvalId: string, approved: boolean) =>
         void session.respond(approvalId, approved),
       onAnswer: (toolCallId: string, answers: (string | string[])[]) =>
         void session.answer(toolCallId, answers),
       onRegenerate: () => {
-        const question = lastQuestion(chat.messages);
-
-        if (question?.length) sendParts(question);
+        chat.clearError();
+        void chat.regenerate();
+      },
+      onEdit: (message: UIMessage, text: string) => {
+        chat.clearError();
+        void chat.sendMessage({ messageId: message.id, parts: editedParts(message, text) });
       },
     },
   };

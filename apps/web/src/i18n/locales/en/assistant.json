@@ -109,7 +109,55 @@
     "failed": "{{name}} failed",
     "declined": "Declined {{name}}",
     "input": "Sent",
-    "output": "Returned"
+    "output": "Returned",
+    "read-file": "Read {{name}}",
+    "read-file-failed": "Could not read an attachment",
+    "reading-file": "Reading an attachment",
+    "artifact": "Creating “{{title}}”",
+    "artifact-failed": "Could not create “{{title}}”"
+  },
+  "attach": {
+    "files": "Attach files",
+    "list": "Attached",
+    "tray": "To send",
+    "drop": "Drop files to attach them",
+    "uploading": "Uploading {{progress}}%",
+    "remove": "Remove {{name}}",
+    "max": "Attach up to {{max}} files",
+    "type": "{{name}} can't be attached",
+    "size": "{{name}} is over {{max}} MB"
+  },
+  "select": {
+    "start": "Select part of the page",
+    "hint": "Click a part of the page to select it. Esc cancels.",
+    "cancel": "Cancel",
+    "kind": "Page selection",
+    "snapshot": "Snapshot",
+    "untitled": "Part of the page",
+    "failed": "Could not select that part of the page"
+  },
+  "edit": {
+    "start": "Edit",
+    "label": "Edit your message",
+    "text": "Message",
+    "note": "Sending replaces this message and the replies after it. Changes the assistant already made in your workspace stay.",
+    "cancel": "Cancel",
+    "send": "Send"
+  },
+  "artifact": {
+    "html": "Report",
+    "csv": "Table",
+    "markdown": "Document",
+    "rows": "{{kind}} · {{count}} rows",
+    "open": "Open",
+    "download": "Download",
+    "download-failed": "Could not create the file",
+    "pdf": "Print or save as PDF",
+    "download-html": "HTML file",
+    "download-xlsx": "Excel workbook (.xlsx)",
+    "download-csv": "CSV file",
+    "download-docx": "Word document (.docx)",
+    "download-md": "Markdown file"
   },
   "actions": "Conversation actions",
   "rename": "Rename",

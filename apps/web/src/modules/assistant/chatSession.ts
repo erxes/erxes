@@ -46,8 +46,14 @@ export class ChatSession {
     const http = new DefaultChatTransport<UIMessage>({
       api: `${CORE_API_PREFIX}/assistant/chat`,
       credentials: 'same-origin',
-      prepareSendMessagesRequest: ({ messages }) => ({
-        body: chatRequestBody({ messages, threadId: this.threadId ?? undefined, run: this.run }),
+      prepareSendMessagesRequest: ({ messages, trigger, messageId }) => ({
+        body: chatRequestBody({
+          messages,
+          threadId: this.threadId ?? undefined,
+          run: this.run,
+          trigger,
+          messageId,
+        }),
       }),
     });
 

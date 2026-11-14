@@ -1,16 +1,8 @@
 import { MODEL_KEY } from './assistantModel';
+import { ask, connectFakeModel, openAssistant } from './assistantPanel';
 import { expect, expectAccessible, test, unique } from './fixtures';
 
-test.beforeEach(async ({ api }) => {
-  await api.assistant.saveConnection({ provider: 'kimi', apiKey: MODEL_KEY });
-
-  const { data } = await api.assistant.models();
-
-  expect(
-    data.find((entry) => entry.provider === 'kimi')?.error ?? null,
-    'Start the stack with ASSISTANT_KIMI_URL=http://127.0.0.1:3510/v1 so the API talks to the fake model',
-  ).toBeNull();
-});
+test.beforeEach(connectFakeModel);
 
 test('a member saves a key, asks for a change, approves it and sees the result', async ({
   page,
@@ -163,4 +155,35 @@ test('a member mentions a record with @ and sees it linked in the message', asyn
   await expect(links.first()).toHaveAttribute('href', `/contacts/customers/${customer.id}`);
   await expect(panel.getByText('No open deals yet')).toBeVisible();
   await expectAccessible(page);
+});
+
+test('a member edits the newest question, sees the note, and asks again', async ({ page }) => {
+  const suffix = unique();
+  const panel = await openAssistant(page);
+
+  await ask(panel, `Hello there ${suffix}`);
+  await expect(panel.getByText('Hello! How can I help?')).toBeVisible();
+
+  await panel.getByText(`Hello there ${suffix}`).hover();
+  await panel.getByRole('button', { name: 'Edit', exact: true }).click();
+
+  const edit = panel.getByRole('form', { name: 'Edit your message' });
+
+  await expect(edit).toContainText('Changes the assistant already made in your workspace stay.');
+  await expectAccessible(page);
+
+  await edit.getByRole('textbox', { name: 'Message' }).fill(`Say goodbye ${suffix}`);
+  await edit.getByRole('button', { name: 'Send' }).click();
+  await expect(panel.getByText('Goodbye! Talk soon.')).toBeVisible();
+  await expect(panel.getByText(`Hello there ${suffix}`)).toBeHidden();
+  await expect(panel.getByText('Hello! How can I help?')).toBeHidden();
+
+  await panel.getByRole('button', { name: 'Ask again' }).click();
+  await expect(panel.getByRole('button', { name: 'Ask again' })).toBeVisible();
+  await expect(panel.getByText('Goodbye! Talk soon.')).toHaveCount(1);
+
+  await page.reload();
+  await expect(panel.getByText(`Say goodbye ${suffix}`)).toBeVisible();
+  await expect(panel.getByText('Goodbye! Talk soon.')).toHaveCount(1);
+  await expect(panel.getByText(`Hello there ${suffix}`)).toBeHidden();
 });

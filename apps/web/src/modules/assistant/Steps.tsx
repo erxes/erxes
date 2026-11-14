@@ -12,6 +12,7 @@ import { Button, Collapsible, cn } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import type { Step, StepStatus } from './transcriptRows';
 
 const STATUS_ICONS: Record<StepStatus, Icon> = {
@@ -22,12 +23,38 @@ const STATUS_ICONS: Record<StepStatus, Icon> = {
   declined: IconBan,
 };
 
+const Named = z.object({ name: z.string() });
+
+const Titled = z.object({ title: z.string() });
+
+const fileStepLabel = (step: Step, t: TFunction<'assistant'>) => {
+  const name = Named.safeParse(step.output).data?.name;
+
+  if (step.status === 'done' && name) return t('step.read-file', 'Read {{name}}', { name });
+
+  return step.status === 'failed'
+    ? t('step.read-file-failed', 'Could not read an attachment')
+    : t('step.reading-file', 'Reading an attachment');
+};
+
+const artifactStepLabel = (step: Step, t: TFunction<'assistant'>) => {
+  const title = Titled.safeParse(step.input).data?.title ?? '';
+
+  return step.status === 'failed'
+    ? t('step.artifact-failed', 'Could not create “{{title}}”', { title })
+    : t('step.artifact', 'Creating “{{title}}”', { title });
+};
+
 const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
   if (step.tool === 'searchApi') {
     return step.query
       ? t('step.search', 'Searched the API for “{{query}}”', { query: step.query })
       : t('step.search-any', 'Searched the API');
   }
+
+  if (step.tool === 'readAttachment') return fileStepLabel(step, t);
+
+  if (step.tool === 'createArtifact') return artifactStepLabel(step, t);
 
   const labels: Record<StepStatus, string> = {
     running: t('step.running', 'Calling {{name}}', { name: step.name }),

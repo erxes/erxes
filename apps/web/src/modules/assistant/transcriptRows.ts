@@ -1,4 +1,4 @@
-import { AssistantQuestionMode } from '@erxes/core-contract';
+import { AssistantArtifact, AssistantQuestionMode } from '@erxes/core-contract';
 import {
   type DynamicToolUIPart,
   getToolName,
@@ -65,6 +65,7 @@ export type TranscriptRow =
       input: Record<string, unknown>;
     }
   | { kind: 'question'; key: string; toolCallId: string; questions: Question[] }
+  | { kind: 'artifact'; key: string; artifact: AssistantArtifact }
   | { kind: 'answered'; key: string; answers: { question: string; answer: string }[] };
 
 const statusOf = (part: ToolPart): StepStatus => {
@@ -149,8 +150,17 @@ const approvalRow = (part: ToolPart): TranscriptRow | null => {
   };
 };
 
+const artifactRow = (part: ToolPart): TranscriptRow | null => {
+  const artifact =
+    part.state === 'output-available' ? AssistantArtifact.safeParse(part.output).data : undefined;
+
+  return artifact ? { kind: 'artifact', key: part.toolCallId, artifact } : null;
+};
+
 const rowOfTool = (part: ToolPart): TranscriptRow | Step | null => {
   if (getToolName(part) === 'ask_user') return questionRow(part);
+
+  if (getToolName(part) === 'createArtifact') return artifactRow(part) ?? stepOf(part);
 
   return approvalRow(part) ?? stepOf(part);
 };

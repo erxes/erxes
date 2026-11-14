@@ -27,6 +27,37 @@ describe('chatRequestBody', () => {
     });
   });
 
+  it('asks the server to replace the question when it is edited or asked again', () => {
+    const messages = [user('u1', 'First'), user('u2', 'Second, reworded')];
+    const edited = chatRequestBody({ messages, threadId: 't', run: null, messageId: 'u2' });
+
+    const again = chatRequestBody({
+      messages,
+      threadId: 't',
+      run: null,
+      trigger: 'regenerate-message',
+    });
+
+    expect(edited).toMatchObject({ edit: true, message: { id: 'u2' } });
+    expect(again).toMatchObject({ edit: true, message: { id: 'u2' } });
+  });
+
+  it('sends a new question or an approval follow-up without replacing anything', () => {
+    const reply: UIMessage = { id: 'a1', role: 'assistant', parts: [] };
+    const asked = chatRequestBody({ messages: [user('u1', 'Hi')], threadId: 't', run: null });
+
+    const followUp = chatRequestBody({
+      messages: [user('u1', 'Hi'), reply],
+      threadId: 't',
+      run: null,
+      trigger: 'submit-message',
+      messageId: 'a1',
+    });
+
+    expect(asked).not.toHaveProperty('edit');
+    expect(followUp).not.toHaveProperty('edit');
+  });
+
   it('leaves out what is not chosen yet, so the server uses its defaults', () => {
     expect(chatRequestBody({ messages: [user('u1', 'Hi')], run: null })).toEqual({
       message: { id: 'u1', role: 'user', parts: [{ type: 'text', text: 'Hi' }] },

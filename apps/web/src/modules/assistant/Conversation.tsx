@@ -96,7 +96,9 @@ export const Conversation = ({
       {chat.messages.length === 0 && !chat.error ? (
         <EmptyState
           noKey={model.noKey}
-          onPick={(text) => view.send({ text, mentions: [], page: context.page })}
+          onPick={(text) =>
+            view.send({ text, mentions: [], page: context.page, files: [], selections: [] })
+          }
         />
       ) : (
         <Transcript messages={chat.messages} footer={footer} actions={view.actions} />
