@@ -43,10 +43,12 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   `publishCoreEvents(tx, ...)`. Both record the scope's caller.
 - Services return rows, Dates and all. oRPC runs every answer through the output schema, which
   drops unpicked columns and encodes dates with `isoDate`, so there is no hand mapper and no
-  `.toISOString()` for a response. A service adds only what the row lacks
-  (`{ ...row, actor: { type: row.actorType, id: row.actorId } }`). A body sent outside oRPC
-  (webhooks, plugin deliveries, event payloads, automation context) goes through the contract
-  schema's `.parse(...)`, as `eventJson` and the product event payload do.
+  `.toISOString()` for a response. A value the row lacks comes from the query:
+  `select({ ...getTableColumns(table), actorName: ... })`, with a joined row nested as an object
+  (`note: { body: notes.body, ... }`), so no `to…Dto` mapper reshapes rows (`erxes/no-dto-mapper`).
+  `.set()` and `.values()` skip undefined keys, so pass the input on (`erxes/no-undefined-spread`).
+  A body sent outside oRPC (webhooks, plugin deliveries, event payloads, automation context) goes
+  through the contract schema's `.parse(...)`.
 - Errors are `HttpError(status, code, message, data?)`, an `ORPCError`. Clients branch on `code`, so
   a new failure gets a new code and old codes keep their meaning.
 - Lists of records that grow with use page with `keysetPage` (`cursorPageOf`; newest first, the

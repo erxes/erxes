@@ -177,11 +177,39 @@
               }
             ]
           },
-          "editedAt": {
+          "entityType": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "date-time"
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entityId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actorType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
+            "type": "string"
+          },
+          "actorId": {
+            "anyOf": [
+              {
+                "type": "string"
               },
               {
                 "type": "null"
@@ -192,21 +220,35 @@
             "type": "string",
             "format": "date-time"
           },
-          "entity": {
+          "actorName": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/EntityRef"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
           },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
+          "actorAvatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
-          "pinned": {
-            "type": "boolean"
+          "note": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Note"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "reactions": {
             "type": "object",
@@ -230,11 +272,14 @@
           "summary",
           "data",
           "link",
-          "editedAt",
+          "entityType",
+          "entityId",
+          "actorType",
+          "actorId",
           "occurredAt",
-          "entity",
-          "actor",
-          "pinned",
+          "actorName",
+          "actorAvatarUrl",
+          "note",
           "reactions"
         ]
       },
@@ -283,6 +328,16 @@
             "maxLength": 500,
             "pattern": "^\\/(?!\\/)[^\\s]*$"
           },
+          "entityType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "entityId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
           "occurredAt": {
             "type": "string",
             "format": "date-time"
@@ -291,9 +346,6 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 200
-          },
-          "entity": {
-            "$ref": "#/components/schemas/EntityRef"
           },
           "actorUserId": {
             "type": "string",
@@ -306,54 +358,6 @@
           "targetId",
           "type",
           "summary"
-        ]
-      },
-      "ActorRef": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "enum": [
-              "user",
-              "plugin",
-              "customer",
-              "system"
-            ],
-            "type": "string"
-          },
-          "id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "avatarUrl": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "id"
         ]
       },
       "Audience": {
@@ -468,6 +472,25 @@
             "minLength": 1,
             "maxLength": 64
           },
+          "actorType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
+            "type": "string"
+          },
+          "actorId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "action": {
             "type": "string"
           },
@@ -575,13 +598,12 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
           }
         },
         "required": [
           "id",
+          "actorType",
+          "actorId",
           "action",
           "targetType",
           "targetId",
@@ -591,8 +613,7 @@
           "ip",
           "userAgent",
           "source",
-          "createdAt",
-          "actor"
+          "createdAt"
         ]
       },
       "AuditStream": {
@@ -5934,6 +5955,30 @@
           "eventType": {
             "type": "string"
           },
+          "subjectType": {
+            "anyOf": [
+              {
+                "enum": [
+                  "customer",
+                  "company"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subjectId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "status": {
             "enum": [
               "running",
@@ -5980,47 +6025,26 @@
               }
             ]
           },
-          "subject": {
+          "goalReachedAt": {
             "anyOf": [
               {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "enum": [
-                      "customer",
-                      "company"
-                    ],
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "type",
-                  "id",
-                  "name"
-                ]
+                "type": "string",
+                "format": "date-time"
               },
               {
                 "type": "null"
               }
             ]
           },
-          "goalReached": {
-            "type": "boolean"
+          "subjectName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -6029,13 +6053,15 @@
           "version",
           "eventId",
           "eventType",
+          "subjectType",
+          "subjectId",
           "status",
           "error",
           "waitingUntil",
           "startedAt",
           "finishedAt",
-          "subject",
-          "goalReached"
+          "goalReachedAt",
+          "subjectName"
         ]
       },
       "Company": {
@@ -6719,6 +6745,69 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
+          "subjectType": {
+            "anyOf": [
+              {
+                "enum": [
+                  "customer",
+                  "company"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subjectId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entityType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entityId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actorType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
+            "type": "string"
+          },
+          "actorId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "payload": {
             "type": "object",
             "propertyNames": {
@@ -6753,47 +6842,6 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "subject": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "enum": [
-                      "customer",
-                      "company"
-                    ],
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  }
-                },
-                "required": [
-                  "type",
-                  "id"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "entity": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/EntityRef"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
           }
         },
         "required": [
@@ -6801,14 +6849,17 @@
           "source",
           "type",
           "version",
+          "subjectType",
+          "subjectId",
+          "entityType",
+          "entityId",
+          "actorType",
+          "actorId",
           "payload",
           "summary",
           "link",
           "occurredAt",
-          "createdAt",
-          "subject",
-          "entity",
-          "actor"
+          "createdAt"
         ]
       },
       "CursorQuery": {
@@ -7681,25 +7732,6 @@
           "problem"
         ]
       },
-      "EntityRef": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
-      },
       "ErrorBody": {
         "type": "object",
         "properties": {
@@ -7820,29 +7852,27 @@
             "minLength": 1,
             "maxLength": 200
           },
-          "subject": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "enum": [
-                  "customer",
-                  "company"
-                ],
-                "type": "string"
-              },
-              "id": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
-              }
-            },
-            "required": [
-              "type",
-              "id"
-            ]
+          "subjectType": {
+            "enum": [
+              "customer",
+              "company"
+            ],
+            "type": "string"
           },
-          "entity": {
-            "$ref": "#/components/schemas/EntityRef"
+          "subjectId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "entityType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "entityId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           },
           "actorUserId": {
             "type": "string",
@@ -8426,19 +8456,36 @@
           "status": {
             "enum": [
               "pending",
-              "ready"
+              "ready",
+              "deleting"
             ],
             "type": "string"
           },
           "source": {
             "type": "string"
           },
+          "actorType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
+            "type": "string"
+          },
+          "actorId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "uploadedBy": {
-            "$ref": "#/components/schemas/ActorRef"
           },
           "url": {
             "type": "string"
@@ -8451,8 +8498,9 @@
           "size",
           "status",
           "source",
+          "actorType",
+          "actorId",
           "createdAt",
-          "uploadedBy",
           "url"
         ]
       },
@@ -8868,6 +8916,12 @@
           "description": {
             "type": "string"
           },
+          "referenceType": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
           "status": {
             "enum": [
               "pending",
@@ -9005,21 +9059,6 @@
             ],
             "type": "string"
           },
-          "reference": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "type",
-              "id"
-            ]
-          },
           "refundable": {
             "type": "object",
             "properties": {
@@ -9050,6 +9089,8 @@
           "amount",
           "currency",
           "description",
+          "referenceType",
+          "referenceId",
           "status",
           "metadata",
           "lines",
@@ -9060,7 +9101,6 @@
           "paidAt",
           "createdAt",
           "gatewayKind",
-          "reference",
           "refundable"
         ]
       },
@@ -9156,6 +9196,26 @@
             "minLength": 1,
             "maxLength": 64
           },
+          "customerId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "companyId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "event": {
             "enum": [
               "created",
@@ -9196,6 +9256,12 @@
             ]
           },
           "actorType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
             "type": "string"
           },
           "actorId": {
@@ -9211,31 +9277,19 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "recordType": {
-            "enum": [
-              "customer",
-              "company"
-            ],
-            "type": "string"
-          },
-          "recordId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
           }
         },
         "required": [
           "id",
+          "customerId",
+          "companyId",
           "event",
           "fromStageId",
           "toStageId",
           "reason",
           "actorType",
           "actorId",
-          "createdAt",
-          "recordType",
-          "recordId"
+          "createdAt"
         ]
       },
       "LeadReport": {
@@ -9509,6 +9563,55 @@
           "companyLeadCount"
         ]
       },
+      "Note": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "mentions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fileIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pinnedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "editedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "body",
+          "mentions",
+          "fileIds",
+          "pinnedAt",
+          "editedAt"
+        ]
+      },
       "NoteInput": {
         "type": "object",
         "properties": {
@@ -9540,6 +9643,28 @@
         },
         "required": [
           "body"
+        ]
+      },
+      "NoteVersion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "body": {
+            "type": "string"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "body",
+          "editedAt"
         ]
       },
       "Notification": {
@@ -9593,25 +9718,59 @@
             ],
             "type": "string"
           },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "entity": {
+          "entityType": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/EntityRef"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
           },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
+          "entityId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
-          "read": {
-            "type": "boolean"
+          "actorType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
+            "type": "string"
+          },
+          "actorId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "readAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
@@ -9623,10 +9782,12 @@
           "link",
           "data",
           "priority",
-          "createdAt",
-          "entity",
-          "actor",
-          "read"
+          "entityType",
+          "entityId",
+          "actorType",
+          "actorId",
+          "readAt",
+          "createdAt"
         ]
       },
       "NotificationGroupSetting": {
@@ -9703,6 +9864,16 @@
             "minLength": 1,
             "maxLength": 200
           },
+          "entityType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "entityId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
           "userIds": {
             "type": "array",
             "minItems": 1,
@@ -9712,9 +9883,6 @@
               "minLength": 1,
               "maxLength": 64
             }
-          },
-          "entity": {
-            "$ref": "#/components/schemas/EntityRef"
           },
           "actorUserId": {
             "type": "string",
@@ -10009,50 +10177,67 @@
           "name": {
             "type": "string"
           },
-          "title": {
-            "type": "string"
-          },
-          "version": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "countries": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "ui": {
+          "manifest": {
             "anyOf": [
               {
                 "type": "object",
                 "properties": {
-                  "remote": {
-                    "type": "string"
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
                   },
-                  "entry": {
-                    "type": "string"
+                  "version": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "countries": {
+                    "type": "array",
+                    "maxItems": 250,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "ui": {
+                    "type": "object",
+                    "properties": {
+                      "remote": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,59}$"
+                      },
+                      "entry": {
+                        "type": "string",
+                        "maxLength": 500,
+                        "format": "uri"
+                      }
+                    },
+                    "required": [
+                      "remote",
+                      "entry"
+                    ]
+                  },
+                  "api": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string",
+                        "maxLength": 500,
+                        "format": "uri"
+                      }
+                    },
+                    "required": [
+                      "url"
+                    ]
                   }
                 },
                 "required": [
-                  "remote",
-                  "entry"
+                  "title",
+                  "version"
                 ]
               },
               {
@@ -10060,31 +10245,10 @@
               }
             ]
           },
-          "api": {
+          "installation": {
             "anyOf": [
               {
-                "type": "object",
-                "properties": {
-                  "url": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "url"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "installed": {
-            "type": "boolean"
-          },
-          "statusReason": {
-            "anyOf": [
-              {
-                "type": "string"
+                "$ref": "#/components/schemas/PluginInstallation"
               },
               {
                 "type": "null"
@@ -10097,40 +10261,53 @@
               "type": "string"
             }
           },
+          "needsApproval": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "manifest",
+          "installation",
+          "requestedScopes",
+          "needsApproval"
+        ]
+      },
+      "PluginInstallation": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "type": "string"
+          },
+          "statusReason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "grantedScopes": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "needsApproval": {
-            "type": "boolean"
-          },
           "installedAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
-          "name",
-          "title",
-          "version",
-          "description",
-          "countries",
-          "ui",
-          "api",
-          "installed",
+          "status",
           "statusReason",
-          "requestedScopes",
           "grantedScopes",
-          "needsApproval",
           "installedAt"
         ]
       },
@@ -10849,31 +11026,28 @@
               }
             ]
           },
+          "requestedByType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
+            "type": "string"
+          },
+          "requestedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "requestedBy": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string"
-              },
-              "id": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              }
-            },
-            "required": [
-              "type",
-              "id"
-            ]
           }
         },
         "required": [
@@ -10884,8 +11058,9 @@
           "method",
           "status",
           "error",
-          "createdAt",
-          "requestedBy"
+          "requestedByType",
+          "requestedBy",
+          "createdAt"
         ]
       },
       "RelativeAmount": {
@@ -11361,6 +11536,25 @@
               }
             ]
           },
+          "deletedByType": {
+            "enum": [
+              "user",
+              "plugin",
+              "customer",
+              "system"
+            ],
+            "type": "string"
+          },
+          "deletedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "deletedAt": {
             "type": "string",
             "format": "date-time"
@@ -11368,34 +11562,6 @@
           "purgeAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "deletedBy": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "enum": [
-                  "user",
-                  "plugin",
-                  "customer",
-                  "system"
-                ],
-                "type": "string"
-              },
-              "id": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              }
-            },
-            "required": [
-              "type",
-              "id"
-            ]
           },
           "counts": {
             "type": "object",
@@ -11428,9 +11594,10 @@
           "recordType",
           "recordId",
           "label",
+          "deletedByType",
+          "deletedBy",
           "deletedAt",
           "purgeAt",
-          "deletedBy",
           "counts"
         ]
       },
@@ -11628,6 +11795,17 @@
               }
             ]
           },
+          "totpEnabledAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -11635,9 +11813,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "twoFactorEnabled": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -11659,9 +11834,9 @@
           "description",
           "links",
           "onboardedAt",
+          "totpEnabledAt",
           "createdAt",
-          "updatedAt",
-          "twoFactorEnabled"
+          "updatedAt"
         ]
       },
       "View": {
@@ -12554,8 +12729,8 @@
     },
     "/activities/notes/{id}": {
       "patch": {
-        "operationId": "activities.updateNote",
-        "summary": "Edit a note (its author) or pin / unpin it (any member)",
+        "operationId": "activities.editNote",
+        "summary": "Edit a note (its author only). A new wording keeps the old one in `noteVersions`; newly mentioned members are notified",
         "parameters": [
           {
             "name": "id",
@@ -12597,9 +12772,6 @@
                       "minLength": 1,
                       "maxLength": 64
                     }
-                  },
-                  "pinned": {
-                    "type": "boolean"
                   }
                 }
               }
@@ -12648,6 +12820,96 @@
                   },
                   "required": [
                     "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activities/notes/{id}/pinned": {
+      "put": {
+        "operationId": "activities.pinNote",
+        "summary": "Pin a note to the top of its timeline, or unpin it (any member)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pinned": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "pinned"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activities/notes/{id}/versions": {
+      "get": {
+        "operationId": "activities.noteVersions",
+        "summary": "A note's earlier wordings, newest first (the latest 100)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 100,
+                      "items": {
+                        "$ref": "#/components/schemas/NoteVersion"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
                   ]
                 }
               }
@@ -26172,19 +26434,36 @@
                     "status": {
                       "enum": [
                         "pending",
-                        "ready"
+                        "ready",
+                        "deleting"
                       ],
                       "type": "string"
                     },
                     "source": {
                       "type": "string"
                     },
+                    "actorType": {
+                      "enum": [
+                        "user",
+                        "plugin",
+                        "customer",
+                        "system"
+                      ],
+                      "type": "string"
+                    },
+                    "actorId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
-                    },
-                    "uploadedBy": {
-                      "$ref": "#/components/schemas/ActorRef"
                     },
                     "url": {
                       "type": "string"
@@ -26207,8 +26486,9 @@
                     "size",
                     "status",
                     "source",
+                    "actorType",
+                    "actorId",
                     "createdAt",
-                    "uploadedBy",
                     "url",
                     "downloadUrl"
                   ]
@@ -27548,24 +27828,15 @@
                     "minLength": 1,
                     "maxLength": 255
                   },
-                  "reference": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 60
-                      },
-                      "id": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 100
-                      }
-                    },
-                    "required": [
-                      "type",
-                      "id"
-                    ]
+                  "referenceType": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "referenceId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
                   },
                   "expiresInMinutes": {
                     "type": "integer",
@@ -27596,7 +27867,8 @@
                 "required": [
                   "amount",
                   "description",
-                  "reference"
+                  "referenceType",
+                  "referenceId"
                 ]
               }
             }

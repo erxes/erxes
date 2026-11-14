@@ -40,13 +40,33 @@
         }
       }
     },
-    "updateNote": {
+    "editNote": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PATCH",
           "path": "/activities/notes/{id}"
+        }
+      }
+    },
+    "pinNote": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/activities/notes/{id}/pinned"
+        }
+      }
+    },
+    "noteVersions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/activities/notes/{id}/versions"
         }
       }
     },

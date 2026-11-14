@@ -12,7 +12,7 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
 - `src/<domain>.ts` has the domain's schemas and its `<domain>Contract`; `src/index.ts` assembles `coreContract`.
 - `src/values.ts` has what browsers use at runtime and builds on no table: `CORE_API_PREFIX`, the
   z.enums a UI lists, `RoleKey`, `NewPassword`. A value a UI imports goes here, or in another module
-  with no table import (`common.ts`, `money.ts`, `automationDefinition.ts`).
+  with no table import (`common.ts`, `money.ts`).
 - `src/common.ts` has `Id`, `IdList`, `CursorQuery`, `cursorPageOf`, `isoDate`. `src/events.ts`
   has the event schemas plugins publish. The `/core/v1/stream` messages are Server-Sent Events
   outside the router: `StreamData` in `apps/api/src/modules/live/stream.http.ts`, read by
