@@ -2,7 +2,7 @@ import type { LeadStageKind } from '@erxes/core-contract';
 import { companies, customers, type Db, leadStages, newId } from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, max, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound, pgCode } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { oneRow, setOrders } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { findStage, type StageRow, stagesOf } from './stages';
@@ -48,13 +48,6 @@ export const listLeadStages = async (client: Db) => ({
   data: await wholeList((limit) => stagesWithCounts(client).limit(limit)),
 });
 
-const stageTaken = (error: unknown): never => {
-  if (pgCode(error) === '23505')
-    throw new HttpError(409, 'LEAD_STAGE_EXISTS', 'A stage with this name already exists');
-
-  throw error;
-};
-
 const audit = (tx: Db, action: string, stage: Pick<StageRow, 'id' | 'name'>) =>
   recordAudit(tx, {
     action,
@@ -77,7 +70,7 @@ export const createLeadStage = async (
     order: (last?.order ?? -1) + 1,
   };
 
-  await client.insert(leadStages).values(stage).catch(stageTaken);
+  await client.insert(leadStages).values(stage);
   await audit(client, 'lead_stage.created', stage);
 
   return stageWithCounts(client, stage.id);
@@ -86,11 +79,7 @@ export const createLeadStage = async (
 /** Some stage of each kind a lead can be moved to must stay: at least one open one. */
 const assertOpenStageLeft = (stages: StageRow[], without: (stage: StageRow) => boolean) => {
   if (!stages.some((stage) => stage.kind === 'open' && !without(stage))) {
-    throw new HttpError(
-      409,
-      'LAST_OPEN_STAGE',
-      'Keep at least one open stage: new leads start there',
-    );
+    throw fail('LAST_OPEN_STAGE', 'Keep at least one open stage: new leads start there');
   }
 };
 
@@ -109,8 +98,7 @@ export const updateLeadStage = async (
     .update(leadStages)
     .set({ ...input, updatedAt: sql`now()` })
     .where(eq(leadStages.id, id))
-    .returning()
-    .catch(stageTaken);
+    .returning();
 
   if (!stage) throw notFound('Lead stage');
 
@@ -127,7 +115,9 @@ export const reorderLeadStages = async (client: Db, ids: string[]) => {
     new Set(ids).size !== ids.length ||
     stages.some((stage) => !ids.includes(stage.id))
   ) {
-    throw new HttpError(400, 'INVALID_INPUT', 'List every stage exactly once');
+    throw fail('INVALID_INPUT', 'List every stage exactly once', {
+      issues: [{ path: ['ids'], message: 'List every stage exactly once' }],
+    });
   }
 
   return setOrders(
@@ -174,12 +164,9 @@ export const removeLeadStage = async (client: Db, id: string, moveTo: string | u
 
   if (count) {
     if (!moveTo || moveTo === id)
-      throw new HttpError(
-        409,
-        'LEAD_STAGE_IN_USE',
-        `${count} leads are in this stage: choose where they move`,
-        { count },
-      );
+      throw fail('LEAD_STAGE_IN_USE', `${count} leads are in this stage: choose where they move`, {
+        count,
+      });
 
     await moveEveryone(client, id, moveTo);
   }

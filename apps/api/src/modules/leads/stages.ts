@@ -1,7 +1,7 @@
 import type { LeadRecordType, LeadStageKind } from '@erxes/core-contract';
 import { companies, customers, type Db, leadStages } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 
 export type StageRow = typeof leadStages.$inferSelect;
 
@@ -17,7 +17,7 @@ export const findStage = async (client: Db, id: string) => {
   const [stage] = await client.select().from(leadStages).where(eq(leadStages.id, id)).limit(1);
 
   if (!stage)
-    throw new HttpError(400, 'INVALID_LEAD_STAGE', 'Not a lead stage of this organisation', {
+    throw fail('INVALID_LEAD_STAGE', 'Not a lead stage of this organisation', {
       stageId: id,
     });
 

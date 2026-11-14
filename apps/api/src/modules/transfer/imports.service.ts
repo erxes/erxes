@@ -1,7 +1,7 @@
 import type { CursorQuery, TransferRecordType } from '@erxes/core-contract';
 import { caller, type Db, type ImportOptions, importRows, imports, newId } from '@erxes/core-db';
 import { and, asc, eq, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -54,7 +54,7 @@ export const createImport = async (
   const file = await readyFile(client, input.fileId);
 
   if (!/\.(csv|txt|tsv|xlsx)$/i.test(file.name))
-    throw new HttpError(400, 'UNSUPPORTED_FILE', 'Import a .csv or .xlsx file');
+    throw fail('UNSUPPORTED_FILE', 'Import a .csv or .xlsx file');
 
   const row = oneRow(
     await client
@@ -85,10 +85,10 @@ const checkMapping = async (client: Db, row: ImportRow, mapping: Record<string, 
   const keys = Object.values(mapping);
   const unknown = keys.find((key) => !columns.some((item) => item.key === key && item.importable));
 
-  if (unknown) throw new HttpError(400, 'INVALID_MAPPING', `Unknown field: ${unknown}`);
+  if (unknown) throw fail('INVALID_MAPPING', `Unknown field: ${unknown}`);
 
   if (new Set(keys).size !== keys.length)
-    throw new HttpError(400, 'INVALID_MAPPING', 'Each field can take one column');
+    throw fail('INVALID_MAPPING', 'Each field can take one column');
 };
 
 /** Mapping and options can change until it runs; the check's results are cleared. */
@@ -100,7 +100,7 @@ export const updateImport = async (
   const row = await importOrThrow(client, id, true);
 
   if (!['mapping', 'checked'].includes(row.status))
-    throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
+    throw fail('IMPORT_LOCKED', `The import is ${row.status}`);
 
   const mapping = input.mapping ?? row.mapping;
 
@@ -109,7 +109,7 @@ export const updateImport = async (
   const options = { ...row.options, ...input.options };
 
   if (row.recordType !== 'company' && options.matchBy === 'name')
-    throw new HttpError(400, 'INVALID_OPTIONS', 'Customers match by email, phone, code or ID');
+    throw fail('INVALID_OPTIONS', 'Customers match by email, phone, code or ID');
 
   const next = oneRow(
     await client
@@ -138,10 +138,9 @@ const begin = async (client: Db, id: string, status: 'checking' | 'running') => 
   const row = await importOrThrow(client, id, true);
 
   if (row.status !== 'mapping' && row.status !== 'checked')
-    throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
+    throw fail('IMPORT_LOCKED', `The import is ${row.status}`);
 
-  if (!Object.keys(row.mapping).length)
-    throw new HttpError(400, 'INVALID_MAPPING', 'Map at least one column');
+  if (!Object.keys(row.mapping).length) throw fail('INVALID_MAPPING', 'Map at least one column');
 
   const next = oneRow(
     await client
@@ -173,11 +172,7 @@ export const undoImport = async (client: Db, id: string) => {
   const row = await importOrThrow(client, id, true);
 
   if (!undoable(row))
-    throw new HttpError(
-      409,
-      'NOT_UNDOABLE',
-      `Only imports that created records, in the last ${UNDO_DAYS} days`,
-    );
+    throw fail('NOT_UNDOABLE', `Only imports that created records, in the last ${UNDO_DAYS} days`);
 
   const next = oneRow(
     await client

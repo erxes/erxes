@@ -1,7 +1,7 @@
 import type { CustomValue, Db } from '@erxes/core-db';
 import { companies } from '@erxes/core-db';
 import { arrayContains, eq, getTableColumns, or, sql } from 'drizzle-orm';
-import { HttpError, notFound, pgCode } from '~/http/errors';
+import { notFound } from '~/http/errors';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 
@@ -39,22 +39,4 @@ export const findCompany = async (client: Db, id: string, followMerges = false) 
   }
 
   return row;
-};
-
-/** A taken name → 409 naming the company that has it. */
-export const conflictFrom = async (client: Db, error: unknown, name: string): Promise<never> => {
-  if (pgCode(error) !== '23505') {
-    throw error;
-  }
-
-  const [existing] = await client
-    .select({ id: companies.id })
-    .from(companies)
-    .where(sql`lower(${companies.primaryName}) = lower(${name})`)
-    .limit(1);
-
-  throw new HttpError(409, 'COMPANY_EXISTS', 'A company with this name already exists', {
-    field: 'primaryName',
-    id: existing?.id ?? null,
-  });
 };

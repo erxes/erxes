@@ -1,6 +1,7 @@
 import { AUDIT_STREAM_STARTS } from '@erxes/core-db/enums';
 import { auditLogs, auditStreams } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AuditStreamFormat } from './values';
@@ -82,8 +83,28 @@ const StreamFields = createUpdateSchema(auditStreams, {
 
 export type AuditStream = z.infer<typeof AuditStream>;
 
+const {
+  INVALID_ACTOR,
+  INVALID_OWNER,
+  INVALID_RECIPIENT,
+  INVALID_TYPE,
+  INVALID_URL,
+  LIMIT_EXCEEDED,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  INVALID_ACTOR,
+  INVALID_OWNER,
+  INVALID_RECIPIENT,
+  INVALID_TYPE,
+  INVALID_URL,
+  LIMIT_EXCEEDED,
+});
+
 export const auditContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/audit',
@@ -111,7 +132,7 @@ export const auditContract = {
         totalCapped: z.boolean(),
       }),
     ),
-  record: oc
+  record: base
     .route({
       method: 'POST',
       path: '/audit',
@@ -145,7 +166,7 @@ export const auditContract = {
       }),
     )
     .output(z.object({ recorded: z.int() })),
-  verify: oc
+  verify: base
     .route({
       method: 'GET',
       path: '/audit/verify',
@@ -171,7 +192,7 @@ export const auditContract = {
         }),
       }),
     ),
-  checkpoints: oc
+  checkpoints: base
     .route({
       method: 'GET',
       path: '/audit/checkpoints',
@@ -200,25 +221,25 @@ export const auditContract = {
           .max(1000),
       }),
     ),
-  settings: oc
+  settings: base
     .route({
       method: 'GET',
       path: '/settings/audit',
       summary: 'How long the audit log keeps entries',
     })
     .output(z.object({ retentionDays: z.int(), maxRetentionDays: z.int() })),
-  updateSettings: oc
+  updateSettings: base
     .route({ method: 'PUT', path: '/settings/audit', summary: 'Change audit retention (owners)' })
     .input(z.object({ retentionDays: z.int().min(30).max(3650) }))
     .output(z.object({ retentionDays: z.int(), maxRetentionDays: z.int() })),
-  streams: oc
+  streams: base
     .route({
       method: 'GET',
       path: '/audit/streams',
       summary: 'Where the audit log is streamed (owners)',
     })
     .output(listOf(AuditStream)),
-  createStream: oc
+  createStream: base
     .route({
       method: 'POST',
       path: '/audit/streams',
@@ -236,15 +257,15 @@ export const auditContract = {
         }),
     )
     .output(z.object({ stream: AuditStream, secret: z.string() })),
-  updateStream: oc
+  updateStream: base
     .route({ method: 'PATCH', path: '/audit/streams/{id}' })
     .input(StreamFields.extend({ id: Id, authHeader: AuthHeader.nullable().optional() }))
     .output(AuditStream),
-  removeStream: oc
+  removeStream: base
     .route({ method: 'DELETE', path: '/audit/streams/{id}' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  testStream: oc
+  testStream: base
     .route({
       method: 'POST',
       path: '/audit/streams/{id}/test',

@@ -11,7 +11,8 @@ import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
-import { HttpError } from '~/http/errors';
+import { ORPCError } from '@orpc/server';
+import { fromDatabase } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
@@ -83,12 +84,11 @@ const requestLogger = (log: Logger) =>
   });
 
 /** Errors outside oRPC (auth, unknown routes) in the same shape as oRPC's. */
-const errorBody = (status: number, code: string, message: string, data?: unknown) => ({
+const errorBody = (status: number, code: string, message: string) => ({
   defined: false,
   code,
   status,
   message,
-  data,
 });
 
 export const createApp = (log: Logger = logger): Express => {
@@ -184,8 +184,10 @@ export const createApp = (log: Logger = logger): Express => {
   });
 
   app.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
-    if (error instanceof HttpError) {
-      res.status(error.status).json(errorBody(error.status, error.code, error.message, error.data));
+    const known = fromDatabase(error);
+
+    if (known instanceof ORPCError) {
+      res.status(known.status).json(known.toJSON());
 
       return;
     }

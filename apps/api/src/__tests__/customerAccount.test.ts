@@ -93,7 +93,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     await t.signedIn('taken@example.com');
     await expect(
       me.customerAccount.addLogin({ kind: 'email', value: 'taken@example.com' }),
-    ).rejects.toMatchObject({ status: 409, code: 'LOGIN_TAKEN' });
+    ).rejects.toMatchObject({ status: 409, code: 'TAKEN' });
 
     // Signs in with the phone too, then drops the email. The last one stays.
     const logins = (await me.customerAccount.logins({})).data;

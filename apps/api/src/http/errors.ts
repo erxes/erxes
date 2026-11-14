@@ -1,24 +1,38 @@
-import { ORPCError } from '@orpc/server';
+import { ERRORS, type ErrorCode } from '@erxes/core-contract';
+import { ORPCError, type ValidationError } from '@orpc/server';
 import { DatabaseError } from 'pg';
+import type { z } from 'zod';
+
+type DataOf<C extends ErrorCode> = (typeof ERRORS)[C] extends { data: infer S extends z.ZodType }
+  ? z.input<S>
+  : undefined;
 
 /**
- * An error the API answers with (oRPC's error body: `{ code, status, message, data }`).
- * Services throw it; clients branch on `code`.
+ * An error the API answers with: one of the contract's codes (`ERRORS` in
+ * `@erxes/core-contract`), with the status and the `data` it declares. The
+ * only place an `ORPCError` is made. A procedure that declares the code
+ * answers with it as a defined error, typed for the client.
  */
-export class HttpError extends ORPCError<string, unknown> {
-  constructor(
-    status: 400 | 401 | 402 | 403 | 404 | 409 | 429,
-    code: string,
-    message: string,
-    data?: unknown,
-  ) {
-    super(code, { status, message, data });
-  }
-}
+export const fail = <C extends ErrorCode>(
+  code: C,
+  message: string,
+  ...[data]: undefined extends DataOf<C> ? [data?: DataOf<C>] : [data: DataOf<C>]
+) => new ORPCError(code, { status: ERRORS[code].status, message, data, defined: true });
 
-export const notFound = (what: string) => new HttpError(404, 'NOT_FOUND', `${what} not found`);
+export const notFound = (what: string) => fail('NOT_FOUND', `${what} not found`);
 
-export const forbidden = (code: string, message: string) => new HttpError(403, code, message);
+/** Input the contract refuses: zod's issues, path by path. */
+export const invalidInput = ({ issues }: ValidationError) =>
+  fail('INVALID_INPUT', 'The request is not valid', {
+    issues: issues.map((issue) => ({
+      path: (issue.path ?? []).flatMap((segment) => {
+        const key = typeof segment === 'object' ? segment.key : segment;
+
+        return typeof key === 'symbol' ? [] : [key];
+      }),
+      message: issue.message,
+    })),
+  });
 
 /** The pg error behind a Drizzle error (DrizzleQueryError wraps it in `cause`). */
 const databaseError = (error: unknown, depth = 0): DatabaseError | undefined => {
@@ -30,5 +44,83 @@ const databaseError = (error: unknown, depth = 0): DatabaseError | undefined => 
 /** The SQLSTATE of the pg error behind `error`, e.g. 23505 for a unique violation. */
 export const pgCode = (error: unknown) => databaseError(error)?.code;
 
-/** The constraint a pg error names, e.g. which unique index a 23505 hit. */
-export const pgConstraint = (error: unknown) => databaseError(error)?.constraint;
+/**
+ * The unique indexes and foreign keys input can run into, by constraint name:
+ * the input field and what to tell the caller. A unique violation answers
+ * `TAKEN`, a foreign key violation `INVALID_REFERENCE`.
+ */
+const CONSTRAINTS: Record<string, { field: string; message: string }> = {
+  core_customers_org_primary_email_key: {
+    field: 'primaryEmail',
+    message: 'A customer with this email already exists',
+  },
+  core_customers_org_primary_phone_key: {
+    field: 'primaryPhone',
+    message: 'A customer with this phone already exists',
+  },
+  core_customer_logins_org_kind_value_key: {
+    field: 'value',
+    message: 'Another customer signs in with this',
+  },
+  core_companies_org_primary_name_key: {
+    field: 'primaryName',
+    message: 'A company with this name already exists',
+  },
+  core_tags_org_type_name_key: { field: 'name', message: 'A tag with this name already exists' },
+  core_lead_stages_org_name_key: {
+    field: 'name',
+    message: 'A stage with this name already exists',
+  },
+  core_field_groups_org_type_code_key: {
+    field: 'code',
+    message: 'A group with this code already exists',
+  },
+  core_fields_org_type_code_key: {
+    field: 'code',
+    message: 'A field with this code already exists',
+  },
+  core_fields_org_type_label_key: {
+    field: 'label',
+    message: 'A field with this label already exists',
+  },
+  core_product_categories_org_parent_name_key: {
+    field: 'name',
+    message: 'A category with this name is already there',
+  },
+  core_products_org_code_key: { field: 'code', message: 'Another product has this code' },
+  core_products_org_barcode_key: { field: 'barcode', message: 'Another product has this barcode' },
+  core_users_org_email_key: {
+    field: 'email',
+    message: 'A team member with this email already exists',
+  },
+  core_organizations_subdomain_key: {
+    field: 'subdomain',
+    message: 'Another workspace has this subdomain',
+  },
+  core_customers_owner_id_fkey: { field: 'ownerId', message: 'The owner is not a team member' },
+  core_companies_owner_id_fkey: { field: 'ownerId', message: 'The owner is not a team member' },
+  core_customers_lead_stage_id_fkey: { field: 'leadStageId', message: 'No such lead stage' },
+  core_companies_lead_stage_id_fkey: { field: 'leadStageId', message: 'No such lead stage' },
+  core_fields_group_id_fkey: { field: 'groupId', message: 'No such field group' },
+  core_products_category_fkey: { field: 'categoryId', message: 'No such category' },
+  core_product_categories_parent_fkey: { field: 'parentId', message: 'No such category' },
+  core_users_role_fkey: { field: 'role', message: 'No such role' },
+};
+
+/**
+ * A unique or foreign key violation the caller caused, as the error it
+ * means; anything else as it is. Every procedure's errors pass through it
+ * (`unscoped` in `~/orpc`).
+ */
+export const fromDatabase = (error: unknown) => {
+  const pg = databaseError(error);
+  const known = pg?.constraint ? CONSTRAINTS[pg.constraint] : undefined;
+
+  if (!known) return error;
+
+  if (pg?.code === '23505') return fail('TAKEN', known.message, { field: known.field });
+
+  if (pg?.code === '23503') return fail('INVALID_REFERENCE', known.message, { field: known.field });
+
+  return error;
+};

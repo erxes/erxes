@@ -4,7 +4,7 @@ import { and, eq, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { can } from '~/http/access';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { accessOf, tierOf } from '~/modules/saas/access';
@@ -55,7 +55,7 @@ const pluginOrThrow = async (client: Db, name: string) => {
     .where(and(eq(plugins.name, name), eq(plugins.status, 'active')))
     .limit(1);
 
-  if (!row) throw new HttpError(404, 'PLUGIN_NOT_FOUND', 'No such plugin');
+  if (!row) throw fail('PLUGIN_NOT_FOUND', 'No such plugin');
 
   return row;
 };
@@ -118,7 +118,7 @@ export const uninstallPlugin = async (name: string) => {
     .where(eq(pluginInstallations.plugin, name))
     .returning();
 
-  if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
+  if (!installation) throw fail('NOT_INSTALLED', `${name} is not installed`);
 
   await recordAudit(tx, {
     action: 'plugin.uninstalled',
@@ -152,14 +152,13 @@ export const pluginSession = async (name: string) => {
     )
     .limit(1);
 
-  if (!row)
-    throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
+  if (!row) throw fail('NOT_INSTALLED', `${name} is not installed in this organisation`);
 
   // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
   const plan = await entitlementsOf(orgId);
   const access = accessOf(plan, name);
 
-  if (access === 'off') throw new HttpError(402, 'NOT_IN_PLAN', `${name} is not in your plan`);
+  if (access === 'off') throw fail('NOT_IN_PLAN', `${name} is not in your plan`);
 
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
   const permissions = (row.plugin.manifest?.permissions ?? [])

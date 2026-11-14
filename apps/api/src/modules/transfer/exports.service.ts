@@ -14,7 +14,7 @@ import {
 import { and, asc, eq, getTableColumns, gt, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { memberOf } from '~/http/auth';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { repeatWhile } from '~/lib/sequence';
@@ -115,7 +115,7 @@ export const createExport = async (
     (key) => !available.some((item) => item.key === key && item.exportable),
   );
 
-  if (unknown) throw new HttpError(400, 'INVALID_COLUMNS', `Unknown column: ${unknown}`);
+  if (unknown) throw fail('INVALID_COLUMNS', `Unknown column: ${unknown}`);
 
   // A filter that doesn't fit is refused now, not in the background.
   await whereOf(client, input.recordType, input.query);

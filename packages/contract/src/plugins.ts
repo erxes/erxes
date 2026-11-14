@@ -1,6 +1,7 @@
 import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
@@ -269,8 +270,28 @@ export const TokenResponse = z.object({
  * plugin UIs (a member's short-lived session for one plugin's API), and live
  * signals to plugin UIs.
  */
+const {
+  CROSS_SITE,
+  INVALID_CLIENT,
+  LIMIT_EXCEEDED,
+  NAMESPACE_REQUIRED,
+  NOT_INSTALLED,
+  PLUGIN_NOT_FOUND,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  CROSS_SITE,
+  INVALID_CLIENT,
+  LIMIT_EXCEEDED,
+  NAMESPACE_REQUIRED,
+  NOT_INSTALLED,
+  PLUGIN_NOT_FOUND,
+});
+
 export const pluginsContract = {
-  token: oc
+  token: base
     .route({
       method: 'POST',
       path: '/plugins/token',
@@ -286,7 +307,7 @@ export const pluginsContract = {
       }),
     )
     .output(TokenResponse),
-  registerManifest: oc
+  registerManifest: base
     .route({
       method: 'PUT',
       path: '/plugins/manifest',
@@ -294,14 +315,14 @@ export const pluginsContract = {
     })
     .input(PluginManifest)
     .output(z.object({ ok: z.literal(true) })),
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/plugins',
       summary: 'Plugins of this deployment, and which are installed here',
     })
     .output(listOf(Plugin)),
-  install: oc
+  install: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/install',
@@ -309,7 +330,7 @@ export const pluginsContract = {
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
-  uninstall: oc
+  uninstall: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/uninstall',
@@ -317,7 +338,7 @@ export const pluginsContract = {
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
-  session: oc
+  session: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/session',
@@ -332,7 +353,7 @@ export const pluginsContract = {
         apiUrl: z.string().nullable(),
       }),
     ),
-  signal: oc
+  signal: base
     .route({
       method: 'POST',
       path: '/plugins/live',

@@ -1,13 +1,13 @@
 import { caller, db, type Db, newId, users } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/lib/crypto';
 import { sendInvitations } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { splitFullName } from './userProfile';
-import { conflictFrom, type UserRow } from './userRows';
+import type { UserRow } from './userRows';
 
 interface InviteInput {
   email: string;
@@ -51,17 +51,13 @@ const announceInvites = async (tx: Db, rows: UserRow[]) => {
 export const inviteUser = async (client: Db, input: InviteInput) => {
   await assertAssignable(client, input.role);
 
-  try {
-    const values = await inviteValues(input);
+  const values = await inviteValues(input);
 
-    const inserted = oneRow(await client.insert(users).values(values).returning());
+  const inserted = oneRow(await client.insert(users).values(values).returning());
 
-    await announceInvites(client, [inserted]);
+  await announceInvites(client, [inserted]);
 
-    return inserted;
-  } catch (error) {
-    return conflictFrom(error);
-  }
+  return inserted;
 };
 
 /** Several invitations in one go: all are created, or none (409 names the taken emails). */
@@ -75,8 +71,9 @@ export const inviteUsers = async (entries: InviteInput[]) => {
   const repeated = [...new Set(emails.filter((email, index) => emails.indexOf(email) !== index))];
 
   if (repeated.length) {
-    throw new HttpError(409, 'EMAIL_TAKEN', `Invited twice: ${repeated.join(', ')}`, {
-      emails: repeated,
+    throw fail('TAKEN', `Invited twice: ${repeated.join(', ')}`, {
+      field: 'email',
+      values: repeated,
     });
   }
 
@@ -92,18 +89,15 @@ export const inviteUsers = async (entries: InviteInput[]) => {
   if (taken.length) {
     const list = taken.map(({ email }) => email.toLowerCase());
 
-    throw new HttpError(409, 'EMAIL_TAKEN', `Already a team member: ${list.join(', ')}`, {
-      emails: list,
+    throw fail('TAKEN', `Already a team member: ${list.join(', ')}`, {
+      field: 'email',
+      values: list,
     });
   }
 
-  try {
-    const rows = await tx.insert(users).values(values).returning();
+  const rows = await tx.insert(users).values(values).returning();
 
-    await announceInvites(tx, rows);
+  await announceInvites(tx, rows);
 
-    return { data: rows };
-  } catch (error) {
-    return conflictFrom(error);
-  }
+  return { data: rows };
 };

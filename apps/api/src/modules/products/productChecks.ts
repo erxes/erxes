@@ -9,7 +9,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, ne, type SQL, sql } from 'drizzle-orm';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
-import { forbidden, HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
 /** A product's columns and its custom field values (`{ fieldId: value }`). */
@@ -44,7 +44,7 @@ export const checkCategory = async (client: Db, id: string | null | undefined) =
     .where(eq(productCategories.id, id))
     .limit(1);
 
-  if (!row) throw new HttpError(400, 'INVALID_CATEGORY', 'Unknown product category');
+  if (!row) throw fail('INVALID_CATEGORY', 'Unknown product category');
 };
 
 /** 400 INVALID_FILE unless every image is an uploaded file of the organisation. */
@@ -59,7 +59,7 @@ export const checkImages = async (client: Db, ids: string[] | undefined) => {
     .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   if (found.length !== wanted.length) {
-    throw new HttpError(400, 'INVALID_FILE', 'An image is not an uploaded file');
+    throw fail('INVALID_FILE', 'An image is not an uploaded file');
   }
 
   return wanted;
@@ -77,7 +77,7 @@ export const pluginsFor = async (
 ): Promise<string[] | undefined> => {
   if (caller().type === 'plugin') {
     if (requested) {
-      throw forbidden('FORBIDDEN', 'Plugins start or stop using products with products.use');
+      throw fail('NOT_ALLOWED', 'Plugins start or stop using products with products.use');
     }
 
     return undefined;
@@ -97,7 +97,7 @@ export const pluginsFor = async (
   const missing = wanted.filter((name) => !installed.some((row) => row.plugin === name));
 
   if (missing.length) {
-    throw new HttpError(400, 'PLUGIN_NOT_INSTALLED', `Not installed: ${missing.join(', ')}`);
+    throw fail('PLUGIN_NOT_INSTALLED', `Not installed: ${missing.join(', ')}`);
   }
 
   return wanted;
@@ -126,33 +126,12 @@ export const checkUnique = async (
     : undefined;
 
   if (byCode) {
-    throw new HttpError(409, 'PRODUCT_CODE_EXISTS', 'Another product has this code', {
-      productId: byCode,
-    });
+    throw fail('TAKEN', 'Another product has this code', { field: 'code', id: byCode });
   }
 
   const byBarcode = input.barcode ? await same(eq(products.barcode, input.barcode)) : undefined;
 
   if (byBarcode) {
-    throw new HttpError(409, 'PRODUCT_BARCODE_EXISTS', 'Another product has this barcode', {
-      productId: byBarcode,
-    });
+    throw fail('TAKEN', 'Another product has this barcode', { field: 'barcode', id: byBarcode });
   }
-};
-
-/** The same answers when two writes race past `checkUnique`. */
-export const productTaken = (error: unknown): never => {
-  if (pgCode(error) === '23505') {
-    const constraint = pgConstraint(error);
-
-    if (constraint === 'core_products_org_code_key') {
-      throw new HttpError(409, 'PRODUCT_CODE_EXISTS', 'Another product has this code');
-    }
-
-    if (constraint === 'core_products_org_barcode_key') {
-      throw new HttpError(409, 'PRODUCT_BARCODE_EXISTS', 'Another product has this barcode');
-    }
-  }
-
-  throw error;
 };

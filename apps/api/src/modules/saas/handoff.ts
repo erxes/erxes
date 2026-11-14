@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose';
 import { z } from 'zod';
 import { config } from '~/config';
 import { sha256 } from '~/lib/crypto';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { asMember } from '~/modules/auth/account.service';
 import { subdomainFromHost } from '~/modules/auth/auth.service';
@@ -33,7 +33,7 @@ const handoffOrganization = async (org: string | undefined, host: string | undef
       .limit(1),
   );
 
-  if (!found) throw new HttpError(404, 'NOT_FOUND', 'No such workspace');
+  if (!found) throw fail('NOT_FOUND', 'No such workspace');
 
   return found.id;
 };
@@ -51,7 +51,7 @@ const useOnce = async (token: string, exp: number) => {
       .returning({ jti: usedTokens.jti }),
   );
 
-  if (!used.length) throw new HttpError(400, 'TOKEN_USED', 'This sign-in link was already used');
+  if (!used.length) throw fail('TOKEN_USED', 'This sign-in link was already used');
 };
 
 /**
@@ -62,8 +62,7 @@ const useOnce = async (token: string, exp: number) => {
  * token works once.
  */
 export const redeemHandoff = async (token: string, host: string | undefined) => {
-  if (!config.saas.handoffSecret)
-    throw new HttpError(404, 'NOT_FOUND', 'Sign-in hand-off is not set up');
+  if (!config.saas.handoffSecret) throw fail('NOT_FOUND', 'Sign-in hand-off is not set up');
 
   const { payload } = await jwtVerify(token, new TextEncoder().encode(config.saas.handoffSecret), {
     algorithms: ['HS256'],
@@ -73,8 +72,7 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
   const { data: claims } = HandoffClaims.safeParse(payload);
   const email = claims?.user?.email ?? claims?.email;
 
-  if (!claims || !email || !claims.exp)
-    throw new HttpError(400, 'INVALID_TOKEN', 'Not a sign-in link');
+  if (!claims || !email || !claims.exp) throw fail('INVALID_TOKEN', 'Not a sign-in link');
 
   const orgId = await handoffOrganization(claims.org, host);
 
@@ -88,7 +86,7 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
       .limit(1),
   );
 
-  if (!user) throw new HttpError(403, 'NOT_A_MEMBER', 'You are not a member of this workspace');
+  if (!user) throw fail('NOT_A_MEMBER', 'You are not a member of this workspace');
 
   await withOrg(orgId, async (tx) => {
     // erxes.io vouches for the email: an invited member becomes active.

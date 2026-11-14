@@ -23,7 +23,7 @@ import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
 import { contactColumns, scalarFields } from './customerColumns';
 import { assertCompany } from './customerLinks';
-import { conflictFrom, findCustomer, inOrg } from './customerRows';
+import { findCustomer, inOrg } from './customerRows';
 
 export const getCustomer = (client: Db, id: string) => findCustomer(client, id, true);
 
@@ -42,40 +42,33 @@ export const createCustomer = async (client: Db, input: CustomerInput) => {
     state: input.state ?? 'customer',
   });
 
-  try {
-    const id = await savepoint(async (tx) => {
-      const { id: created } = oneRow(
-        await tx
-          .insert(customers)
-          .values({
-            ...scalarFields(input),
-            id: newId(),
-            state: input.state ?? 'customer',
-            primaryEmail: email.primary,
-            emails: email.list,
-            primaryPhone: phone.primary,
-            phones: phone.list,
-            ...lead.set,
-            createdBy: caller('user').userId,
-          })
-          .returning({ id: customers.id }),
-      );
+  const id = await savepoint(async (tx) => {
+    const { id: created } = oneRow(
+      await tx
+        .insert(customers)
+        .values({
+          ...scalarFields(input),
+          id: newId(),
+          state: input.state ?? 'customer',
+          primaryEmail: email.primary,
+          emails: email.list,
+          primaryPhone: phone.primary,
+          phones: phone.list,
+          ...lead.set,
+          createdBy: caller('user').userId,
+        })
+        .returning({ id: customers.id }),
+    );
 
-      await saveCustomFields(tx, 'customer', created, customFields, Object.keys(customFields));
-      await recordLeadSteps(tx, 'customer', [{ id: created, steps: lead.steps }]);
-      await setRecordTags(tx, 'customer', created, tagIds);
-      await contactCreated(tx, 'customer', await findCustomer(tx, created));
+    await saveCustomFields(tx, 'customer', created, customFields, Object.keys(customFields));
+    await recordLeadSteps(tx, 'customer', [{ id: created, steps: lead.steps }]);
+    await setRecordTags(tx, 'customer', created, tagIds);
+    await contactCreated(tx, 'customer', await findCustomer(tx, created));
 
-      return created;
-    });
+    return created;
+  });
 
-    return await findCustomer(client, id);
-  } catch (error) {
-    return conflictFrom(client, error, {
-      primaryEmail: email.primary,
-      primaryPhone: phone.primary,
-    });
-  }
+  return findCustomer(client, id);
 };
 
 export const updateCustomer = async (client: Db, id: string, input: CustomerInput) => {
@@ -98,40 +91,33 @@ export const updateCustomer = async (client: Db, id: string, input: CustomerInpu
 
   const lead = await planLeadOnUpdate(client, current, input);
 
-  try {
-    await savepoint(async (tx) => {
-      const updated = await tx
-        .update(customers)
-        .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
-        .where(inOrg(id))
-        .returning({ id: customers.id });
+  await savepoint(async (tx) => {
+    const updated = await tx
+      .update(customers)
+      .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
+      .where(inOrg(id))
+      .returning({ id: customers.id });
 
-      if (!updated.length) {
-        throw notFound('Customer');
-      }
+    if (!updated.length) {
+      throw notFound('Customer');
+    }
 
-      await recordLeadSteps(tx, 'customer', [{ id, steps: lead.steps }]);
+    await recordLeadSteps(tx, 'customer', [{ id, steps: lead.steps }]);
 
-      if (customFields) {
-        const keys = Object.keys(input.customFields ?? {});
+    if (customFields) {
+      const keys = Object.keys(input.customFields ?? {});
 
-        await saveCustomFields(tx, 'customer', id, customFields, keys);
-      }
+      await saveCustomFields(tx, 'customer', id, customFields, keys);
+    }
 
-      if (tagIds) {
-        await setRecordTags(tx, 'customer', id, tagIds);
-      }
+    if (tagIds) {
+      await setRecordTags(tx, 'customer', id, tagIds);
+    }
 
-      await contactUpdated(tx, 'customer', current, await findCustomer(tx, id));
-    });
+    await contactUpdated(tx, 'customer', current, await findCustomer(tx, id));
+  });
 
-    return await findCustomer(client, id);
-  } catch (error) {
-    return conflictFrom(client, error, {
-      primaryEmail: changes.primaryEmail ?? current.primaryEmail,
-      primaryPhone: changes.primaryPhone ?? current.primaryPhone,
-    });
-  }
+  return findCustomer(client, id);
 };
 
 export const removeCustomers = async (

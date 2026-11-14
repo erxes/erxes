@@ -2,7 +2,7 @@ import { organizations, plugins, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, isNotNull, sql } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { config } from '~/config';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { clientOf, installed } from '~/modules/oauth/oauthClients';
 
 /**
@@ -39,7 +39,7 @@ const subdomainInOrigin = (origins: string[], origin: string) => {
 };
 
 const originNotAllowed = () =>
-  new HttpError(403, 'ORIGIN_NOT_ALLOWED', 'This web address may not sign customers in to the app');
+  fail('ORIGIN_NOT_ALLOWED', 'This web address may not sign customers in to the app');
 
 /** A browser call must come from one of the app's origins, for this organisation. */
 const assertOrigin = (origins: string[], subdomain: string, origin: string | undefined) => {
@@ -51,7 +51,7 @@ const assertOrigin = (origins: string[], subdomain: string, origin: string | und
 };
 
 const unknownApp = () =>
-  new HttpError(400, 'UNKNOWN_APP', "This app can't sign customers in to this organisation");
+  fail('UNKNOWN_APP', "This app can't sign customers in to this organisation");
 
 /** The active plugin and its app's origins, when it has a customer app. */
 const appOf = async (clientId: string) => {

@@ -1,7 +1,7 @@
 import type { ActionInfo } from '@erxes/core-contract';
 import type { ContentType, Db } from '@erxes/core-db';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import type { RunContext, SubjectRef } from '../runs';
 
 /**
@@ -42,11 +42,7 @@ export const idempotencyKey = (ctx: CallContext) => `${ctx.run.id}:${ctx.step.id
 
 export const needSubject = (ctx: CallContext, type: ContentType) => {
   if (ctx.subject?.type !== type) {
-    throw new HttpError(
-      400,
-      'NO_SUBJECT',
-      `This step needs a ${type}: the trigger event isn't about one`,
-    );
+    throw fail('NO_SUBJECT', `This step needs a ${type}: the trigger event isn't about one`);
   }
 
   return ctx.subject.id;
@@ -93,8 +89,7 @@ export const checked = <T>(schema: z.ZodType<T>, value: unknown): T => {
   const parsed = schema.safeParse(value);
 
   if (!parsed.success) {
-    throw new HttpError(
-      400,
+    throw fail(
       'INVALID_STEP_INPUT',
       parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; '),
     );

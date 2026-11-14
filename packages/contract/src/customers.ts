@@ -1,6 +1,7 @@
 import { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { companies, customerCompanies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CustomerSex } from './values';
@@ -173,8 +174,34 @@ const TagChange = z.object({
   remove: z.array(Id).max(50).default([]),
 });
 
+const {
+  INVALID_ACTOR,
+  INVALID_FIELD,
+  INVALID_FIELD_VALUE,
+  INVALID_OWNER,
+  INVALID_TAG,
+  INVALID_TYPE,
+  MASS_DELETE_STOPPED,
+  NOT_A_LEAD,
+  TAG_LIMIT,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  INVALID_ACTOR,
+  INVALID_FIELD,
+  INVALID_FIELD_VALUE,
+  INVALID_OWNER,
+  INVALID_TAG,
+  INVALID_TYPE,
+  MASS_DELETE_STOPPED,
+  NOT_A_LEAD,
+  TAG_LIMIT,
+});
+
 export const customersContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/customers',
@@ -197,7 +224,7 @@ export const customersContract = {
       }),
     )
     .output(cursorPageOf(Customer)),
-  findOrCreate: oc
+  findOrCreate: base
     .route({
       method: 'POST',
       path: '/customers/find-or-create',
@@ -222,7 +249,7 @@ export const customersContract = {
         ),
     )
     .output(z.object({ customer: Customer, created: z.boolean() })),
-  get: oc
+  get: base
     .route({
       method: 'GET',
       path: '/customers/{id}',
@@ -230,7 +257,7 @@ export const customersContract = {
     })
     .input(ID)
     .output(Customer),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/customers',
@@ -240,11 +267,11 @@ export const customersContract = {
     })
     .input(CustomerFields.refine(identifies, 'a name, an email or a phone is required'))
     .output(Customer),
-  update: oc
+  update: base
     .route({ method: 'PATCH', path: '/customers/{id}' })
     .input(CustomerFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(Customer),
-  remove: oc
+  remove: base
     .route({
       method: 'POST',
       path: '/customers/remove',
@@ -252,7 +279,7 @@ export const customersContract = {
     })
     .input(Ids)
     .output(z.object({ removed: z.int() })),
-  merge: oc
+  merge: base
     .route({
       method: 'POST',
       path: '/customers/merge',
@@ -261,7 +288,7 @@ export const customersContract = {
     })
     .input(MergeInput)
     .output(Customer),
-  tag: oc
+  tag: base
     .route({
       method: 'POST',
       path: '/customers/tag',
@@ -269,7 +296,7 @@ export const customersContract = {
     })
     .input(TagChange)
     .output(z.object({ updated: z.int() })),
-  companies: oc
+  companies: base
     .route({
       method: 'GET',
       path: '/customers/{id}/companies',
@@ -277,7 +304,7 @@ export const customersContract = {
     })
     .input(ID)
     .output(listOf(CompanyRef)),
-  linkCompany: oc
+  linkCompany: base
     .route({
       method: 'PUT',
       path: '/customers/{id}/companies/{companyId}',
@@ -285,7 +312,7 @@ export const customersContract = {
     })
     .input(ContactLinkInput.extend({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  unlinkCompany: oc
+  unlinkCompany: base
     .route({ method: 'DELETE', path: '/customers/{id}/companies/{companyId}' })
     .input(z.object({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),

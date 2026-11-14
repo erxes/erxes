@@ -1,6 +1,7 @@
 import { ACTIVITY_TARGETS, TIMELINE_KINDS } from '@erxes/core-db/enums';
 import { activities, notes, noteVersions } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
@@ -157,8 +158,34 @@ export const ActivityInput = createUpdateSchema(activities, {
 export type ActivityInput = z.infer<typeof ActivityInput>;
 
 /** The customer and company timeline, across core and plugins. */
+const {
+  INVALID_ACTOR,
+  INVALID_FILE,
+  INVALID_OWNER,
+  INVALID_RECIPIENT,
+  INVALID_TYPE,
+  MASS_DELETE_STOPPED,
+  NOT_AUTHOR,
+  NO_TIMELINE,
+  TOO_MANY_REACTIONS,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  INVALID_ACTOR,
+  INVALID_FILE,
+  INVALID_OWNER,
+  INVALID_RECIPIENT,
+  INVALID_TYPE,
+  MASS_DELETE_STOPPED,
+  NOT_AUTHOR,
+  NO_TIMELINE,
+  TOO_MANY_REACTIONS,
+});
+
 export const activitiesContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/activities',
@@ -183,7 +210,7 @@ export const activitiesContract = {
       }),
     )
     .output(cursorPageOf(Activity)),
-  addNote: oc
+  addNote: base
     .route({
       method: 'POST',
       path: '/activities/notes',
@@ -192,7 +219,7 @@ export const activitiesContract = {
     })
     .input(NoteInput.extend({ targetType: TimelineTarget, targetId: Id }))
     .output(Activity),
-  react: oc
+  react: base
     .route({
       method: 'POST',
       path: '/activities/{id}/reactions',
@@ -200,7 +227,7 @@ export const activitiesContract = {
     })
     .input(z.object({ id: Id, emoji: z.string().trim().min(1).max(16) }))
     .output(Activity),
-  types: oc
+  types: base
     .route({
       method: 'GET',
       path: '/activities/types',
@@ -227,7 +254,7 @@ export const activitiesContract = {
         ),
       }),
     ),
-  editNote: oc
+  editNote: base
     .route({
       method: 'PATCH',
       path: '/activities/notes/{id}',
@@ -249,7 +276,7 @@ export const activitiesContract = {
         ),
     )
     .output(Activity),
-  pinNote: oc
+  pinNote: base
     .route({
       method: 'PUT',
       path: '/activities/notes/{id}/pinned',
@@ -257,7 +284,7 @@ export const activitiesContract = {
     })
     .input(z.object({ id: Id, pinned: z.boolean() }))
     .output(Activity),
-  noteVersions: oc
+  noteVersions: base
     .route({
       method: 'GET',
       path: '/activities/notes/{id}/versions',
@@ -265,7 +292,7 @@ export const activitiesContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ data: z.array(NoteVersion).max(100) })),
-  removeNote: oc
+  removeNote: base
     .route({
       method: 'DELETE',
       path: '/activities/notes/{id}',
@@ -273,7 +300,7 @@ export const activitiesContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/activities',
@@ -283,7 +310,7 @@ export const activitiesContract = {
     })
     .input(ActivityInput)
     .output(z.object({ activity: Activity, created: z.boolean() })),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/activities/{id}',
@@ -305,7 +332,7 @@ export const activitiesContract = {
         ),
     )
     .output(Activity),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/activities/{id}',

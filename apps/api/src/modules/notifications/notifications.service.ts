@@ -12,7 +12,7 @@ import {
 } from '@erxes/core-db';
 import { and, desc, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { lockKeys } from '~/lib/locks';
@@ -80,11 +80,7 @@ const recipientsOf = async (client: Db, source: string, inputs: NotifyInput[]) =
     const delivered = wanted.flatMap((id) => members.get(id) ?? []);
 
     if (delivered.length !== wanted.length) {
-      throw new HttpError(
-        400,
-        'INVALID_RECIPIENT',
-        'Some recipients are not team members of this organisation',
-      );
+      throw fail('INVALID_RECIPIENT', 'Some recipients are not team members of this organisation');
     }
 
     const actorUserId =

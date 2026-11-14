@@ -12,7 +12,7 @@ import {
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { hashPassword, randomToken, safeEqual, sha256 } from '~/lib/crypto';
@@ -22,7 +22,7 @@ const INVITE_DAYS = 7;
 export const RESET_MINUTES = 30;
 
 export const invalidLink = () =>
-  new HttpError(400, 'INVALID_LINK', 'This link is not valid any more: ask for a new one');
+  fail('INVALID_LINK', 'This link is not valid any more: ask for a new one');
 
 /**
  * A new single-use link for each member, in one insert; earlier unused ones
@@ -134,10 +134,9 @@ export const resendInvitation = async (tx: Db, userId: string) => {
     .where(eq(users.id, userId))
     .limit(1);
 
-  if (!user) throw new HttpError(404, 'NOT_FOUND', 'Team member not found');
+  if (!user) throw fail('NOT_FOUND', 'Team member not found');
 
-  if (user.status !== 'invited')
-    throw new HttpError(409, 'NOT_INVITED', 'This member has already joined');
+  if (user.status !== 'invited') throw fail('NOT_INVITED', 'This member has already joined');
 
   await sendInvitations(tx, [user]);
   await recordAudit(tx, {

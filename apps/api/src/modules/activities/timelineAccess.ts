@@ -9,7 +9,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
 import { can } from '~/http/access';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
 /** Customers and companies: the timelines core keeps itself. */
@@ -64,7 +64,7 @@ const pluginTimeline = async (client: Db, targetType: string) => {
 };
 
 const notAllowed = (permission: string) =>
-  new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", { permission });
+  fail('NOT_ALLOWED', "Your role doesn't allow this", { permission });
 
 /**
  * May this caller see (and note on) this timeline? Customers and companies
@@ -82,8 +82,7 @@ export const assertTimelineAccess = async (client: Db, targetType: string, targe
   }
 
   if (who.type === 'plugin' && !targetType.startsWith(`${who.plugin}.`)) {
-    throw new HttpError(
-      403,
+    throw fail(
       'NOT_ALLOWED',
       'A plugin writes to customers, companies and its own record types only',
     );
@@ -92,11 +91,7 @@ export const assertTimelineAccess = async (client: Db, targetType: string, targe
   const timeline = await pluginTimeline(client, targetType);
 
   if (!timeline)
-    throw new HttpError(
-      404,
-      'NO_TIMELINE',
-      `No installed plugin keeps a timeline for ${targetType}`,
-    );
+    throw fail('NO_TIMELINE', `No installed plugin keeps a timeline for ${targetType}`);
 
   if (who.type === 'user' && timeline.permission && !can(who, timeline.permission))
     throw notAllowed(timeline.permission);

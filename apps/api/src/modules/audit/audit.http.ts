@@ -5,7 +5,7 @@ import { and, desc, type SQL, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { callerCan } from '~/http/access';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { defuse } from '~/lib/csv';
 import { repeatWhile } from '~/lib/sequence';
 import { auditFilters, recordAudit } from './audit.service';
@@ -117,7 +117,7 @@ export const auditExportRouter = Router();
 
 auditExportRouter.get('/audit/export', async (req: Request, res: Response) => {
   if (!callerCan('audit.view')) {
-    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+    throw fail('NOT_ALLOWED', "Your role doesn't allow this", {
       permission: 'audit.view',
     });
   }

@@ -6,7 +6,7 @@ import {
 } from '@erxes/core-contract';
 import { actorOf, caller, type Db, newId, organizations, products } from '@erxes/core-db';
 import { eq, inArray, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { diffCustomFields, diffRows, mergeChanges } from '~/lib/changes';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
@@ -23,7 +23,6 @@ import {
   pluginsFor,
   productColumns,
   type ProductRow,
-  productTaken,
 } from './productChecks';
 import { lookupProducts } from './productList';
 
@@ -110,19 +109,15 @@ export const createProduct = async (
 
   const id = newId();
 
-  try {
-    await client.insert(products).values({
-      ...columns,
-      kind: input.kind,
-      name: input.name,
-      currency,
-      plugins,
-      id,
-      createdBy: actorOf(who).actorId,
-    });
-  } catch (error) {
-    return productTaken(error);
-  }
+  await client.insert(products).values({
+    ...columns,
+    kind: input.kind,
+    name: input.name,
+    currency,
+    plugins,
+    id,
+    createdBy: actorOf(who).actorId,
+  });
 
   await saveCustomFields(client, 'product', id, customFields, Object.keys(customFields));
 
@@ -140,14 +135,10 @@ export const updateProduct = async (client: Db, id: string, changes: ProductFiel
   const before = await findProduct(client, id);
   const { columns, customFields, changedFields } = await writable(client, changes, before);
 
-  try {
-    await client
-      .update(products)
-      .set({ ...columns, updatedAt: sql`now()` })
-      .where(eq(products.id, id));
-  } catch (error) {
-    return productTaken(error);
-  }
+  await client
+    .update(products)
+    .set({ ...columns, updatedAt: sql`now()` })
+    .where(eq(products.id, id));
 
   await saveCustomFields(client, 'product', id, customFields, changedFields);
 
@@ -171,7 +162,7 @@ export const useProducts = async (client: Db, ids: string[], used: boolean) => {
     .where(inArray(products.id, wanted));
 
   if (before.length !== wanted.length) {
-    throw new HttpError(400, 'INVALID_PRODUCT', 'Unknown product');
+    throw fail('INVALID_PRODUCT', 'Unknown product');
   }
 
   const changed = before.filter((row) => row.plugins.includes(plugin) !== used);

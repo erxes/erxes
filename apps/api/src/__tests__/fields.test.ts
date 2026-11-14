@@ -28,7 +28,7 @@ describe('field groups and field settings', () => {
     expect(billing.order).toBe(1);
     await expect(
       group({ contentType: 'customer', name: 'Other', code: 'BILLING' }),
-    ).rejects.toMatchObject({ code: 'FIELD_GROUP_EXISTS' });
+    ).rejects.toMatchObject({ code: 'TAKEN' });
     // No code can be made from this name.
     await expect(group({ contentType: 'customer', name: 'Хэрэглэгч' })).rejects.toMatchObject({
       status: 400,
@@ -84,7 +84,7 @@ describe('field groups and field settings', () => {
     await expect(
       field({ contentType: 'customer', label: 'Another', type: 'text', code: 'WORK_EMAIL' }),
     ).rejects.toMatchObject({
-      code: 'FIELD_EXISTS',
+      code: 'TAKEN',
       message: 'A field with this code already exists',
     });
 

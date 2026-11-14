@@ -10,7 +10,7 @@ import {
 } from '@erxes/core-db';
 import { eq, getTableColumns, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
@@ -43,7 +43,7 @@ const checkUrl = (url: string) => {
     assertOutboundUrl(url);
   } catch (error) {
     if (error instanceof OutboundError || error instanceof TypeError) {
-      throw new HttpError(400, 'INVALID_URL', error.message);
+      throw fail('INVALID_URL', error.message);
     }
 
     throw error;

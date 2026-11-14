@@ -283,7 +283,7 @@ describe('leads: stages, moves, conversion, history and the report', { timeout: 
     const created = await t.owner().leads.createStage({ name: 'Demo booked', color: '#0ea5e9' });
 
     await expect(t.owner().leads.createStage({ name: 'demo BOOKED' })).rejects.toMatchObject({
-      code: 'LEAD_STAGE_EXISTS',
+      code: 'TAKEN',
     });
 
     await t.owner().leads.reorderStages({ ids: idsOf(await stages()).toReversed() });

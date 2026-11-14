@@ -4,6 +4,7 @@ import { getLogger, type LoggerContext } from '@orpc/experimental-pino';
 import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { enforceAccess } from '~/http/access';
+import { fromDatabase } from '~/http/errors';
 import { type AuditInput, recordAudit } from '~/modules/audit/audit.service';
 
 /**
@@ -26,10 +27,14 @@ export interface CoreContext extends LoggerContext {
  */
 export const unscoped = implement(coreContract)
   .$context<CoreContext>()
-  .use(({ context, path, next }) => {
+  .use(async ({ context, path, next }) => {
     enforceAccess(path.join('.'));
 
-    return next({ context: { log: getLogger(context) ?? context.req.log } });
+    try {
+      return await next({ context: { log: getLogger(context) ?? context.req.log } });
+    } catch (error) {
+      throw fromDatabase(error);
+    }
   });
 
 /**

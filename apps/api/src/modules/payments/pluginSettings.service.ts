@@ -8,7 +8,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 
 /** Installed plugins that may create invoices (`payments:write`), with their settings (none yet: any gateway). */
@@ -59,11 +59,7 @@ const checkGateways = async (client: Db, allowed: string[], fallback: string | n
   if (found.length !== wanted.length) throw notFound('Gateway');
 
   if (fallback && allowed.length && !allowed.includes(fallback)) {
-    throw new HttpError(
-      400,
-      'DEFAULT_NOT_ALLOWED',
-      'The default gateway must be one of the allowed ones',
-    );
+    throw fail('DEFAULT_NOT_ALLOWED', 'The default gateway must be one of the allowed ones');
   }
 };
 

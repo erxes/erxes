@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { Router, type Request } from 'express';
 import { config } from '~/config';
 import { sessionClaims } from '~/http/auth';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { type LiveSignal, liveHub } from './hub';
 
 const HEARTBEAT_MS = 25_000;
@@ -36,9 +36,9 @@ type Send = (event: string, data?: StreamData) => void;
 const listenerOf = () => {
   const who = caller();
 
-  if (who.type === 'plugin') throw new HttpError(403, 'MEMBERS_ONLY', 'Plugins cannot do this');
+  if (who.type === 'plugin') throw fail('MEMBERS_ONLY', 'Plugins cannot do this');
 
-  if (who.type !== 'user') throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+  if (who.type !== 'user') throw fail('UNAUTHORIZED', 'Sign in to continue');
 
   return { orgId: requestOrgId(), userId: who.userId };
 };

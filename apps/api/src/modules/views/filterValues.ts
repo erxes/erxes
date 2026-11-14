@@ -1,10 +1,10 @@
 import type { ConditionRule } from '@erxes/core-contract';
 import { type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 
 /** A filter that doesn't fit its fields: 400 `INVALID_FILTER`. */
-export const invalid = (message: string) => new HttpError(400, 'INVALID_FILTER', message);
+export const invalid = (message: string) => fail('INVALID_FILTER', message);
 
 /** A text array parameter (a JS array in a template becomes a list of parameters, not one array). */
 export const textArray = (values: string[]) =>

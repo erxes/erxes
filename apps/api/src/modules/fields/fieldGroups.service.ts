@@ -1,17 +1,9 @@
 import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { oneRow, setOrders } from '~/lib/rows';
-import {
-  fieldsOfGroup,
-  findGroup,
-  type GroupRow,
-  inUse,
-  nextOrder,
-  taken,
-  usageOf,
-} from './fieldRows';
+import { fieldsOfGroup, findGroup, type GroupRow, inUse, nextOrder, usageOf } from './fieldRows';
 
 export const listFieldGroups = async (
   client: Db,
@@ -46,11 +38,14 @@ const groupCode = (code: string | undefined, name: string) => {
   const value = code?.trim() || codeOf(name);
 
   if (!value) {
-    throw new HttpError(
-      400,
-      'INVALID_INPUT',
-      'Code is required when the name has no Latin letters or digits',
-    );
+    throw fail('INVALID_INPUT', 'Code is required when the name has no Latin letters or digits', {
+      issues: [
+        {
+          path: ['code'],
+          message: 'Code is required when the name has no Latin letters or digits',
+        },
+      ],
+    });
   }
 
   return value;
@@ -68,25 +63,21 @@ export const createFieldGroup = async (
   const code = groupCode(input.code, input.name);
   const order = await nextOrder(client, fieldGroups, input.contentType);
 
-  try {
-    const row = oneRow(
-      await client
-        .insert(fieldGroups)
-        .values({
-          id: newId(),
-          contentType: input.contentType,
-          name: input.name,
-          code,
-          description: input.description || null,
-          order,
-        })
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .insert(fieldGroups)
+      .values({
+        id: newId(),
+        contentType: input.contentType,
+        name: input.name,
+        code,
+        description: input.description || null,
+        order,
+      })
+      .returning(),
+  );
 
-    return row;
-  } catch (error) {
-    return taken(error);
-  }
+  return row;
 };
 
 const updateGroupRow = async (
@@ -115,14 +106,10 @@ export const updateFieldGroup = async (
 ) => {
   await findGroup(client, id);
 
-  try {
-    return await updateGroupRow(client, id, {
-      ...rest,
-      description: description === '' ? null : description,
-    });
-  } catch (error) {
-    return taken(error);
-  }
+  return updateGroupRow(client, id, {
+    ...rest,
+    description: description === '' ? null : description,
+  });
 };
 
 export const reorderFieldGroups = (client: Db, orders: { id: string; order: number }[]) =>

@@ -2,7 +2,7 @@ import type { FileSettings } from '@erxes/core-contract';
 import { type Db, organizations, type OrganizationSettings } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -82,7 +82,7 @@ export const assertUploadAllowed = (
   input: { name: string; contentType: string; size: number },
 ) => {
   if (input.size > settings.maxSizeMb * MB) {
-    throw new HttpError(400, 'FILE_TOO_LARGE', `Files can be up to ${settings.maxSizeMb} MB`, {
+    throw fail('FILE_TOO_LARGE', `Files can be up to ${settings.maxSizeMb} MB`, {
       maxSizeMb: settings.maxSizeMb,
     });
   }
@@ -91,7 +91,7 @@ export const assertUploadAllowed = (
     BLOCKED_EXTENSIONS.has(extensionOf(input.name)) ||
     !typeAllowed(settings.allowedTypes, input.name, input.contentType)
   ) {
-    throw new HttpError(400, 'FILE_TYPE_NOT_ALLOWED', 'This type of file is not allowed', {
+    throw fail('FILE_TYPE_NOT_ALLOWED', 'This type of file is not allowed', {
       allowedTypes: settings.allowedTypes,
     });
   }
@@ -102,11 +102,7 @@ export const updateFileSettings = async (
   input: { maxSizeMb: number; allowedTypes: string[] },
 ) => {
   if (input.maxSizeMb > config.files.maxSizeMb) {
-    throw new HttpError(
-      400,
-      'LIMIT_EXCEEDED',
-      `This server accepts files up to ${config.files.maxSizeMb} MB`,
-    );
+    throw fail('LIMIT_EXCEEDED', `This server accepts files up to ${config.files.maxSizeMb} MB`);
   }
 
   const before = await fileSettingsOf(client);

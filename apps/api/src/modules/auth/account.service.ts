@@ -1,6 +1,6 @@
 import { auditLogs, type Caller, caller, db, users } from '@erxes/core-db';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword, verifyPassword } from '~/lib/crypto';
 
@@ -33,11 +33,11 @@ export const changeOwnPassword = async (input: {
     .limit(1);
 
   if (!user || !(await verifyPassword(input.currentPassword, user.passwordHash))) {
-    throw new HttpError(400, 'WRONG_PASSWORD', 'The current password is not right');
+    throw fail('WRONG_PASSWORD', 'The current password is not right');
   }
 
   if (input.currentPassword === input.newPassword) {
-    throw new HttpError(400, 'SAME_PASSWORD', 'Choose a password different from the current one');
+    throw fail('SAME_PASSWORD', 'Choose a password different from the current one');
   }
 
   const passwordHash = await hashPassword(input.newPassword);

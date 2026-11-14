@@ -9,7 +9,7 @@ import {
   users,
 } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import type { MemberSettings } from './delivery';
 import { mine } from './inbox.service';
 
@@ -92,8 +92,7 @@ export const updateNotificationSettings = async (
   );
 
   for (const [key, delivery] of Object.entries(input.groups ?? {})) {
-    if (key === 'security')
-      throw new HttpError(400, 'ALWAYS_ON', 'Security notifications are always on');
+    if (key === 'security') throw fail('ALWAYS_ON', 'Security notifications are always on');
     groups[key] = delivery;
   }
 

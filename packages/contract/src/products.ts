@@ -1,6 +1,7 @@
 import { PRODUCT_STATUSES } from '@erxes/core-db/enums';
 import { productCategories, products } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ProductKind } from './values';
@@ -139,8 +140,36 @@ const CategoryFields = createUpdateSchema(productCategories, {
  * Products are archived, never deleted: orders and invoices keep pointing at
  * them. Plugins read with `products:read` and write with `products:write`.
  */
+const {
+  CATEGORY_HAS_CHILDREN,
+  INVALID_CATEGORY,
+  INVALID_FIELD,
+  INVALID_FIELD_VALUE,
+  INVALID_FILE,
+  INVALID_PRODUCT,
+  LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY,
+  PLUGIN_NOT_INSTALLED,
+  SUBJECT_REQUIRED,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  CATEGORY_HAS_CHILDREN,
+  INVALID_CATEGORY,
+  INVALID_FIELD,
+  INVALID_FIELD_VALUE,
+  INVALID_FILE,
+  INVALID_PRODUCT,
+  LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY,
+  PLUGIN_NOT_INSTALLED,
+  SUBJECT_REQUIRED,
+});
+
 export const productsContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/products',
@@ -161,11 +190,11 @@ export const productsContract = {
       }),
     )
     .output(cursorPageOf(Product)),
-  get: oc
+  get: base
     .route({ method: 'GET', path: '/products/{id}' })
     .input(z.object({ id: Id }))
     .output(Product),
-  lookup: oc
+  lookup: base
     .route({
       method: 'GET',
       path: '/products/lookup',
@@ -173,7 +202,7 @@ export const productsContract = {
     })
     .input(z.object({ ids: IdList }))
     .output(z.object({ data: z.array(Product).max(100) })),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/products',
@@ -183,7 +212,7 @@ export const productsContract = {
     })
     .input(ProductFields.required({ kind: true, name: true }))
     .output(Product),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/products/{id}',
@@ -196,7 +225,7 @@ export const productsContract = {
       ),
     )
     .output(Product),
-  use: oc
+  use: base
     .route({
       method: 'POST',
       path: '/products/use',
@@ -205,7 +234,7 @@ export const productsContract = {
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100), used: z.boolean() }))
     .output(z.object({ data: z.array(Product).max(100) })),
-  archive: oc
+  archive: base
     .route({
       method: 'POST',
       path: '/products/{id}/archive',
@@ -213,7 +242,7 @@ export const productsContract = {
     })
     .input(z.object({ id: Id }))
     .output(Product),
-  restore: oc
+  restore: base
     .route({ method: 'POST', path: '/products/{id}/restore' })
     .input(z.object({ id: Id }))
     .output(Product),
@@ -221,10 +250,10 @@ export const productsContract = {
 
 /** Groups of products, nested by `parentId`. */
 export const productCategoriesContract = {
-  list: oc
+  list: base
     .route({ method: 'GET', path: '/product-categories', summary: 'Every category, by name' })
     .output(listOf(ProductCategory)),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/product-categories',
@@ -233,7 +262,7 @@ export const productCategoriesContract = {
     })
     .input(CategoryFields.required({ name: true }))
     .output(ProductCategory),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/product-categories/{id}',
@@ -246,7 +275,7 @@ export const productCategoriesContract = {
       ),
     )
     .output(ProductCategory),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/product-categories/{id}',

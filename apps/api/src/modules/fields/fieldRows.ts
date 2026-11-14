@@ -1,6 +1,6 @@
 import { type FieldContentType, type Db, fieldGroups, fields } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, isNotNull, sql } from 'drizzle-orm';
-import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { oneRow } from '~/lib/rows';
 import { valuesTable } from './fieldValues';
@@ -31,29 +31,8 @@ export const selectFields = (client: Db) =>
 export const fieldById = async (client: Db, id: string) =>
   oneRow(await selectFields(client).where(eq(fields.id, id)).limit(1));
 
-/** A unique violation as the field or group conflict it means; anything else is rethrown. */
-export const taken = (error: unknown): never => {
-  if (pgCode(error) === '23505') {
-    const constraint = pgConstraint(error) ?? '';
-
-    if (constraint.startsWith('core_field_groups')) {
-      throw new HttpError(409, 'FIELD_GROUP_EXISTS', 'A group with this code already exists');
-    }
-
-    throw new HttpError(
-      409,
-      'FIELD_EXISTS',
-      constraint === 'core_fields_org_type_code_key'
-        ? 'A field with this code already exists'
-        : 'A field with this label already exists',
-    );
-  }
-
-  throw error;
-};
-
 export const inUse = (what: string) =>
-  new HttpError(409, 'FIELD_IN_USE', `Records hold values of ${what}, so it can only be archived`);
+  fail('FIELD_IN_USE', `Records hold values of ${what}, so it can only be archived`);
 
 export const findGroup = async (client: Db, id: string) => {
   const [row] = await client.select().from(fieldGroups).where(eq(fieldGroups.id, id)).limit(1);

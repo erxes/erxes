@@ -1,5 +1,6 @@
 import { customerLogins, customerSessions, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber, listOf } from './common';
@@ -98,8 +99,38 @@ export type CustomerTokens = z.infer<typeof CustomerTokens>;
  * Customers sign in to a plugin's app with a one-time code (decision 42): the
  * app's own form calls these. Public; browsers only from the app's origins.
  */
+const {
+  INVALID_CODE,
+  INVALID_CREDENTIALS,
+  INVALID_TOKEN,
+  LAST_LOGIN,
+  NOTHING_TO_RETRY,
+  ORGANIZATION_REQUIRED,
+  ORIGIN_NOT_ALLOWED,
+  SUBJECT_REQUIRED,
+  TOO_MANY_ATTEMPTS,
+  TOO_MANY_CODES,
+  UNKNOWN_APP,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  INVALID_CODE,
+  INVALID_CREDENTIALS,
+  INVALID_TOKEN,
+  LAST_LOGIN,
+  NOTHING_TO_RETRY,
+  ORGANIZATION_REQUIRED,
+  ORIGIN_NOT_ALLOWED,
+  SUBJECT_REQUIRED,
+  TOO_MANY_ATTEMPTS,
+  TOO_MANY_CODES,
+  UNKNOWN_APP,
+});
+
 export const customerAuthContract = {
-  sendCode: oc
+  sendCode: base
     .route({
       method: 'POST',
       path: '/customer-auth/code',
@@ -109,7 +140,7 @@ export const customerAuthContract = {
     })
     .input(addressWith({ clientId, organization }))
     .output(CodeSent),
-  signIn: oc
+  signIn: base
     .route({
       method: 'POST',
       path: '/customer-auth/sign-in',
@@ -118,7 +149,7 @@ export const customerAuthContract = {
     })
     .input(addressWith({ clientId, organization, code: Code }))
     .output(CustomerTokens.extend({ customer: CustomerProfile, created: z.boolean() })),
-  refresh: oc
+  refresh: base
     .route({
       method: 'POST',
       path: '/customer-auth/refresh',
@@ -127,7 +158,7 @@ export const customerAuthContract = {
     })
     .input(z.object({ clientId, refreshToken: RefreshToken }))
     .output(CustomerTokens),
-  signOut: oc
+  signOut: base
     .route({
       method: 'POST',
       path: '/customer-auth/sign-out',
@@ -139,17 +170,17 @@ export const customerAuthContract = {
 
 /** The signed-in customer (`Authorization: Bearer` with a customer access token). */
 export const customerAccountContract = {
-  me: oc
+  me: base
     .route({ method: 'GET', path: '/customer/me', summary: "The signed-in customer's profile" })
     .output(CustomerProfile),
-  update: oc
+  update: base
     .route({ method: 'PATCH', path: '/customer/me', summary: 'Change name, picture or birth date' })
     .input(CustomerProfileFields)
     .output(CustomerProfile),
-  logins: oc
+  logins: base
     .route({ method: 'GET', path: '/customer/me/logins', summary: 'Addresses I sign in with' })
     .output(listOf(CustomerLogin)),
-  addLogin: oc
+  addLogin: base
     .route({
       method: 'POST',
       path: '/customer/me/logins',
@@ -159,7 +190,7 @@ export const customerAccountContract = {
     })
     .input(addressWith({}))
     .output(CodeSent),
-  confirmLogin: oc
+  confirmLogin: base
     .route({
       method: 'POST',
       path: '/customer/me/logins/confirm',
@@ -168,7 +199,7 @@ export const customerAccountContract = {
     })
     .input(addressWith({ code: Code }))
     .output(CustomerLogin),
-  removeLogin: oc
+  removeLogin: base
     .route({
       method: 'DELETE',
       path: '/customer/me/logins/{id}',
@@ -176,10 +207,10 @@ export const customerAccountContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  sessions: oc
+  sessions: base
     .route({ method: 'GET', path: '/customer/me/sessions', summary: 'Where I am signed in' })
     .output(listOf(CustomerSession)),
-  revokeSession: oc
+  revokeSession: base
     .route({
       method: 'DELETE',
       path: '/customer/me/sessions/{id}',
@@ -187,7 +218,7 @@ export const customerAccountContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  signOutEverywhere: oc
+  signOutEverywhere: base
     .route({
       method: 'POST',
       path: '/customer/me/sign-out-everywhere',

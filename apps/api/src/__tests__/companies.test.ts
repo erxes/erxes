@@ -25,7 +25,7 @@ describe('companies and merge', () => {
       });
       await expect(
         t.member().companies.create({ primaryName: 'nomad tech' }),
-      ).rejects.toMatchObject({ status: 409, code: 'COMPANY_EXISTS', data: { id: created.id } });
+      ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'primaryName' } });
       expect(idsOf(await t.member().companies.list({ search: 'llc' }))).toEqual([created.id]);
       await expect(t.other().companies.get({ id: created.id })).rejects.toMatchObject({
         status: 404,
@@ -103,8 +103,10 @@ describe('companies and merge', () => {
       expect(idsOf(await t.owner().customers.companies({ id: keep.id }))).toEqual([company.id]);
       // The other's primary email is taken by the kept customer only.
       await expect(t.owner().customers.create({ primaryEmail: 'bat@a.mn' })).rejects.toMatchObject({
-        data: { id: keep.id },
+        code: 'TAKEN',
+        data: { field: 'primaryEmail' },
       });
+      expect((await t.owner().customers.get({ id: keep.id })).primaryEmail).toBe('bat@a.mn');
     });
 
     it('merges companies and keeps the other names', async () => {

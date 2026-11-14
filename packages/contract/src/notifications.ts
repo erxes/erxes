@@ -1,6 +1,7 @@
 import { NOTIFICATION_PRIORITIES } from '@erxes/core-db/enums';
 import { notifications } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { NotificationDelivery } from './values';
@@ -128,9 +129,21 @@ export const NotificationSettings = z.object({
 
 export type NotificationSettings = z.infer<typeof NotificationSettings>;
 
-/** The signed-in member's inbox. Plugins create notifications with `create`. */
+const { ALWAYS_ON, INVALID_ACTOR, INVALID_OWNER, INVALID_RECIPIENT, INVALID_TYPE } = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  /** The signed-in member's inbox. Plugins create notifications with `create`. */
+  ALWAYS_ON,
+  INVALID_ACTOR,
+  INVALID_OWNER,
+  INVALID_RECIPIENT,
+  INVALID_TYPE,
+});
+
 export const notificationsContract = {
-  list: oc
+  list: base
     .route({ method: 'GET', path: '/notifications', summary: 'My notifications, newest first' })
     .input(
       CursorQuery.extend({
@@ -142,7 +155,7 @@ export const notificationsContract = {
       }),
     )
     .output(cursorPageOf(Notification)),
-  unreadCount: oc
+  unreadCount: base
     .route({
       method: 'GET',
       path: '/notifications/unread-count',
@@ -151,7 +164,7 @@ export const notificationsContract = {
     })
     .input(z.object({ source: z.string().trim().max(40).optional() }))
     .output(z.object({ count: z.int(), bySource: z.record(z.string(), z.int()) })),
-  markRead: oc
+  markRead: base
     .route({
       method: 'POST',
       path: '/notifications/read',
@@ -166,7 +179,7 @@ export const notificationsContract = {
       }),
     )
     .output(z.object({ updated: z.int() })),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/notifications/{id}',
@@ -174,10 +187,10 @@ export const notificationsContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  settings: oc
+  settings: base
     .route({ method: 'GET', path: '/notifications/settings', summary: 'My notification settings' })
     .output(NotificationSettings),
-  updateSettings: oc
+  updateSettings: base
     .route({
       method: 'PUT',
       path: '/notifications/settings',
@@ -191,7 +204,7 @@ export const notificationsContract = {
       }),
     )
     .output(NotificationSettings),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/notifications',

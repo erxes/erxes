@@ -1,5 +1,6 @@
 import type { AutomationStep } from '@erxes/core-contract';
 import { type automations, type Db, runAs } from '@erxes/core-db';
+import { fromDatabase } from '~/http/errors';
 import { withRunCause } from '~/lib/causation';
 import { coreAction } from './actions/catalog';
 import type { ActionContext } from './actions/context';
@@ -78,7 +79,11 @@ const runLocalAction = async (
       automationName: automation.name,
       depth: state.run.depth,
     },
-    () => runAs(member, () => run(ctx)),
+    // A unique or reference conflict fails the run with what it means.
+    () =>
+      runAs(member, () => run(ctx)).catch((error: unknown) => {
+        throw fromDatabase(error);
+      }),
   );
 
   return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };

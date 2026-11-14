@@ -9,6 +9,7 @@ import {
 } from '@erxes/core-db/enums';
 import { exports, importRows, imports } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
@@ -141,8 +142,42 @@ export const Export = createSelectSchema(exports, {
 export type Export = z.infer<typeof Export>;
 
 /** Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of lists. */
+const {
+  CROSS_SITE,
+  IMPORT_LOCKED,
+  INVALID_COLUMNS,
+  INVALID_MAPPING,
+  INVALID_OPTIONS,
+  INVALID_RECIPIENT,
+  INVALID_TAG,
+  LIMIT_EXCEEDED,
+  NOT_UNDOABLE,
+  TAG_LIMIT,
+  UNSUPPORTED_FILE,
+  UPLOAD_CHANGED,
+  UPLOAD_INCOMPLETE,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  CROSS_SITE,
+  IMPORT_LOCKED,
+  INVALID_COLUMNS,
+  INVALID_MAPPING,
+  INVALID_OPTIONS,
+  INVALID_RECIPIENT,
+  INVALID_TAG,
+  LIMIT_EXCEEDED,
+  NOT_UNDOABLE,
+  TAG_LIMIT,
+  UNSUPPORTED_FILE,
+  UPLOAD_CHANGED,
+  UPLOAD_INCOMPLETE,
+});
+
 export const transferContract = {
-  columns: oc
+  columns: base
     .route({
       method: 'GET',
       path: '/transfer/columns',
@@ -150,15 +185,15 @@ export const transferContract = {
     })
     .input(z.object({ recordType: TransferRecordType }))
     .output(listOf(TransferColumn)),
-  imports: oc
+  imports: base
     .route({ method: 'GET', path: '/imports', summary: 'Imports, newest first' })
     .input(TransferPage)
     .output(cursorPageOf(Import)),
-  import: oc
+  import: base
     .route({ method: 'GET', path: '/imports/{id}' })
     .input(z.object({ id: Id }))
     .output(Import),
-  createImport: oc
+  createImport: base
     .route({
       method: 'POST',
       path: '/imports',
@@ -168,7 +203,7 @@ export const transferContract = {
     })
     .input(z.object({ recordType: TransferRecordType, fileId: Id }))
     .output(Import),
-  updateImport: oc
+  updateImport: base
     .route({
       method: 'PATCH',
       path: '/imports/{id}',
@@ -182,7 +217,7 @@ export const transferContract = {
       }),
     )
     .output(Import),
-  checkImport: oc
+  checkImport: base
     .route({
       method: 'POST',
       path: '/imports/{id}/check',
@@ -190,7 +225,7 @@ export const transferContract = {
     })
     .input(z.object({ id: Id }))
     .output(Import),
-  startImport: oc
+  startImport: base
     .route({
       method: 'POST',
       path: '/imports/{id}/start',
@@ -198,7 +233,7 @@ export const transferContract = {
     })
     .input(z.object({ id: Id }))
     .output(Import),
-  undoImport: oc
+  undoImport: base
     .route({
       method: 'POST',
       path: '/imports/{id}/undo',
@@ -206,7 +241,7 @@ export const transferContract = {
     })
     .input(z.object({ id: Id }))
     .output(Import),
-  importRows: oc
+  importRows: base
     .route({
       method: 'GET',
       path: '/imports/{id}/rows',
@@ -220,11 +255,11 @@ export const transferContract = {
       }),
     )
     .output(z.object({ data: z.array(ImportRow).max(1000) })),
-  exports: oc
+  exports: base
     .route({ method: 'GET', path: '/exports', summary: 'Exports, newest first' })
     .input(TransferPage)
     .output(cursorPageOf(Export)),
-  createExport: oc
+  createExport: base
     .route({
       method: 'POST',
       path: '/exports',

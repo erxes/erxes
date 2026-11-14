@@ -1,7 +1,7 @@
 import type { CursorQuery } from '@erxes/core-contract';
 import { caller, db, type Db, users } from '@erxes/core-db';
 import { and, eq, ilike, inArray, ne, or, type SQL, sql } from 'drizzle-orm';
-import { forbidden, HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { diffRows } from '~/lib/changes';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
@@ -11,14 +11,7 @@ import { hashPassword } from '~/lib/crypto';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { profileChanges, type UserChanges } from './userProfile';
-import {
-  assertTeamManager,
-  conflictFrom,
-  findUser,
-  lockTeam,
-  otherActiveOwners,
-  type UserRow,
-} from './userRows';
+import { assertTeamManager, findUser, lockTeam, otherActiveOwners, type UserRow } from './userRows';
 
 type Status = UserRow['status'];
 
@@ -98,7 +91,7 @@ const checkUserChange = async (
   const ownerEmail = change.email && change.email !== target.email && target.role === 'owner';
 
   if (ownerEmail && !self && me.role !== 'owner') {
-    throw forbidden('OWNER_ONLY', 'Only an owner can change an owner’s email');
+    throw fail('OWNER_ONLY', 'Only an owner can change an owner’s email');
   }
 
   if (!change.role || change.role === target.role) {
@@ -106,12 +99,12 @@ const checkUserChange = async (
   }
 
   if (self) {
-    throw forbidden('OWN_ROLE', 'You cannot change your own role');
+    throw fail('OWN_ROLE', 'You cannot change your own role');
   }
 
   // Only owners grant or remove owner rights.
   if ((change.role === 'owner' || target.role === 'owner') && me.role !== 'owner') {
-    throw forbidden('OWNER_ONLY', 'Only an owner can change owner rights');
+    throw fail('OWNER_ONLY', 'Only an owner can change owner rights');
   }
 
   // The role exists, and gives nothing beyond what the assigner can do.
@@ -122,7 +115,7 @@ const checkUserChange = async (
     target.status === 'active' &&
     (await otherActiveOwners(tx, target.id)) === 0
   ) {
-    throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
+    throw fail('LAST_OWNER', 'The organisation must keep an active owner');
   }
 };
 
@@ -165,26 +158,22 @@ export const updateUser = async (id: string, input: UserChanges) => {
 
     await checkUserChange(tx, target, { email, role: input.role });
 
-    try {
-      const row = oneRow(
-        await tx
-          .update(users)
-          .set({
-            ...profileChanges(input, target),
-            email,
-            role: input.role,
-            updatedAt: sql`now()`,
-          })
-          .where(eq(users.id, id))
-          .returning(),
-      );
+    const row = oneRow(
+      await tx
+        .update(users)
+        .set({
+          ...profileChanges(input, target),
+          email,
+          role: input.role,
+          updatedAt: sql`now()`,
+        })
+        .where(eq(users.id, id))
+        .returning(),
+    );
 
-      await announceUserChange(tx, target, row);
+    await announceUserChange(tx, target, row);
 
-      return row;
-    } catch (error) {
-      return conflictFrom(error);
-    }
+    return row;
   });
 };
 
@@ -205,11 +194,11 @@ const manageMember = <T>(
     const target = await findUser(tx, id, true);
 
     if (target.id === me.userId) {
-      throw forbidden('OWN_ACCOUNT', refusals.self);
+      throw fail('OWN_ACCOUNT', refusals.self);
     }
 
     if (target.role === 'owner' && me.role !== 'owner') {
-      throw forbidden('OWNER_ONLY', refusals.owner);
+      throw fail('OWNER_ONLY', refusals.owner);
     }
 
     return fn(target);
@@ -276,7 +265,7 @@ export const setUserDisabled = async (id: string, disabled: boolean) => {
     },
     async (target) => {
       if (disabled && target.role === 'owner' && (await otherActiveOwners(tx, target.id)) === 0) {
-        throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
+        throw fail('LAST_OWNER', 'The organisation must keep an active owner');
       }
 
       // Enabling returns a member to where they were: someone invited who never

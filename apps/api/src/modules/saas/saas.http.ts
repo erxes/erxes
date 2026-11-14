@@ -4,7 +4,8 @@ import express, { type NextFunction, Router, type Request, type Response } from 
 import { config } from '~/config';
 import { signAccessToken } from '~/http/auth';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
-import { HttpError } from '~/http/errors';
+import { ORPCError } from '@orpc/server';
+import { fail, fromDatabase } from '~/http/errors';
 import { sessionVersionOf } from '~/modules/auth/account.service';
 import { refreshEntitlements } from './entitlements';
 import { redeemHandoff } from './handoff';
@@ -64,7 +65,7 @@ saasRouter.post('/organizations/:id/refresh', async (req, res) => {
 
   const row = await refreshEntitlements(req.params.id);
 
-  if (!row) throw new HttpError(404, 'NOT_FOUND', 'No such workspace');
+  if (!row) throw fail('NOT_FOUND', 'No such workspace');
 
   res.json({ organizationStatus: row.orgStatus, plugins: row.plugins, lapsed: row.lapsed });
 });
@@ -77,8 +78,10 @@ saasRouter.get('/organizations/:id', async (req, res) => {
 
 /** Answers erxes.io in its own error shape. */
 saasRouter.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
-  if (error instanceof HttpError) {
-    res.status(error.status).json({ code: error.code, message: error.message, data: error.data });
+  const known = fromDatabase(error);
+
+  if (known instanceof ORPCError) {
+    res.status(known.status).json(known.toJSON());
 
     return;
   }

@@ -2,7 +2,7 @@ import type { CursorQuery } from '@erxes/core-contract';
 import { automationRuns, automationRunSteps, type Db } from '@erxes/core-db';
 import { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
 import { and, asc, eq, getTableColumns, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { findAutomation } from './automations.service';
@@ -74,7 +74,7 @@ export const retryAutomationRun = async (client: Db, runId: string) => {
 
   const run = await retryRun(client, runId);
 
-  if (!run) throw new HttpError(409, 'NOT_FAILED', 'Only a failed run can be retried');
+  if (!run) throw fail('NOT_FAILED', 'Only a failed run can be retried');
 
   return findRun(client, runId);
 };
@@ -84,8 +84,7 @@ export const cancelAutomationRun = async (client: Db, runId: string) => {
 
   const run = await cancelRun(client, runId);
 
-  if (!run)
-    throw new HttpError(409, 'NOT_RUNNING', 'Only a running or waiting run can be cancelled');
+  if (!run) throw fail('NOT_RUNNING', 'Only a running or waiting run can be cancelled');
 
   return findRun(client, runId);
 };
@@ -99,7 +98,7 @@ export const startAutomation = async (client: Db, id: string, subjects?: string[
       ? await definitionOf(client, id, row.activeVersion)
       : null;
 
-  if (!definition) throw new HttpError(409, 'NOT_ACTIVE', 'Turn the automation on first');
+  if (!definition) throw fail('NOT_ACTIVE', 'Turn the automation on first');
 
   const result = await startNow(client, row, definition, subjects);
 

@@ -1,4 +1,4 @@
-import { HttpError, pgCode } from '~/http/errors';
+import { fail, pgCode } from '~/http/errors';
 
 /**
  * Customer and company lists stop counting here: past it the total reads
@@ -16,8 +16,7 @@ export const boundedList = async <T>(filtered: boolean, run: () => Promise<T>): 
     return await run();
   } catch (error) {
     if (filtered && pgCode(error) === '57014') {
-      throw new HttpError(
-        400,
+      throw fail(
         'FILTER_TOO_SLOW',
         'This filter takes too long on this many records. Narrow it (add a tag, an owner or a date), or use “is” instead of “contains”.',
       );

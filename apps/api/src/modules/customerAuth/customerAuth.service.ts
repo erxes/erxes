@@ -13,7 +13,7 @@ import {
   withOrg,
 } from '@erxes/core-db';
 import { and, asc, count, desc, eq, getTableColumns, gt, isNull, sql } from 'drizzle-orm';
-import { HttpError, notFound, pgConstraint } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
@@ -44,7 +44,7 @@ const findLogin = (tx: Db, address: Address) =>
     .then(([row]) => row);
 
 const loginTaken = () =>
-  new HttpError(409, 'LOGIN_TAKEN', 'Someone already signs in with this address');
+  fail('TAKEN', 'Someone already signs in with this address', { field: 'value' });
 
 /** Adds a proven address as a login, and to the customer's emails or phones. */
 const addLogin = async (tx: Db, customerId: string, address: Address) => {
@@ -166,8 +166,7 @@ export const signInWithCode = async (
   );
 };
 
-const invalidToken = () =>
-  new HttpError(401, 'INVALID_TOKEN', 'The refresh token is not valid: sign in again');
+const invalidToken = () => fail('INVALID_TOKEN', 'The refresh token is not valid: sign in again');
 
 /** New tokens for the app's refresh token, while the app still serves the organisation. */
 export const refreshTokens = async (
@@ -268,10 +267,7 @@ export const confirmAddLogin = async (input: Address & { code: string }) => {
 
     if (await findLogin(tx, address)) throw loginTaken();
 
-    // Another customer's primary email or phone can't become this one's.
-    return addLogin(tx, customerId, address).catch((error: unknown) => {
-      throw pgConstraint(error)?.includes('primary') ? loginTaken() : error;
-    });
+    return addLogin(tx, customerId, address);
   });
 };
 
@@ -290,7 +286,7 @@ export const removeMyLogin = (id: string) =>
     if (!mine.some((login) => login.id === id)) throw notFound('Login');
 
     if (mine.length === 1) {
-      throw new HttpError(409, 'LAST_LOGIN', 'Add another address before removing your last one');
+      throw fail('LAST_LOGIN', 'Add another address before removing your last one');
     }
 
     await tx.delete(customerLogins).where(eq(customerLogins.id, id));

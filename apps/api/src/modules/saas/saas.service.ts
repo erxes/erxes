@@ -11,7 +11,7 @@ import {
 } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import {
   accessOf,
   type EntitlementRow,
@@ -37,14 +37,9 @@ const refusalOf = (req: GuardedRequest, orgId: string, row: EntitlementRow | nul
     organizationDisabled(row) &&
     !(who.type === 'user' && DISABLED_ALLOWED.some((pattern) => pattern.test(req.path)))
   ) {
-    return new HttpError(
-      403,
-      'ORGANIZATION_DISABLED',
-      'This organisation is disabled on erxes.io',
-      {
-        manageUrl: manageUrl(orgId),
-      },
-    );
+    return fail('ORGANIZATION_DISABLED', 'This organisation is disabled on erxes.io', {
+      manageUrl: manageUrl(orgId),
+    });
   }
 
   if (who.type !== 'plugin') return null;
@@ -52,14 +47,10 @@ const refusalOf = (req: GuardedRequest, orgId: string, row: EntitlementRow | nul
   const access = accessOf(row, who.plugin);
 
   if (access === 'off')
-    return new HttpError(403, 'NOT_IN_PLAN', `${who.plugin} is not in this organisation's plan`);
+    return fail('NOT_IN_PLAN', `${who.plugin} is not in this organisation's plan`);
 
   if (access === 'read_only' && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return new HttpError(
-      402,
-      'READ_ONLY',
-      `${who.plugin} left the plan: read-only until it is bought again`,
-    );
+    return fail('READ_ONLY', `${who.plugin} left the plan: read-only until it is bought again`);
   }
 
   return null;
