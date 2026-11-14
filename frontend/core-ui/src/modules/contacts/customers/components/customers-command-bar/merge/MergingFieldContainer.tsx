@@ -1,6 +1,7 @@
 import { Avatar, ChoiceboxGroup } from 'erxes-ui';
 import { FieldType } from './MergeMap';
 import { GENDER_CODE } from '@/contacts/customers/constants/genderCode';
+import { isEmpty } from '@/contacts/companies/utils/companyMerge';
 
 interface MergingFieldContainerProps {
   fieldName: string;
@@ -18,7 +19,9 @@ export const MergingFieldContainer = ({
   disabled = false,
   value,
 }: MergingFieldContainerProps) => {
-  if (type === 'links' || !fieldValue) return <span className="w-full" />;
+  if (type === 'links' || isEmpty(fieldValue)) {
+    return <span className="w-full" />;
+  }
 
   return (
     <ChoiceboxGroup.Item
