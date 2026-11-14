@@ -400,11 +400,12 @@ export const startJobs = async (list: JobQueue[], { work }: { work: boolean }) =
   if (work) await startWorkers();
 };
 
-/** Stops the workers after the jobs in progress (up to 30 s), then disconnects. */
+/**
+ * Stops the workers after the jobs in progress (up to 30 s), then disconnects.
+ * The queue stays reachable until then: those jobs still complete and enqueue.
+ */
 export const stopJobs = async () => {
-  const current = instance;
-
+  await instance?.stop({ graceful: true, timeout: 30_000 });
   instance = null;
   registered.clear();
-  await current?.stop({ graceful: true, timeout: 30_000 });
 };
