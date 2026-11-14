@@ -32,7 +32,12 @@ describe('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
       tagIds: [tag.id],
     });
 
-    await owner.customers.linkCompany({ id, companyId: company.id });
+    await owner.customers.linkCompany({
+      id,
+      companyId: company.id,
+      role: 'Buyer',
+      isPrimaryContact: true,
+    });
     await owner.activities.addNote({ targetType: 'customer', targetId: id, body: 'Remember me' });
 
     expect(await admin().customers.remove({ ids: [id] })).toEqual({ removed: 1 });
@@ -56,9 +61,12 @@ describe('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
 
     expect(back).toMatchObject({ firstName: 'Saraa', primaryEmail: 'saraa@mail.mn' });
     expect(back.tagIds).toContain(tag.id);
-    expect((await owner.customers.companies({ id })).data.map((item) => item.id)).toContain(
-      company.id,
-    );
+    const [linked] = (await owner.customers.companies({ id })).data;
+
+    expect(linked).toMatchObject({
+      id: company.id,
+      link: { role: 'Buyer', isPrimaryContact: true },
+    });
 
     const notes = await owner.activities.list({
       targetType: 'customer',
@@ -68,6 +76,25 @@ describe('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
 
     expect(notes.data.map((item) => item.note?.body)).toContain('Remember me');
     expect((await admin().trash.list({})).data).toEqual([]);
+
+    // A company that took another main contact meanwhile keeps it.
+    await admin().customers.remove({ ids: [id] });
+
+    const other = await owner.customers.create({ firstName: 'Bold' });
+
+    await owner.customers.linkCompany({
+      id: other.id,
+      companyId: company.id,
+      isPrimaryContact: true,
+    });
+    await admin().trash.restore({
+      ids: (await admin().trash.list({})).data.map((item) => item.id),
+    });
+
+    expect((await owner.customers.companies({ id })).data[0]?.link).toMatchObject({
+      role: 'Buyer',
+      isPrimaryContact: false,
+    });
 
     // Purging for good is the owner's.
     await admin().customers.remove({ ids: [id] });
