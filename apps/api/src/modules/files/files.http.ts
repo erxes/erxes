@@ -21,7 +21,7 @@ signedFilesRouter.put('/:token', async (req, res) => {
   const grant = readGrant(req.params.token);
 
   if (config.files.driver !== 'local' || !grant || grant.op !== 'put') {
-    throw fail('INVALID_LINK', 'This upload link is not valid or has expired');
+    throw fail('INVALID_SIGNATURE', 'This upload link is not valid or has expired');
   }
 
   const [contentType = ''] = (req.get('content-type') ?? '').split(';');
@@ -80,7 +80,7 @@ signedFilesRouter.get('/:token', (req, res, next) => {
   const grant = readGrant(req.params.token);
 
   if (config.files.driver !== 'local' || !grant || grant.op !== 'get') {
-    throw fail('INVALID_LINK', 'This link is not valid or has expired');
+    throw fail('INVALID_SIGNATURE', 'This link is not valid or has expired');
   }
 
   const stream = createReadStream(localPath(grant.key));

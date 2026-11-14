@@ -12364,6 +12364,29 @@
           "message"
         ]
       },
+      "INVALID_SIGNATUREError": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "const": true
+          },
+          "code": {
+            "const": "INVALID_SIGNATURE"
+          },
+          "status": {
+            "const": 403
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defined",
+          "code",
+          "status",
+          "message"
+        ]
+      },
       "OWNER_ONLYError": {
         "type": "object",
         "properties": {
@@ -14356,29 +14379,6 @@
           },
           "status": {
             "const": 409
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "defined",
-          "code",
-          "status",
-          "message"
-        ]
-      },
-      "INVALID_SIGNATUREError": {
-        "type": "object",
-        "properties": {
-          "defined": {
-            "const": true
-          },
-          "code": {
-            "const": "INVALID_SIGNATURE"
-          },
-          "status": {
-            "const": 403
           },
           "message": {
             "type": "string"

@@ -21,6 +21,8 @@ export const ERRORS = {
   SCOPE_REQUIRED: { status: 403 },
   SERVICE_TOKEN_REQUIRED: { status: 403 },
   CROSS_SITE: { status: 403 },
+  // A signed address (file links, payment callbacks) that is forged or expired.
+  INVALID_SIGNATURE: { status: 403 },
   OWNER_ONLY: { status: 403 },
   OWN_ROLE: { status: 403 },
   OWN_ACCOUNT: { status: 403 },
@@ -131,7 +133,6 @@ export const ERRORS = {
   ALREADY_UPLOADED: { status: 409 },
 
   // Payments.
-  INVALID_SIGNATURE: { status: 403 },
   CURRENCY_NOT_SUPPORTED: { status: 400, data: z.object({ currency: z.string() }) },
   DEFAULT_NOT_ALLOWED: { status: 400 },
   GATEWAY_NOT_ALLOWED: { status: 403 },
