@@ -138,6 +138,7 @@
   no `./operationSettings` expose; old `/settings/operation/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
+- Labels in the new triage and new task forms that sit outside `PanelFormRow` (Description) use `text-muted-foreground`, as `PanelFormRow` does, so every label in those forms keeps at least 4.5:1 contrast.
 - Keep user-facing task labels as Due date while retaining `targetDate` in storage and API fields. Date-filtered task lists must refetch inside `useSubscription.onData` before applying create/delete cache changes; updates can move a task into or out of a range.
 
 - Teams are main-menu items in `MainNavigation` that link to `operation/team/:teamId`, which redirects to tasks, so every team sub-route keeps the team row active. `TeamsNavigation` renders only on `/operation/team/:teamId/*`, loads the team with `useGetTeam` so non-member team links still resolve, and returns `null` elsewhere. Its `subGroup` Suspense fallback is `null`, so the host context column stays hidden off team routes instead of flashing open while the chunk loads.
