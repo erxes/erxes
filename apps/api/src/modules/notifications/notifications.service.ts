@@ -12,7 +12,7 @@ import {
 } from '@erxes/core-db';
 import { and, desc, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { lockKeys } from '~/lib/locks';
@@ -80,11 +80,7 @@ const recipientsOf = async (client: Db, source: string, inputs: NotifyInput[]) =
     const delivered = wanted.flatMap((id) => members.get(id) ?? []);
 
     if (delivered.length !== wanted.length) {
-      throw new HttpError(
-        400,
-        'INVALID_RECIPIENT',
-        'Some recipients are not team members of this organisation',
-      );
+      throw fail('INVALID_RECIPIENT', 'Some recipients are not team members of this organisation');
     }
 
     const actorUserId =
@@ -128,13 +124,13 @@ const recipientsOf = async (client: Db, source: string, inputs: NotifyInput[]) =
 const collapseRecent = async (
   client: Db,
   orgId: string,
-  input: NotifyInput & { entity: { type: string; id: string }; collapseMinutes: number },
+  input: NotifyInput & { entityType: string; entityId: string; collapseMinutes: number },
   recipients: string[],
   actorId: string | null,
 ) => {
   // One collapse at a time per entity and actor: changes combine, none is lost.
   await lockKeys(client, [
-    `notify:${orgId}:${input.kind}:${input.entity.type}:${input.entity.id}:${actorId}`,
+    `notify:${orgId}:${input.kind}:${input.entityType}:${input.entityId}:${actorId}`,
   ]);
 
   const recent = await client
@@ -144,8 +140,8 @@ const collapseRecent = async (
       and(
         inArray(notifications.userId, recipients),
         eq(notifications.kind, input.kind),
-        eq(notifications.entityType, input.entity.type),
-        eq(notifications.entityId, input.entity.id),
+        eq(notifications.entityType, input.entityType),
+        eq(notifications.entityId, input.entityId),
         actorId === null ? isNull(notifications.actorId) : eq(notifications.actorId, actorId),
         isNull(notifications.readAt),
         gt(notifications.createdAt, sql`now() - make_interval(mins => ${input.collapseMinutes})`),
@@ -254,8 +250,8 @@ export const notify = async (client: Db, input: NotifyInput | NotifyInput[]) => 
           title: plan.input.title,
           body: plan.input.body ?? null,
           link: plan.input.link ?? null,
-          entityType: plan.input.entity?.type ?? null,
-          entityId: plan.input.entity?.id ?? null,
+          entityType: plan.input.entityType ?? null,
+          entityId: plan.input.entityId ?? null,
           data: plan.input.data ?? {},
           priority: plan.input.priority ?? 'normal',
           actorType: plan.actorType,
@@ -282,10 +278,10 @@ export const notify = async (client: Db, input: NotifyInput | NotifyInput[]) => 
   };
 
   const collapsing = planned.flatMap((plan) => {
-    const { entity, collapseMinutes } = plan.input;
+    const { entityType, entityId, collapseMinutes } = plan.input;
 
-    return collapseMinutes && entity && plan.recipients.length
-      ? [{ plan, input: { ...plan.input, entity, collapseMinutes } }]
+    return collapseMinutes && entityType && entityId && plan.recipients.length
+      ? [{ plan, input: { ...plan.input, entityType, entityId, collapseMinutes } }]
       : [];
   });
 

@@ -2,6 +2,7 @@ import {
   CORE_PERMISSIONS,
   OWNER_ONLY_PERMISSIONS,
   type PermissionInfo,
+  type PermissionSet,
 } from '@erxes/core-contract';
 import {
   caller,
@@ -13,14 +14,12 @@ import {
   roles,
   users,
 } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, ne, notInArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { can } from '~/http/access';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-
-type RoleRow = typeof roles.$inferSelect;
 
 /** The roles every organisation starts with. */
 const BUILTIN_ROLES = [
@@ -52,7 +51,8 @@ const BUILTIN_ROLES = [
 ] as const;
 
 /** Owner and Admin are fixed: their meaning is "everything". */
-const FIXED = new Set(['owner', 'admin']);
+const FIXED_ROLES = ['owner', 'admin'];
+const FIXED = new Set(FIXED_ROLES);
 
 export const seedRoles = (tx: Db, orgId: string) =>
   tx
@@ -67,19 +67,42 @@ export const seedRoles = (tx: Db, orgId: string) =>
     )
     .onConflictDoNothing();
 
-const toRoleDto = (row: RoleRow, members: number) => ({
-  ...row,
-  editable: !FIXED.has(row.key),
-  members,
-});
+/** Roles with whether they can be edited and how many members (not disabled) hold them. */
+const selectRoles = (client: Db) =>
+  client
+    .select({
+      ...getTableColumns(roles),
+      editable: sql<boolean>`${notInArray(roles.key, FIXED_ROLES)}`,
+      members: client.$count(users, and(eq(users.role, roles.key), ne(users.status, 'disabled'))),
+    })
+    .from(roles);
 
-/** Every action a role can hold: core's, and the installed plugins' (from their manifests). */
-export const permissionCatalog = async (client: Db): Promise<PermissionInfo[]> => {
-  const installed = await client
+const roleWithMembers = async (client: Db, key: string) =>
+  oneRow(await selectRoles(client).where(eq(roles.key, key)).limit(1));
+
+/** The manifests of the plugins this organisation has on. */
+const installedManifests = (client: Db) =>
+  client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
     .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
+
+/** The installed plugins' ready-made bundles of their permissions. */
+export const permissionSets = async (client: Db): Promise<PermissionSet[]> =>
+  (await installedManifests(client)).flatMap((plugin) =>
+    (plugin.manifest?.permissionSets ?? []).map((set) => ({
+      source: plugin.name,
+      key: set.key,
+      label: set.label,
+      description: set.description ?? null,
+      permissions: set.permissions,
+    })),
+  );
+
+/** Every action a role can hold: core's, and the installed plugins' (from their manifests). */
+export const permissionCatalog = async (client: Db): Promise<PermissionInfo[]> => {
+  const installed = await installedManifests(client);
 
   return [
     ...CORE_PERMISSIONS.map((permission) => ({
@@ -112,23 +135,16 @@ export const effectivePermissions = async (client: Db, member: Parameters<typeof
     .map((permission) => permission.action);
 };
 
-export const listRoles = async (client: Db) => {
-  const rows = await wholeList((limit) =>
-    client
-      .select({
-        role: roles,
-        members: sql<number>`(select count(*)::int from ${users} u where u.org_id = ${roles.orgId} and u.role = ${roles.key} and u.status <> 'disabled')`,
-      })
-      .from(roles)
+export const listRoles = async (client: Db) => ({
+  data: await wholeList((limit) =>
+    selectRoles(client)
       .orderBy(
         sql`case ${roles.key} when 'owner' then 0 when 'admin' then 1 when 'member' then 2 else 3 end`,
         roles.name,
       )
       .limit(limit),
-  );
-
-  return { data: rows.map((row) => toRoleDto(row.role, row.members)) };
-};
+  ),
+});
 
 const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
 
@@ -143,7 +159,7 @@ const checkPermissions = async (client: Db, permissions: string[]) => {
   const unknown = permissions.filter((action) => action !== '*' && !known.has(action));
 
   if (unknown.length) {
-    throw new HttpError(400, 'UNKNOWN_PERMISSION', `Unknown permissions: ${unknown.join(', ')}`, {
+    throw fail('UNKNOWN_PERMISSION', `Unknown permissions: ${unknown.join(', ')}`, {
       permissions: unknown,
     });
   }
@@ -151,29 +167,23 @@ const checkPermissions = async (client: Db, permissions: string[]) => {
   const ownerOnly = permissions.filter((action) => OWNER_ONLY.has(action));
 
   if (ownerOnly.length) {
-    throw new HttpError(
-      400,
-      'OWNER_ONLY_PERMISSION',
-      `Only owners can do: ${ownerOnly.join(', ')}`,
-      { permissions: ownerOnly },
-    );
+    throw fail('OWNER_ONLY_PERMISSION', `Only owners can do: ${ownerOnly.join(', ')}`, {
+      permissions: ownerOnly,
+    });
   }
 
   const beyond = permissions.filter((action) => !can(me, action));
 
   if (beyond.length) {
-    throw new HttpError(
-      403,
-      'BEYOND_OWN_PERMISSIONS',
-      "A role can't hold permissions you don't have",
-      { permissions: beyond },
-    );
+    throw fail('BEYOND_OWN_PERMISSIONS', "A role can't hold permissions you don't have", {
+      permissions: beyond,
+    });
   }
 
   return [...new Set(permissions)].toSorted();
 };
 
-const noSuchRole = () => new HttpError(404, 'ROLE_NOT_FOUND', 'No such role');
+const noSuchRole = () => fail('ROLE_NOT_FOUND', 'No such role');
 
 const roleOrThrow = async (client: Db, key: string) => {
   const [row] = await client.select().from(roles).where(eq(roles.key, key)).limit(1);
@@ -211,8 +221,7 @@ export const assertAssignable = async (client: Db, keys: string | string[]) => {
         : row.permissions.some((action) => !can(me, action)));
 
     if (wider) {
-      throw new HttpError(
-        403,
+      throw fail(
         'BEYOND_OWN_PERMISSIONS',
         `You can't give the ${row.name} role: it can do more than you`,
       );
@@ -249,7 +258,7 @@ export const createRole = async (input: {
     metadata: { permissions },
   });
 
-  return toRoleDto(row, 0);
+  return roleWithMembers(tx, row.key);
 };
 
 export const updateRole = async (
@@ -259,7 +268,7 @@ export const updateRole = async (
   const tx = db();
 
   if (FIXED.has(key)) {
-    throw new HttpError(403, 'FIXED_ROLE', 'Owner and Admin roles can’t be changed');
+    throw fail('FIXED_ROLE', 'Owner and Admin roles can’t be changed');
   }
 
   const before = await roleOrThrow(tx, key);
@@ -292,12 +301,7 @@ export const updateRole = async (
     },
   });
 
-  const [count] = await tx
-    .select({ members: sql<number>`count(*)::int` })
-    .from(users)
-    .where(eq(users.role, key));
-
-  return toRoleDto(row, count?.members ?? 0);
+  return roleWithMembers(tx, key);
 };
 
 export const removeRole = async (key: string) => {
@@ -305,7 +309,7 @@ export const removeRole = async (key: string) => {
 
   const row = await roleOrThrow(tx, key);
 
-  if (row.builtin) throw new HttpError(403, 'BUILTIN_ROLE', 'Built-in roles can’t be deleted');
+  if (row.builtin) throw fail('BUILTIN_ROLE', 'Built-in roles can’t be deleted');
 
   const [count] = await tx
     .select({ members: sql<number>`count(*)::int` })
@@ -313,8 +317,7 @@ export const removeRole = async (key: string) => {
     .where(eq(users.role, key));
 
   if (count?.members) {
-    throw new HttpError(
-      409,
+    throw fail(
       'ROLE_IN_USE',
       `${count.members} members have this role: give them another one first`,
     );

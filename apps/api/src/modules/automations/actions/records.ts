@@ -1,6 +1,6 @@
 import { CompanyFields, CustomerFields, Id } from '@erxes/core-contract';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { addNote } from '~/modules/activities/activities.service';
 import { tagCompanies, updateCompany } from '~/modules/companies/companies.service';
 import { tagCustomers, updateCustomer } from '~/modules/customers/customers.service';
@@ -106,8 +106,7 @@ export const RECORD_ACTIONS: CoreAction[] = [
     fields: [{ key: 'body', label: 'Note', type: 'longtext', required: true }],
     run: async (ctx) => {
       if (!ctx.subject)
-        throw new HttpError(
-          400,
+        throw fail(
           'NO_SUBJECT',
           "This step needs a customer or company: the trigger event isn't about one",
         );

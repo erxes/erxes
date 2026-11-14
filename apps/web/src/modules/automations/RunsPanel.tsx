@@ -1,12 +1,22 @@
+import { paths } from '~/lib/paths';
 import type { AutomationRun, RunStep } from '@erxes/core-contract';
 import { IconPlayerStop, IconRefresh } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, cn, Empty, RelativeDateDisplay, ScrollArea, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  cn,
+  Empty,
+  RelativeDateDisplay,
+  ScrollArea,
+  useToast,
+  useFormat,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { runsQuery } from './automationQueries';
 
@@ -119,6 +129,7 @@ const RunActions = ({ run }: { run: AutomationRun }) => {
 
 const RunDetail = ({ run }: { run: AutomationRun }) => {
   const { t } = useTranslation('automations');
+  const fmt = useFormat();
   const canManage = useCan()('automations.manage');
 
   const detail = useQuery(
@@ -132,13 +143,17 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
     <div className="space-y-3 p-4">
       <div className="flex items-center gap-2">
         <Badge variant={STATUS_VARIANT[run.status]}>{t(`status.${run.status}`, run.status)}</Badge>
-        {run.goalReached && <Badge variant="info">{t('goal-reached', 'Goal reached')}</Badge>}
-        {run.subject && (
+        {run.goalReachedAt && <Badge variant="info">{t('goal-reached', 'Goal reached')}</Badge>}
+        {run.subjectType && run.subjectId && (
           <Link
             className="text-sm underline"
-            to={`/contacts/${run.subject.type === 'customer' ? 'customers' : 'companies'}/${run.subject.id}`}
+            to={
+              run.subjectType === 'customer'
+                ? paths.contacts.customer(run.subjectId)
+                : paths.contacts.company(run.subjectId)
+            }
           >
-            {t('open-subject', 'Open the {{type}}', { type: run.subject.type })}
+            {t('open-subject', 'Open the {{type}}', { type: run.subjectType })}
           </Link>
         )}
         <span className="text-xs text-muted-foreground">
@@ -153,7 +168,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
       )}
       {run.waitingUntil && (
         <p className="text-sm text-muted-foreground">
-          {t('waiting-until', 'Waiting until')} {new Date(run.waitingUntil).toLocaleString()}
+          {t('waiting-until', 'Waiting until')} {fmt.dateTime(run.waitingUntil)}
         </p>
       )}
       <QueryState query={detail} className="py-4">
@@ -211,9 +226,9 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
                     {t(`status.${run.status}`, run.status)}
                   </Badge>
                   <span className="truncate text-xs text-muted-foreground">
-                    {run.subject
-                      ? (run.subject.name ??
-                        t('deleted-subject', 'A deleted {{type}}', { type: run.subject.type }))
+                    {run.subjectType
+                      ? (run.subjectName ??
+                        t('deleted-subject', 'A deleted {{type}}', { type: run.subjectType }))
                       : run.eventType}
                   </span>
                   <span className="ml-auto text-xs text-muted-foreground">

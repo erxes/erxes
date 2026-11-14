@@ -1,4 +1,5 @@
-import { Button, Spinner } from 'erxes-ui';
+import { Button, RecordTableInlineCell, Spinner } from 'erxes-ui';
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PanelLabel } from './PanelLabel';
 import { IconForms, type Icon } from '@tabler/icons-react';
@@ -19,25 +20,35 @@ export const PanelFormRow = ({
   required?: boolean;
   error?: string;
   children: React.ReactNode;
-}) => (
-  <div className="grid grid-cols-field items-center gap-x-2 gap-y-0.5 min-h-7">
-    <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground">
-      <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-      <PanelLabel tooltip={label}>
-        {label}
-        {required && <span className="text-destructive"> *</span>}
-      </PanelLabel>
-    </span>
-    <div className="group/panel-value relative min-w-0 text-xs [&_button:not([role=switch])]:text-xs [&_input:placeholder-shown]:pl-7">
-      <Icon
-        className="pointer-events-none absolute left-2 top-1/2 z-1 hidden size-3.5 -translate-y-1/2 text-muted-foreground group-has-[input:placeholder-shown]/panel-value:block"
-        aria-hidden="true"
-      />
-      {children}
+}) => {
+  const labelId = useId();
+
+  return (
+    <div className="grid grid-cols-field items-center gap-x-2 gap-y-0.5 min-h-7">
+      <span
+        id={labelId}
+        className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
+      >
+        <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+        <PanelLabel tooltip={label}>
+          {label}
+          {required && <span className="text-destructive"> *</span>}
+        </PanelLabel>
+      </span>
+      <div className="group/panel-value relative min-w-0 text-xs [&_button:not([role=switch])]:text-xs [&_input:placeholder-shown]:pl-7">
+        <Icon
+          className="pointer-events-none absolute left-2 top-1/2 z-1 hidden size-3.5 -translate-y-1/2 text-muted-foreground group-has-[input:placeholder-shown]/panel-value:block"
+          aria-hidden="true"
+        />
+        {/* Pickers in the row are named by the label, then their value ("Category No category"). */}
+        <RecordTableInlineCell.LabelledBy value={labelId}>
+          {children}
+        </RecordTableInlineCell.LabelledBy>
+      </div>
+      {error && <span className="col-start-2 text-xs text-destructive">{error}</span>}
     </div>
-    {error && <span className="col-start-2 text-xs text-destructive">{error}</span>}
-  </div>
-);
+  );
+};
 
 /**
  * The body and footer of a new record's form in the side panel: its rows,

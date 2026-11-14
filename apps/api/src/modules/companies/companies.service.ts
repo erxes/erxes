@@ -1,8 +1,8 @@
 import type { Db } from '@erxes/core-db';
 import type { CompanyInput } from '@erxes/core-contract';
-import { caller, companies, newId, savepoint } from '@erxes/core-db';
+import { callerUserId, companies, newId, savepoint } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import {
   normalizeEmail,
   normalizeName,
@@ -26,7 +26,7 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
-import { type CompanyRow, conflictFrom, findCompany, inOrg } from './companyRows';
+import { type CompanyRow, findCompany, inOrg } from './companyRows';
 
 export const getCompany = (client: Db, id: string) => findCompany(client, id, true);
 
@@ -50,7 +50,10 @@ const scalarFields = (input: CompanyInput) => {
   return rest;
 };
 
-const nameRequired = () => new HttpError(400, 'INVALID_INPUT', 'A company needs a name');
+const nameRequired = () =>
+  fail('INVALID_INPUT', 'A company needs a name', {
+    issues: [{ path: ['primaryName'], message: 'A company needs a name' }],
+  });
 
 export const createCompany = async (client: Db, input: CompanyInput & { primaryName: string }) => {
   await assertOwner(client, input.ownerId);
@@ -72,38 +75,34 @@ export const createCompany = async (client: Db, input: CompanyInput & { primaryN
     state: input.state ?? 'customer',
   });
 
-  try {
-    const id = await savepoint(async (tx) => {
-      const { id: created } = oneRow(
-        await tx
-          .insert(companies)
-          .values({
-            ...scalarFields(input),
-            id: newId(),
-            primaryName,
-            names: name.list,
-            primaryEmail: email.primary,
-            emails: email.list,
-            primaryPhone: phone.primary,
-            phones: phone.list,
-            ...lead.set,
-            createdBy: caller('user').userId,
-          })
-          .returning({ id: companies.id }),
-      );
+  const id = await savepoint(async (tx) => {
+    const { id: created } = oneRow(
+      await tx
+        .insert(companies)
+        .values({
+          ...scalarFields(input),
+          id: newId(),
+          primaryName,
+          names: name.list,
+          primaryEmail: email.primary,
+          emails: email.list,
+          primaryPhone: phone.primary,
+          phones: phone.list,
+          ...lead.set,
+          createdBy: callerUserId(),
+        })
+        .returning({ id: companies.id }),
+    );
 
-      await saveCustomFields(tx, 'company', created, customFields, Object.keys(customFields));
-      await recordLeadSteps(tx, 'company', [{ id: created, steps: lead.steps }]);
-      await setRecordTags(tx, 'company', created, tagIds);
-      await contactCreated(tx, 'company', await findCompany(tx, created));
+    await saveCustomFields(tx, 'company', created, customFields, Object.keys(customFields));
+    await recordLeadSteps(tx, 'company', [{ id: created, steps: lead.steps }]);
+    await setRecordTags(tx, 'company', created, tagIds);
+    await contactCreated(tx, 'company', await findCompany(tx, created));
 
-      return created;
-    });
+    return created;
+  });
 
-    return await findCompany(client, id);
-  } catch (error) {
-    return conflictFrom(client, error, primaryName);
-  }
+  return findCompany(client, id);
 };
 
 /** The name, email and phone columns an update changes. */
@@ -170,37 +169,33 @@ export const updateCompany = async (client: Db, id: string, input: CompanyInput)
 
   const lead = await planLeadOnUpdate(client, current, input);
 
-  try {
-    await savepoint(async (tx) => {
-      const updated = await tx
-        .update(companies)
-        .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
-        .where(inOrg(id))
-        .returning({ id: companies.id });
+  await savepoint(async (tx) => {
+    const updated = await tx
+      .update(companies)
+      .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
+      .where(inOrg(id))
+      .returning({ id: companies.id });
 
-      if (!updated.length) {
-        throw notFound('Company');
-      }
+    if (!updated.length) {
+      throw notFound('Company');
+    }
 
-      await recordLeadSteps(tx, 'company', [{ id, steps: lead.steps }]);
+    await recordLeadSteps(tx, 'company', [{ id, steps: lead.steps }]);
 
-      if (customFields) {
-        const keys = Object.keys(input.customFields ?? {});
+    if (customFields) {
+      const keys = Object.keys(input.customFields ?? {});
 
-        await saveCustomFields(tx, 'company', id, customFields, keys);
-      }
+      await saveCustomFields(tx, 'company', id, customFields, keys);
+    }
 
-      if (tagIds) {
-        await setRecordTags(tx, 'company', id, tagIds);
-      }
+    if (tagIds) {
+      await setRecordTags(tx, 'company', id, tagIds);
+    }
 
-      await contactUpdated(tx, 'company', current, await findCompany(tx, id));
-    });
+    await contactUpdated(tx, 'company', current, await findCompany(tx, id));
+  });
 
-    return await findCompany(client, id);
-  } catch (error) {
-    return conflictFrom(client, error, changes.primaryName ?? current.primaryName);
-  }
+  return findCompany(client, id);
 };
 
 export const removeCompanies = async (

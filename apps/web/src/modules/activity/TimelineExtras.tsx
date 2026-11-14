@@ -1,7 +1,9 @@
 import type { Activity } from '@erxes/core-contract';
 import { IconMoodPlus } from '@tabler/icons-react';
-import { Button, cn, Popover } from 'erxes-ui';
+import { useQuery } from '@tanstack/react-query';
+import { Button, cn, Popover, Skeleton, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';
 import { useNoteActions } from './useActivities';
 
@@ -12,7 +14,7 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const { user } = useSession();
   const { react } = useNoteActions();
-  const entries = Object.entries(activity.reactions ?? {});
+  const entries = Object.entries(activity.reactions);
 
   return (
     <span className="inline-flex flex-wrap items-center gap-1">
@@ -63,8 +65,37 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
   );
 };
 
+/** A note's earlier wordings, newest first, loaded when the popover opens. */
+const NoteVersions = ({ noteId }: { noteId: string }) => {
+  const fmt = useFormat();
+
+  const versions = useQuery(
+    orpc.activities.noteVersions.queryOptions({
+      input: { id: noteId },
+      select: (page) => page.data,
+    }),
+  );
+
+  if (versions.isPending) return <Skeleton className="h-12 w-full" />;
+
+  if (versions.isError) {
+    return (
+      <p role="alert" className="text-xs text-destructive">
+        {messageOf(versions.error)}
+      </p>
+    );
+  }
+
+  return versions.data.map((version) => (
+    <div key={version.id} className="rounded border p-2">
+      <p className="text-xs text-muted-foreground">{fmt.dateTime(version.editedAt)}</p>
+      <p className="whitespace-pre-wrap">{version.body}</p>
+    </div>
+  ));
+};
+
 /** "edited": earlier wordings of a note. */
-export const NoteHistory = ({ history }: { history: { body: string; editedAt: string }[] }) => {
+export const NoteHistory = ({ noteId }: { noteId: string }) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
 
   return (
@@ -77,14 +108,7 @@ export const NoteHistory = ({ history }: { history: { body: string; editedAt: st
           <p className="text-xs font-medium text-muted-foreground">
             {t('earlier-versions', 'Earlier versions')}
           </p>
-          {history.toReversed().map((entry) => (
-            <div key={entry.editedAt} className="rounded border p-2">
-              <p className="text-xs text-muted-foreground">
-                {new Date(entry.editedAt).toLocaleString()}
-              </p>
-              <p className="whitespace-pre-wrap">{entry.body}</p>
-            </div>
-          ))}
+          <NoteVersions noteId={noteId} />
         </div>
       </Popover.Content>
     </Popover>

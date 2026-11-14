@@ -3,7 +3,7 @@ import type { Db } from '@erxes/core-db';
 import { newId, organizations, users, withSystem } from '@erxes/core-db';
 import { currencyOfCountry } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
-import { HttpError, notFound, pgCode } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { diffRows } from '~/lib/changes';
 import { oneRow } from '~/lib/rows';
 import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
@@ -46,7 +46,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
   const subdomain = input.subdomain.trim().toLowerCase();
 
   if (!SUBDOMAIN.test(subdomain)) {
-    throw new HttpError(400, 'INVALID_SUBDOMAIN', 'Use letters, digits and dashes (1–63)');
+    throw fail('INVALID_SUBDOMAIN', 'Use letters, digits and dashes (1–63)');
   }
 
   const organization = oneRow(
@@ -86,17 +86,8 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
 };
 
 /** Creates an organisation with its first owner (bootstrap script, setup, tests). */
-export const createOrganization = async (input: NewOrganization) => {
-  try {
-    return await withSystem('create organization', (tx) => insertOrganization(tx, input));
-  } catch (error) {
-    if (pgCode(error) === '23505') {
-      throw new HttpError(409, 'SUBDOMAIN_TAKEN', 'This subdomain is already used');
-    }
-
-    throw error;
-  }
-};
+export const createOrganization = (input: NewOrganization) =>
+  withSystem('create organization', (tx) => insertOrganization(tx, input));
 
 /**
  * Renames the organisation or changes where it works. A new country without

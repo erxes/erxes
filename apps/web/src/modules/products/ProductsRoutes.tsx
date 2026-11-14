@@ -7,7 +7,7 @@ import { PageOutlet } from '~/components/CrashBoundary';
 import { RecordPage } from '~/modules/side-panel/RecordPage';
 import { NestedViews } from '~/modules/views/NestedViews';
 import { ProductsPage } from './list/ProductsPage';
-import { PRODUCT_SETTINGS_PATH } from './paths';
+import { paths } from '~/lib/paths';
 import { ProductsSettingsRoutes } from './settings/ProductsSettingsRoutes';
 
 /** The Products app: its sidebar (the catalog, settings pinned at the foot) and the open page. */
@@ -21,7 +21,7 @@ const ProductsLayout = () => {
       title={t('products', 'Products')}
       footer={
         <AppLayoutFooterLink
-          path={PRODUCT_SETTINGS_PATH}
+          to={paths.products.settings}
           name={sidebarT('settings', 'Settings')}
           icon={IconSettings}
         />
@@ -32,8 +32,7 @@ const ProductsLayout = () => {
             <Sidebar.Menu>
               {/* The catalog's saved views nest under it. */}
               <NavigationMenuLinkItem
-                pathPrefix="products"
-                path=""
+                to={paths.products.list}
                 name={t('catalog', 'Catalog')}
                 icon={IconPackage}
                 action={<NestedViews recordType="product" />}

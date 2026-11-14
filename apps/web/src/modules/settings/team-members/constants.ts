@@ -9,10 +9,6 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 
-export const TEAM_MEMBERS_PATH = '/settings/team-members';
-
-export const teamMemberPath = (id: string) => `${TEAM_MEMBERS_PATH}/${id}`;
-
 /** The member open in the side panel beside the list. */
 export const MEMBER_PANEL_QUERY_KEY = 'user_id';
 

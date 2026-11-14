@@ -117,13 +117,15 @@ export { useConfirm } from './hooks/use-confirm';
 
 export { useMediaQuery } from './hooks/use-media-query';
 
-export { useMultiQueryState, useQueryState } from './hooks/use-query-state';
-
 export { toast, useToast } from './hooks/use-toast';
 
 export { useUpload } from './hooks/use-upload';
 
 export { cn } from './lib/utils';
+
+export { LANGUAGES, formatter, localTimeZone, toIsoDay, useFormat, zoneOffset } from './lib/format';
+
+export { stored, storedFamily } from './lib/stored';
 
 export { Editor } from './modules/blocks/components/LazyEditor';
 
@@ -140,8 +142,6 @@ export { SexDisplay } from './modules/display/components/SexDisplay';
 export { Filter } from './modules/filter/components/Filter';
 
 export { useFilterContext } from './modules/filter/hooks/useFilterContext';
-
-export { useFilterQueryState } from './modules/filter/hooks/useFilterQueryState';
 
 export { PopoverScoped } from './modules/hotkey/components/PopoverScoped';
 
@@ -171,6 +171,17 @@ export { PageHeader } from './modules/layout/components/PageHeader';
 
 export { NavigationMenuLinkItem } from './modules/navigation-menu/components/NavigationMenu';
 
+export { EntityPicker } from './modules/pickers/EntityPicker';
+
+export {
+  type Member,
+  type MemberQueries,
+  memberName,
+  useMembersById,
+} from './modules/pickers/members';
+
+export { MemberInline, SelectMember } from './modules/pickers/SelectMember';
+
 export { NumberField } from './modules/record-field/components/NumberField';
 
 export { TextField } from './modules/record-field/components/TextField';
@@ -185,11 +196,9 @@ export { RecordTableInlineCell } from './modules/record-table/components/RecordT
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
-export { themeState } from './state/themeState';
+export { ThemeOption, themeState } from './state/themeState';
 
 export { SexCode } from './types/SexCode';
-
-export { type ThemeOption } from './types/Theme';
 
 export {
   type IUIConfig,
@@ -221,6 +230,8 @@ export {
   setPluginRuntime,
   useLiveSignal,
 } from './utils/plugin-runtime';
+
+export { addPluginStyles } from './utils/plugin-styles';
 
 export {
   RecordTimeline,

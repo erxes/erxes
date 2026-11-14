@@ -1,13 +1,10 @@
 import { automations, leadStages } from '@erxes/core-db';
 import { eq, or, sql } from 'drizzle-orm';
-import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { updateCustomer } from '~/modules/customers/customers.service';
 import { type CoreAction, list, needSubject, text } from './context';
 
 /** Round-robin positions per step, kept in the automation's working state. */
-const Turns = z.object({ turns: z.record(z.string(), z.int()) });
-
 /** Actions on a customer's lead lifecycle and ownership. */
 export const LEAD_ACTIONS: CoreAction[] = [
   {
@@ -39,8 +36,7 @@ export const LEAD_ACTIONS: CoreAction[] = [
         .orderBy(sql`${leadStages.id} = ${wanted} desc`)
         .limit(1);
 
-      if (!stage)
-        throw new HttpError(400, 'INVALID_LEAD_STAGE', `No lead stage is called “${wanted}”`);
+      if (!stage) throw fail('INVALID_LEAD_STAGE', `No lead stage is called “${wanted}”`);
 
       const reason = text(ctx.input.reason);
 
@@ -84,11 +80,11 @@ export const LEAD_ACTIONS: CoreAction[] = [
         .for('update')
         .limit(1);
 
-      const turns = Turns.safeParse(row?.state).data?.turns ?? {};
+      const turns = row?.state.turns ?? {};
       const position = (turns[ctx.step.id] ?? -1) + 1;
       const ownerId = members[position % members.length];
 
-      if (!ownerId) throw new HttpError(400, 'NO_MEMBERS', 'Choose the members to rotate through');
+      if (!ownerId) throw fail('NO_MEMBERS', 'Choose the members to rotate through');
 
       await ctx.tx
         .update(automations)

@@ -8,7 +8,13 @@ import { sql } from 'drizzle-orm';
  */
 export const lockRows = async (
   client: Db,
-  table: 'core_customers' | 'core_companies' | 'core_fields' | 'core_files' | 'core_products',
+  table:
+    | 'core_customers'
+    | 'core_companies'
+    | 'core_fields'
+    | 'core_files'
+    | 'core_notes'
+    | 'core_products',
   ids: string[],
 ) => {
   if (!ids.length) return;

@@ -5,7 +5,7 @@ import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router-dom';
 import { PageSpinner } from '~/components/PageSpinner';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 
 /**
  * `app` catches what the page boundary can't (the top bar, the layout); `page` sits

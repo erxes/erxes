@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { loadPlugins, parsePluginRemotes } from './remotes';
 
 const LOCAL_REMOTES = parsePluginRemotes();
@@ -17,8 +17,10 @@ export const usePlugins = () => {
       staleTime: Infinity,
       retry: false,
       select: ({ data }) =>
-        data.flatMap((plugin) =>
-          plugin.installed && plugin.ui ? [{ name: plugin.ui.remote, entry: plugin.ui.entry }] : [],
+        data.flatMap(({ manifest, installation }) =>
+          installation?.status === 'active' && manifest?.ui
+            ? [{ name: manifest.ui.remote, entry: manifest.ui.entry }]
+            : [],
         ),
     }),
   );

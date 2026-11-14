@@ -1,25 +1,16 @@
 import type { Field } from '@erxes/core-contract';
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical } from '@tabler/icons-react';
-import { Button, cn, Sheet, Spinner } from 'erxes-ui';
+import { useSortSensors } from '~/lib/sortSensors';
+import { Button, cn, Empty, Sheet, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -67,11 +58,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
   const [items, setItems] = useState(fields);
   const { mutate, isPending } = useReorder('fields', fields[0]?.contentType ?? 'customer');
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
+  const sensors = useSortSensors();
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -100,9 +87,9 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
     <>
       <Sheet.Content className="overflow-y-auto">
         {items.length === 0 ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">
-            {t('no-fields-found', 'No fields found')}
-          </p>
+          <Empty>
+            <Empty.Description>{t('no-fields-found', 'No fields found')}</Empty.Description>
+          </Empty>
         ) : (
           <DndContext
             collisionDetection={closestCenter}

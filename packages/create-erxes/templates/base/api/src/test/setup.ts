@@ -49,7 +49,9 @@ await run(
   `DO $$ BEGIN CREATE ROLE ${ROLE} LOGIN NOBYPASSRLS PASSWORD '${ROLE}';
    EXCEPTION WHEN duplicate_object OR unique_violation THEN NULL; END $$`,
 );
+
 await run(adminUrl, `CREATE DATABASE ${database} OWNER ${ROLE}`);
+
 await run(urlOf(database), CORE_FUNCTIONS);
 
 process.env.DATA_URL = urlOf(database, ROLE);

@@ -2,12 +2,12 @@ import type { Import, ImportRow } from '@erxes/core-contract';
 import type { z } from 'zod';
 import { IconAlertTriangle, IconCheck, IconDownload } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
-import { Badge, Button, Spinner, useToast } from 'erxes-ui';
+import { Badge, Button, Spinner, useToast, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { LIST_PATHS } from '~/lib/paths';
 import { downloadText } from '~/lib/download';
-import { RECORD_PATHS } from '~/modules/transfer/useTransfer';
 
 const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;
 
@@ -25,6 +25,7 @@ const saveErrorsCsv = (headers: string[], rows: z.infer<typeof ImportRow>[]) => 
 
 const Counts = ({ imp }: { imp: Import }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const fmt = useFormat();
   const finished = imp.status === 'done' || imp.status === 'undone';
 
   const items: {
@@ -63,7 +64,7 @@ const Counts = ({ imp }: { imp: Import }) => {
     <div className="flex flex-wrap gap-2">
       {items.map((item) => (
         <Badge key={item.key} variant={item.tone} size="lg">
-          {imp.counts[item.key].toLocaleString()} {finished ? item.done : item.label}
+          {fmt.number(imp.counts[item.key])} {finished ? item.done : item.label}
         </Badge>
       ))}
     </div>
@@ -140,6 +141,7 @@ export const ErrorRows = ({ imp }: { imp: Import }) => {
 /** Reading, checking or importing in the background, with how far it got. */
 export const ImportProgress = ({ imp }: { imp: Import }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const fmt = useFormat();
   const percent = imp.counts.rows ? Math.round((imp.processed / imp.counts.rows) * 100) : 0;
 
   if (imp.status === 'parsing') {
@@ -166,7 +168,7 @@ export const ImportProgress = ({ imp }: { imp: Import }) => {
         {imp.status === 'checking'
           ? t('checking', 'Checking every row…')
           : t('running', 'Importing…')}{' '}
-        {imp.processed.toLocaleString()} / {imp.counts.rows.toLocaleString()}
+        {fmt.number(imp.processed)} / {fmt.number(imp.counts.rows)}
       </p>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
         <div
@@ -196,10 +198,7 @@ export const ImportSummary = ({ imp, noun }: { imp: Import; noun: string }) => {
       </h2>
       <Counts imp={imp} />
       {imp.status === 'done' && (
-        <Link
-          to={RECORD_PATHS[imp.recordType]}
-          className="text-sm text-primary-text hover:underline"
-        >
+        <Link to={LIST_PATHS[imp.recordType]} className="text-sm text-primary-text hover:underline">
           {t('open-list', 'Open {{noun}}', { noun })}
         </Link>
       )}

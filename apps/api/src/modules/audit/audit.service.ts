@@ -10,7 +10,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, gte, ilike, like, lte, or, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
 import type { Changes } from '~/lib/changes';
@@ -140,7 +140,7 @@ export const auditFilters = (query: AuditFilters) => {
 export const listAudit = async (client: Db, query: CursorQuery & AuditFilters) => {
   const filters = auditFilters(query);
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: auditLogs,
@@ -159,11 +159,6 @@ export const listAudit = async (client: Db, query: CursorQuery & AuditFilters) =
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return {
-    ...page,
-    data: page.data.map((row) => ({ ...row, actor: { type: row.actorType, id: row.actorId } })),
-  };
 };
 
 /**
@@ -266,8 +261,7 @@ export const auditSettings = async (client: Db) => {
 
 export const updateAuditSettings = async (client: Db, input: { retentionDays: number }) => {
   if (input.retentionDays > config.retention.auditDays) {
-    throw new HttpError(
-      400,
+    throw fail(
       'LIMIT_EXCEEDED',
       `This server keeps audit entries up to ${config.retention.auditDays} days`,
     );

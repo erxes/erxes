@@ -1,14 +1,10 @@
-import { jsonOf } from 'erxes-ui';
-import { useState } from 'react';
+import { storedFamily } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { RESET } from 'jotai/utils';
 import { z } from 'zod';
 import { useSession } from '~/modules/auth/session';
 import { DASHBOARD_DEFAULT_LAYOUT, DASHBOARD_MAX_ITEMS } from '../constants/dashboardGrid';
 import type { TDashboardItem } from '../types/dashboardTypes';
-
-/*
- * The layout is kept in this browser, per user: core has no API to save it.
- */
-const storageKey = (userId: string) => `erxes-home-dashboard:${userId}`;
 
 const StoredItem = z.object({
   id: z.string(),
@@ -19,42 +15,23 @@ const StoredItem = z.object({
   h: z.int(),
 });
 
-/** The saved tiles; ones that no longer parse are dropped. */
-const read = (userId: string): TDashboardItem[] | null => {
-  try {
-    const saved = jsonOf(z.array(z.unknown())).safeParse(localStorage.getItem(storageKey(userId)));
-
-    if (!saved.success) return null;
-
-    return saved.data
-      .flatMap((item) => {
-        const tile = StoredItem.safeParse(item);
-
-        return tile.success ? [tile.data] : [];
-      })
-      .slice(0, DASHBOARD_MAX_ITEMS);
-  } catch {
-    return null;
-  }
-};
+/** The layout is kept in this browser, per user: core has no API to save it. */
+const dashboardLayoutState = storedFamily({
+  key: 'erxes:home:dashboard',
+  schema: z.array(StoredItem).max(DASHBOARD_MAX_ITEMS).nullable(),
+  initial: null,
+});
 
 /** The user's saved tiles, or the default layout until they save one. */
 export const useDashboardLayout = () => {
   const { user } = useSession();
-  const [stored, setStored] = useState(() => read(user.id));
+  const [saved, setSaved] = useAtom(dashboardLayoutState(user.id));
 
   return {
-    items: stored ?? DASHBOARD_DEFAULT_LAYOUT,
-    isCustomized: stored !== null,
-    save: (items: TDashboardItem[]) => {
-      const clean = items.map(({ id, type, x, y, w, h }) => ({ id, type, x, y, w, h }));
-
-      localStorage.setItem(storageKey(user.id), JSON.stringify(clean));
-      setStored(clean);
-    },
-    reset: () => {
-      localStorage.removeItem(storageKey(user.id));
-      setStored(null);
-    },
+    items: saved ?? DASHBOARD_DEFAULT_LAYOUT,
+    isCustomized: saved !== null,
+    save: (items: TDashboardItem[]) =>
+      setSaved(items.map(({ id, type, x, y, w, h }) => ({ id, type, x, y, w, h }))),
+    reset: () => setSaved(RESET),
   };
 };

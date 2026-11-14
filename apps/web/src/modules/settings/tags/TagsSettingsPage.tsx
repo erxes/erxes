@@ -1,6 +1,7 @@
 import type { ContentType } from '@erxes/core-contract';
 import { IconPlus, IconTags } from '@tabler/icons-react';
 import {
+  Empty,
   Button,
   Form,
   Input,
@@ -13,9 +14,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { FormSheet } from '~/components/FormSheet';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 import { TAG_COLORS, useTagCreate, useTags } from '~/modules/tags/useTags';
 import { ContentTypeSwitch, useContentTypeParam } from '../ContentTypeSwitch';
 import { ColorSwatches, tagColumns } from './tagColumns';
@@ -97,7 +98,7 @@ export const TagsSettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: 'Tags', to: CONTACT_SETTINGS.tags, icon: IconTags }]} />
+          <AppBreadcrumb items={[{ label: 'Tags', to: paths.contacts.tags, icon: IconTags }]} />
         </PageHeader.Start>
         <PageHeader.End>
           <AddTag type={type} count={tags.length} />
@@ -130,7 +131,9 @@ export const TagsSettingsPage = () => {
           ) : (
             !loading &&
             !tags.length && (
-              <p className="py-10 text-center text-sm text-muted-foreground">No {type} tags yet.</p>
+              <Empty>
+                <Empty.Description>No {type} tags yet.</Empty.Description>
+              </Empty>
             )
           )}
         </RecordTable.CursorProvider>

@@ -1,3 +1,6 @@
+import { paths } from '~/lib/paths';
+import { panelHref } from '~/modules/side-panel/panelNavigation';
+import { useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { Customer } from '@erxes/core-contract';
 import { useRecentCustomers } from '../hooks';
@@ -7,18 +10,16 @@ import { HomeRecordList } from './HomeRecordList';
 const customerName = (customer: Customer) =>
   [customer.firstName, customer.middleName, customer.lastName].filter(Boolean).join(' ');
 
-const shortDate = (value: string, language: string) =>
-  new Date(value).toLocaleDateString(language, { month: 'short', day: 'numeric' });
-
 /** The newest customers and leads. */
 export const HomeRecentCustomers = () => {
-  const { t, i18n } = useTranslation(HOME_NS);
+  const { t } = useTranslation(HOME_NS);
+  const fmt = useFormat();
   const { data, isPending, isError } = useRecentCustomers();
 
   return (
     <HomeRecordList
       title={t('widgets.recent-customers')}
-      viewAllTo="/contacts/customers"
+      viewAllTo={paths.contacts.customers}
       emptyLabel={t('empty.customers')}
       loading={isPending}
       error={isError}
@@ -28,8 +29,11 @@ export const HomeRecentCustomers = () => {
           customerName(customer) || customer.primaryEmail || customer.primaryPhone || t('unnamed'),
         avatarUrl: customer.avatarUrl,
         detail: customerName(customer) ? customer.primaryEmail || customer.primaryPhone : null,
-        meta: shortDate(customer.createdAt, i18n.language),
-        to: `/contacts/${customer.state === 'lead' ? 'leads' : 'customers'}?panel=${encodeURIComponent(`/detail/customer/${customer.id}`)}`,
+        meta: fmt.date(customer.createdAt, 'MMM d'),
+        to: panelHref(customer.state === 'lead' ? paths.contacts.leads : paths.contacts.customers, {
+          contentType: 'core:customer',
+          contentId: customer.id,
+        }),
       }))}
     />
   );

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Dialog } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 export const TRIGGER_ICONS = {
   event: IconBolt,

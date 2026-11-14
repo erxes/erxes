@@ -1,9 +1,8 @@
-import type { AutomationDefinition, CoreEvent } from '@erxes/core-contract';
+import { type AutomationDefinition, CoreEvent } from '@erxes/core-contract';
 import { automationRuns, automations, type Db, type events, newId } from '@erxes/core-db';
 import { and, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
-import { eventJson } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/consumers';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
@@ -312,7 +311,7 @@ const resumeWaiting = async (tx: Db, event: EventRow, subjectId: string, dto: Co
 export const automationsConsumer: EventConsumer = {
   name: 'core.automations',
   async handle(tx, event: EventRow) {
-    const dto = eventJson(event);
+    const dto = CoreEvent.parse(event);
 
     if (event.subjectId) await resumeWaiting(tx, event, event.subjectId, dto);
 

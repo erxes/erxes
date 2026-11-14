@@ -1,4 +1,4 @@
-import type { Activity } from '@erxes/core-contract';
+import type { Activity, Note } from '@erxes/core-contract';
 import {
   IconDots,
   IconPaperclip,
@@ -8,15 +8,13 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Button, cn, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
+import { Button, cn, DropdownMenu, memberName, Skeleton, useConfirm } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Lookups } from '~/components/ChangeList';
 import { UserAvatar } from '~/components/UserAvatar';
-import { messageOf, orpc } from '~/lib/api';
-import { memberName } from '~/lib/members';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
-import type { NoteData } from './activityData';
 import { NoteComposer } from './NoteComposer';
 import { When } from './timelineTime';
 import { NoteHistory, Reactions } from './TimelineExtras';
@@ -79,7 +77,7 @@ const NoteFiles = ({ fileIds }: { fileIds: string[] }) => {
 };
 
 /** A note's text with @mentions highlighted, and its attachments. */
-const NoteBody = ({ note, lookups }: { note: NoteData; lookups: Lookups }) => {
+const NoteBody = ({ note, lookups }: { note: Note; lookups: Lookups }) => {
   const names = note.mentions.flatMap((id) => {
     const member = lookups.members.get(id);
 
@@ -108,12 +106,21 @@ const NoteBody = ({ note, lookups }: { note: NoteData; lookups: Lookups }) => {
 };
 
 /** Pin, edit (author) and delete (author, owners, admins) a note. */
-const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => void }) => {
+const NoteActions = ({
+  activity,
+  note,
+  onEdit,
+}: {
+  activity: Activity;
+  note: Note;
+  onEdit: () => void;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const { user } = useSession();
-  const { update, remove } = useNoteActions();
+  const { pin, remove } = useNoteActions();
   const { confirm } = useConfirm();
-  const mine = activity.actor.type === 'user' && activity.actor.id === user.id;
+  const mine = activity.actorType === 'user' && activity.actorId === user.id;
+  const pinned = note.pinnedAt !== null;
   const manager = useCan()('notes.moderate');
 
   const onDelete = async () => {
@@ -137,11 +144,9 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
         <IconDots className="size-3.5" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end">
-        <DropdownMenu.Item
-          onClick={() => update.mutate({ id: activity.id, pinned: !activity.pinned })}
-        >
-          {activity.pinned ? <IconPinnedOff /> : <IconPin />}
-          {activity.pinned ? t('unpin', 'Unpin') : t('pin', 'Pin to top')}
+        <DropdownMenu.Item onClick={() => pin.mutate({ id: activity.id, pinned: !pinned })}>
+          {pinned ? <IconPinnedOff /> : <IconPin />}
+          {pinned ? t('unpin', 'Unpin') : t('pin', 'Pin to top')}
         </DropdownMenu.Item>
         {mine && (
           <DropdownMenu.Item onClick={onEdit}>
@@ -169,13 +174,13 @@ const NoteContent = ({
   onEditDone,
 }: {
   activity: Activity;
-  note: NoteData;
+  note: Note;
   lookups: Lookups;
   editing: boolean;
   onEditDone: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
-  const { update } = useNoteActions();
+  const { edit } = useNoteActions();
 
   if (!editing) return <NoteBody note={note} lookups={lookups} />;
 
@@ -184,11 +189,11 @@ const NoteContent = ({
       <NoteComposer
         initial={note}
         submitLabel={t('save', 'Save')}
-        saving={update.isPending}
+        saving={edit.isPending}
         focusOnMount
         onCancel={onEditDone}
         onSubmit={async (draft) => {
-          await update.mutateAsync({ id: activity.id, ...draft });
+          await edit.mutateAsync({ id: activity.id, ...draft });
           onEditDone();
         }}
       />
@@ -207,7 +212,7 @@ export const NoteItem = ({
   withDate,
 }: {
   activity: Activity;
-  note: NoteData;
+  note: Note;
   lookups: Lookups;
   actor: string;
   /** The author's name, and where the note is when it is on another record. */
@@ -218,11 +223,6 @@ export const NoteItem = ({
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const [editing, setEditing] = useState(false);
 
-  const member =
-    activity.actor.type === 'user' && activity.actor.id
-      ? lookups.members.get(activity.actor.id)
-      : undefined;
-
   const hasReactions = Object.keys(activity.reactions).length > 0;
 
   return (
@@ -230,7 +230,7 @@ export const NoteItem = ({
       {rail}
       <UserAvatar
         name={actor}
-        src={member?.avatarUrl ?? activity.actor.avatarUrl ?? undefined}
+        src={activity.actorAvatarUrl ?? undefined}
         corners="circle"
         ring="lg"
         size="sm"
@@ -240,20 +240,17 @@ export const NoteItem = ({
         <div className="flex h-6 min-w-0 items-center gap-1.5 text-sm">
           {heading}
           <When iso={activity.occurredAt} withDate={withDate} />
-          {activity.editedAt &&
-            (note.history.length ? (
-              <NoteHistory history={note.history} />
-            ) : (
-              <span className="text-xs text-muted-foreground">· {t('edited', 'edited')}</span>
-            ))}
+          {note.editedAt && <NoteHistory noteId={activity.id} />}
           <span className="ml-auto flex shrink-0 items-center gap-0.5">
-            {activity.pinned && !withDate && (
+            {note.pinnedAt && !withDate && (
               <IconPin
                 className="size-3.5 text-muted-foreground"
                 aria-label={t('pinned', 'Pinned')}
               />
             )}
-            {!editing && <NoteActions activity={activity} onEdit={() => setEditing(true)} />}
+            {!editing && (
+              <NoteActions activity={activity} note={note} onEdit={() => setEditing(true)} />
+            )}
           </span>
         </div>
         <div className="mt-1 text-foreground">

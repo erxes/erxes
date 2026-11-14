@@ -1,7 +1,7 @@
 import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
-import { cn } from 'erxes-ui';
+import { memberQueries } from '@erxes/core-contract/client';
+import { Empty, cn, MemberInline, Tooltip, useFormat } from 'erxes-ui';
 import { useMemo, useState } from 'react';
-import { MembersInline } from '~/modules/contacts/components/MembersInline';
 import { useLeadReport } from '~/modules/leads/useLeads';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 
@@ -64,24 +64,35 @@ const Stat = ({
   </div>
 );
 
-/** A thin bar from the baseline, rounded at its data end; the number sits beside it in text ink. */
-const Bar = ({ value, max, title }: { value: number; max: number; title: string }) => (
-  <div className="flex h-5 min-w-0 flex-1 items-center gap-2" title={title}>
-    <span className="w-10 shrink-0 text-sm tabular-nums">{value.toLocaleString('en')}</span>
-    <div className="h-2.5 flex-1">
-      <div
-        className="h-full w-(--bar-width) rounded-r bg-primary"
-        style={{
-          '--bar-width': `${max ? Math.max((value / max) * 100, value ? 1 : 0) : 0}%`,
-        }}
-      />
-    </div>
-  </div>
+/**
+ * A thin bar from the baseline, rounded at its data end; the number sits beside it in text ink.
+ * Hover or focus shows what it counts, with the row's full name that the label column truncates.
+ */
+const Bar = ({ value, max, label }: { value: number; max: number; label: string }) => (
+  <Tooltip>
+    <Tooltip.Trigger delay={100} aria-label={label} className="flex h-5 min-w-0 flex-1">
+      <span className="flex flex-1 items-center gap-2">
+        <span className="w-10 shrink-0 text-left text-sm tabular-nums">
+          {useFormat().number(value)}
+        </span>
+        <span className="h-2.5 flex-1">
+          <span
+            className="block h-full w-(--bar-width) rounded-r bg-primary"
+            style={{
+              '--bar-width': `${max ? Math.max((value / max) * 100, value ? 1 : 0) : 0}%`,
+            }}
+          />
+        </span>
+      </span>
+    </Tooltip.Trigger>
+    <Tooltip.Content>{label}</Tooltip.Content>
+  </Tooltip>
 );
 
 /** New leads, conversions, rate and time to convert. */
 export const LeadSummary = ({ report, compact }: { report: LeadReport; compact?: boolean }) => {
   const t = useLeadsT();
+  const fmt = useFormat();
 
   return (
     <div
@@ -90,15 +101,11 @@ export const LeadSummary = ({ report, compact }: { report: LeadReport; compact?:
         compact ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 md:grid-cols-4',
       )}
     >
-      <Stat
-        compact={compact}
-        label={t('report.new-leads')}
-        value={report.created.toLocaleString('en')}
-      />
+      <Stat compact={compact} label={t('report.new-leads')} value={fmt.number(report.created)} />
       <Stat
         compact={compact}
         label={t('report.became-customers')}
-        value={report.converted.toLocaleString('en')}
+        value={fmt.number(report.converted)}
         hint={t('report.disqualified', { count: report.disqualified })}
       />
       <Stat
@@ -142,11 +149,15 @@ export const LeadStageFunnel = ({ report }: { report: LeadReport }) => {
             />
             <span className="truncate">{stageName(stage.name)}</span>
           </span>
-          <Bar value={stage.current} max={max} title={`${stage.name}: ${stage.current} now`} />
+          <Bar
+            value={stage.current}
+            max={max}
+            label={t('report.bar-now', { stage: stageName(stage.name), count: stage.current })}
+          />
           <Bar
             value={stage.reached}
             max={max}
-            title={`${stage.name}: ${stage.reached} reached it in the period`}
+            label={t('report.bar-reached', { stage: stageName(stage.name), count: stage.reached })}
           />
           <span className="text-right tabular-nums text-muted-foreground">
             {stage.averageDays === null ? '–' : `${stage.averageDays} d`}
@@ -171,6 +182,7 @@ const CohortTable = ({
   label: string;
 }) => {
   const t = useLeadsT();
+  const fmt = useFormat();
   const max = Math.max(...rows.map((row) => row.count), 1);
 
   return rows.length ? (
@@ -185,9 +197,9 @@ const CohortTable = ({
           <Bar
             value={row.count}
             max={max}
-            title={`${row.count} new leads, ${row.converted} became customers`}
+            label={t('report.bar-cohort', { count: row.count, converted: row.converted })}
           />
-          <span className="text-right tabular-nums">{row.converted.toLocaleString('en')}</span>
+          <span className="text-right tabular-nums">{fmt.number(row.converted)}</span>
           <span className="text-right tabular-nums text-muted-foreground">
             {percent(row.count ? row.converted / row.count : 0)}
           </span>
@@ -195,7 +207,9 @@ const CohortTable = ({
       ))}
     </div>
   ) : (
-    <p className="py-4 text-center text-sm text-muted-foreground">{t('report.no-leads')}</p>
+    <Empty size="sm">
+      <Empty.Description>{t('report.no-leads')}</Empty.Description>
+    </Empty>
   );
 };
 
@@ -223,7 +237,11 @@ export const LeadOwners = ({ report }: { report: LeadReport }) => {
       label={t('actions.owner')}
       rows={report.byOwner.map((row) => ({
         id: row.ownerId ?? 'none',
-        key: row.ownerId ? <MembersInline memberIds={[row.ownerId]} /> : t('report.no-owner'),
+        key: row.ownerId ? (
+          <MemberInline memberId={row.ownerId} members={memberQueries} />
+        ) : (
+          t('report.no-owner')
+        ),
         count: row.count,
         converted: row.converted,
       }))}
@@ -242,12 +260,14 @@ export const LeadReasons = ({ report }: { report: LeadReport }) => {
           <Bar
             value={row.count}
             max={report.reasons[0]?.count ?? row.count}
-            title={`${row.reason}: ${row.count}`}
+            label={t('report.bar-reason', { reason: row.reason, count: row.count })}
           />
         </div>
       ))}
     </div>
   ) : (
-    <p className="py-4 text-center text-sm text-muted-foreground">{t('report.no-reasons')}</p>
+    <Empty size="sm">
+      <Empty.Description>{t('report.no-reasons')}</Empty.Description>
+    </Empty>
   );
 };

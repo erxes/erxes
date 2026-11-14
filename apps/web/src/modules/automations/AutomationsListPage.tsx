@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { type Automation, type AutomationDefinition, AutomationStatus } from '@erxes/core-contract';
 import { IconBolt, IconPlus, IconSearch, IconTemplate } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -19,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { catalogQuery } from './automationQueries';
 import { countSteps } from './builder/flowChecks';
@@ -84,7 +85,7 @@ const AutomationRow = ({
       >
         <TriggerIcon kind={automation.definition.trigger.kind} className="size-4" />
       </span>
-      <Link to={`/automations/${automation.id}`} className="min-w-0 flex-1">
+      <Link to={paths.automations.automation(automation.id)} className="min-w-0 flex-1">
         <p className="truncate font-medium">{automation.name}</p>
         <p className="truncate text-xs text-muted-foreground">
           {triggerLabel} ·{' '}
@@ -185,9 +186,9 @@ const AutomationList = ({ automations }: { automations: Automation[] }) => {
       </div>
       {catalog.error && <p className="text-sm text-destructive">{messageOf(catalog.error)}</p>}
       {!shown.length ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">
-          {t('no-match', 'Nothing matches.')}
-        </p>
+        <Empty>
+          <Empty.Description>{t('no-match', 'Nothing matches.')}</Empty.Description>
+        </Empty>
       ) : (
         <ul className="divide-y rounded-lg border">
           {shown.map((automation) => (
@@ -239,7 +240,7 @@ export const AutomationsListPage = () => {
 
   const create = useMutation(
     orpc.automations.create.mutationOptions({
-      onSuccess: (automation) => navigate(`/automations/${automation.id}`),
+      onSuccess: (automation) => navigate(paths.automations.automation(automation.id)),
       onError: (error) =>
         toast({
           variant: 'destructive',
@@ -254,7 +255,9 @@ export const AutomationsListPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'Automations'), to: '/automations', icon: IconBolt }]}
+            items={[
+              { label: t('title', 'Automations'), to: paths.automations.list, icon: IconBolt },
+            ]}
           />
         </PageHeader.Start>
         <PageHeader.End>

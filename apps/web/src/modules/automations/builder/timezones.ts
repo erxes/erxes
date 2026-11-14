@@ -1,3 +1,5 @@
+import { localTimeZone, zoneOffset } from 'erxes-ui';
+
 /** Time zones offered for schedules and dates; the browser's own comes first. */
 const COMMON_ZONES = [
   'Asia/Ulaanbaatar',
@@ -13,18 +15,10 @@ const COMMON_ZONES = [
   'UTC',
 ];
 
-const browserZone = () => {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch {
-    return undefined;
-  }
-};
-
 /** The zones to offer, with `current` (a saved one) always among them. */
 export const zoneChoices = (current: string) => [
   ...new Set(
-    [browserZone(), current, ...COMMON_ZONES].filter((zone): zone is string => Boolean(zone)),
+    [localTimeZone(), current, ...COMMON_ZONES].filter((zone): zone is string => Boolean(zone)),
   ),
 ];
 
@@ -32,17 +26,7 @@ export const zoneChoices = (current: string) => [
 export const zoneLabel = (zone: string) => {
   if (zone === 'UTC') return 'UTC';
 
-  let offset = '';
-
-  try {
-    offset =
-      new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' })
-        .formatToParts(new Date())
-        .find((part) => part.type === 'timeZoneName')
-        ?.value.replace('GMT', 'UTC') ?? '';
-  } catch {
-    // An unknown zone: just its name.
-  }
+  const offset = zoneOffset(zone);
 
   const city = (zone.split('/').pop() ?? zone).replace(/_/g, ' ');
 

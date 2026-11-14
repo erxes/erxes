@@ -1,15 +1,13 @@
-import type { SORT_DIRECTIONS } from '@erxes/core-db/enums';
+import { type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
 import type { ConditionGroup, ViewRecordType } from '@erxes/core-contract';
 import { caller, type Db, newId, views } from '@erxes/core-db';
-import { and, asc, eq, or, sql } from 'drizzle-orm';
+import { and, asc, eq, getTableColumns, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { callerCan, can } from '~/http/access';
-import { HttpError, notFound } from '~/http/errors';
+import { callerCan } from '~/http/access';
+import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { filterFields } from './filterFields';
 import { compileRecordFilter } from './recordFilter';
-
-type Row = typeof views.$inferSelect;
 
 /** What a list's views need: to see the list, and to share a view or change a shared one. */
 const permissionsOf = (recordType: ViewRecordType) =>
@@ -18,7 +16,7 @@ const permissionsOf = (recordType: ViewRecordType) =>
     : { see: 'contacts.view', share: 'contacts.edit' };
 
 const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
-  new HttpError(403, 'NOT_ALLOWED', message, { permission });
+  fail('NOT_ALLOWED', message, { permission });
 
 /** The member may see the list the views are of. */
 const assertSees = (recordType: ViewRecordType) => {
@@ -27,16 +25,19 @@ const assertSees = (recordType: ViewRecordType) => {
   if (see && !callerCan(see)) throw notAllowed(see);
 };
 
-/** Who may change a view: its creator; a shared one also members who may share. */
-const mayEdit = (row: Row) => {
-  const me = caller('user');
-
-  return (
-    row.createdBy === me.userId || (row.shared && can(me, permissionsOf(row.recordType).share))
+/** Views with whether the member may change them: the creator; a shared one also members who may share. */
+const withEditable = () => {
+  const mayShare = sql.join(
+    VIEW_RECORD_TYPES.map((type) => sql`when ${type} then ${callerCan(permissionsOf(type).share)}`),
+    sql` `,
   );
-};
 
-const toDto = (row: Row) => ({ ...row, editable: mayEdit(row) });
+  return {
+    ...getTableColumns(views),
+    editable: sql<boolean>`(${views.createdBy} = ${caller('user').userId}
+      or (${views.shared} and case ${views.recordType} ${mayShare} else false end))`,
+  };
+};
 
 /** The member's own views and the team's shared ones, shared first, then by name. */
 export const listViews = async (client: Db, recordType: ViewRecordType) => {
@@ -44,7 +45,7 @@ export const listViews = async (client: Db, recordType: ViewRecordType) => {
 
   const rows = await wholeList((limit) =>
     client
-      .select()
+      .select(withEditable())
       .from(views)
       .where(
         and(
@@ -56,7 +57,7 @@ export const listViews = async (client: Db, recordType: ViewRecordType) => {
       .limit(limit),
   );
 
-  return { data: rows.map(toDto) };
+  return { data: rows };
 };
 
 interface ViewInput {
@@ -100,14 +101,14 @@ export const createView = async (
         shared: input.shared ?? false,
         createdBy: caller('user').userId,
       })
-      .returning(),
+      .returning(withEditable()),
   );
 
-  return toDto(row);
+  return row;
 };
 
 const viewOrThrow = async (client: Db, id: string) => {
-  const [row] = await client.select().from(views).where(eq(views.id, id)).limit(1);
+  const [row] = await client.select(withEditable()).from(views).where(eq(views.id, id)).limit(1);
 
   // Someone else's private view doesn't exist for this member.
   if (!row || (!row.shared && row.createdBy !== caller('user').userId)) throw notFound('View');
@@ -118,8 +119,7 @@ const viewOrThrow = async (client: Db, id: string) => {
 };
 
 const notEditable = (what: string) =>
-  new HttpError(
-    403,
+  fail(
     'NOT_ALLOWED',
     `Only its creator (or, when shared, members who may share views) can ${what} this view`,
   );
@@ -127,7 +127,7 @@ const notEditable = (what: string) =>
 export const updateView = async (client: Db, id: string, { search, ...input }: ViewInput) => {
   const row = await viewOrThrow(client, id);
 
-  if (!mayEdit(row)) throw notEditable('change');
+  if (!row.editable) throw notEditable('change');
 
   assertShareable(row.recordType, input.shared);
 
@@ -142,16 +142,16 @@ export const updateView = async (client: Db, id: string, { search, ...input }: V
         updatedAt: sql`now()`,
       })
       .where(eq(views.id, id))
-      .returning(),
+      .returning(withEditable()),
   );
 
-  return toDto(next);
+  return next;
 };
 
 export const removeView = async (client: Db, id: string) => {
   const row = await viewOrThrow(client, id);
 
-  if (!mayEdit(row)) throw notEditable('delete');
+  if (!row.editable) throw notEditable('delete');
 
   await client.delete(views).where(eq(views.id, id));
 

@@ -40,13 +40,33 @@
         }
       }
     },
-    "updateNote": {
+    "editNote": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PATCH",
           "path": "/activities/notes/{id}"
+        }
+      }
+    },
+    "pinNote": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/activities/notes/{id}/pinned"
+        }
+      }
+    },
+    "noteVersions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/activities/notes/{id}/versions"
         }
       }
     },
@@ -1097,6 +1117,18 @@
       }
     }
   },
+  "emails": {
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/emails"
+        }
+      }
+    }
+  },
   "events": {
     "publish": {
       "~orpc": {
@@ -1917,6 +1949,16 @@
         "route": {
           "method": "GET",
           "path": "/permissions"
+        }
+      }
+    },
+    "permissionSets": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/permission-sets"
         }
       }
     },

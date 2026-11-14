@@ -8,6 +8,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./automationDefinition": "./src/automationDefinition.ts",
     "./enums": "./src/enums.ts",
     "./schema": "./src/schema/index.ts"
   },

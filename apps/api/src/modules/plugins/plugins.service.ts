@@ -13,7 +13,7 @@ import {
 import { eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { PLUGIN_ACCESS_TYP } from '~/http/auth';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
@@ -117,8 +117,7 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
   await installAll(tx, [orgId], rows);
 };
 
-const invalidClient = () =>
-  new HttpError(401, 'INVALID_CLIENT', 'Unknown plugin or wrong client secret');
+const invalidClient = () => fail('INVALID_CLIENT', 'Unknown plugin or wrong client secret');
 
 /** The scopes the organisation granted that the plugin still asks for (it must be installed there). */
 const grantedScopes = async (row: PluginRow, org: string) => {
@@ -133,7 +132,7 @@ const grantedScopes = async (row: PluginRow, org: string) => {
   });
 
   if (installation?.status !== 'active') {
-    throw new HttpError(403, 'NOT_INSTALLED', `${row.name} is not installed in this organisation`);
+    throw fail('NOT_INSTALLED', `${row.name} is not installed in this organisation`);
   }
 
   const requested = new Set(requestedScopes(row));
@@ -197,11 +196,31 @@ const namespaced = (plugin: string, values: string[] | undefined, what: string) 
   const wrong = (values ?? []).find((value) => !value.startsWith(`${plugin}.`));
 
   if (wrong) {
-    throw new HttpError(
-      400,
-      'NAMESPACE_REQUIRED',
-      `${what} must start with "${plugin}.": ${wrong}`,
-    );
+    throw fail('NAMESPACE_REQUIRED', `${what} must start with "${plugin}.": ${wrong}`);
+  }
+};
+
+/** Permission sets name only the manifest's own permissions, and each key once. */
+const ownPermissionSets = (manifest: PluginManifest) => {
+  const declared = new Set(manifest.permissions?.map((item) => item.action));
+  const keys = new Set<string>();
+
+  for (const set of manifest.permissionSets ?? []) {
+    const unknown = set.permissions.find((action) => !declared.has(action));
+
+    if (unknown) {
+      throw fail(
+        'UNKNOWN_PERMISSION',
+        `Permission set "${set.key}" names ${unknown}, which the manifest's permissions don't declare`,
+        { permissions: [unknown] },
+      );
+    }
+
+    if (keys.has(set.key)) {
+      throw fail('DUPLICATE_PERMISSION_SET', `Two permission sets are "${set.key}"`);
+    }
+
+    keys.add(set.key);
   }
 };
 
@@ -214,6 +233,7 @@ export const registerManifest = async (manifest: PluginManifest) => {
     manifest.permissions?.map((item) => item.action),
     'Permission actions',
   );
+  ownPermissionSets(manifest);
   namespaced(
     plugin,
     manifest.notificationKinds?.map((item) => item.kind),

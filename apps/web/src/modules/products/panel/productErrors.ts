@@ -1,9 +1,6 @@
-import { z } from 'zod';
-import { errorData, isApiError } from '~/lib/api';
+import { isApiError } from '@erxes/core-contract/client';
 
 type Translate = (key: string, defaultValue: string) => string;
-
-const existing = z.object({ productId: z.string() });
 
 /** A save failure about one field; `productId` is the product that already has the code. */
 interface ProductFieldError {
@@ -14,19 +11,19 @@ interface ProductFieldError {
 
 /** What a failed save was about, or null when it was not about one field. */
 export const productFieldError = (error: unknown, t: Translate): ProductFieldError | null => {
-  if (isApiError(error, 'PRODUCT_CODE_EXISTS')) {
+  if (isApiError(error, 'TAKEN') && error.data.field === 'code') {
     return {
       field: 'code',
       message: t('errors.code-exists', 'Another product has this code.'),
-      productId: errorData(error, existing)?.productId,
+      productId: error.data.id,
     };
   }
 
-  if (isApiError(error, 'PRODUCT_BARCODE_EXISTS')) {
+  if (isApiError(error, 'TAKEN') && error.data.field === 'barcode') {
     return {
       field: 'barcode',
       message: t('errors.barcode-exists', 'Another product has this barcode.'),
-      productId: errorData(error, existing)?.productId,
+      productId: error.data.id,
     };
   }
 

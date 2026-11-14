@@ -1,57 +1,23 @@
 import { Editor } from 'erxes-ui';
-import { useEffect, type RefObject } from 'react';
+import type { RefObject } from 'react';
+import { usePageHotkey } from '~/lib/usePageHotkey';
 import { useSaveOnLeave } from './useSaveOnLeave';
 
-const TYPING_TARGET =
-  'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]';
-
-const OVERLAY = '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]';
-
-/** A bare `/` typed outside any input, while nothing covers the page. */
-const isFocusKey = (event: KeyboardEvent) =>
-  event.key === '/' &&
-  !event.defaultPrevented &&
-  !event.ctrlKey &&
-  !event.metaKey &&
-  !event.altKey &&
-  !event.shiftKey &&
-  !event.repeat &&
-  !event.isComposing &&
-  !(event.target instanceof Element && event.target.closest(TYPING_TARGET)) &&
-  !Array.from(document.querySelectorAll<HTMLElement>(OVERLAY)).some(
-    (overlay) => overlay.getClientRects().length > 0,
-  );
-
-/** The editor inside `container`, when it is shown. */
+/** The editor inside `container`, when it is shown (an inactive tab's panel is `hidden`). */
 const visibleEditor = (container: HTMLElement | null) => {
   const editor = container?.querySelector<HTMLElement>('[contenteditable="true"]');
 
   if (!editor?.getClientRects().length) return null;
 
-  return editor.closest('[hidden], [inert], [role="tabpanel"][data-state="inactive"]')
-    ? null
-    : editor;
+  return editor.closest('[hidden], [inert]') ? null : editor;
 };
 
-/** `/` focuses the description editor, unless it is read-only. */
-const useSlashFocus = (containerRef: RefObject<HTMLDivElement | null>, readonly?: boolean) => {
-  useEffect(() => {
-    if (readonly) return undefined;
-
-    const focusDescription = (event: KeyboardEvent) => {
-      const editor = isFocusKey(event) ? visibleEditor(containerRef.current) : null;
-
-      if (!editor) return;
-
-      event.preventDefault();
-      editor.focus();
-    };
-
-    document.addEventListener('keydown', focusDescription);
-
-    return () => document.removeEventListener('keydown', focusDescription);
-  }, [containerRef, readonly]);
-};
+/** `/` focuses the description editor, unless it is read-only or not shown (another panel's may be). */
+const useSlashFocus = (containerRef: RefObject<HTMLDivElement | null>, readonly?: boolean) =>
+  usePageHotkey('/', () => visibleEditor(containerRef.current)?.focus(), {
+    useKey: true,
+    when: () => !readonly && visibleEditor(containerRef.current) !== null,
+  });
 
 /** A record's description as a full-size tab, saved when the editor loses focus. */
 export const PanelDescriptionEditor = ({

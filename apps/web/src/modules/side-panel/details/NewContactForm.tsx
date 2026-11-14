@@ -1,5 +1,5 @@
 import { IconAlignLeft, IconPhoto, IconUserCircle } from '@tabler/icons-react';
-import { Editor, Form, useToast } from 'erxes-ui';
+import { Editor, Form, SelectMember, useToast } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import {
   type FieldValues,
@@ -10,8 +10,7 @@ import {
 import { AvatarUploadField } from '~/components/AvatarEditor';
 import { DESCRIPTION_MAX } from '@erxes/core-contract';
 import { z } from 'zod';
-import { messageOf } from '~/lib/api';
-import { SelectMember } from '~/modules/contacts/components/SelectMember';
+import { memberQueries, messageOf } from '@erxes/core-contract/client';
 import { type ContactSide, linkNewContact } from '~/modules/contacts/components/useContactLinks';
 import { PanelFormLayout, PanelFormRow } from '../PanelForm';
 import { useCreatedPanelRecord } from '../useCreatedPanelRecord';
@@ -107,11 +106,14 @@ export const ContactOwnerRow = ({ label }: { label: string }) => {
         control={control}
         name="ownerId"
         render={({ field }) => (
-          <SelectMember.FormItem
-            placeholder={label}
-            value={field.value}
-            onValueChange={(value) => field.onChange(value ?? '')}
-          />
+          <Form.Control>
+            <SelectMember.Field
+              placeholder={label}
+              value={field.value}
+              members={memberQueries}
+              onValueChange={(value) => field.onChange(value ?? '')}
+            />
+          </Form.Control>
         )}
       />
     </PanelFormRow>

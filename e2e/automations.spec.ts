@@ -26,7 +26,7 @@ test('a member creates an automation, turns it on and it runs', async ({ page, a
       async () => {
         const { data } = await api.automations.runs({ id: automationId });
 
-        return data.find((run) => run.subject?.id === customer.id)?.status;
+        return data.find((run) => run.subjectId === customer.id)?.status;
       },
       { timeout: 20_000 },
     )

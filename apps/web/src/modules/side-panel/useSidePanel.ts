@@ -1,6 +1,7 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
+import { stored } from 'erxes-ui';
 import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react';
+import { z } from 'zod';
 import {
   dismissPathIn,
   openPathIn,
@@ -24,10 +25,11 @@ import {
 } from './sidePanelPaths';
 
 // The width the user dragged the panel to, kept across reloads.
-export const sidePanelWidthState = atomWithStorage<number>(
-  'erxes:sidePanelWidth',
-  SIDE_PANEL_WIDTH.default,
-);
+export const sidePanelWidthState = stored({
+  key: 'erxes:side-panel:width',
+  schema: z.number().min(SIDE_PANEL_WIDTH.min).max(SIDE_PANEL_WIDTH.max),
+  initial: SIDE_PANEL_WIDTH.default,
+});
 
 export const sidePanelSessionState = atom(0);
 

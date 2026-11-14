@@ -1,11 +1,11 @@
 import type { Company, Customer, Field } from '@erxes/core-contract';
-import { RecordTableInlineCell } from 'erxes-ui';
+import { memberQueries } from '@erxes/core-contract/client';
+import { RecordTableInlineCell, SelectMember } from 'erxes-ui';
 import { CustomFieldCell } from '~/modules/properties/CustomFieldCell';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { useCompanyEdit } from '../companies/useCompanies';
 import { useCustomerEdit } from '../customers/useCustomers';
 import { ContactEmails, ContactPhones } from './ContactFields';
-import { SelectMember } from './SelectMember';
 
 type Contact = Customer | Company;
 
@@ -56,9 +56,8 @@ export const ContactOwnerCell = ({ record, scope }: CellProps) => {
     <SelectMember.InlineCell
       scope={scope}
       value={record.ownerId}
-      onValueChange={(ownerId) =>
-        save({ id: record.id, ownerId: typeof ownerId === 'string' ? ownerId : null })
-      }
+      members={memberQueries}
+      onValueChange={(ownerId) => save({ id: record.id, ownerId })}
     />
   );
 };
@@ -69,7 +68,6 @@ export const ContactTagsCell = ({ record, scope }: CellProps) => {
   return (
     <TagsSelect.InlineCell
       type={'primaryName' in record ? 'company' : 'customer'}
-      mode="multiple"
       scope={scope}
       value={record.tagIds}
       onValueChange={(tagIds) => save({ id: record.id, tagIds })}

@@ -16,11 +16,15 @@ export const assertCompany = async (client: Db, companyId: string) => {
   }
 };
 
-const linkColumns = {
+/**
+ * A link as selected, nested under `link`. Drizzle makes a nested object null when its first
+ * column is null, so a column that is never null comes first.
+ */
+export const linkColumns = {
+  createdAt: customerCompanies.createdAt,
   role: customerCompanies.role,
   isPrimaryContact: customerCompanies.isPrimaryContact,
   endedAt: customerCompanies.endedAt,
-  createdAt: customerCompanies.createdAt,
 };
 
 /** Current links first (main contact first), then former ones; oldest first within each. */
@@ -33,26 +37,21 @@ export const linkOrder = [
 export const customerCompaniesOf = async (client: Db, id: string) => {
   await findCustomer(client, id);
 
-  const rows = await wholeList((limit) =>
-    client
-      .select({
-        id: companies.id,
-        primaryName: companies.primaryName,
-        avatarUrl: companies.avatarUrl,
-        website: companies.website,
-        ...linkColumns,
-      })
-      .from(customerCompanies)
-      .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
-      .where(eq(customerCompanies.customerId, id))
-      .orderBy(...linkOrder)
-      .limit(limit),
-  );
-
   return {
-    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...company }) => ({
-      ...company,
-      link: { role, isPrimaryContact, endedAt, createdAt },
-    })),
+    data: await wholeList((limit) =>
+      client
+        .select({
+          id: companies.id,
+          primaryName: companies.primaryName,
+          avatarUrl: companies.avatarUrl,
+          website: companies.website,
+          link: linkColumns,
+        })
+        .from(customerCompanies)
+        .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
+        .where(eq(customerCompanies.customerId, id))
+        .orderBy(...linkOrder)
+        .limit(limit),
+    ),
   };
 };

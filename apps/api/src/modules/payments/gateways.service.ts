@@ -10,7 +10,7 @@ import {
 import { createGateway } from '@erxes/payment-gateways';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { seal, unseal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -43,11 +43,7 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
   const allowed = settings?.allowedGatewayIds ?? [];
 
   if (requested && allowed.length && !allowed.includes(requested)) {
-    throw new HttpError(
-      403,
-      'GATEWAY_NOT_ALLOWED',
-      'This plugin may not use that gateway (Settings › Payments)',
-    );
+    throw fail('GATEWAY_NOT_ALLOWED', 'This plugin may not use that gateway (Settings › Payments)');
   }
 
   const active = await client
@@ -66,8 +62,7 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
     .orderBy(paymentGateways.createdAt);
 
   if (!active.length) {
-    throw new HttpError(
-      400,
+    throw fail(
       'NO_GATEWAY',
       requested
         ? 'That gateway is not connected or is turned off'
@@ -84,8 +79,7 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
   const gateway = preferred ?? taking[0];
 
   if (!gateway) {
-    throw new HttpError(
-      400,
+    throw fail(
       'CURRENCY_NOT_SUPPORTED',
       requested
         ? `That gateway doesn't take ${currency}`
@@ -107,7 +101,11 @@ const visibleSettings = (settings: GatewayConfig) =>
     ? { invoiceCode: settings.invoiceCode, sandbox: settings.sandbox, clientId: settings.clientId }
     : {};
 
-const toGatewayDto = (row: GatewayRow) => ({ ...row, settings: visibleSettings(configOf(row)) });
+/** The row with the settings a member may see; the sealed credentials stay out. */
+const withVisibleSettings = (row: GatewayRow) => ({
+  ...row,
+  settings: visibleSettings(configOf(row)),
+});
 
 const gatewayOrThrow = async (client: Db, id: string) => {
   const [row] = await client
@@ -125,8 +123,7 @@ const verifyGateway = async (id: string, settings: GatewayConfig) => {
   try {
     await createGateway(settings, { cacheKey: id }).verify();
   } catch (error) {
-    throw new HttpError(
-      400,
+    throw fail(
       'GATEWAY_REFUSED',
       `The gateway refused these credentials: ${error instanceof Error ? error.message : String(error)}`,
     );
@@ -138,7 +135,7 @@ export const listGateways = async (client: Db) => ({
     await wholeList((limit) =>
       client.select().from(paymentGateways).orderBy(paymentGateways.createdAt).limit(limit),
     )
-  ).map(toGatewayDto),
+  ).map(withVisibleSettings),
 });
 
 export const addGateway = async (client: Db, input: { name: string; config: GatewayConfig }) => {
@@ -167,7 +164,7 @@ export const addGateway = async (client: Db, input: { name: string; config: Gate
     metadata: { kind: input.config.kind, ...visibleSettings(input.config) },
   });
 
-  return toGatewayDto(row);
+  return withVisibleSettings(row);
 };
 
 export const updateGateway = async (
@@ -179,7 +176,7 @@ export const updateGateway = async (
 
   if (input.config) {
     if (input.config.kind !== before.kind)
-      throw new HttpError(400, 'KIND_CHANGED', 'Add a new gateway to change its kind');
+      throw fail('KIND_CHANGED', 'Add a new gateway to change its kind');
     await verifyGateway(id, input.config);
   }
 
@@ -204,7 +201,7 @@ export const updateGateway = async (
     metadata: { credentialsChanged: Boolean(input.config), status: input.status },
   });
 
-  return toGatewayDto(row);
+  return withVisibleSettings(row);
 };
 
 export const removeGateway = async (client: Db, id: string) => {
@@ -216,7 +213,7 @@ export const removeGateway = async (client: Db, id: string) => {
     .where(eq(paymentInvoices.gatewayId, id))
     .limit(1);
 
-  if (used) throw new HttpError(409, 'GATEWAY_IN_USE', 'It has invoices: turn it off instead');
+  if (used) throw fail('GATEWAY_IN_USE', 'It has invoices: turn it off instead');
 
   await client.delete(paymentGateways).where(eq(paymentGateways.id, id));
   // Plugins that used it go back to the organisation's other gateways.

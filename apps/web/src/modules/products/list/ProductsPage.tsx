@@ -2,9 +2,9 @@ import { IconPackage, IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageContainer, PageHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { useCreateHotkey } from '~/modules/contacts/customers/CustomersHeader';
+import { usePageHotkey } from '~/lib/usePageHotkey';
 import { ViewBar } from '~/modules/views/ViewBar';
-import { PRODUCTS_PATH } from '../paths';
+import { paths } from '~/lib/paths';
 import { useCanManageProducts, useOpenProduct } from '../useProducts';
 import { ProductsFilter } from './ProductsFilter';
 import { ProductsRecordTable } from './ProductsRecordTable';
@@ -14,7 +14,7 @@ const AddProductButton = () => {
   const { t } = useTranslation('product');
   const { openNewProduct } = useOpenProduct();
 
-  useCreateHotkey(openNewProduct);
+  usePageHotkey('c', openNewProduct);
 
   return (
     <Button onClick={openNewProduct}>
@@ -35,7 +35,9 @@ export const ProductsPage = () => {
       <PageHeader>
         <PageHeader.Start variant="flush">
           <AppBreadcrumb
-            items={[{ label: t('products', 'Products'), to: PRODUCTS_PATH, icon: IconPackage }]}
+            items={[
+              { label: t('products', 'Products'), to: paths.products.list, icon: IconPackage },
+            ]}
           />
         </PageHeader.Start>
         <PageHeader.End>{manage && <AddProductButton />}</PageHeader.End>

@@ -1,6 +1,7 @@
-import { ACTOR_TYPES, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import { trash } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
@@ -16,13 +17,15 @@ export const TrashItem = createSelectSchema(trash, {
     recordType: true,
     recordId: true,
     label: true,
+    /** Who deleted it: a team member (`deletedBy` = user id), a plugin (its name) or `system`. */
+    deletedByType: true,
+    deletedBy: true,
     deletedAt: true,
     /** When it is gone for good. */
     purgeAt: true,
   })
   .extend({
-    deletedBy: z.object({ type: z.enum(ACTOR_TYPES), id: z.string().nullable() }),
-    /** What comes back with it. */
+    /** What comes back with it, counted in the query. */
     counts: z.object({
       tags: z.int(),
       links: z.int(),
@@ -32,12 +35,17 @@ export const TrashItem = createSelectSchema(trash, {
 
 export type TrashItem = z.infer<typeof TrashItem>;
 
+const { LIMIT_EXCEEDED, NOTHING_TO_RETRY, SUBJECT_REQUIRED } = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({ ...COMMON_ERRORS, LIMIT_EXCEEDED, NOTHING_TO_RETRY, SUBJECT_REQUIRED });
+
 /**
  * The recycle bin: deleted customers and companies stay restorable for 30
  * days — with their tags, links and timeline — then are purged for good.
  */
 export const trashContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/trash',
@@ -50,7 +58,7 @@ export const trashContract = {
       }),
     )
     .output(cursorPageOf(TrashItem)),
-  restore: oc
+  restore: base
     .route({
       method: 'POST',
       path: '/trash/restore',
@@ -64,7 +72,7 @@ export const trashContract = {
         failed: z.array(z.object({ id: Id, reason: z.string() })),
       }),
     ),
-  purge: oc
+  purge: base
     .route({
       method: 'POST',
       path: '/trash/purge',

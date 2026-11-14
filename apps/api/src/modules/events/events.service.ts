@@ -1,13 +1,8 @@
-import {
-  CoreEvent,
-  type CursorQuery,
-  type EventFailure,
-  type EventInput,
-} from '@erxes/core-contract';
+import type { ActivityTarget, CursorQuery, EventFailure, EventInput } from '@erxes/core-contract';
 import { actorOf, caller, type Db, events, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { currentRunCause, currentImport } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
@@ -22,24 +17,10 @@ import {
 } from '~/modules/jobs/failed';
 import { storedError } from '~/modules/jobs/jobs';
 
-type EventRow = typeof events.$inferSelect;
-
-const toEventDto = (row: EventRow) => ({
-  ...row,
-  subject: row.subjectType && row.subjectId ? { type: row.subjectType, id: row.subjectId } : null,
-  entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
-  actor: { type: row.actorType, id: row.actorId },
-});
-
-/** The event as the API sends it, for bodies outside the API: webhooks, plugin deliveries, automation runs. */
-export const eventJson = (row: EventRow) => CoreEvent.parse(toEventDto(row));
-
-export interface CoreEventInput {
-  type: string;
-  subject?: EventInput['subject'];
-  entity?: { type: string; id: string };
-  payload?: Record<string, unknown>;
-}
+export type CoreEventInput = Pick<
+  typeof events.$inferInsert,
+  'type' | 'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'payload'
+>;
 
 /**
  * Core publishes its own events (`core.customer.created`, …) in the same
@@ -60,11 +41,7 @@ export const publishCoreEvents = async (client: Db, inputs: CoreEventInput | Cor
     list.map((input) => ({
       id: newId(),
       source: 'core',
-      type: input.type,
-      subjectType: input.subject?.type ?? null,
-      subjectId: input.subject?.id ?? null,
-      entityType: input.entity?.type ?? null,
-      entityId: input.entity?.id ?? null,
+      ...input,
       ...actor,
       payload: imported
         ? { ...input.payload, _import: { id: imported.importId, quiet: imported.quiet } }
@@ -87,18 +64,16 @@ export const publishPluginEvents = async (client: Db, inputs: EventInput[]) => {
   for (const input of inputs) {
     assertPluginNamespace(plugin, input.type);
 
-    if (input.summary && !input.subject) {
-      throw new HttpError(
-        400,
-        'SUBJECT_REQUIRED',
-        'A timeline summary needs a subject (customer or company)',
-      );
+    if (input.summary && !input.subjectId) {
+      throw fail('SUBJECT_REQUIRED', 'A timeline summary needs a subject (customer or company)');
     }
   }
 
   await assertTargets(
     client,
-    inputs.flatMap((input) => input.subject ?? []),
+    inputs.flatMap(({ subjectType, subjectId }) =>
+      subjectType && subjectId ? [{ type: subjectType, id: subjectId }] : [],
+    ),
   );
   await assertMembers(
     client,
@@ -113,10 +88,10 @@ export const publishPluginEvents = async (client: Db, inputs: EventInput[]) => {
         source: plugin,
         type: input.type,
         version: input.version,
-        subjectType: input.subject?.type ?? null,
-        subjectId: input.subject?.id ?? null,
-        entityType: input.entity?.type ?? null,
-        entityId: input.entity?.id ?? null,
+        subjectType: input.subjectType ?? null,
+        subjectId: input.subjectId ?? null,
+        entityType: input.entityType ?? null,
+        entityId: input.entityId ?? null,
         actorType: input.actorUserId ? ('user' as const) : ('plugin' as const),
         actorId: input.actorUserId ?? plugin,
         payload: input.payload,
@@ -140,7 +115,7 @@ export const listEvents = async (
   query: CursorQuery & {
     source?: string;
     type?: string;
-    subjectType?: NonNullable<EventInput['subject']>['type'];
+    subjectType?: ActivityTarget;
     subjectId?: string;
   },
 ) => {
@@ -155,7 +130,7 @@ export const listEvents = async (
     query.subjectId ? eq(events.subjectId, query.subjectId) : undefined,
   );
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: events,
@@ -174,8 +149,6 @@ export const listEvents = async (
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return { ...page, data: page.data.map(toEventDto) };
 };
 
 // ─── Failed deliveries ──────────────────────────────────────────────────────
@@ -232,7 +205,7 @@ export const listEventFailures = async (client: Db, query: { status?: EventFailu
               lastError: storedError(job.output),
               failedAt: job.failedAt,
               nextAttemptAt: job.nextAttemptAt,
-              event: toEventDto(event),
+              event,
             },
           ]
         : [];
@@ -247,7 +220,7 @@ export const retryEventFailures = async (
   input: { failures?: FailureRef[]; allDead?: boolean },
 ) => {
   if (!input.failures?.length && !input.allDead) {
-    throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
+    throw fail('NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
   }
 
   const failed = await failedJobs(

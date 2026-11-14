@@ -3,6 +3,7 @@ import { ContactsSettingsRoutes } from './settings/ContactsSettingsRoutes';
 import { CompaniesPage } from './companies/CompaniesPage';
 import { ContactsLayout } from './ContactsLayout';
 import { CustomersPage } from './customers/CustomersPage';
+import { paths } from '~/lib/paths';
 import { LeadsReportPage } from '~/modules/reports/ReportsRoutes';
 import { RecordPage } from '~/modules/side-panel/RecordPage';
 
@@ -13,11 +14,12 @@ import { RecordPage } from '~/modules/side-panel/RecordPage';
 export const ContactsRoutes = ({ notFound }: { notFound?: React.ReactNode }) => (
   <Routes>
     <Route element={<ContactsLayout />}>
-      <Route index element={<Navigate to="customers" replace />} />
+      <Route index element={<Navigate to={paths.contacts.customers} replace />} />
       <Route path="customers" element={<CustomersPage key="customer" state="customer" />} />
       {/* Leads: Insights, People, Companies (the sidebar's Leads group). */}
       <Route path="leads" element={<CustomersPage key="lead" state="lead" />} />
       <Route path="leads/companies" element={<CompaniesPage key="company-lead" state="lead" />} />
+      <Route path="leads/companies/:id" element={<RecordPage contentType="core:company" />} />
       <Route path="leads/insights" element={<LeadsReportPage inContacts />} />
       <Route path="companies" element={<CompaniesPage />} />
       <Route path="customers/:id" element={<RecordPage contentType="core:customer" />} />

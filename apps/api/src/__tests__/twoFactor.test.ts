@@ -45,7 +45,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     });
 
     expect(enabled.recoveryCodes).toHaveLength(10);
-    expect((await owner.api.auth.me({})).user.twoFactorEnabled).toBe(true);
+    expect((await owner.api.auth.me({})).user.totpEnabledAt).not.toBeNull();
 
     // The password alone no longer signs in, and no session is set.
     const first = server.browser();
@@ -73,7 +73,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     await recovered.api.auth.signInTwoFactor({ challenge: await challenge(), recoveryCode });
     await expect(
       server.browser().api.auth.signInTwoFactor({ challenge: await challenge(), recoveryCode }),
-    ).rejects.toMatchObject({ status: 401 });
+    ).rejects.toMatchObject({ code: 'WRONG_CODE' });
     await expect(
       server
         .browser()
@@ -86,7 +86,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     });
     await recovered.api.auth.twoFactorDisable({ password: credentials.password });
     expect(await server.browser().api.auth.signIn(credentials)).toMatchObject({
-      user: { twoFactorEnabled: false },
+      user: { totpEnabledAt: null },
     });
   });
 });

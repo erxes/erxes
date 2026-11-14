@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { z } from 'zod';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import type { CursorPage } from '~/lib/cursorList';
 import { useLeadsT } from './i18n';
 import { leadStagesQuery } from './useLeads';

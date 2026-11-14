@@ -4,7 +4,7 @@ import { useToast } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 
 /** Whether the installation still needs its first organisation (asked only when signed out). */
 export const useSetupStatus = (enabled: boolean) =>
@@ -20,7 +20,7 @@ export const useSetupStatus = (enabled: boolean) =>
 export const useSessionQuery = () =>
   useQuery(orpc.auth.me.queryOptions({ staleTime: 60_000, retry: false }));
 
-export const isSignedOut = (error: unknown) => isApiError(error) && error.status === 401;
+export const isSignedOut = (error: unknown) => isApiError(error, 'UNAUTHORIZED');
 
 /** Starts the app with the session a sign-in (or setup, or invitation) returned. */
 export const useSignedIn = () => {

@@ -1,15 +1,11 @@
-import {
-  ConditionGroup,
-  type FilterField,
-  type View,
-  type ViewRecordType,
-} from '@erxes/core-contract';
+import type { ConditionGroup, FilterField, View, ViewRecordType } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMultiQueryState, useToast } from 'erxes-ui';
+import { useToast } from 'erxes-ui';
+import { useQueryStates } from 'nuqs';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
+import { listQuery } from './viewLinks';
 
 /** A field a list filters by; money fields carry the currency their amounts are shown in. */
 export type ListField = FilterField & { currency?: string };
@@ -31,10 +27,8 @@ export const useCanShareViews = (recordType: ViewRecordType) =>
 
 /** The advanced filter, the selected view and the search, all kept in the address (shareable, survive reloads). */
 export const useListQuery = () => {
-  const [{ advanced, view, searchValue }, setQueries] = useMultiQueryState({
-    advanced: ConditionGroup,
-    view: z.string(),
-    searchValue: z.string(),
+  const [{ advanced, view, searchValue }, setQueries] = useQueryStates(listQuery, {
+    history: 'replace',
   });
 
   return {
@@ -42,10 +36,10 @@ export const useListQuery = () => {
     viewId: view,
     search: searchValue,
     setAdvanced: (next: ConditionGroup | null) =>
-      setQueries({ advanced: next?.rules.length ? next : null }),
+      void setQueries({ advanced: next?.rules.length ? next : null }),
     /** Opens a view: its filter and search replace the current ones. */
     openView: (target: View | null) =>
-      setQueries({
+      void setQueries({
         view: target?.id ?? null,
         advanced: target?.filter?.rules.length ? target.filter : null,
         searchValue: target?.search ?? null,

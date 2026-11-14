@@ -5,9 +5,9 @@ import { Button, Checkbox, Dialog, Label, Select, Spinner, useToast } from 'erxe
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 import { useListQuery } from '~/modules/views/useViews';
 import { useTransferColumns } from './useTransfer';
 
@@ -186,7 +186,7 @@ const ExportFooter = ({
   return (
     <div className="flex items-center gap-2">
       <Link
-        to={CONTACT_SETTINGS.importExport}
+        to={paths.contacts.importExport}
         className="text-xs text-muted-foreground hover:underline"
       >
         {t('history', 'Past exports')}

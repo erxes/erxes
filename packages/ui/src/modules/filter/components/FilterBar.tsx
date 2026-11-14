@@ -1,12 +1,10 @@
-import { z } from 'zod';
 import React from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
+import { useQueryState } from 'nuqs';
 import type { Except } from 'type-fest';
 import { Button } from 'erxes-ui/components/button';
-import { useRemoveQueryStateByKey } from 'erxes-ui/hooks/use-query-state';
 import { cn } from 'erxes-ui/lib/utils';
 import { useFilterContext } from '../hooks/useFilterContext';
-import { useFilterQueryState } from '../hooks/useFilterQueryState';
 
 export const FilterBar = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
   return (
@@ -26,7 +24,7 @@ export const FilterBarCloseButton = ({
 }: Except<React.ComponentPropsWithoutRef<typeof Button>, 'value'> & {
   filterKey?: string;
 } & React.RefAttributes<React.ComponentRef<typeof Button>>) => {
-  const removeQuery = useRemoveQueryStateByKey();
+  const [, setQuery] = useQueryState(filterKey ?? '');
 
   return (
     <Button
@@ -34,7 +32,7 @@ export const FilterBarCloseButton = ({
       variant="segment"
       size="icon"
       className={className}
-      onClick={() => removeQuery(filterKey ?? '')}
+      onClick={() => void setQuery(null)}
       {...props}
     >
       <IconX />
@@ -51,7 +49,7 @@ export const FilterBarItem = ({
 }: React.HTMLAttributes<HTMLDivElement> & {
   queryKey?: string;
 } & React.RefAttributes<HTMLDivElement>) => {
-  const [query] = useFilterQueryState(queryKey || 'root', z.string());
+  const [query] = useQueryState(queryKey || 'root');
 
   if (queryKey && !query) {
     return null;
@@ -114,7 +112,7 @@ export const FilterBarButton = ({
 };
 
 export const FilterSearchValueBarItem = () => {
-  const [searchValue] = useFilterQueryState('searchValue', z.string());
+  const [searchValue] = useQueryState('searchValue');
 
   return (
     <FilterBarItem queryKey="searchValue">

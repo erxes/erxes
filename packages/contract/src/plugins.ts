@@ -1,5 +1,8 @@
 import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { Id, isoDate, listOf } from './common';
@@ -7,6 +10,7 @@ import { ActionField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginAssistant } from './pluginAssistant';
+import { ManifestPermissionSet } from './roles';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
 export const PluginName = z
@@ -24,6 +28,7 @@ export const PLUGIN_SCOPES = [
   'customers:read',
   'customers:write',
   'audit:write',
+  'emails:write',
   'events:read',
   'events:write',
   'files:read',
@@ -34,6 +39,7 @@ export const PLUGIN_SCOPES = [
   'payments:write',
   'products:read',
   'products:write',
+  'users:read',
 ] as const;
 
 export const PluginScope = z.enum(PLUGIN_SCOPES);
@@ -131,6 +137,12 @@ export const PluginManifest = z.object({
     )
     .max(500)
     .optional(),
+  /**
+   * Ready-made bundles of its own permissions (`agent`: reply, assign, view),
+   * which an owner adds to any role in one click. Members keep one role, so a
+   * plugin offers sets instead of roles of its own.
+   */
+  permissionSets: z.array(ManifestPermissionSet).max(20).optional(),
   notificationKinds: z
     .array(
       z.object({
@@ -221,25 +233,38 @@ export const PluginManifest = z.object({
 
 export type PluginManifest = z.infer<typeof PluginManifest>;
 
-export const Plugin = z.object({
-  name: z.string(),
-  title: z.string(),
-  version: z.string().nullable(),
-  description: z.string().nullable(),
-  /** Made for these countries (empty: everywhere). */
-  countries: z.array(z.string()),
-  ui: z.object({ remote: z.string(), entry: z.string() }).nullable(),
-  api: z.object({ url: z.string() }).nullable(),
-  /** In this organisation: installed and active. */
-  installed: z.boolean(),
+/** The plugin in this organisation; `status` `active` is installed. */
+export const PluginInstallation = createSelectSchema(pluginInstallations, {
+  installedAt: isoDate,
+}).pick({
+  status: true,
   /** Why it is off here (`Suspended: 600 deletions in a few minutes`). */
-  statusReason: z.string().nullable(),
-  requestedScopes: z.array(z.string()),
-  grantedScopes: z.array(z.string()),
-  /** Asks for scopes the owner hasn't granted yet (a newer version). */
-  needsApproval: z.boolean(),
-  installedAt: isoDate().nullable(),
+  statusReason: true,
+  grantedScopes: true,
+  installedAt: true,
 });
+
+export const Plugin = createSelectSchema(plugins, {
+  /** What members see of the manifest (the column is nullable); the rest is for core. */
+  manifest: () =>
+    PluginManifest.pick({
+      title: true,
+      version: true,
+      description: true,
+      countries: true,
+      ui: true,
+      api: true,
+    }),
+})
+  .pick({ name: true, manifest: true })
+  .extend({
+    /** Never installed here: null. */
+    installation: PluginInstallation.nullable(),
+    /** The manifest's scopes, or (before it sent one) what plugins could always do. */
+    requestedScopes: z.array(z.string()),
+    /** Installed, and asks for scopes the owner hasn't granted yet (a newer version). */
+    needsApproval: z.boolean(),
+  });
 
 export type Plugin = z.infer<typeof Plugin>;
 
@@ -256,8 +281,32 @@ export const TokenResponse = z.object({
  * plugin UIs (a member's short-lived session for one plugin's API), and live
  * signals to plugin UIs.
  */
+const {
+  CROSS_SITE,
+  DUPLICATE_PERMISSION_SET,
+  INVALID_CLIENT,
+  LIMIT_EXCEEDED,
+  NAMESPACE_REQUIRED,
+  NOT_INSTALLED,
+  PLUGIN_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  CROSS_SITE,
+  DUPLICATE_PERMISSION_SET,
+  INVALID_CLIENT,
+  LIMIT_EXCEEDED,
+  NAMESPACE_REQUIRED,
+  NOT_INSTALLED,
+  PLUGIN_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+});
+
 export const pluginsContract = {
-  token: oc
+  token: base
     .route({
       method: 'POST',
       path: '/plugins/token',
@@ -273,7 +322,7 @@ export const pluginsContract = {
       }),
     )
     .output(TokenResponse),
-  registerManifest: oc
+  registerManifest: base
     .route({
       method: 'PUT',
       path: '/plugins/manifest',
@@ -282,14 +331,14 @@ export const pluginsContract = {
     })
     .input(PluginManifest)
     .output(z.object({ ok: z.literal(true) })),
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/plugins',
       summary: 'Plugins of this deployment, and which are installed here',
     })
     .output(listOf(Plugin)),
-  install: oc
+  install: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/install',
@@ -297,7 +346,7 @@ export const pluginsContract = {
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
-  uninstall: oc
+  uninstall: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/uninstall',
@@ -305,7 +354,7 @@ export const pluginsContract = {
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
-  session: oc
+  session: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/session',
@@ -320,7 +369,7 @@ export const pluginsContract = {
         apiUrl: z.string().nullable(),
       }),
     ),
-  signal: oc
+  signal: base
     .route({
       method: 'POST',
       path: '/plugins/live',

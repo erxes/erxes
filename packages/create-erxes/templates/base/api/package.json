@@ -17,13 +17,12 @@
     "build": "vp pack src/main.ts src/telemetry.ts --format esm --sourcemap --no-dts",
     "start": "node --enable-source-maps --import ./dist/telemetry.mjs dist/main.mjs",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "node --env-file-if-exists=../.env src/db/migrate.ts",
+    "db:migrate": "node --env-file-if-exists=../.env src/migrate.ts",
     "db:check": "drizzle-kit check"
   },
   "dependencies": {
-    "@erxes/core-contract": "v2-next",
-    "@erxes/plugin-sdk": "v2-next",
-    "@opentelemetry/instrumentation": "^0.301.1",
+    "@erxes/core-contract": "__contractVersion__",
+    "@erxes/plugin-sdk": "__sdkVersion__",
     "@opentelemetry/instrumentation-express": "^0.73.0",
     "@opentelemetry/instrumentation-http": "^0.301.1",
     "@opentelemetry/instrumentation-pg": "^0.78.0",

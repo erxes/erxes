@@ -14,7 +14,7 @@ import { Badge, Button, RelativeDateDisplay, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 
 const useWebhookError = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });

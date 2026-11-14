@@ -4,6 +4,7 @@ import { automationsContract } from './automations';
 import { auditContract } from './audit';
 import { authContract } from './auth';
 import { companiesContract } from './companies';
+import { emailsContract } from './emails';
 import { eventsContract } from './events';
 import { customersContract } from './customers';
 import { customerAccountContract, customerAuthContract } from './customerAuth';
@@ -35,6 +36,7 @@ export const coreContract = {
   customers: customersContract,
   customerAccount: customerAccountContract,
   customerAuth: customerAuthContract,
+  emails: emailsContract,
   events: eventsContract,
   fieldGroups: fieldGroupsContract,
   fields: fieldsContract,
@@ -62,7 +64,7 @@ export * from './assistant';
 
 export * from './assistantParts';
 
-export * from './automationDefinition';
+export * from '@erxes/core-db/automationDefinition';
 
 export * from './automationRuns';
 
@@ -74,11 +76,15 @@ export * from './auth';
 
 export * from './common';
 
+export * from './errors';
+
 export * from './companies';
 
 export * from './customers';
 
 export * from './customerAuth';
+
+export * from './emails';
 
 export * from './events';
 

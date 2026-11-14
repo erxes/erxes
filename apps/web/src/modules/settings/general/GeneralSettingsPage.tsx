@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { currencyOfCountry, type Organization } from '@erxes/core-contract';
 import { IconDeviceFloppy, IconSettings } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +16,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { CountrySelect, CurrencySelect } from '~/components/RegionSelect';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 
 /** Saves the organisation and gives the whole app its new name, country and currency. */
@@ -165,7 +166,9 @@ export const GeneralSettingsPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'General'), to: '/settings/general', icon: IconSettings }]}
+            items={[
+              { label: t('title', 'General'), to: paths.settings.general, icon: IconSettings },
+            ]}
           />
         </PageHeader.Start>
       </PageHeader>

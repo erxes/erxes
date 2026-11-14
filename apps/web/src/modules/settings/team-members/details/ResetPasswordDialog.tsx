@@ -2,9 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Form, Input, Spinner, useToast } from 'erxes-ui';
 import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useQueryState } from 'nuqs';
 import { z } from 'zod';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useTeamMemberSetPassword } from '../useTeamMembers';
 
@@ -58,8 +58,7 @@ const PasswordField = ({ name, label }: { name: keyof TResetPasswordForm; label:
 export const ResetPasswordDialog = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { toast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const userId = searchParams.get(RESET_PASSWORD_QUERY_KEY);
+  const [userId, setUserId] = useQueryState(RESET_PASSWORD_QUERY_KEY);
   const setPassword = useTeamMemberSetPassword();
 
   const form = useForm<TResetPasswordForm>({
@@ -75,14 +74,7 @@ export const ResetPasswordDialog = () => {
     name: ['newPassword', 'repeatPassword'],
   });
 
-  const close = () =>
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-
-      next.delete(RESET_PASSWORD_QUERY_KEY);
-
-      return next;
-    });
+  const close = () => void setUserId(null);
 
   const onSubmit = (data: TResetPasswordForm) => {
     if (!userId) return;

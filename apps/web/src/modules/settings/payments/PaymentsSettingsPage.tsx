@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { type Invoice, InvoiceStatus } from '@erxes/core-contract';
 import { IconCash } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -7,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useMoney } from '~/lib/money';
 import { useCan, useSession } from '~/modules/auth/session';
 import { AddGateway } from './AddGateway';
@@ -41,7 +42,7 @@ const InvoiceRow = ({ invoice, onOpen }: { invoice: Invoice; onOpen: () => void 
         )}
         <span className="truncate">{invoice.description}</span>
         <span className="ml-auto text-xs text-muted-foreground">
-          {invoice.source} · {invoice.reference.type} {invoice.reference.id}
+          {invoice.source} · {invoice.referenceType} {invoice.referenceId}
         </span>
       </button>
     </li>
@@ -129,7 +130,7 @@ const CurrencyNote = () => {
       {t('currency-note', 'New invoices are in {{currency}} unless a plugin names another.', {
         currency,
       })}{' '}
-      <Link to="/settings/general" className="text-primary-text hover:underline">
+      <Link to={paths.settings.general} className="text-primary-text hover:underline">
         {t('change-currency', 'Change')}
       </Link>
     </p>
@@ -145,14 +146,14 @@ export const PaymentsSettingsPage = () => {
     orpc.payments.gateways.queryOptions({ input: canManage ? undefined : skipToken }),
   );
 
-  if (!canManage) return <Navigate to="/settings" replace />;
+  if (!canManage) return <Navigate to={paths.settings.root} replace />;
 
   return (
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'Payments'), to: '/settings/payments', icon: IconCash }]}
+            items={[{ label: t('title', 'Payments'), to: paths.settings.payments, icon: IconCash }]}
           />
         </PageHeader.Start>
         <PageHeader.End>

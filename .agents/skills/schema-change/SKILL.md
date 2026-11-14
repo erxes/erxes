@@ -26,7 +26,7 @@ foreign key to `organizations` and a check constraint.
 5. Run `vp run check`. The contract builds its schemas from the tables, so a renamed or retyped
    column fails the type check where the contract, the services and web still use the old one;
    fix each. A new column stays out of the API until the contract picks it
-   (`.agents/skills/core-endpoint/SKILL.md`). Run `pnpm openapi` and read the `openapi.json` diff.
+   (`.agents/skills/core-endpoint/SKILL.md`). Diff the OpenAPI document from before and after (`packages/contract/AGENTS.md`).
 6. Run `pnpm check:rls` and `vp run test` with `DATA_TEST_URL`. Both migrate fresh databases, so a
    broken migration fails there.
 

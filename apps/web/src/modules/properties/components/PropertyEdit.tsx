@@ -1,10 +1,10 @@
 import type { FieldContentType } from '@erxes/core-contract';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Spinner, useToast, buttonVariants } from 'erxes-ui';
+import { Empty, Spinner, useToast, buttonVariants } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { messageOf, orpc } from '~/lib/api';
-import { propertiesPath } from '../constants';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { propertyPaths } from '~/lib/paths';
 import { hasOptions } from '../fieldTypes';
 import { useAllFields } from '../useFields';
 import { useEditProperty } from '../usePropertyMutations';
@@ -24,10 +24,8 @@ export const PropertyEdit = ({ contentType }: { contentType: FieldContentType })
   const { toast } = useToast();
   const { mutate, isPending } = useEditProperty();
   const navigate = useNavigate();
-
-  const handleClose = () => {
-    void navigate(propertiesPath(contentType));
-  };
+  const { list } = propertyPaths(contentType);
+  const handleClose = () => void navigate(list);
 
   if (error) {
     return <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>;
@@ -39,12 +37,12 @@ export const PropertyEdit = ({ contentType }: { contentType: FieldContentType })
 
   if (!field) {
     return (
-      <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-        {t('no-fields-found', 'No fields found')}
-        <Link to={propertiesPath(contentType)} className={buttonVariants({ variant: 'secondary' })}>
+      <Empty>
+        <Empty.Description>{t('no-fields-found', 'No fields found')}</Empty.Description>
+        <Link to={list} className={buttonVariants({ variant: 'secondary' })}>
           {t('cancel', 'Cancel')}
         </Link>
-      </div>
+      </Empty>
     );
   }
 

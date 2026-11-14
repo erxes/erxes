@@ -1,14 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseEnv } from 'node:util';
+import { preset } from '@erxes/lint';
 import { configDefaults, defineConfig } from 'vite-plus';
 import { areas } from './tools/config/areas';
-import { budgetOverrides, budgetRules } from './tools/config/budgets';
-import { designOverrides, designSettings } from './tools/config/design';
+import { designOverrides } from './tools/config/design';
 import { exceptions } from './tools/config/exceptions';
 import { restrictedOverrides, restrictedRules } from './tools/config/restricted';
 import { coreRules } from './tools/config/core-rules';
-import { lintBase, rules } from './tools/config/rules';
 import { apiTestEnv } from './tools/test/api-env';
 import { noSkips } from './tools/test/no-skips';
 
@@ -36,7 +35,8 @@ export default defineConfig({
     tasks: {
       // A rerun with no edits replays the last result.
       check: {
-        command: `${tsrs} vp check && knip && node tools/check-docs.ts && node tools/check-escapes.ts`,
+        // jscpd fails on any copy of 80 tokens or more in apps/web and erxes-ui (.jscpd.json).
+        command: `${tsrs} vp check && knip && jscpd && node tools/check-docs.ts && node tools/check-escapes.ts`,
         cache: tracked,
       },
       fix: { command: `${tsrs} vp check --fix`, cache: false },
@@ -59,22 +59,18 @@ export default defineConfig({
       'dist/**',
       'coverage/**',
       'packages/db/drizzle/**',
-      'packages/contract/openapi.json',
       'packages/contract/routes.json',
       'packages/ui/src/lib/cn-tables.ts',
       'packages/create-erxes/templates/**',
       'pnpm-lock.yaml',
     ],
   },
+  // The rules every erxes repo shares come from @erxes/lint (packages/lint); tools/config adds
+  // core's own. The preset's overrides follow a plugin's layout and match nothing here, apart
+  // from the last, for tests, which areas' server rules come before.
   lint: {
-    ...lintBase,
-    jsPlugins: [
-      ...lintBase.jsPlugins,
-      { name: 'anti-slop', specifier: './tools/lint/anti-slop/index.ts' },
-      { name: 'erxes', specifier: './tools/lint/erxes/index.ts' },
-      { name: 'shadcn', specifier: '@shadcn/lint' },
-    ],
-    settings: designSettings,
+    ...preset,
+    jsPlugins: [...preset.jsPlugins, { name: 'core', specifier: './tools/lint/core.ts' }],
     // consumers/ installs the packed packages outside the workspace, so their imports
     // resolve only there; consumers/run.sh type-checks them (CI's packages job).
     // create-erxes's templates are code only once the CLI fills their names in; the
@@ -87,12 +83,12 @@ export default defineConfig({
       // Written by `cn build` (pnpm --filter @erxes/ui cn:tables), checked by check:generated.
       'packages/ui/src/lib/cn-tables.ts',
     ],
-    rules: { ...rules, ...coreRules, ...restrictedRules, ...budgetRules },
+    rules: { ...preset.rules, ...coreRules, ...restrictedRules },
     overrides: [
       ...areas,
       ...designOverrides,
       ...restrictedOverrides,
-      ...budgetOverrides,
+      ...preset.overrides,
       ...exceptions,
     ],
   },
@@ -125,8 +121,8 @@ export default defineConfig({
         test: { name: 'ui', include: ['src/**/*.test.ts'], environment: 'node' },
       },
       {
-        root: 'tools/lint',
-        test: { name: 'lint', include: ['**/*.test.ts'], environment: 'node' },
+        root: 'packages/lint',
+        test: { name: 'lint', include: ['src/**/*.test.ts'], environment: 'node' },
       },
       {
         root: 'packages/create-erxes',

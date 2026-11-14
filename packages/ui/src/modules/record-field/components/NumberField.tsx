@@ -1,4 +1,5 @@
 import { Input } from 'erxes-ui/components/input';
+import { useFormat } from 'erxes-ui/lib/format';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import React, { useState } from 'react';
 
@@ -24,10 +25,11 @@ export const NumberField = ({
   children,
   ...props
 }: NumberFieldProps) => {
+  const fmt = useFormat();
   const [isOpen, setIsOpen] = useState(false);
   const [editingValue, setEditingValue] = useState(String(value));
   const [isEdited, setIsEdited] = useState(false);
-  const shown = isOpen ? editingValue : formatValue ? formatValue(value) : value.toLocaleString();
+  const shown = isOpen ? editingValue : formatValue ? formatValue(value) : fmt.number(value);
 
   const resetEditing = () => {
     setEditingValue(String(value));
@@ -74,7 +76,7 @@ export const NumberField = ({
       <RecordTableInlineCell.Content render={<form onSubmit={handleAction} />}>
         <Input
           type="text"
-          value={editingValue.toLocaleString()}
+          value={editingValue}
           onChange={(e) => {
             const rawValue = e.target.value.replace(/,/g, '');
 

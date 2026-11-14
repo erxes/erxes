@@ -1,5 +1,11 @@
 import { db } from '@erxes/core-db';
-import { addNote, removeNote, updateNote } from '~/modules/activities/activities.service';
+import {
+  addNote,
+  editNote,
+  listNoteVersions,
+  pinNote,
+  removeNote,
+} from '~/modules/activities/activities.service';
 import {
   createPluginActivity,
   removePluginActivity,
@@ -16,8 +22,12 @@ export const activitiesRouter = {
   list: scoped.activities.list.handler(({ input }) => listActivities(db(), input)),
   create: scoped.activities.create.handler(({ input }) => createPluginActivity(db(), input)),
   addNote: scoped.activities.addNote.handler(({ input }) => addNote(db(), input)),
-  updateNote: scoped.activities.updateNote.handler(({ input: { id, ...changes } }) =>
-    updateNote(db(), id, changes),
+  editNote: scoped.activities.editNote.handler(({ input: { id, ...changes } }) =>
+    editNote(db(), id, changes),
+  ),
+  pinNote: scoped.activities.pinNote.handler(({ input }) => pinNote(db(), input.id, input.pinned)),
+  noteVersions: scoped.activities.noteVersions.handler(({ input }) =>
+    listNoteVersions(db(), input.id),
   ),
   removeNote: scoped.activities.removeNote.handler(({ input }) => removeNote(db(), input.id)),
   react: scoped.activities.react.handler(({ input }) =>

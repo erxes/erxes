@@ -24,9 +24,12 @@ Only what something uses:
 - what web imports,
 - what plugin UIs import (the HR plugin is the first consumer),
 - the plugin API in the plugin skills: `getPluginRuntime`, `pluginFetch`, `pluginJson`,
-  `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl` and the `IUIConfig` types,
+  `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl`, `addPluginStyles` and the `IUIConfig` types,
 - the design-system primitives in `src/components` (Accordion, Card, Slider …), even unused,
-  because plugins build on them.
+  because plugins build on them,
+- the pickers in `src/modules/pickers`: `EntityPicker`, and `SelectMember`, `MemberInline` and
+  `useMembersById`, which take `memberQueries` from `@erxes/core-contract/client`. They read
+  through TanStack query options, so erxes-ui imports nothing from core.
 
 Anything else is removed, not kept "in case". Before you remove an export, check the HR plugin
 UI and `.agents/skills/plugin-contract/SKILL.md`.

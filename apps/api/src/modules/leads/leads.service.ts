@@ -1,7 +1,7 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, leadEvents } from '@erxes/core-db';
 import { desc, eq, inArray, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { assertOwner } from '~/lib/guards';
 import { lockRows } from '~/lib/locks';
 import { inOrder } from '~/lib/sequence';
@@ -30,7 +30,7 @@ const lockLeads = async (tx: Db, type: LeadRecordType, ids: string[]) => {
   if (rows.length !== new Set(ids).size) throw notFound('Lead');
 
   if (rows.some((row) => row.state !== 'lead'))
-    throw new HttpError(400, 'NOT_A_LEAD', 'Some of these are customers already');
+    throw fail('NOT_A_LEAD', 'Some of these are customers already');
 
   return rows;
 };
@@ -125,7 +125,9 @@ export const convertLeads = async (
   const type = input.recordType ?? 'customer';
 
   if (type === 'company' && input.companyId)
-    throw new HttpError(400, 'INVALID_INPUT', 'Companies are not linked to a company');
+    throw fail('INVALID_INPUT', 'Companies are not linked to a company', {
+      issues: [{ path: ['companyId'], message: 'Companies are not linked to a company' }],
+    });
 
   const rows = await lockLeads(client, type, input.ids);
 
@@ -167,7 +169,7 @@ export const leadHistory = async (
   const type = input.recordType ?? 'customer';
 
   // The last 200 steps, oldest of them first.
-  const rows = (
+  const data = (
     await client
       .select()
       .from(leadEvents)
@@ -176,7 +178,5 @@ export const leadHistory = async (
       .limit(200)
   ).toReversed();
 
-  return {
-    data: rows.map((row) => ({ ...row, recordType: type, recordId: input.id })),
-  };
+  return { data };
 };

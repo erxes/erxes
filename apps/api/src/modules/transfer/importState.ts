@@ -1,7 +1,5 @@
-import { ImportRow as ImportRowDto } from '@erxes/core-contract';
-import { type Db, type ImportCounts, type importRows, imports } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
-import type { z } from 'zod';
+import { type Db, type ImportCounts, importRows, imports } from '@erxes/core-db';
+import { eq, getTableColumns, sql } from 'drizzle-orm';
 import { memberOf } from '~/http/auth';
 import { notFound } from '~/http/errors';
 
@@ -9,10 +7,8 @@ export type ImportRow = typeof imports.$inferSelect;
 
 export type Row = typeof importRows.$inferSelect;
 
-/** What a row did (stored as text): create, update, skip or error. */
-export const ImportAction = ImportRowDto.shape.action.unwrap();
-
-export type Action = z.infer<typeof ImportAction>;
+/** What a row did: create, update, skip or error. */
+export type Action = NonNullable<Row['action']>;
 
 /** Rows per job (each row in its own savepoint). */
 export const BATCH = 200;
@@ -28,11 +24,36 @@ export const undoable = (row: ImportRow) =>
   Date.now() - row.finishedAt.getTime() < UNDO_DAYS * 86_400_000 &&
   row.counts.create > 0;
 
-export const toDto = (row: ImportRow, sample: string[][] = []) => ({
-  ...row,
-  sample,
-  undoable: undoable(row),
-});
+/** Imports as the API answers them: the first rows, to check the mapping, and whether they can be undone. */
+export const selectImports = (client: Db) => {
+  const first = client
+    .select({ cells: importRows.cells, rowNumber: importRows.rowNumber })
+    .from(importRows)
+    .where(eq(importRows.importId, imports.id))
+    .orderBy(importRows.rowNumber)
+    .limit(5)
+    .as('first');
+
+  return client
+    .select({
+      ...getTableColumns(imports),
+      sample: sql<string[][]>`coalesce(
+        (select json_agg(${first.cells} order by ${first.rowNumber}) from ${first}),
+        '[]'::json)`,
+      undoable: sql<boolean>`(${imports.status} = 'done'
+        and ${imports.finishedAt} > now() - make_interval(days => ${UNDO_DAYS})
+        and (${imports.counts} ->> 'create')::int > 0)`,
+    })
+    .from(imports);
+};
+
+export const shownImport = async (client: Db, id: string) => {
+  const [row] = await selectImports(client).where(eq(imports.id, id)).limit(1);
+
+  if (!row) throw notFound('Import');
+
+  return row;
+};
 
 export const importOrThrow = async (client: Db, id: string, lock = false) => {
   const query = client.select().from(imports).where(eq(imports.id, id)).limit(1);

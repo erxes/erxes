@@ -30,7 +30,8 @@ export const ownerNotice = (
       title: input.title,
       body: input.body,
       link: input.link,
-      entity: { type, id: input.recordId },
+      entityType: type,
+      entityId: input.recordId,
       data: input.data,
       // Several quick edits by one person become one notification.
       collapseMinutes: input.verb === 'updated' ? 30 : undefined,
@@ -59,7 +60,8 @@ export const newOwnerNotice = (
         type === 'customer' ? 'A customer was assigned to you' : 'A company was assigned to you',
       body: contactLabel(type, row),
       link: detailLink(type, row.id),
-      entity: { type, id: row.id },
+      entityType: type,
+      entityId: row.id,
     },
   ];
 };

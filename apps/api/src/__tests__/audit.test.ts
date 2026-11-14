@@ -32,7 +32,8 @@ describe('audit log', () => {
       'customer.created',
     ]);
     expect(entries.data.find((entry) => entry.action === 'customer.updated')).toMatchObject({
-      actor: { type: 'user', id: t.ids.owner },
+      actorType: 'user',
+      actorId: t.ids.owner,
       targetLabel: 'Audited',
       changes: { position: [null, 'CTO'] },
     });
@@ -92,7 +93,8 @@ describe('audit log', () => {
       'hr.employee.deleted',
     ]);
     expect(fromHr.data[1]).toMatchObject({
-      actor: { type: 'user', id: t.ids.member },
+      actorType: 'user',
+      actorId: t.ids.member,
       ip: '203.0.113.7',
       source: 'hr',
     });
@@ -197,7 +199,7 @@ describe('audit log', () => {
     const unknown = await t.owner().audit.list({ action: 'auth.sign_in_failed', q: 'nobody' });
 
     expect(unknown.data[0]).toMatchObject({
-      actor: { type: 'system' },
+      actorType: 'system',
       targetLabel: 'nobody@acme.mn',
     });
 

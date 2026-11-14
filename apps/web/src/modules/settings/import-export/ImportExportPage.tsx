@@ -8,13 +8,15 @@ import {
   RelativeDateDisplay,
   ScrollArea,
   Tabs,
+  useFormat,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { parseAsString, useQueryStates } from 'nuqs';
+import { Link, Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 import { downloadHref, useExports, useImports } from '~/modules/transfer/useTransfer';
 
 const IMPORT_TONE: Record<
@@ -58,17 +60,18 @@ const Nothing = ({ icon: Icon, title }: { icon: typeof IconFileImport; title: st
 
 const ImportRow = ({ item }: { item: Import }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const fmt = useFormat();
 
   return (
     <li>
       <Link
-        to={`${CONTACT_SETTINGS.importExport}/${item.id}`}
+        to={paths.contacts.importOrExport(item.id)}
         className="flex items-center gap-3 p-3 hover:bg-muted/50"
       >
         <Badge variant={IMPORT_TONE[item.status]}>{t(`status.${item.status}`, item.status)}</Badge>
         <span className="min-w-0 flex-1 truncate font-medium">{item.fileName}</span>
         <span className="text-xs text-muted-foreground">
-          {t(`noun.${item.recordType}`, item.recordType)} · {item.counts.rows.toLocaleString()}{' '}
+          {t(`noun.${item.recordType}`, item.recordType)} · {fmt.number(item.counts.rows)}{' '}
           {t('rows', 'rows')}
           {item.status === 'done' &&
             ` · ${item.counts.create} ${t('count-created', 'created')}, ${item.counts.update} ${t('count-updated', 'updated')}`}
@@ -81,6 +84,7 @@ const ImportRow = ({ item }: { item: Import }) => {
 
 const ExportRow = ({ item }: { item: Export }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const fmt = useFormat();
 
   return (
     <li className="flex items-center gap-3 p-3">
@@ -89,7 +93,7 @@ const ExportRow = ({ item }: { item: Export }) => {
       </Badge>
       <span className="min-w-0 flex-1 truncate">
         {t(`noun.${item.recordType}`, item.recordType)} · {item.format.toUpperCase()}
-        {item.rowCount !== null && ` · ${item.rowCount.toLocaleString()} ${t('rows', 'rows')}`}
+        {item.rowCount !== null && ` · ${fmt.number(item.rowCount)} ${t('rows', 'rows')}`}
         {item.error && <span className="text-destructive"> · {item.error}</span>}
       </span>
       <When value={item.createdAt} />
@@ -150,18 +154,23 @@ const ExportsList = () => {
 export const ImportExportPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
   const can = useCan();
-  const [params, setParams] = useSearchParams();
+
+  const [params, setParams] = useQueryStates({
+    import: parseAsString,
+    export: parseAsString,
+    tab: parseAsString,
+  });
+
   const canImport = can('contacts.import');
   const canExport = can('contacts.export');
 
-  if (!canImport && !canExport) return <Navigate to="/settings" replace />;
+  if (!canImport && !canExport) return <Navigate to={paths.settings.root} replace />;
 
-  const highlighted = params.get('import');
+  const highlighted = params.import;
 
-  if (highlighted)
-    return <Navigate to={`${CONTACT_SETTINGS.importExport}/${highlighted}`} replace />;
+  if (highlighted) return <Navigate to={paths.contacts.importOrExport(highlighted)} replace />;
 
-  const tab = params.get('tab') ?? (params.get('export') || !canImport ? 'exports' : 'imports');
+  const tab = params.tab ?? (params.export || !canImport ? 'exports' : 'imports');
 
   return (
     <PageContainer>
@@ -171,7 +180,7 @@ export const ImportExportPage = () => {
             items={[
               {
                 label: t('title', 'Import & export history'),
-                to: CONTACT_SETTINGS.importExport,
+                to: paths.contacts.importExport,
                 icon: IconFileImport,
               },
             ]}
@@ -180,7 +189,7 @@ export const ImportExportPage = () => {
       </PageHeader>
       <Tabs
         value={tab}
-        onValueChange={(next) => setParams({ tab: next })}
+        onValueChange={(next) => void setParams({ tab: next, import: null, export: null })}
         className="flex min-h-0 flex-1 flex-col"
       >
         <div className="border-b px-4">

@@ -1,6 +1,7 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { messageOf, orpc } from '~/lib/api';
-import { memberName } from '~/lib/members';
+import { orpc } from '@erxes/core-contract/client';
+import { Combobox, EntityPicker, memberName, Popover } from 'erxes-ui';
+import { useState } from 'react';
 import { tagsQuery } from '~/modules/tags/useTags';
 
 /** Team members (any status) as picker options. */
@@ -13,7 +14,7 @@ export const useMemberOptions = (enabled = true) => {
     }),
   );
 
-  return { options: query.data ?? [], error: query.error };
+  return { options: query.data ?? [], loading: query.isPending, error: query.error };
 };
 
 /** A record type's tags as picker options. */
@@ -23,13 +24,60 @@ export const useTagOptions = (type: 'customer' | 'company', enabled = true) => {
     select: ({ data }) => data.map((tag) => ({ value: tag.id, label: tag.name })),
   });
 
-  return { options: query.data ?? [], error: query.error };
+  return { options: query.data ?? [], loading: query.isPending, error: query.error };
 };
 
-/** Why a picker's options are missing. */
-export const LookupError = ({ error }: { error: Error | null }) =>
-  error ? (
-    <p role="alert" className="px-2 py-1.5 text-xs text-destructive">
-      {messageOf(error)}
-    </p>
-  ) : null;
+type LookupOptions = ReturnType<typeof useMemberOptions>;
+
+/** One option, or several with `multiple`, from members or tags, on a button. */
+export const LookupPicker = ({
+  lookup: { options, loading, error },
+  value,
+  onValueChange,
+  multiple,
+  placeholder,
+  disabled,
+  className,
+}: {
+  lookup: LookupOptions;
+  value: string[];
+  onValueChange: (values: string[]) => void;
+  multiple?: boolean;
+  placeholder: string;
+  disabled?: boolean;
+  className?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  // A picked id that no longer loads (a deleted tag, a member past the first page) stays as a
+  // row under its id, so it can still be unpicked.
+  const missing = value
+    .filter((id) => !options.some((option) => option.value === id))
+    .map((id) => ({ value: id, label: id }));
+
+  const items = [...missing, ...options];
+  const labels = value.map((id) => items.find((option) => option.value === id)?.label ?? id);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger disabled={disabled} className={className}>
+        <Combobox.Value value={labels.join(', ')} placeholder={placeholder} />
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <EntityPicker
+          multiple={multiple}
+          items={items}
+          itemKey={(option) => ({ id: option.value, label: option.label })}
+          value={value}
+          onValueChange={(next) => {
+            onValueChange(next);
+
+            if (!multiple) setOpen(false);
+          }}
+          loading={loading}
+          error={error}
+        />
+      </Combobox.Content>
+    </Popover>
+  );
+};

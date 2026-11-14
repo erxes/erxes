@@ -1,6 +1,6 @@
 {
   "name": "@erxes/ui",
-  "version": "4.0.0-v2.0",
+  "version": "4.0.0-v2.4",
   "private": false,
   "description": "erxes design system: UI primitives, layout, hooks and shared frontend state",
   "license": "AGPL-3.0-only",
@@ -84,16 +84,20 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@tanstack/react-query": "^5.107.1",
     "@types/node": "^26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "jotai": "^3.0.2",
+    "nuqs": "^2.10.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-i18next": "^18.0.1"
   },
   "peerDependencies": {
+    "@tanstack/react-query": "^5.107.1",
     "jotai": "^3.0.2",
+    "nuqs": "^2.10.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-i18next": "^18.0.1",

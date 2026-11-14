@@ -14,8 +14,7 @@ import { Button, Form, Input, Spinner, Textarea, Upload, useToast } from 'erxes-
 import type { ReactNode } from 'react';
 import { type UseFormReturn, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-import { errorData, isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { PROFILE_FIELDS, type ProfileValues, patchOf, valuesOf } from './profileValues';
 import { Section } from './Section';
 
@@ -27,12 +26,6 @@ const LINK_ICONS: Record<UserLinkName, Icon> = {
   github: IconBrandGithub,
   instagram: IconBrandInstagram,
 };
-
-const invalidInput = z.object({
-  issues: z.array(
-    z.object({ path: z.array(z.union([z.string(), z.number()])), message: z.string() }),
-  ),
-});
 
 const TextInput = ({
   name,
@@ -79,12 +72,9 @@ const useSaveProfile = (user: User, form: UseFormReturn<ProfileValues>) => {
         toast({ title: t('saved', 'Profile saved') });
       },
       onError: (error) => {
-        if (isApiError(error, 'EMAIL_TAKEN')) form.setError('email', { message: error.message });
+        if (isApiError(error, 'TAKEN')) form.setError('email', { message: error.message });
 
-        if (isApiError(error, 'USERNAME_TAKEN'))
-          form.setError('username', { message: error.message });
-
-        for (const issue of errorData(error, invalidInput)?.issues ?? []) {
+        for (const issue of isApiError(error, 'INVALID_INPUT') ? error.data.issues : []) {
           const path = issue.path.join('.');
           const field = PROFILE_FIELDS.find((name) => name === path);
 

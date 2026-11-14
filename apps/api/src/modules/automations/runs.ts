@@ -1,5 +1,5 @@
 import type { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
-import { AutomationDefinition, type AutomationStep } from '@erxes/core-contract';
+import type { AutomationStep } from '@erxes/core-contract';
 import {
   automationRuns,
   automationRunSteps,
@@ -55,10 +55,7 @@ export const definitionsOf = async (tx: Db, versions: VersionRef[]) => {
     : [];
 
   const byVersion = new Map(
-    rows.map((row) => [
-      `${row.automationId}@${row.version}`,
-      AutomationDefinition.parse(row.definition),
-    ]),
+    rows.map((row) => [`${row.automationId}@${row.version}`, row.definition]),
   );
 
   return {
@@ -220,7 +217,8 @@ const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
       body: error.slice(0, 500),
       link: `/automations/${automation.id}`,
       priority: 'high',
-      entity: { type: 'automation', id: automation.id },
+      entityType: 'automation',
+      entityId: automation.id,
       dedupeKey: `automation-failed:${automation.id}:${hour}`,
       data: { runId: run.id },
     }),

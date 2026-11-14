@@ -10,10 +10,10 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, inArray, lt, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { callerCan } from '~/http/access';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { randomToken } from '~/lib/crypto';
 import { lockRows } from '~/lib/locks';
@@ -29,15 +29,11 @@ const log = logger.child({ component: 'files' });
 
 type FileRow = typeof files.$inferSelect;
 
-const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
-
-const toFileDto = (row: FileRow) => ({
-  ...row,
-  // Deleting files are never listed; to callers they are gone.
-  status: row.status === 'ready' ? ('ready' as const) : ('pending' as const),
-  uploadedBy: { type: row.actorType, id: row.actorId },
-  url: downloadPath(row.id),
-});
+/** A file with its stable address, `/core/v1/files/<id>/download`. */
+const fileWithUrl = {
+  ...getTableColumns(files),
+  url: sql<string>`${`${CORE_API_PREFIX}/files/`} || ${files.id} || '/download'`.as('url'),
+};
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
 const uploadKey = (orgId: string, id: string) => `uploads/${orgId}/${id}/${randomToken(12, 'hex')}`;
@@ -89,11 +85,11 @@ export const createUpload = async (
         status: 'pending',
         ...uploadedBy(),
       })
-      .returning(),
+      .returning(fileWithUrl),
   );
 
   return {
-    file: toFileDto(row),
+    file: row,
     upload: {
       method: 'PUT' as const,
       url: target.url,
@@ -104,7 +100,7 @@ export const createUpload = async (
 };
 
 const findFile = async (client: Db, id: string) => {
-  const [row] = await client.select().from(files).where(eq(files.id, id)).limit(1);
+  const [row] = await client.select(fileWithUrl).from(files).where(eq(files.id, id)).limit(1);
 
   if (!row) {
     throw notFound('File');
@@ -135,19 +131,18 @@ export const completeUpload = async (client: Db, id: string) => {
   }
 
   if (row.status === 'ready') {
-    return toFileDto(row);
+    return row;
   }
 
   const stored = await storage().stat(row.key);
 
   if (!stored) {
-    throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
+    throw fail('UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
   }
 
   if (stored.size !== row.size) {
     await storage().remove(row.key);
-    throw new HttpError(
-      409,
+    throw fail(
       'UPLOAD_INCOMPLETE',
       'The uploaded file does not match the declared size; upload it again',
     );
@@ -158,11 +153,7 @@ export const completeUpload = async (client: Db, id: string) => {
   try {
     await storage().promote(row.key, finalKey, stored);
   } catch {
-    throw new HttpError(
-      409,
-      'UPLOAD_CHANGED',
-      'The file changed while it was being checked; upload it again',
-    );
+    throw fail('UPLOAD_CHANGED', 'The file changed while it was being checked; upload it again');
   }
 
   const ready = oneRow(
@@ -170,7 +161,7 @@ export const completeUpload = async (client: Db, id: string) => {
       .update(files)
       .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
       .where(and(eq(files.id, id), eq(files.status, 'pending')))
-      .returning(),
+      .returning(fileWithUrl),
   );
 
   await recordAudit(client, {
@@ -181,7 +172,7 @@ export const completeUpload = async (client: Db, id: string) => {
     metadata: { contentType: row.contentType, size: row.size },
   });
 
-  return toFileDto(ready);
+  return ready;
 };
 
 /** A ready file and a short-lived link to read it. */
@@ -191,10 +182,10 @@ export const getFile = async (client: Db, id: string) => {
   if (row.status === 'deleting') throw notFound('File');
 
   if (row.status !== 'ready') {
-    return { ...toFileDto(row), downloadUrl: null };
+    return { ...row, downloadUrl: null };
   }
 
-  return { ...toFileDto(row), downloadUrl: await downloadUrlOf(row, false) };
+  return { ...row, downloadUrl: await downloadUrlOf(row, false) };
 };
 
 export const downloadUrlOf = (row: FileRow, forceDownload: boolean) =>
@@ -224,11 +215,11 @@ export const listFiles = async (client: Db, ids: string[]) => {
   }
 
   const rows = await client
-    .select()
+    .select(fileWithUrl)
     .from(files)
     .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
-  const byId = new Map(rows.map((row) => [row.id, toFileDto(row)]));
+  const byId = new Map(rows.map((row) => [row.id, row]));
 
   return { data: wanted.flatMap((id) => byId.get(id) ?? []) };
 };
@@ -254,8 +245,7 @@ export const readyFilesOfCaller = (client: Db, ids: string[]) => {
 /** The uploader may delete a file, and so may members allowed to moderate files. */
 const assertCanRemove = (row: FileRow) => {
   if (!isUploader(row) && !callerCan('files.moderate')) {
-    throw new HttpError(
-      403,
+    throw fail(
       'NOT_ALLOWED',
       'Only the uploader or someone who moderates files can delete this file',
     );

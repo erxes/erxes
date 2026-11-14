@@ -1,30 +1,64 @@
 import type { ActivityTarget } from '@erxes/core-contract';
-import { activities, actorOf, caller, type Db, files, newId } from '@erxes/core-db';
-import { and, eq, inArray, like, sql } from 'drizzle-orm';
-import { z } from 'zod';
+import {
+  activities,
+  actorOf,
+  caller,
+  type Db,
+  files,
+  newId,
+  notes,
+  noteVersions,
+  reactions,
+  users,
+} from '@erxes/core-db';
+import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMembers } from '~/lib/guards';
+import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertTimelineAccess, isCoreTarget } from './timelineAccess';
 
-export type ActivityRow = typeof activities.$inferSelect;
+/** Emoji → the members who reacted, first reaction first. */
+const reactionsColumn = sql<Record<string, string[]>>`coalesce((
+  select json_object_agg(r.emoji, r.members order by r.first)
+  from (
+    select ${reactions.emoji} as emoji,
+      array_agg(${reactions.userId} order by ${reactions.createdAt}) as members,
+      min(${reactions.createdAt}) as first
+    from ${reactions}
+    where ${reactions.activityId} = ${activities.id}
+    group by ${reactions.emoji}
+  ) r
+), '{}'::json)`;
 
-const Reactions = z.record(z.string(), z.array(z.string()));
+/**
+ * Timeline entries as the API answers them: the row, its author's name and
+ * picture, its note (null for other entries) and its reactions.
+ */
+export const selectEntries = (client: Db) =>
+  client
+    .select({
+      ...getTableColumns(activities),
+      actorName: sql<string | null>`coalesce(nullif(${users.fullName}, ''), ${users.email})`,
+      actorAvatarUrl: users.avatarUrl,
+      note: {
+        body: notes.body,
+        mentions: notes.mentions,
+        fileIds: notes.fileIds,
+        pinnedAt: notes.pinnedAt,
+        editedAt: notes.editedAt,
+      },
+      reactions: reactionsColumn,
+    })
+    .from(activities)
+    .leftJoin(notes, eq(notes.id, activities.id))
+    .leftJoin(users, and(eq(activities.actorType, 'user'), eq(users.id, activities.actorId)));
 
-/** Members' reactions kept in an entry's data (emoji → user ids), or undefined. */
-export const reactionsOf = (data: Record<string, unknown>) =>
-  Reactions.safeParse(data.reactions).data;
-
-export const toActivityDto = (row: ActivityRow) => ({
-  ...row,
-  entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
-  actor: { type: row.actorType, id: row.actorId },
-  pinned: row.pinnedAt !== null,
-  reactions: reactionsOf(row.data) ?? {},
-});
+export const entryById = async (client: Db, id: string) =>
+  oneRow(await selectEntries(client).where(eq(activities.id, id)).limit(1));
 
 export interface CoreActivity {
   targetType: ActivityTarget;
@@ -71,15 +105,6 @@ export const removeActivities = async (client: Db, targetType: ActivityTarget, i
   await client.delete(activities).where(targetsOf(targetType, ids));
 };
 
-export const isNote = like(activities.type, '%.note');
-
-const NoteData = z.object({
-  body: z.string(),
-  mentions: z.array(z.string()).default([]),
-  fileIds: z.array(z.string()).default([]),
-  history: z.array(z.object({ body: z.string(), editedAt: z.string() })).default([]),
-});
-
 /** Where a record lives in erxes (plugin records: their plugin opens them). */
 const recordLink = (targetType: string, targetId: string) =>
   isCoreTarget(targetType)
@@ -100,7 +125,7 @@ const checkFiles = async (client: Db, fileIds: string[]) => {
     .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   if (found.length !== wanted.length) {
-    throw new HttpError(400, 'INVALID_FILE', 'Attach files uploaded to this organisation');
+    throw fail('INVALID_FILE', 'Attach files uploaded to this organisation');
   }
 
   return wanted;
@@ -122,21 +147,48 @@ const notifyMentions = async (
     title: 'You were mentioned in a note',
     body: snippet(note.body),
     link: recordLink(note.targetType, note.targetId),
-    entity: { type: note.targetType, id: note.targetId },
+    entityType: note.targetType,
+    entityId: note.targetId,
     dedupeKey: `note:${note.id}:${recipients.join(',')}`,
   });
 };
 
+/** A note on a timeline the member sees, with where it is and who wrote it. */
 const findNote = async (client: Db, id: string) => {
-  const [row] = await client
-    .select()
-    .from(activities)
-    .where(and(eq(activities.id, id), isNote))
+  const [note] = await client
+    .select({
+      ...getTableColumns(notes),
+      targetType: activities.targetType,
+      targetId: activities.targetId,
+      authorId: activities.actorId,
+      occurredAt: activities.occurredAt,
+    })
+    .from(notes)
+    .innerJoin(activities, eq(activities.id, notes.id))
+    .where(eq(notes.id, id))
     .limit(1);
 
-  if (!row) throw notFound('Note');
+  if (!note) throw notFound('Note');
 
-  return row;
+  await assertTimelineAccess(client, note.targetType, note.targetId);
+
+  return note;
+};
+
+type NoteRow = Awaited<ReturnType<typeof findNote>>;
+
+/** 403 NOT_AUTHOR unless the member wrote the note. */
+const assertAuthor = (note: NoteRow) => {
+  if (note.authorId !== caller('user').userId) {
+    throw fail('NOT_AUTHOR', 'Only the author can edit a note');
+  }
+};
+
+/** 403 NOT_ALLOWED unless the member wrote the note or may moderate notes. */
+const assertCanModerate = (note: NoteRow) => {
+  if (note.authorId !== caller('user').userId && !callerCan('notes.moderate')) {
+    throw fail('NOT_ALLOWED', 'Only the author or an owner or admin can delete a note');
+  }
 };
 
 export const addNote = async (
@@ -156,118 +208,93 @@ export const addNote = async (
   await assertMembers(client, mentions);
 
   const fileIds = await checkFiles(client, input.fileIds);
+  const id = newId();
 
-  const row = oneRow(
-    await client
-      .insert(activities)
-      .values({
-        id: newId(),
-        targetType: input.targetType,
-        targetId: input.targetId,
-        source: 'core',
-        type: `${input.targetType}.note`,
-        data: { body: input.body, mentions, fileIds },
-        ...actorOf(caller('user')),
-      })
-      .returning(),
-  );
+  await client.insert(activities).values({
+    id,
+    targetType: input.targetType,
+    targetId: input.targetId,
+    source: 'core',
+    type: `${input.targetType}.note`,
+    ...actorOf(caller('user')),
+  });
+  await client.insert(notes).values({ id, body: input.body, mentions, fileIds });
+  await notifyMentions(client, { ...input, id }, mentions);
 
-  await notifyMentions(client, { ...input, id: row.id }, mentions);
-
-  return toActivityDto(row);
+  return entryById(client, id);
 };
 
-/** The note's new data: text, mentions and files, with earlier wordings kept (the last 20). */
-const editedData = async (
-  client: Db,
-  note: ActivityRow,
-  input: { body?: string; mentions?: string[]; fileIds?: string[] },
-) => {
-  const data = NoteData.parse(note.data);
-  const mentions = input.mentions === undefined ? data.mentions : unique(input.mentions);
-
-  await assertMembers(client, mentions);
-
-  const fileIds =
-    input.fileIds === undefined ? data.fileIds : await checkFiles(client, input.fileIds);
-
-  const reworded = input.body !== undefined && input.body !== data.body;
-  const editedAt = (note.editedAt ?? note.occurredAt).toISOString();
-
-  const history = [...data.history, ...(reworded ? [{ body: data.body, editedAt }] : [])].slice(
-    -20,
-  );
-
-  const reactions = reactionsOf(note.data);
-
-  return {
-    data: {
-      body: input.body ?? data.body,
-      mentions,
-      fileIds,
-      history,
-      ...(reactions ? { reactions } : {}),
-    },
-    added: mentions.filter((userId) => !data.mentions.includes(userId)),
-  };
-};
-
-/** The author edits the text; anyone in the organisation pins or unpins. */
-/** 403 NOT_AUTHOR unless the member wrote the note. */
-const assertAuthor = (note: ActivityRow) => {
-  if (note.actorId !== caller('user').userId) {
-    throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
-  }
-};
-
-/** 403 NOT_ALLOWED unless the member wrote the note or may moderate notes. */
-const assertCanModerate = (note: ActivityRow) => {
-  if (note.actorId !== caller('user').userId && !callerCan('notes.moderate')) {
-    throw new HttpError(
-      403,
-      'NOT_ALLOWED',
-      'Only the author or an owner or admin can delete a note',
-    );
-  }
-};
-
-export const updateNote = async (
+/** The author rewords a note, or changes its mentions or files. The replaced wording is kept. */
+export const editNote = async (
   client: Db,
   id: string,
-  input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
+  input: { body?: string; mentions?: string[]; fileIds?: string[] },
 ) => {
+  // One edit at a time: each keeps the wording the one before it left.
+  await lockRows(client, 'core_notes', [id]);
+
   const note = await findNote(client, id);
 
-  const editing =
-    input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
+  assertAuthor(note);
 
-  if (editing) assertAuthor(note);
+  const mentions = input.mentions && unique(input.mentions);
 
-  const edit = await editedData(client, note, input);
+  await assertMembers(client, mentions ?? []);
 
-  const row = oneRow(
-    await client
-      .update(activities)
-      .set({
-        ...(editing ? { data: edit.data, editedAt: sql`now()` } : {}),
-        ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
-      })
-      .where(eq(activities.id, id))
-      .returning(),
-  );
+  const fileIds = input.fileIds && (await checkFiles(client, input.fileIds));
+  const reworded = input.body !== undefined && input.body !== note.body;
+
+  if (reworded) {
+    await client.insert(noteVersions).values({
+      id: newId(),
+      noteId: id,
+      body: note.body,
+      editedAt: note.editedAt ?? note.occurredAt,
+    });
+  }
+
+  await client
+    .update(notes)
+    .set({ body: input.body, mentions, fileIds, editedAt: reworded ? sql`now()` : undefined })
+    .where(eq(notes.id, id));
 
   await notifyMentions(
     client,
-    { id, targetType: note.targetType, targetId: note.targetId, body: edit.data.body },
-    edit.added,
+    { id, targetType: note.targetType, targetId: note.targetId, body: input.body ?? note.body },
+    (mentions ?? []).filter((userId) => !note.mentions.includes(userId)),
   );
 
-  return toActivityDto(row);
+  return entryById(client, id);
+};
+
+/** Anyone who sees the timeline pins or unpins a note. */
+export const pinNote = async (client: Db, id: string, pinned: boolean) => {
+  await findNote(client, id);
+  await client
+    .update(notes)
+    .set({ pinnedAt: pinned ? sql`now()` : null })
+    .where(eq(notes.id, id));
+
+  return entryById(client, id);
+};
+
+export const listNoteVersions = async (client: Db, id: string) => {
+  await findNote(client, id);
+
+  const data = await client
+    .select()
+    .from(noteVersions)
+    .where(eq(noteVersions.noteId, id))
+    .orderBy(desc(noteVersions.editedAt))
+    .limit(100);
+
+  return { data };
 };
 
 export const removeNote = async (client: Db, id: string) => {
   assertCanModerate(await findNote(client, id));
 
+  // The note, its versions and reactions go with the entry.
   await client.delete(activities).where(eq(activities.id, id));
 
   return { ok: true as const };

@@ -1,0 +1,9 @@
+{
+  "path": ["apps/web/src", "packages/ui/src"],
+  "format": ["typescript", "tsx"],
+  "minTokens": 80,
+  "ignore": ["**/*.test.ts", "**/__tests__/**"],
+  "ignorePattern": ["import[^;]*from '[^']+';"],
+  "reporters": ["ai"],
+  "threshold": 0
+}

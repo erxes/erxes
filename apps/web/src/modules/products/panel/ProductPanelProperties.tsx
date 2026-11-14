@@ -3,7 +3,7 @@ import { ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { CustomFieldSections } from '~/modules/properties/CustomFieldSections';
-import { PRODUCT_SETTINGS } from '../paths';
+import { paths } from '~/lib/paths';
 import { useCanManageProducts } from '../useProducts';
 import { ProductFieldset } from './ProductPanelFields';
 import { useProductEdit } from './useProductEdit';
@@ -28,7 +28,7 @@ export const ProductPanelProperties = ({ product }: { product: Product }) => {
                 {t('form.no-properties', 'No product properties yet.')}{' '}
                 {manage && (
                   <Link
-                    to={PRODUCT_SETTINGS.properties}
+                    to={paths.products.properties}
                     className="text-primary-text hover:underline"
                   >
                     {t('form.add-properties', 'Add them in settings')}

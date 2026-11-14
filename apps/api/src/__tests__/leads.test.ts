@@ -236,7 +236,7 @@ describe('leads: stages, moves, conversion, history and the report', { timeout: 
     const assigned = await t.member().notifications.list({ kind: 'core.customer.assigned' });
 
     expect(assigned.data).toHaveLength(3);
-    expect(assigned.data.map((item) => item.entity?.id)).toEqual(expect.arrayContaining(ids));
+    expect(assigned.data.map((item) => item.entityId)).toEqual(expect.arrayContaining(ids));
   });
 
   it('links people to companies with a role, a main contact and an end', async () => {
@@ -283,7 +283,7 @@ describe('leads: stages, moves, conversion, history and the report', { timeout: 
     const created = await t.owner().leads.createStage({ name: 'Demo booked', color: '#0ea5e9' });
 
     await expect(t.owner().leads.createStage({ name: 'demo BOOKED' })).rejects.toMatchObject({
-      code: 'LEAD_STAGE_EXISTS',
+      code: 'TAKEN',
     });
 
     await t.owner().leads.reorderStages({ ids: idsOf(await stages()).toReversed() });

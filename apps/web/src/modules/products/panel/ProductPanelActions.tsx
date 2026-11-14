@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
-import { PRODUCTS_PATH } from '../paths';
+import { paths } from '~/lib/paths';
 import { useCanManageProducts, useProductStatus } from '../useProducts';
 
 /** "Archived" on an archived product, then its "more" menu: archive or restore (managers only). */
@@ -71,8 +71,8 @@ export const ProductPageHeader = ({ product }: { product: Product }) => {
       breadcrumb={
         <AppBreadcrumb
           items={[
-            { label: t('products', 'Products'), to: PRODUCTS_PATH, icon: IconPackage },
-            { label: product.name, to: `${PRODUCTS_PATH}/${encodeURIComponent(product.id)}` },
+            { label: t('products', 'Products'), to: paths.products.list, icon: IconPackage },
+            { label: product.name, to: paths.products.product(product.id) },
           ]}
         />
       }

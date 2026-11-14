@@ -1,22 +1,16 @@
 import type { LeadStage } from '@erxes/core-contract';
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconPlus, IconProgress } from '@tabler/icons-react';
+import { useSortSensors } from '~/lib/sortSensors';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Input, PageContainer, PageHeader, ScrollArea, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { leadStagesQuery, useLeadStageMutations, useLeadStages } from '~/modules/leads/useLeads';
 import { RemoveStageDialog } from './RemoveStageDialog';
@@ -62,7 +56,7 @@ const StageList = ({
 }) => {
   const client = useQueryClient();
   const { reorder } = useLeadStageMutations();
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSortSensors();
   const ids = stages.map((stage) => stage.id);
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
@@ -99,7 +93,7 @@ export const LeadStagesPage = () => {
   const { stages, loading, error } = useLeadStages();
   const [removing, setRemoving] = useState<LeadStage | null>(null);
 
-  if (!can('properties.manage')) return <Navigate to="/settings" replace />;
+  if (!can('properties.manage')) return <Navigate to={paths.settings.root} replace />;
 
   return (
     <PageContainer>
@@ -107,7 +101,7 @@ export const LeadStagesPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('settings.title'), to: CONTACT_SETTINGS.leadStages, icon: IconProgress },
+              { label: t('settings.title'), to: paths.contacts.leadStages, icon: IconProgress },
             ]}
           />
         </PageHeader.Start>

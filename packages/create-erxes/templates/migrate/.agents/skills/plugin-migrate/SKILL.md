@@ -8,14 +8,21 @@ Port what each feature does, never its code: where the old plugin got
 something wrong (a missing check, a race, a workaround for the old core), the
 new one does it right.
 
-`MIGRATION.md` lists everything the old plugin did, one section per module.
-`migration/inventory.json` holds the raw facts behind it, and
+If scaffolding skipped installation, first run `pnpm migrate:inventory -- --from <old-checkout> --plugin <old-plugin> --ref <ref>`
+and `pnpm migrate:checklist`. These commands generate the port's working files:
+
+```text
+MIGRATION.md                Checklist, one section per old module
+migration/inventory.json   Code inventory behind the checklist
+migration/schema-draft.ts  Draft tables to port
+```
+
 `migration/core-map.ts` says what each old core call becomes. Use synthetic
 data only. The inventory reads code, never a database.
 
-1. Read `MIGRATION.md`. Port the module with the fewest unticked items first;
+1. Read the checklist. Port the module with the fewest unticked items first;
    `Plugin-wide` goes last.
-2. Tables. Move the module's tables from `migration/schema-draft.ts` into
+2. Tables. Move the module's draft tables into
    `api/src/db/schema.ts`, then follow the `schema-change` skill. Fix the draft
    types while moving: whole numbers become `integer()`, fixed string sets
    become `text({ enum })`, required ids stay `text().notNull()`, and a value
@@ -30,11 +37,22 @@ data only. The inventory reads code, never a database.
 4. Core calls. Do what the arrow says: `sdk` is
    `core.forOrg(orgId).<procedure>` in the API with that scope in
    `manifest.scopes`; `contract` is a call from the UI with the member's own
-   session; `plugin-owned` lives in this plugin's tables or code.
+   session, through `orpc` from `@erxes/core-contract/client` (members through
+   erxes-ui's `SelectMember` and `MemberInline`, `ui/AGENTS.md`);
+   `plugin-owned` lives in this plugin's tables or code; `drop` is left out on
+   purpose (segments, the client portal, brands): port none of it, and tick it
+   once nothing new calls it. Core has no departments or branches: a plugin
+   that used them gets its own `__id___teams` and `__id___team_members`,
+   drafted with their import from old core's `departments`, `branches` and the
+   members' `departmentIds` and `branchIds`. The ids stay the same, so the old
+   records' `departmentIds` still match.
 5. Pages. One per UI route, under `ui/src/<module>/`, built from `erxes-ui`
    the way `ui/src/items/` is. The old `ui-modules` components don't exist
-   here: erxes-ui's old-to-new component table, `packages/ui/MIGRATION.md` in
-   the erxes repo (branch `postgre`), says what replaces each one.
+   here. Member pickers and names become erxes-ui's `SelectMember` and
+   `MemberInline`; a picker of other records is erxes-ui's `EntityPicker` over
+   the plugin's own query. For erxes-ui components whose props changed, see
+   its old-to-new table, `packages/ui/MIGRATION.md` in the erxes repo (branch
+   `postgre`).
 6. Check parity in the browser, following the `verify` skill: open the old
    page and the new one side by side, and walk the same actions on both.
 7. Tick an item once it works on the new core and its old bugs and
@@ -50,5 +68,5 @@ data only. The inventory reads code, never a database.
 Rerun `pnpm migrate:inventory` and `pnpm migrate:checklist` only to pick up
 new old-side code; ticks survive the rerun.
 
-Done when every item in `MIGRATION.md` is ticked, each gap with its issue
+Done when every checklist item is ticked, each gap with its issue
 link, and `vp run check`, `vp run test`, `pnpm check:rls` and `pnpm build` pass.

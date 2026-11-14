@@ -1,5 +1,6 @@
 import { roles } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { listOf } from './common';
@@ -140,28 +141,79 @@ export const PermissionInfo = z.object({
 
 export type PermissionInfo = z.infer<typeof PermissionInfo>;
 
+/** A plugin's ready-made bundle of its permissions (`frontline` `agent`), added to a role at once. */
+/** A bundle of a plugin's own permissions, as its manifest declares it. */
+export const ManifestPermissionSet = z.object({
+  key: z.string().regex(/^[a-z][a-z0-9_]{0,39}$/),
+  label: z.string().trim().min(1).max(100),
+  description: z.string().trim().max(300).optional(),
+  permissions: z.array(PermissionAction).min(1).max(500),
+});
+
+export const PermissionSet = z.object({
+  /** The plugin that offers it. */
+  source: z.string(),
+  key: z.string(),
+  label: z.string(),
+  description: z.string().nullable(),
+  permissions: z.array(z.string()),
+});
+
+export type PermissionSet = z.infer<typeof PermissionSet>;
+
 const RoleFields = createUpdateSchema(roles, {
   name: (name) => name.trim().min(1).max(60),
   description: (value) => value.trim().max(300),
   permissions: () => z.array(PermissionAction).max(1000),
 }).pick({ name: true, description: true, permissions: true });
 
+const {
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  LIMIT_EXCEEDED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  LIMIT_EXCEEDED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+});
+
 export const rolesContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/roles',
       summary: 'Roles of the organisation, with member counts',
     })
     .output(listOf(Role)),
-  permissions: oc
+  permissions: base
     .route({
       method: 'GET',
       path: '/permissions',
       summary: "Every action a role can include: core's and installed plugins'",
     })
     .output(listOf(PermissionInfo)),
-  create: oc
+  permissionSets: base
+    .route({
+      method: 'GET',
+      path: '/permission-sets',
+      summary: "Installed plugins' ready-made bundles of their permissions, to add to a role",
+    })
+    .output(listOf(PermissionSet)),
+  create: base
     .route({
       method: 'POST',
       path: '/roles',
@@ -170,7 +222,7 @@ export const rolesContract = {
     })
     .input(RoleFields.required({ name: true, permissions: true }))
     .output(Role),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/roles/{key}',
@@ -178,7 +230,7 @@ export const rolesContract = {
     })
     .input(RoleFields.extend({ key: RoleKey }))
     .output(Role),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/roles/{key}',

@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { Plugin } from '@erxes/core-contract';
 import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -5,7 +6,7 @@ import { Badge, Button, Empty, PageContainer, PageHeader, ScrollArea, useToast }
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { countryNames } from '~/lib/region';
 import { useCan, useSession } from '~/modules/auth/session';
 
@@ -13,11 +14,20 @@ import { useCan, useSession } from '~/modules/auth/session';
 const SCOPE_LABELS: Record<string, string> = {
   'activities:write': 'Add entries to customer and company timelines',
   'audit:write': 'Record its changes in the audit log',
+  'customers:read': 'Read and search customers and companies',
+  'customers:write': 'Create and edit customers and companies',
+  'emails:write': 'Send emails from erxes',
+  'events:read': 'Receive core events',
   'events:write': 'Publish events (timelines, notifications, automations)',
   'files:read': 'Read files',
   'files:write': 'Upload and delete files',
   'live:write': 'Refresh its screens live',
   'notifications:write': 'Send notifications to team members',
+  'payments:read': 'Read invoices and refunds',
+  'payments:write': 'Create invoices and refunds',
+  'products:read': 'Read the product catalog',
+  'products:write': 'Create and edit products',
+  'users:read': 'Read team members',
 };
 
 /** Installs (or approves) and uninstalls a plugin, updating the list in place. */
@@ -54,14 +64,16 @@ const usePluginChange = (plugin: Plugin) => {
 const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
 
-  const isNew = (scope: string) => plugin.installed && !plugin.grantedScopes.includes(scope);
+  const installed = plugin.installation?.status === 'active';
+
+  const isNew = (scope: string) => installed && !plugin.installation?.grantedScopes.includes(scope);
 
   if (!plugin.requestedScopes.length) return null;
 
   return (
     <div className="pl-13 text-sm">
       <p className="mb-1 text-xs font-medium text-muted-foreground uppercase">
-        {plugin.installed ? t('can', 'Can') : t('will-be-able', 'Will be able to')}
+        {installed ? t('can', 'Can') : t('will-be-able', 'Will be able to')}
       </p>
       <ul className="space-y-0.5">
         {plugin.requestedScopes.map((scope) => (
@@ -100,6 +112,8 @@ const MadeFor = ({ countries }: { countries: string[] }) => {
 const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
   const change = usePluginChange(plugin);
+  const { manifest, installation } = plugin;
+  const installed = installation?.status === 'active';
 
   return (
     <li className="space-y-3 rounded-lg border p-4">
@@ -109,11 +123,11 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-medium">{plugin.title}</h3>
-            {plugin.version && (
-              <span className="text-xs text-muted-foreground">v{plugin.version}</span>
+            <h3 className="font-medium">{manifest?.title ?? plugin.name}</h3>
+            {manifest?.version && (
+              <span className="text-xs text-muted-foreground">v{manifest.version}</span>
             )}
-            {plugin.installed ? (
+            {installed ? (
               <Badge variant="success">{t('installed', 'Installed')}</Badge>
             ) : (
               <Badge variant="secondary">{t('not-installed', 'Not installed')}</Badge>
@@ -121,12 +135,14 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
             {plugin.needsApproval && (
               <Badge variant="warning">{t('needs-approval', 'Asks for more access')}</Badge>
             )}
-            <MadeFor countries={plugin.countries} />
+            <MadeFor countries={manifest?.countries ?? []} />
           </div>
-          {plugin.description && (
-            <p className="text-sm text-muted-foreground">{plugin.description}</p>
+          {manifest?.description && (
+            <p className="text-sm text-muted-foreground">{manifest.description}</p>
           )}
-          {plugin.statusReason && <p className="text-sm text-destructive">{plugin.statusReason}</p>}
+          {installation?.statusReason && (
+            <p className="text-sm text-destructive">{installation.statusReason}</p>
+          )}
         </div>
         {isOwner && (
           <div className="flex shrink-0 gap-2">
@@ -138,11 +154,11 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
             )}
             <Button
               size="sm"
-              variant={plugin.installed ? 'outline' : 'default'}
+              variant={installed ? 'outline' : 'default'}
               disabled={change.isPending}
-              onClick={() => change.mutate(!plugin.installed)}
+              onClick={() => change.mutate(!installed)}
             >
-              {plugin.installed ? t('uninstall', 'Uninstall') : t('install', 'Install')}
+              {installed ? t('uninstall', 'Uninstall') : t('install', 'Install')}
             </Button>
           </div>
         )}
@@ -185,7 +201,7 @@ export const PluginsSettingsPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Plugins'), to: '/settings/plugins', icon: IconPlugConnected },
+              { label: t('title', 'Plugins'), to: paths.settings.plugins, icon: IconPlugConnected },
             ]}
           />
         </PageHeader.Start>

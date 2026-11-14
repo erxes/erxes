@@ -56,7 +56,6 @@
     "members-permission-groups": "Members & Permission groups",
     "members": "Members",
     "permission-groups": "Permission groups",
-    "error-loading-members": "Error loading members: {{message}}",
     "brands": "Brands",
     "filter": "Filter",
     "is-active": "Is active",
@@ -110,7 +109,6 @@
     "failed-to-resend-invitations_one": "Failed to resend {{count}} invitation",
     "failed-to-resend-invitations": "Failed to resend {{count}} invitations",
     "search-role": "Search role",
-    "no-results-found": "No results found.",
     "invited": "invited",
     "a-member": "a member",
     "changed-role-from": "changed role from",
@@ -245,6 +243,8 @@
     "properties": "Properties",
     "properties-suffix": "properties",
     "add-field": "Add field",
+    "select-field": "Select {{name}}",
+    "select-all-fields": "Select all fields",
     "plugin": {
       "core": "core properties"
     },
@@ -649,11 +649,20 @@
     "scope": {
       "activities-write": "Add entries to customer and company timelines",
       "audit-write": "Record its changes in the audit log",
+      "customers-read": "Read and search customers and companies",
+      "customers-write": "Create and edit customers and companies",
+      "emails-write": "Send emails from erxes",
+      "events-read": "Receive core events",
       "events-write": "Publish events (timelines, notifications, automations)",
       "files-read": "Read files",
       "files-write": "Upload and delete files",
       "live-write": "Refresh its screens live",
-      "notifications-write": "Send notifications to team members"
+      "notifications-write": "Send notifications to team members",
+      "payments-read": "Read invoices and refunds",
+      "payments-write": "Create invoices and refunds",
+      "products-read": "Read the product catalog",
+      "products-write": "Create and edit products",
+      "users-read": "Read team members"
     }
   },
   "roles": {
@@ -666,7 +675,10 @@
     "description-placeholder": "What is this role for?",
     "owner-only": "Owner only",
     "owner-everything": "Owners can do everything, including owner-only actions (plugins, audit retention).",
-    "admin-everything": "Admins can do everything except owner-only actions — including whatever plugins add later."
+    "admin-everything": "Admins can do everything except owner-only actions — including whatever plugins add later.",
+    "sets": "Ready-made sets",
+    "set-count_one": "{{count}} permission",
+    "set-count_other": "{{count}} permissions"
   },
   "general": {
     "title": "General",

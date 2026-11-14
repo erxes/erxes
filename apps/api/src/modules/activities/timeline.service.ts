@@ -5,17 +5,16 @@ import {
   caller,
   customerCompanies,
   type Db,
+  notes,
   pluginInstallations,
   plugins,
-  users,
+  reactions,
 } from '@erxes/core-db';
-import { and, eq, inArray, isNotNull, ne, notLike, or, type SQL, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { and, eq, ilike, inArray, isNotNull, ne, not, or, type SQL, sql } from 'drizzle-orm';
+import { fail, notFound } from '~/http/errors';
 import { allOf, anyOf } from '~/lib/conditions';
-import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
-import { oneRow } from '~/lib/rows';
-import { isNote, reactionsOf, toActivityDto } from './activities.service';
+import { entryById, selectEntries } from './activities.service';
 import { assertTimelineAccess } from './timelineAccess';
 
 interface TimelineQuery extends CursorQuery {
@@ -54,54 +53,42 @@ const timelineScope = (client: Db, query: TimelineQuery): SQL => {
   return anyOf(own, related);
 };
 
-const KIND_FILTERS = {
-  all: undefined,
-  notes: isNote,
-  changes: and(eq(activities.source, 'core'), notLike(activities.type, '%.note')),
-  plugins: ne(activities.source, 'core'),
-};
+/** Entries that are notes matching `where` (all notes without it). */
+const notesWhere = (client: Db, where?: SQL) =>
+  inArray(activities.id, client.select({ id: notes.id }).from(notes).where(where));
 
 /** The filters the member chose: source, kind, pinned, who, when and text. */
-const timelineFilters = (query: TimelineQuery) => {
+const timelineFilters = (client: Db, query: TimelineQuery) => {
   const text = query.q ? `%${query.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%` : null;
+
+  const kinds = {
+    all: undefined,
+    notes: notesWhere(client),
+    changes: and(eq(activities.source, 'core'), not(notesWhere(client))),
+    plugins: ne(activities.source, 'core'),
+  };
 
   return and(
     query.source ? eq(activities.source, query.source) : undefined,
-    KIND_FILTERS[query.kind ?? 'all'],
-    query.pinned ? isNotNull(activities.pinnedAt) : undefined,
+    kinds[query.kind ?? 'all'],
+    query.pinned ? notesWhere(client, isNotNull(notes.pinnedAt)) : undefined,
     query.actorId ? eq(activities.actorId, query.actorId) : undefined,
     query.from ? sql`${activities.occurredAt} >= ${query.from}` : undefined,
     query.to ? sql`${activities.occurredAt} < ${query.to}` : undefined,
     text
       ? or(
-          sql`${activities.summary} ilike ${text}`,
-          sql`${activities.data} ->> 'body' ilike ${text}`,
+          ilike(activities.summary, text),
+          notesWhere(client, ilike(notes.body, text)),
           sql`${activities.data} ->> 'outcome' ilike ${text}`,
         )
       : undefined,
   );
 };
 
-/** Names and avatars of the members behind the entries. */
-const membersOf = async (client: Db, memberIds: string[]) => {
-  const members = memberIds.length
-    ? await client
-        .select({
-          id: users.id,
-          name: sql<string>`coalesce(nullif(${users.fullName}, ''), ${users.email})`,
-          avatarUrl: users.avatarUrl,
-        })
-        .from(users)
-        .where(inArray(users.id, memberIds))
-    : [];
-
-  return new Map(members.map((member) => [member.id, member]));
-};
-
 export const listActivities = async (client: Db, query: TimelineQuery) => {
   await assertTimelineAccess(client, query.targetType, query.targetId);
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: activities,
@@ -110,45 +97,25 @@ export const listActivities = async (client: Db, query: TimelineQuery) => {
       createdAt: activities.occurredAt,
       scope: timelineScope(client, query),
     },
-    timelineFilters(query),
+    timelineFilters(client, query),
     query,
     (where, orderBy, limit) =>
-      client
-        .select()
-        .from(activities)
+      selectEntries(client)
         .where(where)
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  // Who did each entry, in the same answer: the timeline reads at once
-  // instead of waiting for the team list.
-  const byId = await membersOf(
-    client,
-    unique(
-      page.data.flatMap((row) => (row.actorType === 'user' && row.actorId ? [row.actorId] : [])),
-    ),
-  );
-
-  return {
-    ...page,
-    data: page.data.map((row) => {
-      const dto = toActivityDto(row);
-      const member = row.actorId ? byId.get(row.actorId) : undefined;
-
-      return member && row.actorType === 'user'
-        ? { ...dto, actor: { ...dto.actor, name: member.name, avatarUrl: member.avatarUrl } }
-        : dto;
-    }),
-  };
 };
 
-/** Adds or takes back the member's reaction (row locked: two at once both count). */
+/**
+ * Adds or takes back the member's reaction. The entry is locked, so two at
+ * once both count and the limit of 20 emoji holds.
+ */
 export const reactToActivity = async (client: Db, id: string, emoji: string) => {
   const { userId } = caller('user');
 
   const [row] = await client
-    .select()
+    .select({ targetType: activities.targetType, targetId: activities.targetId })
     .from(activities)
     .where(eq(activities.id, id))
     .for('update')
@@ -158,28 +125,26 @@ export const reactToActivity = async (client: Db, id: string, emoji: string) => 
 
   await assertTimelineAccess(client, row.targetType, row.targetId);
 
-  const reactions = { ...reactionsOf(row.data) };
-  const people = new Set(reactions[emoji] ?? []);
+  const taken = await client
+    .delete(reactions)
+    .where(
+      and(eq(reactions.activityId, id), eq(reactions.emoji, emoji), eq(reactions.userId, userId)),
+    )
+    .returning({ emoji: reactions.emoji });
 
-  if (people.has(userId)) people.delete(userId);
-  else {
-    if (!reactions[emoji] && Object.keys(reactions).length >= 20)
-      throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
-    people.add(userId);
+  if (!taken.length) {
+    const used = await client
+      .selectDistinct({ emoji: reactions.emoji })
+      .from(reactions)
+      .where(eq(reactions.activityId, id));
+
+    if (used.length >= 20 && !used.some((one) => one.emoji === emoji))
+      throw fail('TOO_MANY_REACTIONS', 'At most 20 different reactions');
+
+    await client.insert(reactions).values({ activityId: id, userId, emoji });
   }
 
-  if (people.size) reactions[emoji] = [...people];
-  else delete reactions[emoji];
-
-  const saved = oneRow(
-    await client
-      .update(activities)
-      .set({ data: { ...row.data, reactions } })
-      .where(eq(activities.id, id))
-      .returning(),
-  );
-
-  return toActivityDto(saved);
+  return entryById(client, id);
 };
 
 const CORE_TYPE_LABELS: Record<string, { label: string; icon: string }> = {

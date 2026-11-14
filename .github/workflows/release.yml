@@ -1,6 +1,9 @@
-# Publishes @erxes/ui, @erxes/core-contract and @erxes/plugin-sdk to npm under the
-# `v2-next` dist-tag, with provenance. Versions are bumped in a PR, never here. A version
-# already on npm is skipped, so a rerun publishes only what is missing.
+# Publishes @erxes/core-contract, @erxes/plugin-sdk, @erxes/ui, @erxes/lint and create-erxes
+# to npm under the `v2-next` dist-tag. It publishes with the NPM_PUBLISH secret, the same
+# token publish-shared-libs.yml uses on main, and signs provenance with the job's OIDC token.
+# The token's account must be an owner of every package here, create-erxes included.
+# Versions are bumped in a PR, never here. A version already on npm is skipped, so a rerun
+# publishes only what is missing.
 # @erxes/ui's `latest` and `next` belong to old erxes's 3.x (publish-shared-libs.yml
 # on main, tags `[0-9]*`); this workflow never moves them.
 name: Release
@@ -9,12 +12,6 @@ on:
   push:
     tags: ['v2-*']
   workflow_dispatch:
-    inputs:
-      token:
-        description: Repo secret holding the npm token
-        type: choice
-        options: [NPM_PUBLISH, NPM_TOKEN]
-        default: NPM_PUBLISH
 
 concurrency:
   group: release
@@ -32,30 +29,31 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      # registry-url writes the .npmrc line that reads NODE_AUTH_TOKEN.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: 'https://registry.npmjs.org'
       - run: pnpm install --frozen-lockfile
       - name: Build (tsdown checks each package with publint and attw) and pack
         run: |
-          filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk)
+          filters=(--filter @erxes/core-contract --filter @erxes/plugin-sdk --filter @erxes/ui --filter @erxes/lint --filter create-erxes)
           pnpm "${filters[@]}" build
           pnpm "${filters[@]}" exec pnpm pack --pack-destination "$RUNNER_TEMP/packs"
       - name: Publish each version npm does not have yet
         env:
-          NODE_AUTH_TOKEN: ${{ inputs.token == 'NPM_TOKEN' && secrets.NPM_TOKEN || secrets.NPM_PUBLISH }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
         run: |
-          failed=0
-          # Alphabetical, so core-contract goes out before plugin-sdk, which depends on it.
-          for tgz in "$RUNNER_TEMP"/packs/*.tgz; do
+          # Dependencies first: plugin-sdk needs core-contract, and a plugin create-erxes makes
+          # installs the other four. The first failure stops the run; a rerun skips what went out.
+          for name in erxes-core-contract erxes-plugin-sdk erxes-ui erxes-lint create-erxes; do
+            tgz=$(echo "$RUNNER_TEMP/packs/$name"-[0-9]*.tgz)
             manifest=$(tar -xzOf "$tgz" package/package.json)
             spec="$(jq -r .name <<<"$manifest")@$(jq -r .version <<<"$manifest")"
             if [ -n "$(npm view "$spec" version 2>/dev/null)" ]; then
               echo "$spec is already on npm, skipped"
               continue
             fi
-            npm publish "$tgz" --tag v2-next --provenance --access public || { echo "::error::$spec failed to publish"; failed=1; }
+            npm publish "$tgz" --tag v2-next --access public --provenance || { echo "::error::$spec failed to publish"; exit 1; }
           done
-          exit "$failed"

@@ -20,7 +20,7 @@ describe('tags and custom fields', () => {
       await tag('company', 'VIP');
 
       await expect(t.member().tags.create({ type: 'customer', name: 'vip' })).rejects.toMatchObject(
-        { status: 409, code: 'TAG_EXISTS' },
+        { status: 409, code: 'TAKEN' },
       );
       expect(
         (await t.member().tags.list({ type: 'customer' })).data.map((item) => item.name),

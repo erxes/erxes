@@ -1,17 +1,17 @@
-import { z } from 'zod';
 import type { Customer, CustomerState } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useQueryState, useToast } from 'erxes-ui';
-import { messageOf, orpc } from '~/lib/api';
+import { useToast } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
 import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 /** RecordTable remembers the scroll position per list under this key. */
-export const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
+const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
 
 /** The list filters, read from the URL: the search and the filter (views save both). */
 export const useCustomersFilters = (state: CustomerState) => {
-  const [searchValue] = useQueryState('searchValue', z.string());
+  const [searchValue] = useQueryState('searchValue');
 
   return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
 };
@@ -58,7 +58,7 @@ export const useCustomerEdit = () => {
   );
 };
 
-/** Callers show the failure next to the field it is about (`CUSTOMER_EXISTS`). */
+/** Callers show the failure next to the field it is about (`TAKEN`). */
 export const useCustomerCreate = () => {
   const client = useQueryClient();
 

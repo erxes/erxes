@@ -19,7 +19,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { AddStream, STREAM_PRESETS } from './AddStream';
 
 const useStreamActions = () => {

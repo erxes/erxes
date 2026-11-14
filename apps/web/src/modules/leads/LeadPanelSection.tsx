@@ -1,3 +1,4 @@
+import { useFormat } from 'erxes-ui';
 import type { LeadRecordType } from '@erxes/core-contract';
 import { IconCalendarCheck, IconHourglass, IconWorld } from '@tabler/icons-react';
 import { useMinuteClock } from '~/lib/useMinuteClock';
@@ -10,13 +11,6 @@ const Text = ({ children }: { children: React.ReactNode }) => (
   <span className="truncate px-2 text-sm">{children}</span>
 );
 
-const day = (iso: string) =>
-  new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-
 /** A lead's stage and time in it, and anyone's source and conversion date. */
 export const LeadPanelSection = ({
   record,
@@ -26,6 +20,7 @@ export const LeadPanelSection = ({
 }) => {
   const { byId } = useLeadStages();
   const t = useLeadsT();
+  const fmt = useFormat();
   const isLead = record.state === 'lead';
   const stage = record.leadStageId ? byId.get(record.leadStageId) : null;
   const days = daysSince(record.leadStageChangedAt, useMinuteClock());
@@ -61,7 +56,7 @@ export const LeadPanelSection = ({
       )}
       {record.convertedAt && (
         <PanelField icon={IconCalendarCheck} label={t('became-customer')}>
-          <Text>{day(record.convertedAt)}</Text>
+          <Text>{fmt.date(record.convertedAt)}</Text>
         </PanelField>
       )}
     </ContactDetailSection>

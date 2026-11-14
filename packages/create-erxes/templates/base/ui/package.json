@@ -8,27 +8,29 @@
     "build": "rsbuild build"
   },
   "dependencies": {
+    "@erxes/core-contract": "__contractVersion__",
     "@orpc/client": "1.16.2",
     "@orpc/tanstack-query": "1.16.2",
     "@tabler/icons-react": "3.34.0",
     "@tanstack/react-query": "^5.107.1",
-    "erxes-ui": "npm:@erxes/ui@v2-next",
-    "jotai": "^2.20.3",
+    "erxes-ui": "npm:@erxes/ui@__uiVersion__",
+    "jotai": "^3.0.2",
+    "nuqs": "^2.10.3",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "react-i18next": "^15.7.4",
-    "react-router": "^7.18.5",
-    "react-router-dom": "^7.18.5",
-    "zod": "^4.6.7"
+    "react-i18next": "^18.0.1",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
+    "@__id__/api": "workspace:*",
     "@module-federation/rsbuild-plugin": "2.9.3",
     "@rsbuild/core": "^2.3.2",
     "@rsbuild/plugin-babel": "^2.1.0",
     "@rsbuild/plugin-react": "^2.1.1",
+    "@tailwindcss/postcss": "^4.3.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@__id__/api": "workspace:*",
-    "babel-plugin-react-compiler": "^1.0.0"
+    "babel-plugin-react-compiler": "^1.0.0",
+    "tailwindcss": "^4.3.5"
   }
 }

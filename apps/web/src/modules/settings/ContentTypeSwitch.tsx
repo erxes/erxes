@@ -1,14 +1,14 @@
-import { z } from 'zod';
 import type { ContentType } from '@erxes/core-contract';
-import { ToggleGroup, useQueryState } from 'erxes-ui';
+import { ToggleGroup } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
 
 /** Customers / Companies switch for settings that exist per record type (`?type=`). */
 export const useContentTypeParam = (): [ContentType, (type: ContentType) => void] => {
-  const [type, setType] = useQueryState('type', z.string());
+  const [type, setType] = useQueryState('type');
 
   return [
     type === 'company' ? 'company' : 'customer',
-    (next) => setType(next === 'customer' ? null : next),
+    (next) => void setType(next === 'customer' ? null : next),
   ];
 };
 

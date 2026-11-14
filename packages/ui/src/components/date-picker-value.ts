@@ -25,37 +25,10 @@ export type DatePickerMode = 'single' | 'multiple' | 'range';
 
 export type NormalizedValue = Date | Date[] | DateRange | undefined;
 
-/** Formats are written with Day.js tokens (`YYYY-MM-DD`, `MMM D, YYYY`), the picker's public API. */
-export const DEFAULT_FORMAT = 'YYYY-MM-DD';
+// Typed dates are `yyyy-MM-dd` (toIsoDay); pressing Enter also takes unpadded months and days.
+const INPUT_PATTERN = 'yyyy-MM-dd';
 
-export const DEFAULT_DISPLAY_FORMAT = 'MMM D, YYYY';
-
-const LOOSE_INPUT_FORMATS = [DEFAULT_FORMAT, 'YYYY-M-D', 'YYYY-MM-D', 'YYYY-M-DD'];
-
-// Day.js tokens that differ from date-fns (Unicode) tokens; `[text]` is an escape in Day.js.
-const DAYJS_TOKEN = /\[([^\]]*)]|YYYY|YY|DD|D|dddd|ddd|A|a|ZZ|Z/g;
-
-const DATE_FNS_TOKEN: Record<string, string> = {
-  YYYY: 'yyyy',
-  YY: 'yy',
-  DD: 'dd',
-  D: 'd',
-  dddd: 'EEEE',
-  ddd: 'EEE',
-  A: 'a',
-  a: 'aaa',
-  ZZ: 'xx',
-  Z: 'xxx',
-};
-
-/** Turns a Day.js format string into the date-fns pattern with the same output. */
-const toDateFnsPattern = (dayjsFormat: string) =>
-  dayjsFormat.replace(DAYJS_TOKEN, (token, escaped?: string) =>
-    escaped === undefined ? (DATE_FNS_TOKEN[token] ?? token) : `'${escaped.replaceAll("'", "''")}'`,
-  );
-
-export const formatWith = (date: Date, dayjsFormat: string) =>
-  formatDate(date, toDateFnsPattern(dayjsFormat));
+const LOOSE_INPUT_PATTERNS = [INPUT_PATTERN, 'yyyy-M-d', 'yyyy-MM-d', 'yyyy-M-dd'];
 
 const isDateInput = (value: unknown): value is DateInput =>
   value instanceof Date || typeof value === 'string' || typeof value === 'number';
@@ -135,7 +108,8 @@ const daysInMonth = (year?: string, month?: string) => {
   return getDaysInMonth(new Date(Number(year), monthNumber - 1, 1));
 };
 
-const formatDateMask = (value: string) => {
+/** Masks typed text as `yyyy-MM-dd`, clamping the month and day. */
+export const maskInputText = (value: string) => {
   const [year, month, day] = splitDateSegments(value);
 
   const normalizedMonth =
@@ -150,10 +124,6 @@ const formatDateMask = (value: string) => {
     .filter((segment) => segment !== undefined)
     .join('-');
 };
-
-/** Masks typed text as `YYYY-MM-DD` when the picker uses the default format. */
-export const maskInputText = (rawValue: string, format: string) =>
-  format === DEFAULT_FORMAT ? formatDateMask(rawValue) : rawValue;
 
 export const getDateBounds = (withPresent: boolean, minDate?: Date, maxDate?: Date) => ({
   minBound: minDate ?? (withPresent ? new Date('1900-01-01') : undefined),
@@ -174,17 +144,13 @@ const isWithinBounds = (date: Date, minBound?: Date, maxBound?: Date) =>
   !(minBound && isBefore(date, startOfDay(minBound))) &&
   !(maxBound && isAfter(date, endOfDay(maxBound)));
 
-/** Parses typed text strictly; the default format also accepts unpadded months and days. */
+/** Parses typed text strictly; `loose` also accepts unpadded months and days. */
 export const parseInputDate = (
   text: string,
-  format: string,
   { minBound, maxBound, loose }: { minBound?: Date; maxBound?: Date; loose?: boolean },
 ) => {
-  const formats = loose && format === DEFAULT_FORMAT ? LOOSE_INPUT_FORMATS : [format];
-
-  // Strict like Day.js: the date must format back to the exact text.
-  const parsed = formats
-    .map(toDateFnsPattern)
+  // Strict: the date must format back to the exact text.
+  const parsed = (loose ? LOOSE_INPUT_PATTERNS : [INPUT_PATTERN])
     .map((pattern) => ({ pattern, date: parse(text, pattern, new Date()) }))
     .find(({ pattern, date }) => isValid(date) && formatDate(date, pattern) === text)?.date;
 
@@ -196,14 +162,14 @@ export const isDateRange = (value: NormalizedValue): value is DateRange =>
 
 export const describeValue = (
   value: NormalizedValue,
-  format: string,
+  formatDay: (date: Date) => string,
   formatMultiple: (count: number) => string,
 ) => {
   if (Array.isArray(value)) return value.length ? formatMultiple(value.length) : undefined;
 
   if (!isDateRange(value) || !value.from) return undefined;
 
-  const from = formatWith(value.from, format);
+  const from = formatDay(value.from);
 
-  return value.to ? `${from} - ${formatWith(value.to, format)}` : from;
+  return value.to ? [from, formatDay(value.to)].join(' - ') : from;
 };

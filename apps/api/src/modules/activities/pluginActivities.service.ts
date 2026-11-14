@@ -6,14 +6,14 @@ import { guardDeletions } from '~/lib/deletionGuard';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { oneRow } from '~/lib/rows';
 import { notify } from '~/modules/notifications/notifications.service';
-import { type ActivityRow, reactionsOf, toActivityDto } from './activities.service';
+import { entryById } from './activities.service';
 import { assertTimelineAccess, isCoreTarget } from './timelineAccess';
 
 /**
  * A plugin event on a record someone owns reaches the owner's inbox for that
  * plugin (muting the plugin mutes these too).
  */
-const notifyTargetOwner = async (client: Db, input: ActivityInput, activity: ActivityRow) => {
+const notifyTargetOwner = async (client: Db, input: ActivityInput, activityId: string) => {
   if (!isCoreTarget(input.targetType)) return;
 
   const table = input.targetType === 'customer' ? customers : companies;
@@ -35,10 +35,11 @@ const notifyTargetOwner = async (client: Db, input: ActivityInput, activity: Act
     link:
       input.link ??
       `/contacts/${input.targetType === 'customer' ? 'customers' : 'companies'}/${input.targetId}`,
-    entity: input.entity ?? { type: input.targetType, id: input.targetId },
+    entityType: input.entityType ?? input.targetType,
+    entityId: input.entityId ?? input.targetId,
     data: { targetType: input.targetType, targetId: input.targetId },
     actorUserId: input.actorUserId,
-    dedupeKey: `activity:${activity.id}`,
+    dedupeKey: `activity:${activityId}`,
   });
 };
 
@@ -63,8 +64,8 @@ export const createPluginActivity = async (client: Db, input: ActivityInput) => 
       type: input.type,
       summary: input.summary,
       data: input.data ?? {},
-      entityType: input.entity?.type ?? null,
-      entityId: input.entity?.id ?? null,
+      entityType: input.entityType ?? null,
+      entityId: input.entityId ?? null,
       link: input.link ?? null,
       actorType: input.actorUserId ? 'user' : 'plugin',
       actorId: input.actorUserId ?? plugin,
@@ -72,23 +73,23 @@ export const createPluginActivity = async (client: Db, input: ActivityInput) => 
       occurredAt: input.occurredAt ? new Date(input.occurredAt) : sql`now()`,
     })
     .onConflictDoNothing()
-    .returning();
+    .returning({ id: activities.id });
 
   if (inserted) {
-    await notifyTargetOwner(client, input, inserted);
+    await notifyTargetOwner(client, input, inserted.id);
 
-    return { activity: toActivityDto(inserted), created: true };
+    return { activity: await entryById(client, inserted.id), created: true };
   }
 
   const existing = oneRow(
     await client
-      .select()
+      .select({ id: activities.id })
       .from(activities)
       .where(and(eq(activities.source, plugin), eq(activities.dedupeKey, input.dedupeKey ?? '')))
       .limit(1),
   );
 
-  return { activity: toActivityDto(existing), created: false };
+  return { activity: await entryById(client, existing.id), created: false };
 };
 
 /** A plugin's own entry, by id or by `key:<dedupeKey>`. */
@@ -113,25 +114,13 @@ const pluginEntry = async (client: Db, ref: string) => {
 export const updatePluginActivity = async (
   client: Db,
   ref: string,
-  { data, ...changes }: { summary?: string; data?: Record<string, unknown>; link?: string | null },
+  changes: { summary?: string; data?: Record<string, unknown>; link?: string | null },
 ) => {
   const row = await pluginEntry(client, ref);
-  const reactions = reactionsOf(row.data);
 
-  const saved = oneRow(
-    await client
-      .update(activities)
-      .set({
-        ...changes,
-        // Members' reactions stay when the plugin replaces the data.
-        data: data && { ...data, ...(reactions ? { reactions } : {}) },
-        editedAt: sql`now()`,
-      })
-      .where(eq(activities.id, row.id))
-      .returning(),
-  );
+  await client.update(activities).set(changes).where(eq(activities.id, row.id));
 
-  return toActivityDto(saved);
+  return entryById(client, row.id);
 };
 
 export const removePluginActivity = async (client: Db, ref: string) => {

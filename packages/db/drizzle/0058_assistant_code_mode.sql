@@ -1,1 +1,0 @@
-ALTER TABLE "core_assistant_settings" ADD COLUMN "code_mode" boolean DEFAULT false NOT NULL;

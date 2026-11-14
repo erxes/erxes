@@ -1,6 +1,6 @@
 import { caller, type Db, runAs, users, withOrg } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { seal, unseal } from '~/lib/secrets';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -30,7 +30,7 @@ const findMember = async (client: Db) => {
     .where(eq(users.id, caller('user').userId))
     .limit(1);
 
-  if (!row) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+  if (!row) throw fail('UNAUTHORIZED', 'Sign in to continue');
 
   return row;
 };
@@ -39,7 +39,7 @@ const needPassword = async (client: Db, password: string) => {
   const member = await findMember(client);
 
   if (!(await verifyPassword(password, member.passwordHash))) {
-    throw new HttpError(400, 'WRONG_PASSWORD', 'The password is not right');
+    throw fail('WRONG_PASSWORD', 'The password is not right');
   }
 
   return member;
@@ -49,8 +49,7 @@ const needPassword = async (client: Db, password: string) => {
 export const setupTwoFactor = async (client: Db) => {
   const member = await findMember(client);
 
-  if (member.totpEnabledAt)
-    throw new HttpError(409, 'ALREADY_ENABLED', 'Two-factor sign-in is already on');
+  if (member.totpEnabledAt) throw fail('ALREADY_ENABLED', 'Two-factor sign-in is already on');
 
   const secret = newTotpSecret();
 
@@ -65,17 +64,13 @@ export const setupTwoFactor = async (client: Db) => {
 export const enableTwoFactor = async (client: Db, code: string) => {
   const member = await findMember(client);
 
-  if (!member.totpPendingSealed) throw new HttpError(409, 'NOT_SET_UP', 'Start the setup first');
+  if (!member.totpPendingSealed) throw fail('NOT_SET_UP', 'Start the setup first');
 
   const secret = unseal(member.totpPendingSealed);
   const step = matchStep(secret, code);
 
   if (step === null)
-    throw new HttpError(
-      400,
-      'WRONG_CODE',
-      "That code doesn't match: check the app and the phone's clock",
-    );
+    throw fail('WRONG_CODE', "That code doesn't match: check the app and the phone's clock");
 
   const recoveryCodes = newRecoveryCodes();
 
@@ -129,7 +124,7 @@ export const disableTwoFactor = async (client: Db, password: string) => {
 export const regenerateRecoveryCodes = async (client: Db, password: string) => {
   const member = await needPassword(client, password);
 
-  if (!member.totpEnabledAt) throw new HttpError(409, 'NOT_ENABLED', 'Two-factor sign-in is off');
+  if (!member.totpEnabledAt) throw fail('NOT_ENABLED', 'Two-factor sign-in is off');
 
   const recoveryCodes = newRecoveryCodes();
 
@@ -168,7 +163,7 @@ export const completeTwoFactor = async (input: {
   }).catch(() => null);
 
   if (!challenge) {
-    throw new HttpError(401, 'CHALLENGE_EXPIRED', 'Sign in again: the second step took too long');
+    throw fail('CHALLENGE_EXPIRED', 'Sign in again: the second step took too long');
   }
 
   const { org: orgId, sub: userId } = challenge;
@@ -183,7 +178,7 @@ export const completeTwoFactor = async (input: {
       .limit(1);
 
     if (!member || member.status !== 'active' || !member.totpSecretSealed)
-      throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+      throw fail('UNAUTHORIZED', 'Sign in to continue');
 
     if (input.code) {
       const step = matchStep(unseal(member.totpSecretSealed), input.code);
@@ -198,7 +193,7 @@ export const completeTwoFactor = async (input: {
             metadata: { reason: 'wrong two-factor code' },
           }),
         );
-        throw new HttpError(401, 'WRONG_CODE', "That code doesn't match");
+        throw fail('WRONG_CODE', "That code doesn't match");
       }
 
       await tx.update(users).set({ totpLastStep: step }).where(eq(users.id, userId));
@@ -206,7 +201,7 @@ export const completeTwoFactor = async (input: {
       const hashed = hashCode(input.recoveryCode ?? '');
 
       if (!member.recoveryCodes?.includes(hashed))
-        throw new HttpError(401, 'WRONG_CODE', "That recovery code doesn't match");
+        throw fail('WRONG_CODE', "That recovery code doesn't match");
 
       const left = member.recoveryCodes.filter((code) => code !== hashed);
 

@@ -1,20 +1,20 @@
-import { z } from 'zod';
 import type { Company } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useQueryState, useToast } from 'erxes-ui';
-import { messageOf, orpc } from '~/lib/api';
+import { useToast } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
 import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 type CompanyState = 'lead' | 'customer';
 
 /** RecordTable remembers the scroll position per list under this key. */
-export const companiesSessionKey = (state: CompanyState) =>
+const companiesSessionKey = (state: CompanyState) =>
   state === 'lead' ? 'core_company_leads_cursor' : 'core_companies_cursor';
 
 /** The list filters, read from the URL; `state` splits companies that are customers from company leads. */
 export const useCompaniesFilters = (state: CompanyState = 'customer') => {
-  const [searchValue] = useQueryState('searchValue', z.string());
+  const [searchValue] = useQueryState('searchValue');
 
   return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
 };
@@ -59,7 +59,7 @@ export const useCompanyEdit = () => {
   );
 };
 
-/** Callers show the failure next to the field it is about (`COMPANY_EXISTS`). */
+/** Callers show the failure next to the field it is about (`TAKEN`). */
 export const useCompanyCreate = () => {
   const client = useQueryClient();
 

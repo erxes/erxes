@@ -1,68 +1,30 @@
 import { IconChevronLeft, IconMaximize, IconMinimize, IconX } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
-import { type RefObject, useContext, useEffect, useRef } from 'react';
+import { type RefObject, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePageHotkey } from '~/lib/usePageHotkey';
 import { PanelExpansionContext } from './panelExpansion';
 import type { RecordSidePanelHeaderProps } from './recordSidePanelTypes';
 
-const EDITING = [
-  'input',
-  'textarea',
-  'select',
-  '[contenteditable]:not([contenteditable="false"])',
-  '[role="textbox"]',
-  '[role="dialog"]',
-  '[role="menu"]',
-  '[role="listbox"]',
-].join(', ');
-
-const OPEN_OVERLAY =
-  '[role="dialog"][data-state="open"], [role="menu"][data-state="open"], [role="listbox"][data-state="open"]';
-
-const isExpandShortcut = (event: KeyboardEvent) =>
-  !event.defaultPrevented &&
-  !event.repeat &&
-  !event.isComposing &&
-  event.key === 'Enter' &&
-  event.shiftKey &&
-  (event.ctrlKey || event.metaKey) &&
-  !event.altKey;
-
-/** Whether the button sits in the topmost panel, shown, with no overlay open. */
+/** Whether the button sits in the topmost panel, shown. */
 const isActivePanel = (button: HTMLButtonElement | null) => {
   const panels = document.querySelectorAll('[data-record-side-panel]');
 
   return (
     !!button &&
     !button.closest('[hidden], [inert]') &&
-    button.closest('[data-record-side-panel]') === panels[panels.length - 1] &&
-    !document.querySelector(OPEN_OVERLAY)
+    button.closest('[data-record-side-panel]') === panels[panels.length - 1]
   );
 };
 
-/** Ctrl/⌘ + Shift + Enter expands the active panel unless an editor or dialog owns the key. */
+/** Ctrl/⌘ + Shift + Enter expands the topmost panel unless an editor or dialog owns the key. */
 const useExpandShortcut = (
   expand: (() => void) | undefined,
   buttonRef: RefObject<HTMLButtonElement | null>,
-) => {
-  useEffect(() => {
-    if (!expand) return undefined;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (!isExpandShortcut(event)) return;
-
-      if (event.target instanceof Element && event.target.closest(EDITING)) return;
-
-      if (!isActivePanel(buttonRef.current)) return;
-      event.preventDefault();
-      expand();
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [expand, buttonRef]);
-};
+) =>
+  usePageHotkey('mod+shift+enter', () => expand?.(), {
+    when: () => expand !== undefined && isActivePanel(buttonRef.current),
+  });
 
 /** Renders record navigation, actions, and the guarded expansion shortcut. */
 export const RecordSidePanelHeader = ({

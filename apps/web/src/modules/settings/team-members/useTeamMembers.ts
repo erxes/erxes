@@ -1,29 +1,26 @@
 import { type User, RoleKey } from '@erxes/core-contract';
-import { z } from 'zod';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMultiQueryState, useToast } from 'erxes-ui';
+import { useToast } from 'erxes-ui';
+import { parseAsBoolean, parseAsString, useQueryStates } from 'nuqs';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan, useSession } from '~/modules/auth/session';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
 
-/** First and last name, else the stored full name, else the email. */
-export const memberName = (user: Pick<User, 'firstName' | 'lastName' | 'fullName' | 'email'>) =>
-  [user.firstName, user.lastName].filter(Boolean).join(' ') || user.fullName || user.email;
-
 /** The list's filters: search, role and "Is active" (on unless switched off). */
 const useTeamMemberFilters = () => {
-  const [{ searchValue, isActive, role }] = useMultiQueryState({
-    searchValue: z.string(),
-    isActive: z.boolean(),
-    role: RoleKey,
+  const [{ searchValue, isActive, role }] = useQueryStates({
+    searchValue: parseAsString,
+    isActive: parseAsBoolean,
+    role: parseAsString,
   });
 
   return {
     search: searchValue || undefined,
     isActive: isActive ?? true,
-    role: role || undefined,
+    // Anyone can edit a URL: a role that isn't one reads as no role filter.
+    role: RoleKey.safeParse(role).data,
   };
 };
 

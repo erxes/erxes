@@ -10,8 +10,7 @@ import {
   type UseFormReturn,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-import { errorData, isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { useTeamMembersInvite } from '../useTeamMembers';
 import { AddInviteRowButton } from './AddInviteRow';
 import { InviteMemberContext } from './InviteMemberContext';
@@ -19,9 +18,6 @@ import { InviteRow } from './InviteRow';
 import { InviteHeaderCheckbox } from './InviteRowCheckbox';
 import { INVITE_ROW_DEFAULTS, type TUserForm, USER_SUBMIT_SCHEMA } from './inviteSchema';
 import { InviteRowRemoveButton } from './RemoveButton';
-
-/** `EMAIL_TAKEN` names the emails another member has. */
-const TakenEmails = z.object({ emails: z.array(z.string()) });
 
 /** Sends every row's invitation; a taken email marks its row. */
 const useInviteSubmit = (form: UseFormReturn<TUserForm>, onSent: () => void) => {
@@ -50,9 +46,7 @@ const useInviteSubmit = (form: UseFormReturn<TUserForm>, onSent: () => void) => 
           onSent();
         },
         onError: (error) => {
-          const taken = isApiError(error, 'EMAIL_TAKEN')
-            ? (errorData(error, TakenEmails)?.emails ?? [])
-            : [];
+          const taken = isApiError(error, 'TAKEN') ? (error.data.values ?? []) : [];
 
           // Point at the rows whose email is taken or repeated.
           data.entries.forEach((entry, index) => {

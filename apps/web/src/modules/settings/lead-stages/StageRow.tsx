@@ -2,7 +2,7 @@ import type { LeadStage, LeadStageKind } from '@erxes/core-contract';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
-import { Button, cn, Input, Select } from 'erxes-ui';
+import { Button, cn, Input, Select, useFormat } from 'erxes-ui';
 import { useState } from 'react';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 import { useLeadStageMutations } from '~/modules/leads/useLeads';
@@ -38,6 +38,7 @@ const KindSelect = ({ stage }: { stage: LeadStage }) => {
 
 export const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () => void }) => {
   const t = useLeadsT();
+  const fmt = useFormat();
   const stageName = useStageName();
   const { update } = useLeadStageMutations();
 
@@ -105,8 +106,8 @@ export const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () =
         title={t('settings.counts', { people: stage.leadCount, companies: stage.companyLeadCount })}
       >
         {t('settings.counts', {
-          people: stage.leadCount.toLocaleString('en'),
-          companies: stage.companyLeadCount.toLocaleString('en'),
+          people: fmt.number(stage.leadCount),
+          companies: fmt.number(stage.companyLeadCount),
         })}
       </span>
       <Button variant="ghost" size="icon" onClick={onRemove} aria-label={t('settings.delete')}>

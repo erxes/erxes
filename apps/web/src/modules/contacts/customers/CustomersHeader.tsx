@@ -8,9 +8,6 @@ import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
 import { ExportButton } from '~/modules/transfer/ExportButton';
 import { ImportButton } from '~/modules/transfer/ImportButton';
 
-/** `C` adds a record. */
-export const useCreateHotkey = (action: () => void) => usePageHotkey('c', action);
-
 /**
  * Opens a new customer (or lead) in the side panel as a draft; it is created
  * on Save.
@@ -22,7 +19,7 @@ const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
 
   const create = () => openNewRecord('core:customer', { state });
 
-  useCreateHotkey(create);
+  usePageHotkey('c', create);
 
   return (
     <Button onClick={create}>

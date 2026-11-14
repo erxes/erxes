@@ -2,15 +2,13 @@ import { requestOrgId, withOrg } from '@erxes/core-db';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { link, rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import { config } from '~/config';
+import { fail, notFound } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { downloadUrlOf, readyFile } from './files.service';
 import { contentDisposition, localPath, readGrant } from './storage';
-
-const fail = (res: Response, status: number, code: string, message: string) =>
-  res.status(status).json({ defined: false, code, status, message });
 
 /**
  * Signed links of the local driver (`/core/v1/files/signed/<token>`): the
@@ -23,25 +21,19 @@ signedFilesRouter.put('/:token', async (req, res) => {
   const grant = readGrant(req.params.token);
 
   if (config.files.driver !== 'local' || !grant || grant.op !== 'put') {
-    fail(res, 403, 'INVALID_LINK', 'This upload link is not valid or has expired');
-
-    return;
+    throw fail('INVALID_SIGNATURE', 'This upload link is not valid or has expired');
   }
 
   const [contentType = ''] = (req.get('content-type') ?? '').split(';');
 
   if (contentType.trim().toLowerCase() !== grant.contentType) {
-    fail(res, 400, 'CONTENT_TYPE_MISMATCH', `Send the file as ${grant.contentType}`);
-
-    return;
+    throw fail('CONTENT_TYPE_MISMATCH', `Send the file as ${grant.contentType}`);
   }
 
   const declared = Number(req.get('content-length'));
 
   if (Number.isFinite(declared) && declared !== grant.size) {
-    fail(res, 400, 'SIZE_MISMATCH', 'The file size differs from the one declared');
-
-    return;
+    throw fail('SIZE_MISMATCH', 'The file size differs from the one declared');
   }
 
   const target = localPath(grant.key);
@@ -74,37 +66,27 @@ signedFilesRouter.put('/:token', async (req, res) => {
   await rm(partial, { force: true });
 
   if (!stored) {
-    if (!res.headersSent) {
-      fail(res, 400, 'SIZE_MISMATCH', 'The upload was cut off or differs from the size declared');
-    }
+    if (res.headersSent) return;
 
-    return;
+    throw fail('SIZE_MISMATCH', 'The upload was cut off or differs from the size declared');
   }
 
-  if (!linked) {
-    fail(res, 409, 'ALREADY_UPLOADED', 'This upload link was already used');
-
-    return;
-  }
+  if (!linked) throw fail('ALREADY_UPLOADED', 'This upload link was already used');
 
   res.status(204).end();
 });
 
-signedFilesRouter.get('/:token', (req, res) => {
+signedFilesRouter.get('/:token', (req, res, next) => {
   const grant = readGrant(req.params.token);
 
   if (config.files.driver !== 'local' || !grant || grant.op !== 'get') {
-    fail(res, 403, 'INVALID_LINK', 'This link is not valid or has expired');
-
-    return;
+    throw fail('INVALID_SIGNATURE', 'This link is not valid or has expired');
   }
 
   const stream = createReadStream(localPath(grant.key));
 
   stream.on('error', () => {
-    if (!res.headersSent) {
-      fail(res, 404, 'NOT_FOUND', 'File not found');
-    }
+    if (!res.headersSent) next(notFound('File'));
   });
   stream.on('open', () => {
     res.setHeader('Content-Type', grant.contentType ?? 'application/octet-stream');

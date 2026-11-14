@@ -58,7 +58,7 @@ export const exceptions = [
   {
     // The one file that writes the value lists out.
     files: ['packages/db/src/enums.ts'],
-    rules: { 'erxes/no-inline-enum': 'off' },
+    rules: { 'core/no-inline-enum': 'off' },
   },
   {
     // Tools load these through their default export.
@@ -68,8 +68,9 @@ export const exceptions = [
       '**/{tsdown,playwright}.config.ts',
       'apps/web/rsbuild.config.ts',
       'packages/db/drizzle.config.ts',
-      'tools/lint/*/index.ts',
-      'tools/lint/anti-slop/vendor/**',
+      'tools/lint/core.ts',
+      'packages/lint/src/{shadcn,*/index}.ts',
+      'packages/lint/src/anti-slop/vendor/**',
     ],
     rules: { 'import/no-default-export': 'off' },
   },
@@ -88,7 +89,7 @@ export const exceptions = [
   {
     // Copied from the HR plugin (and ESLint Stylistic in vendor/). Kept as
     // upstream wrote it so the copies stay easy to compare.
-    files: ['tools/lint/anti-slop/**'],
+    files: ['packages/lint/src/anti-slop/**'],
     rules: {
       'typescript/no-unsafe-type-assertion': 'off',
       'no-shadow': 'off',
@@ -98,7 +99,7 @@ export const exceptions = [
   {
     // ESLint Stylistic's rule, vendored unchanged (see its UPSTREAM.md): splitting or
     // rewriting it would make upstream fixes hard to carry over.
-    files: ['tools/lint/anti-slop/vendor/**'],
+    files: ['packages/lint/src/anti-slop/vendor/**'],
     rules: {
       'typescript/no-non-null-assertion': 'off',
       'max-lines': 'off',

@@ -14,7 +14,8 @@ import { useTwoOrgs } from './support';
 const order = (id: string, amount = 1000) => ({
   amount,
   description: `Order #${id}`,
-  reference: { type: 'order', id },
+  referenceType: 'order',
+  referenceId: id,
 });
 
 describe('payments', { timeout: 240_000 }, () => {
@@ -52,7 +53,8 @@ describe('payments', { timeout: 240_000 }, () => {
     expect(events.data[0]?.payload).toMatchObject({
       invoiceId: id,
       source: 'hr',
-      reference: { type: 'order', id: 'o1' },
+      referenceType: 'order',
+      referenceId: 'o1',
       amount: 150_000,
     });
 
@@ -223,9 +225,12 @@ describe('payments', { timeout: 240_000 }, () => {
         source: 'core',
         type: 'core.payment.paid',
         version: 1,
-        subject: null,
-        entity: { type: 'payment_invoice', id: 'i1' },
-        actor: { type: 'system', id: null },
+        subjectType: null,
+        subjectId: null,
+        entityType: 'payment_invoice',
+        entityId: 'i1',
+        actorType: 'system',
+        actorId: null,
         payload: { amount: 150_000 },
         summary: null,
         link: null,

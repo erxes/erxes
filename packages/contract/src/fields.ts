@@ -1,5 +1,6 @@
 import { fieldGroups, fields } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { type FieldType, OPTION_FIELD_TYPES } from './values';
@@ -129,8 +130,13 @@ const changes = (value: Record<string, unknown>) => Object.keys(value).some((key
 const needsOptions = (value: { type?: FieldType; options?: string[] }) =>
   !value.type || !OPTION_FIELD_TYPES.includes(value.type) || (value.options?.length ?? 0) > 0;
 
+const { FIELD_IN_USE, INVALID_FIELD_GROUP } = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({ ...COMMON_ERRORS, FIELD_IN_USE, INVALID_FIELD_GROUP });
+
 export const fieldsContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/fields',
@@ -145,7 +151,7 @@ export const fieldsContract = {
       }),
     )
     .output(listOf(Field)),
-  usage: oc
+  usage: base
     .route({
       method: 'GET',
       path: '/fields/usage',
@@ -160,12 +166,12 @@ export const fieldsContract = {
         ),
     )
     .output(FieldUsage),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/fields',
       successStatus: 201,
-      summary: 'Add a custom field (owners and admins). 409 FIELD_EXISTS for a taken label or code',
+      summary: 'Add a custom field (owners and admins). 409 TAKEN for a taken label or code',
     })
     .input(
       FieldFields.omit({ order: true })
@@ -173,7 +179,7 @@ export const fieldsContract = {
         .refine(needsOptions, { path: ['options'], error: 'select fields need options' }),
     )
     .output(Field),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/fields/{id}',
@@ -186,7 +192,7 @@ export const fieldsContract = {
         .refine(changes, 'nothing to update'),
     )
     .output(Field),
-  reorder: oc
+  reorder: base
     .route({
       method: 'POST',
       path: '/fields/order',
@@ -194,7 +200,7 @@ export const fieldsContract = {
     })
     .input(Orders)
     .output(Ok),
-  archive: oc
+  archive: base
     .route({
       method: 'POST',
       path: '/fields/archive',
@@ -202,7 +208,7 @@ export const fieldsContract = {
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
     .output(Ok),
-  restore: oc
+  restore: base
     .route({
       method: 'POST',
       path: '/fields/{id}/restore',
@@ -210,7 +216,7 @@ export const fieldsContract = {
     })
     .input(z.object({ id: Id }))
     .output(Field),
-  removeUnused: oc
+  removeUnused: base
     .route({
       method: 'POST',
       path: '/fields/remove',
@@ -219,7 +225,7 @@ export const fieldsContract = {
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
     .output(Ok),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/fields/{id}',
@@ -230,7 +236,7 @@ export const fieldsContract = {
 };
 
 export const fieldGroupsContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/field-groups',
@@ -238,17 +244,17 @@ export const fieldGroupsContract = {
     })
     .input(z.object({ contentType: FieldContentType, archived: QueryBoolean.optional() }))
     .output(listOf(FieldGroup)),
-  create: oc
+  create: base
     .route({
       method: 'POST',
       path: '/field-groups',
       successStatus: 201,
       summary:
-        'Add a field group (owners and admins). The code defaults to the name; 409 FIELD_GROUP_EXISTS for a taken code',
+        'Add a field group (owners and admins). The code defaults to the name; 409 TAKEN for a taken code',
     })
     .input(GroupFields.omit({ order: true }).required({ contentType: true, name: true }))
     .output(FieldGroup),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/field-groups/{id}',
@@ -260,7 +266,7 @@ export const fieldGroupsContract = {
         .refine(changes, 'nothing to update'),
     )
     .output(FieldGroup),
-  reorder: oc
+  reorder: base
     .route({
       method: 'POST',
       path: '/field-groups/order',
@@ -268,7 +274,7 @@ export const fieldGroupsContract = {
     })
     .input(Orders)
     .output(Ok),
-  archive: oc
+  archive: base
     .route({
       method: 'POST',
       path: '/field-groups/{id}/archive',
@@ -276,7 +282,7 @@ export const fieldGroupsContract = {
     })
     .input(z.object({ id: Id }))
     .output(FieldGroup),
-  restore: oc
+  restore: base
     .route({
       method: 'POST',
       path: '/field-groups/{id}/restore',
@@ -284,7 +290,7 @@ export const fieldGroupsContract = {
     })
     .input(z.object({ id: Id }))
     .output(FieldGroup),
-  remove: oc
+  remove: base
     .route({
       method: 'DELETE',
       path: '/field-groups/{id}',

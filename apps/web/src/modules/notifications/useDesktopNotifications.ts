@@ -1,7 +1,8 @@
+import { paths } from '~/lib/paths';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useNotificationSettings } from './useNotifications';
 
 export const desktopSupported = () => typeof window !== 'undefined' && 'Notification' in window;
@@ -54,7 +55,7 @@ export const useDesktopNotifications = () => {
 
       popup.addEventListener('click', () => {
         window.focus();
-        void navigate(item.link ?? '/notifications');
+        void navigate(item.link ?? paths.notifications);
         popup.close();
       });
     }

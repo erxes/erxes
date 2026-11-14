@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import {
   CORE_NOTIFICATION_GROUPS,
   NotificationDelivery,
@@ -8,7 +9,7 @@ import { PageContainer, PageHeader, ScrollArea, Select, Spinner, Switch, useToas
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { desktopSupported } from '~/modules/notifications/useDesktopNotifications';
 import { useNotificationSettings } from '~/modules/notifications/useNotifications';
 
@@ -282,7 +283,7 @@ export const NotificationSettingsPage = () => {
             items={[
               {
                 label: t('title', 'Notifications'),
-                to: '/settings/notifications',
+                to: paths.settings.notifications,
                 icon: IconBellCog,
               },
             ]}

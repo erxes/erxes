@@ -6,10 +6,12 @@ import {
   type ReactNode,
   type UIEvent,
 } from 'react';
+import { useStore } from 'jotai';
 import { useDebouncedCallback } from 'use-debounce';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
 import { mergeRefs } from 'erxes-ui/lib/utils';
 import { useCursorScroll } from '../hooks/useCursorScroll';
+import { tablePositionState } from '../states/RecordTableCursorState';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
 import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
 
@@ -32,23 +34,6 @@ const useRecordTableCursorContext = () => {
   }
 
   return context;
-};
-
-/** Session storage is best effort: when it is blocked the position is simply not restored. */
-const remember = (key: string, value: string) => {
-  try {
-    sessionStorage.setItem(key, value);
-  } catch {
-    // Blocked or full storage.
-  }
-};
-
-const recall = (key: string) => {
-  try {
-    return sessionStorage.getItem(key);
-  } catch {
-    return null;
-  }
 };
 
 /**
@@ -79,16 +64,20 @@ export const RecordTableCursorProvider = ({
   });
 
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
+  // Read and written through the store, so scrolling re-renders nothing.
+  const store = useStore();
 
-  const rememberScrollTop = useDebouncedCallback((scrollTop: number) => {
-    if (sessionKey) remember(`${sessionKey}_scroll`, String(scrollTop));
-  }, 150);
+  const remember = (part: { row: string } | { scroll: number }) => {
+    if (sessionKey) store.set(tablePositionState(sessionKey), (saved) => ({ ...saved, ...part }));
+  };
+
+  const rememberScrollTop = useDebouncedCallback((scroll: number) => remember({ scroll }), 150);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const scroll = event.currentTarget;
     const firstVisibleRow = scroll.querySelector('.in-view');
 
-    if (sessionKey && firstVisibleRow) remember(sessionKey, firstVisibleRow.id);
+    if (firstVisibleRow) remember({ row: firstVisibleRow.id });
 
     rememberScrollTop(scroll.scrollTop);
   };
@@ -98,10 +87,10 @@ export const RecordTableCursorProvider = ({
 
     if (!dataLength || loading || !scroll || !sessionKey) return;
 
-    const saved = recall(`${sessionKey}_scroll`);
+    const saved = store.get(tablePositionState(sessionKey)).scroll;
 
-    if (saved) scroll.scrollTop = Number.parseInt(saved, 10);
-  }, [loading, dataLength, scrollRef, sessionKey]);
+    if (saved) scroll.scrollTop = saved;
+  }, [loading, dataLength, scrollRef, sessionKey, store]);
 
   return (
     <RecordTableCursorContext.Provider

@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { PermissionInfo, Role } from '@erxes/core-contract';
 import { IconPlus, IconShieldHalf } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +7,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { RoleEditor } from './RoleEditor';
 import { rolesQuery } from './useRoles';
@@ -95,7 +96,7 @@ export const RolesSettingsPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'Roles'), to: '/settings/roles', icon: IconShieldHalf }]}
+            items={[{ label: t('title', 'Roles'), to: paths.settings.roles, icon: IconShieldHalf }]}
           />
         </PageHeader.Start>
         <PageHeader.End>

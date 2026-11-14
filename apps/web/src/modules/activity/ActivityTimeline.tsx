@@ -4,8 +4,8 @@ import { Button, cn, Empty, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
 import { useDeferredValue, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type Lookups, useChangeLookups } from '~/components/ChangeList';
-import { messageOf } from '~/lib/api';
-import { readChanges, readNote } from './activityData';
+import { messageOf } from '@erxes/core-contract/client';
+import { readChanges } from './activityData';
 import { ActivityItem } from './ActivityItem';
 import { NoteComposer } from './NoteComposer';
 import { useMinuteClock } from '~/lib/useMinuteClock';
@@ -177,8 +177,8 @@ const useTimelineLookups = (targetType: string, entries: Activity[]) =>
     targetType === 'company' ? 'company' : 'customer',
     entries.map((activity) => readChanges(activity) ?? undefined),
     entries.flatMap((activity) => [
-      activity.actor.type === 'user' ? activity.actor.id : null,
-      ...(readNote(activity)?.mentions ?? []),
+      activity.actorType === 'user' ? activity.actorId : null,
+      ...(activity.note?.mentions ?? []),
     ]),
   );
 

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { categoryTree } from './categoryTree';
 
 /** Every product category, in tree order (one request wherever it's used). */
@@ -23,7 +23,7 @@ const useRefresh = () => {
     ]);
 };
 
-/** Callers show failures where they happen (`CATEGORY_EXISTS`, `CATEGORY_HAS_CHILDREN`). */
+/** Callers show failures where they happen (`TAKEN`, `CATEGORY_HAS_CHILDREN`). */
 export const useCategoryMutations = () => {
   const refresh = useRefresh();
 

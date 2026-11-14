@@ -1,10 +1,11 @@
+import { paths } from '~/lib/paths';
 import { IconUserCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';
 import { ProfileForm } from './ProfileForm';
 
@@ -20,7 +21,7 @@ export const ProfileSettingsPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Profile'), to: '/settings/profile', icon: IconUserCircle },
+              { label: t('title', 'Profile'), to: paths.settings.profile, icon: IconUserCircle },
             ]}
           />
         </PageHeader.Start>

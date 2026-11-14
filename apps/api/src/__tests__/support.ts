@@ -1,5 +1,5 @@
 import { CORE_API_PREFIX, coreContract } from '@erxes/core-contract';
-import { createORPCClient } from '@orpc/client';
+import { createORPCClient, onError, ORPCError } from '@orpc/client';
 import type { ContractRouterClient, InferContractRouterInputs } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { once } from 'node:events';
@@ -72,6 +72,15 @@ export const useTestServer = (log?: Logger) => {
     createORPCClient(
       new OpenAPILink(coreContract, {
         url: () => `${base}${CORE_API_PREFIX}`,
+        // A 4xx the procedure doesn't declare reaches clients untyped: fail the test.
+        interceptors: [
+          onError((error) => {
+            if (error instanceof ORPCError && error.status < 500 && !error.defined)
+              throw new Error(`${error.code} (${error.status}) is not in the procedure's errors`, {
+                cause: error,
+              });
+          }),
+        ],
         headers: async () => {
           if (caller === undefined) return {};
 

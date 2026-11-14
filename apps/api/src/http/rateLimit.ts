@@ -2,6 +2,7 @@ import { getPool, rateLimits } from '@erxes/core-db';
 import { getTableName } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { RateLimiterPostgres, RateLimiterRes } from 'rate-limiter-flexible';
+import { fail } from '~/http/errors';
 
 /**
  * A fixed-window limit per key, counted in `core_rate_limits`, so every
@@ -42,14 +43,7 @@ const rateLimit = (options: {
       const retryAfter = Math.ceil(rejection.msBeforeNext / 1000);
 
       res.set('Retry-After', String(retryAfter));
-      res.status(429).json({
-        defined: false,
-        code: 'TOO_MANY_REQUESTS',
-        status: 429,
-        message: `Too many attempts: try again in ${retryAfter} seconds`,
-      });
-
-      return;
+      throw fail('TOO_MANY_REQUESTS', `Too many attempts: try again in ${retryAfter} seconds`);
     }
 
     return next();

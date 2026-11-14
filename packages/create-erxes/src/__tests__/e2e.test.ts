@@ -3,11 +3,15 @@
 // CI's packages job runs it: CREATE_ERXES_PACKS names the `pnpm pack` tarballs, and the
 // plugin's tests and check:rls need DATA_TEST_URL.
 import { existsSync } from 'node:fs';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { x } from 'tinyexec';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import contractPackage from '../../../contract/package.json' with { type: 'json' };
+import lint from '../../../lint/package.json' with { type: 'json' };
+import sdk from '../../../plugin-sdk/package.json' with { type: 'json' };
+import ui from '../../../ui/package.json' with { type: 'json' };
 
 const packs = resolve(process.env.CREATE_ERXES_PACKS ?? '');
 const repo = resolve(import.meta.dirname, '../../../..');
@@ -36,25 +40,31 @@ const tarball = async (name: string) => {
   return join(packs, file);
 };
 
-/** Points the plugin's core packages at the tarballs; plugin-sdk's own core-contract too. */
+/**
+ * Points the plugin's core packages, which the CLI pins to the versions it was packed with, at
+ * the tarballs; plugin-sdk's own core-contract too.
+ */
 const usePacks = async (dir: string) => {
   const contract = `file:${await tarball('erxes-core-contract')}`;
+  const pinnedContract = `"@erxes/core-contract": "${contractPackage.version}"`;
 
   const replacements: [string, string, string][] = [
+    ['api/package.json', pinnedContract, `"@erxes/core-contract": "${contract}"`],
+    ['ui/package.json', pinnedContract, `"@erxes/core-contract": "${contract}"`],
     [
       'api/package.json',
-      '"@erxes/core-contract": "v2-next"',
-      `"@erxes/core-contract": "${contract}"`,
-    ],
-    [
-      'api/package.json',
-      '"@erxes/plugin-sdk": "v2-next"',
+      `"@erxes/plugin-sdk": "${sdk.version}"`,
       `"@erxes/plugin-sdk": "file:${await tarball('erxes-plugin-sdk')}"`,
     ],
     [
       'ui/package.json',
-      '"erxes-ui": "npm:@erxes/ui@v2-next"',
+      `"erxes-ui": "npm:@erxes/ui@${ui.version}"`,
       `"erxes-ui": "file:${await tarball('erxes-ui')}"`,
+    ],
+    [
+      'package.json',
+      `"@erxes/lint": "${lint.version}"`,
+      `"@erxes/lint": "file:${await tarball('erxes-lint')}"`,
     ],
     [
       'pnpm-workspace.yaml',
@@ -76,7 +86,10 @@ let root: string;
 let cli: string;
 
 beforeAll(async () => {
-  root = await mkdtemp(join(tmpdir(), 'create-erxes-e2e-'));
+  const scratch = join(homedir(), 'dev/scratchpad/erxes');
+
+  await mkdir(scratch, { recursive: true });
+  root = await mkdtemp(join(scratch, 'create-erxes-e2e-'));
   const prefix = join(root, 'cli');
 
   await run(
@@ -113,6 +126,10 @@ describe.each([
       root,
     );
     expect(existsSync(join(dir, '.claude/skills/endpoint/SKILL.md'))).toBe(true);
+
+    // Exercise both source enumerators: a fresh scaffold and a standalone git repository.
+    if (flow === 'a migrated plugin') await run('git', ['init'], dir);
+
     await usePacks(dir);
     await run('pnpm', ['install'], dir);
 
@@ -126,5 +143,58 @@ describe.each([
     }
 
     expect(existsSync(join(dir, 'ui/dist/remoteEntry.js'))).toBe(true);
+
+    const source = join(dir, 'ui/src/orpc.ts');
+    const original = await readFile(source, 'utf8');
+
+    for (const directive of [
+      ['oxlint', 'disable'],
+      ['eslint', 'disable'],
+      ['@ts', 'ignore'],
+      ['@ts', 'expect-error'],
+      ['@ts', 'nocheck'],
+      ['oxfmt', 'ignore'],
+    ]) {
+      await writeFile(
+        source,
+        `/* ${directive.join('-')} */\n${original}\nvoid fetch('http://localhost:9');\n`,
+      );
+      await expect(run('pnpm', ['exec', 'vp', 'run', 'check'], dir)).rejects.toThrow(
+        'check-escapes: fix the code',
+      );
+    }
+
+    await writeFile(source, `${original}\nvoid fetch('http://localhost:9');\n`);
+    await expect(run('pnpm', ['exec', 'vp', 'run', 'check'], dir)).rejects.toThrow(
+      'no-restricted-globals',
+    );
+    await writeFile(
+      source,
+      `import { cn } from 'erxes-ui/lib/utils';\n${original}\nvoid cn('block');\n`,
+    );
+    await run('pnpm', ['exec', 'vp', 'run', 'check'], dir);
+
+    await writeFile(source, `${original}\nexport const unusedProbe = 1;\n`);
+    await expect(run('pnpm', ['exec', 'vp', 'run', 'check'], dir)).rejects.toThrow(
+      'Unused exports',
+    );
+    await writeFile(source, original);
+
+    const agents = join(dir, 'AGENTS.md');
+    const docs = await readFile(agents, 'utf8');
+
+    await writeFile(agents, `${docs}\nSee \`api/src/missing.ts\`.\n`);
+    await expect(run('pnpm', ['exec', 'vp', 'run', 'check'], dir)).rejects.toThrow(
+      'no file or folder api/src/missing.ts',
+    );
+    await writeFile(agents, docs);
+
+    const schema = join(dir, 'api/src/db/schema.ts');
+    const tables = await readFile(schema, 'utf8');
+
+    await writeFile(schema, tables.replace("default('')", "default('drift')"));
+    await expect(run('pnpm', ['check:generated'], dir)).rejects.toThrow('Migration drift');
+    await writeFile(schema, tables);
+    await run('pnpm', ['exec', 'vp', 'run', 'check'], dir);
   });
 });

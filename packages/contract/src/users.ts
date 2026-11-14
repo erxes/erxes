@@ -1,6 +1,7 @@
 import { USER_STATUSES } from '@erxes/core-db/enums';
 import { users } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
@@ -32,39 +33,37 @@ export const User = createSelectSchema(users, {
   role: RoleKey,
   links: UserLinks,
   onboardedAt: isoDate,
+  totpEnabledAt: isoDate,
   createdAt: isoDate,
   updatedAt: isoDate,
-})
-  .pick({
-    id: true,
-    email: true,
-    username: true,
-    /** Display name: first, middle and last name, or what was given at invite. */
-    fullName: true,
-    avatarUrl: true,
-    role: true,
-    status: true,
-    firstName: true,
-    middleName: true,
-    lastName: true,
-    shortName: true,
-    employeeId: true,
-    phone: true,
-    /** `YYYY-MM-DD` */
-    birthDate: true,
-    /** `YYYY-MM-DD` */
-    workStartedDate: true,
-    description: true,
-    links: true,
-    /** Finished the welcome steps; null shows them at the next sign-in. */
-    onboardedAt: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    /** Signs in with a second step (an authenticator app's code). */
-    twoFactorEnabled: z.boolean(),
-  });
+}).pick({
+  id: true,
+  email: true,
+  username: true,
+  /** Display name: first, middle and last name, or what was given at invite. */
+  fullName: true,
+  avatarUrl: true,
+  role: true,
+  status: true,
+  firstName: true,
+  middleName: true,
+  lastName: true,
+  shortName: true,
+  employeeId: true,
+  phone: true,
+  /** `YYYY-MM-DD` */
+  birthDate: true,
+  /** `YYYY-MM-DD` */
+  workStartedDate: true,
+  description: true,
+  links: true,
+  /** Finished the welcome steps; null shows them at the next sign-in. */
+  onboardedAt: true,
+  /** Signs in with a second step (an authenticator app's code) since then; null when off. */
+  totpEnabledAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 export type User = z.infer<typeof User>;
 
@@ -141,8 +140,46 @@ const InviteEntry = z.object({
 /** Something to change: at least one field besides `id`. */
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 
+const {
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  INVALID_LINK,
+  INVALID_RECIPIENT,
+  LAST_OWNER,
+  LIMIT_EXCEEDED,
+  NOT_INVITED,
+  OWNER_ONLY,
+  OWNER_ONLY_PERMISSION,
+  OWN_ACCOUNT,
+  OWN_ROLE,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  INVALID_LINK,
+  INVALID_RECIPIENT,
+  LAST_OWNER,
+  LIMIT_EXCEEDED,
+  NOT_INVITED,
+  OWNER_ONLY,
+  OWNER_ONLY_PERMISSION,
+  OWN_ACCOUNT,
+  OWN_ROLE,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+});
+
 export const usersContract = {
-  list: oc
+  list: base
     .route({
       method: 'GET',
       path: '/users',
@@ -159,7 +196,7 @@ export const usersContract = {
       }),
     )
     .output(cursorPageOf(User)),
-  resendInvitation: oc
+  resendInvitation: base
     .route({
       method: 'POST',
       path: '/users/{id}/invitation',
@@ -167,11 +204,11 @@ export const usersContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  get: oc
+  get: base
     .route({ method: 'GET', path: '/users/{id}' })
     .input(z.object({ id: Id }))
     .output(User),
-  invite: oc
+  invite: base
     .route({
       method: 'POST',
       path: '/users',
@@ -180,7 +217,7 @@ export const usersContract = {
     })
     .input(InviteEntry)
     .output(User),
-  inviteMany: oc
+  inviteMany: base
     .route({
       method: 'POST',
       path: '/users/invitations',
@@ -189,7 +226,7 @@ export const usersContract = {
     })
     .input(z.object({ entries: z.array(InviteEntry).min(1).max(50) }))
     .output(z.object({ data: z.array(User).max(50) })),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/users/{id}',
@@ -198,7 +235,7 @@ export const usersContract = {
     })
     .input(UserFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(User),
-  setPassword: oc
+  setPassword: base
     .route({
       method: 'POST',
       path: '/users/{id}/password',
@@ -207,11 +244,11 @@ export const usersContract = {
     })
     .input(z.object({ id: Id, password: NewPassword }))
     .output(User),
-  disable: oc
+  disable: base
     .route({ method: 'POST', path: '/users/{id}/disable' })
     .input(z.object({ id: Id }))
     .output(User),
-  enable: oc
+  enable: base
     .route({ method: 'POST', path: '/users/{id}/enable' })
     .input(z.object({ id: Id }))
     .output(User),

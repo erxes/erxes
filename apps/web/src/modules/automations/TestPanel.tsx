@@ -1,42 +1,14 @@
 import type { coreContract } from '@erxes/core-contract';
 import type { InferContractRouterOutputs } from '@orpc/contract';
 import { IconFlask } from '@tabler/icons-react';
-import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
-import { Badge, Button, Input, Label, Select, Sheet, Spinner, Switch } from 'erxes-ui';
+import { useMutation } from '@tanstack/react-query';
+import { Badge, Button, Label, Sheet, Spinner, Switch } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
-import { LookupError } from './builder/lookupOptions';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { ContactSelect } from '~/modules/contacts/components/ContactPicker';
 
 type TestResult = InferContractRouterOutputs<typeof coreContract>['automations']['test'];
-
-/** Up to 20 records of the type matching `search`, as picker options. */
-const useTestRecords = (type: 'customer' | 'company', search: string, enabled: boolean) => {
-  const input = { limit: 20, search: search || undefined };
-
-  const customers = useQuery(
-    orpc.customers.list.queryOptions({
-      input: enabled && type === 'customer' ? input : skipToken,
-      select: ({ data }) =>
-        data.map((row) => ({
-          id: row.id,
-          label:
-            [row.firstName, row.lastName].filter(Boolean).join(' ') || row.primaryEmail || row.id,
-        })),
-    }),
-  );
-
-  const companies = useQuery(
-    orpc.companies.list.queryOptions({
-      input: enabled && type === 'company' ? input : skipToken,
-      select: ({ data }) => data.map((row) => ({ id: row.id, label: row.primaryName ?? row.id })),
-    }),
-  );
-
-  const query = type === 'customer' ? customers : companies;
-
-  return { records: query.data ?? [], error: query.error };
-};
 
 const TestTrace = ({ result }: { result: TestResult }) => {
   const { t } = useTranslation('automations');
@@ -83,37 +55,23 @@ const TestForm = ({
 }) => {
   const { t } = useTranslation('automations');
   const id = useId();
-  const [search, setSearch] = useState('');
-  const [recordId, setRecordId] = useState('');
+  const [recordId, setRecordId] = useState<string>();
   const [assume, setAssume] = useState(false);
-  const { records, error } = useTestRecords(type, search, true);
   const run = useMutation(orpc.automations.test.mutationOptions());
 
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor={`${id}-search`}>
+        <Label htmlFor={`${id}-record`}>
           {type === 'customer' ? t('test-customer', 'Customer') : t('test-company', 'Company')}
         </Label>
-        <Input
-          id={`${id}-search`}
-          placeholder={t('search', 'Search…')}
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
+        <ContactSelect
+          kind={type}
+          id={`${id}-record`}
+          value={recordId}
+          onValueChange={setRecordId}
+          noneLabel={t('pick-record', 'Pick one')}
         />
-        <Select value={recordId} onValueChange={setRecordId}>
-          <Select.Trigger aria-label={t('pick-record', 'Pick one')}>
-            <Select.Value placeholder={t('pick-record', 'Pick one')} />
-          </Select.Trigger>
-          <Select.Content>
-            {records.map((record) => (
-              <Select.Item key={record.id} value={record.id}>
-                {record.label}
-              </Select.Item>
-            ))}
-            <LookupError error={error} />
-          </Select.Content>
-        </Select>
         <div className="flex items-center gap-2 text-sm">
           <Switch id={`${id}-assume`} checked={assume} onCheckedChange={setAssume} />
           <Label htmlFor={`${id}-assume`} variant="option">

@@ -1,5 +1,6 @@
 // The `no-restricted-imports`, `-properties` and `-globals` entries each part of the repo
 // gets, and where it gets them.
+import { browserOneWay } from '@erxes/lint';
 import type { OxlintConfig } from 'vite-plus/lint';
 
 // Procedures are built from the contract in one place, so every route goes
@@ -51,6 +52,16 @@ const decided = [
   })),
 ];
 
+// The browser reads and writes the URL query one way, with nuqs parsers.
+const browserOnce = ['react-router', 'react-router-dom'].map((name) => ({
+  name,
+  importNames: ['useSearchParams'],
+  message: "URL query state goes through nuqs: useQueryState / useQueryStates from 'nuqs'.",
+}));
+
+// Dates and numbers format, and the browser stores, only through erxes-ui (@erxes/lint).
+const { format: oneFormat, storage: oneStorage } = browserOneWay;
+
 // A stored hash, signature or token keeps its format only if one file makes it.
 const nodeCrypto = ['node:crypto', 'crypto'].map((name) => ({
   name,
@@ -80,9 +91,19 @@ const serverOnly = {
 
 // The contract builds its schemas from the tables (`@erxes/core-db/schema`) and
 // its published build copies them into dist, so table definitions import drizzle's
-// column builders, `../table`, `../enums` and nothing that needs Node or a database.
+// column builders, `../table`, `../enums`, `../automationDefinition` (zod over the enums)
+// and nothing that needs Node or a database.
 const noDriver = {
-  group: ['pg', 'pg/*', 'node:*', 'drizzle-orm/node-postgres', '../*', '!../table', '!../enums'],
+  group: [
+    'pg',
+    'pg/*',
+    'node:*',
+    'drizzle-orm/node-postgres',
+    '../*',
+    '!../table',
+    '!../enums',
+    '!../automationDefinition',
+  ],
   message: 'Table definitions ship inside the published contract: no Node, driver or client.',
 };
 
@@ -132,8 +153,32 @@ export const restrictedOverrides = [
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: [routerBuilder, ...decided], patterns: [noApps, serverOnly] },
+        {
+          paths: [routerBuilder, ...decided, ...browserOnce, ...oneStorage.imports],
+          patterns: [noApps, serverOnly],
+        },
       ],
+      'no-restricted-properties': ['error', ...oneFormat, ...oneStorage.properties],
+      'no-restricted-globals': ['error', ...oneStorage.globals],
+    },
+  },
+  {
+    // The one module that formats with Intl and date-fns.
+    files: ['packages/ui/src/lib/format.ts'],
+    rules: { 'no-restricted-properties': ['error', ...oneStorage.properties] },
+  },
+  {
+    // The one module that touches browser storage.
+    files: ['packages/ui/src/lib/stored.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [routerBuilder, ...decided, ...browserOnce],
+          patterns: [noApps, serverOnly],
+        },
+      ],
+      'no-restricted-properties': ['error', ...oneFormat],
     },
   },
   {

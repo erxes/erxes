@@ -3,13 +3,14 @@ import type { CUSTOMER_STATES, LEAD_EVENTS } from '@erxes/core-db/enums';
 import {
   actorOf,
   caller,
+  callerUserId,
   type companies,
   type customers,
   type Db,
   leadEvents,
   newId,
 } from '@erxes/core-db';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { currentImport } from '~/lib/causation';
 import { recordActivity } from '~/modules/activities/activities.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -65,7 +66,7 @@ export const planLeadOnCreate = async (client: Db, input: LeadInput): Promise<Le
   };
 
   if ((input.state ?? 'customer') !== 'lead') {
-    if (input.leadStageId) throw new HttpError(400, 'NOT_A_LEAD', 'Only leads have a lead stage');
+    if (input.leadStageId) throw fail('NOT_A_LEAD', 'Only leads have a lead stage');
 
     return { set: origin, steps: [] };
   }
@@ -106,11 +107,9 @@ const convert = ({ stages, current, currentStage, wanted, now }: Change): LeadPl
 
   if (to?.kind !== 'qualified') to = firstOf(stages, 'qualified') ?? to;
 
-  const who = caller();
-
   const set: LeadPlan['set'] = {
     convertedAt: now,
-    convertedBy: who.type === 'user' ? who.userId : null,
+    convertedBy: callerUserId(),
     leadStageId: to?.id ?? null,
     disqualifyReason: null,
     ...(to?.id === current.leadStageId ? {} : { leadStageChangedAt: now }),
@@ -147,8 +146,7 @@ const lifecyclePlan = (
   if (current.state === 'customer' && nextState === 'lead') return reopen(change);
 
   if (wanted) {
-    if (current.state !== 'lead')
-      throw new HttpError(400, 'NOT_A_LEAD', 'Only leads move between lead stages');
+    if (current.state !== 'lead') throw fail('NOT_A_LEAD', 'Only leads move between lead stages');
 
     return {
       set: {
@@ -280,7 +278,8 @@ export const recordLeadSteps = async (
     tx,
     changes.map(({ id, data }) => ({
       type: data.event === 'converted' ? 'core.lead.converted' : 'core.lead.stage_changed',
-      subject: { type: recordType, id },
+      subjectType: recordType,
+      subjectId: id,
       payload: data,
     })),
   );

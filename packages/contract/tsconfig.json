@@ -1,4 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
+  // DOM for src/client.ts, the browser's client.
+  "compilerOptions": { "lib": ["ES2023", "DOM"] },
   "include": ["src", "../db/src/schema", "../db/src/table.ts", "../db/src/enums.ts"]
 }

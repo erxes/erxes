@@ -1,5 +1,5 @@
 import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
-import { caller, customers, type Db, newId, requestOrgId } from '@erxes/core-db';
+import { callerUserId, customers, type Db, newId, requestOrgId } from '@erxes/core-db';
 import { arrayContains, eq, or, sql } from 'drizzle-orm';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { lockKeys } from '~/lib/locks';
@@ -70,8 +70,6 @@ export const findOrCreateCustomer = async (client: Db, input: Contact) => {
     sourceDetails: input.sourceDetails,
   });
 
-  const who = caller();
-
   const row = oneRow(
     await client
       .insert(customers)
@@ -85,7 +83,7 @@ export const findOrCreateCustomer = async (client: Db, input: Contact) => {
         emails: email ? [email] : [],
         primaryPhone: phone,
         phones: phone ? [phone] : [],
-        createdBy: who.type === 'user' ? who.userId : null,
+        createdBy: callerUserId(),
       })
       .returning({ id: customers.id }),
   );

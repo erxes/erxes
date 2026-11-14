@@ -1,20 +1,23 @@
 ---
 name: plugin-contract
-description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in apps/web/rsbuild.config.ts, exports of packages/ui, or when releasing those packages.
+description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in packages/ui/src/federation.ts, exports of packages/ui, or when releasing those packages.
 ---
 
 Plugins live in their own repos and upgrade on their own schedule, so every change here is either
 additive or a versioned breaking change. The HR plugin is the first consumer.
 
 1. Say which surface changes:
-   - the HTTP contract (`packages/contract/src/*.ts` and `openapi.json`);
+   - the HTTP contract (`packages/contract/src/*.ts` and the OpenAPI document). Plugin UIs call it
+     through `@erxes/core-contract/client`, which bundles `routes.json` into each plugin build, so
+     a plugin built before a path moved keeps calling the old one;
    - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`);
-   - Module Federation: `SHARED` in `apps/web/rsbuild.config.ts` lists the singletons the host
+   - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`), and its first module renders under `/<path>/*`.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
-     shared with `import: false` fails to load.
+     shared with `import: false` fails to load. Plugin UIs keep URL state with the shared `nuqs`
+     under web's `NuqsAdapter`, so they add no adapter of their own.
 2. Classify it. The packages are prereleases on npm's `v2-next` dist-tag (`0.1.0-v2.N` for the
    contract and SDK, `4.0.0-v2.N` for `@erxes/ui`); this policy holds from each one's first
    stable release.
@@ -23,7 +26,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      an input required or stricter, changing a field's type or meaning, reusing an error code.
      The old shape stays next to the new one, marked deprecated in the summary, for at least one
      minor release. An HTTP breaking change goes under `/core/v2`.
-3. For the contract, run `pnpm openapi` and read the `openapi.json` diff: every removed path,
+3. For the contract, diff the OpenAPI document from before and after the change
+   (`packages/contract/AGENTS.md` says how to write both): every removed path,
    removed field or newly required field is a breaking change.
 4. For federation, keep shared names and exported symbols: a removed `erxes-ui` export breaks
    plugin UIs at runtime, not at build time. Search the plugin repos (the HR plugin first) for a

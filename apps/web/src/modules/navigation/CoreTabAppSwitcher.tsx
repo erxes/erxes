@@ -1,6 +1,7 @@
 import { IconGridDots } from '@tabler/icons-react';
 import { Button, Popover } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { NavApp } from './apps';
 import { CoreTabTooltip } from './CoreTabTooltip';
 
@@ -53,6 +54,7 @@ export const CoreTabAppSwitcher = ({
   activeId?: string;
   onSelect: (app: NavApp) => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const [open, setOpen] = useState(false);
 
   const select = (app: NavApp) => {
@@ -62,14 +64,14 @@ export const CoreTabAppSwitcher = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <CoreTabTooltip label="Open app">
+      <CoreTabTooltip label={t('open-app', 'Open app')}>
         <Popover.Trigger
           render={
             <Button
               type="button"
               size="icon"
               variant="nav"
-              aria-label="Open app"
+              aria-label={t('open-app', 'Open app')}
               className="relative shrink-0"
             />
           }
@@ -85,13 +87,13 @@ export const CoreTabAppSwitcher = ({
         className="w-80"
       >
         <AppGroup
-          label="Plugins"
+          label={t('plugins', 'Plugins')}
           apps={apps.filter((app) => app.kind === 'plugin')}
           activeId={activeId}
           onSelect={select}
         />
         <AppGroup
-          label="Core modules"
+          label={t('core-modules', 'Core modules')}
           apps={apps.filter((app) => app.kind === 'core')}
           activeId={activeId}
           onSelect={select}

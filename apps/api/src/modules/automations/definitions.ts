@@ -13,7 +13,7 @@ import {
   plugins,
 } from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions/catalog';
 import { render } from './templates';
@@ -178,7 +178,7 @@ const KIND_OF_FIELD = {
 
 const COMMON_FIELDS: AutomationFieldPath[] = [
   { path: 'event.type', label: 'Event type', type: 'text' },
-  { path: 'event.actor.type', label: 'Who did it (user, plugin, system)', type: 'text' },
+  { path: 'event.actorType', label: 'Who did it (user, plugin, system)', type: 'text' },
   { path: 'event.payload', label: 'Event details', type: 'text' },
 ];
 
@@ -262,5 +262,5 @@ export const checkDefinition = async (client: Db, definition: AutomationDefiniti
   const problems = await definitionProblems(client, definition);
   const [first] = problems;
 
-  if (first) throw new HttpError(400, 'INVALID_AUTOMATION', first, { problems });
+  if (first) throw fail('INVALID_AUTOMATION', first, { problems });
 };

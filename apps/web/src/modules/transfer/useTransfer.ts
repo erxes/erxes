@@ -1,6 +1,6 @@
 import type { Import, TransferRecordType } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 /** Still working in the background: poll until it settles. */
 const BUSY: Import['status'][] = ['parsing', 'checking', 'running'];
@@ -39,9 +39,3 @@ export const useExports = () =>
   );
 
 export const downloadHref = (fileId: string) => `/core/v1/files/${fileId}/download`;
-
-export const RECORD_PATHS: Record<TransferRecordType, string> = {
-  customer: '/contacts/customers',
-  lead: '/contacts/leads',
-  company: '/contacts/companies',
-};

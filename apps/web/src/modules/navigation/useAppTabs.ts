@@ -1,18 +1,23 @@
 import { useAtom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
+import { stored } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { isMovedSettingsPath } from '~/modules/contacts/settings/paths';
+import { z } from 'zod';
+import { paths } from '~/lib/paths';
 import { appOfPath, type NavApp, SETTINGS_APP } from './apps';
 
 /** App ids open as tabs, in order. */
-const openTabsState = atomWithStorage<string[]>('core-tab:open', [], undefined, {
-  getOnInit: true,
+const openTabsState = stored({
+  key: 'erxes:tabs:open',
+  schema: z.array(z.string()),
+  initial: [],
 });
 
 /** Where each app was last, so switching back returns there. */
-const lastLocationState = atomWithStorage<Record<string, string>>('core-tab:last', {}, undefined, {
-  getOnInit: true,
+const lastLocationState = stored({
+  key: 'erxes:tabs:last',
+  schema: z.record(z.string(), z.string()),
+  initial: {},
 });
 
 /**
@@ -27,10 +32,7 @@ export const useAppTabs = (apps: NavApp[]) => {
   const routeApp = appOfPath([...apps, SETTINGS_APP], pathname);
 
   useEffect(() => {
-    // An address that only redirects elsewhere (Settings › Tags moved to Contacts) isn't remembered.
-    if (!routeApp || isMovedSettingsPath(pathname)) {
-      return;
-    }
+    if (!routeApp) return;
 
     setLastLocation((previous) =>
       previous[routeApp.id] === pathname + search
@@ -45,18 +47,11 @@ export const useAppTabs = (apps: NavApp[]) => {
     }
   }, [routeApp, pathname, search, setLastLocation, setOpenIds]);
 
-  const remembered = (app: NavApp) => {
-    const path = lastLocation[app.id];
-
-    // Remembered before it moved: start the app afresh instead of following the redirect.
-    return path && !isMovedSettingsPath(path) ? path : undefined;
-  };
-
   const go = (path: string) => {
     void navigate(path);
   };
 
-  const open = (app: NavApp) => go(remembered(app) ?? `/${app.path}`);
+  const open = (app: NavApp) => go(lastLocation[app.id] ?? paths.app(app.path));
 
   const close = (id: string) => {
     const index = openIds.indexOf(id);
@@ -70,7 +65,7 @@ export const useAppTabs = (apps: NavApp[]) => {
       if (neighbour) {
         open(neighbour);
       } else {
-        go('/');
+        go(paths.home);
       }
     }
   };
@@ -85,7 +80,7 @@ export const useAppTabs = (apps: NavApp[]) => {
       const next = apps.find((app) => app.id === rest[0]);
 
       if (next) open(next);
-      else go('/');
+      else go(paths.home);
     }
   };
 

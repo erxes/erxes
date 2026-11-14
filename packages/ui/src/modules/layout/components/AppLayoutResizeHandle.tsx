@@ -1,49 +1,25 @@
 import { type PointerEvent as ReactPointerEvent, type RefObject, useRef } from 'react';
-import { atomWithStorage } from 'jotai/utils';
+import { z } from 'zod';
+import { storedFamily } from 'erxes-ui/lib/stored';
 
 export const APP_LAYOUT_DEFAULT_WIDTH = 240;
 const APP_LAYOUT_MIN_WIDTH = 180;
 const APP_LAYOUT_MAX_WIDTH = 480;
 const APP_LAYOUT_KEYBOARD_STEP = 16;
 
-/** Persists the sidebar visibility separately for each application layout. */
-const createOpenAtom = (id: string) =>
-  atomWithStorage<boolean>(`app-layout:${id}:open`, true, undefined, {
-    getOnInit: true,
-  });
+/** Whether each app layout's sidebar is open, per layout id. */
+export const appLayoutOpenState = storedFamily({
+  key: 'erxes:layout:open',
+  schema: z.boolean(),
+  initial: true,
+});
 
-/** Persists a custom sidebar width, with null selecting the default width. */
-const createWidthAtom = (id: string) =>
-  atomWithStorage<number | null>(`app-layout:${id}:width`, null, undefined, {
-    getOnInit: true,
-  });
-
-// Derived from the factories so the type matches under every tsconfig
-// (the declaration build is non-strict, which widens atomWithStorage).
-export type TAppLayoutAtoms = {
-  open: ReturnType<typeof createOpenAtom>;
-  width: ReturnType<typeof createWidthAtom>;
-};
-
-const appLayoutAtoms = new Map<string, TAppLayoutAtoms>();
-
-/** Reuses the same persisted atoms for every instance of an application layout. */
-export const getAppLayoutAtoms = (id: string) => {
-  const existing = appLayoutAtoms.get(id);
-
-  if (existing) {
-    return existing;
-  }
-
-  const atoms: TAppLayoutAtoms = {
-    open: createOpenAtom(id),
-    width: createWidthAtom(id),
-  };
-
-  appLayoutAtoms.set(id, atoms);
-
-  return atoms;
-};
+/** Each app layout's dragged sidebar width; null is the default width. */
+export const appLayoutWidthState = storedFamily({
+  key: 'erxes:layout:width',
+  schema: z.number().min(APP_LAYOUT_MIN_WIDTH).max(APP_LAYOUT_MAX_WIDTH).nullable(),
+  initial: null,
+});
 
 /** Keeps a resized pane within its configured width limits. */
 const clampWidth = (value: number) =>

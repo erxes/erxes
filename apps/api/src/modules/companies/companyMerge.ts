@@ -1,6 +1,6 @@
 import { companies, customerCompanies, db, type Db } from '@erxes/core-db';
 import { asc, inArray, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
@@ -63,7 +63,9 @@ export const mergeCompanies = async (input: { ids: string[]; keepId: string }) =
   const ids = unique(input.ids);
 
   if (ids.length < 2) {
-    throw new HttpError(400, 'INVALID_INPUT', 'Choose at least two companies to merge');
+    throw fail('INVALID_INPUT', 'Choose at least two companies to merge', {
+      issues: [{ path: ['ids'], message: 'Choose at least two companies to merge' }],
+    });
   }
 
   const tx = db();

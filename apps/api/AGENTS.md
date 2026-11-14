@@ -43,12 +43,21 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   `publishCoreEvents(tx, ...)`. Both record the scope's caller.
 - Services return rows, Dates and all. oRPC runs every answer through the output schema, which
   drops unpicked columns and encodes dates with `isoDate`, so there is no hand mapper and no
-  `.toISOString()` for a response. A service adds only what the row lacks
-  (`{ ...row, actor: { type: row.actorType, id: row.actorId } }`). A body sent outside oRPC
-  (webhooks, plugin deliveries, event payloads, automation context) goes through the contract
-  schema's `.parse(...)`, as `eventJson` and the product event payload do.
-- Errors are `HttpError(status, code, message, data?)`, an `ORPCError`. Clients branch on `code`, so
-  a new failure gets a new code and old codes keep their meaning.
+  `.toISOString()` for a response. A value the row lacks comes from the query:
+  `select({ ...getTableColumns(table), actorName: ... })`, with a joined row nested as an object
+  (`note: { body: notes.body, ... }`), so no `to…Dto` mapper reshapes rows (`erxes/no-dto-mapper`).
+  `.set()` and `.values()` skip undefined keys, so pass the input on (`erxes/no-undefined-spread`).
+  A body sent outside oRPC (webhooks, plugin deliveries, event payloads, automation context) goes
+  through the contract schema's `.parse(...)`.
+- Errors are `fail(code, message, data?)` from `~/http/errors`, the only place an `ORPCError` is
+  made. Each code has its status and `data` schema in `ERRORS` (`packages/contract/src/errors.ts`),
+  and each contract module lists the codes its procedures answer with in `oc.errors({...})`, so
+  clients get them typed through `isDefinedError`. The tests fail a 4xx a procedure doesn't declare.
+  Unique and foreign key violations need no catch: `fromDatabase` maps them by constraint name to
+  `TAKEN` and `INVALID_REFERENCE` (add the constraint to `CONSTRAINTS`). Express routes outside
+  oRPC (`*.http.ts`, rate limits) throw `fail()` too, and `answerError` sends the same body, so no
+  handler writes an error JSON by hand. Clients branch on `code`, so a new failure gets a new code
+  and old codes keep their meaning.
 - Lists of records that grow with use page with `keysetPage` (`cursorPageOf`; newest first, the
   cursor is a record id); small config lists use `wholeList` (`listOf`), which throws past
   `LIST_MAX` rather than cut the list. A growing list the UI reads in one go (a company's people)
@@ -63,7 +72,7 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   `src/lib/secrets.ts` seals with keys derived from core's secret.
 - Log through pino, `log.info({ fileId }, 'file removed')`, errors under `err`: `context.log` in
   procedures, `req.log` in Express routes, `logger.child({ component })` in background work, and
-  `traced('name', run)` around a job. Thrown 4xx `HttpError`s are answers, logged at info. A new
+  `traced('name', run)` around a job. Thrown 4xx `fail()` errors are answers, logged at info. A new
   secret field name goes in `redact` in `src/logger.ts`.
 
 ## Tests

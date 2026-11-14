@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
@@ -7,7 +8,7 @@ import { type ControllerRenderProps, useForm, useFormContext } from 'react-hook-
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
-import { isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignedIn } from '~/modules/auth/session';
 import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
 import { TwoFactorStep } from './TwoFactorStep';
@@ -166,7 +167,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
           {t('sign-in')}
         </Button>
         <Link
-          to="/forgot-password"
+          to={paths.forgotPassword}
           className="text-center text-sm text-muted-foreground hover:underline"
         >
           {t('forgot-password', 'Forgot your password?')}

@@ -1,8 +1,8 @@
 import { type Icon, IconMail, IconPhone, IconUser } from '@tabler/icons-react';
-import { ScrollArea, TextField } from 'erxes-ui';
+import { memberQueries } from '@erxes/core-contract/client';
+import { ScrollArea, SelectMember, TextField } from 'erxes-ui';
 import { type ReactNode, useId } from 'react';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
-import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { PanelField, PanelFieldTrigger } from '../PanelField';
 import { ContactDetailSection } from './ContactDetailSection';
 
@@ -67,9 +67,9 @@ export const ContactOwnerField = ({
         scope={scope}
         value={ownerId}
         placeholder={ownerId ? label : ''}
-        aria-label={ownerId ? undefined : label}
-        className="rounded-sm"
-        onValueChange={(next) => onChange(typeof next === 'string' ? next : null)}
+        variant="field"
+        members={memberQueries}
+        onValueChange={onChange}
       />
     </PanelField>
   );

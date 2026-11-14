@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconCircleCheck, IconCircleX, IconKey, IconLock } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
@@ -18,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { isApiError, messageOf, orpc } from '~/lib/api';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignOutEverywhere } from '~/modules/auth/session';
 import { Section } from './Section';
 import { TwoFactorSection } from './TwoFactorSection';
@@ -254,7 +255,7 @@ export const SecuritySettingsPage = () => {
             items={[
               {
                 label: t('security-title', 'Password & security'),
-                to: '/settings/security',
+                to: paths.settings.security,
                 icon: IconLock,
               },
             ]}

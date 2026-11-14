@@ -8,7 +8,7 @@ import { type CoreClient, useTwoOrgs } from './support';
 /** A one-rule filter. */
 export const rule = (path: string, op: ConditionRule['op'], value?: unknown): ConditionGroup => ({
   match: 'all',
-  rules: [{ path, op, ...(value === undefined ? {} : { value }) }],
+  rules: [{ path, op, value }],
 });
 
 /** `MM-DD` some days from now, for birthdays and renewals. */

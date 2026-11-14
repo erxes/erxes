@@ -17,7 +17,8 @@ describe('notifications', () => {
       kind: 'hr.leave.requested',
       title: 'Leave request from Bat',
       link: '/hr/leaves/abc',
-      entity: { type: 'leave', id: 'abc' },
+      entityType: 'leave',
+      entityId: 'abc',
       dedupeKey: 'leave-abc',
     };
 
@@ -62,8 +63,9 @@ describe('notifications', () => {
     expect(inbox.data.map((item) => item.kind)).toEqual(['hr.review.due', 'hr.leave.requested']);
     expect(inbox.data[1]).toMatchObject({
       source: 'hr',
-      read: false,
-      entity: { type: 'leave', id: 'abc' },
+      readAt: null,
+      entityType: 'leave',
+      entityId: 'abc',
     });
 
     const ids = inbox.data.slice(0, 1).map((item) => item.id);
@@ -95,7 +97,8 @@ describe('notifications', () => {
       kind: 'core.customer.assigned',
       body: 'Owned',
       link: `/contacts/customers/${created.id}`,
-      actor: { type: 'user', id: t.ids.owner },
+      actorType: 'user',
+      actorId: t.ids.owner,
     });
 
     // Making yourself owner doesn't notify you.

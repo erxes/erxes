@@ -6,6 +6,7 @@ import {
   paymentRefunds,
 } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { InvoiceStatus, PaymentGatewayKind } from './values';
@@ -107,6 +108,9 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     /** ISO 4217. */
     currency: true,
     description: true,
+    /** The caller's record it is for (`order` and its id). */
+    referenceType: true,
+    referenceId: true,
     status: true,
     metadata: true,
     lines: true,
@@ -120,8 +124,8 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     createdAt: true,
   })
   .extend({
+    /** The gateway's kind, joined in the query. */
     gatewayKind: PaymentGatewayKind,
-    reference: z.object({ type: z.string(), id: z.string() }),
     /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
     refundable: z.object({ amount: z.int(), gateway: z.enum(GATEWAY_REFUND_KINDS) }),
   });
@@ -133,19 +137,20 @@ export const Refund = createSelectSchema(paymentRefunds, {
   invoiceId: Id,
   amount: int,
   createdAt: isoDate,
-})
-  .pick({
-    id: true,
-    invoiceId: true,
-    amount: true,
-    reason: true,
-    /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
-    method: true,
-    status: true,
-    error: true,
-    createdAt: true,
-  })
-  .extend({ requestedBy: z.object({ type: z.string(), id: z.string().nullable() }) });
+}).pick({
+  id: true,
+  invoiceId: true,
+  amount: true,
+  reason: true,
+  /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
+  method: true,
+  status: true,
+  error: true,
+  /** Who asked: a team member (`requestedBy` = user id), a plugin (its name) or `system`. */
+  requestedByType: true,
+  requestedBy: true,
+  createdAt: true,
+});
 
 export type Refund = z.infer<typeof Refund>;
 
@@ -164,9 +169,53 @@ export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
  * made through them for plugins' records. Paid invoices publish
  * `core.payment.paid` (webhooks, automations, the plugin's own consumer).
  */
+const {
+  CURRENCY_NOT_SUPPORTED,
+  DEFAULT_NOT_ALLOWED,
+  GATEWAY_IN_USE,
+  GATEWAY_NOT_ALLOWED,
+  GATEWAY_REFUSED,
+  INVALID_PRODUCT,
+  INVALID_SUBDOMAIN,
+  KIND_CHANGED,
+  LIMIT_EXCEEDED,
+  LINES_MISMATCH,
+  NOTHING_TO_RETRY,
+  NOT_PENDING,
+  NOT_REFUNDABLE,
+  NOT_TEST,
+  NO_GATEWAY,
+  PARTIAL_NOT_SUPPORTED,
+  SUBJECT_REQUIRED,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  CURRENCY_NOT_SUPPORTED,
+  DEFAULT_NOT_ALLOWED,
+  GATEWAY_IN_USE,
+  GATEWAY_NOT_ALLOWED,
+  GATEWAY_REFUSED,
+  INVALID_PRODUCT,
+  INVALID_SUBDOMAIN,
+  KIND_CHANGED,
+  LIMIT_EXCEEDED,
+  LINES_MISMATCH,
+  NOTHING_TO_RETRY,
+  NOT_PENDING,
+  NOT_REFUNDABLE,
+  NOT_TEST,
+  NO_GATEWAY,
+  PARTIAL_NOT_SUPPORTED,
+  SUBJECT_REQUIRED,
+});
+
 export const paymentsContract = {
-  gateways: oc.route({ method: 'GET', path: '/payments/gateways' }).output(listOf(PaymentGateway)),
-  addGateway: oc
+  gateways: base
+    .route({ method: 'GET', path: '/payments/gateways' })
+    .output(listOf(PaymentGateway)),
+  addGateway: base
     .route({
       method: 'POST',
       path: '/payments/gateways',
@@ -175,7 +224,7 @@ export const paymentsContract = {
     })
     .input(z.object({ name: z.string().trim().min(1).max(80), config: GatewayConfig }))
     .output(PaymentGateway),
-  updateGateway: oc
+  updateGateway: base
     .route({ method: 'PATCH', path: '/payments/gateways/{id}' })
     .input(
       z.object({
@@ -186,7 +235,7 @@ export const paymentsContract = {
       }),
     )
     .output(PaymentGateway),
-  removeGateway: oc
+  removeGateway: base
     .route({
       method: 'DELETE',
       path: '/payments/gateways/{id}',
@@ -194,7 +243,7 @@ export const paymentsContract = {
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  createInvoice: oc
+  createInvoice: base
     .route({
       method: 'POST',
       path: '/payments/invoices',
@@ -208,10 +257,9 @@ export const paymentsContract = {
         amount: z.int().min(1).max(1_000_000_000_00),
         currency: Currency.optional(),
         description: z.string().trim().min(1).max(255),
-        reference: z.object({
-          type: z.string().trim().min(1).max(60),
-          id: z.string().trim().min(1).max(100),
-        }),
+        /** The caller's record it is for: `order` and its id. */
+        referenceType: z.string().trim().min(1).max(60),
+        referenceId: z.string().trim().min(1).max(100),
         /** Minutes the invoice can be paid in (default 30). */
         expiresInMinutes: z
           .int()
@@ -224,7 +272,7 @@ export const paymentsContract = {
       }),
     )
     .output(Invoice),
-  getInvoice: oc
+  getInvoice: base
     .route({
       method: 'GET',
       path: '/payments/invoices/{id}',
@@ -232,11 +280,11 @@ export const paymentsContract = {
     })
     .input(z.object({ id: Id }))
     .output(Invoice),
-  cancelInvoice: oc
+  cancelInvoice: base
     .route({ method: 'POST', path: '/payments/invoices/{id}/cancel' })
     .input(z.object({ id: Id }))
     .output(Invoice),
-  refund: oc
+  refund: base
     .route({
       method: 'POST',
       path: '/payments/invoices/{id}/refunds',
@@ -254,18 +302,18 @@ export const paymentsContract = {
       }),
     )
     .output(z.object({ refund: Refund, invoice: Invoice })),
-  refunds: oc
+  refunds: base
     .route({ method: 'GET', path: '/payments/invoices/{id}/refunds' })
     .input(z.object({ id: Id }))
     .output(listOf(Refund)),
-  pluginSettings: oc
+  pluginSettings: base
     .route({
       method: 'GET',
       path: '/payments/plugins',
       summary: 'Installed plugins that take payments, with their gateway settings',
     })
     .output(listOf(PluginPaymentSettings)),
-  updatePluginSettings: oc
+  updatePluginSettings: base
     .route({ method: 'PUT', path: '/payments/plugins/{plugin}' })
     .input(
       z.object({
@@ -275,7 +323,7 @@ export const paymentsContract = {
       }),
     )
     .output(PluginPaymentSettings),
-  invoices: oc
+  invoices: base
     .route({ method: 'GET', path: '/payments/invoices', summary: 'Invoices, newest first' })
     .input(
       CursorQuery.extend({
@@ -285,7 +333,7 @@ export const paymentsContract = {
       }),
     )
     .output(cursorPageOf(Invoice)),
-  payTestInvoice: oc
+  payTestInvoice: base
     .route({
       method: 'POST',
       path: '/payments/invoices/{id}/test-pay',

@@ -42,7 +42,14 @@ const RuleRow = ({
         value={rule.path}
         fields={fields}
         disabled={disabled}
-        onChange={(path) => onChange({ ...rule, path })}
+        // A value means something only for its field's type: an owner's member id is no tag.
+        onChange={(path) =>
+          onChange(
+            fields.find((one) => one.path === path)?.type === field?.type
+              ? { ...rule, path }
+              : { ...rule, path, value: undefined },
+          )
+        }
       />
       <Select
         value={rule.op}

@@ -2,10 +2,12 @@ import type { ViewRecordType } from '@erxes/core-contract';
 import { IconLayoutList, IconUsers } from '@tabler/icons-react';
 import { cn, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { messageOf } from '~/lib/api';
+import { useQueryState } from 'nuqs';
+import { Link, useLocation } from 'react-router-dom';
+import { messageOf } from '@erxes/core-contract/client';
 import { useViews } from './useViews';
-import { VIEW_LIST_PATHS, viewHref } from './viewLinks';
+import { LIST_PATHS } from '~/lib/paths';
+import { viewHref } from './viewLinks';
 
 /** A list's saved views, nested under it in an app's sidebar (shown whenever there are any). */
 export const NestedViews = ({
@@ -18,7 +20,7 @@ export const NestedViews = ({
   const { data, error } = useViews(recordType);
   const { t } = useTranslation('views');
   const { pathname } = useLocation();
-  const [params] = useSearchParams();
+  const [viewId] = useQueryState('view');
   const views = data?.data ?? [];
 
   if (error) {
@@ -31,7 +33,7 @@ export const NestedViews = ({
 
   if (!views.length) return null;
 
-  const here = pathname === VIEW_LIST_PATHS[recordType];
+  const here = pathname === LIST_PATHS[recordType];
 
   return (
     <Sidebar.Sub className={cn(indent && 'ml-5')}>
@@ -39,7 +41,7 @@ export const NestedViews = ({
         <Sidebar.SubItem key={view.id}>
           <Sidebar.SubButton
             size="sm"
-            isActive={here && params.get('view') === view.id}
+            isActive={here && viewId === view.id}
             render={
               <Link to={viewHref(recordType, view)} title={view.shared ? t('shared') : t('mine')} />
             }

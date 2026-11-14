@@ -37,8 +37,8 @@ import { Link } from 'react-router-dom';
 import { ChangeList, type Lookups } from '~/components/ChangeList';
 import { actorLabel, pluginLabel } from '~/lib/members';
 import type { ReactNode } from 'react';
-import { isNoteType, readChanges, readNote, verbOf } from './activityData';
-import { LinkedRecord, Sentence } from './ActivitySentence';
+import { readChanges, verbOf } from './activityData';
+import { LinkedRecord, Sentence, SentenceLine } from './ActivitySentence';
 import { NoteItem } from './NoteEntry';
 import { When } from './timelineTime';
 import { Reactions } from './TimelineExtras';
@@ -85,9 +85,9 @@ const PLUGIN_ICONS: Record<string, Icon> = {
 
 /** Until the team is known, a placeholder rather than "A team member". */
 const isNamed = (activity: Activity, lookups: Lookups) =>
-  activity.actor.type !== 'user' ||
-  !activity.actor.id ||
-  Boolean(activity.actor.name) ||
+  activity.actorType !== 'user' ||
+  !activity.actorId ||
+  Boolean(activity.actorName) ||
   lookups.members.size > 0;
 
 /** Plugin entries: who, and the plugin's label for the type. */
@@ -101,7 +101,7 @@ const PluginMeta = ({
   label?: string;
 }) => (
   <>
-    {activity.actor.type === 'user' && <span>{actor}</span>}
+    {activity.actorType === 'user' && <span>{actor}</span>}
     <Badge variant="secondary" size="sm">
       {pluginLabel(activity.source)}
       {label ? ` · ${label}` : ''}
@@ -193,15 +193,19 @@ export const ActivityItem = ({
   /** The record whose timeline this is; entries of related records say whose they are. */
   pageTarget: { type: string; id: string };
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'activity' });
-  const actor = actorLabel(activity.actor, lookups.members);
-  const note = isNoteType(activity.type) ? readNote(activity) : null;
+  const actor =
+    activity.actorName ?? actorLabel(activity.actorType, activity.actorId, lookups.members);
+
+  const { note } = activity;
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
 
   const onRelated = related && (
     <span className="text-muted-foreground">
       {' '}
-      · {t('on', 'on')} <LinkedRecord type={activity.targetType} id={activity.targetId} />
+      <SentenceLine
+        name="on-record"
+        components={{ record: <LinkedRecord type={activity.targetType} id={activity.targetId} /> }}
+      />
     </span>
   );
 
@@ -221,7 +225,7 @@ export const ActivityItem = ({
         lookups={lookups}
         actor={actor}
         rail={rail}
-        withDate={pinnedList && activity.pinned}
+        withDate={pinnedList && note.pinnedAt !== null}
         heading={
           <>
             {isNamed(activity, lookups) ? (

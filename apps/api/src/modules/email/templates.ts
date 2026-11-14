@@ -45,10 +45,11 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('sign_in_code'),
     data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
   }),
-  /** A plain message (automations): a subject and text. */
+  /** A plain message (automations, plugins): a subject and text. */
   z.object({
     to: z.string(),
     template: z.literal('message'),
+    replyTo: z.string().optional(),
     data: z.object({ subject: z.string(), body: z.string(), button: Button.optional() }),
   }),
 ]);

@@ -13,7 +13,7 @@ import {
 } from '@erxes/core-db';
 import { eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
@@ -348,7 +348,7 @@ export const assertPluginInPlan = async (orgId: string, name: string) => {
   const access = accessOf(await entitlementsOf(orgId), name);
 
   if (access === 'off' || access === 'read_only') {
-    throw new HttpError(402, 'NOT_IN_PLAN', `${name} is not in your plan`, {
+    throw fail('NOT_IN_PLAN', `${name} is not in your plan`, {
       manageUrl: manageUrl(orgId),
     });
   }

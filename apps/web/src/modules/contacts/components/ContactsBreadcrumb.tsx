@@ -3,7 +3,7 @@ import { Breadcrumb, buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { ContactsPath } from '../utils/contactDetailPath';
+import { paths } from '~/lib/paths';
 
 /** Contacts › the open list (› a record's name). */
 export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
@@ -11,21 +11,19 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
   const { t } = useTranslation('contact');
 
   const sections = [
-    { path: ContactsPath.Customers, label: t('customers') },
-    { path: ContactsPath.Leads, label: t('leads') },
-    { path: ContactsPath.Companies, label: t('companies') },
+    { to: paths.contacts.customers, label: t('customers') },
+    { to: paths.contacts.leads, label: t('leads') },
+    { to: paths.contacts.companies, label: t('companies') },
   ];
 
-  const currentSection = sections.find(({ path }) =>
-    pathname.startsWith(`${ContactsPath.Index}${path}`),
-  );
+  const currentSection = sections.find(({ to }) => pathname.startsWith(to));
 
   return (
     <>
       <Breadcrumb>
         <Breadcrumb.List>
           <Breadcrumb.Item>
-            <Link to={ContactsPath.Index} className={buttonVariants({ variant: 'ghost' })}>
+            <Link to={paths.contacts.customers} className={buttonVariants({ variant: 'ghost' })}>
               <IconBookmarksFilled />
               {t('core-modules.contacts')}
             </Link>
@@ -35,10 +33,7 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Breadcrumb.Page>
-                  <Link
-                    to={`${ContactsPath.Index}${currentSection.path}`}
-                    className={buttonVariants({ variant: 'ghost' })}
-                  >
+                  <Link to={currentSection.to} className={buttonVariants({ variant: 'ghost' })}>
                     {currentSection.label}
                   </Link>
                 </Breadcrumb.Page>

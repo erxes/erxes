@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconSettings } from '@tabler/icons-react';
 import { Button, cn, Tooltip, buttonVariants } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -5,7 +6,7 @@ import { AssistantButton } from '~/modules/assistant/AssistantButton';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { NotificationsBell } from '~/modules/notifications/NotificationsBell';
 import { useSession } from '~/modules/auth/session';
-import { SETTINGS_APP, useNavApps } from './apps';
+import { SETTINGS_APP, useCoreAppLabel, useNavApps } from './apps';
 import { CoreTabAppSwitcher } from './CoreTabAppSwitcher';
 import { CoreTabAppTabs } from './CoreTabAppTabs';
 import { CoreTabTooltip } from './CoreTabTooltip';
@@ -19,6 +20,7 @@ import { useAppTabs } from './useAppTabs';
 export const CoreTab = () => {
   const { organization } = useSession();
   const apps = useNavApps();
+  const settingsLabel = useCoreAppLabel()(SETTINGS_APP);
   const { routeApp, tabs, open, close, closeOthers, closeToRight, move } = useAppTabs(apps);
 
   return (
@@ -26,7 +28,7 @@ export const CoreTab = () => {
       <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
         <CoreTabTooltip label={organization.name}>
           <Link
-            to="/"
+            to={paths.home}
             aria-label={organization.name}
             className={cn(buttonVariants({ size: 'icon', variant: 'nav' }), 'relative shrink-0')}
           >
@@ -48,12 +50,12 @@ export const CoreTab = () => {
         <div className="flex shrink-0 items-center gap-0.5">
           <AssistantButton />
           <NotificationsBell />
-          <CoreTabTooltip label={SETTINGS_APP.label}>
+          <CoreTabTooltip label={settingsLabel}>
             <Button
               type="button"
               size="icon"
               variant="nav"
-              aria-label={SETTINGS_APP.label}
+              aria-label={settingsLabel}
               aria-current={routeApp?.id === SETTINGS_APP.id ? 'page' : undefined}
               className="relative shrink-0"
               onClick={() => open(SETTINGS_APP)}

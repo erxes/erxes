@@ -13,7 +13,7 @@ import { useForm, useFormContext, useWatch, type UseFormReturn } from 'react-hoo
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { CurrencySelect } from '~/components/RegionSelect';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { amountStep, fromAmountInput } from '~/lib/money';
 import { useSession } from '~/modules/auth/session';
 import { PanelFormRow } from '~/modules/side-panel/PanelForm';

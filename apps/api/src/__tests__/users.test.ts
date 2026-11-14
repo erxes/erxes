@@ -68,7 +68,7 @@ describe('team members (/core/v1/users)', () => {
   it('refuses a second member with the same email (any case), and input the contract refuses', async () => {
     await expect(owner.users.invite({ email: 'BAT@acme.mn' })).rejects.toMatchObject({
       status: 409,
-      code: 'EMAIL_TAKEN',
+      code: 'TAKEN',
     });
     await expect(
       owner.users.invite({ email: 'not-an-email', role: 'owner' }),

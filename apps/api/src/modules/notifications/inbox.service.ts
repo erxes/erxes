@@ -34,7 +34,7 @@ export const listNotifications = async (
     query.kind ? kindFilter(query.kind) : undefined,
   );
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: notifications,
@@ -52,16 +52,6 @@ export const listNotifications = async (
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return {
-    ...page,
-    data: page.data.map((row) => ({
-      ...row,
-      entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
-      actor: { type: row.actorType, id: row.actorId },
-      read: row.readAt !== null,
-    })),
-  };
 };
 
 /**

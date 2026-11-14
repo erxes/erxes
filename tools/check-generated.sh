@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Regenerates the committed artifacts and fails if any differ: migrations
-# (drizzle-kit, from packages/db/src/schema), the OpenAPI document, routes.json and
+# (drizzle-kit, from packages/db/src/schema), routes.json and
 # erxes-ui's class merge tables (cn build, from the theme's @theme scales).
 set -euo pipefail
 
@@ -8,7 +8,6 @@ cd "$(dirname "$0")/.."
 
 generated=(
   packages/db/drizzle
-  packages/contract/openapi.json
   packages/contract/routes.json
   packages/ui/src/lib/cn-tables.ts
 )
@@ -32,4 +31,4 @@ if [ -n "$drift" ]; then
   exit 1
 fi
 
-echo 'Migration snapshots, openapi.json, routes.json and the cn tables match their sources.'
+echo 'Migration snapshots, routes.json and the cn tables match their sources.'

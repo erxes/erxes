@@ -1,6 +1,7 @@
 import { activitiesRouter } from '~/modules/activities/activities.router';
 import { assistantRouter } from '~/modules/assistant/assistant.router';
 import { auditRouter } from '~/modules/audit/audit.router';
+import { emailsRouter } from '~/modules/email/emails.router';
 import { eventsRouter } from '~/modules/events/events.router';
 import { filesRouter } from '~/modules/files/files.router';
 import { notificationsRouter } from '~/modules/notifications/notifications.router';
@@ -33,6 +34,7 @@ export const coreRouter = unscoped.router({
   activities: activitiesRouter,
   assistant: assistantRouter,
   audit: auditRouter,
+  emails: emailsRouter,
   events: eventsRouter,
   files: filesRouter,
   notifications: notificationsRouter,

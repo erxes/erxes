@@ -5,21 +5,28 @@
  */
 import { cp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import contract from '../../contract/package.json' with { type: 'json' };
+import lint from '../../lint/package.json' with { type: 'json' };
+import sdk from '../../plugin-sdk/package.json' with { type: 'json' };
+import ui from '../../ui/package.json' with { type: 'json' };
 
 const pkg = resolve(import.meta.dirname, '..');
 const repo = resolve(pkg, '../..');
 const out = join(pkg, 'dist/templates');
 
 /** Core files every plugin gets unchanged, at the same path. */
-const CORE_FILES = [
-  'tools/check-rls.sql',
-  'tools/config/rules.ts',
-  'tools/config/budgets.ts',
-  'tools/test/no-skips.ts',
-];
+const CORE_FILES = ['tools/check-rls.sql', 'tools/test/no-skips.ts'];
 
 /** The section every erxes repo's AGENTS.md has, unchanged. */
 const QUALITY = /<!-- quality:start -->[\s\S]*?<!-- quality:end -->/;
+
+/** The version tokens in the template's package.json files. */
+const VERSIONS = {
+  __contractVersion__: contract.version,
+  __lintVersion__: lint.version,
+  __sdkVersion__: sdk.version,
+  __uiVersion__: ui.version,
+};
 
 /** Core's tenant functions plugin migrations call; the last migration to define one wins. */
 const TENANT_FUNCTIONS = ['core_tenant_visible', 'core_enable_tenant_rls'];
@@ -57,6 +64,19 @@ export const writeTemplates = async () => {
   const quality = await qualitySection();
 
   await writeFile(agents, (await readFile(agents, 'utf8')).replace(QUALITY, quality));
+
+  // A plugin depends on the core packages this CLI was packed alongside.
+  for (const manifest of ['package.json', 'api/package.json', 'ui/package.json']) {
+    const path = join(out, 'base', manifest);
+
+    const text = Object.entries(VERSIONS).reduce(
+      (filled, [token, version]) => filled.replaceAll(token, version),
+      await readFile(path, 'utf8'),
+    );
+
+    await writeFile(path, text);
+  }
+
   await writeFile(
     join(out, 'base/api/src/test/core-functions.sql'),
     [

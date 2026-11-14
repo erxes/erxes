@@ -2,7 +2,7 @@ import type { ProductCategory } from '@erxes/core-contract';
 import { Button, Dialog, Input, Label, Spinner, useToast } from 'erxes-ui';
 import { type SubmitEvent, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { CategoryPicker } from '../categories/CategoryPicker';
 import { categoryWithDescendants } from '../categories/categoryTree';
 import { useCategoryMutations, useProductCategories } from '../categories/useProductCategories';
@@ -20,7 +20,7 @@ const useCategorySave = (editing: ProductCategory | null, onDone: () => void) =>
   const [errors, setErrors] = useState<{ name?: string; parent?: string }>({});
 
   const onError = (error: Error) => {
-    if (isApiError(error, 'CATEGORY_EXISTS')) {
+    if (isApiError(error, 'TAKEN')) {
       setErrors({
         name: t('errors.category-exists', 'A category with this name is already there.'),
       });

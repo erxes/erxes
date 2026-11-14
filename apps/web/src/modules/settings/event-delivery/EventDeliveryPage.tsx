@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { EventFailure } from '@erxes/core-contract';
 import { IconAlertTriangle, IconPlugConnected, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -16,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { pluginLabel } from '~/lib/members';
 import { useCan } from '~/modules/auth/session';
 
@@ -221,7 +222,7 @@ export const EventDeliveryPage = () => {
     }),
   );
 
-  if (!canSee) return <Navigate to="/settings" replace />;
+  if (!canSee) return <Navigate to={paths.settings.root} replace />;
 
   const counts = failures.data?.counts ?? { retrying: 0, dead: 0 };
 
@@ -233,7 +234,7 @@ export const EventDeliveryPage = () => {
             items={[
               {
                 label: t('title', 'Event delivery'),
-                to: '/settings/event-delivery',
+                to: paths.settings.eventDelivery,
                 icon: IconPlugConnected,
               },
             ]}

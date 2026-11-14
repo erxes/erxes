@@ -1,9 +1,9 @@
 import type { Product } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMultiQueryState, useToast } from 'erxes-ui';
-import { z } from 'zod';
+import { useToast } from 'erxes-ui';
+import { parseAsBoolean, parseAsString, useQueryStates } from 'nuqs';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan } from '~/modules/auth/session';
 import type { IOpenRecordOptions } from '~/modules/side-panel/recordView';
@@ -11,16 +11,16 @@ import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 /** RecordTable remembers the scroll position of the list under this key. */
-export const PRODUCTS_SESSION_KEY = 'core_products_cursor';
+const PRODUCTS_SESSION_KEY = 'core_products_cursor';
 
 /** Whether the member may add, edit and archive products and categories. */
 export const useCanManageProducts = () => useCan()('products.manage');
 
 /** The list filters, read from the URL: the search, the filter (views save both) and archived or not. */
 export const useProductsFilters = () => {
-  const [{ searchValue, archived }] = useMultiQueryState({
-    searchValue: z.string(),
-    archived: z.boolean(),
+  const [{ searchValue, archived }] = useQueryStates({
+    searchValue: parseAsString,
+    archived: parseAsBoolean,
   });
 
   return {
@@ -72,7 +72,7 @@ export const useStoreProduct = () => {
   };
 };
 
-/** Callers show failures next to the field they are about (`PRODUCT_CODE_EXISTS`). */
+/** Callers show failures next to the field they are about (`TAKEN`). */
 export const useProductCreate = () => {
   const store = useStoreProduct();
 

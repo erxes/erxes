@@ -24,9 +24,14 @@ export interface TrashSnapshot {
   /** The customer or company row, with its `customFields` values. */
   row: SnapshotRow & { customFields?: Record<string, CustomValue> };
   tagIds: string[];
-  links: { customerId: string; companyId: string }[];
+  /** Its `customer_companies` rows: role, main contact, left. */
+  links: (Record<string, unknown> & { customerId: string; companyId: string })[];
   /** Its timeline entries (`core_activities` rows). */
   activities: SnapshotRow[];
+  /** The notes among those entries (`core_notes` rows), their earlier wordings and the entries' reactions. */
+  notes: SnapshotRow[];
+  noteVersions: SnapshotRow[];
+  reactions: (Record<string, unknown> & { activityId: string; userId: string })[];
 }
 
 /**

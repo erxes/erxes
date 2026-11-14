@@ -1,7 +1,7 @@
 import { coreContract, CORE_API_PREFIX, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
 import { caller, type Caller, scopedOrgId } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
-import { HttpError } from './errors';
+import { fail } from './errors';
 import { ACCESS, type Policy } from './policies';
 
 const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
@@ -32,7 +32,7 @@ export const callerCan = (action: string) => {
 /** ACCESS by the dotted path oRPC reports, which is a plain string at run time. */
 const POLICIES = new Map<string, Policy>(Object.entries(ACCESS));
 
-const unauthorized = () => new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+const unauthorized = () => fail('UNAUTHORIZED', 'Sign in to continue');
 
 export const memberMayCall = (path: string, member: Member) => {
   const policy = POLICIES.get(path);
@@ -44,11 +44,11 @@ export const memberMayCall = (path: string, member: Member) => {
 
 const checkMember = (policy: Policy, member: Member) => {
   if (!('member' in policy) || !policy.member) {
-    throw new HttpError(403, 'PLUGIN_ONLY', 'Only plugins can do this');
+    throw fail('PLUGIN_ONLY', 'Only plugins can do this');
   }
 
   if (policy.member !== 'any' && !can(member, policy.member)) {
-    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+    throw fail('NOT_ALLOWED', "Your role doesn't allow this", {
       permission: policy.member,
     });
   }
@@ -56,30 +56,25 @@ const checkMember = (policy: Policy, member: Member) => {
 
 const checkPlugin = (policy: Policy, scopes: readonly string[]) => {
   if (!('plugin' in policy) || !policy.plugin) {
-    throw new HttpError(403, 'MEMBERS_ONLY', 'Plugins cannot do this');
+    throw fail('MEMBERS_ONLY', 'Plugins cannot do this');
   }
 
   const orgId = scopedOrgId();
 
   if (policy.plugin === 'manifest') {
     if (orgId) {
-      throw new HttpError(
-        403,
-        'SERVICE_TOKEN_REQUIRED',
-        'Use a token without an organisation to do this',
-      );
+      throw fail('SERVICE_TOKEN_REQUIRED', 'Use a token without an organisation to do this');
     }
 
     return;
   }
 
   if (!orgId) {
-    throw new HttpError(403, 'ORG_REQUIRED', 'Use a token for an organisation to do this');
+    throw fail('ORG_REQUIRED', 'Use a token for an organisation to do this');
   }
 
   if (policy.plugin !== 'installed' && !scopes.includes(policy.plugin)) {
-    throw new HttpError(
-      403,
+    throw fail(
       'SCOPE_REQUIRED',
       `This needs the ${policy.plugin} scope, which this installation hasn't granted`,
     );
@@ -92,7 +87,7 @@ export const enforceAccess = (path: string) => {
 
   if (!policy) {
     // Unreachable while ACCESS satisfies the contract; fail closed regardless.
-    throw new HttpError(403, 'NOT_ALLOWED', 'This procedure has no access policy');
+    throw fail('NOT_ALLOWED', 'This procedure has no access policy');
   }
 
   if ('public' in policy) return;
@@ -107,7 +102,7 @@ export const enforceAccess = (path: string) => {
 
   switch (who.type) {
     case 'customer':
-      throw new HttpError(403, 'NOT_ALLOWED', 'Customers cannot do this');
+      throw fail('NOT_ALLOWED', 'Customers cannot do this');
     case 'user':
       return checkMember(policy, who);
     case 'plugin':

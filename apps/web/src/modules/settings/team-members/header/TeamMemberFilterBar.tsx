@@ -1,6 +1,5 @@
 import { Filter, PageSubHeader } from 'erxes-ui';
 import { OptionFilter } from '~/components/OptionFilter';
-import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../constants';
 import { TeamMemberCounts } from './TeamMemberCounts';
 import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { useRoleFilter } from './useRoleFilter';
@@ -10,7 +9,7 @@ export const TeamMemberFilterBar = () => {
 
   return (
     <PageSubHeader>
-      <Filter id="team-member" sessionKey={TEAM_MEMBER_CURSOR_SESSION_KEY}>
+      <Filter id="team-member">
         <Filter.Bar>
           <TeamMemberFilterPopover />
 

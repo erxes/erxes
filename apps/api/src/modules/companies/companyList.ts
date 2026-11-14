@@ -5,7 +5,7 @@ import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
-import { linkOrder } from '~/modules/customers/customerLinks';
+import { linkColumns, linkOrder } from '~/modules/customers/customerLinks';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { findCompany, selectCompanies } from './companyRows';
@@ -92,7 +92,7 @@ export const companyPeople = async (client: Db, id: string) => {
   await findCompany(client, id);
 
   // A window, not a page: the company panel reads one list.
-  const rows = await client
+  const data = await client
     .select({
       id: customers.id,
       firstName: customers.firstName,
@@ -101,10 +101,7 @@ export const companyPeople = async (client: Db, id: string) => {
       primaryPhone: customers.primaryPhone,
       avatarUrl: customers.avatarUrl,
       state: customers.state,
-      role: customerCompanies.role,
-      isPrimaryContact: customerCompanies.isPrimaryContact,
-      endedAt: customerCompanies.endedAt,
-      createdAt: customerCompanies.createdAt,
+      link: linkColumns,
     })
     .from(customerCompanies)
     .innerJoin(customers, eq(customers.id, customerCompanies.customerId))
@@ -112,10 +109,5 @@ export const companyPeople = async (client: Db, id: string) => {
     .orderBy(...linkOrder)
     .limit(500);
 
-  return {
-    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...person }) => ({
-      ...person,
-      link: { role, isPrimaryContact, endedAt, createdAt },
-    })),
-  };
+  return { data };
 };

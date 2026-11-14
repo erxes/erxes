@@ -26,7 +26,7 @@ const link = new RPCLink({
 });
 
 /** The API, typed from api/src/router.ts: `await client.items.list({})`. */
-export const client: Client = createORPCClient(link);
+const client: Client = createORPCClient(link);
 
 /** TanStack Query options per procedure: `useQuery(orpc.items.list.queryOptions({ input }))`. */
 export const orpc = createTanstackQueryUtils(client);

@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useLivePolling } from '~/lib/live';
 
 export type TimelineKind = 'all' | 'notes' | 'changes' | 'plugins';
@@ -90,7 +90,8 @@ export const useNoteActions = () => {
 
   return {
     add: useMutation(orpc.activities.addNote.mutationOptions(handlers)),
-    update: useMutation(orpc.activities.updateNote.mutationOptions(handlers)),
+    edit: useMutation(orpc.activities.editNote.mutationOptions(handlers)),
+    pin: useMutation(orpc.activities.pinNote.mutationOptions(handlers)),
     remove: useMutation(orpc.activities.removeNote.mutationOptions(handlers)),
     react: useMutation(orpc.activities.react.mutationOptions(handlers)),
   };

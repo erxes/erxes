@@ -16,7 +16,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { cn, Skeleton } from 'erxes-ui';
 import { useState } from 'react';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { DisqualifyDialog } from './DisqualifyDialog';
 import { CARD, CardBody } from './LeadCard';

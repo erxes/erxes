@@ -1,5 +1,6 @@
 import { organizations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import type { z } from 'zod';
 import { Id, isoDate } from './common';
@@ -28,15 +29,49 @@ const OrganizationFields = createUpdateSchema(organizations, {
 /** Where an organisation works; the currency defaults to the country's. */
 export const OrganizationRegion = OrganizationFields.pick({ country: true, currency: true });
 
+const {
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  INVALID_CLIENT,
+  INVALID_SUBDOMAIN,
+  LAST_OPEN_STAGE,
+  LEAD_STAGE_IN_USE,
+  NAMESPACE_REQUIRED,
+  NOT_INSTALLED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE,
+  FIXED_ROLE,
+  INVALID_CLIENT,
+  INVALID_SUBDOMAIN,
+  LAST_OPEN_STAGE,
+  LEAD_STAGE_IN_USE,
+  NAMESPACE_REQUIRED,
+  NOT_INSTALLED,
+  OWNER_ONLY_PERMISSION,
+  ROLE_IN_USE,
+  ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION,
+});
+
 export const organizationsContract = {
-  current: oc
+  current: base
     .route({
       method: 'GET',
       path: '/organization',
       summary: 'The organisation of the signed-in member or the plugin token',
     })
     .output(Organization),
-  update: oc
+  update: base
     .route({
       method: 'PATCH',
       path: '/organization',

@@ -1,6 +1,7 @@
 import { CONTENT_TYPES, CUSTOMER_STATES, LEAD_STAGE_KINDS } from '@erxes/core-db/enums';
 import { leadEvents, leadStages } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate, listOf } from './common';
@@ -113,18 +114,19 @@ const StageFields = createUpdateSchema(leadStages, {
   color: (color) => color.regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb'),
 }).pick({ name: true, kind: true, color: true });
 
-export const LeadEvent = createSelectSchema(leadEvents, { id: Id, createdAt: isoDate })
-  .pick({
-    id: true,
-    event: true,
-    fromStageId: true,
-    toStageId: true,
-    reason: true,
-    actorType: true,
-    actorId: true,
-    createdAt: true,
-  })
-  .extend({ recordType: LeadRecordType, recordId: Id });
+export const LeadEvent = createSelectSchema(leadEvents, { id: Id, createdAt: isoDate }).pick({
+  id: true,
+  /** The person, or (`companyId`) the company. */
+  customerId: true,
+  companyId: true,
+  event: true,
+  fromStageId: true,
+  toStageId: true,
+  reason: true,
+  actorType: true,
+  actorId: true,
+  createdAt: true,
+});
 
 export type LeadEvent = z.infer<typeof LeadEvent>;
 
@@ -166,23 +168,55 @@ export type LeadReport = z.infer<typeof LeadReport>;
 const Ids = z.array(Id).min(1).max(100);
 const RecordTypeInput = { recordType: LeadRecordType.default('customer') };
 
+const {
+  INVALID_ACTOR,
+  INVALID_FILE,
+  INVALID_LEAD_STAGE,
+  INVALID_OWNER,
+  INVALID_TYPE,
+  LAST_OPEN_STAGE,
+  LEAD_STAGE_IN_USE,
+  LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY,
+  NOT_AUTHOR,
+  NOT_A_LEAD,
+  SUBJECT_REQUIRED,
+} = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  INVALID_ACTOR,
+  INVALID_FILE,
+  INVALID_LEAD_STAGE,
+  INVALID_OWNER,
+  INVALID_TYPE,
+  LAST_OPEN_STAGE,
+  LEAD_STAGE_IN_USE,
+  LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY,
+  NOT_AUTHOR,
+  NOT_A_LEAD,
+  SUBJECT_REQUIRED,
+});
+
 export const leadsContract = {
-  stages: oc
+  stages: base
     .route({
       method: 'GET',
       path: '/lead-stages',
       summary: 'The lead stages, in order, with how many leads each holds',
     })
     .output(listOf(LeadStage)),
-  createStage: oc
+  createStage: base
     .route({ method: 'POST', path: '/lead-stages', successStatus: 201 })
     .input(StageFields.required({ name: true }))
     .output(LeadStage),
-  updateStage: oc
+  updateStage: base
     .route({ method: 'PATCH', path: '/lead-stages/{id}' })
     .input(StageFields.extend({ id: Id }))
     .output(LeadStage),
-  reorderStages: oc
+  reorderStages: base
     .route({
       method: 'POST',
       path: '/lead-stages/reorder',
@@ -190,7 +224,7 @@ export const leadsContract = {
     })
     .input(z.object({ ids: z.array(Id).min(1).max(50) }))
     .output(z.object({ ok: z.literal(true) })),
-  removeStage: oc
+  removeStage: base
     .route({
       method: 'POST',
       path: '/lead-stages/{id}/remove',
@@ -199,7 +233,7 @@ export const leadsContract = {
     })
     .input(z.object({ id: Id, moveTo: Id.optional() }))
     .output(z.object({ moved: z.int() })),
-  move: oc
+  move: base
     .route({
       method: 'POST',
       path: '/leads/move',
@@ -214,7 +248,7 @@ export const leadsContract = {
       }),
     )
     .output(z.object({ moved: z.int() })),
-  convert: oc
+  convert: base
     .route({
       method: 'POST',
       path: '/leads/convert',
@@ -225,7 +259,7 @@ export const leadsContract = {
       z.object({ ...RecordTypeInput, ids: Ids, ownerId: Id.optional(), companyId: Id.optional() }),
     )
     .output(z.object({ converted: z.int() })),
-  history: oc
+  history: base
     .route({
       method: 'GET',
       path: '/leads/{id}/history',
@@ -233,7 +267,7 @@ export const leadsContract = {
     })
     .input(z.object({ ...RecordTypeInput, id: Id }))
     .output(z.object({ data: z.array(LeadEvent).max(200) })),
-  report: oc
+  report: base
     .route({
       method: 'GET',
       path: '/leads/report',

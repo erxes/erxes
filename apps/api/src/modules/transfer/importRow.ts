@@ -1,7 +1,8 @@
 import { CompanyFields, CustomerFields } from '@erxes/core-contract';
 import { type Db, savepoint } from '@erxes/core-db';
 import { ZodError } from 'zod';
-import { HttpError } from '~/http/errors';
+import { ORPCError } from '@orpc/server';
+import { fromDatabase } from '~/http/errors';
 import { normalizeEmail } from '~/lib/contacts';
 import { inOrder } from '~/lib/sequence';
 import { createCompany, updateCompany } from '~/modules/companies/companies.service';
@@ -82,8 +83,10 @@ const readRow = (ctx: Context, cells: string[]) => {
   return { input, refs };
 };
 
-const messageOf = (error: unknown) => {
-  if (error instanceof HttpError || error instanceof CellError) return error.message;
+const messageOf = (raw: unknown) => {
+  const error = fromDatabase(raw);
+
+  if (error instanceof ORPCError || error instanceof CellError) return error.message;
 
   if (error instanceof ZodError && error.issues.length)
     return error.issues

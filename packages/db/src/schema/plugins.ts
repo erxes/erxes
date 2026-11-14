@@ -28,6 +28,8 @@ export interface StoredPluginManifest {
   customerApp?: { origins: string[] };
   scopes: string[];
   permissions?: { action: string; label: string; description?: string; group?: string }[];
+  /** Ready-made bundles of its permissions, added to a role in one click. */
+  permissionSets?: { key: string; label: string; description?: string; permissions: string[] }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];
   events?: {
     type: string;

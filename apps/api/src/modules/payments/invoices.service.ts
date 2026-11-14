@@ -3,14 +3,13 @@ import {
   caller,
   type Db,
   newId,
-  paymentGateways,
   paymentInvoices,
   requestOrgId,
   sourceOf,
   withOrg,
 } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
@@ -24,22 +23,20 @@ import {
   invoiceWithGateway,
   queueCheck,
   refresh,
-  toInvoiceDto,
+  selectInvoices,
+  shownInvoice,
 } from './invoiceState';
 
 const log = logger.child({ component: 'payments' });
 
 const invoiceByDedupeKey = async (client: Db, dedupeKey: string) => {
-  const [existing] = await client
-    .select({ invoice: paymentInvoices, kind: paymentGateways.kind })
-    .from(paymentInvoices)
-    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
+  const [existing] = await selectInvoices(client)
     .where(
       and(eq(paymentInvoices.source, sourceOf(caller())), eq(paymentInvoices.dedupeKey, dedupeKey)),
     )
     .limit(1);
 
-  return existing ? toInvoiceDto(existing.invoice, existing.kind) : null;
+  return existing ?? null;
 };
 
 interface InvoiceInput {
@@ -48,7 +45,8 @@ interface InvoiceInput {
   /** The organisation's unless given. */
   currency?: string;
   description: string;
-  reference: { type: string; id: string };
+  referenceType: string;
+  referenceId: string;
   expiresInMinutes: number;
   dedupeKey?: string;
   metadata?: Record<string, unknown>;
@@ -99,8 +97,8 @@ export const createInvoice = async (input: InvoiceInput) => {
         id,
         gatewayId: gateway.id,
         source: sourceOf(caller()),
-        referenceType: input.reference.type,
-        referenceId: input.reference.id,
+        referenceType: input.referenceType,
+        referenceId: input.referenceId,
         amount: input.amount,
         currency,
         description: input.description,
@@ -124,7 +122,7 @@ export const createInvoice = async (input: InvoiceInput) => {
 
     await queueCheck(tx, row, 0);
 
-    return toInvoiceDto(row, gateway.kind);
+    return shownInvoice(tx, row.id);
   });
 };
 
@@ -148,17 +146,16 @@ const visibleInvoice = async (id: string, access: 'owner' | 'reader') => {
 };
 
 export const getInvoice = async (id: string) => {
-  const { invoice, gateway } = await visibleInvoice(id, 'reader');
+  await visibleInvoice(id, 'reader');
 
-  return toInvoiceDto(invoice, gateway.kind);
+  return withOrg(requestOrgId(), (tx) => shownInvoice(tx, id));
 };
 
 /** Cancels a pending invoice with the gateway (best effort), then here. Call it outside any scope. */
 export const cancelInvoice = async (id: string) => {
   const { invoice, gateway } = await visibleInvoice(id, 'owner');
 
-  if (invoice.status !== 'pending')
-    throw new HttpError(409, 'NOT_PENDING', `The invoice is ${invoice.status}`);
+  if (invoice.status !== 'pending') throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
 
   await driverOf(gateway)
     .cancel(invoice.gatewayInvoiceId ?? '')
@@ -176,12 +173,13 @@ export const cancelInvoice = async (id: string) => {
     if (cancelled) {
       await publishCoreEvents(tx, {
         type: 'core.payment.cancelled',
-        entity: { type: 'payment_invoice', id },
+        entityType: 'payment_invoice',
+        entityId: id,
         payload: eventPayload(invoice),
       });
     }
 
-    return toInvoiceDto(cancelled ?? invoice, gateway.kind);
+    return shownInvoice(tx, id);
   });
 };
 
@@ -189,7 +187,7 @@ export const listInvoices = async (
   client: Db,
   query: CursorQuery & { status?: Invoice['status']; source?: string; referenceId?: string },
 ) => {
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: paymentInvoices,
@@ -205,26 +203,11 @@ export const listInvoices = async (
     ),
     query,
     (where, orderBy, limit) =>
-      client
-        .select()
-        .from(paymentInvoices)
+      selectInvoices(client)
         .where(where)
         .orderBy(...orderBy, desc(paymentInvoices.id))
         .limit(limit),
   );
-
-  const kinds = new Map(
-    (
-      await client
-        .select({ id: paymentGateways.id, kind: paymentGateways.kind })
-        .from(paymentGateways)
-    ).map((row) => [row.id, row.kind]),
-  );
-
-  return {
-    ...page,
-    data: page.data.map((row) => toInvoiceDto(row, kinds.get(row.gatewayId) ?? 'test')),
-  };
 };
 
 /** Test gateway only: the payer "pays". Call it outside any scope. */
@@ -235,11 +218,7 @@ export const payTestInvoice = async (id: string) => {
     const { gateway } = await invoiceWithGateway(tx, id);
 
     if (gateway.kind !== 'test')
-      throw new HttpError(
-        400,
-        'NOT_TEST',
-        'Only invoices of the test gateway can be paid this way',
-      );
+      throw fail('NOT_TEST', 'Only invoices of the test gateway can be paid this way');
 
     await tx
       .update(paymentInvoices)
@@ -247,7 +226,7 @@ export const payTestInvoice = async (id: string) => {
       .where(eq(paymentInvoices.id, id));
   });
 
-  const { invoice, gateway } = await refresh(orgId, id);
+  await refresh(orgId, id);
 
-  return toInvoiceDto(invoice, gateway.kind);
+  return withOrg(orgId, (tx) => shownInvoice(tx, id));
 };

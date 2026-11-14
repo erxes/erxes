@@ -7,6 +7,7 @@ import {
   IconSettings,
 } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
@@ -37,10 +38,18 @@ const CORE_APPS: NavApp[] = [
 
 const label = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
 
+/** A core app's name in the member's language; plugins name themselves. */
+export const useCoreAppLabel = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
+  return (app: NavApp) => t(`apps.${app.id}`, app.label);
+};
+
 /** Core apps and the plugins the member can use (settings has its own button). */
 export const useNavApps = (): NavApp[] => {
   const { plugins } = usePlugins();
   const can = useCan();
+  const coreLabel = useCoreAppLabel();
 
   return [
     ...CORE_APPS.filter((app) =>
@@ -49,7 +58,7 @@ export const useNavApps = (): NavApp[] => {
         : app.id === 'reports'
           ? can('contacts.view')
           : true,
-    ),
+    ).map((app) => ({ ...app, label: coreLabel(app) })),
     ...plugins.map(({ remote, config }): NavApp => ({
       id: `plugin:${remote}`,
       label: label(config.name),

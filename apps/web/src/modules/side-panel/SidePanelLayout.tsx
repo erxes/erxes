@@ -1,5 +1,4 @@
-import { z } from 'zod';
-import { useQueryState } from 'erxes-ui';
+import { parseAsBoolean, useQueryState } from 'nuqs';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { type ComponentType, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -139,7 +138,7 @@ const SidePanelRoute = () => {
 const SidePanelColumn = () => {
   const { open, record } = useSidePanel();
   const [width, setWidth] = useAtom(sidePanelWidthState);
-  const [expanded] = useQueryState('panelExpanded', z.boolean());
+  const [expanded] = useQueryState('panelExpanded', parseAsBoolean);
   const { pathname } = useLocation();
   const navigate = useNavigate();
 

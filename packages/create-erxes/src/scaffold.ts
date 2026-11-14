@@ -108,7 +108,7 @@ const linkSkills = async (targetDir: string) => {
 
 const migrationSkill = (plugin: OldPlugin) => `
 - This repo ports the old erxes \`${plugin}\` plugin. Work through
-  \`MIGRATION.md\` with the \`plugin-migrate\` skill.`;
+  the \`plugin-migrate\` skill. It starts with the inventory and checklist tasks.`;
 
 /** Writes a plugin for the new core: the base template, plus the migration kit for a port. */
 export const scaffold = async (targetDir: string, options: ScaffoldOptions) => {

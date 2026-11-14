@@ -2,7 +2,7 @@ import { FIELD_TYPE_FAMILIES } from '@erxes/core-contract';
 import { caller, type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { forbidden, HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
 import { oneRow, setOrders } from '~/lib/rows';
@@ -15,8 +15,8 @@ import {
   inUse,
   nextOrder,
   optionCounts,
-  taken,
-  toFieldDto,
+  fieldById,
+  selectFields,
   usageOf,
 } from './fieldRows';
 
@@ -54,29 +54,11 @@ const checkGroup = async (
     .limit(1);
 
   if (!group || group.contentType !== contentType || group.archivedAt) {
-    throw new HttpError(400, 'INVALID_FIELD_GROUP', `Not an active ${contentType} field group`, {
+    throw fail('INVALID_FIELD_GROUP', `Not an active ${contentType} field group`, {
       groupId,
     });
   }
 };
-
-const groupArchivedAt = async (client: Db, groupId: string | null) => {
-  if (!groupId) {
-    return null;
-  }
-
-  const [group] = await client
-    .select({ archivedAt: fieldGroups.archivedAt })
-    .from(fieldGroups)
-    .where(eq(fieldGroups.id, groupId))
-    .limit(1);
-
-  return group?.archivedAt ?? null;
-};
-
-/** A field with its group's archive date, as the list shows it. */
-const fieldDto = async (client: Db, row: FieldRow) =>
-  toFieldDto(row, await groupArchivedAt(client, row.groupId));
 
 export const listFields = async (
   client: Db,
@@ -84,17 +66,14 @@ export const listFields = async (
 ) => {
   // Plugins read product fields (with products:read) to show product values; contacts' fields stay members'.
   if (caller().type === 'plugin' && input.contentType !== 'product') {
-    throw forbidden('FORBIDDEN', 'Plugins read product fields only');
+    throw fail('NOT_ALLOWED', 'Plugins read product fields only');
   }
 
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
 
   const rows = await wholeList((limit) =>
-    client
-      .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
-      .from(fields)
-      .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
+    selectFields(client)
       .where(
         and(
           eq(fields.contentType, input.contentType),
@@ -106,7 +85,7 @@ export const listFields = async (
       .limit(limit),
   );
 
-  return { data: rows.map((row) => toFieldDto(row.field, row.groupArchivedAt)) };
+  return { data: rows };
 };
 
 export const fieldUsage = async (client: Db, input: { ids?: string[]; groupId?: string }) => {
@@ -149,31 +128,27 @@ export const createField = async (
 
   const order = await nextOrder(client, fields, input.contentType);
 
-  try {
-    const row = oneRow(
-      await client
-        .insert(fields)
-        .values({
-          id: newId(),
-          contentType: input.contentType,
-          groupId: input.groupId ?? null,
-          label: input.label,
-          code: input.code || null,
-          description: input.description || null,
-          icon: input.icon || null,
-          type: input.type,
-          validation: TEXT_TYPES.includes(input.type) ? (input.validation ?? null) : null,
-          options: hasOptions(input.type) ? unique(input.options ?? []) : [],
-          isVisible: input.isVisible ?? true,
-          order,
-        })
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .insert(fields)
+      .values({
+        id: newId(),
+        contentType: input.contentType,
+        groupId: input.groupId ?? null,
+        label: input.label,
+        code: input.code || null,
+        description: input.description || null,
+        icon: input.icon || null,
+        type: input.type,
+        validation: TEXT_TYPES.includes(input.type) ? (input.validation ?? null) : null,
+        options: hasOptions(input.type) ? unique(input.options ?? []) : [],
+        isVisible: input.isVisible ?? true,
+        order,
+      })
+      .returning(),
+  );
 
-    return toFieldDto(row);
-  } catch (error) {
-    return taken(error);
-  }
+  return fieldById(client, row.id);
 };
 
 interface FieldChanges {
@@ -194,8 +169,7 @@ const typeChange = async (client: Db, field: FieldRow, input: FieldChanges) => {
   const type = input.type ?? field.type;
 
   if (!sameFamily(field.type, type) && (await usageOf(client, [field])) > 0) {
-    throw new HttpError(
-      409,
+    throw fail(
       'FIELD_IN_USE',
       'Records hold values of this field, so it can only change to a type with the same stored value',
       { fieldId: field.id },
@@ -205,7 +179,9 @@ const typeChange = async (client: Db, field: FieldRow, input: FieldChanges) => {
   const options = hasOptions(type) ? unique(input.options ?? field.options) : [];
 
   if (hasOptions(type) && !options.length) {
-    throw new HttpError(400, 'INVALID_INPUT', 'Select fields need options');
+    throw fail('INVALID_INPUT', 'Select fields need options', {
+      issues: [{ path: ['options'], message: 'Select fields need options' }],
+    });
   }
 
   const validation = input.validation === undefined ? field.validation : input.validation;
@@ -225,26 +201,22 @@ export const updateField = async (client: Db, id: string, input: FieldChanges) =
     await checkGroup(client, field.contentType, input.groupId);
   }
 
-  try {
-    const row = oneRow(
-      await client
-        .update(fields)
-        .set({
-          ...rest,
-          code: code === '' ? null : code,
-          description: description === '' ? null : description,
-          icon: icon === '' ? null : icon,
-          ...typed,
-          updatedAt: sql`now()`,
-        })
-        .where(eq(fields.id, id))
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .update(fields)
+      .set({
+        ...rest,
+        code: code === '' ? null : code,
+        description: description === '' ? null : description,
+        icon: icon === '' ? null : icon,
+        ...typed,
+        updatedAt: sql`now()`,
+      })
+      .where(eq(fields.id, id))
+      .returning(),
+  );
 
-    return await fieldDto(client, row);
-  } catch (error) {
-    return taken(error);
-  }
+  return fieldById(client, row.id);
 };
 
 export const reorderFields = (client: Db, orders: { id: string; order: number }[]) =>
@@ -272,7 +244,7 @@ export const restoreField = async (client: Db, id: string) => {
       .returning(),
   );
 
-  return fieldDto(client, row);
+  return fieldById(client, row.id);
 };
 
 /** Deletes fields no record holds a value of. */

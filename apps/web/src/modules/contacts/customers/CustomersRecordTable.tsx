@@ -1,47 +1,21 @@
 import type { CustomerState } from '@erxes/core-contract';
-import { RecordTable } from 'erxes-ui';
-import { messageOf } from '~/lib/api';
-import { CustomersCommandBar } from './CustomersCommandBar';
+import { CursorRecordTable } from '~/components/CursorRecordTable';
 import { stickyWithStage } from '~/modules/leads/leadColumns';
+import { CustomersCommandBar } from './CustomersCommandBar';
 import { useCustomersColumns } from './customersColumns';
-import { EmptyList } from '../components/EmptyList';
-import { customersSessionKey, useCustomers } from './useCustomers';
+import { useCustomers } from './useCustomers';
 
 export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
-  const { list, loading, error, hasNextPage, hasPreviousPage, handleFetchMore } =
-    useCustomers(state);
-
-  const columns = useCustomersColumns(state);
-
-  if (error) {
-    return <div className="m-3 text-sm text-destructive">{messageOf(error)}</div>;
-  }
+  const cursor = useCustomers(state);
 
   return (
-    <RecordTable.Provider
-      columns={columns}
-      data={list}
+    <CursorRecordTable
+      cursor={cursor}
+      columns={useCustomersColumns(state)}
       stickyColumns={stickyWithStage(['more', 'checkbox', 'avatar', 'name'], state === 'lead')}
-      className="m-3"
       tableId={state === 'lead' ? 'leads_record_table' : 'customers_record_table'}
     >
-      <RecordTable.CursorProvider
-        hasPreviousPage={hasPreviousPage}
-        hasNextPage={hasNextPage}
-        dataLength={list.length}
-        sessionKey={customersSessionKey(state)}
-      >
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
-            {loading ? <RecordTable.RowSkeleton rows={32} /> : <RecordTable.RowList />}
-            <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.CursorProvider>
-      {!loading && !list.length && <EmptyList />}
-      <CustomersCommandBar rows={list} />
-    </RecordTable.Provider>
+      <CustomersCommandBar rows={cursor.list} />
+    </CursorRecordTable>
   );
 };

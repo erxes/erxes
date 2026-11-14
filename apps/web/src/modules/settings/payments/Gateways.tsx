@@ -5,7 +5,7 @@ import { Badge, Button, Checkbox, Empty, Select, useToast } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 
 const useSaveFailed = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });

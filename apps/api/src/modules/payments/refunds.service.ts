@@ -9,13 +9,13 @@ import {
 } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import { HttpError, notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { driverOf, type GatewayRow } from './gateways.service';
-import { eventPayload, type InvoiceRow, toInvoiceDto } from './invoiceState';
+import { eventPayload, type InvoiceRow, shownInvoice } from './invoiceState';
 
 const log = logger.child({ component: 'payments' });
 
@@ -28,11 +28,6 @@ interface RefundInput {
   manual: boolean;
   dedupeKey?: string;
 }
-
-const toRefundDto = (row: RefundRow) => ({
-  ...row,
-  requestedBy: { type: row.requestedByType, id: row.requestedBy },
-});
 
 /** Plugins only ever see their own invoices. */
 const hiddenFromCaller = (invoice: { source: string }) => {
@@ -71,38 +66,34 @@ const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow, input: RefundInp
     invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
 
   if (left <= 0)
-    throw new HttpError(
-      409,
+    throw fail(
       'NOT_REFUNDABLE',
       `The invoice is ${invoice.status === 'refunded' ? 'already refunded' : invoice.status}`,
     );
 
   const amount = input.amount ?? left;
 
-  if (amount > left)
-    throw new HttpError(409, 'NOT_REFUNDABLE', `Only ${left} can still be refunded`);
+  if (amount > left) throw fail('NOT_REFUNDABLE', `Only ${left} can still be refunded`);
 
   if (input.manual) return { amount, full: amount === left, paymentId: null };
 
   const { refunds } = driverOf(gateway);
 
   if (refunds === 'none')
-    throw new HttpError(
-      409,
+    throw fail(
       'PARTIAL_NOT_SUPPORTED',
       'This gateway does not refund: refund outside erxes and record it as manual',
     );
 
   if (refunds === 'full' && (amount !== left || invoice.refundedAmount > 0)) {
-    throw new HttpError(
-      409,
+    throw fail(
       'PARTIAL_NOT_SUPPORTED',
       `${gateway.name} refunds whole payments only: refund the rest outside erxes and record it as manual`,
     );
   }
 
   if (!invoice.gatewayPaymentId)
-    throw new HttpError(409, 'NOT_REFUNDABLE', 'The gateway gave no payment id to refund');
+    throw fail('NOT_REFUNDABLE', 'The gateway gave no payment id to refund');
 
   return { amount, full: amount === left, paymentId: invoice.gatewayPaymentId };
 };
@@ -149,7 +140,8 @@ const applyRefund = async (
 
   await publishCoreEvents(client, {
     type: 'core.payment.refunded',
-    entity: { type: 'payment_invoice', id: invoice.id },
+    entityType: 'payment_invoice',
+    entityId: invoice.id,
     payload: {
       ...eventPayload(updated),
       refundId: refund.id,
@@ -190,8 +182,7 @@ export const refundInvoice = async (client: Db, input: RefundInput) => {
     ? await refundByDedupeKey(client, invoice.id, input.dedupeKey)
     : null;
 
-  if (existing)
-    return { refund: toRefundDto(existing), invoice: toInvoiceDto(invoice, gateway.kind) };
+  if (existing) return { refund: existing, invoice: await shownInvoice(client, invoice.id) };
 
   const { amount, full, paymentId } = refundAmount(invoice, gateway, input);
 
@@ -218,12 +209,10 @@ export const refundInvoice = async (client: Db, input: RefundInput) => {
       .returning(),
   );
 
-  const after =
-    outcome.status === 'failed'
-      ? invoice
-      : await applyRefund(client, invoice, refund, { full, reason: input.reason });
+  if (outcome.status !== 'failed')
+    await applyRefund(client, invoice, refund, { full, reason: input.reason });
 
-  return { refund: toRefundDto(refund), invoice: toInvoiceDto(after, gateway.kind) };
+  return { refund, invoice: await shownInvoice(client, invoice.id) };
 };
 
 export const listRefunds = async (client: Db, id: string) => {
@@ -244,5 +233,5 @@ export const listRefunds = async (client: Db, id: string) => {
       .limit(limit),
   );
 
-  return { data: rows.map(toRefundDto) };
+  return { data: rows };
 };

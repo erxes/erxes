@@ -12,7 +12,7 @@ import {
 } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 
 /** Common choices; any MIME type, `type/*` or `.ext` can be typed in. */
 const TYPE_OPTIONS: MultiSelectOption[] = [

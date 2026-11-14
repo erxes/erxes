@@ -2,12 +2,14 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 
 import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
+import { useLocation } from 'react-router-dom';
 
 import { Button } from 'erxes-ui/components/button';
 import { Separator } from 'erxes-ui/components/separator';
+import { useIsMobile } from 'erxes-ui/hooks/use-mobile';
 import { cn, mergeRefs } from 'erxes-ui/lib/utils';
-import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
+import { sidebarPanelOpenState, sidebarPanelOpenedAtState } from 'erxes-ui/state/sidebarPanelState';
 import { useTranslation } from 'react-i18next';
 
 const SIDEBAR_PANEL_SLOT = '[data-sidebar-panel-slot]';
@@ -29,6 +31,25 @@ const findSidebarPanelSlot = (panel: HTMLElement | null) => {
 };
 
 const SidebarPanelInnerTriggerHiddenContext = React.createContext(false);
+
+/**
+ * Whether the panel is open. On a desktop it stays as the member left it. On a phone it covers
+ * the page, so it starts closed and closes once you pick a page in it.
+ */
+const useSidebarPanelOpen = () => {
+  const isMobile = useIsMobile();
+  const { pathname } = useLocation();
+  const [desktopOpen, setDesktopOpen] = useAtom(sidebarPanelOpenState);
+  const [openedAt, setOpenedAt] = useAtom(sidebarPanelOpenedAtState);
+
+  if (!isMobile) return { isMobile, open: desktopOpen, setOpen: setDesktopOpen };
+
+  return {
+    isMobile,
+    open: openedAt === pathname,
+    setOpen: (open: boolean) => setOpenedAt(open ? pathname : null),
+  };
+};
 
 const isSlotAbovePanel = (slot: HTMLElement, panel: HTMLElement | null) =>
   Boolean(panel && slot.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING);
@@ -73,7 +94,7 @@ export const SidebarPanelTrigger = ({
   ...props
 }: React.ComponentProps<typeof Button>) => {
   const hidden = React.useContext(SidebarPanelInnerTriggerHiddenContext);
-  const [open, setOpen] = useAtom(sidebarPanelOpenState);
+  const { open, setOpen } = useSidebarPanelOpen();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
 
   const toggleLabel = open
@@ -115,7 +136,7 @@ export const SidebarPanel = ({
   label?: React.ReactNode;
   actions?: React.ReactNode;
 }) => {
-  const open = useAtomValue(sidebarPanelOpenState);
+  const { isMobile, open } = useSidebarPanelOpen();
   const panelRef = React.useRef<HTMLDivElement>(null);
   const { slot, claimed } = useSidebarPanelSlot(panelRef, open);
   const triggerInSlot = Boolean(slot && claimed);
@@ -128,7 +149,9 @@ export const SidebarPanel = ({
       className={cn(
         'relative flex h-full w-60 flex-col overflow-hidden border-r bg-sidebar text-foreground transition-layout duration-300 ease-out-quint motion-reduce:transition-none',
         className,
-        !open && 'w-0! overflow-visible border-0!',
+        // A phone has no room for a second column, so the panel covers the page's left side.
+        isMobile && 'absolute inset-y-0 left-0 z-20 shadow-lg',
+        !open && 'w-0! overflow-visible border-0! shadow-none',
       )}
       {...props}
     >
@@ -142,13 +165,14 @@ export const SidebarPanel = ({
           slot,
         )}
       {!open && !slot && (
-        <div className="absolute top-2.5 left-2 z-20">
+        <div className="absolute top-2.5 left-2 z-20 navigation-collapsed:left-12">
           <SidebarPanelTrigger className="size-7 border bg-background shadow-xs" />
         </div>
       )}
       <SidebarPanelInnerTriggerHiddenContext.Provider value={triggerInSlot}>
         {open && label && (
-          <div className="flex h-10 shrink-0 items-center gap-1 px-2">
+          // Clears the app sidebar's expand button, which floats over the page's top left corner.
+          <div className="flex h-10 shrink-0 items-center gap-1 px-2 navigation-collapsed:pl-12">
             <span className="min-w-0 flex-1 truncate px-2 text-sm font-medium">{label}</span>
             {actions}
             <SidebarPanelTrigger className="size-8" />

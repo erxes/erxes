@@ -1,13 +1,15 @@
+import { paths } from '~/lib/paths';
 import type { Activity, ActivityTarget } from '@erxes/core-contract';
 import { Skeleton } from 'erxes-ui';
-import type { ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import type { ReactElement } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import type { Lookups } from '~/components/ChangeList';
-import { isApiError } from '~/lib/api';
+import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
+import { useStageName } from '~/modules/leads/i18n';
 import {
   readCompanyLink,
   readCustomerLink,
@@ -30,6 +32,7 @@ const CoreRecord = ({
   id: string;
   fallback?: string;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const customer = useCustomer(type === 'customer' ? id : null);
   const company = useCompany(type === 'company' ? id : null);
   const query = type === 'customer' ? customer : company;
@@ -47,14 +50,11 @@ const CoreRecord = ({
   }
 
   if (query.isError) {
-    const deleted = isApiError(query.error) && query.error.status === 404;
+    const deleted = isApiError(query.error, 'NOT_FOUND');
 
     return (
-      <span
-        className="text-muted-foreground"
-        title={deleted ? `Deleted ${type}` : query.error.message}
-      >
-        {fallback ?? (deleted ? `a deleted ${type}` : id)}
+      <span className="text-muted-foreground" title={deleted ? undefined : query.error.message}>
+        {fallback ?? (deleted ? t('deleted', { context: type }) : id)}
       </span>
     );
   }
@@ -62,7 +62,7 @@ const CoreRecord = ({
   return (
     <Link
       className="font-medium hover:underline"
-      to={`/contacts/${type === 'customer' ? 'customers' : 'companies'}/${id}`}
+      to={type === 'customer' ? paths.contacts.customer(id) : paths.contacts.company(id)}
     >
       {name || id}
     </Link>
@@ -90,113 +90,103 @@ export const LinkedRecord = ({
   return <CoreRecord type={type} id={id} fallback={fallback || undefined} />;
 };
 
-const Stage = ({ stage }: { stage: { name?: string; color?: string } | null | undefined }) =>
-  stage ? (
+/** The stage as the board names it: default stages translated, the organisation's own as written. */
+const Stage = ({ stage }: { stage: { name?: string; color?: string } | null | undefined }) => {
+  const stageName = useStageName();
+
+  return stage ? (
     <span className="inline-flex items-center gap-1 font-medium">
       <span
         className="size-2 rounded-full bg-(--stage-color)"
         style={{ '--stage-color': stage.color }}
       />
-      {stage.name}
+      {stageName(stage.name)}
     </span>
-  ) : null;
-
-type Translate = (key: string, fallback: string) => string;
-
-const TaggedSentence = ({ activity, lookups, t }: SentenceProps & { t: Translate }) => {
-  const { added = [], removed = [] } = readTagged(activity) ?? {};
-
-  const names = (ids: string[]) =>
-    ids.map((id) => lookups.tags.get(id)?.name ?? 'a deleted tag').join(', ');
-
-  return (
-    <>
-      {added.length > 0 && (
-        <>
-          {t('added-tags', 'added')} <span className="font-medium">{names(added)}</span>
-        </>
-      )}
-      {added.length > 0 && removed.length > 0 && ` ${t('and', 'and')} `}
-      {removed.length > 0 && (
-        <>
-          {t('removed-tags', 'removed')} <span className="font-medium">{names(removed)}</span>
-        </>
-      )}
-    </>
+  ) : (
+    <></>
   );
 };
 
-const LeadSentence = ({ activity, t }: { activity: Activity; t: Translate }) => {
-  const lead = readLead(activity);
-
-  if (lead?.event === 'converted')
-    return <>{t('lead-converted', 'converted the lead to a customer')}</>;
+/**
+ * One whole sentence from `activity.sentence.<name>`, so each language puts the actor, the verb
+ * and the record in its own order. `<b>` marks names; `components` places links and chips.
+ */
+export const SentenceLine = ({
+  name,
+  context,
+  values,
+  components,
+}: {
+  name: string;
+  context?: string;
+  values?: Record<string, string>;
+  components?: Record<string, ReactElement>;
+}) => {
+  const { t } = useTranslation('common');
 
   return (
-    <>
-      {lead?.event === 'reopened'
-        ? t('lead-reopened', 'made them a lead again, at')
-        : t('lead-moved', 'moved the lead to')}{' '}
-      <Stage stage={lead?.to} />
-      {lead?.reason && <span className="text-muted-foreground"> · {lead.reason}</span>}
-    </>
+    <Trans
+      t={t}
+      i18nKey={`activity.sentence.${name}`}
+      context={context}
+      values={values}
+      components={{ b: <span className="font-medium" />, ...components }}
+    />
   );
 };
 
 interface SentenceProps {
   activity: Activity;
+  actor: string;
   lookups: Lookups;
 }
 
-/** What a core entry says after its actor: "created this customer", "added VIP", … */
-const Predicate = ({ activity, lookups }: SentenceProps) => {
+const TaggedSentence = ({ activity, actor, lookups }: SentenceProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
-  const verb = verbOf(activity);
+  const { added = [], removed = [] } = readTagged(activity) ?? {};
 
-  const record = isActivityTarget(activity.targetType)
-    ? t(`this-${activity.targetType}`, `this ${activity.targetType}`)
-    : t('this-record', 'this record');
+  const names = (ids: string[]) =>
+    ids.map((id) => lookups.tags.get(id)?.name ?? t('deleted-tag')).join(', ');
 
-  switch (verb) {
-    case 'created':
-    case 'updated':
-      return <>{`${t(verb, verb)} ${record}`}</>;
-    case 'tagged':
-      return <TaggedSentence activity={activity} lookups={lookups} t={t} />;
-    case 'merged':
-      return (
-        <>
-          {t('merged', 'merged')}{' '}
-          <span className="font-medium">
-            {(readMerged(activity)?.mergedNames ?? []).join(', ')}
-          </span>{' '}
-          {t('into', 'into')} {record}
-        </>
-      );
-    case 'company_linked':
-    case 'company_unlinked':
-    case 'customer_linked':
-    case 'customer_unlinked':
-      return <LinkSentence activity={activity} verb={verb} t={t} />;
-    case 'lead':
-      return <LeadSentence activity={activity} t={t} />;
-    default:
-      return <>· {activity.type}</>;
-  }
+  let name = 'tags-changed';
+
+  if (!removed.length) name = 'tags-added';
+  else if (!added.length) name = 'tags-removed';
+
+  return (
+    <SentenceLine name={name} values={{ actor, added: names(added), removed: names(removed) }} />
+  );
+};
+
+const LeadSentence = ({ activity, actor }: { activity: Activity; actor: string }) => {
+  const lead = readLead(activity);
+
+  if (lead?.event === 'converted') return <SentenceLine name="lead-converted" values={{ actor }} />;
+
+  return (
+    <>
+      <SentenceLine
+        name={lead?.event === 'reopened' ? 'lead-reopened' : 'lead-moved'}
+        values={{ actor }}
+        components={{ stage: <Stage stage={lead?.to} /> }}
+      />
+      {lead?.reason && <span className="text-muted-foreground"> · {lead.reason}</span>}
+    </>
+  );
 };
 
 const LinkSentence = ({
   activity,
+  actor,
   verb,
-  t,
 }: {
   activity: Activity;
+  actor: string;
   verb: string;
-  t: Translate;
 }) => {
   const company = readCompanyLink(activity);
   const customer = readCustomerLink(activity);
-  let linked: ReactNode = null;
+  let linked = <></>;
 
   if (verb.startsWith('company') && company) {
     linked = <LinkedRecord type="company" id={company.companyId} fallback={company.companyName} />;
@@ -207,20 +197,44 @@ const LinkSentence = ({
   }
 
   return (
-    <>
-      {verb.endsWith('_unlinked') ? t('unlinked', 'unlinked') : t('linked', 'linked')} {linked}
-    </>
+    <SentenceLine
+      name={verb.endsWith('_unlinked') ? 'unlinked' : 'linked'}
+      values={{ actor }}
+      components={{ record: linked }}
+    />
   );
 };
 
 /** One line about a core entry: who did what; plugin entries bring their own summary. */
-export const Sentence = ({ activity, actor, lookups }: SentenceProps & { actor: string }) => {
+export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
   if (activity.source !== 'core') return <>{activity.summary}</>;
 
-  return (
-    <>
-      <span className="font-medium">{actor}</span>{' '}
-      <Predicate activity={activity} lookups={lookups} />
-    </>
-  );
+  const verb = verbOf(activity);
+  // "this customer", "this company", or "this record" for any other target.
+  const context = isActivityTarget(activity.targetType) ? activity.targetType : undefined;
+
+  switch (verb) {
+    case 'created':
+    case 'updated':
+      return <SentenceLine name={verb} context={context} values={{ actor }} />;
+    case 'merged':
+      return (
+        <SentenceLine
+          name="merged"
+          context={context}
+          values={{ actor, names: (readMerged(activity)?.mergedNames ?? []).join(', ') }}
+        />
+      );
+    case 'tagged':
+      return <TaggedSentence activity={activity} actor={actor} lookups={lookups} />;
+    case 'company_linked':
+    case 'company_unlinked':
+    case 'customer_linked':
+    case 'customer_unlinked':
+      return <LinkSentence activity={activity} actor={actor} verb={verb} />;
+    case 'lead':
+      return <LeadSentence activity={activity} actor={actor} />;
+    default:
+      return <SentenceLine name="other" values={{ actor, type: activity.type }} />;
+  }
 };

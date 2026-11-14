@@ -12,35 +12,35 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { PageOutlet } from '~/components/CrashBoundary';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
-import { ContactsPath } from './utils/contactDetailPath';
 import type { ViewRecordType } from '@erxes/core-contract';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { NestedViews } from '~/modules/views/NestedViews';
-import { CONTACT_SETTINGS_PATH } from './settings/paths';
+import { paths } from '~/lib/paths';
 
+// People and companies are peers; leads (of either kind) come after.
 const CONTACTS_SECTIONS = [
-  // People and companies are peers; leads (of either kind) come after.
-  { labelKey: 'customers', path: ContactsPath.Customers, icon: IconUser },
-  { labelKey: 'companies', path: ContactsPath.Companies, icon: IconBuilding },
-  { labelKey: 'leads', path: ContactsPath.Leads, icon: IconMagnet },
-];
+  { labelKey: 'customers', to: paths.contacts.customers, icon: IconUser, views: 'customer' },
+  { labelKey: 'companies', to: paths.contacts.companies, icon: IconBuilding, views: 'company' },
+] as const;
 
-const LEADS = `${ContactsPath.Index}${ContactsPath.Leads}`;
+const LEADS = paths.contacts.leads;
 
 /** The Leads group: its report first, then people and companies. */
 const LEAD_ITEMS: { label: string; to: string; icon: typeof IconUser; views?: ViewRecordType }[] = [
-  { label: 'insights', to: `${LEADS}/insights`, icon: IconChartFunnel },
+  { label: 'insights', to: paths.contacts.insights, icon: IconChartFunnel },
   { label: 'people', to: LEADS, icon: IconUser, views: 'lead' },
-  { label: 'companies', to: `${LEADS}/companies`, icon: IconBuilding, views: 'company_lead' },
+  {
+    label: 'companies',
+    to: paths.contacts.companyLeads,
+    icon: IconBuilding,
+    views: 'company_lead',
+  },
 ];
 
 /** Which lead item a path is in (`/leads/<id>` is a person). */
 const leadItemOf = (pathname: string) =>
-  pathname.startsWith(`${LEADS}/insights`)
-    ? `${LEADS}/insights`
-    : pathname.startsWith(`${LEADS}/companies`)
-      ? `${LEADS}/companies`
-      : LEADS;
+  [paths.contacts.insights, paths.contacts.companyLeads].find((to) => pathname.startsWith(to)) ??
+  LEADS;
 
 const LeadsGroup = () => {
   const { pathname } = useLocation();
@@ -85,26 +85,18 @@ const ContactsNavigation = () => {
     <Sidebar.Group variant="flush">
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          {CONTACTS_SECTIONS.filter(({ path }) => path !== ContactsPath.Leads).map(
-            ({ labelKey, path, icon: Icon }) => {
-              const fullPath = `${ContactsPath.Index}${path}`;
-
-              return (
-                <Sidebar.MenuItem key={path}>
-                  <Sidebar.MenuButton
-                    isActive={pathname === fullPath || pathname.startsWith(`${fullPath}/`)}
-                    render={<Link to={fullPath} />}
-                  >
-                    <Icon />
-                    <span className="min-w-0 flex-1 truncate capitalize">{t(labelKey)}</span>
-                  </Sidebar.MenuButton>
-                  <NestedViews
-                    recordType={path === ContactsPath.Companies ? 'company' : 'customer'}
-                  />
-                </Sidebar.MenuItem>
-              );
-            },
-          )}
+          {CONTACTS_SECTIONS.map(({ labelKey, to, icon: Icon, views }) => (
+            <Sidebar.MenuItem key={to}>
+              <Sidebar.MenuButton
+                isActive={pathname === to || pathname.startsWith(`${to}/`)}
+                render={<Link to={to} />}
+              >
+                <Icon />
+                <span className="min-w-0 flex-1 truncate capitalize">{t(labelKey)}</span>
+              </Sidebar.MenuButton>
+              <NestedViews recordType={views} />
+            </Sidebar.MenuItem>
+          ))}
           <LeadsGroup />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
@@ -128,7 +120,7 @@ export const ContactsLayout = () => {
         // Pinned at the foot, as erxes plugins do: opens Contacts › Settings.
         footer={
           <AppLayoutFooterLink
-            path={CONTACT_SETTINGS_PATH}
+            to={paths.contacts.settings}
             name={sidebarT('settings', 'Settings')}
             icon={IconSettings}
           />

@@ -100,12 +100,7 @@ describe('scaffold', () => {
     const dir = join(root, 'new');
     const quality = /<!-- quality:start -->[\s\S]*<!-- quality:end -->/;
 
-    const shared = [
-      'tools/check-rls.sql',
-      'tools/config/rules.ts',
-      'tools/config/budgets.ts',
-      'tools/test/no-skips.ts',
-    ];
+    const shared = ['tools/check-rls.sql', 'tools/test/no-skips.ts'];
 
     const changed: string[] = [];
 

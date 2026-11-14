@@ -1,8 +1,7 @@
-import type { CustomerExists } from '@erxes/core-contract';
 import type { CustomValue, Db } from '@erxes/core-db';
 import { customers } from '@erxes/core-db';
 import { arrayContains, eq, getTableColumns, or, sql } from 'drizzle-orm';
-import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
+import { notFound } from '~/http/errors';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 
@@ -40,39 +39,4 @@ export const findCustomer = async (client: Db, id: string, followMerges = false)
   }
 
   return row;
-};
-
-/** A taken primary email or phone → 409 naming the customer that has it. */
-export const conflictFrom = async (
-  client: Db,
-  error: unknown,
-  values: { primaryEmail: string | null; primaryPhone: string | null },
-): Promise<never> => {
-  if (pgCode(error) !== '23505') {
-    throw error;
-  }
-
-  const byEmail = pgConstraint(error) === 'core_customers_org_primary_email_key';
-
-  const [existing] = await client
-    .select({ id: customers.id })
-    .from(customers)
-    .where(
-      byEmail
-        ? sql`lower(${customers.primaryEmail}) = ${values.primaryEmail}`
-        : eq(customers.primaryPhone, values.primaryPhone ?? ''),
-    )
-    .limit(1);
-
-  throw new HttpError(
-    409,
-    'CUSTOMER_EXISTS',
-    byEmail
-      ? 'A customer with this email already exists'
-      : 'A customer with this phone already exists',
-    {
-      field: byEmail ? 'primaryEmail' : 'primaryPhone',
-      id: existing?.id ?? null,
-    } satisfies CustomerExists,
-  );
 };

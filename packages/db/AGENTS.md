@@ -4,8 +4,10 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
 
 - `src/schema/<domain>.ts` defines tables with `pgTable` from `src/table.ts`, which adds `core_`.
   The published contract copies the schema, so schema files import only drizzle, `../table`,
-  `../enums` and each other (`no-restricted-imports`). A jsonb column's shape is typed here; this
-  package never imports the contract.
+  `../enums`, `../automationDefinition` and each other (`no-restricted-imports`). A jsonb column's
+  shape is typed here with `$type<...>()`; this package never imports the contract.
+- `src/automationDefinition.ts` is the zod for an automation's steps and conditions. The
+  definition columns are typed with it, and the contract re-exports it.
 - `src/enums.ts` has every `as const` value list: what the columns store, the contract's z.enums
   accept and the config reads. A CHECK builds its `IN (...)` from the column's list with
   `inList(column, LIST)` from `src/table.ts`. `erxes/no-inline-enum` fails a list written out elsewhere.

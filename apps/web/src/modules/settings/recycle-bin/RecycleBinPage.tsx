@@ -1,4 +1,5 @@
-import type { TrashItem, User } from '@erxes/core-contract';
+import { paths } from '~/lib/paths';
+import type { TrashItem } from '@erxes/core-contract';
 import { IconRestore, IconTrash, IconTrashX } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -10,7 +11,9 @@ import {
   PageHeader,
   RelativeDateDisplay,
   ScrollArea,
+  type Member,
   useConfirm,
+  useMembersById,
   useToast,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -18,8 +21,8 @@ import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
-import { actorLabel, useMembersById } from '~/lib/members';
+import { memberQueries, messageOf, orpc } from '@erxes/core-contract/client';
+import { actorLabel } from '~/lib/members';
 import { useCan } from '~/modules/auth/session';
 
 const useTrashActions = (onDone: () => void) => {
@@ -67,7 +70,7 @@ const TrashRow = ({
   onCheckedChange,
 }: {
   item: TrashItem;
-  members: Map<string, User>;
+  members: Map<string, Member>;
   checked: boolean;
   onCheckedChange: (on: boolean) => void;
 }) => {
@@ -101,7 +104,7 @@ const TrashRow = ({
         ].join(' · ')}
       </span>
       <span className="ml-auto text-xs text-muted-foreground">
-        {actorLabel(item.deletedBy, members)} ·{' '}
+        {actorLabel(item.deletedByType, item.deletedBy, members)} ·{' '}
         <RelativeDateDisplay value={item.deletedAt} render={<span />}>
           <RelativeDateDisplay.Value value={item.deletedAt} />
         </RelativeDateDisplay>
@@ -120,7 +123,8 @@ const TrashList = ({
   onToggle: (id: string, on: boolean) => void;
 }) => {
   const members = useMembersById(
-    items.map((item) => (item.deletedBy.type === 'user' ? item.deletedBy.id : null)),
+    items.map((item) => (item.deletedByType === 'user' ? item.deletedBy : null)),
+    memberQueries,
   );
 
   return (
@@ -168,7 +172,7 @@ export const RecycleBinPage = () => {
     orpc.trash.list.queryOptions({ input: can('contacts.delete') ? { limit: 500 } : skipToken }),
   );
 
-  if (!can('contacts.delete')) return <Navigate to="/settings" replace />;
+  if (!can('contacts.delete')) return <Navigate to={paths.settings.root} replace />;
 
   const toggle = (id: string, on: boolean) =>
     setSelected((current) => {
@@ -186,7 +190,7 @@ export const RecycleBinPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Recycle bin'), to: '/settings/recycle-bin', icon: IconTrash },
+              { label: t('title', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash },
             ]}
           />
         </PageHeader.Start>

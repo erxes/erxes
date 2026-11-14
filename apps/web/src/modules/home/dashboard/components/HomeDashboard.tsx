@@ -1,5 +1,5 @@
 import { IconLayoutDashboard } from '@tabler/icons-react';
-import { cn } from 'erxes-ui';
+import { cn, Empty } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -37,10 +37,14 @@ const HomeDashboardEmptyState = () => {
   const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
 
   return (
-    <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed bg-background px-6 py-12 text-center text-sm text-muted-foreground">
-      <IconLayoutDashboard className="size-6" />
-      <span>{t('empty')}</span>
-    </div>
+    <Empty variant="outline">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconLayoutDashboard />
+        </Empty.Media>
+        <Empty.Description>{t('empty')}</Empty.Description>
+      </Empty.Header>
+    </Empty>
   );
 };
 

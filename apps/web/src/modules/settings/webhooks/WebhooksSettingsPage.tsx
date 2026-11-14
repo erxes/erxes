@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconCheck, IconCopy, IconWebhook } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
@@ -15,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { NewWebhook } from './NewWebhook';
 import { WebhookRow } from './WebhookRow';
@@ -91,14 +92,16 @@ export const WebhooksSettingsPage = () => {
     orpc.webhooks.list.queryOptions({ input: can('webhooks.manage') ? undefined : skipToken }),
   );
 
-  if (!can('webhooks.manage')) return <Navigate to="/settings" replace />;
+  if (!can('webhooks.manage')) return <Navigate to={paths.settings.root} replace />;
 
   return (
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'Webhooks'), to: '/settings/webhooks', icon: IconWebhook }]}
+            items={[
+              { label: t('title', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook },
+            ]}
           />
         </PageHeader.Start>
         <PageHeader.End>

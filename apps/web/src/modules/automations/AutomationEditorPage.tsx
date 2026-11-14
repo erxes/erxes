@@ -2,10 +2,12 @@ import type { Automation, AutomationDefinition } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { PageContainer, Tabs } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { usePageHotkey } from '~/lib/usePageHotkey';
 import { useCan } from '~/modules/auth/session';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
@@ -19,12 +21,6 @@ import { useAutomationFields } from './builder/useAutomationFields';
 import { RunsPanel } from './RunsPanel';
 import type { Selection } from './StepInspector';
 import { useAutomationDraft, useAutomationMutations } from './useAutomationEditor';
-
-const typing = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
-  (target.isContentEditable ||
-    ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
-    target.closest('[role="dialog"],[role="menu"],[role="listbox"]'));
 
 /** The record type runs are about, and whether the trigger gives one at all. */
 const subjectOf = (trigger: AutomationDefinition['trigger'], triggers: Catalog['triggers']) => {
@@ -62,27 +58,16 @@ const useShortcuts = ({
   onSave: (() => void) | undefined;
   onRemove: (() => void) | undefined;
   onEscape: () => void;
-}) =>
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
-        event.preventDefault();
-        onSave?.();
-
-        return;
-      }
-
-      if (typing(event.target)) return;
-
-      if (event.key === 'Escape') onEscape();
-
-      if (event.key === 'Delete' || event.key === 'Backspace') onRemove?.();
-    };
-
-    window.addEventListener('keydown', onKey);
-
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onSave, onRemove, onEscape]);
+}) => {
+  // Saving works from inside a field too.
+  useHotkeys('mod+s', () => onSave?.(), {
+    preventDefault: true,
+    enableOnFormTags: true,
+    enableOnContentEditable: true,
+  });
+  usePageHotkey('escape', onEscape);
+  usePageHotkey('delete, backspace', () => onRemove?.());
+};
 
 /**
  * The builder's derived data: actions for this subject, each step's problems,

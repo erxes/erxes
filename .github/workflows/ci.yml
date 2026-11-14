@@ -1,8 +1,8 @@
 # erxes core: static checks, tests on Postgres, builds, TLA+ model checks, container
-# images with a vulnerability scan and a smoke test of the whole stack, and the
-# packed shared packages checked outside the workspace, and the daily flows in
-# Chromium on the smoke test's stack. The six run side by side; images go to GHCR
-# on pushes to postgre only after all of them pass.
+# images with a vulnerability scan, a smoke test of the whole stack and the daily
+# flows in Chromium on it, and the packed shared packages checked outside the
+# workspace. The five run side by side; images go to GHCR on pushes to postgre only
+# after all of them pass.
 # Require the `Check` job in branch protection.
 name: CI
 
@@ -55,7 +55,7 @@ jobs:
       - name: No bundle budget grew against the base
         if: env.BASE_SHA != '' && env.BASE_SHA != '0000000000000000000000000000000000000000' && !contains(github.event.pull_request.labels.*.name, 'gate-change')
         run: node tools/check-escapes.ts "$BASE_SHA"
-      - name: Migrations and openapi.json match the schema and contract
+      - name: Migrations, routes.json and cn tables match their sources
         run: pnpm check:generated
       - name: Applied migrations unchanged
         run: pnpm --filter @erxes/core-db db:check-applied "$BASE_SHA"
@@ -124,13 +124,22 @@ jobs:
           if-no-files-found: ignore
 
   images:
-    name: Images, scan and smoke test
+    # Builds the two images once. The scan, the smoke test and the daily flows
+    # (e2e/*.spec.ts in Chromium with an axe check on every page they visit) all use
+    # them. Smoke test and flows each need a fresh database, so each gets its own
+    # copy of the deploy stack: the flows' on :8080, the smoke test's on :8081.
+    name: Images, scan, smoke test and daily flows in Chromium
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # docker-bake.hcl's tags; the compose stack runs them.
+      # docker-bake.hcl's tags; the compose stacks run them.
       API_IMAGE: erxes-api:local
       WEB_IMAGE: erxes-web:local
+      # Branch runs (pushes to postgre, a manual run) write the layer cache; pull requests
+      # and the merge queue only read postgre's. Every ref writes its own copy of each
+      # dependency layer (about 0.5 GB), so writes from pull requests filled the
+      # repository's 10 GB cache, evicted postgre's layers and cost each run a minute of upload.
+      CACHE_WRITE: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -144,29 +153,62 @@ jobs:
           load: true
           set: |
             api.cache-from=type=gha,scope=api
-            api.cache-to=type=gha,scope=api,mode=max
             web.cache-from=type=gha,scope=web
-            web.cache-to=type=gha,scope=web,mode=max
-      - name: No HIGH or CRITICAL vulnerabilities that have a fix
-        run: |
-          for image in "$API_IMAGE" "$WEB_IMAGE"; do
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy \
-              aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb \
-              image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$image"
-          done
-      - name: Start the stack
+            ${{ env.CACHE_WRITE == 'true' && 'api.cache-to=type=gha,scope=api,mode=max' || '' }}
+            ${{ env.CACHE_WRITE == 'true' && 'web.cache-to=type=gha,scope=web,mode=max' || '' }}
+      - name: Start both stacks while Trivy finds no HIGH or CRITICAL vulnerabilities that have a fix
         run: |
           deploy/make-secrets.sh
           {
             echo "DATA_OWNER_PASSWORD=$(openssl rand -hex 16)"
             echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
           } > deploy/.env
-          docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d
+          compose=(docker compose -f deploy/docker-compose.yml --env-file deploy/.env)
+          "${compose[@]}" -f e2e/docker-compose.e2e.yml up -d > "$RUNNER_TEMP/flows-up.log" 2>&1 &
+          flows=$!
+          UI_PORT=8081 APP_URL=http://localhost:8081 "${compose[@]}" -p erxes-smoke up -d > "$RUNNER_TEMP/smoke-up.log" 2>&1 &
+          smoke=$!
+          for image in "$API_IMAGE" "$WEB_IMAGE"; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy \
+              aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb \
+              image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$image"
+          done
+          status=0
+          wait "$flows" || status=$?
+          wait "$smoke" || status=$?
+          cat "$RUNNER_TEMP/flows-up.log" "$RUNNER_TEMP/smoke-up.log"
+          exit "$status"
       - name: Smoke test
-        run: deploy/smoke.sh http://localhost:8080
+        run: deploy/smoke.sh http://localhost:8081
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Chromium (headless shell) and its system libraries
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+      - name: Wait for the stack
+        run: timeout 120 sh -c 'until curl -fsS http://localhost:8080/core/v1/setup >/dev/null; do sleep 2; done'
+      - name: Daily flows, light and dark, with axe
+        run: pnpm e2e
+        env:
+          E2E_BASE_URL: http://localhost:8080
+      - name: Traces and screenshots of failed specs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-traces
+          path: e2e/test-results/
+          retention-days: 14
       - name: Stack logs
         if: always()
-        run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env logs --no-color --tail 300 || true
+        run: |
+          for project in erxes-smoke erxes-core; do
+            echo "::group::$project"
+            docker compose -f deploy/docker-compose.yml --env-file deploy/.env -p "$project" logs --no-color --tail 300 || true
+            echo "::endgroup::"
+          done
 
   packages:
     # A package that only works inside the monorepo (an import of an undeclared
@@ -196,9 +238,9 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Build and pack @erxes/ui, @erxes/core-contract, @erxes/plugin-sdk and create-erxes
+      - name: Build and pack @erxes/ui, @erxes/core-contract, @erxes/plugin-sdk, @erxes/lint and create-erxes
         run: |
-          filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk --filter create-erxes)
+          filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk --filter @erxes/lint --filter create-erxes)
           pnpm "${filters[@]}" build
           pnpm "${filters[@]}" exec pnpm pack --pack-destination "$RUNNER_TEMP/packs"
       - name: A plugin UI and a plugin server build against the tarballs
@@ -208,66 +250,10 @@ jobs:
         env:
           CREATE_ERXES_PACKS: ${{ runner.temp }}/packs
 
-  e2e:
-    # The daily flows (e2e/*.spec.ts) in Chromium with an axe check on every page they visit,
-    # against the same stack as the smoke test. A new runner is a fresh database: the specs
-    # seed their synthetic data through the API.
-    name: Daily flows in Chromium, light and dark, with axe
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      API_IMAGE: erxes-api:local
-      WEB_IMAGE: erxes-web:local
-    steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-        with:
-          cleanup: false
-      - name: Build both images from the images job's layer cache
-        uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
-        with:
-          source: .
-          load: true
-          set: |
-            api.cache-from=type=gha,scope=api
-            web.cache-from=type=gha,scope=web
-      - name: Start the stack
-        run: |
-          deploy/make-secrets.sh
-          {
-            echo "DATA_OWNER_PASSWORD=$(openssl rand -hex 16)"
-            echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
-          } > deploy/.env
-          docker compose -f deploy/docker-compose.yml -f e2e/docker-compose.e2e.yml --env-file deploy/.env up -d
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: Chromium (headless shell) and its system libraries
-        run: pnpm exec playwright install --with-deps --only-shell chromium
-      - name: Wait for the stack
-        run: timeout 120 sh -c 'until curl -fsS http://localhost:8080/core/v1/setup >/dev/null; do sleep 2; done'
-      - name: Daily flows
-        run: pnpm e2e
-        env:
-          E2E_BASE_URL: http://localhost:8080
-      - name: Traces and screenshots of failed specs
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-traces
-          path: e2e/test-results/
-          retention-days: 14
-      - name: Stack logs
-        if: failure()
-        run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env logs --no-color --tail 300 || true
-
   check:
     # The job to require. It fails when any job above failed, was cancelled or was skipped.
     name: Check
-    needs: [static, integration, models, images, packages, e2e]
+    needs: [static, integration, models, images, packages]
     if: always()
     runs-on: ubuntu-latest
     steps:

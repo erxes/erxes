@@ -6,7 +6,7 @@ description: Add or change an API procedure. Use when editing api/src/modules, a
 1. Pick the permission from `PERMISSIONS` in `api/src/core.ts`. A new one goes
    there and into `manifest.permissions`, named `__id__.<record>.<verb>`.
 2. Write the procedure in `api/src/modules/<module>/<module>.ts` on `reads(action)`
-   or `writes(action)` from `api/src/orpc.ts`, with a zod `.input()`. Query
+   or `writes(action)` from `api/src/orpc.ts`, with zod `.input()` and `.output()` schemas. Query
    through `context.tx` with no org filter: row-level security scopes it.
    Lists page by cursor, newest first, as `items.list` does.
 3. Fail with `ORPCError` (`NOT_FOUND`, `FORBIDDEN`, `CONFLICT`, `BAD_REQUEST`);

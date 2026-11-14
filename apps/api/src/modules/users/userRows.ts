@@ -1,16 +1,10 @@
 import { caller, type Db, roles, runAs, users } from '@erxes/core-db';
 import { and, count, eq, ne } from 'drizzle-orm';
 import { can } from '~/http/access';
-import { HttpError, notFound, pgCode } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { lockOrganization } from '~/lib/locks';
 
 export type UserRow = typeof users.$inferSelect;
-
-/** The row with whether two-factor is on; the `User` schema leaves out the password hash and TOTP secret. */
-export const toUserDto = (row: UserRow) => ({
-  ...row,
-  twoFactorEnabled: Boolean(row.totpEnabledAt),
-});
 
 /**
  * Changing someone else on the team needs `team.manage` (the policy lets any
@@ -19,7 +13,7 @@ export const toUserDto = (row: UserRow) => ({
  */
 export const assertTeamManager = () => {
   if (!can(caller('user'), 'team.manage')) {
-    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+    throw fail('NOT_ALLOWED', "Your role doesn't allow this", {
       permission: 'team.manage',
     });
   }
@@ -44,19 +38,10 @@ export const lockTeam = async <T>(tx: Db, fn: () => Promise<T>) => {
     .limit(1);
 
   if (!row || row.status !== 'active') {
-    throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+    throw fail('UNAUTHORIZED', 'Sign in to continue');
   }
 
   return runAs({ ...me, role: row.role, permissions: row.permissions }, fn);
-};
-
-/** A unique email or username in the organisation → 409. */
-export const conflictFrom = (error: unknown): never => {
-  if (pgCode(error) === '23505') {
-    throw new HttpError(409, 'EMAIL_TAKEN', 'A team member with this email already exists');
-  }
-
-  throw error;
 };
 
 export const findUser = async (client: Db, id: string, lock = false) => {

@@ -1,8 +1,10 @@
+import { PLUGIN_SCOPES } from '@erxes/core-contract';
 import { caller, type Db, db, pluginInstallations, plugins, requestOrgId } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
+import { oneRow } from '~/lib/rows';
 import { can } from '~/http/access';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { accessOf, tierOf } from '~/modules/saas/access';
@@ -14,44 +16,37 @@ import { requestedScopes } from './plugins.service';
 const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;
 const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
 
-const toPluginDto = (
-  row: typeof plugins.$inferSelect,
-  installation?: typeof pluginInstallations.$inferSelect | null,
-) => {
-  const requested = requestedScopes(row);
-  const installed = installation?.status === 'active';
-  const granted = installed ? installation.grantedScopes : [];
+/** `requestedScopes()` in SQL. */
+const requested = sql<string[]>`case when ${plugins.manifest} ? 'scopes'
+  then array(select jsonb_array_elements_text(${plugins.manifest} -> 'scopes'))
+  else ${textArray([...PLUGIN_SCOPES])} end`;
 
-  return {
-    name: row.name,
-    title: row.manifest?.title ?? row.name,
-    version: row.manifest?.version ?? null,
-    description: row.manifest?.description ?? null,
-    countries: row.manifest?.countries ?? [],
-    ui: row.manifest?.ui ?? null,
-    api: row.manifest?.api ?? null,
-    installed,
-    statusReason: installation?.statusReason ?? null,
-    requestedScopes: requested,
-    grantedScopes: granted,
-    needsApproval: installed && requested.some((scope) => !granted.includes(scope)),
-    installedAt: installed ? installation.installedAt : null,
-  };
-};
+/** Active plugins with this organisation's installation, as members see them. */
+const selectPlugins = (client: Db, where?: SQL) =>
+  client
+    .select({
+      name: plugins.name,
+      manifest: plugins.manifest,
+      installation: {
+        status: pluginInstallations.status,
+        statusReason: pluginInstallations.statusReason,
+        grantedScopes: pluginInstallations.grantedScopes,
+        installedAt: pluginInstallations.installedAt,
+      },
+      requestedScopes: requested,
+      needsApproval: sql<boolean>`coalesce(${pluginInstallations.status} = 'active'
+        and not ${requested} <@ ${pluginInstallations.grantedScopes}, false)`,
+    })
+    .from(plugins)
+    .leftJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
+    .where(and(eq(plugins.status, 'active'), where));
 
-export const listPlugins = async () => {
-  const rows = await wholeList((limit) =>
-    db()
-      .select({ plugin: plugins, installation: pluginInstallations })
-      .from(plugins)
-      .leftJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-      .where(eq(plugins.status, 'active'))
-      .orderBy(plugins.name)
-      .limit(limit),
-  );
+const shownPlugin = async (client: Db, name: string) =>
+  oneRow(await selectPlugins(client, eq(plugins.name, name)).limit(1));
 
-  return { data: rows.map((row) => toPluginDto(row.plugin, row.installation)) };
-};
+export const listPlugins = async () => ({
+  data: await wholeList((limit) => selectPlugins(db()).orderBy(plugins.name).limit(limit)),
+});
 
 const pluginOrThrow = async (client: Db, name: string) => {
   const [row] = await client
@@ -60,7 +55,7 @@ const pluginOrThrow = async (client: Db, name: string) => {
     .where(and(eq(plugins.name, name), eq(plugins.status, 'active')))
     .limit(1);
 
-  if (!row) throw new HttpError(404, 'PLUGIN_NOT_FOUND', 'No such plugin');
+  if (!row) throw fail('PLUGIN_NOT_FOUND', 'No such plugin');
 
   return row;
 };
@@ -81,7 +76,7 @@ export const installPlugin = async (name: string) => {
     .where(eq(pluginInstallations.plugin, name))
     .limit(1);
 
-  const [installation] = await tx
+  await tx
     .insert(pluginInstallations)
     .values({
       plugin: name,
@@ -98,8 +93,7 @@ export const installPlugin = async (name: string) => {
         updatedAt: sql`now()`,
         installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
       },
-    })
-    .returning();
+    });
 
   await recordAudit(tx, {
     action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',
@@ -109,7 +103,7 @@ export const installPlugin = async (name: string) => {
     changes: { scopes: [before?.status === 'active' ? before.grantedScopes : [], scopes] },
   });
 
-  return toPluginDto(row, installation);
+  return shownPlugin(tx, name);
 };
 
 /** Uninstalls: tokens stop working on the next request. Data stays in the plugin. */
@@ -124,7 +118,7 @@ export const uninstallPlugin = async (name: string) => {
     .where(eq(pluginInstallations.plugin, name))
     .returning();
 
-  if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
+  if (!installation) throw fail('NOT_INSTALLED', `${name} is not installed`);
 
   await recordAudit(tx, {
     action: 'plugin.uninstalled',
@@ -133,7 +127,7 @@ export const uninstallPlugin = async (name: string) => {
     targetLabel: row.manifest?.title ?? name,
   });
 
-  return toPluginDto(row, installation);
+  return shownPlugin(tx, name);
 };
 
 /**
@@ -158,14 +152,13 @@ export const pluginSession = async (name: string) => {
     )
     .limit(1);
 
-  if (!row)
-    throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
+  if (!row) throw fail('NOT_INSTALLED', `${name} is not installed in this organisation`);
 
   // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
   const plan = await entitlementsOf(orgId);
   const access = accessOf(plan, name);
 
-  if (access === 'off') throw new HttpError(402, 'NOT_IN_PLAN', `${name} is not in your plan`);
+  if (access === 'off') throw fail('NOT_IN_PLAN', `${name} is not in your plan`);
 
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
   const permissions = (row.plugin.manifest?.permissions ?? [])

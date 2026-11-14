@@ -2,8 +2,8 @@ import { AppLayoutPageSlot } from 'erxes-ui/modules/layout/components/AppLayoutP
 import {
   APP_LAYOUT_DEFAULT_WIDTH,
   AppLayoutResizeHandle,
-  getAppLayoutAtoms,
-  type TAppLayoutAtoms,
+  appLayoutOpenState,
+  appLayoutWidthState,
 } from 'erxes-ui/modules/layout/components/AppLayoutResizeHandle';
 import { type ElementType, type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 
@@ -60,21 +60,20 @@ const AppLayoutFooter = ({ children }: { children?: ReactNode }) =>
  * the plugin's own settings or the way back from them.
  */
 export const AppLayoutFooterLink = ({
-  path,
+  to,
   name,
   icon: Icon,
 }: {
-  path: string;
+  to: string;
   name: string;
   icon?: ElementType;
 }) => {
   const { pathname } = useLocation();
-  const fullPath = `/${path.replace(/^\/+/, '')}`;
-  const isActive = pathname === fullPath || pathname.startsWith(`${fullPath}/`);
+  const isActive = pathname === to || pathname.startsWith(`${to}/`);
 
   return (
     <Sidebar.MenuItem>
-      <Sidebar.MenuButton isActive={isActive} render={<Link to={fullPath} />}>
+      <Sidebar.MenuButton isActive={isActive} render={<Link to={to} />}>
         {Icon && <Icon />}
         <span className="min-w-0 flex-1 truncate">{name}</span>
       </Sidebar.MenuButton>
@@ -149,20 +148,20 @@ const AppLayoutSidebarHeader = ({
 
 /** Renders the persisted desktop sidebar beside the application page slot. */
 const AppLayoutDesktop = ({
-  atoms,
+  id,
   children,
   footer,
   sidebar,
   title,
 }: {
-  atoms: TAppLayoutAtoms;
+  id: string;
   children: ReactNode;
   sidebar: ReactNode;
   footer?: ReactNode;
   title?: ReactNode;
 }) => {
-  const [open, setOpen] = useAtom(atoms.open);
-  const [width, setWidth] = useAtom(atoms.width);
+  const [open, setOpen] = useAtom(appLayoutOpenState(id));
+  const [width, setWidth] = useAtom(appLayoutWidthState(id));
   const [resizing, setResizing] = useState(false);
   const asideRef = useRef<HTMLElement>(null);
   const currentWidth = width ?? APP_LAYOUT_DEFAULT_WIDTH;
@@ -261,7 +260,7 @@ const AppLayoutMobile = ({
 
 /** Selects the application layout for the current sidebar breakpoint. */
 const AppLayoutBody = (props: {
-  atoms: TAppLayoutAtoms;
+  id: string;
   children: ReactNode;
   sidebar: ReactNode;
   footer?: ReactNode;
@@ -291,7 +290,7 @@ export const AppLayout = ({
   children: ReactNode;
 }) => (
   <Sidebar.Provider className="min-h-0 flex-1" sidebarKeyboardShortcut={false}>
-    <AppLayoutBody atoms={getAppLayoutAtoms(id)} sidebar={sidebar} footer={footer} title={title}>
+    <AppLayoutBody id={id} sidebar={sidebar} footer={footer} title={title}>
       {children}
     </AppLayoutBody>
   </Sidebar.Provider>

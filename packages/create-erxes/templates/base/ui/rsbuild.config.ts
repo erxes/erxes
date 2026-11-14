@@ -2,6 +2,7 @@ import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
 import { defineConfig } from '@rsbuild/core';
 import { pluginBabel } from '@rsbuild/plugin-babel';
 import { pluginReact } from '@rsbuild/plugin-react';
+import tailwindcss from '@tailwindcss/postcss';
 import reactCompiler from 'babel-plugin-react-compiler';
 // What web shares. The host provides each one (`import: false`), so the plugin
 // never bundles a second React, router, query client or erxes-ui.
@@ -33,4 +34,6 @@ export default defineConfig({
   output: { assetPrefix: 'auto' },
   dev: { assetPrefix: true, lazyCompilation: false },
   server: { port: Number(process.env.UI_PORT) || __uiPort__, cors: { origin: '*' } },
+  // src/styles.css: the plugin's own Tailwind utilities.
+  tools: { postcss: (_options, { addPlugins }) => addPlugins(tailwindcss()) },
 });

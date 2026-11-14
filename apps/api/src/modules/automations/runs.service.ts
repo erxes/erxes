@@ -1,36 +1,25 @@
 import type { CursorQuery } from '@erxes/core-contract';
 import { automationRuns, automationRunSteps, type Db } from '@erxes/core-db';
 import { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
-import { and, asc, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
-import { z } from 'zod';
-import { HttpError, notFound } from '~/http/errors';
+import { and, asc, eq, getTableColumns, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
+import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { findAutomation } from './automations.service';
 import { cancelRun, definitionOf, retryRun } from './runs';
 import { startNow } from './triggers';
-import { contactNames } from '~/modules/activities/contactHistory';
+import { contactName } from '~/modules/activities/contactHistory';
 
 type RunRow = typeof automationRuns.$inferSelect;
 
-/** The names of the runs' subjects, read in one query. */
-const subjectNames = (client: Db, rows: RunRow[]) => {
-  const ids = (type: RunRow['subjectType']) =>
-    rows.flatMap((row) => (row.subjectType === type && row.subjectId ? [row.subjectId] : []));
-
-  return contactNames(client, ids('customer'), ids('company'));
-};
-
-const toRunDto = (row: RunRow, names: Map<string, string | null>) => ({
-  ...row,
-  subject:
-    row.subjectType && row.subjectId
-      ? { type: row.subjectType, id: row.subjectId, name: names.get(row.subjectId) ?? null }
-      : null,
-  goalReached: Boolean(row.goalReachedAt),
-});
-
-const runDto = async (client: Db, row: RunRow) => toRunDto(row, await subjectNames(client, [row]));
+/** Runs with the name of the customer or company each is about. */
+const selectRuns = (client: Db) =>
+  client
+    .select({
+      ...getTableColumns(automationRuns),
+      subjectName: contactName(client, automationRuns.subjectType, automationRuns.subjectId),
+    })
+    .from(automationRuns);
 
 export const listRuns = async (
   client: Db,
@@ -38,7 +27,7 @@ export const listRuns = async (
 ) => {
   await findAutomation(client, query.id);
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: automationRuns,
@@ -50,25 +39,15 @@ export const listRuns = async (
     query.status ? eq(automationRuns.status, query.status) : undefined,
     query,
     (where, orderBy, limit) =>
-      client
-        .select()
-        .from(automationRuns)
+      selectRuns(client)
         .where(where)
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  const names = await subjectNames(client, page.data);
-
-  return { ...page, data: page.data.map((row) => toRunDto(row, names)) };
 };
 
 const findRun = async (client: Db, runId: string) => {
-  const [row] = await client
-    .select()
-    .from(automationRuns)
-    .where(eq(automationRuns.id, runId))
-    .limit(1);
+  const [row] = await selectRuns(client).where(eq(automationRuns.id, runId)).limit(1);
 
   if (!row) throw notFound('Run');
 
@@ -85,7 +64,7 @@ export const getRun = async (client: Db, runId: string) => {
     .orderBy(asc(automationRunSteps.finishedAt));
 
   return {
-    run: await runDto(client, run),
+    run,
     steps,
   };
 };
@@ -95,9 +74,9 @@ export const retryAutomationRun = async (client: Db, runId: string) => {
 
   const run = await retryRun(client, runId);
 
-  if (!run) throw new HttpError(409, 'NOT_FAILED', 'Only a failed run can be retried');
+  if (!run) throw fail('NOT_FAILED', 'Only a failed run can be retried');
 
-  return runDto(client, run);
+  return findRun(client, runId);
 };
 
 export const cancelAutomationRun = async (client: Db, runId: string) => {
@@ -105,10 +84,9 @@ export const cancelAutomationRun = async (client: Db, runId: string) => {
 
   const run = await cancelRun(client, runId);
 
-  if (!run)
-    throw new HttpError(409, 'NOT_RUNNING', 'Only a running or waiting run can be cancelled');
+  if (!run) throw fail('NOT_RUNNING', 'Only a running or waiting run can be cancelled');
 
-  return runDto(client, run);
+  return findRun(client, runId);
 };
 
 /** A member starts an active automation now, on the given records or its audience. */
@@ -120,7 +98,7 @@ export const startAutomation = async (client: Db, id: string, subjects?: string[
       ? await definitionOf(client, id, row.activeVersion)
       : null;
 
-  if (!definition) throw new HttpError(409, 'NOT_ACTIVE', 'Turn the automation on first');
+  if (!definition) throw fail('NOT_ACTIVE', 'Turn the automation on first');
 
   const result = await startNow(client, row, definition, subjects);
 
@@ -134,9 +112,6 @@ export const startAutomation = async (client: Db, id: string, subjects?: string[
 
   return result;
 };
-
-/** Runs skipped by the hourly limit, counted in the automation's working state. */
-const SkippedByLimit = z.object({ skippedByLimit: z.int() });
 
 const countWhere = (filter: SQL | undefined) => sql<number>`count(*) filter (where ${filter})::int`;
 
@@ -176,7 +151,8 @@ export const automationStats = async (client: Db, id: string) => {
   return {
     runs: runs ?? { total: 0, running: 0, succeeded: 0, failed: 0, cancelled: 0, goalReached: 0 },
     steps,
-    skippedByLimit: SkippedByLimit.safeParse(row.state).data?.skippedByLimit ?? 0,
+    /** Runs skipped by the hourly limit, counted in the automation's working state. */
+    skippedByLimit: row.state.skippedByLimit ?? 0,
   };
 };
 

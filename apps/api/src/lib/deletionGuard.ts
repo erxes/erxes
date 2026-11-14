@@ -11,7 +11,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, gte, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { logger } from '~/logger';
 import { ownerIds } from '~/modules/audit/alerts';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -74,7 +74,8 @@ const reportMassDeletion = async (client: Db, { by, actor, total, what, stop }: 
         : 'Deleted records stay in the recycle bin for 30 days.',
       link: '/settings/recycle-bin',
       priority: 'high',
-      entity: { type: by.actorType, id: by.actorId ?? 'system' },
+      entityType: by.actorType,
+      entityId: by.actorId ?? 'system',
       data: { actor, total },
       dedupeKey: `mass-deletion:${actor}:${stop ? 'stop' : 'alert'}:${new Date().toISOString().slice(0, 15)}`,
     }),
@@ -144,8 +145,7 @@ export const guardDeletions = async (tx: Db, count: number, what: string) => {
   // The request is refused (rolled back), but the stop itself is saved.
   await recordStop(deletion);
 
-  throw new HttpError(
-    429,
+  throw fail(
     'MASS_DELETE_STOPPED',
     `Stopped after ${total} deletions in a few minutes: the owners have been told`,
   );

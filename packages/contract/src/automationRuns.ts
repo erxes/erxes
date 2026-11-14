@@ -1,9 +1,4 @@
-import {
-  ACTION_FIELD_TYPES,
-  AUTOMATION_SUBJECTS,
-  CONTENT_TYPES,
-  RUN_STATUSES,
-} from '@erxes/core-db/enums';
+import { ACTION_FIELD_TYPES, AUTOMATION_SUBJECTS, RUN_STATUSES } from '@erxes/core-db/enums';
 import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -55,6 +50,7 @@ export const AutomationRun = createSelectSchema(automationRuns, {
   waitingUntil: isoDate,
   startedAt: isoDate,
   finishedAt: isoDate,
+  goalReachedAt: isoDate,
 })
   .pick({
     id: true,
@@ -62,23 +58,20 @@ export const AutomationRun = createSelectSchema(automationRuns, {
     version: true,
     eventId: true,
     eventType: true,
+    /** The customer or company the run is about. */
+    subjectType: true,
+    subjectId: true,
     status: true,
     error: true,
     waitingUntil: true,
     startedAt: true,
     finishedAt: true,
+    /** Left early because the automation's goal was met. */
+    goalReachedAt: true,
   })
   .extend({
-    subject: z
-      .object({
-        type: z.enum(CONTENT_TYPES),
-        id: Id,
-        /** The customer's or company's name now; null once it is deleted. */
-        name: z.string().nullable(),
-      })
-      .nullable(),
-    /** Left early because the automation's goal was met. */
-    goalReached: z.boolean(),
+    /** The customer's or company's name now; null once it is deleted. */
+    subjectName: z.string().nullable(),
   });
 
 export type AutomationRun = z.infer<typeof AutomationRun>;

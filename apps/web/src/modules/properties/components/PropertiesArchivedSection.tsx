@@ -1,9 +1,9 @@
 import type { FieldContentType } from '@erxes/core-contract';
 import { IconRestore, IconTrash } from '@tabler/icons-react';
-import { Badge, Button, Collapsible } from 'erxes-ui';
+import { Badge, Button, Collapsible, useFormat } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { archiveTargetState } from '../states';
 import { useAllFields, useFieldGroups } from '../useFields';
 import { useCanManageFields, usePropertyRestore } from '../usePropertyMutations';
@@ -71,11 +71,11 @@ const ArchivedRow = ({
   );
 };
 
-const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '');
-
 /** Archived groups and fields, restorable. */
 export const PropertiesArchivedSection = ({ contentType }: { contentType: FieldContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const fmt = useFormat();
+  const date = (value: string | null) => (value ? fmt.date(value) : '');
   const { groups, fields, error } = useArchivedProperties(contentType);
   const { restoreField, restoreGroup, loading } = usePropertyRestore();
   const setTarget = useSetAtom(archiveTargetState);

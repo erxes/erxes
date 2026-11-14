@@ -1,10 +1,20 @@
-import type { AuditEntry, User } from '@erxes/core-contract';
+import type { AuditEntry } from '@erxes/core-contract';
+import { memberQueries } from '@erxes/core-contract/client';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
-import { Badge, Button, cn, RelativeDateDisplay, Spinner } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  cn,
+  type Member,
+  RelativeDateDisplay,
+  Spinner,
+  useFormat,
+  useMembersById,
+} from 'erxes-ui';
 import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserAvatar } from '~/components/UserAvatar';
-import { actorLabel, pluginLabel, useMembersById } from '~/lib/members';
+import { actorLabel, pluginLabel } from '~/lib/members';
 import { auditSentence } from './auditSentence';
 
 const isWarning = (action: string) =>
@@ -58,15 +68,22 @@ const EntryRow = ({
   onToggle,
 }: {
   entry: AuditEntry;
-  members: Map<string, User>;
+  members: Map<string, Member>;
   expanded: boolean;
   onToggle: () => void;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'audit-log' });
-  const who = actorLabel(entry.actor, members, t('deleted-member', 'A removed member'));
+  const fmt = useFormat();
+
+  const who = actorLabel(
+    entry.actorType,
+    entry.actorId,
+    members,
+    t('deleted-member', 'A removed member'),
+  );
 
   const member =
-    entry.actor.type === 'user' && entry.actor.id ? members.get(entry.actor.id) : undefined;
+    entry.actorType === 'user' && entry.actorId ? members.get(entry.actorId) : undefined;
 
   const warning = isWarning(entry.action);
 
@@ -89,7 +106,7 @@ const EntryRow = ({
       </td>
       <td
         className="px-3 py-2 whitespace-nowrap text-muted-foreground"
-        aria-label={new Date(entry.createdAt).toLocaleString()}
+        aria-label={fmt.dateTime(entry.createdAt)}
       >
         <RelativeDateDisplay value={entry.createdAt} render={<span />}>
           <RelativeDateDisplay.Value value={entry.createdAt} />
@@ -137,7 +154,8 @@ export const AuditTable = ({ entries, paging }: { entries: AuditEntry[]; paging:
   const [open, setOpen] = useState<string | null>(null);
 
   const members = useMembersById(
-    entries.map((entry) => (entry.actor.type === 'user' ? entry.actor.id : null)),
+    entries.map((entry) => (entry.actorType === 'user' ? entry.actorId : null)),
+    memberQueries,
   );
 
   return (

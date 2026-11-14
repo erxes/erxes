@@ -53,9 +53,9 @@ describe('plugin connection (registry, installations, tokens)', () => {
     await expect(
       t.owner().notifications.create({ userIds: [t.ids.owner], kind: 'hr.x.y', title: 'x' }),
     ).rejects.toMatchObject({ code: 'PLUGIN_ONLY' });
-    await expect(t.client(token.access_token).customers.list({})).rejects.toMatchObject({
-      code: 'MEMBERS_ONLY',
-    });
+    await expect(
+      t.client(token.access_token).users.invite({ email: 'new@acme.mn' }),
+    ).rejects.toMatchObject({ code: 'MEMBERS_ONLY' });
   });
 
   it('cuts a plugin off the moment it is uninstalled, and only the owner decides', async () => {
@@ -67,13 +67,15 @@ describe('plugin connection (registry, installations, tokens)', () => {
     });
     expect(await t.owner().plugins.uninstall({ name: 'hr' })).toMatchObject({
       name: 'hr',
-      installed: false,
+      installation: { status: 'disabled' },
     });
     // The token it already holds stops working at once.
     await expect(hr.notifications.create(leave())).rejects.toMatchObject({ status: 401 });
     await expect(tokenFor()).rejects.toMatchObject({ code: 'NOT_INSTALLED' });
 
-    expect(await t.owner().plugins.install({ name: 'hr' })).toMatchObject({ installed: true });
+    expect(await t.owner().plugins.install({ name: 'hr' })).toMatchObject({
+      installation: { status: 'active' },
+    });
     expect((await t.hr().notifications.create(leave())).created).toBe(1);
 
     const audit = await t.owner().audit.list({ action: 'plugin.' });
@@ -132,10 +134,8 @@ describe('plugin connection (registry, installations, tokens)', () => {
 
     await asking('2.1.0', ['notifications:write', 'events:write', 'live:write']);
     expect(await hrListing()).toMatchObject({
-      title: 'HR',
-      version: '2.1.0',
-      installed: true,
-      api: { url: 'https://hr.example.com/api' },
+      manifest: { title: 'HR', version: '2.1.0', api: { url: 'https://hr.example.com/api' } },
+      installation: { status: 'active' },
       // Granted at install: everything, so nothing new needs approval here.
       needsApproval: false,
     });

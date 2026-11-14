@@ -1,4 +1,4 @@
-import { LEAD_EVENTS } from '../enums';
+import { ACTOR_TYPES, LEAD_EVENTS } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
@@ -25,7 +25,7 @@ export const leadEvents = pgTable(
     toStageId: text(),
     /** Why it was disqualified, or a note on the move. */
     reason: text(),
-    actorType: text().notNull(),
+    actorType: text({ enum: ACTOR_TYPES }).notNull(),
     actorId: text(),
     createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   },

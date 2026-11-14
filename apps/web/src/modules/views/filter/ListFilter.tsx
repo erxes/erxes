@@ -1,20 +1,12 @@
 import type { ViewRecordType } from '@erxes/core-contract';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
-import {
-  Button,
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  useFilterContext,
-  useFilterQueryState,
-} from 'erxes-ui';
+import { Button, Combobox, Command, Filter, Popover, useFilterContext } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
 import { type ReactNode, useState } from 'react';
-import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
-import { messageOf } from '~/lib/api';
+import { messageOf } from '@erxes/core-contract/client';
 import { usePageHotkey } from '~/lib/usePageHotkey';
 import { isRule } from '~/modules/automations/builder/conditionOperators';
 import { type ListField, useFilterFields, useListQuery } from '../useViews';
@@ -90,7 +82,7 @@ const RootMenu = ({ loading, error }: { loading: boolean; error: Error | null })
 /** The search, as a chip (it opens the search box). */
 const SearchChip = () => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const [searchValue] = useFilterQueryState('searchValue', z.string());
+  const [searchValue] = useQueryState('searchValue');
 
   return (
     <Filter.BarItem queryKey="searchValue">
@@ -229,11 +221,11 @@ const ListFilterBar = ({
  * search, the advanced filter, and each condition as a chip. Conditions are
  * the list's filter (`useListQuery().advanced`), which views save.
  */
-export const ListFilter = ({ sessionKey, ...props }: ListFilterProps & { sessionKey: string }) => {
+export const ListFilter = (props: ListFilterProps) => {
   const [barRef] = useAutoAnimate({ duration: 150 });
 
   return (
-    <Filter id={`${props.recordType}-list-filter`} sessionKey={sessionKey}>
+    <Filter id={`${props.recordType}-list-filter`}>
       <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end">
         <ListFilterBar {...props} />
       </Filter.Bar>

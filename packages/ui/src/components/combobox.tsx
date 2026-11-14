@@ -7,6 +7,7 @@ import { Command } from './command';
 import { useOnInView } from 'react-intersection-observer';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
+import { useCellLabel } from 'erxes-ui/modules/record-table/components/RecordTableCell';
 
 type ComboboxTriggerProps = Omit<React.ComponentProps<typeof Button>, 'variant'> & {
   // Button's looks, or `bordered`: a 1px border instead of the drop shadow, for dense forms.
@@ -20,12 +21,17 @@ const ComboboxTriggerBase = ({
   children,
   hideChevron = false,
   variant = 'outline',
+  id,
   ...props
 }: ComboboxTriggerProps) => {
+  // In a table cell or a side panel field, named by the column or the label first.
+  const label = useCellLabel(id);
+
   return (
     <Popover.Trigger
       render={
         <Button
+          {...label}
           ref={ref}
           variant={variant === 'bordered' ? 'outline' : variant}
           {...props}

@@ -1,7 +1,7 @@
 import type { CursorQuery, TransferRecordType } from '@erxes/core-contract';
 import { caller, type Db, type ImportOptions, importRows, imports, newId } from '@erxes/core-db';
 import { and, asc, eq, sql } from 'drizzle-orm';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -12,10 +12,10 @@ import { importParseJob } from './importParse';
 import {
   type Action,
   EMPTY,
-  ImportAction,
   type ImportRow,
   importOrThrow,
-  toDto,
+  selectImports,
+  shownImport,
   UNDO_DAYS,
   undoable,
 } from './importState';
@@ -27,18 +27,8 @@ const defaults = (recordType: TransferRecordType): ImportOptions => ({
   runAutomations: false,
 });
 
-const sampleOf = async (client: Db, id: string) =>
-  (
-    await client
-      .select({ cells: importRows.cells })
-      .from(importRows)
-      .where(eq(importRows.importId, id))
-      .orderBy(asc(importRows.rowNumber))
-      .limit(5)
-  ).map((row) => row.cells);
-
-export const listImports = async (client: Db, query: CursorQuery) => {
-  const page = await keysetPage(
+export const listImports = async (client: Db, query: CursorQuery) =>
+  keysetPage(
     client,
     {
       table: imports,
@@ -48,22 +38,13 @@ export const listImports = async (client: Db, query: CursorQuery) => {
     undefined,
     query,
     (where, orderBy, limit) =>
-      client
-        .select()
-        .from(imports)
+      selectImports(client)
         .where(where)
         .orderBy(...orderBy)
         .limit(limit),
   );
 
-  return { ...page, data: page.data.map((row) => toDto(row)) };
-};
-
-export const getImport = async (client: Db, id: string) => {
-  const row = await importOrThrow(client, id);
-
-  return toDto(row, await sampleOf(client, id));
-};
+export const getImport = shownImport;
 
 /** Starts an import from an uploaded file: it is read in the background, then columns are suggested. */
 export const createImport = async (
@@ -73,7 +54,7 @@ export const createImport = async (
   const file = await readyFile(client, input.fileId);
 
   if (!/\.(csv|txt|tsv|xlsx)$/i.test(file.name))
-    throw new HttpError(400, 'UNSUPPORTED_FILE', 'Import a .csv or .xlsx file');
+    throw fail('UNSUPPORTED_FILE', 'Import a .csv or .xlsx file');
 
   const row = oneRow(
     await client
@@ -95,7 +76,7 @@ export const createImport = async (
     dedupeKey: stepKey(row.id, importParseJob.queue),
   });
 
-  return toDto(row);
+  return shownImport(client, row.id);
 };
 
 /** Each mapped field must be importable and take one column. */
@@ -104,10 +85,10 @@ const checkMapping = async (client: Db, row: ImportRow, mapping: Record<string, 
   const keys = Object.values(mapping);
   const unknown = keys.find((key) => !columns.some((item) => item.key === key && item.importable));
 
-  if (unknown) throw new HttpError(400, 'INVALID_MAPPING', `Unknown field: ${unknown}`);
+  if (unknown) throw fail('INVALID_MAPPING', `Unknown field: ${unknown}`);
 
   if (new Set(keys).size !== keys.length)
-    throw new HttpError(400, 'INVALID_MAPPING', 'Each field can take one column');
+    throw fail('INVALID_MAPPING', 'Each field can take one column');
 };
 
 /** Mapping and options can change until it runs; the check's results are cleared. */
@@ -119,7 +100,7 @@ export const updateImport = async (
   const row = await importOrThrow(client, id, true);
 
   if (!['mapping', 'checked'].includes(row.status))
-    throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
+    throw fail('IMPORT_LOCKED', `The import is ${row.status}`);
 
   const mapping = input.mapping ?? row.mapping;
 
@@ -128,7 +109,7 @@ export const updateImport = async (
   const options = { ...row.options, ...input.options };
 
   if (row.recordType !== 'company' && options.matchBy === 'name')
-    throw new HttpError(400, 'INVALID_OPTIONS', 'Customers match by email, phone, code or ID');
+    throw fail('INVALID_OPTIONS', 'Customers match by email, phone, code or ID');
 
   const next = oneRow(
     await client
@@ -150,17 +131,16 @@ export const updateImport = async (
     .set({ action: null, error: null })
     .where(eq(importRows.importId, id));
 
-  return toDto(next, await sampleOf(client, id));
+  return shownImport(client, next.id);
 };
 
 const begin = async (client: Db, id: string, status: 'checking' | 'running') => {
   const row = await importOrThrow(client, id, true);
 
   if (row.status !== 'mapping' && row.status !== 'checked')
-    throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
+    throw fail('IMPORT_LOCKED', `The import is ${row.status}`);
 
-  if (!Object.keys(row.mapping).length)
-    throw new HttpError(400, 'INVALID_MAPPING', 'Map at least one column');
+  if (!Object.keys(row.mapping).length) throw fail('INVALID_MAPPING', 'Map at least one column');
 
   const next = oneRow(
     await client
@@ -180,7 +160,7 @@ const begin = async (client: Db, id: string, status: 'checking' | 'running') => 
     dedupeKey: stepKey(next.id, job.queue, after),
   });
 
-  return toDto(next);
+  return shownImport(client, next.id);
 };
 
 export const checkImport = (client: Db, id: string) => begin(client, id, 'checking');
@@ -192,11 +172,7 @@ export const undoImport = async (client: Db, id: string) => {
   const row = await importOrThrow(client, id, true);
 
   if (!undoable(row))
-    throw new HttpError(
-      409,
-      'NOT_UNDOABLE',
-      `Only imports that created records, in the last ${UNDO_DAYS} days`,
-    );
+    throw fail('NOT_UNDOABLE', `Only imports that created records, in the last ${UNDO_DAYS} days`);
 
   const next = oneRow(
     await client
@@ -218,7 +194,7 @@ export const undoImport = async (client: Db, id: string) => {
     targetLabel: row.fileName,
   });
 
-  return toDto(next);
+  return shownImport(client, next.id);
 };
 
 export const listImportRows = async (
@@ -244,7 +220,7 @@ export const listImportRows = async (
     data: rows.map((row) => ({
       rowNumber: row.rowNumber,
       cells: row.cells,
-      action: ImportAction.nullable().parse(row.action),
+      action: row.action,
       error: row.error,
       recordId: row.recordId,
     })),

@@ -1,8 +1,7 @@
 import type { FileInfo } from '@erxes/core-contract';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import type { FileStorageAdapter } from 'erxes-ui';
-import { z } from 'zod';
-import { errorData, isApiError, orpc } from './api';
+import { isApiError, orpc } from '@erxes/core-contract/client';
 
 /** Sends the bytes where core said, reporting progress (fetch can't). */
 const put = (
@@ -62,15 +61,9 @@ const FILE_URL = new RegExp(`^${CORE_API_PREFIX}/files/([^/?#]+)/download`);
 /** The file id in a stored address (`/core/v1/files/<id>/download`). */
 const fileIdOf = (address: string) => FILE_URL.exec(address)?.[1] ?? null;
 
-const tooLarge = z.object({ maxSizeMb: z.number() });
-
 /** A readable message for upload errors (size and type limits name them). */
 export const uploadErrorMessage = (error: unknown) => {
-  if (isApiError(error, 'FILE_TOO_LARGE')) {
-    const limit = errorData(error, tooLarge)?.maxSizeMb;
-
-    return limit ? `Files can be up to ${limit} MB` : error.message;
-  }
+  if (isApiError(error, 'FILE_TOO_LARGE')) return `Files can be up to ${error.data.maxSizeMb} MB`;
 
   return error instanceof Error ? error.message : 'The upload failed';
 };

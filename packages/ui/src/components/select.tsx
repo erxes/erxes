@@ -2,6 +2,7 @@ import React, { createContext, use, useCallback, useLayoutEffect, useState } fro
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
+import { useCellLabel } from 'erxes-ui/modules/record-table/components/RecordTableCell';
 import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
 // Base UI shows the selected item's label from the root's `items`, and its items mount only
@@ -68,9 +69,15 @@ const SelectTrigger = ({
   className,
   children,
   variant,
+  id,
   ...props
 }: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>) => (
-  <SelectPrimitive.Trigger className={cn(selectTriggerVariants({ variant }), className)} {...props}>
+  // In a table cell or a side panel field, named by the column or the label first.
+  <SelectPrimitive.Trigger
+    {...useCellLabel(id)}
+    className={cn(selectTriggerVariants({ variant }), className)}
+    {...props}
+  >
     {children}
     <IconChevronDown aria-hidden className="w-4 h-4 opacity-50" />
   </SelectPrimitive.Trigger>

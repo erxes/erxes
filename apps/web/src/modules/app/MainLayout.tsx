@@ -5,6 +5,7 @@ import { AssistantHost } from '~/modules/assistant/AssistantHost';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
+import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 
 /**
@@ -16,6 +17,7 @@ export const MainLayout = () => {
   useLiveUpdates();
   // New inbox items as desktop notifications, when the member turned them on.
   useDesktopNotifications();
+  useSettingsReturn();
 
   return (
     <Sidebar.Provider

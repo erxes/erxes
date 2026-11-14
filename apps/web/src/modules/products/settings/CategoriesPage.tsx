@@ -21,10 +21,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import type { CategoryNode } from '../categories/categoryTree';
 import { useCategoryMutations, useProductCategories } from '../categories/useProductCategories';
-import { PRODUCT_SETTINGS } from '../paths';
+import { paths } from '~/lib/paths';
 import { useCanManageProducts } from '../useProducts';
 import { CategoryDialog, type CategoryDialogTarget } from './CategoryDialog';
 
@@ -133,7 +133,7 @@ export const CategoriesPage = () => {
             items={[
               {
                 label: t('settings.categories', 'Categories'),
-                to: PRODUCT_SETTINGS.categories,
+                to: paths.products.categories,
                 icon: IconCategory,
               },
             ]}

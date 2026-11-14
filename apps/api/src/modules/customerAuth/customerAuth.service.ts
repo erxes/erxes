@@ -12,8 +12,8 @@ import {
   system,
   withOrg,
 } from '@erxes/core-db';
-import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
-import { HttpError, notFound, pgConstraint } from '~/http/errors';
+import { and, asc, count, desc, eq, getTableColumns, gt, isNull, sql } from 'drizzle-orm';
+import { fail, notFound } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
@@ -44,7 +44,7 @@ const findLogin = (tx: Db, address: Address) =>
     .then(([row]) => row);
 
 const loginTaken = () =>
-  new HttpError(409, 'LOGIN_TAKEN', 'Someone already signs in with this address');
+  fail('TAKEN', 'Someone already signs in with this address', { field: 'value' });
 
 /** Adds a proven address as a login, and to the customer's emails or phones. */
 const addLogin = async (tx: Db, customerId: string, address: Address) => {
@@ -153,12 +153,12 @@ export const signInWithCode = async (
         ip,
       });
 
-      const subject = { type: 'customer' as const, id: customerId };
+      const subject = { subjectType: 'customer' as const, subjectId: customerId };
       const payload = { kind: address.kind, app: clientId };
 
       await publishCoreEvents(tx, [
-        ...(signedUp ? [{ type: 'core.customer.signed_up', subject, payload }] : []),
-        { type: 'core.customer.signed_in', subject, payload },
+        ...(signedUp ? [{ type: 'core.customer.signed_up', ...subject, payload }] : []),
+        { type: 'core.customer.signed_in', ...subject, payload },
       ]);
 
       return { ...tokens, customer: await findCustomer(tx, customerId), created };
@@ -166,8 +166,7 @@ export const signInWithCode = async (
   );
 };
 
-const invalidToken = () =>
-  new HttpError(401, 'INVALID_TOKEN', 'The refresh token is not valid: sign in again');
+const invalidToken = () => fail('INVALID_TOKEN', 'The refresh token is not valid: sign in again');
 
 /** New tokens for the app's refresh token, while the app still serves the organisation. */
 export const refreshTokens = async (
@@ -268,10 +267,7 @@ export const confirmAddLogin = async (input: Address & { code: string }) => {
 
     if (await findLogin(tx, address)) throw loginTaken();
 
-    // Another customer's primary email or phone can't become this one's.
-    return addLogin(tx, customerId, address).catch((error: unknown) => {
-      throw pgConstraint(error)?.includes('primary') ? loginTaken() : error;
-    });
+    return addLogin(tx, customerId, address);
   });
 };
 
@@ -290,7 +286,7 @@ export const removeMyLogin = (id: string) =>
     if (!mine.some((login) => login.id === id)) throw notFound('Login');
 
     if (mine.length === 1) {
-      throw new HttpError(409, 'LAST_LOGIN', 'Add another address before removing your last one');
+      throw fail('LAST_LOGIN', 'Add another address before removing your last one');
     }
 
     await tx.delete(customerLogins).where(eq(customerLogins.id, id));
@@ -308,16 +304,17 @@ const activeSessions = () =>
 
 export const mySessions = () =>
   withOrg(requestOrgId(), async (tx) => ({
-    data: (
-      await wholeList((limit) =>
-        tx
-          .select()
-          .from(customerSessions)
-          .where(activeSessions())
-          .orderBy(desc(customerSessions.lastUsedAt))
-          .limit(limit),
-      )
-    ).map((row) => ({ ...row, current: row.id === caller('customer').sessionId })),
+    data: await wholeList((limit) =>
+      tx
+        .select({
+          ...getTableColumns(customerSessions),
+          current: sql<boolean>`${customerSessions.id} = ${caller('customer').sessionId}`,
+        })
+        .from(customerSessions)
+        .where(activeSessions())
+        .orderBy(desc(customerSessions.lastUsedAt))
+        .limit(limit),
+    ),
   }));
 
 export const revokeMySession = (id: string) =>

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 /** The plugins installed here, which a product can be used by, with their titles. */
 export const useInstalledPlugins = () => {
@@ -10,8 +10,8 @@ export const useInstalledPlugins = () => {
   const plugins = useMemo(
     () =>
       (query.data?.data ?? [])
-        .filter((plugin) => plugin.installed)
-        .map(({ name, title }) => ({ name, title })),
+        .filter((plugin) => plugin.installation?.status === 'active')
+        .map(({ name, manifest }) => ({ name, title: manifest?.title ?? name })),
     [query.data],
   );
 
