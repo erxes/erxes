@@ -166,6 +166,35 @@ export const ERRORS = {
   BUILTIN_ROLE: { status: 403 },
   ROLE_IN_USE: { status: 409 },
 
+  // A plugin manifest that declares assistant operations without an api to call them at.
+  API_REQUIRED: { status: 400 },
+
+  // The assistant's chat (assistant.http.ts).
+  ASSISTANT_INVALID_MESSAGE: { status: 400, data: InvalidInput.optional() },
+  ASSISTANT_MENTION_UNAVAILABLE: {
+    status: 400,
+    data: z.object({ type: z.string(), id: z.string() }),
+  },
+  ASSISTANT_FILE_UNAVAILABLE: { status: 400, data: z.object({ id: z.string() }) },
+  ASSISTANT_FILE_UNREADABLE: {
+    status: 400,
+    data: z.object({ id: z.string(), reason: z.string() }),
+  },
+  ASSISTANT_FILE_TYPE_NOT_SUPPORTED: {
+    status: 400,
+    data: z.object({ id: z.string(), contentType: z.string() }),
+  },
+  ASSISTANT_FILE_TOO_LARGE: {
+    status: 400,
+    data: z.object({ id: z.string(), maxSizeMb: z.number() }),
+  },
+  ASSISTANT_FILE_BUSY: { status: 429, data: z.object({ id: z.string() }) },
+  ASSISTANT_NO_CONNECTION: { status: 400 },
+  ASSISTANT_KEY_UNREADABLE: { status: 400 },
+  ASSISTANT_BUSY: { status: 409 },
+  ASSISTANT_STALE: { status: 409 },
+  ASSISTANT_NOTHING_TO_CONTINUE: { status: 400 },
+
   // Import and export.
   UNSUPPORTED_FILE: { status: 400 },
   INVALID_COLUMNS: { status: 400 },

@@ -282,6 +282,7 @@ export const TokenResponse = z.object({
  * signals to plugin UIs.
  */
 const {
+  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -295,6 +296,7 @@ const {
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
+  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,

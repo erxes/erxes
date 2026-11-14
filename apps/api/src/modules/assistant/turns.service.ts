@@ -8,7 +8,7 @@ import {
 } from '@erxes/core-db';
 import { safeValidateUIMessages, type ToolSet, type UIMessage } from 'ai';
 import { and, eq, gte, isNull, max, sql } from 'drizzle-orm';
-import { HttpError, notFound, pgCode } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { findConnection, openKey } from './connections.service';
 import { continueReply } from './continuation';
 import { unreadableKey } from './providers';
@@ -26,7 +26,7 @@ const lockThread = async (client: Db, id: string) => {
   if (!row) throw notFound('Thread');
 
   if (isRunning(row)) {
-    throw new HttpError(409, 'ASSISTANT_BUSY', 'A reply is still being written in this thread');
+    throw fail('ASSISTANT_BUSY', 'A reply is still being written in this thread');
   }
 
   return row;
@@ -62,13 +62,9 @@ const validated = async (messages: unknown[], tools: ToolSet) => {
   });
 
   if (!result.success) {
-    throw new HttpError(
-      400,
+    throw fail(
       'ASSISTANT_INVALID_MESSAGE',
-      'The message is not a valid chat message',
-      {
-        reason: result.error.message.slice(0, 500),
-      },
+      `The message is not a valid chat message: ${result.error.message.slice(0, 500)}`,
     );
   }
 
@@ -76,21 +72,13 @@ const validated = async (messages: unknown[], tools: ToolSet) => {
 };
 
 const addUserMessage = async (client: Db, threadId: string, message: UIMessage) => {
-  try {
-    await client.insert(assistantMessages).values({
-      threadId,
-      id: message.id,
-      role: 'user',
-      parts: partsOf(message),
-      position: await nextPosition(client, threadId),
-    });
-  } catch (error) {
-    if (pgCode(error) === '23505') {
-      throw new HttpError(409, 'ASSISTANT_MESSAGE_EXISTS', 'This message is already in the thread');
-    }
-
-    throw error;
-  }
+  await client.insert(assistantMessages).values({
+    threadId,
+    id: message.id,
+    role: 'user',
+    parts: partsOf(message),
+    position: await nextPosition(client, threadId),
+  });
 };
 
 type MessageRow = typeof assistantMessages.$inferSelect;
@@ -100,8 +88,7 @@ const rewind = async (client: Db, threadId: string, rows: MessageRow[], messageI
   const edited = rows[index];
 
   if (edited?.role !== 'user' || rows.slice(index + 1).some((row) => row.role === 'user')) {
-    throw new HttpError(
-      409,
+    throw fail(
       'ASSISTANT_STALE',
       'Only the newest question can be edited; reload the conversation and try again',
     );
@@ -128,17 +115,13 @@ export const beginTurn = async (
   const connection = await findConnection(client, request.provider);
 
   if (!connection) {
-    throw new HttpError(
-      400,
-      'ASSISTANT_NO_CONNECTION',
-      'Add a model provider key to use the assistant',
-    );
+    throw fail('ASSISTANT_NO_CONNECTION', 'Add a model provider key to use the assistant');
   }
 
   const apiKey = openKey(connection.sealedKey);
 
   if (apiKey === null) {
-    throw new HttpError(400, 'ASSISTANT_KEY_UNREADABLE', unreadableKey(connection.provider));
+    throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connection.provider));
   }
 
   const thread = request.threadId

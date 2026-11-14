@@ -1,6 +1,6 @@
 import type { AssistantChatRequest, AssistantMessagePart } from '@erxes/core-contract';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { AskUserOutput } from './tools/askUser';
 
 type Part = z.infer<typeof AssistantMessagePart>;
@@ -65,8 +65,7 @@ export const continueReply = (
   sent: AssistantChatRequest['message'],
 ) => {
   if (stored?.role !== 'assistant' || stored.id !== sent.id) {
-    throw new HttpError(
-      409,
+    throw fail(
       'ASSISTANT_STALE',
       'This reply is no longer the latest in the thread; reload it and try again',
     );
@@ -85,11 +84,7 @@ export const continueReply = (
   });
 
   if (answered === 0) {
-    throw new HttpError(
-      400,
-      'ASSISTANT_NOTHING_TO_CONTINUE',
-      'The reply has no new approval or answer',
-    );
+    throw fail('ASSISTANT_NOTHING_TO_CONTINUE', 'The reply has no new approval or answer');
   }
 
   return { ...stored, parts };

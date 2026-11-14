@@ -10,7 +10,8 @@ import {
 } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
 import type { FileUIPart, TextUIPart, UIMessage } from 'ai';
-import { HttpError } from '~/http/errors';
+import { ORPCError } from '@orpc/server';
+import { fail } from '~/http/errors';
 import { readFileBytes, readyFilesOfCaller } from '~/modules/files/files.service';
 import { DocumentTextError, documentText } from './documentText';
 import type { DocumentFormat } from './documentText.worker';
@@ -39,15 +40,14 @@ type Part = UIMessage['parts'][number];
 type ModelPart = TextUIPart | FileUIPart;
 
 const unavailable = (id: string) =>
-  new HttpError(
-    400,
+  fail(
     'ASSISTANT_FILE_UNAVAILABLE',
     'A file is not available to you; attach your own uploaded file',
     { id },
   );
 
 const unreadable = (id: string, reason: string) =>
-  new HttpError(400, 'ASSISTANT_FILE_UNREADABLE', reason, { id, reason });
+  fail('ASSISTANT_FILE_UNREADABLE', reason, { id, reason });
 
 const dataOf = <T>(
   parts: { type: string; data?: unknown }[],
@@ -76,8 +76,7 @@ const checkRow = (row: { id: string; contentType: string; size: number }, image:
   const type = AssistantFileType.safeParse(row.contentType);
 
   if (!type.success || (image && !AssistantImageType.safeParse(row.contentType).success)) {
-    throw new HttpError(
-      400,
+    throw fail(
       'ASSISTANT_FILE_TYPE_NOT_SUPPORTED',
       'The assistant reads images, PDF, Word, Excel, CSV, Markdown and text files',
       { id: row.id, contentType: row.contentType },
@@ -87,8 +86,7 @@ const checkRow = (row: { id: string; contentType: string; size: number }, image:
   const maxSizeMb = assistantFileLimitMb(row.contentType);
 
   if (row.size > maxSizeMb * MB) {
-    throw new HttpError(
-      400,
+    throw fail(
       'ASSISTANT_FILE_TOO_LARGE',
       `The assistant reads files up to ${maxSizeMb} MB of this type`,
       { id: row.id, maxSizeMb },
@@ -208,7 +206,7 @@ const readOne = async (orgId: string, file: AssistantAttachment): Promise<FileCo
 const reasonOf = (error: unknown) => {
   if (error instanceof DocumentTextError) return error.message;
 
-  if (error instanceof HttpError && error.status === 404) return 'The file was deleted';
+  if (error instanceof ORPCError && error.code === 'NOT_FOUND') return 'The file was deleted';
 
   throw error;
 };
@@ -231,7 +229,7 @@ export const readContents = async (
         }
 
         if (error instanceof DocumentTextError && error.busy) {
-          throw new HttpError(429, 'ASSISTANT_FILE_BUSY', error.message, { id: file.id });
+          throw fail('ASSISTANT_FILE_BUSY', error.message, { id: file.id });
         }
 
         throw unreadable(file.id, reasonOf(error));

@@ -10,6 +10,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf, QueryBoolean } from './common';
+import { COMMON_ERRORS } from './errors';
 import { AssistantRecordType, ReferenceHandle } from './records';
 import { AssistantApprovalMode, AssistantProvider, AssistantThinkingLevel } from './values';
 
@@ -113,15 +114,17 @@ export const AssistantRecord = z.discriminatedUnion('available', [
 
 export type AssistantRecord = z.infer<typeof AssistantRecord>;
 
+const base = oc.errors(COMMON_ERRORS);
+
 export const assistantContract = {
-  connections: oc
+  connections: base
     .route({
       method: 'GET',
       path: '/assistant/connections',
       summary: "The signed-in member's model provider keys; keys are never returned",
     })
     .output(listOf(AssistantConnection)),
-  saveConnection: oc
+  saveConnection: base
     .route({
       method: 'PUT',
       path: '/assistant/connections/{provider}',
@@ -130,7 +133,7 @@ export const assistantContract = {
     })
     .input(ProviderInput.extend({ apiKey: z.string().trim().min(8).max(500) }))
     .output(AssistantConnection),
-  removeConnection: oc
+  removeConnection: base
     .route({
       method: 'DELETE',
       path: '/assistant/connections/{provider}',
@@ -138,7 +141,7 @@ export const assistantContract = {
     })
     .input(ProviderInput)
     .output(z.object({ ok: z.literal(true) })),
-  setDefaultProvider: oc
+  setDefaultProvider: base
     .route({
       method: 'PUT',
       path: '/assistant/default-provider',
@@ -147,7 +150,7 @@ export const assistantContract = {
     })
     .input(z.object({ provider: AssistantProvider.nullable() }))
     .output(listOf(AssistantConnection)),
-  models: oc
+  models: base
     .route({
       method: 'GET',
       path: '/assistant/models',
@@ -157,7 +160,7 @@ export const assistantContract = {
     .output(
       z.object({ data: z.array(AssistantProviderModels).max(AssistantProvider.options.length) }),
     ),
-  verifyModel: oc
+  verifyModel: base
     .route({
       method: 'POST',
       path: '/assistant/models/verify',
@@ -172,7 +175,7 @@ export const assistantContract = {
         error: z.string().nullable(),
       }),
     ),
-  threads: oc
+  threads: base
     .route({
       method: 'GET',
       path: '/assistant/threads',
@@ -180,7 +183,7 @@ export const assistantContract = {
     })
     .input(CursorQuery.extend({ pinned: QueryBoolean.optional() }))
     .output(cursorPageOf(AssistantThread)),
-  thread: oc
+  thread: base
     .route({
       method: 'GET',
       path: '/assistant/threads/{id}',
@@ -188,7 +191,7 @@ export const assistantContract = {
     })
     .input(z.object({ id: Id }))
     .output(AssistantThread.extend({ messages: z.array(AssistantMessage) })),
-  updateThread: oc
+  updateThread: base
     .route({
       method: 'PATCH',
       path: '/assistant/threads/{id}',
@@ -207,11 +210,11 @@ export const assistantContract = {
         ),
     )
     .output(AssistantThread),
-  removeThread: oc
+  removeThread: base
     .route({ method: 'DELETE', path: '/assistant/threads/{id}', summary: 'Delete a conversation' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  reference: oc
+  reference: base
     .route({
       method: 'GET',
       path: '/assistant/references/{handle}',
@@ -220,7 +223,7 @@ export const assistantContract = {
     })
     .input(z.object({ handle: ReferenceHandle }))
     .output(AssistantRecord),
-  record: oc
+  record: base
     .route({
       method: 'GET',
       path: '/assistant/records/{type}/{id}',
@@ -229,14 +232,14 @@ export const assistantContract = {
     })
     .input(z.object({ type: AssistantRecordType, id: Id }))
     .output(AssistantRecord),
-  settings: oc
+  settings: base
     .route({
       method: 'GET',
       path: '/assistant/settings',
       summary: "The organisation's assistant settings",
     })
     .output(AssistantSettings),
-  updateSettings: oc
+  updateSettings: base
     .route({
       method: 'PATCH',
       path: '/assistant/settings',
@@ -255,14 +258,14 @@ export const assistantContract = {
         ),
     )
     .output(AssistantSettings),
-  appearance: oc
+  appearance: base
     .route({
       method: 'GET',
       path: '/assistant/appearance',
       summary: "How the assistant's avatar looks to the signed-in member",
     })
     .output(AssistantAppearance),
-  updateAppearance: oc
+  updateAppearance: base
     .route({
       method: 'PUT',
       path: '/assistant/appearance',

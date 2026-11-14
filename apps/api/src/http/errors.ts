@@ -22,18 +22,21 @@ export const fail = <C extends ErrorCode>(
 
 export const notFound = (what: string) => fail('NOT_FOUND', `${what} not found`);
 
-/** Input the contract refuses (oRPC's `ValidationError`, or a `ZodError`): its issues, path by path. */
-export const invalidInput = ({ issues }: Pick<ValidationError, 'issues'>) =>
-  fail('INVALID_INPUT', 'The request is not valid', {
-    issues: issues.map((issue) => ({
-      path: (issue.path ?? []).flatMap((segment) => {
-        const key = typeof segment === 'object' ? segment.key : segment;
+/** The issues of input that fails a schema (oRPC's `ValidationError`, or a `ZodError`), path by path. */
+export const inputIssues = ({ issues }: Pick<ValidationError, 'issues'>) => ({
+  issues: issues.map((issue) => ({
+    path: (issue.path ?? []).flatMap((segment) => {
+      const key = typeof segment === 'object' ? segment.key : segment;
 
-        return typeof key === 'symbol' ? [] : [key];
-      }),
-      message: issue.message,
-    })),
-  });
+      return typeof key === 'symbol' ? [] : [key];
+    }),
+    message: issue.message,
+  })),
+});
+
+/** Input the contract refuses: its issues, path by path. */
+export const invalidInput = (error: Pick<ValidationError, 'issues'>) =>
+  fail('INVALID_INPUT', 'The request is not valid', inputIssues(error));
 
 /** The pg error behind a Drizzle error (DrizzleQueryError wraps it in `cause`). */
 const databaseError = (error: unknown, depth = 0): DatabaseError | undefined => {
@@ -106,6 +109,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
   core_products_category_fkey: { field: 'categoryId', message: 'No such category' },
   core_product_categories_parent_fkey: { field: 'parentId', message: 'No such category' },
   core_users_role_fkey: { field: 'role', message: 'No such role' },
+  core_assistant_messages_pkey: {
+    field: 'message.id',
+    message: 'This message is already in the thread',
+  },
 };
 
 /**

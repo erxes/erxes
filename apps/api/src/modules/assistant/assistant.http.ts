@@ -4,7 +4,7 @@ import { CONTEXT_LOGGER_SYMBOL } from '@orpc/experimental-pino';
 import { pipeUIMessageStreamToResponse, type UIMessage, type UIMessageChunk } from 'ai';
 import { Router, type Request, type Response } from 'express';
 import { can } from '~/http/access';
-import { HttpError } from '~/http/errors';
+import { fail, invalidInput } from '~/http/errors';
 import { chatTools, generateTitle, type Run, streamTurn } from './agent';
 import { attachmentsOf, readContents } from './attachments';
 import { installedPlugins } from './plugins';
@@ -15,12 +15,12 @@ import { beginTurn, saveReply, setTitle } from './turns.service';
 const chatMember = () => {
   const who = caller();
 
-  if (who.type === 'plugin') throw new HttpError(403, 'MEMBERS_ONLY', 'Plugins cannot do this');
+  if (who.type === 'plugin') throw fail('MEMBERS_ONLY', 'Plugins cannot do this');
 
-  if (who.type !== 'user') throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+  if (who.type !== 'user') throw fail('UNAUTHORIZED', 'Sign in to continue');
 
   if (!can(who, 'assistant.chat')) {
-    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+    throw fail('NOT_ALLOWED', "Your role doesn't allow this", {
       permission: 'assistant.chat',
     });
   }
@@ -31,11 +31,7 @@ const chatMember = () => {
 const parseRequest = (body: unknown) => {
   const parsed = AssistantChatRequest.safeParse(body);
 
-  if (!parsed.success) {
-    throw new HttpError(400, 'INVALID_INPUT', 'The request is not valid', {
-      issues: parsed.error.issues,
-    });
-  }
+  if (!parsed.success) throw invalidInput(parsed.error);
 
   return parsed.data;
 };

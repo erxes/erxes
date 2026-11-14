@@ -246,7 +246,7 @@ export const registerManifest = async (manifest: PluginManifest) => {
   );
 
   if (manifest.assistant?.operations.length && !manifest.api) {
-    throw new HttpError(400, 'API_REQUIRED', 'Assistant operations are called at api.url: add api');
+    throw fail('API_REQUIRED', 'Assistant operations are called at api.url: add api');
   }
 
   await db()

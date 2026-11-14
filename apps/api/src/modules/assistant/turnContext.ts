@@ -13,7 +13,7 @@ import {
 import { type Db, db } from '@erxes/core-db';
 import type { DataUIPart, UIDataTypes } from 'ai';
 import { z } from 'zod';
-import { HttpError } from '~/http/errors';
+import { fail, inputIssues } from '~/http/errors';
 import { resolveAttachments } from './attachments';
 import { type RecordIdentity, readRecord, readRecords } from './records';
 import { issueReferences } from './references.service';
@@ -42,8 +42,8 @@ const NO_CONTEXT: TurnContext = {
 
 const DATA_NAMES = new Set(Object.keys(ASSISTANT_DATA_PARTS));
 
-const invalid = (message: string, issues?: z.core.$ZodIssue[]) =>
-  new HttpError(400, 'ASSISTANT_INVALID_MESSAGE', message, issues ? { issues } : undefined);
+const invalid = (message: string, error?: z.ZodError) =>
+  fail('ASSISTANT_INVALID_MESSAGE', message, error && inputIssues(error));
 
 const dataOf = <T>(parts: Part[], name: string, schema: z.ZodType<T>) => {
   const found = parts.filter((part) => part.type === `data-${name}`);
@@ -54,7 +54,7 @@ const dataOf = <T>(parts: Part[], name: string, schema: z.ZodType<T>) => {
 
   const parsed = z.object({ data: schema }).safeParse(found[0]);
 
-  if (!parsed.success) throw invalid(`The ${name} part is not valid`, parsed.error.issues);
+  if (!parsed.success) throw invalid(`The ${name} part is not valid`, parsed.error);
 
   return parsed.data.data;
 };
@@ -80,8 +80,7 @@ const readMentions = async (parts: Part[]) => {
     const record = read[index];
 
     if (!record?.available) {
-      throw new HttpError(
-        400,
+      throw fail(
         'ASSISTANT_MENTION_UNAVAILABLE',
         `"${mention.label}" is not available to you; remove the mention and try again`,
         { type: mention.type, id: mention.id },
