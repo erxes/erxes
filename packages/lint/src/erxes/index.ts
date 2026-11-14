@@ -1,4 +1,5 @@
 import { defineRule, eslintCompatPlugin, type ESTree } from 'vite-plus/lint/plugins';
+import { procedureOutputRule } from './procedure-output.ts';
 
 const SESSION_LOCK = /\bpg_(try_)?advisory_lock(_shared)?\s*\(/i;
 
@@ -230,6 +231,7 @@ const erxesPlugin = eslintCompatPlugin({
     'no-org-filter': noOrgFilterRule,
     'no-session-advisory-lock': noSessionAdvisoryLockRule,
     'no-undefined-spread': noUndefinedSpreadRule,
+    'procedure-output': procedureOutputRule,
   },
 });
 
