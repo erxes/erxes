@@ -8,7 +8,7 @@ import {
   requestOrgId,
   withOrg,
 } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { eq, getTableColumns, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { HttpError, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
@@ -21,10 +21,14 @@ import { formatBatch, type StreamEntry } from './streamFormat';
 
 type StreamRow = typeof auditStreams.$inferSelect;
 
-const toDto = (row: StreamRow, latestSeq: number) => ({
-  ...row,
-  pending: Math.max(0, latestSeq - row.cursorSeq),
-});
+/** A stream with how many entries wait for it. */
+const withPending = {
+  ...getTableColumns(auditStreams),
+  pending:
+    sql`greatest(0, (select coalesce(max(${auditLogs.chainSeq}), 0) from ${auditLogs}) - ${auditStreams.cursorSeq})`
+      .mapWith(Number)
+      .as('pending'),
+};
 
 const latestSeq = async (client: Db) => {
   const [row] = await client
@@ -48,12 +52,10 @@ const checkUrl = (url: string) => {
 
 export const listStreams = async (client: Db) => {
   const rows = await wholeList((limit) =>
-    client.select().from(auditStreams).orderBy(auditStreams.createdAt).limit(limit),
+    client.select(withPending).from(auditStreams).orderBy(auditStreams.createdAt).limit(limit),
   );
 
-  const latest = await latestSeq(client);
-
-  return { data: rows.map((row) => toDto(row, latest)) };
+  return { data: rows };
 };
 
 export const createStream = async (
@@ -85,7 +87,7 @@ export const createStream = async (
         cursorSeq: input.from === 'now' ? latest : 0,
         createdBy: caller('user').userId,
       })
-      .returning(),
+      .returning(withPending),
   );
 
   await queueStreamRound(client, row);
@@ -97,7 +99,7 @@ export const createStream = async (
     metadata: { url: input.url, format: input.format, from: input.from },
   });
 
-  return { stream: toDto(row, latest), secret };
+  return { stream: row, secret };
 };
 
 const streamOrThrow = async (client: Db, id: string) => {
@@ -131,12 +133,9 @@ export const updateStream = async (
       .set({
         ...changes,
         // null removes the header; undefined leaves it.
-        ...(authHeader !== undefined
-          ? {
-              authHeaderName: authHeader?.name ?? null,
-              authHeaderValueSealed: authHeader ? seal(authHeader.value) : null,
-            }
-          : {}),
+        authHeaderName: authHeader === undefined ? undefined : (authHeader?.name ?? null),
+        authHeaderValueSealed:
+          authHeader === undefined ? undefined : authHeader && seal(authHeader.value),
         // A new address or a resume starts over the failure count.
         ...(input.url || input.status === 'active'
           ? { consecutiveFailures: 0, lastError: null }
@@ -144,7 +143,7 @@ export const updateStream = async (
         updatedAt: sql`now()`,
       })
       .where(eq(auditStreams.id, id))
-      .returning(),
+      .returning(withPending),
   );
 
   if (row.status === 'active' && (before.status !== 'active' || input.url))
@@ -169,7 +168,7 @@ export const updateStream = async (
     },
   });
 
-  return toDto(row, await latestSeq(client));
+  return row;
 };
 
 export const removeStream = async (client: Db, id: string) => {
@@ -205,8 +204,11 @@ export const testStream = async (id: string) => {
     createdAt: new Date().toISOString(),
     source: 'core',
     action: 'audit.stream_test',
-    actor: { type: 'user', id: caller('user').userId },
-    target: null,
+    actorType: 'user',
+    actorId: caller('user').userId,
+    targetType: null,
+    targetId: null,
+    targetLabel: null,
     changes: null,
     metadata: { test: true },
     ip: null,
