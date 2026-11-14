@@ -44,7 +44,12 @@ test('a member creates a contact, edits it and adds a note', async ({ page, api 
   await page.keyboard.press('Enter');
   await expect.poll(async () => (await api.customers.get({ id })).position).toBe('Analyst');
 
+  // A description change reads as its text in the timeline, not as the editor's JSON.
+  await page.getByRole('tab', { name: 'Description' }).click();
+  await page.getByRole('tabpanel').getByRole('textbox').fill('Met at the fair twice');
   await page.getByRole('tab', { name: 'Activity' }).click();
+  await expect(page.getByText('Met at the trade fair', { exact: true })).toBeVisible();
+
   await page.getByRole('textbox', { name: /^Write a note/ }).fill('Called about the engine');
   await page.getByRole('button', { name: 'Add note' }).click();
   await expect(page.getByText('Called about the engine')).toBeVisible();
