@@ -24,7 +24,7 @@ export function Members() {
         <h1 className="text-xl font-semibold">
           {t('members-title', 'Members')}
         </h1>
-        <AddMembers />
+        <AddMembers channelId={channelId ?? ''} />
       </div>
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <RecordTable.Provider

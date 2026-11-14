@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 
 export const teamSchema = new Schema(
   {
@@ -14,6 +15,8 @@ export const teamSchema = new Schema(
     timestamps: true,
   },
 );
+
+applyDataExtensionsNamespace(teamSchema);
 
 export const teamMembers = new Schema({
   memberId: { type: String, label: 'Member ID' },

@@ -109,7 +109,7 @@ describe('account transaction import fixed assets', () => {
         departmentId: 'department-1',
         productId: '',
         fixedAssetId: '',
-        fixedAssetCode: 'LAPTOP',
+        followInfos: expect.objectContaining({ fixedAssetCode: 'LAPTOP' }),
         count: 2,
         unitPrice: 500,
         amount: 1000,
@@ -157,7 +157,7 @@ describe('account transaction import fixed assets', () => {
       expect.objectContaining({
         productId: '',
         fixedAssetId: '',
-        fixedAssetCode: 'LAPTOP',
+        followInfos: expect.objectContaining({ fixedAssetCode: 'LAPTOP' }),
         amount: 500,
       }),
     );

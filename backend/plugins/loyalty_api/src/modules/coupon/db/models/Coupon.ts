@@ -2,6 +2,7 @@ import { ICouponDocument, ICouponInput } from '@/coupon/@types/coupon';
 import { ICouponCampaignDocument } from '@/coupon/@types/couponCampaign';
 import { CODE_STATUS } from '@/coupon/constants';
 import { couponSchema } from '@/coupon/db/definitions/coupon';
+import { normalizeCodeRule } from '@/coupon/utils/codeRule';
 import { Model } from 'mongoose';
 import { customAlphabet } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
@@ -207,7 +208,7 @@ export const loadCouponClass = (models: IModels) => {
 
       const { codeRule } = campaign || {};
 
-      const codes = await this.generateCodes(codeRule);
+      const codes = await this.generateCodes(normalizeCodeRule(codeRule));
 
       const couponDocs: any = [];
 

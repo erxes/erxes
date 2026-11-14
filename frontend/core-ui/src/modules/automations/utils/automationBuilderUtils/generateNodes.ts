@@ -29,7 +29,7 @@ export const generateNodeData = (
       config,
       nodeType: AutomationNodeType.Workflow,
       automationId,
-      icon: (node as any).icon || 'IconArrowsSplit2',
+      icon: (node as any).icon || 'IconArrowsSplit',
       ...props,
     };
   }

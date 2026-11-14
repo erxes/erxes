@@ -11,7 +11,6 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
-  IconClipboardList,
   IconCode,
   IconEdit,
   IconToggleLeft,
@@ -22,8 +21,8 @@ import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graph
 import { IStageInEbarimtConfigRow } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
-import { AddStageInEBarimtConfig } from './AddStageInEBarimtConfig';
 import { StageInEBarimtConfigCommandbar } from './StageInEBarimtConfigCommandbar';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 const useStageInEbarimtConfigRows = () => {
   const { data, loading } = useQuery(GET_MN_CONFIGS, {
@@ -210,18 +209,10 @@ export const StageInEBarimtConfigTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && rows?.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center text-center">
-              <IconClipboardList size={48} className="text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-stage-in-ebarimt-config-yet')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 mb-4">
-                {t('create-first-stage-in-ebarimt-config')}
-              </p>
-              <AddStageInEBarimtConfig />
-            </div>
-          </div>
+          <SettingsEmptyState
+            title={t('no-stage-in-ebarimt-config-yet')}
+            description={t('create-first-stage-in-ebarimt-config')}
+          />
         )}
       </RecordTable.Scroll>
       <StageInEBarimtConfigCommandbar />

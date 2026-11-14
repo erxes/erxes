@@ -7,6 +7,7 @@ jest.mock(
   () => ({
     cn: (...classes: (string | boolean)[]) => classes.filter(Boolean).join(' '),
     useQueryState: () => [false],
+    Button: ({ children }: PropsWithChildren) => <>{children}</>,
     Sidebar: {
       Provider: ({
         children,
@@ -75,20 +76,39 @@ jest.mock(
   }),
   { virtual: true },
 );
+jest.mock(
+  '@/global-sidebar/components/GlobalSidebar',
+  () => ({ GlobalSidebar: () => <aside data-testid="global-sidebar" /> }),
+  { virtual: true },
+);
+jest.mock(
+  '@/app/hooks/useAppearance',
+  () => ({
+    useAppearanceValue: () => ({ layout: 'default', frameColor: 'indigo' }),
+  }),
+  { virtual: true },
+);
 // Only the record-view context is used; loading the whole ui-modules barrel
 // would build every shared GraphQL document against the erxes-ui stub above.
 jest.mock('ui-modules', () => {
   const { createContext } = jest.requireActual<typeof import('react')>('react');
   return { RecordViewContext: createContext(null) };
 });
-it('keeps the side panel beside the navigation/workspace column, outside the animated page', () => {
+it('keeps the side panel below the top bar, beside the workspace, outside the animated page', () => {
   render(<DefaultLayout />);
   const layout = screen.getByTestId('layout');
-  const column = screen.getByTestId('navigation').parentElement;
+  const navigation = screen.getByTestId('navigation');
+  const column = navigation.parentElement;
+  const panel = screen.getByTestId('relation-panel');
+  const workspaceRow = panel.parentElement;
   expect(column?.parentElement).toBe(layout);
-  expect(column?.contains(screen.getByTestId('workspace'))).toBe(true);
-  expect(screen.getByTestId('relation-panel').parentElement).toBe(layout);
-  expect(layout.className.split(' ')).not.toContain('flex-col');
+  // The row sits in the app card (inset in the notch layout).
+  expect(workspaceRow?.parentElement?.parentElement).toBe(column);
+  expect(workspaceRow?.contains(navigation)).toBe(false);
+  expect(workspaceRow?.contains(screen.getByTestId('workspace'))).toBe(true);
+  expect(workspaceRow?.className.split(' ')).not.toContain('flex-col');
+  // The global sidebar is the right-most column, after the record panel.
+  expect(panel.nextElementSibling).toBe(screen.getByTestId('global-sidebar'));
   expect(
     screen
       .getByTestId('workspace')

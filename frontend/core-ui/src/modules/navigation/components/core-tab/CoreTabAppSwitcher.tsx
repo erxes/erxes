@@ -17,11 +17,15 @@ import { CSS } from '@dnd-kit/utilities';
 import { Button, Popover, ScrollArea, cn } from 'erxes-ui';
 import { IconApps, IconGridDots, IconGripVertical } from '@tabler/icons-react';
 
-import { CoreTabTooltip } from '@/navigation/components/core-tab/CoreTabTooltip';
+import {
+  CoreTabTooltip,
+  useCoreTabSide,
+} from '@/navigation/components/core-tab/CoreTabTooltip';
 import { CoreTabFavoritesSection } from '@/navigation/components/core-tab/CoreTabFavorites';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { navigationActivityOrderState } from '@/navigation/states/navigationActivityOrderState';
 import { moveAppTab } from '@/navigation/utils/appTabs';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { sortNavigationActivitiesByOrder } from '@/navigation/utils/navigationActivityOrder';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
 import { useAtom } from 'jotai';
@@ -154,6 +158,7 @@ export const CoreTabAppSwitcher = ({
   onSelect: (activity: INavigationActivity) => void;
 }>) => {
   const [open, setOpen] = useState(false);
+  const side = useCoreTabSide();
   const [order, setOrder] = useAtom(navigationActivityOrderState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { promoted, rest } = splitPromotedNavigationActivities(
@@ -188,7 +193,7 @@ export const CoreTabAppSwitcher = ({
         <Popover.Trigger asChild>
           <Button
             aria-label={t('open-plugin')}
-            className="size-7 shrink-0"
+            className={coreTabIconClassName(open)}
             size="icon"
             type="button"
             variant="ghost"
@@ -200,7 +205,7 @@ export const CoreTabAppSwitcher = ({
       <Popover.Content
         align="start"
         className="flex max-h-[var(--radix-popover-content-available-height)] w-80 flex-col overflow-hidden rounded-xl border-border/60 p-1.5 shadow-lg"
-        side="bottom"
+        side={side}
         sideOffset={8}
       >
         <ScrollArea

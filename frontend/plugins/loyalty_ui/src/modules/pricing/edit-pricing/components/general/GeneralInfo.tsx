@@ -107,7 +107,11 @@ export const GeneralInfo = ({
         >
           <InfoCard title={t('general')}>
             <InfoCard.Content className="grid w-full grid-cols-1 gap-x-4 gap-y-5 p-4 md:grid-cols-12">
-              <GeneralFormFields control={form.control} appliesTo={appliesTo} />
+              <GeneralFormFields
+                control={form.control}
+                appliesTo={appliesTo}
+                scheduled={!!pricingDetail?.isRepeatEnabled}
+              />
             </InfoCard.Content>
           </InfoCard>
         </form>

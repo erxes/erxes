@@ -1,5 +1,5 @@
-import { Button, Form, Input, Select, cn } from 'erxes-ui';
-import { TAutomationActionProps } from 'ui-modules';
+import { Button, Form, Input, Select, Switch, cn } from 'erxes-ui';
+import { SelectBranches, TAutomationActionProps } from 'ui-modules';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { FormProvider } from 'react-hook-form';
 import { useDelay } from '@/automations/components/builder/nodes/actions/delay/hooks/useDelay';
@@ -73,11 +73,16 @@ export const DelayConfigForm = ({
     handleValueChange,
     handleIntervalChange,
     handleSubmit,
+    workingTime,
   } = useDelay(currentAction?.config || {});
   const { t } = useTranslation('automations');
   const selectedValue = value || '1';
   const selectedUnitLabel = getDelayUnitLabel(type, selectedValue, t);
-  const summary = `${selectedValue} ${selectedUnitLabel}`;
+  const summary = workingTime
+    ? `${selectedValue} ${selectedUnitLabel} · ${t('delay-working-hours-short', {
+        defaultValue: 'working hours',
+      })}`
+    : `${selectedValue} ${selectedUnitLabel}`;
 
   const handlePresetClick = (preset: (typeof QUICK_PRESETS)[number]) => {
     form.setValue('value', preset.value, {
@@ -192,6 +197,57 @@ export const DelayConfigForm = ({
                 )}
               />
             </div>
+          </section>
+
+          <section className="space-y-3">
+            <Form.Field
+              name="workingTime"
+              control={control}
+              render={({ field }) => (
+                <Form.Item className="flex items-start justify-between gap-3 space-y-0">
+                  <div className="space-y-1">
+                    <Form.Label>
+                      {t('delay-working-hours', {
+                        defaultValue: 'Count only working hours',
+                      })}
+                    </Form.Label>
+                    <Form.Description className="text-xs">
+                      {t('delay-working-hours-description', {
+                        defaultValue:
+                          "Minutes and hours count open time only; days and longer land on the next opening; 0 waits for opening. Hours come from the record's branch, else the branch below.",
+                      })}
+                    </Form.Description>
+                  </div>
+                  <Switch
+                    checked={!!field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Form.Item>
+              )}
+            />
+            {workingTime ? (
+              <Form.Field
+                name="branchId"
+                control={control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('delay-working-hours-branch', {
+                        defaultValue: 'Branch whose hours apply',
+                      })}
+                    </Form.Label>
+                    <SelectBranches.FormItem
+                      mode="single"
+                      value={field.value ?? ''}
+                      onValueChange={(value) =>
+                        field.onChange((value as string) || undefined)
+                      }
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            ) : null}
           </section>
 
           <div className="flex items-start gap-2.5 rounded-lg border border-info/40 bg-info/10 px-3 py-2.5 text-xs text-info">

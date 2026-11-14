@@ -19,6 +19,7 @@ import {
 } from '../../ai';
 import { generateModels, IModels } from '../../connectionResolver';
 import { buildAiAgentTools } from './aiAgentTools';
+import { buildAiLookupTools } from '../../ai/lookup/lookupTools';
 import {
   AUTOMATION_ERROR_CODES,
   getContentType,
@@ -189,8 +190,18 @@ export const executeAiAgentAction = async (
     const recallTool = olderCount
       ? buildAiMemoryRecallTool({ subdomain, models, scopes: memoryScopes })
       : null;
+    // Lookups follow the agent too, read only, for the run's own customer
+    const lookupTools =
+      parsedActionConfig.goalType === 'generateText'
+        ? await buildAiLookupTools({
+            subdomain,
+            lookups: parsedAgent.context.lookups,
+            aiContext,
+          })
+        : [];
     const tools = [
       ...(knowledgeTool ? [knowledgeTool] : []),
+      ...lookupTools,
       ...(recallTool ? [recallTool] : []),
       ...actionTools,
     ];

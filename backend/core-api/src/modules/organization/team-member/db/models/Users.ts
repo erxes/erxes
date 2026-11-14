@@ -20,11 +20,12 @@ import {
   ILink,
   IPropertyField,
   IUser,
+  IUserAppearance,
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
 import { escapeRegExp, redis } from 'erxes-api-shared/utils';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
@@ -33,8 +34,27 @@ import {
   generateUserUpdateActivityLogs,
   generateUserInvitationActivityLog,
 } from '../../meta/activity-log';
+import { buildProfilePatch, IProfilePatch } from '../utils/profilePatch';
+import { toLoggedUser } from '../../loggedUser';
 
 const SALT_WORK_FACTOR = 10;
+
+// Must match the core-ui appearance options.
+const USER_APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'];
+const USER_APPEARANCE_NAV_POSITIONS = ['start', 'end'];
+const USER_APPEARANCE_FRAME_COLORS = [
+  'indigo',
+  'graphite',
+  'forest',
+  'plum',
+  'erxes',
+  'new-year',
+  'march-8',
+  'seasonal',
+];
+
+const exactPattern = (value: string) =>
+  new RegExp(`^${escapeRegExp(value)}$`, 'i');
 
 interface IEditProfile {
   username?: string;
@@ -108,7 +128,12 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     values: Record<string, unknown>,
   ): Promise<IUserDocument | null>;
-  editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
+  editProfile(
+    _id: string,
+    doc: IEditProfile,
+    pipeline?: PipelineStage[],
+  ): Promise<IUserDocument>;
+  patchProfile(_id: string, doc: IProfilePatch): Promise<IUserDocument>;
   generateUserCode(): Promise<string>;
   generateUserCodeField(): Promise<void>;
   configEmailSignatures(
@@ -119,6 +144,10 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     isAllowed: boolean,
   ): Promise<IUserDocument>;
+  configAppearance(
+    _id: string,
+    appearance: IUserAppearance,
+  ): Promise<IUserDocument | null>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
@@ -149,6 +178,11 @@ export interface IUserModel extends Model<IUserDocument> {
   revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
+  setAvailability(
+    _id: string,
+    doc: { status?: string | null; until?: Date | null; reason?: string | null },
+    setBy: string,
+  ): Promise<IUserDocument | null>;
 }
 
 export const loadUserClass = (
@@ -192,8 +226,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: _id,
-          currentDocument: updated.toObject(),
-          prevDocument: prev.toObject(),
+          currentDocument: toLoggedUser(updated),
+          prevDocument: toLoggedUser(prev),
         });
       }
 
@@ -296,8 +330,12 @@ export const loadUserClass = (
       }
 
       // Checking if user has email
+      // Login matches either field, so an email may not be another member's username
       if (email) {
-        previousEntry = await models.Users.findUsers({ ...query, email });
+        previousEntry = await models.Users.findUsers({
+          ...query,
+          $or: [{ email }, { username: exactPattern(email) }],
+        });
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -317,7 +355,10 @@ export const loadUserClass = (
 
       //Checking username
       if (username) {
-        previousEntry = await models.Users.findOne({ ...query, username });
+        previousEntry = await models.Users.findOne({
+          ...query,
+          $or: [{ username }, { email: exactPattern(username) }],
+        });
 
         // Checking if duplicated
         if (previousEntry) {
@@ -372,7 +413,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       return user;
@@ -452,8 +493,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         // Generate activity logs for changed activity fields
@@ -512,7 +553,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       createActivityLog(generateUserInvitationActivityLog(user));
@@ -536,7 +577,9 @@ export const loadUserClass = (
       await models.Users.checkDuplication({ email });
 
       const usernameTaken = username
-        ? await models.Users.exists({ username })
+        ? await models.Users.exists({
+            $or: [{ username }, { email: exactPattern(username) }],
+          })
         : null;
 
       const user = await models.Users.create({
@@ -555,7 +598,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       return user;
@@ -593,6 +636,18 @@ export const loadUserClass = (
     /*
      * Update user profile
      */
+    public static async patchProfile(_id: string, doc: IProfilePatch) {
+      const pipeline = buildProfilePatch(doc);
+      return models.Users.editProfile(
+        _id,
+        {
+          username: doc.username?.trim(),
+          email: doc.email?.trim().toLowerCase(),
+        },
+        pipeline,
+      );
+    }
+
     public static async editProfile(
       _id: string,
       {
@@ -603,10 +658,15 @@ export const loadUserClass = (
         employeeId,
         positionIds,
       }: IEditProfile,
+      pipeline?: PipelineStage[],
     ) {
       const user = await models.Users.getUser(_id);
 
       await this.assertEditable(_id);
+
+      if (pipeline && username) {
+        await this.checkDuplication({ username, idsToExclude: _id });
+      }
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -619,18 +679,26 @@ export const loadUserClass = (
         });
       }
 
-      await models.Users.updateOne(
-        { _id },
-        { $set: { username, email, details, links, employeeId, positionIds } },
-      );
-
-      const updatedUser = await models.Users.findOne({ _id });
+      let updatedUser: IUserDocument | null;
+      if (pipeline) {
+        updatedUser = await models.Users.findOneAndUpdate({ _id }, pipeline, {
+          new: true,
+        });
+      } else {
+        await models.Users.updateOne(
+          { _id },
+          {
+            $set: { username, email, details, links, employeeId, positionIds },
+          },
+        );
+        updatedUser = await models.Users.findOne({ _id });
+      }
       if (updatedUser) {
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         await generateUserUpdateActivityLogs(
@@ -674,6 +742,33 @@ export const loadUserClass = (
       return models.Users.findOne({ _id });
     }
 
+    public static async configAppearance(
+      _id: string,
+      { layout, frameColor, navPosition }: IUserAppearance,
+    ) {
+      if (!layout || !USER_APPEARANCE_LAYOUTS.includes(layout)) {
+        throw new Error(`Unknown appearance layout: ${layout}`);
+      }
+
+      if (frameColor && !USER_APPEARANCE_FRAME_COLORS.includes(frameColor)) {
+        throw new Error(`Unknown appearance frame color: ${frameColor}`);
+      }
+
+      if (
+        navPosition &&
+        !USER_APPEARANCE_NAV_POSITIONS.includes(navPosition)
+      ) {
+        throw new Error(`Unknown appearance nav position: ${navPosition}`);
+      }
+
+      await models.Users.updateOne(
+        { _id },
+        { $set: { appearance: { layout, frameColor, navPosition } } },
+      );
+
+      return models.Users.findOne({ _id });
+    }
+
     /*
      * Remove user
      */
@@ -692,8 +787,8 @@ export const loadUserClass = (
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -712,8 +807,8 @@ export const loadUserClass = (
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -935,15 +1030,17 @@ export const loadUserClass = (
     }) {
       email = (email || '').toLowerCase().trim();
 
-      const loginPattern = new RegExp(`^${escapeRegExp(email)}$`, 'i');
+      const loginPattern = exactPattern(email);
 
-      const localUser = await models.Users.findOne({
-        $or: [
-          { email: { $regex: loginPattern } },
-          { username: { $regex: loginPattern } },
-        ],
-        isActive: true,
-      });
+      const findActive = (field: 'email' | 'username') =>
+        models.Users.findOne({
+          [field]: { $regex: loginPattern },
+          isActive: true,
+        });
+
+      // One identifier can be one member's email and another's username; the email wins
+      const localUser =
+        (await findActive('email')) || (await findActive('username'));
 
       const isDirectoryUser = localUser
         ? await this.isDirectoryUser(localUser._id)
@@ -1130,8 +1227,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
         await generateUserUpdateActivityLogs(
           { models, subdomain },
@@ -1140,6 +1237,64 @@ export const loadUserClass = (
           createActivityLog,
         );
       }
+      return updatedUser;
+    }
+
+    /**
+     * Declares whether a member takes new work. No status clears the
+     * declaration; an `until` in the past is refused, since it would mean
+     * nothing.
+     */
+    public static async setAvailability(
+      _id: string,
+      doc: { status?: string | null; until?: Date | null; reason?: string | null },
+      setBy: string,
+    ) {
+      const user = await models.Users.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const status = doc.status || undefined;
+
+      if (status && !['available', 'unavailable'].includes(status)) {
+        throw new Error('Availability must be available or unavailable');
+      }
+
+      const until = doc.until ? new Date(doc.until) : undefined;
+
+      if (until && (Number.isNaN(until.getTime()) || until <= new Date())) {
+        throw new Error('Until must be in the future');
+      }
+
+      const update = status
+        ? {
+            $set: {
+              availability: {
+                status,
+                until,
+                reason: doc.reason?.trim() || undefined,
+                setBy,
+                setAt: new Date(),
+              },
+            },
+          }
+        : { $unset: { availability: '' } };
+
+      await models.Users.updateOne({ _id }, update);
+
+      const updatedUser = await models.Users.findOne({ _id });
+
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
+        });
+      }
+
       return updatedUser;
     }
   }

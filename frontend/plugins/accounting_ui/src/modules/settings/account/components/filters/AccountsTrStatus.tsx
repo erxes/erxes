@@ -7,16 +7,22 @@ import {
   TR_STATUSES,
 } from '~/modules/transactions/types/constants';
 
+export type TrStatusOptions = {
+  statuses?: string[];
+  labels?: Record<string, string>;
+};
+
 export const SelectAccountTrStatusCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,
   Except<
     React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
     'value' | 'onSelect'
-  > & {
-    selected: string[] | null;
-    onSelect?: (kind: string[] | null) => void;
-  }
->(({ selected, onSelect, ...props }, ref) => {
+  > &
+    TrStatusOptions & {
+      selected: string[] | null;
+      onSelect?: (kind: string[] | null) => void;
+    }
+>(({ selected, onSelect, statuses, labels, ...props }, ref) => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = React.useState(false);
 
@@ -25,7 +31,7 @@ export const SelectAccountTrStatusCommand = React.forwardRef<
       <Combobox.Trigger ref={ref} {...props}>
         {selected?.length
           ? selected
-              .map((status) => t(TR_STATUS_LABELS[status] || ''))
+              .map((status) => t((labels ?? TR_STATUS_LABELS)[status] || ''))
               .join(', ')
           : t('status')}
       </Combobox.Trigger>
@@ -34,6 +40,8 @@ export const SelectAccountTrStatusCommand = React.forwardRef<
           focusOnMount
           selected={selected}
           onSelect={onSelect}
+          statuses={statuses}
+          labels={labels}
         />
       </Combobox.Content>
     </Popover>
@@ -44,7 +52,9 @@ export const AccountsTrStatusCommand = ({
   focusOnMount,
   selected,
   onSelect,
-}: {
+  statuses = TR_STATUSES.ALL,
+  labels = TR_STATUS_LABELS,
+}: TrStatusOptions & {
   focusOnMount?: boolean;
   selected: string[] | null;
   onSelect?: (journal: string[] | null) => void;
@@ -66,13 +76,13 @@ export const AccountsTrStatusCommand = ({
         focusOnMount={focusOnMount}
       />
       <Command.List>
-        {TR_STATUSES.ALL.map((trStatus) => (
+        {statuses.map((trStatus) => (
           <Command.Item
             key={trStatus}
             value={trStatus}
             onSelect={() => toggleStatus(trStatus)}
           >
-            {t(TR_STATUS_LABELS[trStatus] || '')}
+            {t(labels[trStatus] || '')}
             <Combobox.Check checked={selected?.includes(trStatus)} />
           </Command.Item>
         ))}

@@ -34,6 +34,7 @@ export const queries = `
     createdFrom: Date
     createdTo: Date
     transactionId: String
+    excludeTransactionId: String
     page: Int
     perPage: Int
     limit: Int
@@ -52,6 +53,7 @@ export const queries = `
     createdFrom: Date
     createdTo: Date
     transactionId: String
+    excludeTransactionId: String
   ): Int
 
 `;

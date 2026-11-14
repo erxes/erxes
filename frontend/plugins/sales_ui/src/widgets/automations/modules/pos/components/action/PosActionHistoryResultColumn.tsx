@@ -1,7 +1,12 @@
 import { IconExternalLink } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { AutomationExecutionActionResultProps } from 'ui-modules';
+import {
+  AutomationExecutionActionResultProps,
+  getSidePanelRecordPath,
+  SIDE_PANEL_QUERY_KEY,
+} from 'ui-modules';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
 
 const toRecord = (value: unknown): Record<string, unknown> =>
   value && typeof value === 'object' && !Array.isArray(value)
@@ -31,7 +36,12 @@ export const PosActionHistoryResult = ({
   return (
     <div>
       <Link
-        to={`/sales/pos/${posId}/orders?pos_order_id=${orderId}`}
+        to={`/sales/pos/${posId}/orders?${new URLSearchParams({
+          [SIDE_PANEL_QUERY_KEY]: getSidePanelRecordPath({
+            contentType: POS_ORDER_CONTENT_TYPE,
+            contentId: orderId,
+          }),
+        }).toString()}`}
         target="_blank"
       >
         <Button variant="link" className="w-full">

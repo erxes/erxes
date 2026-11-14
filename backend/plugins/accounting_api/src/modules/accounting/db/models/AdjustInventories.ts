@@ -9,6 +9,7 @@ import {
   IAdjustInvDetailParamsId,
   IAdjustInventory,
   IAdjustInventoryDocument,
+  TAdjustInventoryModifier,
 } from '../../@types/adjustInventory';
 import { JOURNALS, TR_SIDES } from '../../@types/constants';
 import {
@@ -18,13 +19,12 @@ import {
 
 const inventoryKey = (id?: string) => id || '_';
 
-export interface IAdjustInventoriesModel
-  extends Model<IAdjustInventoryDocument> {
+export interface IAdjustInventoriesModel extends Model<IAdjustInventoryDocument> {
   getAdjustInventory(_id: string): Promise<IAdjustInventoryDocument>;
   createAdjustInventory(doc: IAdjustInventory): Promise<IAdjustInventory>;
   updateAdjustInventory(
     _id: string,
-    doc: IAdjustInventory,
+    doc: TAdjustInventoryModifier,
   ): Promise<IAdjustInventory>;
   removeAdjustInventory(_id: string): Promise<string>;
 }
@@ -49,7 +49,7 @@ export const loadAdjustInventoriesClass = (
 
     public static async updateAdjustInventory(
       _id: string,
-      doc: IAdjustInventory,
+      doc: TAdjustInventoryModifier,
     ) {
       await models.AdjustInventories.getAdjustInventory(_id);
       await models.AdjustInventories.updateOne(
@@ -83,8 +83,7 @@ export const loadAdjustInventoriesClass = (
   return adjustInventoriesSchema;
 };
 
-export interface IAdjustInvDetailsModel
-  extends Model<IAdjustInvDetailDocument> {
+export interface IAdjustInvDetailsModel extends Model<IAdjustInvDetailDocument> {
   getAdjustInvDetail(
     args: IAdjustInvDetailParamsId,
   ): Promise<IAdjustInvDetailDocument>;

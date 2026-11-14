@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { MEMBER_AVAILABILITY_FIELDS } from '../availability/graphql/availability';
 import {
   GQL_CURSOR_PARAM_DEFS,
   GQL_CURSOR_PARAMS,
@@ -13,6 +14,7 @@ const GET_USER = gql`
       email
       isOwner
       isActive
+      ${MEMBER_AVAILABILITY_FIELDS}
       positionIds
       permissionGroupIds
       score
@@ -76,6 +78,11 @@ const GET_USERS_QUERY = gql`
         email
         status
         sessionState
+        ${MEMBER_AVAILABILITY_FIELDS}
+        activity(days: 7) {
+          activeMinutes
+          lastActiveAt
+        }
         isActive
         groupIds
         brandIds

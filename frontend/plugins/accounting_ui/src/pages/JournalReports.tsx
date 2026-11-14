@@ -1,3 +1,4 @@
+import { IconClipboardTextFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { AccountingHeader } from '@/layout/components/Header';
 import { AccountingLayout } from '@/layout/components/Layout';
@@ -14,6 +15,7 @@ export const JournalReports = () => {
           <AccountingHeader
             returnLink="/accounting/journal-reports"
             returnText={t('Reports')}
+            icon={IconClipboardTextFilled}
           />
           <div className="flex flex-auto overflow-hidden">
             <ReportForm />

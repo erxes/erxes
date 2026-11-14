@@ -37,23 +37,27 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { forwardRef, useState } from 'react';
-import { useFieldGroups } from '../hooks/useFieldGroups';
-import { useFields } from '../hooks/useFields';
+import { useFieldGroups } from 'ui-modules/modules/properties/hooks/useFieldGroups';
+import { useFields } from 'ui-modules/modules/properties/hooks/useFields';
 import {
   IField,
   IFieldGroup,
   IPropertyRow,
-  mutateFunction,
-} from '../types/fieldsTypes';
+  IFieldMutation,
+} from 'ui-modules/modules/properties/types/fieldsTypes';
 import {
   formatFieldValue,
+  getPropertyRowsUpdate,
   hasFieldValue,
   isFieldVisibleByLogic,
   toPropertyGroupKey,
-} from '../propertyUtils';
+} from 'ui-modules/modules/properties/propertyUtils';
 import { nanoid } from 'nanoid';
-import { Field, FieldMultiple } from './Field';
-import { GroupFieldRows } from './GroupFieldRows';
+import {
+  Field,
+  FieldMultiple,
+} from 'ui-modules/modules/properties/components/Field';
+import { GroupFieldRows } from 'ui-modules/modules/properties/components/GroupFieldRows';
 import { useNavigate } from 'react-router-dom';
 
 export const PropertyGroupShell = ({
@@ -105,11 +109,8 @@ const FieldGroupContent = ({
   id: string;
   inCell?: boolean;
   contentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
 }) => {
   const { configs } = group || {};
   const { fields, loading } = useFields({ groupId: group._id, contentType });
@@ -155,6 +156,40 @@ const FieldGroupContent = ({
   );
 };
 
+/** Links an empty property list to its content-type settings page. */
+const EmptyProperties = ({
+  fieldContentType,
+}: {
+  fieldContentType: string;
+}) => {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col justify-center items-center flex-1 w-full gap-2">
+      <IconListDetails
+        className="text-muted-foreground"
+        size={64}
+        stroke={1.5}
+      />
+      <h3 className="font-semibold text-muted-foreground">
+        No properties found{' '}
+      </h3>
+      <div className="flex flex-col justify-center items-center gap-2 my-2">
+        <p className="text-muted-foreground">
+          Get started by creating your first property.
+        </p>
+        <Button
+          size="sm"
+          onClick={() => {
+            navigate(`/settings/properties/${fieldContentType}`);
+          }}
+        >
+          Create property
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 export const FieldsInDetail = ({
   fieldContentType,
   propertiesData,
@@ -164,11 +199,8 @@ export const FieldsInDetail = ({
   bare = false,
 }: {
   fieldContentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
   id: string;
   className?: string;
   // Only the property groups, without the outer "… Properties" card; for
@@ -213,6 +245,7 @@ export const FieldsInDetail = ({
   );
 };
 
+/** Renders each visible property through the shared field-row layout. */
 export const FieldsInGroup = ({
   group,
   propertiesData,
@@ -224,11 +257,8 @@ export const FieldsInGroup = ({
   id: string;
   inCell?: boolean;
   contentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
   fields: IField[];
 }) => {
   return (
@@ -262,6 +292,99 @@ const rowLabel = (row: IPropertyRow, fields: IField[]) => {
   return '';
 };
 
+/** Shows the removal tooltip while forwarding the dialog trigger props. */
+const PropertyEntryRemoveTrigger = forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button>
+>((props, ref) => (
+  <Tooltip delayDuration={1}>
+    <Tooltip.Trigger asChild>
+      <Button
+        {...props}
+        ref={ref}
+        variant="ghost"
+        size="icon"
+        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+      >
+        <IconTrash />
+      </Button>
+    </Tooltip.Trigger>
+    <Tooltip.Content side="left">
+      <p>Remove entry</p>
+    </Tooltip.Content>
+  </Tooltip>
+));
+PropertyEntryRemoveTrigger.displayName = 'PropertyEntryRemoveTrigger';
+
+/** Confirms deletion of one repeated property entry before invoking its mutation. */
+const RemovePropertyEntry = ({
+  label,
+  groupName,
+  onRemove,
+}: {
+  label: string;
+  groupName: string;
+  onRemove: () => void;
+}) => (
+  <AlertDialog>
+    <AlertDialog.Trigger asChild>
+      <PropertyEntryRemoveTrigger />
+    </AlertDialog.Trigger>
+
+    <AlertDialog.Content>
+      <AlertDialog.Header>
+        <AlertDialog.Title>Remove entry</AlertDialog.Title>
+        <AlertDialog.Description>
+          {`"${label}" will be removed from ${groupName}. This cannot be undone.`}
+        </AlertDialog.Description>
+      </AlertDialog.Header>
+      <AlertDialog.Footer>
+        <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+        <AlertDialog.Action
+          className={buttonVariants({ variant: 'destructive' })}
+          onClick={onRemove}
+        >
+          Remove
+        </AlertDialog.Action>
+      </AlertDialog.Footer>
+    </AlertDialog.Content>
+  </AlertDialog>
+);
+
+/** Groups the entry expansion control, reorder handle, and removal action. */
+const PropertyEntryHeader = ({
+  label,
+  groupName,
+  dragHandle,
+  onRemove,
+}: {
+  label: string;
+  groupName: string;
+  dragHandle?: React.ReactNode;
+  onRemove: () => void;
+}) => (
+  <div className="flex items-center gap-1 px-1">
+    {dragHandle}
+
+    <Collapsible.Trigger asChild>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="flex-1 justify-start gap-2 font-normal"
+      >
+        <Collapsible.TriggerIcon />
+        <span className="truncate text-accent-foreground">{label}</span>
+      </Button>
+    </Collapsible.Trigger>
+
+    <RemovePropertyEntry
+      label={label}
+      groupName={groupName}
+      onRemove={onRemove}
+    />
+  </div>
+);
+
 const PropertyGroupRow = forwardRef<
   HTMLDivElement,
   {
@@ -269,11 +392,8 @@ const PropertyGroupRow = forwardRef<
     fields: IField[];
     row: IPropertyRow;
     index: number;
-    propertiesData: Record<string, any>;
-    mutateHook: () => {
-      mutate: mutateFunction;
-      loading: boolean;
-    };
+    propertiesData: Record<string, unknown>;
+    mutateHook: () => IFieldMutation;
     id: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -311,57 +431,12 @@ const PropertyGroupRow = forwardRef<
         onOpenChange={onOpenChange}
         className={cn('group rounded-lg bg-background shadow-sm', className)}
       >
-        <div className="flex items-center gap-1 px-1">
-          {dragHandle}
-
-          <Collapsible.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex-1 justify-start gap-2 font-normal"
-            >
-              <Collapsible.TriggerIcon />
-              <span className="truncate text-accent-foreground">{label}</span>
-            </Button>
-          </Collapsible.Trigger>
-
-          <AlertDialog>
-            <Tooltip delayDuration={1}>
-              <Tooltip.Trigger asChild>
-                <AlertDialog.Trigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <IconTrash />
-                  </Button>
-                </AlertDialog.Trigger>
-              </Tooltip.Trigger>
-              <Tooltip.Content side="left">
-                <p>Remove entry</p>
-              </Tooltip.Content>
-            </Tooltip>
-
-            <AlertDialog.Content>
-              <AlertDialog.Header>
-                <AlertDialog.Title>Remove entry</AlertDialog.Title>
-                <AlertDialog.Description>
-                  {`"${label}" will be removed from ${group.name}. This cannot be undone.`}
-                </AlertDialog.Description>
-              </AlertDialog.Header>
-              <AlertDialog.Footer>
-                <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-                <AlertDialog.Action
-                  className={buttonVariants({ variant: 'destructive' })}
-                  onClick={onRemove}
-                >
-                  Remove
-                </AlertDialog.Action>
-              </AlertDialog.Footer>
-            </AlertDialog.Content>
-          </AlertDialog>
-        </div>
+        <PropertyEntryHeader
+          label={label}
+          groupName={group.name}
+          dragHandle={dragHandle}
+          onRemove={onRemove}
+        />
 
         <Collapsible.Content className="p-3 pt-1">
           <GroupFieldRows
@@ -387,6 +462,7 @@ const PropertyGroupRow = forwardRef<
 );
 PropertyGroupRow.displayName = 'PropertyGroupRow';
 
+/** Connects a property entry to its drag handle and sortable position. */
 const SortablePropertyGroupRow = (
   props: React.ComponentProps<typeof PropertyGroupRow>,
 ) => {
@@ -421,6 +497,7 @@ const SortablePropertyGroupRow = (
   );
 };
 
+/** Adds, removes, and reorders entries using the owning mutation data mode. */
 export const MultipleFieldsInGroup = ({
   group,
   propertiesData,
@@ -432,14 +509,11 @@ export const MultipleFieldsInGroup = ({
   id: string;
   inCell?: boolean;
   contentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
   fields: IField[];
 }) => {
-  const { mutate, loading } = mutateHook();
+  const { mutate, loading, propertiesDataMode } = mutateHook();
 
   const groupKey = toPropertyGroupKey(group._id);
   const rows = (propertiesData[groupKey] || []) as IPropertyRow[];
@@ -449,6 +523,7 @@ export const MultipleFieldsInGroup = ({
     {},
   );
 
+  /** Applies an explicit expansion preference or opens the sole or empty entry. */
   const isRowOpen = (row: IPropertyRow) =>
     openOverrides[row._id] ??
     (rows.length === 1 ||
@@ -464,10 +539,16 @@ export const MultipleFieldsInGroup = ({
     }),
   );
 
+  /** Saves only this group in patch mode and preserves all properties in replace mode. */
   const saveRows = (nextRows: IPropertyRow[]) =>
     mutate({
       _id: id,
-      propertiesData: { ...propertiesData, [groupKey]: nextRows },
+      propertiesData: getPropertyRowsUpdate(
+        propertiesData,
+        groupKey,
+        nextRows,
+        propertiesDataMode,
+      ),
     });
 
   // persisted on add, so every row is drag-ordered and id-addressable at once
@@ -480,9 +561,11 @@ export const MultipleFieldsInGroup = ({
     saveRows([...rows, { _id: rowId }]);
   };
 
+  /** Removes the selected property entry and persists the remaining order. */
   const handleRemoveRow = (rowId: string) =>
     saveRows(rows.filter((row) => row._id !== rowId));
 
+  /** Persists a reorder only when both dragged entry positions are valid. */
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) {
       return;
@@ -562,38 +645,5 @@ export const MultipleFieldsInGroup = ({
         </SortableContext>
       </DndContext>
     </PropertyGroupShell>
-  );
-};
-
-const EmptyProperties = ({
-  fieldContentType,
-}: {
-  fieldContentType: string;
-}) => {
-  const navigate = useNavigate();
-  return (
-    <div className="flex flex-col justify-center items-center flex-1 w-full gap-2">
-      <IconListDetails
-        className="text-muted-foreground"
-        size={64}
-        stroke={1.5}
-      />
-      <h3 className="font-semibold text-muted-foreground">
-        No properties found{' '}
-      </h3>
-      <div className="flex flex-col justify-center items-center gap-2 my-2">
-        <p className="text-muted-foreground">
-          Get started by creating your first property.
-        </p>
-        <Button
-          size="sm"
-          onClick={() => {
-            navigate(`/settings/properties/${fieldContentType}`);
-          }}
-        >
-          Create property
-        </Button>
-      </div>
-    </div>
   );
 };

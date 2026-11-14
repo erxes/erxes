@@ -20,6 +20,7 @@ import {
   TTaxRowPanelChange,
 } from '@/settings/components/TaxRowCommonFields';
 import { SettingsPanelRemoveAction } from '@/settings/components/panel/SettingsPanelActions';
+import { SettingsPanelTitleField } from '@/settings/components/panel/SettingsPanelFields';
 import {
   ISettingsPanelViewProps,
   ISettingsPanelViews,
@@ -81,11 +82,26 @@ const CtaxRowPanelActions = ({ contentId }: ISettingsPanelViewProps) => {
             toast({
               title: t('success'),
               description: t('city-tax-row-deleted-successfully'),
+              variant: 'success',
             });
             onCompleted();
           },
         })
       }
+    />
+  );
+};
+
+const CtaxRowPanelTitle = ({ contentId }: ISettingsPanelViewProps) => {
+  const { ctaxRowDetail: ctaxRow, loading } = useCtaxRowDetail(contentId);
+  const { editCtaxRow } = useCtaxRowEdit();
+
+  return (
+    <SettingsPanelTitleField
+      scope={SCOPE}
+      loading={loading}
+      value={ctaxRow ? ctaxRow.name || '' : undefined}
+      onSave={(name) => editCtaxRow({ variables: { _id: contentId, name } })}
     />
   );
 };
@@ -117,6 +133,7 @@ const CtaxRowPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
 export const CTAX_ROW_PANEL: ISettingsPanelViews = {
   addLabel: 'add-city-tax',
   editLabel: 'edit-city-tax-row',
+  Title: CtaxRowPanelTitle,
   New: CtaxRowPanelNew,
   Actions: CtaxRowPanelActions,
   Detail: CtaxRowPanelDetail,

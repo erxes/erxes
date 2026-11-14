@@ -523,6 +523,7 @@ const removeAdjustFundRateTransaction = async (
 };
 
 export const calculateAdjustFundRate = async (
+  subdomain: string,
   models: IModels,
   userId: string,
   adjust: IAdjustFundRate,
@@ -554,12 +555,15 @@ export const calculateAdjustFundRate = async (
       },
     );
 
-    graphqlPubsub.publish(`accountingAdjustFundRateChanged:${adjust._id}`, {
-      accountingAdjustFundRateChanged: await enrichAdjustmentForSubscription(
-        models,
-        updatedAdjust,
-      ),
-    });
+    graphqlPubsub.publish(
+      `accountingAdjustFundRateChanged:${subdomain}:${adjust._id}`,
+      {
+        accountingAdjustFundRateChanged: await enrichAdjustmentForSubscription(
+          models,
+          updatedAdjust,
+        ),
+      },
+    );
 
     return updatedAdjust;
   }
@@ -579,17 +583,21 @@ export const calculateAdjustFundRate = async (
     },
   );
 
-  graphqlPubsub.publish(`accountingAdjustFundRateChanged:${adjust._id}`, {
-    accountingAdjustFundRateChanged: await enrichAdjustmentForSubscription(
-      models,
-      updatedAdjust,
-    ),
-  });
+  graphqlPubsub.publish(
+    `accountingAdjustFundRateChanged:${subdomain}:${adjust._id}`,
+    {
+      accountingAdjustFundRateChanged: await enrichAdjustmentForSubscription(
+        models,
+        updatedAdjust,
+      ),
+    },
+  );
 
   return updatedAdjust;
 };
 
 export const runAdjustFundRate = async (
+  subdomain: string,
   models: IModels,
   userId: string,
   adjust: IAdjustFundRate,
@@ -648,12 +656,15 @@ export const runAdjustFundRate = async (
     },
   );
 
-  graphqlPubsub.publish(`accountingAdjustFundRateChanged:${adjust._id}`, {
-    accountingAdjustFundRateChanged: await enrichAdjustmentForSubscription(
-      models,
-      updatedAdjust,
-    ),
-  });
+  graphqlPubsub.publish(
+    `accountingAdjustFundRateChanged:${subdomain}:${adjust._id}`,
+    {
+      accountingAdjustFundRateChanged: await enrichAdjustmentForSubscription(
+        models,
+        updatedAdjust,
+      ),
+    },
+  );
 
   return updatedAdjust;
 };

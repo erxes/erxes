@@ -136,6 +136,7 @@ export const AccountingTableRow = ({
         <RowComponent
           key={row.original._id}
           id={row.original._id}
+          original={row.original}
           data-state={row.getIsSelected() && 'selected'}
           handleRowViewChange={(inView) =>
             handleRowViewChange?.(row.original._id, inView)

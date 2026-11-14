@@ -3,7 +3,6 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IPricingConditionRule } from '@/pricing/@types/pricingPlan';
 import {
-  checkRepeatRule,
   calculatePriceRule,
   calculateQuantityRule,
   calculateDiscountValue,
@@ -12,9 +11,12 @@ import {
 } from './rule';
 import { getAllowedProducts } from './product';
 import { planMatchesContext, EligibilityCache } from './eligibility';
+import { scheduleMatchAt } from './schedule';
+import { IActiveWindow } from '../@types/schedule';
+import { loyaltyTimeZone } from '@/score/services/periodSchedule';
 import { CalculatedRule, OrderItem } from '../types';
 
-type ParticipantKind = 'customer' | 'company' | 'user';
+export type ParticipantKind = 'customer' | 'company' | 'user';
 
 export const getMainConditions = ({
   branchId,
@@ -274,7 +276,6 @@ const processItemWithPlan = (
   plan: any,
   totalAmount: number,
   defaultValue: number,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
 ): {
   type: string;
   value: number;
@@ -319,6 +320,45 @@ const processItemWithPlan = (
   return { type, value, bonusProducts, shouldApply: true };
 };
 
+// Why a line got what it got: the plan, and for a scheduled plan the window
+// and the purchase moment that matched.
+export interface IPricingReason {
+  planId: string;
+  planName: string;
+  kind: 'discount' | 'bonus';
+  value: number;
+  posBase?: boolean;
+  window?: IActiveWindow;
+  matchedMoment?: 'checkout' | 'orderCreated';
+}
+
+type PlanReason = Omit<IPricingReason, 'kind' | 'value'>;
+
+type PricingResult = Record<
+  string,
+  {
+    type: string;
+    value: number;
+    bonusProducts: any[];
+    reasons: IPricingReason[];
+  }
+>;
+
+// POS base plans add up; of the others only the best one stands, so it
+// replaces the earlier one's reason.
+const keepReason = (
+  reasons: IPricingReason[],
+  reason: IPricingReason,
+): IPricingReason[] =>
+  reason.posBase
+    ? [...reasons, reason]
+    : [
+        ...reasons.filter(
+          (existing) => existing.posBase || existing.kind !== reason.kind,
+        ),
+        reason,
+      ];
+
 // Helper function to update result with calculated values
 const updateResultWithCalculations = (
   itemId: string,
@@ -326,28 +366,46 @@ const updateResultWithCalculations = (
   value: number,
   bonusProducts: any[],
   plan: any,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
+  result: PricingResult,
+  reason: PlanReason,
 ): void => {
+  const entry = result[itemId];
+
   if (type !== 'bonus') {
-    result[itemId].type = type;
+    entry.type = type;
     if (plan.priority === 'posBase') {
-      result[itemId].value += value;
+      entry.value += value;
+      entry.reasons = keepReason(entry.reasons, {
+        ...reason,
+        kind: 'discount',
+        value,
+      });
     } else if (
-      (value > 0 && result[itemId].value < value) ||
-      (value < 0 && result[itemId].value > value)
+      (value > 0 && entry.value < value) ||
+      (value < 0 && entry.value > value)
     ) {
-      result[itemId].value = value;
+      entry.value = value;
+      entry.reasons = keepReason(entry.reasons, {
+        ...reason,
+        kind: 'discount',
+        value,
+      });
     }
   }
 
   if (type === 'bonus') {
     if (plan.priority === 'posBase') {
-      result[itemId].bonusProducts = [
-        ...result[itemId].bonusProducts,
-        ...bonusProducts,
-      ];
+      entry.bonusProducts = [...entry.bonusProducts, ...bonusProducts];
     } else {
-      result[itemId].bonusProducts = bonusProducts;
+      entry.bonusProducts = bonusProducts;
+    }
+
+    if (bonusProducts.length) {
+      entry.reasons = keepReason(entry.reasons, {
+        ...reason,
+        kind: 'bonus',
+        value: 0,
+      });
     }
   }
 };
@@ -357,20 +415,28 @@ const applyBundleCalculation = (
   plan: any,
   appliedBundleItems: any[],
   appliedBundleCounts: number,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
+  result: PricingResult,
 ): void => {
   if (plan.applyType !== 'bundle') return;
 
+  const share = (value: number, quantity: number) =>
+    Math.floor((value / quantity) * appliedBundleCounts);
+
   appliedBundleItems.forEach((item: any) => {
-    if (result[item.itemId].type !== 'bonus') {
-      result[item.itemId].value = Math.floor(
-        (result[item.itemId].value / item.quantity) * appliedBundleCounts,
+    const entry = result[item.itemId];
+
+    if (entry.type !== 'bonus') {
+      entry.value = share(entry.value, item.quantity);
+      entry.reasons = entry.reasons.map((reason) =>
+        reason.planId === plan._id && reason.kind === 'discount'
+          ? { ...reason, value: share(reason.value, item.quantity) }
+          : reason,
       );
     }
   });
 };
 
-const typedParticipantContext = ({
+export const typedParticipantContext = ({
   type,
   id,
   prefix = '',
@@ -410,6 +476,10 @@ const typedParticipantContext = ({
 
 // Main function with reduced complexity
 export const checkPricing = async (params: {
+  // The checkout moment; defaults to now.
+  date?: Date;
+  // When the order or deal was first created; missing means it starts now.
+  orderCreatedAt?: Date;
   models: IModels;
   subdomain: string;
   prioritizeRule: string;
@@ -424,6 +494,8 @@ export const checkPricing = async (params: {
   brokerId?: string;
 }) => {
   const {
+    date = new Date(),
+    orderCreatedAt,
     models,
     subdomain,
     prioritizeRule,
@@ -439,10 +511,7 @@ export const checkPricing = async (params: {
   } = params;
 
   const productIds = orderItems.map((p) => p.productId);
-  const result: Record<
-    string,
-    { type: string; value: number; bonusProducts: any[] }
-  > = {};
+  const result: PricingResult = {};
 
   // Initialize result structure
   orderItems.forEach((item) => {
@@ -451,12 +520,18 @@ export const checkPricing = async (params: {
         type: '',
         value: 0,
         bonusProducts: [],
+        reasons: [],
       };
     }
   });
 
   // Prepare query conditions
-  const conditions = getMainConditions({ branchId, departmentId, pipelineId });
+  const conditions = getMainConditions({
+    branchId,
+    departmentId,
+    pipelineId,
+    date,
+  });
   applyPriorityConditions(
     conditions,
     prioritizeRule,
@@ -499,8 +574,38 @@ export const checkPricing = async (params: {
     prefix: 'broker',
   });
 
+  // Asked of core only when a plan has a schedule.
+  let timeZone: string | undefined;
+
   // Process each plan
   for (const plan of plans) {
+    let scheduleMatch: ReturnType<typeof scheduleMatchAt> = null;
+
+    if (plan.isRepeatEnabled) {
+      timeZone ??= await loyaltyTimeZone(subdomain);
+      scheduleMatch = scheduleMatchAt(
+        plan,
+        { checkout: date, orderCreated: orderCreatedAt },
+        timeZone,
+      );
+
+      if (!scheduleMatch) {
+        continue;
+      }
+    }
+
+    const reason: PlanReason = {
+      planId: plan._id,
+      planName: plan.name,
+      ...(plan.priority === 'posBase' ? { posBase: true } : {}),
+      ...(scheduleMatch
+        ? {
+            window: scheduleMatch.window,
+            matchedMoment: scheduleMatch.moment,
+          }
+        : {}),
+    };
+
     // Customer + broker eligibility gate (product targeting is handled below).
     if (
       !(await planMatchesContext(
@@ -521,10 +626,6 @@ export const checkPricing = async (params: {
       plan,
       productIds || [],
     );
-
-    if (!checkRepeatRule(plan)) {
-      continue;
-    }
 
     // POS sync already baked this plan into unit prices; only its condition
     // discount is left, measured against what the line costs now.
@@ -575,6 +676,7 @@ export const checkPricing = async (params: {
             [],
             plan,
             result,
+            reason,
           );
         }
 
@@ -592,7 +694,6 @@ export const checkPricing = async (params: {
           plan,
           totalAmount,
           defaultValue,
-          result,
         ));
 
         if (shouldApply && conditionRule) {
@@ -614,6 +715,7 @@ export const checkPricing = async (params: {
           bonusProducts,
           plan,
           result,
+          reason,
         );
         appliedBundleItems.push(item);
       }

@@ -11,11 +11,13 @@ import { useTranslation } from 'react-i18next';
 interface GeneralFormFieldsProps {
   control: Control<GeneralFormValues>;
   appliesTo: PricingAppliesTo;
+  scheduled?: boolean;
 }
 
 export const GeneralFormFields = ({
   control,
   appliesTo,
+  scheduled,
 }: GeneralFormFieldsProps) => {
   const { t } = useTranslation('loyalty');
 
@@ -85,8 +87,14 @@ export const GeneralFormFields = ({
               <PricingPrioritySelect
                 value={field.value}
                 onValueChange={field.onChange}
+                scheduled={scheduled}
               />
             </Form.Control>
+            {scheduled && (
+              <Form.Description>
+                {t('priority-blocked-by-schedule')}
+              </Form.Description>
+            )}
           </Form.Item>
         )}
       />

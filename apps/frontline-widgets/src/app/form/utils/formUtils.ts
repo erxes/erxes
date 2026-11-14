@@ -8,3 +8,12 @@ export const isCalloutVisible = (callout?: ICallout | null): boolean =>
   !!callout &&
   !callout.skip &&
   !!(callout.title || callout.body || callout.featuredImage);
+
+/** The personal link token (`?t=`) a form link was opened with, if any. */
+export const readFormLinkToken = () => {
+  try {
+    return new URLSearchParams(window.location.search).get('t') || undefined;
+  } catch {
+    return undefined;
+  }
+};

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { stringifyAutomationHistoryValue } from '@/automations/components/builder/history/components/AutomationHistoryPopoverValue';
+import { GenericActionResult } from '@/automations/components/builder/history/components/result/ActionResultShapeView';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { ActionResult } from 'ui-modules';
 
@@ -8,24 +9,6 @@ type TAiAgentResult = {
   text?: string;
   topicId?: string;
   attributes?: Record<string, unknown>;
-};
-
-const getAiAgentSummary = (result?: TAiAgentResult) => {
-  if (result?.type === 'generateText') {
-    return result.text || 'Generated text';
-  }
-
-  if (result?.type === 'splitTopic') {
-    return result.topicId
-      ? `Matched topic: ${result.topicId}`
-      : 'No matching topic';
-  }
-
-  if (result?.type === 'classification') {
-    return stringifyAutomationHistoryValue(result.attributes || {});
-  }
-
-  return stringifyAutomationHistoryValue(result);
 };
 
 export const AiAgentActionResult = ({
@@ -65,5 +48,15 @@ export const AiAgentActionResult = ({
     );
   }
 
-  return <ActionResult.Status>{getAiAgentSummary(result)}</ActionResult.Status>;
+  if (result?.type === 'splitTopic') {
+    return (
+      <ActionResult.Status>
+        {result.topicId
+          ? `Matched topic: ${result.topicId}`
+          : 'No matching topic'}
+      </ActionResult.Status>
+    );
+  }
+
+  return <GenericActionResult value={result} />;
 };
