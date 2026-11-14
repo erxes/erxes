@@ -59,7 +59,12 @@ export const preset = {
     {
       files: ['api/**'],
       env: { node: true },
-      rules: serverRules,
+      // A plugin's procedures declare their output and return its rows, flat, as core's do.
+      rules: {
+        ...serverRules,
+        'erxes/no-dto-mapper': 'error',
+        'erxes/procedure-output': 'error',
+      },
     },
     {
       files: ['ui/**'],
