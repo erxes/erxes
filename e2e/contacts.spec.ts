@@ -50,8 +50,12 @@ test('a member creates a contact, edits it and adds a note', async ({ page, api 
   await page.getByRole('tab', { name: 'Activity' }).click();
   await expect(page.getByText('Met at the trade fair', { exact: true })).toBeVisible();
 
-  await page.getByRole('textbox', { name: /^Write a note/ }).fill('Called about the engine');
+  const note = page.getByRole('textbox', { name: /^Write a note/ });
+
+  await note.fill('Called about the engine');
   await page.getByRole('button', { name: 'Add note' }).click();
+  // The box empties once the note is saved; until then its text is a second match.
+  await expect(note).toHaveValue('');
   await expect(page.getByText('Called about the engine')).toBeVisible();
   await expectAccessible(page);
 
