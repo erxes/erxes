@@ -7,7 +7,8 @@ import { budgetOverrides, budgetRules } from './tools/config/budgets';
 import { designOverrides, designSettings } from './tools/config/design';
 import { exceptions } from './tools/config/exceptions';
 import { restrictedOverrides, restrictedRules } from './tools/config/restricted';
-import { rules } from './tools/config/rules';
+import { coreRules } from './tools/config/core-rules';
+import { lintBase, rules } from './tools/config/rules';
 import { coreApiTestEnv } from './tools/test/core-api-env';
 import { noSkips } from './tools/test/no-skips';
 
@@ -55,30 +56,32 @@ export default defineConfig({
       'packages/contract/openapi.json',
       'packages/contract/routes.json',
       'packages/ui/src/lib/cn-tables.ts',
+      'packages/create-erxes/templates/**',
       'pnpm-lock.yaml',
     ],
   },
   lint: {
-    plugins: ['typescript', 'unicorn', 'oxc', 'import', 'vitest', 'promise', 'node'],
+    ...lintBase,
     jsPlugins: [
-      { name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' },
+      ...lintBase.jsPlugins,
       { name: 'anti-slop', specifier: './tools/lint/anti-slop/index.ts' },
       { name: 'erxes', specifier: './tools/lint/erxes/index.ts' },
       { name: 'shadcn', specifier: '@shadcn/lint' },
     ],
     settings: designSettings,
-    categories: { correctness: 'error', suspicious: 'error' },
-    options: { typeAware: true, typeCheck: true },
     // consumers/ installs the packed packages outside the workspace, so their imports
     // resolve only there; consumers/run.sh type-checks them (CI's packages job).
+    // create-erxes's templates are code only once the CLI fills their names in; the
+    // generated plugin's own check lints them (its e2e test).
     ignorePatterns: [
       'dist/**',
       'coverage/**',
       'consumers/**',
+      'packages/create-erxes/templates/**',
       // Written by `cn build` (pnpm --filter @erxes/ui cn:tables), checked by check:generated.
       'packages/ui/src/lib/cn-tables.ts',
     ],
-    rules: { ...rules, ...restrictedRules, ...budgetRules },
+    rules: { ...rules, ...coreRules, ...restrictedRules, ...budgetRules },
     overrides: [
       ...areas,
       ...designOverrides,

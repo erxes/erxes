@@ -17,10 +17,4 @@ export const budgetOverrides = [
     files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
     rules: { 'max-lines-per-function': 'off' },
   },
-  {
-    // ESLint Stylistic's rule, vendored unchanged (see its UPSTREAM.md): splitting or
-    // rewriting it would make upstream fixes hard to carry over.
-    files: ['tools/lint/anti-slop/vendor/**'],
-    rules: { 'max-lines': 'off', 'max-lines-per-function': 'off' },
-  },
 ] satisfies OxlintConfig['overrides'];

@@ -1,24 +1,21 @@
-// The lint rules every file gets. Size limits are in budgets.ts, import bans in
-// restricted-imports.ts, what each part of the repo adds in areas.ts.
+// The lint setup every erxes repo on the new stack shares: create-erxes copies this
+// file and budgets.ts into each plugin unchanged. What only core gets is in
+// core-rules.ts, import bans in restricted.ts, what each part of the repo adds in areas.ts.
 import type { OxlintConfig } from 'vite-plus/lint';
+
+export const lintBase = {
+  plugins: ['typescript', 'unicorn', 'oxc', 'import', 'vitest', 'promise', 'node'],
+  jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
+  categories: { correctness: 'error', suspicious: 'error' },
+  options: { typeAware: true, typeCheck: true },
+} satisfies OxlintConfig;
 
 export const rules = {
   'vite-plus/prefer-vite-plus-imports': 'error',
-  'anti-slop/no-reduce-accumulator-copy': 'error',
-  'anti-slop/no-object-parameters': 'error',
-  'anti-slop/no-reflect-apply': 'error',
-  'anti-slop/no-reflect-get': 'error',
-  'anti-slop/no-shape-in-symbol-names': 'error',
-  'anti-slop/no-unknown-type-aliases': 'error',
-  'anti-slop/no-widen-then-assert': 'error',
-  'anti-slop/require-readable-spacing': 'error',
-  // A malformed token claim must fail verification, never fall back to a value.
-  'anti-slop/no-zod-catch': 'error',
-  'erxes/no-session-advisory-lock': 'error',
   // `const { secret, ...rest } = row` drops a field on purpose; Express
   // error handlers need all four parameters (`_next`).
   'no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
-  // Servers log through pino (apps/core-api/src/logger.ts); CLIs write to process.stdout.
+  // Servers log through pino; CLIs write to process.stdout.
   'no-console': 'error',
   'no-debugger': 'error',
   'import/no-default-export': 'error',
@@ -50,9 +47,6 @@ export const rules = {
   'typescript/consistent-type-imports': 'error',
   'unicorn/prefer-node-protocol': 'error',
   'unicorn/throw-new-error': 'error',
-  // An automation branch step's `then` arm is a stored list of steps (the definition
-  // format in the contract and the database), never a function.
-  'unicorn/no-thenable': 'off',
   eqeqeq: ['error', 'smart'],
   'no-param-reassign': 'error',
   'prefer-const': 'error',
@@ -62,7 +56,7 @@ export const rules = {
   // Express 5 passes a rejected handler promise to the error handler, so async
   // route handlers are safe; the rule guards Express 4.
   'oxc/no-async-endpoint-handlers': 'off',
-  // Settings are read once, validated, in apps/core-api/src/config.ts.
+  // Settings are read once, validated, in the API's config.ts.
   'node/no-process-env': 'error',
   // noImplicitReturns in tsconfig.base.json checks this with types, so exhaustive switches pass.
   'typescript/consistent-return': 'off',
