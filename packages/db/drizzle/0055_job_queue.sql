@@ -38,19 +38,38 @@ FROM (VALUES
 ) AS queues (name, options)
 ORDER BY options::jsonb ? 'deadLetter';
 --> statement-breakpoint
--- Each job below takes its queue's settings, as send() does. Waiting and
--- dead jobs move over with their attempts left; a job of a queue that no
--- longer exists doesn't. Audit stream rounds don't either: the audit.streams
--- schedule starts a round for every stream with entries to send.
+-- Nothing writes the old tables or publishes an event until this commits, so
+-- every job and event moves exactly once (the new trigger takes over below).
+-- Row level security off for the copies: they read every organisation's rows.
+LOCK TABLE core_events, core_jobs, core_event_failures, core_event_consumers IN EXCLUSIVE MODE;
+--> statement-breakpoint
+ALTER TABLE "core_event_consumers" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "core_event_failures" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "core_jobs" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE core_events NO FORCE ROW LEVEL SECURITY;
+--> statement-breakpoint
+-- Each job below takes its queue's settings, as send() does, and stays until
+-- its queue's retention after it comes due. Waiting jobs move over with their
+-- attempts left. A job that ran counts its attempts as pg-boss does: a fetch
+-- adds one to retry_count once started_on is set, and retry() of a failed job
+-- adds one to retry_limit, so a dead job retried by hand gets one attempt. A
+-- job of a queue that no longer exists doesn't move. Audit stream rounds
+-- don't either: the audit.streams schedule starts a round for every stream
+-- with entries to send.
 INSERT INTO core_queue.job (
   name, data, singleton_key, policy, retry_delay, retry_backoff, retry_delay_max, expire_seconds,
-  deletion_seconds, dead_letter, state, start_after, retry_limit, output, completed_on
+  deletion_seconds, dead_letter, state, start_after, keep_until, started_on, retry_count,
+  retry_limit, output, completed_on
 )
 SELECT q.name, jsonb_build_object('orgId', j.org_id, 'payload', j.payload), coalesce(j.dedupe_key, j.id),
   q.policy, q.retry_delay, q.retry_backoff, q.retry_delay_max, q.expire_seconds, q.deletion_seconds,
   q.dead_letter,
   (CASE WHEN j.status = 'dead' THEN 'failed' ELSE 'created' END)::core_queue.job_state,
-  j.run_at, greatest(j.max_attempts - j.attempts - 1, 0),
+  j.run_at, greatest(j.run_at, now()) + make_interval(secs => q.retention_seconds),
+  CASE WHEN j.status = 'dead' THEN j.updated_at END,
+  CASE WHEN j.status = 'dead' THEN greatest(j.attempts - 1, 0) ELSE 0 END,
+  CASE WHEN j.status = 'dead' THEN greatest(j.attempts - 1, 0)
+    ELSE greatest(j.max_attempts - j.attempts - 1, 0) END,
   CASE WHEN j.last_error IS NULL THEN NULL ELSE jsonb_build_object('message', j.last_error) END,
   CASE WHEN j.status = 'dead' THEN j.updated_at END
 FROM core_jobs j
@@ -58,16 +77,22 @@ JOIN core_queue.queue q ON q.name = j.queue
 WHERE j.queue <> 'audit.stream'
 ON CONFLICT DO NOTHING;
 --> statement-breakpoint
--- Events a consumer failed on keep their state, with at least one attempt left.
+-- Events a consumer failed on keep their state; one still retrying gets at
+-- least one attempt more.
 INSERT INTO core_queue.job (
   name, data, singleton_key, policy, retry_delay, retry_backoff, retry_delay_max, expire_seconds,
-  deletion_seconds, dead_letter, state, start_after, retry_count, retry_limit, output, completed_on
+  deletion_seconds, dead_letter, state, start_after, keep_until, started_on, retry_count,
+  retry_limit, output, completed_on
 )
 SELECT q.name, jsonb_build_object('orgId', f.org_id, 'payload', jsonb_build_object('eventId', f.event_id)),
   f.event_id, q.policy, q.retry_delay, q.retry_backoff, q.retry_delay_max, q.expire_seconds,
   q.deletion_seconds, q.dead_letter,
   (CASE WHEN f.status = 'dead' THEN 'failed' ELSE 'retry' END)::core_queue.job_state,
-  coalesce(f.next_attempt_at, now()), f.attempts, greatest(f.attempts, q.retry_limit),
+  coalesce(f.next_attempt_at, now()),
+  greatest(f.next_attempt_at, now()) + make_interval(secs => q.retention_seconds),
+  f.updated_at, greatest(f.attempts - 1, 0),
+  CASE WHEN f.status = 'dead' THEN greatest(f.attempts - 1, 0)
+    ELSE greatest(f.attempts, q.retry_limit) END,
   jsonb_build_object('message', f.last_error), CASE WHEN f.status = 'dead' THEN f.updated_at END
 FROM core_event_failures f
 JOIN core_queue.queue q ON q.name = 'event.' || f.consumer
@@ -86,9 +111,8 @@ JOIN core_queue.queue q ON q.name = 'event.' || c.name
 JOIN core_events e ON (e.tx_id, e.seq) > (c.last_tx_id, c.last_seq)
 ON CONFLICT DO NOTHING;
 --> statement-breakpoint
-ALTER TABLE "core_event_consumers" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "core_event_failures" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "core_jobs" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE core_events FORCE ROW LEVEL SECURITY;
+--> statement-breakpoint
 DROP TABLE "core_event_consumers" CASCADE;--> statement-breakpoint
 DROP TABLE "core_event_failures" CASCADE;--> statement-breakpoint
 DROP TABLE "core_jobs" CASCADE;--> statement-breakpoint
