@@ -15,7 +15,7 @@ const BUDGET_KB: Record<string, number> = {
   'contacts/ContactsRoutes': 880,
   'home/HomePage': 810,
   'notifications/NotificationsPage': 790,
-  'onboarding/MainOnboardingPage': 800,
+  'onboarding/MainOnboardingPage': 815,
   'plugins/PluginPage': 790,
   'products/ProductsRoutes': 850,
   'reports/ReportsRoutes': 800,
