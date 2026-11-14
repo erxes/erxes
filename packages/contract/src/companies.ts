@@ -19,10 +19,11 @@ import {
 } from './common';
 import { ContactLink, ContactLinkInput } from './customers';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
+import { CompanyId, CustomerId } from './records';
 
 /** An organisation the organisation works with; shared by every plugin. */
 export const Company = createSelectSchema(companies, {
-  id: Id,
+  id: CompanyId,
   size: () => z.int(),
   createdAt: isoDate,
   updatedAt: isoDate,
@@ -55,7 +56,7 @@ export const Company = createSelectSchema(companies, {
 export type Company = z.infer<typeof Company>;
 
 /** A person as listed on a company, with the link. */
-export const PersonRef = createSelectSchema(customers, { id: Id })
+export const PersonRef = createSelectSchema(customers, { id: CustomerId })
   .pick({
     id: true,
     firstName: true,

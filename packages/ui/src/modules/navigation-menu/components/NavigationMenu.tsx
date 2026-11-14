@@ -27,7 +27,9 @@ export const NavigationMenuLinkItem = ({
   itemClassName?: string;
 }) => {
   const { pathname } = useLocation();
-  const isActive = pathname.startsWith(to);
+  const base = to.replace(/\/$/, '');
+  const onPath = pathname === (base || '/') || pathname.startsWith(`${base}/`);
+  const isActive = isActiveProp === true || onPath;
   const controls = useNavigationMenuItemControls();
   const order = controls?.getOrder(to);
 
@@ -38,7 +40,8 @@ export const NavigationMenuLinkItem = ({
       style={{ '--order': order }}
     >
       <Sidebar.MenuButton
-        isActive={isActiveProp === true || isActive}
+        isActive={isActive}
+        aria-current={isActive ? 'page' : undefined}
         ref={ref}
         className={className}
         {...props}

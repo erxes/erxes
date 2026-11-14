@@ -155,6 +155,7 @@ value useConfirm
 value useFilterContext
 value useFormat
 value useLiveSignal
+value useMediaQuery
 value useMembersById
 value usePreviousHotkeyScope
 value useScopedHotkeys

@@ -1,10 +1,11 @@
+import { assistantThreads, newId } from '@erxes/core-db';
 import { LIVE_MODES } from '@erxes/core-db/enums';
 import { EventSourceParserStream, type EventSourceMessage } from 'eventsource-parser/stream';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
 import { startWorkers, stopWorkers } from '~/modules/jobs/jobs';
 import { liveHub } from '~/modules/live/hub';
-import { testDatabaseUrl, useTestDatabase } from './db';
+import { adminDb, testDatabaseUrl, useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -112,6 +113,24 @@ describe('live updates (/core/v1/stream)', () => {
     expect(other.events.filter((message) => message.event !== 'hello')).toEqual([]);
 
     await Promise.all([member.close(), owner.close(), other.close()]);
+  });
+
+  it('tells only the owner when one of their assistant conversations changes', async () => {
+    const owner = await stream();
+    const member = await stream(t.ids.member);
+
+    await Promise.all([owner.next('hello'), member.next('hello')]);
+
+    const id = newId();
+
+    await adminDb().insert(assistantThreads).values({ id, orgId: t.ids.org, userId: t.ids.owner });
+    await t.owner().assistant.updateThread({ id, title: 'Renamed' });
+
+    await owner.next('assistant');
+
+    expect(of(member.events, 'assistant')).toEqual([]);
+
+    await Promise.all([owner.close(), member.close()]);
   });
 
   it('wakes the event consumers as soon as an event is published', async () => {

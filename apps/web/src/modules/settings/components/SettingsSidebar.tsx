@@ -6,10 +6,14 @@ import {
   IconCloudUpload,
   IconApps,
   IconLock,
+  IconMoodSmile,
   IconPlugConnected,
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
+  IconShieldQuestion,
+  IconCode,
+  IconSparkles,
   IconTrash,
   IconCreditCard,
   IconUserCircle,
@@ -56,6 +60,20 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       : []),
     ...(can('audit.view')
       ? [{ name: t('audit-log', 'Audit log'), to: paths.settings.auditLog, icon: IconShieldCheck }]
+      : []),
+    ...(can('assistant.manage')
+      ? [
+          {
+            name: t('assistant-approvals', 'Assistant approvals'),
+            to: paths.settings.assistantApprovals,
+            icon: IconShieldQuestion,
+          },
+          {
+            name: t('assistant-code-mode', 'Assistant code mode'),
+            to: paths.settings.assistantCodeMode,
+            icon: IconCode,
+          },
+        ]
       : []),
     ...(can('events.view')
       ? [
@@ -124,6 +142,7 @@ function SettingsExitButton() {
 /** Settings that belong to the signed-in member, not the organisation. */
 const useSettingsAccountPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const can = useCan();
 
   return [
     { name: t('profile', 'Profile'), to: paths.settings.profile, icon: IconUserCircle },
@@ -133,6 +152,16 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
       to: paths.settings.notifications,
       icon: IconBellCog,
     },
+    ...(can('assistant.chat')
+      ? [
+          { name: t('assistant', 'Assistant'), to: paths.settings.assistant, icon: IconSparkles },
+          {
+            name: t('assistant-appearance', 'Assistant appearance'),
+            to: paths.settings.assistantAppearance,
+            icon: IconMoodSmile,
+          },
+        ]
+      : []),
   ];
 };
 

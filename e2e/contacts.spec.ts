@@ -48,6 +48,7 @@ test('a member creates a contact, edits it and adds a note', async ({ page, api 
 
   // Click a value to edit it; Enter saves, as in the list.
   await page.getByRole('button', { name: 'Position' }).click();
+  await expect(page.getByRole('textbox', { name: 'Position' })).toBeFocused();
   await page.keyboard.type('Analyst');
   await page.keyboard.press('Enter');
   await expect.poll(async () => (await api.customers.get({ id })).position).toBe('Analyst');

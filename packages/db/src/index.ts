@@ -16,6 +16,12 @@ export * as schema from './schema';
 
 export {
   activities,
+  assistantAppearances,
+  assistantConnections,
+  assistantMessages,
+  assistantReferences,
+  assistantSettings,
+  assistantThreads,
   automationRuns,
   automationRunSteps,
   automations,
@@ -74,6 +80,7 @@ export {
 
 export type {
   ActorType,
+  AssistantMessagePart,
   EntitledPlugin,
   ImportCounts,
   ImportOptions,

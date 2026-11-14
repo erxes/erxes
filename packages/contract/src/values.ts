@@ -1,4 +1,11 @@
 import {
+  ASSISTANT_APPROVAL_MODES,
+  ASSISTANT_AVATAR_BODIES,
+  ASSISTANT_AVATAR_COLORS,
+  ASSISTANT_AVATAR_EXPRESSIONS,
+  ASSISTANT_PROVIDERS,
+  ASSISTANT_QUESTION_MODES,
+  ASSISTANT_THINKING_LEVELS,
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
   CUSTOMER_SEXES,
@@ -145,6 +152,26 @@ export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
 
 /** How the live stream reaches this browser, in its `hello` event: pushing, or polling while it can't listen. */
 export const LiveMode = z.enum(LIVE_MODES);
+
+export const AssistantProvider = z.enum(ASSISTANT_PROVIDERS);
+
+export type AssistantProvider = z.infer<typeof AssistantProvider>;
+
+export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
+
+export type AssistantThinkingLevel = z.infer<typeof AssistantThinkingLevel>;
+
+export const AssistantApprovalMode = z.enum(ASSISTANT_APPROVAL_MODES);
+
+export type AssistantApprovalMode = z.infer<typeof AssistantApprovalMode>;
+
+export const AssistantQuestionMode = z.enum(ASSISTANT_QUESTION_MODES);
+
+export const AssistantAvatarBody = z.enum(ASSISTANT_AVATAR_BODIES);
+
+export const AssistantAvatarColor = z.enum(ASSISTANT_AVATAR_COLORS);
+
+export const AssistantAvatarExpression = z.enum(ASSISTANT_AVATAR_EXPRESSIONS);
 
 /**
  * Core's notifications in groups a member chooses for at once (each plugin

@@ -8,6 +8,7 @@ import { logger } from '~/logger';
 import { authenticate } from '~/http/auth';
 import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
+import { assistantChatRouter } from '~/modules/assistant/assistant.http';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
@@ -167,6 +168,7 @@ export const createApp = (log: Logger = logger): Express => {
     streamRouter,
     downloadRouter,
     auditExportRouter,
+    assistantChatRouter,
     coreApi,
   );
 

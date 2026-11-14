@@ -1,6 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
+import { AssistantAppearancePage } from './assistant/AssistantAppearancePage';
+import { AssistantApprovalsPage } from './assistant/AssistantApprovalsPage';
+import { AssistantCodeModePage } from './assistant/AssistantCodeModePage';
+import { AssistantKeysPage } from './assistant/AssistantKeysPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
@@ -36,6 +40,10 @@ export const SettingsRoutes = () => (
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />
+      <Route path="assistant" element={<AssistantKeysPage />} />
+      <Route path="assistant-approvals" element={<AssistantApprovalsPage />} />
+      <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
+      <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

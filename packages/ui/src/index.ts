@@ -115,6 +115,8 @@ export { Upload } from './components/upload';
 
 export { useConfirm } from './hooks/use-confirm';
 
+export { useMediaQuery } from './hooks/use-media-query';
+
 export { toast, useToast } from './hooks/use-toast';
 
 export { useUpload } from './hooks/use-upload';

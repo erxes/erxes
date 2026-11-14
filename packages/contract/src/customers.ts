@@ -4,6 +4,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { CompanyId, CustomerId } from './records';
 import { CustomerSex } from './values';
 import {
   CursorQuery,
@@ -34,7 +35,7 @@ export type CustomerState = z.infer<typeof CustomerState>;
 
 /** A person the organisation works with; shared by every plugin. */
 export const Customer = createSelectSchema(customers, {
-  id: Id,
+  id: CustomerId,
   sex: () => CustomerSex,
   createdAt: isoDate,
   updatedAt: isoDate,
@@ -154,7 +155,7 @@ export const ContactLinkInput = createUpdateSchema(customerCompanies, {
   });
 
 /** A company as listed on a customer, with the link. */
-export const CompanyRef = createSelectSchema(companies, { id: Id })
+export const CompanyRef = createSelectSchema(companies, { id: CompanyId })
   .pick({ id: true, primaryName: true, avatarUrl: true, website: true })
   .extend({ link: ContactLink });
 

@@ -66,9 +66,13 @@ export const paths = {
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',
+    assistantApprovals: '/settings/assistant-approvals',
+    assistantCodeMode: '/settings/assistant-code-mode',
     profile: '/settings/profile',
     security: '/settings/security',
     notifications: '/settings/notifications',
+    assistant: '/settings/assistant',
+    assistantAppearance: '/settings/assistant-appearance',
   },
 } as const;
 

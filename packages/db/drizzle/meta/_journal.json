@@ -407,6 +407,13 @@
       "when": 1794632601139,
       "tag": "0057_flat_event_paths",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794657621968,
+      "tag": "0058_assistant",
+      "breakpoints": true
     }
   ]
 }

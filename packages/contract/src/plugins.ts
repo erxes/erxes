@@ -9,6 +9,7 @@ import { Id, isoDate, listOf } from './common';
 import { ActionField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
+import { PluginAssistant } from './pluginAssistant';
 import { ManifestPermissionSet } from './roles';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
@@ -227,6 +228,7 @@ export const PluginManifest = z.object({
     )
     .max(500)
     .optional(),
+  assistant: PluginAssistant.optional(),
 });
 
 export type PluginManifest = z.infer<typeof PluginManifest>;
@@ -280,6 +282,7 @@ export const TokenResponse = z.object({
  * signals to plugin UIs.
  */
 const {
+  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -293,6 +296,7 @@ const {
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
+  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -324,7 +328,8 @@ export const pluginsContract = {
     .route({
       method: 'PUT',
       path: '/plugins/manifest',
-      summary: 'The calling plugin declares its UI, API, scopes, permissions and events',
+      summary:
+        'The calling plugin declares its UI, API, scopes, permissions, events and assistant skills and operations. 400 API_REQUIRED when it declares assistant operations without api',
     })
     .input(PluginManifest)
     .output(z.object({ ok: z.literal(true) })),

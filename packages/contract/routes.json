@@ -111,6 +111,168 @@
       }
     }
   },
+  "assistant": {
+    "connections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/connections"
+        }
+      }
+    },
+    "saveConnection": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/assistant/connections/{provider}"
+        }
+      }
+    },
+    "removeConnection": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/assistant/connections/{provider}"
+        }
+      }
+    },
+    "setDefaultProvider": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/assistant/default-provider"
+        }
+      }
+    },
+    "models": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/models"
+        }
+      }
+    },
+    "verifyModel": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/assistant/models/verify"
+        }
+      }
+    },
+    "threads": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/threads"
+        }
+      }
+    },
+    "thread": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/threads/{id}"
+        }
+      }
+    },
+    "updateThread": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/assistant/threads/{id}"
+        }
+      }
+    },
+    "removeThread": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/assistant/threads/{id}"
+        }
+      }
+    },
+    "reference": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/references/{handle}"
+        }
+      }
+    },
+    "record": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/records/{type}/{id}"
+        }
+      }
+    },
+    "settings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/settings"
+        }
+      }
+    },
+    "updateSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/assistant/settings"
+        }
+      }
+    },
+    "appearance": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/appearance"
+        }
+      }
+    },
+    "updateAppearance": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/assistant/appearance"
+        }
+      }
+    }
+  },
   "automations": {
     "catalog": {
       "~orpc": {
@@ -159,6 +321,16 @@
         "route": {
           "method": "PATCH",
           "path": "/automations/{id}"
+        }
+      }
+    },
+    "check": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/automations/check"
         }
       }
     },

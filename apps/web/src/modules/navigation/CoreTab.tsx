@@ -2,6 +2,7 @@ import { paths } from '~/lib/paths';
 import { IconSettings } from '@tabler/icons-react';
 import { Button, cn, Tooltip, buttonVariants } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { AssistantButton } from '~/modules/assistant/AssistantButton';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { NotificationsBell } from '~/modules/notifications/NotificationsBell';
 import { useSession } from '~/modules/auth/session';
@@ -47,6 +48,7 @@ export const CoreTab = () => {
           onMove={move}
         />
         <div className="flex shrink-0 items-center gap-0.5">
+          <AssistantButton />
           <NotificationsBell />
           <CoreTabTooltip label={settingsLabel}>
             <Button

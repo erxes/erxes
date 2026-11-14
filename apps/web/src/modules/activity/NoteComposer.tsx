@@ -16,23 +16,46 @@ export interface NoteDraft {
   fileIds: string[];
 }
 
-const MentionSuggestions = ({
-  suggestions,
+const PLACEMENT = {
+  below: 'top-full left-2 mt-1 w-64',
+  above: 'bottom-full inset-x-0 mb-2',
+};
+
+export const MentionSuggestions = <T,>({
+  id,
+  label,
+  items,
+  keyOf,
   highlight,
+  placement = 'below',
   onPick,
+  onHighlight,
+  children,
 }: {
-  suggestions: User[];
+  id?: string;
+  label?: string;
+  items: T[];
+  keyOf: (item: T) => string;
   highlight: number;
-  onPick: (member: User) => void;
+  placement?: keyof typeof PLACEMENT;
+  onPick: (item: T) => void;
+  onHighlight?: (index: number) => void;
+  children: (item: T) => React.ReactNode;
 }) => (
   <div
-    className="absolute top-full left-2 z-20 mt-1 w-64 rounded-md border bg-popover p-1 shadow-md"
+    id={id}
+    className={cn(
+      'absolute z-20 max-h-72 overflow-y-auto rounded-md border bg-popover p-1 shadow-md',
+      PLACEMENT[placement],
+    )}
     role="listbox"
+    aria-label={label}
     tabIndex={-1}
   >
-    {suggestions.map((member, index) => (
+    {items.map((item, index) => (
       <div
-        key={member.id}
+        key={keyOf(item)}
+        id={id ? `${id}-${index}` : undefined}
         role="option"
         tabIndex={-1}
         aria-selected={index === highlight}
@@ -43,14 +66,21 @@ const MentionSuggestions = ({
         // Mouse down, not click: the textarea keeps focus (and the caret) while picking.
         onMouseDown={(event) => {
           event.preventDefault();
-          onPick(member);
+          onPick(item);
         }}
+        onMouseEnter={() => onHighlight?.(index)}
       >
-        <UserAvatar name={memberName(member)} src={member.avatarUrl} className="size-5" />
-        <span className="truncate">{memberName(member)}</span>
+        {children(item)}
       </div>
     ))}
   </div>
+);
+
+const memberOption = (member: User) => (
+  <>
+    <UserAvatar name={memberName(member)} src={member.avatarUrl} className="size-5" />
+    <span className="truncate">{memberName(member)}</span>
+  </>
 );
 
 const SubmitButton = ({
@@ -190,10 +220,13 @@ export const NoteComposer = ({
       />
       {mentions.suggestions.length > 0 && (
         <MentionSuggestions
-          suggestions={mentions.suggestions}
+          items={mentions.suggestions}
+          keyOf={(member) => member.id}
           highlight={mentions.highlight}
           onPick={mentions.pick}
-        />
+        >
+          {memberOption}
+        </MentionSuggestions>
       )}
       {(files.length > 0 || uploading > 0) && (
         <AttachedFiles files={files} uploading={uploading} onRemove={attachments.remove} />

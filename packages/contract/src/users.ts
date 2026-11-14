@@ -15,6 +15,7 @@ import {
   ImageAddress,
   isoDate,
 } from './common';
+import { MemberId } from './records';
 import { InviteRole, NewPassword, RoleKey, UserLinkName } from './values';
 
 export const UserStatus = z.enum(USER_STATUSES);
@@ -27,7 +28,7 @@ export type UserLinks = z.infer<typeof UserLinks>;
 
 /** A team member. Never carries credentials. */
 export const User = createSelectSchema(users, {
-  id: Id,
+  id: MemberId,
   email: z.email(),
   role: RoleKey,
   links: UserLinks,
