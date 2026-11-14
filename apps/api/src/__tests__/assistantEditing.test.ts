@@ -107,6 +107,19 @@ describe('editing the newest message and asking again', () => {
     expect(model.chats().length).toBe(calls);
   });
 
+  it('refuses a new question that reuses a message id already in the thread', async () => {
+    echo();
+
+    const threadId = await conversation();
+    const before = await thread(threadId);
+
+    expect(await chat({ threadId, message: said('u1', 'Asked again') })).toMatchObject({
+      status: 409,
+      error: { code: 'TAKEN', data: { field: 'message.id' } },
+    });
+    expect((await thread(threadId)).messages).toEqual(before.messages);
+  });
+
   it("does not let another member edit someone's conversation", async () => {
     echo();
 
