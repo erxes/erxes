@@ -45,13 +45,12 @@ export const ConversationDetail = () => {
   const location = useLocation();
   const isInInbox = location.pathname.includes('my-inbox');
 
+  const detailId = conversationId || relatedConversationId;
   const currentConversation =
-    activeConversationCandidate?._id === conversationId ||
-    activeConversationCandidate?._id === relatedConversationId
+    activeConversationCandidate?._id === detailId
       ? activeConversationCandidate
       : null;
 
-  const detailId = conversationId || relatedConversationId;
   const { conversationDetail, loading } = useConversationDetail({
     variables: detailId ? { _id: detailId } : undefined,
     skip: !detailId,
