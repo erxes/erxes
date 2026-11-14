@@ -18,6 +18,7 @@ import {
 import { createModel, DEFAULT_MODELS, describeProviderError } from './providers';
 import { apiTools, approvalFor, type ToolScope } from './tools/apiTools';
 import { askUser } from './tools/askUser';
+import { createArtifact } from './tools/createArtifact';
 import { readAttachment } from './tools/readAttachment';
 import { type Contents, forModel } from './attachments';
 import { modelTextOf } from './turnContext';
@@ -34,6 +35,7 @@ export const chatTools = (scope: ToolScope) => ({
   ...apiTools(scope),
   ask_user: askUser,
   readAttachment: readAttachment(scope),
+  createArtifact,
 });
 
 type ChatTools = ReturnType<typeof chatTools>;

@@ -332,6 +332,8 @@ export const ASSISTANT_TEXT_TYPES = [
   'application/json',
 ] as const;
 
+export const ASSISTANT_ARTIFACT_FORMATS = ['html', 'csv', 'markdown'] as const;
+
 // ─── Settings ───────────────────────────────────────────────────────────────
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;

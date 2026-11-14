@@ -1,4 +1,5 @@
 import {
+  ASSISTANT_ARTIFACT_FORMATS,
   ASSISTANT_DOCUMENT_TYPES,
   ASSISTANT_IMAGE_TYPES,
   ASSISTANT_TEXT_TYPES,
@@ -16,6 +17,8 @@ export const ASSISTANT_IMAGE_MAX_MB = 4;
 export const ASSISTANT_FILE_MAX_MB = 10;
 
 export const ASSISTANT_SELECTION_TEXT_MAX = 8000;
+
+export const ASSISTANT_ARTIFACT_MAX_CHARS = 200_000;
 
 export const AssistantImageType = z.enum(ASSISTANT_IMAGE_TYPES);
 
@@ -98,3 +101,16 @@ export const ASSISTANT_DATA_PARTS = {
   files: AssistantFiles,
   selections: AssistantSelections,
 };
+
+export const AssistantArtifactFormat = z.enum(ASSISTANT_ARTIFACT_FORMATS);
+
+export type AssistantArtifactFormat = z.infer<typeof AssistantArtifactFormat>;
+
+export const AssistantArtifact = z.object({
+  format: AssistantArtifactFormat,
+  title: z.string().trim().min(1).max(100),
+  filename: z.string().min(1).max(128),
+  content: z.string().min(1).max(ASSISTANT_ARTIFACT_MAX_CHARS),
+});
+
+export type AssistantArtifact = z.infer<typeof AssistantArtifact>;

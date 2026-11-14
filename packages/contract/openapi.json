@@ -356,6 +356,40 @@
           "id"
         ]
       },
+      "AssistantArtifact": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "enum": [
+              "html",
+              "csv",
+              "markdown"
+            ],
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          }
+        },
+        "required": [
+          "format",
+          "title",
+          "filename",
+          "content"
+        ]
+      },
       "AssistantAttachment": {
         "type": "object",
         "properties": {
