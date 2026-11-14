@@ -1,3 +1,4 @@
+import { RowMoreButton } from '@/operation/components/RowMoreButton';
 import { IconEdit } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
@@ -12,7 +13,7 @@ export const ProjectsMoreColumnCell = ({
 }) => {
   const { t } = useTranslation('operation');
   const navigate = useNavigate();
-  const { _id } = cell.row.original;
+  const { _id, name } = cell.row.original;
 
   const handleEdit = (projectId: string) => {
     navigate(`${projectId}/overview`);
@@ -21,7 +22,7 @@ export const ProjectsMoreColumnCell = ({
   return (
     <Popover>
       <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
+        <RowMoreButton name={name} />
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>
