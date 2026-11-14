@@ -12,7 +12,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PrintDocument } from 'ui-modules';
 
@@ -22,12 +22,14 @@ export const DealsActions = ({
   triggerLabel,
   variant = 'dropdown',
   watchOnly = false,
+  menuItems,
 }: {
   deals: Pick<IDeal, '_id' | 'isWatched' | 'status'>[];
   selectedCount?: number;
   triggerLabel?: string;
   variant?: 'dropdown' | 'watch' | 'menu';
   watchOnly?: boolean;
+  menuItems?: ReactNode;
 }) => {
   const { t } = useTranslation('sales');
   const [printOpen, setPrintOpen] = useState(false);
@@ -73,6 +75,12 @@ export const DealsActions = ({
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end" className="w-48 min-w-fit!">
+            {menuItems && (
+              <>
+                {menuItems}
+                <DropdownMenu.Separator />
+              </>
+            )}
             <DropdownMenu.Item onClick={handleWatch} disabled={isLoading}>
               <IconEye />
               {watchLabel}

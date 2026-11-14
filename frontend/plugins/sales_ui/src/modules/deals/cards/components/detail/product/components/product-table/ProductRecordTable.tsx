@@ -16,6 +16,7 @@ import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ProductCommandBar } from '../../product-command-bar/ProductCommandBar';
 import { productColumns } from './ProductColumns';
+import { ProductCardList } from '@/deals/cards/components/detail/product/components/product-list/ProductCardList';
 
 const UOM_INFO_COLUMN_IDS = [
   'uomInfo.uom',
@@ -58,12 +59,20 @@ export const ProductsRecordTable = ({
   showAdvancedView,
   showTaxView,
   hasProductFilters,
+  layout = 'table',
+  expandedIds = [],
+  onToggleExpanded = () => undefined,
+  onExpandedChange = () => undefined,
 }: {
   products: DealProductData[];
   refetch: () => void;
   showAdvancedView: boolean;
   showTaxView: boolean;
   hasProductFilters: boolean;
+  layout?: 'table' | 'cards';
+  expandedIds?: string[];
+  onToggleExpanded?: (productDataId: string) => void;
+  onExpandedChange?: (productDataIds: string[]) => void;
 }) => {
   const { t } = useTranslation('sales');
 
@@ -100,6 +109,49 @@ export const ProductsRecordTable = ({
     return newColumns;
   }, [showAdvancedView, showTaxView, t]);
 
+  let productsContent: React.ReactNode;
+
+  if (products.length === 0) {
+    productsContent = (
+      <Empty className="border-0 bg-transparent">
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconShoppingCart />
+          </Empty.Media>
+          <Empty.Title>{t('no-products-found')}</Empty.Title>
+          <Empty.Description>
+            {t(
+              hasProductFilters
+                ? 'no-products-filter-description'
+                : 'no-products-description',
+            )}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
+  } else if (layout === 'cards') {
+    productsContent = (
+      <ProductCardList
+        expandedIds={expandedIds}
+        onToggleExpanded={onToggleExpanded}
+        onExpandedChange={onExpandedChange}
+      />
+    );
+  } else {
+    productsContent = (
+      <div className="min-h-0 flex-1 overflow-auto">
+        <RecordTable.Scroll>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Scroll>
+      </div>
+    );
+  }
+
   return (
     <RecordTable.Provider
       key={`${showAdvancedView ? 'advanced' : 'basic'}-${
@@ -107,7 +159,11 @@ export const ProductsRecordTable = ({
       }`}
       columns={columns}
       data={products}
-      className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border"
+      className={
+        layout === 'cards'
+          ? 'flex flex-col'
+          : 'flex h-full min-h-0 flex-col overflow-hidden rounded-lg border'
+      }
       stickyColumns={['more', 'checkbox', 'name']}
       tableId={
         showAdvancedView || showTaxView
@@ -118,34 +174,7 @@ export const ProductsRecordTable = ({
       }
     >
       <ProductUomColumnPosition showAdvancedView={showAdvancedView} />
-      {products.length === 0 ? (
-        <Empty className="border-0 bg-transparent">
-          <Empty.Header>
-            <Empty.Media variant="icon">
-              <IconShoppingCart />
-            </Empty.Media>
-            <Empty.Title>{t('no-products-found')}</Empty.Title>
-            <Empty.Description>
-              {t(
-                hasProductFilters
-                  ? 'no-products-filter-description'
-                  : 'no-products-description',
-              )}
-            </Empty.Description>
-          </Empty.Header>
-        </Empty>
-      ) : (
-        <div className="min-h-0 flex-1 overflow-auto">
-          <RecordTable.Scroll>
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList />
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.Scroll>
-        </div>
-      )}
+      {productsContent}
       <ProductCommandBar refetch={refetch} />
     </RecordTable.Provider>
   );

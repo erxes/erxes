@@ -1,6 +1,9 @@
 import { useConfirm, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { leaveDeletedDealPanel } from '@/deals/utils/leaveDeletedDealPanel';
 
 import {
   useDealsCopy,
@@ -9,6 +12,7 @@ import {
   useDealsWatch,
 } from '@/deals/cards/hooks/useDeals';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
+import { useDealIdOverride } from '@/deals/context/DealIdContext';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 
@@ -25,6 +29,39 @@ export const useDealActions = ({
   const { t } = useTranslation('sales');
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
+  const panelDealId = useDealIdOverride();
+  const {
+    record: panelRecord,
+    back: backPanel,
+    canGoBack,
+    close: closePanel,
+  } = useSidePanel();
+  const panelRecordId = panelRecord?.contentId;
+  const panelStateRef = useRef({
+    backPanel,
+    canGoBack,
+    closePanel,
+    panelRecordId,
+  });
+
+  useEffect(() => {
+    panelStateRef.current = {
+      backPanel,
+      canGoBack,
+      closePanel,
+      panelRecordId,
+    };
+  }, [backPanel, canGoBack, closePanel, panelRecordId]);
+
+  useEffect(
+    () => () => {
+      panelStateRef.current = {
+        ...panelStateRef.current,
+        panelRecordId: undefined,
+      };
+    },
+    [],
+  );
   const { editDeals, loading: editLoading } = useDealsEdit();
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
@@ -87,9 +124,13 @@ export const useDealActions = ({
       dealIds.map((id) => removeDeals({ variables: { _id: id } })),
     );
     const removedDealIds = new Set(
-      dealIds.filter(
-        (_id, index) => removalResults[index].status === 'fulfilled',
-      ),
+      dealIds.filter((_id, index) => {
+        const result = removalResults[index];
+
+        return (
+          result.status === 'fulfilled' && !!result.value.data?.dealsRemove
+        );
+      }),
     );
 
     if (activeDealId && removedDealIds.has(activeDealId)) {
@@ -100,12 +141,16 @@ export const useDealActions = ({
       setSalesItemId(null);
     }
 
-    const failedRemoval = removalResults.find(
-      (result) => result.status === 'rejected',
-    );
+    const panel = panelStateRef.current;
 
-    if (failedRemoval?.status === 'rejected') {
-      throw failedRemoval.reason;
+    if (
+      panelDealId &&
+      removedDealIds.has(panelDealId) &&
+      panel.panelRecordId === panelDealId
+    ) {
+      leaveDeletedDealPanel(panelDealId, () =>
+        panel.canGoBack ? panel.backPanel() : panel.closePanel(),
+      );
     }
   };
 

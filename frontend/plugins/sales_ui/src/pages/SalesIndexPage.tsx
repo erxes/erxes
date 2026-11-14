@@ -8,18 +8,18 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { CommonDealSearch } from '@/deals/components/commonSearch';
 import { DealsView } from '@/deals/actionBar/components/DealViewControl';
 import { IconSandbox, IconSettings } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
-import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
+import { useOpenRecordPanelFromQuery } from '~/widgets/record-panel/useOpenRecordPanelFromQuery';
 
 export const SalesIndexPage = () => {
   const { t } = useTranslation('sales');
   const [searchParams] = useSearchParams();
+  useOpenRecordPanelFromQuery('salesItemId', 'sales:deal');
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
   const boardSearchParams = new URLSearchParams();
@@ -67,7 +67,6 @@ export const SalesIndexPage = () => {
               </Link>
             </Button>
           </PageHeader.End>
-          <AddDealSheet />
         </PageHeader>
 
         <PageContainer className="overflow-hidden">
@@ -76,7 +75,6 @@ export const SalesIndexPage = () => {
           </PageSubHeader>
 
           <DealsView />
-          <SalesItemDetail />
         </PageContainer>
       </div>
     </div>

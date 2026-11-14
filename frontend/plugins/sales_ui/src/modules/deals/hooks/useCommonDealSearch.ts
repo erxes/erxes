@@ -1,5 +1,4 @@
 import { useDealSearch } from '@/deals/hooks/useDealSearch';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import {
   TDealSearchCategory,
   TDealTextSearches,
@@ -7,7 +6,6 @@ import {
 import { IDealSearch } from '@/deals/types/deals';
 import { isDealSearchReady } from '@/deals/utils/dealSearch';
 import { TSearchSortOrder } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { useInView } from 'react-intersection-observer';
@@ -18,7 +16,6 @@ const INITIAL_TEXT_SEARCHES: TDealTextSearches = { name: '', number: '' };
 
 export const useCommonDealSearch = () => {
   const navigate = useNavigate();
-  const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [searches, setSearches] = useState(INITIAL_TEXT_SEARCHES);
   const [open, setOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | null>(null);
@@ -76,7 +73,6 @@ export const useCommonDealSearch = () => {
 
     if (!pipelineId || !boardId) return;
 
-    setActiveDealId(deal._id);
     setSearches(INITIAL_TEXT_SEARCHES);
     setDateRange(null);
     setOpen(false);

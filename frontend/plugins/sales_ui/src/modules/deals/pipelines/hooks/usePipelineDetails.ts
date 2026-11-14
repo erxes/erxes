@@ -78,9 +78,11 @@ export const usePipelineLabelAdd = (
     SalesPipelineLabelsAddMutation,
     SalesPipelineLabelsAddMutationVariables
   >,
+  targetPipelineId?: string,
 ) => {
   const { t } = useTranslation('sales');
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = targetPipelineId || queryPipelineId;
 
   const [addPipelineLabel, { loading, error }] = useMutation(
     ADD_PIPELINE_LABEL,
@@ -123,9 +125,11 @@ export const usePipelineLabelRemove = (
     SalesPipelineLabelsRemoveMutation,
     SalesPipelineLabelsRemoveMutationVariables
   >,
+  targetPipelineId?: string,
 ) => {
   const { t } = useTranslation('sales');
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = targetPipelineId || queryPipelineId;
 
   const [removePipelineLabel, { loading, error }] = useMutation(
     REMOVE_PIPELINE_LABEL,
@@ -168,9 +172,11 @@ export const usePipelineLabelEdit = (
     SalesPipelineLabelsEditMutation,
     SalesPipelineLabelsEditMutationVariables
   >,
+  targetPipelineId?: string,
 ) => {
   const { t } = useTranslation('sales');
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = targetPipelineId || queryPipelineId;
 
   const [editPipelineLabel, { loading, error }] = useMutation(
     EDIT_PIPELINE_LABEL,
@@ -213,9 +219,11 @@ export const usePipelineLabelLabel = (
     SalesPipelineLabelsLabelMutation,
     SalesPipelineLabelsLabelMutationVariables
   >,
+  targetPipelineId?: string,
 ) => {
   const { t } = useTranslation('sales');
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = targetPipelineId || queryPipelineId;
 
   const [labelPipelineLabel, { loading, error }] = useMutation(
     LABEL_PIPELINE_LABEL,

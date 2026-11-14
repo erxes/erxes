@@ -4,7 +4,9 @@ import {
   IconChartBar,
   IconCoins,
   IconCreditCard,
+  IconLink,
   IconMedal,
+  IconPackage,
   IconReceipt,
   IconSandbox,
   IconTable,
@@ -142,6 +144,26 @@ export const CONFIG: IUIConfig = {
       { name: 'posOrders', label: 'POS orders', icon: IconReceipt },
     ],
     recordPanels: [
+      {
+        contentType: 'sales:deal',
+        detailPath: (dealId: string) => `/sales/deals/${dealId}`,
+        tabs: [
+          {
+            value: 'products',
+            label: 'Products',
+            labelKey: 'products',
+            icon: IconPackage,
+            after: 'detail',
+          },
+          {
+            value: 'relations',
+            label: 'Relations',
+            labelKey: 'relations',
+            icon: IconLink,
+            after: 'detail',
+          },
+        ],
+      },
       {
         contentType: POS_ORDER_CONTENT_TYPE,
         properties: false,

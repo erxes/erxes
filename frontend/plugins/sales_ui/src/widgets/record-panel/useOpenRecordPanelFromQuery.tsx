@@ -4,7 +4,7 @@ import { getSidePanelRecordPath, SIDE_PANEL_QUERY_KEY } from 'ui-modules';
 
 const keepId = (value: string) => value;
 
-export const useOpenPosPanelFromQuery = (
+export const useOpenRecordPanelFromQuery = (
   queryKey: string,
   contentType: string,
   toContentId: (value: string) => string | Promise<string> = keepId,

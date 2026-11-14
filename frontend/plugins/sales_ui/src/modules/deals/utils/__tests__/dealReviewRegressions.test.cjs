@@ -79,6 +79,7 @@ const { Overview } = load(
   '../../cards/components/detail/overview/Overview.tsx',
   {
     'erxes-ui': { isDefined, Separator: Empty },
+    'ui-modules': { DataExtensionRecordSection: Empty },
     './attachments/AttachmentContext': attachments,
     './NoteAndComment': { SalesNoteAndComment: Empty },
     './SalesFormFields': { SalesFormFields: AttachmentProbe },

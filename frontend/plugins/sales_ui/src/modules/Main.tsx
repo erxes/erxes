@@ -21,6 +21,12 @@ const DealsLoyaltyPoints = lazy(() =>
   })),
 );
 
+const DealDetail = lazy(() =>
+  import('~/pages/DealDetailPage').then((module) => ({
+    default: module.DealDetailPage,
+  })),
+);
+
 const PosMain = lazy(() =>
   import('./pos/Main').then((module) => ({
     default: module.default,
@@ -40,6 +46,7 @@ const SalesMain = () => {
           <Route index element={<Navigate to="deals" replace />} />
           <Route path="/deals" element={<DealsMain />} />
           <Route path="/deals/loyalty" element={<DealsLoyaltyPoints />} />
+          <Route path="/deals/:dealId" element={<DealDetail />} />
           <Route path="/pos/*" element={<PosMain />} />
         </Routes>
       </Suspense>

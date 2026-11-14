@@ -12,6 +12,7 @@ import {
   rejectOnMutationError,
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
+import { useDealBroker } from '@/deals/components/deal-selects/hooks/useDealBroker';
 import { Editor, isDefined, Separator } from 'erxes-ui';
 import { useCallback, useRef, useState } from 'react';
 
@@ -35,31 +36,11 @@ const ARRAY_KEYS = new Set([
   'departmentIds',
 ]);
 
-type BrokerType = NonNullable<IDealDetail['brokerType']> | '';
-
-interface BrokerSelection {
-  id: string;
-  type: BrokerType;
-}
-
 const normalizeMultiValue = (value: string | string[]) =>
   Array.isArray(value) ? value : [value];
 
 const normalizeSingleValue = (value: string | string[]) =>
   Array.isArray(value) ? value[0] || '' : value;
-
-const normalizeBrokerType = (value: string): BrokerType => {
-  if (value === 'customer' || value === 'company' || value === 'user') {
-    return value;
-  }
-
-  return '';
-};
-
-const areBrokerSelectionsEqual = (
-  left: BrokerSelection,
-  right: BrokerSelection,
-) => left.id === right.id && left.type === right.type;
 
 export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
   const { editDeals } = useDealsContext();
@@ -80,8 +61,6 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
     tagIds,
     branchIds,
     departmentIds,
-    brokerType,
-    brokerId,
   } = deal;
 
   const handleChange = useCallback(
@@ -123,13 +102,8 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
     onCommit: (value) =>
       rejectOnMutationError(handleChange('departmentIds', value)),
   });
-  const optimisticBroker = useOptimisticField<BrokerSelection>({
-    value: {
-      id: brokerId || '',
-      type: brokerType || '',
-    },
-    resetKey: _id,
-    isEqual: areBrokerSelectionsEqual,
+  const broker = useDealBroker({
+    deal,
     onCommit: (value) =>
       rejectOnMutationError(
         editDeals({
@@ -177,58 +151,44 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
             value={priority || ''}
             variant="detail"
           />
-          {optimisticBroker.value.type === 'customer' && (
+          {broker.type === 'customer' && (
             <DealCustomerChip
-              value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
+              value={broker.id}
+              placeholder={t('select-broker')}
               onValueChange={(value) =>
-                optimisticBroker.setValue({
-                  ...optimisticBroker.value,
-                  id: normalizeSingleValue(value),
-                })
+                broker.setId(normalizeSingleValue(value))
               }
             />
           )}
-          {optimisticBroker.value.type === 'company' && (
+          {broker.type === 'company' && (
             <DealCompanyChip
-              value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
+              value={broker.id}
+              placeholder={t('select-broker')}
               onValueChange={(value) =>
-                optimisticBroker.setValue({
-                  ...optimisticBroker.value,
-                  id: normalizeSingleValue(value),
-                })
+                broker.setId(normalizeSingleValue(value))
               }
             />
           )}
-          {optimisticBroker.value.type === 'user' && (
+          {broker.type === 'user' && (
             <DealAssigneeChip
               mode="single"
               label={t('user')}
-              value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
+              value={broker.id}
+              placeholder={t('select-broker')}
               onValueChange={(value) =>
-                optimisticBroker.setValue({
-                  ...optimisticBroker.value,
-                  id: normalizeSingleValue(value),
-                })
+                broker.setId(normalizeSingleValue(value))
               }
             />
           )}
           <DealBrokerTypeChip
-            value={optimisticBroker.value.type || '_none'}
+            value={broker.type || '_none'}
             options={[
               { value: '_none', label: t('none') },
               { value: 'customer', label: t('customer') },
               { value: 'company', label: t('company') },
               { value: 'user', label: t('user') },
             ]}
-            onValueChange={(value) =>
-              optimisticBroker.setValue({
-                id: '',
-                type: normalizeBrokerType(value),
-              })
-            }
+            onValueChange={broker.setType}
           />
           <DealBranchesChip
             value={optimisticBranches.value}

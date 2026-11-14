@@ -3,23 +3,21 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useConfirm } from 'erxes-ui';
 
 import { IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
-import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
-import { productRowActionsAtom } from '../../productTableAtom';
+import { useProductRowActions } from '@/deals/cards/components/detail/product/productListHandlers';
 
-export const ProductMoreColumnCell = ({
-  cell,
+export const ProductMoreMenu = ({
+  productData,
 }: {
-  cell: Cell<DealProductData, unknown>;
+  productData: DealProductData;
 }) => {
-  const productData = cell.row.original;
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
-  const actions = useAtomValue(productRowActionsAtom);
+  const actions = useProductRowActions();
 
   const runAction = (action: () => void) => {
     setOpen(false);
@@ -70,6 +68,12 @@ export const ProductMoreColumnCell = ({
     </Popover>
   );
 };
+
+export const ProductMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<DealProductData, unknown>;
+}) => <ProductMoreMenu productData={cell.row.original} />;
 
 export const productMoreColumn = (): ColumnDef<DealProductData> => ({
   id: 'more',

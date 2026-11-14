@@ -14,7 +14,7 @@ import {
   LoyaltyDrillSheet,
 } from '@/loyalty-points/drill';
 import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
-import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
+import { useOpenRecordPanelFromQuery } from '~/widgets/record-panel/useOpenRecordPanelFromQuery';
 import { PosLoyaltyFilter } from '@/pos/loyalty-points/components/PosLoyaltyFilter';
 import { PosLoyaltyInsights } from '@/pos/loyalty-points/components/PosLoyaltyInsights';
 import { PosScoreLogsTable } from '@/pos/loyalty-points/components/PosScoreLogsTable';
@@ -22,7 +22,7 @@ import { PosScoreLogsTable } from '@/pos/loyalty-points/components/PosScoreLogsT
 /** Point movements of every POS order, across POSes. */
 export const PosLoyaltyPointsPage = () => {
   const { t } = useTranslation('sales');
-  useOpenPosPanelFromQuery('pos_order_id', POS_ORDER_CONTENT_TYPE);
+  useOpenRecordPanelFromQuery('pos_order_id', POS_ORDER_CONTENT_TYPE);
 
   return (
     <LoyaltyDrillProvider>

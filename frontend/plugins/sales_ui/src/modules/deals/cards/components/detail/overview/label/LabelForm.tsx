@@ -28,9 +28,11 @@ import { COLORS } from './constants/colors';
 export const LabelForm = ({
   onSuccess,
   labelId,
+  pipelineId: propPipelineId,
 }: {
   onSuccess?: () => void;
   labelId?: string | null;
+  pipelineId?: string;
 }) => {
   const form = useForm<LabelFormType>({
     resolver: zodResolver(labelFormSchema),
@@ -38,7 +40,8 @@ export const LabelForm = ({
 
   const closeRef = useRef<HTMLButtonElement>(null);
   const isEdit = Boolean(labelId);
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = propPipelineId || queryPipelineId;
   const { confirm } = useConfirm();
 
   const handleSuccess = () => {
@@ -62,24 +65,33 @@ export const LabelForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pipelineLabelDetail, labelId]);
 
-  const { addPipelineLabel, loading } = usePipelineLabelAdd({
-    onCompleted: () => {
-      handleSuccess();
-    },
-  });
-
-  const { editPipelineLabel } = usePipelineLabelEdit({
-    onCompleted: () => {
-      handleSuccess();
-    },
-  });
-
-  const { removePipelineLabel, loading: deleteLoading } =
-    usePipelineLabelRemove({
+  const { addPipelineLabel, loading } = usePipelineLabelAdd(
+    {
       onCompleted: () => {
         handleSuccess();
       },
-    });
+    },
+    pipelineId || undefined,
+  );
+
+  const { editPipelineLabel } = usePipelineLabelEdit(
+    {
+      onCompleted: () => {
+        handleSuccess();
+      },
+    },
+    pipelineId || undefined,
+  );
+
+  const { removePipelineLabel, loading: deleteLoading } =
+    usePipelineLabelRemove(
+      {
+        onCompleted: () => {
+          handleSuccess();
+        },
+      },
+      pipelineId || undefined,
+    );
 
   const onSubmit = (data: LabelFormType) => {
     if (!pipelineId) {
