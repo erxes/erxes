@@ -156,6 +156,14 @@ const FieldGroupContent = ({
   );
 };
 
+const getPropertiesSettingsPath = (contentType: string) => {
+  const [pluginName] = contentType.split(':');
+
+  return pluginName === 'core'
+    ? `/settings/properties/${contentType}`
+    : `/${pluginName}/settings/properties/${contentType}`;
+};
+
 /** Links an empty property list to its content-type settings page. */
 const EmptyProperties = ({
   fieldContentType,
@@ -180,7 +188,7 @@ const EmptyProperties = ({
         <Button
           size="sm"
           onClick={() => {
-            navigate(`/settings/properties/${fieldContentType}`);
+            navigate(getPropertiesSettingsPath(fieldContentType));
           }}
         >
           Create property
