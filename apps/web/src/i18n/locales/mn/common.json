@@ -48,7 +48,15 @@
     "plugin-settings-title": "{{name}} тохиргоо",
     "resize-sidebar": "Хажуугийн самбарын өргөнийг өөрчлөх",
     "assistant": "Туслах",
-    "back": "Буцах"
+    "back": "Буцах",
+    "open-app": "Апп нээх",
+    "apps": {
+      "contacts": "Харилцагчид",
+      "products": "Бүтээгдэхүүнүүд",
+      "automations": "Автоматжуулалт",
+      "reports": "Тайлан",
+      "settings": "Тохиргоо"
+    }
   },
   "core-modules": {
     "contacts": "Харилцагчид"
@@ -558,6 +566,12 @@
     "back-to-sign-in": "Нэвтрэх рүү буцах"
   },
   "notifications": {
+    "title": "Мэдэгдэл",
+    "title-unread_one": "Мэдэгдэл, {{count}} уншаагүй",
+    "title-unread_other": "Мэдэгдэл, {{count}} уншаагүй",
+    "mark-all-read": "Бүгдийг уншсан болгох",
+    "open-inbox": "Ирсэн мэдэгдлүүдийг нээх",
+    "polling": "Шууд шинэчлэл зогссон; 30 секунд тутам шинэчилнэ",
     "kinds": {
       "core": {
         "customer": {

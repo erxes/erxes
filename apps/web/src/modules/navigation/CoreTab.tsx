@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { NotificationsBell } from '~/modules/notifications/NotificationsBell';
 import { useSession } from '~/modules/auth/session';
-import { SETTINGS_APP, useNavApps } from './apps';
+import { SETTINGS_APP, useCoreAppLabel, useNavApps } from './apps';
 import { CoreTabAppSwitcher } from './CoreTabAppSwitcher';
 import { CoreTabAppTabs } from './CoreTabAppTabs';
 import { CoreTabTooltip } from './CoreTabTooltip';
@@ -18,6 +18,7 @@ import { useAppTabs } from './useAppTabs';
 export const CoreTab = () => {
   const { organization } = useSession();
   const apps = useNavApps();
+  const settingsLabel = useCoreAppLabel()(SETTINGS_APP);
   const { routeApp, tabs, open, close, closeOthers, closeToRight, move } = useAppTabs(apps);
 
   return (
@@ -46,12 +47,12 @@ export const CoreTab = () => {
         />
         <div className="flex shrink-0 items-center gap-0.5">
           <NotificationsBell />
-          <CoreTabTooltip label={SETTINGS_APP.label}>
+          <CoreTabTooltip label={settingsLabel}>
             <Button
               type="button"
               size="icon"
               variant="nav"
-              aria-label={SETTINGS_APP.label}
+              aria-label={settingsLabel}
               aria-current={routeApp?.id === SETTINGS_APP.id ? 'page' : undefined}
               className="relative shrink-0"
               onClick={() => open(SETTINGS_APP)}
