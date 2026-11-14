@@ -32,18 +32,16 @@ test('a member moves a lead to the next stage on the board', async ({ page, api 
   await expect(card).toBeVisible();
   await expectAccessible(page);
 
-  // A real pointer drag: dnd-kit starts after 6px of movement. As it starts it can scroll the
-  // board (CI saw 174px), so the pointer aims at the column once the drag runs, and again
-  // before the drop.
+  // A real pointer drag: dnd-kit starts after 6px of movement. The board stays put on the
+  // way (patches/@dnd-kit__core), so the column is where it was when the drag began.
   await card.hover();
   const start = await centerOf(card);
+  const drop = await centerOf(target);
   await page.mouse.down();
   await page.mouse.move(start.x + 12, start.y, { steps: 3 });
-
-  const drop = await centerOf(target);
   await page.mouse.move(drop.x, drop.y, { steps: 12 });
-  const settled = await centerOf(target);
-  await page.mouse.move(settled.x, settled.y, { steps: 2 });
+  // The drop point is nowhere near the board's edges, so nothing scrolled it.
+  await expect(target.locator('..')).toHaveJSProperty('scrollLeft', 0);
   await page.mouse.up();
 
   await expect(target.getByRole('button', { name: new RegExp(name) })).toBeVisible();
