@@ -22,7 +22,6 @@ export const fail = <C extends ErrorCode>(
 
 export const notFound = (what: string) => fail('NOT_FOUND', `${what} not found`);
 
-/** The issues of input that fails a schema (oRPC's `ValidationError`, or a `ZodError`), path by path. */
 export const inputIssues = ({ issues }: Pick<ValidationError, 'issues'>) => ({
   issues: issues.map((issue) => ({
     path: (issue.path ?? []).flatMap((segment) => {
@@ -34,7 +33,7 @@ export const inputIssues = ({ issues }: Pick<ValidationError, 'issues'>) => ({
   })),
 });
 
-/** Input the contract refuses: its issues, path by path. */
+/** Input the contract refuses (oRPC's `ValidationError`, or a `ZodError`): its issues, path by path. */
 export const invalidInput = (error: Pick<ValidationError, 'issues'>) =>
   fail('INVALID_INPUT', 'The request is not valid', inputIssues(error));
 

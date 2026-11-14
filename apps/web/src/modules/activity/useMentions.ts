@@ -17,11 +17,6 @@ const mentionAt = (text: string, caret: number): MentionAt | null => {
   return word === undefined ? null : { query: word, start: caret - word.length - 1 };
 };
 
-/**
- * The `@word` at the caret of a textarea and the suggestion it highlights.
- * `pick` puts `@name ` in place of the word and the caret after it; `onKeyDown`
- * handles arrows, Enter/Tab and Escape while suggesting and says whether it used the key.
- */
 export const useMentionInput = <T>({
   body,
   setBody,

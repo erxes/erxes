@@ -166,10 +166,8 @@ export const ERRORS = {
   BUILTIN_ROLE: { status: 403 },
   ROLE_IN_USE: { status: 409 },
 
-  // A plugin manifest that declares assistant operations without an api to call them at.
   API_REQUIRED: { status: 400 },
 
-  // The assistant's chat (assistant.http.ts).
   ASSISTANT_INVALID_MESSAGE: { status: 400, data: InvalidInput.optional() },
   ASSISTANT_MENTION_UNAVAILABLE: {
     status: 400,

@@ -277,8 +277,6 @@ export const INVOICE_STATUSES = [
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
-// ─── Assistant ──────────────────────────────────────────────────────────────
-
 export const ASSISTANT_PROVIDERS = ['openai', 'grok', 'kimi', 'kimi-code'] as const;
 
 export const ASSISTANT_APPROVAL_MODES = ['writes', 'destructive'] as const;

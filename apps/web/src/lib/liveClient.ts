@@ -13,7 +13,7 @@ import { z } from 'zod';
  *
  * Messages are signals, not data: `inbox`, `timeline { targets }`,
  * `plugin { plugin, topics }` (for plugin UIs, see erxes-ui's plugin runtime),
- * `assistant` (one of the member's assistant conversations changed), `resync`. Queries refetch through the normal API. While the stream can't push
+ * `resync`. Queries refetch through the normal API. While the stream can't push
  * (`mode: polling`, offline, reconnecting) queries fall back to polling.
  */
 

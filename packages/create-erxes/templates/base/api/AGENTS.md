@@ -17,13 +17,6 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   no org filter; only an insert sets `orgId`, from `context.member`.
 - Call core (`core.forOrg(orgId)...`) outside `context.tx`; a failed core call
   must not roll back the plugin's own change.
-- The erxes assistant can use the plugin when the manifest in `src/core.ts` has
-  `assistant`: `skills` (a name, a one-line description, Markdown instructions
-  about the plugin's data) and `operations` (a procedure path such as
-  `items.list`, a summary, `changes: true` for writes, and
-  `input: z.toJSONSchema(Input)`). Core calls an operation at
-  `<api.url>/rpc/<path>` with the member's session token, so `reads` and
-  `writes` check the member's permission as they do for the UI.
 - Tests: `vite-plus/test`, run with `call(procedure, input, { context: { member } })`.
   `src/test/setup.ts` gives each file its own database, owned by a role without
   BYPASSRLS, so row-level security is real in tests.

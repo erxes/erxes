@@ -21,10 +21,6 @@ const PLACEMENT = {
   above: 'bottom-full inset-x-0 mb-2',
 };
 
-/**
- * The suggestions for the `@word` at a textarea's caret. The textarea keeps focus and
- * names the highlighted option with `aria-activedescendant` (`<id>-<index>`).
- */
 export const MentionSuggestions = <T,>({
   id,
   label,

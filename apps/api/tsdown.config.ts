@@ -13,7 +13,6 @@ export default defineConfig({
     migrate: 'scripts/migrate.ts',
     grant: 'scripts/grant.ts',
     'plugin-role': 'scripts/plugin-role.ts',
-    // The assistant's worker threads: attached documents (documentText.ts) and code mode programs (codeMode.ts).
     'documentText.worker': 'src/modules/assistant/documentText.worker.ts',
     'codeMode.worker': 'src/modules/assistant/codeMode.worker.ts',
   },
