@@ -1024,7 +1024,8 @@
       "send": "Send",
       "not-connected": "The assistant is not connected yet."
     },
-    "relations": "Relations"
+    "relations": "Relations",
+    "links": "Links"
   },
   "two-factor": {
     "authenticator-code": "Authenticator code",
