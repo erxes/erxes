@@ -13,7 +13,7 @@ import { z } from 'zod';
  *
  * Messages are signals, not data: `inbox`, `timeline { targets }`,
  * `plugin { plugin, topics }` (for plugin UIs, see erxes-ui's plugin runtime),
- * `resync`. Queries refetch through the normal API. While the stream can't push
+ * `assistant` (one of the member's assistant conversations changed), `resync`. Queries refetch through the normal API. While the stream can't push
  * (`mode: polling`, offline, reconnecting) queries fall back to polling.
  */
 
@@ -31,6 +31,7 @@ const liveMessage = z.discriminatedUnion('event', [
   z.object({ event: z.literal('inbox') }),
   z.object({ event: z.literal('timeline'), data: timeline }),
   z.object({ event: z.literal('plugin'), data: plugin }),
+  z.object({ event: z.literal('assistant') }),
   z.object({ event: z.literal('resync') }),
 ]);
 
@@ -218,6 +219,7 @@ export class LiveClient {
 
       if (data) this.deliver({ event: 'plugin', data }, true);
     });
+    source.addEventListener('assistant', () => this.deliver({ event: 'assistant' }, true));
     source.addEventListener('resync', () => this.deliver({ event: 'resync' }, true));
     source.addEventListener('bye', () => {
       // The session ended; the app's own 401 handling takes it from here.
