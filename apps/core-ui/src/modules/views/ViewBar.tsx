@@ -28,7 +28,7 @@ export const ViewBar = ({
       >
         <ViewTabs recordType={recordType} allLabel={allLabel} />
       </div>
-      <div className="flex min-w-0 max-w-[65%] shrink-0 items-center justify-end">{children}</div>
+      <div className="flex min-w-0 max-w-13/20 shrink-0 items-center justify-end">{children}</div>
     </div>
   );
 };

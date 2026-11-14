@@ -1,6 +1,6 @@
 import type { Import, ImportOptions } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import { cn, Label, MultipleSelector, Select, Switch } from 'erxes-ui';
+import { Label, MultipleSelector, Select, Switch } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '~/lib/api';
@@ -44,20 +44,19 @@ const MappingRow = ({
   };
 
   return (
-    <div className="grid grid-cols-[1fr_1fr_16rem] items-center gap-3 p-2 text-sm">
-      <span className="truncate font-medium">{header}</span>
-      <span className="truncate text-xs text-muted-foreground">
+    <div className="flex items-center gap-3 p-2 text-sm">
+      <span className="min-w-0 flex-1 truncate font-medium">{header}</span>
+      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
         {samples.join(' · ') || t('empty', '(empty)')}
       </span>
       <Select value={value} disabled={disabled} onValueChange={pick}>
-        <Select.Trigger
-          aria-label={header}
-          className={cn('h-8', value === IGNORE && 'text-muted-foreground')}
-        >
+        <Select.Trigger aria-label={header} className="h-8 w-64 shrink-0">
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value={IGNORE}>{t('ignore', "Don't import")}</Select.Item>
+          <Select.Item value={IGNORE}>
+            <span className="text-muted-foreground">{t('ignore', "Don't import")}</span>
+          </Select.Item>
           {fields.map((field) => (
             <Select.Item key={field.key} value={field.key}>
               {field.label}

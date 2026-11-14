@@ -11,7 +11,7 @@ import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modi
 import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-react';
-import { cn, ContextMenu, tabButtonVariants } from 'erxes-ui';
+import { cn, ContextMenu, TabButton } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NavApp } from './apps';
@@ -61,7 +61,7 @@ const TabCloseButton = ({
     aria-hidden
     title={label}
     className={cn(
-      'inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-focus-within/tab:opacity-100 group-hover/tab:opacity-100',
+      'inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded text-muted-foreground opacity-0 transition hover:bg-accent hover:text-foreground group-focus-within/tab:opacity-100 group-hover/tab:opacity-100',
       active && 'opacity-100',
     )}
     onClick={(event) => {
@@ -180,10 +180,15 @@ const CoreTabAppTab = ({
           tabIndex={tabbable ? 0 : -1}
           title={app.label}
           data-active={active}
-          className={cn(
-            tabButtonVariants({ variant: 'raised', active, dragging: isDragging }),
-            'group/tab min-w-24 max-w-48',
-          )}
+          render={
+            <TabButton
+              render={<div />}
+              variant="raised"
+              active={active}
+              dragging={isDragging}
+              className="group/tab min-w-24 max-w-48"
+            />
+          }
           onClick={onSelect}
           onMouseDown={(event) => {
             // Middle click must not take focus before it closes the tab.

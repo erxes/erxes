@@ -78,8 +78,8 @@ export const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () =
         <IconGripVertical className="size-4" />
       </button>
       <label
-        className="relative size-6 shrink-0 cursor-pointer overflow-hidden rounded-full border"
-        style={{ background: stage.color }}
+        className="relative size-6 shrink-0 cursor-pointer overflow-hidden rounded-full border bg-(--stage-color)"
+        style={{ '--stage-color': stage.color }}
         title={t('settings.colour')}
       >
         <input

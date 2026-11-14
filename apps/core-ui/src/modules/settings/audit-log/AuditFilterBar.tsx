@@ -1,6 +1,6 @@
 import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { InputGroup, PageSubHeader, Select } from 'erxes-ui';
+import { Input, InputGroup, PageSubHeader, Select } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';

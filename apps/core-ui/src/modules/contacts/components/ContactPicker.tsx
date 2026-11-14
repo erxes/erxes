@@ -49,9 +49,9 @@ const RelationChip = ({
     data-panel-inline=""
     className="group/chip inline-flex h-6 max-w-full items-center gap-1 rounded-sm bg-muted px-1.5 text-xs font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
   >
-    <Avatar className="size-4 flex-none">
+    <Avatar size="sm" className="size-4 flex-none">
       <Avatar.Image src={readImage(avatar ?? undefined)} />
-      <Avatar.Fallback className="text-3xs">{name.charAt(0)}</Avatar.Fallback>
+      <Avatar.Fallback>{name.charAt(0)}</Avatar.Fallback>
     </Avatar>
     <span className="truncate">{name}</span>
     {/* It opens the record: say so on hover. */}
@@ -166,7 +166,7 @@ const ContactOptionItem = ({
   onSelect: () => void;
 }) => (
   <Command.Item value={option.id} onSelect={onSelect}>
-    <Avatar className="bg-background">
+    <Avatar>
       <Avatar.Image src={readImage(option.avatarUrl ?? undefined)} />
       <Avatar.Fallback>{option.name.charAt(0)}</Avatar.Fallback>
     </Avatar>

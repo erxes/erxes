@@ -37,7 +37,7 @@ const RuleRow = ({
   const field = fields.find((one) => one.path === rule.path);
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2">
+    <div className="grid grid-cols-condition items-center gap-2">
       <PathPicker
         value={rule.path}
         fields={fields}

@@ -1,14 +1,7 @@
 import { type Field, FieldContentType } from '@erxes/core-contract';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import type { RecordTableColumnDef } from 'erxes-ui';
-import {
-  Checkbox,
-  DropdownMenu,
-  IconComponent,
-  RecordTable,
-  RecordTableInlineCell,
-  Switch,
-} from 'erxes-ui';
+import { Checkbox, DropdownMenu, RecordTable, RecordTableInlineCell, Switch } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { propertiesPath } from '../constants';
 import { FIELD_TYPES_OBJECT } from '../fieldTypes';
+import { FieldIcon } from './FieldIcon';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 
@@ -158,16 +152,11 @@ export const propertiesColumns = (
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       const { label, icon, type } = cell.row.original;
-      const TypeIcon = FIELD_TYPES_OBJECT[type].icon;
 
       return (
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 overflow-hidden">
-            {icon ? (
-              <IconComponent className="h-4 w-4 shrink-0 text-muted-foreground" name={icon} />
-            ) : (
-              <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
-            )}
+            <FieldIcon icon={icon} type={type} />
             <span className="truncate">{label}</span>
           </div>
         </RecordTableInlineCell>

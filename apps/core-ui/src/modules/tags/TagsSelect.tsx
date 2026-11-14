@@ -137,7 +137,7 @@ const TagsSelectValue = ({
   if (showValue && selectedIds.length > 0) {
     return (
       <span className="flex items-center gap-1 text-muted-foreground">
-        <IconTag className="h-4 w-4 text-gray-400" /> Tag +{selectedIds.length}
+        <IconTag className="h-4 w-4" /> Tag +{selectedIds.length}
       </span>
     );
   }
@@ -165,7 +165,7 @@ const TagsSelectRoot = ({
     <Popover.Trigger render={<Button variant={variant} className={cn('w-min', className)} />}>
       <TagsSelectValue placeholder={placeholder} />
     </Popover.Trigger>
-    <Combobox.Content className="w-[200px]" align="start">
+    <Combobox.Content className="w-50" align="start">
       <TagsSelectContent />
     </Combobox.Content>
   </TagsSelectProvider>

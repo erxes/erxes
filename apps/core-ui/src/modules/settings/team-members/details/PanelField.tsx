@@ -14,10 +14,7 @@ export const PanelField = ({
   children: ReactNode;
 }) => (
   <div className="grid grid-cols-field items-center gap-x-2 min-h-7">
-    <Label
-      variant="muted"
-      className="flex min-w-0 items-center"
-    >
+    <Label variant="muted" className="flex min-w-0 items-center">
       <FieldIcon className="size-3.5 shrink-0" aria-hidden="true" />
       <span className="my-1 block min-w-0 wrap-break-word line-clamp-2">{label}</span>
     </Label>

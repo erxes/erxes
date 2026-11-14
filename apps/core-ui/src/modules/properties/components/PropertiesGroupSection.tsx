@@ -91,13 +91,7 @@ type GroupShellProps = {
 };
 
 /** A group's header and its fields table; `handle` and `actions` are the manager's controls. */
-const GroupShell = ({
-  name,
-  fields,
-  addPath,
-  handle,
-  actions,
-}: GroupShellProps) => {
+const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
   const [open, setOpen] = useState(fields.length > 0);
@@ -145,7 +139,7 @@ const GroupShell = ({
             columns={columns}
             data={fields}
             stickyColumns={['more', 'checkbox', 'name']}
-            className="rounded-md border"
+            variant="inset"
           >
             <RecordTable.Scroll className="h-auto" viewportClassName="max-h-96">
               <RecordTable>

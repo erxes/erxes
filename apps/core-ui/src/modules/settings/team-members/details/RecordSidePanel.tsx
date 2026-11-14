@@ -35,12 +35,11 @@ const RecordSidePanelRoot = ({
     <aside
       data-record-side-panel
       data-expanded={expanded || undefined}
-      style={{ width: expanded ? '100%' : 400 }}
       className={cn(
         '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background',
         expanded
-          ? 'h-full min-w-0 flex-1 border-l-0'
-          : 'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
+          ? 'h-full w-full min-w-0 flex-1 border-l-0'
+          : 'w-100 animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
         className,
       )}
     >
@@ -175,7 +174,7 @@ const RecordSidePanelTabs = ({
       className={cn(
         'flex-1 min-h-0 min-w-0',
         expanded
-          ? 'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]'
+          ? 'grid grid-cols-1 grid-rows-split md:grid-cols-aside md:grid-rows-leading'
           : 'flex flex-col',
       )}
     >

@@ -74,10 +74,10 @@ export const ColorSwatches = ({
         aria-pressed={value === color}
         onClick={() => onChange(color)}
         className={cn(
-          'size-6 rounded-full outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring',
+          'size-6 rounded-full bg-(--swatch) outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring',
           value === color && 'ring-2 ring-primary',
         )}
-        style={{ backgroundColor: color }}
+        style={{ '--swatch': color }}
       />
     ))}
   </div>
@@ -146,10 +146,7 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
 };
 
 const CreatedCell = ({ tag }: { tag: Tag }) => (
-  <RelativeDateDisplay
-    value={tag.createdAt}
-    render={<RecordTableInlineCell variant="muted" />}
-  >
+  <RelativeDateDisplay value={tag.createdAt} render={<RecordTableInlineCell variant="muted" />}>
     <RelativeDateDisplay.Value value={tag.createdAt} />
   </RelativeDateDisplay>
 );

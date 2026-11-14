@@ -8,26 +8,16 @@ import { useTabFit } from './useTabFit';
 
 /** Collapsed: a row of tabs over the content. Expanded: a sidebar, or an overview column beside the tabs. */
 const layoutOf = (expanded: boolean, splitOverview: boolean) => {
-  if (splitOverview) {
-    return {
-      content:
-        'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]',
-      navigation:
-        'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1',
-    };
-  }
+  if (splitOverview) return 'split';
 
-  if (expanded) {
-    return {
-      content: 'flex flex-row',
-      navigation: 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3',
-    };
-  }
+  return expanded ? 'sidebar' : 'bar';
+};
 
-  return {
-    content: 'flex flex-col',
-    navigation: 'box-content items-center gap-1 h-9 px-2 border-b bg-background',
-  };
+const NAVIGATION = {
+  split:
+    'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1',
+  sidebar: 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3',
+  bar: 'box-content items-center gap-1 h-9 px-2 border-b bg-background',
 };
 
 /** The tab triggers that fit, and a "+N More" menu with the rest. */
@@ -200,11 +190,17 @@ export const RecordSidePanelTabs = ({
       value={selectedValue}
       onValueChange={onValueChange}
       orientation={sidebar ? 'vertical' : 'horizontal'}
-      className={cn('flex-1 min-h-0 min-w-0', layout.content)}
+      className={cn(
+        'flex-1 min-h-0 min-w-0',
+        layout === 'split' &&
+          'grid grid-cols-1 grid-rows-split md:grid-cols-aside md:grid-rows-leading',
+        layout === 'sidebar' && 'flex flex-row',
+        layout === 'bar' && 'flex flex-col',
+      )}
     >
       <TabBar
         barRef={barRef}
-        className={layout.navigation}
+        className={NAVIGATION[layout]}
         visible={visible}
         overflow={navigationTabs.filter((tab) => !visible.includes(tab))}
         sidebar={sidebar}

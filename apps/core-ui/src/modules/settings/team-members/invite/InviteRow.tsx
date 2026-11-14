@@ -1,4 +1,4 @@
-import { cn, Form, Input, Select, Table } from 'erxes-ui';
+import { Form, Input, Select, Table } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useRoles } from '../../roles/useRoles';
@@ -24,19 +24,23 @@ const InviteTextCell = ({
   const error = formState.errors.entries?.[index]?.[name]?.message;
 
   return (
-    <Table.Cell className={cn({ 'border-t': index === 0, 'border-destructive border-l': error })}>
+    <Table.Cell data-invalid={error ? true : undefined}>
       <Form.Field
         control={control}
         name={`entries.${index}.${name}`}
         render={({ field }) => (
           <Form.Item className="relative">
             <Form.Control>
-              <Input {...field}
-              placeholder={placeholder}
-              aria-label={placeholder}
-              type={name}
-              // Someone else's address: the browser shouldn't offer the owner's own.
-              autoComplete={name === 'email' ? 'off' : 'new-password'} variant="flush" className={INPUT_CLASS_NAME}  />
+              <Input
+                {...field}
+                placeholder={placeholder}
+                aria-label={placeholder}
+                type={name}
+                // Someone else's address: the browser shouldn't offer the owner's own.
+                autoComplete={name === 'email' ? 'off' : 'new-password'}
+                variant="flush"
+                className={INPUT_CLASS_NAME}
+              />
             </Form.Control>
             <Form.Message variant="solid" className={MESSAGE_CLASS_NAME} />
           </Form.Item>
@@ -47,15 +51,13 @@ const InviteTextCell = ({
 };
 
 /** Every role but owner. */
-const InviteRoleCell = ({ index, last }: { index: number; last: boolean }) => {
+const InviteRoleCell = ({ index }: { index: number }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { control } = useFormContext<TUserForm>();
   const { roles } = useRoles();
 
   return (
-    <Table.Cell
-      className={cn('w-32', { 'border-t rounded-tr-lg': index === 0, 'rounded-br-lg': last })}
-    >
+    <Table.Cell className="w-32">
       <Form.Field
         control={control}
         name={`entries.${index}.role`}
@@ -63,7 +65,9 @@ const InviteRoleCell = ({ index, last }: { index: number; last: boolean }) => {
           <Form.Item>
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
-                <Select.Trigger variant="flush" className={INPUT_CLASS_NAME} aria-label={t('role')}><Select.Value /></Select.Trigger>
+                <Select.Trigger variant="flush" className={INPUT_CLASS_NAME} aria-label={t('role')}>
+                  <Select.Value />
+                </Select.Trigger>
               </Form.Control>
               <Select.Content>
                 {roles
@@ -84,28 +88,22 @@ const InviteRoleCell = ({ index, last }: { index: number; last: boolean }) => {
 
 /** One invitation: email, an optional password and the role. */
 export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: string }) => {
-  const { selectedUsers, fields } = useUserInviteContext();
+  const { selectedUsers } = useUserInviteContext();
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
-  const last = userIndex === fields.length - 1;
 
   return (
     <Table.Row
       data-state={selectedUsers.includes(userId) ? 'selected' : 'unselected'}
       className="overflow-hidden h-cell"
     >
-      <Table.Cell
-        className={cn('overflow-hidden', {
-          'rounded-tl-lg border-t': userIndex === 0,
-          'rounded-bl-lg': last,
-        })}
-      >
+      <Table.Cell className="overflow-hidden">
         <div className="w-9 flex items-center justify-center">
           <InviteRowCheckbox userId={userId} />
         </div>
       </Table.Cell>
       <InviteTextCell index={userIndex} name="email" placeholder={t('email')} />
       <InviteTextCell index={userIndex} name="password" placeholder={t('password')} />
-      <InviteRoleCell index={userIndex} last={last} />
+      <InviteRoleCell index={userIndex} />
     </Table.Row>
   );
 };

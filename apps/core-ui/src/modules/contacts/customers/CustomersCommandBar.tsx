@@ -35,13 +35,7 @@ const CustomersDeleteMenu = ({ ids }: { ids: string[] }) => {
         <IconRepeat />
         {t('actions')}
       </Popover.Trigger>
-      <Popover.Content
-        variant="flush"
-        className="min-w-[280px]"
-        align="end"
-        side="top"
-        sideOffset={10}
-      >
+      <Popover.Content variant="flush" className="min-w-70" align="end" side="top" sideOffset={10}>
         <Command>
           <Command.List>
             <Command.Group>

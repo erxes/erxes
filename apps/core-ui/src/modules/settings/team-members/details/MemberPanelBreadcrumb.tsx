@@ -10,7 +10,7 @@ export const MemberPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
 
   return (
     // Room for the app sidebar's expand button while the sidebar is collapsed.
-    <div className="min-w-0 pl-[var(--navigation-panel-toggle-space,0rem)]">
+    <div className="min-w-0 navigation-collapsed:pl-10">
       <Breadcrumb>
         <Breadcrumb.List className="min-w-0 flex-nowrap">
           <Breadcrumb.Item className="shrink-0">

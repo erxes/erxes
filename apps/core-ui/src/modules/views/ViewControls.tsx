@@ -49,7 +49,9 @@ const ViewForm = ({
       {canShare && (
         <div className="flex items-center gap-2 text-sm">
           <Switch id="view-shared" checked={shared} onCheckedChange={setShared} />
-          <Label htmlFor="view-shared" variant="option">{t('share')}</Label>
+          <Label htmlFor="view-shared" variant="option">
+            {t('share')}
+          </Label>
         </div>
       )}
       <Button type="submit" className="w-full" disabled={!name.trim() || pending}>

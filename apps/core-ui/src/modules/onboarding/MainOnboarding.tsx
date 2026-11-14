@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useCan, useSession } from '~/modules/auth/session';
-import { appearStyle } from './components/Appear';
+import { Appear } from './components/Appear';
 import { FinalSection } from './components/FinalSection';
 import { InviteTeamMemberSection } from './components/InviteTeamMemberSection';
 import { OnboardingLeftSideBar } from './components/OnboardingLeftSideBar';
@@ -102,13 +102,14 @@ export const MainOnboarding = () => {
 
       <div className="relative flex w-full flex-1 flex-col items-center justify-center gap-4 px-6 py-10 lg:w-1/2 lg:py-0">
         <div className="absolute left-6 right-6 top-6 flex items-center gap-3 lg:left-10 lg:right-10 lg:top-8">
-          <span
+          <Appear
             key={currentStep}
-            className="text-xs font-semibold uppercase tracking-wider text-primary-text animate-in"
-            style={appearStyle({ y: -6, duration: 300 })}
+            y={-6}
+            duration={300}
+            className="text-xs font-semibold uppercase tracking-wider text-primary-text"
           >
             Step {currentStep} of {steps.length}
-          </span>
+          </Appear>
           <span className="h-px flex-1 bg-gradient-to-r from-primary/60 to-transparent" />
         </div>
         <div className="flex w-5/6 flex-col items-center justify-center gap-4 lg:w-4/6">

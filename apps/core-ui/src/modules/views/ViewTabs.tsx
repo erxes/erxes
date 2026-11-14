@@ -13,7 +13,7 @@ import {
   IconTrash,
   IconUsers,
 } from '@tabler/icons-react';
-import { Button, cn, DropdownMenu, tabButtonVariants, useConfirm, useToast } from 'erxes-ui';
+import { Button, DropdownMenu, TabButton, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
@@ -111,7 +111,7 @@ const ViewMenu = ({
     <>
       <DropdownMenu>
         {/* Folded away until the tab is hovered, or the button is focused or open. */}
-        <span className="flex w-0 shrink-0 overflow-hidden opacity-0 transition-[width,margin,opacity] duration-150 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 has-focus-visible:ml-1 has-focus-visible:w-5 has-focus-visible:opacity-100 has-data-popup-open:ml-1 has-data-popup-open:w-5 has-data-popup-open:opacity-100 motion-reduce:transition-none">
+        <span className="flex w-0 shrink-0 overflow-hidden opacity-0 transition-layout duration-150 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 has-focus-visible:ml-1 has-focus-visible:w-5 has-focus-visible:opacity-100 has-data-popup-open:ml-1 has-data-popup-open:w-5 has-data-popup-open:opacity-100 motion-reduce:transition-none">
           <DropdownMenu.Trigger
             aria-label={t('actions', { name: view.name })}
             render={<Button variant="ghost" size="icon" className="size-5 shrink-0" />}
@@ -172,7 +172,7 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger className={tabButtonVariants()}>
+      <DropdownMenu.Trigger render={<TabButton />}>
         <IconStack2 />
         {t('more', { count: views.length })}
         <IconChevronDown className="opacity-60" />
@@ -258,26 +258,29 @@ export const ViewTabs = ({
 
   return (
     <>
-      <button
+      <TabButton
         type="button"
         aria-current={current ? undefined : 'page'}
-        className={tabButtonVariants({ active: !current })}
+        active={!current}
         onClick={() => query.openView(null)}
       >
         <IconLayoutList />
         {allLabel}
         {!current && changed && <EditedDot />}
-      </button>
+      </TabButton>
       {error && (
         <span role="alert" className="text-xs text-destructive">
           {messageOf(error)}
         </span>
       )}
       {shown.map((view) => (
-        <div
+        <TabButton
           key={view.id}
           ref={current?.id === view.id ? reveal : undefined}
-          className={cn(tabButtonVariants({ active: current?.id === view.id }), 'group/tab gap-0')}
+          render={<div />}
+          active={current?.id === view.id}
+          split
+          className="group/tab"
         >
           <button
             type="button"
@@ -298,7 +301,7 @@ export const ViewTabs = ({
               if (current?.id === view.id) query.openView(null);
             }}
           />
-        </div>
+        </TabButton>
       ))}
       {more.length > 0 && <MoreViews views={more} onOpen={query.openView} />}
       <NewViewButton recordType={recordType} />

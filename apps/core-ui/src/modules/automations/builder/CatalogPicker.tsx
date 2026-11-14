@@ -158,7 +158,7 @@ export const CatalogPicker = ({
         // Never taller than the room on its side: the list scrolls instead of
         // the header and search being pushed off screen.
         variant="flush"
-        className="flex max-h-(--available-height) w-(--anchor-width) min-w-80 max-w-[40rem] flex-col"
+        className="flex max-h-(--available-height) w-(--anchor-width) min-w-80 max-w-160 flex-col"
       >
         <Command loop filter={matchWords} shouldFilter={searching} className="min-h-0 flex-1">
           {current && (

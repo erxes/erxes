@@ -200,19 +200,18 @@ const SignIns = () => {
             {data.map((entry) => (
               <li key={entry.id} className="flex items-center gap-3 py-2">
                 {entry.success ? (
-                  <IconCircleCheck className="size-4 text-green-600" />
+                  <IconCircleCheck className="size-4 text-success-text" />
                 ) : (
                   <IconCircleX className="size-4 text-destructive" />
                 )}
                 <span className="flex-1">{deviceOf(entry.userAgent)}</span>
                 <span className="text-muted-foreground">{entry.ip ?? '—'}</span>
                 {!entry.success && <Badge variant="destructive">{t('failed', 'Failed')}</Badge>}
-                <RelativeDateDisplay
-                  value={entry.createdAt}
-                  render={<span className="w-28 text-right text-muted-foreground" />}
-                >
-                  <RelativeDateDisplay.Value value={entry.createdAt} />
-                </RelativeDateDisplay>
+                <span className="w-28 text-right text-muted-foreground">
+                  <RelativeDateDisplay value={entry.createdAt} render={<span />}>
+                    <RelativeDateDisplay.Value value={entry.createdAt} />
+                  </RelativeDateDisplay>
+                </span>
               </li>
             ))}
           </ul>

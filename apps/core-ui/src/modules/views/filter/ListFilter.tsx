@@ -64,13 +64,8 @@ const RootMenu = ({ loading, error }: { loading: boolean; error: Error | null })
 
   return (
     <Command>
-      <Filter.CommandInput
-        placeholder={t('add')}
-        variant="secondary"
-        className="bg-background"
-        focusOnMount
-      />
-      <Command.List className="max-h-[min(26rem,60vh)]">
+      <Filter.CommandInput placeholder={t('add')} variant="secondary" focusOnMount />
+      <Command.List className="max-h-popup">
         <Command.Empty>{t('no-match')}</Command.Empty>
         <Filter.Item value="searchValue" keywords={[t('search')]} inDialog>
           <IconSearch />
@@ -239,7 +234,7 @@ export const ListFilter = ({ sessionKey, ...props }: ListFilterProps & { session
 
   return (
     <Filter id={`${props.recordType}-list-filter`} sessionKey={sessionKey}>
-      <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end gap-1">
+      <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end">
         <ListFilterBar {...props} />
       </Filter.Bar>
     </Filter>

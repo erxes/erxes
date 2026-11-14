@@ -49,20 +49,17 @@ const ThemeSelector = () => {
       {t('theme')}
       <Tooltip.Provider delay={100}>
         <ToggleGroup
-          className="ml-auto h-6 gap-0.5 rounded bg-accent text-accent-foreground"
+          variant="outline"
+          className="ml-auto"
           onValueChange={([next]) => {
             if (next && isThemeOption(next)) setTheme(next);
           }}
-          size="sm"
+          size="icon-sm"
           value={[theme]}
         >
           {options.map(({ value, label, icon: Icon }) => (
             <Tooltip key={value}>
-              <ToggleGroup.Item
-                render={<Tooltip.Trigger />}
-                className="h-full min-w-6 px-1 data-pressed:bg-background data-pressed:shadow-sm"
-                value={value}
-              >
+              <ToggleGroup.Item render={<Tooltip.Trigger />} value={value}>
                 <Icon />
               </ToggleGroup.Item>
               <Tooltip.Content alignOffset={4}>{label}</Tooltip.Content>
@@ -125,9 +122,9 @@ export const CoreTabUserMenu = () => {
             />
           }
         >
-          <Avatar className="size-6 rounded-md">
+          <Avatar corners="square" className="size-6">
             {user.avatarUrl && <Avatar.Image src={user.avatarUrl} alt={userName} />}
-            <Avatar.Fallback className="rounded-md text-xs">{userName.charAt(0)}</Avatar.Fallback>
+            <Avatar.Fallback>{userName.charAt(0)}</Avatar.Fallback>
           </Avatar>
         </DropdownMenu.Trigger>
       </CoreTabTooltip>

@@ -1,5 +1,5 @@
 import { type Icon, IconMail, IconPhone, IconUser } from '@tabler/icons-react';
-import { cn, ScrollArea, TextField } from 'erxes-ui';
+import { ScrollArea, TextField } from 'erxes-ui';
 import { type ReactNode, useId } from 'react';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';

@@ -84,11 +84,7 @@ const AvatarField = () => {
       render={({ field }) => (
         <Form.Item className="mb-2">
           <div className="flex items-start gap-4">
-            <UserAvatar
-              name={name}
-              src={avatar}
-              className="size-16 shrink-0 rounded-lg text-base"
-            />
+            <UserAvatar name={name} src={avatar} size="xl" className="size-16 shrink-0" />
             <div className="flex flex-col gap-2 flex-1">
               <Form.Label>{t('avatar-url')}</Form.Label>
               <Form.Control>

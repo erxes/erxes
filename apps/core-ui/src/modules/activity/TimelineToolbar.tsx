@@ -49,7 +49,7 @@ const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) =>
           value={filters.actorId}
           onValueChange={(actorId) => onChange({ ...filters, actorId })}
         >
-          <Select.Trigger className="h-8 w-full text-sm">
+          <Select.Trigger className="h-8 w-full">
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
@@ -69,7 +69,7 @@ const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) =>
             value={filters.source}
             onValueChange={(source) => onChange({ ...filters, source })}
           >
-            <Select.Trigger className="h-8 w-full text-sm">
+            <Select.Trigger className="h-8 w-full">
               <Select.Value />
             </Select.Trigger>
             <Select.Content>

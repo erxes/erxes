@@ -97,7 +97,7 @@ const TextRow = ({ code, label }: { code: TTextCode; label: string }) => {
       label={label}
       error={formState.errors[code]?.message}
     >
-      <Input {...register(code)} placeholder={label} variant="bordered" text="sm"  />
+      <Input {...register(code)} placeholder={label} variant="bordered" text="sm" />
     </PanelFormRow>
   );
 };
@@ -116,7 +116,9 @@ const SexRow = () => {
             value={String(field.value ?? 0)}
             onValueChange={(value) => field.onChange(Number(value))}
           >
-            <Select.Trigger variant="bordered" aria-label={t('pronoun', 'Pronoun')}><Select.Value placeholder={t('pronoun', 'Pronoun')} /></Select.Trigger>
+            <Select.Trigger variant="bordered" aria-label={t('pronoun', 'Pronoun')}>
+              <Select.Value placeholder={t('pronoun', 'Pronoun')} />
+            </Select.Trigger>
             <Select.Content align="start">
               {CUSTOMER_SEX_OPTIONS.map((option) => (
                 <Select.Item key={option.value} value={option.value} className="h-7">

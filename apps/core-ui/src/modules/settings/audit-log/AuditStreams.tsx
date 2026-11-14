@@ -206,7 +206,7 @@ export const AuditStreams = () => {
         <IconBroadcast />
         {t('button', 'Streaming')}
       </Button>
-      <Sheet.View className="flex w-full flex-col sm:max-w-lg">
+      <Sheet.View size="lg">
         <Sheet.Header>
           <Sheet.Title>{t('title', 'Stream the audit log')}</Sheet.Title>
           <Sheet.Description>

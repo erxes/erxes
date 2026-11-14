@@ -38,9 +38,11 @@ const EXPORT_TONE: Record<Export['status'], 'success' | 'destructive' | 'info'> 
 };
 
 const When = ({ value }: { value: string }) => (
-  <RelativeDateDisplay value={value} render={<span className="text-xs text-muted-foreground" />}>
-    <RelativeDateDisplay.Value value={value} />
-  </RelativeDateDisplay>
+  <span className="text-xs text-muted-foreground">
+    <RelativeDateDisplay value={value} render={<span />}>
+      <RelativeDateDisplay.Value value={value} />
+    </RelativeDateDisplay>
+  </span>
 );
 
 const Nothing = ({ icon: Icon, title }: { icon: typeof IconFileImport; title: string }) => (

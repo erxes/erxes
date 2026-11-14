@@ -116,7 +116,9 @@ const KindRow = () => {
               if (value === 'goods' || value === 'service') field.onChange(value);
             }}
           >
-            <Select.Trigger variant="bordered" ><Select.Value /></Select.Trigger>
+            <Select.Trigger variant="bordered">
+              <Select.Value />
+            </Select.Trigger>
             <Select.Content align="start">
               <Select.Item value="goods" className="h-7">
                 {t('kind.goods', 'Goods')}
@@ -169,21 +171,22 @@ const PriceRow = () => {
       error={formState.errors.price?.message}
     >
       <div className="flex gap-1">
-        <Input {...register('price')}
-        type="number"
-        min={0}
-        step={amountStep(currency)}
-        inputMode="decimal"
-        placeholder="0" variant="bordered" text="sm"  />
+        <Input
+          {...register('price')}
+          type="number"
+          min={0}
+          step={amountStep(currency)}
+          inputMode="decimal"
+          placeholder="0"
+          variant="bordered"
+          text="sm"
+        />
         <Form.Field
           control={control}
           name="currency"
           render={({ field }) => (
             <div className="w-24 flex-none">
-              <CurrencySelect
-                value={field.value}
-                onChange={field.onChange}
-              />
+              <CurrencySelect value={field.value} onChange={field.onChange} />
             </div>
           )}
         />
@@ -229,15 +232,23 @@ export const ProductPanelNew = () => {
         required
         error={errors.name?.message}
       >
-        <Input {...form.register('name')}
-        placeholder={t('fields.name', 'Name')} variant="bordered" text="sm"  />
+        <Input
+          {...form.register('name')}
+          placeholder={t('fields.name', 'Name')}
+          variant="bordered"
+          text="sm"
+        />
       </PanelFormRow>
       <KindRow />
       <CategoryRow />
       <PriceRow />
       <PanelFormRow icon={IconHash} label={t('fields.code', 'Code')} error={errors.code?.message}>
-        <Input {...form.register('code')}
-        placeholder={t('fields.code', 'Code')} variant="bordered" text="sm"  />
+        <Input
+          {...form.register('code')}
+          placeholder={t('fields.code', 'Code')}
+          variant="bordered"
+          text="sm"
+        />
       </PanelFormRow>
       {existingId && (
         // Under the code's input: past its label column (6.5rem) and gap.

@@ -140,10 +140,10 @@ export const StageColumn = memo(function StageColumn({
       ref={setNodeRef}
       aria-label={stage.name}
       className={cn(
-        'flex h-full w-72 shrink-0 flex-col overflow-hidden rounded-xl border-t-[3px] bg-muted/40 transition-[background-color,box-shadow] duration-150',
-        target && 'bg-primary/5 shadow-[inset_0_0_0_2px] shadow-primary/30',
+        'flex h-full w-72 shrink-0 flex-col overflow-hidden rounded-xl border-t-3 border-t-(--stage-color) bg-muted/40 transition duration-150',
+        target && 'bg-primary/5 inset-ring-2 inset-ring-primary/30',
       )}
-      style={{ borderTopColor: stage.color }}
+      style={{ '--stage-color': stage.color }}
     >
       <ColumnHeader
         stage={stage}
@@ -152,9 +152,7 @@ export const StageColumn = memo(function StageColumn({
       />
       <div className="styled-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
         {query.isPending &&
-          CARD_SKELETONS.map((key) => (
-            <Skeleton key={key} radius="lg" className="h-[92px] shrink-0" />
-          ))}
+          CARD_SKELETONS.map((key) => <Skeleton key={key} radius="lg" className="h-23 shrink-0" />)}
         {query.error && <p className="p-2 text-xs text-destructive">{messageOf(query.error)}</p>}
         {leads.map((lead) => (
           <LeadCard key={lead.id} recordType={recordType} lead={lead} />
@@ -170,7 +168,7 @@ export const StageColumn = memo(function StageColumn({
           </div>
         )}
         <div ref={sentinel} className="h-px shrink-0" />
-        {query.isFetchingNextPage && <Skeleton radius="lg" className="h-[92px] shrink-0" />}
+        {query.isFetchingNextPage && <Skeleton radius="lg" className="h-23 shrink-0" />}
       </div>
     </section>
   );

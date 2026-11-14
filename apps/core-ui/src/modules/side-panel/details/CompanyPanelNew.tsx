@@ -86,7 +86,7 @@ const TextRow = ({
       required={required}
       error={formState.errors[name]?.message}
     >
-      <Input {...register(name)} placeholder={label} variant="bordered" text="sm"  />
+      <Input {...register(name)} placeholder={label} variant="bordered" text="sm" />
     </PanelFormRow>
   );
 };
@@ -120,7 +120,9 @@ const BusinessRows = () => {
           name="businessType"
           render={({ field }) => (
             <Select value={field.value || ''} onValueChange={field.onChange}>
-              <Select.Trigger variant="bordered" ><Select.Value placeholder={t('field.businessType', 'Business type')} /></Select.Trigger>
+              <Select.Trigger variant="bordered">
+                <Select.Value placeholder={t('field.businessType', 'Business type')} />
+              </Select.Trigger>
               <Select.Content>
                 {COMPANY_BUSINESS_TYPES.filter(Boolean).map((type) => (
                   <Select.Item key={type} value={type}>
@@ -133,10 +135,14 @@ const BusinessRows = () => {
         />
       </PanelFormRow>
       <PanelFormRow icon={IconUsers} label={t('field.size', 'Size')}>
-        <Input {...register('size')}
-        type="number"
-        placeholder={t('field.size', 'Size')}
-        min={0} variant="bordered" text="sm"  />
+        <Input
+          {...register('size')}
+          type="number"
+          placeholder={t('field.size', 'Size')}
+          min={0}
+          variant="bordered"
+          text="sm"
+        />
       </PanelFormRow>
     </>
   );

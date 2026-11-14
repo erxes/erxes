@@ -1,6 +1,6 @@
 import type { ContentType, Tag } from '@erxes/core-contract';
 import { IconCircleFilled } from '@tabler/icons-react';
-import { Badge, PopoverScoped, Skeleton, TextOverflowTooltip } from 'erxes-ui';
+import { Badge, cn, PopoverScoped, Skeleton, TextOverflowTooltip } from 'erxes-ui';
 import { type ReactNode, createContext, useContext, useState } from 'react';
 import { useTags } from './useTags';
 
@@ -105,7 +105,10 @@ export const TagsSelectProvider = ({
 export const TagInline = ({ tag }: { tag: Pick<Tag, 'name' | 'colorCode'> }) => (
   <div className="flex max-w-full items-center gap-3">
     <span>
-      <IconCircleFilled className="size-3!" style={{ color: tag.colorCode ?? undefined }} />
+      <IconCircleFilled
+        className={cn('size-3!', tag.colorCode && 'text-(--tag-color)')}
+        style={{ '--tag-color': tag.colorCode ?? undefined }}
+      />
     </span>
     <TextOverflowTooltip value={tag.name} />
   </div>

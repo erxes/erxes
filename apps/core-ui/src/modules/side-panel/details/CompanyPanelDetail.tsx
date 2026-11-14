@@ -6,7 +6,7 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { cn, NumberField, Spinner } from 'erxes-ui';
+import { NumberField, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';

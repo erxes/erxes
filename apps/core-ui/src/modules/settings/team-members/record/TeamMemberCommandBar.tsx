@@ -89,7 +89,7 @@ export const TeamMemberCommandBar = ({ rows }: { rows: User[] }) => {
             </Popover.Trigger>
             <Popover.Content
               variant="flush"
-              className="min-w-[280px]"
+              className="min-w-70"
               align="end"
               side="top"
               sideOffset={10}

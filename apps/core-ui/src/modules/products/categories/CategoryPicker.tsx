@@ -76,7 +76,10 @@ export const CategoryPicker = ({
                   value={node.path}
                   onSelect={() => pick(node.category.id)}
                 >
-                  <span className="truncate" style={{ paddingLeft: `${node.depth * 0.75}rem` }}>
+                  <span
+                    className="truncate pl-(--indent)"
+                    style={{ '--indent': `${node.depth * 0.75}rem` }}
+                  >
                     {node.category.name}
                   </span>
                   <Combobox.Check checked={value === node.category.id} />

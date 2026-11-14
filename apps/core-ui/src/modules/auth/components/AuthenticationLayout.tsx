@@ -15,7 +15,7 @@ export const AuthBanner = () => {
         <div className="absolute top-7">
           <Logo />
         </div>
-        <div className="flex max-w-[500px] flex-col justify-center gap-2">
+        <div className="flex max-w-125 flex-col justify-center gap-2">
           <h1 className="text-2xl font-semibold leading-7 text-background dark:text-foreground">
             {t('banner-title')}
           </h1>
@@ -33,12 +33,12 @@ export const AuthenticationLayout = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
 
   return (
-    <div className="relative flex h-dvh flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[radial-gradient(#F0F1FE,#F7F8FA)] py-8 sm:pt-28 lg:w-1/2 lg:flex-none dark:bg-[radial-gradient(#0D0D0D,#161616)]">
+    <div className="relative flex h-dvh flex-1 flex-col overflow-y-auto overflow-x-hidden auth-backdrop py-8 sm:pt-28 lg:w-1/2 lg:flex-none">
       <div className="relative mx-auto flex w-full max-w-md flex-col gap-8 px-1 sm:px-6">
         <div className="absolute inset-0 hidden sm:block">
           <Polygons
             variant="light"
-            className="absolute -top-[18.5%] left-1/2 w-[170%] -translate-x-1/2"
+            className="absolute -top-37/200 left-1/2 w-17/10 -translate-x-1/2"
           />
         </div>
         <Logo className="relative mx-auto hidden h-10 text-primary-text sm:block" />

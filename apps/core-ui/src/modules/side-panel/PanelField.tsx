@@ -29,12 +29,7 @@ export const PanelField = ({
 
   return (
     <div className="grid grid-cols-field items-center gap-x-2 min-h-7">
-      <Label
-        id={labelId}
-        htmlFor={htmlFor}
-        variant="muted"
-        className="flex min-w-0 items-center"
-      >
+      <Label id={labelId} htmlFor={htmlFor} variant="muted" className="flex min-w-0 items-center">
         {Icon && <Icon className="size-3.5 shrink-0" aria-hidden="true" />}
         <PanelLabel>{label}</PanelLabel>
       </Label>

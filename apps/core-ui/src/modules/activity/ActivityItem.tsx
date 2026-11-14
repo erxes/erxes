@@ -31,7 +31,7 @@ import {
   IconUsers,
   type Icon,
 } from '@tabler/icons-react';
-import { Badge, Skeleton } from 'erxes-ui';
+import { Badge, cn, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChangeList, type Lookups } from '~/components/ChangeList';
@@ -138,8 +138,11 @@ const EventItem = ({
     <li className="relative flex gap-3 pb-4">
       {rail}
       <span
-        className="relative z-1 flex size-6 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground ring-4 ring-background"
-        style={look?.color ? { color: look.color } : undefined}
+        className={cn(
+          'relative z-1 flex size-6 shrink-0 items-center justify-center rounded-full border bg-background ring-4 ring-background',
+          look?.color ? 'text-(--activity-color)' : 'text-muted-foreground',
+        )}
+        style={{ '--activity-color': look?.color ?? undefined }}
       >
         <ItemIcon className="size-3" />
       </span>
@@ -204,7 +207,10 @@ export const ActivityItem = ({
 
   // The line joining the markers: from under this one to the next.
   const rail = !last && (
-    <span className="absolute top-7 bottom-0 left-[11.5px] w-px bg-border" aria-hidden="true" />
+    <span
+      className="absolute top-7 bottom-0 left-3 w-px -translate-x-1/2 bg-border"
+      aria-hidden="true"
+    />
   );
 
   if (note) {

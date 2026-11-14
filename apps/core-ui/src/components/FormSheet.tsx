@@ -22,7 +22,7 @@ export const FormSheet = ({
   children: ReactNode;
 }) => (
   <Sheet open={open} onOpenChange={onOpenChange}>
-    <Sheet.View className="flex w-full flex-col sm:max-w-lg">
+    <Sheet.View size="lg">
       <form onSubmit={onSubmit} className="flex h-full min-h-0 flex-col" noValidate>
         <Sheet.Header>
           <Sheet.Title>{title}</Sheet.Title>

@@ -70,9 +70,9 @@ const Bar = ({ value, max, title }: { value: number; max: number; title: string 
     <span className="w-10 shrink-0 text-sm tabular-nums">{value.toLocaleString('en')}</span>
     <div className="h-2.5 flex-1">
       <div
-        className="h-full rounded-r bg-primary"
+        className="h-full w-(--bar-width) rounded-r bg-primary"
         style={{
-          width: `${max ? Math.max((value / max) * 100, value ? 1 : 0) : 0}%`,
+          '--bar-width': `${max ? Math.max((value / max) * 100, value ? 1 : 0) : 0}%`,
         }}
       />
     </div>
@@ -128,7 +128,7 @@ export const LeadStageFunnel = ({ report }: { report: LeadReport }) => {
   const max = Math.max(...report.stages.map((stage) => Math.max(stage.current, stage.reached)), 1);
 
   return (
-    <div className="grid grid-cols-[minmax(90px,1fr)_2fr_2fr_64px] items-center gap-x-4 gap-y-2 text-sm">
+    <div className="grid grid-cols-lead-funnel items-center gap-x-4 gap-y-2 text-sm">
       <span />
       <span className="text-xs text-muted-foreground">{t('report.in-it-now')}</span>
       <span className="text-xs text-muted-foreground">{t('report.reached')}</span>
@@ -136,7 +136,10 @@ export const LeadStageFunnel = ({ report }: { report: LeadReport }) => {
       {report.stages.map((stage) => (
         <div key={stage.stageId} className="contents">
           <span className="flex min-w-0 items-center gap-2">
-            <span className="size-2 shrink-0 rounded-full" style={{ background: stage.color }} />
+            <span
+              className="size-2 shrink-0 rounded-full bg-(--stage-color)"
+              style={{ '--stage-color': stage.color }}
+            />
             <span className="truncate">{stageName(stage.name)}</span>
           </span>
           <Bar value={stage.current} max={max} title={`${stage.name}: ${stage.current} now`} />
@@ -171,7 +174,7 @@ const CohortTable = ({
   const max = Math.max(...rows.map((row) => row.count), 1);
 
   return rows.length ? (
-    <div className="grid grid-cols-[minmax(90px,1fr)_2fr_70px_56px] items-center gap-x-3 gap-y-2 text-sm">
+    <div className="grid grid-cols-lead-cohort items-center gap-x-3 gap-y-2 text-sm">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-xs text-muted-foreground">{t('report.new-leads-column')}</span>
       <span className="text-right text-xs text-muted-foreground">{t('report.customers')}</span>

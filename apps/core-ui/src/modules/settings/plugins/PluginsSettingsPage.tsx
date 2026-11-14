@@ -66,11 +66,11 @@ const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
       <ul className="space-y-0.5">
         {plugin.requestedScopes.map((scope) => (
           <li key={scope} className="flex items-center gap-2">
-            <span className={isNew(scope) ? 'text-amber-600' : ''}>
+            <span className={isNew(scope) ? 'text-warning-text' : ''}>
               {t(`scope.${scope.replace(':', '-')}`, SCOPE_LABELS[scope] ?? scope)}
             </span>
             {isNew(scope) && (
-              <span className="text-xs text-amber-600">
+              <span className="text-xs text-warning-text">
                 {t('new-scope', '(new — needs approval)')}
               </span>
             )}

@@ -160,7 +160,7 @@ export const TestPanel = ({
         <IconFlask />
         {t('test', 'Test')}
       </Sheet.Trigger>
-      <Sheet.View className="flex w-full flex-col sm:max-w-xl">
+      <Sheet.View size="xl">
         <Sheet.Header>
           <Sheet.Title>{t('test-title', 'Test without changing anything')}</Sheet.Title>
           <Sheet.Description>

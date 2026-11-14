@@ -58,9 +58,7 @@ export const PlanBanner = () => {
     <output
       className={cn(
         'flex shrink-0 items-center gap-2 px-4 py-1.5 text-sm',
-        severe
-          ? 'bg-destructive/10 text-destructive'
-          : 'bg-warning/10 text-warning-foreground dark:text-warning',
+        severe ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning-text',
       )}
     >
       {severe ? (

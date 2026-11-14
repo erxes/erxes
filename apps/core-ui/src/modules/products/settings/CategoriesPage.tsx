@@ -82,8 +82,8 @@ const CategoryRow = ({
   return (
     <li className="flex h-10 items-center gap-2 px-3 text-sm hover:bg-muted/50">
       <span
-        className="flex min-w-0 flex-1 items-center gap-2"
-        style={{ paddingLeft: `${node.depth * 1.25}rem` }}
+        className="flex min-w-0 flex-1 items-center gap-2 pl-(--indent)"
+        style={{ '--indent': `${node.depth * 1.25}rem` }}
       >
         <IconFolder className="size-4 shrink-0 text-muted-foreground" />
         <span className="truncate">{category.name}</span>

@@ -98,7 +98,7 @@ export const VersionsPanel = ({
       >
         <IconHistory />
       </Sheet.Trigger>
-      <Sheet.View className="flex w-full flex-col sm:max-w-md">
+      <Sheet.View>
         <Sheet.Header>
           <Sheet.Title>{t('versions', 'Versions')}</Sheet.Title>
           <Sheet.Description>

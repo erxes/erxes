@@ -132,11 +132,7 @@ export const TemplateInput = ({
 
   return (
     <InputGroup>
-      {multiline ? (
-        <InputGroup.Textarea {...shared} rows={4} />
-      ) : (
-        <InputGroup.Input {...shared} />
-      )}
+      {multiline ? <InputGroup.Textarea {...shared} rows={4} /> : <InputGroup.Input {...shared} />}
       {!disabled && (
         <InputGroup.Addon align="end">
           <Popover open={open} onOpenChange={setOpen}>

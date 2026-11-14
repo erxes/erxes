@@ -194,7 +194,6 @@ export const ProductPluginsRow = ({ product }: { product: Product }) => {
           </p>
         }
         hidePlaceholderWhenSelected
-        className="min-h-7 text-xs"
       />
       {error && <p className="text-xs text-destructive">{messageOf(error)}</p>}
     </PanelField>

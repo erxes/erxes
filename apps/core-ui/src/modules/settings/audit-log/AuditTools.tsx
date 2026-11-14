@@ -76,7 +76,7 @@ const VerifyResult = ({ result }: { result: Verdict }) => {
     <div className="space-y-3">
       <div className="flex gap-3">
         {result.ok ? (
-          <IconShieldCheck className="size-5 shrink-0 text-green-600" />
+          <IconShieldCheck className="size-5 shrink-0 text-success-text" />
         ) : (
           <IconShieldX className="size-5 shrink-0 text-destructive" />
         )}

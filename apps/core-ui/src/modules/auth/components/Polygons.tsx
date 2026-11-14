@@ -56,7 +56,7 @@ const FadedHexes = ({
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" {...svg}>
       <mask
         id={mask}
-        style={alphaMask ? { maskType: 'alpha' } : undefined}
+        className={alphaMask ? 'mask-type-alpha' : undefined}
         maskUnits="userSpaceOnUse"
         x="0"
         y="0"
@@ -113,7 +113,7 @@ export const Polygons = ({
       width="1134"
       height="875"
       viewBox="0 0 1134 875"
-      className={cn('absolute left-1/2 h-[875px] -translate-x-1/3', className)}
+      className={cn('absolute left-1/2 h-218.75 -translate-x-1/3', className)}
       {...props}
     />
   );

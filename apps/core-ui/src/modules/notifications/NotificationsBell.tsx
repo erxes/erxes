@@ -34,7 +34,7 @@ const BellIndicators = ({ count }: { count: number }) => {
       {/* Reconnecting, or the server can't listen: counts refresh every 30 s. */}
       {mode === 'polling' && (
         <span
-          className="absolute bottom-1 right-1 size-1.5 rounded-full bg-amber-500"
+          className="absolute bottom-1 right-1 size-1.5 rounded-full bg-warning"
           title={t('polling', 'Live updates paused; refreshing every 30 seconds')}
         />
       )}
@@ -165,7 +165,7 @@ export const NotificationsBell = () => {
           <BellIndicators count={count} />
         </Popover.Trigger>
       </CoreTabTooltip>
-      <Popover.Content align="end" variant="flush" className="w-[26rem]">
+      <Popover.Content align="end" variant="flush" className="w-104">
         <BellHeader source={source} unread={unreadHere} onLeave={() => setOpen(false)} />
         <div className="flex items-stretch justify-between gap-2 border-b px-2">
           <NotificationTabs value={tab} onChange={setTab} unread={unreadHere} />
@@ -178,7 +178,7 @@ export const NotificationsBell = () => {
             />
           )}
         </div>
-        <ScrollArea className="max-h-[28rem]">
+        <ScrollArea className="max-h-112">
           <NotificationList
             {...list}
             inboxes={inboxes}

@@ -1,6 +1,6 @@
 import type { Product } from '@erxes/core-contract';
 import { IconCoin, IconCurrencyDollar, IconRulerMeasure, IconWeight } from '@tabler/icons-react';
-import { cn, NumberField, useToast } from 'erxes-ui';
+import { NumberField, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CurrencySelect } from '~/components/RegionSelect';
 import { fromAmountInput, toAmountInput, useMoney } from '~/lib/money';

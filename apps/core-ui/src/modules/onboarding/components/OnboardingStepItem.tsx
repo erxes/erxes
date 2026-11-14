@@ -1,6 +1,6 @@
 import { IconCheck } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
-import { appearStyle, EASE_SPRING } from './Appear';
+import { Appear } from './Appear';
 import type { OnboardingStepDef } from './onboardingSteps';
 
 export const OnboardingStepItem = ({
@@ -17,18 +17,20 @@ export const OnboardingStepItem = ({
   const Icon = step.icon;
 
   return (
-    <div
-      className="flex w-full flex-row gap-4 animate-in"
-      style={appearStyle({ y: 100, delay: 100, duration: 500, easing: 'ease-in-out' })}
+    <Appear
+      y={100}
+      delay={100}
+      duration={500}
+      easing="ease-in-out"
+      className="flex w-full flex-row gap-4"
     >
       <div
         className={cn(
-          'flex items-center justify-center transition-[opacity,transform] duration-300',
+          'flex items-center justify-center transition duration-300 ease-spring',
           isChecked ? 'scale-100 opacity-100' : 'scale-0 opacity-0',
         )}
-        style={{ transitionTimingFunction: EASE_SPRING }}
       >
-        <div className="rounded-lg bg-green-400 p-2 text-white">
+        <div className="rounded-lg bg-success p-2 text-white">
           <IconCheck className="h-6 w-6" />
         </div>
       </div>
@@ -36,14 +38,13 @@ export const OnboardingStepItem = ({
         type="button"
         aria-disabled={!isChecked}
         className={cn(
-          'flex flex-1 flex-row gap-4 rounded-xl p-2 pr-12 text-left transition-[transform,background-color] duration-300',
-          isSelected ? 'scale-100 bg-gray-500/20' : 'scale-90 bg-transparent',
+          'flex flex-1 flex-row gap-4 rounded-xl p-2 pr-12 text-left transition duration-300 ease-spring',
+          isSelected ? 'scale-100 bg-muted-foreground/20' : 'scale-90 bg-transparent',
           isChecked ? 'cursor-pointer' : 'cursor-default',
         )}
-        style={{ transitionTimingFunction: EASE_SPRING }}
         onClick={() => isChecked && onSelect(step.step)}
       >
-        <span className="flex size-12 items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
+        <span className="flex size-12 items-center justify-center rounded-lg bg-muted-foreground/30 p-2 text-white">
           <Icon className="h-6 w-6" />
         </span>
         <span className="flex flex-col gap-0.5">
@@ -65,6 +66,6 @@ export const OnboardingStepItem = ({
           </span>
         </span>
       </button>
-    </div>
+    </Appear>
   );
 };

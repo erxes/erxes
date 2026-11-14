@@ -8,7 +8,7 @@ import {
   IconZoomIn,
   IconZoomOut,
 } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { Fragment, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLeadStages } from '~/modules/leads/useLeads';
@@ -39,10 +39,12 @@ interface FlowProps {
 /** A horizontal rule joining the arms, from the first arm's middle to the last one's. */
 const ArmRule = ({ at, count, edge }: { at: number; count: number; edge: 'top' | 'bottom' }) => (
   <div
-    className={
-      edge === 'top' ? 'absolute top-0 h-px bg-border' : 'absolute bottom-0 h-px bg-border'
-    }
-    style={{ left: at === 0 ? '50%' : 0, right: at === count - 1 ? '50%' : 0 }}
+    className={cn(
+      'absolute h-px bg-border',
+      edge === 'top' ? 'top-0' : 'bottom-0',
+      at === 0 ? 'left-1/2' : 'left-0',
+      at === count - 1 ? 'right-1/2' : 'right-0',
+    )}
   />
 );
 
@@ -211,7 +213,7 @@ export const FlowCanvas = ({
   return (
     <div className="relative min-h-0 flex-1">
       <div
-        className="absolute inset-0 overflow-auto"
+        className="dot-grid absolute inset-0 overflow-auto"
         // A pointer shortcut for Escape (the editor's key for leaving a step).
         role="presentation"
         // Only clicks on the empty canvas (menus are portals: their clicks bubble here through React).
@@ -220,14 +222,10 @@ export const FlowCanvas = ({
             onDeselect();
         }}
         data-canvas-empty
-        style={{
-          backgroundImage: 'radial-gradient(var(--color-border) 1px, transparent 1px)',
-          backgroundSize: '18px 18px',
-        }}
       >
         <div
-          className="flex min-w-max justify-center px-10 py-8"
-          style={{ zoom }}
+          className="zoom flex min-w-max justify-center px-10 py-8"
+          style={{ '--zoom': zoom }}
           data-canvas-empty
         >
           <div className="flex flex-col items-center">

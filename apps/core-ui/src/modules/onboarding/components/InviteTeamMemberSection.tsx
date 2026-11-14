@@ -1,6 +1,6 @@
 import { IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, cn, Input, TextOverflowTooltip, toast } from 'erxes-ui';
+import { Badge, Button, Input, TextOverflowTooltip, toast } from 'erxes-ui';
 import { type ChangeEvent, type KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';

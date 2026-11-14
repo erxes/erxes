@@ -166,7 +166,7 @@ export const NoteComposer = ({
 
   return (
     <div
-      className="relative rounded-lg border bg-background transition-[border-color,box-shadow] focus-within:border-primary/40 focus-within:ring-3 focus-within:ring-primary/10"
+      className="relative rounded-lg border bg-background transition focus-within:border-primary/40 focus-within:ring-3 focus-within:ring-primary/10"
       onFocus={() => setActive(true)}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setActive(false);

@@ -26,9 +26,7 @@ const GroupedFieldItems = ({ fields }: { fields: FieldInfo[] }) => {
 
   return [...new Set(fields.map(groupOf))].map((group) => (
     <Select.Group key={group}>
-      <Select.Label>
-        {t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}
-      </Select.Label>
+      <Select.Label>{t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}</Select.Label>
       <FieldItems fields={fields.filter((field) => groupOf(field) === group)} />
     </Select.Group>
   ));

@@ -1,9 +1,8 @@
 import { IconLayoutDashboard } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
-import type { CSSProperties } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  DASHBOARD_GRID_COLUMNS,
   DASHBOARD_GRID_GAP,
   DASHBOARD_ROW_HEIGHT,
   DASHBOARD_STACK_BELOW_WIDTH,
@@ -16,17 +15,23 @@ import { DashboardTile } from './DashboardTile';
 
 const tileHeight = (rows: number) => rows * DASHBOARD_ROW_HEIGHT + (rows - 1) * DASHBOARD_GRID_GAP;
 
-const GRID_STYLE: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(${DASHBOARD_GRID_COLUMNS}, minmax(0, 1fr))`,
-  gridAutoRows: `${DASHBOARD_ROW_HEIGHT}px`,
-  gap: `${DASHBOARD_GRID_GAP}px`,
-};
-
-const cellStyle = ({ x, y, w, h }: Pick<TDashboardItem, 'x' | 'y' | 'w' | 'h'>): CSSProperties => ({
-  gridColumn: `${x + 1} / span ${w}`,
-  gridRow: `${y + 1} / span ${h}`,
-});
+/** A tile's place on the grid: its column and row, and how many of each it spans. */
+const GridCell = ({
+  item: { x, y, w, h },
+  className,
+  children,
+}: {
+  item: Pick<TDashboardItem, 'x' | 'y' | 'w' | 'h'>;
+  className?: string;
+  children?: ReactNode;
+}) => (
+  <div
+    className={cn('col-start-(--x) col-span-(--w) row-start-(--y) row-span-(--h)', className)}
+    style={{ '--x': x + 1, '--y': y + 1, '--w': w, '--h': h }}
+  >
+    {children}
+  </div>
+);
 
 const HomeDashboardEmptyState = () => {
   const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
@@ -58,7 +63,11 @@ export const HomeDashboard = () => {
       return (
         <div className="flex flex-col gap-4">
           {tiles.map(({ item, widget }) => (
-            <div key={item.id} style={{ height: tileHeight(item.h) }}>
+            <div
+              key={item.id}
+              className="h-(--tile-height)"
+              style={{ '--tile-height': `${tileHeight(item.h)}px` }}
+            >
               <DashboardTile item={item} widget={widget} />
             </div>
           ))}
@@ -68,18 +77,18 @@ export const HomeDashboard = () => {
 
     return (
       <div
-        style={GRID_STYLE}
         {...(isEditing ? dropHandlers : {})}
         className={cn(
+          'grid grid-cols-12 auto-rows-10 gap-4',
           isEditing &&
             'min-h-96 rounded-xl outline-2 outline-offset-8 outline-dashed outline-border',
           activeId && 'select-none',
         )}
       >
         {tiles.map(({ item, widget }) => (
-          <div
+          <GridCell
             key={item.id}
-            style={cellStyle(item)}
+            item={item}
             className={cn('min-w-0', activeId === item.id && 'z-20 opacity-90 shadow-lg')}
           >
             <DashboardTile
@@ -87,11 +96,11 @@ export const HomeDashboard = () => {
               widget={widget}
               handlers={isEditing ? { onMoveStart, onResizeStart } : undefined}
             />
-          </div>
+          </GridCell>
         ))}
         {dropPreview && (
-          <div
-            style={cellStyle(dropPreview)}
+          <GridCell
+            item={dropPreview}
             className="pointer-events-none rounded-xl border-2 border-dashed border-primary/50 bg-primary/10"
           />
         )}
