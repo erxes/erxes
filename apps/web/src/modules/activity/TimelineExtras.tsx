@@ -1,7 +1,7 @@
 import type { Activity } from '@erxes/core-contract';
 import { IconMoodPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, cn, Popover, Skeleton } from 'erxes-ui';
+import { Button, cn, Popover, Skeleton, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';
@@ -67,6 +67,8 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
 
 /** A note's earlier wordings, newest first, loaded when the popover opens. */
 const NoteVersions = ({ noteId }: { noteId: string }) => {
+  const fmt = useFormat();
+
   const versions = useQuery(
     orpc.activities.noteVersions.queryOptions({
       input: { id: noteId },
@@ -86,7 +88,7 @@ const NoteVersions = ({ noteId }: { noteId: string }) => {
 
   return versions.data.map((version) => (
     <div key={version.id} className="rounded border p-2">
-      <p className="text-xs text-muted-foreground">{new Date(version.editedAt).toLocaleString()}</p>
+      <p className="text-xs text-muted-foreground">{fmt.dateTime(version.editedAt)}</p>
       <p className="whitespace-pre-wrap">{version.body}</p>
     </div>
   ));

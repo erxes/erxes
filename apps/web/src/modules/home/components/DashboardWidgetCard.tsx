@@ -1,4 +1,4 @@
-import { Skeleton } from 'erxes-ui';
+import { Empty, Skeleton } from 'erxes-ui';
 import type { ReactNode } from 'react';
 
 /**
@@ -25,7 +25,9 @@ export const DashboardWidgetCard = ({
 );
 
 export const DashboardWidgetEmptyState = ({ children }: Readonly<{ children: string }>) => (
-  <p className="px-2 py-6 text-center text-sm text-muted-foreground">{children}</p>
+  <Empty size="sm">
+    <Empty.Description>{children}</Empty.Description>
+  </Empty>
 );
 
 export const DashboardWidgetListSkeleton = () => (

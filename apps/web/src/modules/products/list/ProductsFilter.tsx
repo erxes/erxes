@@ -1,16 +1,16 @@
 import { IconArchive } from '@tabler/icons-react';
-import { Toggle, useQueryState } from 'erxes-ui';
+import { Toggle } from 'erxes-ui';
+import { parseAsBoolean, useQueryState } from 'nuqs';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
 import { IconTip } from '~/components/IconTip';
 import { ListFilter } from '~/modules/views/filter/ListFilter';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
-import { PRODUCTS_SESSION_KEY, useProducts } from '../useProducts';
+import { useProducts } from '../useProducts';
 
 /** Shows archived products instead of the active ones. */
 const ArchivedToggle = () => {
   const { t } = useTranslation('product');
-  const [archived, setArchived] = useQueryState('archived', z.boolean());
+  const [archived, setArchived] = useQueryState('archived', parseAsBoolean);
   const label = t('status.archived', 'Archived');
 
   return (
@@ -19,7 +19,7 @@ const ArchivedToggle = () => {
         aria-label={label}
         size="icon"
         pressed={archived === true}
-        onPressedChange={(pressed) => setArchived(pressed ? true : null)}
+        onPressedChange={(pressed) => void setArchived(pressed ? true : null)}
       >
         <IconArchive />
       </Toggle>
@@ -49,7 +49,6 @@ export const ProductsFilter = () => {
   return (
     <ListFilter
       recordType="product"
-      sessionKey={PRODUCTS_SESSION_KEY}
       optionLabel={optionLabel}
       totalCount={totalCount}
       totalCapped={totalCapped}

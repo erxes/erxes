@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import {
   CORE_NOTIFICATION_GROUPS,
   NotificationDelivery,
@@ -282,7 +283,7 @@ export const NotificationSettingsPage = () => {
             items={[
               {
                 label: t('title', 'Notifications'),
-                to: '/settings/notifications',
+                to: paths.settings.notifications,
                 icon: IconBellCog,
               },
             ]}

@@ -1,16 +1,10 @@
+import { paths } from '~/lib/paths';
 import { IconAlertTriangle, IconLock } from '@tabler/icons-react';
-import { cn } from 'erxes-ui';
+import { cn, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useMinuteClock } from '~/lib/useMinuteClock';
 import { usePlan } from './usePlan';
-
-const day = (value: string) =>
-  new Date(value).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
 
 /**
  * One line above every page when the subscription needs attention: the
@@ -19,6 +13,7 @@ const day = (value: string) =>
  */
 export const PlanBanner = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+  const fmt = useFormat();
   const { data } = usePlan();
   const now = useMinuteClock();
 
@@ -38,7 +33,7 @@ export const PlanBanner = () => {
       '{{plugins}} left your plan: read-only until {{date}}, then turned off. Buy it again to keep using it.',
       {
         plugins: readOnly.map((plugin) => plugin.title).join(', '),
-        date: day(firstReadOnly.readOnlyUntil ?? new Date(now).toISOString()),
+        date: fmt.date(firstReadOnly.readOnlyUntil ?? new Date(now).toISOString()),
       },
     );
   } else if (retrying.length) {
@@ -67,7 +62,7 @@ export const PlanBanner = () => {
         <IconAlertTriangle className="size-4 shrink-0" />
       )}
       <span className="min-w-0 flex-1 truncate">{message}</span>
-      <Link to="/settings/plan" className="shrink-0 font-medium underline underline-offset-2">
+      <Link to={paths.settings.plan} className="shrink-0 font-medium underline underline-offset-2">
         {t('see-plan', 'See your plan')}
       </Link>
       {data.manageUrl && (

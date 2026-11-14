@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
@@ -166,7 +167,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
           {t('sign-in')}
         </Button>
         <Link
-          to="/forgot-password"
+          to={paths.forgotPassword}
           className="text-center text-sm text-muted-foreground hover:underline"
         >
           {t('forgot-password', 'Forgot your password?')}

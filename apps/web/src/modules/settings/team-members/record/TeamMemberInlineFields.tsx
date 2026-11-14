@@ -1,7 +1,6 @@
 import type { User } from '@erxes/core-contract';
-import { DatePicker, Popover, RecordTableInlineCell } from 'erxes-ui';
+import { DatePicker, Popover, RecordTableInlineCell, toIsoDay } from 'erxes-ui';
 import { useState } from 'react';
-import { toYmd } from '~/components/inlineCells';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 
 /** `YYYY-MM-DD` → `yyyy/MM/dd`. */
@@ -44,7 +43,7 @@ export const TeamMemberWorkStartedField = ({ user }: { user: User }) => {
         <DatePicker
           defaultMonth={draft ? ymdToDate(draft) : undefined}
           value={draft ? ymdToDate(draft) : undefined}
-          onChange={(date) => setDraft(date instanceof Date ? toYmd(date) : null)}
+          onChange={(date) => setDraft(date instanceof Date ? toIsoDay(date) : null)}
         />
       </RecordTableInlineCell.Content>
     </Popover>

@@ -1,3 +1,4 @@
+import { useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useMinuteClock } from '~/lib/useMinuteClock';
 import { useSession } from '~/modules/auth/session';
@@ -12,20 +13,15 @@ const getGreetingKey = (hour: number) => {
 
 export const HomeGreeting = () => {
   const { user } = useSession();
-  const { t, i18n } = useTranslation('common', { keyPrefix: 'home' });
+  const { t } = useTranslation('common', { keyPrefix: 'home' });
+  const fmt = useFormat();
   const now = new Date(useMinuteClock());
   // Greets by first name, the first word of the full name.
   const name = user.fullName?.trim().split(/\s+/)[0] || user.username || user.email;
 
   return (
     <div className="space-y-1">
-      <p className="text-sm text-muted-foreground">
-        {now.toLocaleDateString(i18n.language, {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
-        })}
-      </p>
+      <p className="text-sm text-muted-foreground">{fmt.date(now, 'EEEE, MMMM d')}</p>
       <h1 className="text-2xl font-semibold tracking-tight">
         {t(getGreetingKey(now.getHours()), { name })}
       </h1>

@@ -3,12 +3,13 @@
 // migration/, scripts/); core has none of them and applies the rule sets to its own paths.
 import type { OxlintConfig } from 'vite-plus/lint';
 import ui from '../../ui/package.json' with { type: 'json' };
-import { browserRules, designRules, rules, serverRules } from './rules.ts';
+import { browserOneWay, browserRules, designRules, rules, serverRules } from './rules.ts';
 
-export { browserRules, designRules } from './rules.ts';
+export { browserOneWay, browserRules, designRules } from './rules.ts';
 
 // Core owns these; a plugin reaches them through erxes-ui's public exports and the SDK.
 const pluginImports = {
+  paths: browserOneWay.storage.imports,
   patterns: [
     {
       group: [
@@ -74,6 +75,12 @@ export const preset = {
             message:
               'Call the plugin API through ui/src/orpc.ts and core through orpc from @erxes/core-contract/client.',
           },
+          ...browserOneWay.storage.globals,
+        ],
+        'no-restricted-properties': [
+          'error',
+          ...browserOneWay.format,
+          ...browserOneWay.storage.properties,
         ],
       },
     },

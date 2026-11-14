@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { Automation } from '@erxes/core-contract';
 import {
   IconBolt,
@@ -92,8 +93,11 @@ export const AutomationHeader = ({
       <PageHeader.Start>
         <AppBreadcrumb
           items={[
-            { label: t('title', 'Automations'), to: '/automations', icon: IconBolt },
-            { label: draft.name || automation.name, to: `/automations/${automation.id}` },
+            { label: t('title', 'Automations'), to: paths.automations.list, icon: IconBolt },
+            {
+              label: draft.name || automation.name,
+              to: paths.automations.automation(automation.id),
+            },
           ]}
         />
         <Badge variant={STATUS_BADGE[automation.status]}>

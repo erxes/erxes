@@ -2,7 +2,8 @@ import type { FieldContentType } from '@erxes/core-contract';
 import { Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { PROPERTY_TYPES, propertiesPath } from '../constants';
+import { propertyPaths } from '~/lib/paths';
+import { PROPERTY_TYPES } from '../constants';
 
 /** The "Properties" panel listing the record types that have properties. */
 export const PropertiesSidebar = ({ types }: { types: readonly FieldContentType[] }) => {
@@ -20,7 +21,7 @@ export const PropertiesSidebar = ({ types }: { types: readonly FieldContentType[
               <Sidebar.MenuItem key={contentType}>
                 <Sidebar.MenuButton
                   isActive={contentType === type}
-                  render={<Link to={propertiesPath(contentType)} />}
+                  render={<Link to={propertyPaths(contentType).list} />}
                 >
                   {t(
                     `content-type.${PROPERTY_TYPES[contentType].i18nKey}`,

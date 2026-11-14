@@ -1,12 +1,12 @@
 import type { ActionField } from '@erxes/core-contract';
-import { MultipleSelector, Select } from 'erxes-ui';
+import { Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { textOf } from '~/lib/text';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
-import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
+import { LookupPicker, useMemberOptions, useTagOptions } from './lookupOptions';
 import type { FieldInfo } from './useAutomationFields';
 
 export type ActionInputProps = {
@@ -38,7 +38,7 @@ export const CustomFieldSelect = ({ value, onChange, disabled, dataFields }: Act
     return (
       <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
         {t('no-custom-fields', 'No custom fields yet.')}{' '}
-        <Link to={CONTACT_SETTINGS.properties} className="text-primary-text hover:underline">
+        <Link to={paths.contacts.properties} className="text-primary-text hover:underline">
           {t('add-in-properties', 'Add one in Properties')}
         </Link>
       </p>
@@ -124,23 +124,17 @@ export const LookupMultiSelect = ({
   const isMembers = field.type === 'members';
   const members = useMemberOptions(isMembers);
   const tags = useTagOptions(subject, !isMembers);
-  const { options, error } = isMembers ? members : tags;
 
   return (
-    <>
-      <MultipleSelector
-        value={asList(value).map(
-          (id) => options.find((option) => option.value === id) ?? { value: id, label: id },
-        )}
-        onChange={(next) => onChange(next.map((option) => option.value))}
-        options={options}
-        disabled={disabled}
-        placeholder={
-          isMembers ? t('choose-members', 'Choose members…') : t('choose-tags', 'Choose tags…')
-        }
-        hidePlaceholderWhenSelected
-      />
-      <LookupError error={error} />
-    </>
+    <LookupPicker
+      multiple
+      lookup={isMembers ? members : tags}
+      value={asList(value)}
+      onValueChange={onChange}
+      disabled={disabled}
+      placeholder={
+        isMembers ? t('choose-members', 'Choose members…') : t('choose-tags', 'Choose tags…')
+      }
+    />
   );
 };

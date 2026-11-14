@@ -35,7 +35,11 @@ export const areas = [
     files: ['apps/web/src/**', 'packages/ui/**'],
     plugins: ['react', 'jsx-a11y'],
     env: { browser: true },
-    rules: browserRules,
+    rules: {
+      ...browserRules,
+      // Addresses come from apps/web/src/lib/paths.ts, never written out in a link.
+      'core/no-string-link': 'error',
+    },
   },
   {
     // The browser's console is where a page's problems show up.

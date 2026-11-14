@@ -93,14 +93,9 @@ export const valuesOf = (rule: ConditionRule | undefined): string[] => {
   return Values.safeParse(rule.op === 'in' ? rule.value : [rule.value]).data ?? [];
 };
 
-/** Picks or unpicks a value of an "is any of" rule; null when nothing is left picked. */
-export const toggled = (path: string, current: string[], value: string): ConditionRule | null => {
-  const next = current.includes(value)
-    ? current.filter((item) => item !== value)
-    : [...current, value];
-
-  return next.length ? { path, op: 'in', value: next } : null;
-};
+/** An "is any of" rule; null when nothing is picked. */
+export const anyOf = (path: string, values: string[]): ConditionRule | null =>
+  values.length ? { path, op: 'in', value: values } : null;
 
 const days = (amount: number) => ({ amount, unit: 'days' as const });
 

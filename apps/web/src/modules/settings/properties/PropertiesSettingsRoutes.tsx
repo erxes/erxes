@@ -7,7 +7,8 @@ import { PropertiesLayout } from '~/modules/properties/components/PropertiesLayo
 import { PropertyAdd } from '~/modules/properties/components/PropertyAdd';
 import { PropertyEdit } from '~/modules/properties/components/PropertyEdit';
 import { PropertyFieldsGroupSettings } from '~/modules/properties/components/PropertyFieldsGroupSettings';
-import { isPropertyType, propertiesPath } from '~/modules/properties/constants';
+import { propertyPaths } from '~/lib/paths';
+import { isPropertyType } from '~/modules/properties/constants';
 import { useCanManageFields } from '~/modules/properties/usePropertyMutations';
 
 type Types = readonly [FieldContentType, ...FieldContentType[]];
@@ -18,10 +19,10 @@ const PropertiesTypeRoutes = ({ types }: { types: Types }) => {
   const manager = useCanManageFields();
 
   if (!isPropertyType(types, type)) {
-    return <Navigate to={propertiesPath(types[0])} replace />;
+    return <Navigate to={propertyPaths(types[0]).list} replace />;
   }
 
-  const list = propertiesPath(type);
+  const list = propertyPaths(type).list;
   const managerOnly = (element: ReactNode) => (manager ? element : <Navigate to={list} replace />);
 
   return (
@@ -48,7 +49,7 @@ const PropertiesTypeRoutes = ({ types }: { types: Types }) => {
 export const PropertiesSettingsRoutes = ({ types }: { types: Types }) => (
   <IconsProvider>
     <Routes>
-      <Route index element={<Navigate to={propertiesPath(types[0])} replace />} />
+      <Route index element={<Navigate to={propertyPaths(types[0]).list} replace />} />
       <Route path=":type/*" element={<PropertiesTypeRoutes types={types} />} />
     </Routes>
   </IconsProvider>

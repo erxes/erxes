@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import React, { createContext, use, useId } from 'react';
 
 import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
@@ -6,6 +6,19 @@ import { useRecordTable } from './RecordTableProvider';
 
 /** The header cell id of the column a cell sits in, so its control is named by the column. */
 export const CellColumnHead = createContext<string | undefined>(undefined);
+
+/**
+ * A cell control's id and name: the column head (or a side panel field's label), then the
+ * control's own text ("Emails ada@…"), so an empty value is still named. Spread it before the
+ * caller's props, which win.
+ */
+export const useCellLabel = (id?: string) => {
+  const ownId = useId();
+  const controlId = id ?? ownId;
+  const head = use(CellColumnHead);
+
+  return { id: controlId, 'aria-labelledby': head ? `${head} ${controlId}` : undefined };
+};
 
 /** A body cell. Its width and pinned offset are CSS variables the table container sets. */
 export const RecordTableCell = ({

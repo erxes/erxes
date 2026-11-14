@@ -1,7 +1,7 @@
-import { jsonOf, useMultiQueryState } from 'erxes-ui';
 import { atom, useSetAtom } from 'jotai';
+import { createSerializer, parseAsBoolean, parseAsJson, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import type { IOpenRecordOptions, ISidePanelNavigator } from './recordView';
 import {
@@ -30,7 +30,17 @@ const RouterState = z.looseObject({
     .optional(),
 });
 
-const PanelHistory = z.array(z.unknown());
+const panelQuery = {
+  [SIDE_PANEL_QUERY_KEY]: parseAsString,
+  [SIDE_PANEL_HISTORY_QUERY_KEY]: parseAsJson(z.array(z.string())),
+  panelExpanded: parseAsBoolean,
+};
+
+const serializePanelQuery = createSerializer(panelQuery);
+
+/** A list with a record open in its side panel: `/contacts/customers?panel=/detail/customer/<id>`. */
+export const panelHref = (list: string, entity: TRelationEntity) =>
+  serializePanelQuery(list, { panel: getSidePanelRecordPath(entity) });
 
 /** Updates panel history, active route, and per-record tabs in one navigation. */
 type PanelNavigate = (
@@ -43,17 +53,14 @@ type PanelNavigate = (
 
 /**
  * The panel's route in the URL (`panel`, `panelHistory`) and the tabs kept in the
- * history entry's state, with `navigate` to change all of them at once.
+ * history entry's state, with `navigate` to change all of them at once. Writes go
+ * through the router, since only it carries history state.
  */
 export const usePanelRoute = (sourcePath: string | null) => {
-  const [queries, setRoute] = useMultiQueryState({
-    [SIDE_PANEL_QUERY_KEY]: z.string(),
-    [SIDE_PANEL_HISTORY_QUERY_KEY]: PanelHistory,
-    panelExpanded: z.boolean(),
-  });
-
-  const path = queries.panel ?? null;
+  const [queries] = useQueryStates(panelQuery);
+  const path = queries.panel;
   const location = useLocation();
+  const routerNavigate = useNavigate();
   // Another page's state, or none, keeps no panel tabs.
   const routerState = RouterState.safeParse(location.state).data;
   const saved = routerState?.sidePanel;
@@ -65,15 +72,12 @@ export const usePanelRoute = (sourcePath: string | null) => {
       ? navigationState?.tab || ''
       : navigationState?.history.find((entry) => entry.path === targetPath)?.tab || '';
 
-  const historyKey = JSON.stringify(queries.panelHistory ?? []);
-
   const history = useMemo(
     () =>
-      jsonOf(PanelHistory)
-        .parse(historyKey)
-        .filter((entry): entry is string => typeof entry === 'string' && entry.startsWith('/'))
+      (queries.panelHistory ?? [])
+        .filter((entry) => entry.startsWith('/'))
         .slice(-MAX_PANEL_HISTORY),
-    [historyKey],
+    [queries.panelHistory],
   );
 
   const setHistory = useSetAtom(sidePanelHistoryState);
@@ -92,11 +96,13 @@ export const usePanelRoute = (sourcePath: string | null) => {
     tabPath = nextPath,
   ) => {
     setHistory(nextHistory);
-    setRoute(
+    void routerNavigate(
       {
-        panel: nextPath,
-        panelHistory: nextHistory.length ? nextHistory : null,
-        ...(nextPath === null ? { panelExpanded: null } : {}),
+        search: serializePanelQuery(location.search, {
+          panel: nextPath,
+          panelHistory: nextHistory.length ? nextHistory : null,
+          ...(nextPath === null ? { panelExpanded: null } : {}),
+        }),
       },
       {
         replace,

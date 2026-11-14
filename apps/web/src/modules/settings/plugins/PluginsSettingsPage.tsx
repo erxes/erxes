@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { Plugin } from '@erxes/core-contract';
 import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -191,7 +192,7 @@ export const PluginsSettingsPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Plugins'), to: '/settings/plugins', icon: IconPlugConnected },
+              { label: t('title', 'Plugins'), to: paths.settings.plugins, icon: IconPlugConnected },
             ]}
           />
         </PageHeader.Start>

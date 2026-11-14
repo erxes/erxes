@@ -3,8 +3,8 @@ import { Button, buttonVariants } from 'erxes-ui/components/button';
 import { Popover, type PopoverContentProps } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import React, { use, useId } from 'react';
-import { CellColumnHead } from './RecordTableCell';
+import type React from 'react';
+import { CellColumnHead, useCellLabel } from './RecordTableCell';
 
 const cellTriggerVariants = cva(
   'h-8 px-2 w-full justify-start text-left focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:shadow-subtle overflow-hidden',
@@ -39,17 +39,13 @@ const RecordTableCellTrigger = ({
   empty,
   ...props
 }: RecordTableCellTriggerProps) => {
-  const ownId = useId();
-  const triggerId = id ?? ownId;
-  // In a table, the column then the value ("Emails ada@…"); an empty cell is still named.
-  const columnHead = use(CellColumnHead);
+  const label = useCellLabel(id);
 
   return (
     <Popover.Trigger
       render={
         <Button
-          id={triggerId}
-          aria-labelledby={columnHead ? `${columnHead} ${triggerId}` : undefined}
+          {...label}
           variant="ghost"
           className={cn(cellTriggerVariants({ variant, empty }), className)}
           ref={ref}

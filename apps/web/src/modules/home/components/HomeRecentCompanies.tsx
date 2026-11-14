@@ -1,3 +1,6 @@
+import { paths } from '~/lib/paths';
+import { panelHref } from '~/modules/side-panel/panelNavigation';
+import { useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useRecentCompanies } from '../hooks';
 import { HOME_NS } from '../i18n';
@@ -5,13 +8,14 @@ import { HomeRecordList } from './HomeRecordList';
 
 /** The newest companies. */
 export const HomeRecentCompanies = () => {
-  const { t, i18n } = useTranslation(HOME_NS);
+  const { t } = useTranslation(HOME_NS);
+  const fmt = useFormat();
   const { data, isPending, isError } = useRecentCompanies();
 
   return (
     <HomeRecordList
       title={t('widgets.recent-companies')}
-      viewAllTo="/contacts/companies"
+      viewAllTo={paths.contacts.companies}
       emptyLabel={t('empty.companies')}
       loading={isPending}
       error={isError}
@@ -20,11 +24,11 @@ export const HomeRecentCompanies = () => {
         name: company.primaryName,
         avatarUrl: company.avatarUrl,
         detail: company.industry || company.website,
-        meta: new Date(company.createdAt).toLocaleDateString(i18n.language, {
-          month: 'short',
-          day: 'numeric',
+        meta: fmt.date(company.createdAt, 'MMM d'),
+        to: panelHref(paths.contacts.companies, {
+          contentType: 'core:company',
+          contentId: company.id,
         }),
-        to: `/contacts/companies?panel=${encodeURIComponent(`/detail/company/${company.id}`)}`,
       }))}
     />
   );

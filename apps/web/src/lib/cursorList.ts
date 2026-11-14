@@ -7,6 +7,8 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query';
 import { EnumCursorDirection } from 'erxes-ui';
+import { tablePositionState } from 'erxes-ui/modules/record-table/states/RecordTableCursorState';
+import { useStore } from 'jotai';
 import { useEffect, useState } from 'react';
 
 export interface CursorPage<T> {
@@ -16,10 +18,6 @@ export interface CursorPage<T> {
   /** Big lists stop counting at `totalCount`: there are more. */
   totalCapped?: boolean;
 }
-
-/** A list's total as people read it: 1,234 or, when counting stopped, 10,000+. */
-export const formatTotal = (totalCount: number, capped?: boolean) =>
-  `${totalCount.toLocaleString('en')}${capped ? '+' : ''}`;
 
 export interface CursorParams {
   limit: number;
@@ -51,12 +49,6 @@ export const forwardPaging = (
       : undefined,
 });
 
-/** The row to reopen at: the one RecordTable remembered under these filters, else the top. */
-const rememberedStart = (sessionKey: string, filters: string) =>
-  sessionStorage.getItem(`${sessionKey}_filters`) === filters
-    ? (sessionStorage.getItem(sessionKey) ?? '')
-    : '';
-
 /**
  * A keyset-paged core list for `RecordTable.CursorProvider`: loads forward and
  * backward as the table scrolls, and reopens at the row the user last saw
@@ -81,12 +73,15 @@ export const useCursorList = <T extends { id: string }>({
   ) => UseInfiniteQueryOptions<CursorPage<T>, Error, CursorCache<T>, QueryKey, CursorParams>;
 }) => {
   const filtersKey = JSON.stringify(filters);
+  const store = useStore();
+  const position = tablePositionState(sessionKey);
 
-  const [opened, setOpened] = useState(() => ({
-    sessionKey,
-    filtersKey,
-    start: rememberedStart(sessionKey, filtersKey),
-  }));
+  // The row to reopen at: the one RecordTable remembered under these filters, else the top.
+  const [opened, setOpened] = useState(() => {
+    const saved = store.get(position);
+
+    return { sessionKey, filtersKey, start: saved.filters === filtersKey ? saved.row : '' };
+  });
 
   let { start } = opened;
 
@@ -98,14 +93,10 @@ export const useCursorList = <T extends { id: string }>({
 
   // RecordTable's remembered row and scroll belong to the filters recorded with them.
   useEffect(() => {
-    const recorded = `${sessionKey}_filters`;
-
-    if (sessionStorage.getItem(recorded) !== filtersKey) {
-      sessionStorage.removeItem(sessionKey);
-      sessionStorage.removeItem(`${sessionKey}_scroll`);
-      sessionStorage.setItem(recorded, filtersKey);
+    if (store.get(position).filters !== filtersKey) {
+      store.set(position, { filters: filtersKey, row: '', scroll: 0 });
     }
-  }, [sessionKey, filtersKey]);
+  }, [store, position, filtersKey]);
 
   const forward = forwardPaging(limit);
 
@@ -138,6 +129,7 @@ export const useCursorList = <T extends { id: string }>({
   };
 
   return {
+    sessionKey,
     list: pages.flatMap((page) => page.data),
     totalCount: pages[0]?.totalCount,
     totalCapped: pages[0]?.totalCapped ?? false,

@@ -1,16 +1,33 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
-function EmptyRoot({ className, ...props }: React.ComponentProps<'div'>) {
+const emptyVariants = cva(
+  'flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed text-center text-balance',
+  {
+    variants: {
+      variant: {
+        default: '',
+        /** A dashed outline on the page background, standing in for missing content. */
+        outline: 'border bg-background',
+      },
+      size: {
+        default: 'px-6 py-12 md:px-12',
+        /** Inside a card or a widget, where a page's spacing would crowd it. */
+        sm: 'p-6',
+      },
+    },
+    defaultVariants: { variant: 'default', size: 'default' },
+  },
+);
+
+function EmptyRoot({
+  className,
+  variant,
+  size,
+  ...props
+}: React.ComponentProps<'div'> & VariantProps<typeof emptyVariants>) {
   return (
-    <div
-      data-slot="empty"
-      className={cn(
-        'flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed px-6 py-12 text-center text-balance md:px-12',
-        className,
-      )}
-      {...props}
-    />
+    <div data-slot="empty" className={cn(emptyVariants({ variant, size, className }))} {...props} />
   );
 }
 

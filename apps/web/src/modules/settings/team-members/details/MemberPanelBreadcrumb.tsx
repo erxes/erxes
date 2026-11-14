@@ -3,7 +3,7 @@ import { Breadcrumb, buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { TEAM_MEMBERS_PATH } from '../constants';
+import { paths } from '~/lib/paths';
 
 export const MemberPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
@@ -14,7 +14,7 @@ export const MemberPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
       <Breadcrumb>
         <Breadcrumb.List className="min-w-0 flex-nowrap">
           <Breadcrumb.Item className="shrink-0">
-            <Link to={TEAM_MEMBERS_PATH} className={buttonVariants({ variant: 'ghost' })}>
+            <Link to={paths.settings.teamMembers} className={buttonVariants({ variant: 'ghost' })}>
               <IconUsers />
               {t('team-members', 'Team members')}
             </Link>

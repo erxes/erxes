@@ -7,15 +7,7 @@ import {
   openPopoverState,
 } from '../states/filterStates';
 
-export const FilterProvider = ({
-  children,
-  id,
-  sessionKey,
-}: {
-  children: React.ReactNode;
-  id: string;
-  sessionKey?: string;
-}) => {
+export const FilterProvider = ({ children, id }: { children: React.ReactNode; id: string }) => {
   const setOpen = useSetAtom(openPopoverState(id));
   const setView = useSetAtom(filterPopoverViewState(id));
   const setDialogView = useSetAtom(filterDialogViewState(id));
@@ -32,7 +24,6 @@ export const FilterProvider = ({
     <FilterContext.Provider
       value={{
         id,
-        sessionKey,
         resetFilterState,
         setOpen,
         setView,

@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { SubscriptionInfo } from '@erxes/core-contract';
 import { IconApps, IconCreditCard, IconExternalLink } from '@tabler/icons-react';
 import {
@@ -9,6 +10,7 @@ import {
   Spinner,
   PageHeader,
   buttonVariants,
+  useFormat,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -26,11 +28,9 @@ const ACCESS = {
   off: 'secondary',
 } as const;
 
-const day = (value: string) =>
-  new Date(value).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-
 const PluginRow = ({ plugin }: { plugin: Row }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+  const fmt = useFormat();
 
   return (
     <li className="flex flex-wrap items-center gap-3 p-3 text-sm">
@@ -52,7 +52,7 @@ const PluginRow = ({ plugin }: { plugin: Row }) => {
       {plugin.readOnlyUntil && (
         <span className="text-xs text-destructive">
           {t('read-only-until', 'read-only until {{date}}, then off', {
-            date: day(plugin.readOnlyUntil),
+            date: fmt.date(plugin.readOnlyUntil),
           })}
         </span>
       )}
@@ -141,7 +141,7 @@ export const PlanPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'Plan'), to: '/settings/plan', icon: IconCreditCard }]}
+            items={[{ label: t('title', 'Plan'), to: paths.settings.plan, icon: IconCreditCard }]}
           />
         </PageHeader.Start>
         {data?.manageUrl && (

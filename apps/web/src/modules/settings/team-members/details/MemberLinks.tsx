@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { USER_LINK_FIELDS } from '../constants';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 import { MemberPanelTextField } from './MemberFieldInputs';
-import { PanelField } from './PanelField';
+import { PanelField } from '~/modules/side-panel/PanelField';
 
 const toLinkUrl = (linkField: string, value: string) => {
   const trimmed = value.trim();

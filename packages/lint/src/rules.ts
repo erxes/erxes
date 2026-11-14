@@ -98,7 +98,51 @@ export const browserRules = {
   // The automatic JSX runtime (jsx: react-jsx) needs no React in scope.
   'react/react-in-jsx-scope': 'off',
   'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],
+  // Shortcuts go through react-hotkeys-hook, which skips inputs and editors.
+  'erxes/no-key-listener': 'error',
 } satisfies OxlintConfig['rules'];
+
+// Dates, times and numbers people read are formatted in one place, in the UI's language.
+const formatMessage = "Format through useFormat() (or formatter(language)) from 'erxes-ui'.";
+
+// What the browser keeps goes through one atom per key, read through its zod schema.
+const storageMessage =
+  "Keep it with stored() or storedFamily() from 'erxes-ui', under an erxes:<area>:<name> key.";
+
+const storageGlobals = ['localStorage', 'sessionStorage'];
+
+/**
+ * The `no-restricted-*` entries for browser code: erxes-ui formats every date and number and keeps
+ * everything the browser stores, so no screen calls Intl, toLocale* or Web Storage itself.
+ */
+export const browserOneWay = {
+  format: [
+    ...['toLocaleString', 'toLocaleDateString', 'toLocaleTimeString'].map((property) => ({
+      property,
+      message: formatMessage,
+    })),
+    ...['DateTimeFormat', 'NumberFormat', 'RelativeTimeFormat'].map((property) => ({
+      object: 'Intl',
+      property,
+      message: formatMessage,
+    })),
+  ],
+  storage: {
+    globals: storageGlobals.map((name) => ({ name, message: storageMessage })),
+    properties: storageGlobals.map((property) => ({
+      object: 'window',
+      property,
+      message: storageMessage,
+    })),
+    imports: [
+      {
+        name: 'jotai/utils',
+        importNames: ['atomWithStorage', 'createJSONStorage'],
+        message: storageMessage,
+      },
+    ],
+  },
+};
 
 // What a screen may put on a component's className: layout, and opacity to reveal a control on
 // hover. The globs are layout too: shadcn-lint 0.2.5 reads no grid, max-width, max-height or

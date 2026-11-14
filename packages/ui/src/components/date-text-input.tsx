@@ -4,12 +4,12 @@ import { useState } from 'react';
 import type { Matcher } from 'react-day-picker';
 import { dateMatchModifiers } from 'react-day-picker';
 import { cn } from '../lib/utils';
-import { formatWith, maskInputText, parseInputDate } from './date-picker-value';
+import { toIsoDay, useFormat } from '../lib/format';
+import { maskInputText, parseInputDate } from './date-picker-value';
 
 type DateDraftOptions = {
   singleDate?: Date;
   onChange: (date: Date | null) => void;
-  format: string;
   bounds: { minBound?: Date; maxBound?: Date };
   calendarDisabled: Matcher[];
   clearable: boolean;
@@ -20,7 +20,6 @@ type DateDraftOptions = {
 const useDateDraft = ({
   singleDate,
   onChange,
-  format,
   bounds,
   calendarDisabled,
   clearable,
@@ -30,7 +29,7 @@ const useDateDraft = ({
   const singleTime = singleDate?.getTime();
 
   const parseDraft = (text: string | null, loose: boolean) => {
-    const date = text ? parseInputDate(text, format, { ...bounds, loose }) : undefined;
+    const date = text ? parseInputDate(text, { ...bounds, loose }) : undefined;
 
     return date && !dateMatchModifiers(date, calendarDisabled) ? date : undefined;
   };
@@ -40,7 +39,7 @@ const useDateDraft = ({
   };
 
   const handleChange = (text: string) => {
-    const masked = maskInputText(text, format);
+    const masked = maskInputText(text);
     setDraft(masked);
 
     if (masked) {
@@ -61,7 +60,7 @@ const useDateDraft = ({
     const typed = e.key === 'Enter' ? parseDraft(draft, true) : undefined;
 
     if (typed && typed.getTime() !== singleTime) {
-      setDraft(formatWith(typed, format));
+      setDraft(toIsoDay(typed));
       onChange(typed);
     } else if (opensPopover) {
       onOpen?.();
@@ -73,8 +72,7 @@ const useDateDraft = ({
     setDraft,
     handleChange,
     handleKeyDown,
-    handleFocus: () =>
-      setDraft((current) => current ?? (singleDate ? formatWith(singleDate, format) : '')),
+    handleFocus: () => setDraft((current) => current ?? (singleDate ? toIsoDay(singleDate) : '')),
     handleBlur: () => {
       changeTo(parseDraft(draft, true));
       setDraft(null);
@@ -83,7 +81,6 @@ const useDateDraft = ({
 };
 
 type DateTextInputProps = DateDraftOptions & {
-  displayFormat: string;
   clearLabel: string;
   isDisabled: boolean;
   placeholder: string;
@@ -92,9 +89,8 @@ type DateTextInputProps = DateDraftOptions & {
   onClear: () => void;
 };
 
-/** Typed date entry for single mode: the display format at rest, the edit format while typing. */
+/** Typed date entry for single mode: the date in the UI's language at rest, `yyyy-MM-dd` while typing. */
 export const DateTextInput = ({
-  displayFormat,
   clearLabel,
   isDisabled,
   placeholder,
@@ -106,8 +102,9 @@ export const DateTextInput = ({
   const { draft, setDraft, handleChange, handleKeyDown, handleFocus, handleBlur } =
     useDateDraft(options);
 
+  const fmt = useFormat();
   const { singleDate } = options;
-  const inputText = draft ?? (singleDate ? formatWith(singleDate, displayFormat) : '');
+  const inputText = draft ?? (singleDate ? fmt.date(singleDate) : '');
 
   return (
     <div

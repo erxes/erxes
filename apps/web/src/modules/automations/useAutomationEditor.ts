@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type {
   Automation,
   AutomationDefinition,
@@ -133,7 +134,7 @@ export const useAutomationMutations = (id: string, onProblems: (problems: string
     orpc.automations.remove.mutationOptions({
       onSuccess: () => {
         void client.invalidateQueries({ queryKey: orpc.automations.list.key() });
-        void navigate('/automations');
+        void navigate(paths.automations.list);
       },
       onError,
     }),

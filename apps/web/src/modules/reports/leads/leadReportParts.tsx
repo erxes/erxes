@@ -1,6 +1,6 @@
 import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
-import { cn, MemberInline, Tooltip } from 'erxes-ui';
+import { Empty, cn, MemberInline, Tooltip, useFormat } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useLeadReport } from '~/modules/leads/useLeads';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
@@ -73,7 +73,7 @@ const Bar = ({ value, max, label }: { value: number; max: number; label: string 
     <Tooltip.Trigger delay={100} aria-label={label} className="flex h-5 min-w-0 flex-1">
       <span className="flex flex-1 items-center gap-2">
         <span className="w-10 shrink-0 text-left text-sm tabular-nums">
-          {value.toLocaleString('en')}
+          {useFormat().number(value)}
         </span>
         <span className="h-2.5 flex-1">
           <span
@@ -92,6 +92,7 @@ const Bar = ({ value, max, label }: { value: number; max: number; label: string 
 /** New leads, conversions, rate and time to convert. */
 export const LeadSummary = ({ report, compact }: { report: LeadReport; compact?: boolean }) => {
   const t = useLeadsT();
+  const fmt = useFormat();
 
   return (
     <div
@@ -100,15 +101,11 @@ export const LeadSummary = ({ report, compact }: { report: LeadReport; compact?:
         compact ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 md:grid-cols-4',
       )}
     >
-      <Stat
-        compact={compact}
-        label={t('report.new-leads')}
-        value={report.created.toLocaleString('en')}
-      />
+      <Stat compact={compact} label={t('report.new-leads')} value={fmt.number(report.created)} />
       <Stat
         compact={compact}
         label={t('report.became-customers')}
-        value={report.converted.toLocaleString('en')}
+        value={fmt.number(report.converted)}
         hint={t('report.disqualified', { count: report.disqualified })}
       />
       <Stat
@@ -185,6 +182,7 @@ const CohortTable = ({
   label: string;
 }) => {
   const t = useLeadsT();
+  const fmt = useFormat();
   const max = Math.max(...rows.map((row) => row.count), 1);
 
   return rows.length ? (
@@ -201,7 +199,7 @@ const CohortTable = ({
             max={max}
             label={t('report.bar-cohort', { count: row.count, converted: row.converted })}
           />
-          <span className="text-right tabular-nums">{row.converted.toLocaleString('en')}</span>
+          <span className="text-right tabular-nums">{fmt.number(row.converted)}</span>
           <span className="text-right tabular-nums text-muted-foreground">
             {percent(row.count ? row.converted / row.count : 0)}
           </span>
@@ -209,7 +207,9 @@ const CohortTable = ({
       ))}
     </div>
   ) : (
-    <p className="py-4 text-center text-sm text-muted-foreground">{t('report.no-leads')}</p>
+    <Empty size="sm">
+      <Empty.Description>{t('report.no-leads')}</Empty.Description>
+    </Empty>
   );
 };
 
@@ -266,6 +266,8 @@ export const LeadReasons = ({ report }: { report: LeadReport }) => {
       ))}
     </div>
   ) : (
-    <p className="py-4 text-center text-sm text-muted-foreground">{t('report.no-reasons')}</p>
+    <Empty size="sm">
+      <Empty.Description>{t('report.no-reasons')}</Empty.Description>
+    </Empty>
   );
 };

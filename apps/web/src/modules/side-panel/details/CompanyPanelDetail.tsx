@@ -6,7 +6,7 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { NumberField, Spinner } from 'erxes-ui';
+import { NumberField, Spinner, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
@@ -63,6 +63,7 @@ const CompanyTextRow = ({
 /** Business type, industries and size. */
 const CompanyBusinessSection = ({ company }: { company: Company }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
+  const fmt = useFormat();
   const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const edit = useCompanyEdit();
   const noSize = company.size == null;
@@ -79,7 +80,7 @@ const CompanyBusinessSection = ({ company }: { company: Company }) => {
         <NumberField
           scope={`${SCOPE}.size`}
           value={company.size ?? 0}
-          formatValue={(value) => (noSize ? t('field.size', 'Size') : value.toLocaleString())}
+          formatValue={(value) => (noSize ? t('field.size', 'Size') : fmt.number(value))}
           variant="field"
           empty={noSize}
           onSave={(size) => {

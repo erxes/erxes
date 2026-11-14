@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { TrashItem } from '@erxes/core-contract';
 import { IconRestore, IconTrash, IconTrashX } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -171,7 +172,7 @@ export const RecycleBinPage = () => {
     orpc.trash.list.queryOptions({ input: can('contacts.delete') ? { limit: 500 } : skipToken }),
   );
 
-  if (!can('contacts.delete')) return <Navigate to="/settings" replace />;
+  if (!can('contacts.delete')) return <Navigate to={paths.settings.root} replace />;
 
   const toggle = (id: string, on: boolean) =>
     setSelected((current) => {
@@ -189,7 +190,7 @@ export const RecycleBinPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Recycle bin'), to: '/settings/recycle-bin', icon: IconTrash },
+              { label: t('title', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash },
             ]}
           />
         </PageHeader.Start>

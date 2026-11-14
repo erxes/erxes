@@ -4,6 +4,21 @@ import { useTranslation } from 'react-i18next';
 import { isApiError } from '@erxes/core-contract/client';
 import { RecordSidePanel } from './RecordSidePanel';
 
+/** Why a panel shows no record, under a header of its own. */
+export const PanelMessage = ({ title, description }: { title: string; description: string }) => (
+  <div className="flex flex-1 items-center justify-center p-6">
+    <Empty>
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconLayoutSidebarRight />
+        </Empty.Media>
+        <Empty.Title>{title}</Empty.Title>
+        <Empty.Description>{description}</Empty.Description>
+      </Empty.Header>
+    </Empty>
+  </div>
+);
+
 /** Explains empty and failed records without mounting their editors. */
 export const SidePanelEmpty = ({
   title,
@@ -21,17 +36,7 @@ export const SidePanelEmpty = ({
   return (
     <>
       <RecordSidePanel.Header title={t('title', 'Side panel')} onBack={onBack} onClose={onClose} />
-      <div className="flex flex-1 items-center justify-center p-6">
-        <Empty>
-          <Empty.Header>
-            <Empty.Media variant="icon">
-              <IconLayoutSidebarRight />
-            </Empty.Media>
-            <Empty.Title>{title}</Empty.Title>
-            <Empty.Description>{description}</Empty.Description>
-          </Empty.Header>
-        </Empty>
-      </div>
+      <PanelMessage title={title} description={description} />
     </>
   );
 };

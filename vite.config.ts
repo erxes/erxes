@@ -35,7 +35,8 @@ export default defineConfig({
     tasks: {
       // A rerun with no edits replays the last result.
       check: {
-        command: `${tsrs} vp check && knip && node tools/check-docs.ts && node tools/check-escapes.ts`,
+        // jscpd fails on any copy of 80 tokens or more in apps/web and erxes-ui (.jscpd.json).
+        command: `${tsrs} vp check && knip && jscpd && node tools/check-docs.ts && node tools/check-escapes.ts`,
         cache: tracked,
       },
       fix: { command: `${tsrs} vp check --fix`, cache: false },

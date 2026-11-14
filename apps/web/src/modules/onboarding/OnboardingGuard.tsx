@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import { useSession } from '~/modules/auth/session';
-
-/** Where first sign-in onboarding lives. */
-const ONBOARDING_PATH = '/welcome';
 
 /** Whether the signed-in user still has to go through the welcome steps. */
 export const useNeedsOnboarding = () => {
@@ -18,7 +16,7 @@ export const OnboardingGuard = ({ children }: { children: ReactNode }) => {
   const needsOnboarding = useNeedsOnboarding();
 
   if (needsOnboarding) {
-    return <Navigate to={ONBOARDING_PATH} replace />;
+    return <Navigate to={paths.welcome} replace />;
   }
 
   return <>{children}</>;

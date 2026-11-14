@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { usePreviousHotkeyScope } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
@@ -78,7 +79,7 @@ export const MainOnboarding = () => {
 
   useWelcomeHotkeyScope();
 
-  if (!needsOnboarding) return <Navigate to="/" replace />;
+  if (!needsOnboarding) return <Navigate to={paths.home} replace />;
 
   if (settingUp) {
     return (
@@ -86,7 +87,7 @@ export const MainOnboarding = () => {
         exampleData={isOwner && exampleData}
         onDone={() => {
           setCurrentStep(1);
-          void navigate('/', { replace: true });
+          void navigate(paths.home, { replace: true });
         }}
       />
     );

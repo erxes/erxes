@@ -189,11 +189,44 @@ const noDtoMapperRule = defineRule({
   },
 });
 
-/** Rules for how erxes code talks to Postgres and shapes API output, in core and plugins. */
+const KEY_EVENTS = new Set(['keydown', 'keyup', 'keypress']);
+
+/** `x.addEventListener('keydown', ...)`: shortcuts go through react-hotkeys-hook. */
+const noKeyListenerRule = defineRule({
+  meta: {
+    type: 'suggestion',
+    docs: { description: 'Disallow raw keyboard listeners: shortcuts use react-hotkeys-hook.' },
+    messages: {
+      listener:
+        "Bind keys with useHotkeys from 'react-hotkeys-hook', or erxes-ui's useScopedHotkeys, which skip typing in inputs and editors.",
+    },
+  },
+  createOnce(context) {
+    return {
+      CallExpression(node) {
+        const { callee } = node;
+        const [event] = node.arguments;
+
+        if (
+          callee.type === 'MemberExpression' &&
+          callee.property.type === 'Identifier' &&
+          callee.property.name === 'addEventListener' &&
+          event?.type === 'Literal' &&
+          typeof event.value === 'string' &&
+          KEY_EVENTS.has(event.value)
+        )
+          context.report({ node, messageId: 'listener' });
+      },
+    };
+  },
+});
+
+/** Rules for how erxes code talks to Postgres, shapes API output and binds keys, in core and plugins. */
 const erxesPlugin = eslintCompatPlugin({
   meta: { name: 'erxes' },
   rules: {
     'no-dto-mapper': noDtoMapperRule,
+    'no-key-listener': noKeyListenerRule,
     'no-org-filter': noOrgFilterRule,
     'no-session-advisory-lock': noSessionAdvisoryLockRule,
     'no-undefined-spread': noUndefinedSpreadRule,

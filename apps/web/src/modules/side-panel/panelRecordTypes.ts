@@ -2,7 +2,7 @@ import type { ComponentType } from 'react';
 import { getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
 import { ProductPanel } from '~/modules/products/panel/ProductPanel';
 import { ProductPanelNew } from '~/modules/products/panel/ProductPanelNew';
-import { PRODUCTS_PATH } from '~/modules/products/paths';
+import { paths } from '~/lib/paths';
 import { CompanyPanelNew } from './details/CompanyPanelNew';
 import { CustomerPanelNew } from './details/CustomerPanelNew';
 import type { IRecordViewProps } from './recordView';
@@ -33,7 +33,7 @@ const PANEL_RECORD_TYPES = {
   'core:product': {
     View: ProductPanel,
     New: ProductPanelNew,
-    listPath: () => PRODUCTS_PATH,
+    listPath: () => paths.products.list,
   },
 } satisfies Record<string, IPanelRecordType>;
 

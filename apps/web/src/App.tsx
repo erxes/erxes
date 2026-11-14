@@ -1,11 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Button, Spinner, Toaster } from 'erxes-ui';
-import { Provider as JotaiProvider } from 'jotai';
+import { useQueryState } from 'nuqs';
+import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import { Suspense } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { CrashBoundary } from '~/components/CrashBoundary';
 import { messageOf } from '@erxes/core-contract/client';
+import { paths } from '~/lib/paths';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { ThemeEffect } from '~/modules/app/ThemeEffect';
 import {
@@ -41,7 +43,7 @@ const queryClient = new QueryClient({
 });
 
 /** Links from emails work signed in or not: they sign in when done. */
-const LINK_PAGES = new Set(['/reset-password', '/accept-invitation']);
+const LINK_PAGES = new Set<string>([paths.resetPassword, paths.acceptInvitation]);
 
 const FullScreenSpinner = () => (
   <div className="flex h-svh items-center justify-center">
@@ -72,7 +74,7 @@ const SignedOut = () => {
 
   return (
     <Routes>
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path={paths.forgotPassword} element={<ForgotPasswordPage />} />
       <Route path="*" element={<SignInPage />} />
     </Routes>
   );
@@ -82,9 +84,10 @@ const SignedOut = () => {
 const Screen = () => {
   const { pathname } = useLocation();
   const session = useSessionQuery();
+  const [next] = useQueryState('next');
 
   if (LINK_PAGES.has(pathname)) {
-    return pathname === '/reset-password' ? <ResetPasswordPage /> : <AcceptInvitationPage />;
+    return pathname === paths.resetPassword ? <ResetPasswordPage /> : <AcceptInvitationPage />;
   }
 
   if (session.isPending) return <FullScreenSpinner />;
@@ -96,7 +99,6 @@ const Screen = () => {
   }
 
   // Signed in on the way to "Sign in with erxes": continue to the app that asked.
-  const next = new URLSearchParams(window.location.search).get('next');
 
   if (next?.startsWith('/core/v1/oauth/authorize?')) {
     window.location.assign(next);
@@ -114,8 +116,11 @@ const Screen = () => {
 export const App = () => (
   <QueryClientProvider client={queryClient}>
     <I18nextProvider i18n={i18n}>
-      <JotaiProvider>
-        <BrowserRouter>
+      {/* Jotai runs on its default store, which i18n also reads the saved language from. */}
+      <BrowserRouter>
+        {/* Query state goes through the router (not shallow), so useLocation sees it and
+              history state such as the side panel's tabs survives; a change adds a history entry. */}
+        <NuqsAdapter defaultOptions={{ shallow: false, history: 'push' }}>
           <Toaster />
           <ThemeEffect />
           <CrashBoundary scope="app">
@@ -123,8 +128,8 @@ export const App = () => (
               <Screen />
             </Suspense>
           </CrashBoundary>
-        </BrowserRouter>
-      </JotaiProvider>
+        </NuqsAdapter>
+      </BrowserRouter>
     </I18nextProvider>
   </QueryClientProvider>
 );

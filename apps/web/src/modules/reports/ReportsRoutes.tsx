@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { paths } from '~/lib/paths';
 import type { LeadReport } from '@erxes/core-contract';
 import { IconChartFunnel, type TablerIcon } from '@tabler/icons-react';
 import {
@@ -10,9 +10,9 @@ import {
   Sidebar,
   Skeleton,
   Tooltip,
-  useQueryState,
   PageHeader,
 } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
 import type { ReactNode } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -29,8 +29,8 @@ import {
 import { useLeadsT } from '~/modules/leads/i18n';
 
 /** The reports the app lists; plugins will add theirs here. */
-const REPORTS: { path: string; label: string; icon: TablerIcon }[] = [
-  { path: 'leads', label: 'report.leads', icon: IconChartFunnel },
+const REPORTS: { to: string; label: string; icon: TablerIcon }[] = [
+  { to: paths.reports.leads, label: 'report.leads', icon: IconChartFunnel },
 ];
 
 const ReportsNavigation = () => {
@@ -41,12 +41,9 @@ const ReportsNavigation = () => {
     <Sidebar.Group variant="flush">
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          {REPORTS.map(({ path, label, icon: Icon }) => (
-            <Sidebar.MenuItem key={path}>
-              <Sidebar.MenuButton
-                isActive={pathname.startsWith(`/reports/${path}`)}
-                render={<Link to={`/reports/${path}`} />}
-              >
+          {REPORTS.map(({ to, label, icon: Icon }) => (
+            <Sidebar.MenuItem key={to}>
+              <Sidebar.MenuButton isActive={pathname.startsWith(to)} render={<Link to={to} />}>
                 <Icon />
                 <span>{t(label)}</span>
               </Sidebar.MenuButton>
@@ -123,8 +120,8 @@ const LeadReportSections = ({ report }: { report: LeadReport }) => {
  */
 export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }) => {
   const t = useLeadsT();
-  const [kind, setKind] = useQueryState('kind', z.string());
-  const [daysParam, setDays] = useQueryState('days', z.string());
+  const [kind, setKind] = useQueryState('kind');
+  const [daysParam, setDays] = useQueryState('days');
   const recordType = kind === 'companies' ? 'company' : 'customer';
   const days = REPORT_RANGES.find((range) => range === daysParam) ?? '30';
   const { data: report, error, isPending } = useLeadReportFor(recordType, Number(days));
@@ -139,18 +136,18 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
                 ? [
                     {
                       label: t('report.leads'),
-                      to: '/contacts/leads',
+                      to: paths.contacts.leads,
                       icon: IconChartFunnel,
                     },
-                    { label: t('insights'), to: '/contacts/leads/insights' },
+                    { label: t('insights'), to: paths.contacts.insights },
                   ]
                 : [
                     {
                       label: t('report.reports'),
-                      to: '/reports',
+                      to: paths.reports.list,
                       icon: IconChartFunnel,
                     },
-                    { label: t('report.leads'), to: '/reports/leads' },
+                    { label: t('report.leads'), to: paths.reports.leads },
                   ]
             }
           />
@@ -158,7 +155,7 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
         <PageHeader.End>
           <Select
             value={recordType}
-            onValueChange={(next) => setKind(next === 'company' ? 'companies' : null)}
+            onValueChange={(next) => void setKind(next === 'company' ? 'companies' : null)}
           >
             <LabelledTrigger label={t('report.kind-label')} className="w-32" />
             <Select.Content>
@@ -166,7 +163,7 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
               <Select.Item value="company">{t('companies')}</Select.Item>
             </Select.Content>
           </Select>
-          <Select value={days} onValueChange={(next) => setDays(next === '30' ? null : next)}>
+          <Select value={days} onValueChange={(next) => void setDays(next === '30' ? null : next)}>
             <LabelledTrigger label={t('report.period-label')} className="w-40" />
             <Select.Content>
               {REPORT_RANGES.map((range) => (
@@ -201,9 +198,9 @@ export const ReportsRoutes = () => {
       <AppLayout id="reports" title={t('report.reports')} sidebar={<ReportsNavigation />}>
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <Routes>
-            <Route index element={<Navigate to="leads" replace />} />
+            <Route index element={<Navigate to={paths.reports.leads} replace />} />
             <Route path="leads" element={<LeadsReportPage />} />
-            <Route path="*" element={<Navigate to="/reports/leads" replace />} />
+            <Route path="*" element={<Navigate to={paths.reports.leads} replace />} />
           </Routes>
         </div>
       </AppLayout>

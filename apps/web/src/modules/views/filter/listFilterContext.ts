@@ -42,8 +42,8 @@ export const useFieldOptions = (field: ListField) => {
 
   if (field.type === 'member') {
     return {
+      ...members,
       options: [{ value: 'me', label: t('me') }, ...members.options],
-      error: members.error,
     };
   }
 
@@ -54,6 +54,7 @@ export const useFieldOptions = (field: ListField) => {
       value,
       label: optionLabel?.(field.path, value) ?? value,
     })),
+    loading: false,
     error: null,
   };
 };

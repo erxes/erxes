@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconBell, IconChecks, IconInbox } from '@tabler/icons-react';
 import { Button, cn, Popover, ScrollArea, buttonVariants } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -74,7 +75,7 @@ const BellHeader = ({
           {t('mark-all-read', 'Mark all read')}
         </Button>
         <Link
-          to={source ? `/notifications/${source}` : '/notifications'}
+          to={source ? paths.notificationSource(source) : paths.notifications}
           onClick={onLeave}
           aria-label={t('open-inbox', 'Open inbox')}
           className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-7')}

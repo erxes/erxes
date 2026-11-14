@@ -8,12 +8,12 @@ import {
   Textarea,
   TextField,
   useToast,
+  toIsoDay,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toYmd } from '~/components/inlineCells';
 import { formatMemberDate, ymdToDate } from '../record/TeamMemberInlineFields';
-import { PanelFieldTrigger } from './PanelField';
+import { PanelFieldTrigger } from '~/modules/side-panel/PanelField';
 
 export const MEMBER_PANEL_SCOPE = 'team-member-panel';
 
@@ -83,7 +83,7 @@ export const MemberDateField = ({
         <DatePicker
           defaultMonth={date ? ymdToDate(date) : undefined}
           value={date ? ymdToDate(date) : undefined}
-          onChange={(next) => setDate(next instanceof Date ? toYmd(next) : null)}
+          onChange={(next) => setDate(next instanceof Date ? toIsoDay(next) : null)}
         />
       </RecordTableInlineCell.Content>
     </Popover>

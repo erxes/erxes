@@ -131,7 +131,7 @@ export const contactsSearchAndPanel = async (page: Page) => {
 };
 
 export const board = async (page: Page) => {
-  await page.evaluate(() => localStorage.setItem('erxes_leads_view', JSON.stringify('board')));
+  await page.evaluate(() => localStorage.setItem('erxes:leads:view', JSON.stringify('board')));
   await page.goto(`/contacts/leads`);
   await page.locator('[aria-roledescription=draggable]').first().waitFor();
   await settle(page);
@@ -167,7 +167,7 @@ export const board = async (page: Page) => {
     return samples;
   });
 
-  await page.evaluate(() => localStorage.setItem('erxes_leads_view', JSON.stringify('table')));
+  await page.evaluate(() => localStorage.setItem('erxes:leads:view', JSON.stringify('table')));
 
   // The first moves activate the drag; the rest are steady state.
   return { 'lead board: drag a card': summarize(moves.slice(2)) };

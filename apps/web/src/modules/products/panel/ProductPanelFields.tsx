@@ -15,7 +15,7 @@ import {
   RecordTableInlineCell,
   TextField,
 } from 'erxes-ui';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
 import { PanelField, PanelFieldTrigger } from '~/modules/side-panel/PanelField';
@@ -175,10 +175,17 @@ export const ProductPluginsRow = ({ product }: { product: Product }) => {
   const edit = useProductEdit();
   const { plugins, error } = useInstalledPlugins();
   const options = plugins.map((plugin) => ({ value: plugin.name, label: plugin.title }));
+  const inputId = useId();
 
   return (
-    <PanelField icon={IconPlug} label={t('fields.plugins', 'Used by')} cell={false}>
+    <PanelField
+      icon={IconPlug}
+      label={t('fields.plugins', 'Used by')}
+      htmlFor={inputId}
+      cell={false}
+    >
       <MultipleSelector
+        id={inputId}
         value={product.plugins.map((name) => ({ value: name, label: pluginTitle(plugins, name) }))}
         onChange={(chosen) =>
           edit.mutate({ id: product.id, plugins: chosen.map((option) => option.value) })

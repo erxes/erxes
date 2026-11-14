@@ -1,7 +1,17 @@
+import { paths } from '~/lib/paths';
 import type { AutomationRun, RunStep } from '@erxes/core-contract';
 import { IconPlayerStop, IconRefresh } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, cn, Empty, RelativeDateDisplay, ScrollArea, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  cn,
+  Empty,
+  RelativeDateDisplay,
+  ScrollArea,
+  useToast,
+  useFormat,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -119,6 +129,7 @@ const RunActions = ({ run }: { run: AutomationRun }) => {
 
 const RunDetail = ({ run }: { run: AutomationRun }) => {
   const { t } = useTranslation('automations');
+  const fmt = useFormat();
   const canManage = useCan()('automations.manage');
 
   const detail = useQuery(
@@ -136,7 +147,11 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
         {run.subjectType && run.subjectId && (
           <Link
             className="text-sm underline"
-            to={`/contacts/${run.subjectType === 'customer' ? 'customers' : 'companies'}/${run.subjectId}`}
+            to={
+              run.subjectType === 'customer'
+                ? paths.contacts.customer(run.subjectId)
+                : paths.contacts.company(run.subjectId)
+            }
           >
             {t('open-subject', 'Open the {{type}}', { type: run.subjectType })}
           </Link>
@@ -153,7 +168,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
       )}
       {run.waitingUntil && (
         <p className="text-sm text-muted-foreground">
-          {t('waiting-until', 'Waiting until')} {new Date(run.waitingUntil).toLocaleString()}
+          {t('waiting-until', 'Waiting until')} {fmt.dateTime(run.waitingUntil)}
         </p>
       )}
       <QueryState query={detail} className="py-4">

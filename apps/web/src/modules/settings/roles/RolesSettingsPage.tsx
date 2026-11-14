@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { PermissionInfo, Role } from '@erxes/core-contract';
 import { IconPlus, IconShieldHalf } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -95,7 +96,7 @@ export const RolesSettingsPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'Roles'), to: '/settings/roles', icon: IconShieldHalf }]}
+            items={[{ label: t('title', 'Roles'), to: paths.settings.roles, icon: IconShieldHalf }]}
           />
         </PageHeader.Start>
         <PageHeader.End>

@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { IconUserCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
@@ -20,7 +21,7 @@ export const ProfileSettingsPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Profile'), to: '/settings/profile', icon: IconUserCircle },
+              { label: t('title', 'Profile'), to: paths.settings.profile, icon: IconUserCircle },
             ]}
           />
         </PageHeader.Start>

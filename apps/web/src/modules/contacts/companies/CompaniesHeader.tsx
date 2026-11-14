@@ -3,7 +3,7 @@ import { Button, Kbd, PageHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
-import { useCreateHotkey } from '../customers/CustomersHeader';
+import { usePageHotkey } from '~/lib/usePageHotkey';
 import { ExportButton } from '~/modules/transfer/ExportButton';
 import { ImportButton } from '~/modules/transfer/ImportButton';
 
@@ -14,7 +14,7 @@ const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'custome
 
   const create = () => openNewRecord('core:company', { state });
 
-  useCreateHotkey(create);
+  usePageHotkey('c', create);
 
   return (
     <Button onClick={create}>

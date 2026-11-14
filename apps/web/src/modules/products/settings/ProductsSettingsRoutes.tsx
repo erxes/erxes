@@ -1,68 +1,36 @@
-import { IconCategory, IconChevronLeft, IconHierarchy2 } from '@tabler/icons-react';
-import { AppLayout, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { IconCategory, IconHierarchy2 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Link, Navigate, Route, Routes } from 'react-router-dom';
-import { PageOutlet } from '~/components/CrashBoundary';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AppSettingsLayout } from '~/components/AppSettingsLayout';
 import { PropertiesSettingsRoutes } from '~/modules/settings/properties/PropertiesSettingsRoutes';
-import { PRODUCTS_PATH } from '../paths';
+import { paths } from '~/lib/paths';
 import { CategoriesPage } from './CategoriesPage';
 
 const PRODUCT_PROPERTY_TYPES = ['product'] as const;
 
 /** Products › Settings, as Contacts keeps its own: "Exit settings" goes back to the catalog. */
-const ProductsSettingsSidebar = () => {
+const ProductsSettingsLayout = () => {
   const { t } = useTranslation('product');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
 
-  const items = [
-    { name: t('settings.categories', 'Categories'), path: 'categories', icon: IconCategory },
-    { name: sidebarT('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
-  ];
-
   return (
-    <>
-      <Sidebar.Header variant="sticky">
-        <Sidebar.Menu>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton render={<Link to={PRODUCTS_PATH} />}>
-              <IconChevronLeft />
-              <span>{sidebarT('exit-settings', 'Exit settings')}</span>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        </Sidebar.Menu>
-      </Sidebar.Header>
-      <Sidebar.Content>
-        <Sidebar.Group>
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              {items.map((item) => (
-                <NavigationMenuLinkItem
-                  key={item.path}
-                  pathPrefix="products/settings"
-                  path={item.path}
-                  name={item.name}
-                  icon={item.icon}
-                />
-              ))}
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
-        </Sidebar.Group>
-      </Sidebar.Content>
-    </>
-  );
-};
-
-const ProductsSettingsLayout = () => {
-  const { t } = useTranslation('product');
-
-  return (
-    <AppLayout
+    <AppSettingsLayout
       id="products-settings"
       title={t('settings.title', 'Products settings')}
-      sidebar={<ProductsSettingsSidebar />}
-    >
-      <PageOutlet />
-    </AppLayout>
+      exitTo={paths.products.list}
+      items={[
+        {
+          name: t('settings.categories', 'Categories'),
+          to: paths.products.categories,
+          icon: IconCategory,
+        },
+        {
+          name: sidebarT('properties', 'Properties'),
+          to: paths.products.properties,
+          icon: IconHierarchy2,
+        },
+      ]}
+    />
   );
 };
 
@@ -70,13 +38,13 @@ const ProductsSettingsLayout = () => {
 export const ProductsSettingsRoutes = () => (
   <Routes>
     <Route element={<ProductsSettingsLayout />}>
-      <Route index element={<Navigate to="categories" replace />} />
+      <Route index element={<Navigate to={paths.products.categories} replace />} />
       <Route path="categories" element={<CategoriesPage />} />
       <Route
         path="properties/*"
         element={<PropertiesSettingsRoutes types={PRODUCT_PROPERTY_TYPES} />}
       />
-      <Route path="*" element={<Navigate to="/products/settings/categories" replace />} />
+      <Route path="*" element={<Navigate to={paths.products.categories} replace />} />
     </Route>
   </Routes>
 );

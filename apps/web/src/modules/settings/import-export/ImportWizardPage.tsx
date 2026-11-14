@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { paths } from '~/lib/paths';
 import { importQuery } from '~/modules/transfer/useTransfer';
 import { ErrorRows, ImportProgress, ImportSummary } from './ImportResults';
 import { type ImportChanges, ImportMapping, ImportOptionsForm } from './ImportSetup';
@@ -128,10 +128,10 @@ export const ImportWizardPage = () => {
             items={[
               {
                 label: t('title', 'Import & export history'),
-                to: CONTACT_SETTINGS.importExport,
+                to: paths.contacts.importExport,
                 icon: IconFileImport,
               },
-              { label: imp.fileName, to: `${CONTACT_SETTINGS.importExport}/${id}` },
+              { label: imp.fileName, to: paths.contacts.importOrExport(id) },
             ]}
           />
         </PageHeader.Start>

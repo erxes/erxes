@@ -19,7 +19,7 @@ import {
   MemberPanelTextField,
   MemberPhoneField,
 } from './MemberFieldInputs';
-import { PanelField, PanelFieldTrigger } from './PanelField';
+import { PanelField, PanelFieldTrigger } from '~/modules/side-panel/PanelField';
 
 /** Edits a member's name in the panel's top bar, as a customer's is edited. */
 export const MemberPanelName = ({ user }: { user: User }) => {

@@ -1,5 +1,5 @@
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
-import { Button, cn, Collapsible, InputGroup } from 'erxes-ui';
+import { Button, cn, Collapsible, Empty, InputGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../context/DashboardProvider';
 import { type TDashboardCatalogEntry, useDashboardCatalog } from '../hooks/useDashboardCatalog';
@@ -71,9 +71,9 @@ export const DashboardWidgetCatalog = () => {
       </div>
       <div className="styled-scroll flex-1 space-y-1 overflow-y-auto p-3">
         {groups.length === 0 && (
-          <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-            {t('catalog-empty')}
-          </p>
+          <Empty size="sm">
+            <Empty.Description>{t('catalog-empty')}</Empty.Description>
+          </Empty>
         )}
         {groups.map(({ group, label, entries }) => (
           <Collapsible key={group} defaultOpen className="group/catalog">

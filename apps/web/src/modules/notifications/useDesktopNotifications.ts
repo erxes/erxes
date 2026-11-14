@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -54,7 +55,7 @@ export const useDesktopNotifications = () => {
 
       popup.addEventListener('click', () => {
         window.focus();
-        void navigate(item.link ?? '/notifications');
+        void navigate(item.link ?? paths.notifications);
         popup.close();
       });
     }

@@ -14,10 +14,12 @@ import {
   SexDisplay,
   SexField,
   Spinner,
+  toIsoDay,
+  useFormat,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toYmd } from '~/components/inlineCells';
+import { parseISO } from 'date-fns';
 import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
@@ -37,10 +39,8 @@ import { ContactPanelTags } from './ContactPanelTags';
 
 const SCOPE = 'side-panel-customer';
 
-/** `YYYY-MM-DD` → a local date, `YYYY/MM/DD` for display. */
-const parseYmd = (value: string | null) => (value ? new Date(`${value}T00:00:00`) : undefined);
-
-const formatSlashDate = (date: Date) => toYmd(date).replaceAll('-', '/');
+/** A stored `yyyy-MM-dd` as that local day. */
+const parseYmd = (value: string | null) => (value ? parseISO(value) : undefined);
 
 type TTextCode = 'code' | 'position' | 'department';
 
@@ -102,6 +102,7 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
 /** Saves a changed birth date when the date picker closes. */
 const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
+  const fmt = useFormat();
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(() => parseYmd(customer.birthDate));
   const [savedDate, setSavedDate] = useState(customer.birthDate);
@@ -118,14 +119,14 @@ const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
       onOpenChange={(next) => {
         setOpen(next);
 
-        if (!next && date && toYmd(date) !== customer.birthDate) {
-          edit.mutate({ id: customer.id, birthDate: toYmd(date) });
+        if (!next && date && toIsoDay(date) !== customer.birthDate) {
+          edit.mutate({ id: customer.id, birthDate: toIsoDay(date) });
         }
       }}
     >
       <PanelFieldTrigger>
         {date ? (
-          formatSlashDate(date)
+          fmt.date(date)
         ) : (
           <span className="flex items-center gap-1.5 text-muted-foreground">
             <IconCalendar className="size-3.5" aria-hidden="true" />

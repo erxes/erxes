@@ -1,3 +1,4 @@
+import { paths } from '~/lib/paths';
 import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
 import { IconChartBar, IconChartFunnel, IconCircleX, IconWorld } from '@tabler/icons-react';
 import { cn, Skeleton } from 'erxes-ui';
@@ -59,7 +60,10 @@ const leadTile = (title: string, Body: (props: { report: LeadReport }) => React.
           <div className="flex items-center gap-2">
             <KindToggle value={kind} onChange={setKind} />
             <Link
-              to={`/contacts/leads/insights${kind === 'company' ? '?kind=companies' : ''}`}
+              to={{
+                pathname: paths.contacts.insights,
+                search: kind === 'company' ? '?kind=companies' : '',
+              }}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
               {t('report.report')}

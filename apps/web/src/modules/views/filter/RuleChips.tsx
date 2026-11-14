@@ -1,6 +1,6 @@
 import { type ConditionGroup, type ConditionRule, RelativeAmount } from '@erxes/core-contract';
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
-import { Filter } from 'erxes-ui';
+import { Filter, useFormat } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMoney } from '~/lib/money';
@@ -48,6 +48,7 @@ const useRuleText = (rule: ConditionRule, field: ListField) => {
   const { t: opT } = useTranslation('automations');
   const { options } = useFieldOptions(field);
   const money = useMoney();
+  const fmt = useFormat();
   const op = opT(`op.${rule.op}`, OPERATOR_LABELS[rule.op]);
 
   const labelOf = (value: string) =>
@@ -72,7 +73,7 @@ const useRuleText = (rule: ConditionRule, field: ListField) => {
 
     return {
       op: NUMBER_SYMBOLS[numberOp],
-      value: field.currency ? money(n, field.currency) : n.toLocaleString(),
+      value: field.currency ? money(n, field.currency) : fmt.number(n),
     };
   }
 

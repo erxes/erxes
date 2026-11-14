@@ -1,16 +1,16 @@
-import { z } from 'zod';
-import { Switch, useFilterContext, useQueryState } from 'erxes-ui';
+import { Switch, useFilterContext } from 'erxes-ui';
+import { parseAsBoolean, useQueryState } from 'nuqs';
 
 /** "Is active" in the filter popover: on lists invited and active members, off the deactivated ones. */
 export const IsActiveBar = () => {
-  const [isActive, setIsActive] = useQueryState('isActive', z.boolean());
+  const [isActive, setIsActive] = useQueryState('isActive', parseAsBoolean);
   const { resetFilterState } = useFilterContext();
 
   const currentValue = isActive ?? true;
 
   const handleToggle = () => {
     // Default (on) stays out of the URL.
-    setIsActive(currentValue ? false : null);
+    void setIsActive(currentValue ? false : null);
     resetFilterState();
   };
 

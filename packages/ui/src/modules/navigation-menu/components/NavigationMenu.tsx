@@ -8,8 +8,7 @@ export const NavigationMenuLinkItem = ({
   ref,
   name,
   icon: IconComponent,
-  path,
-  pathPrefix,
+  to,
   children,
   className,
   isActive: isActiveProp,
@@ -20,25 +19,22 @@ export const NavigationMenuLinkItem = ({
 }: React.ComponentProps<typeof Sidebar.MenuButton> & {
   name: string;
   icon?: React.ElementType;
-  path: string;
-  pathPrefix?: string;
+  /** The address, from the app's paths. */
+  to: string;
   isActive?: boolean;
   label?: React.ReactNode;
   action?: React.ReactNode;
   itemClassName?: string;
 }) => {
   const { pathname } = useLocation();
-  const normalizedPathPrefix = pathPrefix ? `${pathPrefix.replace(/\/$/, '')}/` : '';
-  const normalizedPath = path.replace(/^\//, '');
-  const fullPath = `/${normalizedPathPrefix}${normalizedPath}`.replace(/\/$/, '') || '/';
-  const isActive = pathname.startsWith(fullPath);
+  const isActive = pathname.startsWith(to);
   const controls = useNavigationMenuItemControls();
-  const order = controls?.getOrder(fullPath);
+  const order = controls?.getOrder(to);
 
   return (
     <Sidebar.MenuItem
       className={cn(itemClassName, order !== undefined && 'order-(--order)')}
-      data-nav-path={controls ? fullPath : undefined}
+      data-nav-path={controls ? to : undefined}
       style={{ '--order': order }}
     >
       <Sidebar.MenuButton
@@ -46,7 +42,7 @@ export const NavigationMenuLinkItem = ({
         ref={ref}
         className={className}
         {...props}
-        render={<Link to={fullPath} />}
+        render={<Link to={to} />}
       >
         {IconComponent && (
           <IconComponent
@@ -57,7 +53,7 @@ export const NavigationMenuLinkItem = ({
         {children}
       </Sidebar.MenuButton>
       {action}
-      {controls?.renderActions({ name, path: fullPath, icon: IconComponent })}
+      {controls?.renderActions({ name, path: to, icon: IconComponent })}
     </Sidebar.MenuItem>
   );
 };
