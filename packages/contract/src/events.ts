@@ -5,7 +5,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActivityTarget } from './activities';
-import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
+import { AppLink, DedupeKey, EntityType, EventType } from './platform';
 
 /** What a published event asks core to notify (as `POST /notifications`). */
 export const EventNotify = z.object({
@@ -28,6 +28,10 @@ export const EventInput = createUpdateSchema(events, {
   notify: EventNotify.optional(),
   occurredAt: () => z.iso.datetime(),
   dedupeKey: DedupeKey.optional(),
+  subjectType: ActivityTarget.optional(),
+  subjectId: Id.optional(),
+  entityType: EntityType.optional(),
+  entityId: Id.optional(),
 })
   .pick({
     /** Namespaced by the plugin: `hr.leave.approved`. */
@@ -40,14 +44,23 @@ export const EventInput = createUpdateSchema(events, {
     occurredAt: true,
     /** Retry-safe: one event per plugin and key. */
     dedupeKey: true,
+    /** The customer or company it concerns: with `summary`, it goes on their timeline. */
+    subjectType: true,
+    subjectId: true,
+    /** The plugin's own record it is about. */
+    entityType: true,
+    entityId: true,
   })
   .required({ type: true })
-  .extend({
-    /** The customer or company it concerns: with `summary`, it goes on their timeline. */
-    subject: z.object({ type: ActivityTarget, id: Id }).optional(),
-    entity: EntityRef.optional(),
-    actorUserId: Id.optional(),
-  });
+  .extend({ actorUserId: Id.optional() })
+  .refine(
+    (value) => (value.subjectType === undefined) === (value.subjectId === undefined),
+    'subjectType and subjectId go together',
+  )
+  .refine(
+    (value) => (value.entityType === undefined) === (value.entityId === undefined),
+    'entityType and entityId go together',
+  );
 
 export type EventInput = z.infer<typeof EventInput>;
 
@@ -57,23 +70,26 @@ export const CoreEvent = createSelectSchema(events, {
   payload: z.record(z.string(), z.unknown()),
   occurredAt: isoDate,
   createdAt: isoDate,
-})
-  .pick({
-    id: true,
-    source: true,
-    type: true,
-    version: true,
-    payload: true,
-    summary: true,
-    link: true,
-    occurredAt: true,
-    createdAt: true,
-  })
-  .extend({
-    subject: z.object({ type: ActivityTarget, id: Id }).nullable(),
-    entity: EntityRef.nullable(),
-    actor: ActorRef,
-  });
+}).pick({
+  id: true,
+  source: true,
+  type: true,
+  version: true,
+  /** The customer or company it concerns. */
+  subjectType: true,
+  subjectId: true,
+  /** The plugin's own record it is about. */
+  entityType: true,
+  entityId: true,
+  /** A team member (`actorId` = user id), a plugin (its name) or `system`. */
+  actorType: true,
+  actorId: true,
+  payload: true,
+  summary: true,
+  link: true,
+  occurredAt: true,
+  createdAt: true,
+});
 
 export type CoreEvent = z.infer<typeof CoreEvent>;
 

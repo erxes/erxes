@@ -1,5 +1,7 @@
 import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { Id, isoDate, listOf } from './common';
@@ -219,25 +221,38 @@ export const PluginManifest = z.object({
 
 export type PluginManifest = z.infer<typeof PluginManifest>;
 
-export const Plugin = z.object({
-  name: z.string(),
-  title: z.string(),
-  version: z.string().nullable(),
-  description: z.string().nullable(),
-  /** Made for these countries (empty: everywhere). */
-  countries: z.array(z.string()),
-  ui: z.object({ remote: z.string(), entry: z.string() }).nullable(),
-  api: z.object({ url: z.string() }).nullable(),
-  /** In this organisation: installed and active. */
-  installed: z.boolean(),
+/** The plugin in this organisation; `status` `active` is installed. */
+export const PluginInstallation = createSelectSchema(pluginInstallations, {
+  installedAt: isoDate,
+}).pick({
+  status: true,
   /** Why it is off here (`Suspended: 600 deletions in a few minutes`). */
-  statusReason: z.string().nullable(),
-  requestedScopes: z.array(z.string()),
-  grantedScopes: z.array(z.string()),
-  /** Asks for scopes the owner hasn't granted yet (a newer version). */
-  needsApproval: z.boolean(),
-  installedAt: isoDate().nullable(),
+  statusReason: true,
+  grantedScopes: true,
+  installedAt: true,
 });
+
+export const Plugin = createSelectSchema(plugins, {
+  /** What members see of the manifest (the column is nullable); the rest is for core. */
+  manifest: () =>
+    PluginManifest.pick({
+      title: true,
+      version: true,
+      description: true,
+      countries: true,
+      ui: true,
+      api: true,
+    }),
+})
+  .pick({ name: true, manifest: true })
+  .extend({
+    /** Never installed here: null. */
+    installation: PluginInstallation.nullable(),
+    /** The manifest's scopes, or (before it sent one) what plugins could always do. */
+    requestedScopes: z.array(z.string()),
+    /** Installed, and asks for scopes the owner hasn't granted yet (a newer version). */
+    needsApproval: z.boolean(),
+  });
 
 export type Plugin = z.infer<typeof Plugin>;
 

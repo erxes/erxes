@@ -1,4 +1,4 @@
-import type { ActorRef, User } from '@erxes/core-contract';
+import type { ActorType, User } from '@erxes/core-contract';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { orpc } from './api';
@@ -50,21 +50,22 @@ export const useMembersById = (ids: (string | null | undefined)[]) => {
 export const pluginLabel = (name: string) =>
   name.length <= 3 ? name.toUpperCase() : name.charAt(0).toUpperCase() + name.slice(1);
 
-/** Who did it, in words. */
+/** Who did it, in words: a member by id (`user`), a plugin by name, or erxes itself. */
 export const actorLabel = (
-  actor: ActorRef,
+  type: ActorType,
+  id: string | null,
   members: Map<string, User>,
   unknownMember = 'A team member',
 ) => {
-  if (actor.type === 'user') {
-    const member = actor.id ? members.get(actor.id) : undefined;
+  if (type === 'user') {
+    const member = id ? members.get(id) : undefined;
 
-    return member ? memberName(member) : actor.name || unknownMember;
+    return member ? memberName(member) : unknownMember;
   }
 
-  if (actor.type === 'plugin') {
-    return actor.id ? pluginLabel(actor.id) : 'A plugin';
-  }
+  if (type === 'plugin') return id ? pluginLabel(id) : 'A plugin';
+
+  if (type === 'customer') return 'A customer';
 
   return 'erxes';
 };

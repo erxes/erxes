@@ -201,7 +201,7 @@ describe('products', { timeout: 120_000 }, () => {
       { productId: delivery.id, quantity: 1, unitPrice: 10_000_00, plugin: 'tms' },
     ];
 
-    const base = { description: 'Order #1', reference: { type: 'order', id: '1' } };
+    const base = { description: 'Order #1', referenceType: 'order', referenceId: '1' };
 
     await expect(
       t.hr().payments.createInvoice({ ...base, amount: 1, lines }),

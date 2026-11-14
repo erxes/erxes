@@ -1,5 +1,5 @@
 import type { WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
-import type { CursorQuery } from '@erxes/core-contract';
+import { CoreEvent, type CursorQuery } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -19,7 +19,6 @@ import { oneRow } from '~/lib/rows';
 import { unseal } from '~/lib/secrets';
 import { logger } from '~/logger';
 import type { EventConsumer } from '~/modules/events/consumers';
-import { eventJson } from '~/modules/events/events.service';
 import { describeError, defineJob } from '~/modules/jobs/jobs';
 import { findWebhook, matchesPattern } from './webhooks.service';
 
@@ -62,7 +61,7 @@ const send = async (
     type: event.type,
     createdAt: event.createdAt.toISOString(),
     organizationId: orgId,
-    data: eventJson(event),
+    data: CoreEvent.parse(event),
   });
 
   const headers = {

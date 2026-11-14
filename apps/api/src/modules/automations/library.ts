@@ -189,7 +189,7 @@ export const AUTOMATION_TEMPLATES: {
           action: 'core.notification.send',
           input: {
             userIds: [],
-            title: 'Paid: {{event.payload.amount | number}} for {{event.payload.reference.id}}',
+            title: 'Paid: {{event.payload.amount | number}} for {{event.payload.referenceId}}',
           },
         },
         {

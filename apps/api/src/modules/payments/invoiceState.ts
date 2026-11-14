@@ -1,7 +1,7 @@
-import { Invoice } from '@erxes/core-contract';
+import type { Invoice } from '@erxes/core-contract';
 import { type Db, paymentGateways, paymentInvoices, runAs, system, withOrg } from '@erxes/core-db';
 import { GATEWAY_REFUNDS } from '@erxes/payment-gateways';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { notFound } from '~/http/errors';
 import { hmacSha256 } from '~/lib/crypto';
@@ -10,34 +10,49 @@ import { coreKey } from '~/lib/secrets';
 import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
-import { driverOf, type GatewayRow } from './gateways.service';
+import { driverOf } from './gateways.service';
 
 const log = logger.child({ component: 'payments' });
 
 export type InvoiceRow = typeof paymentInvoices.$inferSelect;
 
-/** The payer's part of the stored `payment` (the rest is the gateway's own state). */
-const PayerPart = Invoice.shape.payment.partial();
+const payment = paymentInvoices.payment;
 
-export const toInvoiceDto = (row: InvoiceRow, kind: GatewayRow['kind']) => {
-  const payment = PayerPart.safeParse(row.payment).data ?? {};
+/** How each gateway kind refunds, as SQL over the joined gateway. */
+const refundKind = sql<
+  (typeof GATEWAY_REFUNDS)[keyof typeof GATEWAY_REFUNDS]
+>`case ${paymentGateways.kind} ${sql.join(
+  Object.entries(GATEWAY_REFUNDS).map(([kind, refunds]) => sql`when ${kind} then ${refunds}`),
+  sql` `,
+)} else 'none' end`;
 
-  return {
-    ...row,
-    gatewayKind: kind,
-    reference: { type: row.referenceType, id: row.referenceId },
-    refundable: {
-      amount: row.status === 'paid' ? (row.paidAmount ?? row.amount) - row.refundedAmount : 0,
-      gateway: GATEWAY_REFUNDS[kind],
-    },
-    payment: {
-      qrText: payment.qrText ?? null,
-      qrImage: payment.qrImage ?? null,
-      shortUrl: payment.shortUrl ?? null,
-      links: payment.links ?? [],
-    },
-  };
-};
+/**
+ * Invoices as the API answers them: the payer's part of `payment` (the rest is
+ * the gateway's own state), the gateway's kind and what can still be refunded.
+ */
+export const selectInvoices = (client: Db) =>
+  client
+    .select({
+      ...getTableColumns(paymentInvoices),
+      payment: {
+        qrText: sql<string | null>`${payment} ->> 'qrText'`,
+        qrImage: sql<string | null>`${payment} ->> 'qrImage'`,
+        shortUrl: sql<string | null>`${payment} ->> 'shortUrl'`,
+        links: sql<Invoice['payment']['links']>`coalesce(${payment} -> 'links', '[]'::jsonb)`,
+      },
+      gatewayKind: paymentGateways.kind,
+      refundable: {
+        amount: sql<number>`case when ${paymentInvoices.status} = 'paid'
+          then coalesce(${paymentInvoices.paidAmount}, ${paymentInvoices.amount}) - ${paymentInvoices.refundedAmount}
+          else 0 end`.mapWith(Number),
+        gateway: refundKind,
+      },
+    })
+    .from(paymentInvoices)
+    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId));
+
+export const shownInvoice = async (client: Db, id: string) =>
+  oneRow(await selectInvoices(client).where(eq(paymentInvoices.id, id)).limit(1));
 
 /** Signs the callback address given to the gateway, so callbacks for other ids are refused. */
 export const callbackSignature = (invoiceId: string) =>
@@ -47,7 +62,8 @@ export const callbackSignature = (invoiceId: string) =>
 export const eventPayload = (invoice: InvoiceRow) => ({
   invoiceId: invoice.id,
   source: invoice.source,
-  reference: { type: invoice.referenceType, id: invoice.referenceId },
+  referenceType: invoice.referenceType,
+  referenceId: invoice.referenceId,
   amount: invoice.amount,
   currency: invoice.currency,
   metadata: invoice.metadata,
@@ -84,7 +100,8 @@ const markPaid = async (
   await settledByGateway(() =>
     publishCoreEvents(tx, {
       type: 'core.payment.paid',
-      entity: { type: 'payment_invoice', id: invoice.id },
+      entityType: 'payment_invoice',
+      entityId: invoice.id,
       payload: { ...eventPayload(paid), paidAmount: check.paidAmount, gateway: kind },
     }),
   );
@@ -105,7 +122,8 @@ const markExpired = async (tx: Db, invoice: InvoiceRow) => {
   await settledByGateway(() =>
     publishCoreEvents(tx, {
       type: 'core.payment.expired',
-      entity: { type: 'payment_invoice', id: invoice.id },
+      entityType: 'payment_invoice',
+      entityId: invoice.id,
       payload: eventPayload(expired),
     }),
   );

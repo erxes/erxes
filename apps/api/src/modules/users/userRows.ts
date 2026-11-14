@@ -6,12 +6,6 @@ import { lockOrganization } from '~/lib/locks';
 
 export type UserRow = typeof users.$inferSelect;
 
-/** The row with whether two-factor is on; the `User` schema leaves out the password hash and TOTP secret. */
-export const toUserDto = (row: UserRow) => ({
-  ...row,
-  twoFactorEnabled: Boolean(row.totpEnabledAt),
-});
-
 /**
  * Changing someone else on the team needs `team.manage` (the policy lets any
  * member edit their own profile). Read under `lockTeam`, so a manager demoted

@@ -36,7 +36,7 @@ const NotificationChanges = ({
   notification: Notification;
   changes: Changes;
 }) => {
-  const contentType: ContentType = notification.entity?.type === 'company' ? 'company' : 'customer';
+  const contentType: ContentType = notification.entityType === 'company' ? 'company' : 'customer';
   const lookups = useChangeLookups(contentType, [changes]);
 
   return <ChangeList changes={changes} lookups={lookups} />;
@@ -63,7 +63,7 @@ const NotificationMeta = ({
 
   return (
     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-      {notification.actor.type === 'user' && (
+      {notification.actorType === 'user' && (
         <>
           <span className="truncate">{sender}</span>
           <span aria-hidden="true">·</span>
@@ -128,11 +128,15 @@ const NotificationActions = ({
         variant="ghost"
         className="size-6"
         aria-label={
-          notification.read ? t('mark-unread', 'Mark as unread') : t('mark-read', 'Mark as read')
+          notification.readAt ? t('mark-unread', 'Mark as unread') : t('mark-read', 'Mark as read')
         }
-        onClick={() => markRead.mutate({ ids: [notification.id], read: !notification.read })}
+        onClick={() =>
+          markRead.mutate({ ids: [notification.id], read: notification.readAt === null })
+        }
       >
-        <IconCheck className={cn('size-3.5', notification.read && 'text-primary-text')} />
+        <IconCheck
+          className={cn('size-3.5', notification.readAt !== null && 'text-primary-text')}
+        />
       </Button>
       <Button
         size="icon"
@@ -190,12 +194,12 @@ const NotificationTitle = ({
         onClick={onOpen}
         className={cn(
           'flex-1 text-left text-sm leading-5 after:absolute after:inset-0',
-          !notification.read && 'font-medium',
+          notification.readAt === null && 'font-medium',
         )}
       >
         {title(notification)}
       </button>
-      {!notification.read && (
+      {notification.readAt === null && (
         <span
           className="mt-1.5 size-2 shrink-0 rounded-full bg-primary"
           aria-label={t('unread', 'Unread')}
@@ -228,7 +232,7 @@ export const NotificationItem = ({
   const changes = compact ? null : listedChanges;
 
   const open = () => {
-    if (!notification.read) markRead.mutate({ ids: [notification.id] });
+    if (notification.readAt === null) markRead.mutate({ ids: [notification.id] });
 
     if (notification.link) {
       void navigate(notification.link);
@@ -243,7 +247,7 @@ export const NotificationItem = ({
       className={cn(
         'group relative flex gap-3 rounded-md px-3 py-2.5 hover:bg-accent',
         (notification.link || listedChanges) && 'cursor-pointer',
-        !notification.read && 'bg-primary/5',
+        notification.readAt === null && 'bg-primary/5',
       )}
     >
       <SenderAvatar sender={sender} src={senderAvatar} inbox={inbox} />

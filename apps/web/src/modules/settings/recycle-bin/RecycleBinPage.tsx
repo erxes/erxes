@@ -101,7 +101,7 @@ const TrashRow = ({
         ].join(' · ')}
       </span>
       <span className="ml-auto text-xs text-muted-foreground">
-        {actorLabel(item.deletedBy, members)} ·{' '}
+        {actorLabel(item.deletedByType, item.deletedBy, members)} ·{' '}
         <RelativeDateDisplay value={item.deletedAt} render={<span />}>
           <RelativeDateDisplay.Value value={item.deletedAt} />
         </RelativeDateDisplay>
@@ -120,7 +120,7 @@ const TrashList = ({
   onToggle: (id: string, on: boolean) => void;
 }) => {
   const members = useMembersById(
-    items.map((item) => (item.deletedBy.type === 'user' ? item.deletedBy.id : null)),
+    items.map((item) => (item.deletedByType === 'user' ? item.deletedBy : null)),
   );
 
   return (

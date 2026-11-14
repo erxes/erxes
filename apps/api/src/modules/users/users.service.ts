@@ -17,7 +17,6 @@ import {
   findUser,
   lockTeam,
   otherActiveOwners,
-  toUserDto,
   type UserRow,
 } from './userRows';
 
@@ -65,7 +64,7 @@ export const listUsers = async (
     );
   }
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     { table: users, id: users.id, createdAt: users.createdAt },
     and(...filters),
@@ -78,11 +77,9 @@ export const listUsers = async (
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return { ...page, data: page.data.map(toUserDto) };
 };
 
-export const getUser = async (client: Db, id: string) => toUserDto(await findUser(client, id));
+export const getUser = (client: Db, id: string) => findUser(client, id);
 
 /** Who may change `target`'s email and role: owners guard owners, nobody changes their own role. */
 const checkUserChange = async (
@@ -144,7 +141,8 @@ const announceUserChange = async (tx: Db, before: UserRow, after: UserRow) => {
       title: 'Your role was changed',
       body: `${before.role} → ${after.role}`,
       priority: 'high',
-      entity: { type: 'user', id: after.id },
+      entityType: 'user',
+      entityId: after.id,
       data: { changes: { role: changes.role } },
     });
   }
@@ -183,7 +181,7 @@ export const updateUser = async (id: string, input: UserChanges) => {
 
       await announceUserChange(tx, target, row);
 
-      return toUserDto(row);
+      return row;
     } catch (error) {
       return conflictFrom(error);
     }
@@ -251,7 +249,8 @@ export const setUserPassword = async (id: string, password: string) => {
         title: 'Your password was changed by an admin',
         body: 'If you did not ask for this, contact an owner of your organisation.',
         priority: 'high',
-        entity: { type: 'user', id },
+        entityType: 'user',
+        entityId: id,
       });
       await recordAudit(tx, {
         action: 'user.password_set',
@@ -260,7 +259,7 @@ export const setUserPassword = async (id: string, password: string) => {
         targetLabel: row.email,
       });
 
-      return toUserDto(row);
+      return row;
     },
   );
 };
@@ -305,7 +304,7 @@ export const setUserDisabled = async (id: string, disabled: boolean) => {
         changes: { status: [target.status, status] },
       });
 
-      return toUserDto(row);
+      return row;
     },
   );
 };

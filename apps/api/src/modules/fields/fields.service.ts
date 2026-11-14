@@ -16,7 +16,8 @@ import {
   nextOrder,
   optionCounts,
   taken,
-  toFieldDto,
+  fieldById,
+  selectFields,
   usageOf,
 } from './fieldRows';
 
@@ -60,24 +61,6 @@ const checkGroup = async (
   }
 };
 
-const groupArchivedAt = async (client: Db, groupId: string | null) => {
-  if (!groupId) {
-    return null;
-  }
-
-  const [group] = await client
-    .select({ archivedAt: fieldGroups.archivedAt })
-    .from(fieldGroups)
-    .where(eq(fieldGroups.id, groupId))
-    .limit(1);
-
-  return group?.archivedAt ?? null;
-};
-
-/** A field with its group's archive date, as the list shows it. */
-const fieldDto = async (client: Db, row: FieldRow) =>
-  toFieldDto(row, await groupArchivedAt(client, row.groupId));
-
 export const listFields = async (
   client: Db,
   input: { contentType: FieldContentType; groupId?: string; archived?: boolean },
@@ -91,10 +74,7 @@ export const listFields = async (
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
 
   const rows = await wholeList((limit) =>
-    client
-      .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
-      .from(fields)
-      .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
+    selectFields(client)
       .where(
         and(
           eq(fields.contentType, input.contentType),
@@ -106,7 +86,7 @@ export const listFields = async (
       .limit(limit),
   );
 
-  return { data: rows.map((row) => toFieldDto(row.field, row.groupArchivedAt)) };
+  return { data: rows };
 };
 
 export const fieldUsage = async (client: Db, input: { ids?: string[]; groupId?: string }) => {
@@ -170,7 +150,7 @@ export const createField = async (
         .returning(),
     );
 
-    return toFieldDto(row);
+    return await fieldById(client, row.id);
   } catch (error) {
     return taken(error);
   }
@@ -241,7 +221,7 @@ export const updateField = async (client: Db, id: string, input: FieldChanges) =
         .returning(),
     );
 
-    return await fieldDto(client, row);
+    return await fieldById(client, row.id);
   } catch (error) {
     return taken(error);
   }
@@ -272,7 +252,7 @@ export const restoreField = async (client: Db, id: string) => {
       .returning(),
   );
 
-  return fieldDto(client, row);
+  return fieldById(client, row.id);
 };
 
 /** Deletes fields no record holds a value of. */

@@ -93,8 +93,8 @@ describe(
       expect(await tickAutomations()).toBeGreaterThanOrEqual(2);
       await settle();
 
-      expect((await t.runsOf(scheduled)).map((run) => run.subject?.id)).toEqual([lead.id]);
-      expect((await t.runsOf(born)).map((run) => run.subject?.id)).toEqual([birthday.id]);
+      expect((await t.runsOf(scheduled)).map((run) => run.subjectId)).toEqual([lead.id]);
+      expect((await t.runsOf(born)).map((run) => run.subjectId)).toEqual([birthday.id]);
       // Claimed: the next time is set, so it doesn't fire twice.
       expect(await nextRunOf(scheduled)).toBeGreaterThan(Date.now());
     });
@@ -138,7 +138,7 @@ describe(
 
       /** The run about one customer: its status and the steps it took. */
       const runFor = async (customerId: string) => {
-        const run = (await t.runsOf(waiter)).find((item) => item.subject?.id === customerId);
+        const run = (await t.runsOf(waiter)).find((item) => item.subjectId === customerId);
 
         return { status: run?.status, steps: run ? await t.stepsOf(run.id) : [] };
       };
@@ -185,7 +185,8 @@ describe(
 
       const [ended] = await t.runsOf(goal);
 
-      expect(ended).toMatchObject({ status: 'succeeded', goalReached: true });
+      expect(ended?.status).toBe('succeeded');
+      expect(ended?.goalReachedAt).not.toBeNull();
       expect(await t.stepsOf(ended?.id ?? '')).toEqual([]);
     });
 
@@ -207,7 +208,7 @@ describe(
       await settle();
       expect((await t.runsOf(id))[0]).toMatchObject({
         status: 'succeeded',
-        subject: { id: picked.id },
+        subjectId: picked.id,
       });
     });
   },

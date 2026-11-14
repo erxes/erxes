@@ -132,13 +132,13 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
     <div className="space-y-3 p-4">
       <div className="flex items-center gap-2">
         <Badge variant={STATUS_VARIANT[run.status]}>{t(`status.${run.status}`, run.status)}</Badge>
-        {run.goalReached && <Badge variant="info">{t('goal-reached', 'Goal reached')}</Badge>}
-        {run.subject && (
+        {run.goalReachedAt && <Badge variant="info">{t('goal-reached', 'Goal reached')}</Badge>}
+        {run.subjectType && run.subjectId && (
           <Link
             className="text-sm underline"
-            to={`/contacts/${run.subject.type === 'customer' ? 'customers' : 'companies'}/${run.subject.id}`}
+            to={`/contacts/${run.subjectType === 'customer' ? 'customers' : 'companies'}/${run.subjectId}`}
           >
-            {t('open-subject', 'Open the {{type}}', { type: run.subject.type })}
+            {t('open-subject', 'Open the {{type}}', { type: run.subjectType })}
           </Link>
         )}
         <span className="text-xs text-muted-foreground">
@@ -211,9 +211,9 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
                     {t(`status.${run.status}`, run.status)}
                   </Badge>
                   <span className="truncate text-xs text-muted-foreground">
-                    {run.subject
-                      ? (run.subject.name ??
-                        t('deleted-subject', 'A deleted {{type}}', { type: run.subject.type }))
+                    {run.subjectType
+                      ? (run.subjectName ??
+                        t('deleted-subject', 'A deleted {{type}}', { type: run.subjectType }))
                       : run.eventType}
                   </span>
                   <span className="ml-auto text-xs text-muted-foreground">

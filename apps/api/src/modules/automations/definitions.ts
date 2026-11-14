@@ -178,7 +178,7 @@ const KIND_OF_FIELD = {
 
 const COMMON_FIELDS: AutomationFieldPath[] = [
   { path: 'event.type', label: 'Event type', type: 'text' },
-  { path: 'event.actor.type', label: 'Who did it (user, plugin, system)', type: 'text' },
+  { path: 'event.actorType', label: 'Who did it (user, plugin, system)', type: 'text' },
   { path: 'event.payload', label: 'Event details', type: 'text' },
 ];
 

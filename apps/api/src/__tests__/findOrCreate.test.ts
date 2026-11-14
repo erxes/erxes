@@ -35,7 +35,7 @@ describe('customers for plugins (find or create)', () => {
 
     const audit = await t.owner().audit.list({ targetId: id, action: 'customer.created' });
 
-    expect(audit.data[0]).toMatchObject({ actor: { type: 'plugin', id: 'hr' }, source: 'hr' });
+    expect(audit.data[0]).toMatchObject({ actorType: 'plugin', actorId: 'hr', source: 'hr' });
     await expect(hr.customers.findOrCreate({})).rejects.toMatchObject({ status: 400 });
   });
 

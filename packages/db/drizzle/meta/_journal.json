@@ -400,6 +400,13 @@
       "when": 1794631441911,
       "tag": "0056_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1794632601139,
+      "tag": "0057_flat_event_paths",
+      "breakpoints": true
     }
   ]
 }

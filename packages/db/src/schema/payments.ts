@@ -1,4 +1,5 @@
 import {
+  ACTOR_TYPES,
   INVOICE_STATUSES,
   PAYMENT_GATEWAY_KINDS,
   PAYMENT_GATEWAY_STATUSES,
@@ -150,7 +151,7 @@ export const paymentRefunds = pgTable(
     gatewayRefundId: text(),
     error: text(),
     /** `user` or `plugin`, and who. */
-    requestedByType: text().notNull(),
+    requestedByType: text({ enum: ACTOR_TYPES }).notNull(),
     requestedBy: text(),
     /** Retry-safe: one refund per invoice and key. */
     dedupeKey: text(),

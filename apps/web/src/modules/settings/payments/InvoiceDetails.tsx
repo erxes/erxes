@@ -186,7 +186,7 @@ export const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose
       <Dialog.Content className="max-w-lg">
         <Dialog.HeaderCombined
           title={invoice.description}
-          description={`${invoice.source} · ${invoice.reference.type} ${invoice.reference.id}`}
+          description={`${invoice.source} · ${invoice.referenceType} ${invoice.referenceId}`}
         />
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
           <dt className="text-muted-foreground">{t('amount', 'Amount')}</dt>

@@ -1,7 +1,8 @@
 import { type FieldContentType, type Db, fieldGroups, fields } from '@erxes/core-db';
-import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, isNotNull, sql } from 'drizzle-orm';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
+import { oneRow } from '~/lib/rows';
 import { valuesTable } from './fieldValues';
 
 export type FieldRow = typeof fields.$inferSelect;
@@ -14,11 +15,21 @@ const OPTION_TYPES: readonly FieldType[] = ['select', 'multiselect', 'radio', 'c
 
 export const hasOptions = (type: FieldType) => OPTION_TYPES.includes(type);
 
-/** A field archives with its group. */
-export const toFieldDto = (row: FieldRow, groupArchivedAt?: Date | null) => ({
-  ...row,
-  archivedAt: row.archivedAt ?? groupArchivedAt ?? null,
-});
+/** Fields as the API answers them: a field archives with its group. */
+export const selectFields = (client: Db) =>
+  client
+    .select({
+      ...getTableColumns(fields),
+      archivedAt:
+        sql<Date | null>`coalesce(${fields.archivedAt}, ${fieldGroups.archivedAt})`.mapWith(
+          fields.archivedAt,
+        ),
+    })
+    .from(fields)
+    .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId));
+
+export const fieldById = async (client: Db, id: string) =>
+  oneRow(await selectFields(client).where(eq(fields.id, id)).limit(1));
 
 /** A unique violation as the field or group conflict it means; anything else is rethrown. */
 export const taken = (error: unknown): never => {

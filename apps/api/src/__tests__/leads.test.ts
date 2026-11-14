@@ -236,7 +236,7 @@ describe('leads: stages, moves, conversion, history and the report', { timeout: 
     const assigned = await t.member().notifications.list({ kind: 'core.customer.assigned' });
 
     expect(assigned.data).toHaveLength(3);
-    expect(assigned.data.map((item) => item.entity?.id)).toEqual(expect.arrayContaining(ids));
+    expect(assigned.data.map((item) => item.entityId)).toEqual(expect.arrayContaining(ids));
   });
 
   it('links people to companies with a role, a main contact and an end', async () => {

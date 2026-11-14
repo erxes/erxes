@@ -7,7 +7,7 @@ import { hashPassword } from '~/lib/crypto';
 import { sendInvitations } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { splitFullName } from './userProfile';
-import { conflictFrom, toUserDto, type UserRow } from './userRows';
+import { conflictFrom, type UserRow } from './userRows';
 
 interface InviteInput {
   email: string;
@@ -58,7 +58,7 @@ export const inviteUser = async (client: Db, input: InviteInput) => {
 
     await announceInvites(client, [inserted]);
 
-    return toUserDto(inserted);
+    return inserted;
   } catch (error) {
     return conflictFrom(error);
   }
@@ -102,7 +102,7 @@ export const inviteUsers = async (entries: InviteInput[]) => {
 
     await announceInvites(tx, rows);
 
-    return { data: rows.map(toUserDto) };
+    return { data: rows };
   } catch (error) {
     return conflictFrom(error);
   }
