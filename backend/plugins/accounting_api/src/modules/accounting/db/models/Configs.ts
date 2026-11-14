@@ -3,6 +3,7 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IConfigDocument } from '../../@types/config';
 import { model, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { validateSyncConfig } from '~/modules/accounting/utils/syncConfigValidation';
 
 export const Config = model('configs', configSchema);
 
@@ -116,6 +117,8 @@ export const loadConfigClass = (
       value: any;
       subId?: string;
     }) {
+      validateSyncConfig({ code, subId, value });
+
       const newConfig = await models.Configs.create({
         code,
         subId: subId ?? '',
@@ -136,6 +139,8 @@ export const loadConfigClass = (
      */
     public static async updateConfig(_id: string, value: any, subId?: string) {
       const oldConf = await models.Configs.getConfigDetail(_id);
+
+      validateSyncConfig({ code: oldConf.code, subId, value });
 
       await models.Configs.updateOne(
         { _id },
@@ -174,6 +179,8 @@ export const loadConfigClass = (
      * update subId must '' configs update by code
      */
     public static async updateSingleByCode(code: string, value: any) {
+      validateSyncConfig({ code, subId: '', value });
+
       const oldConf = await models.Configs.getConfig(code);
 
       if (oldConf) {

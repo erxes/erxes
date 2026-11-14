@@ -5,6 +5,7 @@ import {
   SyncConfigPipelineSection,
   SyncConfigReturnTypeField,
   usePipelineReset,
+  useSyncConfigInvalidToast,
 } from './SyncConfigFormSections';
 
 import { Form } from 'erxes-ui';
@@ -13,25 +14,9 @@ import { TR_STATUSES } from '@/transactions/types/constants';
 import { UseFormReturn } from 'react-hook-form';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
+import { TSyncDealReturnConfigFormValues } from '@/settings/syncSettings/syncConfigSchema';
 
-export const syncDealReturnConfigFormSchema = z.object({
-  title: z.string(),
-  boardId: z.string().optional(),
-  pipelineId: z.string().optional(),
-  stageId: z.string(),
-  responseFieldId: z.string().optional(),
-  returnType: z.enum(['fullTr', 'onlySale', 'delete']),
-  dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
-  trStatus: z.string().optional(),
-  defaultPayment: z
-    .object({
-      accountId: z.string(),
-    })
-    .nullable(),
-});
-
-type ConfigFormValues = z.infer<typeof syncDealReturnConfigFormSchema>;
+type ConfigFormValues = TSyncDealReturnConfigFormValues;
 
 export const SyncDealReturnConfigForm = ({
   form,
@@ -45,6 +30,7 @@ export const SyncDealReturnConfigForm = ({
   onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const showInvalidToast = useSyncConfigInvalidToast();
   const { boardId, pipelineId } = usePipelineReset(form);
 
   useEffect(() => {
@@ -56,7 +42,7 @@ export const SyncDealReturnConfigForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, showInvalidToast)}
         className="flex flex-col flex-1 min-h-0 bg-background"
       >
         <div className="@container flex-1 min-h-0 overflow-y-auto p-3 space-y-4">
