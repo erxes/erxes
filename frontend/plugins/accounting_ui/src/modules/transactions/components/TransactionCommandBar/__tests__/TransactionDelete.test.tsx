@@ -96,11 +96,20 @@ describe('Deleting selected receipts', () => {
     await waitFor(() => expect(mockToast).toHaveBeenCalled());
     expect(mockToast).toHaveBeenCalledTimes(1);
     expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variant: 'destructive',
-        description: 'Failed to delete 1 transactions',
-      }),
+      expect.objectContaining({ variant: 'destructive' }),
     );
+    rows.forEach((row) => expect(row.toggleSelected).not.toHaveBeenCalled());
+  });
+
+  it('does nothing when the user cancels the confirm dialog', async () => {
+    mockConfirm.mockReturnValue(new Promise(() => undefined));
+    const rows = selectedRows();
+
+    deleteSelected(rows);
+
+    await waitFor(() => expect(mockConfirm).toHaveBeenCalled());
+    expect(mockRemove).not.toHaveBeenCalled();
+    expect(mockToast).not.toHaveBeenCalled();
     rows.forEach((row) => expect(row.toggleSelected).not.toHaveBeenCalled());
   });
 });

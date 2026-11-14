@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { render, screen } from '@testing-library/react';
 import { transactionColumns } from '@/transactions/components/TransactionsTableColumns';
+import { TrJournalEnum } from '@/transactions/types/constants';
 import { ITransaction } from '@/transactions/types/Transaction';
 
 jest.mock(
@@ -69,8 +70,8 @@ const renderCell = (columnId: string, transaction: Partial<ITransaction>) => {
 const bankReceipt: Partial<ITransaction> = {
   _id: 'tr-bank-1',
   parentId: 'parent-1',
-  journal: 'bank',
-  date: '2026-11-14T12:00:00',
+  journal: TrJournalEnum.BANK,
+  date: new Date(2026, 10, 14, 12),
   branch: { _id: 'branch-1', code: 'BR01', title: 'Central branch' },
   details: [
     {
@@ -94,6 +95,26 @@ describe('Receipts list columns', () => {
 
     expect(screen.getByRole('button').textContent).toBe(
       '1102 - Khan Bank(2), 3401',
+    );
+  });
+
+  it('names the first line account even when a lower code follows it', () => {
+    renderCell('account', {
+      ...bankReceipt,
+      details: [
+        {
+          _id: 'd-1',
+          account: { _id: 'acc-3401', code: '3401', name: 'VAT payable' },
+        },
+        {
+          _id: 'd-2',
+          account: { _id: 'acc-1102', code: '1102', name: 'Khan Bank' },
+        },
+      ],
+    });
+
+    expect(screen.getByRole('button').textContent).toBe(
+      '3401 - VAT payable, 1102',
     );
   });
 

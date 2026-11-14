@@ -115,13 +115,13 @@ const AccountCell = ({ row }: { row: Row<ITransaction> }) => {
 
   const name0 = details[0]?.account?.name;
 
-  const infoByCode = details.reduce<Record<string, number>>((acc, d) => {
+  const infoByCode = details.reduce((acc, d) => {
     const code = d.account?.code || '';
-    acc[code] = (acc[code] || 0) + 1;
+    acc.set(code, (acc.get(code) || 0) + 1);
     return acc;
-  }, {});
+  }, new Map<string, number>());
 
-  const codes = Object.keys(infoByCode);
+  const codes = [...infoByCode.keys()];
 
   const handleEditAccount = () => {
     navigate(
@@ -137,7 +137,7 @@ const AccountCell = ({ row }: { row: Row<ITransaction> }) => {
     <RecordTableInlineCell>
       <RecordTableInlineCell.Anchor onClick={handleEditAccount}>
         {codes.map((code, i) => {
-          const count = infoByCode[code];
+          const count = infoByCode.get(code) || 0;
           const tot = count > 1 ? `(${count})` : '';
 
           if (i === 0) {

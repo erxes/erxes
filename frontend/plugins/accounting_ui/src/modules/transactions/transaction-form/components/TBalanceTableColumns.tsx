@@ -132,7 +132,7 @@ const DepartmentCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
 const DateCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   return (
     <RecordTableInlineCell>
-      {dayjs(row.original.date).format('YYYY-MM-DD')}
+      {dayjs(new Date(row.original.date)).format('YYYY-MM-DD')}
     </RecordTableInlineCell>
   );
 };
