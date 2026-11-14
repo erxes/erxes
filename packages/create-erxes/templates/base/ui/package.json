@@ -18,6 +18,7 @@
     "nuqs": "^2.10.3",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "react-hook-form": "^7.92.0",
     "react-i18next": "^18.0.1",
     "react-router-dom": "^7.18.5"
   },

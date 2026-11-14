@@ -131,6 +131,9 @@ describe('products', { timeout: 120_000 }, () => {
         'core.product.restored',
       ]),
     );
+
+    // Events name the product; subscribers read it from core.
+    for (const event of events.data) expect(Object.keys(event.payload)).toEqual(['changed']);
   });
 
   it('lets plugins share products: each lists its own and uses others by choice', async () => {
