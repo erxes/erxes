@@ -173,7 +173,21 @@ jobs:
     # dependency, a file missing from `files`) fails here, before it is published.
     name: Packed packages install and work outside the workspace
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
+    # A plugin create-erxes generates runs its own tests and tenancy guard.
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: erxes
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: erxes_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U erxes -d erxes_ci"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -182,13 +196,17 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Build and pack @erxes/ui, @erxes/core-contract and @erxes/plugin-sdk
+      - name: Build and pack @erxes/ui, @erxes/core-contract, @erxes/plugin-sdk and create-erxes
         run: |
-          filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk)
+          filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk --filter create-erxes)
           pnpm "${filters[@]}" build
           pnpm "${filters[@]}" exec pnpm pack --pack-destination "$RUNNER_TEMP/packs"
       - name: A plugin UI and a plugin server build against the tarballs
         run: consumers/run.sh "$RUNNER_TEMP/packs"
+      - name: New and migrated plugins from create-erxes pass their own gates against the tarballs
+        run: pnpm exec vp test run --project create-erxes-e2e
+        env:
+          CREATE_ERXES_PACKS: ${{ runner.temp }}/packs
 
   e2e:
     # The daily flows (e2e/*.spec.ts) in Chromium with an axe check on every page they visit,
