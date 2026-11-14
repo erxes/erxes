@@ -9,6 +9,8 @@ import {
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
+  IconShieldQuestion,
+  IconSparkles,
   IconTrash,
   IconCreditCard,
   IconUserCircle,
@@ -53,6 +55,15 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       : []),
     ...(can('audit.view')
       ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }]
+      : []),
+    ...(can('assistant.manage')
+      ? [
+          {
+            name: t('assistant-approvals', 'Assistant approvals'),
+            path: 'assistant-approvals',
+            icon: IconShieldQuestion,
+          },
+        ]
       : []),
     ...(can('events.view')
       ? [
@@ -130,11 +141,15 @@ function SettingsExitButton() {
 /** Settings that belong to the signed-in member, not the organisation. */
 const useSettingsAccountPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const can = useCan();
 
   return [
     { name: t('profile', 'Profile'), path: 'profile', icon: IconUserCircle },
     { name: t('security', 'Password & security'), path: 'security', icon: IconLock },
     { name: t('notifications', 'Notifications'), path: 'notifications', icon: IconBellCog },
+    ...(can('assistant.chat')
+      ? [{ name: t('assistant', 'Assistant'), path: 'assistant', icon: IconSparkles }]
+      : []),
   ];
 };
 

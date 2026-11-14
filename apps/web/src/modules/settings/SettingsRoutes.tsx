@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
+import { AssistantApprovalsPage } from './assistant/AssistantApprovalsPage';
+import { AssistantKeysPage } from './assistant/AssistantKeysPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
@@ -51,6 +53,8 @@ export const SettingsRoutes = () => (
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />
+      <Route path="assistant" element={<AssistantKeysPage />} />
+      <Route path="assistant-approvals" element={<AssistantApprovalsPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>
