@@ -8,9 +8,13 @@ import { useLoyaltyHeaderAction } from '~/modules/loyalties/components/LoyaltyHe
 import { CouponRecordTable } from '~/modules/loyalties/coupons/components/CouponRecordTable';
 import { CouponAddModal } from '~/modules/loyalties/coupons/components/CouponAddModal';
 import { CouponFilter } from '~/modules/loyalties/coupons/components/CouponFilter';
+import { useCouponVariables } from '~/modules/loyalties/coupons/hooks/useCouponList';
 
 const CouponHeaderActions = () => {
   const { t } = useTranslation('loyalty');
+  const { status, campaignId, ownerType, ownerId } = useCouponVariables();
+  const getFilters = () => ({ status, campaignId, ownerType, ownerId });
+
   return (
     <div className="flex items-center gap-2">
       <Button variant="outline" size="sm" asChild>
@@ -19,7 +23,12 @@ const CouponHeaderActions = () => {
           {t('go-to-settings')}
         </Link>
       </Button>
-      <Export pluginName="loyalty" moduleName="coupon" collectionName="coupon" />
+      <Export
+        pluginName="loyalty"
+        moduleName="coupon"
+        collectionName="coupon"
+        getFilters={getFilters}
+      />
       <CouponAddModal />
     </div>
   );
