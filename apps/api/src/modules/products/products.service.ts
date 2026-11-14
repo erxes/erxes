@@ -1,9 +1,4 @@
-import {
-  type CustomValue,
-  Product,
-  type ProductKind,
-  type ProductStatus,
-} from '@erxes/core-contract';
+import { type CustomValue, type ProductKind, type ProductStatus } from '@erxes/core-contract';
 import { actorOf, caller, type Db, newId, organizations, products } from '@erxes/core-db';
 import { eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -88,7 +83,8 @@ const announce = async (
       type: `core.product.${action}`,
       entityType: 'product',
       entityId: row.id,
-      payload: { product: Product.parse(row), changed: Object.keys(changes ?? {}) },
+      // Like every core event, it names the record: a subscriber reads the product from core.
+      payload: { changed: Object.keys(changes ?? {}) },
     })),
   );
 };

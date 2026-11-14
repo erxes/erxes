@@ -10,14 +10,17 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - the HTTP contract (`packages/contract/src/*.ts` and the OpenAPI document). Plugin UIs call it
      through `@erxes/core-contract/client`, which bundles `routes.json` into each plugin build, so
      a plugin built before a path moved keeps calling the old one;
-   - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction;
+   - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction.
+     Core's own events name the record (`entityId`, `subjectId`) and what changed, never the row:
+     a subscriber reads the record from core;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`);
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`), and its first module renders under `/<path>/*`.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
-     shared with `import: false` fails to load. Plugin UIs keep URL state with the shared `nuqs`
-     under web's `NuqsAdapter`, so they add no adapter of their own.
+     shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
+     plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`
+     (erxes-ui's `Form`).
 2. Classify it. The packages are prereleases on npm's `v2-next` dist-tag (`0.1.0-v2.N` for the
    contract and SDK, `4.0.0-v2.N` for `@erxes/ui`); this policy holds from each one's first
    stable release.
@@ -30,8 +33,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    (`packages/contract/AGENTS.md` says how to write both): every removed path,
    removed field or newly required field is a breaking change.
 4. For federation, keep shared names and exported symbols: a removed `erxes-ui` export breaks
-   plugin UIs at runtime, not at build time. Search the plugin repos (the HR plugin first) for a
-   symbol before removing it.
+   plugin UIs at runtime, not at build time. `packages/ui/exports.txt` lists both, and
+   `pnpm check:generated` fails until it is regenerated, so a removed line in its diff is a
+   breaking change. Search the plugin repos (the HR plugin first) for a symbol before removing it.
 5. Check a consumer: load the HR plugin UI in web with `PUBLIC_PLUGINS=<remote>@<remoteEntry url>`
    (`.agents/skills/verify-feature/SKILL.md`), or call the changed procedure with a token from
    `POST /core/v1/plugins/token`, or through `@erxes/plugin-sdk`'s `createCoreClient`.

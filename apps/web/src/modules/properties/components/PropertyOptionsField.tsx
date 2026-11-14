@@ -90,7 +90,7 @@ export const PropertyOptionsField = ({
                 form={form}
                 index={index}
                 // Records hold this option: renaming or removing it would orphan their values.
-                held={savedValues.has(saved) ? heldCount(saved) : 0}
+                held={saved !== undefined && savedValues.has(saved) ? heldCount(saved) : 0}
                 onRemove={() => remove(index)}
               />
             );
