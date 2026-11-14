@@ -5,7 +5,7 @@ import { and, desc, type SQL, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { callerCan } from '~/http/access';
-import { fail } from '~/http/errors';
+import { fail, invalidInput } from '~/http/errors';
 import { defuse } from '~/lib/csv';
 import { repeatWhile } from '~/lib/sequence';
 import { auditFilters, recordAudit } from './audit.service';
@@ -124,17 +124,7 @@ auditExportRouter.get('/audit/export', async (req: Request, res: Response) => {
 
   const parsed = ExportQuery.safeParse(req.query);
 
-  if (!parsed.success) {
-    res.status(400).json({
-      defined: false,
-      code: 'INVALID_INPUT',
-      status: 400,
-      message: 'The request is not valid',
-      data: { issues: parsed.error.issues },
-    });
-
-    return;
-  }
+  if (!parsed.success) throw invalidInput(parsed.error);
 
   const { format, ...filters } = parsed.data;
   const scope = auditFilters(filters);

@@ -208,7 +208,7 @@ export const productsContract = {
       path: '/products',
       successStatus: 201,
       summary:
-        "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS with the existing product's id in `data.productId` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
+        "Add a product. 409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
     .input(ProductFields.required({ kind: true, name: true }))
     .output(Product),
@@ -258,7 +258,7 @@ export const productCategoriesContract = {
       method: 'POST',
       path: '/product-categories',
       successStatus: 201,
-      summary: '409 CATEGORY_EXISTS (same name under the same parent); 400 INVALID_CATEGORY',
+      summary: '409 TAKEN (same name under the same parent); 400 INVALID_CATEGORY',
     })
     .input(CategoryFields.required({ name: true }))
     .output(ProductCategory),
@@ -266,7 +266,7 @@ export const productCategoriesContract = {
     .route({
       method: 'PATCH',
       path: '/product-categories/{id}',
-      summary: '409 CATEGORY_EXISTS; 400 INVALID_CATEGORY (unknown parent, or one of its own)',
+      summary: '409 TAKEN; 400 INVALID_CATEGORY (unknown parent, or one of its own)',
     })
     .input(
       CategoryFields.extend({ id: Id }).refine(

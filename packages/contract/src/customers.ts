@@ -262,8 +262,7 @@ export const customersContract = {
       method: 'POST',
       path: '/customers',
       successStatus: 201,
-      summary:
-        'Create a customer. 409 CUSTOMER_EXISTS (data: { id, field }) when the primary email or phone is taken',
+      summary: 'Create a customer. 409 TAKEN (data.field) when the primary email or phone is taken',
     })
     .input(CustomerFields.refine(identifies, 'a name, an email or a phone is required'))
     .output(Customer),

@@ -28,11 +28,14 @@ export const ERRORS = {
   NOT_IN_PLAN: { status: 402, data: z.object({ manageUrl: z.string().nullable() }).optional() },
   READ_ONLY: { status: 402 },
   TOO_MANY_REQUESTS: { status: 429 },
+  // Open `/core/v1/stream` connections past the member's limit.
+  TOO_MANY_STREAMS: { status: 429 },
 
-  // Any procedure: input the contract refuses, a missing record, a value
+  // Any procedure: input the contract refuses (or a body that isn't JSON), a missing record, a value
   // another record holds (a unique index, `field` names the input field;
   // `id` is that record when known), a stale list cursor.
   INVALID_INPUT: { status: 400, data: InvalidInput },
+  INVALID_JSON: { status: 400 },
   NOT_FOUND: { status: 404 },
   TAKEN: {
     status: 409,
@@ -122,8 +125,13 @@ export const ERRORS = {
   FILE_TYPE_NOT_ALLOWED: { status: 400, data: z.object({ allowedTypes: z.array(z.string()) }) },
   UPLOAD_INCOMPLETE: { status: 409 },
   UPLOAD_CHANGED: { status: 409 },
+  // Signed upload links of the local driver (files.http.ts).
+  CONTENT_TYPE_MISMATCH: { status: 400 },
+  SIZE_MISMATCH: { status: 400 },
+  ALREADY_UPLOADED: { status: 409 },
 
   // Payments.
+  INVALID_SIGNATURE: { status: 403 },
   CURRENCY_NOT_SUPPORTED: { status: 400, data: z.object({ currency: z.string() }) },
   DEFAULT_NOT_ALLOWED: { status: 400 },
   GATEWAY_NOT_ALLOWED: { status: 403 },

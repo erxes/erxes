@@ -63,21 +63,6 @@ export const IdList = z
       .slice(0, 100),
   );
 
-/**
- * Every error (oRPC's error body): a stable `code` to branch on, the HTTP
- * `status`, a readable `message` and, for some codes, `data` (e.g. the id of
- * an existing record for `CUSTOMER_EXISTS`, validation `issues` for `INVALID_INPUT`).
- */
-export const ErrorBody = z.object({
-  defined: z.boolean(),
-  code: z.string(),
-  status: z.int(),
-  message: z.string(),
-  data: z.unknown().optional(),
-});
-
-export type ErrorBody = z.infer<typeof ErrorBody>;
-
 /** `INVALID_INPUT`'s `data`: what failed the contract, field by field. */
 export const InvalidInput = z.object({
   issues: z.array(z.object({ path: z.array(z.union([z.string(), z.int()])), message: z.string() })),

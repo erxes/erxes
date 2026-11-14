@@ -1,5 +1,6 @@
 import { ERRORS, type ErrorCode } from '@erxes/core-contract';
 import { ORPCError, type ValidationError } from '@orpc/server';
+import type { NextFunction, Request, Response } from 'express';
 import { DatabaseError } from 'pg';
 import type { z } from 'zod';
 
@@ -21,8 +22,8 @@ export const fail = <C extends ErrorCode>(
 
 export const notFound = (what: string) => fail('NOT_FOUND', `${what} not found`);
 
-/** Input the contract refuses: zod's issues, path by path. */
-export const invalidInput = ({ issues }: ValidationError) =>
+/** Input the contract refuses (oRPC's `ValidationError`, or a `ZodError`): its issues, path by path. */
+export const invalidInput = ({ issues }: Pick<ValidationError, 'issues'>) =>
   fail('INVALID_INPUT', 'The request is not valid', {
     issues: issues.map((issue) => ({
       path: (issue.path ?? []).flatMap((segment) => {
@@ -123,4 +124,29 @@ export const fromDatabase = (error: unknown) => {
   if (pg?.code === '23503') return fail('INVALID_REFERENCE', known.message, { field: known.field });
 
   return error;
+};
+
+/**
+ * Express's error handler, for what fails outside oRPC (Express routes, auth,
+ * body parsing): the same body oRPC sends, or a logged 500.
+ */
+export const answerError = (error: unknown, req: Request, res: Response, _next: NextFunction) => {
+  const known =
+    error instanceof SyntaxError && 'body' in error
+      ? fail('INVALID_JSON', 'The request body is not valid JSON')
+      : fromDatabase(error);
+
+  if (known instanceof ORPCError) {
+    res.status(known.status).json(known.toJSON());
+
+    return;
+  }
+
+  req.log.error({ err: error }, 'unhandled error');
+  res.status(500).json({
+    defined: false,
+    code: 'INTERNAL_SERVER_ERROR',
+    status: 500,
+    message: 'Something went wrong',
+  });
 };

@@ -7205,32 +7205,6 @@
           "customFields"
         ]
       },
-      "CustomerExists": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "field": {
-            "enum": [
-              "primaryEmail",
-              "primaryPhone"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "field"
-        ]
-      },
       "CustomerFields": {
         "type": "object",
         "properties": {
@@ -7730,32 +7704,6 @@
           "type",
           "outcome",
           "problem"
-        ]
-      },
-      "ErrorBody": {
-        "type": "object",
-        "properties": {
-          "defined": {
-            "type": "boolean"
-          },
-          "code": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {}
-        },
-        "required": [
-          "defined",
-          "code",
-          "status",
-          "message"
         ]
       },
       "EventFailure": {
@@ -12614,6 +12562,29 @@
           "message"
         ]
       },
+      "TOO_MANY_STREAMSError": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "const": true
+          },
+          "code": {
+            "const": "TOO_MANY_STREAMS"
+          },
+          "status": {
+            "const": 429
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defined",
+          "code",
+          "status",
+          "message"
+        ]
+      },
       "INVALID_INPUTError": {
         "type": "object",
         "properties": {
@@ -12639,6 +12610,29 @@
           "status",
           "message",
           "data"
+        ]
+      },
+      "INVALID_JSONError": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "const": true
+          },
+          "code": {
+            "const": "INVALID_JSON"
+          },
+          "status": {
+            "const": 400
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defined",
+          "code",
+          "status",
+          "message"
         ]
       },
       "NOT_FOUNDError": {
@@ -14293,6 +14287,98 @@
           },
           "status": {
             "const": 409
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defined",
+          "code",
+          "status",
+          "message"
+        ]
+      },
+      "CONTENT_TYPE_MISMATCHError": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "const": true
+          },
+          "code": {
+            "const": "CONTENT_TYPE_MISMATCH"
+          },
+          "status": {
+            "const": 400
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defined",
+          "code",
+          "status",
+          "message"
+        ]
+      },
+      "SIZE_MISMATCHError": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "const": true
+          },
+          "code": {
+            "const": "SIZE_MISMATCH"
+          },
+          "status": {
+            "const": 400
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defined",
+          "code",
+          "status",
+          "message"
+        ]
+      },
+      "ALREADY_UPLOADEDError": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "const": true
+          },
+          "code": {
+            "const": "ALREADY_UPLOADED"
+          },
+          "status": {
+            "const": 409
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defined",
+          "code",
+          "status",
+          "message"
+        ]
+      },
+      "INVALID_SIGNATUREError": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "const": true
+          },
+          "code": {
+            "const": "INVALID_SIGNATURE"
+          },
+          "status": {
+            "const": 403
           },
           "message": {
             "type": "string"
@@ -34839,7 +34925,7 @@
       },
       "post": {
         "operationId": "companies.create",
-        "summary": "Create a company. 409 COMPANY_EXISTS (data: { id }) when the name is taken",
+        "summary": "Create a company. 409 TAKEN when the name is taken",
         "requestBody": {
           "required": true,
           "content": {
@@ -37437,7 +37523,7 @@
       },
       "post": {
         "operationId": "customers.create",
-        "summary": "Create a customer. 409 CUSTOMER_EXISTS (data: { id, field }) when the primary email or phone is taken",
+        "summary": "Create a customer. 409 TAKEN (data.field) when the primary email or phone is taken",
         "requestBody": {
           "required": true,
           "content": {
@@ -40600,7 +40686,7 @@
       },
       "post": {
         "operationId": "customerAccount.addLogin",
-        "summary": "Send a code to a new address to sign in with. 409 LOGIN_TAKEN when it is already a login, 429 TOO_MANY_CODES",
+        "summary": "Send a code to a new address to sign in with. 409 TAKEN when it is already a login, 429 TOO_MANY_CODES",
         "requestBody": {
           "required": true,
           "content": {
@@ -40834,7 +40920,7 @@
     "/customer/me/logins/confirm": {
       "post": {
         "operationId": "customerAccount.confirmLogin",
-        "summary": "Add the address with its code. 400 INVALID_CODE, 409 LOGIN_TAKEN",
+        "summary": "Add the address with its code. 400 INVALID_CODE, 409 TAKEN",
         "requestBody": {
           "required": true,
           "content": {
@@ -44061,7 +44147,7 @@
       },
       "post": {
         "operationId": "fieldGroups.create",
-        "summary": "Add a field group (owners and admins). The code defaults to the name; 409 FIELD_GROUP_EXISTS for a taken code",
+        "summary": "Add a field group (owners and admins). The code defaults to the name; 409 TAKEN for a taken code",
         "requestBody": {
           "required": true,
           "content": {
@@ -45308,7 +45394,7 @@
       },
       "post": {
         "operationId": "fields.create",
-        "summary": "Add a custom field (owners and admins). 409 FIELD_EXISTS for a taken label or code",
+        "summary": "Add a custom field (owners and admins). 409 TAKEN for a taken label or code",
         "requestBody": {
           "required": true,
           "content": {
@@ -56208,7 +56294,7 @@
       },
       "post": {
         "operationId": "productCategories.create",
-        "summary": "409 CATEGORY_EXISTS (same name under the same parent); 400 INVALID_CATEGORY",
+        "summary": "409 TAKEN (same name under the same parent); 400 INVALID_CATEGORY",
         "requestBody": {
           "required": true,
           "content": {
@@ -56407,7 +56493,7 @@
     "/product-categories/{id}": {
       "patch": {
         "operationId": "productCategories.update",
-        "summary": "409 CATEGORY_EXISTS; 400 INVALID_CATEGORY (unknown parent, or one of its own)",
+        "summary": "409 TAKEN; 400 INVALID_CATEGORY (unknown parent, or one of its own)",
         "parameters": [
           {
             "name": "id",
@@ -57131,7 +57217,7 @@
       },
       "post": {
         "operationId": "products.create",
-        "summary": "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS with the existing product's id in `data.productId` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
+        "summary": "Add a product. 409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
         "requestBody": {
           "required": true,
           "content": {
@@ -60189,7 +60275,7 @@
       },
       "post": {
         "operationId": "tags.create",
-        "summary": "Create a tag. 409 TAG_EXISTS when the name is taken for the type, 409 TAG_LIMIT when the type already has LIST_MAX (1000) tags",
+        "summary": "Create a tag. 409 TAKEN when the name is taken for the type, 409 TAG_LIMIT when the type already has LIST_MAX (1000) tags",
         "requestBody": {
           "required": true,
           "content": {

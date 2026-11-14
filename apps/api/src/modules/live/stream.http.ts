@@ -142,16 +142,8 @@ streamRouter.get('/stream', (req, res) => {
   const key = `${actor.orgId}:${actor.userId}`;
   const open = openStreams.get(key) ?? 0;
 
-  if (open >= config.live.maxStreamsPerUser) {
-    res.status(429).json({
-      defined: false,
-      code: 'TOO_MANY_STREAMS',
-      status: 429,
-      message: 'Too many open streams',
-    });
-
-    return;
-  }
+  if (open >= config.live.maxStreamsPerUser)
+    throw fail('TOO_MANY_STREAMS', 'Too many open streams');
 
   openStreams.set(key, open + 1);
   req.socket.setTimeout(0);

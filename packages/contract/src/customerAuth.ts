@@ -186,7 +186,7 @@ export const customerAccountContract = {
       path: '/customer/me/logins',
       successStatus: 202,
       summary:
-        'Send a code to a new address to sign in with. 409 LOGIN_TAKEN when it is already a login, 429 TOO_MANY_CODES',
+        'Send a code to a new address to sign in with. 409 TAKEN when it is already a login, 429 TOO_MANY_CODES',
     })
     .input(addressWith({}))
     .output(CodeSent),
@@ -195,7 +195,7 @@ export const customerAccountContract = {
       method: 'POST',
       path: '/customer/me/logins/confirm',
       successStatus: 201,
-      summary: 'Add the address with its code. 400 INVALID_CODE, 409 LOGIN_TAKEN',
+      summary: 'Add the address with its code. 400 INVALID_CODE, 409 TAKEN',
     })
     .input(addressWith({ code: Code }))
     .output(CustomerLogin),

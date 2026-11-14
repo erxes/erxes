@@ -38,7 +38,7 @@ export const tagsContract = {
       path: '/tags',
       successStatus: 201,
       summary:
-        'Create a tag. 409 TAG_EXISTS when the name is taken for the type, 409 TAG_LIMIT when the type already has LIST_MAX (1000) tags',
+        'Create a tag. 409 TAKEN when the name is taken for the type, 409 TAG_LIMIT when the type already has LIST_MAX (1000) tags',
     })
     .input(TagFields.required({ type: true, name: true }))
     .output(Tag),

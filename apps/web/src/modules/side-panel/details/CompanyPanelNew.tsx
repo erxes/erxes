@@ -178,7 +178,7 @@ const useCompanySave = (form: UseFormReturn<TCompanyForm>, customerIds: string[]
 
       await finish(created.id, customerIds);
     } catch (error) {
-      if (isApiError(error, 'COMPANY_EXISTS')) {
+      if (isApiError(error, 'TAKEN')) {
         form.setError('primaryName', { message: error.message });
 
         return;

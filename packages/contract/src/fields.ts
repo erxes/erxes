@@ -171,7 +171,7 @@ export const fieldsContract = {
       method: 'POST',
       path: '/fields',
       successStatus: 201,
-      summary: 'Add a custom field (owners and admins). 409 FIELD_EXISTS for a taken label or code',
+      summary: 'Add a custom field (owners and admins). 409 TAKEN for a taken label or code',
     })
     .input(
       FieldFields.omit({ order: true })
@@ -250,7 +250,7 @@ export const fieldGroupsContract = {
       path: '/field-groups',
       successStatus: 201,
       summary:
-        'Add a field group (owners and admins). The code defaults to the name; 409 FIELD_GROUP_EXISTS for a taken code',
+        'Add a field group (owners and admins). The code defaults to the name; 409 TAKEN for a taken code',
     })
     .input(GroupFields.omit({ order: true }).required({ contentType: true, name: true }))
     .output(FieldGroup),

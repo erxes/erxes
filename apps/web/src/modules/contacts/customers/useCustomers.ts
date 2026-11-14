@@ -58,7 +58,7 @@ export const useCustomerEdit = () => {
   );
 };
 
-/** Callers show the failure next to the field it is about (`CUSTOMER_EXISTS`). */
+/** Callers show the failure next to the field it is about (`TAKEN`). */
 export const useCustomerCreate = () => {
   const client = useQueryClient();
 

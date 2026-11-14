@@ -1,11 +1,10 @@
 import { SaasWorkspace } from '@erxes/core-contract';
 import { withOrg } from '@erxes/core-db';
-import express, { type NextFunction, Router, type Request, type Response } from 'express';
+import express, { Router, type Request, type Response } from 'express';
 import { config } from '~/config';
 import { signAccessToken } from '~/http/auth';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
-import { ORPCError } from '@orpc/server';
-import { fail, fromDatabase } from '~/http/errors';
+import { fail, invalidInput } from '~/http/errors';
 import { sessionVersionOf } from '~/modules/auth/account.service';
 import { refreshEntitlements } from './entitlements';
 import { redeemHandoff } from './handoff';
@@ -22,38 +21,26 @@ import { applyWorkspace, platformAuthorized, workspaceUsage } from './workspace'
  */
 export const saasRouter = Router();
 
-const fromPlatform = (req: Request, res: Response) => {
-  if (platformAuthorized(req.header('authorization'))) return true;
+const notSaas = () => fail('NOT_FOUND', 'Not a SaaS deployment');
 
-  res.status(401).json({ code: 'UNAUTHORIZED', message: 'erxes.io platform token required' });
-
-  return false;
+const requirePlatform = (req: Request) => {
+  if (!platformAuthorized(req.header('authorization'))) {
+    throw fail('UNAUTHORIZED', 'erxes.io platform token required');
+  }
 };
 
-saasRouter.use((_req, res, next) => {
-  if (!config.saas.enabled) {
-    res.status(404).json({ code: 'NOT_FOUND', message: 'Not a SaaS deployment' });
-
-    return;
-  }
+saasRouter.use((_req, _res, next) => {
+  if (!config.saas.enabled) throw notSaas();
 
   next();
 });
 
 saasRouter.put('/organizations/:id', express.json({ limit: '64kb' }), async (req, res) => {
-  if (!fromPlatform(req, res)) return;
+  requirePlatform(req);
 
   const parsed = SaasWorkspace.safeParse(req.body);
 
-  if (!parsed.success) {
-    res.status(400).json({
-      code: 'INVALID_INPUT',
-      message: 'Not a valid workspace',
-      data: { issues: parsed.error.issues },
-    });
-
-    return;
-  }
+  if (!parsed.success) throw invalidInput(parsed.error);
 
   const result = await applyWorkspace(req.params.id, parsed.data);
 
@@ -61,7 +48,7 @@ saasRouter.put('/organizations/:id', express.json({ limit: '64kb' }), async (req
 });
 
 saasRouter.post('/organizations/:id/refresh', async (req, res) => {
-  if (!fromPlatform(req, res)) return;
+  requirePlatform(req);
 
   const row = await refreshEntitlements(req.params.id);
 
@@ -71,32 +58,14 @@ saasRouter.post('/organizations/:id/refresh', async (req, res) => {
 });
 
 saasRouter.get('/organizations/:id', async (req, res) => {
-  if (!fromPlatform(req, res)) return;
+  requirePlatform(req);
 
   res.json(await workspaceUsage(req.params.id));
 });
 
-/** Answers erxes.io in its own error shape. */
-saasRouter.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
-  const known = fromDatabase(error);
-
-  if (known instanceof ORPCError) {
-    res.status(known.status).json(known.toJSON());
-
-    return;
-  }
-
-  req.log.error({ err: error }, 'saas request failed');
-  res.status(500).json({ code: 'INTERNAL', message: 'Try again' });
-});
-
 /** Signs the member in from erxes.io's link, then opens the workspace. A refused link goes back to erxes.io. */
 export const saasLogin = async (req: Request, res: Response) => {
-  if (!config.saas.enabled) {
-    res.status(404).json({ code: 'NOT_FOUND', message: 'Not a SaaS deployment' });
-
-    return;
-  }
+  if (!config.saas.enabled) throw notSaas();
 
   const handoff = await redeemHandoff(
     typeof req.query.token === 'string' ? req.query.token : '',

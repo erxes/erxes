@@ -17,7 +17,8 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    A body that leaves outside oRPC (webhook, plugin delivery, job payload) goes through the
    schema's `.parse(row)` instead. The handler runs inside `withOrg`, so
    queries carry no org filter and inserts leave out `orgId` (lint `erxes/no-org-filter`).
-   Failures throw `HttpError(status, CODE, message)`.
+   Failures throw `fail(CODE, message, data?)` (`~/http/errors`); the code lives in `ERRORS`
+   (`packages/contract/src/errors.ts`) and in the module's `oc.errors({...})` map.
 3. Give it a policy in `ACCESS` (`apps/api/src/http/policies.ts`): `MEMBER`,
    `needs('<permission>')`, `PUBLIC`, `CUSTOMER` or `{ plugin: '<scope>' }`; the type check fails
    until it has one. Add the handler to `modules/<feature>/<feature>.router.ts` with a builder from

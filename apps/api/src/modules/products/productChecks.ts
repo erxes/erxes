@@ -104,8 +104,8 @@ export const pluginsFor = async (
 };
 
 /**
- * 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS when another product has
- * the code or barcode, with its id (`data.productId`): a plugin syncing its
+ * 409 TAKEN when another product has the code or barcode, with its id
+ * (`data.id`): a plugin syncing its
  * own catalog starts using that product instead of making a copy.
  */
 export const checkUnique = async (

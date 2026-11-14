@@ -1,4 +1,4 @@
-import { CustomerExists, CustomerSex } from '@erxes/core-contract';
+import { CustomerSex } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   type Icon,
@@ -17,7 +17,7 @@ import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { toYmd } from '~/components/inlineCells';
-import { errorData, isApiError, messageOf } from '~/lib/api';
+import { isApiError, messageOf } from '~/lib/api';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
 import { PanelFormRow } from '../PanelForm';
 import { useSidePanelDraft } from '../useSidePanel';
@@ -189,8 +189,8 @@ const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[
 
       await finish(created.id, companyIds);
     } catch (error) {
-      if (isApiError(error, 'CUSTOMER_EXISTS')) {
-        form.setError(errorData(error, CustomerExists)?.field ?? 'primaryEmail', {
+      if (isApiError(error, 'TAKEN')) {
+        form.setError(error.data.field === 'primaryPhone' ? 'primaryPhone' : 'primaryEmail', {
           message: error.message,
         });
 

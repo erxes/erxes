@@ -72,7 +72,7 @@ export const useStoreProduct = () => {
   };
 };
 
-/** Callers show failures next to the field they are about (`PRODUCT_CODE_EXISTS`). */
+/** Callers show failures next to the field they are about (`TAKEN`). */
 export const useProductCreate = () => {
   const store = useStoreProduct();
 

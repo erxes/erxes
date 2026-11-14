@@ -188,7 +188,7 @@ export const companiesContract = {
       method: 'POST',
       path: '/companies',
       successStatus: 201,
-      summary: 'Create a company. 409 COMPANY_EXISTS (data: { id }) when the name is taken',
+      summary: 'Create a company. 409 TAKEN when the name is taken',
     })
     .input(CompanyFields.extend({ primaryName: z.string().trim().min(1).max(200) }))
     .output(Company),
