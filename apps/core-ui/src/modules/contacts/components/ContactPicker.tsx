@@ -51,7 +51,7 @@ const RelationChip = ({
   >
     <Avatar className="size-4 flex-none">
       <Avatar.Image src={readImage(avatar ?? undefined)} />
-      <Avatar.Fallback className="text-[10px]">{name.charAt(0)}</Avatar.Fallback>
+      <Avatar.Fallback className="text-3xs">{name.charAt(0)}</Avatar.Fallback>
     </Avatar>
     <span className="truncate">{name}</span>
     {/* It opens the record: say so on hover. */}
@@ -211,7 +211,7 @@ export const SelectContactContent = ({
         wrapperClassName="flex-auto"
         focusOnMount
       />
-      <Command.List className="max-h-[300px] overflow-y-auto">
+      <Command.List className="max-h-75 overflow-y-auto">
         {selectedOptions.length > 0 && (
           <>
             {selectedOptions.map((option) => (

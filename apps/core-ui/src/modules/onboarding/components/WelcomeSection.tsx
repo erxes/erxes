@@ -54,7 +54,7 @@ export const WelcomeSection = ({
         </Button>
         <p className="text-xs text-muted-foreground">
           Press
-          <kbd className="mx-1 rounded-md border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">
+          <kbd className="mx-1 rounded-md border bg-muted px-1.5 py-0.5 font-mono text-3xs text-foreground">
             Enter
           </kbd>
           to continue

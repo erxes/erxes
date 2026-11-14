@@ -112,7 +112,7 @@ const FilterPopover = (props: FiltersProps) => {
       >
         <IconAdjustmentsHorizontal className="size-4" />
         {count > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+          <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-3xs font-medium text-primary-foreground">
             {count}
           </span>
         )}

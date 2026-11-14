@@ -102,7 +102,7 @@ const PluginMeta = ({
 }) => (
   <>
     {activity.actor.type === 'user' && <span>{actor}</span>}
-    <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+    <Badge variant="secondary" className="h-4 px-1.5 text-3xs">
       {pluginLabel(activity.source)}
       {label ? ` · ${label}` : ''}
     </Badge>
@@ -138,7 +138,7 @@ const EventItem = ({
     <li className="relative flex gap-3 pb-4">
       {rail}
       <span
-        className="relative z-[1] flex size-6 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground ring-4 ring-background"
+        className="relative z-1 flex size-6 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground ring-4 ring-background"
         style={look?.color ? { color: look.color } : undefined}
       >
         <ItemIcon className="size-3" />

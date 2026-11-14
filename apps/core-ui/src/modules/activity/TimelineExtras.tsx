@@ -22,7 +22,7 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
           type="button"
           onClick={() => react.mutate({ id: activity.id, emoji })}
           className={cn(
-            'inline-flex h-5 items-center gap-1 rounded-full border px-1.5 text-[11px]',
+            'inline-flex h-5 items-center gap-1 rounded-full border px-1.5 text-2xs',
             people.includes(user.id)
               ? 'border-primary bg-primary/10 text-primary-text'
               : 'hover:bg-accent',

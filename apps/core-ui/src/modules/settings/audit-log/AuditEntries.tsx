@@ -37,7 +37,7 @@ const EntryDetails = ({ entry }: { entry: AuditEntry }) => (
       </table>
     )}
     {entry.metadata && (
-      <pre className="max-w-2xl overflow-x-auto rounded bg-background p-2 text-[11px]">
+      <pre className="max-w-2xl overflow-x-auto rounded bg-background p-2 text-2xs">
         {JSON.stringify(entry.metadata, null, 2)}
       </pre>
     )}
@@ -112,7 +112,7 @@ const EntryRow = ({
             {auditSentence(entry, i18n.language)}
           </button>
           {entry.source !== 'core' && (
-            <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+            <Badge variant="secondary" className="h-4 px-1.5 text-3xs">
               {pluginLabel(entry.source)}
             </Badge>
           )}

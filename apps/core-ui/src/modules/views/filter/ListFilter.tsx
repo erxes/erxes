@@ -196,7 +196,7 @@ const ListFilterBar = ({
     <ListFilterContext.Provider value={state}>
       <div
         ref={chipsRef}
-        className="flex min-w-0 items-center gap-1 overflow-x-auto py-1 [scrollbar-width:none]"
+        className="flex min-w-0 items-center gap-1 overflow-x-auto py-1 hide-scroll"
       >
         <SearchChip />
         <RuleChips />

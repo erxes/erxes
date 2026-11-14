@@ -44,7 +44,7 @@ const TableHead = ({ ref, className, ...props }: React.ComponentProps<'th'>) => 
   <th
     ref={ref}
     className={cn(
-      'h-9 px-2 text-left align-middle font-semibold text-xs text-accent-foreground *:[[role=checkbox]]:translate-y-[2px] border-spacing-0 font-mono uppercase bg-sidebar',
+      'h-9 px-2 text-left align-middle font-semibold text-xs text-accent-foreground *:[[role=checkbox]]:translate-y-0.5 border-spacing-0 font-mono uppercase bg-sidebar',
       className,
     )}
     {...props}
@@ -55,7 +55,7 @@ const TableCell = ({ ref, className, ...props }: React.ComponentProps<'td'>) => 
   <td
     ref={ref}
     className={cn(
-      'align-middle p-0 *:[[role=checkbox]]:translate-y-[2px] bg-background whitespace-nowrap h-cell border-r border-spacing-0 group-data-[state=selected]/table-row:bg-primary/10 group-hover/table-row:bg-muted',
+      'align-middle p-0 *:[[role=checkbox]]:translate-y-0.5 bg-background whitespace-nowrap h-cell border-r border-spacing-0 group-data-[state=selected]/table-row:bg-primary/10 group-hover/table-row:bg-muted',
       className,
     )}
     {...props}

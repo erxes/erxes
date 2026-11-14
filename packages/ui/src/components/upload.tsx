@@ -78,7 +78,7 @@ const UploadRoot = ({
           <img
             src={readImage(url)}
             alt="Focused view"
-            className="max-h-[90vh] max-w-[90vw] object-contain"
+            className="max-h-lightbox max-w-lightbox object-contain"
           />
         </Dialog.Content>
       </Dialog>

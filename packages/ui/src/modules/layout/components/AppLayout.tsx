@@ -181,7 +181,7 @@ const AppLayoutDesktop = ({
         className={cn(
           'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar',
           !resizing &&
-            'transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+            'transition-layout duration-300 ease-out-quint motion-reduce:transition-none',
           !open && 'border-r-0',
         )}
         style={{ width: open ? currentWidth : 0 }}

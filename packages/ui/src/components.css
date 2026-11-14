@@ -1,6 +1,6 @@
 /*
- * App-level styles: the BlockNote editor (slash menu, toolbar, drag handle,
- * headings, theme variables) and the sidebar menu look.
+ * Styles utilities can't reach: the BlockNote editor's own markup (slash menu, toolbar, drag
+ * handle, headings, theme variables) and the sidebar menu's nested selectors.
  */
 .bn-shadcn {
   --background: 0 0% 100%;

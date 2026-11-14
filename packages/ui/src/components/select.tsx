@@ -50,7 +50,7 @@ const SelectGroup = (props: SelectPrimitive.Group.Props) =>
 const SelectTrigger = ({ className, children, ...props }: SelectPrimitive.Trigger.Props) => (
   <SelectPrimitive.Trigger
     className={cn(
-      'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition-[color,box-shadow] text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1',
+      'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1',
       className,
     )}
     {...props}

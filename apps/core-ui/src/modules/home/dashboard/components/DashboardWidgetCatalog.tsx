@@ -38,7 +38,7 @@ const CatalogCard = ({
       <DashboardWidgetPreview preview={widget.preview} icon={widget.icon} />
       <span className="min-w-0 space-y-0.5">
         <span className="line-clamp-1 text-xs font-medium">{label}</span>
-        <span className="line-clamp-2 text-[11px] leading-tight text-muted-foreground">
+        <span className="line-clamp-2 text-2xs leading-tight text-muted-foreground">
           {isPlaced ? t('already-placed') : description}
         </span>
       </span>

@@ -28,7 +28,7 @@ export const PanelField = ({
   const labelId = useId();
 
   return (
-    <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 min-h-7">
+    <div className="grid grid-cols-field items-center gap-x-2 min-h-7">
       <Label
         id={labelId}
         htmlFor={htmlFor}

@@ -127,7 +127,7 @@ export const StepInspector = ({
     <div className="space-y-4">
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
             {t(`step-type.${step.type}`, STEP_TITLES[step.type])}
           </p>
           <h2 className="text-base font-semibold break-words">{title}</h2>

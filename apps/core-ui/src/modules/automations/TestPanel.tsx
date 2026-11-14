@@ -62,7 +62,7 @@ const TestTrace = ({ result }: { result: TestResult }) => {
             </div>
             {item.problem && <p className="mt-1 text-xs text-destructive">{item.problem}</p>}
             {item.input !== null && item.input !== undefined && (
-              <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-[11px]">
+              <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-2xs">
                 {JSON.stringify(item.input, null, 2)}
               </pre>
             )}

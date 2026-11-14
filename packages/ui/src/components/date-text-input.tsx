@@ -113,7 +113,7 @@ export const DateTextInput = ({
     <div
       aria-disabled={isDisabled}
       className={cn(
-        'flex h-7 w-full items-center gap-1 rounded-sm bg-background px-3 text-sm text-foreground shadow-xs transition-[color,box-shadow] focus-within:shadow-focus',
+        'flex h-7 w-full items-center gap-1 rounded-sm bg-background px-3 text-sm text-foreground shadow-xs transition focus-within:shadow-focus',
         isDisabled && 'cursor-not-allowed opacity-50',
         className,
       )}

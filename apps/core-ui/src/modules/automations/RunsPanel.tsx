@@ -57,7 +57,7 @@ const StepEntry = ({ step }: { step: RunStep }) => {
           <summary className="cursor-pointer text-xs text-muted-foreground">
             {t('details', 'Input and output')}
           </summary>
-          <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-[11px]">
+          <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-2xs">
             {JSON.stringify({ input: step.input, output: step.output }, null, 2)}
           </pre>
         </details>

@@ -160,7 +160,7 @@ export const Node = ({
         <Icon className="size-4" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="block text-2xs font-medium uppercase tracking-wide text-muted-foreground">
           {kind}
         </span>
         <span className="line-clamp-2 block text-sm font-medium break-words">{title}</span>
@@ -169,7 +169,7 @@ export const Node = ({
       {!!problems?.length && <IconAlertTriangle className="size-4 shrink-0 text-destructive" />}
     </div>
     {stats && (
-      <span className="flex items-center gap-3 border-t px-3 py-1.5 text-[11px] text-muted-foreground">
+      <span className="flex items-center gap-3 border-t px-3 py-1.5 text-2xs text-muted-foreground">
         <NodeStats stats={stats} />
       </span>
     )}

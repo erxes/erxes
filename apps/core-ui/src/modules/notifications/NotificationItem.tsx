@@ -73,12 +73,12 @@ const NotificationMeta = ({
         <RelativeDateDisplay.Value value={notification.createdAt} />
       </RelativeDateDisplay>
       {inbox && notification.source !== 'core' && (
-        <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+        <Badge variant="secondary" className="h-4 px-1.5 text-3xs">
           {inbox.label}
         </Badge>
       )}
       {notification.priority === 'high' && (
-        <Badge variant="destructive" className="h-4 px-1.5 text-[10px]">
+        <Badge variant="destructive" className="h-4 px-1.5 text-3xs">
           {t('important', 'Important')}
         </Badge>
       )}
