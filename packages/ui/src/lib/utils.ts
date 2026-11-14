@@ -18,6 +18,7 @@ export const cn = createCn({
         'button-outline',
       ],
       spacing: ['cell'],
+      text: ['3xs', '2xs'],
       animate: [
         'accordion-down',
         'accordion-up',

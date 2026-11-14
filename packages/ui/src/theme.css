@@ -26,6 +26,9 @@
     'Courier New', monospace;
 
   --text-*: initial;
+  /* Counters, keyboard hints and initials in small avatars. They keep the surrounding line height. */
+  --text-3xs: 0.625rem;
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-xs--line-height: 0.875rem;
   --text-sm: 0.8125rem;
