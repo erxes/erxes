@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/lib/crypto';
 import { loggedEmails } from '~/modules/email/email';
-import { processJobs } from '~/modules/jobs/jobs';
-import { JOBS } from '~/modules/jobs/registry';
+import { settle } from './settle';
+
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { useTestDatabase } from './db';
 import { type CoreClient, useTestServer } from './support';
 
 /** Sends what the jobs queued. */
-const send = () => processJobs(JOBS);
+const send = () => settle();
 
 /** The token in the link of the last email to `to`. */
 const linkToken = (to: string, path: string) => {

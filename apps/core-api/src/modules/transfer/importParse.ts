@@ -53,7 +53,8 @@ const storeSheet = (orgId: string, id: string, sheet: Awaited<ReturnType<typeof 
  */
 export const importParseJob = defineJob({
   queue: 'import.parse',
-  leaseSeconds: 300,
+  timeoutSeconds: 300,
+  retry: { attempts: 3 },
   payload: z.object({ importId: z.string() }),
   async handle(job) {
     const { orgId } = job;

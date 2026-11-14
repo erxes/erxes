@@ -4,7 +4,7 @@ import { and, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { eventJson } from '~/modules/events/events.service';
-import type { EventConsumer } from '~/modules/events/processor';
+import type { EventConsumer } from '~/modules/events/consumers';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
 import { nextCursor, stepAt } from './cursor';
@@ -101,6 +101,14 @@ export const startRuns = async (
 
   if (!version || !starts.length) return [];
 
+  // One automation's starts go one at a time (event jobs run side by side): the
+  // next waits for this transaction, then re-entry and the hourly limit count its runs.
+  await tx
+    .select({ id: automations.id })
+    .from(automations)
+    .where(eq(automations.id, automation.id))
+    .for('update');
+
   const entered = await enteredBefore(
     tx,
     automation.id,
@@ -184,7 +192,9 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
   const candidates = await tx
     .select()
     .from(automations)
-    .where(and(eq(automations.status, 'active'), eq(automations.triggerEvent, event.type)));
+    .where(and(eq(automations.status, 'active'), eq(automations.triggerEvent, event.type)))
+    // In one order everywhere, so startRuns' row locks never deadlock.
+    .orderBy(automations.id);
 
   if (!candidates.length) return;
 
@@ -245,7 +255,10 @@ const resumeWaiting = async (tx: Db, event: EventRow, subjectId: string, dto: Co
     .select()
     .from(automationRuns)
     .where(and(eq(automationRuns.subjectId, subjectId), eq(automationRuns.status, 'waiting')))
-    .for('update', { skipLocked: true });
+    // Waits for a run another event's job or a step holds (never skips it, or this
+    // event would pass it by), in one order so two events' jobs never deadlock.
+    .orderBy(automationRuns.id)
+    .for('update');
 
   if (!waiting.length) return;
 

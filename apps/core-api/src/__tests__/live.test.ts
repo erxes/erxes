@@ -2,9 +2,10 @@ import { LIVE_MODES } from '@erxes/core-db/enums';
 import { EventSourceParserStream, type EventSourceMessage } from 'eventsource-parser/stream';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
-import { startEventProcessor } from '~/modules/events/processor';
+import { startWorkers, stopWorkers } from '~/modules/jobs/jobs';
 import { liveHub } from '~/modules/live/hub';
 import { testDatabaseUrl, useTestDatabase } from './db';
+import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
 const Hello = z.object({ mode: z.enum(LIVE_MODES) });
@@ -113,17 +114,18 @@ describe('live updates (/core/v1/stream)', () => {
     await Promise.all([member.close(), owner.close(), other.close()]);
   });
 
-  it('wakes the event processor as soon as an event is published', async () => {
-    const stop = startEventProcessor();
-
+  it('wakes the event consumers as soon as an event is published', async () => {
     const customer = await t
       .owner()
       .customers.create({ firstName: 'Woken', primaryEmail: 'woken@mail.mn' });
 
+    await settle();
+    await startWorkers();
+
     const owner = await stream();
 
-    // Let the startup run finish, so the next one is triggered by the event.
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // Let the workers' first fetch go by, so the next one is woken by the event.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     owner.events.length = 0;
 
     await t.hr().events.publish({
@@ -141,10 +143,10 @@ describe('live updates (/core/v1/stream)', () => {
     await owner.next('timeline', (message) =>
       targetsOf(message).some((target) => target.targetId === customer.id),
     );
-    // The slow safety poll is 30 s; the event was handled right away.
-    expect(Date.now() - started).toBeLessThan(15_000);
+    // The workers' safety poll is 5 s away; NOTIFY woke them right away.
+    expect(Date.now() - started).toBeLessThan(2500);
 
-    await stop();
+    await stopWorkers();
     await owner.close();
   });
 

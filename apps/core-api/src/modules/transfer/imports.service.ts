@@ -94,7 +94,6 @@ export const createImport = async (
   await importParseJob.enqueue(client, {
     orgId: row.orgId,
     payload: { importId: row.id },
-    maxAttempts: 3,
     dedupeKey: stepKey(row.id, importParseJob.queue),
   });
 
@@ -180,7 +179,6 @@ const begin = async (client: Db, id: string, status: 'checking' | 'running') => 
   await job.enqueue(client, {
     orgId: next.orgId,
     payload: { importId: next.id, after },
-    maxAttempts: 3,
     dedupeKey: stepKey(next.id, job.queue, after),
   });
 
@@ -213,7 +211,6 @@ export const undoImport = async (client: Db, actor: Actor, id: string) => {
   await importUndoJob.enqueue(client, {
     orgId: next.orgId,
     payload: { importId: next.id, by: actor.userId },
-    maxAttempts: 3,
     dedupeKey: stepKey(next.id, importUndoJob.queue),
   });
   await recordAudit(client, userCaller(actor), {

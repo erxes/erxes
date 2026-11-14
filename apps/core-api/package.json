@@ -49,6 +49,7 @@
     "nodemailer": "^10.5.0",
     "otpauth": "9.5.2",
     "pg": "^8.23.1",
+    "pg-boss": "^12.38.2",
     "pino": "10.4.0",
     "pino-http": "11.0.0",
     "rate-limiter-flexible": "11.2.3",

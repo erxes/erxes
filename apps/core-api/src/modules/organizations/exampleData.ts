@@ -219,7 +219,8 @@ const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) 
 export const exampleDataJob = defineJob({
   queue: 'organization.example_data',
   atomic: true,
-  leaseSeconds: 900,
+  timeoutSeconds: 900,
+  retry: { attempts: 3 },
   payload: z.object({ userId: z.string(), language: ExampleLanguage.default('en') }),
   async handle(job, tx) {
     const [member] = await tx

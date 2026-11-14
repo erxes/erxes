@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { loggedEmails } from '~/modules/email/email';
-import { type DefinitionInput, makeDue, useAutomations } from './automations.fixture';
+import { type DefinitionInput, useAutomations } from './automations.fixture';
 import { useTestDatabase } from './db';
-import { settle } from './settle';
+import { makeDue, settle } from './settle';
 
 /** A note on every new company. */
 const note = (body: string): DefinitionInput => ({

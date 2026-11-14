@@ -26,8 +26,6 @@ export const auditStreams = pgTable(
     authHeaderValueSealed: text(),
     status: text({ enum: AUDIT_STREAM_STATUSES }).default('active').notNull(),
     cursorSeq: bigint({ mode: 'number' }).default(0).notNull(),
-    /** The delivery loop that owns the stream: resuming starts a new one and the old one stops. */
-    chainId: text(),
     lastDeliveredAt: timestamptz(),
     lastError: text(),
     consecutiveFailures: integer().default(0).notNull(),

@@ -20,6 +20,7 @@
     "@opentelemetry/api": "1.10.0",
     "drizzle-orm": "0.45.4",
     "pg": "^8.13.1",
+    "pg-boss": "^12.38.2",
     "zod": "^4.6.7"
   },
   "devDependencies": {

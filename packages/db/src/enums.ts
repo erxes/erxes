@@ -186,8 +186,6 @@ export const AUDIT_EXPORT_FORMATS = ['csv', 'json'] as const;
 
 export const EVENT_FAILURE_STATUSES = ['retrying', 'dead'] as const;
 
-export const JOB_STATUSES = ['queued', 'running', 'dead'] as const;
-
 export const WEBHOOK_STATUSES = ['active', 'disabled'] as const;
 export const WEBHOOK_DELIVERY_STATUSES = ['pending', 'succeeded', 'failed'] as const;
 

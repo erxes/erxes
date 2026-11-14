@@ -132,7 +132,8 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean) => {
   const job = defineJob({
     queue,
     atomic: true,
-    leaseSeconds: 600,
+    timeoutSeconds: 600,
+    retry: { attempts: 3 },
     // The first batch's `after` carries a nonce (`0:<id>`); later ones the last row number.
     payload: z.object({ importId: z.string(), after: z.union([z.string(), z.number()]) }),
     async handle({ orgId, payload }, tx) {
@@ -170,7 +171,6 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean) => {
       await job.enqueue(tx, {
         orgId,
         payload: { importId: imp.id, after: last.rowNumber },
-        maxAttempts: 3,
         dedupeKey: stepKey(imp.id, queue, last.rowNumber),
       });
     },
@@ -189,7 +189,8 @@ export const importRunJob = batchJob('import.run', false);
 export const importUndoJob = defineJob({
   queue: 'import.undo',
   atomic: true,
-  leaseSeconds: 600,
+  timeoutSeconds: 600,
+  retry: { attempts: 3 },
   payload: z.object({
     importId: z.string(),
     by: z.string().optional(),
@@ -250,7 +251,6 @@ export const importUndoJob = defineJob({
     await importUndoJob.enqueue(tx, {
       orgId,
       payload: { importId: imp.id, after: last.rowNumber, by: payload.by },
-      maxAttempts: 3,
       dedupeKey: stepKey(imp.id, 'import.undo', last.rowNumber),
     });
   },

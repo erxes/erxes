@@ -1,4 +1,3 @@
-import { sql } from 'drizzle-orm';
 import { once } from 'node:events';
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
@@ -6,8 +5,8 @@ import { z } from 'zod';
 import { config } from '~/config';
 import { hmacSha256 } from '~/lib/crypto';
 import { isPrivateAddress } from '~/lib/outbound';
-import { adminDb, useTestDatabase } from './db';
-import { settle } from './settle';
+import { useTestDatabase } from './db';
+import { makeDue, settle } from './settle';
 import { useTwoOrgs } from './support';
 
 /** What a webhook endpoint receives. */
@@ -113,13 +112,14 @@ describe('webhooks', () => {
         attempts: 1,
         error: 'HTTP 500',
       });
-      expect(new Date(failed?.nextAttemptAt ?? 0).getTime()).toBeGreaterThan(Date.now() + 30_000);
+
+      // The retry waits out its backoff.
+      await settle();
+      expect((await log())[0]).toMatchObject({ attempts: 1 });
 
       // The endpoint is back; the retry comes due.
       answer = 200;
-      await adminDb().execute(
-        sql`update core_jobs set run_at = now() where queue = 'webhook.deliver'`,
-      );
+      await makeDue();
       await settle();
 
       const [retried] = await log();

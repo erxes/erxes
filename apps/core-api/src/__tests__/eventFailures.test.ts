@@ -1,45 +1,21 @@
-import { eventConsumers, events } from '@erxes/core-db';
+import { events } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
+import { consumerJob, type EventConsumer } from '~/modules/events/consumers';
 import { pruneEvents } from '~/modules/events/events.service';
-import {
-  type EventConsumer,
-  MAX_ATTEMPTS,
-  retryFailures,
-  runConsumer,
-} from '~/modules/events/processor';
+import { addQueues } from '~/modules/jobs/jobs';
 import { adminDb, useTestDatabase } from './db';
+import { makeDue, settle } from './settle';
 import { useTwoOrgs } from './support';
 
-/**
- * Runs a consumer until it has read every event: it only reads transactions
- * older than the oldest one still running anywhere on the server, which on a
- * shared Postgres may take a moment.
- */
-const drain = async (consumer: EventConsumer) => {
-  for (let tries = 0; tries < 100; tries += 1) {
-    await runConsumer(consumer);
+/** A consumer for the test: its queue gets a job for every event published after this. */
+const addConsumer = async (consumer: EventConsumer) => {
+  const job = consumerJob(consumer);
 
-    const behind = await adminDb().execute(sql`
-      select 1 from ${events} e
-      where not exists (
-        select 1 from ${eventConsumers} c where c.name = ${consumer.name} and (e.tx_id, e.seq) <= (c.last_tx_id, c.last_seq)
-      ) limit 1
-    `);
+  await addQueues(job.queues, { schedule: false });
 
-    if (!behind.rows.length) return;
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-
-  throw new Error(`${consumer.name} never caught up`);
+  return job;
 };
-
-/** Makes every waiting retry due now. */
-const due = () =>
-  adminDb().execute(
-    sql`update core_event_failures set next_attempt_at = now() where status = 'retrying'`,
-  );
 
 /** Event delivery that survives failures (retries, dead events, manual retry) and event retention. */
 describe('event failures and retention', () => {
@@ -64,18 +40,20 @@ describe('event failures and retention', () => {
     let broken = true;
     const handled: string[] = [];
 
-    const flaky: EventConsumer = {
+    const flaky = await addConsumer({
       name: 'test.flaky',
       handle: async (_tx, event) => {
         if (broken && event.type === 'hr.flaky.happened') throw new Error('downstream is down');
 
         handled.push(event.type);
       },
-    };
+    });
+
+    const attempts = (flaky.queues[0]?.options.retryLimit ?? 0) + 1;
 
     await publish('hr.flaky.happened');
     await publish('hr.other.happened');
-    await drain(flaky);
+    await settle();
 
     // The bad event doesn't block the next one.
     expect(handled).toEqual(['hr.other.happened']);
@@ -89,66 +67,61 @@ describe('event failures and retention', () => {
     expect(new Date(failure?.nextAttemptAt ?? 0).getTime()).toBeGreaterThan(Date.now() + 30_000);
 
     // Not due yet: nothing happens.
-    expect(await retryFailures(flaky)).toBe(0);
+    await settle();
+    expect((await failures()).data[0]).toMatchObject({ attempts: 1, status: 'retrying' });
 
-    for (let attempt = 2; attempt <= MAX_ATTEMPTS; attempt += 1) {
-      await due();
-      await retryFailures(flaky);
+    for (let attempt = 2; attempt <= attempts; attempt += 1) {
+      await makeDue();
+      await settle();
     }
 
     const dead = await failures();
 
     expect(dead.counts).toEqual({ retrying: 0, dead: 1 });
-    expect(dead.data[0]).toMatchObject({
-      attempts: MAX_ATTEMPTS,
-      status: 'dead',
-      nextAttemptAt: null,
-    });
+    expect(dead.data[0]).toMatchObject({ attempts, status: 'dead', nextAttemptAt: null });
     await expect(t.member().events.retryFailures({ allDead: true })).rejects.toMatchObject({
       status: 403,
     });
 
     broken = false;
     expect(await t.owner().events.retryFailures({ allDead: true })).toEqual({ retried: 1 });
-    await retryFailures(flaky);
+    await settle();
     expect(handled).toEqual(['hr.other.happened', 'hr.flaky.happened']);
     expect((await failures()).counts).toEqual({ retrying: 0, dead: 0 });
   });
 
-  it('dismisses failures, and keeps events until every consumer has passed them', async () => {
-    const failing: EventConsumer = {
+  it('dismisses failures; retention removes old events, and their jobs end', async () => {
+    let calls = 0;
+
+    await addConsumer({
       name: 'test.failing',
-      handle: () => Promise.reject(new Error('nope')),
-    };
+      handle: () => {
+        calls += 1;
 
-    const passing: EventConsumer = { name: 'test.passing', handle: async () => undefined };
-    const consumers = ['test.failing', 'test.passing'];
+        return Promise.reject(new Error('nope'));
+      },
+    });
 
+    await publish('hr.failing.happened');
+    await settle();
+    expect(await dismissAll()).toBe(1);
+    expect((await failures()).counts).toEqual({ retrying: 0, dead: 0 });
+
+    // Removed by retention before its consumers got to it: the jobs end without a failure.
     await publish('hr.old.happened');
     await adminDb().execute(sql`update core_events set created_at = now() - interval '40 days'`);
 
-    // A consumer that never ran holds everything back.
-    expect(await pruneEvents(adminDb(), 30, ['test.failing', 'test.never'])).toBe(0);
+    const old = await adminDb().select({ id: events.id }).from(events);
 
-    await drain(failing);
-    await drain(passing);
+    expect(await pruneEvents(adminDb(), 30)).toBe(old.length);
+    calls = 0;
+    await settle();
+    expect(calls).toBe(0);
+    expect((await failures()).counts).toEqual({ retrying: 0, dead: 0 });
 
-    // test.failing still has to retry its failures: those events stay.
-    const kept = await adminDb().select({ id: events.id }).from(events);
-    const open = (await failures()).data.filter((each) => each.consumer === 'test.failing');
-
-    expect(open).toHaveLength(kept.length);
-    expect(await pruneEvents(adminDb(), 30, consumers)).toBe(0);
-    expect(await dismissAll()).toBe(open.length);
-    // test.flaky's history (from the first test) is gone too, so all old events go.
-    expect(await pruneEvents(adminDb(), 30, consumers)).toBe(kept.length);
-
+    // Recent events stay.
     await publish('hr.new.happened');
-    await drain(failing);
-    await drain(passing);
-    await dismissAll();
-    // Recent events stay, handled or not.
-    expect(await pruneEvents(adminDb(), 30, consumers)).toBe(0);
+    expect(await pruneEvents(adminDb(), 30)).toBe(0);
     expect(
       await adminDb().select().from(events).where(eq(events.type, 'hr.new.happened')),
     ).toHaveLength(1);

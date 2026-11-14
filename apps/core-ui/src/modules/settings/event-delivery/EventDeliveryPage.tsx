@@ -107,7 +107,7 @@ const FailureRow = ({
         <p className="break-words font-mono text-xs text-destructive/90">{failure.lastError}</p>
         <p className="text-xs text-muted-foreground">
           {t('attempts', { count: failure.attempts, defaultValue: `${failure.attempts} attempts` })}{' '}
-          · {t('first-failed', 'first failed')} <When value={failure.firstFailedAt} />
+          · {t('last-failed', 'last failed')} <When value={failure.failedAt} />
           {failure.nextAttemptAt && (
             <>
               {' · '}
@@ -196,7 +196,7 @@ const StatusFilter = ({
       <p className="ml-auto text-xs text-muted-foreground">
         {t(
           'explain',
-          'Failed events are retried after 1 min, 5 min, 30 min, 2 h and 12 h, then stop here.',
+          'Failed events are retried 9 times over about half a day, each wait twice the last, then stop here.',
         )}
       </p>
     </div>

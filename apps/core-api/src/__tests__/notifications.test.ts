@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { loggedEmails } from '~/modules/email/email';
-import { processJobs } from '~/modules/jobs/jobs';
-import { JOBS } from '~/modules/jobs/registry';
+import { settle } from './settle';
+
 import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
@@ -164,7 +164,7 @@ describe('notifications', () => {
     // Assigned to me: in the inbox and by email (the default), unless email is off.
     const assign = async (firstName: string) => {
       await t.owner().customers.create({ firstName, ownerId: t.ids.member });
-      await processJobs(JOBS);
+      await settle();
 
       return loggedEmails.some(
         (mail) =>
