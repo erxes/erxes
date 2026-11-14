@@ -24,6 +24,8 @@ const productsAdd = gql`
     $subUoms: JSON
     $duration: Float
     $durationType: ProductDurationType
+    $currency: String
+    $files: [AttachmentInput]
   ) {
     productsAdd(
       name: $name
@@ -48,6 +50,8 @@ const productsAdd = gql`
       subUoms: $subUoms
       duration: $duration
       durationType: $durationType
+      currency: $currency
+      files: $files
     ) {
       _id
       attachment {
@@ -129,7 +133,6 @@ const productsEdit = gql`
     $code: String
     $propertiesData: JSON
     $vendorId: String
-    $conditionCodes: [String]
     $uom: String
     $barcodeDescription: String
     $barcodes: [String]
@@ -156,7 +159,6 @@ const productsEdit = gql`
       code: $code
       propertiesData: $propertiesData
       vendorId: $vendorId
-      conditionCodes: $conditionCodes
       barcodes: $barcodes
       uom: $uom
       barcodeDescription: $barcodeDescription
@@ -178,7 +180,6 @@ const productsEdit = gql`
       code
       categoryId
       vendorId
-      conditionCodes
       scopeBrandIds
       status
       description

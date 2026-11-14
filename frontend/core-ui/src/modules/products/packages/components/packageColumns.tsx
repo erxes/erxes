@@ -6,12 +6,12 @@ import {
   RecordTable,
   RecordTableInlineCell,
   toast,
-  useQueryState,
 } from 'erxes-ui';
-import { TagsSelect } from 'ui-modules';
+import { TagsSelect, useSidePanel } from 'ui-modules';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { PACKAGE_CONTENT_TYPE } from '../constants/packageContentType';
 import { IPackage, PACKAGE_STATUS_OPTIONS } from '../types/Package';
 import {
   useChangePackageStatus,
@@ -113,6 +113,26 @@ const TagsCell = ({ pkg }: { pkg: IPackage }) => {
   );
 };
 
+const PackageNameCell = ({ pkg }: { pkg: IPackage }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
+  const { openRecord } = useSidePanel();
+
+  return (
+    <RecordTableInlineCell>
+      <Badge
+        variant="secondary"
+        className="cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          openRecord({ contentType: PACKAGE_CONTENT_TYPE, contentId: pkg._id });
+        }}
+      >
+        {pkg.name || t('unnamed', 'Unnamed')}
+      </Badge>
+    </RecordTableInlineCell>
+  );
+};
+
 const formatPrice = (value?: number | null) =>
   value == null
     ? '—'
@@ -132,23 +152,7 @@ export const createPackageColumns = (t: TFunction): ColumnDef<IPackage>[] => [
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
-    cell: ({ row }) => {
-      const [, setActivePackageId] = useQueryState<string>('activePackageId');
-      return (
-        <RecordTableInlineCell>
-          <Badge
-            variant="secondary"
-            className="cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              setActivePackageId(row.original._id);
-            }}
-          >
-            {row.original.name || t('unnamed', 'Unnamed')}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => <PackageNameCell pkg={row.original} />,
   },
   {
     id: 'productCount',

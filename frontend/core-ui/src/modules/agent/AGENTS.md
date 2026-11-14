@@ -403,6 +403,9 @@ every normal send (`withoutResentPageContext`), so Regenerate/Retry after a
 reload never gives the model two. The server is the only producer of the
 line.
 `references/getPageRecordFromLocation.ts` supplies the next send's page context.
+A contact's or product's own page (`/settings/products/:id`, not the product
+settings pages beside it) carries the id in the path; other pages use the
+query params in `LOCATION_RECORD_MATCHERS`.
 
 ## Turn activity timeline
 

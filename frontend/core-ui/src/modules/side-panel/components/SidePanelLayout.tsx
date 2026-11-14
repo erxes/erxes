@@ -47,6 +47,10 @@ import { CustomerPanelProperties } from '@/side-panel/components/details/Custome
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
+import { PRODUCT_CONTENT_TYPE } from '@/products/constants/productQueryKey';
+import { PACKAGE_CONTENT_TYPE } from '@/products/packages/constants/packageContentType';
+import { SIMILARITY_CONTENT_TYPE } from '@/products/bulk-similarity/constants/similarityContentType';
+import { ProductsPath } from '@/types/paths/ProductsPath';
 import {
   TeamMembersPath,
   USER_CONTENT_TYPE,
@@ -79,6 +83,27 @@ const ApprovalRequestRecordPanel = lazy(() =>
       default: module.ApprovalRequestRecordPanel,
     }),
   ),
+);
+const ProductRecordPanel = lazy(() =>
+  import('@/products/product-detail/components/panel/ProductRecordPanel').then(
+    (module) => ({
+      default: module.ProductRecordPanel,
+    }),
+  ),
+);
+const PackageRecordPanel = lazy(() =>
+  import('@/products/packages/components/panel/PackageRecordPanel').then(
+    (module) => ({
+      default: module.PackageRecordPanel,
+    }),
+  ),
+);
+const SimilarityRecordPanel = lazy(() =>
+  import(
+    '@/products/bulk-similarity/components/panel/SimilarityRecordPanel'
+  ).then((module) => ({
+    default: module.SimilarityRecordPanel,
+  })),
 );
 const CPUserRecordPanel = lazy(() =>
   import(
@@ -688,6 +713,27 @@ export const SidePanelRecord = (
         <CPUserRecordPanel {...props} />
       </Suspense>
     );
+  if (props.record.contentType === PRODUCT_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <ProductRecordPanel {...props} />
+      </Suspense>
+    );
+  }
+  if (props.record.contentType === PACKAGE_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <PackageRecordPanel {...props} />
+      </Suspense>
+    );
+  }
+  if (props.record.contentType === SIMILARITY_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <SimilarityRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.record.contentType === 'core:approvalRequest') {
     return (
       <Suspense fallback={<Skeleton className="m-3 h-32" />}>
@@ -734,6 +780,17 @@ export const SidePanelLayout = () => {
         record.contentId,
         pathname,
       );
+    }
+    if (record.contentType === PRODUCT_CONTENT_TYPE) {
+      return `${ProductsPath.Products}/${encodeURIComponent(record.contentId)}`;
+    }
+    if (record.contentType === PACKAGE_CONTENT_TYPE) {
+      return `${ProductsPath.Packages}/${encodeURIComponent(record.contentId)}`;
+    }
+    if (record.contentType === SIMILARITY_CONTENT_TYPE) {
+      return `${ProductsPath.Similarities}/${encodeURIComponent(
+        record.contentId,
+      )}`;
     }
     if (record.contentType === USER_CONTENT_TYPE) {
       return `${TeamMembersPath.Index}${

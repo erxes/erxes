@@ -3,9 +3,9 @@ import { PRODUCT_SIMILARITY } from '../graphql/queries';
 import { IProductSimilarity } from '../types';
 
 export const useProductSimilarity = (_id?: string) => {
-  const { data, loading } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     productBulkSimilarity: IProductSimilarity;
   }>(PRODUCT_SIMILARITY, { variables: { _id }, skip: !_id });
 
-  return { similarity: data?.productBulkSimilarity, loading };
+  return { similarity: data?.productBulkSimilarity, loading, error, refetch };
 };

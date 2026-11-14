@@ -8,6 +8,12 @@ const ProductsIndexPage = lazy(() =>
   })),
 );
 
+const ProductDetailPage = lazy(() =>
+  import('~/pages/products/ProductDetailPage').then((module) => ({
+    default: module.ProductDetailPage,
+  })),
+);
+
 const ProductsCategoryPage = lazy(() =>
   import('~/pages/products/ProductCategoryPage').then((module) => ({
     default: module.ProductCategoryPage,
@@ -68,6 +74,18 @@ const ProductsPackagePage = lazy(() =>
   })),
 );
 
+const PackageDetailPage = lazy(() =>
+  import('~/pages/products/PackageDetailPage').then((module) => ({
+    default: module.PackageDetailPage,
+  })),
+);
+
+const SimilarityDetailPage = lazy(() =>
+  import('~/pages/products/SimilarityDetailPage').then((module) => ({
+    default: module.SimilarityDetailPage,
+  })),
+);
+
 export const ProductsSettingRoutes = () => {
   return (
     <Suspense fallback={<></>}>
@@ -81,6 +99,7 @@ export const ProductsSettingRoutes = () => {
           element={<ProductsSimilarityGroupPage />}
         />
         <Route path="similarities" element={<ProductsSimilaritiesPage />} />
+        <Route path="similarities/:id" element={<SimilarityDetailPage />} />
         <Route
           path="bundle-condition"
           element={<ProductsBundleConditionPage />}
@@ -89,6 +108,8 @@ export const ProductsSettingRoutes = () => {
         <Route path="product-rule" element={<ProductsProductRulePage />} />
         <Route path="conditions" element={<ProductsConditionsPage />} />
         <Route path="packages" element={<ProductsPackagePage />} />
+        <Route path="packages/:id" element={<PackageDetailPage />} />
+        <Route path=":id" element={<ProductDetailPage />} />
       </Routes>
       <ProductsPageEffect />
     </Suspense>

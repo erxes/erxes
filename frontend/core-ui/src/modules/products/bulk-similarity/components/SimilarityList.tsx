@@ -1,16 +1,13 @@
-import { Button, Empty, RecordTable } from 'erxes-ui';
+import { Empty, RecordTable } from 'erxes-ui';
 import { IconLayoutGrid } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProductSimilarities } from '../hooks/useProductSimilarities';
+import { SimilarityAddButton } from './SimilarityAddButton';
 import { SimilarityCommandBar } from './SimilarityCommandBar';
 import { createSimilarityColumns } from './similarityColumns';
 
-interface SimilarityListProps {
-  onNew?: () => void;
-}
-
-export const SimilarityList = ({ onNew }: SimilarityListProps) => {
+export const SimilarityList = () => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { similarities, loading, hasMore, handleFetchMore } =
     useProductSimilarities();
@@ -33,13 +30,9 @@ export const SimilarityList = ({ onNew }: SimilarityListProps) => {
             )}
           </Empty.Description>
         </Empty.Header>
-        {onNew && (
-          <Empty.Content>
-            <Button onClick={onNew}>
-              {t('new-similarity', 'New similarity')}
-            </Button>
-          </Empty.Content>
-        )}
+        <Empty.Content>
+          <SimilarityAddButton />
+        </Empty.Content>
       </Empty>
     );
   }
