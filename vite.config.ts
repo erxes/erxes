@@ -7,7 +7,8 @@ import { budgetOverrides, budgetRules } from './tools/config/budgets';
 import { designOverrides, designSettings } from './tools/config/design';
 import { exceptions } from './tools/config/exceptions';
 import { restrictedOverrides, restrictedRules } from './tools/config/restricted';
-import { rules } from './tools/config/rules';
+import { coreRules } from './tools/config/core-rules';
+import { lintBase, rules } from './tools/config/rules';
 import { coreApiTestEnv } from './tools/test/core-api-env';
 import { noSkips } from './tools/test/no-skips';
 
@@ -27,6 +28,9 @@ const localTestUrl = existsSync(localEnv)
 
 if (localTestUrl) process.env.DATA_TEST_URL ??= localTestUrl;
 
+// create-erxes's end-to-end test, a project of its own.
+const e2e = 'src/__tests__/e2e.test.ts';
+
 export default defineConfig({
   run: {
     tasks: {
@@ -36,7 +40,10 @@ export default defineConfig({
         cache: tracked,
       },
       fix: { command: `${tsrs} vp check --fix`, cache: false },
-      test: { command: 'vp test run', cache: { ...tracked, env: ['DATA_TEST_URL'] } },
+      test: {
+        command: 'vp test run',
+        cache: { ...tracked, env: ['DATA_TEST_URL', 'CREATE_ERXES_PACKS'] },
+      },
       // A Postgres, API and UI for this checkout (tools/dev-stack.ts), and what it needs.
       'dev:stack': { command: 'node tools/dev-stack.ts', cache: false },
       doctor: { command: 'node tools/doctor.ts', cache: false },
@@ -55,30 +62,32 @@ export default defineConfig({
       'packages/contract/openapi.json',
       'packages/contract/routes.json',
       'packages/ui/src/lib/cn-tables.ts',
+      'packages/create-erxes/templates/**',
       'pnpm-lock.yaml',
     ],
   },
   lint: {
-    plugins: ['typescript', 'unicorn', 'oxc', 'import', 'vitest', 'promise', 'node'],
+    ...lintBase,
     jsPlugins: [
-      { name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' },
+      ...lintBase.jsPlugins,
       { name: 'anti-slop', specifier: './tools/lint/anti-slop/index.ts' },
       { name: 'erxes', specifier: './tools/lint/erxes/index.ts' },
       { name: 'shadcn', specifier: '@shadcn/lint' },
     ],
     settings: designSettings,
-    categories: { correctness: 'error', suspicious: 'error' },
-    options: { typeAware: true, typeCheck: true },
     // consumers/ installs the packed packages outside the workspace, so their imports
     // resolve only there; consumers/run.sh type-checks them (CI's packages job).
+    // create-erxes's templates are code only once the CLI fills their names in; the
+    // generated plugin's own check lints them (its e2e test).
     ignorePatterns: [
       'dist/**',
       'coverage/**',
       'consumers/**',
+      'packages/create-erxes/templates/**',
       // Written by `cn build` (pnpm --filter @erxes/ui cn:tables), checked by check:generated.
       'packages/ui/src/lib/cn-tables.ts',
     ],
-    rules: { ...rules, ...restrictedRules, ...budgetRules },
+    rules: { ...rules, ...coreRules, ...restrictedRules, ...budgetRules },
     overrides: [
       ...areas,
       ...designOverrides,
@@ -119,6 +128,30 @@ export default defineConfig({
         root: 'tools/lint',
         test: { name: 'lint', include: ['**/*.test.ts'], environment: 'node' },
       },
+      {
+        root: 'packages/create-erxes',
+        test: {
+          name: 'create-erxes',
+          include: ['src/**/*.test.ts'],
+          exclude: [...configDefaults.exclude, e2e],
+          environment: 'node',
+        },
+      },
+      // Generates plugins with the packed CLI and runs their gates (CI's packages job): only
+      // with CREATE_ERXES_PACKS, the directory of core's `pnpm pack` tarballs.
+      ...(process.env.CREATE_ERXES_PACKS
+        ? [
+            {
+              root: 'packages/create-erxes',
+              test: {
+                name: 'create-erxes-e2e',
+                include: [e2e],
+                environment: 'node',
+                hookTimeout: 300_000,
+              },
+            },
+          ]
+        : []),
     ],
   },
 });

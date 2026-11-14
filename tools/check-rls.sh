@@ -18,7 +18,7 @@ trap 'psql "$server" -qX -c "DROP DATABASE IF EXISTS $name WITH (FORCE)"' EXIT
 DATA_URL="$url" DATA_MIGRATION_URL="$url" DATA_URL_FILE='' DATA_MIGRATION_URL_FILE='' \
   DATA_RUNTIME_ROLE='' pnpm --silent db:migrate > /dev/null
 
-problems=$(psql "$url" -qXAt -v ON_ERROR_STOP=1 -f tools/check-rls.sql)
+problems=$(psql "$url" -qXAt -v ON_ERROR_STOP=1 -v scope=core -v policy=core_tenant -f tools/check-rls.sql)
 
 if [[ -n "$problems" ]]; then
   echo "$problems"

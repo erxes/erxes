@@ -1,0 +1,5 @@
+-- The plugin's tables without org_id, each with the reason; tools/check-rls.sql
+-- reads them. A tenant_key names the column the table's tenant policy keys on
+-- (core_enable_tenant_rls's second argument). None yet:
+--   insert into no_org_id (table_name, tenant_key, reason) values
+--     ('__id___currencies', null, 'One list for every organisation.');

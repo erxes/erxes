@@ -2,21 +2,9 @@ import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
-// apps/core-ui's SHARED, name for name. The fallbacks are built here, so every
+// core-ui's shared list, from the tarball. The fallbacks are built here, so every
 // module erxes-ui's dist reaches has to resolve from the tarballs.
-const SHARED = [
-  'react',
-  'react/jsx-runtime',
-  'react/jsx-dev-runtime',
-  'react-dom',
-  'react-dom/client',
-  'react-router',
-  'react-router-dom',
-  'erxes-ui',
-  'jotai',
-  'react-i18next',
-  '@tanstack/react-query',
-];
+import { SHARED } from 'erxes-ui/federation';
 
 export default defineConfig({
   plugins: [

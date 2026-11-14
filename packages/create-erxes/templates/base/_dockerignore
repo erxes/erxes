@@ -1,0 +1,4 @@
+# The image only takes what `pnpm image:context` builds.
+*
+!.runtime
+!ui/dist

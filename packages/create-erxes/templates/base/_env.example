@@ -1,0 +1,15 @@
+# The API reads this file in development (`pnpm dev:api`). Copy it to .env.
+PORT=__apiPort__
+# Postgres as the plugin's role: run `pnpm db:plugin-role __id__` in the core repo.
+DATA_URL=postgres://erxes_plugin___id__:change-me@127.0.0.1:5434/erxes
+# Core's address, without /core/v1.
+CORE_URL=http://localhost:3400
+# The secret after `__id__:` in core's CORE_PLUGIN_KEYS (32+ characters).
+PLUGIN_SECRET=change-me-to-the-secret-in-core-plugin-keys
+PUBLIC_URL=http://localhost:__apiPort__
+# `pnpm dev:ui` serves the remote here; in the image the API serves it at /ui.
+UI_ENTRY_URL=http://localhost:__uiPort__/remoteEntry.js
+# core-ui's address, which calls this API from the browser.
+CORE_UI_URL=http://localhost:3500
+# Traces go to an OTLP collector when this is set.
+# OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318

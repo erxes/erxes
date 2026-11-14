@@ -4,6 +4,8 @@ import { pluginBabel } from '@rsbuild/plugin-babel';
 import reactCompiler from 'babel-plugin-react-compiler';
 import { pluginReact } from '@rsbuild/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
+// Plugin UIs declare the same list with `import: false`, so the host provides every one.
+import { SHARED } from 'erxes-ui/federation';
 import { resolve } from 'node:path';
 import { pluginBundleBudget } from './bundleBudget';
 
@@ -11,27 +13,6 @@ const ui = resolve(import.meta.dirname, '../../packages/ui/src');
 
 // The dev server's port and API address come from the shell.
 const { WEB_PORT, CORE_API_URL } = process.env;
-
-/**
- * Libraries shared with plugin UIs as single instances. Plugin UIs declare the
- * same names with `import: false`, so the host must provide every one of them.
- * A shared name matches only that exact import, so React's entry points are
- * listed one by one: a remote that bundles its own `react/jsx-runtime` breaks
- * as soon as its React differs from the host's.
- */
-const SHARED = [
-  'react',
-  'react/jsx-runtime',
-  'react/jsx-dev-runtime',
-  'react-dom',
-  'react-dom/client',
-  'react-router',
-  'react-router-dom',
-  'erxes-ui',
-  'jotai',
-  'react-i18next',
-  '@tanstack/react-query',
-];
 
 /**
  * The erxes core UI (apps/core-ui). Same-origin with the API: in development

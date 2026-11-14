@@ -24,7 +24,7 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
   `ENABLE` and `FORCE ROW LEVEL SECURITY` and `CREATE POLICY core_tenant`, as in
   `drizzle/0020_auth_tokens.sql`. Plugin tables are checked by `core_plugin_tenancy_problems('<plugin>')`
   (`drizzle/0054_plugin_tenancy_problems.sql`), which plugins run in CI after migrating. `pnpm check:rls` fails a table with `org_id` and no forced RLS or
-  no `core_tenant` policy. A table without `org_id` is listed in `tools/check-rls.sql` with the reason.
+  no `core_tenant` policy. A table without `org_id` is listed in `tools/no-org-id.sql` with the reason.
 - `runMigrations()` (`src/migrate.ts`) applies `drizzle/` in one transaction under an advisory
   transaction lock. Production runs it with `pnpm db:migrate`; the API runs it at startup only when
   `DATA_MIGRATE_ON_START` is on, the default outside production.

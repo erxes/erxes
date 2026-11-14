@@ -2,8 +2,8 @@
 
 The thin erxes core: organisations, team members, sign-in, customers and companies, tags and custom
 fields, files, notifications, activity, audit and events. Business features are plugins, each in its
-own repo, started with `npm create @erxes/plugin` (its migrate kit moves an erxes 3.x plugin over).
-`docs/design.md` has the decisions, `docs/porting-map.md` what exists and the old code it replaces.
+own repo, started with `pnpm create erxes` (`packages/create-erxes`), which also migrates an erxes
+3.x plugin. `docs/design.md` has the decisions, `docs/porting-map.md` what exists and the old code it replaces.
 Each package's `AGENTS.md` has its rules.
 
 ```sh

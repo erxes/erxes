@@ -96,8 +96,13 @@ export const exceptions = [
     },
   },
   {
-    // ESLint Stylistic's rule, vendored unchanged (see its UPSTREAM.md).
+    // ESLint Stylistic's rule, vendored unchanged (see its UPSTREAM.md): splitting or
+    // rewriting it would make upstream fixes hard to carry over.
     files: ['tools/lint/anti-slop/vendor/**'],
-    rules: { 'typescript/no-non-null-assertion': 'off' },
+    rules: {
+      'typescript/no-non-null-assertion': 'off',
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+    },
   },
 ] satisfies OxlintConfig['overrides'];
