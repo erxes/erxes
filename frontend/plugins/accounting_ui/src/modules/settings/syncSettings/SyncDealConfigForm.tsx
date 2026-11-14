@@ -10,6 +10,7 @@ import {
   SyncConfigVatCtaxSection,
   normalizeSyncConfigData,
   usePipelineReset,
+  useSyncConfigInvalidToast,
 } from './SyncConfigFormSections';
 
 import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
@@ -35,6 +36,7 @@ export const SyncDealConfigForm = ({
   onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const showInvalidToast = useSyncConfigInvalidToast();
   const { boardId, pipelineId } = usePipelineReset(form);
 
   const { data: rawGraphqlPipelineDetail, refetch: pipelineRefetch } = useQuery(
@@ -72,6 +74,7 @@ export const SyncDealConfigForm = ({
     <SettingsPanelDraftForm
       form={form}
       onSubmit={handleSubmit}
+      onInvalid={showInvalidToast}
       onCancel={onCancel}
       saving={loading}
     >

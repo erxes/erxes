@@ -15,6 +15,7 @@ import {
   SyncConfigGeneralFields,
   SyncConfigPipelineSection,
   usePipelineReset,
+  useSyncConfigInvalidToast,
 } from './SyncConfigFormSections';
 import { SyncSettingSection } from './SyncSettingSection';
 import { useEffect } from 'react';
@@ -37,7 +38,7 @@ const InventoryAccountField = ({
       control={form.control}
       name={name}
       render={({ field, fieldState }) => (
-        <PanelFormRow label={label} error={fieldState.error?.message}>
+        <PanelFormRow label={label} required error={fieldState.error?.message}>
           <SelectAccount.FormItem
             value={field.value}
             onValueChange={field.onChange}
@@ -145,6 +146,7 @@ export const SyncDealMovementConfigForm = ({
   onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const showInvalidToast = useSyncConfigInvalidToast();
   const { boardId, pipelineId } = usePipelineReset(form);
 
   useEffect(() => {
@@ -160,6 +162,7 @@ export const SyncDealMovementConfigForm = ({
     <SettingsPanelDraftForm
       form={form}
       onSubmit={onSubmit}
+      onInvalid={showInvalidToast}
       onCancel={onCancel}
       saving={loading}
     >

@@ -128,6 +128,28 @@ describe('deal sync rule validation', () => {
       defaultNegPayment: null,
     });
   });
+  it('re-saves an older rule stored with nulls in hidden fields', () => {
+    const result = validate(ACCOUNTING_SETTINGS_CODES.SYNC_DEAL, {
+      ...completeDealRule,
+      boardId: null,
+      responseFieldId: null,
+      trStatus: null,
+      hasCtax: null,
+      reverseVatRules: 'ebarimt-rule-food',
+      reverseCtaxRules: null,
+      payments: { cash: null, mobile: { accountId: 'acc-110200' } },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data).toMatchObject({
+      hasCtax: false,
+      reverseVatRules: ['ebarimt-rule-food'],
+      payments: {
+        cash: { accountId: '' },
+        mobile: { accountId: 'acc-110200' },
+      },
+    });
+  });
 });
 
 describe('deal return rule validation', () => {
@@ -178,27 +200,34 @@ describe('deal inventory movement rule validation', () => {
 });
 
 describe('POS order rule validation', () => {
+  const posRule = {
+    title: 'Main branch POS',
+    posId: 'pos-main',
+    saleAccountId: 'acc-510100',
+    saleOutAccountId: 'acc-150100',
+    saleCostAccountId: 'acc-610100',
+    hasVat: false,
+    hasCtax: false,
+  };
+
   it('blocks an order rule saved before a POS was picked', () => {
     expect(
       getFieldErrors(ACCOUNTING_SETTINGS_CODES.SYNC_ORDER, {
-        ...completeDealRule,
-        title: 'Main branch POS',
-        stageId: undefined,
+        ...posRule,
+        posId: '',
       }),
     ).toEqual({ posId: ['Required'] });
   });
 
   it('saves an order rule for a chosen POS', () => {
-    const result = validate(ACCOUNTING_SETTINGS_CODES.SYNC_ORDER, {
-      ...completeDealRule,
-      title: 'Main branch POS',
-      posId: 'pos-main',
-    });
+    const result = validate(ACCOUNTING_SETTINGS_CODES.SYNC_ORDER, posRule);
 
     expect(result.success).toBe(true);
     expect(result.data).toMatchObject({
       posId: 'pos-main',
       returnType: 'fullTr',
+      payments: {},
+      defaultPayment: null,
     });
   });
 });

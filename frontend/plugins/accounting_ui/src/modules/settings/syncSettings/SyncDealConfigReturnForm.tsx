@@ -5,6 +5,7 @@ import {
   SyncConfigPipelineSection,
   SyncConfigReturnTypeField,
   usePipelineReset,
+  useSyncConfigInvalidToast,
 } from './SyncConfigFormSections';
 
 import { Form } from 'erxes-ui';
@@ -29,6 +30,7 @@ export const SyncDealReturnConfigForm = ({
   onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const showInvalidToast = useSyncConfigInvalidToast();
   const { boardId, pipelineId } = usePipelineReset(form);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export const SyncDealReturnConfigForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, showInvalidToast)}
         className="flex flex-col flex-1 min-h-0 bg-background"
       >
         <div className="@container flex-1 min-h-0 overflow-y-auto p-3 space-y-4">

@@ -12,6 +12,20 @@ const withDefault = <T extends z.ZodTypeAny>(fallback: unknown, schema: T) =>
 
 const optionalId = withDefault('', z.string());
 
+const optionalText = z.preprocess(
+  (value) => value ?? undefined,
+  z.string().optional(),
+);
+
+const switchValue = withDefault(false, z.boolean());
+
+const ruleIds = z.preprocess((value) => {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+  return Array.isArray(value) ? value : [value];
+}, z.array(z.string()).optional());
+
 const requiredId = (t: Translate) =>
   withDefault('', z.string().trim().min(1, t('Required')));
 
@@ -23,14 +37,14 @@ const paymentAccountSchema = z.preprocess(
 const getGeneralShape = (t: Translate) => ({
   title: requiredId(t),
   dateRule: withDefault('alwaysNow', z.enum(DATE_RULES)),
-  trStatus: z.string().optional(),
+  trStatus: optionalText,
 });
 
 const getPipelineShape = (t: Translate) => ({
-  boardId: z.string().optional(),
-  pipelineId: z.string().optional(),
+  boardId: optionalText,
+  pipelineId: optionalText,
   stageId: requiredId(t),
-  responseFieldId: z.string().optional(),
+  responseFieldId: optionalText,
 });
 
 const getSaleShape = (t: Translate) => ({
@@ -39,15 +53,17 @@ const getSaleShape = (t: Translate) => ({
   saleCostAccountId: requiredId(t),
   branchId: optionalId,
   departmentId: optionalId,
-  hasVat: z.boolean().default(false),
+  hasVat: switchValue,
   vatRowId: optionalId,
-  reverseVatRules: z.array(z.string()).optional(),
-  hasCtax: z.boolean().default(false),
+  reverseVatRules: ruleIds,
+  hasCtax: switchValue,
   ctaxRowId: optionalId,
-  reverseCtaxRules: z.array(z.string()).optional(),
+  reverseCtaxRules: ruleIds,
   payments: z.preprocess(
     (value) => value ?? {},
-    z.record(z.object({ accountId: optionalId })),
+    z.record(
+      z.preprocess((value) => value ?? {}, z.object({ accountId: optionalId })),
+    ),
   ),
   defaultPayment: paymentAccountSchema,
   defaultNegPayment: paymentAccountSchema,
@@ -104,10 +120,10 @@ export const getSyncDealMovementConfigFormSchema = (t: Translate) =>
     ...getPipelineShape(t),
     sourceAccountId: requiredId(t),
     destinationAccountId: requiredId(t),
-    defaultSourceBranchId: z.string().optional(),
-    defaultSourceDepartmentId: z.string().optional(),
-    defaultDestinationBranchId: z.string().optional(),
-    defaultDestinationDepartmentId: z.string().optional(),
+    defaultSourceBranchId: optionalText,
+    defaultSourceDepartmentId: optionalText,
+    defaultDestinationBranchId: optionalText,
+    defaultDestinationDepartmentId: optionalText,
     dealLocationSide: withDefault('source', z.enum(DEAL_LOCATION_SIDES)),
   });
 

@@ -12,6 +12,7 @@ import {
   SyncConfigReturnTypeField,
   SyncConfigVatCtaxSection,
   normalizeSyncConfigData,
+  useSyncConfigInvalidToast,
 } from './SyncConfigFormSections';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { useEffect, useMemo } from 'react';
@@ -36,6 +37,7 @@ export const SyncOrderConfigForm = ({
   onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const showInvalidToast = useSyncConfigInvalidToast();
   const posId = useWatch({ control: form.control, name: 'posId' });
 
   const { data: rawGraphqlPosList, loading: posListLoading } = useQuery(
@@ -87,6 +89,7 @@ export const SyncOrderConfigForm = ({
     <SettingsPanelDraftForm
       form={form}
       onSubmit={handleSubmit}
+      onInvalid={showInvalidToast}
       onCancel={onCancel}
       saving={loading}
     >
@@ -100,7 +103,11 @@ export const SyncOrderConfigForm = ({
           control={form.control}
           name="posId"
           render={({ field, fieldState }) => (
-            <PanelFormRow label={t('POS')} error={fieldState.error?.message}>
+            <PanelFormRow
+              label={t('POS')}
+              required
+              error={fieldState.error?.message}
+            >
               <SettingsPanelSelect
                 value={field.value}
                 placeholder={t('select-pos')}
