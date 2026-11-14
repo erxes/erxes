@@ -4,7 +4,8 @@ import { Button, Command, Popover, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ASSISTANT_SETTINGS_PATH, PROVIDER_LABELS } from './providers';
+import { paths } from '~/lib/paths';
+import { PROVIDER_LABELS } from './providers';
 import type { ModelRunState } from './useModelRun';
 
 const LEVEL_LABELS: Record<AssistantThinkingLevel, string> = {
@@ -53,7 +54,10 @@ const ModelList = ({ state, onDone }: { state: ModelRunState; onDone: () => void
         ))}
         <Command.Separator />
         <Command.Group>
-          <Command.Item value="manage-keys" onSelect={() => void navigate(ASSISTANT_SETTINGS_PATH)}>
+          <Command.Item
+            value="manage-keys"
+            onSelect={() => void navigate(paths.settings.assistant)}
+          >
             <IconSettings aria-hidden />
             {t('model.manage', 'Manage provider keys')}
           </Command.Item>

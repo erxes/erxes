@@ -1,3 +1,4 @@
+import { blendFace } from './expressions';
 import { blinkScale, eyePoses, type HeadGaze } from './face';
 import { lerp, r2 } from './math';
 import { blend, capsulePath, closedPath, radiusAtAngle, toPoints } from './outline';
@@ -31,24 +32,11 @@ export const lerpLook = (a: Look, b: Look, t: number): Look => ({
   wander: lerp(a.wander, b.wander, t),
 });
 
-const lerpEye = (a: Pose['eyes'][number], b: Pose['eyes'][number], t: number) => ({
-  w: lerp(a.w, b.w, t),
-  h: lerp(a.h, b.h, t),
-  open: lerp(a.open, b.open, t),
-  tilt: lerp(a.tilt, b.tilt, t),
-});
-
 export const blendPose = (a: Pose, b: Pose, t: number): Pose => ({
+  ...blendFace(a, b, t),
   sil: blend(a.sil, b.sil, t),
   offX: lerp(a.offX, b.offX, t),
   offY: lerp(a.offY, b.offY, t),
-  gaze: {
-    yaw: lerp(a.gaze.yaw, b.gaze.yaw, t),
-    pitch: lerp(a.gaze.pitch, b.gaze.pitch, t),
-    roll: lerp(a.gaze.roll, b.gaze.roll, t),
-  },
-  split: lerp(a.split, b.split, t),
-  eyes: [lerpEye(a.eyes[0], b.eyes[0], t), lerpEye(a.eyes[1], b.eyes[1], t)],
   eyeAlpha: lerp(a.eyeAlpha, b.eyeAlpha, t),
   dots: [
     ...a.dots.map((d) => ({ ...d, opacity: d.opacity * (1 - t) })),

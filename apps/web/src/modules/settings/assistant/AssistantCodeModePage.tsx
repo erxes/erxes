@@ -6,17 +6,14 @@ import {
   IconShieldCheck,
   type TablerIcon,
 } from '@tabler/icons-react';
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PageContainer, PageHeader, ScrollArea, Switch, useToast } from 'erxes-ui';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Switch, useToast } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
-import { useCan } from '~/modules/auth/session';
-
-const CODE_MODE_PATH = '/settings/assistant-code-mode';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { paths } from '~/lib/paths';
+import { OrgSettingsPage } from './OrgSettingsPage';
 
 const Fact = ({ icon: Icon, text }: { icon: TablerIcon; text: string }) => (
   <li className="flex items-start gap-3 py-2">
@@ -73,30 +70,16 @@ const CodeModeSwitch = ({ enabled }: { enabled: boolean }) => {
 
 export const AssistantCodeModePage = () => {
   const { t } = useTranslation('assistant', { keyPrefix: 'settings' });
-  const canManage = useCan()('assistant.manage');
 
-  const settings = useQuery(
-    orpc.assistant.settings.queryOptions({ input: canManage ? undefined : skipToken }),
-  );
-
-  if (!canManage) return <Navigate to="/settings" replace />;
+  const crumb = {
+    label: t('code-mode-title', 'Assistant code mode'),
+    to: paths.settings.assistantCodeMode,
+    icon: IconCode,
+  };
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeader.Start>
-          <AppBreadcrumb
-            items={[
-              {
-                label: t('code-mode-title', 'Assistant code mode'),
-                to: CODE_MODE_PATH,
-                icon: IconCode,
-              },
-            ]}
-          />
-        </PageHeader.Start>
-      </PageHeader>
-      <ScrollArea className="flex-1">
+    <OrgSettingsPage crumb={crumb}>
+      {(settings) => (
         <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
           <p className="text-sm text-muted-foreground">
             {t('code-mode-intro', 'This applies to every member. Off by default.')}
@@ -140,7 +123,7 @@ export const AssistantCodeModePage = () => {
             </ul>
           </section>
         </div>
-      </ScrollArea>
-    </PageContainer>
+      )}
+    </OrgSettingsPage>
   );
 };

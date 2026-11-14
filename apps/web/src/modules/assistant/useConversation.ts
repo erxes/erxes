@@ -4,7 +4,7 @@ import { AssistantMentions } from '@erxes/core-contract';
 import { isDataUIPart, safeValidateUIMessages, type UIMessage } from 'ai';
 import { useSetAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { type AssistantTab, assistantUnreadState } from './assistantState';
 import { type ChatSession, sessionFor } from './chatSession';
 import type { ComposerBlock, ComposerMessage } from './Composer';

@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { IconTip } from '~/components/IconTip';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { appOfPath, SETTINGS_APP, useNavApps } from '~/modules/navigation/apps';
 import { RecordIcon } from './RecordChip';
 import { pageOfPath } from './recordPages';

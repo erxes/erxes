@@ -13,11 +13,10 @@ import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { IconTip } from '~/components/IconTip';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { AssistantAvatar, appearanceQuery } from '~/modules/assistant/AssistantAvatar';
+import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
-
-const APPEARANCE_PATH = '/settings/assistant-appearance';
 
 interface Choice {
   id: string;
@@ -139,7 +138,7 @@ export const AssistantAppearancePage = () => {
   const canChat = useCan()('assistant.chat');
   const appearance = useQuery({ ...appearanceQuery(), enabled: canChat });
 
-  if (!canChat) return <Navigate to="/settings" replace />;
+  if (!canChat) return <Navigate to={paths.settings.root} replace />;
 
   return (
     <PageContainer>
@@ -149,7 +148,7 @@ export const AssistantAppearancePage = () => {
             items={[
               {
                 label: t('title', 'Assistant appearance'),
-                to: APPEARANCE_PATH,
+                to: paths.settings.assistantAppearance,
                 icon: IconMoodSmile,
               },
             ]}

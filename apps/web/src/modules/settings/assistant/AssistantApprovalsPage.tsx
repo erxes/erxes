@@ -1,16 +1,13 @@
 import { AssistantApprovalMode } from '@erxes/core-contract';
 import { IconShieldQuestion } from '@tabler/icons-react';
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Label, PageContainer, PageHeader, RadioGroup, ScrollArea, useToast } from 'erxes-ui';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Label, RadioGroup, useToast } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '~/lib/api';
-import { useCan } from '~/modules/auth/session';
-
-const ASSISTANT_APPROVALS_PATH = '/settings/assistant-approvals';
+import { messageOf, orpc } from '@erxes/core-contract/client';
+import { paths } from '~/lib/paths';
+import { OrgSettingsPage } from './OrgSettingsPage';
 
 const useModeText = () => {
   const { t } = useTranslation('assistant', { keyPrefix: 'settings' });
@@ -82,30 +79,16 @@ const ApprovalChoice = ({ value }: { value: AssistantApprovalMode }) => {
 
 export const AssistantApprovalsPage = () => {
   const { t } = useTranslation('assistant', { keyPrefix: 'settings' });
-  const canManage = useCan()('assistant.manage');
 
-  const settings = useQuery(
-    orpc.assistant.settings.queryOptions({ input: canManage ? undefined : skipToken }),
-  );
-
-  if (!canManage) return <Navigate to="/settings" replace />;
+  const crumb = {
+    label: t('approvals-title', 'Assistant approvals'),
+    to: paths.settings.assistantApprovals,
+    icon: IconShieldQuestion,
+  };
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeader.Start>
-          <AppBreadcrumb
-            items={[
-              {
-                label: t('approvals-title', 'Assistant approvals'),
-                to: ASSISTANT_APPROVALS_PATH,
-                icon: IconShieldQuestion,
-              },
-            ]}
-          />
-        </PageHeader.Start>
-      </PageHeader>
-      <ScrollArea className="flex-1">
+    <OrgSettingsPage crumb={crumb}>
+      {(settings) => (
         <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
           <p className="text-sm text-muted-foreground">
             {t(
@@ -117,7 +100,7 @@ export const AssistantApprovalsPage = () => {
             {({ approvalMode }) => <ApprovalChoice value={approvalMode} />}
           </QueryState>
         </div>
-      </ScrollArea>
-    </PageContainer>
+      )}
+    </OrgSettingsPage>
   );
 };

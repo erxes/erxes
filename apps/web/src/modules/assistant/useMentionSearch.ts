@@ -1,6 +1,6 @@
 import { type AssistantMention, type AssistantRecordType, recordLabel } from '@erxes/core-contract';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 
 const PER_TYPE = 4;

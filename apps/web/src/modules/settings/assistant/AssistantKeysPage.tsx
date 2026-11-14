@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
-import { ASSISTANT_SETTINGS_PATH } from '~/modules/assistant/providers';
+import { orpc } from '@erxes/core-contract/client';
+import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { ProviderKeyCard } from './ProviderKeyCard';
 
@@ -24,7 +24,7 @@ export const AssistantKeysPage = () => {
     enabled: Boolean(connections.data?.data.length),
   });
 
-  if (!canChat) return <Navigate to="/settings" replace />;
+  if (!canChat) return <Navigate to={paths.settings.root} replace />;
 
   return (
     <PageContainer>
@@ -32,7 +32,7 @@ export const AssistantKeysPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Assistant'), to: ASSISTANT_SETTINGS_PATH, icon: IconSparkles },
+              { label: t('title', 'Assistant'), to: paths.settings.assistant, icon: IconSparkles },
             ]}
           />
         </PageHeader.Start>

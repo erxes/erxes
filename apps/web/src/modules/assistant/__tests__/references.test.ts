@@ -4,7 +4,7 @@ import { createElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vite-plus/test';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { MessageText } from '../MessageText';
 import { Reply } from '../Reply';
 

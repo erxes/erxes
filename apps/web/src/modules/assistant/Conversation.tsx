@@ -1,9 +1,9 @@
 import { Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { isApiError } from '~/lib/api';
+import { isApiError } from '@erxes/core-contract/client';
 import type { AssistantTab } from './assistantState';
 import { AssistantAvatar } from './AssistantAvatar';
-import { chatFailureOf, needsKey } from './chatError';
+import { chatErrorOf, needsKey } from './chatError';
 import { Composer } from './Composer';
 import { EmptyState, KeyNotice } from './EmptyState';
 import { usePageContext } from './PageContextChip';
@@ -13,7 +13,7 @@ import { useConversation } from './useConversation';
 
 const ChatFailure = ({ error, onReload }: { error: Error; onReload: () => void }) => {
   const { t } = useTranslation('assistant');
-  const failure = chatFailureOf(error);
+  const failure = chatErrorOf(error);
 
   if (needsKey(failure)) return <KeyNotice />;
 

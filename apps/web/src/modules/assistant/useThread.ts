@@ -1,5 +1,5 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { useLivePolling } from '~/lib/live';
 
 const RUNNING_POLL_MS = 3000;

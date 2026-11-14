@@ -4,7 +4,8 @@ import {
   type AssistantSelection,
 } from '@erxes/core-contract';
 import { useToast } from 'erxes-ui';
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { uploadErrorMessage, uploadFile } from '~/lib/files';
 import { pageOfPath } from './recordPages';
@@ -128,18 +129,10 @@ const listenForPick = ({
     onPick(element);
   };
 
-  const escape = (event: KeyboardEvent) => {
-    if (event.key !== 'Escape') return;
-
-    swallow(event);
-    onStop();
-  };
-
   document.addEventListener('pointermove', hover, true);
   document.addEventListener('pointerdown', block, true);
   document.addEventListener('mousedown', block, true);
   document.addEventListener('click', choose, true);
-  document.addEventListener('keydown', escape, true);
   document.documentElement.classList.add('cursor-crosshair');
 
   return () => {
@@ -147,7 +140,6 @@ const listenForPick = ({
     document.removeEventListener('pointerdown', block, true);
     document.removeEventListener('mousedown', block, true);
     document.removeEventListener('click', choose, true);
-    document.removeEventListener('keydown', escape, true);
     document.documentElement.classList.remove('cursor-crosshair');
   };
 };
@@ -157,18 +149,23 @@ const usePicking = (onPick: (element: Element) => void) => {
   const [target, setTarget] = useState<PickTarget | null>(null);
   const pick = useEffectEvent(onPick);
 
+  const stop = useCallback(() => {
+    setPicking(false);
+    setTarget(null);
+  }, []);
+
+  useHotkeys('escape', stop, {
+    enabled: picking,
+    preventDefault: true,
+    enableOnFormTags: true,
+    enableOnContentEditable: true,
+  });
+
   useEffect(() => {
     if (!picking) return undefined;
 
-    return listenForPick({
-      onHover: setTarget,
-      onPick: pick,
-      onStop: () => {
-        setPicking(false);
-        setTarget(null);
-      },
-    });
-  }, [picking]);
+    return listenForPick({ onHover: setTarget, onPick: pick, onStop: stop });
+  }, [picking, stop]);
 
   return { picking, target, start: () => setPicking(true), cancel: () => setPicking(false) };
 };

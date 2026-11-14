@@ -16,10 +16,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { IconTip } from '~/components/IconTip';
-import { messageOf, orpc } from '~/lib/api';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { downloadText } from '~/lib/download';
 import { threadMarkdown } from './exportMarkdown';
-import { ASSISTANT_SETTINGS_PATH } from './providers';
+import { paths } from '~/lib/paths';
 import { useThread } from './useThread';
 
 const useThreadMutations = (onDeleted: (threadId: string) => void) => {
@@ -154,7 +154,7 @@ const ThreadMenu = ({
           <DropdownMenu.Separator />
         </>
       )}
-      <DropdownMenu.Item onClick={() => void navigate(ASSISTANT_SETTINGS_PATH)}>
+      <DropdownMenu.Item onClick={() => void navigate(paths.settings.assistant)}>
         <IconSettings />
         {t('open-settings', 'Assistant settings')}
       </DropdownMenu.Item>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { AssistantAvatar } from './AssistantAvatar';
-import { ASSISTANT_SETTINGS_PATH } from './providers';
+import { paths } from '~/lib/paths';
 
 const SUGGESTIONS = [
   ['suggestion.new-customers', 'Which customers were added this week?'],
@@ -27,7 +27,7 @@ export const KeyNotice = () => {
           )}
         </p>
         <Link
-          to={ASSISTANT_SETTINGS_PATH}
+          to={paths.settings.assistant}
           className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'self-start')}
         >
           {t('add-key', 'Add a key')}

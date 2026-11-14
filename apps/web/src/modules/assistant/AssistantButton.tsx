@@ -2,25 +2,18 @@ import { IconSparkles } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
 import { CoreTabTooltip } from '~/modules/navigation/CoreTabTooltip';
 import { assistantOpenState, assistantUnreadState } from './assistantState';
 
-const useToggleShortcut = (toggle: () => void) => {
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === 'j') {
-        event.preventDefault();
-        toggle();
-      }
-    };
-
-    window.addEventListener('keydown', onKey);
-
-    return () => window.removeEventListener('keydown', onKey);
-  }, [toggle]);
-};
+const useToggleShortcut = (toggle: () => void) =>
+  useHotkeys(['meta+j', 'ctrl+j'], toggle, {
+    preventDefault: true,
+    enableOnFormTags: true,
+    enableOnContentEditable: true,
+  });
 
 const AssistantToggle = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });

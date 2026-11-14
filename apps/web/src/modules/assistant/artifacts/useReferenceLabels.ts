@@ -1,7 +1,7 @@
 import { REFERENCE_PATTERN } from '@erxes/core-contract';
 import { useQueries } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 
 const handlesIn = (content: string) => [
   ...new Set(Array.from(content.matchAll(REFERENCE_PATTERN), ([, handle]) => handle ?? '')),

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { assistantPickedModelState } from './assistantState';
 import { modelToRun } from './modelChoice';
 

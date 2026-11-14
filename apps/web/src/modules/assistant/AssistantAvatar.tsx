@@ -1,7 +1,7 @@
 import type { AssistantAppearance } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { lazy, Suspense } from 'react';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import type { BloubAvatarProps } from './bloub/BloubAvatar';
 
 const BloubAvatar = lazy(() =>

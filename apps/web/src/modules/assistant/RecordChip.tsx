@@ -12,7 +12,7 @@ import { badgeVariants, cn } from 'erxes-ui';
 import { createContext, type ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { recordPath } from './recordPages';
 
 const CHIP = 'mx-0.5 max-w-full align-middle';

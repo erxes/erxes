@@ -6,5 +6,3 @@ export const PROVIDER_LABELS: Record<AssistantProvider, string> = {
   kimi: 'Kimi',
   'kimi-code': 'Kimi Code',
 };
-
-export const ASSISTANT_SETTINGS_PATH = '/settings/assistant';

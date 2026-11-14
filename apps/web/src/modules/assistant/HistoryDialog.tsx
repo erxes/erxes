@@ -1,11 +1,11 @@
 import type { AssistantThread } from '@erxes/core-contract';
 import { IconLoader2, IconPin, IconSearch } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Button, Dialog, InputGroup, ScrollArea } from 'erxes-ui';
+import { Button, Dialog, InputGroup, ScrollArea, useFormat } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
-import { orpc } from '~/lib/api';
+import { orpc } from '@erxes/core-contract/client';
 import { type CursorParams, forwardPaging } from '~/lib/cursorList';
 
 const PAGE = 50;
@@ -19,7 +19,8 @@ const useThreadPages = () =>
   );
 
 const ThreadRow = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () => void }) => {
-  const { t, i18n } = useTranslation('assistant');
+  const { t } = useTranslation('assistant');
+  const format = useFormat();
   const title = thread.title ?? t('untitled', 'Untitled conversation');
 
   return (
@@ -36,10 +37,7 @@ const ThreadRow = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () => 
         <span className="min-w-0 flex-1 truncate">{title}</span>
         {thread.running && <IconLoader2 aria-hidden className="size-3.5 animate-spin" />}
         <time dateTime={thread.updatedAt} className="shrink-0 text-xs text-muted-foreground">
-          {new Date(thread.updatedAt).toLocaleDateString(i18n.language, {
-            month: 'short',
-            day: 'numeric',
-          })}
+          {format.date(thread.updatedAt, 'MMM d')}
         </time>
       </button>
     </li>
