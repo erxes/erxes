@@ -22,7 +22,6 @@ import {
   FindObjectInput,
   GenerateAiContextInput,
   LoadAiKnowledgeDocumentBatchInput,
-  LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
   ResolveOutputVariablesInput,
@@ -99,7 +98,6 @@ export const startAutomations = async (
     findObject,
     generateAiContext,
     loadAiKnowledgeDocumentBatch,
-    lookupAiTool,
     resolveOutputVariables,
   } = config || {};
 
@@ -138,12 +136,6 @@ export const startAutomations = async (
       .mutation(async ({ ctx, input }) =>
         loadAiKnowledgeDocumentBatch(input, ctx),
       );
-  }
-
-  if (lookupAiTool) {
-    automationProcedures[TAutomationProducers.LOOKUP_AI_TOOL] = t.procedure
-      .input(LookupAiToolInput)
-      .mutation(async ({ ctx, input }) => lookupAiTool(input, ctx));
   }
 
   if (resolveOutputVariables) {

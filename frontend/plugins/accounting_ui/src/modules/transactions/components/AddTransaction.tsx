@@ -12,9 +12,13 @@ import {
 } from '@/transactions/types/constants';
 
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { getSingleJournalByAccount } from '@/transactions/transaction-form/components/utils';
+import {
+  buildTransactionCreatePath,
+  getCurrentTransactionReturnPath,
+} from '@/transactions/utils/transactionNavigation';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -23,8 +27,15 @@ export type AddTransactionHandler = (
   account?: IAccount,
 ) => void;
 
-const getCreatePath = (journal: TrJournalEnum) =>
-  `/accounting/transaction/create?defaultJournal=${journal}`;
+const useCreatePath = () => {
+  const location = useLocation();
+
+  return (journal: TrJournalEnum) =>
+    buildTransactionCreatePath({
+      defaultJournal: journal,
+      returnTo: getCurrentTransactionReturnPath(location),
+    });
+};
 
 export const AddTransaction = ({
   inForm,
@@ -39,6 +50,7 @@ export const AddTransaction = ({
 }) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
+  const getCreatePath = useCreatePath();
   const [open, setOpen] = useState(false);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -128,9 +140,6 @@ export const AddTransaction = ({
                 onNavigate={() => handleOpenChange(false)}
               />
             ))}
-            <Command.Item disabled value={t('adjustment')} className="pl-7">
-              {t('adjustment')}
-            </Command.Item>
           </Command.List>
         </Command>
       </Popover.Content>
@@ -195,6 +204,8 @@ const AddTransactionItem = ({
   onSelect: (journal: TrJournalEnum) => void;
   onNavigate: () => void;
 }) => {
+  const getCreatePath = useCreatePath();
+
   if (inForm) {
     return (
       <Command.Item

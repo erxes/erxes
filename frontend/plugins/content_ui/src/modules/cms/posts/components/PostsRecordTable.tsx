@@ -9,6 +9,7 @@ import { PostsEmptyState } from './PostsEmptyState';
 import { Posts } from '../types/postsType';
 import { CONTENT_CMS_LIST } from '../../graphql/queries';
 import type { IWebsite } from '../../types';
+import { CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME } from '@/cms/shared/constants/recordTable';
 
 interface PostsRecordTableProps {
   clientPortalId: string;
@@ -51,7 +52,7 @@ export const PostsRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={posts || []}
-      className="h-full"
+      className={`h-full ${CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME}`}
       stickyColumns={['openPublicUrl', 'more', 'checkbox', 'title']}
       tableId="content_posts_record_table"
     >
@@ -67,7 +68,7 @@ export const PostsRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
+            {loading && !posts?.length && <RecordTable.RowSkeleton rows={40} />}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

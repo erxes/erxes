@@ -1,115 +1,190 @@
+import { useStructureFormFeedback } from '@/settings/structure/hooks/useStructureFormFeedback';
+import { StructureFormActions } from '@/settings/structure/components/StructureFormActions';
+import { TBranchForm } from '@/settings/structure/types/branch';
+import { SubmitHandler } from 'react-hook-form';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+} from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
 import { useBranchDetailsById } from '@/settings/structure/hooks/useBranchDetailsById';
 import { useBranchForm } from '@/settings/structure/hooks/useBranchForm';
 import { IconGitBranch } from '@tabler/icons-react';
-import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { BranchForm } from '../BranchForm';
-import { SubmitHandler } from 'react-hook-form';
-import { TBranchForm } from '@/settings/structure/types/branch';
+import { useQueryState, Form, cn, Breadcrumb, Button } from 'erxes-ui';
+import { useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { BranchForm } from '@/settings/structure/components/branches/BranchForm';
+import { BranchLocationField } from '@/settings/structure/components/branches/location/BranchLocationField';
 import { useBranchEdit } from '@/settings/structure/hooks/useBranchActions';
-import { Can } from 'ui-modules';
+import { PageHeader, RecordSidePanel } from 'ui-modules';
+import { StructureSettingsBreadcrumb } from '@/settings/structure/components/StructureSettingsBreadcrumb';
+interface BranchPageState {
+  branchId: string;
+  branchDraft: TBranchForm;
+}
 
-export const BranchEdit = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const id = searchParams.get('branch_id');
-
-  const { branchDetail } = useBranchDetailsById({
+export const BranchEdit = ({ page = false }: { page?: boolean }) => {
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
+  const [panelId, setOpen] = useQueryState<string>('branch_id');
+  const { branchId } = useParams<{ branchId: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const navigationState: BranchPageState | null = location.state;
+  const id = page ? branchId : panelId;
+  const draft =
+    page && navigationState && navigationState.branchId === id
+      ? navigationState.branchDraft
+      : undefined;
+  const closePage = () => navigate('/settings/structures/branches');
+  const closePanel = () => setOpen(null);
+  const close = page ? closePage : closePanel;
+  const { branchDetail, loading, error } = useBranchDetailsById({
     variables: {
       id,
     },
   });
   const { handleEdit, loading: isLoading } = useBranchEdit();
-
   const {
     methods,
     methods: { reset, handleSubmit },
   } = useBranchForm();
-  const { toast } = useToast();
-
-  const setOpen = (newBranchId: string | null) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (newBranchId) {
-      newSearchParams.set('branch_id', newBranchId);
-    } else {
-      newSearchParams.delete('branch_id');
-    }
-    setSearchParams(newSearchParams);
-  };
+  const hydratedId = useRef<string>();
+  const pagePanel = usePagePanel({
+    page,
+    identity: id || 'new',
+    name: 'settings/structure/branches/BranchEdit',
+    open: !!id,
+    onExpand: page
+      ? undefined
+      : () =>
+          navigate(`/settings/structures/branches/${id}`, {
+            state:
+              hydratedId.current === id
+                ? { branchId: id, branchDraft: methods.getValues() }
+                : undefined,
+          }),
+    onOpenChange: (isOpen) => {
+      if (!isOpen) {
+        close();
+      }
+    },
+  });
+  const feedback = useStructureFormFeedback({
+    isCurrent: pagePanel.isCurrent,
+    message: t('branch-updated'),
+    onSuccess: () => {
+      methods.reset();
+      close();
+    },
+  });
   const submitHandler: SubmitHandler<TBranchForm> = (data) => {
     handleEdit({
       variables: {
         ...data,
         id,
       },
-      onCompleted: () => {
-        toast({
-          title: t('success'),
-          variant: 'success',
-          description: t('branch-updated'),
-        });
-        methods.reset();
-        setOpen(null);
-      },
-      onError: (error) =>
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        }),
+      ...feedback,
     });
   };
-
   useEffect(() => {
-    if (branchDetail) {
+    if (id && branchDetail && branchDetail._id === id) {
       const { __typename, _id, ...rest } = branchDetail;
       void __typename;
       void _id;
-      reset(rest);
+      reset({ ...rest, ...draft });
+      hydratedId.current = id;
     }
-  }, [branchDetail, reset]);
+  }, [branchDetail, draft, reset, id]);
 
-  return (
-    <Sheet
-      open={!!id}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setOpen(null);
-        }
-      }}
-    >
-      <Sheet.View className="p-0">
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className=" flex flex-col gap-0 w-full h-full"
+  if (!pagePanel.permissionsLoaded || !pagePanel.allowed || !branchDetail) {
+    return createPortal(
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+        <PagePanelStatus entry={pagePanel} loading={loading} error={!!error} />
+      </div>,
+      pagePanel,
+    );
+  }
+
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      <Form {...methods}>
+        <form
+          onSubmit={handleSubmit(submitHandler)}
+          className="flex min-h-0 w-full flex-1 flex-col"
+        >
+          {page ? (
+            <PageHeader>
+              <PageHeader.Start className="min-w-0 flex-1 pr-0">
+                <Breadcrumb>
+                  <Breadcrumb.List className="flex-nowrap gap-1">
+                    <Breadcrumb.Item>
+                      <StructureSettingsBreadcrumb />
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Button variant="ghost" asChild>
+                        <Link to="/settings/structures/branches">
+                          {t('branches', 'Branches')}
+                        </Link>
+                      </Button>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item className="min-w-0">
+                      <Breadcrumb.Page
+                        className="truncate px-3"
+                        title={branchDetail.title}
+                      >
+                        {branchDetail.title}
+                      </Breadcrumb.Page>
+                    </Breadcrumb.Item>
+                  </Breadcrumb.List>
+                </Breadcrumb>
+              </PageHeader.Start>
+            </PageHeader>
+          ) : (
+            <RecordSidePanel.Header
+              avatar={<IconGitBranch size={16} />}
+              title={branchDetail?.title || ''}
+              {...pagePanel.headerProps}
+            />
+          )}
+          <div
+            className={cn(
+              'min-h-0 flex-1 overflow-y-auto',
+              page ? 'p-4' : 'px-5 py-4',
+            )}
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                <IconGitBranch size={16} />
-                {branchDetail?.title || ''}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+            {page ? (
+              <div className="grid w-full items-start gap-x-6 gap-y-4 @min-[960px]/record-panel:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.2fr)]">
+                <div className="min-w-0 space-y-3">
+                  <BranchForm showLocation={false} compact />
+                  <StructureFormActions
+                    onCancel={close}
+                    saving={isLoading}
+                    permission="branchesManage"
+                  />
+                </div>
+                <div className="min-w-0 border-t pt-4 @min-[960px]/record-panel:border-l @min-[960px]/record-panel:border-t-0 @min-[960px]/record-panel:pl-6 @min-[960px]/record-panel:pt-0">
+                  <BranchLocationField mapClassName="h-[clamp(22rem,50vh,36rem)]" />
+                </div>
+              </div>
+            ) : (
               <BranchForm />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                {t('cancel')}
-              </Button>
-              <Can action="branchesManage">
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : t('save')}
-                </Button>
-              </Can>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+            )}
+          </div>
+          {!page && (
+            <StructureFormActions
+              onCancel={close}
+              saving={isLoading}
+              permission="branchesManage"
+            />
+          )}
+        </form>
+      </Form>
+    </div>,
+    pagePanel,
   );
 };

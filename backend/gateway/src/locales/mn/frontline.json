@@ -3162,7 +3162,10 @@
       "needs-repair": "Засах шаардлагатай",
       "broken": "Гэмтсэн",
       "syncing": "Синхрончилж байна",
-      "unknown": "Тодорхойгүй"
+      "unknown": "Тодорхойгүй",
+      "template-connect-page": "Эхлээд Facebook page холбоно уу. Шинэ tab-д нээгдэнэ; буцаж ирэхэд энд харагдана.",
+      "template-connect-page-action": "Facebook page холбох",
+      "template-connect-another-page": "Өөр page холбох"
     },
     "knowledgebase": {
       "appearance": "Харагдах байдал",
@@ -4279,6 +4282,23 @@
       "mail-trigger-inboxes-description": "Зөвхөн сонгосон inbox-д ирсэн имэйлийг бүртгэнэ. Бүх inbox-ыг сонгоогүй орхивол бүгдийг хамруулна.",
       "mail-trigger-unverified": "Баталгаажаагүй илгээгчдийг оруулах",
       "mail-trigger-unverified-description": "Дугтуйн илгээгч нь From хаягтай таарахгүй имэйлийг үүнийг идэвхжүүлээгүй бол алгасна. Имэйл илгээх үйлдэл ийм имэйлд хэзээ ч хариулдаггүй; Имэйл хариуны ноорог нь хамт олонд хянуулахаар үлдээнэ."
+    },
+    "automations-telegram": {
+      "trigger": {
+        "form-name": "Telegram мессежийн trigger",
+        "chats": "Чат",
+        "chats-private": "Зөвхөн хувийн чат",
+        "chats-all": "Хувийн чат ба групп",
+        "chats-description": "Группт bot таарсан мессеж бүрт хариулна. Тиймээс групп асаагаагүй бол унтраалттай.",
+        "keywords": "Түлхүүр үгийн шүүлт (заавал биш)",
+        "keywords-placeholder": "ж: үнэ, захиалга — хоосон бол бүх мессеж",
+        "keywords-description": "Мессежид таслалаар тусгаарласан үгсийн аль нэг нь орсон үед л эхэлнэ."
+      },
+      "action": {
+        "form-name": "Telegram мессеж илгээх",
+        "message": "Мессеж",
+        "message-description": "Workflow-г эхлүүлсэн чат руу bot-оор илгээнэ. AI Agent-ийн хариуг оруулбал түүгээр хариулна."
+      }
     }
   },
   "messenger-message-action-form-name": "Мессенжер мессежийн үйлдлийн форм",
@@ -4317,5 +4337,30 @@
   "could-not-load-more-contacts": "Нэмэлт харилцагчдыг ачаалж чадсангүй. Дахин оролдох",
   "loading-more-contacts": "Ачаалж байна…",
   "email-message": "Имэйлийн агуулга",
-  "loading-sender": "Илгээгчийг ачаалж байна…"
+  "loading-sender": "Илгээгчийг ачаалж байна…",
+  "dashboard": {
+    "open-report": "Тайлан нээх",
+    "unknown-widget": "Энэ widget ашиглах боломжгүй болсон.",
+    "nothing-found": "Олдсонгүй",
+    "all-pipelines": "Бүх дамжлага",
+    "pick-channel-first": "Дамжлага сонгохын тулд эхлээд суваг сонгоно уу",
+    "all-pages": "Бүх хуудас",
+    "chart-type": "Графикийн төрөл",
+    "save-widget": "Widget хадгалах",
+    "conversation-open-description": "Өдөр бүр нээгдсэн харилцаа",
+    "conversation-resolved-description": "Өдөр бүр шийдвэрлэгдсэн харилцаа",
+    "conversation-source-description": "Ирсэн сувгаар нь ангилсан харилцаа",
+    "conversation-tag-description": "Шошгоор ангилсан харилцаа",
+    "conversation-responses-description": "Багийн гишүүн бүрийн илгээсэн хариу",
+    "conversation-list-description": "Сүүлийн харилцаанууд, төлөв болон хариуцагчтай",
+    "ticket-status-summary-description": "Төлөв бүрт байгаа тикет",
+    "ticket-date-description": "Өдөр бүр үүссэн тикет",
+    "ticket-source-description": "Ирсэн сувгаар нь ангилсан тикет",
+    "ticket-tags-description": "Шошгоор ангилсан тикет",
+    "ticket-custom-properties-description": "Өөрийн шинж чанараар бүлэглэсэн тикет",
+    "ticket-list-description": "Сүүлийн тикетүүд, төлөв болон хариуцагчтай",
+    "facebook-activity-description": "Facebook хуудсуудын харилцаа, мессеж, сэтгэгдэл өдрөөр",
+    "facebook-posts-description": "Facebook постууд, сэтгэгдэл, хариу, reaction-тай",
+    "facebook-bots-description": "Facebook бот бүрийн хариулсан харилцаа, мессеж"
+  }
 }

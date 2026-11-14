@@ -21,7 +21,7 @@ export const FacebookBotPageAccountsStep = ({
   const { facebookGetAccounts, loading } = useFacebookAccounts();
 
   return (
-    <div className="flex-1 overflow-hidden p-4 pt-0">
+    <div className="min-h-0 flex-1 overflow-hidden p-4 pt-0">
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
@@ -49,10 +49,11 @@ export const FacebookBotPageAccountsStep = ({
           </Button>
         </div>
         <RadioGroup
-          value={selectedAccountId}
+          className="min-h-0 flex-1 overflow-hidden"
+          value={selectedAccountId || accountId}
           onValueChange={setSelectedAccountId}
         >
-          <Command.List>
+          <Command.List className="max-h-none overflow-y-auto">
             <FacebookBotPageAccountsStepContent
               loading={loading}
               facebookGetAccounts={facebookGetAccounts}

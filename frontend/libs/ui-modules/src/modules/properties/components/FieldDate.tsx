@@ -12,11 +12,11 @@ export const FieldDate = (props: SpecificFieldProps) => {
       value={currentValue}
       onChange={(date) => {
         setCurrentValue(date as Date | Date[] | undefined);
-        date !== value && handleChange(date);
+        if (date !== value) handleChange(date);
       }}
       variant={inCell ? 'ghost' : 'outline'}
       className={cn(inCell && 'rounded-none [&_svg]:hidden')}
-      placeholder=""
+      placeholder={inCell ? '' : field.name}
       mode={'single'}
     />
   );

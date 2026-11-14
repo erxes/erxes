@@ -296,12 +296,16 @@ export const createExportBatchProcessor = (
           ? exportDoc.selectedFields
           : exportHeaders.map((h: { label: string; key: string }) => h.key);
 
-      const headerLabels = exportHeaders
-        .filter((h: { label: string; key: string }) =>
-          selectedFields.includes(h.key),
-        )
-        .map((h: { label: string; key: string }) => h.label);
       const headerKeys = selectedFields;
+      const labelByKey = new Map(
+        exportHeaders.map((h: { label: string; key: string }) => [
+          h.key,
+          h.label,
+        ]),
+      );
+      const headerLabels = headerKeys.map(
+        (key: string) => labelByKey.get(key) ?? key,
+      );
 
       const tempWorkspace = await createImportExportTempWorkspace({
         kind: 'export',

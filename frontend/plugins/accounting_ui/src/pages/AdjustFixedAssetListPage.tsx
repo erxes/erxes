@@ -7,9 +7,7 @@ export const AdjustFixedAssetListPage = () => {
   return (
     <AccountingLayout>
       <AdjustmentHeader defaultKind="fxa">
-        <div className="px-3">
-          <AddAdjustFixedAsset />
-        </div>
+        <AddAdjustFixedAsset />
       </AdjustmentHeader>
       <AdjustFixedAssetTable />
     </AccountingLayout>

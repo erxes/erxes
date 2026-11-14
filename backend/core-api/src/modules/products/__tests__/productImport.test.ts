@@ -113,25 +113,74 @@ describe('upsertProductsByCode', () => {
     expect(await models.Uoms.countDocuments({ code: 'кг' })).toBe(1);
   });
 
-  it('refuses unresolved relations per row and saves the rest', async () => {
+  it('creates a category the file names once, at the root', async () => {
     const results = await models.Products.upsertProductsByCode([
-      { code: 'X1', name: 'No category', categoryId: 'missing', uom: 'pcs' },
-      { code: 'X2', name: 'Shared name', categoryId: 'Other', uom: 'pcs' },
+      { code: 'N1', name: 'Front', categoryId: 'АМОРТИЗАТОР', uom: 'pcs' },
+      { code: 'N2', name: 'Rear', categoryId: 'АМОРТИЗАТОР', uom: 'pcs' },
+    ]);
+    const categories = await models.ProductCategories.find({
+      name: 'АМОРТИЗАТОР',
+    }).lean();
+    const products = await models.Products.find({
+      code: { $in: ['N1', 'N2'] },
+    }).lean();
+
+    expect(results.map((result) => result.error)).toEqual([
+      undefined,
+      undefined,
+    ]);
+    expect(categories).toHaveLength(1);
+    expect(categories[0]).toMatchObject({
+      code: 'АМОРТИЗАТОР',
+      parentId: '',
+      order: 'АМОРТИЗАТОР/',
+    });
+    expect(products.map((product) => product.categoryId)).toEqual([
+      categories[0]._id,
+      categories[0]._id,
+    ]);
+  });
+
+  it('refuses ambiguous and unknown relations per row and saves the rest', async () => {
+    const results = await models.Products.upsertProductsByCode([
+      { code: 'X1', name: 'Shared name', categoryId: 'Other', uom: 'pcs' },
       {
-        code: 'X3',
+        code: 'X2',
         name: 'No vendor',
         categoryId: 'C01',
         uom: 'pcs',
         vendorCode: 'V99',
       },
-      { code: 'X4', name: 'Fine', categoryId: 'C01', uom: 'pcs' },
+      { code: 'X3', name: 'Fine', categoryId: 'C01', uom: 'pcs' },
     ]);
 
-    expect(results[0].error).toMatch(/category not found: missing/);
-    expect(results[1].error).toMatch(/category not found: Other/);
-    expect(results[2].error).toMatch(/Vendor not found: V99/);
-    expect(results[3]._id).toBeDefined();
+    expect(results[0].error).toMatch(/category not found: Other/);
+    expect(results[1].error).toMatch(/Vendor not found: V99/);
+    expect(results[2]._id).toBeDefined();
     expect(await models.Products.countDocuments({})).toBe(1);
+    expect(
+      await models.ProductCategories.countDocuments({ name: 'Other' }),
+    ).toBe(2);
+  });
+
+  it('never turns a stored categoryId into a new category', async () => {
+    await models.Products.collection.insertOne({
+      _id: 'orphan_1' as never,
+      code: 'O1',
+      name: 'Orphan',
+      categoryId: 'gone_category',
+      uom: 'pcs',
+      status: 'active',
+    });
+
+    const [result] = await models.Products.upsertProductsByCode([
+      { code: 'O1', unitPrice: 900 },
+    ]);
+
+    expect(result.error).toMatch(/category not found: gone_category/);
+    expect(
+      await models.ProductCategories.countDocuments({ code: 'gone_category' }),
+    ).toBe(0);
   });
 
   it('updates only what the row carries, matching a legacy raw code', async () => {

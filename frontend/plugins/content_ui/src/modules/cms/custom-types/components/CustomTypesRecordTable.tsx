@@ -2,6 +2,7 @@ import { RecordTable } from 'erxes-ui';
 import { createCustomTypesColumns } from './CustomTypesColumn';
 import { useCustomTypes } from '../hooks/useCustomTypes';
 import { CustomTypesCommandBar } from './customer-types-command-bar/CustomTypesCommandBar';
+import { CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME } from '@/cms/shared/constants/recordTable';
 
 interface CustomTypesRecordTableProps {
   clientPortalId: string;
@@ -28,14 +29,16 @@ export const CustomTypesRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={customTypes || []}
-      className="m-3"
+      className={`m-3 ${CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME}`}
       stickyColumns={['more', 'checkbox', 'name']}
       tableId="content_custom_types_record_table"
     >
       <RecordTable>
         <RecordTable.Header />
         <RecordTable.Body>
-          {loading && <RecordTable.RowSkeleton rows={40} />}
+          {loading && !customTypes?.length && (
+            <RecordTable.RowSkeleton rows={40} />
+          )}
           <RecordTable.RowList />
         </RecordTable.Body>
       </RecordTable>

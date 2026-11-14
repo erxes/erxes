@@ -4,6 +4,7 @@ import {
   embedBlockStructureInHTML,
   parseBlockStructureFromHTML,
 } from '../utils/blockStructureHTML';
+import { registerCmsEditorFlush } from '../utils/editorFlush';
 
 interface CmsPostEditorProps {
   className?: string;
@@ -21,6 +22,8 @@ export const CmsPostEditor = ({
 }: CmsPostEditorProps) => {
   const skipNextOnChangeRef = useRef(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingRevisionRef = useRef(0);
+  const outputPromiseRef = useRef<Promise<void> | null>(null);
   const lastEditorOutputRef = useRef('');
   const outputRevisionRef = useRef(0);
   const parsedInitialContent = useMemo(
@@ -84,6 +87,48 @@ export const CmsPostEditor = ({
     };
   }, [editor, initialContent]);
 
+  const emitOutput = useCallback(
+    async (outputRevision: number) => {
+      const blocks = editor.document;
+      const html = await editor.blocksToHTMLLossy(blocks);
+
+      if (outputRevision !== outputRevisionRef.current) {
+        return;
+      }
+
+      const content = embedBlockStructureInHTML(html, blocks);
+
+      lastEditorOutputRef.current = content;
+      onChange(content);
+    },
+    [editor, onChange],
+  );
+
+  const startOutput = useCallback(
+    (outputRevision: number) => {
+      debounceTimerRef.current = null;
+
+      const output = emitOutput(outputRevision).catch(() => undefined);
+
+      outputPromiseRef.current = output;
+
+      return output;
+    },
+    [emitOutput],
+  );
+
+  const flush = useCallback(async () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      await startOutput(pendingRevisionRef.current);
+      return;
+    }
+
+    await outputPromiseRef.current;
+  }, [startOutput]);
+
+  useEffect(() => registerCmsEditorFlush(flush), [flush]);
+
   const handleChange = useCallback(() => {
     const outputRevision = ++outputRevisionRef.current;
 
@@ -96,20 +141,11 @@ export const CmsPostEditor = ({
       clearTimeout(debounceTimerRef.current);
     }
 
-    debounceTimerRef.current = setTimeout(async () => {
-      const blocks = editor.document;
-      const html = await editor.blocksToHTMLLossy(blocks);
-
-      if (outputRevision !== outputRevisionRef.current) {
-        return;
-      }
-
-      const content = embedBlockStructureInHTML(html, blocks);
-
-      lastEditorOutputRef.current = content;
-      onChange(content);
+    pendingRevisionRef.current = outputRevision;
+    debounceTimerRef.current = setTimeout(() => {
+      startOutput(outputRevision);
     }, 300);
-  }, [editor, onChange]);
+  }, [startOutput]);
 
   return (
     <BlockEditor

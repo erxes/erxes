@@ -24,7 +24,12 @@ export const LanguageSelector = ({
   <Form.Item>
     <Form.Label>{t('language')}</Form.Label>
     <Form.Control>
-      <Select value={selectedLanguage} onValueChange={onLanguageChange}>
+      <Select
+        value={selectedLanguage}
+        onValueChange={(lang) => {
+          if (lang) onLanguageChange(lang);
+        }}
+      >
         <Select.Trigger>
           <Select.Value />
         </Select.Trigger>

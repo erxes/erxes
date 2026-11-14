@@ -1,18 +1,19 @@
 import { IconMapRoute } from '@tabler/icons-react';
-import { RecordTable, Sheet } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
-import { TourCreateSheet } from './TourCreateSheet';
-import { TourEditForm } from './TourEditForm';
+import { TourCreateButton } from './TourPanel';
 import { TourColumns } from './TourColumns';
 import { TourDuplicateSheet } from './TourDuplicateSheet';
 import { useTours } from '../hooks/useTours';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { TourCommandBar } from './TourCommandBar';
 import { useCategories } from '../../category/hooks/useCategories';
-import type { TourSideTab } from './TourOrdersSidePanel';
+import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 export const TourRecordTable = ({
   branchId,
@@ -23,8 +24,6 @@ export const TourRecordTable = ({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) => {
-  const [editTourId, setEditTourId] = useState<string | null>(null);
-  const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
   const [duplicateTourId, setDuplicateTourId] = useState<string | null>(null);
   const [duplicateTourDateType, setDuplicateTourDateType] = useState<
     'fixed' | 'flexible' | undefined
@@ -47,9 +46,12 @@ export const TourRecordTable = ({
     },
   });
 
-  const handleEdit = useCallback((tourId: string) => {
-    setEditTourId(tourId);
-  }, []);
+  const { openDetail } = useTourismPanel(TMS_TOUR_CONTENT_TYPE);
+
+  const handleEdit = useCallback(
+    (tourId: string) => openDetail(tourId),
+    [openDetail],
+  );
 
   const handleDuplicate = useCallback(
     (tourId: string, dateType?: 'fixed' | 'flexible') => {
@@ -59,25 +61,13 @@ export const TourRecordTable = ({
     [],
   );
 
-  const handleCloseEdit = useCallback((open: boolean) => {
-    if (!open) {
-      setEditTourId(null);
-      setSideTab(null);
-    }
-  }, []);
   const columns = useMemo(
     () => TourColumns(categories || [], handleEdit, handleDuplicate, t),
     [categories, handleDuplicate, handleEdit, t],
   );
 
   if (!loading && (totalCount ?? 0) === 0) {
-    return (
-      <EmptyStateRow
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    );
+    return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
@@ -85,15 +75,11 @@ export const TourRecordTable = ({
       <RecordTable.Provider
         columns={columns}
         data={rowData}
-        className="h-full"
+        className={TOURISM_RECORD_TABLE_CLASS_NAME}
         stickyColumns={['more', 'checkbox', 'name']}
         tableId="tourism_tours_record_table"
       >
-        <TourCommandBar
-          branchId={branchId}
-          branchLanguages={branchLanguages}
-          mainLanguage={mainLanguage}
-        />
+        <TourCommandBar branchId={branchId} mainLanguage={mainLanguage} />
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
@@ -106,7 +92,9 @@ export const TourRecordTable = ({
               <RecordTable.CursorBackwardSkeleton
                 handleFetchMore={handleFetchMore}
               />
-              {loading && <RecordTable.RowSkeleton rows={30} />}
+              {loading && !rowData.length && (
+                <RecordTable.RowSkeleton rows={30} />
+              )}
               <RecordTable.RowList />
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}
@@ -115,28 +103,6 @@ export const TourRecordTable = ({
           </RecordTable>
         </RecordTable.CursorProvider>
       </RecordTable.Provider>
-
-      <Sheet open={!!editTourId} onOpenChange={handleCloseEdit}>
-        <Sheet.View
-          className={`p-0 transition-all duration-200 ${
-            sideTab
-              ? 'w-[1220px] sm:max-w-[1220px]'
-              : 'w-[900px] sm:max-w-[900px]'
-          }`}
-        >
-          {editTourId && (
-            <TourEditForm
-              tourId={editTourId}
-              branchId={branchId}
-              branchLanguages={branchLanguages}
-              mainLanguage={mainLanguage}
-              onSuccess={() => handleCloseEdit(false)}
-              sideTab={sideTab}
-              onSideTabChange={setSideTab}
-            />
-          )}
-        </Sheet.View>
-      </Sheet>
 
       {duplicateTourId && (
         <TourDuplicateSheet
@@ -158,15 +124,7 @@ export const TourRecordTable = ({
   );
 };
 
-function EmptyStateRow({
-  branchId,
-  branchLanguages,
-  mainLanguage,
-}: {
-  branchId: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-}) {
+function EmptyStateRow({ branchId }: Readonly<{ branchId: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
@@ -177,11 +135,7 @@ function EmptyStateRow({
       <p className="max-w-sm text-sm text-muted-foreground">
         {t('no-tours-yet-desc')}
       </p>
-      <TourCreateSheet
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <TourCreateButton branchId={branchId} />
     </div>
   );
 }

@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -27,6 +27,8 @@
 
 - Create, edit, and remove payment methods with kind-specific Zod validation and toast feedback.
 - Browse invoices with kind/status filters and total-count state.
+- Show each invoice's payment method (read-only "Payment Method" column in the invoice table and
+  badges on the `invoices` relation widget card), derived from the invoice's `transactions`.
 - Edit an invoice's description, amount, and status either inline in the table cells or through
   the row's **more → Edit** sheet form; both surfaces require the `paymentInvoiceEdit` action and
   disappear/fall back to read-only without it.
@@ -35,16 +37,16 @@
 
 ## Architecture
 
-| Area              | Path                                                    | Responsibility                                                 |
-| ----------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
+| Area              | Path                                                    | Responsibility                                                                |
+| ----------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Federation config | `src/config.tsx`                                        | `IUIConfig`: `navigationGroup` (Payment app tab) + `invoices` relation widget |
-| Dev server config | `rspack.config.ts`                                      | Module Federation development serving and watch ignore rules    |
-| Pages             | `src/pages/payment`                                     | Invoices, payment settings, corporate gateway route entries    |
-| Payment module    | `src/modules/payment`                                   | Payment/invoice GraphQL documents, hooks, types, Jotai state   |
-| Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table          |
-| Settings module   | `src/modules/settings/payment/components`               | Payment method table, sheets, and all configuration forms      |
-| Corporate gateway | `src/modules/corporateGateway/<bank>`                   | Bank-specific configs, accounts, and transaction containers    |
-| Widgets           | `src/widgets`                                           | Exposed widget entries, including the invoices relation widget |
+| Dev server config | `rspack.config.ts`                                      | Module Federation development serving and watch ignore rules                  |
+| Pages             | `src/pages/payment`                                     | Invoices, payment settings, corporate gateway route entries                   |
+| Payment module    | `src/modules/payment`                                   | Payment/invoice GraphQL documents, hooks, types, Jotai state                  |
+| Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table                         |
+| Settings module   | `src/modules/settings/payment/components`               | Payment method table, sheets, and all configuration forms                     |
+| Corporate gateway | `src/modules/corporateGateway/<bank>`                   | Bank-specific configs, accounts, and transaction containers                   |
+| Widgets           | `src/widgets`                                           | Exposed widget entries, including the invoices relation widget                |
 
 ## Contracts
 
@@ -100,6 +102,11 @@
   resolves. `PaymentForm`'s `onSubmit` is `async` and awaits the mutation, so a failure keeps
   the sheet open with the entered values and reports the error through a `destructive` toast.
   Never call `onCancel()` before the awaited mutation.
+- Invoice payment method comes from `getInvoicePaymentMethods` in `InvoiceInlineCells.tsx`: the
+  distinct `paymentKind`s of `paid` transactions; if none are paid, the latest transaction's kind
+  shown as a muted (`secondary`) badge; `-` when there are no transactions. Kind labels resolve
+  through `PAYMENT_KINDS[...].name`, falling back to the raw kind. Keep `transactions.paymentKind`
+  in the `invoices` query.
 - Translation keys live outside this plugin (`backend/gateway/src/locales/*/payment.json`), so
   new UI text must reuse existing keys of the `payment` namespace.
 

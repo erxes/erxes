@@ -1,8 +1,10 @@
 import { updateCacheAfterRemove } from '@/pos/utils/updatePosCoversCache';
-import { ApolloError, useMutation } from '@apollo/client';
-import { DELETE_POS_COVER_MUTATION } from '../graphql/mutations/posCoverMutation';
+import { ApolloError, useApolloClient, useMutation } from '@apollo/client';
+import { DELETE_POS_COVER_MUTATION } from '@/pos/pos-covers/graphql/mutations/posCoverMutation';
+import { posCovers } from '@/pos/pos-covers/graphql/queries/queries';
 
 export const useRemovePosCover = () => {
+  const client = useApolloClient();
   const [_removePosCover, { loading }] = useMutation(DELETE_POS_COVER_MUTATION);
 
   const removePosCover = async (
@@ -29,6 +31,12 @@ export const useRemovePosCover = () => {
                 error instanceof Error ? error.message : String(error),
             }),
       );
+    } finally {
+      client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'posCoversCount' });
+      client.cache.gc();
+      await client
+        .refetchQueries({ include: [posCovers] })
+        .catch(() => undefined);
     }
   };
 

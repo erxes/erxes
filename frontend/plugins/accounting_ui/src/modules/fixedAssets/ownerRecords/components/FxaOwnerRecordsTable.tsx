@@ -7,13 +7,12 @@ import {
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
+  Badge,
   Combobox,
   Command,
   Popover,
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
-  Table,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { SelectMember, useSidePanel } from 'ui-modules';
@@ -31,6 +30,11 @@ import { FXA_OWNER_RECORD_CONTENT_TYPES } from '@/fixedAssets/ownerRecords/const
 const OWNER_RECORD_STATUS_LABELS: Record<string, string> = {
   active: 'active',
   inactive: 'inactive',
+};
+
+const OWNER_RECORD_STATUS_VARIANTS: Record<string, 'success' | 'secondary'> = {
+  active: 'success',
+  inactive: 'secondary',
 };
 
 const OWNER_RECORD_ACTION_LABELS: Record<string, string> = {
@@ -229,7 +233,15 @@ const getFxaOwnerRecordColumns = (
 
       return (
         <RecordTableInlineCell>
-          {t(OWNER_RECORD_STATUS_LABELS[status] || '') || status || '-'}
+          {status ? (
+            <Badge
+              variant={OWNER_RECORD_STATUS_VARIANTS[status] || 'secondary'}
+            >
+              {t(OWNER_RECORD_STATUS_LABELS[status] || '') || status}
+            </Badge>
+          ) : (
+            '-'
+          )}
         </RecordTableInlineCell>
       );
     },
@@ -247,27 +259,6 @@ const getFxaOwnerRecordColumns = (
     size: 140,
   },
 ];
-
-const FxaOwnerRecordsSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, (_, index) => `owner-skeleton-${index}`),
-    [rows],
-  );
-
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {Array.from({ length: 9 }, (_, index) => (
-            <Table.Cell key={`${rowKey}-${index}`} className="border-r-0 px-2">
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
 
 export const FxaOwnerRecordsTable = () => {
   const { t } = useTranslation('accounting');
@@ -325,7 +316,7 @@ export const FxaOwnerRecordsTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {isInitialLoading && <FxaOwnerRecordsSkeleton rows={20} />}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             {!isInitialLoading && totalCount > records.length && (
               <RecordTable.RowSkeleton
                 rows={4}

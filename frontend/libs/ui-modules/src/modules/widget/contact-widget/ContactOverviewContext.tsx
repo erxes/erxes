@@ -7,6 +7,9 @@ import { createContext, useContext } from 'react';
 export interface IContactOverviewSection {
   folded: boolean;
   setFolded: (folded: boolean) => void;
+  access?: 'read' | 'write';
+  // A pinned tab already supplies its title and always shows the section.
+  standalone?: boolean;
 }
 
 export const ContactOverviewSectionContext =

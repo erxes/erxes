@@ -4,6 +4,7 @@ import { getPlugin, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { httpBatchLink, createTRPCUntypedClient } from '@trpc/client';
 import { splitType } from 'erxes-api-shared/core-modules';
 import { nanoid } from 'nanoid';
+import { listDataExtensionAutomationFields } from '~/modules/data-extensions/automations';
 
 export const getCustomFields = async (
   models: IModels,
@@ -147,6 +148,14 @@ export const fieldsCombinedByContentType = async (
   );
 
   fields = [...fields, ...extendedFields];
+
+  // Set-property writes these through Data Extensions' own validation.
+  if (usageType === 'automations') {
+    fields = [
+      ...fields,
+      ...(await listDataExtensionAutomationFields(models, contentType)),
+    ];
+  }
 
   const response = fields.filter(
     (field) => !(excludedNames || []).includes(field.name),

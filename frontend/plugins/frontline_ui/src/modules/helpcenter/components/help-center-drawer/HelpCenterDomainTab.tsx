@@ -84,9 +84,11 @@ const DnsRecord = ({
 const ConnectDomain = ({
   helpCenterId,
   t,
+  compact,
 }: {
   helpCenterId: string;
   t: TFunction;
+  compact?: boolean;
 }) => {
   const [hostname, setHostname] = useState('');
   const { saveDomain, saving } = useCustomDomainActions(helpCenterId);
@@ -107,7 +109,11 @@ const ConnectDomain = ({
       <Label htmlFor="help-center-custom-domain">
         {t('customdomain-label', 'Custom domain')}
       </Label>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div
+        className={
+          compact ? 'flex flex-col gap-2' : 'flex flex-col gap-2 sm:flex-row'
+        }
+      >
         <Input
           id="help-center-custom-domain"
           value={hostname}
@@ -140,10 +146,12 @@ const ConnectedDomain = ({
   helpCenterId,
   domain,
   t,
+  compact,
 }: {
   helpCenterId: string;
   domain: ICustomDomain;
   t: TFunction;
+  compact?: boolean;
 }) => {
   const { confirm } = useConfirm();
   const { refreshDomain, resetDomain, refreshing, resetting } =
@@ -168,7 +176,13 @@ const ConnectedDomain = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 p-3 rounded-lg border sm:flex-row sm:items-center">
+    <div
+      className={
+        compact
+          ? 'flex flex-col gap-3 p-3 rounded-lg border'
+          : 'flex flex-col gap-3 p-3 rounded-lg border sm:flex-row sm:items-center'
+      }
+    >
       <div className="flex flex-1 gap-3 items-center min-w-0">
         <IconWorldWww className="size-5 shrink-0 text-muted-foreground" />
         <div className="min-w-0">
@@ -288,7 +302,8 @@ const DnsRecords = ({ domain, t }: { domain: ICustomDomain; t: TFunction }) => (
 export function HelpCenterDomainTab({
   helpCenterId,
   t,
-}: Readonly<{ helpCenterId: string; t: TFunction }>) {
+  compact = false,
+}: Readonly<{ helpCenterId: string; t: TFunction; compact?: boolean }>) {
   const { customDomain, loading, error, refetch } =
     useCustomDomain(helpCenterId);
 
@@ -350,9 +365,14 @@ export function HelpCenterDomainTab({
               helpCenterId={helpCenterId}
               domain={customDomain}
               t={t}
+              compact={compact}
             />
           ) : (
-            <ConnectDomain helpCenterId={helpCenterId} t={t} />
+            <ConnectDomain
+              helpCenterId={helpCenterId}
+              t={t}
+              compact={compact}
+            />
           )}
         </InfoCard.Content>
       </InfoCard>

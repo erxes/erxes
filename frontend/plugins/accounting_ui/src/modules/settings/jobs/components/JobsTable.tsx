@@ -5,7 +5,7 @@ import {
   SettingsRowsTable,
   moreColumn,
 } from '~/modules/settings/components/SettingsRowsTable';
-import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { Badge, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ProductsInline } from 'ui-modules';
 import { useJobs } from '../hooks/useJobs';
 import { IJob } from '@/settings/jobs/types/Job';
@@ -81,11 +81,14 @@ const getJobColumns = (t: TFunction<'accounting'>): ColumnDef<IJob>[] => [
     id: 'status',
     accessorKey: 'status',
     header: () => <RecordTable.InlineHead label={t('status')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {(cell.getValue() as string) || '-'}
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const status = cell.getValue<string>();
+      return (
+        <RecordTableInlineCell>
+          {status ? <Badge variant="default">{t(status)}</Badge> : '-'}
+        </RecordTableInlineCell>
+      );
+    },
     size: 120,
   },
 ];
@@ -97,7 +100,7 @@ export const JobsTable = () => {
   const { jobs, loading, totalCount, handleFetchMore, error, refetch } =
     useJobs();
 
-  if (error || (!loading && !jobs.length))
+  if (error)
     return <JobListStatus error={error} retry={() => void refetch()} />;
 
   return (
@@ -108,7 +111,10 @@ export const JobsTable = () => {
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={JobsCommandbar}
-      tableId="accounting_jobs_record_table"
+      tableId="accounting_jobs_record_table_v2"
+      className="m-3"
+      emptyDescription={t('job-no-results')}
+      stickyColumns={['more', 'code', 'name']}
     />
   );
 };

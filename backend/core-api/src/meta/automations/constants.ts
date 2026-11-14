@@ -13,6 +13,9 @@ import {
   messageProActionConfigSchema,
   outgoingWebhookActionConfigSchema,
   sendEmailActionConfigSchema,
+  sendNotificationActionConfigSchema,
+  approvalActionConfigSchema,
+  pickMemberActionConfigSchema,
   setPropertyActionConfigSchema,
   splitActionConfigSchema,
   transformActionConfigSchema,
@@ -21,6 +24,8 @@ import {
 } from 'erxes-api-shared/core-modules';
 import {
   AI_AGENT_ACTION_OUTPUT,
+  APPROVAL_ACTION_OUTPUT,
+  PICK_MEMBER_ACTION_OUTPUT,
   FIND_OBJECT_ACTION_OUTPUT,
   MESSAGE_PRO_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
@@ -32,6 +37,9 @@ import {
   validateAiAgentConfig,
   validateMessageProConfig,
   validateSendEmailSenders,
+  validateSendNotificationConfig,
+  validateApprovalConfig,
+  validatePickMemberConfig,
 } from './configValidators';
 import { CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY } from '~/modules/products/meta/automations';
 import {
@@ -250,6 +258,50 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       output: SEND_EMAIL_ACTION_OUTPUT,
       configSchema: sendEmailActionConfigSchema,
       validateConfig: validateSendEmailSenders,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.APPROVAL,
+      icon: 'IconChecklist',
+      label: 'Ask for approval',
+      description:
+        'Wait until a team member approves or rejects, then continue on that branch',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      folks: [
+        {
+          key: 'approved',
+          label: 'Approved',
+          type: TAutomationActionFolks.SUCCESS,
+        },
+        {
+          key: 'rejected',
+          label: 'Rejected',
+          type: TAutomationActionFolks.ERROR,
+        },
+      ],
+      output: APPROVAL_ACTION_OUTPUT,
+      configSchema: approvalActionConfigSchema,
+      validateConfig: validateApprovalConfig,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.PICK_MEMBER,
+      icon: 'IconUserSearch',
+      label: 'Pick a team member',
+      description:
+        'Choose one available team member, taking turns or at random; use the result to assign',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
+      output: PICK_MEMBER_ACTION_OUTPUT,
+      configSchema: pickMemberActionConfigSchema,
+      validateConfig: validatePickMemberConfig,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.SEND_NOTIFICATION,
+      icon: 'IconBell',
+      label: 'Notify team members',
+      description:
+        'Send an in-app notification to team members, from the automation owner',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      configSchema: sendNotificationActionConfigSchema,
+      validateConfig: validateSendNotificationConfig,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,

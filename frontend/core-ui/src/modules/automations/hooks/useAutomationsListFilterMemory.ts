@@ -13,6 +13,7 @@ type TAutomationsListFilters = {
   tagIds?: string[];
   actionTypes?: string[];
   triggerTypes?: string[];
+  folderId?: string;
 };
 
 // Links to /automations drop the query, so restore the last filters for the session; a URL query wins.
@@ -27,6 +28,7 @@ export const useAutomationsListFilterMemory = () => {
     'tagIds',
     'actionTypes',
     'triggerTypes',
+    'folderId',
   ]);
   const restoredRef = useRef(false);
 

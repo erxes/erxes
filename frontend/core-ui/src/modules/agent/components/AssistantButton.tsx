@@ -1,31 +1,27 @@
 import { IconMessageCircle } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Button } from 'erxes-ui';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
+
 import { useAtomValue } from 'jotai';
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
-import {
-  SIDE_PANEL_CHAT_PATH,
-  usePermissionCheck,
-  useSidePanel,
-} from 'ui-modules';
+import { usePermissionCheck } from 'ui-modules';
+import { useGlobalSidebar } from '@/global-sidebar/hooks/useGlobalSidebar';
 
 import { CoreTabTooltip } from '@/navigation/components/core-tab/CoreTabTooltip';
 import { agentActivityState } from '../states/agentActivityState';
 
-/** The top-bar action and shortcut share the side panel's URL route. */
+/** The top-bar action and shortcut toggle Assistant in the global sidebar. */
 export const AssistantButton = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const { path, openPath, close } = useSidePanel();
+  const { tool, toggleTool } = useGlobalSidebar();
   const activity = useAtomValue(agentActivityState);
   const allowed = isLoaded && hasActionPermission('agentsChat');
-  const open = path === SIDE_PANEL_CHAT_PATH;
+  const open = tool === 'assistant';
   const unread = activity.unread > 0 || activity.phase === 'awaiting';
-  const toggle = useCallback(() => {
-    if (open) close();
-    else openPath(SIDE_PANEL_CHAT_PATH);
-  }, [open, close, openPath]);
+  const toggle = useCallback(() => toggleTool('assistant'), [toggleTool]);
 
   useHotkeys('mod+j', toggle, { enabled: allowed, enableOnFormTags: true }, [
     toggle,
@@ -43,10 +39,7 @@ export const AssistantButton = () => {
         }
         aria-pressed={open}
         aria-keyshortcuts="Control+J Meta+J"
-        className={cn(
-          'relative size-7 shrink-0',
-          open && 'bg-primary/10 text-primary hover:bg-primary/15',
-        )}
+        className={coreTabIconClassName(open)}
         size="icon"
         type="button"
         variant="ghost"
@@ -56,7 +49,7 @@ export const AssistantButton = () => {
         {unread && !open && (
           <span
             aria-hidden="true"
-            className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-primary"
+            className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-primary dark:group-data-[framed=true]/layout:bg-primary-foreground"
           />
         )}
       </Button>

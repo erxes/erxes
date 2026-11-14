@@ -3,20 +3,16 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   filesCanManage,
-  IFile,
   useFileDownload,
   useFilesUpload,
+  IFile,
 } from 'ui-modules';
-import { useFilesPage } from '../context/FilesPageContext';
-import { useFilesActions } from './useFilesActions';
-import { useFilesPreviewMode } from './useFilesPreviewMode';
-import { useFilesShare } from './useFilesShare';
-import { useFilesVersions } from './useFilesVersions';
-
+import { useFilesPage } from '@/files/context/FilesPageContext';
+import { useFilesActions } from '@/files/hooks/useFilesActions';
+import { useFilesShare } from '@/files/hooks/useFilesShare';
+import { useFilesVersions } from '@/files/hooks/useFilesVersions';
 export type TFilesPreviewTab = 'preview' | 'versions';
-
 const TABS: TFilesPreviewTab[] = ['preview', 'versions'];
-
 const TONES: [RegExp, string][] = [
   [/pdf/, 'bg-red-500/10 text-red-600 dark:text-red-400'],
   [/sheet|excel|csv/, 'bg-green-500/10 text-green-600 dark:text-green-400'],
@@ -28,11 +24,9 @@ const TONES: [RegExp, string][] = [
   [/^image\//, 'bg-violet-500/10 text-violet-600 dark:text-violet-400'],
   [/^(video|audio)\//, 'bg-pink-500/10 text-pink-600 dark:text-pink-400'],
 ];
-
 const toneOf = (mimeType: string) =>
   TONES.find(([pattern]) => pattern.test(mimeType))?.[1] ||
   'bg-muted text-muted-foreground';
-
 const metaOf = (file: IFile, edited: string) =>
   [
     (file.ext || file.mimeType.split('/').pop() || '').toUpperCase(),
@@ -41,7 +35,6 @@ const metaOf = (file: IFile, edited: string) =>
   ]
     .filter(Boolean)
     .join(' · ');
-
 export const useFilesPreviewPanel = () => {
   const { t } = useTranslation('files');
   const { confirm } = useConfirm();
@@ -54,27 +47,27 @@ export const useFilesPreviewPanel = () => {
   } = useFilesPage();
   const [tab, setTab] = useState<TFilesPreviewTab>('preview');
   const { remove } = useFilesActions();
-  const { isSplit, toggleMode } = useFilesPreviewMode();
   const { download } = useFileDownload();
   const { upload } = useFilesUpload();
   // Functional update: the upload may finish after the sheet changed.
   const keepFresh = (file: IFile) =>
     setPreviewFile((current) =>
-      current?._id === file._id ? { ...current, ...file } : current,
+      current?._id === file._id
+        ? {
+            ...current,
+            ...file,
+          }
+        : current,
     );
   const versions = useFilesVersions(previewFile?._id, keepFresh);
   const canManage = filesCanManage(previewFile?.myRole);
   const share = useFilesShare(canManage ? previewFile?._id : undefined);
-
   const close = () => {
     setPreviewFile(null);
     setTab('preview');
   };
-
   return {
     file: previewFile,
-    isSplit,
-    toggleMode,
     tone: previewFile ? toneOf(previewFile.mimeType) : '',
     meta: previewFile
       ? metaOf(
@@ -88,7 +81,6 @@ export const useFilesPreviewPanel = () => {
       : '',
     changeTab: (value: string) => {
       const next = TABS.find((candidate) => candidate === value);
-
       if (next) {
         setTab(next);
       }
@@ -109,9 +101,16 @@ export const useFilesPreviewPanel = () => {
       upload([files[0]], undefined, keepFresh, previewFile._id),
     shareWithPeople: () =>
       previewFile &&
-      setAccessTarget({ itemType: 'file', _id: previewFile._id }),
+      setAccessTarget({
+        itemType: 'file',
+        _id: previewFile._id,
+      }),
     rename: () =>
-      previewFile && setNameDialog({ mode: 'rename-file', file: previewFile }),
+      previewFile &&
+      setNameDialog({
+        mode: 'rename-file',
+        file: previewFile,
+      }),
     move: () =>
       previewFile &&
       setMoveTarget({
@@ -121,14 +120,17 @@ export const useFilesPreviewPanel = () => {
       }),
     trash: () =>
       previewFile &&
-      confirm({ message: t('trash-confirm', { name: previewFile.name }) }).then(
-        async () => {
-          const result = await remove({ fileIds: [previewFile._id] });
-
-          if (!result.errors) {
-            close();
-          }
-        },
-      ),
+      confirm({
+        message: t('trash-confirm', {
+          name: previewFile.name,
+        }),
+      }).then(async () => {
+        const result = await remove({
+          fileIds: [previewFile._id],
+        });
+        if (!result.errors) {
+          close();
+        }
+      }),
   };
 };

@@ -1,9 +1,10 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import { CellContext } from '@tanstack/react-table';
 import {
   Badge,
   RecordTableInlineCell,
-  Sheet,
   TextOverflowTooltip,
+  Button,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { BundleConditionForm } from './BundleConditionForm';
@@ -18,21 +19,30 @@ export const BundleConditionNameColumnCell = (
 
   return (
     <RecordTableInlineCell>
-      <Sheet open={open} onOpenChange={setOpen} modal>
-        <Can action="bundleConditionsManage">
-          <Sheet.Trigger asChild>
-            <Badge variant="secondary" className="cursor-pointer">
-              <TextOverflowTooltip value={props.getValue() as string} />
-            </Badge>
-          </Sheet.Trigger>
-        </Can>
-        <Sheet.View className="p-0 sm:max-w-lg">
-          <BundleConditionForm
-            bundleCondition={bundleCondition}
-            onOpenChange={(isOpen) => setOpen(isOpen)}
-          />
-        </Sheet.View>
-      </Sheet>
+      <Can action="bundleConditionsManage">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-auto p-0"
+          onClick={() => setOpen(true)}
+        >
+          <Badge variant="secondary" className="cursor-pointer">
+            <TextOverflowTooltip value={props.getValue() as string} />
+          </Badge>
+        </Button>
+      </Can>
+      <ProductEditorPanel
+        name={`bundle-conditions/${bundleCondition._id}`}
+        open={open}
+        onOpenChange={setOpen}
+        requiredPermission="bundleConditionsManage"
+      >
+        <BundleConditionForm
+          bundleCondition={bundleCondition}
+          onOpenChange={(isOpen) => setOpen(isOpen)}
+        />
+      </ProductEditorPanel>
     </RecordTableInlineCell>
   );
 };

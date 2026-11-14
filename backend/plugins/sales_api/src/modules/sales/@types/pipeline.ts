@@ -25,6 +25,9 @@ export interface IPipeline {
   branchIds?: string[];
   tagId?: string;
   initialCategoryIds?: string[];
+  productIds?: string[];
+  tagIds?: string[];
+  excludeTagIds?: string[];
   excludeCategoryIds?: string[];
   excludeProductIds?: string[];
   paymentIds?: string[];

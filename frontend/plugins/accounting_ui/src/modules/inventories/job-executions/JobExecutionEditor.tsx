@@ -165,6 +165,7 @@ export const JobExecutionEditor = ({
             description: t(
               createTransactions ? 'production-updated' : 'production-saved',
             ),
+            variant: 'success',
           });
           onSaved();
         } catch (error) {
@@ -346,14 +347,9 @@ export const JobExecutionEditor = ({
             </Button>
           )}
         </fieldset>
-        <Sheet.Footer className="px-5 py-4 border-t bg-background shrink-0">
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Sheet.Close asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={loading}
-            >
+            <Button type="button" variant="outline" disabled={loading}>
               {t('cancel')}
             </Button>
           </Sheet.Close>
@@ -362,19 +358,13 @@ export const JobExecutionEditor = ({
               <Button
                 type="button"
                 variant="secondary"
-                size="lg"
                 disabled={loading}
                 onClick={submit(false)}
               >
                 {loading && <Spinner />}
                 {t('save-with-draft-status')}
               </Button>
-              <Button
-                type="button"
-                size="lg"
-                disabled={loading}
-                onClick={submit(true)}
-              >
+              <Button type="button" disabled={loading} onClick={submit(true)}>
                 {loading && <Spinner />}
                 {t('save')} &amp; {t('production-post')}
               </Button>

@@ -1,168 +1,89 @@
 import {
-  GetExportData,
   GetExportDataArgs,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
-import { posOrderRecordsQuery } from '@/pos/graphql/resolvers/queries/orders';
+import { IPosOrderItem } from '@/pos/@types/orders';
+import {
+  ExportRow,
+  fetchProductCategories,
+  pickExportFields,
+  toExportNumber,
+  uniqueIds,
+} from '~/meta/export/utils';
+import {
+  PosOrderExportLookups,
+  buildPosOrderExportRow,
+  loadPosOrderBatch,
+} from './getPosOrdersExportData';
 
-interface IOrderItem {
-  product?: {
-    code?: string;
-    name?: string;
-    barcodes?: string[];
-    categoryId?: string;
+type CategoryMap = Awaited<ReturnType<typeof fetchProductCategories>>;
+
+/** Item columns for one order line; an order without items gets blanks. */
+export const buildPosItemColumns = (
+  item: IPosOrderItem | undefined,
+  products: PosOrderExportLookups['products'],
+  categories: CategoryMap,
+): ExportRow => {
+  const product = item ? products.get(item.productId) : undefined;
+  const category = product?.categoryId
+    ? categories.get(product.categoryId)
+    : undefined;
+  const count = toExportNumber(item?.count);
+  const unitPrice = toExportNumber(item?.unitPrice);
+  const discountAmount = toExportNumber(item?.discountAmount);
+
+  return {
+    productCode: product?.code || '',
+    productName: product?.name || item?.productId || '',
+    categoryCode: category?.code || '',
+    categoryName: category?.name || '',
+    barcode: (product?.barcodes || []).join(', '),
+    count: item ? count : '',
+    unitPrice: item ? unitPrice : '',
+    discountAmount: item ? discountAmount : '',
+    totalAmount: item ? count * unitPrice - discountAmount : '',
   };
-  productCategory?: {
-    code?: string;
-    name?: string;
-  };
-  count?: number;
-  unitPrice?: number;
-  discountAmount?: number;
-}
+};
 
-interface IOrderRecord {
-  number?: string;
-  createdAt?: string;
-  posName?: string;
-  branch?: { order: string; title: string };
-  department?: { order: string; title: string };
-  user?: { email?: string };
-  type?: string;
-  billType?: string;
-  registerNumber?: string;
-  customerType?: string;
-  customer?: { primaryEmail?: string; firstName?: string };
-  items?: IOrderItem;
-  totalAmount?: number;
-  paidAmounts?: Array<{ type?: string }>;
-}
-
-type ExportRow = Record<string, string | number>;
-
-function extractOrderField(
-  order: IOrderRecord,
-  field: string,
-): string | number {
-  switch (field) {
-    case 'number':
-      return order.number ?? '';
-    case 'createdAt':
-      return order.createdAt ?? '';
-    case 'posName':
-      return order.posName ?? '';
-    case 'branch':
-      return order.branch
-        ? `${order.branch.order} - ${order.branch.title}`
-        : '';
-    case 'department':
-      return order.department
-        ? `${order.department.order} - ${order.department.title}`
-        : '';
-    case 'cashier':
-      return order.user?.email ?? '';
-    case 'type':
-      return order.type ?? '';
-    case 'billType':
-      return order.billType ?? '';
-    case 'registerNumber':
-      return order.registerNumber ?? '';
-    case 'customerType':
-      return order.customerType ?? '';
-    case 'customer':
-      return order.customer?.primaryEmail ?? order.customer?.firstName ?? '';
-    case 'productCode':
-      return order.items?.product?.code ?? '';
-    case 'productName':
-      return order.items?.product?.name ?? '';
-    case 'categoryCode':
-      return order.items?.productCategory?.code ?? '';
-    case 'categoryName':
-      return order.items?.productCategory?.name ?? '';
-    case 'barcode':
-      return (order.items?.product?.barcodes ?? []).join(', ');
-    case 'count':
-      return order.items?.count ?? 0;
-    case 'unitPrice':
-      return order.items?.unitPrice ?? 0;
-    case 'discountAmount':
-      return order.items?.discountAmount ?? 0;
-    case 'totalAmount':
-      return order.totalAmount ?? 0;
-    case 'paymentType':
-      return (order.paidAmounts ?? []).map((pa) => pa.type ?? '').join(', ');
-    default:
-      return '';
-  }
-}
-
-const DEFAULT_FIELDS = [
-  'number',
-  'createdAt',
-  'posName',
-  'productCode',
-  'productName',
-  'count',
-  'unitPrice',
-  'totalAmount',
-];
-
+/**
+ * One CSV row per POS order item, built on the POS order export so both read
+ * the same orders, filters and lookups. Every order yields at least one row,
+ * so each row's `_id` stays a valid order cursor.
+ */
 export async function getPosItemsExportData(
   args: GetExportDataArgs,
-  { models, subdomain }: IImportExportContext<IModels>,
-): Promise<Record<string, any>[]> {
-  const {
-    limit = 5000,
-    filters,
-    ids,
-    selectedFields,
-  } = (args?.data ?? args) as GetExportData;
+  ctx: IImportExportContext<IModels>,
+): Promise<ExportRow[]> {
+  const batch = await loadPosOrderBatch(args, ctx);
 
-  if (!models) {
-    throw new Error('Models not available in context');
+  if (!batch) {
+    return [];
   }
 
-  if (ids && ids.length > 0 && filters) {
-    (filters as Record<string, unknown>).ids = ids;
-  }
+  const { orders, lookups, selectedFields } = batch;
+  const categories = await fetchProductCategories(
+    ctx.subdomain,
+    uniqueIds([...lookups.products.values()].map((p) => p.categoryId)),
+  );
 
-  const allOrders: IOrderRecord[] = [];
-  let page = 1;
-  const perPage = 500;
-  const maxLimit = Math.min(limit, 5000);
+  return orders.flatMap((order) => {
+    const orderRow = buildPosOrderExportRow(order, lookups);
+    const items: Array<IPosOrderItem | undefined> = order.items?.length
+      ? order.items
+      : [undefined];
 
-  while (allOrders.length < maxLimit) {
-    const params: Record<string, unknown> = {
-      ...(filters ?? {}),
-      perPage: Math.min(perPage, maxLimit - allOrders.length),
-      page: page++,
-    };
-
-    if (ids && ids.length > 0) {
-      params.ids = ids;
-    }
-
-    const batch = (await posOrderRecordsQuery(
-      models,
-      subdomain,
-      params,
-    )) as IOrderRecord[];
-    if (!Array.isArray(batch) || batch.length === 0) break;
-    allOrders.push(...batch);
-    if (batch.length < perPage) break;
-  }
-
-  const fields =
-    selectedFields && selectedFields.length > 0
-      ? selectedFields
-      : DEFAULT_FIELDS;
-
-  return allOrders.map((order) => {
-    const row: ExportRow = {};
-    for (const field of fields) {
-      row[field] = extractOrderField(order, field);
-    }
-    return row;
+    return items.map((item) =>
+      pickExportFields(
+        String(order._id),
+        {
+          ...orderRow,
+          paymentType: orderRow.paymentTypes,
+          orderTotalAmount: orderRow.totalAmount,
+          ...buildPosItemColumns(item, lookups.products, categories),
+        },
+        selectedFields,
+      ),
+    );
   });
 }

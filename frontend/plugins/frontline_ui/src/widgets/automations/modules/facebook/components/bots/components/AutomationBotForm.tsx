@@ -1,4 +1,5 @@
-import { Sheet, Spinner } from 'erxes-ui';
+import { Empty, Spinner } from 'erxes-ui';
+import { RecordSidePanel } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { AutomationFbBotFormContent } from '~/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent';
 import { FacebookBotCreateAutomationButton } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton';
@@ -8,15 +9,46 @@ import { FbBotFormProvider } from '../context/FbBotFormContext';
 
 export const AutomationBotForm = ({
   facebookBotId,
-}: {
+  onClose,
+}: Readonly<{
   facebookBotId: string | null;
-}) => {
+  onClose: () => void;
+}>) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { loadingDetail, facebookMessengerBot } =
     useFacebookBotForm(facebookBotId);
 
+  const header = (
+    <RecordSidePanel.Header
+      title={
+        <span className="capitalize">
+          {facebookBotId ? t('edit', 'Edit') : t('add-new', 'Add new')}{' '}
+          {t('facebook-bot', 'Facebook bot')}
+        </span>
+      }
+      actions={<FacebookBotCreateAutomationButton bot={facebookMessengerBot} />}
+      onClose={onClose}
+    />
+  );
   if (loadingDetail) {
-    return <Spinner />;
+    return (
+      <>
+        {header}
+        <Spinner />
+      </>
+    );
+  }
+  if (facebookBotId && facebookMessengerBot?._id !== facebookBotId) {
+    return (
+      <>
+        {header}
+        <Empty>
+          <Empty.Header>
+            <Empty.Title>{t('not-found', 'Bot unavailable')}</Empty.Title>
+          </Empty.Header>
+        </Empty>
+      </>
+    );
   }
 
   // A saved bot already names its page, so it gets the same surface the
@@ -30,16 +62,7 @@ export const AutomationBotForm = ({
 
   return (
     <>
-      <Sheet.Header className="justify-between">
-        <Sheet.Title className="capitalize">
-          {facebookBotId ? t('edit', 'Edit') : t('add-new', 'Add new')}{' '}
-          {t('facebook-bot', 'Facebook bot')}
-        </Sheet.Title>
-        <div className="flex items-center gap-2">
-          <FacebookBotCreateAutomationButton bot={facebookMessengerBot} />
-          <Sheet.Close />
-        </div>
-      </Sheet.Header>
+      {header}
 
       {page ? (
         <FacebookBotFormBody facebookBotId={facebookBotId} page={page} />

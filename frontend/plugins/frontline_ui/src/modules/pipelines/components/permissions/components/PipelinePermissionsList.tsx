@@ -13,7 +13,7 @@ import {
   useForm,
   useWatch,
 } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { useTranslation } from 'react-i18next';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { compactList } from '@/shared/utils/cursorList';
@@ -35,6 +35,7 @@ const INITIAL_STATUS_COUNT = 5;
 
 type UpdateStatusFn = ReturnType<typeof useUpdateTicketStatus>['updateStatus'];
 
+/** Binds a member multi-select to the visibility exception field. */
 const SelectTeamMembersField = ({
   field,
 }: {
@@ -64,6 +65,7 @@ const SelectTeamMembersField = ({
   );
 };
 
+/** Renders a visibility rule and its member exceptions when applicable. */
 const VisibilityRuleRow = ({
   control,
   rule,
@@ -108,6 +110,7 @@ const VisibilityRuleRow = ({
   );
 };
 
+/** Shows status permission controls in expandable groups of five. */
 const StatusPermissionsSection = ({
   statuses,
   updateStatus,
@@ -165,6 +168,7 @@ const StatusPermissionsSection = ({
   );
 };
 
+/** Groups pipeline visibility, ticket visibility, and status permissions. */
 const PipelinePermissionsFormBody = ({
   form,
   statuses,
@@ -217,7 +221,7 @@ const PipelinePermissionsFormBody = ({
 
 export const PipelinePermissionsList = memo(() => {
   const { t } = useTranslation('frontline');
-  const { pipelineId } = useParams<{ pipelineId: string }>();
+  const { pipelineId } = useSettingsParams();
 
   const { pipeline, loading: pipelineLoading } = useGetPipeline(pipelineId);
   const { statuses, loading: statusesLoading } =

@@ -1,3 +1,4 @@
+import { PriceAdjustFactorLabel } from '@/pricing/components/PriceAdjustFactorLabel';
 import { Button, Form, InputNumber, Select, Sheet } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SelectProduct } from 'ui-modules';
@@ -201,11 +202,13 @@ export const ConditionRuleSheet = ({
                 name="priceAdjustFactor"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('price-adjust-factor')}</Form.Label>
+                    <PriceAdjustFactorLabel />
                     <Form.Control>
                       <InputNumber
                         value={field.value}
-                        min={0}
+                        min={-10}
+                        max={10}
+                        step={1}
                         onChange={(value) => field.onChange(value || 0)}
                       />
                     </Form.Control>

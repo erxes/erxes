@@ -42,6 +42,16 @@ export const scoreLogQueries = {
     return models.ScoreLogs.getTargetTotals(targetIds);
   },
 
+  async loyaltyScoreLogsByIds(
+    _root: undefined,
+    { ids }: { ids: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('scoreLogView');
+
+    return models.ScoreLogs.getByIds(ids);
+  },
+
   async scoreLogStatistics(
     _root: undefined,
     params: IScoreLogParams,
