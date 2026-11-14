@@ -9,6 +9,7 @@ import {
   Select,
   Sidebar,
   Skeleton,
+  Tooltip,
   useQueryState,
   PageHeader,
 } from 'erxes-ui';
@@ -75,6 +76,19 @@ const ReportSection = ({
     </div>
     {children}
   </section>
+);
+
+/** A header select's trigger shows only its value, so it carries its label as a name and a tooltip. */
+const LabelledTrigger = ({ label, className }: { label: string; className: string }) => (
+  <Tooltip>
+    <Tooltip.Trigger
+      delay={300}
+      render={<Select.Trigger aria-label={label} className={cn('h-8', className)} />}
+    >
+      <Select.Value />
+    </Tooltip.Trigger>
+    <Tooltip.Content>{label}</Tooltip.Content>
+  </Tooltip>
 );
 
 /** The summary, then stages, sources, owners and reasons for losing. */
@@ -146,18 +160,14 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
             value={recordType}
             onValueChange={(next) => setKind(next === 'company' ? 'companies' : null)}
           >
-            <Select.Trigger className="h-8 w-32">
-              <Select.Value />
-            </Select.Trigger>
+            <LabelledTrigger label={t('report.kind-label')} className="w-32" />
             <Select.Content>
               <Select.Item value="customer">{t('people')}</Select.Item>
               <Select.Item value="company">{t('companies')}</Select.Item>
             </Select.Content>
           </Select>
           <Select value={days} onValueChange={(next) => setDays(next === '30' ? null : next)}>
-            <Select.Trigger className="h-8 w-40">
-              <Select.Value />
-            </Select.Trigger>
+            <LabelledTrigger label={t('report.period-label')} className="w-40" />
             <Select.Content>
               {REPORT_RANGES.map((range) => (
                 <Select.Item key={range} value={range}>
