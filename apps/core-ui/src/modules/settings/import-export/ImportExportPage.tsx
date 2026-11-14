@@ -182,7 +182,7 @@ export const ImportExportPage = () => {
         className="flex min-h-0 flex-1 flex-col"
       >
         <div className="border-b px-4">
-          <Tabs.List className="h-9 border-b-0">
+          <Tabs.List variant="flush" className="h-9">
             {canImport && <Tabs.Trigger value="imports">{t('imports', 'Imports')}</Tabs.Trigger>}
             {canExport && <Tabs.Trigger value="exports">{t('exports', 'Exports')}</Tabs.Trigger>}
           </Tabs.List>

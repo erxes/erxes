@@ -169,12 +169,7 @@ export const NotificationsBell = () => {
       <Popover.Content align="end" className="w-[26rem] p-0">
         <BellHeader source={source} unread={unreadHere} onLeave={() => setOpen(false)} />
         <div className="flex items-stretch justify-between gap-2 border-b px-2">
-          <NotificationTabs
-            value={tab}
-            onChange={setTab}
-            unread={unreadHere}
-            listClassName="rounded-none border-0"
-          />
+          <NotificationTabs value={tab} onChange={setTab} unread={unreadHere} />
           {inboxes.length > 1 && (
             <InboxChips
               inboxes={inboxes}
