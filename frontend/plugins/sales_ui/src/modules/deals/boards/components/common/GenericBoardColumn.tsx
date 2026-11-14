@@ -272,6 +272,36 @@ function SortableCardInner<TItem extends BaseBoardItem>({
     transition,
   };
 
+  const openCard = (wrapper: HTMLDivElement) => {
+    const card = wrapper.firstElementChild;
+
+    if (card instanceof HTMLElement) {
+      card.click();
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    listeners?.onKeyDown?.(event);
+
+    if (
+      event.key !== 'Enter' ||
+      event.target !== event.currentTarget ||
+      isDragging
+    ) {
+      return;
+    }
+
+    openCard(event.currentTarget);
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget || isDragging) {
+      return;
+    }
+
+    openCard(event.currentTarget);
+  };
+
   return (
     <div
       ref={(node) => {
@@ -288,6 +318,8 @@ function SortableCardInner<TItem extends BaseBoardItem>({
       <div
         {...attributes}
         {...listeners}
+        onKeyDown={handleKeyDown}
+        onClick={handleClick}
         className={cn(
           'bg-background rounded-lg border shadow-sm cursor-grab overflow-hidden active:cursor-grabbing',
           'hover:shadow-md hover:border-primary/50 transition-all duration-150',
