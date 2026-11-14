@@ -17,6 +17,7 @@ import { LeadStagesPage } from '~/modules/settings/lead-stages/LeadStagesPage';
 import { PropertiesSettingsRoutes } from '~/modules/settings/properties/PropertiesSettingsRoutes';
 import { TagsSettingsPage } from '~/modules/settings/tags/TagsSettingsPage';
 import { ContactsPath } from '../utils/contactDetailPath';
+import { CONTACT_SETTINGS } from './paths';
 
 /**
  * Contacts › Settings, as erxes plugins keep theirs (Sales, Frontline): the
@@ -107,7 +108,8 @@ export const ContactsSettingsRoutes = () => (
       <Route path="lead-stages" element={<LeadStagesPage />} />
       <Route path="import-export" element={<ImportExportPage />} />
       <Route path="import-export/:id" element={<ImportWizardPage />} />
-      <Route path="*" element={<Navigate to="properties" replace />} />
+      {/* Absolute: a relative target resolves against the splat and appends to the address. */}
+      <Route path="*" element={<Navigate to={CONTACT_SETTINGS.properties} replace />} />
     </Route>
   </Routes>
 );

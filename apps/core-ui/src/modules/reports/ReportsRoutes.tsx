@@ -193,7 +193,7 @@ export const ReportsRoutes = () => {
           <Routes>
             <Route index element={<Navigate to="leads" replace />} />
             <Route path="leads" element={<LeadsReportPage />} />
-            <Route path="*" element={<Navigate to="leads" replace />} />
+            <Route path="*" element={<Navigate to="/reports/leads" replace />} />
           </Routes>
         </div>
       </AppLayout>
