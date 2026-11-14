@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { PageSpinner } from '~/components/PageSpinner';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { usePlugins } from '~/modules/plugins/usePlugins';
@@ -65,6 +65,8 @@ export const AppRoutes = () => (
   <Routes>
     {/* First sign-in steps, full screen. */}
     <Route path="welcome" element={<MainOnboardingPage />} />
+    {/* The module's name, so the URL people guess goes there too. */}
+    <Route path="onboarding" element={<Navigate to="/welcome" replace />} />
     <Route
       element={
         <OnboardingGuard>
