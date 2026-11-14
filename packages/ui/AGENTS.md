@@ -21,14 +21,23 @@ points here.
   `@theme`, run `pnpm --filter @erxes/ui cn:tables`; `pnpm check:generated` fails on stale tables.
 - No raw palette colours (`bg-gray-100`, `#fff`), no arbitrary values, no `<style>` and no inline
   style properties. A value only known at runtime (a dragged width, a chart series colour) goes
-  in a CSS variable: `style={{ '--panel-width': `${width}px` }}` with `w-(--panel-width)`.
+  in a CSS variable: `style={{ '--panel-width': `${width}px` }}` with `w-(--panel-width)`. When
+  the keys are only known at runtime too (one per table column or chart series), build the object
+  as ``const cssVariables: Record<`--${string}`, string>`` and pass `style={cssVariables}`; the lint
+  accepts that name only. The editor blocks' `*ExternalHtml.tsx` are the one place with inline
+  styles, since their HTML is read without this stylesheet.
+- Motion goes through the theme too. An entrance is `animate-appear` with its offset and timing
+  in `--appear-x`, `--appear-y`, `--appear-scale`, `--appear-duration`, `--appear-easing` and
+  `--appear-delay`. Styles for the collapsed sidebar use the `navigation-collapsed:` variant.
 - Class names are written out in full, never built (`` `bg-${tone}` ``): a variant map such as
   `{ success: 'bg-success', warning: 'bg-warning' }[tone]`, or a cva variant.
 
 ## What a screen may change
 
 `className` on an erxes-ui component carries layout: margin, width, height and size, flex and grid
-placement, position, display, and `opacity-0`/`opacity-100` to reveal a control on hover. The
+placement, position, display, and `opacity-0`/`opacity-100` to reveal a control on hover.
+`grid-cols-*`, `grid-rows-*`, `max-w-*`, `max-h-*` and `min-h-*` are allowed by glob, because
+shadcn-lint 0.2.5 reads no grid or max/min size tokens from `@theme` and can't place them. The
 few components that accept more, such as inline text that takes its colour from where it sits,
 are the contracts in `tools/config/design.ts`.
 
