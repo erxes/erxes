@@ -80,7 +80,7 @@ const AmountCell = ({ value }: { value?: number }) => (
   </RecordTableInlineCell>
 );
 
-const BranchCell = ({ row }: any) => {
+const BranchCell = ({ row }: { row: Row<ITransaction> }) => {
   const { branch } = row.original;
 
   return (
@@ -90,7 +90,7 @@ const BranchCell = ({ row }: any) => {
   );
 };
 
-const DepartmentCell = ({ row }: any) => {
+const DepartmentCell = ({ row }: { row: Row<ITransaction> }) => {
   const { department } = row.original;
 
   return (
@@ -100,29 +100,26 @@ const DepartmentCell = ({ row }: any) => {
   );
 };
 
-const DateCell = ({ getValue }: any) => {
+const DateCell = ({ row }: { row: Row<ITransaction> }) => {
   return (
     <RecordTableInlineCell>
-      {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
+      {dayjs(new Date(row.original.date ?? '')).format('YYYY-MM-DD')}
     </RecordTableInlineCell>
   );
 };
 
-const AccountCell = ({ row }: any) => {
+const AccountCell = ({ row }: { row: Row<ITransaction> }) => {
   const { details, parentId, _id, originId } = row.original;
   const navigate = useNavigate();
   const location = useLocation();
 
-  const name0 = details[0].account?.name;
+  const name0 = details[0]?.account?.name;
 
-  const infoByCode = details.reduce(
-    (acc: { [code: string]: number }, d: any) => {
-      const code = d.account?.code || '';
-      acc[code] = (acc[code] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
+  const infoByCode = details.reduce<Record<string, number>>((acc, d) => {
+    const code = d.account?.code || '';
+    acc[code] = (acc[code] || 0) + 1;
+    return acc;
+  }, {});
 
   const codes = Object.keys(infoByCode);
 
@@ -241,7 +238,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
     ),
     accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DateCell row={row} />,
     size: 100,
   },
   {
@@ -291,7 +288,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('branch')} />
     ),
     accessorKey: 'branch',
-    cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <BranchCell row={row} />,
   },
   {
     id: 'department',
@@ -299,8 +296,6 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('department')} />
     ),
     accessorKey: 'department',
-    cell: ({ getValue, row }) => (
-      <DepartmentCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <DepartmentCell row={row} />,
   },
 ];

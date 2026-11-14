@@ -24,7 +24,7 @@ export const InvMoveForm = ({
 }) => {
   const { t } = useTranslation('accounting');
   const onChangeInAccount = (account: IAccount) => {
-    form.setValue(`trDocs.${index}.followExtras.moveInAccount`, account as any);
+    form.setValue(`trDocs.${index}.followExtras.moveInAccount`, account);
   };
 
   return (

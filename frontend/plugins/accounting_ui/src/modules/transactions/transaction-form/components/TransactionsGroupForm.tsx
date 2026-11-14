@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { memo, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
 import { currentUserState, IUser, SelectMember } from 'ui-modules';
 import {
   TR_STATUS_GROUPS,
@@ -28,7 +28,7 @@ import { activeJournalState, followTrDocsState } from '../states/trStates';
 import { TAddTransactionGroup } from '../types/JournalForms';
 import { Summary } from './Summary';
 import { TransactionsTabsList } from './TransactionTabs';
-import { cleanTrDocs } from './utils';
+import { cleanTrDocs, isHiddenTransaction } from './utils';
 import {
   getAvailableTrStatusOptions,
   getNextMentionFields,
@@ -226,7 +226,7 @@ export const TransactionsGroupForm = () => {
     if (error) {
       return;
     }
-    if (data.trDocs?.some((trDoc: any) => trDoc?.permission === 'hidden')) {
+    if (data.trDocs?.some(isHiddenTransaction)) {
       return;
     }
 
@@ -252,9 +252,11 @@ export const TransactionsGroupForm = () => {
     }
   };
 
-  const onError = (error: any) => {
-    if (error?.trDocs?.length > 0) {
-      setActiveJournal(error.trDocs.findIndex((tab: any) => !!tab).toString());
+  const onError = (errors: FieldErrors<TAddTransactionGroup>) => {
+    const trDocErrors = errors.trDocs;
+
+    if (Array.isArray(trDocErrors) && trDocErrors.length > 0) {
+      setActiveJournal(trDocErrors.findIndex((tab) => !!tab).toString());
     }
   };
 

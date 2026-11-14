@@ -53,9 +53,9 @@ export const InvSaleReturnForm = ({
   }) as TInvSaleReturnJournal;
 
   const setFollowTrDocs = useSetAtom(followTrDocsState);
-  const [replaceDetails, setReplaceDetails] = useState<ITrDetail[]>(
-    trDoc.details as any[],
-  );
+  const [replaceDetails, setReplaceDetails] = useState<
+    TInvSaleReturnJournal['details']
+  >(trDoc.details);
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
 
@@ -116,7 +116,7 @@ export const InvSaleReturnForm = ({
           shouldValidate: true,
         },
       );
-      setReplaceDetails(details as ITrDetail[]);
+      setReplaceDetails(details);
     }
   };
 

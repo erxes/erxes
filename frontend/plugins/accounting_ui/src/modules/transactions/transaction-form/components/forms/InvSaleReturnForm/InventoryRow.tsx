@@ -17,7 +17,7 @@ import {
 } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useWatch } from 'react-hook-form';
+import { FieldPath, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
 import {
@@ -27,6 +27,7 @@ import {
 } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
+  TAddTransactionGroup,
   TInvSaleJournal,
 } from '../../../types/JournalForms';
 import {
@@ -153,8 +154,8 @@ export const InventoryRow = ({
       0,
   );
 
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
+  const getFieldName = (name: keyof ITrDetail) => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as FieldPath<TAddTransactionGroup>;
   };
 
   useEffect(() => {

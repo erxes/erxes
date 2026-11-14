@@ -95,14 +95,14 @@ const CountProdCell = ({
   return <RecordTableInlineCell>{formatAmount(value)}</RecordTableInlineCell>;
 };
 
-const DebitCell = ({ row }: any) => {
+const DebitCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   const { detail, side } = row.original;
   const { amount } = detail;
 
   return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
-const CreditCell = ({ row }: any) => {
+const CreditCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   const { detail, side } = row.original;
   const { amount } = detail;
 
@@ -129,15 +129,15 @@ const DepartmentCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   return <RecordTableInlineCell>{id ? content : '-'}</RecordTableInlineCell>;
 };
 
-const DateCell = ({ getValue }: any) => {
+const DateCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   return (
     <RecordTableInlineCell>
-      {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
+      {dayjs(row.original.date).format('YYYY-MM-DD')}
     </RecordTableInlineCell>
   );
 };
 
-const AccountCell = ({ row }: any) => {
+const AccountCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   const { detail } = row.original;
   const accountIds = useMemo(
     () => (detail.accountId ? [detail.accountId] : []),
@@ -236,7 +236,7 @@ export const tbalanceColumns = (
       <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
     ),
     accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DateCell row={row} />,
   },
   {
     id: 'debit',
@@ -244,7 +244,7 @@ export const tbalanceColumns = (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('debit')} />
     ),
     accessorKey: 'debit',
-    cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DebitCell row={row} />,
   },
   {
     id: 'credit',
@@ -252,7 +252,7 @@ export const tbalanceColumns = (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('credit')} />
     ),
     accessorKey: 'credit',
-    cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <CreditCell row={row} />,
   },
   {
     id: 'item-details',
