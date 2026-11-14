@@ -32,6 +32,14 @@ const fails = (client: Client, statement: string, params: string[] = []) =>
     (error: Error) => error.message,
   );
 
+/** What core_plugin_tenancy_problems lists for the testhr plugin's tables. */
+const problems = async () =>
+  (
+    await adminDb().execute<{ problem: string }>(
+      sql`select core_plugin_tenancy_problems('testhr') as problem`,
+    )
+  ).rows.map((row) => row.problem);
+
 /** The id a core function returned. */
 const idFrom = async (client: Client, statement: string, params: string[]) =>
   (await client.query<{ id: string | null }>(statement, params)).rows[0]?.id;
@@ -156,5 +164,35 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
       // Without an organisation: nothing at all.
       expect((await client.query('select * from testhr_items')).rows).toEqual([]);
     });
+  });
+
+  it('lists its tables that are open to every organisation or misnamed', async () => {
+    await asPlugin(async (client) => {
+      await client.query('create table testhr_open (id text primary key, org_id text not null)');
+      await client.query('create table payroll (id text primary key, org_id text not null)');
+      await client.query(`select core_enable_tenant_rls('payroll')`);
+    });
+
+    expect(await problems()).toEqual([
+      'payroll: owned by plugin testhr, so its name must start with testhr_',
+      "testhr_open: row level security is off, row level security is not forced, no tenant policy: run SELECT core_enable_tenant_rls('testhr_open')",
+    ]);
+
+    await asPlugin(async (client) => {
+      await client.query(`select core_enable_tenant_rls('testhr_open')`);
+      await client.query('create policy everyone on testhr_open using (true)');
+    });
+
+    expect(await problems()).toEqual([
+      'payroll: owned by plugin testhr, so its name must start with testhr_',
+      'testhr_open: permissive policy everyone is not the tenant check, so it lets more rows through',
+    ]);
+
+    await asPlugin(async (client) => {
+      await client.query('drop policy everyone on testhr_open');
+      await client.query('alter table payroll rename to testhr_payroll');
+    });
+
+    expect(await problems()).toEqual([]);
   });
 });

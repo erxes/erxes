@@ -34,6 +34,9 @@ const main = async () => {
   say(
     `The plugin connects with it (DATA_URL), owns its ${name}_* tables, and reaches core only through core's plugin functions.`,
   );
+  say(
+    `After its migrations, the plugin's CI runs SELECT * FROM core_plugin_tenancy_problems('${name}') and fails on any row.`,
+  );
 };
 
 runCli(main);

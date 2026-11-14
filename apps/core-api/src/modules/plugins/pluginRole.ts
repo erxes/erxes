@@ -29,6 +29,6 @@ export const pluginRoleSql = (plugin: string, password?: string) => {
     END $role$;
     ${password ? `ALTER ROLE ${role} LOGIN PASSWORD ${escapeLiteral(password)};` : ''}
     GRANT USAGE, CREATE ON SCHEMA public TO ${role};
-    GRANT EXECUTE ON FUNCTION core_publish_event, core_record_audit, core_live_signal, core_enable_tenant_rls, core_tenant_visible, core_plugin_caller TO ${role};
+    GRANT EXECUTE ON FUNCTION core_publish_event, core_record_audit, core_live_signal, core_enable_tenant_rls, core_plugin_tenancy_problems, core_tenant_visible, core_plugin_caller TO ${role};
   `;
 };
