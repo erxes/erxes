@@ -13,6 +13,10 @@ allowBuilds:
 overrides:
   'vite@*': 'npm:@voidzero-dev/vite-plus-core@1.6.0'
   'vitest@*': '5.1.0'
+  # cn does what clsx and tailwind-merge do, with the same exports; dependencies that import
+  # them (BlockNote, cva, recharts) get cn, so the bundle carries one class merger.
+  'clsx': 'npm:cn@0.5.2'
+  'tailwind-merge': 'npm:cn@0.5.2'
 
 patchedDependencies:
   drizzle-zod@0.8.3: patches/drizzle-zod@0.8.3.patch
