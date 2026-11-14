@@ -1,7 +1,7 @@
 import { IconEdit } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
+import { useProjectDetailSheet } from '@/project/hooks/useProjectDetailSheet';
 import { IProject } from '../types';
 import { useTranslation } from 'react-i18next';
 
@@ -11,11 +11,11 @@ export const ProjectsMoreColumnCell = ({
   cell: Cell<IProject, unknown>;
 }) => {
   const { t } = useTranslation('operation');
-  const navigate = useNavigate();
+  const [, setActiveProject] = useProjectDetailSheet();
   const { _id } = cell.row.original;
 
   const handleEdit = (projectId: string) => {
-    navigate(`${projectId}/overview`);
+    setActiveProject(projectId);
   };
 
   return (

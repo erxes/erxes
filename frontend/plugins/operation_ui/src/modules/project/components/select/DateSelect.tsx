@@ -27,7 +27,7 @@ interface DateSelectContextType {
   value?: Date;
   onSelect: (date?: Date) => void;
   loading: boolean;
-  error: any;
+  error: Error | null;
 }
 
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
@@ -275,8 +275,8 @@ export const DateSelectInlineCell = ({
       updateProject({
         variables: {
           _id: id,
-          startDate: type === 'start' ? value?.toISOString() : undefined,
-          targetDate: type === 'target' ? value?.toISOString() : undefined,
+          [type === 'start' ? 'startDate' : 'targetDate']:
+            value?.toISOString() ?? null,
         },
       });
     }

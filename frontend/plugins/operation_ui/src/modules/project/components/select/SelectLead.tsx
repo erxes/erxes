@@ -200,7 +200,7 @@ export const SelectLeadInlineCell = ({
   teamIds?: string[] | string;
   value?: string | null;
   id?: string;
-  onValueChange?: (value: string | string[]) => void;
+  onValueChange?: (value: string | string[] | null) => void;
   scope?: string;
 } & Omit<
   React.ComponentProps<typeof SelectLeadProvider>,
@@ -220,7 +220,7 @@ export const SelectLeadInlineCell = ({
         },
       });
     }
-    value && onValueChange?.(value);
+    onValueChange?.(value);
     setOpen(false);
   };
 

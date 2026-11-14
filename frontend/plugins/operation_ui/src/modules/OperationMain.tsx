@@ -38,10 +38,12 @@ const OperationMain = () => {
             path="projects/:projectId/tasks/:taskId"
             element={<TaskDetailPage />}
           />
-          <Route path="projects/:projectId" element={<ProjectLayout />}>
+          <Route path="projects/:projectId">
             <Route index element={<Navigate to="overview" replace />} />
             <Route path="overview" element={<ProjectDetailPage />} />
-            <Route path="tasks" element={<TasksLayout />} />
+            <Route element={<ProjectLayout />}>
+              <Route path="tasks" element={<TasksLayout />} />
+            </Route>
           </Route>
 
           <Route path="team/:teamId">
@@ -57,10 +59,12 @@ const OperationMain = () => {
               path="projects/:projectId/tasks/:taskId"
               element={<TaskDetailPage />}
             />
-            <Route path="projects/:projectId" element={<ProjectLayout />}>
+            <Route path="projects/:projectId">
               <Route index element={<Navigate to="overview" replace />} />
               <Route path="overview" element={<ProjectDetailPage />} />
-              <Route path="tasks" element={<TasksLayout />} />
+              <Route element={<ProjectLayout />}>
+                <Route path="tasks" element={<TasksLayout />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

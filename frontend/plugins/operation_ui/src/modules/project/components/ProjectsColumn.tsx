@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { useApolloClient } from '@apollo/client';
 import { useAtom } from 'jotai';
-import { useNavigate } from 'react-router-dom';
+import { useProjectDetailSheet } from '@/project/hooks/useProjectDetailSheet';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import {
   IconAlertSquareRounded,
@@ -102,7 +102,7 @@ export const projectsColumns = (
         const name = cell.getValue() as string;
         const [value, setValue] = useState(name);
         const { updateProject } = useUpdateProject();
-        const navigate = useNavigate();
+        const [, setActiveProject] = useProjectDetailSheet();
 
         /** Saves the project name when its value has changed. */
         const handleUpdate = () => {
@@ -129,7 +129,7 @@ export const projectsColumns = (
           >
             <RecordTableInlineCell.Trigger>
               <RecordTableInlineCell.Anchor
-                onClick={() => navigate(`${cell.row.original._id}/overview`)}
+                onClick={() => setActiveProject(cell.row.original._id)}
               >
                 {name}
               </RecordTableInlineCell.Anchor>
