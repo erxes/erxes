@@ -1,10 +1,10 @@
 /*
-  Tailwind theme contract shared by the core-ui host and plugin remotes.
+  Tailwind theme contract shared by the web host and plugin remotes.
 
   Maps utilities to design tokens. Token values live on the host's :root and
   .dark (base.css, imported once by the host page), so this file must not
   declare them. A plugin imports it next to its own prefixed Tailwind
-  utilities; see core-ui/src/styles.css for the host.
+  utilities; see web/src/styles.css for the host.
 */
 @custom-variant dark (&:is(.dark *));
 /* Inside an app layout whose navigation panel is closed, where its toggle button floats at the

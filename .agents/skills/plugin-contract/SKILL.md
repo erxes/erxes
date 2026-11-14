@@ -1,6 +1,6 @@
 ---
 name: plugin-contract
-description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in apps/core-ui/rsbuild.config.ts, exports of packages/ui, or when releasing those packages.
+description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in apps/web/rsbuild.config.ts, exports of packages/ui, or when releasing those packages.
 ---
 
 Plugins live in their own repos and upgrade on their own schedule, so every change here is either
@@ -10,7 +10,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - the HTTP contract (`packages/contract/src/*.ts` and `openapi.json`);
    - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`);
-   - Module Federation: `SHARED` in `apps/core-ui/rsbuild.config.ts` lists the singletons the host
+   - Module Federation: `SHARED` in `apps/web/rsbuild.config.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`), and its first module renders under `/<path>/*`.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
@@ -28,7 +28,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
 4. For federation, keep shared names and exported symbols: a removed `erxes-ui` export breaks
    plugin UIs at runtime, not at build time. Search the plugin repos (the HR plugin first) for a
    symbol before removing it.
-5. Check a consumer: load the HR plugin UI in core-ui with `PUBLIC_PLUGINS=<remote>@<remoteEntry url>`
+5. Check a consumer: load the HR plugin UI in web with `PUBLIC_PLUGINS=<remote>@<remoteEntry url>`
    (`.agents/skills/verify-feature/SKILL.md`), or call the changed procedure with a token from
    `POST /core/v1/plugins/token`, or through `@erxes/plugin-sdk`'s `createCoreClient`.
 6. To release `@erxes/core-contract`, `@erxes/plugin-sdk` and `@erxes/ui`, bump their `version`

@@ -1,5 +1,5 @@
 # erxes core API. Build from the repository root:
-#   docker build -f apps/core-api/Dockerfile -t erxes-core-api .
+#   docker build -f apps/api/Dockerfile -t erxes-api .
 # Runs `node --import ./dist/instrumentation.js dist/main.js` (tracing loads
 # first, so it can patch http, express and pg); operators also get
 # dist/migrate.js, dist/grant.js and dist/plugin-role.js (see deploy/docker-compose.yml).
@@ -12,23 +12,23 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 # pnpm applies these to dependencies on install (patchedDependencies).
 COPY patches patches
 # Every workspace manifest, so the frozen lockfile matches.
-COPY apps/core-api/package.json apps/core-api/
-COPY apps/core-ui/package.json apps/core-ui/
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
 COPY packages/payment-gateways/package.json packages/payment-gateways/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
-RUN pnpm install --frozen-lockfile --filter @erxes/core-api...
+RUN pnpm install --frozen-lockfile --filter @erxes/api...
 COPY tsconfig.base.json ./
 COPY packages/contract packages/contract
 COPY packages/db packages/db
 COPY packages/payment-gateways packages/payment-gateways
 COPY packages/plugin-sdk packages/plugin-sdk
-COPY apps/core-api apps/core-api
-RUN pnpm --filter @erxes/core-api build \
- && pnpm --filter @erxes/core-api deploy --prod --legacy /out \
- && cp -r apps/core-api/dist /out/dist
+COPY apps/api apps/api
+RUN pnpm --filter @erxes/api build \
+ && pnpm --filter @erxes/api deploy --prod --legacy /out \
+ && cp -r apps/api/dist /out/dist
 
 FROM node:26-bookworm-slim
 # The runtime only runs node; npm and corepack bring their own dependencies (and advisories).

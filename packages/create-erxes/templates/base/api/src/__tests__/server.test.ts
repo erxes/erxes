@@ -35,7 +35,7 @@ describe('server', () => {
     ).toBe(401);
   });
 
-  it('lets core-ui call it from the browser', async () => {
+  it('lets web call it from the browser', async () => {
     const response = await fetch(`${base}/api/rpc/items/list`, {
       method: 'OPTIONS',
       headers: {

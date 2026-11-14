@@ -1,6 +1,6 @@
 ---
 name: verify-feature
-description: Show that a behaviour change works in the running app, not only in tests. Use after changing anything a member or plugin can see in core-ui or through /core/v1, before the handoff. Runs the Playwright daily flows with their axe checks, then the journey the change touches.
+description: Show that a behaviour change works in the running app, not only in tests. Use after changing anything a member or plugin can see in web or through /core/v1, before the handoff. Runs the Playwright daily flows with their axe checks, then the journey the change touches.
 ---
 
 Use synthetic data only. Never point the app at a copy of production data.
@@ -20,7 +20,7 @@ Use synthetic data only. Never point the app at a copy of production data.
    is `text-primary-text`, readable in both themes; `--primary` itself is for fills and
    borders (`bg-primary`, `border-primary`), and reads at 2.6:1 as text in dark. A failure leaves a trace:
    `pnpm exec playwright show-trace e2e/test-results/<spec>/trace.zip`.
-   - Fix a violation where it is caused: the core-ui component, or the erxes-ui part if every
+   - Fix a violation where it is caused: the web component, or the erxes-ui part if every
      consumer shows it. Never disable an axe rule or filter it out of `expectAccessible`.
    - A new screen in a daily flow gets a step and an `expectAccessible` in its spec
      (`e2e/*.spec.ts`; CI's `e2e` job runs them against the built images).

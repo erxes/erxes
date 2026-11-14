@@ -18,7 +18,7 @@ const Env = z.object({
   UI_ENTRY_URL: z.url().optional(),
   /** The built UI to serve at `/ui` (the image sets it). */
   UI_DIR: z.string().optional(),
-  /** core-ui's origin, which calls this API from the browser. Defaults to CORE_URL's origin. */
+  /** web's origin, which calls this API from the browser. Defaults to CORE_URL's origin. */
   CORE_UI_URL: z.url().optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   VERSION: z.string().default('0.1.0'),

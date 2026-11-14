@@ -2,7 +2,7 @@
 (***************************************************************************)
 (* One core_files row from a started upload to its purge, against object   *)
 (* storage, with concurrent completions, client PUTs, the prune, delete,   *)
-(* purge and download. Paths are relative to apps/core-api/src/modules/    *)
+(* purge and download. Paths are relative to apps/api/src/modules/    *)
 (* files. Each action is one atomic step of the implementation: one SQL    *)
 (* statement, one storage call, or a commit.                               *)
 (*                                                                         *)

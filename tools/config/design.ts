@@ -25,7 +25,7 @@ const screenClasses = [
 
 export const designOverrides = [
   {
-    files: ['apps/core-ui/src/**', 'packages/ui/src/**'],
+    files: ['apps/web/src/**', 'packages/ui/src/**'],
     rules: {
       'shadcn/no-restyle': ['error', { allow: screenClasses }],
       'shadcn/no-arbitrary-values': 'error',

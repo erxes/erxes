@@ -23,7 +23,7 @@ Lint config is in `tools/config/`; the files a rule is off for are in `tools/con
 ## Invariants
 
 - Thin core. If only one plugin needs a feature, it belongs in that plugin.
-- Contract first: every endpoint is declared in `packages/contract`, and core-ui and plugins call it
+- Contract first: every endpoint is declared in `packages/contract`, and web and plugins call it
   through the typed client.
 - Tenancy is row level security. `withOrg` runs a request in one transaction for its organisation,
   and Postgres hides every other organisation's rows, so queries carry no org filter and inserts

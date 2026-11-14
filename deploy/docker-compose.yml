@@ -50,7 +50,7 @@ services:
       retries: 20
 
   migrate:
-    image: ${CORE_API_IMAGE:-ghcr.io/erxes/erxes-core-api:postgre}
+    image: ${API_IMAGE:-ghcr.io/erxes/erxes-api:postgre}
     command: ['node', 'dist/migrate.js']
     environment: *api-env
     secrets: *api-secrets
@@ -59,7 +59,7 @@ services:
     restart: 'no'
 
   api:
-    image: ${CORE_API_IMAGE:-ghcr.io/erxes/erxes-core-api:postgre}
+    image: ${API_IMAGE:-ghcr.io/erxes/erxes-api:postgre}
     restart: unless-stopped
     environment: *api-env
     secrets: *api-secrets
@@ -69,7 +69,7 @@ services:
       migrate: { condition: service_completed_successfully }
 
   ui:
-    image: ${CORE_UI_IMAGE:-ghcr.io/erxes/erxes-core-ui:postgre}
+    image: ${WEB_IMAGE:-ghcr.io/erxes/erxes-web:postgre}
     restart: unless-stopped
     environment:
       CORE_API_URL: http://api:3400

@@ -1,4 +1,4 @@
-# core-api
+# api
 
 The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON), bundled by tsdown as ESM.
 

@@ -3,13 +3,13 @@ import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '../..');
 
-/** The settings core-api's tests run with (vite.config.ts, the core-api project). */
-export const coreApiTestEnv = {
+/** The settings api's tests run with (vite.config.ts, the api project). */
+export const apiTestEnv = {
   CORE_TEST_TEMPLATE: `core_test_template_${randomBytes(4).toString('hex')}`,
   // A plugin key for the plugin-only endpoints (notifications, activities).
   CORE_PLUGIN_KEYS: 'hr:test-hr-plugin-key-0123456789abcdefghijklmnop',
   FILES_STORAGE: 'local',
-  FILES_LOCAL_DIR: resolve(root, 'apps/core-api/.test-files'),
+  FILES_LOCAL_DIR: resolve(root, 'apps/api/.test-files'),
   FILES_MAX_SIZE_MB: '5',
   // Low lines, so tests reach them quickly.
   MASS_DELETE_ALERT: '20',

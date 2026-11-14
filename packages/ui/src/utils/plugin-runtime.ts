@@ -4,7 +4,7 @@ import { jsonOf } from './json';
 
 /**
  * How plugin UIs reach their own API and hear about changes. The host app
- * (core-ui) provides the runtime; erxes-ui is a Module Federation singleton,
+ * (web) provides the runtime; erxes-ui is a Module Federation singleton,
  * so every plugin UI gets the host's.
  *
  * - `pluginFetch('hr', '/leaves')` calls the plugin's API (its address comes

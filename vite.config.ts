@@ -9,7 +9,7 @@ import { exceptions } from './tools/config/exceptions';
 import { restrictedOverrides, restrictedRules } from './tools/config/restricted';
 import { coreRules } from './tools/config/core-rules';
 import { lintBase, rules } from './tools/config/rules';
-import { coreApiTestEnv } from './tools/test/core-api-env';
+import { apiTestEnv } from './tools/test/api-env';
 import { noSkips } from './tools/test/no-skips';
 
 // The type check is tsrs (TypeScript 7) running as oxlint's tsgolint.
@@ -100,25 +100,25 @@ export default defineConfig({
     reporters: [...configDefaults.reporters, noSkips()],
     projects: [
       {
-        root: 'apps/core-api',
+        root: 'apps/api',
         resolve: { tsconfigPaths: true },
         test: {
-          name: 'core-api',
+          name: 'api',
           include: ['src/**/*.test.ts'],
           environment: 'node',
           // Files run in parallel, each on its own copy of a template database that
           // globalSetup migrates once per run (src/__tests__/db.ts).
-          globalSetup: [resolve(import.meta.dirname, 'apps/core-api/src/__tests__/globalSetup.ts')],
-          env: coreApiTestEnv,
+          globalSetup: [resolve(import.meta.dirname, 'apps/api/src/__tests__/globalSetup.ts')],
+          env: apiTestEnv,
           // Generous: tests may run against a remote Postgres (each query is a round trip).
           testTimeout: 60_000,
           hookTimeout: 300_000,
         },
       },
       {
-        root: 'apps/core-ui',
+        root: 'apps/web',
         resolve: { tsconfigPaths: true },
-        test: { name: 'core-ui', include: ['src/**/*.test.ts'], environment: 'node' },
+        test: { name: 'web', include: ['src/**/*.test.ts'], environment: 'node' },
       },
       {
         root: 'packages/ui',

@@ -3,7 +3,7 @@ import { defineConfig } from 'tsdown';
 const CSS = ['styles.css', 'fonts.css', 'theme.css', 'base.css', 'components.css'];
 
 // The publishable build: one ES module per source file, so `erxes-ui/<path>` keeps
-// working. The workspace imports the sources (core-ui aliases erxes-ui to src/):
+// working. The workspace imports the sources (web aliases erxes-ui to src/):
 // `exports` point at src/ and the dist ones go in `publishConfig`. The style sheets
 // ship as source, since the app's Tailwind build compiles them.
 export default defineConfig({

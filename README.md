@@ -20,4 +20,4 @@ Set `CORE_SETUP=false` where organisations come from the erxes SaaS service. Plu
 register with `pnpm plugin:secret <name>` (or `CORE_PLUGIN_KEYS`) and send
 their manifest (UI, API address, scopes); owners install them in Settings ›
 Plugins. To try a local plugin UI build, set `PUBLIC_PLUGINS`, e.g.
-`PUBLIC_PLUGINS=hr_ui@http://localhost:3025/remoteEntry.js pnpm dev:ui`.
+`PUBLIC_PLUGINS=hr_ui@http://localhost:3025/remoteEntry.js pnpm dev:web`.

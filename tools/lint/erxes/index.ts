@@ -88,7 +88,7 @@ const noSessionAdvisoryLockRule = defineRule({
     docs: { description: 'Disallow session-level Postgres advisory locks in SQL strings.' },
     messages: {
       sessionLock:
-        'pg_advisory_lock outlives the transaction on a pooled connection. Use pg_advisory_xact_lock (lockKey in apps/core-api/src/lib/locks.ts).',
+        'pg_advisory_lock outlives the transaction on a pooled connection. Use pg_advisory_xact_lock (lockKey in apps/api/src/lib/locks.ts).',
     },
   },
   createOnce(context) {
@@ -260,7 +260,7 @@ const noDtoMapperRule = defineRule({
 });
 
 /**
- * A procedure's permission is its policy in `ACCESS` (apps/core-api/src/http/policies.ts),
+ * A procedure's permission is its policy in `ACCESS` (apps/api/src/http/policies.ts),
  * checked before the handler runs. A service checks only what depends on the record, in a
  * named helper.
  */

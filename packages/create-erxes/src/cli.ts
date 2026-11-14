@@ -194,7 +194,7 @@ const nextSteps = (plan: Plan, result: Awaited<ReturnType<typeof create>>) => {
     'pnpm dev:ui',
     '',
     `core .env: CORE_PLUGIN_KEYS=${plan.names.id}:<32+ character secret>`,
-    `core-ui .env: PUBLIC_PLUGINS=${plan.names.remote}@http://localhost:${UI_PORT}/remoteEntry.js`,
+    `web .env: PUBLIC_PLUGINS=${plan.names.remote}@http://localhost:${UI_PORT}/remoteEntry.js`,
     ...(plan.migration
       ? ['', 'Then work through MIGRATION.md with the plugin-migrate skill.']
       : []),

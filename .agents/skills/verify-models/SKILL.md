@@ -1,6 +1,6 @@
 ---
 name: verify-models
-description: Keep the TLA+ model of the file lifecycle in step with the code. Use when changing anything in apps/core-api/src/modules/files, the core_files schema, or verify/tla.
+description: Keep the TLA+ model of the file lifecycle in step with the code. Use when changing anything in apps/api/src/modules/files, the core_files schema, or verify/tla.
 ---
 
 One model lives in `verify/tla`:
@@ -28,7 +28,7 @@ doing step 2.
 4. Run `pnpm verify:models` again. Each `<Model>.cfg` must report no violation. Each
    `<Model>.broken-<what>.cfg` must still fail with its `\* expect:` line. A broken config that
    starts passing means the check no longer bites: fix the model.
-5. Add a race to `apps/core-api/src/__tests__/concurrency.test.ts` for a new property or a new
+5. Add a race to `apps/api/src/__tests__/concurrency.test.ts` for a new property or a new
    ordering, holding one side open with a gate the way the existing tests do.
 
 Never weaken or drop a property to make a run pass, and never shrink the bounds to dodge a trace.

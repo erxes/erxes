@@ -65,7 +65,7 @@ jobs:
           owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
           ssh -i ~/.ssh/deploy '${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}' \
             "cd '${{ vars.DEPLOY_PATH }}' && \
-             export CORE_API_IMAGE=ghcr.io/$owner/erxes-core-api:$TAG CORE_UI_IMAGE=ghcr.io/$owner/erxes-core-ui:$TAG && \
+             export API_IMAGE=ghcr.io/$owner/erxes-api:$TAG WEB_IMAGE=ghcr.io/$owner/erxes-web:$TAG && \
              docker compose -f deploy/docker-compose.yml --env-file deploy/.env pull && \
              docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --remove-orphans && \
              docker compose -f deploy/docker-compose.yml --env-file deploy/.env ps"

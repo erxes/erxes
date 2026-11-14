@@ -125,7 +125,7 @@ export const pluginBundleBudget = (): RsbuildPlugin => ({
 
       if (over.length > 0) {
         throw new Error(
-          `Over the JS budget in apps/core-ui/bundleBudget.ts: ${over.join(', ')}. Load less up front: erxes-ui is one chunk every route loads, so a heavy part of it loads on first use (LazyEditor.tsx). Measure with pnpm --filter @erxes/core-ui perf (e2e/perf/measure.ts). A budget changes only in its own PR.`,
+          `Over the JS budget in apps/web/bundleBudget.ts: ${over.join(', ')}. Load less up front: erxes-ui is one chunk every route loads, so a heavy part of it loads on first use (LazyEditor.tsx). Measure with pnpm --filter @erxes/web perf (e2e/perf/measure.ts). A budget changes only in its own PR.`,
         );
       }
     });

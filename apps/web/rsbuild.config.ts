@@ -15,8 +15,8 @@ const ui = resolve(import.meta.dirname, '../../packages/ui/src');
 const { WEB_PORT, CORE_API_URL } = process.env;
 
 /**
- * The erxes core UI (apps/core-ui). Same-origin with the API: in development
- * the dev server forwards /core to apps/core-api; in production a reverse proxy
+ * The erxes core UI (apps/web). Same-origin with the API: in development
+ * the dev server forwards /core to apps/api; in production a reverse proxy
  * serves both under one address, so the session cookie stays first-party.
  * It is also the Module Federation host for plugin UIs (PUBLIC_PLUGINS).
  */

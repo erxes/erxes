@@ -6,7 +6,7 @@ import { browserRules } from './rules';
 export const areas = [
   {
     files: [
-      'apps/core-api/**',
+      'apps/api/**',
       'packages/db/**',
       'packages/plugin-sdk/**',
       'packages/payment-gateways/**',
@@ -18,34 +18,34 @@ export const areas = [
   {
     // Where settings come from the environment: core's config, CLIs, tests and build configs.
     files: [
-      'apps/core-api/src/config.ts',
-      'apps/core-api/scripts/**',
-      'apps/core-api/src/__tests__/**',
+      'apps/api/src/config.ts',
+      'apps/api/scripts/**',
+      'apps/api/src/__tests__/**',
       'packages/create-erxes/src/existing-plugins.ts',
       'packages/create-erxes/src/__tests__/**',
       'packages/db/drizzle.config.ts',
-      'apps/core-ui/rsbuild.config.ts',
+      'apps/web/rsbuild.config.ts',
       '{tools,e2e}/**',
       'vite.config.ts',
     ],
     rules: { 'node/no-process-env': 'off' },
   },
   {
-    files: ['apps/core-ui/src/**', 'packages/ui/**'],
+    files: ['apps/web/src/**', 'packages/ui/**'],
     plugins: ['react', 'jsx-a11y'],
     env: { browser: true },
     rules: browserRules,
   },
   {
     // The browser's console is where a page's problems show up.
-    files: ['apps/core-ui/src/**'],
+    files: ['apps/web/src/**'],
     rules: { 'no-console': ['error', { allow: ['warn', 'error'] }] },
   },
   {
     // Value lists are written once, in packages/db/src/enums.ts.
     files: [
-      'apps/core-api/**',
-      'apps/core-ui/**',
+      'apps/api/**',
+      'apps/web/**',
       'packages/db/**',
       'packages/contract/**',
       'packages/plugin-sdk/**',
@@ -55,9 +55,9 @@ export const areas = [
   },
   {
     // A query per item is an N+1: batch it (`inArray`, a set-based update), or go through
-    // `inOrder`/`repeatWhile` (apps/core-api/src/lib/sequence.ts) on purpose.
+    // `inOrder`/`repeatWhile` (apps/api/src/lib/sequence.ts) on purpose.
     files: [
-      'apps/core-api/**',
+      'apps/api/**',
       'packages/contract/**',
       'packages/db/**',
       'packages/plugin-sdk/**',
@@ -67,12 +67,12 @@ export const areas = [
   },
   {
     // Row level security scopes every query to the organisation, so core adds no org_id filter.
-    files: ['apps/core-api/**'],
+    files: ['apps/api/**'],
     rules: { 'erxes/no-org-filter': 'error' },
   },
   {
     // A procedure's permission is its ACCESS policy (src/http/policies.ts), checked before it runs.
-    files: ['apps/core-api/src/modules/**'],
+    files: ['apps/api/src/modules/**'],
     rules: { 'erxes/no-service-permission': 'error' },
   },
   {
