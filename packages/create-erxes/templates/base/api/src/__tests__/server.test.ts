@@ -36,9 +36,11 @@ describe('server', () => {
   });
 
   it("refuses a job without core's token", async () => {
+    const job = { jobId: 'j1', orgId: 'o1', name: 'items.count', attempt: 1, payload: {} };
+
     const response = await fetch(`${base}/api/jobs/items.count`, {
       method: 'POST',
-      body: JSON.stringify({ jobId: 'j1', orgId: 'o1', name: 'items.count', attempt: 1, payload: {} }),
+      body: JSON.stringify(job),
     });
 
     expect(response.status).toBe(401);
