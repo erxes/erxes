@@ -1,63 +1,96 @@
 import { paths } from '~/lib/paths';
-import { skipToken, useQuery } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { QueryObserver, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useEffectEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orpc } from '@erxes/core-contract/client';
 import { useNotificationSettings } from './useNotifications';
 
 export const desktopSupported = () => typeof window !== 'undefined' && 'Notification' in window;
 
+/** One inbox item as a desktop popup. Clicking it runs `open` and closes it, until `signal` aborts. */
+const popUp = (
+  item: { id: string; title: string; body?: string | null },
+  open: () => void,
+  signal: AbortSignal,
+) => {
+  const popup = new Notification(item.title, {
+    body: item.body ?? undefined,
+    tag: item.id,
+    icon: '/favicon.ico',
+  });
+
+  popup.addEventListener(
+    'click',
+    () => {
+      open();
+      popup.close();
+    },
+    { signal },
+  );
+
+  return popup;
+};
+
 /**
  * Desktop notifications (Settings › Notifications › Browser): new inbox items
  * pop up while erxes isn't the tab in front. The list refetches on the live
  * inbox signal; the tag is the notification's id, so several open tabs show
- * it once. Clicking opens it.
+ * it once. Clicking opens it. Signing out or turning them off closes the open ones.
  */
 export const useDesktopNotifications = () => {
   const navigate = useNavigate();
+  const client = useQueryClient();
   const { settings } = useNotificationSettings();
 
   const enabled =
     Boolean(settings?.browser) && desktopSupported() && Notification.permission === 'granted';
 
-  const seen = useRef<Set<string> | null>(null);
-
-  // A failed check stays quiet: the next live signal or poll tries again.
-  const latest = useQuery(
-    orpc.notifications.list.queryOptions({
-      input: enabled
-        ? { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' }
-        : skipToken,
-    }),
-  );
+  // The latest navigate, so moving between pages keeps the popups open.
+  const open = useEffectEvent((link: string) => {
+    window.focus();
+    void navigate(link);
+  });
 
   useEffect(() => {
-    const items = latest.data?.data ?? [];
+    if (!enabled) return;
 
-    // What was there when the app opened isn't news.
-    if (!seen.current) {
-      if (latest.data) seen.current = new Set(items.map((item) => item.id));
+    // A failed check stays quiet: the next live signal or poll tries again.
+    const latest = new QueryObserver(
+      client,
+      orpc.notifications.list.queryOptions({
+        input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
+      }),
+    );
 
-      return;
-    }
+    const popups = new Set<Notification>();
+    const clicks = new AbortController();
+    let seen: Set<string> | undefined;
 
-    for (const item of items) {
-      if (seen.current.has(item.id)) continue;
-      seen.current.add(item.id);
+    const unsubscribe = latest.subscribe(({ data }) => {
+      if (!data) return;
 
-      if (!enabled || document.visibilityState === 'visible') continue;
+      // What was there when they were turned on isn't news.
+      if (!seen) {
+        seen = new Set(data.data.map((item) => item.id));
 
-      const popup = new Notification(item.title, {
-        body: item.body ?? undefined,
-        tag: item.id,
-        icon: '/favicon.ico',
-      });
+        return;
+      }
 
-      popup.addEventListener('click', () => {
-        window.focus();
-        void navigate(item.link ?? paths.notifications);
-        popup.close();
-      });
-    }
-  }, [latest.data, enabled, navigate]);
+      for (const item of data.data) {
+        if (seen.has(item.id)) continue;
+        seen.add(item.id);
+
+        if (document.visibilityState === 'visible') continue;
+
+        popups.add(popUp(item, () => open(item.link ?? paths.notifications), clicks.signal));
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      clicks.abort();
+
+      for (const popup of popups) popup.close();
+    };
+  }, [client, enabled]);
 };
