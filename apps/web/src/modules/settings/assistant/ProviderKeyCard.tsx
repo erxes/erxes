@@ -115,6 +115,18 @@ const KeyActions = ({
   );
 };
 
+const KeyBadge = ({ saved, failing }: { saved: boolean; failing: boolean }) => {
+  const { t } = useTranslation('assistant', { keyPrefix: 'settings' });
+
+  if (!saved) return <Badge variant="muted">{t('no-key', 'No key')}</Badge>;
+
+  return failing ? (
+    <Badge variant="destructive">{t('failing', 'Key not working')}</Badge>
+  ) : (
+    <Badge variant="success">{t('saved', 'Key saved')}</Badge>
+  );
+};
+
 export const ProviderKeyCard = ({
   provider,
   connection,
@@ -133,11 +145,7 @@ export const ProviderKeyCard = ({
         <h2 id={headingId} className="text-sm font-semibold">
           {PROVIDER_LABELS[provider]}
         </h2>
-        {connection ? (
-          <Badge variant="success">{t('saved', 'Key saved')}</Badge>
-        ) : (
-          <Badge variant="muted">{t('no-key', 'No key')}</Badge>
-        )}
+        <KeyBadge saved={Boolean(connection)} failing={Boolean(entry?.error)} />
         {connection?.isDefault && <Badge>{t('default', 'Default')}</Badge>}
       </div>
       {connection && entry?.error && <p className="text-sm text-destructive-text">{entry.error}</p>}

@@ -189,6 +189,7 @@
     "key-replace": "Paste a new key to replace it",
     "save-key": "Save key",
     "saved": "Key saved",
+    "failing": "Key not working",
     "no-key": "No key",
     "default": "Default",
     "make-default": "Make default",
