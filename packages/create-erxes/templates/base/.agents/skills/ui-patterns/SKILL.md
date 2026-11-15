@@ -77,9 +77,13 @@ gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
   query options, so other plugins' relation tabs show on it; `activity` names
   a manifest `timelines` type for core's Activity tab.
 - Every record type has an Activity tab, as customers do: declare the type in
-  the manifest's `timelines`, set `activity`, and record what happens to the
-  record (created, changed fields, moved, assigned, notes) on core's timeline.
-  The panel opens on Detail; the record's own page opens on Activity, with
+  the manifest's `timelines`, set `activity`, and publish what happens to the
+  record (created, changed fields, moved, assigned) as events with
+  `core_publish_event()` in the change's transaction: a `summary`, a flat
+  payload, `entityType` (that `timelines` type) and `entityId` (the record's
+  id). Core puts each on the record's Activity tab, styled by the manifest's
+  `activityTypes`; `activities.create` is only for entries that are not
+  events. Notes come from core's tab itself. The panel opens on Detail; the record's own page opens on Activity, with
   Detail beside it.
 - Each slot gets `contentType` and `contentId` and reads the record itself; the
   slots share one query (`ui/src/modules/items/ItemPanel.tsx`). The Detail
