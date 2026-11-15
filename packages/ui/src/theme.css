@@ -126,6 +126,8 @@
   --grid-template-columns-field: 6.5rem minmax(0, 1fr);
   /* A side column of 18 to 24rem beside the content. */
   --grid-template-columns-aside: minmax(18rem, 24rem) minmax(0, 1fr);
+  /* A condition row: field and operator, then the remove button. */
+  --grid-template-columns-condition: minmax(0, 1fr) minmax(0, 1fr) auto;
 
   /* Panels and sidebars sliding open or shut. */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);

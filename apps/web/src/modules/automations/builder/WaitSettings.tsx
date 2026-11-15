@@ -1,7 +1,6 @@
-import { Input, Select } from 'erxes-ui';
+import { Input, oneOf, Select } from 'erxes-ui';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { oneOf } from '~/lib/text';
 import { BuilderContext } from './BuilderContext';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';

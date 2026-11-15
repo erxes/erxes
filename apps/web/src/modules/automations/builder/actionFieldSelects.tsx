@@ -1,12 +1,12 @@
 import type { ActionField } from '@erxes/core-contract';
-import { Select } from 'erxes-ui';
+import { memberQueries } from '@erxes/core-contract/client';
+import { LookupPicker, Select, textOf, useMemberOptions, useTagOptions } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { textOf } from '~/lib/text';
 import { paths } from '~/lib/paths';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
-import { LookupPicker, useMemberOptions, useTagOptions } from './lookupOptions';
+import { tagsQuery } from '~/modules/tags/useTags';
 import type { FieldInfo } from './useAutomationFields';
 
 export type ActionInputProps = {
@@ -122,14 +122,15 @@ export const LookupMultiSelect = ({
 }: ActionInputProps) => {
   const { t } = useTranslation('automations');
   const isMembers = field.type === 'members';
-  const members = useMemberOptions(isMembers);
-  const tags = useTagOptions(subject, !isMembers);
+  const picked = asList(value);
+  const members = useMemberOptions(memberQueries, isMembers, picked);
+  const tags = useTagOptions(tagsQuery(subject), !isMembers);
 
   return (
     <LookupPicker
       multiple
       lookup={isMembers ? members : tags}
-      value={asList(value)}
+      value={picked}
       onValueChange={onChange}
       disabled={disabled}
       placeholder={

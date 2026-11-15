@@ -1,7 +1,6 @@
 import type { AutomationTrigger } from '@erxes/core-contract';
-import { cn, Input, Select } from 'erxes-ui';
+import { cn, Input, oneOf, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { oneOf } from '~/lib/text';
 import { AudienceEditor, Field, TimeAndZone } from './triggerFields';
 
 type ScheduleTrigger = Extract<AutomationTrigger, { kind: 'schedule' }>;

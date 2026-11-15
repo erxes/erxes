@@ -1,20 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import type { TConditionField } from 'erxes-ui';
 import { orpc } from '@erxes/core-contract/client';
 
-/**
- * A field conditions and placeholders can use: a record's (from the API) or
- * an earlier step's output. `group`: where it comes from, for grouping in the
- * picker (lists' advanced filter).
- */
-export type FieldInfo = {
-  path: string;
-  label: string;
-  type: string;
-  options?: string[];
-  group?: string;
-  /** A money amount, stored in this currency's smallest unit and typed in its major unit. */
-  currency?: string;
-};
+/** A field conditions and placeholders can use: a record's (from the API) or an earlier step's output. */
+export type FieldInfo = TConditionField;
 
 /**
  * Fields conditions and placeholders can use (built-in and custom), for a

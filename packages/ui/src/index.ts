@@ -117,6 +117,8 @@ export { Upload } from './components/upload';
 
 export { useConfirm } from './hooks/use-confirm';
 
+export { useItemKeys } from './hooks/use-item-keys';
+
 export { usePageHotkey } from './hooks/use-page-hotkey';
 
 export { toast, useToast } from './hooks/use-toast';
@@ -127,7 +129,11 @@ export { cn } from './lib/utils';
 
 export { LANGUAGES, formatter, localTimeZone, toIsoDay, useFormat, zoneOffset } from './lib/format';
 
+export { amountStep, formatMoney, fromAmountInput, toAmountInput, useMoney } from './lib/money';
+
 export { stored, storedFamily } from './lib/stored';
+
+export { oneOf, textOf } from './lib/text';
 
 export { Editor } from './modules/blocks/components/LazyEditor';
 
@@ -184,6 +190,14 @@ export {
 
 export { MemberInline, SelectMember } from './modules/pickers/SelectMember';
 
+export {
+  LookupPicker,
+  type Tag,
+  type TagsQuery,
+  useMemberOptions,
+  useTagOptions,
+} from './modules/pickers/LookupPicker';
+
 export { NumberField } from './modules/record-field/components/NumberField';
 
 export { TextField } from './modules/record-field/components/TextField';
@@ -206,11 +220,22 @@ export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/D
 
 export {
   ListFilter,
-  setListFilter,
   type TListFilterField,
   type TListFilterProps,
   useListFilterParams,
 } from './modules/list/ListFilter';
+
+export { listFilterQuery } from './modules/list/filter/listFilterQuery';
+
+export {
+  isRule,
+  type TConditionField,
+  type TConditionGroup,
+  type TConditionLookups,
+  type TConditionRule,
+} from './modules/conditions/conditions';
+
+export { ConditionsEditor } from './modules/conditions/LazyConditionsEditor';
 
 export { ViewBar } from './modules/list/ViewBar';
 

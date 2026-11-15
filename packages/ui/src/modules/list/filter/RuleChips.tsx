@@ -1,12 +1,18 @@
-import { type ConditionGroup, type ConditionRule, RelativeAmount } from '@erxes/core-contract';
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
-import { Filter, useFormat } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMoney } from '~/lib/money';
-import { oneOf, textOf } from '~/lib/text';
-import { isRule, OPERATOR_LABELS } from '~/modules/automations/builder/conditionOperators';
-import type { ListField } from '../useViews';
+import { useFormat } from '../../../lib/format';
+import { useMoney } from '../../../lib/money';
+import { oneOf, textOf } from '../../../lib/text';
+import {
+  isRule,
+  OPERATOR_LABELS,
+  RelativeAmount,
+  type TConditionGroup,
+  type TConditionRule,
+} from '../../conditions/conditions';
+import { Filter } from '../../filter/components/Filter';
+import type { TListFilterField } from '../ListFilter';
 import { FIELD_ICONS } from './fieldIcons';
 import { NUMBER_OPS, NUMBER_SYMBOLS, presetOf, valuesOf } from './filterRules';
 import { useFieldOptions, useListFilter } from './listFilterContext';
@@ -29,21 +35,23 @@ const Chip = ({
     <div className="flex h-7 items-stretch gap-px rounded bg-muted text-sm font-medium shadow-xs">
       <Filter.BarName>{name}</Filter.BarName>
       <Filter.BarButton onClick={onOpen}>{children}</Filter.BarButton>
-      <Filter.BarClose aria-label={t('remove')} onClick={onRemove} />
+      <Filter.BarClose aria-label={t('remove', 'Remove filter')} onClick={onRemove} />
     </div>
   );
 };
 
 /** Unknown paths (a removed property) read as text. */
-const textField = (path: string): ListField => ({
-  path,
-  label: path,
-  type: 'text',
-  group: 'fields',
-});
+const textField = (path: string): TListFilterField => ({ path, label: path, type: 'text' });
+
+/** English for the `views` namespace's `filter.unit.<unit>`, by plural form. */
+const UNIT_LABELS = {
+  days: { defaultValue_one: '{{count}} day', defaultValue_other: '{{count}} days' },
+  weeks: { defaultValue_one: '{{count}} week', defaultValue_other: '{{count}} weeks' },
+  months: { defaultValue_one: '{{count}} month', defaultValue_other: '{{count}} months' },
+};
 
 /** A rule as words: the operator and the value. */
-const useRuleText = (rule: ConditionRule, field: ListField) => {
+const useRuleText = (rule: TConditionRule, field: TListFilterField) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { t: opT } = useTranslation('automations');
   const { options } = useFieldOptions(field);
@@ -57,15 +65,20 @@ const useRuleText = (rule: ConditionRule, field: ListField) => {
   const preset = field.type === 'date' ? presetOf(rule) : undefined;
   const span = RelativeAmount.safeParse(rule.value);
   const numberOp = field.type === 'number' ? oneOf(NUMBER_OPS, rule.op) : undefined;
+  const is = t('is', 'is');
 
-  if (preset) return { op: '', value: t(`date.${preset.key}`) };
+  if (preset) return { op: '', value: t(`date.${preset.key}`, preset.label) };
 
   if (rule.op === 'exists' || rule.op === 'not_exists') return { op, value: '' };
 
-  if (span.success) return { op, value: t(`unit.${span.data.unit}`, { count: span.data.amount }) };
+  if (span.success) {
+    const { amount, unit } = span.data;
+
+    return { op, value: t(`unit.${unit}`, { count: amount, ...UNIT_LABELS[unit] }) };
+  }
 
   if (field.type === 'boolean') {
-    return { op: t('is'), value: textOf(rule.value) === 'true' ? t('yes') : t('no') };
+    return { op: is, value: textOf(rule.value) === 'true' ? t('yes', 'Yes') : t('no', 'No') };
   }
 
   if (numberOp) {
@@ -85,13 +98,13 @@ const useRuleText = (rule: ConditionRule, field: ListField) => {
   const values = valuesOf(rule).map(labelOf);
 
   if (rule.op === 'in' || rule.op === 'eq') {
-    return { op: values.length > 1 ? t('is-any-of') : t('is'), value: values.join(', ') };
+    return { op: values.length > 1 ? t('is-any-of', 'is any of') : is, value: values.join(', ') };
   }
 
   return { op, value: values.join(', ') };
 };
 
-const RuleChip = ({ rule, index }: { rule: ConditionRule; index: number }) => {
+const RuleChip = ({ rule, index }: { rule: TConditionRule; index: number }) => {
   const { fields, edit, setPart } = useListFilter();
   const field = fields.find((one) => one.path === rule.path) ?? textField(rule.path);
   const text = useRuleText(rule, field);
@@ -115,7 +128,7 @@ const RuleChip = ({ rule, index }: { rule: ConditionRule; index: number }) => {
 };
 
 /** A group from the advanced filter: how many conditions; it opens the advanced filter. */
-const GroupChip = ({ group, index }: { group: ConditionGroup; index: number }) => {
+const GroupChip = ({ group, index }: { group: TConditionGroup; index: number }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { openAdvanced, setPart } = useListFilter();
   const count = group.rules.length;
@@ -125,13 +138,23 @@ const GroupChip = ({ group, index }: { group: ConditionGroup; index: number }) =
       name={
         <>
           <IconAdjustmentsHorizontal />
-          {t('advanced')}
+          {t('advanced', 'Advanced filter')}
         </>
       }
       onOpen={openAdvanced}
       onRemove={() => setPart(index, null)}
     >
-      {group.match === 'any' ? t('any-of', { count }) : t('conditions', { count })}
+      {group.match === 'any'
+        ? t('any-of', {
+            count,
+            defaultValue_one: 'any of {{count}} condition',
+            defaultValue_other: 'any of {{count}} conditions',
+          })
+        : t('conditions', {
+            count,
+            defaultValue_one: '{{count}} condition',
+            defaultValue_other: '{{count}} conditions',
+          })}
     </Chip>
   );
 };

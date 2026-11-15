@@ -9,8 +9,6 @@
   --grid-template-columns-lead-funnel: minmax(90px, 1fr) 2fr 2fr 64px;
   /* The leads report's cohort tables: name, new leads, customers, rate. */
   --grid-template-columns-lead-cohort: minmax(90px, 1fr) 2fr 70px 56px;
-  /* An automation condition: field and operator, then the remove button. */
-  --grid-template-columns-condition: minmax(0, 1fr) minmax(0, 1fr) auto;
 }
 
 /* The automation canvas: a dot every 18px. */

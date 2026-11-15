@@ -1,18 +1,12 @@
-import type { ConditionRule, FilterField } from '@erxes/core-contract';
 import { describe, expect, it } from 'vite-plus/test';
-import { anyOf, groupOf, partsOf, presetOf, targetOf, valuesOf, withPart } from '../filterRules';
+import type { TConditionRule } from '../../conditions/conditions';
+import type { TListFilterField } from '../ListFilter';
+import { anyOf, groupOf, partsOf, presetOf, targetOf, valuesOf, withPart } from './filterRules';
 
-const kind: FilterField = { path: 'subject.kind', label: 'Type', type: 'select', group: 'fields' };
-
-const price: FilterField = {
-  path: 'subject.price',
-  label: 'Price',
-  type: 'number',
-  group: 'fields',
-};
-
-const goods: ConditionRule = { path: 'subject.kind', op: 'in', value: ['goods'] };
-const cheap: ConditionRule = { path: 'subject.price', op: 'lt', value: 1000 };
+const kind: TListFilterField = { path: 'subject.kind', label: 'Type', type: 'select' };
+const price: TListFilterField = { path: 'subject.price', label: 'Price', type: 'number' };
+const goods: TConditionRule = { path: 'subject.kind', op: 'in', value: ['goods'] };
+const cheap: TConditionRule = { path: 'subject.price', op: 'lt', value: 1000 };
 
 describe('filter menu rules', () => {
   it('shows an "any" group of several rules as one part, and keeps the rest as they are', () => {

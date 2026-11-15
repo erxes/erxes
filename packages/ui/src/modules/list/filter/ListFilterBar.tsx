@@ -1,44 +1,48 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
-import {
-  Button,
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  useFilterContext,
-  IconTip,
-  usePageHotkey,
-} from 'erxes-ui';
 import { useQueryState } from 'nuqs';
-import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { messageOf } from '@erxes/core-contract/client';
-import { isRule } from '~/modules/automations/builder/conditionOperators';
-import { type ListField, useListQuery } from '../useViews';
+import { Button } from '../../../components/button';
+import { Combobox } from '../../../components/combobox';
+import { Command } from '../../../components/command';
+import { IconTip } from '../../../components/icon-tip';
+import { Popover } from '../../../components/popover';
+import { usePageHotkey } from '../../../hooks/use-page-hotkey';
+import { isRule } from '../../conditions/conditions';
+import { Filter } from '../../filter/components/Filter';
+import { useFilterContext } from '../../filter/hooks/useFilterContext';
+import type { TListFilterField, TListFilterProps } from '../ListFilter';
 import { AdvancedFilterDialog } from './AdvancedFilterDialog';
 import { FieldMenu } from './FieldMenus';
 import { FIELD_ICONS } from './fieldIcons';
 import { type FilterPart, groupOf, inMenu, partsOf, withPart } from './filterRules';
 import { ListFilterContext, type ListFilterState, useListFilter } from './listFilterContext';
-import { RecordCount, type Total } from './RecordCount';
+import { useListConditions } from './listFilterQuery';
+import { RecordCount } from './RecordCount';
 import { RuleChips } from './RuleChips';
 
-/** Built-in fields first, the record's properties last. */
-const GROUPS: ListField['group'][] = ['fields', 'lead', 'company', 'activity', 'custom'];
+/** Built-in fields first, the record's properties last; each with its heading's English. */
+const GROUPS: { group: NonNullable<TListFilterField['group']>; label: string }[] = [
+  { group: 'fields', label: 'Fields' },
+  { group: 'lead', label: 'Lead' },
+  { group: 'company', label: 'Company' },
+  { group: 'activity', label: 'Activity' },
+  { group: 'custom', label: 'Properties' },
+];
 
 /** Every field, grouped; each opens its submenu. The search box filters them by name. */
 const FieldItems = () => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { fields } = useListFilter();
 
-  return GROUPS.map((group) => {
-    const inGroup = fields.filter((field) => field.group === group);
+  return GROUPS.map(({ group, label }) => {
+    const inGroup = fields.filter((field) => (field.group ?? 'fields') === group);
 
     if (!inGroup.length) return null;
 
     return (
-      <Command.Group key={group} heading={t(`group.${group}`)}>
+      <Command.Group key={group} heading={t(`group.${group}`, label)}>
         {inGroup.map((field) => {
           const Icon = field.icon ?? FIELD_ICONS[field.type];
 
@@ -55,27 +59,33 @@ const FieldItems = () => {
 };
 
 /** The menu's first page: "Add filter…", search, the advanced filter, then the fields. */
-const RootMenu = ({ loading, error }: { loading: boolean; error: Error | null }) => {
+const RootMenu = ({ loading, error }: Pick<TListFilterProps, 'loading' | 'error'>) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { openAdvanced } = useListFilter();
+  const search = t('search', 'Search');
+  const advanced = t('advanced', 'Advanced filter');
 
   return (
     <Command>
-      <Filter.CommandInput placeholder={t('add')} variant="secondary" focusOnMount />
+      <Filter.CommandInput placeholder={t('add', 'Add filter…')} variant="secondary" focusOnMount />
       <Command.List className="max-h-popup">
-        <Command.Empty>{t('no-match')}</Command.Empty>
-        <Filter.Item value="searchValue" keywords={[t('search')]} inDialog>
+        <Command.Empty>{t('no-match', 'No field matches')}</Command.Empty>
+        <Filter.Item value="searchValue" keywords={[search]} inDialog>
           <IconSearch />
-          {t('search')}
+          {search}
         </Filter.Item>
-        <Filter.CommandItem value="advanced" keywords={[t('advanced')]} onSelect={openAdvanced}>
+        <Filter.CommandItem value="advanced" keywords={[advanced]} onSelect={openAdvanced}>
           <IconAdjustmentsHorizontal />
-          {t('advanced')}
+          {advanced}
         </Filter.CommandItem>
-        {loading && <p className="px-2 py-1.5 text-xs text-muted-foreground">{t('loading')}</p>}
+        {loading && (
+          <p className="px-2 py-1.5 text-xs text-muted-foreground">
+            {t('loading', 'Loading fields…')}
+          </p>
+        )}
         {error && (
           <p role="alert" className="px-2 py-1.5 text-xs text-destructive">
-            {messageOf(error)}
+            {error.message}
           </p>
         )}
         <FieldItems />
@@ -93,7 +103,7 @@ const SearchChip = () => {
     <Filter.BarItem queryKey="searchValue">
       <Filter.BarName>
         <IconSearch />
-        {t('search')}
+        {t('search', 'Search')}
       </Filter.BarName>
       <Filter.BarButton filterKey="searchValue" inDialog>
         {searchValue}
@@ -105,14 +115,15 @@ const SearchChip = () => {
 /** Opens the filter menu; it shows how many conditions apply. */
 const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
+  const label = t('label', 'Filter');
 
   return (
-    <IconTip label={t('label')} hotkey="F">
+    <IconTip label={label} hotkey="F">
       <Popover.Trigger
         render={
           <Button
             size="sm"
-            aria-label={t('label')}
+            aria-label={label}
             aria-keyshortcuts="F"
             variant={count > 0 ? 'secondary' : 'ghost'}
             tone={count > 0 ? 'default' : 'muted'}
@@ -128,29 +139,9 @@ const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }
   );
 };
 
-interface ListFilterBarProps extends Total {
-  /** Names the bar and its menu's hotkey scope: the record type, or a plugin list's id. */
-  id: string;
-  fields: ListField[];
-  /** While the fields load, and why they didn't. */
-  fieldsLoading: boolean;
-  fieldsError: Error | null;
-  /** Whose tags and lookups the fields reach; none for a plugin's list. */
-  subject: ListFilterState['subject'];
-  optionLabel?: ListFilterState['optionLabel'];
-  /** What a saved view's list changed, beside the chips. */
-  viewChanges?: ReactNode;
-  /** The list's own icon controls (Archived, Display), just before the menu. */
-  children?: ReactNode;
-}
-
 /** The bar's context: the list's conditions as parts, and the one the menu is editing. */
-const useListFilterState = (
-  subject: ListFilterState['subject'],
-  fields: ListField[],
-  optionLabel: ListFilterState['optionLabel'],
-) => {
-  const { advanced, setAdvanced } = useListQuery();
+const useListFilterState = (fields: TListFilterField[], lookups: ListFilterState['lookups']) => {
+  const { advanced, setAdvanced } = useListConditions();
   const { setOpen, setView } = useFilterContext();
   const [editing, setEditing] = useState<number | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -169,10 +160,9 @@ const useListFilterState = (
 
   const state = useMemo<ListFilterState>(
     () => ({
-      subject,
       fields,
+      lookups,
       parts,
-      optionLabel,
       editing,
       setPart: (index: number | null, next: FilterPart | null) =>
         setAdvanced(groupOf(withPart(parts, index, next))),
@@ -185,36 +175,33 @@ const useListFilterState = (
       },
       openAdvanced: () => setAdvancedOpen(true),
     }),
-    [subject, fields, parts, optionLabel, editing, setAdvanced, openMenu],
+    [fields, lookups, parts, editing, setAdvanced, openMenu],
   );
 
   return { state, setEditing, advancedOpen, setAdvancedOpen };
 };
 
 /**
- * Inside `<Filter>`: its chips, the view's changes and the count, then the
- * list's controls and the menu (`F`).
+ * Inside `<Filter>`: its chips, the list's status and the count, then the list's controls
+ * and the menu (`F`).
  */
-const ListFilterBar = ({
+export const ListFilterBar = ({
   id,
   fields,
-  fieldsLoading,
-  fieldsError,
-  subject,
-  optionLabel,
-  viewChanges,
+  loading,
+  error,
+  status,
   totalCount,
   totalCapped,
   children,
-}: ListFilterBarProps) => {
+  members,
+  tags,
+}: TListFilterProps) => {
   const [chipsRef] = useAutoAnimate({ duration: 150 });
-  const { search } = useListQuery();
+  const { search } = useListConditions();
+  const lookups = useMemo(() => ({ members, tags }), [members, tags]);
 
-  const { state, setEditing, advancedOpen, setAdvancedOpen } = useListFilterState(
-    subject,
-    fields,
-    optionLabel,
-  );
+  const { state, setEditing, advancedOpen, setAdvancedOpen } = useListFilterState(fields, lookups);
 
   return (
     <ListFilterContext.Provider value={state}>
@@ -225,7 +212,7 @@ const ListFilterBar = ({
         <SearchChip />
         <RuleChips />
       </div>
-      {viewChanges}
+      {status}
       <RecordCount totalCount={totalCount} totalCapped={totalCapped} />
       <div aria-hidden className="mx-1 h-4 w-px shrink-0 bg-border" />
       {children}
@@ -236,7 +223,7 @@ const ListFilterBar = ({
         />
         <Combobox.Content align="end" className="w-80">
           <Filter.View>
-            <RootMenu loading={fieldsLoading} error={fieldsError} />
+            <RootMenu loading={loading} error={error} />
           </Filter.View>
           {fields.map((field) => (
             <Filter.View key={field.path} filterKey={field.path}>
@@ -252,21 +239,5 @@ const ListFilterBar = ({
       </Filter.Dialog>
       <AdvancedFilterDialog open={advancedOpen} onOpenChange={setAdvancedOpen} />
     </ListFilterContext.Provider>
-  );
-};
-
-/**
- * A list's filter bar: the menu of its fields (`F`), search, the advanced filter, and each
- * condition as a chip. Conditions are the list's filter (`useListQuery().advanced`).
- */
-export const ListFilterFrame = (props: ListFilterBarProps) => {
-  const [barRef] = useAutoAnimate({ duration: 150 });
-
-  return (
-    <Filter id={`${props.id}-list-filter`}>
-      <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end">
-        <ListFilterBar {...props} />
-      </Filter.Bar>
-    </Filter>
   );
 };

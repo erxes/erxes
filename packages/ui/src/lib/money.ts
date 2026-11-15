@@ -1,10 +1,9 @@
-import { currencyDigits } from '@erxes/core-contract';
-import { formatter } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { currencyDigits, formatter } from './format';
 
 /*
- * Amounts are integers in the currency's smallest unit (`currencyDigits`):
- * $12.50 is 1250, ₮1,500 is 150000, ¥500 is 500.
+ * Amounts are integers in the currency's smallest unit (`currencyDigits`): $12.50 is 1250,
+ * ₮1,500 is 150000, ¥500 is 500.
  */
 
 const unit = (currency: string) => 10 ** currencyDigits(currency);

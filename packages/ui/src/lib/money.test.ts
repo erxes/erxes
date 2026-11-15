@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { amountStep, formatMoney, fromAmountInput, toAmountInput } from '../money';
+import { amountStep, formatMoney, fromAmountInput, toAmountInput } from './money';
 
 /** Intl puts a no-break space between a currency code and the number. */
 const read = (amount: number, currency: string) =>

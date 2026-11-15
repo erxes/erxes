@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
+// @vitest-environment-options { "settings": { "device": { "prefersReducedMotion": "reduce" } } }
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   DisplayMenu,
   ListFilter,
-  setListFilter,
   type TListFilterField,
   useListDisplay,
   useListFilterParams,
@@ -16,7 +16,6 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { I18nextProvider } from 'react-i18next';
 import { i18n, i18nReady } from '~/i18n';
-import { PluginListFilter } from '~/modules/views/filter/PluginListFilter';
 
 let root: Root | undefined;
 
@@ -25,10 +24,10 @@ beforeAll(async () => {
   await i18nReady;
 });
 
-afterEach(() => {
+afterEach(async () => {
   act(() => root?.unmount());
   document.body.innerHTML = '';
-  setListFilter(null);
+  await act(() => i18n.changeLanguage('en'));
 });
 
 const render = async (node: ReactNode, searchParams = '') => {
@@ -91,25 +90,34 @@ describe('a plugin list’s bar', () => {
     expect(container.textContent).toContain('filter');
   });
 
-  it('draws core’s filter bar on the plugin’s fields, a choice by its label; nothing outside erxes', async () => {
-    const outside = await render(
-      createElement(ListFilter, { id: 'deals', fields: FIELDS }),
-      query(WON),
-    );
-
-    expect(outside.innerHTML).toBe('');
-
-    act(() => root?.unmount());
-    setListFilter(PluginListFilter);
-
-    const inside = await render(
+  it('draws core’s filter bar on the plugin’s fields, a choice by its label, in web’s language', async () => {
+    const container = await render(
       createElement(ListFilter, { id: 'deals', fields: FIELDS, totalCount: 3 }),
       query(WON),
     );
 
-    await vi.waitFor(() => expect(inside.textContent).toContain('Stage'));
-    expect(inside.textContent).toContain('Won');
-    expect(inside.querySelector('button[aria-keyshortcuts="F"]')).not.toBeNull();
+    // No host registers it: erxes-ui's bar loads on first render.
+    await vi.waitFor(() =>
+      expect(container.querySelector('button[aria-keyshortcuts="F"]')).not.toBeNull(),
+    );
+    expect(container.textContent).toContain('Stage');
+    expect(container.textContent).toContain('Won');
+    expect(container.textContent).toContain('3 records');
+
+    act(() => root?.unmount());
+    await act(() => i18n.changeLanguage('mn'));
+
+    const mongolian = await render(
+      createElement(ListFilter, { id: 'deals', fields: FIELDS, totalCount: 3 }),
+      query(WON),
+    );
+
+    await vi.waitFor(() =>
+      expect(
+        mongolian.querySelector('button[aria-keyshortcuts="F"]')?.getAttribute('aria-label'),
+      ).toBe('Шүүлтүүр'),
+    );
+    expect(mongolian.textContent).toContain('3 бүртгэл');
   });
 
   it('switches between table and board under Display, remembered per list', async () => {
