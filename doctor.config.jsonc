@@ -1,0 +1,19 @@
+// React Doctor's rules for core's React code. `vp run check` runs it and fails on any warning.
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "projects": ["apps/web", "packages/ui"],
+  "rules": {
+    // How big or branchy a component grows is opinion; max-lines-per-function already caps it.
+    "react-doctor/no-high-complexity-react-function": "off",
+    "react-doctor/no-giant-component": "off",
+    // Mutations refresh through helpers this rule can't see into.
+    "react-doctor/query-mutation-missing-invalidation": "off",
+    // Micro-optimisations for lists of a few dozen items at most.
+    "react-doctor/js-set-map-lookups": "off",
+    "react-doctor/js-index-maps": "off",
+    "react-doctor/js-hoist-intl": "off",
+    // Only costs a full reload in development, and oxlint's react/only-export-components is
+    // the place to turn it on.
+    "react-doctor/only-export-components": "off",
+  },
+}

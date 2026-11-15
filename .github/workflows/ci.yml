@@ -49,7 +49,7 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Format, lint, types and knip
+      - name: Format, lint, types, React Doctor and knip
         run: pnpm exec vp run check
       # A deliberate raise is a rule change in its own PR, labelled gate-change.
       - name: No bundle budget grew against the base
