@@ -211,6 +211,11 @@ import {
   loadAutomationFolderClass,
 } from './modules/automations/db/models/AutomationFolders';
 import {
+  IAutomationVersionDocument,
+  IAutomationVersionModel,
+  loadAutomationVersionClass,
+} from './modules/automations/db/models/AutomationVersions';
+import {
   ITemplateInstallationDocument,
   ITemplateInstallationModel,
   loadTemplateInstallationClass,
@@ -468,6 +473,7 @@ export interface IModels {
   CurrencyRates: ICurrencyRateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   AutomationFolders: IAutomationFolderModel;
+  AutomationVersions: IAutomationVersionModel;
   TemplateInstallations: ITemplateInstallationModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -817,6 +823,11 @@ export const loadClasses = (
     IAutomationFolderDocument,
     IAutomationFolderModel
   >('automation_folders', loadAutomationFolderClass(models));
+
+  models.AutomationVersions = db.model<
+    IAutomationVersionDocument,
+    IAutomationVersionModel
+  >('automation_versions', loadAutomationVersionClass(models));
 
   models.TemplateInstallations = db.model<
     ITemplateInstallationDocument,

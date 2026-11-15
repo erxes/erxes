@@ -7,29 +7,25 @@ import { AutomationsRecordTableEmptyState } from '@/automations/components/list/
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationsCardList } from '@/automations/components/list/AutomationsCardList';
 import { AutomationFolderCards } from '@/automations/components/list/folders/AutomationFolderCards';
-import { AutomationFolderCreateButton } from '@/automations/components/list/folders/AutomationFolderCreateButton';
 import { AutomationFolderEmptyState } from '@/automations/components/list/folders/AutomationFolderEmptyState';
 import { useAutomationFolderView } from '@/automations/hooks/useAutomationFolderView';
 import { useAutomationsListLayout } from '@/automations/hooks/useAutomationsListLayout';
 import { AutomationCreateDialog } from '@/automations/components/list/AutomationCreateDialog';
+import { AutomationCreateMenu } from '@/automations/components/list/AutomationCreateMenu';
+import { useAutomationListRows } from '@/automations/hooks/useAutomationListRows';
 import { useAutomationCreateDialog } from '@/automations/hooks/useAutomationCreateDialog';
-import { IconAffiliate, IconFolder, IconSettings } from '@tabler/icons-react';
+import { IconAffiliate, IconFolder } from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
   Separator,
   Spinner,
-  Kbd,
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
-import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
-import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
-import { Link } from 'react-router-dom';
 import {
-  Can,
   PageHeader,
   createFavoriteBreadcrumb,
   usePermissionCheck,
@@ -53,6 +49,13 @@ export const AutomationsRecordTable = () => {
   const { folderId, folder, folders, showFolders, openFolder } =
     useAutomationFolderView();
   const columns = useMemo(() => getAutomationColumns(t), [t]);
+  // Folders are rows of the table; the card view keeps them as cards above
+  const isTable = layout !== 'grid';
+  const { rows, automationIds, openFolderIds } = useAutomationListRows({
+    list,
+    folders,
+    showFolders: isTable && showFolders && !error,
+  });
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('automations'));
   const createDialog = useAutomationCreateDialog();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
@@ -104,27 +107,12 @@ export const AutomationsRecordTable = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          {!folderId && <AutomationFolderCreateButton />}
-          <Button variant="outline" asChild>
-            <Link
-              to={AutomationSettingsPath.Index}
-              onClick={() => setAutomationSettingsReturnPath('/automations')}
-            >
-              <IconSettings />
-              {t('go-to-settings')}
-            </Link>
-          </Button>
-          <Can action="automationsCreate">
-            <Button onClick={createDialog.openDialog}>
-              {t('create')}
-              <Kbd>C</Kbd>
-            </Button>
-          </Can>
+          <AutomationCreateMenu onCreateAutomation={createDialog.openDialog} />
         </PageHeader.End>
       </PageHeader>
       <AutomationCreateDialog state={createDialog} />
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />
-      {showFolders && !error && (
+      {!isTable && showFolders && !error && (
         <AutomationFolderCards folders={folders} onOpen={openFolder} />
       )}
       {error ? (
@@ -133,7 +121,7 @@ export const AutomationsRecordTable = () => {
           error={error}
           onRetry={() => refetch()}
         />
-      ) : list.length === 0 ? (
+      ) : rows.length === 0 ? (
         folderId || (showFolders && folders.length) ? (
           <AutomationFolderEmptyState inFolder={!!folderId} />
         ) : (
@@ -151,7 +139,10 @@ export const AutomationsRecordTable = () => {
       ) : (
         <AutomationsRecordTableContent
           columns={columns}
-          list={list}
+          rows={rows}
+          automationIds={automationIds}
+          openFolderIds={openFolderIds}
+          listLength={list.length}
           loading={loading}
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}

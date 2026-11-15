@@ -1,53 +1,23 @@
-import { useTemplatesGallery } from '@/template/hooks/useTemplatesGallery';
-import { Button, Select } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-
-const ALL_PLUGINS = '__all';
+import { useTemplatesGalleryFilters } from '@/template/hooks/useTemplatesGalleryFilters';
+import { Button } from 'erxes-ui';
 
 export const TemplatesGalleryFilters = () => {
-  const { t } = useTranslation('templates');
-  const { group, plugin, groups, plugins, setGroup, setPlugin } =
-    useTemplatesGallery();
+  const { groupOptions, selectGroup } = useTemplatesGalleryFilters();
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-5 pt-4">
-      <Button
-        size="sm"
-        variant={group ? 'ghost' : 'secondary'}
-        onClick={() => setGroup()}
-      >
-        {t('group-all')}
-      </Button>
-      {groups.map((value) => (
+    <div className="flex flex-wrap items-center gap-1.5 px-5 pt-4">
+      {groupOptions.map(({ value, label, icon: Icon, isActive }) => (
         <Button
-          key={value}
+          key={value || 'all'}
           size="sm"
-          variant={group === value ? 'secondary' : 'ghost'}
-          onClick={() => setGroup(value)}
+          variant={isActive ? 'secondary' : 'ghost'}
+          className={isActive ? 'text-foreground' : 'text-muted-foreground'}
+          onClick={() => selectGroup(value)}
         >
-          {t(`group-${value}`)}
+          <Icon className="size-4" />
+          {label}
         </Button>
       ))}
-      {plugins.length > 1 && (
-        <Select
-          value={plugin || ALL_PLUGINS}
-          onValueChange={(value) =>
-            setPlugin(value === ALL_PLUGINS ? undefined : value)
-          }
-        >
-          <Select.Trigger className="ml-auto h-8 w-44">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Content>
-            <Select.Item value={ALL_PLUGINS}>{t('plugin-all')}</Select.Item>
-            {plugins.map((name) => (
-              <Select.Item key={name} value={name} className="capitalize">
-                {name}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
-      )}
     </div>
   );
 };
