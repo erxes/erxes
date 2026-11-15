@@ -5,14 +5,16 @@ import type { IRecordSidePanelTab } from '~/modules/side-panel/RecordSidePanel';
 import { PluginBoundary } from './PluginBoundary';
 import { usePlugins } from './usePlugins';
 
+/** Where a relation tab shows when it names no hosts: a customer's and a company's panels. */
+const CONTACT_TYPES = ['core:customer', 'core:company'];
+
 /**
- * Whether a plugin's relation tab shows on a record of `contentType`: on the hosts it names,
- * or, naming none, on every record but the plugin's own.
+ * Whether a plugin's relation tab shows on a record of `contentType`: a customer or company, or
+ * a record type its `hosts` names. Another plugin's record shows it only when named, so an
+ * order doesn't list its customer's deals unless the plugin asks for that.
  */
-const showsOn = (tab: TRelationTab, plugin: string, contentType: string) =>
-  tab.hosts
-    ? tab.hosts.includes(contentType)
-    : !contentType.toLowerCase().startsWith(`${plugin.toLowerCase()}:`);
+const showsOn = (tab: TRelationTab, contentType: string) =>
+  CONTACT_TYPES.includes(contentType) || (tab.hosts?.includes(contentType) ?? false);
 
 /** One plugin's relation tab: its list, kept apart if it crashes. */
 const RelationTabContent = ({
@@ -65,7 +67,7 @@ export const usePluginRelationTabs = ({
 
   return plugins.flatMap(({ remote, config }) =>
     config.relationTabs
-      .filter((tab) => showsOn(tab, config.name, contentType))
+      .filter((tab) => showsOn(tab, contentType))
       .map((tab) => ({
         value: `${remote}:${tab.name}`,
         label: tab.title,

@@ -96,13 +96,14 @@ gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
   draft with `openNew(contentType, defaults)`. `detailPath(id)` is a route of
   the plugin's that renders `<RecordPage contentType contentId />`
   (`ui/src/__Pascal__.tsx`): the expanded record.
-- A plugin whose records belong to customers or companies lists them on other
-  records with `CONFIG.relationTabs`: `{ name, title, icon, hosts?, component }`.
-  The component gets the host record and its `customerIds` and `companyIds`;
-  a record clicked there opens with `useOpenRecord().open` on top in the same
-  panel, and Back returns. It shows on core's customers and companies and on
-  plugin records that give `contacts`, never on the plugin's own records
-  unless `hosts` names them.
+- A plugin whose records belong to customers or companies lists them on those
+  customers' and companies' panels with `CONFIG.relationTabs`:
+  `{ name, title, icon, hosts?, component }`. The component gets the host record
+  and its `customerIds` and `companyIds`; a record clicked there opens with
+  `useOpenRecord().open` on top in the same panel, and Back returns. Another
+  plugin's record (an order, a task) shows the tab only when `hosts` names its
+  type and the type gives `contacts`: name it only when a member working on that
+  record needs the list, never by default.
 
 ## Forms
 

@@ -29,7 +29,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
      relation tabs and `activity` for core's timeline
      (`apps/web/src/modules/plugins/PluginRecordView.tsx`). `relationTabs` show on core's
-     customers and companies and on record types with `contacts`
+     customers and companies, and on the record types with `contacts` that their `hosts` name
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates all three when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
      entry. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new

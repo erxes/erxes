@@ -84,7 +84,11 @@ const CONFIGS: Record<string, unknown> = {
       { ...deal, contentType: 'shop:order' },
       { ...deal, contentType: 'sales:quote', detailPath: (id: string) => `/contacts/${id}` },
     ],
-    relationTabs: [{ name: 'deals', title: 'Deals', icon: Icon, component: DealsTab }],
+    relationTabs: [
+      { name: 'deals', title: 'Deals', icon: Icon, hosts: ['tasks:task'], component: DealsTab },
+      // Names no hosts: customers and companies only.
+      { name: 'quotes', title: 'Quotes', icon: Icon, component: DealsTab },
+    ],
   },
   'hr_ui/config': {
     name: 'hr',
@@ -228,7 +232,7 @@ describe('a plugin record in core’s side panel', () => {
     await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
   });
 
-  it('shows another plugin’s relation tab; a record opened there stacks, and Back returns', async () => {
+  it('shows another plugin’s relation tab where it names the type; a record opened there stacks, and Back returns', async () => {
     const container = await render('/tasks?panel=/detail/tasks:task/t1');
 
     await vi.waitFor(() => expect(tabNames(container)).toEqual(['Detail', 'Deals']));
