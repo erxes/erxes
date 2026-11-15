@@ -1,15 +1,19 @@
-import { type ConditionRule, RelativeAmount } from '@erxes/core-contract';
-import { Input, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { amountStep, fromAmountInput, toAmountInput } from '~/lib/money';
-import { oneOf, textOf } from '~/lib/text';
-import { LIST_VALUE, RELATIVE } from './conditionOperators';
-import { LookupPicker, useMemberOptions, useTagOptions } from './lookupOptions';
-import type { FieldInfo } from './useAutomationFields';
-
-const RELATIVE_UNITS = RelativeAmount.shape.unit.unwrap().options;
+import { Input } from '../../components/input';
+import { Select } from '../../components/select';
+import { amountStep, fromAmountInput, toAmountInput } from '../../lib/money';
+import { oneOf, textOf } from '../../lib/text';
+import { LookupPicker, useMemberOptions, useTagOptions } from '../pickers/LookupPicker';
+import {
+  LIST_VALUE,
+  RELATIVE,
+  RELATIVE_UNITS,
+  type TConditionField,
+  type TConditionLookups,
+  type TConditionRule,
+} from './conditions';
 
 /** What the rule holds so far: a half-typed amount is still shown. */
 const RelativeValue = z.object({
@@ -17,12 +21,11 @@ const RelativeValue = z.object({
   unit: z.enum(RELATIVE_UNITS).optional(),
 });
 
-type ValueProps = {
-  rule: ConditionRule;
-  field?: FieldInfo;
+type ValueProps = TConditionLookups & {
+  rule: TConditionRule;
+  field?: TConditionField;
   onChange: (value: unknown) => void;
   disabled?: boolean;
-  subject: 'customer' | 'company' | null;
 };
 
 const RelativeInput = ({ rule, onChange, disabled }: ValueProps) => {
@@ -75,11 +78,11 @@ const RelativeInput = ({ rule, onChange, disabled }: ValueProps) => {
 };
 
 /** A team member ("me" first) or a tag of the subject. */
-const LookupInput = ({ rule, field, onChange, disabled, subject }: ValueProps) => {
+const LookupInput = ({ rule, field, onChange, disabled, ...lookups }: ValueProps) => {
   const { t } = useTranslation('automations');
   const isMember = field?.type === 'member';
-  const members = useMemberOptions(isMember);
-  const tags = useTagOptions(subject ?? 'customer', !isMember);
+  const members = useMemberOptions(lookups.members, isMember);
+  const tags = useTagOptions(lookups.tags, !isMember);
   const lookup = isMember ? members : tags;
   const value = textOf(rule.value);
 

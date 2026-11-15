@@ -1,6 +1,5 @@
 import type { AuditEntry } from '@erxes/core-contract';
-import { formatMoney } from '~/lib/money';
-import { textOf } from '~/lib/text';
+import { formatMoney, textOf } from 'erxes-ui';
 
 type Changes = Record<string, [unknown, unknown]>;
 

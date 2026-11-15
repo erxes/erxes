@@ -14,7 +14,7 @@ import {
   IconTextSize,
   type Icon,
 } from '@tabler/icons-react';
-import { oneOf } from '~/lib/text';
+import { oneOf } from 'erxes-ui';
 
 /** The property types core supports, with their labels and icons, in menu order. */
 export const FIELD_TYPES_OBJECT: Record<

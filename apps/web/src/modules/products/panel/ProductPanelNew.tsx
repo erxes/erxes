@@ -7,14 +7,22 @@ import {
   IconPackage,
   IconTag,
 } from '@tabler/icons-react';
-import { Button, Form, Input, Select, useToast, PanelFormRow } from 'erxes-ui';
+import {
+  amountStep,
+  Button,
+  Form,
+  fromAmountInput,
+  Input,
+  Select,
+  useToast,
+  PanelFormRow,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, useWatch, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { CurrencySelect } from '~/components/RegionSelect';
 import { messageOf } from '@erxes/core-contract/client';
-import { amountStep, fromAmountInput } from '~/lib/money';
 import { useSession } from '~/modules/auth/session';
 import { NewContactForm } from '~/modules/side-panel/details/NewContactForm';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';

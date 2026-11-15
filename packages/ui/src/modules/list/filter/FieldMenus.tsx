@@ -1,11 +1,16 @@
-import type { ConditionRule } from '@erxes/core-contract';
-import { Button, Combobox, Command, EntityPicker, Input, Select, useFilterContext } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { amountStep, fromAmountInput, toAmountInput } from '~/lib/money';
-import { oneOf, textOf } from '~/lib/text';
-import { isRule } from '~/modules/automations/builder/conditionOperators';
-import type { ListField } from '../useViews';
+import { Button } from '../../../components/button';
+import { Combobox } from '../../../components/combobox';
+import { Command } from '../../../components/command';
+import { Input } from '../../../components/input';
+import { Select } from '../../../components/select';
+import { amountStep, fromAmountInput, toAmountInput } from '../../../lib/money';
+import { oneOf, textOf } from '../../../lib/text';
+import { isRule, type TConditionRule } from '../../conditions/conditions';
+import { useFilterContext } from '../../filter/hooks/useFilterContext';
+import { EntityPicker } from '../../pickers/EntityPicker';
+import type { TListFilterField } from '../ListFilter';
 import {
   anyOf,
   DATE_PRESETS,
@@ -18,7 +23,7 @@ import {
 import { useFieldOptions, useListFilter } from './listFilterContext';
 
 /** The part this field's menu changes, and that part when it is a rule of the field. */
-const useTarget = (field: ListField) => {
+const useTarget = (field: TListFilterField) => {
   const { parts, setPart, editing } = useListFilter();
   const { resetFilterState } = useFilterContext();
   const index = targetOf(parts, field, editing);
@@ -27,9 +32,9 @@ const useTarget = (field: ListField) => {
 
   return {
     rule,
-    set: (next: ConditionRule | null) => setPart(index, next),
+    set: (next: TConditionRule | null) => setPart(index, next),
     /** Sets the rule and closes the menu. */
-    apply: (next: ConditionRule | null) => {
+    apply: (next: TConditionRule | null) => {
       setPart(index, next);
       resetFilterState();
     },
@@ -46,7 +51,7 @@ const useFocusOnMount = () => {
 };
 
 /** Options (a choice, members, tags): each pick adds to or takes from one "is any of" rule; the menu stays open. */
-const OptionsMenu = ({ field }: { field: ListField }) => {
+const OptionsMenu = ({ field }: { field: TListFilterField }) => {
   const { options, loading, error } = useFieldOptions(field);
   const { rule, set } = useTarget(field);
 
@@ -64,7 +69,7 @@ const OptionsMenu = ({ field }: { field: ListField }) => {
   );
 };
 
-const DateMenu = ({ field }: { field: ListField }) => {
+const DateMenu = ({ field }: { field: TListFilterField }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter.date' });
   const { rule, apply } = useTarget(field);
   const current = presetOf(rule);
@@ -78,7 +83,7 @@ const DateMenu = ({ field }: { field: ListField }) => {
             value={preset.key}
             onSelect={() => apply({ path: field.path, op: preset.op, value: preset.value })}
           >
-            {t(preset.key)}
+            {t(preset.key, preset.label)}
             <Combobox.Check checked={current?.key === preset.key} />
           </Command.Item>
         ))}
@@ -87,7 +92,7 @@ const DateMenu = ({ field }: { field: ListField }) => {
   );
 };
 
-const BooleanMenu = ({ field }: { field: ListField }) => {
+const BooleanMenu = ({ field }: { field: TListFilterField }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { rule, apply } = useTarget(field);
   const value = rule ? textOf(rule.value) : null;
@@ -101,7 +106,7 @@ const BooleanMenu = ({ field }: { field: ListField }) => {
             value={option}
             onSelect={() => apply({ path: field.path, op: 'eq', value: option === 'true' })}
           >
-            {option === 'true' ? t('yes') : t('no')}
+            {option === 'true' ? t('yes', 'Yes') : t('no', 'No')}
             <Combobox.Check checked={value === option} />
           </Command.Item>
         ))}
@@ -120,7 +125,7 @@ const numberText = (value: unknown, currency: string | undefined) => {
 };
 
 /** An operator and a value; Enter or Apply adds the rule (or changes the one being edited). */
-const NumberMenu = ({ field }: { field: ListField }) => {
+const NumberMenu = ({ field }: { field: TListFilterField }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { rule, apply } = useTarget(field);
   const [op, setOp] = useState(() => oneOf(NUMBER_OPS, rule?.op ?? null) ?? 'gte');
@@ -158,19 +163,19 @@ const NumberMenu = ({ field }: { field: ListField }) => {
         type="number"
         className="h-8 min-w-0 flex-1"
         step={field.currency ? amountStep(field.currency) : 'any'}
-        placeholder={field.currency ?? t('value')}
+        placeholder={field.currency ?? t('value', 'Value')}
         value={text}
         onChange={(event) => setText(event.target.value)}
       />
       <Button type="submit" size="sm" className="h-8" disabled={!valid}>
-        {t('apply')}
+        {t('apply', 'Apply')}
       </Button>
     </form>
   );
 };
 
 /** "Contains" text; an empty box removes the rule being edited. */
-const TextMenu = ({ field }: { field: ListField }) => {
+const TextMenu = ({ field }: { field: TListFilterField }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { rule, apply } = useTarget(field);
   const [text, setText] = useState(() => textOf(rule?.value));
@@ -187,19 +192,19 @@ const TextMenu = ({ field }: { field: ListField }) => {
       <Input
         ref={input}
         className="h-8 min-w-0 flex-1"
-        placeholder={t('contains')}
+        placeholder={t('contains', 'Contains…')}
         value={text}
         onChange={(event) => setText(event.target.value)}
       />
       <Button type="submit" size="sm" className="h-8">
-        {t('apply')}
+        {t('apply', 'Apply')}
       </Button>
     </form>
   );
 };
 
 /** A field's submenu, by its type. */
-export const FieldMenu = ({ field }: { field: ListField }) => {
+export const FieldMenu = ({ field }: { field: TListFilterField }) => {
   switch (field.type) {
     case 'select':
     case 'member':

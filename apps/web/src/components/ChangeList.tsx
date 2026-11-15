@@ -1,8 +1,7 @@
 import type { ContentType, Field, Tag } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
-import { cn, editorText, type Member, memberName, useMembersById } from 'erxes-ui';
+import { cn, editorText, type Member, memberName, textOf, useMembersById } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { textOf } from '~/lib/text';
 import { useAllFields } from '~/modules/properties/useFields';
 import { useTags } from '~/modules/tags/useTags';
 

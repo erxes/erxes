@@ -1,23 +1,16 @@
-import type { ConditionGroup, FilterField, View, ViewRecordType } from '@erxes/core-contract';
+import type { FilterField, View, ViewRecordType } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useQueryStates } from 'nuqs';
-import type { ElementType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 import { listQuery } from './viewLinks';
 
-/**
- * A field a list filters by; money fields carry the currency their amounts are shown in, and a
- * plugin's fields may bring their own icon.
- */
-export type ListField = FilterField & { currency?: string; icon?: ElementType };
-
 /** Amounts stored in the currency's smallest unit, shown and typed in the organisation's currency. */
 const MONEY_PATHS: Partial<Record<ViewRecordType, string[]>> = { product: ['subject.price'] };
 
-/** Whose fields the advanced builder offers lookups (tags) for. */
+/** Whose tags a list's filter picks from. */
 export const subjectOf = (recordType: ViewRecordType) =>
   recordType === 'product'
     ? null
@@ -39,8 +32,6 @@ export const useListQuery = () => {
     advanced: advanced?.rules.length ? advanced : null,
     viewId: view,
     search: searchValue,
-    setAdvanced: (next: ConditionGroup | null) =>
-      void setQueries({ advanced: next?.rules.length ? next : null }),
     /** Opens a view: its filter and search replace the current ones. */
     openView: (target: View | null) =>
       void setQueries({
@@ -49,13 +40,6 @@ export const useListQuery = () => {
         searchValue: target?.search ?? null,
       }),
   };
-};
-
-/** The list's `filter` parameter: the advanced filter as JSON. */
-export const useAdvancedFilterParam = () => {
-  const { advanced } = useListQuery();
-
-  return advanced ? JSON.stringify(advanced) : undefined;
 };
 
 /** Saved views of a list; one cache entry per record type. */
@@ -72,7 +56,7 @@ export const useFilterFields = (recordType: ViewRecordType) => {
     orpc.views.fields.queryOptions({
       input: { recordType },
       staleTime: 60_000,
-      select: ({ data }): ListField[] =>
+      select: ({ data }): (FilterField & { currency?: string })[] =>
         data.map((field) => (money.includes(field.path) ? { ...field, currency } : field)),
     }),
   );

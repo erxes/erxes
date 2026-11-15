@@ -1,6 +1,7 @@
-import { Input, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import type { FieldInfo } from './useAutomationFields';
+import { Input } from '../../components/input';
+import { Select } from '../../components/select';
+import type { TConditionField } from './conditions';
 
 const GROUP_LABELS: Record<string, string> = {
   fields: 'Fields',
@@ -12,16 +13,16 @@ const GROUP_LABELS: Record<string, string> = {
 
 const CUSTOM_PATH = '__custom__';
 
-const groupOf = (field: FieldInfo) => field.group ?? 'fields';
+const groupOf = (field: TConditionField) => field.group ?? 'fields';
 
-const FieldItems = ({ fields }: { fields: FieldInfo[] }) =>
+const FieldItems = ({ fields }: { fields: TConditionField[] }) =>
   fields.map((field) => (
     <Select.Item key={field.path} value={field.path}>
       {field.label}
     </Select.Item>
   ));
 
-const GroupedFieldItems = ({ fields }: { fields: FieldInfo[] }) => {
+const GroupedFieldItems = ({ fields }: { fields: TConditionField[] }) => {
   const { t } = useTranslation('automations');
 
   return [...new Set(fields.map(groupOf))].map((group) => (
@@ -40,7 +41,7 @@ export const PathPicker = ({
   disabled,
 }: {
   value: string;
-  fields: FieldInfo[];
+  fields: TConditionField[];
   onChange: (path: string) => void;
   disabled?: boolean;
 }) => {

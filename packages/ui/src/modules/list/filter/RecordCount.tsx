@@ -1,9 +1,11 @@
-import { isUndefinedOrNull, Skeleton, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../../../components/skeleton';
+import { useFormat } from '../../../lib/format';
+import { isUndefinedOrNull } from '../../../utils/IsUndefinedOrNull';
 
 /** How many records a list matches, as its list hook gives them. */
 export interface Total {
-  totalCount: number | null | undefined;
+  totalCount?: number | null;
   totalCapped?: boolean;
 }
 
@@ -19,6 +21,8 @@ export const RecordCount = ({ totalCount, totalCapped }: Total) => {
       {t('count', {
         count: totalCapped ? 2 : totalCount,
         formatted: fmt.count(totalCount, totalCapped),
+        defaultValue_one: '{{formatted}} record',
+        defaultValue_other: '{{formatted}} records',
       })}
     </span>
   );

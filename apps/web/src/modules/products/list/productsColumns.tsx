@@ -12,10 +12,17 @@ import {
   IconTag,
 } from '@tabler/icons-react';
 import type { RecordTableColumnDef } from 'erxes-ui';
-import { Badge, Combobox, Command, Popover, RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import {
+  Badge,
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+  useMoney,
+} from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMoney } from '~/lib/money';
 import { useProductCategories } from '../categories/useProductCategories';
 import { ProductAvatar } from '../panel/ProductPanelImages';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';

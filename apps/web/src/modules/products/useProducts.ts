@@ -1,14 +1,13 @@
 import type { Product } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'erxes-ui';
-import { parseAsBoolean, parseAsString, useQueryStates } from 'nuqs';
+import { useListFilterParams, useToast } from 'erxes-ui';
+import { parseAsBoolean, useQueryState } from 'nuqs';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan } from '~/modules/auth/session';
 import type { IOpenRecordOptions } from '~/modules/side-panel/recordView';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
-import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 /** RecordTable remembers the scroll position of the list under this key. */
 const PRODUCTS_SESSION_KEY = 'core_products_cursor';
@@ -18,14 +17,10 @@ export const useCanManageProducts = () => useCan()('products.manage');
 
 /** The list filters, read from the URL: the search, the filter (views save both) and archived or not. */
 export const useProductsFilters = () => {
-  const [{ searchValue, archived }] = useQueryStates({
-    searchValue: parseAsString,
-    archived: parseAsBoolean,
-  });
+  const [archived] = useQueryState('archived', parseAsBoolean);
 
   return {
-    search: searchValue || undefined,
-    filter: useAdvancedFilterParam(),
+    ...useListFilterParams(),
     status: archived === true ? ('archived' as const) : ('active' as const),
   };
 };

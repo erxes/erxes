@@ -129,6 +129,7 @@ export const ItemsPage = () => {
         <ListFilter
           id="__id__-items"
           fields={fields}
+          members={memberQueries}
           totalCount={isPending ? undefined : list.length}
           totalCapped={hasNextPage}
         />

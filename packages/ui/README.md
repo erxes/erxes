@@ -41,10 +41,15 @@ Only what something uses:
   `PanelField`, `PanelFormRow`, `PanelFormLayout`, `PanelLabel`, the description field and
   editor, and `usePanelExpanded`. The panel itself (header, tabs, resize) is web's.
 - a list's bar in `src/modules/list`: `ViewBar`, `DisplayMenu` with `useListDisplay`, and
-  `ListFilter` with `useListFilterParams`.
+  `ListFilter` with `useListFilterParams`. `ListFilter` draws core's filter bar itself, with or
+  without web: its `member` fields pick from `members` (`memberQueries` from
+  `@erxes/core-contract/client`) and its `tags` fields from `tags` (a tags query of the record
+  type); a plugin outside erxes passes its own. Web's lists and the automation builder use the
+  same bar and the condition editor under its advanced filter (`ConditionsEditor`,
+  `src/modules/conditions`).
 - what the host app provides at startup, rendered through `hostComponent`
-  (`src/utils/host-component.tsx`): `setRecordTimeline`, `setRecordPage` and `setListFilter`.
-  Outside erxes they render nothing.
+  (`src/utils/host-component.tsx`): `setRecordTimeline` and `setRecordPage`. Outside erxes they
+  render nothing.
 
 Anything else is removed, not kept "in case". Before you remove an export, check the HR plugin
 UI and `.agents/skills/plugin-contract/SKILL.md`.

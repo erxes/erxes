@@ -34,7 +34,8 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   under them, for a picker of the plugin's own records.
 - Pages look and behave like core's: follow the `ui-patterns` skill.
 - Lists have core's bar (`src/modules/items/ItemsPage.tsx`): erxes-ui's `ViewBar` with
-  `ListFilter`, given the list's fields. Its conditions and search live in the
+  `ListFilter`, given the list's fields and, for `member` fields, `members={memberQueries}`
+  (a `tags` query for `tags` fields). It draws the bar itself, in erxes or on its own. Its conditions and search live in the
   address; `useListFilterParams()` hands them to the list's query, and the API
   applies them (`api/src/modules/items/itemFilter.ts`). No search boxes, toggle
   tabs or pickers in a row above the table.

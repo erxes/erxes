@@ -52,6 +52,11 @@ export const formatter = (language: string) => {
   };
 };
 
+/** How many decimals a currency has (USD and MNT 2, JPY 0, KWD 3). */
+export const currencyDigits = (currency: string) =>
+  new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions()
+    .maximumFractionDigits ?? 2;
+
 /** The formatters in the UI's language; a component using them re-renders when it changes. */
 export const useFormat = () => formatter(useTranslation().i18n.language);
 

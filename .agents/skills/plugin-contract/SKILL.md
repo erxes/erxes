@@ -30,8 +30,12 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      entry. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
      through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own; erxes-ui's
-     `RecordTimeline`, `RecordPage` and `ListFilter` render what web registers at startup
-     (`apps/web/src/bootstrap.tsx`). A plugin list's saved views are not part of the contract:
+     `RecordTimeline` and `RecordPage` render what web registers at startup
+     (`apps/web/src/bootstrap.tsx`). erxes-ui's `ListFilter` draws core's filter bar itself, in
+     web or outside it; its props (`TListFilterProps`, `TListFilterField`) and
+     `useListFilterParams()`'s address keys (`advanced`, `searchValue`) are the contract, and its
+     `member` and `tags` fields read through the `members` and `tags` query options the plugin
+     passes. A plugin list's saved views are not part of the contract:
      `views.recordType` is core's lists only.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
