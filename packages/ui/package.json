@@ -12,7 +12,8 @@
   "files": [
     "dist",
     "AGENTS.md",
-    "CATALOG.md"
+    "CATALOG.md",
+    "exports.txt"
   ],
   "type": "module",
   "sideEffects": [
