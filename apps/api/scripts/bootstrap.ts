@@ -7,7 +7,7 @@ import { configureDb, runMigrations } from '@erxes/core-db';
 import { parseArgs } from 'node:util';
 import { config } from '~/config';
 import { runCli, say } from './cli';
-import { signAccessToken } from '~/http/auth';
+import { signAccessToken } from '~/http/session';
 import { hashPassword } from '~/lib/crypto';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 

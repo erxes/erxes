@@ -1,6 +1,6 @@
 import type { Company } from '@erxes/core-contract';
 import { IconTrash } from '@tabler/icons-react';
-import { Button, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
+import { Button, CommandBar, companyTitle, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelectedRows } from '~/components/useSelectedRows';
@@ -8,7 +8,6 @@ import { useCan } from '~/modules/auth/session';
 import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
-import { companyTitle } from '../components/ContactPicker';
 import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
 import { MergeDialog } from '../components/MergeDialog';
 import { useCompaniesMerge, useCompaniesRemove, useCompaniesTag } from './useCompanies';

@@ -30,6 +30,9 @@ Only what something uses:
 - the pickers in `src/modules/pickers`: `EntityPicker`, and `SelectMember`, `MemberInline` and
   `useMembersById`, which take `memberQueries` from `@erxes/core-contract/client`. They read
   through TanStack query options, so erxes-ui imports nothing from core.
+- core's records in `src/modules/records`: `ContactLink` (a customer or company by id, read
+  through `contactQueries` from `@erxes/core-contract/client`) and `useOpenRecord`, which open a
+  record in web's side panel through the `RecordOpenerProvider` web mounts.
 
 Anything else is removed, not kept "in case". Before you remove an export, check the HR plugin
 UI and `.agents/skills/plugin-contract/SKILL.md`.

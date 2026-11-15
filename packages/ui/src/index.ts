@@ -196,6 +196,19 @@ export { RecordTableInlineCell } from './modules/record-table/components/RecordT
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
+export { ContactLink } from './modules/records/ContactLink';
+
+export {
+  type CompanyContact,
+  companyTitle,
+  type ContactQueries,
+  type CustomerContact,
+  customerTitle,
+  type TContactContentType,
+} from './modules/records/contacts';
+
+export { type RecordRef, RecordOpenerProvider, useOpenRecord } from './modules/records/openRecord';
+
 export { ThemeOption, themeState } from './state/themeState';
 
 export { SexCode } from './types/SexCode';
@@ -206,6 +219,8 @@ export {
   type TDashboardWidgetPreview,
   type TPropertyInputMeta,
   type TPropertyInputProps,
+  type TRecordSection,
+  type TRecordSectionProps,
 } from './types/UIConfig';
 
 export { isUndefinedOrNull } from './utils/IsUndefinedOrNull';

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Button, Spinner, Toaster } from 'erxes-ui';
 import { useQueryState } from 'nuqs';
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
@@ -9,6 +9,7 @@ import { CrashBoundary } from '~/components/CrashBoundary';
 import { messageOf } from '@erxes/core-contract/client';
 import { paths } from '~/lib/paths';
 import { lazyNamed } from '~/lib/lazyNamed';
+import { queryClient } from '~/lib/queryClient';
 import { ThemeEffect } from '~/modules/app/ThemeEffect';
 import {
   isSignedOut,
@@ -37,10 +38,6 @@ const AcceptInvitationPage = lazyNamed(
   () => import('~/modules/auth/AccountLinkPages'),
   'AcceptInvitationPage',
 );
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
-});
 
 /** Links from emails work signed in or not: they sign in when done. */
 const LINK_PAGES = new Set<string>([paths.resetPassword, paths.acceptInvitation]);

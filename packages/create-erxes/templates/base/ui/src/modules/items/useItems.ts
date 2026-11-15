@@ -7,23 +7,27 @@ import {
 } from '@tanstack/react-query';
 import type { Client } from '@__id__/api';
 import { toast } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-import { orpc } from '../orpc.ts';
+import { orpc } from '~/orpc.ts';
+import { useItemsFilter } from './ItemsFilter.tsx';
 
 type Outputs = InferClientOutputs<Client>['items'];
 
 export type Item = Outputs['create'];
 
-/** Every page loaded so far, newest first; only `createdBy`'s when given. */
-export const useItems = (createdBy: string | null) =>
-  useInfiniteQuery(
+/** Every page loaded so far, newest first, narrowed by the filter bar's search and member. */
+export const useItems = () => {
+  const filters = useItemsFilter();
+
+  return useInfiniteQuery(
     orpc.items.list.infiniteOptions({
-      input: (cursor: string | undefined) => ({ cursor, createdBy: createdBy ?? undefined }),
+      input: (cursor: string | undefined) => ({ cursor, ...filters }),
       initialPageParam: undefined,
       getNextPageParam: (page) => page.nextCursor ?? undefined,
     }),
   );
+};
 
 /**
  * Deletes an item. It leaves every loaded list at once and comes back if the
@@ -67,13 +71,16 @@ export const useRemoveItem = () => {
   );
 };
 
-/** `?item=<id>` opens that item in the side panel, `?item=new` a blank one. */
+/**
+ * `?item=<id>` opens that item in the side panel, `?item=new` a blank one.
+ * The filter bar's params stay as they are.
+ */
 export const useOpenItem = () => {
-  const [params, setParams] = useSearchParams();
+  const [openId, setOpenId] = useQueryState('item');
 
   return {
-    openId: params.get('item'),
-    open: (id: string) => setParams({ item: id }),
-    close: () => setParams({}),
+    openId,
+    open: (id: string) => void setOpenId(id),
+    close: () => void setOpenId(null),
   };
 };

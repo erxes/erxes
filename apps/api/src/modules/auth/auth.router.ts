@@ -1,5 +1,4 @@
 import { caller, db, requestOrgId, runAs, withOrg, withSystem } from '@erxes/core-db';
-import { config } from '~/config';
 import {
   completeTwoFactor,
   disableTwoFactor,
@@ -9,9 +8,10 @@ import {
 } from '~/modules/auth/twoFactor.service';
 import { acceptInvitation, invitationInfo } from '~/modules/auth/tokens.service';
 import { requestPasswordReset, resetPassword } from '~/modules/auth/passwordReset.service';
-import { memberOf, sessionClaims, signAccessToken } from '~/http/auth';
+import { memberOf, sessionClaims } from '~/http/auth';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
+import { startSession as startBrowserSession } from '~/http/session';
 import {
   changeOwnPassword,
   mySignIns,
@@ -24,10 +24,9 @@ import { scoped, unscoped, type CoreContext } from '~/orpc';
 
 /** Signs the member in on this browser (HttpOnly session cookie). */
 const startSession = async (context: CoreContext, userId: string, orgId: string) => {
-  const version = await withOrg(orgId, () => sessionVersionOf(userId));
-  const token = await signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version);
+  const sessionVersion = await withOrg(orgId, () => sessionVersionOf(userId));
 
-  context.res.cookie(SESSION_COOKIE, token, sessionCookieOptions(context.req));
+  await startBrowserSession(context.req, context.res, { userId, orgId, sessionVersion });
 };
 
 const endSession = (context: CoreContext) =>

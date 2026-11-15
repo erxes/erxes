@@ -89,9 +89,6 @@ export const useCustomersRemove = () => {
   );
 };
 
-export const customerName = (customer: Pick<Customer, 'firstName' | 'middleName' | 'lastName'>) =>
-  [customer.firstName, customer.middleName, customer.lastName].filter(Boolean).join(' ');
-
 export const useCustomersTag = () => {
   const client = useQueryClient();
   const { toast } = useToast();

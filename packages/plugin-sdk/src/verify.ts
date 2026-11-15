@@ -65,6 +65,12 @@ interface VerifyOptions {
 
 const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
+/**
+ * The plugin's server clock may run a little ahead of core's: a token core
+ * just issued, or one a member's browser renews 30 s before it ends, still passes.
+ */
+const CLOCK_TOLERANCE_SECONDS = 60;
+
 /** A token core signed (its public keys), for this plugin (or `audience`), of this kind, unexpired; its claims parsed. */
 const verifyCoreToken = async <T>(
   token: string,
@@ -88,6 +94,7 @@ const verifyCoreToken = async <T>(
     audience,
     typ,
     algorithms: ['ES256'],
+    clockTolerance: CLOCK_TOLERANCE_SECONDS,
   });
 
   const parsed = claims.safeParse(payload);

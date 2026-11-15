@@ -10,12 +10,12 @@ import {
 } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
-import { decodeProtectedHeader, jwtVerify, SignJWT } from 'jose';
+import { decodeProtectedHeader } from 'jose';
 import { z } from 'zod';
-import { config } from '~/config';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
 import { publicPaths } from '~/http/access';
 import { fail } from '~/http/errors';
+import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
 import { appServes } from '~/modules/customerAuth/customerApps';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
@@ -29,42 +29,7 @@ declare global {
   }
 }
 
-const AccessClaims = z.object({
-  typ: z.literal('core_access'),
-  sub: z.string().min(1),
-  org: z.string().min(1),
-  /** The member's session version when it was issued (see `users.sessionVersion`). */
-  sv: z.number(),
-});
-
 const AUDIENCE = 'erxes-core';
-
-const accessSecret = () => new TextEncoder().encode(config.auth.jwtSecret);
-
-/** Core access token (HS256, core's own secret). */
-export const signAccessToken = (
-  userId: string,
-  orgId: string,
-  ttlSeconds = config.auth.accessTokenTtlSeconds,
-  sessionVersion = 1,
-): Promise<string> =>
-  new SignJWT({ typ: 'core_access', org: orgId, sv: sessionVersion })
-    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-    .setSubject(userId)
-    .setAudience(AUDIENCE)
-    .setIssuedAt()
-    .setExpirationTime(`${ttlSeconds}s`)
-    .sign(accessSecret());
-
-/** The claims of a valid member token; null for an expired, forged or foreign one. */
-const accessClaimsOf = async (token: string) => {
-  const verified = await jwtVerify(token, accessSecret(), {
-    algorithms: ['HS256'],
-    audience: AUDIENCE,
-  }).catch(() => null);
-
-  return AccessClaims.safeParse(verified?.payload).data ?? null;
-};
 
 const unauthorized = () => fail('UNAUTHORIZED', 'Sign in to continue');
 
@@ -161,7 +126,7 @@ const resolveCustomer = async (req: Request, bearer: string): Promise<Resolved> 
   return { caller: { type: 'customer', ...ids }, orgId };
 };
 
-const resolveMember = async (req: Request, bearer: string): Promise<Resolved> => {
+const resolveMember = async (req: Request, res: Response, bearer: string): Promise<Resolved> => {
   const cookie = bearer ? '' : (readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '');
   const token = bearer || cookie;
 
@@ -175,6 +140,8 @@ const resolveMember = async (req: Request, bearer: string): Promise<Resolved> =>
   const member = claims && (await memberOf(claims.org, claims.sub, claims.sv));
 
   if (!claims || !member) throw unauthorized();
+
+  if (cookie) await renewSession(req, res, claims);
 
   req.sessionVersion = claims.sv;
   req.log.setBindings({ orgId: claims.org, actorId: member.userId });
@@ -250,7 +217,7 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
  * sign-in) and runs the rest of the request with its caller and organisation
  * in scope (`caller()`, `scopedOrgId()` from `@erxes/core-db`).
  */
-export const authenticate = async (req: Request, _res: Response, next: NextFunction) => {
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   if (PUBLIC_PATHS.has(req.path) || isSignedFilePath(req.path)) {
     return next();
   }
@@ -263,7 +230,7 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
     ? await resolveCustomer(req, bearer)
     : bearer && isPluginToken(bearer)
       ? await resolvePlugin(req, bearer)
-      : await resolveMember(req, bearer);
+      : await resolveMember(req, res, bearer);
 
   enterScope(resolved.caller, resolved.orgId, next);
 };

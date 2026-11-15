@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
+import { PluginRecordSections } from '~/modules/plugins/PluginRecordSections';
 import { PanelField } from '../PanelField';
 import { usePanelExpanded } from '../RecordSidePanel';
 import {
@@ -149,6 +150,7 @@ export const CompanyPanelDetail = ({ companyId }: { companyId: string }) => {
       <LeadPanelSection recordType="company" record={company} />
       <ContactPanelTags contentType="core:company" contentId={company.id} tagIds={company.tagIds} />
       <ContactPanelRelationField contentType="core:company" contentId={company.id} />
+      <PluginRecordSections contentType="core:company" contentId={company.id} />
     </ContactDetailScroll>
   );
 };

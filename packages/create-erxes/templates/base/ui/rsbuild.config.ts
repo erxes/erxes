@@ -30,6 +30,8 @@ export default defineConfig({
     }),
   ],
   source: { entry: { index: './src/index.ts' } },
+  // As tsconfig.json's paths: @/ is a feature in src/modules, ~/ anything else in src.
+  resolve: { alias: { '@': './src/modules', '~': './src' } },
   // Chunks load from wherever remoteEntry.js came from, not from web's origin.
   output: { assetPrefix: 'auto' },
   dev: { assetPrefix: true, lazyCompilation: false },

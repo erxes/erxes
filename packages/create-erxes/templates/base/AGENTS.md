@@ -4,8 +4,8 @@ __description__
 
 An erxes plugin for the new core (Postgres). `api/` is the API: Express 5,
 oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
-`AGENTS.md` in the folder you edit. `api/src/modules/items` and `ui/src/items`
-are the reference feature: copy their shape for a new one.
+`AGENTS.md` in the folder you edit. `api/src/modules/items` and
+`ui/src/modules/items` are the reference feature: copy their shape for a new one.
 
 <!-- quality:start -->
 <!-- quality:end -->
@@ -33,6 +33,7 @@ are the reference feature: copy their shape for a new one.
   with `verifyPluginSession`. There is no public route yet, because core can't
   tell a public request's organisation.
 - Skills in `.agents/skills/`: `endpoint` for a procedure, `schema-change` for a
-  table or column, `verify` before calling a change done.__migrationSkill__
+  table or column, `ui-patterns` for any page (lists, filters, forms, record
+  details look like core's), `verify` before calling a change done.__migrationSkill__
 - What core promises plugins, and what counts as a breaking change, is core's
   `plugin-contract` skill (erxes repo, branch `postgre`).

@@ -1,13 +1,12 @@
 import { paths } from '~/lib/paths';
 import type { Activity, ActivityTarget } from '@erxes/core-contract';
-import { Skeleton } from 'erxes-ui';
+import { companyTitle, customerTitle, Skeleton } from 'erxes-ui';
 import type { ReactElement } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import type { Lookups } from '~/components/ChangeList';
 import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
-import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { useStageName } from '~/modules/leads/i18n';
 import {

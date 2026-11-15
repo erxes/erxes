@@ -3,6 +3,7 @@ import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { type ComponentType, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { PanelRecordOpener } from './PanelRecordOpener';
 import { panelRecordType, recordPagePath } from './panelRecordTypes';
 import { RecordSidePanel } from './RecordSidePanel';
 import type { IRecordViewProps } from './recordView';
@@ -62,10 +63,15 @@ export const SidePanelRecord = (props: IRecordViewProps) => {
     );
   }
 
-  return props.record.contentId === NEW_RECORD_ID ? (
-    <SidePanelDraft {...props} New={type.New} />
-  ) : (
-    <type.View {...props} />
+  // A record opened from inside this one goes on top of it, so Back returns here.
+  return (
+    <PanelRecordOpener stack>
+      {props.record.contentId === NEW_RECORD_ID ? (
+        <SidePanelDraft {...props} New={type.New} />
+      ) : (
+        <type.View {...props} />
+      )}
+    </PanelRecordOpener>
   );
 };
 

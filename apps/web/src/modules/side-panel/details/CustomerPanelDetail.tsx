@@ -24,6 +24,7 @@ import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
+import { PluginRecordSections } from '~/modules/plugins/PluginRecordSections';
 import { PanelField, PanelFieldTrigger } from '../PanelField';
 import { usePanelExpanded } from '../RecordSidePanel';
 import {
@@ -226,6 +227,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
         tagIds={customer.tagIds}
       />
       <ContactPanelRelationField contentType="core:customer" contentId={customer.id} />
+      <PluginRecordSections contentType="core:customer" contentId={customer.id} />
     </ContactDetailScroll>
   );
 };

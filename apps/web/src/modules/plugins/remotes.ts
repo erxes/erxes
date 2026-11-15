@@ -1,5 +1,7 @@
 import { loadRemote, registerRemotes } from '@module-federation/enhanced/runtime';
-import type { ComponentType } from 'react';
+import type { TContactContentType, TRecordSection, TRecordSectionProps } from 'erxes-ui';
+import type { ComponentType, ElementType } from 'react';
+import { z } from 'zod';
 import type { LoadedPlugin, PluginConfig } from './types';
 
 export interface PluginRemote {
@@ -40,6 +42,42 @@ const isConfig = (value: unknown): value is PluginConfig =>
   typeof value.path === 'string' &&
   value.path !== '';
 
+const isComponent = (value: unknown) =>
+  typeof value === 'function' || (typeof value === 'object' && value !== null);
+
+const RecordSection = z.object({
+  contentType: z.custom<TContactContentType>(
+    (value) => value === 'core:customer' || value === 'core:company',
+  ),
+  title: z.string().min(1),
+  icon: z.custom<ElementType>(isComponent),
+  component: z.custom<ComponentType<TRecordSectionProps>>(isComponent),
+});
+
+/** The plugin's well-formed customer and company sections; a broken one is logged and left out. */
+const recordSectionsOf = (remote: string, recordSections: unknown): TRecordSection[] => {
+  const list = z.array(z.unknown()).optional().safeParse(recordSections);
+
+  if (!list.success) {
+    console.error(`[plugins] ${remote}: recordSections is not a list`);
+
+    return [];
+  }
+
+  return (list.data ?? []).flatMap((entry, index) => {
+    const section = RecordSection.safeParse(entry);
+
+    if (section.success) return [section.data];
+
+    console.error(
+      `[plugins] ${remote}: recordSections[${index}] is not valid`,
+      section.error.issues,
+    );
+
+    return [];
+  });
+};
+
 const allowed = async (config: PluginConfig) => {
   if (!config.checkAccess) {
     return true;
@@ -78,9 +116,15 @@ export const loadPlugins = async (remotes = parsePluginRemotes()): Promise<Loade
           return null;
         }
 
-        return (await allowed(module.CONFIG))
-          ? { remote: remote.name, config: module.CONFIG }
-          : null;
+        const config = {
+          ...module.CONFIG,
+          recordSections: recordSectionsOf(
+            remote.name,
+            'recordSections' in module.CONFIG ? module.CONFIG.recordSections : undefined,
+          ),
+        };
+
+        return (await allowed(config)) ? { remote: remote.name, config } : null;
       } catch (error) {
         console.error(`[plugins] could not load ${remote.name}`, error);
 

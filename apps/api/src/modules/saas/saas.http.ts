@@ -2,9 +2,8 @@ import { SaasWorkspace } from '@erxes/core-contract';
 import { withOrg } from '@erxes/core-db';
 import express, { Router, type Request, type Response } from 'express';
 import { config } from '~/config';
-import { signAccessToken } from '~/http/auth';
-import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { fail, invalidInput } from '~/http/errors';
+import { startSession } from '~/http/session';
 import { sessionVersionOf } from '~/modules/auth/account.service';
 import { refreshEntitlements } from './entitlements';
 import { redeemHandoff } from './handoff';
@@ -83,13 +82,9 @@ export const saasLogin = async (req: Request, res: Response) => {
   }
 
   const { orgId, userId } = handoff;
-  const version = await withOrg(orgId, () => sessionVersionOf(userId));
+  const sessionVersion = await withOrg(orgId, () => sessionVersionOf(userId));
 
-  res.cookie(
-    SESSION_COOKIE,
-    await signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version),
-    sessionCookieOptions(req),
-  );
+  await startSession(req, res, { userId, orgId, sessionVersion });
   res.redirect(302, '/');
 };
 

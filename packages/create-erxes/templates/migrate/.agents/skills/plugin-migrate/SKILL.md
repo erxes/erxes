@@ -52,8 +52,8 @@ data only. The inventory reads code, never a database.
    drafted with their import from old core's `departments`, `branches` and the
    members' `departmentIds` and `branchIds`. The ids stay the same, so the old
    records' `departmentIds` still match.
-5. Pages. One per UI route, under `ui/src/<module>/`, built from `erxes-ui`
-   the way `ui/src/items/` is. The old `ui-modules` components don't exist
+5. Pages. One per UI route, under `ui/src/modules/<module>/`, built from
+   `erxes-ui` the way `ui/src/modules/items/` is, laid out by the `ui-patterns` skill. The old `ui-modules` components don't exist
    here. Member pickers and names become erxes-ui's `SelectMember` and
    `MemberInline`; a picker of other records is erxes-ui's `EntityPicker` over
    the plugin's own query. For erxes-ui components whose props changed, see

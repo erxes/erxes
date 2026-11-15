@@ -1,6 +1,14 @@
+import { customerSessions } from '@erxes/core-db';
+import { sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
 import { aMinuteLater, lastCode, useCustomers } from './customerAuth.fixture';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
+
+/** Moves every refresh token's rotation two minutes back, past the grace for reuse. */
+const rotatedTwoMinutesAgo = () =>
+  adminDb()
+    .update(customerSessions)
+    .set({ rotatedAt: sql`${customerSessions.rotatedAt} - interval '2 minutes'` });
 
 describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
   useTestDatabase();
@@ -16,7 +24,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     expect((await globex.me.customerAccount.me({})).id).toBe(globex.customer.id);
   });
 
-  it('rotates refresh tokens and ends the session when an old one comes back', async () => {
+  it('rotates refresh tokens and ends the session when an old one comes back later', async () => {
     const first = await t.signedIn('rotate@example.com');
     const { api } = t.app();
 
@@ -30,12 +38,19 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
       (await t.app({ token: second.accessToken }).api.customerAccount.me({})).primaryEmail,
     ).toBe('rotate@example.com');
 
+    // Right away, the first one again is a retry whose answer was lost: the same new token.
+    expect(
+      (await api.customerAuth.refresh({ clientId: 'hr', refreshToken: first.refreshToken }))
+        .refreshToken,
+    ).toBe(second.refreshToken);
+
     // Another app can't use it.
     await expect(
       api.customerAuth.refresh({ clientId: 'shop', refreshToken: second.refreshToken }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
 
-    // The first one again: it leaked. The session ends, and its access tokens with it.
+    // Two minutes on, the first one again: it leaked. The session ends, and its access tokens with it.
+    await rotatedTwoMinutesAgo();
     await expect(
       api.customerAuth.refresh({ clientId: 'hr', refreshToken: first.refreshToken }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
@@ -45,6 +60,24 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     await expect(
       t.app({ token: second.accessToken }).api.customerAccount.me({}),
     ).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('gives refreshes at the same moment (two tabs) the same new tokens, and goes on', async () => {
+    const first = await t.signedIn('tabs@example.com');
+    const { api } = t.app();
+
+    const refresh = (refreshToken: string) =>
+      api.customerAuth.refresh({ clientId: 'hr', refreshToken });
+
+    const tabs = await Promise.all([refresh(first.refreshToken), refresh(first.refreshToken)]);
+
+    expect(new Set(tabs.map((tab) => tab.refreshToken)).size).toBe(1);
+
+    const [tab] = tabs;
+
+    if (!tab) throw new Error('no tab refreshed');
+
+    expect((await refresh(tab.refreshToken)).refreshToken).not.toBe(tab.refreshToken);
   });
 
   it('signs the app out with its refresh token', async () => {

@@ -47,6 +47,16 @@ export const memberQueries = {
     }),
 };
 
+/**
+ * Where erxes-ui's `ContactLink` reads a customer or company:
+ * `<ContactLink contentType="core:customer" contentId={id} contacts={contactQueries} />`.
+ * It is the query web's panel reads, so a name edited there shows in every link.
+ */
+export const contactQueries = {
+  customer: (id: string) => orpc.customers.get.queryOptions({ input: { id }, staleTime: 60_000 }),
+  company: (id: string) => orpc.companies.get.queryOptions({ input: { id }, staleTime: 60_000 }),
+};
+
 /** Any error core answers with: one per code in `ERRORS`, with that code's `data`. */
 type ApiError = ORPCErrorFromErrorMap<typeof ERRORS>;
 

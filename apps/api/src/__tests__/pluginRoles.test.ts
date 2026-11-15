@@ -171,9 +171,13 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
       await client.query('create table testhr_open (id text primary key, org_id text not null)');
       await client.query('create table payroll (id text primary key, org_id text not null)');
       await client.query(`select core_enable_tenant_rls('payroll')`);
+      // Its own migration bookkeeping passes; another plugin's name doesn't.
+      await client.query('create table __drizzle_migrations_testhr (id serial primary key)');
+      await client.query('create table __drizzle_migrations_hr (id serial primary key)');
     });
 
     expect(await problems()).toEqual([
+      "__drizzle_migrations_hr: owned by plugin testhr, so its name must start with testhr_, row level security is off, row level security is not forced, no tenant policy: run SELECT core_enable_tenant_rls('__drizzle_migrations_hr')",
       'payroll: owned by plugin testhr, so its name must start with testhr_',
       "testhr_open: row level security is off, row level security is not forced, no tenant policy: run SELECT core_enable_tenant_rls('testhr_open')",
     ]);
@@ -184,6 +188,7 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
     });
 
     expect(await problems()).toEqual([
+      "__drizzle_migrations_hr: owned by plugin testhr, so its name must start with testhr_, row level security is off, row level security is not forced, no tenant policy: run SELECT core_enable_tenant_rls('__drizzle_migrations_hr')",
       'payroll: owned by plugin testhr, so its name must start with testhr_',
       'testhr_open: permissive policy everyone is not the tenant check, so it lets more rows through',
     ]);
@@ -191,6 +196,7 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
     await asPlugin(async (client) => {
       await client.query('drop policy everyone on testhr_open');
       await client.query('alter table payroll rename to testhr_payroll');
+      await client.query('drop table __drizzle_migrations_hr');
     });
 
     expect(await problems()).toEqual([]);

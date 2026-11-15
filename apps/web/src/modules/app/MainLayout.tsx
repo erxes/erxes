@@ -6,6 +6,7 @@ import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotif
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
 import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
+import { PanelRecordOpener } from '~/modules/side-panel/PanelRecordOpener';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 
 /**
@@ -33,7 +34,9 @@ export const MainLayout = () => {
             tabIndex={-1}
             className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background outline-none"
           >
-            <PageOutlet />
+            <PanelRecordOpener>
+              <PageOutlet />
+            </PanelRecordOpener>
           </main>
           <SidePanelLayout />
           <AssistantHost />

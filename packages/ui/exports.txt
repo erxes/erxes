@@ -19,6 +19,9 @@ type BadgeProps
 type ButtonProps
 type CalendarProps
 type ChartConfig
+type CompanyContact
+type ContactQueries
+type CustomerContact
 type FileStorageAdapter
 type IUIConfig
 type Member
@@ -27,12 +30,16 @@ type MultiSelectOption
 type PluginLiveMessage
 type PluginRuntime
 type PluginSession
+type RecordRef
 type RecordTableColumnDef
 type RecordTimelineProps
 type TActivityRowProps
+type TContactContentType
 type TDashboardWidgetPreview
 type TPropertyInputMeta
 type TPropertyInputProps
+type TRecordSection
+type TRecordSectionProps
 value Accordion
 value Alert
 value AlertDialog
@@ -55,6 +62,7 @@ value ColorPicker
 value Combobox
 value Command
 value CommandBar
+value ContactLink
 value ContextMenu
 value CopyText
 value DateInput
@@ -95,6 +103,7 @@ value PhoneInput
 value Popover
 value PopoverScoped
 value RadioGroup
+value RecordOpenerProvider
 value RecordTable
 value RecordTableInlineCell
 value RecordTimeline
@@ -131,6 +140,8 @@ value addPluginStyles
 value badgeVariants
 value buttonVariants
 value cn
+value companyTitle
+value customerTitle
 value editorText
 value formatPhoneNumber
 value formatter
@@ -157,6 +168,7 @@ value useFormat
 value useLiveSignal
 value useMediaQuery
 value useMembersById
+value useOpenRecord
 value usePreviousHotkeyScope
 value useScopedHotkeys
 value useToast

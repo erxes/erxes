@@ -16,6 +16,7 @@ import {
 import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Avatar,
+  companyTitle,
   Input,
   PopoverScoped,
   readImage,
@@ -37,7 +38,6 @@ import {
   ContactPhonesCell,
   ContactTagsCell,
 } from '../components/contactCells';
-import { companyTitle } from '../components/ContactPicker';
 import { useCompanyEdit } from './useCompanies';
 
 const SCOPE = 'companies-page';
