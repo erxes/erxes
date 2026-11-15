@@ -3,7 +3,7 @@ import { Button, cn } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
-import type { AssistantTab } from './assistantState';
+import { type AssistantTab, wantComposerFocus } from './assistantState';
 import { HistoryDialog } from './HistoryDialog';
 import { ThreadActions } from './ThreadActions';
 import type { AssistantTabs } from './useAssistantTabs';
@@ -123,7 +123,11 @@ export const PanelHeader = ({ tabs, onClose }: { tabs: AssistantTabs; onClose: (
           variant="ghost"
           size="icon"
           aria-label={t('new-chat', 'New chat')}
-          onClick={tabs.newChat}
+          onClick={() => {
+            if (tabs.active?.threadId) wantComposerFocus();
+
+            tabs.newChat();
+          }}
         >
           <IconPlus className="size-4" />
         </Button>

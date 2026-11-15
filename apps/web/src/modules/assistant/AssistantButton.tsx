@@ -6,7 +6,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
 import { CoreTabTooltip } from '~/modules/navigation/CoreTabTooltip';
-import { assistantOpenState, assistantUnreadState } from './assistantState';
+import { assistantOpenState, assistantUnreadState, wantComposerFocus } from './assistantState';
 
 const useToggleShortcut = (toggle: () => void) =>
   useHotkeys(['meta+j', 'ctrl+j'], toggle, {
@@ -21,6 +21,8 @@ const AssistantToggle = () => {
   const [unread, setUnread] = useAtom(assistantUnreadState);
 
   const toggle = () => {
+    if (!open) wantComposerFocus();
+
     setOpen((current) => !current);
     setUnread(false);
   };

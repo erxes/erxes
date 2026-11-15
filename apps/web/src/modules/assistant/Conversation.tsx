@@ -114,6 +114,7 @@ export const Conversation = ({
       )}
       <Announcement pending={view.pending} />
       <Composer
+        open={open}
         model={model}
         busy={view.busy}
         block={view.block}

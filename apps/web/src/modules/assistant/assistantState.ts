@@ -44,3 +44,17 @@ export const assistantPickedModelState = stored({
 });
 
 export const assistantUnreadState = atom(false);
+
+let composerFocusWanted = false;
+
+export const wantComposerFocus = () => {
+  composerFocusWanted = true;
+};
+
+export const takeComposerFocus = () => {
+  const wanted = composerFocusWanted;
+
+  composerFocusWanted = false;
+
+  return wanted;
+};
