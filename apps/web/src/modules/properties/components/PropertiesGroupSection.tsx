@@ -20,7 +20,7 @@ import {
   buttonVariants,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { propertyPaths } from '~/lib/paths';
@@ -93,13 +93,9 @@ type GroupShellProps = {
 const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
-  const [open, setOpen] = useState(fields.length > 0);
-  const toggled = useRef(false);
-
   // Open while it has fields, until the user opens or closes it.
-  useEffect(() => {
-    if (!toggled.current) setOpen(fields.length > 0);
-  }, [fields.length]);
+  const [toggled, setToggled] = useState<boolean>();
+  const open = toggled ?? fields.length > 0;
 
   const columns = useMemo(
     () => propertiesColumns(t, { fieldIds: fields.map((field) => field.id) }),
@@ -107,14 +103,7 @@ const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps)
   );
 
   return (
-    <Collapsible
-      className="group"
-      open={open}
-      onOpenChange={(value) => {
-        toggled.current = true;
-        setOpen(value);
-      }}
-    >
+    <Collapsible className="group" open={open} onOpenChange={setToggled}>
       <div className="relative flex items-center gap-1">
         {handle ?? <span className="size-7 shrink-0" />}
         <Collapsible.Trigger
