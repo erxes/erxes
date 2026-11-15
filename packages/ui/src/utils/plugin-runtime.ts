@@ -31,8 +31,17 @@ export interface PluginRuntime {
   subscribe(listener: (message: PluginLiveMessage) => void): () => void;
 }
 
+/** A session and when it ends on this browser's clock. */
+interface Held {
+  session: PluginSession;
+  endsAt: number;
+}
+
 let runtime: PluginRuntime | null = null;
-const sessions = new Map<string, Promise<PluginSession>>();
+const sessions = new Map<string, Promise<Held>>();
+
+/** A token is replaced this long before it ends, so no call carries one about to expire. */
+const RENEW_BEFORE_MS = 30_000;
 
 export const setPluginRuntime = (next: PluginRuntime | null) => {
   runtime = next;
@@ -48,24 +57,64 @@ const need = () => {
   return runtime;
 };
 
-/** A cached session, renewed 30 seconds before it ends. */
-const sessionOf = (plugin: string, fresh = false): Promise<PluginSession> => {
-  const cached = sessions.get(plugin);
+const Lifetime = jsonOf(z.object({ iat: z.number(), exp: z.number() }));
 
-  if (cached && !fresh) {
-    return cached.then((session) =>
-      new Date(session.expiresAt).getTime() - Date.now() > 30_000
-        ? session
-        : sessionOf(plugin, true),
-    );
+/** A JWT's claims as text; '' for a token that isn't one (its lifetime then comes from `expiresAt`). */
+const claimsText = (token: string) => {
+  try {
+    return atob((token.split('.')[1] ?? '').replaceAll('-', '+').replaceAll('_', '/'));
+  } catch {
+    return '';
   }
+};
 
-  const request = need().session(plugin);
+/**
+ * How long a token lasts, from its own claims (both core's clock), so a
+ * browser whose clock is set wrong still renews on time.
+ */
+const lifetimeMs = (session: PluginSession) => {
+  const claims = Lifetime.safeParse(claimsText(session.token));
+
+  return claims.success
+    ? (claims.data.exp - claims.data.iat) * 1000
+    : new Date(session.expiresAt).getTime() - Date.now();
+};
+
+const renew = (plugin: string) => {
+  const request = need()
+    .session(plugin)
+    .then((session) => ({ session, endsAt: Date.now() + lifetimeMs(session) }));
 
   sessions.set(plugin, request);
-  request.catch(() => sessions.delete(plugin));
+  request.catch(() => {
+    if (sessions.get(plugin) === request) sessions.delete(plugin);
+  });
 
   return request;
+};
+
+/**
+ * This member's session for `plugin`, renewed 30 seconds before it ends.
+ * `refused` is a token the plugin just turned down: it is replaced once, for
+ * every call that failed with it at the same time.
+ */
+const sessionOf = async (plugin: string, refused?: string): Promise<PluginSession> => {
+  const cached = sessions.get(plugin);
+
+  if (cached) {
+    const held = await cached.catch(() => null);
+
+    if (held && held.session.token !== refused && held.endsAt - Date.now() > RENEW_BEFORE_MS) {
+      return held.session;
+    }
+
+    // Another call is renewing it already.
+    const renewing = sessions.get(plugin);
+
+    if (renewing && renewing !== cached) return (await renewing).session;
+  }
+
+  return (await renew(plugin)).session;
 };
 
 const join = (base: string, path: string) =>
@@ -73,7 +122,9 @@ const join = (base: string, path: string) =>
 
 /**
  * `fetch` against a plugin's API as the signed-in member. Relative paths are
- * resolved against the plugin's API address; a 401 renews the token once.
+ * resolved against the plugin's API address; a 401 renews the token once and
+ * sends the call again, so `init.body` must be one that can be sent twice
+ * (text, an ArrayBuffer, a Blob or FormData, not a stream).
  */
 export const pluginFetch = async (
   plugin: string,
@@ -90,9 +141,10 @@ export const pluginFetch = async (
     return fetch(url, { ...init, headers, credentials: 'omit' });
   };
 
-  const response = await send(await sessionOf(plugin));
+  const session = await sessionOf(plugin);
+  const response = await send(session);
 
-  return response.status === 401 ? send(await sessionOf(plugin, true)) : response;
+  return response.status === 401 ? send(await sessionOf(plugin, session.token)) : response;
 };
 
 const errorBody = z.object({ message: z.string() });

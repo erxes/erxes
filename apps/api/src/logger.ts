@@ -17,6 +17,7 @@ const SECRET_FIELDS = [
   'secretAccessKey',
   'apiKey',
   'signature',
+  'tokenSealed',
 ];
 
 /**

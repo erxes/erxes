@@ -88,7 +88,7 @@ export const useTestDatabase = () => {
 export const currentToken = async (userId: string, orgId: string) => {
   const { users } = await import('@erxes/core-db');
   const { eq } = await import('drizzle-orm');
-  const { signAccessToken } = await import('~/http/auth');
+  const { signAccessToken } = await import('~/http/session');
 
   const [row] = await adminDb()
     .select({ sessionVersion: users.sessionVersion })
@@ -96,7 +96,7 @@ export const currentToken = async (userId: string, orgId: string) => {
     .where(eq(users.id, userId))
     .limit(1);
 
-  return signAccessToken(userId, orgId, undefined, row?.sessionVersion ?? 1);
+  return signAccessToken(userId, orgId, { sessionVersion: row?.sessionVersion ?? 1 });
 };
 
 /** The database's own message behind a failed query, or '' when it succeeded. */
