@@ -9,11 +9,11 @@ import {
   TextField,
   useToast,
   toIsoDay,
+  PanelFieldTrigger,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMemberDate, ymdToDate } from '../record/TeamMemberInlineFields';
-import { PanelFieldTrigger } from '~/modules/side-panel/PanelField';
 
 export const MEMBER_PANEL_SCOPE = 'team-member-panel';
 

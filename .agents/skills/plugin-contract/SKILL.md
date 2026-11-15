@@ -16,11 +16,23 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`);
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
-     `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`), and its first
-     module renders under `/<path>/*`. `recordSections` are drawn in core's customer and company
-     panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`); web drops a malformed one.
-     erxes-ui's `useOpenRecord` and `ContactLink` open core's records through the
-     `RecordOpenerProvider` web mounts, so the panel's URL stays core's own.
+     `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
+     `relationTabs`), and its first module renders under `/<path>/*`. `recordSections` are drawn
+     in core's customer and company panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`).
+     For `recordTypes` (`<name>:<thing>`) core draws the side panel and the plugin fills slots:
+     `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the
+     expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
+     relation tabs and `activity` for core's timeline
+     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). `relationTabs` show on core's
+     customers and companies and on record types with `contacts`
+     (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates all three when it
+     loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
+     entry. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
+     through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own; erxes-ui's
+     `RecordTimeline`, `RecordPage` and `ListFilter` render what web registers at startup
+     (`apps/web/src/bootstrap.tsx`). A plugin list's saved views are not part of the contract:
+     `views.recordType` is core's lists only.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
      plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`

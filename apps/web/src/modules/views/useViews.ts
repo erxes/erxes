@@ -2,13 +2,17 @@ import type { ConditionGroup, FilterField, View, ViewRecordType } from '@erxes/c
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useQueryStates } from 'nuqs';
+import type { ElementType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 import { listQuery } from './viewLinks';
 
-/** A field a list filters by; money fields carry the currency their amounts are shown in. */
-export type ListField = FilterField & { currency?: string };
+/**
+ * A field a list filters by; money fields carry the currency their amounts are shown in, and a
+ * plugin's fields may bring their own icon.
+ */
+export type ListField = FilterField & { currency?: string; icon?: ElementType };
 
 /** Amounts stored in the currency's smallest unit, shown and typed in the organisation's currency. */
 const MONEY_PATHS: Partial<Record<ViewRecordType, string[]>> = { product: ['subject.price'] };

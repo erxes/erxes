@@ -1,3 +1,4 @@
+import { ContactState } from '@erxes/core-contract';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { stored } from 'erxes-ui';
 import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react';
@@ -33,16 +34,19 @@ export const sidePanelWidthState = stored({
 
 export const sidePanelSessionState = atom(0);
 
-/** What a new contact starts with: a lead in a stage, or a customer. */
-interface DraftDefaults {
-  state?: 'lead' | 'customer';
-  leadStageId?: string;
-}
+/** What a draft starts with, from its opener (a contact's lead stage, a plugin's stage). */
+type DraftDefaults = Record<string, unknown>;
 
 export interface ISidePanelDraft {
   contentType: string;
   defaults: DraftDefaults;
 }
+
+/** What a new contact starts with: a lead in a stage, or a customer. */
+const ContactDraft = z.object({
+  state: ContactState.optional(),
+  leadStageId: z.string().optional(),
+});
 
 export const sidePanelDraftState = atom<ISidePanelDraft | null>(null);
 export const SidePanelDraftContext = createContext<ISidePanelDraft | null | undefined>(undefined);
@@ -55,6 +59,10 @@ export const useSidePanelDraft = (contentType: string): DraftDefaults => {
 
   return draft?.contentType === contentType ? draft.defaults : {};
 };
+
+/** The defaults of a new customer or company: a lead in a stage, or a customer. */
+export const useContactDraft = (contentType: 'core:customer' | 'core:company') =>
+  ContactDraft.safeParse(useSidePanelDraft(contentType)).data ?? {};
 
 /** A fresh id so two drafts of one type never share a stack entry. */
 const draftId = () => Math.random().toString(36).slice(2, 12);

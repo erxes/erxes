@@ -95,7 +95,7 @@ const RuleChip = ({ rule, index }: { rule: ConditionRule; index: number }) => {
   const { fields, edit, setPart } = useListFilter();
   const field = fields.find((one) => one.path === rule.path) ?? textField(rule.path);
   const text = useRuleText(rule, field);
-  const Icon = FIELD_ICONS[field.type];
+  const Icon = field.icon ?? FIELD_ICONS[field.type];
 
   return (
     <Chip

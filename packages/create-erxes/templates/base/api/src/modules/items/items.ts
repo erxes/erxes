@@ -6,6 +6,7 @@ import { PERMISSIONS } from '#/core.ts';
 import { uniqueViolation } from '#/db/client.ts';
 import { ITEM_NAME_INDEX, items } from '#/db/schema.ts';
 import { reads, writes } from '#/orpc.ts';
+import { escapeLike, filterSql, ItemFilter } from './itemFilter.ts';
 
 /** What a procedure returns: the row without `org_id`, which the caller already knows. */
 const { orgId, ...columns } = getTableColumns(items);
@@ -38,21 +39,21 @@ const nameTaken =
     throw error;
   };
 
-const escapeLike = (text: string) => text.replaceAll(/[\\%_]/g, '\\$&');
-
-/** Newest first, in keyset pages: `nextCursor` is the id to pass for the next page. */
+/**
+ * Newest first, in keyset pages: `nextCursor` is the id to pass for the next page. `filter` and
+ * `search` are what the list's filter bar holds (erxes-ui's `useListFilterParams()`).
+ */
 const list = reads(PERMISSIONS.view)
   .input(
     z.object({
       search: z.string().trim().max(200).optional(),
-      /** Only the items this member created. */
-      createdBy: z.string().optional(),
+      filter: ItemFilter.optional(),
       cursor: z.string().optional(),
       limit: z.number().int().min(1).max(100).default(50),
     }),
   )
   .output(z.object({ items: z.array(Item), nextCursor: z.string().nullable() }))
-  .handler(async ({ input, context: { tx } }) => {
+  .handler(async ({ input, context: { tx, member } }) => {
     const after = input.cursor
       ? sql`(${items.createdAt}, ${items.id}) < (select created_at, id from ${items} where id = ${input.cursor})`
       : undefined;
@@ -63,7 +64,7 @@ const list = reads(PERMISSIONS.view)
       .where(
         and(
           input.search ? ilike(items.name, `%${escapeLike(input.search)}%`) : undefined,
-          input.createdBy ? eq(items.createdBy, input.createdBy) : undefined,
+          input.filter ? filterSql(input.filter, member.userId) : undefined,
           after,
         ),
       )
@@ -76,6 +77,18 @@ const list = reads(PERMISSIONS.view)
       items: page,
       nextCursor: rows.length > input.limit ? (page.at(-1)?.id ?? null) : null,
     };
+  });
+
+/** One item, for its panel in core's side panel and its own page. */
+const get = reads(PERMISSIONS.view)
+  .input(z.object({ id: z.string() }))
+  .output(Item)
+  .handler(async ({ input, context: { tx } }) => {
+    const [item] = await tx.select(columns).from(items).where(eq(items.id, input.id)).limit(1);
+
+    if (!item) throw new ORPCError('NOT_FOUND', { message: 'No such item' });
+
+    return item;
   });
 
 const create = writes(PERMISSIONS.manage)
@@ -122,4 +135,4 @@ const remove = writes(PERMISSIONS.manage)
     return item;
   });
 
-export const itemProcedures = { list, create, update, remove };
+export const itemProcedures = { list, get, create, update, remove };

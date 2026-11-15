@@ -1,10 +1,8 @@
-import { Spinner } from 'erxes-ui';
+import { Spinner, PanelDescriptionEditor, PanelDescriptionField } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import type { TContactContentType } from '~/modules/contacts/utils/contactDetailPath';
-import { PanelDescriptionEditor } from '../PanelDescriptionEditor';
-import { PanelDescriptionField } from '../PanelDescriptionField';
 
 interface IContactDescriptionProps {
   contentType: TContactContentType;

@@ -1,12 +1,28 @@
 import { Organization as OrganizationSchema, type PluginManifest } from '@erxes/core-contract';
 import type { CoreClient } from '@erxes/plugin-sdk';
 import { contactQueries } from '@erxes/core-contract/client';
+import { type Icon, IconBox } from '@tabler/icons-react';
 import {
   Button,
   ContactLink,
+  DisplayMenu,
+  Input,
+  ListFilter,
+  PanelField,
+  PanelFormLayout,
+  PanelFormRow,
+  PanelSection,
   pluginJson,
+  RecordPage,
   type IUIConfig,
+  type TRecordDraftProps,
   type TRecordSectionProps,
+  type TRecordSlotProps,
+  type TRelationTabProps,
+  useListFilterParams,
+  useOpenRecord,
+  usePanelExpanded,
+  ViewBar,
 } from 'erxes-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
@@ -44,9 +60,75 @@ const CustomerSection = ({ contentType, contentId }: TRecordSectionProps) => (
 
 const SectionIcon = ({ className }: { className?: string }) => <svg className={className} />;
 
+// A record of the plugin's own in core's side panel: its slots. Its list's bar below.
+const ThingTitle = ({ contentId }: TRecordSlotProps) => <span>{contentId}</span>;
+
+const ThingDetail = ({ contentId }: TRecordSlotProps) => (
+  <PanelSection title={usePanelExpanded() ? 'Thing, full size' : 'Thing'}>
+    <PanelField label="Id">{contentId}</PanelField>
+  </PanelSection>
+);
+
+const TabIcon: Icon = IconBox;
+
+// The things of a record's customers, on every other record's panel.
+const ThingsTab = ({ customerIds }: TRelationTabProps) => {
+  const { open } = useOpenRecord();
+
+  return (
+    <Button onClick={() => open({ contentType: 'consumer:thing', contentId: 't1' })}>
+      {customerIds.join()}
+    </Button>
+  );
+};
+
+const ThingNew = ({ onCreated }: TRecordDraftProps) => (
+  <PanelFormLayout onCancel={() => onCreated('t1')}>
+    <PanelFormRow label="Name">
+      <Input name="name" />
+    </PanelFormRow>
+  </PanelFormLayout>
+);
+
+export const Things = () => {
+  const { openNew } = useOpenRecord();
+  const filter = useListFilterParams();
+
+  return (
+    <ViewBar allLabel={`All things ${filter.search ?? ''}`}>
+      <ListFilter
+        id="consumer-things"
+        fields={[{ path: 'subject.name', label: 'Name', type: 'text' }]}
+      >
+        <DisplayMenu list="consumer-things" />
+      </ListFilter>
+      <Button onClick={() => openNew('consumer:thing', { stage: 's1' })}>Add</Button>
+      <RecordPage contentType="consumer:thing" contentId="t1" />
+    </ViewBar>
+  );
+};
+
 export const CONFIG: IUIConfig = {
   name: 'consumer',
   path: 'consumer',
+  recordTypes: [
+    {
+      contentType: 'consumer:thing',
+      title: 'Thing',
+      icon: SectionIcon,
+      detailPath: (id) => `/consumer/things/${id}`,
+      Title: ThingTitle,
+      Detail: ThingDetail,
+      tabs: [{ value: 'notes', label: 'Notes', icon: TabIcon, component: ThingTitle }],
+      New: ThingNew,
+      contacts: (id) => ({
+        queryKey: ['thing-contacts', id],
+        queryFn: async () => ({ customerIds: [], companyIds: [] }),
+      }),
+      activity: 'consumer.thing',
+    },
+  ],
+  relationTabs: [{ name: 'things', title: 'Things', icon: TabIcon, component: ThingsTab }],
   recordSections: [
     {
       contentType: 'core:customer',

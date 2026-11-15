@@ -1,21 +1,15 @@
-import type { ConditionGroup, ViewRecordType } from '@erxes/core-contract';
+import type { ConditionGroup } from '@erxes/core-contract';
 import { Button, Dialog } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { QueryState } from '~/components/QueryState';
 import { ConditionsEditor } from '~/modules/automations/builder/ConditionsEditor';
-import { subjectOf, useFilterFields, useListQuery } from '../useViews';
+import { useListQuery } from '../useViews';
+import { useListFilter } from './listFilterContext';
 
 /** Mounted each time the dialog opens, so the draft starts from the list's filter. */
-const AdvancedFilterForm = ({
-  recordType,
-  onDone,
-}: {
-  recordType: ViewRecordType;
-  onDone: () => void;
-}) => {
+const AdvancedFilterForm = ({ onDone }: { onDone: () => void }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const fields = useFilterFields(recordType);
+  const { fields, subject } = useListFilter();
   const { advanced, setAdvanced } = useListQuery();
   const [draft, setDraft] = useState<ConditionGroup | null>(advanced);
 
@@ -26,19 +20,13 @@ const AdvancedFilterForm = ({
 
   return (
     <>
-      <QueryState
-        query={fields}
-        loading={<p className="text-sm text-muted-foreground">{t('loading')}</p>}
-      >
-        {(data) => (
-          <ConditionsEditor
-            fields={data}
-            subject={subjectOf(recordType)}
-            value={draft ?? undefined}
-            onChange={(next) => setDraft(next ?? null)}
-          />
-        )}
-      </QueryState>
+      {/* The bar's menu says when the fields are loading or failed to. */}
+      <ConditionsEditor
+        fields={fields}
+        subject={subject}
+        value={draft ?? undefined}
+        onChange={(next) => setDraft(next ?? null)}
+      />
       <Dialog.Footer>
         <Button variant="ghost" onClick={() => apply(null)}>
           {t('clear')}
@@ -51,11 +39,9 @@ const AdvancedFilterForm = ({
 
 /** The full builder (every field, and/or groups), for what the filter menu can't say. */
 export const AdvancedFilterDialog = ({
-  recordType,
   open,
   onOpenChange,
 }: {
-  recordType: ViewRecordType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
@@ -65,7 +51,7 @@ export const AdvancedFilterDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="sm:max-w-3xl">
         <Dialog.HeaderCombined title={t('advanced')} description={t('advanced-title')} />
-        <AdvancedFilterForm recordType={recordType} onDone={() => onOpenChange(false)} />
+        <AdvancedFilterForm onDone={() => onOpenChange(false)} />
       </Dialog.Content>
     </Dialog>
   );

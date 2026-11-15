@@ -11,7 +11,7 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { Form, Input, MultipleSelector, Select, useToast } from 'erxes-ui';
+import { Form, Input, MultipleSelector, Select, useToast, PanelFormRow } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -22,8 +22,7 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
-import { PanelFormRow } from '../PanelForm';
-import { useSidePanelDraft } from '../useSidePanel';
+import { useContactDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 import {
   ContactAvatarRow,
@@ -152,7 +151,7 @@ const BusinessRows = () => {
 /** Creates the company and links the customers picked in the draft. */
 const useCompanySave = (form: UseFormReturn<TCompanyForm>, customerIds: string[]) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { state, leadStageId } = useSidePanelDraft('core:company');
+  const { state, leadStageId } = useContactDraft('core:company');
   const { toast } = useToast();
   const create = useCompanyCreate();
   const { linking, finish } = useFinishCreate('core:company', 'Could not link customers');

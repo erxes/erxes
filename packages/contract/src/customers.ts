@@ -4,7 +4,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CustomerSex } from './values';
+import { ContactState, CustomerSex } from './values';
 import {
   CursorQuery,
   CustomFields,
@@ -19,13 +19,7 @@ import {
   isoDate,
   listOf,
 } from './common';
-import {
-  ContactState,
-  LIFECYCLE_COLUMNS,
-  LIFECYCLE_INPUT_COLUMNS,
-  lifecycleInput,
-  lifecycleRow,
-} from './leads';
+import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 
 /** `lead`: not a customer yet (e.g. a form submission). */
 export const CustomerState = ContactState;

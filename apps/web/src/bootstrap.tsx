@@ -3,12 +3,19 @@ import 'erxes-ui/fonts.css';
 import '@blocknote/shadcn/style.css';
 import './styles.css';
 import { StrictMode } from 'react';
-import { setFileStorage, setPluginRuntime, setRecordTimeline } from 'erxes-ui';
+import {
+  setFileStorage,
+  setListFilter,
+  setPluginRuntime,
+  setRecordPage,
+  setRecordTimeline,
+} from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { i18nReady } from './i18n';
 import { orpc } from '@erxes/core-contract/client';
 import { coreFileStorage } from './lib/files';
+import { lazyNamed } from './lib/lazyNamed';
 import { pluginLive } from './lib/live';
 import { recheckSession } from './lib/queryClient';
 import { isSignedOut } from './modules/auth/session';
@@ -19,6 +26,14 @@ setFileStorage(coreFileStorage);
 
 // Plugin UIs show core's timeline for their own records.
 setRecordTimeline(SharedTimeline);
+
+// A plugin record's own page draws like a customer's, and a plugin list's filter bar is core's;
+// each loads the first time a plugin page shows it.
+setRecordPage(lazyNamed(() => import('./modules/side-panel/RecordPage'), 'RecordPageView'));
+
+setListFilter(
+  lazyNamed(() => import('./modules/views/filter/PluginListFilter'), 'PluginListFilter'),
+);
 
 // Plugin UIs call their own API with a per-plugin token and hear live signals.
 // A plugin page has its own queries, so core refusing its token is passed on

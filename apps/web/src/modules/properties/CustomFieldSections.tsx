@@ -1,11 +1,10 @@
 import type { CustomValue, FieldContentType } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
-import { Button, Collapsible, Empty, Spinner, buttonVariants } from 'erxes-ui';
+import { Button, Collapsible, Empty, Spinner, buttonVariants, PanelField } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { messageOf } from '@erxes/core-contract/client';
-import { PanelField } from '~/modules/side-panel/PanelField';
 import { propertyPaths } from '~/lib/paths';
 import { CustomFieldCell } from './CustomFieldCell';
 import { FIELD_TYPES_OBJECT } from './fieldTypes';

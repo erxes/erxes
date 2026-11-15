@@ -33,10 +33,6 @@ export const mn: typeof en = {
   insights: 'Тойм',
   people: 'Хүмүүс',
   companies: 'Компаниуд',
-  display: 'Харагдац',
-  view: 'Харагдац',
-  'table-view': 'Хүснэгт',
-  'board-view': 'Самбар',
   settings: {
     title: 'Үе шатууд',
     description:

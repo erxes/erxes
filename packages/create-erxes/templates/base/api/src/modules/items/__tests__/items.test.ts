@@ -20,6 +20,9 @@ const clientAs = (orgId: string, permissions: string[] = Object.values(PERMISSIO
   return createRouterClient(router, { context: { member } });
 };
 
+/** The filter bar's conditions: core's condition group as JSON. */
+const filter = (rules: unknown[], match = 'all') => JSON.stringify({ match, rules });
+
 describe('items', () => {
   it('creates, lists newest first in pages, updates and deletes', async () => {
     const client = clientAs('org-a');
@@ -38,12 +41,26 @@ describe('items', () => {
 
     expect(next.items.map((item) => item.id)).toEqual([first.id]);
     expect(next.nextCursor).toBeNull();
-    await expect(client.items.list({ createdBy: 'user-org-a' })).resolves.toMatchObject({
+    await expect(client.items.get({ id: first.id })).resolves.toMatchObject({ name: 'First' });
+
+    const mine = { path: 'subject.createdBy', op: 'in', value: ['me'] };
+
+    await expect(client.items.list({ filter: filter([mine]) })).resolves.toMatchObject({
       items: [{ id: second.id }, { id: first.id }],
     });
-    await expect(client.items.list({ createdBy: 'someone-else' })).resolves.toMatchObject({
-      items: [],
-    });
+    await expect(
+      client.items.list({
+        filter: filter([mine, { path: 'subject.name', op: 'contains', value: 'sec' }]),
+      }),
+    ).resolves.toMatchObject({ items: [{ id: second.id }] });
+    await expect(
+      client.items.list({
+        filter: filter([{ path: 'subject.createdBy', op: 'eq', value: 'someone-else' }]),
+      }),
+    ).resolves.toMatchObject({ items: [] });
+    await expect(
+      client.items.list({ filter: filter([{ path: 'subject.color', op: 'eq', value: 'red' }]) }),
+    ).rejects.toMatchObject({ status: 400 });
 
     await expect(
       client.items.update({ id: first.id, name: 'First', description: 'Changed' }),
@@ -77,6 +94,7 @@ describe('items', () => {
     await expect(ours.items.create({ name: 'Shared name' })).resolves.toMatchObject({
       name: 'Shared name',
     });
+    await expect(ours.items.get({ id: theirs.id })).rejects.toMatchObject({ code: 'NOT_FOUND' });
     await expect(ours.items.update({ id: theirs.id, name: 'Mine now' })).rejects.toMatchObject({
       code: 'NOT_FOUND',
     });

@@ -1,9 +1,7 @@
-import { useFormat } from 'erxes-ui';
+import { useFormat, PanelField, PanelSection } from 'erxes-ui';
 import type { LeadRecordType } from '@erxes/core-contract';
 import { IconCalendarCheck, IconHourglass, IconWorld } from '@tabler/icons-react';
 import { useMinuteClock } from '~/lib/useMinuteClock';
-import { PanelField } from '~/modules/side-panel/PanelField';
-import { ContactDetailSection } from '~/modules/side-panel/details/ContactDetailSection';
 import { daysSince, type LeadRecord, useLeadStages } from './useLeads';
 import { useLeadsT } from './i18n';
 
@@ -30,7 +28,7 @@ export const LeadPanelSection = ({
 
   // The stage and Convert sit in the record's header; here, the details.
   return (
-    <ContactDetailSection title={isLead ? t('lead') : t('origin')} nested>
+    <PanelSection title={isLead ? t('lead') : t('origin')} nested>
       {isLead && days !== null && (
         <PanelField icon={IconHourglass} label={t('in-stage')}>
           <Text>
@@ -59,6 +57,6 @@ export const LeadPanelSection = ({
           <Text>{fmt.date(record.convertedAt)}</Text>
         </PanelField>
       )}
-    </ContactDetailSection>
+    </PanelSection>
   );
 };

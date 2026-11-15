@@ -1,6 +1,5 @@
-import { Spinner, type TContactContentType, type TRecordSection } from 'erxes-ui';
+import { PanelSection, Spinner, type TContactContentType, type TRecordSection } from 'erxes-ui';
 import { Suspense } from 'react';
-import { ContactDetailSection } from '~/modules/side-panel/details/ContactDetailSection';
 import { PluginBoundary } from './PluginBoundary';
 import { usePlugins } from './usePlugins';
 
@@ -19,13 +18,13 @@ const PluginRecordSection = ({
   const Content = section.component;
 
   return (
-    <ContactDetailSection title={section.title} icon={section.icon}>
+    <PanelSection title={section.title} icon={section.icon}>
       <PluginBoundary name={plugin} compact resetKey={contentId}>
         <Suspense fallback={<Spinner size="sm" />}>
           <Content contentType={contentType} contentId={contentId} />
         </Suspense>
       </PluginBoundary>
-    </ContactDetailSection>
+    </PanelSection>
   );
 };
 

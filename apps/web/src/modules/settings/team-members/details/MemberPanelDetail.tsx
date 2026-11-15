@@ -8,7 +8,7 @@ import {
   IconPhone,
   IconUser,
 } from '@tabler/icons-react';
-import { FullNameField, FullNameValue, ScrollArea } from 'erxes-ui';
+import { FullNameField, FullNameValue, ScrollArea, PanelField, PanelFieldTrigger } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { nameParts } from '../record/TeamMemberColumns';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
@@ -19,7 +19,6 @@ import {
   MemberPanelTextField,
   MemberPhoneField,
 } from './MemberFieldInputs';
-import { PanelField, PanelFieldTrigger } from '~/modules/side-panel/PanelField';
 
 /** Edits a member's name in the panel's top bar, as a customer's is edited. */
 export const MemberPanelName = ({ user }: { user: User }) => {

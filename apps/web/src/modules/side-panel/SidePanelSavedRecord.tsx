@@ -1,6 +1,8 @@
 import type { Company, Customer } from '@erxes/core-contract';
 import { IconAlignLeft, IconHierarchy2, IconHistory, IconId } from '@tabler/icons-react';
-import { companyTitle, customerTitle, Skeleton } from 'erxes-ui';
+import { companyTitle, customerTitle, Skeleton, usePanelExpanded } from 'erxes-ui';
+import { RecordPageHeader } from './RecordPageHeader';
+import { type IRecordSidePanelTab, RecordSidePanel } from './RecordSidePanel';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
@@ -9,6 +11,7 @@ import { useCan } from '~/modules/auth/session';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadHeaderActions } from '~/modules/leads/LeadHeaderActions';
+import { usePluginRelationTabs } from '~/modules/plugins/PluginRelationTabs';
 import { ContactsBreadcrumb } from '~/modules/contacts/components/ContactsBreadcrumb';
 import { CompanyPanelDetail } from './details/CompanyPanelDetail';
 import {
@@ -20,8 +23,6 @@ import { ContactPanelDescription } from './details/ContactPanelDescription';
 import { CompanyPanelName, CustomerPanelName } from './details/ContactPanelNames';
 import { CompanyPanelProperties, CustomerPanelProperties } from './details/ContactPanelProperties';
 import { CustomerPanelDetail } from './details/CustomerPanelDetail';
-import { type IRecordSidePanelTab, RecordSidePanel, usePanelExpanded } from './RecordSidePanel';
-import { RecordPageHeader } from './RecordPageHeader';
 import type { IRecordViewProps } from './recordView';
 import { SidePanelFailed } from './SidePanelEmpty';
 import type { TRelationEntity } from './sidePanelPaths';
@@ -108,6 +109,15 @@ const useContactTabs = ({
   const expanded = usePanelExpanded();
   const isCustomer = contentType === 'core:customer';
 
+  // A customer or company is its own contact: plugins list their records of it.
+  const relationTabs = usePluginRelationTabs({
+    contentType,
+    contentId,
+    contacts: isCustomer
+      ? { customerIds: [contentId], companyIds: [] }
+      : { customerIds: [], companyIds: [contentId] },
+  });
+
   const tabs: IRecordSidePanelTab[] = [
     {
       value: DETAIL_TAB,
@@ -129,6 +139,7 @@ const useContactTabs = ({
         <CompanyPanelProperties companyId={contentId} />
       ),
     },
+    ...relationTabs,
     {
       value: ACTIVITY_TAB,
       label: t('activity', 'Activity'),

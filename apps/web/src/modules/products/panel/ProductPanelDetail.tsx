@@ -1,10 +1,12 @@
 import type { Product } from '@erxes/core-contract';
 import { useTranslation } from 'react-i18next';
-import { PanelDescriptionEditor } from '~/modules/side-panel/PanelDescriptionEditor';
-import { PanelDescriptionField } from '~/modules/side-panel/PanelDescriptionField';
-import { usePanelExpanded } from '~/modules/side-panel/RecordSidePanel';
+import {
+  PanelDescriptionEditor,
+  PanelDescriptionField,
+  PanelSection,
+  usePanelExpanded,
+} from 'erxes-ui';
 import { ContactDetailScroll } from '~/modules/side-panel/details/ContactDetailFields';
-import { ContactDetailSection } from '~/modules/side-panel/details/ContactDetailSection';
 import { useCanManageProducts } from '../useProducts';
 import {
   PRODUCT_PANEL_SCOPE,
@@ -58,7 +60,7 @@ export const ProductPanelDetail = ({ product }: { product: Product }) => {
     <ContactDetailScroll>
       <ProductFieldset>
         <div className="border-b px-3 pb-2">
-          <ContactDetailSection title={t('panel.general', 'General')} nested>
+          <PanelSection title={t('panel.general', 'General')} nested>
             <ProductKindRow product={product} />
             <ProductTextRow product={product} code="code" label={t('fields.code', 'Code')} />
             <ProductTextRow
@@ -68,23 +70,23 @@ export const ProductPanelDetail = ({ product }: { product: Product }) => {
             />
             <ProductCategoryRow product={product} />
             <ProductTextRow product={product} code="unit" label={t('fields.unit', 'Unit')} />
-          </ContactDetailSection>
-          <ContactDetailSection title={t('panel.pricing', 'Pricing')} nested>
+          </PanelSection>
+          <PanelSection title={t('panel.pricing', 'Pricing')} nested>
             <ProductPriceRows product={product} />
-          </ContactDetailSection>
+          </PanelSection>
           {product.kind === 'goods' && (
-            <ContactDetailSection title={t('panel.size', 'Size and weight')} nested>
+            <PanelSection title={t('panel.size', 'Size and weight')} nested>
               <ProductSizeRows product={product} />
-            </ContactDetailSection>
+            </PanelSection>
           )}
-          <ContactDetailSection title={t('panel.usage', 'Apps')} nested>
+          <PanelSection title={t('panel.usage', 'Apps')} nested>
             <ProductPluginsRow product={product} />
-          </ContactDetailSection>
+          </PanelSection>
           {!expanded && <ProductDescription product={product} />}
         </div>
-        <ContactDetailSection title={t('fields.images', 'Images')}>
+        <PanelSection title={t('fields.images', 'Images')}>
           <ProductPanelImages product={product} />
-        </ContactDetailSection>
+        </PanelSection>
       </ProductFieldset>
     </ContactDetailScroll>
   );

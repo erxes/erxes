@@ -59,6 +59,8 @@ export { Form } from './components/form';
 
 export { HoverCard } from './components/hover-card';
 
+export { IconTip } from './components/icon-tip';
+
 export { InfoCard } from './components/info-card';
 
 export { Input } from './components/input';
@@ -114,6 +116,8 @@ export { Tooltip } from './components/tooltip';
 export { Upload } from './components/upload';
 
 export { useConfirm } from './hooks/use-confirm';
+
+export { usePageHotkey } from './hooks/use-page-hotkey';
 
 export { toast, useToast } from './hooks/use-toast';
 
@@ -198,6 +202,32 @@ export { RecordTableInlineCell } from './modules/record-table/components/RecordT
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
+export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/DisplayMenu';
+
+export {
+  ListFilter,
+  setListFilter,
+  type TListFilterField,
+  type TListFilterProps,
+  useListFilterParams,
+} from './modules/list/ListFilter';
+
+export { ViewBar } from './modules/list/ViewBar';
+
+export { PanelDescriptionEditor } from './modules/record-panel/PanelDescriptionEditor';
+
+export { PanelDescriptionField } from './modules/record-panel/PanelDescriptionField';
+
+export { PanelField, PanelFieldTrigger } from './modules/record-panel/PanelField';
+
+export { PanelFormLayout, PanelFormRow } from './modules/record-panel/PanelForm';
+
+export { PanelLabel } from './modules/record-panel/PanelLabel';
+
+export { PanelSection } from './modules/record-panel/PanelSection';
+
+export { PanelExpansionContext, usePanelExpanded } from './modules/record-panel/panelExpansion';
+
 export { ContactLink } from './modules/records/ContactLink';
 
 export {
@@ -209,7 +239,13 @@ export {
   type TContactContentType,
 } from './modules/records/contacts';
 
-export { type RecordRef, RecordOpenerProvider, useOpenRecord } from './modules/records/openRecord';
+export {
+  RecordOpenerProvider,
+  RecordPage,
+  type RecordRef,
+  setRecordPage,
+  useOpenRecord,
+} from './modules/records/openRecord';
 
 export { ThemeOption, themeState } from './state/themeState';
 
@@ -220,9 +256,16 @@ export {
   type TActivityRowProps,
   type TDashboardWidgetPreview,
   type TPropertyInputMeta,
+  type TPanelRecordType,
   type TPropertyInputProps,
+  type TRecordContacts,
+  type TRecordDraftProps,
   type TRecordSection,
   type TRecordSectionProps,
+  type TRecordSlotProps,
+  type TRecordTab,
+  type TRelationTab,
+  type TRelationTabProps,
 } from './types/UIConfig';
 
 export { isUndefinedOrNull } from './utils/IsUndefinedOrNull';

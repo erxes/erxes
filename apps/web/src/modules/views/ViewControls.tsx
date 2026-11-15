@@ -1,9 +1,8 @@
 import type { ViewRecordType } from '@erxes/core-contract';
 import { IconArrowBackUp, IconCopyPlus, IconDeviceFloppy } from '@tabler/icons-react';
-import { Button, Dialog, Input, Label, Switch } from 'erxes-ui';
+import { Button, Dialog, Input, Label, Switch, IconTip } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { useCanShareViews, useViewMutations, useViewState } from './useViews';
 
 interface ViewValues {

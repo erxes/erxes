@@ -1,6 +1,6 @@
-import { Editor } from 'erxes-ui';
 import type { RefObject } from 'react';
-import { usePageHotkey } from '~/lib/usePageHotkey';
+import { usePageHotkey } from '../../hooks/use-page-hotkey';
+import { Editor } from '../blocks/components/LazyEditor';
 import { useSaveOnLeave } from './useSaveOnLeave';
 
 /** The editor inside `container`, when it is shown (an inactive tab's panel is `hidden`). */

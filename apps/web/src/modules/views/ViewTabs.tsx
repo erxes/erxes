@@ -13,10 +13,9 @@ import {
   IconTrash,
   IconUsers,
 } from '@tabler/icons-react';
-import { Button, DropdownMenu, TabButton, useConfirm, useToast } from 'erxes-ui';
+import { Button, DropdownMenu, TabButton, useConfirm, useToast, IconTip } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { messageOf } from '@erxes/core-contract/client';
 import { ViewDialog } from './ViewControls';
 import { viewHref } from './viewLinks';

@@ -1,8 +1,8 @@
 import type { ElementType, ReactNode } from 'react';
-import { cn } from 'erxes-ui';
+import { cn } from '../../lib/utils';
 
-/** Separates contact fields, tags, and linked records with plain headings. */
-export const ContactDetailSection = ({
+/** Separates a record's fields, tags and linked records with plain headings. */
+export const PanelSection = ({
   title,
   icon: Icon,
   children,

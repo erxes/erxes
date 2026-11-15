@@ -8,12 +8,6 @@ export interface IRecordSidePanelTab {
   content: ReactNode;
 }
 
-export type PanelExpansionContextValue = {
-  expanded: boolean;
-  // Missing when the panel cannot expand: its header draws no expand button.
-  toggle?: () => void;
-} | null;
-
 export type RecordSidePanelResizeHandleProps = {
   width: number;
   maxWidth: number;
@@ -36,6 +30,8 @@ export type RecordSidePanelRootProps = {
 
 export type RecordSidePanelHeaderProps = {
   className?: string;
+  /** `page`: the header of a record's own page, on the page's background. */
+  variant?: 'panel' | 'page';
   // Shown when the panel came here from another record.
   onBack?: () => void;
   avatar?: ReactNode;

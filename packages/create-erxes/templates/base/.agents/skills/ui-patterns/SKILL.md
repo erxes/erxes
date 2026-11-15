@@ -23,8 +23,10 @@ a comment.
 
 ## List
 
-- Under the header, one bar: the filter (below), the record count, and any
-  view toggle at its right end. Nothing else sits above the table.
+- Under the header, one bar: erxes-ui's `ViewBar` (`allLabel="All items"`) with
+  the list's `ListFilter` inside it, as `ui/src/modules/items/ItemsPage.tsx` has it. The
+  bar shows the filter's chips, the record count and the filter button. Nothing
+  else sits above the table.
 - The table is erxes-ui's `RecordTable` with `RecordTableColumnDef` columns:
   the name column sticky and opening the record, a `more` column with the row
   menu, members as `MemberInline`, dates and amounts through `useFormat()`.
@@ -32,36 +34,72 @@ a comment.
 - Lists load by cursor (`useInfiniteQuery` and the table's load-more), and
   show `Empty` with what the list is for and the add button when there is
   nothing yet; a filtered empty list says nothing matches.
-- A board (kanban) is another view of the same list: same header, same filter
-  bar, a toggle at the bar's right end.
+- A board (kanban) is another view of the same list: same header, same bar.
+  erxes-ui's `DisplayMenu list="<plugin>-<things>"` inside the `ListFilter`
+  switches table and board, and erxes-ui's `useListDisplay`, given the same list, reads the
+  choice, remembered in the browser.
 - Records that move through stages (tasks by status) can also show as erxes-ui's
   `RecordList`: rows grouped under sticky headers that fold away, with a
   checkbox each and its `RecordList.useSelection` hook for the bulk command bar.
-  It is another view, beside the table and the board.
+  Give `DisplayMenu` and `useListDisplay` the same `displays`, such as
+  `['list', 'board', 'table']`; the first shows until the member picks another.
 
 ## Filter
 
-`ui/src/modules/items/ItemsFilter.tsx` is the pattern; copy it.
+erxes-ui's `ListFilter` is core's own filter bar; `ui/src/modules/items/ItemsPage.tsx`
+gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
 
-- One erxes-ui `Filter` per list. The filter button opens a menu: search
-  first, then every field the list can be narrowed by, each with its icon.
-- An applied filter is a chip in the bar: field name, value (click reopens
-  that field's menu), ✕ to clear.
-- Every filter lives in the address through nuqs (search is `searchValue`), so
-  links, reloads and back keep it. No `useState` or `useSearchParams` for
-  filters.
-- Never: a search box, toggle buttons ("Mine", "Archived"), status tabs or a
-  row of pickers above the table. Each of those is a field in the menu.
+- Give it every field the list can be narrowed by: `{ path: 'subject.<column>',
+  label, type, options?, icon? }`, type `text`, `number`, `date`, `boolean`,
+  `select` (with `options`) or `member`. The menu (`F`) offers search, each
+  field and the advanced filter; each condition is a chip.
+- The conditions (core's `ConditionGroup`, rules on those paths; a `member`
+  rule's `me` is the member asking) and the search live in the address.
+  `useListFilterParams()` gives them to the list's query as `filter` (JSON) and
+  `search`; the API parses `filter` with `ConditionGroup` from
+  `@erxes/core-contract` and refuses a path it has no column for.
+- Never: a search box, toggle buttons ("Mine", "Archived"), status tabs, a
+  ToggleGroup for table and board, or a row of pickers above the table. Each of
+  those is a field in the menu or the Display menu.
+- Saved views (the tabs core's contacts lists have) are core's lists only;
+  a plugin list shows the one "All …" tab.
+
+## Records in core's side panel
+
+- The plugin's records open in core's own side panel, exactly as a customer
+  does. Core draws the panel (header, Back, expand, close, tabs, resizing,
+  drafts, the address `?panel=/detail/<type>/<id>`); the plugin fills slots.
+  Register each type in `CONFIG.recordTypes` (`ui/src/config.tsx`):
+  `contentType: '<plugin>:<thing>'`, `title`, `icon`, `detailPath(id)`, and the
+  slots `Title` (the header's title), `Actions` (its menu), `Detail` (the
+  Detail tab), `tabs` (more tabs, after Detail or after Activity) and `New`
+  (the draft). `contacts`, given an id, gives the record's customers and companies as
+  query options, so other plugins' relation tabs show on it; `activity` names
+  a manifest `timelines` type for core's Activity tab.
+- Each slot gets `contentType` and `contentId` and reads the record itself; the
+  slots share one query (`ui/src/modules/items/ItemPanel.tsx`). The Detail
+  tab is `PanelSection`s of `PanelField` rows. Never an erxes-ui `Sheet`, a
+  header or tabs of the plugin's own, or a `?item=` param.
+- Open a record with `useOpenRecord().open({ contentType, contentId })` and a
+  draft with `openNew(contentType, defaults)`. `detailPath(id)` is a route of
+  the plugin's that renders `<RecordPage contentType contentId />`
+  (`ui/src/__Pascal__.tsx`): the expanded record.
+- A plugin whose records belong to customers or companies lists them on other
+  records with `CONFIG.relationTabs`: `{ name, title, icon, hosts?, component }`.
+  The component gets the host record and its `customerIds` and `companyIds`;
+  a record clicked there opens with `useOpenRecord().open` on top in the same
+  panel, and Back returns. It shows on core's customers and companies and on
+  plugin records that give `contacts`, never on the plugin's own records
+  unless `hosts` names them.
 
 ## Forms
 
-- A new record, and any form of a few fields, opens in the side panel: an
-  erxes-ui `Sheet` (`ui/src/modules/items/ItemSheet.tsx`), one row per field with its
-  icon and label in the left column (`grid-cols-field`) and the control on the
-  right, then Cancel and Save at the bottom. Nothing saves until Save; a
-  field's error shows under that field.
-- The panel's state is in the address (`?item=new`, `?item=<id>`), so it
-  survives a reload and can be linked.
+- A new record, and any form of a few fields, is the type's `New` in core's
+  side panel, under core's "New item" header: `PanelFormLayout` with one
+  `PanelFormRow` per field (icon and label left, control right), then Cancel
+  and Save at the bottom. Nothing saves until Save; a field's error shows
+  under that field. Call `onCreated(id)` after Save, and the record takes the
+  draft's place.
 - A form gets its own page only when it has several sections or a live
   preview (a product editor, a page builder). That page keeps the same
   header and breadcrumb, puts sections in one column of the same rows, and
@@ -71,14 +109,15 @@ a comment.
 
 ## Record detail
 
-- Clicking a row opens the record in the side panel, at the same `?item=<id>`.
-  Its title is the record's name; the panel shows its fields as the same rows
-  (icon and label left, value right), grouped under small section headings.
-- Values edit in place where core's do: erxes-ui's `RecordTableInlineCell`
-  (click, Enter saves, Escape cancels) or `SelectMember.InlineCell`. Related
-  lists (lines, activity, history) go below the fields or in the panel's tabs.
-- A record big enough to need a page opens at `/<plugin>/<things>/:id` with
-  the breadcrumb ending in its name and the same rows and sections.
+- Clicking a row's name opens the record in core's side panel. Its title is
+  the record's name; the panel shows its fields as the same rows (icon and
+  label left, value right), grouped under `PanelSection` headings.
+- Values edit in place where core's do: `PanelField` with erxes-ui's
+  `RecordTableInlineCell` (click, Enter saves, Escape cancels) or
+  `SelectMember.InlineCell`. Related lists (lines, activity, history) go below
+  the fields or in the panel's tabs.
+- The expand button opens the record's own page, `detailPath(id)`: the same
+  panel at full size, Detail beside the other tabs.
 
 ## Related records
 
@@ -86,12 +125,10 @@ a comment.
   always erxes-ui's `ContactLink`, given `contacts={contactQueries}` from
   `@erxes/core-contract/client`: its name, and a click opens it in core's side
   panel beside the page. Never its id, a name copied into the plugin's table,
-  or a link to a URL. erxes-ui's `useOpenRecord` hook opens one from your own
-  control.
-- A plugin whose records belong to customers or companies adds a section to
-  their panel: `recordSections` in `CONFIG` (`contentType: 'core:customer'`, a
-  title, an icon, a component given `contentId`) listing that contact's
-  records, as old erxes's sidebar did.
+  or a link to a URL. `useOpenRecord()` opens one from your own control.
+- A plugin's records of a customer or company are a relation tab on its panel
+  (`relationTabs`, above). `recordSections` still draws a section in the
+  customer's Detail tab, for a summary that belongs beside its fields.
 
 ## Look
 
@@ -106,6 +143,7 @@ a comment.
 
 Open the page beside core's contacts list in the browser (the `verify` skill
 starts both). Header, filter bar, table, side panel and empty state should
-read as the same product. Check: a filter survives reload; a form in the
-panel survives reload; no dialog holds a form; no control sits above the
-table besides the filter bar.
+read as the same product. Check: a filter survives reload; a record open in
+the panel survives reload and expands to its page; a new record's draft saves
+into the record; no dialog holds a form; no control sits above the table
+besides the bar.
