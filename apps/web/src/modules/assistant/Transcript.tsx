@@ -121,10 +121,11 @@ export const WorkingRow = ({ label, avatar = false }: { label: string; avatar?: 
   </p>
 );
 
-const useFollowBottom = () => {
+const useFollowBottom = (asked: string | undefined) => {
   const scroller = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLOListElement>(null);
   const pinned = useRef(true);
+  const top = useRef(0);
 
   useEffect(() => {
     const element = scroller.current;
@@ -137,14 +138,28 @@ const useFollowBottom = () => {
     });
 
     follow.observe(content);
+    follow.observe(element);
 
     return () => follow.disconnect();
   }, []);
 
+  useEffect(() => {
+    const element = scroller.current;
+
+    if (!element || !asked) return;
+
+    pinned.current = true;
+    element.scrollTop = element.scrollHeight;
+  }, [asked]);
+
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
+    const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 48;
 
-    pinned.current = element.scrollHeight - element.scrollTop - element.clientHeight < 48;
+    if (atBottom) pinned.current = true;
+    else if (element.scrollTop < top.current) pinned.current = false;
+
+    top.current = element.scrollTop;
   };
 
   return { scroller, list, onScroll };
@@ -159,9 +174,9 @@ export const Transcript = ({
   actions: TranscriptActions;
   footer?: React.ReactNode;
 }) => {
-  const { scroller, list, onScroll } = useFollowBottom();
   const lastAssistant = messages.findLastIndex((message) => message.role === 'assistant');
   const lastUser = messages.findLastIndex((message) => message.role === 'user');
+  const { scroller, list, onScroll } = useFollowBottom(messages[lastUser]?.id);
 
   return (
     <div ref={scroller} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
