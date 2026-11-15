@@ -2,7 +2,7 @@ import { isDefinedError } from '@orpc/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Label, Sheet, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { orpc } from '../orpc.ts';
+import { orpc } from '~/orpc.ts';
 import { type Item, useOpenItem } from './useItems.ts';
 
 const textOf = (value: FormDataEntryValue | null) => (typeof value === 'string' ? value : '');

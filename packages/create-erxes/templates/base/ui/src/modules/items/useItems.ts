@@ -9,7 +9,7 @@ import type { Client } from '@__id__/api';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { orpc } from '../orpc.ts';
+import { orpc } from '~/orpc.ts';
 
 type Outputs = InferClientOutputs<Client>['items'];
 
