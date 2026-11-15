@@ -18,7 +18,7 @@ import {
   IconWeight,
 } from '@tabler/icons-react';
 import { Button, cn, NumberField, Select, TextField } from 'erxes-ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PANEL_TEXT_FIELD_CLASS_NAME,
@@ -60,8 +60,6 @@ export type TProductPanelFieldsProps = {
   draft?: boolean;
   // What Create found wrong, by field.
   errors?: Partial<Record<string, string>>;
-  // Shown but not edited: the description is drawn without an editor.
-  readOnly?: boolean;
 };
 
 /**
@@ -91,6 +89,16 @@ export const ProductPanelFields = ({
   const isUnique = product.type === 'unique' || !!uniqueDraft;
   const duration = uniqueDraft?.duration ?? product.duration;
   const durationType = uniqueDraft?.durationType ?? product.durationType;
+  // The type a save in flight sets: a newer choice is compared with it, not
+  // with the product as it was before that save.
+  const savingType = useRef<string | null>(null);
+
+  const saveType = (patch: TProductPatch & { type: string }) => {
+    savingType.current = patch.type;
+    return save(patch).finally(() => {
+      if (savingType.current === patch.type) savingType.current = null;
+    });
+  };
 
   const changeType = (type: string) => {
     // A draft is checked as a whole on Create.
@@ -99,11 +107,12 @@ export const ProductPanelFields = ({
       return;
     }
     if (type === 'unique' && (!product.duration || !product.durationType)) {
-      setUniqueDraft({});
+      // A unique save in flight already has both.
+      if (savingType.current !== 'unique') setUniqueDraft({});
       return;
     }
     setUniqueDraft(null);
-    if (type !== product.type) void save({ type });
+    if (type !== (savingType.current ?? product.type)) void saveType({ type });
   };
 
   const changeDuration = (patch: TDurationPatch) => {
@@ -119,9 +128,12 @@ export const ProductPanelFields = ({
     };
     setUniqueDraft(next);
     if (next.duration && next.durationType) {
-      void save({ type: 'unique', ...next }).then(
-        (saved) => saved && setUniqueDraft(null),
-      );
+      void saveType({ type: 'unique', ...next }).then((saved) => {
+        // A choice made while it saved stays staged.
+        if (saved) {
+          setUniqueDraft((current) => (current === next ? null : current));
+        }
+      });
     }
   };
 

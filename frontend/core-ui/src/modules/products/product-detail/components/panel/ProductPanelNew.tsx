@@ -2,6 +2,7 @@ import { IconBarcode, IconForms, IconId, IconPhoto } from '@tabler/icons-react';
 import { Button, ScrollArea, Spinner, toast } from 'erxes-ui';
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -33,6 +34,7 @@ import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord'
 import { ProductPanelDetail } from './ProductPanelDetail';
 import { ProductPanelInventory } from './ProductPanelInventory';
 import { ProductPanelMedia } from './ProductPanelMedia';
+import { PanelReadOnlyTab } from './PanelReadOnlyTab';
 
 type TProductDraft = ProductDetail & { _id: string };
 
@@ -236,25 +238,34 @@ export const ProductPanelNew = ({
   };
 
   const props = { product: draft, save, draft: true, errors };
+  // Once Create has read the draft, later changes would not be sent: the
+  // tabs are held until it finishes. While it settles they are still read.
+  const sending = loading || linking;
+  const held = (content: ReactNode) => (
+    <PanelReadOnlyTab reason={null} disabled={sending}>
+      {content}
+    </PanelReadOnlyTab>
+  );
 
   const tabs: IRecordSidePanelTab[] = [
     {
       value: 'detail',
       label: detailT('details', 'Details'),
       icon: IconId,
-      content: <ProductPanelDetail {...props} />,
+      // The description editor ignores the `fieldset`, so it is told.
+      content: held(<ProductPanelDetail {...props} readOnly={sending} />),
     },
     {
       value: 'media',
       label: detailT('media', 'Media'),
       icon: IconPhoto,
-      content: <ProductPanelMedia {...props} />,
+      content: held(<ProductPanelMedia {...props} />),
     },
     {
       value: 'inventory',
       label: detailT('barcodes'),
       icon: IconBarcode,
-      content: <ProductPanelInventory {...props} />,
+      content: held(<ProductPanelInventory {...props} />),
     },
     // Only when products have properties to fill in.
     ...(fieldGroups.length > 0
@@ -263,7 +274,7 @@ export const ProductPanelNew = ({
             value: 'properties',
             label: detailT('properties', 'Properties'),
             icon: IconForms,
-            content: (
+            content: held(
               <ScrollArea
                 className="flex-1 min-h-0"
                 viewportClassName="[&>div]:block!"
@@ -279,7 +290,7 @@ export const ProductPanelNew = ({
                     />
                   </DraftPropertiesContext.Provider>
                 </div>
-              </ScrollArea>
+              </ScrollArea>,
             ),
           },
         ]

@@ -44,10 +44,59 @@ const DraftDescriptionField = ({
 
 // The Detail tab: the fields, then the description. On the product's page
 // the fields stand alone, as the description has its own tab there.
-export const ProductPanelDetail = (props: TProductPanelFieldsProps) => {
-  const { product, save, draft, readOnly } = props;
+export const ProductPanelDetail = ({
+  readOnly = false,
+  ...props
+}: TProductPanelFieldsProps & {
+  // Shown but not edited: the description is drawn without an editor (a
+  // draft's, while Create sends it, is held read-only).
+  readOnly?: boolean;
+}) => {
+  const { product, save, draft } = props;
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const expanded = usePanelExpanded();
+
+  const renderDescription = () => {
+    if (draft) {
+      return (
+        <>
+          <DraftDescriptionField
+            label={t('description')}
+            value={product.description || ''}
+            scope="side-panel-product-new.description"
+            readonly={readOnly}
+            onChange={(description) => save({ description })}
+          />
+          <DataExtensionCreateFields
+            recordType={PRODUCT_CONTENT_TYPE}
+            layout="stack"
+          />
+        </>
+      );
+    }
+    if (expanded) return null;
+    if (readOnly) {
+      return (
+        <DraftDescriptionField
+          key={product._id}
+          label={t('description')}
+          value={product.description || ''}
+          scope={`side-panel-product.${product._id}.description`}
+          readonly
+          onChange={() => undefined}
+        />
+      );
+    }
+    return (
+      <PanelDescriptionField
+        key={product._id}
+        label={t('description')}
+        value={product.description || ''}
+        scope={`side-panel-product.${product._id}.description`}
+        onSave={(description) => save({ description })}
+      />
+    );
+  };
 
   // Radix sizes its content as a table, which lets wide values push past the
   // panel; a block lets each value shrink and truncate instead.
@@ -55,40 +104,7 @@ export const ProductPanelDetail = (props: TProductPanelFieldsProps) => {
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="flex flex-col gap-5 p-3">
         <ProductPanelFields {...props} />
-        {draft ? (
-          <>
-            <DraftDescriptionField
-              label={t('description')}
-              value={product.description || ''}
-              scope="side-panel-product-new.description"
-              onChange={(description) => save({ description })}
-            />
-            <DataExtensionCreateFields
-              recordType={PRODUCT_CONTENT_TYPE}
-              layout="stack"
-            />
-          </>
-        ) : (
-          !expanded &&
-          (readOnly ? (
-            <DraftDescriptionField
-              key={product._id}
-              label={t('description')}
-              value={product.description || ''}
-              scope={`side-panel-product.${product._id}.description`}
-              readonly
-              onChange={() => undefined}
-            />
-          ) : (
-            <PanelDescriptionField
-              key={product._id}
-              label={t('description')}
-              value={product.description || ''}
-              scope={`side-panel-product.${product._id}.description`}
-              onSave={(description) => save({ description })}
-            />
-          ))
-        )}
+        {renderDescription()}
       </div>
     </ScrollArea>
   );
