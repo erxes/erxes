@@ -7,37 +7,47 @@ import { RecordTableInlineCell } from '../record-table/components/RecordTableCel
 import { PanelLabel } from './PanelLabel';
 
 /**
- * One field of a new record's form, laid out like `PanelField`.
- * Its label, then the input, with the field's error under it.
+ * One field of a form in the side panel, laid out like `PanelField`.
+ * Icon and label, then the control, with its error, or else its hint, under it. A long label wraps to two lines (the
+ * full text on hover) instead of being cut. `htmlFor` names the control by its id, so a click
+ * on the label focuses it and a switch toggles.
  */
 export const PanelFormRow = ({
   label,
   icon: Icon = IconForms,
   required,
   error,
+  hint,
+  htmlFor,
   children,
 }: {
   label: React.ReactNode;
   icon?: Icon;
   required?: boolean;
   error?: string;
+  /** What the field takes or does, under the control while it has no error. */
+  hint?: React.ReactNode;
+  /** The control's id. */
+  htmlFor?: string;
   children: React.ReactNode;
 }) => {
   const labelId = useId();
+  const LabelTag = htmlFor ? 'label' : 'span';
 
   return (
-    <div className="grid grid-cols-field items-center gap-x-2 gap-y-0.5 min-h-7">
-      <span
+    <div className="grid grid-cols-field items-start gap-x-2 gap-y-0.5">
+      <LabelTag
         id={labelId}
-        className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
+        htmlFor={htmlFor}
+        className="flex min-h-7 min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
       >
         <Icon className="size-3.5 shrink-0" aria-hidden="true" />
         <PanelLabel tooltip={label}>
           {label}
           {required && <span className="text-destructive"> *</span>}
         </PanelLabel>
-      </span>
-      <div className="group/panel-value relative min-w-0 text-xs [&_button:not([role=switch])]:text-xs [&_input:placeholder-shown]:pl-7">
+      </LabelTag>
+      <div className="group/panel-value relative flex min-h-7 min-w-0 flex-col justify-center text-xs [&_button:not([role=switch])]:text-xs [&_input:placeholder-shown]:pl-7">
         <Icon
           className="pointer-events-none absolute left-2 top-1/2 z-1 hidden size-3.5 -translate-y-1/2 text-muted-foreground group-has-[input:placeholder-shown]/panel-value:block"
           aria-hidden="true"
@@ -47,7 +57,13 @@ export const PanelFormRow = ({
           {children}
         </RecordTableInlineCell.LabelledBy>
       </div>
-      {error && <span className="col-start-2 text-xs text-destructive">{error}</span>}
+      {error ? (
+        <span role="alert" className="col-start-2 text-xs text-destructive">
+          {error}
+        </span>
+      ) : (
+        hint && <span className="col-start-2 text-xs text-muted-foreground">{hint}</span>
+      )}
     </div>
   );
 };

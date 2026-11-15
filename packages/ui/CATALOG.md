@@ -62,7 +62,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelField label icon placeholder htmlFor cell>` A side panel row: icon and label, then the value as a table cell.
 - `<PanelFieldTrigger>` A table cell trigger with the side panel's rounded hover.
 - `<PanelFormLayout onCancel saving saveLabel>` A new record's form in the side panel: its rows, then Cancel and Save.
-- `<PanelFormRow label icon required error>` One field of a new record's form, laid out like `PanelField`.
+- `<PanelFormRow label icon required error hint>` One field of a form in the side panel, laid out like `PanelField`.
 - `<PanelLabel tooltip>` A side panel label cut at two lines, with the full text on hover.
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
 - `<RecordOpenerProvider open openNew>` The host app's way to open records, which `useOpenRecord` calls.

@@ -113,6 +113,9 @@ gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
   and Save at the bottom. Nothing saves until Save; a field's error shows
   under that field. Call `onCreated(id)` after Save, and the record takes the
   draft's place.
+- `PanelFormRow` takes `htmlFor` (the control's id, so the label focuses it
+  and toggles a switch) and `hint` (a line under the control). Long labels wrap
+  to two lines; never draw a row of your own with `grid-cols-field`.
 - A form gets its own page only when it has several sections or a live
   preview (a product editor, a page builder). That page is laid out like a
   settings page (below), not with the side panel's rows: cards with a title
