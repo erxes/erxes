@@ -17,7 +17,7 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   no org filter; only an insert sets `orgId`, from `context.member`.
 - Call core (`core.forOrg(orgId)...`) outside `context.tx`; a failed core call
   must not roll back the plugin's own change.
-- What happens to a record is an event: publish it with `core_publish_event()`
+- What happens to a record is an event: publish it with core's core_publish_event SQL function
   in `context.tx`, so it commits with the change, with a `summary`,
   a flat payload, `entityType` (a type in the manifest's `timelines`) and
   `entityId`. It appears on the record's Activity tab, and on the customer's or

@@ -79,7 +79,7 @@ gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
 - Every record type has an Activity tab, as customers do: declare the type in
   the manifest's `timelines`, set `activity`, and publish what happens to the
   record (created, changed fields, moved, assigned) as events with
-  `core_publish_event()` in the change's transaction: a `summary`, a flat
+  core's core_publish_event SQL function in the change's transaction: a `summary`, a flat
   payload, `entityType` (that `timelines` type) and `entityId` (the record's
   id). Core puts each on the record's Activity tab, styled by the manifest's
   `activityTypes`; `activities.create` is only for entries that are not
