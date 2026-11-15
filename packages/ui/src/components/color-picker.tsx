@@ -119,6 +119,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
           >
             <input
               type="color"
+              aria-label="Custom color"
               value={value || '#000000'}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               onChange={(e) => onValueChange?.(e.target.value)}
