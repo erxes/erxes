@@ -76,6 +76,18 @@ a comment.
 - A record big enough to need a page opens at `/<plugin>/<things>/:id` with
   the breadcrumb ending in its name and the same rows and sections.
 
+## Related records
+
+- A customer or company on a record (a deal's customer, an order's buyer) is
+  always erxes-ui's `ContactLink`, given `contacts={contactQueries}` from
+  `@erxes/core-contract/client`: its name, and a click opens it in core's side
+  panel beside the page. Never its id, a name copied into the plugin's table,
+  or a link to a URL. `useOpenRecord()` opens one from your own control.
+- A plugin whose records belong to customers or companies adds a section to
+  their panel: `recordSections` in `CONFIG` (`contentType: 'core:customer'`, a
+  title, an icon, a component given `contentId`) listing that contact's
+  records, as old erxes's sidebar did.
+
 ## Look
 
 - erxes-ui components and tokens only: no raw colours, inline styles or

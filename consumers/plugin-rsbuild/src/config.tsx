@@ -1,6 +1,13 @@
 import { Organization as OrganizationSchema, type PluginManifest } from '@erxes/core-contract';
 import type { CoreClient } from '@erxes/plugin-sdk';
-import { Button, pluginJson, type IUIConfig } from 'erxes-ui';
+import { contactQueries } from '@erxes/core-contract/client';
+import {
+  Button,
+  ContactLink,
+  pluginJson,
+  type IUIConfig,
+  type TRecordSectionProps,
+} from 'erxes-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
 // Types from all three packages, the root export and a `./*` subpath of erxes-ui.
@@ -30,9 +37,24 @@ const Main = () => (
   </Button>
 );
 
+// A section on core's customer panel, linking back to the customer.
+const CustomerSection = ({ contentType, contentId }: TRecordSectionProps) => (
+  <ContactLink contentType={contentType} contentId={contentId} contacts={contactQueries} />
+);
+
+const SectionIcon = ({ className }: { className?: string }) => <svg className={className} />;
+
 export const CONFIG: IUIConfig = {
   name: 'consumer',
   path: 'consumer',
+  recordSections: [
+    {
+      contentType: 'core:customer',
+      title: 'Consumer',
+      icon: SectionIcon,
+      component: CustomerSection,
+    },
+  ],
 };
 
 export default Main;
