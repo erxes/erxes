@@ -46,7 +46,7 @@ const RolesView = ({
         ))}
       </ul>
       <ScrollArea className="flex-1">
-        <div className="max-w-3xl p-6">
+        <div className="mx-auto max-w-3xl p-6">
           {role && (
             <RoleEditor
               key={role.key}
