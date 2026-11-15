@@ -36,7 +36,7 @@ a comment.
   bar, a toggle at the bar's right end.
 - Records that move through stages (tasks by status) can also show as erxes-ui's
   `RecordList`: rows grouped under sticky headers that fold away, with a
-  checkbox each and `RecordList.useSelection()` for the bulk command bar.
+  checkbox each and its `RecordList.useSelection` hook for the bulk command bar.
   It is another view, beside the table and the board.
 
 ## Filter
@@ -86,7 +86,8 @@ a comment.
   always erxes-ui's `ContactLink`, given `contacts={contactQueries}` from
   `@erxes/core-contract/client`: its name, and a click opens it in core's side
   panel beside the page. Never its id, a name copied into the plugin's table,
-  or a link to a URL. `useOpenRecord()` opens one from your own control.
+  or a link to a URL. erxes-ui's `useOpenRecord` hook opens one from your own
+  control.
 - A plugin whose records belong to customers or companies adds a section to
   their panel: `recordSections` in `CONFIG` (`contentType: 'core:customer'`, a
   title, an icon, a component given `contentId`) listing that contact's
