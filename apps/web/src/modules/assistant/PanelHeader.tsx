@@ -1,6 +1,6 @@
 import { IconHistory, IconPin, IconPlus, IconX } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
 import type { AssistantTab } from './assistantState';
@@ -23,9 +23,15 @@ const Tab = ({
   const { t } = useTranslation('assistant');
   const thread = useThread(tab.threadId).data;
   const title = thread?.title ?? t('new-chat', 'New chat');
+  const button = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (selected) button.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [selected]);
 
   return (
     <button
+      ref={button}
       type="button"
       role="tab"
       id={`assistant-tab-${tab.key}`}
@@ -40,7 +46,7 @@ const Tab = ({
         onClose();
       }}
       className={cn(
-        'group flex h-8 max-w-44 min-w-0 shrink-0 items-center gap-1 rounded-md pr-1 pl-2.5 text-sm outline-none focus-visible:shadow-focus',
+        'group flex h-8 max-w-44 min-w-24 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
         selected ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/60',
       )}
     >
@@ -50,8 +56,10 @@ const Tab = ({
         aria-hidden
         title={t('close-tab', 'Close tab (the conversation stays in history)')}
         className={cn(
-          'inline-flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100 hover:bg-background hover:text-foreground',
-          selected && 'opacity-100',
+          '-mr-1.5 size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-background hover:text-foreground',
+          selected
+            ? 'inline-flex'
+            : 'hidden group-hover:inline-flex group-focus-visible:inline-flex',
         )}
         onClick={(event) => {
           event.stopPropagation();
