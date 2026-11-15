@@ -1,6 +1,6 @@
 import { IconLayoutGrid } from '@tabler/icons-react';
 import { Button, Empty, Spinner } from 'erxes-ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   type IRecordViewProps,
@@ -43,10 +43,17 @@ const SimilarityPanelNew = ({
   );
   const { add, loading } = useAddSimilarity();
   const [tab, setTab] = useState('detail');
+  const creating = useRef(false);
 
   const create = async (doc: IBulkSaveInput) => {
-    const created = await add(doc);
-    if (created?._id) showCreated(created._id);
+    if (creating.current) return;
+    creating.current = true;
+    try {
+      const created = await add(doc);
+      if (created?._id) showCreated(created._id);
+    } finally {
+      creating.current = false;
+    }
   };
 
   return (

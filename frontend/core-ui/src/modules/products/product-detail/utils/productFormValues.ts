@@ -1,4 +1,4 @@
-import { toProductAttachmentList } from 'ui-modules/modules/products/components/ProductImageUploads';
+import type { ProductFileItem } from 'ui-modules/modules/products/hooks/useProductFiles';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { ProductDetail } from '@/products/product-detail/types/detailTypes';
 
@@ -8,6 +8,29 @@ type TAttachmentInput = {
   type?: string;
   size?: number;
   duration?: number;
+};
+
+// Keeps both saved files (`url`) and files picked in a draft (`fileId`
+// before `linkFiles` gives them a public URL).
+export const toProductFileList = (value: unknown): ProductFileItem[] => {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const { fileId, url, name, type, size } = item as Record<string, unknown>;
+    const cleanUrl = typeof url === 'string' ? url : '';
+    const cleanFileId =
+      typeof fileId === 'string' && fileId ? fileId : undefined;
+    if (!cleanUrl && !cleanFileId) return [];
+    return [
+      {
+        ...(cleanFileId && { fileId: cleanFileId }),
+        url: cleanUrl,
+        name: typeof name === 'string' && name ? name : cleanUrl,
+        type: typeof type === 'string' ? type : '',
+        size: typeof size === 'number' ? size : 0,
+      },
+    ];
+  });
 };
 
 const normalizeBarcodes = (barcodes: ProductDetail['barcodes']): string[] => {
@@ -75,7 +98,7 @@ export const getProductFormDefaultValues = (
     attachment: toSingleAttachment(productDetail.attachment),
     attachmentMore: toAttachmentMore(productDetail.attachmentMore),
     videos: toAttachmentMore(productDetail.videos),
-    files: toProductAttachmentList(productDetail.files),
+    files: toProductFileList(productDetail.files),
     customFieldsData:
       productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',

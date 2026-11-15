@@ -45,7 +45,11 @@ export const VariantFieldAddButton = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export const VariantFieldPicker = () => {
+export const VariantFieldPicker = ({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { properties, fieldIds, handleToggleFieldValue, handleRemoveField } =
     useVariantFields();
@@ -89,9 +93,13 @@ export const VariantFieldPicker = () => {
                   <Badge
                     key={option.value}
                     variant={isOn ? 'default' : 'secondary'}
-                    className="cursor-pointer"
+                    className={
+                      disabled
+                        ? 'pointer-events-none opacity-60'
+                        : 'cursor-pointer'
+                    }
                     onClick={() =>
-                      handleToggleFieldValue(fieldId, option.value)
+                      !disabled && handleToggleFieldValue(fieldId, option.value)
                     }
                   >
                     {option.label}
@@ -106,6 +114,7 @@ export const VariantFieldPicker = () => {
                     variant="ghost"
                     size="icon"
                     className="size-7 shrink-0"
+                    disabled={disabled}
                     onClick={() => handleRemoveField(fieldId)}
                   >
                     <IconX size={14} />
@@ -127,7 +136,13 @@ export const VariantFieldPicker = () => {
  * Picks a property to use as a variant axis, or creates one, in place of
  * the field list inside the panel; `onDone` goes back to the list.
  */
-export const VariantFieldAddView = ({ onDone }: { onDone: () => void }) => {
+export const VariantFieldAddView = ({
+  onDone,
+  disabled = false,
+}: {
+  onDone: () => void;
+  disabled?: boolean;
+}) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { t: navT } = useTranslation('common', { keyPrefix: 'navigation' });
   const { fieldIds, handleToggleFieldValue } = useVariantFields();
@@ -184,6 +199,7 @@ export const VariantFieldAddView = ({ onDone }: { onDone: () => void }) => {
   };
 
   const handlePick = (field: VariantField) => {
+    if (disabled) return;
     const first = field.options?.[0];
     if (first) pick(field._id, first.value);
   };

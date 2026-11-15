@@ -140,6 +140,8 @@ export const ProductDetailSimilarity = ({
     await edit(fullSimilarity._id, buildSavePayload(values));
   };
 
+  const locked = readOnly || saving;
+
   return (
     <Form {...form}>
       <div className="flex flex-col flex-1 overflow-hidden">
@@ -148,13 +150,16 @@ export const ProductDetailSimilarity = ({
             <InfoCard title={t('property-fields')}>
               <InfoCard.Content>
                 {addingField ? (
-                  <VariantFieldAddView onDone={() => setAddingField(false)} />
+                  <VariantFieldAddView
+                    disabled={locked}
+                    onDone={() => setAddingField(false)}
+                  />
                 ) : (
-                  <VariantFieldPicker />
+                  <VariantFieldPicker disabled={locked} />
                 )}
               </InfoCard.Content>
             </InfoCard>
-            {!addingField && !readOnly && (
+            {!addingField && !locked && (
               <div className="absolute top-0.5 right-3">
                 <VariantFieldAddButton onClick={() => setAddingField(true)} />
               </div>
@@ -165,7 +170,7 @@ export const ProductDetailSimilarity = ({
             <InfoCard.Content>
               <ProductsWithUnitPrice
                 fieldName={fieldName}
-                disabled={readOnly || saving}
+                disabled={locked}
               />
             </InfoCard.Content>
           </InfoCard>

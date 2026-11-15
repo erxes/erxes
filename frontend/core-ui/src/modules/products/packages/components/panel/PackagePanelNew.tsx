@@ -16,7 +16,10 @@ import { PACKAGE_FORM_SCHEMA } from '../../constants/packageSchema';
 import { TPackagePatch } from '../../hooks/usePackagePanelSave';
 import { useAddPackage } from '../../hooks/usePackageMutations';
 import { IPackage, IPackageProduct } from '../../types/Package';
-import { priceFromPercent } from '../../utils/packagePricing';
+import {
+  priceFromPercent,
+  withCoupledPricing,
+} from '../../utils/packagePricing';
 import { PackagePanelFields } from './PackagePanelFields';
 import { PackagePanelMedia } from './PackagePanelMedia';
 import { PackagePanelProducts } from './PackagePanelProducts';
@@ -47,10 +50,13 @@ export const PackagePanelNew = ({
   const [tab, setTab] = useState('detail');
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const latest = useRef(draft);
+  const totalRef = useRef<number | null>(total);
+  totalRef.current = total;
   // Set at once, unlike `loading`, so a second click cannot create twice.
   const creating = useRef(false);
 
-  const save = useCallback((patch: TPackagePatch) => {
+  const save = useCallback((rawPatch: TPackagePatch) => {
+    const patch = withCoupledPricing(rawPatch, totalRef.current);
     const next = { ...latest.current, ...patch };
     latest.current = next;
     setDraft(next);
@@ -67,8 +73,12 @@ export const PackagePanelNew = ({
     // No products are no total, not a total of 0.
     const value = Number.isFinite(next) && next !== 0 ? next : null;
     if (value === total) return;
+    totalRef.current = value;
     setTotal(value);
-    void save({ price: priceFromPercent(value, latest.current.percent) });
+    void save({
+      price: priceFromPercent(value, latest.current.percent),
+      percent: latest.current.percent,
+    });
   };
 
   const cancel = () => (canGoBack ? back() : close());

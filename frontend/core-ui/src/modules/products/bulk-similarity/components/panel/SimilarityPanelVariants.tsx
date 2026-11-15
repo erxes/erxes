@@ -14,7 +14,11 @@ import {
 
 // The Properties tab: the fields whose chosen values make the variants.
 // Adding a field is shown in the tab, in place of the list.
-export const SimilarityPanelProperties = () => {
+export const SimilarityPanelProperties = ({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const [adding, setAdding] = useState(false);
 
@@ -22,14 +26,17 @@ export const SimilarityPanelProperties = () => {
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <section className="flex min-w-0 flex-col gap-2 p-3">
         {adding ? (
-          <VariantFieldAddView onDone={() => setAdding(false)} />
+          <VariantFieldAddView
+            disabled={disabled}
+            onDone={() => setAdding(false)}
+          />
         ) : (
           <>
             <div className="flex h-7 items-center justify-between gap-2">
               <h3 className="text-xs font-medium">{t('property-fields')}</h3>
               <VariantFieldAddButton onClick={() => setAdding(true)} />
             </div>
-            <VariantFieldPicker />
+            <VariantFieldPicker disabled={disabled} />
           </>
         )}
       </section>

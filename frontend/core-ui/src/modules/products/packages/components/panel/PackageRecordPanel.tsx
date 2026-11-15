@@ -51,6 +51,34 @@ const SavedPackageProducts = ({
   return <PackagePanelProducts value={products} onChange={setProducts} />;
 };
 
+const PackageEmptyState = ({
+  error,
+  onRetry,
+}: {
+  error?: Error;
+  onRetry: () => void;
+}) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
+
+  return (
+    <Empty className="py-12">
+      <Empty.Header>
+        <Empty.Title>
+          {error
+            ? t('load-failed', 'Could not load the package')
+            : t('package-not-found')}
+        </Empty.Title>
+        {error && <Empty.Description>{error.message}</Empty.Description>}
+      </Empty.Header>
+      {error && (
+        <Empty.Content>
+          <Button onClick={onRetry}>{t('retry', 'Retry')}</Button>
+        </Empty.Content>
+      )}
+    </Empty>
+  );
+};
+
 /**
  * A package in the app's side panel
  * (`?panel=/detail/core:productPackage/<id>`): its fields, cover image and
@@ -74,7 +102,10 @@ export const PackageRecordPanel = ({
     error,
     refetch,
   } = usePackageDetail(isNew ? null : packageId);
-  const { save, saveProducts } = usePackagePanelSave(packageId);
+  const { save, saveProducts } = usePackagePanelSave(
+    packageId,
+    pkg?.totalPrice,
+  );
   const { tab: selectedTab, setTab, dismissPath, path } = useSidePanel();
   const expanded = usePanelExpanded();
 
@@ -93,9 +124,8 @@ export const PackageRecordPanel = ({
     );
   }
 
-  const title = expanded
-    ? pkg?.name || t('package-detail')
-    : t('package-detail');
+  const defaultTitle = t('package-detail');
+  const title = expanded && pkg?.name ? pkg.name : defaultTitle;
 
   const header = (
     <RecordSidePanel.Header
@@ -142,21 +172,7 @@ export const PackageRecordPanel = ({
     return (
       <>
         {header}
-        <Empty className="py-12">
-          <Empty.Header>
-            <Empty.Title>
-              {error
-                ? t('load-failed', 'Could not load the package')
-                : t('package-not-found')}
-            </Empty.Title>
-            {error && <Empty.Description>{error.message}</Empty.Description>}
-          </Empty.Header>
-          {error && (
-            <Empty.Content>
-              <Button onClick={() => refetch()}>{t('retry', 'Retry')}</Button>
-            </Empty.Content>
-          )}
-        </Empty>
+        <PackageEmptyState error={error} onRetry={() => refetch()} />
       </>
     );
   }

@@ -15,6 +15,7 @@ import {
 import { ProductFilesUpload } from 'ui-modules/modules/products/components/ProductFilesUpload';
 import { ContactDetailSection } from '@/side-panel/components/details/ContactDetailSection';
 import { useSavingValue } from '@/products/product-detail/hooks/useSavingValue';
+import { toProductFileList } from '@/products/product-detail/utils/productFormValues';
 import { TProductPanelFieldsProps } from './ProductPanelFields';
 
 // The Media tab: each upload or removal saves on its own.
@@ -42,7 +43,7 @@ export const ProductPanelMedia = ({
     (videos) => save({ videos }),
   );
   const [files, setFiles] = useSavingValue(
-    useMemo(() => toProductAttachmentList(product.files), [product.files]),
+    useMemo(() => toProductFileList(product.files), [product.files]),
     (files) => save({ files }),
   );
 

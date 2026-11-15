@@ -24,7 +24,6 @@ import {
 } from '@/products/product-detail/components/panel/ProductPanelCells';
 import { TPackagePatch } from '../../hooks/usePackagePanelSave';
 import { IPackage, PACKAGE_STATUS_OPTIONS } from '../../types/Package';
-import { percentFromPrice, priceFromPercent } from '../../utils/packagePricing';
 
 const SCOPE = 'side-panel-package';
 
@@ -107,17 +106,11 @@ export const PackagePanelFields = ({
   const changePercent = (value: number) => {
     // No discount is stored as none, not 0%.
     const percent = Number.isFinite(value) && value !== 0 ? value : null;
-    void save(
-      total
-        ? { percent, price: priceFromPercent(total, percent) }
-        : { percent },
-    );
+    void save({ percent });
   };
 
   const changePrice = (price: number) => {
-    void save(
-      total ? { price, percent: percentFromPrice(total, price) } : { price },
-    );
+    void save({ price });
   };
 
   return (

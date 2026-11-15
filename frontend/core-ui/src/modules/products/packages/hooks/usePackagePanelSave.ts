@@ -5,6 +5,7 @@ import { IPackage, IPackageProduct } from '../types/Package';
 import {
   priceFromPercent,
   toPackageProductsInput,
+  withCoupledPricing,
 } from '../utils/packagePricing';
 import { useEditPackage } from './usePackageMutations';
 
@@ -39,11 +40,16 @@ const followingPrice = (saved: IPackage): number | null => {
  * stepped up and down) reach the package in order. Resolves the saved
  * package, or `null`.
  */
-export const usePackagePanelSave = (packageId: string) => {
+export const usePackagePanelSave = (
+  packageId: string,
+  initialTotal?: number | null,
+) => {
   const { t } = useTranslation('product', { keyPrefix: 'package' });
   const { toast } = useToast();
   const { editPackage } = useEditPackage(packageId);
   const queue = useRef<Promise<IPackage | null>>(Promise.resolve(null));
+  const totalRef = useRef<number | null | undefined>(initialTotal);
+  totalRef.current = initialTotal;
 
   const saveNow = useCallback(
     async ({ products, ...patch }: TPackagePatch): Promise<IPackage | null> => {
@@ -55,7 +61,12 @@ export const usePackagePanelSave = (packageId: string) => {
             ...(products ? { products: toPackageProductsInput(products) } : {}),
           },
         });
-        return (data?.productPackagesEdit as IPackage | undefined) ?? null;
+        const saved =
+          (data?.productPackagesEdit as IPackage | undefined) ?? null;
+        if (saved?.totalPrice !== undefined) {
+          totalRef.current = saved.totalPrice;
+        }
+        return saved;
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -77,7 +88,8 @@ export const usePackagePanelSave = (packageId: string) => {
   }, []);
 
   const save = useCallback(
-    (patch: TPackagePatch) => enqueue(() => saveNow(patch)),
+    (patch: TPackagePatch) =>
+      enqueue(() => saveNow(withCoupledPricing(patch, totalRef.current))),
     [enqueue, saveNow],
   );
 

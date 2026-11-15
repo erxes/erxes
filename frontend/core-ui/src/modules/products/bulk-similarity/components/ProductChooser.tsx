@@ -9,7 +9,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useInView } from 'react-intersection-observer';
 import { useDebounce } from 'use-debounce';
@@ -92,10 +92,19 @@ const ProductChooserList = ({
   });
 
   const { list = [], totalCount = 0, pageInfo } = data?.productsMain || {};
+  const fetchingMore = useRef(false);
 
-  const handleFetchMore = () => {
-    if (!pageInfo || totalCount <= list.length) return;
-    fetchMore({
+  const handleFetchMore = useCallback(() => {
+    if (
+      fetchingMore.current ||
+      loading ||
+      !pageInfo?.endCursor ||
+      totalCount <= list.length
+    ) {
+      return;
+    }
+    fetchingMore.current = true;
+    void fetchMore({
       variables: {
         cursor: pageInfo.endCursor,
         direction: EnumCursorDirection.FORWARD,
@@ -112,12 +121,16 @@ const ProductChooserList = ({
           },
         };
       },
+    }).finally(() => {
+      fetchingMore.current = false;
     });
-  };
+  }, [fetchMore, list.length, loading, pageInfo?.endCursor, totalCount]);
 
-  const { ref: bottomRef } = useInView({
-    onChange: (inView) => inView && handleFetchMore(),
-  });
+  const { ref: bottomRef, inView } = useInView();
+
+  useEffect(() => {
+    if (inView) handleFetchMore();
+  }, [inView, handleFetchMore]);
 
   const visible = list.filter(
     (p) => !excludeIds.includes(p._id) && p._id !== value,

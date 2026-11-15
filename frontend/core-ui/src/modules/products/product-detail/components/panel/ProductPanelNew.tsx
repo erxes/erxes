@@ -141,6 +141,7 @@ export const ProductPanelNew = ({
   const [tab, setTab] = useState('detail');
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [settling, setSettling] = useState(false);
+  const [sendingDraft, setSendingDraft] = useState(false);
   const latest = useRef(draft);
   latest.current = draft;
   // Set at once, unlike `busy`, so a second click cannot create twice.
@@ -212,35 +213,40 @@ export const ProductPanelNew = ({
     }
 
     setErrors({});
-    // Files get their public links only now, so a cancelled draft leaves none.
-    const files = await linkFiles(parsed.data.files);
+    setSendingDraft(true);
+    try {
+      // Files get their public links only now, so a cancelled draft leaves none.
+      const files = await linkFiles(parsed.data.files);
 
-    if (!files || !mounted.current) return;
+      if (!files || !mounted.current) return;
 
-    await productsAdd({
-      variables: toProductAddVariables({ ...parsed.data, files }),
-      refetchQueries: [productsQueries.productsMain],
-      onError: (error) =>
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        }),
-      onCompleted: ({ productsAdd: created }) => {
-        toast({
-          title: t('success'),
-          description: t('product-created', 'Product created successfully'),
-          variant: 'success',
-        });
-        showCreated(created._id);
-      },
-    });
+      await productsAdd({
+        variables: toProductAddVariables({ ...parsed.data, files }),
+        refetchQueries: [productsQueries.productsMain],
+        onError: (error) =>
+          toast({
+            title: t('error'),
+            description: error.message,
+            variant: 'destructive',
+          }),
+        onCompleted: ({ productsAdd: created }) => {
+          toast({
+            title: t('success'),
+            description: t('product-created', 'Product created successfully'),
+            variant: 'success',
+          });
+          showCreated(created._id);
+        },
+      });
+    } finally {
+      if (mounted.current) setSendingDraft(false);
+    }
   };
 
   const props = { product: draft, save, draft: true, errors };
   // Once Create has read the draft, later changes would not be sent: the
   // tabs are held until it finishes. While it settles they are still read.
-  const sending = loading || linking;
+  const sending = sendingDraft || loading || linking;
   const held = (content: ReactNode) => (
     <PanelReadOnlyTab reason={null} disabled={sending}>
       {content}
@@ -279,7 +285,7 @@ export const ProductPanelNew = ({
                 className="flex-1 min-h-0"
                 viewportClassName="[&>div]:block!"
               >
-                <div className="p-3">
+                <div className="p-3" inert={sending || undefined}>
                   <DraftPropertiesContext.Provider value={setProperties}>
                     <FieldsInDetail
                       bare
@@ -297,7 +303,7 @@ export const ProductPanelNew = ({
       : []),
   ];
 
-  const busy = settling || loading || linking;
+  const busy = settling || sending;
 
   return (
     <>

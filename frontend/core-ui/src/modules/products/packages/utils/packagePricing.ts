@@ -22,6 +22,23 @@ export const percentFromPrice = (
     ? round((1 - price / total) * 100)
     : null;
 
+// Couples a discount or price change with the other off the latest total.
+export const withCoupledPricing = <
+  T extends { price?: number | null; percent?: number | null },
+>(
+  patch: T,
+  total: number | null | undefined,
+): T => {
+  if (!total) return patch;
+  if ('percent' in patch && !('price' in patch)) {
+    return { ...patch, price: priceFromPercent(total, patch.percent) };
+  }
+  if ('price' in patch && !('percent' in patch)) {
+    return { ...patch, percent: percentFromPrice(total, patch.price) };
+  }
+  return patch;
+};
+
 // Products as `ProductPackageInput`: the query's `__typename` is left out.
 export const toPackageProductsInput = (
   products?: IPackageProduct[] | null,

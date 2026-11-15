@@ -88,7 +88,7 @@ const SimilarityPanelTabs = ({
       value: 'properties',
       label: t('property-fields'),
       icon: IconForms,
-      content: editable(<SimilarityPanelProperties />),
+      content: editable(<SimilarityPanelProperties disabled={locked} />),
     },
     {
       value: 'products',

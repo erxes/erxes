@@ -154,6 +154,7 @@ const includedState = (
 const RowSwapCell = ({
   index,
   isExcluded,
+  disabled,
   productId,
   code,
   combination,
@@ -163,6 +164,7 @@ const RowSwapCell = ({
 }: {
   index: number;
   isExcluded: boolean;
+  disabled: boolean;
   productId?: string;
   code: string;
   combination: Record<string, string>;
@@ -204,7 +206,7 @@ const RowSwapCell = ({
           variant={productId ? 'secondary' : 'ghost'}
           size="icon"
           className="bg-transparent size-7"
-          disabled={isExcluded}
+          disabled={disabled || isExcluded}
         >
           <IconSwitchHorizontal size={14} />
         </Button>
@@ -380,6 +382,7 @@ export const GeneratedProductsTable = ({
                     <span className="inline-flex">
                       <Checkbox
                         checked={headerState}
+                        disabled={disabled}
                         onCheckedChange={(checked) =>
                           handleSetAllExcluded(!checked)
                         }
@@ -470,6 +473,7 @@ export const GeneratedProductsTable = ({
                     render={({ field }) => (
                       <Checkbox
                         checked={!field.value}
+                        disabled={disabled}
                         onCheckedChange={(checked) => field.onChange(!checked)}
                         aria-label={t('include-product', 'Include product')}
                       />
@@ -530,7 +534,7 @@ export const GeneratedProductsTable = ({
                         value={field.value}
                         fallback={unitPrice}
                         placeholder="0"
-                        disabled={isExcluded}
+                        disabled={disabled || isExcluded}
                         edited={
                           field.value != null && field.value !== unitPrice
                         }
@@ -563,6 +567,7 @@ export const GeneratedProductsTable = ({
                   <RowSwapCell
                     index={index}
                     isExcluded={isExcluded}
+                    disabled={disabled}
                     productId={row.productId}
                     code={code}
                     combination={combination}
@@ -584,7 +589,7 @@ export const GeneratedProductsTable = ({
                         size="icon"
                         className="size-7"
                         onClick={() => handleSetRowStar(row.key)}
-                        disabled={isExcluded}
+                        disabled={disabled || isExcluded}
                       >
                         {field.value ? (
                           <IconStarFilled size={14} className="text-warning" />
