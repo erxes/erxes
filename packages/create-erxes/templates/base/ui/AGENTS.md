@@ -6,6 +6,11 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
 - `rsbuild.config.ts` declares web's shared singletons with `import: false`,
   reading the list from `erxes-ui/federation`, so it follows the installed
   erxes-ui. A missing name bundles a second copy and breaks at runtime.
+- Folders follow core's web: each feature in `src/modules/<feature>/`, and parts
+  features share in a components or lib folder beside it. Import across folders with `@/`
+  (`src/modules/`) and `~/` (`src/`), as core does:
+  `import { ItemsPage } from '@/items/ItemsPage.tsx'`,
+  `import { orpc } from '~/orpc.ts'`. Within a folder, import with `./`.
 - Build pages from `erxes-ui` components and its root export. The host provides
   React, the router, the query client and erxes-ui, and web's stylesheet styles
   erxes-ui's components.
@@ -25,7 +30,7 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   procedure asks for (`team.view` for team members).
 - Members: `SelectMember.Field`, `SelectMember.InlineCell`, `MemberInline` and
   `useMembersById` from erxes-ui, given `members={memberQueries}` from
-  `@erxes/core-contract/client`. `src/items/ItemsPage.tsx` has a member filter
+  `@erxes/core-contract/client`. `src/modules/items/ItemsPage.tsx` has a member filter
   and a "Created by" column. erxes-ui's `EntityPicker` is the searchable list
   under them, for a picker of the plugin's own records.
 - Text uses `t(key, 'English default')` from `react-i18next`.

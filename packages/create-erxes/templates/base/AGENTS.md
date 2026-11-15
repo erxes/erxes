@@ -4,7 +4,7 @@ __description__
 
 An erxes plugin for the new core (Postgres). `api/` is the API: Express 5,
 oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
-`AGENTS.md` in the folder you edit. `api/src/modules/items` and `ui/src/items`
+`AGENTS.md` in the folder you edit. `api/src/modules/items` and `ui/src/modules/items`
 are the reference feature: copy their shape for a new one.
 
 <!-- quality:start -->

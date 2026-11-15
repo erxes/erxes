@@ -5,7 +5,8 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "types": ["node", "@rsbuild/core/types"]
+    "types": ["node", "@rsbuild/core/types"],
+    "paths": { "~/*": ["./src/*"], "@/*": ["./src/modules/*"] }
   },
   "include": ["src", "rsbuild.config.ts"]
 }
