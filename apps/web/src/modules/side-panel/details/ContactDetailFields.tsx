@@ -1,10 +1,15 @@
 import { type Icon, IconMail, IconPhone, IconUser } from '@tabler/icons-react';
 import { memberQueries } from '@erxes/core-contract/client';
-import { ScrollArea, SelectMember, TextField } from 'erxes-ui';
+import {
+  ScrollArea,
+  SelectMember,
+  TextField,
+  PanelField,
+  PanelFieldTrigger,
+  PanelSection,
+} from 'erxes-ui';
 import { type ReactNode, useId } from 'react';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
-import { PanelField, PanelFieldTrigger } from '../PanelField';
-import { ContactDetailSection } from './ContactDetailSection';
 
 /** A contact's Detail tab scrolling under the panel header. */
 export const ContactDetailScroll = ({ children }: { children: ReactNode }) => (
@@ -104,7 +109,7 @@ export const ContactChannelsSection = ({
         },
   ) => void;
 }) => (
-  <ContactDetailSection title={title} nested>
+  <PanelSection title={title} nested>
     <PanelField
       icon={IconMail}
       label={labels.emails}
@@ -139,5 +144,5 @@ export const ContactChannelsSection = ({
         onSave={onSave}
       />
     </PanelField>
-  </ContactDetailSection>
+  </PanelSection>
 );

@@ -1,9 +1,8 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Kbd, PageHeader } from 'erxes-ui';
+import { Button, Kbd, PageHeader, usePageHotkey } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
-import { usePageHotkey } from '~/lib/usePageHotkey';
 import { ExportButton } from '~/modules/transfer/ExportButton';
 import { ImportButton } from '~/modules/transfer/ImportButton';
 

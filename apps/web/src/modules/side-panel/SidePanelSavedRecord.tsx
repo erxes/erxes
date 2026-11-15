@@ -1,6 +1,8 @@
 import type { Company, Customer } from '@erxes/core-contract';
 import { IconAlignLeft, IconHierarchy2, IconHistory, IconId } from '@tabler/icons-react';
-import { companyTitle, customerTitle, Skeleton } from 'erxes-ui';
+import { companyTitle, customerTitle, Skeleton, usePanelExpanded } from 'erxes-ui';
+import { RecordPageHeader } from './RecordPageHeader';
+import { type IRecordSidePanelTab, RecordSidePanel } from './RecordSidePanel';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
@@ -20,8 +22,6 @@ import { ContactPanelDescription } from './details/ContactPanelDescription';
 import { CompanyPanelName, CustomerPanelName } from './details/ContactPanelNames';
 import { CompanyPanelProperties, CustomerPanelProperties } from './details/ContactPanelProperties';
 import { CustomerPanelDetail } from './details/CustomerPanelDetail';
-import { type IRecordSidePanelTab, RecordSidePanel, usePanelExpanded } from './RecordSidePanel';
-import { RecordPageHeader } from './RecordPageHeader';
 import type { IRecordViewProps } from './recordView';
 import { SidePanelFailed } from './SidePanelEmpty';
 import type { TRelationEntity } from './sidePanelPaths';

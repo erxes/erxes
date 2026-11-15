@@ -1,13 +1,20 @@
 import type { ViewRecordType } from '@erxes/core-contract';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
-import { Button, Combobox, Command, Filter, Popover, useFilterContext } from 'erxes-ui';
+import {
+  Button,
+  Combobox,
+  Command,
+  Filter,
+  IconTip,
+  Popover,
+  useFilterContext,
+  usePageHotkey,
+} from 'erxes-ui';
 import { useQueryState } from 'nuqs';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { messageOf } from '@erxes/core-contract/client';
-import { usePageHotkey } from '~/lib/usePageHotkey';
 import { isRule } from '~/modules/automations/builder/conditionOperators';
 import { type ListField, useFilterFields, useListQuery } from '../useViews';
 import { ViewChanges } from '../ViewControls';

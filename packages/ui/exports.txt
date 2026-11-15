@@ -83,6 +83,7 @@ value FullNameValue
 value HoverCard
 value IconComponent
 value IconPicker
+value IconTip
 value IconsProvider
 value InfoCard
 value Input
@@ -97,6 +98,15 @@ value NumberField
 value PageContainer
 value PageHeader
 value PageSubHeader
+value PanelDescriptionEditor
+value PanelDescriptionField
+value PanelExpansionContext
+value PanelField
+value PanelFieldTrigger
+value PanelFormLayout
+value PanelFormRow
+value PanelLabel
+value PanelSection
 value PhoneDisplay
 value PhoneField
 value PhoneInput
@@ -168,6 +178,8 @@ value useFormat
 value useLiveSignal
 value useMembersById
 value useOpenRecord
+value usePageHotkey
+value usePanelExpanded
 value usePreviousHotkeyScope
 value useScopedHotkeys
 value useToast

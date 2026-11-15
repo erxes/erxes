@@ -1,6 +1,7 @@
-import { cn, Tooltip } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
-import { usePanelExpanded } from './RecordSidePanel';
+import { Tooltip } from '../../components/tooltip';
+import { cn } from '../../lib/utils';
+import { usePanelExpanded } from './panelExpansion';
 
 /** Whether the label is cut off; the observers see the clamp come and go with the panel width. */
 const useIsClamped = () => {

@@ -1,5 +1,5 @@
 import { IconAlignLeft, IconPhoto, IconUserCircle } from '@tabler/icons-react';
-import { Editor, Form, SelectMember, useToast } from 'erxes-ui';
+import { Editor, Form, SelectMember, useToast, PanelFormLayout, PanelFormRow } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import {
   type FieldValues,
@@ -12,7 +12,6 @@ import { DESCRIPTION_MAX } from '@erxes/core-contract';
 import { z } from 'zod';
 import { memberQueries, messageOf } from '@erxes/core-contract/client';
 import { type ContactSide, linkNewContact } from '~/modules/contacts/components/useContactLinks';
-import { PanelFormLayout, PanelFormRow } from '../PanelForm';
 import { useCreatedPanelRecord } from '../useCreatedPanelRecord';
 import { useSidePanel } from '../useSidePanel';
 

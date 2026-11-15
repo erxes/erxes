@@ -59,6 +59,8 @@ export { Form } from './components/form';
 
 export { HoverCard } from './components/hover-card';
 
+export { IconTip } from './components/icon-tip';
+
 export { InfoCard } from './components/info-card';
 
 export { Input } from './components/input';
@@ -114,6 +116,8 @@ export { Tooltip } from './components/tooltip';
 export { Upload } from './components/upload';
 
 export { useConfirm } from './hooks/use-confirm';
+
+export { usePageHotkey } from './hooks/use-page-hotkey';
 
 export { toast, useToast } from './hooks/use-toast';
 
@@ -193,6 +197,20 @@ export type { RecordTableColumnDef } from './modules/record-table/components/Rec
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
+
+export { PanelDescriptionEditor } from './modules/record-panel/PanelDescriptionEditor';
+
+export { PanelDescriptionField } from './modules/record-panel/PanelDescriptionField';
+
+export { PanelField, PanelFieldTrigger } from './modules/record-panel/PanelField';
+
+export { PanelFormLayout, PanelFormRow } from './modules/record-panel/PanelForm';
+
+export { PanelLabel } from './modules/record-panel/PanelLabel';
+
+export { PanelSection } from './modules/record-panel/PanelSection';
+
+export { PanelExpansionContext, usePanelExpanded } from './modules/record-panel/panelExpansion';
 
 export { ContactLink } from './modules/records/ContactLink';
 

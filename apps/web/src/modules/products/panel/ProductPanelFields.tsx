@@ -14,11 +14,12 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
   TextField,
+  PanelField,
+  PanelFieldTrigger,
 } from 'erxes-ui';
 import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
-import { PanelField, PanelFieldTrigger } from '~/modules/side-panel/PanelField';
 import { ContactTextField } from '~/modules/side-panel/details/ContactDetailFields';
 import { CategoryPicker } from '../categories/CategoryPicker';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';

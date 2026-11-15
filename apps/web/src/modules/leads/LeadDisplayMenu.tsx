@@ -1,6 +1,5 @@
 import { IconAdjustmentsHorizontal, IconLayoutKanban, IconTable } from '@tabler/icons-react';
-import { Button, cn, Popover } from 'erxes-ui';
-import { IconTip } from '~/components/IconTip';
+import { Button, cn, IconTip, Popover } from 'erxes-ui';
 import { useLeadView } from './leadView';
 import { useLeadsT } from './i18n';
 

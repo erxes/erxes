@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ContactLinks } from '~/modules/contacts/components/ContactLinks';
-import { ContactDetailSection } from './ContactDetailSection';
+import { PanelSection } from 'erxes-ui';
 
 type TContactType = 'core:customer' | 'core:company';
 
@@ -15,10 +15,10 @@ export const ContactPanelRelationField = ({
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
   return (
-    <ContactDetailSection
+    <PanelSection
       title={contentType === 'core:customer' ? t('companies', 'Companies') : t('people', 'People')}
     >
       <ContactLinks side={contentType} id={contentId} />
-    </ContactDetailSection>
+    </PanelSection>
   );
 };

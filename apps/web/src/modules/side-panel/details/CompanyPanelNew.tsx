@@ -11,7 +11,7 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { Form, Input, MultipleSelector, Select, useToast } from 'erxes-ui';
+import { Form, Input, MultipleSelector, Select, useToast, PanelFormRow } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,6 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
-import { PanelFormRow } from '../PanelForm';
 import { useSidePanelDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 import {

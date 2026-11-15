@@ -1,8 +1,10 @@
-import { Button, RecordTableInlineCell, Spinner } from 'erxes-ui';
+import { IconForms, type Icon } from '@tabler/icons-react';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button } from '../../components/button';
+import { Spinner } from '../../components/spinner';
+import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
 import { PanelLabel } from './PanelLabel';
-import { IconForms, type Icon } from '@tabler/icons-react';
 
 /**
  * One field of a record not created yet, laid out like `PanelField`: its

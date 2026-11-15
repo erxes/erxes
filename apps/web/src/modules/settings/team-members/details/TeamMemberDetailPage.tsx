@@ -1,8 +1,8 @@
 import { PageContainer } from 'erxes-ui';
+import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { useQueryState } from 'nuqs';
 import { useParams } from 'react-router-dom';
 import { MemberDetail } from './MemberDetail';
-import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { ResetPasswordDialog } from './ResetPasswordDialog';
 
 /** The member's own page: the record panel, expanded. */

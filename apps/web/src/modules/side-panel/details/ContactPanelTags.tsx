@@ -4,7 +4,7 @@ import { useCompaniesTag } from '~/modules/contacts/companies/useCompanies';
 import { tagChange } from '~/modules/contacts/components/MergeButton';
 import { useCustomersTag } from '~/modules/contacts/customers/useCustomers';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
-import { ContactDetailSection } from './ContactDetailSection';
+import { PanelSection } from 'erxes-ui';
 
 /** Keeps the tag picker visible when a contact has no tags yet. */
 export const ContactPanelTags = ({
@@ -24,7 +24,7 @@ export const ContactPanelTags = ({
   const kind = contentType === 'core:customer' ? 'customer' : 'company';
 
   return (
-    <ContactDetailSection title={t('tags', 'Tags')}>
+    <PanelSection title={t('tags', 'Tags')}>
       {/* Named by what it shows (the tags, or "Add tags"), so the spoken name matches the visible one. */}
       <TagsSelect.InlineCell
         type={kind}
@@ -46,6 +46,6 @@ export const ContactPanelTags = ({
           </span>
         }
       />
-    </ContactDetailSection>
+    </PanelSection>
   );
 };

@@ -1,10 +1,9 @@
 import type { Company, Customer } from '@erxes/core-contract';
-import { FullNameValue, TextField } from 'erxes-ui';
+import { FullNameValue, TextField, PanelFieldTrigger } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { ContactName } from '~/modules/contacts/components/ContactFields';
 import { useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
-import { PanelFieldTrigger } from '../PanelField';
 
 /** Edits the customer's name in place, the same way its table cell does. */
 export const CustomerPanelName = ({ customer }: { customer: Customer }) => {

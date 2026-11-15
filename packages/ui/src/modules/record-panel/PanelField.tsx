@@ -1,6 +1,8 @@
 import { IconForms, type Icon } from '@tabler/icons-react';
-import { cn, Label, RecordTableInlineCell } from 'erxes-ui';
 import { useId } from 'react';
+import { Label } from '../../components/label';
+import { cn } from '../../lib/utils';
+import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
 import { PanelLabel } from './PanelLabel';
 
 // One field in the side panel: its label, then the value as a record table

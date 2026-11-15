@@ -1,5 +1,5 @@
-import { Editor } from 'erxes-ui';
 import { IconAlignLeft } from '@tabler/icons-react';
+import { Editor } from '../blocks/components/LazyEditor';
 import { useSaveOnLeave } from './useSaveOnLeave';
 
 // Rich-text description across the panel's width. Like the other cells it

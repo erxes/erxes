@@ -1,10 +1,10 @@
 import type { Product } from '@erxes/core-contract';
 import { IconArchive, IconDots, IconPackage, IconRestore } from '@tabler/icons-react';
 import { Badge, Button, Command, Popover } from 'erxes-ui';
+import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
 import { paths } from '~/lib/paths';
 import { useCanManageProducts, useProductStatus } from '../useProducts';
 
