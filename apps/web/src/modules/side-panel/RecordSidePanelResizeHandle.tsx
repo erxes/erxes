@@ -1,3 +1,4 @@
+import { cn } from 'erxes-ui';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +33,7 @@ const DragShield = () =>
 
 /** Dragging the panel's left edge resizes it; leftwards makes it wider. Arrow keys too. */
 export const RecordSidePanelResizeHandle = ({
+  className,
   width,
   maxWidth,
   onWidthChange,
@@ -93,7 +95,10 @@ export const RecordSidePanelResizeHandle = ({
         tabIndex={0}
         title={t('drag-to-resize', 'Drag to resize')}
         data-resizing={dragging || undefined}
-        className="group absolute inset-y-0 -left-2 z-10 flex w-4 cursor-col-resize touch-none items-center justify-center outline-none after:absolute after:inset-y-0 after:w-px after:bg-transparent hover:after:bg-primary/50 focus-visible:after:bg-primary data-[resizing=true]:after:bg-primary"
+        className={cn(
+          'group absolute inset-y-0 -left-2 z-10 flex w-4 cursor-col-resize touch-none items-center justify-center outline-none after:absolute after:inset-y-0 after:w-px after:bg-transparent hover:after:bg-primary/50 focus-visible:after:bg-primary data-[resizing=true]:after:bg-primary',
+          className,
+        )}
         onPointerDown={handlePointerDown}
         onKeyDown={(event) => {
           const nextWidth = keyWidth(event, width, maxWidth);

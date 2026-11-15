@@ -15,6 +15,7 @@ export type PanelExpansionContextValue = {
 } | null;
 
 export type RecordSidePanelResizeHandleProps = {
+  className?: string;
   width: number;
   maxWidth: number;
   onWidthChange: (width: number) => void;

@@ -61,7 +61,7 @@ export const startResizeDrag = ({
 
   const paint = () => {
     frame = null;
-    panel.style.width = `${nextWidth}px`;
+    panel.style.setProperty('--panel-width', `${nextWidth}px`);
     handle.setAttribute('aria-valuenow', String(nextWidth));
   };
 

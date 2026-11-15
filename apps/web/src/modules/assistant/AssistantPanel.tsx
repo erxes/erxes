@@ -33,13 +33,12 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
       style={{ '--panel-width': `${panelWidth}px` }}
       className="relative flex min-h-0 shrink-0 flex-col border-l bg-background md:w-(--panel-width) max-md:fixed max-md:inset-0 max-md:z-50"
     >
-      <div className="max-md:hidden">
-        <RecordSidePanelResizeHandle
-          width={panelWidth}
-          maxWidth={ASSISTANT_WIDTH.max}
-          onWidthChange={setWidth}
-        />
-      </div>
+      <RecordSidePanelResizeHandle
+        className="max-md:hidden"
+        width={panelWidth}
+        maxWidth={ASSISTANT_WIDTH.max}
+        onWidthChange={setWidth}
+      />
       <PanelHeader tabs={tabs} onClose={close} />
       {tabs.active && (
         <Conversation key={tabs.active.key} tab={tabs.active} tabs={tabs} open={open} />
