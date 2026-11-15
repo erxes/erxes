@@ -124,7 +124,7 @@ export default defineConfig({
       {
         root: 'packages/ui',
         resolve: { tsconfigPaths: true },
-        test: { name: 'ui', include: ['src/**/*.test.ts'], environment: 'node' },
+        test: { name: 'ui', include: ['src/**/*.test.{ts,tsx}'], environment: 'node' },
       },
       {
         root: 'packages/lint',
