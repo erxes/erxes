@@ -32,7 +32,17 @@ Only what something uses:
   through TanStack query options, so erxes-ui imports nothing from core.
 - core's records in `src/modules/records`: `ContactLink` (a customer or company by id, read
   through `contactQueries` from `@erxes/core-contract/client`) and `useOpenRecord`, which open a
-  record in web's side panel through the `RecordOpenerProvider` web mounts.
+  record or a draft in web's side panel through the `RecordOpenerProvider` web mounts, and
+  `RecordPage`, a record on its own page.
+- the record panel's rows in `src/modules/record-panel`, which web's side panel and the slots
+  of a plugin's record types (`IUIConfig.recordTypes`) both fill it with: `PanelSection`,
+  `PanelField`, `PanelFormRow`, `PanelFormLayout`, `PanelLabel`, the description field and
+  editor, and `usePanelExpanded`. The panel itself (header, tabs, resize) is web's.
+- a list's bar in `src/modules/list`: `ViewBar`, `DisplayMenu` with `useListDisplay`, and
+  `ListFilter` with `useListFilterParams`.
+- what the host app provides at startup, rendered through `hostComponent`
+  (`src/utils/host-component.tsx`): `setRecordTimeline`, `setRecordPage` and `setListFilter`.
+  Outside erxes they render nothing.
 
 Anything else is removed, not kept "in case". Before you remove an export, check the HR plugin
 UI and `.agents/skills/plugin-contract/SKILL.md`.

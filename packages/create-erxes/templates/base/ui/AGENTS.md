@@ -33,17 +33,19 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   and a "Created by" column. erxes-ui's `EntityPicker` is the searchable list
   under them, for a picker of the plugin's own records.
 - Pages look and behave like core's: follow the `ui-patterns` skill.
-- Lists filter the way core's contacts lists do (`src/modules/items/ItemsFilter.tsx`):
-  one bar under the header, built from erxes-ui's `Filter`. The filter button
-  opens a menu with search and every field. Each applied filter shows as a chip:
-  its value reopens that field's menu and ✕ clears it. Filters live in the
-  address (search is `searchValue`), so links and reloads keep them. No search
-  boxes, toggle tabs or pickers in a row above the table.
-- Forms open in the side panel, laid out like core's new-record panel
-  (`src/modules/items/ItemSheet.tsx`): an erxes-ui `Sheet`, one row per field with its
-  icon and label beside the control, and Cancel and Save at the bottom. Nothing
-  saves until Save. A form gets its own page only when it has sections or a live
-  preview, such as a product editor. Dialogs are for confirmations, not forms.
+- Lists have core's bar (`src/modules/items/ItemsPage.tsx`): erxes-ui's `ViewBar` with
+  `ListFilter`, given the list's fields. Its conditions and search live in the
+  address; `useListFilterParams()` hands them to the list's query, and the API
+  applies them (`api/src/modules/items/itemFilter.ts`). No search boxes, toggle
+  tabs or pickers in a row above the table.
+- Records open in core's side panel, like a customer: core draws the panel and
+  `CONFIG.recordTypes` (`src/config.tsx`) fills its slots, the item's `Title`,
+  `Detail` and `New` (`src/modules/items/ItemPanel.tsx`). `useOpenRecord()`
+  opens them, and `/__id__/:id` renders erxes-ui's `RecordPage` for the expanded
+  record. A plugin's records of other records' customers are `relationTabs`
+  (the `ui-patterns` skill). Forms are core's
+  `PanelFormRow` rows with Cancel and Save at the bottom; nothing saves until
+  Save. Dialogs are for confirmations, not forms.
 - Text uses `t(key, 'English default')` from `react-i18next`.
 - Development: `pnpm dev:ui` serves `http://localhost:__uiPort__/remoteEntry.js`;
   web loads it from the manifest's `UI_ENTRY_URL` or from its own
