@@ -1,6 +1,8 @@
 import { isDefinedError } from '@orpc/client';
+import { type Icon, IconAlignLeft, IconLetterCase } from '@tabler/icons-react';
+import type { ReactNode } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Input, Label, Sheet, Textarea } from 'erxes-ui';
+import { Button, Input, Sheet, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '../orpc.ts';
 import { type Item, useOpenItem } from './useItems.ts';
@@ -8,7 +10,15 @@ import { type Item, useOpenItem } from './useItems.ts';
 const textOf = (value: FormDataEntryValue | null) => (typeof value === 'string' ? value : '');
 
 /** A new item (`item` undefined) or a change to one. ITEM_NAME_TAKEN shows on the name field. */
-const ItemForm = ({ item, onSaved }: { item?: Item; onSaved: () => void }) => {
+const ItemForm = ({
+  item,
+  onSaved,
+  onCancel,
+}: {
+  item?: Item;
+  onSaved: () => void;
+  onCancel: () => void;
+}) => {
   const { t } = useTranslation('__id__');
   const queryClient = useQueryClient();
 
@@ -35,44 +45,72 @@ const ItemForm = ({ item, onSaved }: { item?: Item; onSaved: () => void }) => {
   };
 
   return (
-    <form action={save} className="flex flex-1 flex-col">
-      <Sheet.Content>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="item-name">{t('name', 'Name')}</Label>
-            <Input
-              id="item-name"
-              name="name"
-              required
-              defaultValue={item?.name}
-              aria-invalid={takenName !== null}
-              aria-describedby={takenName === null ? undefined : 'item-name-error'}
-            />
-            {takenName !== null && (
-              <p id="item-name-error" className="text-sm text-destructive">
-                {t('name-taken', 'Another item is already called {{name}}.', { name: takenName })}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="item-description">{t('description', 'Description')}</Label>
-            <Textarea id="item-description" name="description" defaultValue={item?.description} />
-          </div>
-          {error && !isDefinedError(error) && (
-            <p role="alert" className="text-sm text-destructive">
-              {error.message}
-            </p>
-          )}
-        </div>
-      </Sheet.Content>
-      <Sheet.Footer>
-        <Button type="submit" disabled={isPending}>
+    <form action={save} className="flex min-h-0 flex-1 flex-col bg-background">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
+        <FormRow id="item-name" label={t('name', 'Name')} icon={IconLetterCase} required>
+          <Input
+            id="item-name"
+            name="name"
+            required
+            defaultValue={item?.name}
+            aria-invalid={takenName !== null}
+            aria-describedby={takenName === null ? undefined : 'item-name-error'}
+          />
+        </FormRow>
+        {takenName !== null && (
+          <p id="item-name-error" className="text-xs text-destructive">
+            {t('name-taken', 'Another item is already called {{name}}.', { name: takenName })}
+          </p>
+        )}
+        <FormRow id="item-description" label={t('description', 'Description')} icon={IconAlignLeft}>
+          <Textarea id="item-description" name="description" defaultValue={item?.description} />
+        </FormRow>
+        {error && !isDefinedError(error) && (
+          <p role="alert" className="text-xs text-destructive">
+            {error.message}
+          </p>
+        )}
+      </div>
+      <div className="flex shrink-0 justify-end gap-1 border-t p-2">
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          {t('cancel', 'Cancel')}
+        </Button>
+        <Button type="submit" size="sm" disabled={isPending}>
           {t('save', 'Save')}
         </Button>
-      </Sheet.Footer>
+      </div>
     </form>
   );
 };
+
+/** One field: its icon and label beside the control, as core's side panel lays them out. */
+const FormRow = ({
+  id,
+  label,
+  icon: RowIcon,
+  required,
+  children,
+}: {
+  id: string;
+  label: string;
+  icon: Icon;
+  required?: boolean;
+  children: ReactNode;
+}) => (
+  <div className="grid min-h-7 grid-cols-field items-center gap-x-2">
+    <label
+      htmlFor={id}
+      className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
+    >
+      <RowIcon className="size-3.5 shrink-0" aria-hidden />
+      <span className="truncate">
+        {label}
+        {required && <span className="text-destructive"> *</span>}
+      </span>
+    </label>
+    {children}
+  </div>
+);
 
 /** The side panel: a new item, or one from the list to change. */
 export const ItemSheet = ({ items }: { items: Item[] }) => {
@@ -82,7 +120,7 @@ export const ItemSheet = ({ items }: { items: Item[] }) => {
 
   return (
     <Sheet open={Boolean(openId)} onOpenChange={(open) => !open && close()}>
-      <Sheet.View className="sm:max-w-md">
+      <Sheet.View>
         <Sheet.Header>
           <Sheet.Title>{item ? item.name : t('new-item', 'New item')}</Sheet.Title>
           <Sheet.Description className="sr-only">
@@ -93,7 +131,7 @@ export const ItemSheet = ({ items }: { items: Item[] }) => {
           <Sheet.Close />
         </Sheet.Header>
         {openId === 'new' || item ? (
-          <ItemForm key={item?.id ?? 'new'} item={item} onSaved={close} />
+          <ItemForm key={item?.id ?? 'new'} item={item} onSaved={close} onCancel={close} />
         ) : (
           <Sheet.Content>
             <p className="text-sm text-muted-foreground">

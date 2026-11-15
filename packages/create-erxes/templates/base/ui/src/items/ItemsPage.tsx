@@ -9,12 +9,11 @@ import {
   RecordTable,
   type RecordTableColumnDef,
   RecordTableInlineCell,
-  SelectMember,
   useFormat,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ItemSheet } from './ItemSheet.tsx';
+import { ItemsFilter } from './ItemsFilter.tsx';
 import { type Item, useItems, useOpenItem, useRemoveItem } from './useItems.ts';
 
 const NameCell = ({ item }: { item: Item }) => {
@@ -93,8 +92,7 @@ const columns: RecordTableColumnDef<Item>[] = [
 export const ItemsPage = () => {
   const { t } = useTranslation('__id__');
   const { open } = useOpenItem();
-  const [createdBy, setCreatedBy] = useState<string | null>(null);
-  const { data, isPending, error, hasNextPage, fetchNextPage } = useItems(createdBy);
+  const { data, isPending, error, hasNextPage, fetchNextPage } = useItems();
   const list = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
@@ -105,22 +103,16 @@ export const ItemsPage = () => {
           <h1 className="text-sm font-semibold">{t('items', 'Items')}</h1>
         </PageHeader.Start>
         <PageHeader.End>
-          {/* md:w-64 is in no class web uses: the plugin's own stylesheet brings it. */}
-          <SelectMember.Field
-            aria-label={t('created-by', 'Created by')}
-            className="w-40 md:w-64"
-            value={createdBy}
-            onValueChange={setCreatedBy}
-            members={memberQueries}
-            placeholder={t('anyone', 'Created by anyone')}
-            noneLabel={t('anyone', 'Created by anyone')}
-          />
           <Button onClick={() => open('new')}>
             <IconPlus />
             {t('add', 'Add item')}
           </Button>
         </PageHeader.End>
       </PageHeader>
+      {/* The filter bar sits under the header, as on core's lists. */}
+      <div className="flex min-h-10 items-center border-b px-3">
+        <ItemsFilter />
+      </div>
       {error ? (
         <p className="m-3 text-sm text-destructive">{error.message}</p>
       ) : (
