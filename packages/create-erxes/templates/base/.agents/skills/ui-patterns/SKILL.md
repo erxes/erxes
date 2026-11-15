@@ -107,6 +107,30 @@ gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
 - `Dialog` is for confirming (`useConfirm`) and nothing else. Never a form in
   a dialog.
 
+## Settings
+
+Settings are not records, so they don't use the side panel's rows. A settings
+page looks like core's Settings › Profile (`apps/web/src/modules/settings/profile`):
+
+- `PageContainer`, `PageHeader` with the breadcrumb, then a `ScrollArea` with
+  one centered column, `mx-auto w-full max-w-3xl flex flex-col gap-4 p-6`.
+- The fields come in cards, one per topic: `section` with
+  `rounded-lg border bg-background p-5 space-y-4`, a title
+  (`text-base font-semibold`) and one line under it saying what the card is
+  for (`text-sm text-muted-foreground`).
+- Inside a card, each field is erxes-ui's `Form.Item` with `Form.Label` above
+  the control and `Form.Message` under it, laid in `grid grid-cols-1 gap-4
+  sm:grid-cols-2` (or `sm:grid-cols-3` for short fields). On/off settings are a
+  `Switch` with its label and a hint beside it.
+- One form for the page (react-hook-form with a zod schema), saved by a
+  sticky bar at the bottom: `sticky bottom-0 flex justify-end gap-2 border-t
+  bg-background/95 py-3 backdrop-blur` with Discard (ghost, off until
+  something changed) and Save. Not a Save per card, and not Save in the header.
+- A settings list (stores, pipelines, payment methods) is still a list:
+  `RecordTable`, and each entry opens in core's side panel like a record.
+- Several settings pages are separate routes in the plugin's settings
+  sidebar, not tabs.
+
 ## Record detail
 
 - Clicking a row's name opens the record in core's side panel. Its title is
