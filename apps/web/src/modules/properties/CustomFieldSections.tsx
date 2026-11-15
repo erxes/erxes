@@ -65,7 +65,7 @@ export const CustomFieldSections = ({
   return (
     <div className="flex flex-col gap-2">
       {sections.map(({ group, fields }) => (
-        <Collapsible key={group?.id ?? 'ungrouped'} defaultOpen className="group">
+        <Collapsible key={group?.id ?? 'ungrouped'} defaultOpen>
           <div className="flex flex-col rounded-xl bg-foreground/5 p-1 pt-0">
             <div className="flex h-7 shrink-0 items-center justify-between pr-1">
               <Collapsible.Trigger render={<Button variant="ghost" size="xs" />}>
