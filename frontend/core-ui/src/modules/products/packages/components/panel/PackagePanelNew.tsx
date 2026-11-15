@@ -1,6 +1,6 @@
 import { IconId, IconListCheck, IconPhoto } from '@tabler/icons-react';
 import { Button, Spinner, toast } from 'erxes-ui';
-import { useCallback, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   type IRecordSidePanelTab,
@@ -10,6 +10,7 @@ import {
   useSidePanel,
 } from 'ui-modules';
 import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
+import { PanelReadOnlyTab } from '@/products/product-detail/components/panel/PanelReadOnlyTab';
 import { PACKAGE_CONTENT_TYPE } from '../../constants/packageContentType';
 import { PACKAGE_FORM_SCHEMA } from '../../constants/packageSchema';
 import { TPackagePatch } from '../../hooks/usePackagePanelSave';
@@ -63,7 +64,8 @@ export const PackagePanelNew = ({
   }, []);
 
   const changeTotal = (next: number) => {
-    const value = next || null;
+    // No products are no total, not a total of 0.
+    const value = Number.isFinite(next) && next !== 0 ? next : null;
     if (value === total) return;
     setTotal(value);
     void save({ price: priceFromPercent(value, latest.current.percent) });
@@ -137,31 +139,37 @@ export const PackagePanelNew = ({
   };
 
   const props = { pkg: draft, total, save, draft: true, errors };
+  // Create sends the draft as it was when clicked: it is held until then.
+  const held = (content: ReactNode) => (
+    <PanelReadOnlyTab reason={null} disabled={loading}>
+      {content}
+    </PanelReadOnlyTab>
+  );
 
   const tabs: IRecordSidePanelTab[] = [
     {
       value: 'detail',
       label: t('details', 'Details'),
       icon: IconId,
-      content: <PackagePanelFields {...props} />,
+      content: held(<PackagePanelFields {...props} />),
     },
     {
       value: 'media',
       label: t('media', 'Media'),
       icon: IconPhoto,
-      content: <PackagePanelMedia {...props} />,
+      content: held(<PackagePanelMedia {...props} />),
     },
     {
       value: 'products',
       label: t('products-count', { count: draft.products?.length ?? 0 }),
       icon: IconListCheck,
-      content: (
+      content: held(
         <PackagePanelProducts
           value={draft.products || []}
           error={errors.products}
           onChange={(products: IPackageProduct[]) => save({ products })}
           onTotalChange={changeTotal}
-        />
+        />,
       ),
     },
   ];

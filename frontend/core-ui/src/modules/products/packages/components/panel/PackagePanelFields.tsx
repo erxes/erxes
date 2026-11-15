@@ -40,6 +40,12 @@ export type TPackagePanelProps = {
   errors?: Partial<Record<string, string>>;
 };
 
+// The tag picker reports one id or many; the package stores a list.
+const toTagIds = (value: string | string[]): string[] => {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
+};
+
 const formatAmount = (value?: number | null) =>
   value == null
     ? ''
@@ -99,7 +105,8 @@ export const PackagePanelFields = ({
   );
 
   const changePercent = (value: number) => {
-    const percent = value || null;
+    // No discount is stored as none, not 0%.
+    const percent = Number.isFinite(value) && value !== 0 ? value : null;
     void save(
       total
         ? { percent, price: priceFromPercent(total, percent) }
@@ -157,11 +164,7 @@ export const PackagePanelFields = ({
               mode="multiple"
               scope={`${SCOPE}.tags`}
               value={pkg.tagIds || []}
-              onValueChange={(value) =>
-                save({
-                  tagIds: Array.isArray(value) ? value : value ? [value] : [],
-                })
-              }
+              onValueChange={(value) => save({ tagIds: toTagIds(value) })}
             />
             {!pkg.tagIds?.length && (
               <EmptyHint>{t('add-tags', 'Add tags')}</EmptyHint>

@@ -12,12 +12,13 @@ export const priceFromPercent = (
   return percent ? round(total * (1 - percent / 100)) : total;
 };
 
-// The discount a price gives off the products' total, when it is one.
+// The discount a price gives off the products' total, when it is one. A
+// free package is a full discount, so it stays free as the total changes.
 export const percentFromPrice = (
   total: number | null | undefined,
   price: number | null | undefined,
 ) =>
-  total && price && price > 0 && price < total
+  total && price != null && price >= 0 && price < total
     ? round((1 - price / total) * 100)
     : null;
 

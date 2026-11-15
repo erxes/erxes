@@ -28,8 +28,13 @@ describe('package pricing', () => {
   it('has no discount at or above the total, or without one', () => {
     expect(percentFromPrice(200, 200)).toBeNull();
     expect(percentFromPrice(200, 250)).toBeNull();
-    expect(percentFromPrice(200, 0)).toBeNull();
+    expect(percentFromPrice(200, null)).toBeNull();
     expect(percentFromPrice(null, 100)).toBeNull();
+  });
+
+  it('keeps a free package free as a full discount', () => {
+    expect(percentFromPrice(200, 0)).toBe(100);
+    expect(priceFromPercent(300, 100)).toBe(0);
   });
 
   it('sends products without the query typename', () => {

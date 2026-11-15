@@ -22,15 +22,9 @@ import { ProductPanelBreadcrumb } from '@/products/product-detail/components/pan
 import { useSavingValue } from '@/products/product-detail/hooks/useSavingValue';
 import { ProductsPath } from '@/types/paths/ProductsPath';
 import { usePackageDetail } from '../../hooks/usePackageDetail';
-import {
-  TPackagePatch,
-  usePackagePanelSave,
-} from '../../hooks/usePackagePanelSave';
+import { usePackagePanelSave } from '../../hooks/usePackagePanelSave';
 import { IPackage, IPackageProduct } from '../../types/Package';
-import {
-  priceFromPercent,
-  toPackageProductsInput,
-} from '../../utils/packagePricing';
+import { toPackageProductsInput } from '../../utils/packagePricing';
 import { PackagePanelActions } from './PackagePanelActions';
 import { PackagePanelFields } from './PackagePanelFields';
 import { PackagePanelMedia } from './PackagePanelMedia';
@@ -44,17 +38,11 @@ const skipSave = () => Promise.resolve<IPackage | null>(null);
 // the price then follows the new total as the discount sets it.
 const SavedPackageProducts = ({
   pkg,
-  save,
+  saveProducts,
 }: {
   pkg: IPackage;
-  save: (patch: TPackagePatch) => Promise<IPackage | null>;
+  saveProducts: (products: IPackageProduct[]) => Promise<IPackage | null>;
 }) => {
-  const saveProducts = async (products: IPackageProduct[]) => {
-    const saved = await save({ products });
-    if (!saved) return null;
-    const price = priceFromPercent(saved.totalPrice, saved.percent);
-    return price !== null && price !== saved.price ? save({ price }) : saved;
-  };
   const [products, setProducts] = useSavingValue(
     useMemo(() => toPackageProductsInput(pkg.products), [pkg.products]),
     saveProducts,
@@ -86,7 +74,7 @@ export const PackageRecordPanel = ({
     error,
     refetch,
   } = usePackageDetail(isNew ? null : packageId);
-  const { save } = usePackagePanelSave(packageId);
+  const { save, saveProducts } = usePackagePanelSave(packageId);
   const { tab: selectedTab, setTab, dismissPath, path } = useSidePanel();
   const expanded = usePanelExpanded();
 
@@ -207,7 +195,12 @@ export const PackageRecordPanel = ({
         count: pkg.products?.length ?? 0,
       }),
       icon: IconListCheck,
-      content: editable(<SavedPackageProducts pkg={pkg} save={saveField} />),
+      content: editable(
+        <SavedPackageProducts
+          pkg={pkg}
+          saveProducts={readOnlyReason ? skipSave : saveProducts}
+        />,
+      ),
     },
   ];
   const tab = tabs.some(({ value }) => value === selectedTab)

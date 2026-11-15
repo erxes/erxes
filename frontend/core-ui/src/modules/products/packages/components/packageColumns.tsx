@@ -43,16 +43,16 @@ const StatusCell = ({ pkg }: { pkg: IPackage }) => {
     if (next === current) return;
 
     try {
-      await changeStatus({ variables: { _id: pkg._id, status: next } });
+      await changeStatus({ variables: { _ids: [pkg._id], status: next } });
       toast({
         variant: 'success',
         title: t('status-updated', 'Status updated'),
       });
-    } catch (e: any) {
+    } catch (error) {
       toast({
         variant: 'destructive',
         title: t('status-update-failed', 'Failed to update status'),
-        description: e?.message,
+        description: error instanceof Error ? error.message : undefined,
       });
     }
   };

@@ -40,6 +40,7 @@ export const EDIT_PACKAGE = gql`
     $tagIds: [String]
     $price: Float
     $percent: Float
+    $status: String
   ) {
     productPackagesEdit(
       _id: $_id
@@ -50,6 +51,7 @@ export const EDIT_PACKAGE = gql`
       tagIds: $tagIds
       price: $price
       percent: $percent
+      status: $status
     ) {
       ...PackageFields
     }

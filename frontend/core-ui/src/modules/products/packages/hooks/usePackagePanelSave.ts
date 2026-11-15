@@ -1,8 +1,11 @@
 import { useToast } from 'erxes-ui';
 import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IPackage } from '../types/Package';
-import { toPackageProductsInput } from '../utils/packagePricing';
+import { IPackage, IPackageProduct } from '../types/Package';
+import {
+  priceFromPercent,
+  toPackageProductsInput,
+} from '../utils/packagePricing';
 import { useEditPackage } from './usePackageMutations';
 
 export type TPackagePatch = Partial<
@@ -18,6 +21,16 @@ export type TPackagePatch = Partial<
     | 'status'
   >
 >;
+
+// The price a saved package's products give at its discount, or `null` when
+// it already has it (or has no total). A total of 0 prices it at 0.
+const followingPrice = (saved: IPackage): number | null => {
+  const price =
+    saved.totalPrice === 0
+      ? 0
+      : priceFromPercent(saved.totalPrice, saved.percent);
+  return price === saved.price ? null : price;
+};
 
 /**
  * Saves one change to the package shown in the side panel.
@@ -55,15 +68,31 @@ export const usePackagePanelSave = (packageId: string) => {
     [editPackage, packageId, t, toast],
   );
 
+  // Runs `task` after the saves queued before it.
+  const enqueue = useCallback((task: () => Promise<IPackage | null>) => {
+    const next = queue.current.then(task);
+    // A failed save must not stop the ones queued after it.
+    queue.current = next.catch(() => null);
+    return next;
+  }, []);
+
   const save = useCallback(
-    (patch: TPackagePatch) => {
-      const next = queue.current.then(() => saveNow(patch));
-      // A failed save must not stop the ones queued after it.
-      queue.current = next.catch(() => null);
-      return next;
-    },
-    [saveNow],
+    (patch: TPackagePatch) => enqueue(() => saveNow(patch)),
+    [enqueue, saveNow],
   );
 
-  return { save };
+  // Products, then the price their new total gives at the discount, as one
+  // queued step: a price or discount change made meanwhile comes after both.
+  const saveProducts = useCallback(
+    (products: IPackageProduct[]) =>
+      enqueue(async () => {
+        const saved = await saveNow({ products });
+        if (!saved) return null;
+        const price = followingPrice(saved);
+        return price === null ? saved : saveNow({ price });
+      }),
+    [enqueue, saveNow],
+  );
+
+  return { save, saveProducts };
 };
