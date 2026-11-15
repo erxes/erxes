@@ -168,27 +168,29 @@ const sendTransactionCallback = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const invoice = await models.Invoices.getInvoice(
-    { _id: transaction.invoiceId },
-    true,
-  );
-
-  if (!invoice.contentType) {
-    return;
-  }
-
-  const [pluginName, moduleName, collectionType] = splitType(
-    invoice.contentType,
-  );
-
-  if (!(await isEnabled(pluginName))) {
-    console.warn(
-      `[golomt notification] invoice ${invoice._id} has contentType "${invoice.contentType}" but plugin "${pluginName}" is not enabled; its payment callbacks have no consumer`,
-    );
-    return;
-  }
-
+  // Optional post-commit step: nothing in here may throw, or the caller would
+  // skip the paid notification that actually settles the order.
   try {
+    const invoice = await models.Invoices.getInvoice(
+      { _id: transaction.invoiceId },
+      true,
+    );
+
+    if (!invoice.contentType) {
+      return;
+    }
+
+    const [pluginName, moduleName, collectionType] = splitType(
+      invoice.contentType,
+    );
+
+    if (!(await isEnabled(pluginName))) {
+      console.warn(
+        `[golomt notification] invoice ${invoice._id} has contentType "${invoice.contentType}" but plugin "${pluginName}" is not enabled; its payment callbacks have no consumer`,
+      );
+      return;
+    }
+
     await sendWorkerMessage({
       subdomain,
       pluginName,
@@ -204,7 +206,10 @@ const sendTransactionCallback = async (
       defaultValue: null,
     });
   } catch (e) {
-    console.error('[golomt notification] transactionCallback failed', e);
+    console.error(
+      `[golomt notification] transactionCallback for transaction ${transaction._id} failed`,
+      e,
+    );
   }
 };
 
