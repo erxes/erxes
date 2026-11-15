@@ -4,7 +4,7 @@ import { Popover } from 'erxes-ui/components/popover';
 import { inputVariants } from 'erxes-ui/components/input';
 import { cn } from 'erxes-ui/lib/utils';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 import { IMaskInput } from 'react-imask';
 
 const DEFAULT_COLORS = {
@@ -61,14 +61,10 @@ const ColorPickerProvider = ({
   onOpenChange?: (open: boolean) => void;
   scope?: string;
 }) => {
+  const picker = useMemo(() => ({ value, onValueChange, colors }), [value, onValueChange, colors]);
+
   return (
-    <ColorPickerContext.Provider
-      value={{
-        value,
-        onValueChange,
-        colors,
-      }}
-    >
+    <ColorPickerContext.Provider value={picker}>
       <PopoverScoped scope={scope} open={open} onOpenChange={onOpenChange}>
         {children}
       </PopoverScoped>

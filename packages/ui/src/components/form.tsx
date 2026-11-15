@@ -23,8 +23,10 @@ const FormField = <
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
+  const field = React.useMemo(() => ({ name: props.name }), [props.name]);
+
   return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
+    <FormFieldContext.Provider value={field}>
       <Controller {...props} />
     </FormFieldContext.Provider>
   );
@@ -78,9 +80,10 @@ const FormItem = ({
   ...props
 }: React.ComponentProps<'div'> & VariantProps<typeof formItemVariants>) => {
   const id = React.useId();
+  const item = React.useMemo(() => ({ id }), [id]);
 
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <FormItemContext.Provider value={item}>
       <div ref={ref} className={cn(formItemVariants({ orientation }), className)} {...props} />
     </FormItemContext.Provider>
   );

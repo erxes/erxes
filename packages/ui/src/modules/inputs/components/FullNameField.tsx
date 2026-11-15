@@ -1,5 +1,5 @@
 import { Input } from 'erxes-ui/components/input';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FullNameFieldContext } from 'erxes-ui/modules/inputs/contexts/FullNameFieldContext';
 import { useFullNameField } from 'erxes-ui/modules/inputs/hooks/useFullNameField';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
@@ -18,19 +18,18 @@ const FullNameFieldProvider = ({
   setFirstName: (firstName: string) => void;
   setLastName: (lastName: string) => void;
 }) => {
-  return (
-    <FullNameFieldContext.Provider
-      value={{
-        firstName,
-        lastName,
-        setFirstName,
-        setLastName,
-        fullName: `${firstName || ''}${firstName ? ' ' : ''}${lastName || ''}`,
-      }}
-    >
-      {children}
-    </FullNameFieldContext.Provider>
+  const name = useMemo(
+    () => ({
+      firstName,
+      lastName,
+      setFirstName,
+      setLastName,
+      fullName: `${firstName || ''}${firstName ? ' ' : ''}${lastName || ''}`,
+    }),
+    [firstName, lastName, setFirstName, setLastName],
   );
+
+  return <FullNameFieldContext.Provider value={name}>{children}</FullNameFieldContext.Provider>;
 };
 
 export const FullNameValue = () => {
