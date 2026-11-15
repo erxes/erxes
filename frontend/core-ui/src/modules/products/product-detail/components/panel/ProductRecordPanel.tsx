@@ -25,10 +25,14 @@ import {
 import { ContactPanelIdentity } from '@/side-panel/components/details/ContactPanelActions';
 import { ContactDescriptionEditor } from '@/side-panel/components/details/ContactDescriptionEditor';
 import { useProductDetail } from '@/products/product-detail/hooks/useProductDetail';
-import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
+import {
+  useProductCustomFieldEdit,
+  useReadOnlyFieldEdit,
+} from '@/products/product-detail/hooks/useProductCustomFieldEdit';
 import { useProductPanelSave } from '@/products/product-detail/hooks/useProductPanelSave';
 import { productCustomActivities } from '@/products/product-detail/components/ProductActivityRows';
 import { ProductDetailSimilarity } from '@/products/product-detail/components/ProductDetailSimilarity';
+import { ProductDetail } from '@/products/product-detail/types/detailTypes';
 import {
   PRODUCT_DELETED_STATUS,
   ProductPanelActions,
@@ -51,6 +55,50 @@ const scroll = (content: ReactNode) => (
 // A read-only product's changes are never sent.
 const skipSave = () => Promise.resolve(null);
 
+// Why the product is read-only, or `null`. A deleted product's edits would
+// make it active again: Restore does that.
+const useReadOnlyReason = (product: ProductDetail | null): string | null => {
+  const { t } = useTranslation('product', { keyPrefix: 'detail' });
+  const { hasActionPermission } = usePermissionCheck();
+  if (product?.status === PRODUCT_DELETED_STATUS) {
+    return t(
+      'deleted-read-only',
+      'This product is deleted. Restore it to edit.',
+    );
+  }
+  if (!hasActionPermission('productsUpdate')) {
+    return t(
+      'no-update-permission',
+      'You can view this product but not edit it.',
+    );
+  }
+  return null;
+};
+
+// A new product: its draft, for a user who may create one.
+const NewProductRecord = ({
+  onBack,
+  onClose,
+}: Omit<IRecordViewProps, 'record'>) => {
+  const { t } = useTranslation('product');
+  const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { hasActionPermission } = usePermissionCheck();
+
+  if (hasActionPermission('productsCreate')) {
+    return <ProductPanelNew onBack={onBack} onClose={onClose} />;
+  }
+  return (
+    <>
+      <RecordSidePanel.Header
+        title={t('new-product')}
+        onBack={onBack}
+        onClose={onClose}
+      />
+      <div className="p-4">{panelT('access-denied', 'Access denied')}</div>
+    </>
+  );
+};
+
 /**
  * A product in the app's side panel (`?panel=/detail/core:product/<id>`):
  * its fields, media, barcodes, properties, activity and similarity group as
@@ -65,11 +113,8 @@ export const ProductRecordPanel = ({
   onClose,
 }: IRecordViewProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
-  const { t: rootT } = useTranslation('product');
-  const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const productId = record.contentId;
   const isNew = productId === NEW_RECORD_ID;
-  const { hasActionPermission } = usePermissionCheck();
   const { productDetail, loading, error, refetch } = useProductDetail({
     _id: productId,
     skip: isNew,
@@ -82,20 +127,10 @@ export const ProductRecordPanel = ({
       productDetail?._id ? { ...productDetail, _id: productDetail._id } : null,
     [productDetail],
   );
+  const readOnlyReason = useReadOnlyReason(product);
 
   if (isNew) {
-    return hasActionPermission('productsCreate') ? (
-      <ProductPanelNew onBack={onBack} onClose={onClose} />
-    ) : (
-      <>
-        <RecordSidePanel.Header
-          title={rootT('new-product')}
-          onBack={onBack}
-          onClose={onClose}
-        />
-        <div className="p-4">{panelT('access-denied', 'Access denied')}</div>
-      </>
-    );
+    return <NewProductRecord onBack={onBack} onClose={onClose} />;
   }
 
   // The name is shown and edited on Details, where a long one wraps; the
@@ -153,19 +188,6 @@ export const ProductRecordPanel = ({
     );
   }
 
-  // A deleted product's edits would make it active again: Restore does that.
-  let readOnlyReason: string | null = null;
-  if (product.status === PRODUCT_DELETED_STATUS) {
-    readOnlyReason = t(
-      'deleted-read-only',
-      'This product is deleted. Restore it to edit.',
-    );
-  } else if (!hasActionPermission('productsUpdate')) {
-    readOnlyReason = t(
-      'no-update-permission',
-      'You can view this product but not edit it.',
-    );
-  }
   const readOnly = !!readOnlyReason;
   const saveField = readOnly ? skipSave : save;
   const editable = (content: ReactNode) => (
@@ -227,12 +249,17 @@ export const ProductRecordPanel = ({
       icon: IconForms,
       content: editable(
         scroll(
-          <div className="p-3">
+          // Rich-text properties ignore the `fieldset`; `inert` stops them.
+          <div className="p-3" {...(readOnly ? { inert: '' } : {})}>
             <FieldsInDetail
+              // Its fields call the hook: a different one needs new fields.
+              key={String(readOnly)}
               bare
               fieldContentType="core:product"
               propertiesData={product.propertiesData || {}}
-              mutateHook={useProductCustomFieldEdit}
+              mutateHook={
+                readOnly ? useReadOnlyFieldEdit : useProductCustomFieldEdit
+              }
               id={product._id}
             />
           </div>,
@@ -267,7 +294,9 @@ export const ProductRecordPanel = ({
       value: 'similarity',
       label: t('similarity', 'Similarity'),
       icon: IconLayoutGrid,
-      content: <ProductDetailSimilarity product={product} callBack={refetch} />,
+      content: editable(
+        <ProductDetailSimilarity product={product} readOnly={readOnly} />,
+      ),
     },
   ];
   const tab = tabs.some(({ value }) => value === selectedTab)

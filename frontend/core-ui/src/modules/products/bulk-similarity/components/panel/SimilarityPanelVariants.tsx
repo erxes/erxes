@@ -1,4 +1,5 @@
 import { ScrollArea } from 'erxes-ui';
+import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useFields } from 'ui-modules';
@@ -7,28 +8,42 @@ import { useBulkRows } from '../../hooks/useBulkRows';
 import { GeneratedProductsTable } from '../GeneratedProductsTable';
 import {
   VariantFieldAddButton,
+  VariantFieldAddView,
   VariantFieldPicker,
 } from '../VariantFieldPicker';
 
 // The Properties tab: the fields whose chosen values make the variants.
+// Adding a field is shown in the tab, in place of the list.
 export const SimilarityPanelProperties = () => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
+  const [adding, setAdding] = useState(false);
 
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <section className="flex min-w-0 flex-col gap-2 p-3">
-        <div className="flex h-7 items-center justify-between gap-2">
-          <h3 className="text-xs font-medium">{t('property-fields')}</h3>
-          <VariantFieldAddButton />
-        </div>
-        <VariantFieldPicker />
+        {adding ? (
+          <VariantFieldAddView onDone={() => setAdding(false)} />
+        ) : (
+          <>
+            <div className="flex h-7 items-center justify-between gap-2">
+              <h3 className="text-xs font-medium">{t('property-fields')}</h3>
+              <VariantFieldAddButton onClick={() => setAdding(true)} />
+            </div>
+            <VariantFieldPicker />
+          </>
+        )}
       </section>
     </ScrollArea>
   );
 };
 
 // The Products tab: one row per combination, each a product on Save.
-export const SimilarityPanelProducts = () => {
+// `disabled` while read-only or saving.
+export const SimilarityPanelProducts = ({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) => {
   const { control } = useFormContext<BulkSimilarityFormValues>();
   const unitPrice = useWatch({ control, name: 'unitPrice' });
   const { validation } = useBulkRows();
@@ -44,7 +59,11 @@ export const SimilarityPanelProducts = () => {
             {error}
           </p>
         ))}
-        <GeneratedProductsTable fieldName={fieldName} unitPrice={unitPrice} />
+        <GeneratedProductsTable
+          fieldName={fieldName}
+          unitPrice={unitPrice}
+          disabled={disabled}
+        />
       </div>
     </ScrollArea>
   );

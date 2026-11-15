@@ -13,7 +13,7 @@ import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
 import { useBulkRows } from '../hooks/useBulkRows';
 import { useVariantFields } from '../hooks/useVariantFields';
 import { generateCodeSuffix } from '../utils';
-import { ChoosableProduct, ProductChooserSheet } from './ProductChooserSheet';
+import { ChoosableProduct, ProductChooser } from './ProductChooser';
 
 const EditableCell = ({
   value,
@@ -59,7 +59,7 @@ const EditableCell = ({
       onBlur={commit}
       onBeforeInput={(e) => {
         const data = (e.nativeEvent as InputEvent).data;
-        if (numeric && data && /[^0-9.\-]/.test(data)) {
+        if (numeric && data && /[^0-9.-]/.test(data)) {
           e.preventDefault();
         }
       }}
@@ -106,7 +106,7 @@ const NumericEditableCell = ({
   const shown = value ?? fallback;
   return (
     <IMaskInput
-      mask={Number as any}
+      mask={Number}
       thousandsSeparator=","
       radix="."
       unmask
@@ -137,7 +137,19 @@ const NumericEditableCell = ({
 interface GeneratedProductsTableProps {
   fieldName: (fieldId: string) => string;
   unitPrice?: number;
+  // Read-only, or held while saving. A disabled `fieldset` stops the inputs
+  // and buttons but not the text cells, which are content-editable.
+  disabled?: boolean;
 }
+
+// The header checkbox: every row, none, or some included.
+const includedState = (
+  includedCount: number,
+  total: number,
+): boolean | 'indeterminate' => {
+  if (includedCount === 0) return false;
+  return includedCount === total ? true : 'indeterminate';
+};
 
 const RowSwapCell = ({
   index,
@@ -180,7 +192,7 @@ const RowSwapCell = ({
 
   return (
     <div className="flex justify-center items-center">
-      <ProductChooserSheet
+      <ProductChooser
         excludeIds={excludeIds}
         value={productId}
         valueCode={code}
@@ -196,7 +208,7 @@ const RowSwapCell = ({
         >
           <IconSwitchHorizontal size={14} />
         </Button>
-      </ProductChooserSheet>
+      </ProductChooser>
     </div>
   );
 };
@@ -235,7 +247,10 @@ const useColumnWidths = (defaults: Record<string, number>) => {
       const startWidth = widths[id] ?? defaults[id] ?? DEFAULT_COLUMN_WIDTH;
 
       const onMove = (e: MouseEvent) => {
-        const next = Math.max(MIN_COLUMN_WIDTH, startWidth + e.clientX - startX);
+        const next = Math.max(
+          MIN_COLUMN_WIDTH,
+          startWidth + e.clientX - startX,
+        );
         setWidths((prev) => ({ ...prev, [id]: next }));
       };
 
@@ -295,6 +310,7 @@ const ResizableHead = ({
 export const GeneratedProductsTable = ({
   fieldName,
   unitPrice,
+  disabled = false,
 }: GeneratedProductsTableProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { control, setValue } = useFormContext<BulkSimilarityFormValues>();
@@ -346,8 +362,7 @@ export const GeneratedProductsTable = ({
   }
 
   const allIncluded = includedCount === rows.length;
-  const headerState: boolean | 'indeterminate' =
-    includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
+  const headerState = includedState(includedCount, rows.length);
 
   const usedProductIds = watchedRows
     .map((r) => r.productId)
@@ -469,6 +484,7 @@ export const GeneratedProductsTable = ({
                       setValue(`rows.${index}.nameEdited`, true);
                     }}
                     placeholder={t('name-placeholder', 'name')}
+                    disabled={disabled}
                   />
                 </Table.Cell>
                 <Table.Cell className="px-1" style={{ width: widthOf('code') }}>
@@ -483,6 +499,7 @@ export const GeneratedProductsTable = ({
                       }}
                       placeholder={t('code-placeholder', 'code')}
                       className="font-mono"
+                      disabled={disabled}
                     />
                     {isDup && (
                       <Tooltip.Provider>
@@ -493,7 +510,9 @@ export const GeneratedProductsTable = ({
                               className="mr-1 text-destructive shrink-0"
                             />
                           </Tooltip.Trigger>
-                          <Tooltip.Content>{t('duplicate-code', 'Duplicate code')}</Tooltip.Content>
+                          <Tooltip.Content>
+                            {t('duplicate-code', 'Duplicate code')}
+                          </Tooltip.Content>
                         </Tooltip>
                       </Tooltip.Provider>
                     )}

@@ -9,12 +9,16 @@ import {
   usePanelExpanded,
   usePermissionCheck,
   useSidePanel,
+  useSidePanelDraft,
 } from 'ui-modules';
 import { ContactPanelIdentity } from '@/side-panel/components/details/ContactPanelActions';
 import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
 import { ProductPanelBreadcrumb } from '@/products/product-detail/components/panel/ProductPanelBreadcrumb';
 import { ProductsPath } from '@/types/paths/ProductsPath';
-import { SIMILARITY_CONTENT_TYPE } from '../../constants/similarityContentType';
+import {
+  SIMILARITY_CONTENT_TYPE,
+  type TSimilarityDraftDefaults,
+} from '../../constants/similarityContentType';
 import { useAddSimilarity } from '../../hooks/useAddSimilarity';
 import { useEditSimilarity } from '../../hooks/useEditSimilarity';
 import { useProductSimilarity } from '../../hooks/useProductSimilarityDetail';
@@ -24,7 +28,8 @@ import { SimilarityPanelForm } from './SimilarityPanelForm';
 
 /**
  * A similarity group not created yet: the same tabs, kept in the form until
- * Create. The group then replaces the draft; Cancel leaves nothing behind.
+ * Create. It starts from the draft's values, e.g. the product it is made
+ * from. The group then replaces the draft; Cancel leaves nothing behind.
  */
 const SimilarityPanelNew = ({
   onBack,
@@ -33,6 +38,9 @@ const SimilarityPanelNew = ({
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { back, canGoBack, close } = useSidePanel();
   const showCreated = useCreatedPanelRecord(SIMILARITY_CONTENT_TYPE);
+  const { similarity: defaults } = useSidePanelDraft<TSimilarityDraftDefaults>(
+    SIMILARITY_CONTENT_TYPE,
+  );
   const { add, loading } = useAddSimilarity();
   const [tab, setTab] = useState('detail');
 
@@ -50,6 +58,7 @@ const SimilarityPanelNew = ({
         onClose={loading ? undefined : onClose}
       />
       <SimilarityPanelForm
+        defaults={defaults}
         tab={tab}
         onTabChange={setTab}
         saving={loading}

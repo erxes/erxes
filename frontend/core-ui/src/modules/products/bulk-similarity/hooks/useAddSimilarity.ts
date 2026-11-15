@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { SIMILARITY_CHANGE_REFETCH_QUERIES } from '../constants/similarityContentType';
 import { PRODUCT_SIMILARITY_ADD } from '../graphql/mutations';
 import { IBulkSaveInput, IProductSimilarity } from '../types';
 
@@ -9,7 +10,8 @@ export const useAddSimilarity = () => {
   const { toast } = useToast();
 
   const [addMutation, { loading }] = useMutation(PRODUCT_SIMILARITY_ADD, {
-    refetchQueries: ['ProductSimilarities'],
+    // A product it is made from joins it, and its variants become products.
+    refetchQueries: SIMILARITY_CHANGE_REFETCH_QUERIES,
   });
 
   const add = async (doc: IBulkSaveInput) => {
@@ -17,13 +19,13 @@ export const useAddSimilarity = () => {
       const res = await addMutation({ variables: { doc } });
       toast({ title: t('similarity-saved', 'Similarity saved') });
       return res.data?.productBulkSimilarityAdd as IProductSimilarity;
-    } catch (e: any) {
+    } catch (error) {
       toast({
         title: t('error', 'Error'),
-        description: e.message,
+        description: error instanceof Error ? error.message : undefined,
         variant: 'destructive',
       });
-      throw e;
+      throw error;
     }
   };
 

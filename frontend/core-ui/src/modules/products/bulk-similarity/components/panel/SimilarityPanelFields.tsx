@@ -50,18 +50,21 @@ import { BulkSimilarityFormValues } from '../../constants/bulkSimilaritySchema';
 const SCOPE = 'side-panel-similarity';
 
 // A rich-text value across the panel's width, written to the form as it is
-// typed: Save may come before the editor is left.
+// typed: Save may come before the editor is left. A disabled `fieldset`
+// does not stop it, so it is made read-only itself.
 const SimilarityEditorField = ({
   label,
   icon: Icon,
   value,
   scope,
+  readonly,
   onChange,
 }: {
   label: string;
   icon: typeof IconAlignLeft;
   value: string;
   scope: string;
+  readonly: boolean;
   onChange: (value: string) => void;
 }) => (
   <div className="flex flex-col gap-1.5 pt-2">
@@ -73,6 +76,7 @@ const SimilarityEditorField = ({
       initialContent={value}
       onChange={onChange}
       scope={scope}
+      readonly={readonly}
       className="h-auto min-h-20 rounded-sm shadow-none hover:bg-accent focus-within:bg-background focus-within:shadow-focus"
     />
   </div>
@@ -81,9 +85,15 @@ const SimilarityEditorField = ({
 /**
  * The Details tab: the group's shared product info as panel cells. A cell
  * writes to the form, not the group: the group's products are generated
- * from it on Save.
+ * from it on Save. `disabled` while read-only or saving.
  */
-export const SimilarityPanelFields = ({ draft }: { draft?: boolean }) => {
+export const SimilarityPanelFields = ({
+  draft,
+  disabled = false,
+}: {
+  draft?: boolean;
+  disabled?: boolean;
+}) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { t: detailT } = useTranslation('product', { keyPrefix: 'detail' });
   const { control, setValue, formState } =
@@ -221,6 +231,7 @@ export const SimilarityPanelFields = ({ draft }: { draft?: boolean }) => {
             icon={IconBarcode}
             value={values.barcodeDescription || ''}
             scope={`${SCOPE}.barcodeDescription`}
+            readonly={disabled}
             onChange={(value) => set('barcodeDescription', value)}
           />
           <SimilarityEditorField
@@ -228,6 +239,7 @@ export const SimilarityPanelFields = ({ draft }: { draft?: boolean }) => {
             icon={IconAlignLeft}
             value={values.description || ''}
             scope={`${SCOPE}.description`}
+            readonly={disabled}
             onChange={(value) => set('description', value)}
           />
         </ContactDetailSection>

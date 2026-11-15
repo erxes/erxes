@@ -24,8 +24,9 @@ import {
 const DETAIL_TAB = 'detail';
 
 type TSimilarityPanelFormProps = {
-  // The saved group; a new one starts empty.
+  // The saved group; a new one starts from `defaults`, or empty.
   similarity?: IProductSimilarity;
+  defaults?: IProductSimilarity;
   tab: string;
   onTabChange: (tab: string) => void;
   overviewHeader?: ReactNode;
@@ -52,14 +53,18 @@ const SimilarityPanelTabs = ({
   saveLabel,
   readOnlyReason,
   draft,
-}: Omit<TSimilarityPanelFormProps, 'similarity' | 'onSave'> & {
+}: Omit<TSimilarityPanelFormProps, 'similarity' | 'defaults' | 'onSave'> & {
   onSubmit: () => void;
   draft: boolean;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { includedCount, validation } = useBulkRows();
+  // Save sends the form as it is when clicked and then re-reads the saved
+  // group, so it is held while saving: a change then would be lost. The
+  // rich-text and table text cells ignore the `fieldset`, so they are told.
+  const locked = !!readOnlyReason || saving;
   const editable = (content: ReactNode) => (
-    <PanelReadOnlyTab reason={readOnlyReason ?? null}>
+    <PanelReadOnlyTab reason={readOnlyReason ?? null} disabled={saving}>
       {content}
     </PanelReadOnlyTab>
   );
@@ -69,7 +74,9 @@ const SimilarityPanelTabs = ({
       value: DETAIL_TAB,
       label: t('details', 'Details'),
       icon: IconId,
-      content: editable(<SimilarityPanelFields draft={draft} />),
+      content: editable(
+        <SimilarityPanelFields draft={draft} disabled={locked} />,
+      ),
     },
     {
       value: 'media',
@@ -87,7 +94,7 @@ const SimilarityPanelTabs = ({
       value: 'products',
       label: t('products-count', { count: includedCount }),
       icon: IconListCheck,
-      content: editable(<SimilarityPanelProducts />),
+      content: editable(<SimilarityPanelProducts disabled={locked} />),
     },
   ];
   const value = tabs.some((item) => item.value === tab) ? tab : DETAIL_TAB;
@@ -135,11 +142,12 @@ const SimilarityPanelTabs = ({
  */
 export const SimilarityPanelForm = ({
   similarity,
+  defaults,
   onSave,
   ...props
 }: TSimilarityPanelFormProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
-  const { form, buildSavePayload } = useBulkProductForm(similarity);
+  const { form, buildSavePayload } = useBulkProductForm(similarity ?? defaults);
 
   const handleSave = async (values: BulkSimilarityFormValues) => {
     try {

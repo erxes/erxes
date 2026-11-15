@@ -30,11 +30,14 @@ export const BundleRuleForm = ({
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const { bundleRulesAdd, loading: loadingAdd } = useBundleRulesAdd();
   const { bundleRulesEdit, loading: loadingEdit } = useBundleRulesEdit();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [rules, setRules] = useState<IBundleRuleItem[]>(
     bundleRule?.rules || [],
   );
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  // The row open in the panel in place of the rule: its index, or null for
+  // a new row. The rule's form stays mounted underneath, keeping its values.
+  const [itemEditor, setItemEditor] = useState<{ index: number | null } | null>(
+    null,
+  );
 
   const form = useForm<{ name: string; description?: string; code?: string }>({
     defaultValues: bundleRule
@@ -52,37 +55,19 @@ export const BundleRuleForm = ({
     onOpenChange?.(false);
   };
 
-  const handleAddItem = (data: IBundleRuleItem) => {
+  const editingIndex = itemEditor?.index ?? null;
+
+  const handleSaveItem = (data: IBundleRuleItem) => {
     if (editingIndex === null) {
       setRules([...rules, data]);
-      setIsDialogOpen(false);
-      return;
+    } else {
+      setRules(rules.map((rule, i) => (i === editingIndex ? data : rule)));
     }
-
-    const updatedRules = [...rules];
-    updatedRules[editingIndex] = data;
-    setRules(updatedRules);
-    setEditingIndex(null);
-    setIsDialogOpen(false);
-  };
-
-  const handleEditItem = (index: number) => {
-    setEditingIndex(index);
-    setIsDialogOpen(true);
+    setItemEditor(null);
   };
 
   const handleDeleteItem = (index: number) => {
     setRules(rules.filter((_, i) => i !== index));
-  };
-
-  const handleOpenDialog = () => {
-    setEditingIndex(null);
-    setIsDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setEditingIndex(null);
   };
 
   const onSubmit = (data: {
@@ -139,7 +124,9 @@ export const BundleRuleForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex overflow-hidden flex-col h-full"
+        className={
+          itemEditor ? 'hidden' : 'flex overflow-hidden flex-col h-full'
+        }
       >
         <ProductEditorHeader
           title={bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
@@ -198,7 +185,7 @@ export const BundleRuleForm = ({
             <Button
               type="button"
               variant="secondary"
-              onClick={handleOpenDialog}
+              onClick={() => setItemEditor({ index: null })}
             >
               <IconPlus />
               {t('add-row')}
@@ -222,7 +209,7 @@ export const BundleRuleForm = ({
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleEditItem(index)}
+                            onClick={() => setItemEditor({ index })}
                           >
                             <IconEdit className="w-4 h-4" />
                           </Button>
@@ -260,13 +247,14 @@ export const BundleRuleForm = ({
         </Sheet.Footer>
       </form>
 
-      <BundleRuleItemForm
-        open={isDialogOpen}
-        onOpenChange={handleCloseDialog}
-        onSubmit={handleAddItem}
-        editingItem={editingIndex !== null ? rules[editingIndex] : undefined}
-        editingIndex={editingIndex}
-      />
+      {itemEditor && (
+        <BundleRuleItemForm
+          key={editingIndex ?? 'new'}
+          editingItem={editingIndex !== null ? rules[editingIndex] : undefined}
+          onSubmit={handleSaveItem}
+          onCancel={() => setItemEditor(null)}
+        />
+      )}
     </Form>
   );
 };

@@ -408,6 +408,7 @@
     "loading-more": "Loading more…",
     "remove-field": "Remove field",
     "no-fields-added": "No fields added yet.",
+    "no-property-groups": "Products have no property groups yet. Add one in Properties settings.",
     "ungrouped": "Ungrouped",
     "new-property": "New property",
     "add-variant-field": "Add variant field",
