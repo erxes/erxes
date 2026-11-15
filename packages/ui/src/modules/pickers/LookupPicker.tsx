@@ -48,9 +48,30 @@ const memberOption = (member: Member) => ({
 
 const tagOption = (tag: Tag) => ({ value: tag.id, label: tag.name });
 
-/** The active team as picker options; none without `members`. */
-export const useMemberOptions = (members: MemberQueries | undefined, enabled = true) =>
-  useLookup(members?.team, enabled, memberOption);
+/**
+ * The active team as picker options, plus the `picked` members outside it (a disabled member a
+ * filter still names), so their names show; none without `members`.
+ */
+export const useMemberOptions = (
+  members: MemberQueries | undefined,
+  enabled = true,
+  picked: readonly string[] = [],
+) => {
+  const team = useLookup(members?.team, enabled, memberOption);
+  const known = new Set(team.options.map((option) => option.value));
+
+  const missing = [...new Set(picked)]
+    .filter((id) => id !== 'me' && !known.has(id))
+    .toSorted((a, b) => a.localeCompare(b));
+
+  const others = useLookup(
+    members && missing.length ? members.byIds(missing) : undefined,
+    enabled && !team.loading && missing.length > 0,
+    memberOption,
+  );
+
+  return { ...team, options: [...team.options, ...others.options] };
+};
 
 /** A record type's tags as picker options; none without `tags`. */
 export const useTagOptions = (tags: TagsQuery | undefined, enabled = true) =>

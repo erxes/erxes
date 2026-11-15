@@ -81,10 +81,10 @@ const RelativeInput = ({ rule, onChange, disabled }: ValueProps) => {
 const LookupInput = ({ rule, field, onChange, disabled, ...lookups }: ValueProps) => {
   const { t } = useTranslation('automations');
   const isMember = field?.type === 'member';
-  const members = useMemberOptions(lookups.members, isMember);
+  const value = textOf(rule.value);
+  const members = useMemberOptions(lookups.members, isMember, value ? [value] : []);
   const tags = useTagOptions(lookups.tags, !isMember);
   const lookup = isMember ? members : tags;
-  const value = textOf(rule.value);
 
   return (
     <LookupPicker

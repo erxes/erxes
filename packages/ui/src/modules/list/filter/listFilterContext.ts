@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TConditionLookups } from '../../conditions/conditions';
+import { isRule, type TConditionLookups } from '../../conditions/conditions';
 import { useMemberOptions, useTagOptions } from '../../pickers/LookupPicker';
 import type { TListFilterField } from '../ListFilter';
-import type { FilterPart } from './filterRules';
+import { type FilterPart, valuesOf } from './filterRules';
 
 /** What the filter menu, its chips and the advanced filter share. */
 export interface ListFilterState {
@@ -34,8 +34,13 @@ export const useListFilter = () => {
 /** What a choice field picks from: its options, the team ("Me" first), or the list's tags. */
 export const useFieldOptions = (field: TListFilterField) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const { lookups } = useListFilter();
-  const members = useMemberOptions(lookups.members, field.type === 'member');
+  const { lookups, parts } = useListFilter();
+
+  const picked = parts.flatMap((part) =>
+    isRule(part) && part.path === field.path ? valuesOf(part) : [],
+  );
+
+  const members = useMemberOptions(lookups.members, field.type === 'member', picked);
   const tags = useTagOptions(lookups.tags, field.type === 'tags');
 
   if (field.type === 'member') {

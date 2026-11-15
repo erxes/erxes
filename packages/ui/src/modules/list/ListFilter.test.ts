@@ -61,7 +61,24 @@ const members: MemberQueries = {
       ],
     }),
   },
-  byIds: (ids) => ({ queryKey: ['members', ids], queryFn: async () => ({ data: [] }) }),
+  // A member who left the team: found by id only.
+  byIds: (ids) => ({
+    queryKey: ['members', ids],
+    queryFn: async () => ({
+      data: ids.includes('u9')
+        ? [
+            {
+              id: 'u9',
+              email: 'saraa@example.mn',
+              fullName: 'Saraa Bold',
+              username: null,
+              avatarUrl: null,
+              status: 'deleted',
+            },
+          ]
+        : [],
+    }),
+  }),
 };
 
 const FIELDS: TListFilterField[] = [
@@ -123,17 +140,52 @@ describe('ListFilter outside erxes', () => {
     });
   });
 
-  it('reads a filter that doesn’t parse as none', async () => {
+  it('names a picked member outside the team', async () => {
+    const container = await render(
+      createElement(ListFilter, { id: 'deals', fields: FIELDS, members }),
+      address({ match: 'all', rules: [{ path: 'subject.ownerId', op: 'eq', value: 'u9' }] }),
+    );
+
+    await filterButton(container);
+    await vi.waitFor(() => expect(container.textContent).toContain('Saraa Bold'));
+  });
+
+  const rule = { path: 'subject.stageId', op: 'eq', value: 's1' };
+
+  const nested = (depth: number): unknown =>
+    depth ? { match: 'any', rules: [nested(depth - 1)] } : rule;
+
+  it.each([
+    ['an unknown operator', { match: 'all', rules: [{ ...rule, op: 'nearly' }] }],
+    ['a path core refuses', { match: 'all', rules: [{ ...rule, path: 'stageId' }] }],
+    ['more rules than core takes', { match: 'all', rules: Array.from({ length: 51 }, () => rule) }],
+    ['groups nested past three', nested(4)],
+  ])('reads a filter with %s as none', async (_, filter) => {
     const container = await render(
       [
         createElement(ListFilter, { key: 'bar', id: 'deals', fields: FIELDS }),
         createElement(Params, { key: 'params' }),
       ],
-      address({ match: 'all', rules: [{ path: 'subject.stageId', op: 'nearly' }] }),
+      address(filter),
     );
 
     expect((await filterButton(container)).textContent).toBe('');
     expect(container.textContent).not.toContain('Stage');
     expect(JSON.parse(container.querySelector('output')?.textContent ?? '')).toEqual({});
+  });
+
+  it('reads groups nested three deep', async () => {
+    const container = await render(
+      [
+        createElement(ListFilter, { key: 'bar', id: 'deals', fields: FIELDS }),
+        createElement(Params, { key: 'params' }),
+      ],
+      address(nested(3)),
+    );
+
+    await filterButton(container);
+    expect(JSON.parse(container.querySelector('output')?.textContent ?? '')).toEqual({
+      filter: JSON.stringify(nested(3)),
+    });
   });
 });

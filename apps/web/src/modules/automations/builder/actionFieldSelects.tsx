@@ -122,14 +122,15 @@ export const LookupMultiSelect = ({
 }: ActionInputProps) => {
   const { t } = useTranslation('automations');
   const isMembers = field.type === 'members';
-  const members = useMemberOptions(memberQueries, isMembers);
+  const picked = asList(value);
+  const members = useMemberOptions(memberQueries, isMembers, picked);
   const tags = useTagOptions(tagsQuery(subject), !isMembers);
 
   return (
     <LookupPicker
       multiple
       lookup={isMembers ? members : tags}
-      value={asList(value)}
+      value={picked}
       onValueChange={onChange}
       disabled={disabled}
       placeholder={

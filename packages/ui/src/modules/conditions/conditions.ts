@@ -49,23 +49,37 @@ export type TConditionGroup = {
   rules: (TConditionRule | TConditionGroup)[];
 };
 
+/** Core's limits, so a filter the UI accepts is one core's API accepts too. */
+const MAX_RULES = 50;
+const MAX_AMOUNT = 3650;
+
+/** Groups nest as deep as the editor builds them: a group, and two levels inside it. */
+const MAX_DEPTH = 3;
+
 const ConditionRule = z.object({
-  path: z.string(),
+  path: z
+    .string()
+    .trim()
+    .regex(/^(event|subject|steps|run)(\.[A-Za-z0-9_-]+)*$/),
   op: z.enum(CONDITION_OPERATORS),
   value: z.unknown().optional(),
 });
 
-/** Parses a condition group from outside (the address); core checks the rest. */
-export const ConditionGroup: z.ZodType<TConditionGroup> = z.lazy(() =>
+/** A group whose groups nest at most `depth` levels, so a crafted address can't recurse on. */
+const groupOf = (depth: number): z.ZodType<TConditionGroup> =>
   z.object({
     match: z.enum(CONDITION_MATCHES),
-    rules: z.array(z.union([ConditionRule, ConditionGroup])),
-  }),
-);
+    rules: z
+      .array(depth > 1 ? z.union([ConditionRule, groupOf(depth - 1)]) : ConditionRule)
+      .max(MAX_RULES),
+  });
+
+/** Parses a condition group from outside (the address); core checks the rest. */
+export const ConditionGroup = groupOf(MAX_DEPTH);
 
 /** The value of a relative-date rule: "within the last 30 days". */
 export const RelativeAmount = z.object({
-  amount: z.int().min(0),
+  amount: z.int().min(0).max(MAX_AMOUNT),
   unit: z.enum(RELATIVE_UNITS).default('days'),
 });
 

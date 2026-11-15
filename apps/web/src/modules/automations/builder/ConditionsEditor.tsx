@@ -21,13 +21,15 @@ export const ConditionsEditor = ({
   extraFields?: FieldInfo[];
 }) => {
   const { fields } = useAutomationFields(subject);
+  // A trigger with no record has no tags to test: no tag field, no tag lookup.
+  const own = subject ? fields : fields.filter((field) => field.path !== 'subject.tagIds');
 
   return (
     <Conditions
       {...props}
-      fields={extraFields.length ? [...fields, ...extraFields] : fields}
+      fields={extraFields.length ? [...own, ...extraFields] : own}
       members={memberQueries}
-      tags={tagsQuery(subject ?? 'customer')}
+      tags={subject ? tagsQuery(subject) : undefined}
     />
   );
 };
