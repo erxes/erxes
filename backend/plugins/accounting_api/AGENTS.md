@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-14`
+- **Last synchronized:** `2026-11-15`
 
 ## Scope
 
@@ -73,6 +73,7 @@
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
 - Provides safe remainder GraphQL list, detail, item list/count, create, edit, remove, recalculate, submit, cancel, transaction-run, transaction-undo, item edit, item bulk edit, and item remove contracts guarded by safe remainder permissions.
+- Provides reserve remainder GraphQL list/count, `reserveRemDetail(_id)`, bulk add, edit, and remove contracts; detail returns `null` for an unknown id.
 - Provides inventory job GraphQL list, detail, create, edit, and remove contracts for production-stage master data with input products, output products, units, quantities, output cost-allocation ratios, and duration.
 - Safe remainder creation uses the selected product category, while recalculation filters products only by that remainder's existing item product ids, including imports outside the category; it stores each item's current total inventory cost, preserves counted zero values, and defaults non-explicit counted total cost from the refreshed quantity and value.
 - Safe remainder bulk import supports deterministic `skip`, `last`, and `add` duplicate rules; `skip` never overwrites an existing census row, `add` sums duplicate counts and explicit total costs, and imported products are recalculated immediately even when they fall outside the original category.
