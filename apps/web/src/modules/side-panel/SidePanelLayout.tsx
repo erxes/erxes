@@ -4,70 +4,79 @@ import { type ComponentType, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { PanelRecordOpener } from './PanelRecordOpener';
-import { panelRecordType, recordPagePath } from './panelRecordTypes';
+import { recordPagePath, usePanelRecordType } from './panelRecordTypes';
+import { Spinner } from 'erxes-ui';
 import { RecordSidePanel } from './RecordSidePanel';
-import type { IRecordViewProps } from './recordView';
 import { SidePanelEmpty } from './SidePanelEmpty';
+import type { IRecordViewProps } from './recordView';
 import { SidePanelRecordStack } from './SidePanelRecordStack';
 import { NEW_RECORD_ID, SIDE_PANEL_ROOT_PATH } from './sidePanelPaths';
 import { sidePanelWidthState, useSidePanel } from './useSidePanel';
-
-// `sales:deal` reads as "Deal".
-const getContentTypeLabel = (contentType: string) => {
-  const name = contentType.split(':').pop() || contentType;
-
-  return name.charAt(0).toUpperCase() + name.slice(1);
-};
 
 // A record not created yet: its draft, saved as the record on Save.
 const SidePanelDraft = ({
   record,
   onBack,
   onClose,
+  label,
   New,
-}: IRecordViewProps & { New: ComponentType }) => {
+}: IRecordViewProps & { label: string; New: ComponentType<{ contentType: string }> }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
   return (
     <>
       <RecordSidePanel.Header
-        title={t('new-record', 'New {{type}}', {
-          type: getContentTypeLabel(record.contentType).toLowerCase(),
-        })}
+        title={t('new-record', 'New {{type}}', { type: label.toLowerCase() })}
         onBack={onBack}
         onClose={onClose}
       />
       <div className="flex flex-1 min-h-0 flex-col">
-        <New />
+        <New contentType={record.contentType} />
       </div>
     </>
   );
 };
 
+/** A link to no record: an unknown type, a plugin that isn't installed, a type without drafts. */
+const SidePanelNotFound = ({ onBack, onClose }: Omit<IRecordViewProps, 'record'>) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+
+  return (
+    <SidePanelEmpty
+      title={t('not-found-title', 'Nothing here')}
+      description={t('not-found-description', 'This panel link does not point to a record.')}
+      onBack={onBack}
+      onClose={onClose}
+    />
+  );
+};
+
 /**
- * A record as the side panel shows it, or its draft. A record's own page
- * draws it too, expanded (`RecordPage`).
+ * A record as the side panel shows it, or its draft: core's, or a plugin's. A record's own
+ * page draws it too, expanded (`RecordPage`).
  */
 export const SidePanelRecord = (props: IRecordViewProps) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const type = panelRecordType(props.record.contentType);
+  const { type, loading } = usePanelRecordType(props.record.contentType);
+  const isNew = props.record.contentId === NEW_RECORD_ID;
 
-  if (!type) {
+  if (loading) {
     return (
-      <SidePanelEmpty
-        title={t('not-found-title', 'Nothing here')}
-        description={t('not-found-description', 'This panel link does not point to a record.')}
-        onBack={props.onBack}
-        onClose={props.onClose}
-      />
+      <>
+        <RecordSidePanel.Header title="" onBack={props.onBack} onClose={props.onClose} />
+        <Spinner area="lg" />
+      </>
     );
+  }
+
+  if (!type || (isNew && !type.New)) {
+    return <SidePanelNotFound onBack={props.onBack} onClose={props.onClose} />;
   }
 
   // A record opened from inside this one goes on top of it, so Back returns here.
   return (
     <PanelRecordOpener stack>
-      {props.record.contentId === NEW_RECORD_ID ? (
-        <SidePanelDraft {...props} New={type.New} />
+      {isNew && type.New ? (
+        <SidePanelDraft {...props} label={type.label} New={type.New} />
       ) : (
         <type.View {...props} />
       )}
@@ -147,9 +156,10 @@ const SidePanelColumn = () => {
   const [expanded] = useQueryState('panelExpanded', parseAsBoolean);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { type } = usePanelRecordType(record?.contentType ?? '');
 
   // Saved records expand into their own pages.
-  const recordPage = record ? recordPagePath(record, pathname) : null;
+  const recordPage = record ? recordPagePath(type, record, pathname) : null;
 
   return (
     <>

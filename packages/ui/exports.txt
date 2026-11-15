@@ -36,10 +36,17 @@ type RecordTimelineProps
 type TActivityRowProps
 type TContactContentType
 type TDashboardWidgetPreview
+type TPanelRecordType
 type TPropertyInputMeta
 type TPropertyInputProps
+type TRecordContacts
+type TRecordDraftProps
 type TRecordSection
 type TRecordSectionProps
+type TRecordSlotProps
+type TRecordTab
+type TRelationTab
+type TRelationTabProps
 value Accordion
 value Alert
 value AlertDialog
@@ -114,6 +121,7 @@ value Popover
 value PopoverScoped
 value RadioGroup
 value RecordOpenerProvider
+value RecordPage
 value RecordTable
 value RecordTableInlineCell
 value RecordTimeline
@@ -166,6 +174,7 @@ value pluginJson
 value readImage
 value setFileStorage
 value setPluginRuntime
+value setRecordPage
 value setRecordTimeline
 value stored
 value storedFamily

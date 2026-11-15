@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
-import { useSidePanelDraft } from '../useSidePanel';
+import { useContactDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 import {
   ContactAvatarRow,
@@ -161,7 +161,7 @@ const BirthDateRow = () => {
 /** Creates the customer (or lead) and links the companies picked in the draft. */
 const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[]) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
-  const { state, leadStageId } = useSidePanelDraft('core:customer');
+  const { state, leadStageId } = useContactDraft('core:customer');
   const { toast } = useToast();
   const create = useCustomerCreate();
   const { linking, finish } = useFinishCreate('core:customer', 'Could not link companies');

@@ -1,4 +1,4 @@
-import { CONTENT_TYPES, CUSTOMER_STATES, LEAD_STAGE_KINDS } from '@erxes/core-db/enums';
+import { CONTENT_TYPES, LEAD_STAGE_KINDS } from '@erxes/core-db/enums';
 import { leadEvents, leadStages } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -47,9 +47,6 @@ export const SourceDetails = z
 export const LeadRecordType = z.enum(CONTENT_TYPES);
 
 export type LeadRecordType = z.infer<typeof LeadRecordType>;
-
-/** `lead`: not a customer yet. People and companies alike. */
-export const ContactState = z.enum(CUSTOMER_STATES);
 
 /**
  * The lifecycle columns every contact (person or company) carries:

@@ -22,7 +22,7 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
-import { useSidePanelDraft } from '../useSidePanel';
+import { useContactDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 import {
   ContactAvatarRow,
@@ -151,7 +151,7 @@ const BusinessRows = () => {
 /** Creates the company and links the customers picked in the draft. */
 const useCompanySave = (form: UseFormReturn<TCompanyForm>, customerIds: string[]) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { state, leadStageId } = useSidePanelDraft('core:company');
+  const { state, leadStageId } = useContactDraft('core:company');
   const { toast } = useToast();
   const create = useCompanyCreate();
   const { linking, finish } = useFinishCreate('core:company', 'Could not link customers');

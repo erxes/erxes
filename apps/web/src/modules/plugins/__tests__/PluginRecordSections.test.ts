@@ -4,6 +4,7 @@ import type { TRecordSectionProps } from 'erxes-ui';
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
+import type { PluginRecordSections as Sections } from '../PluginRecordSections';
 
 const Icon = () => null;
 
@@ -48,8 +49,9 @@ vi.mock('@module-federation/enhanced/runtime', () => ({
 }));
 
 let root: Root | undefined;
+let PluginRecordSections: typeof Sections;
 
-beforeAll(() => {
+beforeAll(async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   vi.stubEnv(
     'PUBLIC_PLUGINS',
@@ -58,6 +60,8 @@ beforeAll(() => {
   // No core here: the registry fails and the local plugins still load.
   vi.stubGlobal('fetch', async () => Promise.reject(new Error('offline')));
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  // Imported once the plugins are stubbed, which web reads when the module loads.
+  ({ PluginRecordSections } = await import('../PluginRecordSections'));
 });
 
 afterEach(() => {
@@ -66,7 +70,6 @@ afterEach(() => {
 });
 
 const renderSections = async (contentType: 'core:customer' | 'core:company') => {
-  const { PluginRecordSections } = await import('../PluginRecordSections');
   const container = document.createElement('div');
 
   document.body.append(container);

@@ -1,26 +1,26 @@
-import { PageContainer } from 'erxes-ui';
+import { PageContainer, type RecordRef } from 'erxes-ui';
+import { RecordSidePanel } from './RecordSidePanel';
 import { useQueryState } from 'nuqs';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { panelRecordType, type TPanelContentType } from './panelRecordTypes';
-import { RecordSidePanel } from './RecordSidePanel';
+import { type TPanelContentType, usePanelRecordType } from './panelRecordTypes';
 import { type ISidePanelNavigator, SidePanelNavigatorContext } from './recordView';
 import { SidePanelRecord } from './SidePanelLayout';
 import { useSidePanel } from './useSidePanel';
 
 /**
- * A record on its own page (`/contacts/customers/:id`, `/products/:id`): the
- * side panel's record view at full size. Related records still open in the
- * side panel beside it.
+ * A record on its own page: the side panel's record view at full size, core's or a plugin's
+ * (erxes-ui's `RecordPage`, which a plugin's `<listPath>/:id` route renders). Related records
+ * still open in the side panel beside it.
  */
-export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) => {
-  const { id = '' } = useParams<{ id: string }>();
+export const RecordPageView = ({ contentType, contentId }: RecordRef) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { openRecord } = useSidePanel();
   const [tab, setTab] = useQueryState('tab');
-  const listPath = panelRecordType(contentType)?.listPath(pathname) ?? '/';
-  const record = useMemo(() => ({ contentType, contentId: id }), [contentType, id]);
+  const { type } = usePanelRecordType(contentType);
+  const listPath = type?.listPath(pathname) ?? '/';
+  const record = useMemo(() => ({ contentType, contentId }), [contentType, contentId]);
 
   const navigator = useMemo<ISidePanelNavigator>(() => {
     const backToList = () => {
@@ -42,9 +42,16 @@ export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) 
     <PageContainer>
       <SidePanelNavigatorContext.Provider value={navigator}>
         <RecordSidePanel expanded expandedMode="page" expandable={false}>
-          <SidePanelRecord key={id} record={record} />
+          <SidePanelRecord key={contentId} record={record} />
         </RecordSidePanel>
       </SidePanelNavigatorContext.Provider>
     </PageContainer>
   );
+};
+
+/** Core's record pages: `/contacts/customers/:id`, `/products/:id`. */
+export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) => {
+  const { id = '' } = useParams<{ id: string }>();
+
+  return <RecordPageView contentType={contentType} contentId={id} />;
 };

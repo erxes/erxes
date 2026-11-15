@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { PageSpinner } from '~/components/PageSpinner';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { paths } from '~/lib/paths';
+import { pluginBasePath } from '~/modules/plugins/pluginConfig';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { OnboardingGuard } from '~/modules/onboarding/OnboardingGuard';
 import { MainLayout } from './MainLayout';
@@ -53,7 +54,7 @@ const PluginRoutes = () => {
       {plugins.map((plugin) => (
         <Route
           key={plugin.remote}
-          path={`/${plugin.config.path.replace(/^\/+|\/+$/g, '')}/*`}
+          path={`${pluginBasePath(plugin.config.path)}/*`}
           element={<PluginPage key={plugin.remote} plugin={plugin} />}
         />
       ))}

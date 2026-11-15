@@ -11,6 +11,7 @@ import { useCan } from '~/modules/auth/session';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadHeaderActions } from '~/modules/leads/LeadHeaderActions';
+import { usePluginRelationTabs } from '~/modules/plugins/PluginRelationTabs';
 import { ContactsBreadcrumb } from '~/modules/contacts/components/ContactsBreadcrumb';
 import { CompanyPanelDetail } from './details/CompanyPanelDetail';
 import {
@@ -108,6 +109,15 @@ const useContactTabs = ({
   const expanded = usePanelExpanded();
   const isCustomer = contentType === 'core:customer';
 
+  // A customer or company is its own contact: plugins list their records of it.
+  const relationTabs = usePluginRelationTabs({
+    contentType,
+    contentId,
+    contacts: isCustomer
+      ? { customerIds: [contentId], companyIds: [] }
+      : { customerIds: [], companyIds: [contentId] },
+  });
+
   const tabs: IRecordSidePanelTab[] = [
     {
       value: DETAIL_TAB,
@@ -129,6 +139,7 @@ const useContactTabs = ({
         <CompanyPanelProperties companyId={contentId} />
       ),
     },
+    ...relationTabs,
     {
       value: ACTIVITY_TAB,
       label: t('activity', 'Activity'),

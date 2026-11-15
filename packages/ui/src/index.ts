@@ -223,7 +223,13 @@ export {
   type TContactContentType,
 } from './modules/records/contacts';
 
-export { type RecordRef, RecordOpenerProvider, useOpenRecord } from './modules/records/openRecord';
+export {
+  RecordOpenerProvider,
+  RecordPage,
+  type RecordRef,
+  setRecordPage,
+  useOpenRecord,
+} from './modules/records/openRecord';
 
 export { ThemeOption, themeState } from './state/themeState';
 
@@ -234,9 +240,16 @@ export {
   type TActivityRowProps,
   type TDashboardWidgetPreview,
   type TPropertyInputMeta,
+  type TPanelRecordType,
   type TPropertyInputProps,
+  type TRecordContacts,
+  type TRecordDraftProps,
   type TRecordSection,
   type TRecordSectionProps,
+  type TRecordSlotProps,
+  type TRecordTab,
+  type TRelationTab,
+  type TRelationTabProps,
 } from './types/UIConfig';
 
 export { isUndefinedOrNull } from './utils/IsUndefinedOrNull';

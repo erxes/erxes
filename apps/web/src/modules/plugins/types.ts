@@ -1,8 +1,8 @@
-import type { TRecordSection } from 'erxes-ui';
+import type { TPanelRecordType, TRecordSection, TRelationTab } from 'erxes-ui';
 import type { ComponentType } from 'react';
 
 /** What a plugin UI exposes as `./config` (`CONFIG`). */
-export interface PluginConfig {
+interface PluginConfig {
   name: string;
   path: string;
   icon?: ComponentType<{ className?: string }>;
@@ -11,9 +11,13 @@ export interface PluginConfig {
   checkAccess?: () => Promise<boolean>;
 }
 
-interface LoadedPluginConfig extends PluginConfig {
+export interface LoadedPluginConfig extends PluginConfig {
   /** The well-formed ones of the plugin's sections on customers and companies. */
   recordSections: TRecordSection[];
+  /** The well-formed ones of the plugin's records shown in core's side panel. */
+  recordTypes: TPanelRecordType[];
+  /** The well-formed ones of the plugin's tabs on other records' panels. */
+  relationTabs: TRelationTab[];
 }
 
 export interface LoadedPlugin {
