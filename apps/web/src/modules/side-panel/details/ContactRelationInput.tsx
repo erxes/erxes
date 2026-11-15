@@ -1,13 +1,15 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, cn, Combobox, Popover, PopoverScoped, Spinner } from 'erxes-ui';
+import { contactQueries } from '@erxes/core-contract/client';
+import { Button, cn, Combobox, ContactLink, Popover, PopoverScoped, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ContactRecordChip,
   SelectContactContent,
   type TContactKind,
 } from '~/modules/contacts/components/ContactPicker';
-import { useSidePanel } from '../useSidePanel';
+
+const contentTypeOf = (kind: TContactKind) =>
+  kind === 'company' ? 'core:company' : 'core:customer';
 
 const ContactRelationTriggerLabel = ({
   saving,
@@ -36,18 +38,21 @@ const ContactRelationPicker = ({
   kind,
   relatedIds,
   onValueChange,
-  onOpen,
 }: {
   kind: TContactKind;
   relatedIds: string[];
   onValueChange?: (value: string[]) => void;
-  onOpen: (id: string) => void;
 }) => {
   if (!onValueChange) {
     return (
       <div className="flex flex-col items-start gap-1 p-2">
         {relatedIds.map((id) => (
-          <ContactRecordChip key={id} kind={kind} id={id} onOpen={() => onOpen(id)} />
+          <ContactLink
+            key={id}
+            contentType={contentTypeOf(kind)}
+            contentId={id}
+            contacts={contactQueries}
+          />
         ))}
       </div>
     );
@@ -63,14 +68,12 @@ const ContactRelationPopover = ({
   scope,
   disabled,
   onValueChange,
-  onOpen,
 }: {
   kind: TContactKind;
   value: string[];
   scope: string;
   disabled: boolean;
   onValueChange?: (ids: string[]) => void;
-  onOpen: (id: string) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [open, setOpen] = useState(false);
@@ -122,7 +125,6 @@ const ContactRelationPopover = ({
               if (!disabled) onValueChange(ids);
             })
           }
-          onOpen={onOpen}
         />
       </Combobox.Content>
     </PopoverScoped>
@@ -144,12 +146,6 @@ export const ContactRelationInput = ({
   disabled?: boolean;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { openRecord } = useSidePanel();
-  const relatedContentType = kind === 'company' ? 'core:company' : 'core:customer';
-
-  const openContact = (id: string) =>
-    openRecord({ contentType: relatedContentType, contentId: id }, { stack: true });
-
   let control = null;
 
   if (onValueChange || value.length > 1) {
@@ -160,7 +156,6 @@ export const ContactRelationInput = ({
         scope={scope}
         disabled={disabled}
         onValueChange={onValueChange}
-        onOpen={openContact}
       />
     );
   } else if (!value.length) {
@@ -175,7 +170,7 @@ export const ContactRelationInput = ({
     <div className="group/relations flex min-h-7 min-w-0 items-center gap-1 px-1">
       {value.slice(0, 1).map((id) => (
         <div key={id} className="flex min-w-0 overflow-hidden">
-          <ContactRecordChip kind={kind} id={id} onOpen={() => openContact(id)} />
+          <ContactLink contentType={contentTypeOf(kind)} contentId={id} contacts={contactQueries} />
         </div>
       ))}
       {control}

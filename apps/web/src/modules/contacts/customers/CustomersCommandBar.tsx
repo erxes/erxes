@@ -1,6 +1,15 @@
 import type { Customer } from '@erxes/core-contract';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
-import { Button, Command, CommandBar, Popover, RecordTable, Separator, useConfirm } from 'erxes-ui';
+import {
+  Button,
+  Command,
+  CommandBar,
+  customerTitle,
+  Popover,
+  RecordTable,
+  Separator,
+  useConfirm,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelectedRows } from '~/components/useSelectedRows';
@@ -8,7 +17,6 @@ import { useCan } from '~/modules/auth/session';
 import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
-import { customerTitle } from '../components/ContactPicker';
 import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
 import { MergeDialog } from '../components/MergeDialog';
 import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCustomers';

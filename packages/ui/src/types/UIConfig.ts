@@ -1,4 +1,5 @@
 import type { Icon } from '@tabler/icons-react';
+import type { TContactContentType } from '../modules/records/contacts';
 
 /** A property input's own settings, stored with the custom field; each input defines its keys. */
 export type TPropertyInputMeta = Record<string, unknown>;
@@ -33,10 +34,30 @@ export type TDashboardWidgetPreview =
   | 'heatmap'
   | 'progress';
 
+/** What a record section is given: the customer or company it shows on. */
+export type TRecordSectionProps = {
+  contentType: TContactContentType;
+  contentId: string;
+};
+
+/**
+ * A section a plugin adds to a customer's or company's detail in core's panel, under core's
+ * own sections: e.g. the customer's deals. One that crashes shows its error, not the panel's.
+ */
+export type TRecordSection = {
+  contentType: TContactContentType;
+  /** The section's heading. */
+  title: string;
+  icon: React.ElementType;
+  component: React.ComponentType<TRecordSectionProps>;
+};
+
 export type IUIConfig = {
   name: string;
   path: string;
   icon?: React.ElementType;
+  /** Sections on core's customer and company detail, shown to members who may use the plugin. */
+  recordSections?: TRecordSection[];
   i18n?: boolean;
   i18nNamespace?: string;
   hasFloatingWidget?: boolean;

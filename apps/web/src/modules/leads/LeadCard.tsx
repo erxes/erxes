@@ -2,10 +2,18 @@ import type { LeadRecordType } from '@erxes/core-contract';
 import { useDraggable } from '@dnd-kit/core';
 import { IconClockHour4, IconMail, IconPhone } from '@tabler/icons-react';
 import { memberQueries } from '@erxes/core-contract/client';
-import { Avatar, cn, memberName, readImage, Tooltip, useMembersById } from 'erxes-ui';
+import {
+  Avatar,
+  cn,
+  companyTitle,
+  customerTitle,
+  memberName,
+  readImage,
+  Tooltip,
+  useMembersById,
+} from 'erxes-ui';
 import { memo } from 'react';
 import { useMinuteClock } from '~/lib/useMinuteClock';
-import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { useLeadsT } from './i18n';
 import type { BoardLead } from './useBoardMove';

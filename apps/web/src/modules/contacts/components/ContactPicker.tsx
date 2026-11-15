@@ -1,31 +1,25 @@
-import type { Company, Customer } from '@erxes/core-contract';
-import { IconArrowUpRight } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { Avatar, Combobox, EntityPicker, Popover, readImage, Skeleton } from 'erxes-ui';
+import {
+  Avatar,
+  Combobox,
+  companyTitle,
+  customerTitle,
+  EntityPicker,
+  Popover,
+  readImage,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useCompany } from '../companies/useCompanies';
-import { customerName, useCustomer } from '../customers/useCustomers';
+import { useCustomer } from '../customers/useCustomers';
 
 /*
- * Customer and company pickers and the record chip, on core's customers and
- * companies lists.
+ * Customer and company pickers, on core's customers and companies lists. A linked one is
+ * erxes-ui's `ContactLink`, the chip plugins show too.
  */
 
 export type TContactKind = 'customer' | 'company';
-
-/** What a customer reads as: its name, else its email or phone. */
-export const customerTitle = (
-  customer: Pick<
-    Customer,
-    'firstName' | 'middleName' | 'lastName' | 'primaryEmail' | 'primaryPhone'
-  >,
-) => customerName(customer) || customer.primaryEmail || customer.primaryPhone || '';
-
-export const companyTitle = (
-  company: Pick<Company, 'primaryName' | 'primaryEmail' | 'primaryPhone'>,
-) => company.primaryName || company.primaryEmail || company.primaryPhone || '';
 
 interface IContactOption {
   id: string;
@@ -33,34 +27,7 @@ interface IContactOption {
   avatarUrl: string | null;
 }
 
-// One linked record: its avatar and name; clicking opens it in the panel.
-const RelationChip = ({
-  name,
-  avatar,
-  onOpen,
-}: {
-  name: string;
-  avatar?: string | null;
-  onOpen: () => void;
-}) => (
-  <button
-    type="button"
-    onClick={onOpen}
-    title={name}
-    data-panel-inline=""
-    className="group/chip inline-flex h-6 max-w-full items-center gap-1 rounded-sm bg-muted px-1.5 text-xs font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-  >
-    <Avatar size="sm" className="size-4 flex-none">
-      <Avatar.Image src={readImage(avatar ?? undefined)} />
-      <Avatar.Fallback>{name.charAt(0)}</Avatar.Fallback>
-    </Avatar>
-    <span className="truncate">{name}</span>
-    {/* It opens the record: say so on hover. */}
-    <IconArrowUpRight className="size-3 flex-none text-muted-foreground opacity-0 transition-opacity group-hover/chip:opacity-100 group-focus-visible/chip:opacity-100" />
-  </button>
-);
-
-/** A linked customer's or company's title and avatar. */
+/** A linked customer's or company's title. */
 const useContactRecord = (kind: TContactKind, id: string) => {
   const customer = useCustomer(kind === 'customer' ? id : null);
   const company = useCompany(kind === 'company' ? id : null);
@@ -68,7 +35,6 @@ const useContactRecord = (kind: TContactKind, id: string) => {
   if (kind === 'customer') {
     return {
       title: customer.data && customerTitle(customer.data),
-      avatar: customer.data?.avatarUrl,
       isPending: customer.isPending,
       error: customer.error,
     };
@@ -76,27 +42,9 @@ const useContactRecord = (kind: TContactKind, id: string) => {
 
   return {
     title: company.data && companyTitle(company.data),
-    avatar: company.data?.avatarUrl,
     isPending: company.isPending,
     error: company.error,
   };
-};
-
-// A linked customer or company as a chip; clicking it calls `onOpen`.
-export const ContactRecordChip = ({
-  kind,
-  id,
-  onOpen,
-}: {
-  kind: TContactKind;
-  id: string;
-  onOpen: () => void;
-}) => {
-  const record = useContactRecord(kind, id);
-
-  if (record.isPending) return <Skeleton radius="sm" className="h-5 w-20" />;
-
-  return <RelationChip name={record.title || id} avatar={record.avatar} onOpen={onOpen} />;
 };
 
 /** A customer's or company's title, or why it could not be read. */

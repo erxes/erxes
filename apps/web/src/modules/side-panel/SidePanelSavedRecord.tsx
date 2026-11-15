@@ -1,13 +1,12 @@
 import type { Company, Customer } from '@erxes/core-contract';
 import { IconAlignLeft, IconHierarchy2, IconHistory, IconId } from '@tabler/icons-react';
-import { Skeleton } from 'erxes-ui';
+import { companyTitle, customerTitle, Skeleton } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
 import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
 import { useCan } from '~/modules/auth/session';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
-import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadHeaderActions } from '~/modules/leads/LeadHeaderActions';
 import { ContactsBreadcrumb } from '~/modules/contacts/components/ContactsBreadcrumb';

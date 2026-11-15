@@ -87,6 +87,7 @@
     "@types/node": "^26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "happy-dom": "21.0.4",
     "jotai": "^3.0.2",
     "nuqs": "^2.10.3",
     "react": "^19.3.1",
