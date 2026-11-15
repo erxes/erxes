@@ -1,7 +1,6 @@
 import type { Customer, CustomerState } from '@erxes/core-contract';
 import {
   IconCalendarPlus,
-  IconEdit,
   IconGenderMale,
   IconLabelFilled,
   IconMail,
@@ -12,10 +11,7 @@ import {
 import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Avatar,
-  Combobox,
-  Command,
   FullNameValue,
-  Popover,
   PopoverScoped,
   readImage,
   RecordTable,
@@ -32,6 +28,7 @@ import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import {
   ContactEmailsCell,
   ContactFieldCell,
+  ContactMoreCell,
   ContactOwnerCell,
   ContactPhonesCell,
   ContactTagsCell,
@@ -47,26 +44,6 @@ const useOpenCustomer = () => {
   const { openRecord } = useSidePanel();
 
   return (id: string) => openRecord({ contentType: 'core:customer', contentId: id });
-};
-
-const CustomerMoreColumnCell = ({ customer }: { customer: Customer }) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
-  const openCustomer = useOpenCustomer();
-
-  return (
-    <Popover>
-      <Popover.Trigger render={<RecordTable.MoreButton className="h-full w-full" />} />
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={() => openCustomer(customer.id)}>
-              <IconEdit /> {t('action-edit')}
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
 };
 
 const CustomerNameCell = ({ customer }: { customer: Customer }) => {
@@ -132,7 +109,7 @@ const identityColumns = (t: (key: string) => string): RecordTableColumnDef<Custo
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
-    cell: ({ row }) => <CustomerMoreColumnCell customer={row.original} />,
+    cell: ({ row }) => <ContactMoreCell record={row.original} />,
     size: 33,
   },
   RecordTable.checkboxColumnOf<Customer>(),

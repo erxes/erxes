@@ -26,8 +26,9 @@ const TestTrace = ({ result }: { result: TestResult }) => {
         )}
       </div>
       <ol className="space-y-2">
-        {result.trace.map((item, index) => (
-          <li key={`${item.stepId}-${index}`} className="rounded-md border p-2 text-sm">
+        {/* A dry run moves forward through the steps, so each step shows up once. */}
+        {result.trace.map((item) => (
+          <li key={item.stepId} className="rounded-md border p-2 text-sm">
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs text-muted-foreground">#{item.stepId}</span>
               <span>{item.outcome}</span>

@@ -6,7 +6,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, Spinner } from 'erxes-ui';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
@@ -17,9 +17,24 @@ import type { PagePicker, Picked, PickTarget } from './usePagePicker';
 const TILE =
   'flex h-11 max-w-48 min-w-0 items-center gap-2 rounded-lg border bg-background p-1 pr-0.5';
 
-const Thumb = ({ src }: { src: string | null }) =>
-  src ? (
-    <img src={src} alt="" className="size-9 shrink-0 rounded-md border object-cover" />
+const ImageThumb = ({ image }: { image: Blob }) => {
+  const show = useCallback(
+    (element: HTMLImageElement) => {
+      const url = URL.createObjectURL(image);
+
+      element.src = url;
+
+      return () => URL.revokeObjectURL(url);
+    },
+    [image],
+  );
+
+  return <img ref={show} alt="" className="size-9 shrink-0 rounded-md border object-cover" />;
+};
+
+const Thumb = ({ image }: { image: Blob | null }) =>
+  image ? (
+    <ImageThumb image={image} />
   ) : (
     <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-accent">
       <IconFileText aria-hidden className="size-4 text-muted-foreground" />
@@ -57,7 +72,7 @@ const UploadTile = ({ item, onRemove }: { item: Upload; onRemove: () => void }) 
           <IconAlertTriangle aria-hidden className="size-4 text-destructive-text" />
         </span>
       ) : (
-        <Thumb src={item.preview} />
+        <Thumb image={item.image} />
       )}
       <span className="flex min-w-0 flex-1 flex-col text-xs">
         <span className="truncate font-medium">{item.name}</span>
@@ -79,7 +94,7 @@ const PickedTile = ({ item, onRemove }: { item: Picked; onRemove: () => void }) 
   return (
     <li className={TILE} title={item.title}>
       {item.selection ? (
-        <Thumb src={item.preview} />
+        <Thumb image={item.image} />
       ) : (
         <span className="flex size-9 shrink-0 items-center justify-center">
           <Spinner />

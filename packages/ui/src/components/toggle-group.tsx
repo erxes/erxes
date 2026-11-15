@@ -18,18 +18,22 @@ const ToggleGroupRoot = <Value extends string>({
   size,
   children,
   ...props
-}: ToggleGroupPrimitive.Props<Value> & VariantProps<typeof toggleVariants>) => (
-  <ToggleGroupPrimitive
-    className={cn(
-      'flex items-center justify-center gap-1 isolate',
-      variant === 'outline' && 'gap-0 bg-muted rounded',
-      className,
-    )}
-    {...props}
-  >
-    <ToggleGroupContext value={{ variant, size }}>{children}</ToggleGroupContext>
-  </ToggleGroupPrimitive>
-);
+}: ToggleGroupPrimitive.Props<Value> & VariantProps<typeof toggleVariants>) => {
+  const look = React.useMemo(() => ({ variant, size }), [variant, size]);
+
+  return (
+    <ToggleGroupPrimitive
+      className={cn(
+        'flex items-center justify-center gap-1 isolate',
+        variant === 'outline' && 'gap-0 bg-muted rounded',
+        className,
+      )}
+      {...props}
+    >
+      <ToggleGroupContext value={look}>{children}</ToggleGroupContext>
+    </ToggleGroupPrimitive>
+  );
+};
 
 const ToggleGroupItem = <Value extends string>({
   className,

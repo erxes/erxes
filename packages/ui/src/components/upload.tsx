@@ -1,6 +1,6 @@
 import { IconTrash, IconUpload, IconUserCircle } from '@tabler/icons-react';
 import type { ChangeEvent, ComponentPropsWithoutRef, RefObject, ReactNode } from 'react';
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, type ButtonProps } from './button';
 import { Dialog } from './dialog';
@@ -61,19 +61,22 @@ const UploadRoot = ({
   const [isImageFocused, setIsImageFocused] = useState(false);
   const url = previewUrl ?? value;
 
+  const upload = useMemo(
+    () => ({
+      url,
+      multiple,
+      onChange,
+      fileInputRef,
+      previewRef,
+      setPreviewUrl,
+      chooseFile: () => fileInputRef.current?.click(),
+      setIsImageFocused,
+    }),
+    [url, multiple, onChange],
+  );
+
   return (
-    <UploadContext.Provider
-      value={{
-        url,
-        multiple,
-        onChange,
-        fileInputRef,
-        previewRef,
-        setPreviewUrl,
-        chooseFile: () => fileInputRef.current?.click(),
-        setIsImageFocused,
-      }}
-    >
+    <UploadContext.Provider value={upload}>
       <Dialog open={isImageFocused} onOpenChange={setIsImageFocused}>
         <Dialog.Content variant="bare" className="max-w-none w-auto">
           <img

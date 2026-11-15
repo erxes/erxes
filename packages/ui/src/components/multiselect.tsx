@@ -53,7 +53,7 @@ const SelectorField = ({
         {value.map((option) => (
           <Combobox.Chip
             key={option.value}
-            className="relative inline-flex h-7 cursor-default items-center rounded-md border border-solid bg-background pe-7 pl-2 ps-2 text-xs font-medium text-secondary-foreground transition-all hover:bg-background data-disabled:cursor-not-allowed data-disabled:opacity-50"
+            className="relative inline-flex h-7 cursor-default items-center rounded-md border border-solid bg-background pe-7 pl-2 ps-2 text-xs font-medium text-secondary-foreground transition-colors hover:bg-background data-disabled:cursor-not-allowed data-disabled:opacity-50"
           >
             {option.label}
             <Combobox.ChipRemove
@@ -127,11 +127,14 @@ const SelectorPopup = ({
 
 const has = (list: MultiSelectOption[], key: string) => list.some((item) => item.value === key);
 
+// One empty list for both defaults, so a selector given neither keeps the same props.
+const NONE: MultiSelectOption[] = [];
+
 /** Picks several options from a list, shown as removable badges; picked options leave the list. */
 export const MultipleSelector = ({
-  value = [],
+  value = NONE,
   onChange,
-  options = [],
+  options = NONE,
   placeholder = 'Search',
   creatable,
   emptyIndicator,

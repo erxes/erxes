@@ -9,6 +9,7 @@ import contract from '../../contract/package.json' with { type: 'json' };
 import lint from '../../lint/package.json' with { type: 'json' };
 import sdk from '../../plugin-sdk/package.json' with { type: 'json' };
 import ui from '../../ui/package.json' with { type: 'json' };
+import root from '../../../package.json' with { type: 'json' };
 
 const pkg = resolve(import.meta.dirname, '..');
 const repo = resolve(pkg, '../..');
@@ -20,13 +21,21 @@ const CORE_FILES = ['tools/check-rls.sql', 'tools/test/no-skips.ts'];
 /** The section every erxes repo's AGENTS.md has, unchanged. */
 const QUALITY = /<!-- quality:start -->[\s\S]*?<!-- quality:end -->/;
 
-/** The version tokens in the template's package.json files. */
+/** The version tokens in the template's package.json files; React Doctor's is core's pin. */
 const VERSIONS = {
   __contractVersion__: contract.version,
   __lintVersion__: lint.version,
   __sdkVersion__: sdk.version,
   __uiVersion__: ui.version,
+  __reactDoctorVersion__: root.devDependencies['react-doctor'],
 };
+
+/** Core's React Doctor config, which a plugin runs on its one React project, ui/. */
+const DOCTOR_CONFIG = 'doctor.config.jsonc';
+const DOCTOR_PROJECTS = /"projects": \[[^\]]*\]/;
+
+// Core's own exceptions, by file, with the comment lines above them.
+const DOCTOR_IGNORE = /\n(?: {2}\/\/[^\n]*\n)* {2}"ignore": \{[\s\S]*?\n {2}\},?(?=\n)/;
 
 /** Core's tenant functions plugin migrations call; the last migration to define one wins. */
 const TENANT_FUNCTIONS = ['core_tenant_visible', 'core_enable_tenant_rls'];
@@ -37,6 +46,14 @@ const qualitySection = async () => {
   if (!section) throw new Error('AGENTS.md has no quality section');
 
   return section;
+};
+
+const doctorConfig = async () => {
+  const config = await readFile(join(repo, DOCTOR_CONFIG), 'utf8');
+
+  if (!DOCTOR_PROJECTS.test(config)) throw new Error(`${DOCTOR_CONFIG} has no projects list`);
+
+  return config.replace(DOCTOR_PROJECTS, '"projects": ["ui"]').replace(DOCTOR_IGNORE, '');
 };
 
 const tenantFunctions = async () => {
@@ -59,6 +76,8 @@ export const writeTemplates = async () => {
   await cp(join(pkg, 'templates'), out, { recursive: true });
 
   for (const file of CORE_FILES) await cp(join(repo, file), join(out, 'base', file));
+
+  await writeFile(join(out, 'base', DOCTOR_CONFIG), await doctorConfig());
 
   const agents = join(out, 'base/AGENTS.md');
   const quality = await qualitySection();

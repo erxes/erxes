@@ -59,7 +59,8 @@ export const TeamMemberEmailField = ({ user }: { user: User }) => {
           value={draft}
           onChange={(event: ChangeEvent<HTMLInputElement>) => setDraft(event.currentTarget.value)}
           onKeyDown={(event) => {
-            if (event.key === 'Enter') {
+            // Enter while an IME composes picks a candidate.
+            if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
               setOpen(false);
               onSave();
             }

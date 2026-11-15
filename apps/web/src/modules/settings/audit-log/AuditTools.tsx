@@ -5,7 +5,7 @@ import { Button, Input, Popover, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { downloadText } from '~/lib/download';
+import { saveFile } from '~/lib/files';
 
 const JWKS = `${CORE_API_PREFIX}/.well-known/jwks.json`;
 const PAGE = 1000;
@@ -29,11 +29,11 @@ const downloadCheckpoints = async () => {
     if (data.length < PAGE || after === undefined) break;
   }
 
-  downloadText(
-    `audit-checkpoints-${new Date().toISOString().slice(0, 10)}.json`,
-    JSON.stringify({ jwks: JWKS, checkpoints: all }, null, 2),
-    'application/json',
-  );
+  const blob = new Blob([JSON.stringify({ jwks: JWKS, checkpoints: all }, null, 2)], {
+    type: 'application/json',
+  });
+
+  saveFile(blob, `audit-checkpoints-${new Date().toISOString().slice(0, 10)}.json`);
 };
 
 const DownloadCheckpoints = () => {

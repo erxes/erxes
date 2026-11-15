@@ -123,8 +123,8 @@ const numberText = (value: unknown, currency: string | undefined) => {
 const NumberMenu = ({ field }: { field: ListField }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { rule, apply } = useTarget(field);
-  const [op, setOp] = useState(oneOf(NUMBER_OPS, rule?.op ?? null) ?? 'gte');
-  const [text, setText] = useState(numberText(rule?.value, field.currency));
+  const [op, setOp] = useState(() => oneOf(NUMBER_OPS, rule?.op ?? null) ?? 'gte');
+  const [text, setText] = useState(() => numberText(rule?.value, field.currency));
   const valid = text.trim() !== '' && Number.isFinite(Number(text));
   const input = useFocusOnMount();
 
@@ -173,7 +173,7 @@ const NumberMenu = ({ field }: { field: ListField }) => {
 const TextMenu = ({ field }: { field: ListField }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { rule, apply } = useTarget(field);
-  const [text, setText] = useState(textOf(rule?.value));
+  const [text, setText] = useState(() => textOf(rule?.value));
   const input = useFocusOnMount();
 
   return (

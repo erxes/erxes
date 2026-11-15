@@ -6,8 +6,8 @@ import { Badge, Button, Spinner, useToast, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { saveFile } from '~/lib/files';
 import { LIST_PATHS } from '~/lib/paths';
-import { downloadText } from '~/lib/download';
 
 const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;
 
@@ -20,7 +20,7 @@ const saveErrorsCsv = (headers: string[], rows: z.infer<typeof ImportRow>[]) => 
     ),
   ].join('\n');
 
-  downloadText('import-errors.csv', text, 'text/csv');
+  saveFile(new Blob([text], { type: 'text/csv' }), 'import-errors.csv');
 };
 
 const Counts = ({ imp }: { imp: Import }) => {

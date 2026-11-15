@@ -12,8 +12,10 @@ are the reference feature: copy their shape for a new one.
 
 ## This repo
 
-- `vp run check` runs the escape guard, format, lint, types, knip, the docs guard
-  and `pnpm check:generated`, which compares the migrations with the schema.
+- `vp run check` runs the escape guard, format, lint, types, React Doctor on `ui/`
+  (`doctor.config.jsonc`), knip, the docs guard and `pnpm check:generated`, which
+  compares the migrations with the schema. `pnpm exec react-doctor why <file:line>`,
+  run in `ui/`, explains a React Doctor hit.
 - Other gates: `vp run test` on real Postgres via `DATA_TEST_URL`,
   `pnpm check:rls`, `pnpm build`. `vp run fix` formats and fixes lint.
 - Core finds the plugin by these names, so they stay fixed: plugin `__id__`,

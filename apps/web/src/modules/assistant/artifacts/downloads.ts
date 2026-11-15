@@ -1,5 +1,5 @@
 import type { AssistantArtifactFormat } from '@erxes/core-contract';
-import { downloadBlob, downloadText } from '~/lib/download';
+import { saveFile } from '~/lib/files';
 import { csvRows } from './csvRows';
 import { reportDocument } from './reportDocument';
 
@@ -46,6 +46,9 @@ const printDocument = (title: string, body: string) => {
 
 const stem = (filename: string) => filename.replace(/\.[^.]+$/, '');
 
+const downloadText = (name: string, text: string, type: string) =>
+  saveFile(new Blob([text], { type }), name);
+
 export const downloadArtifact = async (kind: ArtifactDownload, artifact: ReadyArtifact) => {
   const name = stem(artifact.filename);
 
@@ -65,16 +68,13 @@ export const downloadArtifact = async (kind: ArtifactDownload, artifact: ReadyAr
     case 'xlsx': {
       const { csvToXlsx } = await import('./csvXlsx');
 
-      return downloadBlob(
-        `${name}.xlsx`,
-        await csvToXlsx(artifact.title, csvRows(artifact.content)),
-      );
+      return saveFile(await csvToXlsx(artifact.title, csvRows(artifact.content)), `${name}.xlsx`);
     }
 
     case 'docx': {
       const { markdownToDocx } = await import('./markdownDocx');
 
-      return downloadBlob(`${name}.docx`, await markdownToDocx(artifact.title, artifact.content));
+      return saveFile(await markdownToDocx(artifact.title, artifact.content), `${name}.docx`);
     }
   }
 };

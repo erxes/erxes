@@ -11,16 +11,16 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Dialog, DropdownMenu, Input, Label, useConfirm, useToast } from 'erxes-ui';
-import { safeValidateUIMessages } from 'ai';
+import type { UIMessage } from 'ai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { IconTip } from '~/components/IconTip';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { downloadText } from '~/lib/download';
+import { saveFile } from '~/lib/files';
 import { threadMarkdown } from './exportMarkdown';
 import { paths } from '~/lib/paths';
-import { useThread } from './useThread';
+import { type StoredThread, useThread } from './useThread';
 
 const useThreadMutations = (onDeleted: (threadId: string) => void) => {
   const client = useQueryClient();
@@ -91,19 +91,13 @@ const RenameDialog = ({
   );
 };
 
-type StoredThread = AssistantThread & { messages: unknown[] };
-
-const exportThread = async (thread: StoredThread, title: string) => {
-  const result = await safeValidateUIMessages({ messages: thread.messages });
-
-  if (!result.success) throw result.error;
-
-  downloadText(
+const exportThread = (messages: UIMessage[], title: string) =>
+  saveFile(
+    new Blob([threadMarkdown(title, messages, window.location.origin)], {
+      type: 'text/markdown',
+    }),
     `${title}.md`,
-    threadMarkdown(title, result.data, window.location.origin),
-    'text/markdown',
   );
-};
 
 const ThreadMenu = ({
   thread,
@@ -119,8 +113,8 @@ const ThreadMenu = ({
   onDelete: () => void;
 }) => {
   const { t } = useTranslation('assistant');
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const messages = thread?.messages ?? null;
 
   return (
     <DropdownMenu.Content align="end" className="min-w-48">
@@ -135,14 +129,11 @@ const ThreadMenu = ({
             {thread.pinned ? t('unpin', 'Unpin') : t('pin', 'Pin')}
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            onClick={() =>
-              void exportThread(
-                thread,
-                thread.title ?? t('untitled', 'Untitled conversation'),
-              ).catch((error: unknown) =>
-                toast({ variant: 'destructive', title: messageOf(error) }),
-              )
-            }
+            disabled={messages === null}
+            onClick={() => {
+              if (messages)
+                exportThread(messages, thread.title ?? t('untitled', 'Untitled conversation'));
+            }}
           >
             <IconDownload />
             {t('export', 'Export as Markdown')}

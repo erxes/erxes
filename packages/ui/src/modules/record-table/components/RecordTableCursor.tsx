@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
   type UIEvent,
@@ -92,10 +93,13 @@ export const RecordTableCursorProvider = ({
     if (saved) scroll.scrollTop = saved;
   }, [loading, dataLength, scrollRef, sessionKey, store]);
 
+  const cursor = useMemo(
+    () => ({ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading }),
+    [viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading],
+  );
+
   return (
-    <RecordTableCursorContext.Provider
-      value={{ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading }}
-    >
+    <RecordTableCursorContext.Provider value={cursor}>
       <ScrollArea.Root className="h-full w-full pb-2 pr-2 relative">
         <ScrollArea.Viewport ref={mergeRefs(scrollRef, setViewport)} onScroll={handleScroll}>
           <div className="min-h-table">{children}</div>

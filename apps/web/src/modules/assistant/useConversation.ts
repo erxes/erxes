@@ -1,9 +1,9 @@
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AssistantMentions } from '@erxes/core-contract';
-import { isDataUIPart, safeValidateUIMessages, type UIMessage } from 'ai';
+import { isDataUIPart, type UIMessage } from 'ai';
 import { useSetAtom } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { orpc } from '@erxes/core-contract/client';
 import { type AssistantTab, assistantUnreadState } from './assistantState';
 import { type ChatSession, sessionFor } from './chatSession';
@@ -19,35 +19,15 @@ const isBusy = (status: Status) => status === 'submitted' || status === 'streami
 
 const useStoredMessages = (session: ChatSession, threadId: string | null, status: Status) => {
   const thread = useThread(threadId);
-  const [loaded, setLoaded] = useState(threadId === null);
+  const [startedEmpty] = useState(threadId === null);
+  const stored = thread.data;
+  const idle = !isBusy(status);
 
-  useEffect(() => {
-    const stored = thread.data;
+  useLayoutEffect(() => {
+    if (stored?.messages && idle) session.showStored(stored.messages);
+  }, [stored, idle, session]);
 
-    if (!stored || isBusy(status)) return undefined;
-
-    let current = true;
-
-    const apply = async () => {
-      const result = await safeValidateUIMessages({
-        messages: stored.messages.map(({ id, role, parts }) => ({ id, role, parts })),
-      });
-
-      if (!current) return;
-
-      if (result.success) session.showStored(result.data);
-
-      setLoaded(true);
-    };
-
-    void apply();
-
-    return () => {
-      current = false;
-    };
-  }, [thread.data, status, session]);
-
-  return { thread, loaded };
+  return { thread, loaded: startedEmpty || stored !== undefined };
 };
 
 const useUnreadWhenClosed = (status: Status, open: boolean) => {

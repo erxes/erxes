@@ -12,9 +12,9 @@ const config: KnipConfig = {
         config: ['e2e/playwright.config.ts'],
         entry: ['e2e/*.spec.ts', 'e2e/*.setup.ts'],
       },
-      // The check task runs both: oxlint calls tsrs-lint through OXLINT_TSGOLINT_PATH, and jscpd
-      // reads .jscpd.json.
-      ignoreDependencies: ['tsrs', 'jscpd'],
+      // The check task runs these: oxlint calls tsrs-lint through OXLINT_TSGOLINT_PATH, jscpd
+      // reads .jscpd.json and react-doctor reads doctor.config.jsonc.
+      ignoreDependencies: ['tsrs', 'jscpd', 'react-doctor'],
     },
     // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
     'apps/api': {

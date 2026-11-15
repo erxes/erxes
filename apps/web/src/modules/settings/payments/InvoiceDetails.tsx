@@ -98,7 +98,7 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
   const left = invoice.refundable.amount;
   // A gateway that refunds whole payments only can't take part of it: record those as manual.
   const gatewayCanPartial = invoice.refundable.gateway === 'partial';
-  const [amount, setAmount] = useState(toAmountInput(left, currency));
+  const [amount, setAmount] = useState(() => toAmountInput(left, currency));
   const [reason, setReason] = useState('');
 
   const [manual, setManual] = useState(

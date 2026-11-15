@@ -13,7 +13,7 @@ import { pageOfPath } from './recordPages';
 export interface Picked {
   key: string;
   title: string;
-  preview: string | null;
+  image: Blob | null;
   selection: AssistantSelection | null;
 }
 
@@ -181,12 +181,11 @@ export const usePagePicker = () => {
     const { width, height } = element.getBoundingClientRect();
     const text = textOf(element).slice(0, ASSISTANT_SELECTION_TEXT_MAX);
 
-    setItems((current) => [...current, { key, title, preview: null, selection: null }]);
+    setItems((current) => [...current, { key, title, image: null, selection: null }]);
 
     try {
       const snapshot = await snapshotOf(element);
       const stored = await uploadFile(snapshot);
-      const preview = URL.createObjectURL(snapshot);
 
       const selection: AssistantSelection = {
         id: key,
@@ -199,7 +198,7 @@ export const usePagePicker = () => {
       };
 
       setItems((current) =>
-        current.map((item) => (item.key === key ? { ...item, preview, selection } : item)),
+        current.map((item) => (item.key === key ? { ...item, image: snapshot, selection } : item)),
       );
     } catch (error) {
       setItems((current) => current.filter((item) => item.key !== key));
@@ -213,21 +212,14 @@ export const usePagePicker = () => {
 
   const picking = usePicking((element) => void capture(element));
 
-  const keep = (kept: (item: Picked) => boolean) => {
-    items.forEach((item) => {
-      if (item.preview && !kept(item)) URL.revokeObjectURL(item.preview);
-    });
-    setItems((current) => current.filter(kept));
-  };
-
   return {
     ...picking,
     items,
     full: items.length >= ASSISTANT_SELECTIONS_MAX,
     capturing: items.some((item) => item.selection === null),
     selections: items.flatMap((item) => (item.selection ? [item.selection] : [])),
-    remove: (key: string) => keep((item) => item.key !== key),
-    clear: () => keep(() => false),
+    remove: (key: string) => setItems((current) => current.filter((item) => item.key !== key)),
+    clear: () => setItems([]),
   };
 };
 
