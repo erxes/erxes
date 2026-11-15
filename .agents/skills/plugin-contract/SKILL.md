@@ -12,7 +12,12 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      a plugin built before a path moved keeps calling the old one;
    - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction.
      Core's own events name the record (`entityId`, `subjectId`) and what changed, never the row:
-     a subscriber reads the record from core;
+     a subscriber reads the record from core. A plugin event with a `summary` goes on the
+     timeline of the record it names: `entityType` (a type the plugin's manifest declares in
+     `timelines`) and `entityId`, and the customer or company in `subjectType` and `subjectId`;
+     one event can reach both (`timelineConsumer` in
+     `apps/api/src/modules/events/coreConsumers.ts`). Another plugin's or an undeclared type is
+     ignored. `activities.create` is for entries that are not events;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`);
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
