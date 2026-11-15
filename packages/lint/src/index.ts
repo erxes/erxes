@@ -73,6 +73,21 @@ export const preset = {
       rules: {
         ...browserRules,
         ...designRules,
+        // A folder's own files import as ./; anything else by where it lives.
+        'no-restricted-imports': [
+          'error',
+          {
+            ...pluginImports,
+            patterns: [
+              ...pluginImports.patterns,
+              {
+                regex: String.raw`^\.\./`,
+                message:
+                  'Import a feature as @/<feature>/… (src/modules) and the rest as ~/… (src).',
+              },
+            ],
+          },
+        ],
         'no-restricted-globals': [
           'error',
           {

@@ -6,7 +6,7 @@ description: Make a plugin page look and behave like core's own pages (contacts,
 A member moves between core and plugins without noticing the seam. Core's
 web app (erxes repo, branch `postgre`, `apps/web/src/modules`) is the
 reference: `contacts/customers` and `products` for lists and records,
-`settings/tags` for settings. This repo's `ui/src/items` is the same shape,
+`settings/tags` for settings. This repo's `ui/src/modules/items` is the same shape,
 built only from what plugins can import. When a page has to differ, say why in
 a comment.
 
@@ -37,7 +37,7 @@ a comment.
 
 ## Filter
 
-`ui/src/items/ItemsFilter.tsx` is the pattern; copy it.
+`ui/src/modules/items/ItemsFilter.tsx` is the pattern; copy it.
 
 - One erxes-ui `Filter` per list. The filter button opens a menu: search
   first, then every field the list can be narrowed by, each with its icon.
@@ -52,7 +52,7 @@ a comment.
 ## Forms
 
 - A new record, and any form of a few fields, opens in the side panel: an
-  erxes-ui `Sheet` (`ui/src/items/ItemSheet.tsx`), one row per field with its
+  erxes-ui `Sheet` (`ui/src/modules/items/ItemSheet.tsx`), one row per field with its
   icon and label in the left column (`grid-cols-field`) and the control on the
   right, then Cancel and Save at the bottom. Nothing saves until Save; a
   field's error shows under that field.
