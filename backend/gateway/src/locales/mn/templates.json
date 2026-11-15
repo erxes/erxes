@@ -62,7 +62,6 @@
   "group-solution": "Шийдлүүд",
   "group-automation": "Automation",
   "group-segment": "Segment",
-  "plugin-all": "Бүх app",
   "segment-count_one": "{{count}} segment",
   "segment-count_other": "{{count}} segment",
   "no-templates-filtered": "Энд template алга",
@@ -78,5 +77,14 @@
   "reinstall-confirm_other": "Энэ загвар аль хэдийн {{count}} удаа суулгагдсан, {{automations}} automation нь байсаар байна. Давхар хуулбар суулгах уу?",
   "reinstall-confirm-segment_one": "Энэ загвар аль хэдийн суулгагдсан. Дахин суулгавал ижил segment-үүд давхар үүснэ. Үргэлжлүүлэх үү?",
   "reinstall-confirm-segment_other": "Энэ загвар аль хэдийн {{count}} удаа суулгагдсан. Дахин суулгавал ижил segment-үүд дахин үүснэ. Үргэлжлүүлэх үү?",
-  "install-again": "Дахин суулгах"
+  "install-again": "Дахин суулгах",
+  "hero-title": "Ажиллаж байгаа зүйлээс эхэл",
+  "hero-subtitle_one": "{{apps}}-д зориулсан {{count}} бэлэн template. Хэдэн асуултад хариулаад л ажиллана.",
+  "hero-subtitle_other": "{{apps}}-д зориулсан {{count}} бэлэн template. Хэдэн асуултад хариулаад л ажиллана.",
+  "hero-search-placeholder": "Template хайх, жишээ нь \"deal won\" эсвэл \"birthday\"",
+  "hero-search-clear": "Хайлтыг цэвэрлэх",
+  "group-solution-description": "Бүтэн ажлыг хийдэг AI ажилтан",
+  "group-automation-description": "Нэг мөчид зориулсан нэг урсгал",
+  "group-segment-description": "Бэлэн харилцагчийн бүлгүүд",
+  "section-see-all": "Бүгдийг харах {{count}}"
 }
