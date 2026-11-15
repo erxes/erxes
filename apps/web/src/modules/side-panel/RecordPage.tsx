@@ -22,19 +22,21 @@ export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) 
   const listPath = panelRecordType(contentType)?.listPath(pathname) ?? '/';
   const record = useMemo(() => ({ contentType, contentId: id }), [contentType, id]);
 
-  const backToList = () => {
-    void navigate(listPath);
-  };
+  const navigator = useMemo<ISidePanelNavigator>(() => {
+    const backToList = () => {
+      void navigate(listPath);
+    };
 
-  const navigator: ISidePanelNavigator = {
-    record,
-    tab: tab ?? '',
-    setTab: (next) => void setTab(next),
-    openRecord,
-    back: backToList,
-    canGoBack: false,
-    close: backToList,
-  };
+    return {
+      record,
+      tab: tab ?? '',
+      setTab: (next) => void setTab(next),
+      openRecord,
+      back: backToList,
+      canGoBack: false,
+      close: backToList,
+    };
+  }, [record, tab, setTab, openRecord, navigate, listPath]);
 
   return (
     <PageContainer>
