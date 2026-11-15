@@ -83,33 +83,38 @@ export const notificationHandler = async (
       .json({ status: 'retry', message: 'payment not confirmed yet' });
   }
 
-  // Only the request that actually moves the transaction to paid announces
-  // it, so a retried push (or a redirect callback racing it) stays silent.
+  // Only the request that actually moves the transaction to paid sends the
+  // transaction callback, so a retried push (or a redirect callback racing
+  // it) does not repeat it.
   const { modifiedCount } = await models.Transactions.updateOne(
     { _id: transaction._id, status: PAYMENT_STATUS.PENDING },
     { $set: { status: PAYMENT_STATUS.PAID, updatedAt: new Date() } },
   );
 
-  if (modifiedCount) {
-    graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
-      transactionUpdated: {
-        _id: transaction._id,
-        status: PAYMENT_STATUS.PAID,
-        amount: transaction.amount,
-        paymentKind: transaction.paymentKind,
-      },
-    });
-
-    await sendTransactionCallback(subdomain, models, transaction);
-  }
-
-  // Same path as the invoicesCheck mutation: checkInvoiceAndClaim moves the
-  // invoice to paid atomically, so exactly one caller gets claimed=true and
-  // notifies. notifyPaidInvoice dedupes the plugin job by invoice id, retries
-  // the external callback through its queue, and leaves notifyPending set
-  // for the invoice re-check worker if anything fails.
+  // Claim the invoice before telling the owning plugin about the transaction,
+  // in the same order as the redirect callback, so a consumer reading the
+  // invoice while handling the callback already sees it paid.
+  // checkInvoiceAndClaim moves the invoice to paid atomically: exactly one
+  // caller gets claimed=true and notifies. notifyPaidInvoice dedupes the plugin
+  // job by invoice id, retries the external callback through its queue, and
+  // leaves notifyPending set for the invoice re-check worker if anything fails.
   const { status: invoiceStatus, claimed } =
     await models.Invoices.checkInvoiceAndClaim(transaction.invoiceId, subdomain);
+
+  // Always tell subscribers, even if another path marked it paid first; the
+  // event is idempotent and keeps an open widget from showing pending.
+  graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
+    transactionUpdated: {
+      _id: transaction._id,
+      status: PAYMENT_STATUS.PAID,
+      amount: transaction.amount,
+      paymentKind: transaction.paymentKind,
+    },
+  });
+
+  if (modifiedCount) {
+    await sendTransactionCallback(subdomain, models, transaction);
+  }
 
   if (invoiceStatus === PAYMENT_STATUS.PAID && claimed) {
     try {
@@ -308,25 +313,22 @@ export class GolomtAPI extends BaseAPI {
       transactionId,
       checksum: hmac256(this.key, transactionId + transactionId),
     };
-    try {
-      const response = await this.request({
-        path: PAYMENTS.golomt.actions.invoiceCheck,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + this.token,
-        },
-        data,
-      }).then((r) => r.json());
 
-      if (response.status && response.status === 'SENT') {
-        return PAYMENT_STATUS.PAID;
-      }
+    const response = await this.request({
+      path: PAYMENTS.golomt.actions.invoiceCheck,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + this.token,
+      },
+      data,
+    }).then((r) => r.json());
 
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw e;
+    if (response.status && response.status === 'SENT') {
+      return PAYMENT_STATUS.PAID;
     }
+
+    return PAYMENT_STATUS.PENDING;
   }
 
   async checkInvoice(transaction: any) {
