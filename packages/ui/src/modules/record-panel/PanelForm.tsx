@@ -41,7 +41,8 @@ export const PanelFormRow = ({
         htmlFor={htmlFor}
         className="flex min-h-7 min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
       >
-        <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+        {/* By the first line of a label that wraps. */}
+        <Icon className="mt-1.75 size-3.5 shrink-0 self-start" aria-hidden="true" />
         <PanelLabel tooltip={label}>
           {label}
           {required && <span className="text-destructive"> *</span>}
