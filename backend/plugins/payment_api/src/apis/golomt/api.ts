@@ -98,8 +98,17 @@ export const notificationHandler = async (
   // caller gets claimed=true and notifies. notifyPaidInvoice dedupes the plugin
   // job by invoice id, retries the external callback through its queue, and
   // leaves notifyPending set for the invoice re-check worker if anything fails.
-  const { status: invoiceStatus, claimed } =
-    await models.Invoices.checkInvoiceAndClaim(transaction.invoiceId, subdomain);
+  let claim: { status: string; claimed: boolean } | undefined;
+  let claimError: unknown;
+
+  try {
+    claim = await models.Invoices.checkInvoiceAndClaim(
+      transaction.invoiceId,
+      subdomain,
+    );
+  } catch (e) {
+    claimError = e;
+  }
 
   // Always tell subscribers, even if another path marked it paid first; the
   // event is idempotent and keeps an open widget from showing pending.
@@ -112,11 +121,27 @@ export const notificationHandler = async (
     },
   });
 
+  // Sent even if the claim failed: the transaction is paid either way, and
+  // this request is the only one that will ever see modifiedCount > 0, so
+  // skipping it here would lose the callback for good.
   if (modifiedCount) {
     await sendTransactionCallback(subdomain, models, transaction);
   }
 
-  if (invoiceStatus === PAYMENT_STATUS.PAID && claimed) {
+  if (claimError) {
+    // The invoice stays unclaimed; a redelivered push or the invoice re-check
+    // worker claims it and sends the paid notification. The transaction
+    // callback is not repeated then, since the transaction is already paid.
+    console.error(
+      `[golomt notification] failed to claim invoice ${transaction.invoiceId}`,
+      claimError,
+    );
+    return res
+      .status(503)
+      .json({ status: 'retry', message: 'invoice not updated yet' });
+  }
+
+  if (claim?.status === PAYMENT_STATUS.PAID && claim.claimed) {
     try {
       await notifyPaidInvoice(models, subdomain, transaction.invoiceId);
     } catch (e) {
