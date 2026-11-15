@@ -34,6 +34,10 @@ a comment.
   nothing yet; a filtered empty list says nothing matches.
 - A board (kanban) is another view of the same list: same header, same filter
   bar, a toggle at the bar's right end.
+- Records that move through stages (tasks by status) can also show as erxes-ui's
+  `RecordList`: rows grouped under sticky headers that fold away, with a
+  checkbox each and `RecordList.useSelection()` for the bulk command bar.
+  It is another view, beside the table and the board.
 
 ## Filter
 

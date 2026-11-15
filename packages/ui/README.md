@@ -27,6 +27,8 @@ Only what something uses:
   `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl`, `addPluginStyles` and the `IUIConfig` types,
 - the design-system primitives in `src/components` (Accordion, Card, Slider …), even unused,
   because plugins build on them,
+- the record views plugins build lists from: `RecordTable` and `RecordList` (rows grouped under
+  headers that fold away, such as tasks by status; the Operation plugin is the first consumer),
 - the pickers in `src/modules/pickers`: `EntityPicker`, and `SelectMember`, `MemberInline` and
   `useMembersById`, which take `memberQueries` from `@erxes/core-contract/client`. They read
   through TanStack query options, so erxes-ui imports nothing from core.
