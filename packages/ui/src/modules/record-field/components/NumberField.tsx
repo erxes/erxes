@@ -1,7 +1,7 @@
 import { Input } from 'erxes-ui/components/input';
 import { useFormat } from 'erxes-ui/lib/format';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
@@ -28,12 +28,13 @@ export const NumberField = ({
   const fmt = useFormat();
   const [isOpen, setIsOpen] = useState(false);
   const [editingValue, setEditingValue] = useState(String(value));
-  const [isEdited, setIsEdited] = useState(false);
+  // Whether the open popover's value was typed in; closing it saves only then.
+  const edited = useRef(false);
   const shown = isOpen ? editingValue : formatValue ? formatValue(value) : fmt.number(value);
 
   const resetEditing = () => {
     setEditingValue(String(value));
-    setIsEdited(false);
+    edited.current = false;
   };
 
   const handleAction = (e?: React.SubmitEvent) => {
@@ -64,7 +65,7 @@ export const NumberField = ({
 
         if (open) {
           resetEditing();
-        } else if (isEdited) {
+        } else if (edited.current) {
           handleAction();
         }
       }}
@@ -82,7 +83,7 @@ export const NumberField = ({
 
             if (/^-?\d*\.?\d*$/.test(rawValue)) {
               setEditingValue(rawValue);
-              setIsEdited(true);
+              edited.current = true;
               const numValue = Number(rawValue);
 
               if (!isNaN(numValue)) {
