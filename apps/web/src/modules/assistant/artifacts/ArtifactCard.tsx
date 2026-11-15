@@ -144,11 +144,13 @@ const FullView = ({
   artifact,
   open,
   onOpenChange,
+  actions,
   children,
 }: {
   artifact: AssistantArtifact;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  actions: React.ReactNode;
   children: React.ReactNode;
 }) => {
   const { t } = useTranslation('assistant');
@@ -157,6 +159,7 @@ const FullView = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="flex max-h-lightbox flex-col sm:max-w-4xl">
         <Dialog.HeaderCombined title={artifact.title} description={kindLabel(artifact.format, t)} />
+        <div className="absolute top-3 right-14">{actions}</div>
         <div className="min-h-0 flex-1 overflow-auto rounded-md border">{children}</div>
       </Dialog.Content>
     </Dialog>
@@ -206,7 +209,12 @@ export const ArtifactCard = ({ artifact }: { artifact: AssistantArtifact }) => {
       <div ref={printed} className="max-h-64 overflow-hidden">
         <Preview artifact={artifact} rows={rows} html={html} limit={CARD_ROWS} />
       </div>
-      <FullView artifact={artifact} open={open} onOpenChange={setOpen}>
+      <FullView
+        artifact={artifact}
+        open={open}
+        onOpenChange={setOpen}
+        actions={<DownloadMenu artifact={artifact} ready={ready} />}
+      >
         <Preview artifact={artifact} rows={rows} html={html} />
       </FullView>
     </section>

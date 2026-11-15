@@ -2,7 +2,7 @@ import type { AssistantThread } from '@erxes/core-contract';
 import { IconLoader2, IconPin, IconSearch } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Button, Dialog, InputGroup, ScrollArea, useFormat } from 'erxes-ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
@@ -100,10 +100,11 @@ export const HistoryDialog = ({
 }) => {
   const { t } = useTranslation('assistant');
   const [search, setSearch] = useState('');
+  const input = useRef<HTMLInputElement>(null);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="sm:max-w-md">
+      <Dialog.Content className="sm:max-w-md" initialFocus={input}>
         <Dialog.HeaderCombined
           title={t('history', 'Conversations')}
           description={t(
@@ -116,6 +117,7 @@ export const HistoryDialog = ({
             <IconSearch className="size-4" />
           </InputGroup.Addon>
           <InputGroup.Input
+            ref={input}
             type="search"
             aria-label={t('search-history', 'Search conversations')}
             placeholder={t('search-history', 'Search conversations')}
