@@ -19,6 +19,7 @@
     "@erxes/lint": "__lintVersion__",
     "@types/node": "^26.6.6",
     "knip": "^6.45.1",
+    "react-doctor": "__reactDoctorVersion__",
     "tsrs": "0.25.0-ts7.1.0-beta",
     "typescript": "7.0.2",
     "vite-plus": "catalog:"

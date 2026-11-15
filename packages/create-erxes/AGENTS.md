@@ -10,7 +10,8 @@ has a flag (`src/cli.ts`); `-y` takes the defaults.
 - The templates are not code until the names are filled in, so core's check skips them. The
   generated plugin's own `vp run check` lints them, in the e2e test.
 - A plugin takes some files from core unchanged: `tools/check-rls.sql`, `tools/test/no-skips.ts`,
-  the quality section of the root `AGENTS.md` and the tenant functions from `packages/db/drizzle`.
+  the quality section of the root `AGENTS.md`, the tenant functions from `packages/db/drizzle`,
+  and `doctor.config.jsonc` with `ui` as its one project.
   `scripts/templates.ts` copies them into `dist/templates` at build time, so `templates/` holds no
   copy. Change them in core.
 - A plugin lints with `@erxes/lint`'s preset (`packages/lint`). `scripts/templates.ts` fills the

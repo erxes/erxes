@@ -1,4 +1,5 @@
-// React Doctor's rules for core's React code. `vp run check` runs it and fails on any warning.
+// React Doctor's rules for erxes React code. `vp run check` runs it and fails on any warning.
+// create-erxes gives every plugin this file, with its ui/ as the one project.
 {
   "$schema": "https://react.doctor/schema/config.json",
   "projects": ["apps/web", "packages/ui"],

@@ -6,6 +6,10 @@ import { noSkips } from './tools/test/no-skips.ts';
 // The type check is tsrs (TypeScript 7) running as oxlint's tsgolint.
 const tsrs = 'OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint';
 
+// React Doctor on ui/ (doctor.config.jsonc), failing on any warning. Offline: no score upload,
+// share link or crash reports, and no dependency scan.
+const reactDoctor = 'react-doctor --no-score --no-supply-chain --blocking warning';
+
 // Vite Task tracks the files each command reads; the lockfile is listed too, so an
 // install that changes a dependency always reruns the task.
 const tracked = { input: [{ auto: true }, 'pnpm-lock.yaml'] };
@@ -15,7 +19,7 @@ export default defineConfig({
     tasks: {
       // A rerun with no edits replays the last result.
       check: {
-        command: `erxes-check-escapes && ${tsrs} vp check && knip && erxes-check-docs && pnpm check:generated`,
+        command: `erxes-check-escapes && ${tsrs} vp check && ${reactDoctor} && knip && erxes-check-docs && pnpm check:generated`,
         cache: tracked,
       },
       fix: { command: `${tsrs} vp check --fix`, cache: false },
