@@ -5,7 +5,7 @@ import { Button } from '../../components/button';
 import { Checkbox } from '../../components/checkbox';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import { cn } from '../../lib/utils';
-import { collapsedGroups, useRecordListContext } from './RecordListProvider';
+import { collapsedGroups, useRecordListContext, useSelectionState } from './RecordListProvider';
 
 /** A run of rows under one header, such as the tasks in one status. */
 export interface RecordListGroup<TRow> {
@@ -31,12 +31,13 @@ interface RecordListProps<TRow> {
 
 /**
  * A row's control that shows on hover or focus. A row's own controls (an empty date, say) can
- * use the same classes. A touch screen has no hover, so there they always show.
+ * use the same classes. Where a finger may be the pointer (a phone, a touch laptop), nothing
+ * hovers first, so there they always show.
  */
 const revealed =
   'opacity-0 group-hover/list-row:opacity-100 group-focus-within/list-row:opacity-100';
 
-const useHover = () => useMediaQuery('(hover: hover)');
+const useHover = () => useMediaQuery('(hover: hover) and (not (any-pointer: coarse))');
 
 const GroupHeader = ({
   group,
@@ -51,9 +52,9 @@ const GroupHeader = ({
   collapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
 }) => {
-  const { selected, toggleAll } = useRecordListContext();
+  const { selection } = useRecordListContext();
   const hover = useHover();
-  const picked = ids.filter((id) => selected.has(id)).length;
+  const picked = useSelectionState((current) => ids.filter((id) => current.has(id)).length);
 
   return (
     <div className="group/list-row sticky top-0 z-10 flex h-9 items-center gap-1 border-b bg-muted px-2 text-xs font-medium">
@@ -67,14 +68,15 @@ const GroupHeader = ({
           checked={picked > 0 && picked === ids.length}
           indeterminate={picked > 0 && picked < ids.length}
           aria-label={`Select all in ${group.label}`}
-          onCheckedChange={() => toggleAll(ids)}
+          onCheckedChange={() => selection.toggleAll(ids)}
         />
       </span>
       <Button
         variant="ghost"
         size="sm"
         aria-expanded={!collapsed}
-        aria-controls={panelId}
+        // A folded group's rows aren't rendered, so there is no panel to point at.
+        aria-controls={collapsed ? undefined : panelId}
         onClick={() => onCollapse(!collapsed)}
       >
         {collapsed ? <IconChevronRight aria-hidden /> : <IconChevronDown aria-hidden />}
@@ -98,9 +100,10 @@ const Row = ({
   order: string[];
   children: ReactNode;
 }) => {
-  const { selected, toggle } = useRecordListContext();
+  const { selection } = useRecordListContext();
   const hover = useHover();
-  const checked = selected.has(id);
+  const checked = useSelectionState((current) => current.has(id));
+  const selecting = useSelectionState((current) => current.size > 0);
 
   return (
     <li
@@ -111,7 +114,7 @@ const Row = ({
       <span
         className={cn(
           'flex h-11 w-8 shrink-0 items-center justify-center',
-          hover && selected.size === 0 && revealed,
+          hover && !selecting && revealed,
         )}
       >
         {/* Its hit area fills the cell, so a tap anywhere in it toggles the box. */}
@@ -125,7 +128,7 @@ const Row = ({
             // Shift-click picks a range of rows, not their text.
             if (range) window.getSelection()?.removeAllRanges();
 
-            toggle(id, range ? order : undefined);
+            selection.toggle(id, range ? order : undefined);
           }}
         />
       </span>
@@ -153,35 +156,40 @@ export const RecordListRoot = <TRow,>({
   const folded = (group: RecordListGroup<TRow>) => grouped && collapsed.includes(group.id);
   const order = groups.filter((group) => !folded(group)).flatMap((group) => group.rows.map(rowId));
 
+  const rows = (list: TRow[]) =>
+    list.map((row) => (
+      <Row key={rowId(row)} id={rowId(row)} label={rowLabel(row)} order={order}>
+        {renderRow(row)}
+      </Row>
+    ));
+
+  if (!grouped) {
+    return (
+      <div data-record-list={listId} className={className}>
+        <ul>{rows(groups.flatMap((group) => group.rows))}</ul>
+      </div>
+    );
+  }
+
   return (
     <div data-record-list={listId} className={className}>
       {groups.map((group) => {
         const panelId = `${prefix}-${group.id}`;
 
         return (
-          <section key={group.id} aria-label={grouped ? group.label : undefined}>
-            {grouped && (
-              <GroupHeader
-                group={group}
-                ids={group.rows.map(rowId)}
-                panelId={panelId}
-                collapsed={folded(group)}
-                onCollapse={(fold) =>
-                  setCollapsed(
-                    fold ? [...collapsed, group.id] : collapsed.filter((id) => id !== group.id),
-                  )
-                }
-              />
-            )}
-            {!folded(group) && (
-              <ul id={panelId}>
-                {group.rows.map((row) => (
-                  <Row key={rowId(row)} id={rowId(row)} label={rowLabel(row)} order={order}>
-                    {renderRow(row)}
-                  </Row>
-                ))}
-              </ul>
-            )}
+          <section key={group.id} aria-label={group.label}>
+            <GroupHeader
+              group={group}
+              ids={group.rows.map(rowId)}
+              panelId={panelId}
+              collapsed={folded(group)}
+              onCollapse={(fold) =>
+                setCollapsed((current) =>
+                  fold ? [...current, group.id] : current.filter((id) => id !== group.id),
+                )
+              }
+            />
+            {!folded(group) && <ul id={panelId}>{rows(group.rows)}</ul>}
           </section>
         );
       })}

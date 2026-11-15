@@ -18,7 +18,14 @@ const groups: RecordListGroup<Task>[] = [
     ],
   },
   { id: 'doing', label: 'In progress', rows: [{ id: 't3', name: 'Book the room' }] },
-  { id: 'done', label: 'Done', rows: [{ id: 't4', name: 'Send invites' }] },
+  {
+    id: 'done',
+    label: 'Done',
+    rows: [
+      { id: 't4', name: 'Send invites' },
+      { id: 't5', name: 'Print badges' },
+    ],
+  },
 ];
 
 let root: Root | undefined;
@@ -36,10 +43,10 @@ afterEach(() => {
 /** What a command bar beside the list reads: the picked ids. */
 const Picked = () => createElement('output', null, RecordList.useSelection().ids.join(','));
 
-const list = (props: { grouped?: boolean } = {}): ReactNode =>
+const list = ({ listId = 'tasks', ...props }: { grouped?: boolean; listId?: string } = {}) =>
   createElement(
     RecordList.Provider,
-    { listId: 'tasks' },
+    { listId },
     createElement(RecordList<Task>, {
       groups,
       rowId: (task) => task.id,
@@ -53,12 +60,15 @@ const list = (props: { grouped?: boolean } = {}): ReactNode =>
 const picked = (container: HTMLElement) => container.querySelector('output')?.textContent;
 
 /** A fresh store each time, so what stays folded comes from the browser's storage. */
+const show = (node: ReactNode) =>
+  act(async () => root?.render(createElement(Provider, { store: createStore() }, node)));
+
 const render = async (node: ReactNode) => {
   const container = document.createElement('div');
 
   document.body.append(container);
   root = createRoot(container);
-  await act(async () => root?.render(createElement(Provider, { store: createStore() }, node)));
+  await show(node);
 
   return container;
 };
@@ -104,31 +114,53 @@ describe('RecordList', () => {
       'Pick a date',
       'Book the room',
       'Send invites',
+      'Print badges',
     ]);
   });
 
   it('folds a group away and keeps it folded in this browser', async () => {
     const container = await render(list());
+    const header = () => container.querySelector('button[aria-expanded="false"]');
 
     await fold(container, 'In progress');
 
     expect(rowNames(container)).not.toContain('Book the room');
+    // No panel to point at while folded.
+    expect(header()?.getAttribute('aria-controls')).toBeNull();
 
     act(() => root?.unmount());
 
     const again = await render(list());
 
-    expect(rowNames(again)).toEqual(['Write the brief', 'Pick a date', 'Send invites']);
+    expect(rowNames(again)).toEqual([
+      'Write the brief',
+      'Pick a date',
+      'Send invites',
+      'Print badges',
+    ]);
   });
 
-  it('picks a range with shift-click, skipping folded groups', async () => {
+  it('picks the rows between two clicks with shift-click, skipping folded groups', async () => {
     const container = await render(list());
 
     await fold(container, 'In progress');
-    await click(byLabel(container, 'Select Write the brief'));
+    await click(byLabel(container, 'Select Pick a date'));
     await click(byLabel(container, 'Select Send invites'), { shiftKey: true });
 
-    expect(picked(container)).toBe('t1,t2,t4');
+    // Not the rows before the first click or after the second, nor the folded one between.
+    expect(picked(container)).toBe('t2,t4');
+  });
+
+  it('starts another list with nothing picked', async () => {
+    const container = await render(list());
+
+    await click(byLabel(container, 'Select Pick a date'));
+
+    expect(picked(container)).toBe('t2');
+
+    await show(list({ listId: 'projects' }));
+
+    expect(picked(container)).toBe('');
   });
 
   it("picks a group's rows from its header, and clears them on a second click", async () => {
@@ -148,6 +180,7 @@ describe('RecordList', () => {
     const container = await render(list({ grouped: false }));
 
     expect(container.querySelector('button[aria-expanded]')).toBeNull();
-    expect(rowNames(container)).toHaveLength(4);
+    expect(container.querySelectorAll('ul')).toHaveLength(1);
+    expect(rowNames(container)).toHaveLength(5);
   });
 });
