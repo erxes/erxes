@@ -421,6 +421,13 @@
       "when": 1794738393844,
       "tag": "0059_plugin_migrations_table",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1794749765469,
+      "tag": "0060_plugin_jobs",
+      "breakpoints": true
     }
   ]
 }

@@ -41,5 +41,11 @@
     "@orpc/openapi-client": "1.16.2",
     "jose": "^6.2.17",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "drizzle-orm": "0.45.4"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "0.45.4"
   }
 }
