@@ -17,4 +17,25 @@
     // the place to turn it on.
     "react-doctor/only-export-components": "off",
   },
+  // Core's false positives, by file and rule. create-erxes leaves this block out of a plugin's copy.
+  "ignore": {
+    "overrides": [
+      // The rows are the file's columns, keyed by position: two columns may share a header.
+      {
+        "files": ["src/modules/settings/import-export/ImportSetup.tsx"],
+        "rules": ["react-doctor/no-array-index-as-key"],
+      },
+      // The embeds are YouTube, Vimeo and Cloudflare Stream, never same-origin; their players
+      // need allow-scripts with allow-same-origin.
+      {
+        "files": ["src/modules/blocks/components/CustomVideoBlock.tsx"],
+        "rules": ["react-doctor/iframe-missing-sandbox"],
+      },
+      // The picks when the list opened, kept on purpose so a pick doesn't move its row.
+      {
+        "files": ["src/modules/pickers/EntityPicker.tsx"],
+        "rules": ["react-doctor/no-derived-useState"],
+      },
+    ],
+  },
 }

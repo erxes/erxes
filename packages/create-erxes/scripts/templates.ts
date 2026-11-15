@@ -34,6 +34,9 @@ const VERSIONS = {
 const DOCTOR_CONFIG = 'doctor.config.jsonc';
 const DOCTOR_PROJECTS = /"projects": \[[^\]]*\]/;
 
+// Core's own exceptions, by file, with the comment lines above them.
+const DOCTOR_IGNORE = /\n(?: {2}\/\/[^\n]*\n)* {2}"ignore": \{[\s\S]*?\n {2}\},?(?=\n)/;
+
 /** Core's tenant functions plugin migrations call; the last migration to define one wins. */
 const TENANT_FUNCTIONS = ['core_tenant_visible', 'core_enable_tenant_rls'];
 
@@ -50,7 +53,7 @@ const doctorConfig = async () => {
 
   if (!DOCTOR_PROJECTS.test(config)) throw new Error(`${DOCTOR_CONFIG} has no projects list`);
 
-  return config.replace(DOCTOR_PROJECTS, '"projects": ["ui"]');
+  return config.replace(DOCTOR_PROJECTS, '"projects": ["ui"]').replace(DOCTOR_IGNORE, '');
 };
 
 const tenantFunctions = async () => {
