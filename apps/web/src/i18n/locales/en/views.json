@@ -1,4 +1,10 @@
 {
+  "display": {
+    "label": "Display",
+    "view": "View",
+    "table": "Table",
+    "board": "Board"
+  },
   "more": "More ({{count}})",
   "new-view": "New view",
   "edited": "Edited",

@@ -1,13 +1,13 @@
-import type { ViewRecordType } from '@erxes/core-contract';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMemberOptions, useTagOptions } from '~/modules/automations/builder/lookupOptions';
-import { type ListField, subjectOf } from '../useViews';
+import type { ListField, subjectOf } from '../useViews';
 import type { FilterPart } from './filterRules';
 
 /** What the filter menu, its chips and the advanced filter share. */
 export interface ListFilterState {
-  recordType: ViewRecordType;
+  /** Whose tags and lookups the fields reach: a customer, a company, or nothing (products, plugins). */
+  subject: ReturnType<typeof subjectOf>;
   fields: ListField[];
   /** The list's filter as parts that must all hold (`partsOf`). */
   parts: FilterPart[];
@@ -35,8 +35,7 @@ export const useListFilter = () => {
 /** What a choice field picks from: its options, the team ("Me" first), or the list's tags. */
 export const useFieldOptions = (field: ListField) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const { recordType, optionLabel } = useListFilter();
-  const subject = subjectOf(recordType);
+  const { subject, optionLabel } = useListFilter();
   const members = useMemberOptions(field.type === 'member');
   const tags = useTagOptions(subject ?? 'customer', field.type === 'tags' && subject !== null);
 

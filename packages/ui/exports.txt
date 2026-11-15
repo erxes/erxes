@@ -36,6 +36,9 @@ type RecordTimelineProps
 type TActivityRowProps
 type TContactContentType
 type TDashboardWidgetPreview
+type TListDisplay
+type TListFilterField
+type TListFilterProps
 type TPanelRecordType
 type TPropertyInputMeta
 type TPropertyInputProps
@@ -75,6 +78,7 @@ value CopyText
 value DateInput
 value DatePicker
 value Dialog
+value DisplayMenu
 value DragHandle
 value DropdownMenu
 value Editor
@@ -98,6 +102,7 @@ value InputGroup
 value Kbd
 value LANGUAGES
 value Label
+value ListFilter
 value MemberInline
 value MultipleSelector
 value NavigationMenuLinkItem
@@ -154,6 +159,7 @@ value Toggle
 value ToggleGroup
 value Tooltip
 value Upload
+value ViewBar
 value addPluginStyles
 value badgeVariants
 value buttonVariants
@@ -173,6 +179,7 @@ value pluginFetch
 value pluginJson
 value readImage
 value setFileStorage
+value setListFilter
 value setPluginRuntime
 value setRecordPage
 value setRecordTimeline
@@ -184,6 +191,8 @@ value toast
 value useConfirm
 value useFilterContext
 value useFormat
+value useListDisplay
+value useListFilterParams
 value useLiveSignal
 value useMembersById
 value useOpenRecord

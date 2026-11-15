@@ -198,6 +198,18 @@ export { RecordTableInlineCell } from './modules/record-table/components/RecordT
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
+export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/DisplayMenu';
+
+export {
+  ListFilter,
+  setListFilter,
+  type TListFilterField,
+  type TListFilterProps,
+  useListFilterParams,
+} from './modules/list/ListFilter';
+
+export { ViewBar } from './modules/list/ViewBar';
+
 export { PanelDescriptionEditor } from './modules/record-panel/PanelDescriptionEditor';
 
 export { PanelDescriptionField } from './modules/record-panel/PanelDescriptionField';
