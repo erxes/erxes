@@ -68,6 +68,17 @@ export const uploadErrorMessage = (error: unknown) => {
   return error instanceof Error ? error.message : 'The upload failed';
 };
 
+/** Downloads bytes made in the browser (an export, a report) as a file named `name`. */
+export const saveFile = (blob: Blob, name: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
 /**
  * erxes-ui's upload hooks (avatars, editor images, attachments) and plugin
  * UIs store files through this. The address kept is the file's stable URL,
