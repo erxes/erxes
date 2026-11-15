@@ -142,4 +142,26 @@ describe('a plugin list’s bar', () => {
 
     expect(reloaded.textContent).toBe('board');
   });
+
+  it('offers the displays a list names, showing the first until one is picked', async () => {
+    const displays = ['list', 'board', 'table'] as const;
+    const ShownOf = () => createElement('p', null, useListDisplay('tasks', displays)[0]);
+
+    const container = await render([
+      createElement(DisplayMenu, { key: 'menu', list: 'tasks', displays }),
+      createElement(ShownOf, { key: 'tasks' }),
+    ]);
+
+    expect(container.querySelector('p')?.textContent).toBe('list');
+
+    await act(async () => container.querySelector('button')?.click());
+
+    const options = [...document.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')];
+
+    expect(options.map((button) => button.textContent)).toEqual(['List', 'Board', 'Table']);
+
+    await act(async () => options.at(-1)?.click());
+
+    expect(container.querySelector('p')?.textContent).toBe('table');
+  });
 });

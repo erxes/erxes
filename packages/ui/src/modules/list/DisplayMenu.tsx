@@ -1,4 +1,9 @@
-import { IconAdjustmentsHorizontal, IconLayoutKanban, IconTable } from '@tabler/icons-react';
+import {
+  IconAdjustmentsHorizontal,
+  IconLayoutKanban,
+  IconList,
+  IconTable,
+} from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -8,31 +13,53 @@ import { Popover } from '../../components/popover';
 import { storedFamily } from '../../lib/stored';
 import { cn } from '../../lib/utils';
 
-const LIST_DISPLAYS = ['table', 'board'] as const;
+const LIST_DISPLAYS = ['list', 'table', 'board'] as const;
 
-/** How a list shows its records: rows in a table, or cards on a board. */
+/** How a list shows its records: grouped rows (`RecordList`), a table, or cards on a board. */
 export type TListDisplay = (typeof LIST_DISPLAYS)[number];
 
-const listDisplayFamily = storedFamily<TListDisplay>({
+/** The displays a list offers, in the menu's order; the first shows until one is chosen. */
+type ListDisplays = readonly [TListDisplay, ...TListDisplay[]];
+
+const TABLE_AND_BOARD: ListDisplays = ['table', 'board'];
+
+/** Null until the member picks one. */
+const listDisplayFamily = storedFamily<TListDisplay | null>({
   key: 'erxes:list-display',
-  schema: z.enum(LIST_DISPLAYS),
-  initial: 'table',
+  schema: z.enum(LIST_DISPLAYS).nullable(),
+  initial: null,
 });
 
 /**
- * `const [display] = useListDisplay('sales-deals')`: the table or board a list shows, chosen
- * under its Display menu and remembered in this browser, one choice per list.
+ * `const [display] = useListDisplay('sales-deals')`: the display a list shows, chosen under its
+ * Display menu and remembered in this browser, one choice per list. Give it the same `displays`
+ * as the list's `DisplayMenu`.
  */
-export const useListDisplay = (list: string) => useAtom(listDisplayFamily(list));
+export const useListDisplay = (list: string, displays: ListDisplays = TABLE_AND_BOARD) => {
+  const [chosen, setDisplay] = useAtom(listDisplayFamily(list));
+  const display = chosen && displays.includes(chosen) ? chosen : displays[0];
 
-const DISPLAYS = [
-  { value: 'table', label: 'table', fallback: 'Table', icon: IconTable },
-  { value: 'board', label: 'board', fallback: 'Board', icon: IconLayoutKanban },
-] as const;
+  return [display, setDisplay] as const;
+};
 
-/** "Display" in a list's filter bar: table or board (`useListDisplay(list)` reads the choice). */
-export const DisplayMenu = ({ list }: { list: string }) => {
-  const [current, setDisplay] = useListDisplay(list);
+const DISPLAYS = {
+  list: { fallback: 'List', icon: IconList },
+  table: { fallback: 'Table', icon: IconTable },
+  board: { fallback: 'Board', icon: IconLayoutKanban },
+} as const;
+
+/**
+ * "Display" in a list's filter bar: table or board, or the `displays` the list offers, such as
+ * `['list', 'board', 'table']` (`useListDisplay(list, displays)` reads the choice).
+ */
+export const DisplayMenu = ({
+  list,
+  displays = TABLE_AND_BOARD,
+}: {
+  list: string;
+  displays?: ListDisplays;
+}) => {
+  const [current, setDisplay] = useListDisplay(list, displays);
   const { t } = useTranslation('views', { keyPrefix: 'display' });
 
   return (
@@ -48,22 +75,26 @@ export const DisplayMenu = ({ list }: { list: string }) => {
       </IconTip>
       <Popover.Content align="end" className="w-64">
         <p className="mb-2 text-xs font-medium text-muted-foreground">{t('view', 'View')}</p>
-        <div className="grid grid-cols-2 gap-2">
-          {DISPLAYS.map(({ value, label, fallback, icon: Icon }) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={current === value}
-              onClick={() => setDisplay(value)}
-              className={cn(
-                'flex flex-col items-center gap-1.5 rounded-lg border p-3 text-sm text-muted-foreground transition-colors hover:bg-accent',
-                current === value && 'border-primary bg-primary/5 font-medium text-foreground',
-              )}
-            >
-              <Icon className="size-5" />
-              {t(label, fallback)}
-            </button>
-          ))}
+        <div className={cn('grid gap-2', displays.length > 2 ? 'grid-cols-3' : 'grid-cols-2')}>
+          {displays.map((value) => {
+            const { fallback, icon: Icon } = DISPLAYS[value];
+
+            return (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={current === value}
+                onClick={() => setDisplay(value)}
+                className={cn(
+                  'flex flex-col items-center gap-1.5 rounded-lg border p-3 text-sm text-muted-foreground transition-colors hover:bg-accent',
+                  current === value && 'border-primary bg-primary/5 font-medium text-foreground',
+                )}
+              >
+                <Icon className="size-5" />
+                {t(value, fallback)}
+              </button>
+            );
+          })}
         </div>
       </Popover.Content>
     </Popover>

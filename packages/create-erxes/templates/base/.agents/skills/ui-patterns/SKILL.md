@@ -38,6 +38,11 @@ a comment.
   erxes-ui's `DisplayMenu list="<plugin>-<things>"` inside the `ListFilter`
   switches table and board, and erxes-ui's `useListDisplay`, given the same list, reads the
   choice, remembered in the browser.
+- Records that move through stages (tasks by status) can also show as erxes-ui's
+  `RecordList`: rows grouped under sticky headers that fold away, with a
+  checkbox each and its `RecordList.useSelection` hook for the bulk command bar.
+  Give `DisplayMenu` and `useListDisplay` the same `displays`, such as
+  `['list', 'board', 'table']`; the first shows until the member picks another.
 
 ## Filter
 

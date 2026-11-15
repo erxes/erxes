@@ -2,6 +2,7 @@
   "display": {
     "label": "Display",
     "view": "View",
+    "list": "List",
     "table": "Table",
     "board": "Board"
   },

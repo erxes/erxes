@@ -190,6 +190,10 @@ export { TextField } from './modules/record-field/components/TextField';
 
 export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneInput';
 
+export { RecordList } from './modules/record-list/RecordList';
+
+export type { RecordListGroup } from './modules/record-list/RecordListRoot';
+
 export { RecordTable } from './modules/record-table/components/RecordTable';
 
 export type { RecordTableColumnDef } from './modules/record-table/components/RecordTableProvider';
