@@ -4,7 +4,6 @@ import {
   IconBriefcase,
   IconBuilding,
   IconBuildingFactory,
-  IconEdit,
   IconLabelFilled,
   IconMail,
   IconNumber,
@@ -17,10 +16,7 @@ import {
 import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Avatar,
-  Combobox,
-  Command,
   Input,
-  Popover,
   PopoverScoped,
   readImage,
   RecordTable,
@@ -36,6 +32,7 @@ import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import {
   ContactEmailsCell,
   ContactFieldCell,
+  ContactMoreCell,
   ContactOwnerCell,
   ContactPhonesCell,
   ContactTagsCell,
@@ -49,26 +46,6 @@ const useOpenCompany = () => {
   const { openRecord } = useSidePanel();
 
   return (id: string) => openRecord({ contentType: 'core:company', contentId: id });
-};
-
-const CompanyMoreColumnCell = ({ company }: { company: Company }) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const openCompany = useOpenCompany();
-
-  return (
-    <Popover>
-      <Popover.Trigger render={<RecordTable.MoreButton className="h-full w-full" />} />
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={() => openCompany(company.id)}>
-              <IconEdit /> {t('action-edit')}
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
 };
 
 /** The name, edited in place (Enter saves); the link opens the company. */
@@ -130,7 +107,7 @@ const identityColumns = (t: (key: string) => string): RecordTableColumnDef<Compa
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
-    cell: ({ row }) => <CompanyMoreColumnCell company={row.original} />,
+    cell: ({ row }) => <ContactMoreCell record={row.original} />,
     size: 33,
   },
   RecordTable.checkboxColumnOf<Company>(),

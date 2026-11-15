@@ -1,7 +1,17 @@
 import type { Company, Customer, Field } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
-import { RecordTableInlineCell, SelectMember } from 'erxes-ui';
+import { IconEdit } from '@tabler/icons-react';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+  SelectMember,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CustomFieldCell } from '~/modules/properties/CustomFieldCell';
+import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { useCompanyEdit } from '../companies/useCompanies';
 import { useCustomerEdit } from '../customers/useCustomers';
@@ -17,6 +27,36 @@ const useContactEdit = (record: Contact) => {
   const company = useCompanyEdit();
 
   return 'primaryName' in record ? company.mutate : customer.mutate;
+};
+
+/** The row's menu: Edit opens the record in the side panel. */
+export const ContactMoreCell = ({ record }: { record: Contact }) => {
+  const { t } = useTranslation('contact');
+  const { openRecord } = useSidePanel();
+  const isCompany = 'primaryName' in record;
+
+  return (
+    <Popover>
+      <Popover.Trigger render={<RecordTable.MoreButton className="h-full w-full" />} />
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item
+              value="edit"
+              onSelect={() =>
+                openRecord({
+                  contentType: isCompany ? 'core:company' : 'core:customer',
+                  contentId: record.id,
+                })
+              }
+            >
+              <IconEdit /> {isCompany ? t('company.action-edit') : t('customer.action-edit')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
 };
 
 export const ContactEmailsCell = ({ record, scope }: CellProps) => {
