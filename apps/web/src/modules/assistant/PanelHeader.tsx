@@ -46,7 +46,7 @@ const Tab = ({
         onClose();
       }}
       className={cn(
-        'group flex h-8 max-w-44 min-w-24 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
+        'group relative flex h-8 max-w-44 min-w-24 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
         selected ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/60',
       )}
     >
@@ -56,10 +56,10 @@ const Tab = ({
         aria-hidden
         title={t('close-tab', 'Close tab (the conversation stays in history)')}
         className={cn(
-          '-mr-1.5 size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-background hover:text-foreground',
+          'size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:text-foreground',
           selected
-            ? 'inline-flex'
-            : 'hidden group-hover:inline-flex group-focus-visible:inline-flex',
+            ? '-mr-1.5 inline-flex hover:bg-background'
+            : 'absolute top-1.5 right-1 hidden bg-accent group-hover:inline-flex group-focus-visible:inline-flex',
         )}
         onClick={(event) => {
           event.stopPropagation();

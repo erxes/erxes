@@ -140,7 +140,6 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
   ];
 };
 
-/** The assistant's settings in one group: the member's own first, then the organisation's. */
 const useSettingsAssistantPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();

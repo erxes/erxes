@@ -154,10 +154,10 @@ const useFollowBottom = (asked: string | undefined) => {
 
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
-    const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 48;
+    const gap = element.scrollHeight - element.scrollTop - element.clientHeight;
 
-    if (atBottom) pinned.current = true;
-    else if (element.scrollTop < top.current) pinned.current = false;
+    if (element.scrollTop < top.current && gap > 1) pinned.current = false;
+    else if (gap < 48) pinned.current = true;
 
     top.current = element.scrollTop;
   };
