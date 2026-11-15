@@ -101,9 +101,14 @@ gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
   under that field. Call `onCreated(id)` after Save, and the record takes the
   draft's place.
 - A form gets its own page only when it has several sections or a live
-  preview (a product editor, a page builder). That page keeps the same
-  header and breadcrumb, puts sections in one column of the same rows, and
-  has Save in `PageHeader.End`.
+  preview (a product editor, a page builder). That page is laid out like a
+  settings page (below), not with the side panel's rows: cards with a title
+  and a line about them, labels above the fields in responsive grids, one
+  form, and the sticky Discard / Save bar at the bottom. A live preview or a
+  summary sits in a narrower column beside the cards (`lg:grid-cols-[1fr_20rem]`);
+  a body editor (rich text, blocks) takes a card's full width.
+- The side panel's rows (`PanelFormRow`, `PanelField`) are only for the side
+  panel: a record's `New` and `Detail`.
 - `Dialog` is for confirming (`useConfirm`) and nothing else. Never a form in
   a dialog.
 
