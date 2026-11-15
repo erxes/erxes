@@ -239,7 +239,7 @@ export const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewPro
         overviewHeader={
           <ContactPanelIdentity title={editableTitle} avatar={avatar} website={website} />
         }
-        expandedDefaultTab={PROPERTIES_TAB}
+        expandedDefaultTab={ACTIVITY_TAB}
       />
     </>
   );

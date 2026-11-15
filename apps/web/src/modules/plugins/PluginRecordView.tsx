@@ -140,7 +140,12 @@ const PluginRecordPanel = ({
         visibleCount={8}
         overviewTab={DETAIL_TAB}
         overviewHeader={<h2 className="min-w-0 flex-1 truncate text-sm font-semibold">{title}</h2>}
-        expandedDefaultTab={tabs.find((entry) => entry.value !== DETAIL_TAB)?.value}
+        expandedDefaultTab={
+          (
+            tabs.find((entry) => entry.value === ACTIVITY_TAB) ??
+            tabs.find((entry) => entry.value !== DETAIL_TAB)
+          )?.value
+        }
       />
     </>
   );
