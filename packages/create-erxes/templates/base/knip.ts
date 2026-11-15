@@ -5,8 +5,9 @@ const config: KnipConfig = {
     '.': {
       entry: ['{tools,migration,scripts}/*.ts'],
       project: ['*.ts', '{tools,migration,scripts}/**/*.ts'],
-      // Oxlint runs tsrs-lint through OXLINT_TSGOLINT_PATH in the check task.
-      ignoreDependencies: ['tsrs'],
+      // The check task runs these: oxlint calls tsrs-lint through OXLINT_TSGOLINT_PATH, and
+      // react-doctor reads doctor.config.jsonc.
+      ignoreDependencies: ['tsrs', 'react-doctor'],
     },
     api: {
       project: ['src/**/*.ts'],

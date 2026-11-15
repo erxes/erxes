@@ -3,7 +3,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
 import { Button, Combobox, Command, Filter, Popover, useFilterContext } from 'erxes-ui';
 import { useQueryState } from 'nuqs';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
 import { messageOf } from '@erxes/core-contract/client';
@@ -21,6 +21,9 @@ import { RuleChips } from './RuleChips';
 
 /** Built-in fields first, the record's properties last. */
 const GROUPS: ListField['group'][] = ['fields', 'lead', 'company', 'activity', 'custom'];
+
+// While the fields load; one array, so the filter state keeps its identity.
+const NO_FIELDS: ListField[] = [];
 
 /** Every field, grouped; each opens its submenu. The search box filters them by name. */
 const FieldItems = () => {
@@ -130,6 +133,53 @@ interface ListFilterProps extends Total {
   children?: ReactNode;
 }
 
+/** The bar's context: the list's conditions as parts, and the one the menu is editing. */
+const useListFilterState = (
+  recordType: ViewRecordType,
+  fields: ListField[],
+  optionLabel: ListFilterState['optionLabel'],
+) => {
+  const { advanced, setAdvanced } = useListQuery();
+  const { setOpen, setView } = useFilterContext();
+  const [editing, setEditing] = useState<number | null>(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const parts = useMemo(() => partsOf(advanced), [advanced]);
+
+  const openMenu = useCallback(
+    (view: string, part: number | null) => {
+      setEditing(part);
+      setView(view);
+      setOpen(true);
+    },
+    [setOpen, setView],
+  );
+
+  usePageHotkey('f', () => openMenu('root', null));
+
+  const state = useMemo<ListFilterState>(
+    () => ({
+      recordType,
+      fields,
+      parts,
+      optionLabel,
+      editing,
+      setPart: (index: number | null, next: FilterPart | null) =>
+        setAdvanced(groupOf(withPart(parts, index, next))),
+      edit: (index: number) => {
+        const part = parts[index];
+        const field = part && isRule(part) && fields.find((one) => one.path === part.path);
+
+        if (part && isRule(part) && field && inMenu(part, field)) openMenu(field.path, index);
+        else setAdvancedOpen(true);
+      },
+      openAdvanced: () => setAdvancedOpen(true),
+    }),
+    [recordType, fields, parts, optionLabel, editing, setAdvanced, openMenu],
+  );
+
+  return { state, setEditing, advancedOpen, setAdvancedOpen };
+};
+
 /**
  * Inside `<Filter>`: its chips, the view's changes and the count, then the
  * list's controls and the menu (`F`).
@@ -143,38 +193,14 @@ const ListFilterBar = ({
 }: ListFilterProps) => {
   const [chipsRef] = useAutoAnimate({ duration: 150 });
   const fieldsQuery = useFilterFields(recordType);
-  const fields = fieldsQuery.data ?? [];
-  const { advanced, setAdvanced, search } = useListQuery();
-  const { setOpen, setView } = useFilterContext();
-  const [editing, setEditing] = useState<number | null>(null);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const parts = partsOf(advanced);
+  const fields = fieldsQuery.data ?? NO_FIELDS;
+  const { search } = useListQuery();
 
-  const openMenu = (view: string, part: number | null) => {
-    setEditing(part);
-    setView(view);
-    setOpen(true);
-  };
-
-  usePageHotkey('f', () => openMenu('root', null));
-
-  const state: ListFilterState = {
+  const { state, setEditing, advancedOpen, setAdvancedOpen } = useListFilterState(
     recordType,
     fields,
-    parts,
     optionLabel,
-    editing,
-    setPart: (index: number | null, next: FilterPart | null) =>
-      setAdvanced(groupOf(withPart(parts, index, next))),
-    edit: (index: number) => {
-      const part = parts[index];
-      const field = part && isRule(part) && fields.find((one) => one.path === part.path);
-
-      if (part && isRule(part) && field && inMenu(part, field)) openMenu(field.path, index);
-      else setAdvancedOpen(true);
-    },
-    openAdvanced: () => setAdvancedOpen(true),
-  };
+  );
 
   return (
     <ListFilterContext.Provider value={state}>
@@ -190,14 +216,17 @@ const ListFilterBar = ({
       <div aria-hidden className="mx-1 h-4 w-px shrink-0 bg-border" />
       {children}
       <Filter.Popover scope={`${recordType}-list`}>
-        <FilterButton count={parts.length + (search ? 1 : 0)} onClick={() => setEditing(null)} />
+        <FilterButton
+          count={state.parts.length + (search ? 1 : 0)}
+          onClick={() => setEditing(null)}
+        />
         <Combobox.Content align="end" className="w-80">
           <Filter.View>
             <RootMenu loading={fieldsQuery.isLoading} error={fieldsQuery.error} />
           </Filter.View>
           {fields.map((field) => (
             <Filter.View key={field.path} filterKey={field.path}>
-              <FieldMenu key={`${editing}`} field={field} />
+              <FieldMenu key={`${state.editing}`} field={field} />
             </Filter.View>
           ))}
         </Combobox.Content>

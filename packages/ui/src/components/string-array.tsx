@@ -24,6 +24,9 @@ export function StringArrayInput({
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    // Enter while an IME composes picks a candidate.
+    if (event.nativeEvent.isComposing) return;
+
     if (event.key === 'Enter' || event.key === ',') {
       event.preventDefault();
       add([draft]);

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconSend } from '@tabler/icons-react';
 import { Button, ScrollArea, Spinner, Table, useToast } from 'erxes-ui';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   FormProvider,
   type SubmitHandler,
@@ -73,9 +73,14 @@ const InviteTable = ({ form }: { form: UseFormReturn<TUserForm> }) => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'entries' });
 
+  const selection = useMemo(
+    () => ({ selectedUsers, setSelectedUsers, fields }),
+    [selectedUsers, fields],
+  );
+
   return (
     <Table variant="card" className="overflow-hidden">
-      <InviteMemberContext.Provider value={{ selectedUsers, setSelectedUsers, fields }}>
+      <InviteMemberContext.Provider value={selection}>
         <Table.Header>
           <Table.Row>
             <InviteHeaderCheckbox />

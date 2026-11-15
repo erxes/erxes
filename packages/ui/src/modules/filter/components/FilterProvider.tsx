@@ -1,4 +1,5 @@
 import { useSetAtom } from 'jotai';
+import { useMemo } from 'react';
 import { FilterContext } from '../context/FilterContext';
 import {
   filterDialogViewState,
@@ -13,25 +14,22 @@ export const FilterProvider = ({ children, id }: { children: React.ReactNode; id
   const setDialogView = useSetAtom(filterDialogViewState(id));
   const setOpenDialog = useSetAtom(openDialogState(id));
 
-  const resetFilterState = () => {
-    setOpen(false);
-    setView('root');
-    setDialogView('root');
-    setOpenDialog(false);
-  };
-
-  return (
-    <FilterContext.Provider
-      value={{
-        id,
-        resetFilterState,
-        setOpen,
-        setView,
-        setDialogView,
-        setOpenDialog,
-      }}
-    >
-      {children}
-    </FilterContext.Provider>
+  const filter = useMemo(
+    () => ({
+      id,
+      resetFilterState: () => {
+        setOpen(false);
+        setView('root');
+        setDialogView('root');
+        setOpenDialog(false);
+      },
+      setOpen,
+      setView,
+      setDialogView,
+      setOpenDialog,
+    }),
+    [id, setOpen, setView, setDialogView, setOpenDialog],
   );
+
+  return <FilterContext.Provider value={filter}>{children}</FilterContext.Provider>;
 };

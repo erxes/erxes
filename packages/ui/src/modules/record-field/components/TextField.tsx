@@ -43,7 +43,8 @@ export const TextField = ({
 
   /** Submits on Enter; Escape is handled by the popover before dismissal. */
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    // Enter while an IME composes picks a candidate.
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleAction();
     }

@@ -29,9 +29,10 @@ const ChartContainer = ({
   children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
 }) => {
   const cssVariables = colorVariables(config);
+  const chart = React.useMemo(() => ({ config }), [config]);
 
   return (
-    <ChartContext.Provider value={{ config }}>
+    <ChartContext.Provider value={chart}>
       <div
         ref={ref}
         style={{ ...cssVariables, ...style }}

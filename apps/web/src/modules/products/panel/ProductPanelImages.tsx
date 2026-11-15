@@ -103,30 +103,34 @@ const useImageUpload = (product: Product) => {
 
     setUploading(true);
 
-    const results = await Promise.allSettled(files.map((file) => uploadFile(file)));
-    const ids: string[] = [];
+    try {
+      const results = await Promise.allSettled(files.map((file) => uploadFile(file)));
+      const ids: string[] = [];
 
-    results.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        ids.push(result.value.id);
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          ids.push(result.value.id);
 
-        return;
-      }
+          return;
+        }
 
-      toast({
-        variant: 'destructive',
-        title: t('images.upload-failed', 'Could not upload {{name}}', { name: files[index]?.name }),
-        description: uploadErrorMessage(result.reason),
+        toast({
+          variant: 'destructive',
+          title: t('images.upload-failed', 'Could not upload {{name}}', {
+            name: files[index]?.name,
+          }),
+          description: uploadErrorMessage(result.reason),
+        });
       });
-    });
 
-    if (ids.length) {
-      await edit
-        .mutateAsync({ id: product.id, imageIds: [...product.imageIds, ...ids] })
-        .catch(() => undefined);
+      if (ids.length) {
+        await edit
+          .mutateAsync({ id: product.id, imageIds: [...product.imageIds, ...ids] })
+          .catch(() => undefined);
+      }
+    } finally {
+      setUploading(false);
     }
-
-    setUploading(false);
   };
 
   return { upload, uploading: uploading || edit.isPending, edit };

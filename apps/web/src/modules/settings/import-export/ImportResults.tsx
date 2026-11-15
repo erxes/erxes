@@ -6,6 +6,7 @@ import { Badge, Button, Spinner, useToast, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { saveFile } from '~/lib/files';
 import { LIST_PATHS } from '~/lib/paths';
 
 const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;
@@ -19,12 +20,7 @@ const saveErrorsCsv = (headers: string[], rows: z.infer<typeof ImportRow>[]) => 
     ),
   ].join('\n');
 
-  const link = document.createElement('a');
-
-  link.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' }));
-  link.download = 'import-errors.csv';
-  link.click();
-  URL.revokeObjectURL(link.href);
+  saveFile(new Blob([text], { type: 'text/csv' }), 'import-errors.csv');
 };
 
 const Counts = ({ imp }: { imp: Import }) => {

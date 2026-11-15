@@ -5,6 +5,7 @@ import { useIcons } from 'erxes-ui/modules/icons/hooks/useIcons';
 import { useState } from 'react';
 import { IconComponent } from './IconComponent';
 
+/** Controlled: shows `value`, and reports a pick through `onValueChange`. */
 export const IconPicker = ({
   ref,
   value,
@@ -15,19 +16,18 @@ export const IconPicker = ({
   onValueChange?: (value: string | null) => void;
 } & React.RefAttributes<HTMLButtonElement>) => {
   const { getIcons } = useIcons();
-  const [_value, setValue] = useState(value);
   const [open, setOpen] = useState(false);
   const icons = Object.entries(getIcons());
 
   const selectedFirst = [
-    ...icons.filter(([key]) => key === _value),
-    ...icons.filter(([key]) => key !== _value),
+    ...icons.filter(([key]) => key === value),
+    ...icons.filter(([key]) => key !== value),
   ];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.TriggerBase variant="ghost" size="icon" ref={ref} {...props}>
-        <IconComponent name={_value} />
+        <IconComponent name={value} />
       </Combobox.TriggerBase>
 
       <Combobox.Content className="w-60 min-w-60">
@@ -39,12 +39,11 @@ export const IconPicker = ({
                 <Command.Item
                   key={key}
                   onSelect={() => {
-                    setValue(key);
                     onValueChange?.(key);
                     setOpen(false);
                   }}
                   value={key}
-                  checked={_value === key}
+                  checked={value === key}
                 >
                   <Icon />
                 </Command.Item>

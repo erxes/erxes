@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useId,
+  useMemo,
   useState,
   type HTMLAttributes,
   type ReactNode,
@@ -128,15 +129,18 @@ export const RecordTableProvider = <TData extends RowData>({
   const shared = table as unknown as RecordTableInstance;
   const headPrefix = useId();
 
+  const context = useMemo<IRecordTableContext>(
+    () => ({
+      table: shared,
+      columnSelectorOpen,
+      setColumnSelectorOpen,
+      headId: (columnId) => `${headPrefix}-head-${columnId}`,
+    }),
+    [shared, columnSelectorOpen, headPrefix],
+  );
+
   return (
-    <RecordTableContext.Provider
-      value={{
-        table: shared,
-        columnSelectorOpen,
-        setColumnSelectorOpen,
-        headId: (columnId) => `${headPrefix}-head-${columnId}`,
-      }}
-    >
+    <RecordTableContext.Provider value={context}>
       <RecordTableDnDProvider setColumnOrder={setColumnOrder}>
         <RecordTableContainer table={shared} {...containerProps}>
           {children}

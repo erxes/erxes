@@ -11,20 +11,27 @@ export const useAttachments = () => {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [uploading, setUploading] = useState(0);
 
+  // Side by side; each file joins the list as its upload finishes.
   const attach = async (list: File[]) => {
-    for (const file of list) {
-      setUploading((count) => count + 1);
+    await Promise.all(
+      list.map(async (file) => {
+        setUploading((count) => count + 1);
 
-      try {
-        const uploaded = await uploadFile(file);
+        try {
+          const uploaded = await uploadFile(file);
 
-        setFiles((current) => [...current, uploaded]);
-      } catch (error) {
-        toast({ variant: 'destructive', title: file.name, description: uploadErrorMessage(error) });
-      } finally {
-        setUploading((count) => count - 1);
-      }
-    }
+          setFiles((current) => [...current, uploaded]);
+        } catch (error) {
+          toast({
+            variant: 'destructive',
+            title: file.name,
+            description: uploadErrorMessage(error),
+          });
+        } finally {
+          setUploading((count) => count - 1);
+        }
+      }),
+    );
   };
 
   return {

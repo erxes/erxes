@@ -1,0 +1,41 @@
+// React Doctor's rules for erxes React code. `vp run check` runs it and fails on any warning.
+// create-erxes gives every plugin this file, with its ui/ as the one project.
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "projects": ["apps/web", "packages/ui"],
+  "rules": {
+    // How big or branchy a component grows is opinion; max-lines-per-function already caps it.
+    "react-doctor/no-high-complexity-react-function": "off",
+    "react-doctor/no-giant-component": "off",
+    // Mutations refresh through helpers this rule can't see into.
+    "react-doctor/query-mutation-missing-invalidation": "off",
+    // Micro-optimisations for lists of a few dozen items at most.
+    "react-doctor/js-set-map-lookups": "off",
+    "react-doctor/js-index-maps": "off",
+    "react-doctor/js-hoist-intl": "off",
+    // Only costs a full reload in development, and oxlint's react/only-export-components is
+    // the place to turn it on.
+    "react-doctor/only-export-components": "off",
+  },
+  // Core's false positives, by file and rule. create-erxes leaves this block out of a plugin's copy.
+  "ignore": {
+    "overrides": [
+      // The rows are the file's columns, keyed by position: two columns may share a header.
+      {
+        "files": ["src/modules/settings/import-export/ImportSetup.tsx"],
+        "rules": ["react-doctor/no-array-index-as-key"],
+      },
+      // The embeds are YouTube, Vimeo and Cloudflare Stream, never same-origin; their players
+      // need allow-scripts with allow-same-origin.
+      {
+        "files": ["src/modules/blocks/components/CustomVideoBlock.tsx"],
+        "rules": ["react-doctor/iframe-missing-sandbox"],
+      },
+      // The picks when the list opened, kept on purpose so a pick doesn't move its row.
+      {
+        "files": ["src/modules/pickers/EntityPicker.tsx"],
+        "rules": ["react-doctor/no-derived-useState"],
+      },
+    ],
+  },
+}

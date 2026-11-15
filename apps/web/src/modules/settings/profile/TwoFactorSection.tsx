@@ -180,9 +180,11 @@ export const TwoFactorSection = () => {
 
   const start = useMutation({
     mutationFn: async () => {
-      const { secret, uri } = await orpc.auth.twoFactorSetup.call();
-      // Loaded when setup starts: settings pages don't carry the QR encoder.
-      const { toDataURL } = await import('qrcode');
+      // The QR encoder loads when setup starts, beside the secret: settings pages don't carry it.
+      const [{ secret, uri }, { toDataURL }] = await Promise.all([
+        orpc.auth.twoFactorSetup.call(),
+        import('qrcode'),
+      ]);
 
       return { secret, qr: await toDataURL(uri, { margin: 1, width: 180 }) };
     },

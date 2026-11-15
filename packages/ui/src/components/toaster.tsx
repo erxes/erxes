@@ -24,7 +24,7 @@ const ToastList = () => {
       key={item.id}
       toast={item}
       swipeDirection="right"
-      className="group pointer-events-auto relative flex w-full items-center space-x-2 overflow-hidden rounded-md p-4 pr-6 shadow-lg transition-all bg-background text-foreground translate-x-(--toast-swipe-movement-x) animate-in slide-in-from-top-full sm:slide-in-from-bottom-full data-limited:hidden data-swiping:transition-none data-ending-style:animate-out data-ending-style:fade-out-80 data-ending-style:slide-out-to-right-full"
+      className="group pointer-events-auto relative flex w-full items-center space-x-2 overflow-hidden rounded-md p-4 pr-6 shadow-lg transition-transform bg-background text-foreground translate-x-(--toast-swipe-movement-x) animate-in slide-in-from-top-full sm:slide-in-from-bottom-full data-limited:hidden data-swiping:transition-none data-ending-style:animate-out data-ending-style:fade-out-80 data-ending-style:slide-out-to-right-full"
     >
       <div className="[&>svg]:size-4.5 mt-0.5 flex-none mb-auto">
         {icons[item.type ?? ''] ?? <IconInfoCircleFilled className="text-info" />}

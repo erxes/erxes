@@ -58,68 +58,70 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     [draft, layout.items],
   );
 
-  const reset = () => {
-    layout.reset();
-    setDraft(null);
-    toast({ title: t('reset-done'), variant: 'success' });
-  };
+  const value = useMemo<TDashboardContext>(() => {
+    const reset = () => {
+      layout.reset();
+      setDraft(null);
+      toast({ title: t('reset-done'), variant: 'success' });
+    };
 
-  const value: TDashboardContext = {
-    items,
-    widgets: WIDGETS,
-    isCustomized: layout.isCustomized,
-    isEditing,
-    canAddMore: items.length < DASHBOARD_MAX_ITEMS,
-    startEditing: () => setDraft(layout.items),
-    cancelEditing: () => setDraft(null),
-    finishEditing: () => {
-      if (!draft) {
-        return;
-      }
+    return {
+      items,
+      widgets: WIDGETS,
+      isCustomized: layout.isCustomized,
+      isEditing,
+      canAddMore: items.length < DASHBOARD_MAX_ITEMS,
+      startEditing: () => setDraft(layout.items),
+      cancelEditing: () => setDraft(null),
+      finishEditing: () => {
+        if (!draft) {
+          return;
+        }
 
-      try {
-        layout.save(draft);
-        setDraft(null);
-        toast({ title: t('saved'), variant: 'success' });
-      } catch (error) {
-        toast({
-          title: t('save-failed'),
-          description: error instanceof Error ? error.message : undefined,
-          variant: 'destructive',
+        try {
+          layout.save(draft);
+          setDraft(null);
+          toast({ title: t('saved'), variant: 'success' });
+        } catch (error) {
+          toast({
+            title: t('save-failed'),
+            description: error instanceof Error ? error.message : undefined,
+            variant: 'destructive',
+          });
+        }
+      },
+      resetLayout: () => void confirm({ message: t('reset-confirm') }).then(reset),
+      addWidget: (widget, position) => {
+        const id = newTileId();
+
+        setDraft((current) => {
+          const list = current ?? layout.items;
+
+          const item = fitToWidget(
+            {
+              id,
+              type: widget.type,
+              x: position?.x ?? 0,
+              y: position?.y ?? bottomOf(list),
+              w: widget.defaultSize.w,
+              h: widget.defaultSize.h,
+            },
+            widget,
+          );
+
+          return compactLayout([...list, item], id);
         });
-      }
-    },
-    resetLayout: () => void confirm({ message: t('reset-confirm') }).then(reset),
-    addWidget: (widget, position) => {
-      const id = newTileId();
-
-      setDraft((current) => {
-        const list = current ?? layout.items;
-
-        const item = fitToWidget(
-          {
-            id,
-            type: widget.type,
-            x: position?.x ?? 0,
-            y: position?.y ?? bottomOf(list),
-            w: widget.defaultSize.w,
-            h: widget.defaultSize.h,
-          },
-          widget,
-        );
-
-        return compactLayout([...list, item], id);
-      });
-    },
-    draggingWidget,
-    setDraggingWidget,
-    removeItem: (id) =>
-      setDraft((current) =>
-        compactLayout((current ?? layout.items).filter((item) => item.id !== id)),
-      ),
-    setDraftItems: (next) =>
-      setDraft((current) => (current && sameLayout(current, next) ? current : next)),
-  };
+      },
+      draggingWidget,
+      setDraggingWidget,
+      removeItem: (id) =>
+        setDraft((current) =>
+          compactLayout((current ?? layout.items).filter((item) => item.id !== id)),
+        ),
+      setDraftItems: (next) =>
+        setDraft((current) => (current && sameLayout(current, next) ? current : next)),
+    };
+  }, [items, layout, isEditing, draft, draggingWidget, t, confirm]);
 
   return <DashboardContext.Provider value={value}>{children}</DashboardContext.Provider>;
 };
