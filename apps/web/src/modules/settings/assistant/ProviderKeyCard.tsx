@@ -106,7 +106,7 @@ const KeyActions = ({
           {t('remove', 'Remove key')}
         </Button>
       </div>
-      <output className="text-sm">
+      <output className="text-sm empty:hidden">
         {verify.isPending && t('testing', 'Testing…')}
         {result?.ok && t('works', 'Works with {{model}}', { model: result.model })}
         {result && !result.ok && <span className="text-destructive-text">{result.error}</span>}
@@ -130,7 +130,7 @@ export const ProviderKeyCard = ({
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-3 rounded-lg border p-4">
       <div className="flex items-center gap-2">
-        <h2 id={headingId} className="font-medium">
+        <h2 id={headingId} className="text-sm font-semibold">
           {PROVIDER_LABELS[provider]}
         </h2>
         {connection ? (

@@ -1,5 +1,5 @@
 import { AssistantProvider } from '@erxes/core-contract';
-import { IconSparkles } from '@tabler/icons-react';
+import { IconKey } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -32,22 +32,23 @@ export const AssistantKeysPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Assistant'), to: paths.settings.assistant, icon: IconSparkles },
+              {
+                label: t('title', 'Assistant provider keys'),
+                to: paths.settings.assistant,
+                icon: IconKey,
+              },
             ]}
           />
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-lg font-semibold">{t('keys-title', 'Provider keys')}</h1>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                'keys-intro',
-                'The assistant runs on your own key. Only you can use it, and the assistant can do only what your role allows.',
-              )}
-            </p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              'keys-intro',
+              'The assistant runs on your own key. Only you can use it, and the assistant can do only what your role allows.',
+            )}
+          </p>
           <QueryState query={connections}>
             {({ data }) =>
               AssistantProvider.options.map((provider) => (

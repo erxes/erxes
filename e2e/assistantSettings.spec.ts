@@ -3,7 +3,7 @@ import { expect, expectAccessible, test } from './fixtures';
 
 test('an admin turns on code mode and sees what a program may do', async ({ page }) => {
   await page.goto('/settings');
-  await page.getByRole('link', { name: 'Assistant code mode' }).click();
+  await page.getByRole('link', { name: 'Code mode' }).click();
 
   await expect(page).toHaveURL(/\/settings\/assistant-code-mode$/);
 
@@ -27,16 +27,16 @@ test('a member picks how the assistant looks, and it looks that way in the panel
   page,
 }) => {
   await page.goto('/settings');
-  await page.getByRole('link', { name: 'Assistant appearance' }).click();
+  await page.getByRole('link', { name: 'Appearance' }).click();
 
   await expect(page).toHaveURL(/\/settings\/assistant-appearance$/);
   const sidebar = page.getByRole('complementary');
 
-  await expect(sidebar.getByRole('link', { name: 'Assistant appearance' })).toHaveAttribute(
+  await expect(sidebar.getByRole('link', { name: 'Appearance' })).toHaveAttribute(
     'aria-current',
     'page',
   );
-  await expect(sidebar.getByRole('link', { name: 'Assistant', exact: true })).not.toHaveAttribute(
+  await expect(sidebar.getByRole('link', { name: 'Provider keys' })).not.toHaveAttribute(
     'aria-current',
   );
   await expect(page.getByRole('img', { name: 'Preview' })).toBeVisible();

@@ -13,7 +13,7 @@ import {
   IconShieldHalf,
   IconShieldQuestion,
   IconCode,
-  IconSparkles,
+  IconKey,
   IconTrash,
   IconCreditCard,
   IconUserCircle,
@@ -60,20 +60,6 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       : []),
     ...(can('audit.view')
       ? [{ name: t('audit-log', 'Audit log'), to: paths.settings.auditLog, icon: IconShieldCheck }]
-      : []),
-    ...(can('assistant.manage')
-      ? [
-          {
-            name: t('assistant-approvals', 'Assistant approvals'),
-            to: paths.settings.assistantApprovals,
-            icon: IconShieldQuestion,
-          },
-          {
-            name: t('assistant-code-mode', 'Assistant code mode'),
-            to: paths.settings.assistantCodeMode,
-            icon: IconCode,
-          },
-        ]
       : []),
     ...(can('events.view')
       ? [
@@ -142,7 +128,6 @@ function SettingsExitButton() {
 /** Settings that belong to the signed-in member, not the organisation. */
 const useSettingsAccountPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
-  const can = useCan();
 
   return [
     { name: t('profile', 'Profile'), to: paths.settings.profile, icon: IconUserCircle },
@@ -152,24 +137,52 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
       to: paths.settings.notifications,
       icon: IconBellCog,
     },
+  ];
+};
+
+/** The assistant's settings in one group: the member's own first, then the organisation's. */
+const useSettingsAssistantPaths = (): SettingsPath[] => {
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const can = useCan();
+
+  return [
     ...(can('assistant.chat')
       ? [
-          { name: t('assistant', 'Assistant'), to: paths.settings.assistant, icon: IconSparkles },
           {
-            name: t('assistant-appearance', 'Assistant appearance'),
+            name: t('assistant-keys', 'Provider keys'),
+            to: paths.settings.assistant,
+            icon: IconKey,
+          },
+          {
+            name: t('assistant-appearance', 'Appearance'),
             to: paths.settings.assistantAppearance,
             icon: IconMoodSmile,
+          },
+        ]
+      : []),
+    ...(can('assistant.manage')
+      ? [
+          {
+            name: t('assistant-approvals', 'Approvals'),
+            to: paths.settings.assistantApprovals,
+            icon: IconShieldQuestion,
+          },
+          {
+            name: t('assistant-code-mode', 'Code mode'),
+            to: paths.settings.assistantCodeMode,
+            icon: IconCode,
           },
         ]
       : []),
   ];
 };
 
-/** Exit, the member's own account first, then the workspace settings. */
+/** Exit, the member's own account first, then the workspace settings, then the assistant's. */
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
   const account = useSettingsAccountPaths();
+  const assistant = useSettingsAssistantPaths();
 
   return (
     <>
@@ -182,6 +195,11 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name={t('workspace')}>
           {workspace.map((item) => (
+            <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
+          ))}
+        </SettingsNavigationGroup>
+        <SettingsNavigationGroup name={t('assistant', 'Assistant')}>
+          {assistant.map((item) => (
             <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>

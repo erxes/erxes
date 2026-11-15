@@ -182,8 +182,7 @@
   "copy-failed": "Could not copy",
   "regenerate": "Ask again",
   "settings": {
-    "title": "Assistant",
-    "keys-title": "Provider keys",
+    "title": "Assistant provider keys",
     "keys-intro": "The assistant runs on your own key. Only you can use it, and the assistant can do only what your role allows.",
     "key-label": "{{provider}} API key",
     "key-paste": "Paste key",

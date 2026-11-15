@@ -124,9 +124,10 @@
     "settings": "Тохиргоо",
     "contacts-settings": "Харилцагчийн тохиргоо",
     "assistant": "Туслах",
-    "assistant-approvals": "Туслахын зөвшөөрөл",
-    "assistant-code-mode": "Туслахын код горим",
-    "assistant-appearance": "Туслахын төрх"
+    "assistant-keys": "Түлхүүрүүд",
+    "assistant-approvals": "Зөвшөөрөл",
+    "assistant-code-mode": "Код горим",
+    "assistant-appearance": "Төрх"
   },
   "auth": {
     "welcome": "Тавтай морил",
