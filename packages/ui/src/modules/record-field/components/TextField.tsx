@@ -15,6 +15,10 @@ type TextFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigger>
   defaultOpen?: boolean;
 };
 
+/**
+ * A text value in a table cell or panel row that edits in a popover.
+ * Enter or leaving it saves a change through `onSave`; Escape drops it.
+ */
 export const TextField = ({
   ref,
   placeholder,

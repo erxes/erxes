@@ -227,6 +227,10 @@ const resolveProps = ({
   calendarProps,
 });
 
+/**
+ * A date field with a calendar popover, for one day, several or a range.
+ * `mode` picks which; `inline` shows the calendar without the popover.
+ */
 export const DatePicker = (props: DatePickerProps) => {
   const { calendarProps, ...o } = resolveProps(props);
   const picker = useDatePicker(o);

@@ -81,6 +81,10 @@ const AlertDialogCancel = ({
   />
 );
 
+/**
+ * A modal that asks the member to confirm or cancel one action.
+ * Call `useConfirm` instead of building one; it draws this. Cancel takes focus on open.
+ */
 export const AlertDialog = Object.assign(AlertDialogPrimitive.Root, {
   Action: AlertDialogAction,
   Cancel: AlertDialogCancel,

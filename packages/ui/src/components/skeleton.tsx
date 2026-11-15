@@ -21,6 +21,7 @@ const skeletonVariants = cva('animate-pulse bg-accent', {
   },
 });
 
+/** A pulsing grey block that holds the place of content while it loads. */
 export const Skeleton = ({
   className,
   radius,

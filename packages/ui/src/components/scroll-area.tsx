@@ -71,6 +71,7 @@ const ScrollBar = ({
   </ScrollAreaPrimitive.Scrollbar>
 );
 
+/** A scrolling box with thin scrollbars that show on hover or scroll. */
 export const ScrollArea = Object.assign(ScrollAreaMain, {
   Root: ScrollAreaRoot,
   Viewport: ScrollAreaViewport,

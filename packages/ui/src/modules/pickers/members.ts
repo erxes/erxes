@@ -1,7 +1,7 @@
 import { keepPreviousData, type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-/** A team member as the pickers show one: core's `User` has these fields and more. */
+/** A team member as the pickers show one. Core's `User` has these fields and more. */
 export interface Member {
   id: string;
   email: string;

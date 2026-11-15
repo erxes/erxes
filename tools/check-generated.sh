@@ -2,7 +2,8 @@
 # Regenerates the committed artifacts and fails if any differ: migrations
 # (drizzle-kit, from packages/db/src/schema), routes.json,
 # erxes-ui's class merge tables (cn build, from the theme's @theme scales) and
-# erxes-ui's exports.txt (its exports and SHARED, what plugin UIs depend on).
+# erxes-ui's exports.txt (its exports and SHARED, what plugin UIs depend on) and
+# CATALOG.md (what each export is for, from its doc comment).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -12,6 +13,7 @@ generated=(
   packages/contract/routes.json
   packages/ui/src/lib/cn-tables.ts
   packages/ui/exports.txt
+  packages/ui/CATALOG.md
 )
 
 pnpm --silent db:check
@@ -34,4 +36,4 @@ if [ -n "$drift" ]; then
   exit 1
 fi
 
-echo 'Migration snapshots, routes.json, the cn tables and exports.txt match their sources.'
+echo 'Migration snapshots, routes.json, the cn tables, exports.txt and CATALOG.md match their sources.'

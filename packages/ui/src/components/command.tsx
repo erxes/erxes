@@ -232,6 +232,10 @@ const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanE
   );
 };
 
+/**
+ * A searchable list of items to pick or run, built on cmdk.
+ * `Command.Dialog` puts it in a palette; inside `Combobox.Content` it is a picker's list.
+ */
 export const Command = Object.assign(CommandRoot, {
   Dialog: CommandDialog,
   Input: CommandInput,

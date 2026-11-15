@@ -68,7 +68,10 @@ const PageHeaderEnd = ({ ref, children, className, ...props }: React.ComponentPr
   </div>
 );
 
-/** A page's title bar: `PageHeader.Start` holds the title, `PageHeader.End` the actions. */
+/**
+ * A page's title bar, with the breadcrumb and its one primary action.
+ * `PageHeader.Start` holds the title, `PageHeader.End` the actions.
+ */
 export const PageHeader = Object.assign(PageHeaderRoot, {
   Start: PageHeaderStart,
   End: PageHeaderEnd,

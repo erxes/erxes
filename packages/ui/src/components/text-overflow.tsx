@@ -18,7 +18,6 @@ const useOverflowTooltip = <T extends HTMLElement>() => {
   return { ref, open, onOpenChange };
 };
 
-/** Shows the full value in a tooltip, only while the text is cut off. */
 const TextOverflowTooltipRoot = ({ value, className }: { value?: string; className?: string }) => {
   const { ref, ...tooltip } = useOverflowTooltip<HTMLSpanElement>();
 
@@ -59,6 +58,10 @@ const TextOverflowTooltipInput = ({
   );
 };
 
+/**
+ * Text cut with an ellipsis that shows the full value in a tooltip.
+ * The tooltip opens only while the text is cut off. `.Input` does the same for a text input.
+ */
 export const TextOverflowTooltip = Object.assign(TextOverflowTooltipRoot, {
   Input: TextOverflowTooltipInput,
 });

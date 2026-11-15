@@ -3,6 +3,7 @@ import { IconX } from '@tabler/icons-react';
 import { type RefObject, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib/utils';
 
+/** One option of `MultipleSelector`: its value and the label shown. */
 export type MultiSelectOption = { value: string; label: string };
 
 // The typed text offered as a new option, when `creatable` is on and nothing matches it.

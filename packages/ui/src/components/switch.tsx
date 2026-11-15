@@ -32,6 +32,7 @@ const switchThumbVariants = cva(
   },
 );
 
+/** An on/off toggle for a setting that applies as soon as it flips. */
 export const Switch = ({
   className,
   size,

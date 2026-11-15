@@ -115,6 +115,10 @@ const DialogDescription = ({ className, ...props }: DialogPrimitive.Description.
   />
 );
 
+/**
+ * A centered modal over a dimmed page, such as an image lightbox.
+ * Never a form: forms go in core's record side panel. To confirm an action, call `useConfirm`.
+ */
 export const Dialog = Object.assign(DialogPrimitive.Root, {
   Trigger: DialogPrimitive.Trigger,
   Close: DialogPrimitive.Close,

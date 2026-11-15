@@ -34,6 +34,7 @@ const avatarVariants = cva('relative flex shrink-0 overflow-hidden border-0', {
   },
 });
 
+/** Base UI avatar props plus `corners`, `ring` and `size`. */
 export type AvatarProps = React.ComponentProps<typeof AvatarPrimitive.Root> &
   VariantProps<typeof avatarVariants>;
 
@@ -70,6 +71,7 @@ const AvatarFallback = ({
   );
 };
 
+/** A person's picture, round or square, falling back to their initials. */
 export const Avatar = Object.assign(AvatarRoot, {
   Image: AvatarImage,
   Fallback: AvatarFallback,

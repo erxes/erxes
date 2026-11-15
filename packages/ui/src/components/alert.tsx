@@ -59,6 +59,7 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
   );
 }
 
+/** An inline notice: icon, title and text, plain, warning or destructive. */
 export const Alert = Object.assign(AlertRoot, {
   Title: AlertTitle,
   Description: AlertDescription,

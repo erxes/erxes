@@ -11,6 +11,10 @@ import type { SliderProps } from './slider';
 
 const Selector = lazy(async () => ({ default: (await import('./multiselect')).MultipleSelector }));
 
+/**
+ * Picks several options from a list, shown as removable badges.
+ * Picked options leave the list. The code loads the first time one renders.
+ */
 export const MultipleSelector = (props: ComponentProps<typeof Selector>) => (
   <Suspense fallback={<div className={cn('min-h-7 w-full rounded shadow-xs', props.className)} />}>
     <Selector {...props} />
@@ -26,6 +30,7 @@ const LoadedSlider = <Value extends number | readonly number[]>(props: SliderPro
   return <Slider {...props} />;
 };
 
+/** A draggable slider for one number or a range. Its code loads on first render. */
 export const Slider = <Value extends number | readonly number[]>(props: SliderProps<Value>) => (
   <Suspense fallback={<div className="h-4 w-full" />}>
     <LoadedSlider {...props} />
@@ -64,6 +69,7 @@ const ResizableHandle = (props: ComponentProps<Parts['Handle']>) => {
   return <Handle {...props} />;
 };
 
+/** Side-by-side panels with handles that drag their sizes. Its code loads on first render. */
 export const Resizable = {
   PanelGroup: ResizablePanelGroup,
   Panel: ResizablePanel,

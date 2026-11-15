@@ -6,6 +6,7 @@ import { cn } from '../lib/utils';
 import { buttonVariants } from './button';
 import { IconX } from '@tabler/icons-react';
 
+/** The badge's classes by `variant` and `size`, to style another element. */
 export const badgeVariants = cva(
   'inline-flex items-center rounded-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit border gap-1',
   {
@@ -35,11 +36,13 @@ export const badgeVariants = cva(
   },
 );
 
+/** Div props plus `variant`, `size` and `onClose`, which adds a remove x. */
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
   onClose?: () => void;
 }
 
+/** A small tinted label for a status, tag or count; `onClose` adds an x. */
 export const Badge = ({
   ref,
   className,

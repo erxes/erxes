@@ -32,6 +32,7 @@ const FullNameFieldProvider = ({
   return <FullNameFieldContext.Provider value={name}>{children}</FullNameFieldContext.Provider>;
 };
 
+/** The name `FullNameField` is editing, or "Unknown" when it is empty. */
 export const FullNameValue = () => {
   const { fullName } = useFullNameField();
 
@@ -68,6 +69,11 @@ const FullNameFieldContent = () => {
   );
 };
 
+/**
+ * First and last name inputs in a popover, saved when it closes.
+ * `children` is the trigger, such as a `RecordTableInlineCell.Trigger` showing `FullNameValue`;
+ * `onValueChange` gets the trimmed names.
+ */
 export const FullNameField = ({
   children,
   firstName,

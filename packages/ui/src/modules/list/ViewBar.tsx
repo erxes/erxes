@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 import { TabButton } from '../../components/tabs';
 
 /**
- * A list's one bar, under its page header: its views on the left, its filter on the right
- * (`ListFilter`, with `DisplayMenu` inside it). The first tab's icon lines up with the page
- * header's first crumb. Without `tabs` the list has one view, "All …" (`allLabel`).
+ * A list's one bar under its page header: views left, filter right.
+ * The filter is `ListFilter`, with `DisplayMenu` inside it. The first tab's icon lines up with
+ * the page header's first crumb. Without `tabs` the list has one view, "All …" (`allLabel`).
  */
 export const ViewBar = ({
   allLabel,

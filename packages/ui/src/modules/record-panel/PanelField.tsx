@@ -5,8 +5,11 @@ import { cn } from '../../lib/utils';
 import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
 import { PanelLabel } from './PanelLabel';
 
-// One field in the side panel: its label, then the value as a record table
-// cell. Click to edit; Enter saves and Escape cancels, as in the list.
+/**
+ * A side panel row: icon and label, then the value as a table cell.
+ * Click to edit; Enter saves and Escape cancels, as in the list. `cell={false}` keeps a value's
+ * own layout, such as an avatar upload.
+ */
 export const PanelField = ({
   label,
   icon: Icon = IconForms,
@@ -58,7 +61,7 @@ export const PanelField = ({
   );
 };
 
-// A table cell trigger with the panel's rounded hover.
+/** A table cell trigger with the side panel's rounded hover. */
 export const PanelFieldTrigger = (
   props: React.ComponentProps<typeof RecordTableInlineCell.Trigger>,
 ) => <RecordTableInlineCell.Trigger variant="field" {...props} />;

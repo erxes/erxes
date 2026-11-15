@@ -35,6 +35,7 @@ const HoverCardContent = ({
   </PreviewCardPrimitive.Portal>
 );
 
+/** A preview card that opens when the pointer rests on a link, after 700ms. */
 export const HoverCard = Object.assign(PreviewCardPrimitive.Root, {
   Trigger: HoverCardTrigger,
   Content: HoverCardContent,

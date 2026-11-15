@@ -1,6 +1,7 @@
 /**
- * A stored value of any JSON shape as text: strings as they are, numbers and
- * booleans printed, objects and arrays as JSON, nothing as ''.
+ * A stored value of any JSON shape as text, for showing or editing it.
+ * Strings stay as they are, numbers and booleans are printed, objects and arrays become JSON,
+ * and null or undefined become ''.
  */
 export const textOf = (value: unknown): string => {
   if (value === null || value === undefined) return '';
@@ -14,6 +15,9 @@ export const textOf = (value: unknown): string => {
   return JSON.stringify(value) ?? '';
 };
 
-/** `value` when it is one of `options` (a select's string as its union type), else undefined. */
+/**
+ * `value` narrowed to one of `options`, else undefined.
+ * Use it to turn a select's string into its union type.
+ */
 export const oneOf = <T extends string>(options: readonly T[], value: string | null) =>
   options.find((option) => option === value);

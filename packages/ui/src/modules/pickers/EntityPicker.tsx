@@ -2,13 +2,6 @@ import { type ReactNode, useState } from 'react';
 import { Combobox } from '../../components/combobox';
 import { Command } from '../../components/command';
 
-/*
- * The one searchable list behind every record picker (members, contacts, tags, a plugin's own
- * records): search, the picked ones first, a check on each, and optional "none" and "create"
- * rows. Each picker brings its own trigger (a table cell, a form control, a button) and its
- * items, usually from `useQuery(orpc.<group>.list.queryOptions(...))`.
- */
-
 interface EntityPickerProps<T, K extends string> {
   items: T[];
   /** The id and the text a search matches. */
@@ -34,6 +27,13 @@ interface EntityPickerProps<T, K extends string> {
   renderCreate?: (search: string, clear: () => void) => ReactNode;
 }
 
+/**
+ * The searchable list behind every record picker; build a picker on it.
+ * It serves members, contacts, tags and a plugin's own records: search, the picked ones first, a
+ * check on each, and optional "none" and "create" rows. Each picker brings its own trigger (a
+ * table cell, a form control, a button) and its items, usually from
+ * `useQuery(orpc.<group>.list.queryOptions(...))`.
+ */
 export const EntityPicker = <T, K extends string = string>({
   items,
   itemKey,

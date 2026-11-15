@@ -6,10 +6,6 @@ import { Input } from './input';
 import { Textarea } from './textarea';
 import { cn } from 'erxes-ui/lib/utils';
 
-/**
- * An input or textarea with an icon or button beside its text, inside the same box. The group
- * draws the box and the focus ring; the field inside is bare. After shadcn's InputGroup.
- */
 const InputGroupRoot = ({ className, ...props }: React.ComponentProps<'div'>) => (
   <div
     className={cn(
@@ -65,6 +61,11 @@ const InputGroupTextarea = ({ className, ...props }: React.ComponentProps<typeof
   />
 );
 
+/**
+ * An input or textarea with an icon or button inside the same box.
+ * The group draws the box and the focus ring; the field inside is bare. After shadcn's
+ * InputGroup.
+ */
 export const InputGroup = Object.assign(InputGroupRoot, {
   Addon: InputGroupAddon,
   Input: InputGroupInput,

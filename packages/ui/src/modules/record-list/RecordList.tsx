@@ -11,6 +11,12 @@ const RecordListSkeleton = ({ rows = 8 }: { rows?: number }) => (
   </div>
 );
 
+/**
+ * Rows grouped under headers that fold away, such as tasks by status.
+ * Each group's sticky header picks all its rows, and folded groups are kept in this browser.
+ * Wrap it in `RecordList.Provider`, which holds the selection `RecordList.useSelection` reads
+ * for a bulk command bar.
+ */
 export const RecordList = Object.assign(RecordListRoot, {
   Provider: RecordListProvider,
   Skeleton: RecordListSkeleton,

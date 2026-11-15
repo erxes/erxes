@@ -18,8 +18,9 @@ const meantElsewhere = (event: KeyboardEvent) =>
   );
 
 /**
- * A page shortcut (`c` adds, `f` filters, `/` focuses the description, `mod+shift+enter`
- * expands the panel): runs `action` unless someone is typing or a dialog or menu is open.
+ * A page shortcut, skipped while typing or while a dialog or menu is open.
+ * Examples: `c` adds, `f` filters, `/` focuses the description, `mod+shift+enter` expands the
+ * panel.
  * `when` decides per key press whether this hook takes it at all, so another one may.
  * `useKey` matches the character typed instead of the key's position (`/` on any layout).
  */

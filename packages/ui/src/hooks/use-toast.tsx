@@ -8,6 +8,10 @@ export type ToastData = { action?: ReactElement };
 /** The one queue every toast goes through; the Toaster renders it. */
 export const toastManager = Toast.createToastManager<ToastData>();
 
+/**
+ * Shows a toast: `toast({ title, description, variant: 'success' })`.
+ * Works outside React. It returns the toast's `id` and a `dismiss` that closes it.
+ */
 export const toast = ({
   title,
   description,
@@ -24,4 +28,5 @@ export const toast = ({
   return { id, dismiss: () => toastManager.close(id) };
 };
 
+/** `{ toast }` as a hook; calling `toast` directly does the same. */
 export const useToast = () => ({ toast });

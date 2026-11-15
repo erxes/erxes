@@ -83,6 +83,10 @@ const PopoverContent = ({
   );
 };
 
+/**
+ * A floating box anchored to its trigger, for a picker or a few controls.
+ * Content sits in a positioner, which sets `--anchor-width` and `--available-height`.
+ */
 export const Popover = Object.assign(PopoverPrimitive.Root, {
   Trigger: PopoverPrimitive.Trigger,
   Content: PopoverContent,

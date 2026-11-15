@@ -26,7 +26,7 @@ const textOf = (node: unknown): string => {
   return 'id' in node ? `${inner}\n` : inner;
 };
 
-/** Stored editor content (block JSON, or HTML) as the plain text a reader sees. */
+/** Stored editor content, block JSON or HTML, as the plain text it shows. */
 export const editorText = (content: string) => {
   const blocks = parseBlocks(content);
 

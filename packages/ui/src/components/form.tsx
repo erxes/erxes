@@ -165,6 +165,10 @@ const FormMessage = ({
   );
 };
 
+/**
+ * react-hook-form's provider with field, label, control and error parts.
+ * A settings page lays out `Form.Item`s with `Form.Label` above and `Form.Message` below.
+ */
 export const Form = Object.assign(FormProvider, {
   Control: FormControl,
   Description: FormDescription,

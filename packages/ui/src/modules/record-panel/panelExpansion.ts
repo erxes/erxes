@@ -10,5 +10,5 @@ type PanelExpansion = {
 /** Provided by the host's record panel; erxes-ui's panel parts read it. */
 export const PanelExpansionContext = createContext<PanelExpansion>(null);
 
-/** Whether the record is shown at full size, on its own page: a slot can lay out wider. */
+/** Whether the record shows at full size on its own page. A slot can lay out wider then. */
 export const usePanelExpanded = () => useContext(PanelExpansionContext)?.expanded ?? false;

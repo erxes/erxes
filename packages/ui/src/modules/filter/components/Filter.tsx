@@ -18,6 +18,10 @@ import {
 } from './FilterPopover';
 import { FilterProvider } from './FilterProvider';
 
+/**
+ * Parts of a filter popover and bar, which `ListFilter` is built from.
+ * A list page uses `ListFilter`; reach for these parts only for a filter it can't draw.
+ */
 export const Filter = Object.assign(FilterProvider, {
   Trigger: FilterTrigger,
   Popover: FilterPopover,

@@ -10,6 +10,7 @@ const TriggerIcon = ({ className, ...props }: React.ComponentProps<typeof IconCa
   />
 );
 
+/** One section that folds open and shut, with a caret icon for its trigger. */
 export const Collapsible = Object.assign(CollapsiblePrimitive.Root, {
   Trigger: CollapsiblePrimitive.Trigger,
   TriggerIcon: TriggerIcon,

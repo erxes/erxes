@@ -1,7 +1,10 @@
 import type { ElementType, ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
-/** Separates a record's fields, tags and linked records with plain headings. */
+/**
+ * A plain heading that groups the side panel's rows.
+ * It separates a record's fields, tags and linked records.
+ */
 export const PanelSection = ({
   title,
   icon: Icon,

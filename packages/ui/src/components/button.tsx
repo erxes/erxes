@@ -58,16 +58,21 @@ const variants = cva(
 );
 
 /**
+ * Button classes by `variant`, `tone` and `size`, to style a link as one.
  * The size variants override the base padding, gap and text size, so the classes go through
  * tailwind-merge. Without it a link styled as a small button gets whichever rule the CSS
  * happens to list last.
  */
 export const buttonVariants = (props?: Parameters<typeof variants>[0]) => cn(variants(props));
 
+/** Base UI button props plus `variant`, `tone` and `size`. */
 export type ButtonProps = React.ComponentProps<typeof ButtonPrimitive> &
   VariantProps<typeof buttonVariants>;
 
-/** A native button by default. Links styled as buttons put `buttonVariants` on the link instead. */
+/**
+ * A button in the theme's variants, tones and sizes; native by default.
+ * Links styled as buttons put `buttonVariants` on the link instead.
+ */
 export const Button = ({ className, variant, tone, size, ...props }: ButtonProps) => (
   <ButtonPrimitive className={buttonVariants({ variant, tone, size, className })} {...props} />
 );

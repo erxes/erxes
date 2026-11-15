@@ -61,9 +61,10 @@ const isSupport = (rule: CSSRule) =>
   (rule instanceof CSSLayerBlockRule && rule.name === 'properties');
 
 /**
- * Adds `css`, the plugin's compiled Tailwind (`import css from './styles.css?inline'`), to the
- * page: its utilities layer without the classes the page already has, and its `@property` and
- * `@keyframes` rules. Calling it again for the same plugin replaces its sheet.
+ * Adds a plugin UI's compiled Tailwind to the page, minus what web has.
+ * Pass `css` from `import css from './styles.css?inline'`. It keeps the utilities layer without
+ * the classes the page already has, and the `@property` and `@keyframes` rules. Calling it again
+ * for the same plugin replaces its sheet.
  */
 export const addPluginStyles = (plugin: string, css: string) => {
   const previous = sheets.get(plugin);

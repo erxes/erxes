@@ -129,6 +129,11 @@ const RecordTableInlineAnchor = ({
   );
 };
 
+/**
+ * A table cell value, and the trigger and popover that edit it in place.
+ * Used bare it shows a read-only value. `Trigger` and `Content` go inside a `Popover` or
+ * `PopoverScoped`; `Trigger`'s `variant="field"` fits a side panel row.
+ */
 export const RecordTableInlineCell = Object.assign(RecordTableCellDisplay, {
   /** Names the triggers inside by the element with this id, as the column head does in a table. */
   LabelledBy: CellColumnHead,

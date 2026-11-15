@@ -7,8 +7,8 @@ import { RecordTableInlineCell } from '../record-table/components/RecordTableCel
 import { PanelLabel } from './PanelLabel';
 
 /**
- * One field of a record not created yet, laid out like `PanelField`: its
- * label, then the input, with the field's error under it.
+ * One field of a new record's form, laid out like `PanelField`.
+ * Its label, then the input, with the field's error under it.
  */
 export const PanelFormRow = ({
   label,
@@ -53,8 +53,8 @@ export const PanelFormRow = ({
 };
 
 /**
- * The body and footer of a new record's form in the side panel: its rows,
- * then Cancel and Save. Nothing is saved until Save.
+ * A new record's form in the side panel: its rows, then Cancel and Save.
+ * Nothing is saved until Save.
  */
 export const PanelFormLayout = ({
   children,

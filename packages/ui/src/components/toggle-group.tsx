@@ -60,6 +60,11 @@ const ToggleGroupItem = <Value extends string>({
   );
 };
 
+/**
+ * A row of toggle buttons where one or several stay pressed.
+ * The value is an array: one item for a single choice, empty when nothing is pressed. A list's
+ * table or board switch is `DisplayMenu`, not this.
+ */
 export const ToggleGroup = Object.assign(ToggleGroupRoot, {
   Item: ToggleGroupItem,
 });

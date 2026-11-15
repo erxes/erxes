@@ -38,6 +38,7 @@ const CardFooter = ({ ref, className, ...props }: React.ComponentProps<'div'>) =
   <div ref={ref} className={cn('flex items-center p-6 pt-0', className)} {...props} />
 );
 
+/** A raised panel with header, title, description, content and footer. */
 export const Card = Object.assign(CardRoot, {
   Header: CardHeader,
   Footer: CardFooter,
