@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
  * https://date-fns.org/docs/format. Numbers and amounts go through Intl.NumberFormat.
  */
 
-/** The languages the UI speaks, each with its own name and its date-fns locale. */
+/** The UI's languages, each with its own name and date-fns locale. */
 export const LANGUAGES = [
   { code: 'en', label: 'English', dates: enUS },
   { code: 'mn', label: 'Монгол', dates: mn },
@@ -57,10 +57,13 @@ export const currencyDigits = (currency: string) =>
   new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions()
     .maximumFractionDigits ?? 2;
 
-/** The formatters in the UI's language; a component using them re-renders when it changes. */
+/**
+ * Date, number and money formatters in the UI's language, for components.
+ * A component using them re-renders when the language changes.
+ */
 export const useFormat = () => formatter(useTranslation().i18n.language);
 
-/** A local day as stored and typed, `yyyy-MM-dd`, the same in every language. */
+/** A local day as stored and typed, `yyyy-MM-dd`, in every language. */
 export const toIsoDay = (date: Date) => format(date, 'yyyy-MM-dd');
 
 /** The browser's time zone ("Asia/Ulaanbaatar"), when it says. */
@@ -72,7 +75,10 @@ export const localTimeZone = () => {
   }
 };
 
-/** A zone's offset today, "UTC+8"; empty for a zone the browser doesn't know. */
+/**
+ * A time zone's offset today, like "UTC+8".
+ * It is empty for a zone the browser doesn't know.
+ */
 export const zoneOffset = (zone: string) => {
   try {
     return (

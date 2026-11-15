@@ -77,6 +77,7 @@ const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<'span'
   </span>
 );
 
+/** The trail of links to the current page, on the left of a `PageHeader`. */
 export const Breadcrumb = Object.assign(BreadcrumbRoot, {
   List: BreadcrumbList,
   Item: BreadcrumbItem,

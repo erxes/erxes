@@ -5,6 +5,7 @@ import { SexCode } from 'erxes-ui/types/SexCode';
 
 const SEX_CODES = [SexCode.NOT_KNOWN, SexCode.MALE, SexCode.FEMALE, SexCode.NOT_APPLICABLE];
 
+/** A searchable list to pick a sex code, for a popover or cell editor. */
 export const SexField = ({
   value,
   onValueChange,

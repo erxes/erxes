@@ -34,6 +34,7 @@ const AccordionPanel = ({ className, children, ...props }: AccordionPrimitive.Pa
   </AccordionPrimitive.Panel>
 );
 
+/** Stacked sections whose headers fold their content open and shut. */
 export const Accordion = Object.assign(AccordionPrimitive.Root, {
   Item: AccordionItem,
   Trigger: AccordionTrigger,

@@ -1,7 +1,10 @@
 import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import { hostComponent } from '../../utils/host-component';
 
-/** A record the host can open: `core:customer`, `core:company`, or a plugin's own type. */
+/**
+ * A record the host can open, by `contentType` and `contentId`.
+ * The type is `core:customer`, `core:company`, or a plugin's own.
+ */
 export interface RecordRef {
   contentType: string;
   contentId: string;
@@ -22,9 +25,10 @@ const RecordOpenerContext = createContext<RecordOpener | null>(null);
 const ignore = () => undefined;
 
 /**
- * How records open, provided by the host app (web): beside the page in its side panel, or,
- * inside a record, on top of that record so Back returns to it. erxes-ui is a Module
- * Federation singleton, so every plugin reads the host's.
+ * The host app's way to open records, which `useOpenRecord` calls.
+ * Web provides it: beside the page in its side panel, or, inside a record, on top of that
+ * record so Back returns to it. erxes-ui is a Module Federation singleton, so every plugin
+ * reads the host's.
  */
 export const RecordOpenerProvider = ({
   open,
@@ -37,6 +41,7 @@ export const RecordOpenerProvider = ({
 };
 
 /**
+ * Opens a record, or a new draft, in core's side panel.
  * `const { open, openNew } = useOpenRecord()`: `open({ contentType: 'sales:deal', contentId })`
  * opens a record in core's side panel, the page staying under it, and
  * `openNew('sales:deal', { stageId })` opens a draft that becomes the record on Save. Any
@@ -59,8 +64,8 @@ const page = hostComponent<RecordRef>();
 export const setRecordPage = page.set;
 
 /**
- * A record on its own page, as core draws it for `core:customer`: the record's View at full
- * size, under the page header, with Back to its list. A plugin routes its record type's
- * `listPath/:id` to `<RecordPage contentType="sales:deal" contentId={id} />`.
+ * A record on its own page, as core draws a customer's.
+ * The record's View at full size, under the page header, with Back to its list. A plugin
+ * routes its record type's `listPath/:id` to `<RecordPage contentType="sales:deal" contentId={id} />`.
  */
 export const RecordPage = page.Host;

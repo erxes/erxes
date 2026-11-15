@@ -36,6 +36,7 @@ const CONDITION_MATCHES = ['all', 'any'] as const;
 /** The units of a relative date's `{ amount, unit }`. */
 export const RELATIVE_UNITS = ['days', 'weeks', 'months'] as const;
 
+/** One rule of a condition: a `path`, an operator and maybe a value. */
 export type TConditionRule = {
   /** `subject.primaryEmail`, `event.payload.amount`, `steps.s2.output.id`. */
   path: string;
@@ -170,6 +171,7 @@ export const RELATIVE = new Set<string>([
 
 export const LIST_VALUE = new Set<string>(['in', 'not_in']);
 
+/** Whether a condition entry is a rule rather than a nested group. */
 export const isRule = (rule: TConditionRule | TConditionGroup): rule is TConditionRule =>
   !('match' in rule);
 

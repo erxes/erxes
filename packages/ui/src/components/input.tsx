@@ -105,6 +105,7 @@ const InputNumber = ({
   );
 };
 
+/** A themed text input; `Input.Number` adds thousands separators. */
 export const Input = Object.assign(InputMain, {
   Number: InputNumber,
 });

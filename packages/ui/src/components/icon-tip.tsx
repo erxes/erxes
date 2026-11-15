@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { Kbd } from './kbd';
 import { Tooltip } from './tooltip';
 
-/** The hover label of an icon-only button, with its shortcut when it has one. */
+/** The hover label of an icon-only button, with its shortcut if it has one. */
 export const IconTip = ({
   label,
   hotkey,

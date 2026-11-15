@@ -2,8 +2,9 @@ import { parseAsJson, parseAsString, useQueryStates } from 'nuqs';
 import { ConditionGroup, type TConditionGroup } from '../../conditions/conditions';
 
 /**
- * Where a list's filter lives in the address, so shared links and reloads keep it: `advanced`,
- * the condition group as JSON, and `searchValue`.
+ * The URL params holding a list's filter, as nuqs parsers.
+ * Shared links and reloads keep the filter: `advanced` is the condition group as JSON, and
+ * `searchValue` the search.
  */
 export const listFilterQuery = {
   // Anyone can edit a URL: a filter that doesn't parse reads as none.

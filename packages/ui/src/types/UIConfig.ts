@@ -3,9 +3,16 @@ import type { TContactContentType } from '../modules/records/contacts';
 import type { RecordRef } from '../modules/records/openRecord';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-/** A property input's own settings, stored with the custom field; each input defines its keys. */
+/**
+ * A property input's own settings, stored with the custom field.
+ * Each input defines its keys.
+ */
 export type TPropertyInputMeta = Record<string, unknown>;
 
+/**
+ * Props of a plugin's activity row component in `widgets.activityRows`.
+ * The shape comes from erxes 3.x; web doesn't read `widgets` from a plugin's config.
+ */
 export type TActivityRowProps = {
   activity: {
     _id: string;
@@ -17,6 +24,11 @@ export type TActivityRowProps = {
   };
 };
 
+/**
+ * Props of a custom property input in `widgets.propertyInputs`.
+ * It edits the field's value as text and its own settings as `meta`. The shape comes from
+ * erxes 3.x; web doesn't read `widgets` from a plugin's config.
+ */
 export type TPropertyInputProps = {
   value: string;
   onValueChange: (value: string) => void;
@@ -25,6 +37,7 @@ export type TPropertyInputProps = {
   disabled?: boolean;
 };
 
+/** The schematic a dashboard widget shows in the widget catalog. */
 export type TDashboardWidgetPreview =
   | 'bar'
   | 'line'
@@ -43,8 +56,9 @@ export type TRecordSectionProps = {
 };
 
 /**
- * A section a plugin adds to a customer's or company's detail in core's panel, under core's
- * own sections: e.g. the customer's deals. One that crashes shows its error, not the panel's.
+ * A plugin's section on a customer's or company's detail in core's panel.
+ * It sits under core's own sections, e.g. the customer's deals. One that crashes shows its
+ * error, not the panel's.
  */
 export type TRecordSection = {
   contentType: TContactContentType;
@@ -57,10 +71,13 @@ export type TRecordSection = {
 /** What each slot of a plugin record is given: the record. */
 export type TRecordSlotProps = RecordRef;
 
-/** The customers and companies a record is about: what its relation tabs list records of. */
+/**
+ * The customers and companies a record is about.
+ * Its relation tabs list records of these.
+ */
 export type TRecordContacts = { customerIds: string[]; companyIds: string[] };
 
-/** A record's own tab, placed after core's Detail tab or after its Activity tab. */
+/** A plugin record type's own tab, after core's Detail or Activity tab. */
 export type TRecordTab = {
   value: string;
   label: string;
@@ -69,7 +86,10 @@ export type TRecordTab = {
   component: React.ComponentType<TRecordSlotProps>;
 };
 
-/** What a plugin record's draft is given: its form, saved as the record on Save. */
+/**
+ * Props of a plugin record type's `New` slot, the draft form.
+ * The draft is saved as the record on Save.
+ */
 export type TRecordDraftProps = {
   /** What its opener passed (`useOpenRecord().openNew(type, defaults)`), e.g. a stage. */
   defaults: Record<string, unknown>;
@@ -115,12 +135,13 @@ export type TPanelRecordType = {
   activity?: string;
 };
 
-/** What a relation tab is given: the record it shows on, and that record's contacts. */
+/** Props of a relation tab: the record it shows on, and its contacts. */
 export type TRelationTabProps = TRecordSlotProps & TRecordContacts;
 
 /**
- * A tab a plugin adds to other records' panels, listing its own records of the same customers
- * and companies: a customer's deals, a task's deals. Shown on core's customers and companies
+ * A plugin's tab on other records' panels, listing its own records.
+ * It lists the plugin's own records of the same customers and companies: a customer's deals, a
+ * task's deals. Shown on core's customers and companies
  * (their contacts are themselves) and on plugin record types that give `contacts`. A record
  * clicked in it opens on top in the same panel (`useOpenRecord().open`), and Back returns.
  */
@@ -134,6 +155,12 @@ export type TRelationTab = {
   component: React.ComponentType<TRelationTabProps>;
 };
 
+/**
+ * A plugin UI's `CONFIG`, exported from its `./config` remote.
+ * web reads `name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`
+ * and `relationTabs`; its first module renders under `/<path>/*`. The other fields come from
+ * erxes 3.x and web ignores them.
+ */
 export type IUIConfig = {
   name: string;
   path: string;
@@ -149,8 +176,8 @@ export type IUIConfig = {
   hasFloatingWidget?: boolean;
   /**
    * erxes platform versions this plugin is built for, as a semver range
-   * (e.g. `'~3.2'`, `'>=3.2.25 <3.4'`). Core warns — and still loads the
-   * plugin — when the running platform is outside the range.
+   * (e.g. `'~3.2'`, `'>=3.2.25 <3.4'`). Core warns, and still loads the
+   * plugin, when the running platform is outside the range.
    */
   platform?: string;
   navigationGroup?: {

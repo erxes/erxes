@@ -56,8 +56,8 @@ const AppLayoutFooter = ({ children }: { children?: ReactNode }) =>
   ) : null;
 
 /**
- * A link pinned to the bottom of an app sidebar (`AppLayout` `footer`), e.g.
- * the plugin's own settings or the way back from them.
+ * A link pinned to the foot of an app sidebar, in `AppLayout`'s `footer`.
+ * Use it for the plugin's own settings or the way back from them.
  */
 export const AppLayoutFooterLink = ({
   to,
@@ -272,8 +272,8 @@ const AppLayoutBody = (props: {
 };
 
 /**
- * Full-height layout for an app (plugin or core module) below the core top
- * bar: the app owns its sidebar and pages. `id` keys the persisted
+ * An app's full-height layout under core's top bar, with its own sidebar.
+ * The app, a plugin or core module, owns its sidebar and pages. `id` keys the persisted
  * open/width state, so use the plugin or module name.
  */
 export const AppLayout = ({

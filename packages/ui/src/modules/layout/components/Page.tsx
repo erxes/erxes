@@ -2,6 +2,7 @@ import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 
+/** A page's outer box, full height, with `PageHeader` first inside it. */
 export const PageContainer = ({
   ref,
   children,
@@ -28,6 +29,10 @@ const pageSubHeaderVariants = cva('flex h-auto flex-none gap-3 border-b bg-backg
   defaultVariants: { variant: 'default' },
 });
 
+/**
+ * A bar under the page header with a rule below it, for tabs or controls.
+ * `variant="flush"` drops its padding so tabs reach the rule. A list's bar is `ViewBar`.
+ */
 export const PageSubHeader = ({
   ref,
   className,

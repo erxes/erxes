@@ -1,6 +1,7 @@
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
 import { cn } from 'erxes-ui/lib/utils';
 
+/** A themed checkbox; pass `indeterminate` for a partial selection. */
 export const Checkbox = ({ className, ...props }: CheckboxPrimitive.Root.Props) => (
   <CheckboxPrimitive.Root
     className={cn(

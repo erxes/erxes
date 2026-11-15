@@ -6,6 +6,7 @@ import { cn } from 'erxes-ui/lib/utils';
 
 type DragHandleProps = Omit<ButtonProps, 'render' | 'children' | 'size'>;
 
+/** A small grip button to drag a row or card by, for a sortable list. */
 export const DragHandle = ({ ref, className, variant = 'ghost', ...props }: DragHandleProps) => (
   <Button
     className={cn(

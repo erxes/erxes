@@ -2,8 +2,10 @@ import { IconAlignLeft } from '@tabler/icons-react';
 import { Editor } from '../blocks/components/LazyEditor';
 import { useSaveOnLeave } from './useSaveOnLeave';
 
-// Rich-text description across the panel's width. Like the other cells it
-// saves when you leave it, never while typing.
+/**
+ * A rich-text description row in the side panel, across its width.
+ * Like the other cells it saves when you leave it, never while typing.
+ */
 export const PanelDescriptionField = ({
   label,
   value,

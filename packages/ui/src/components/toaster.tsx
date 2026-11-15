@@ -44,7 +44,10 @@ const ToastList = () => {
   ));
 };
 
-/** One toast at a time, bottom right on wide screens and top on narrow ones. */
+/**
+ * Draws the toasts `toast()` raises; core's web app already mounts it.
+ * One toast at a time, bottom right on wide screens and top on narrow ones.
+ */
 export function Toaster() {
   return (
     <Toast.Provider toastManager={toastManager} limit={1}>

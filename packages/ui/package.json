@@ -10,7 +10,9 @@
     "directory": "packages/ui"
   },
   "files": [
-    "dist"
+    "dist",
+    "AGENTS.md",
+    "CATALOG.md"
   ],
   "type": "module",
   "sideEffects": [

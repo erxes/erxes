@@ -14,6 +14,7 @@ import { buttonVariants } from './button';
 import { Select } from './select';
 import { cn } from '../lib/utils';
 
+/** react-day-picker's `DayPicker` props. */
 export type CalendarProps = ComponentProps<typeof DayPicker>;
 
 // Common classNames for both calendar variants
@@ -114,6 +115,10 @@ const END_MONTH = new Date(new Date().getFullYear() + 10, 11);
 
 const START_MONTH = new Date(1980, 6);
 
+/**
+ * A month grid to pick a day or range, with month and year selects.
+ * For a field, use `DatePicker`, which puts this in a popover. Years run 1980 to ten ahead.
+ */
 export const Calendar = ({ className, classNames, ...props }: CalendarProps) => (
   <DayPicker
     className={cn('p-3', className)}

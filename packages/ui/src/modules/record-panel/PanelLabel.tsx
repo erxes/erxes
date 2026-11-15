@@ -36,6 +36,11 @@ const useIsClamped = () => {
   return { ref, isClamped };
 };
 
+/**
+ * A side panel label cut at two lines, with the full text on hover.
+ * On the record's own page (`usePanelExpanded`) it shows in full. `tooltip` replaces the hover
+ * text.
+ */
 export const PanelLabel = ({
   children,
   tooltip,

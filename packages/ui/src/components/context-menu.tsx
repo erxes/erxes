@@ -45,6 +45,7 @@ const ContextMenuItem = ({
   />
 );
 
+/** A menu that opens on right-click, beside the pointer. */
 export const ContextMenu = Object.assign(ContextMenuRoot, {
   Trigger: ContextMenuPrimitive.Trigger,
   Content: ContextMenuContent,

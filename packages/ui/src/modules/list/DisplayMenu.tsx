@@ -15,7 +15,10 @@ import { cn } from '../../lib/utils';
 
 const LIST_DISPLAYS = ['list', 'table', 'board'] as const;
 
-/** How a list shows its records: grouped rows (`RecordList`), a table, or cards on a board. */
+/**
+ * How a list shows its records: grouped rows, a table or a board.
+ * Grouped rows are `RecordList`; a board shows cards.
+ */
 export type TListDisplay = (typeof LIST_DISPLAYS)[number];
 
 /** The displays a list offers, in the menu's order; the first shows until one is chosen. */
@@ -31,9 +34,9 @@ const listDisplayFamily = storedFamily<TListDisplay | null>({
 });
 
 /**
- * `const [display] = useListDisplay('sales-deals')`: the display a list shows, chosen under its
- * Display menu and remembered in this browser, one choice per list. Give it the same `displays`
- * as the list's `DisplayMenu`.
+ * The display a list shows, as picked in its Display menu.
+ * `const [display] = useListDisplay('sales-deals')`. The choice is remembered in this browser,
+ * one per list. Give it the same `displays` as the list's `DisplayMenu`.
  */
 export const useListDisplay = (list: string, displays: ListDisplays = TABLE_AND_BOARD) => {
   const [chosen, setDisplay] = useAtom(listDisplayFamily(list));
@@ -49,8 +52,9 @@ const DISPLAYS = {
 } as const;
 
 /**
- * "Display" in a list's filter bar: table or board, or the `displays` the list offers, such as
- * `['list', 'board', 'table']` (`useListDisplay(list, displays)` reads the choice).
+ * The Display menu in a list's filter bar: table, board or grouped list.
+ * It offers table or board, or the `displays` the list offers, such as
+ * `['list', 'board', 'table']`; `useListDisplay(list, displays)` reads the choice.
  */
 export const DisplayMenu = ({
   list,

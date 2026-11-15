@@ -98,7 +98,10 @@ type PhoneFieldProps = IPhoneFieldProps &
     onValidationStatusChange?: (status: ValidationStatus) => void;
   };
 
-/** A record's phones: the list with a menu per phone, and an input to add or edit one. */
+/**
+ * An editable list of a record's phones, each with its own menu.
+ * An input adds a phone or edits one.
+ */
 export const PhoneField = ({
   ref,
   recordId,

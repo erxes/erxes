@@ -61,6 +61,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    plugin UIs at runtime, not at build time. `packages/ui/exports.txt` lists both, and
    `pnpm check:generated` fails until it is regenerated, so a removed line in its diff is a
    breaking change. Search the plugin repos (the HR plugin first) for a symbol before removing it.
+   A new export needs a doc comment: `node tools/ui-exports.ts` fails without one, and its first
+   sentence is the export's line in `packages/ui/CATALOG.md`, which ships in erxes-ui.
 5. Check a consumer: load the HR plugin UI in web with `PUBLIC_PLUGINS=<remote>@<remoteEntry url>`
    (`.agents/skills/verify-feature/SKILL.md`), or call the changed procedure with a token from
    `POST /core/v1/plugins/token`, or through `@erxes/plugin-sdk`'s `createCoreClient`.

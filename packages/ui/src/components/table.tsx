@@ -108,6 +108,10 @@ const TableCaption = ({ ref, className, ...props }: React.ComponentProps<'captio
   <caption ref={ref} className={cn('mt-4 text-sm text-muted-foreground', className)} {...props} />
 );
 
+/**
+ * A plain styled HTML table, for small static grids of values.
+ * A list of records uses `RecordTable`, not this.
+ */
 export const Table = Object.assign(TableRoot, {
   Header: TableHeader,
   Body: TableBody,

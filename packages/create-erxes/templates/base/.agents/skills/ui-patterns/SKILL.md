@@ -10,6 +10,9 @@ reference: `contacts/customers` and `products` for lists and records,
 built only from what plugins can import. When a page has to differ, say why in
 a comment.
 
+Read `ui/node_modules/erxes-ui/CATALOG.md` before writing a component: it lists
+what erxes-ui already has, and the screen each kind of page copies.
+
 ## Page
 
 - `PageContainer`, then `PageHeader`. `PageHeader.Start` holds the breadcrumb:

@@ -30,6 +30,7 @@ const RadioGroupItem = <Value = string,>({ className, ...props }: Radio.Root.Pro
   </Radio.Root>
 );
 
+/** A set of radio buttons where one value is picked. */
 export const RadioGroup = Object.assign(RadioGroupRoot, {
   Item: RadioGroupItem,
 });

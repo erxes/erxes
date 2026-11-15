@@ -12,7 +12,10 @@ const ListFilterBar = lazy(async () => ({
   default: (await import('./filter/ListFilterBar')).ListFilterBar,
 }));
 
-/** A field a list filters by, as its menu, chip and the advanced filter show it. */
+/**
+ * A field a list can filter by, for `ListFilter`'s `fields`.
+ * Its menu, chips and the advanced filter show it.
+ */
 export type TListFilterField = {
   /** The rules' `path` in the filter the list's API gets: `subject.<column>`, e.g. `subject.stageId`. */
   path: string;
@@ -32,6 +35,7 @@ export type TListFilterField = {
   currency?: string;
 };
 
+/** The props of `ListFilter`: its `id`, `fields`, lookups and record count. */
 export type TListFilterProps = TConditionLookups & {
   /** Unique per list, e.g. `sales-deals`: its menu's hotkey scope. */
   id: string;
@@ -50,9 +54,10 @@ export type TListFilterProps = TConditionLookups & {
 };
 
 /**
- * A list's filter bar: the menu of `fields` (`F`), search, the advanced filter, and each
- * condition as a chip. The conditions and search live in the address (shared links and reloads
- * keep them); `useListFilterParams()` reads them for the list's query. `member` fields pick
+ * A list's filter bar, with a field menu, search and conditions as chips.
+ * The menu of `fields` opens on `F` and holds search and the advanced filter. The conditions
+ * and search live in the address (shared links and reloads keep them); `useListFilterParams()`
+ * reads them for the list's query. `member` fields pick
  * from `members` and `tags` fields from `tags`: in erxes `memberQueries` from
  * `@erxes/core-contract/client` and the tags query of the record type; outside erxes, the
  * plugin's own.
@@ -72,9 +77,9 @@ export const ListFilter = (props: TListFilterProps) => {
 };
 
 /**
- * What `ListFilter` holds, for the list's API: `filter`, core's condition group
- * (`ConditionGroup` from `@erxes/core-contract`) as JSON, its rules on the fields' paths,
- * and `search`. Both are undefined when unset.
+ * `ListFilter`'s conditions and search, as params for the list's query.
+ * `filter` is core's condition group (`ConditionGroup` from `@erxes/core-contract`) as JSON,
+ * its rules on the fields' paths, and `search` the search. Both are undefined when unset.
  */
 export const useListFilterParams = () => {
   const { advanced, search } = useListConditions();

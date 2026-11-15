@@ -186,6 +186,7 @@ const ColorPickerRoot = ({
   );
 };
 
+/** A swatch button that opens preset colours and a hex input in a popover. */
 export const ColorPicker = Object.assign(ColorPickerRoot, {
   Provider: ColorPickerProvider,
   Trigger: ColorPickerTrigger,

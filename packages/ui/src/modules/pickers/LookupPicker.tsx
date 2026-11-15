@@ -12,8 +12,8 @@ export interface Tag {
 }
 
 /**
- * The tags of one record type, as TanStack query options: in erxes, web's query for
- * `orpc.tags.list` with the type (`{ type: 'customer' }`).
+ * TanStack query options for the tags of one record type.
+ * In erxes, web's query for `orpc.tags.list` with the type (`{ type: 'customer' }`).
  */
 export type TagsQuery = RowsQuery<Tag>;
 
@@ -49,8 +49,9 @@ const memberOption = (member: Member) => ({
 const tagOption = (tag: Tag) => ({ value: tag.id, label: tag.name });
 
 /**
- * The active team as picker options, plus the `picked` members outside it (a disabled member a
- * filter still names), so their names show; none without `members`.
+ * The active team members as picker options.
+ * It adds the `picked` members outside it (a disabled member a filter still names), so their
+ * names show; none without `members`.
  */
 export const useMemberOptions = (
   members: MemberQueries | undefined,
@@ -77,7 +78,7 @@ export const useMemberOptions = (
 export const useTagOptions = (tags: TagsQuery | undefined, enabled = true) =>
   useLookup(tags, enabled, tagOption);
 
-/** One option, or several with `multiple`, from members or tags, on a button. */
+/** A button that picks members or tags, one or several with `multiple`. */
 export const LookupPicker = ({
   lookup: { options, loading, error },
   value,

@@ -19,7 +19,7 @@ const useSlashFocus = (containerRef: RefObject<HTMLDivElement | null>, readonly?
     when: () => !readonly && visibleEditor(containerRef.current) !== null,
   });
 
-/** A record's description as a full-size tab, saved when the editor loses focus. */
+/** A record's description as a full-size tab. It saves when the editor loses focus. */
 export const PanelDescriptionEditor = ({
   value,
   scope,

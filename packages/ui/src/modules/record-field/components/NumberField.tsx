@@ -15,6 +15,11 @@ type NumberFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigge
   formatValue?: (value: number) => string;
 };
 
+/**
+ * A number in a table cell or panel row that edits in a popover.
+ * Enter, or closing it after typing, calls `onSave`; Escape drops the edit. `formatValue` shows
+ * the number another way, such as money.
+ */
 export const NumberField = ({
   placeholder,
   value,

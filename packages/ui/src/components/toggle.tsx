@@ -26,6 +26,7 @@ export const toggleVariants = cva(
   },
 );
 
+/** A button that stays pressed or not, such as bold in a toolbar. */
 export const Toggle = <Value extends string>({
   className,
   variant,

@@ -44,6 +44,7 @@ interface SpinnerContentProps
 /** The loader's ten spokes, by position. */
 const SPOKES = [...Array(10).keys()];
 
+/** A spinning loader; `area` pads it to stand in for a section or page. */
 export function Spinner({ size, show, area, className, containerClassName }: SpinnerContentProps) {
   return (
     <div className={cn(spinnerVariants({ show, area }), containerClassName)}>

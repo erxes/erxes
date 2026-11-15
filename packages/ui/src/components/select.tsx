@@ -170,6 +170,10 @@ const SelectSeparator = ({ className, ...props }: SelectPrimitive.Separator.Prop
     <SelectPrimitive.Separator className={cn('-mx-1 my-1 h-px bg-muted', className)} {...props} />
   );
 
+/**
+ * A dropdown to pick one value from a short fixed list.
+ * An empty string means nothing is selected. For a searchable or long list, use `Combobox`.
+ */
 export const Select = Object.assign(SelectRoot, {
   Group: SelectGroup,
   Value: SelectPrimitive.Value,
