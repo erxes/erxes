@@ -1,8 +1,8 @@
 {
   "name": "@erxes/plugin-sdk",
-  "version": "0.1.0-v2.5",
+  "version": "0.1.0-v2.6",
   "private": false,
-  "description": "For erxes plugin servers: a typed core client with automatic plugin tokens, and verification of members' plugin session tokens",
+  "description": "For erxes plugin servers: a typed core client with automatic plugin tokens, verification of members' plugin session tokens and of core's deliveries, and plugin jobs",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
+    "./jobs": "./src/jobs.ts",
     "./verify": "./src/verify.ts",
     "./package.json": "./package.json"
   },
@@ -24,6 +25,7 @@
     "exports": {
       ".": "./dist/index.js",
       "./client": "./dist/client.js",
+      "./jobs": "./dist/jobs.js",
       "./verify": "./dist/verify.js",
       "./package.json": "./package.json"
     },

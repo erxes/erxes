@@ -1,6 +1,6 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.1.0-v2.6",
+  "version": "0.1.0-v2.7",
   "private": false,
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",
@@ -37,6 +37,7 @@
     "./organizations": "./src/organizations.ts",
     "./payments": "./src/payments.ts",
     "./platform": "./src/platform.ts",
+    "./pluginJobs": "./src/pluginJobs.ts",
     "./plugins": "./src/plugins.ts",
     "./products": "./src/products.ts",
     "./roles": "./src/roles.ts",
@@ -75,6 +76,7 @@
       "./organizations": "./dist/organizations.js",
       "./payments": "./dist/payments.js",
       "./platform": "./dist/platform.js",
+      "./pluginJobs": "./dist/pluginJobs.js",
       "./plugins": "./dist/plugins.js",
       "./products": "./dist/products.js",
       "./roles": "./dist/roles.js",
