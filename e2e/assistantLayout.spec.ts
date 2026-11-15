@@ -1,5 +1,42 @@
-import { openAssistant } from './assistantPanel';
-import { expect, test } from './fixtures';
+import { ask, connectFakeModel, openAssistant } from './assistantPanel';
+import { expect, test, unique } from './fixtures';
+
+test.beforeEach(connectFakeModel);
+
+test('a long conversation keeps its newest reply in view, and two open conversations fit the header', async ({
+  page,
+}) => {
+  const panel = await openAssistant(page);
+
+  await expect(panel.getByRole('textbox', { name: 'Message' })).toBeFocused();
+
+  await ask(panel, 'Make a sales report');
+  await expect(panel.getByText('September sales report is ready.')).toBeInViewport();
+  await ask(panel, 'Export orders by city');
+  await expect(panel.getByText('Orders by city is ready.')).toBeInViewport();
+  await ask(panel, 'Write the meeting notes');
+  await expect(panel.getByText('Weekly sales meeting is ready.')).toBeInViewport();
+
+  await ask(panel, `Add a customer named Zoe ${unique()}`);
+  await expect(
+    panel
+      .getByRole('group', { name: 'Approve this change?' })
+      .getByRole('button', { name: 'Approve' }),
+  ).toBeInViewport();
+
+  await panel.getByRole('button', { name: 'New chat' }).click();
+  await expect(panel.getByRole('textbox', { name: 'Message' })).toBeFocused();
+
+  await ask(panel, 'Draft a welcome message');
+  await expect(panel.getByRole('tab', { selected: true })).toHaveText(
+    'Welcome message for new customers',
+  );
+  await expect(panel.getByRole('tab')).toHaveCount(2);
+
+  for (const tab of await panel.getByRole('tab').all()) {
+    await expect(tab).toBeInViewport({ ratio: 1 });
+  }
+});
 
 test('dragging the panel edge resizes it as the pointer moves, and it still fits a phone', async ({
   page,
