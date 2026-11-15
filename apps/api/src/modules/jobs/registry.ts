@@ -7,6 +7,7 @@ import { CONSUMER_JOBS } from '~/modules/events/consumers';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import { paymentCheckJob } from '~/modules/payments/invoiceState';
 import { pluginEventJob } from '~/modules/plugins/pluginEvents';
+import { pluginJob, pluginJobSchedules } from '~/modules/plugins/pluginJobs';
 import { smsJob } from '~/modules/sms/sms';
 import { exportRunJob } from '~/modules/transfer/exports.service';
 import { importCheckJob, importRunJob, importUndoJob } from '~/modules/transfer/importJobs';
@@ -23,6 +24,8 @@ export const JOBS = [
   smsJob,
   paymentCheckJob,
   pluginEventJob,
+  pluginJob,
+  pluginJobSchedules,
   auditStreamJob,
   importParseJob,
   importCheckJob,

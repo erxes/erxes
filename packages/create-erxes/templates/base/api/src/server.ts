@@ -1,10 +1,11 @@
-import { bearerOf, verifyPluginSession } from '@erxes/plugin-sdk';
+import { bearerOf, verifyCoreJob, verifyPluginSession } from '@erxes/plugin-sdk';
 import { onError, ORPCError } from '@orpc/server';
 import { RPCHandler } from '@orpc/server/node';
 import cors from 'cors';
 import express from 'express';
 import { pinoHttp } from 'pino-http';
 import { config, PLUGIN } from '#/config.ts';
+import { runJob } from '#/jobs.ts';
 import { logger } from '#/logger.ts';
 import { router } from '#/router.ts';
 
@@ -50,6 +51,26 @@ export const createApp = () => {
     const { matched } = await rpc.handle(req, res, { prefix: '/api/rpc', context: { member } });
 
     if (!matched) next();
+  });
+
+  // Core's jobs (`api/src/jobs.ts`). The token signs the raw body, so it stays text.
+  app.post('/api/jobs/:name', express.text({ type: '*/*' }), async (req, res) => {
+    const body = typeof req.body === 'string' ? req.body : '';
+
+    const job = await verifyCoreJob(req.headers.authorization, body, {
+      coreUrl: config.coreUrl,
+      plugin: PLUGIN,
+    }).catch(() => null);
+
+    if (!job) {
+      res.sendStatus(401);
+
+      return;
+    }
+
+    // A throw answers 500 and core retries it.
+    await runJob(job);
+    res.sendStatus(204);
   });
 
   if (config.uiDir) app.use('/ui', express.static(config.uiDir));

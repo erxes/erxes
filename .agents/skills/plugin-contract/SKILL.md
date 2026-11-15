@@ -1,6 +1,6 @@
 ---
 name: plugin-contract
-description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in packages/ui/src/federation.ts, exports of packages/ui, or when releasing those packages.
+description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit, core_live_signal or core_enqueue_job SQL functions, packages/plugin-sdk, the SHARED list in packages/ui/src/federation.ts, exports of packages/ui, or when releasing those packages.
 ---
 
 Plugins live in their own repos and upgrade on their own schedule, so every change here is either
@@ -10,7 +10,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - the HTTP contract (`packages/contract/src/*.ts` and the OpenAPI document). Plugin UIs call it
      through `@erxes/core-contract/client`, which bundles `routes.json` into each plugin build, so
      a plugin built before a path moved keeps calling the old one;
-   - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction.
+   - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction:
+     `core_publish_event`, `core_record_audit`, `core_live_signal` and `core_enqueue_job`
+     (`packages/db/drizzle/0060_plugin_jobs.sql`), which queues a job the manifest's `jobs` declares.
      Core's own events name the record (`entityId`, `subjectId`) and what changed, never the row:
      a subscriber reads the record from core. A plugin event with a `summary` goes on the
      timeline of the record it names: `entityType` (a type the plugin's manifest declares in
@@ -18,7 +20,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      one event can reach both (`timelineConsumer` in
      `apps/api/src/modules/events/coreConsumers.ts`). Another plugin's or an undeclared type is
      ignored. `activities.create` is for entries that are not events;
-   - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`);
+   - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
+     plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`);
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,

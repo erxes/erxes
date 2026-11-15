@@ -1,4 +1,10 @@
-import { CORE_API_PREFIX, CoreEvent, PluginAccess, PluginTier } from '@erxes/core-contract';
+import {
+  CORE_API_PREFIX,
+  CoreEvent,
+  PluginAccess,
+  PluginJobDelivery,
+  PluginTier,
+} from '@erxes/core-contract';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
 
@@ -271,4 +277,34 @@ export const verifyCoreEvent = async (
     throw new Error('the event does not match the token');
 
   return event;
+};
+
+const JobClaims = z.object({ sha: z.string(), job: z.string(), org: z.string() });
+
+/**
+ * Verifies one attempt of a job core POSTed to `<api.url>/jobs/<name>` and
+ * returns it: the token is core's, for this plugin, unexpired, and signs this
+ * exact body (pass the raw body text). Throws if anything is off. Answer 2xx
+ * when done; anything else retries. A job can run more than once: the
+ * `Idempotency-Key` header is its `jobId`.
+ */
+export const verifyCoreJob = async (
+  authorization: string | undefined | null,
+  rawBody: string,
+  options: VerifyOptions,
+): Promise<PluginJobDelivery> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const claims = await verifyCoreToken(token, options, 'erxes-core-job+jwt', JobClaims);
+
+  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  const job = PluginJobDelivery.parse(JSON.parse(rawBody));
+
+  if (job.jobId !== claims.job || job.orgId !== claims.org)
+    throw new Error('the job does not match the token');
+
+  return job;
 };

@@ -2,12 +2,10 @@ import { CoreEvent } from '@erxes/core-contract';
 import { events, plugins, pluginInstallations, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { sha256 } from '~/lib/crypto';
-import { postOutbound } from '~/lib/outbound';
-import { signJwt } from '~/lib/signing';
 import type { EventConsumer } from '~/modules/events/consumers';
 import { defineJob } from '~/modules/jobs/jobs';
 import { matchesPattern } from '~/modules/webhooks/webhooks.service';
+import { activeInstallation, deliverToPlugin } from './pluginDelivery';
 
 type EventRow = typeof events.$inferSelect;
 
@@ -57,20 +55,7 @@ const pluginMaySee = (
 const loadDelivery = (orgId: string, plugin: string, eventId: string) =>
   withOrg(orgId, async (tx) => {
     const [event] = await tx.select().from(events).where(eq(events.id, eventId)).limit(1);
-
-    const [target] = await tx
-      .select({ scopes: pluginInstallations.grantedScopes, manifest: plugins.manifest })
-      .from(pluginInstallations)
-      .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
-      .where(
-        and(
-          eq(pluginInstallations.plugin, plugin),
-          eq(pluginInstallations.status, 'active'),
-          eq(plugins.status, 'active'),
-        ),
-      )
-      .limit(1);
-
+    const target = await activeInstallation(tx, plugin);
     const url = target?.manifest?.api?.url;
 
     // Uninstalled, suspended, scopes taken away, or the event is gone: nothing to send.
@@ -108,28 +93,17 @@ export const pluginEventJob = defineJob({
       data: CoreEvent.parse(event),
     });
 
-    const token = await signJwt(
-      // The body's digest, so the body can't be swapped under the token.
-      { org: job.orgId, event: event.id, sha: sha256(body, 'base64url') },
-      {
-        typ: CORE_EVENT_TYP,
-        audience: plugin,
-        subject: `event:${event.id}`,
-        expiresInSeconds: 300,
-      },
-    );
-
-    const response = await postOutbound(`${url.replace(/\/+$/, '')}/events`, body, {
-      'Content-Type': 'application/json',
-      'User-Agent': 'erxes-events/1',
-      Authorization: `Bearer ${token}`,
-      'Idempotency-Key': event.id,
-      'Erxes-Event-Id': event.id,
+    await deliverToPlugin({
+      plugin,
+      url,
+      path: '/events',
+      orgId: job.orgId,
+      kind: 'event',
+      id: event.id,
+      body,
+      typ: CORE_EVENT_TYP,
+      headers: { 'User-Agent': 'erxes-events/1', 'Erxes-Event-Id': event.id },
     });
-
-    if (response.status < 200 || response.status >= 300) {
-      throw new Error(`${plugin} answered ${response.status}: ${response.body.slice(0, 300)}`);
-    }
   },
 });
 

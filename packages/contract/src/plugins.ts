@@ -9,6 +9,7 @@ import { Id, isoDate, listOf } from './common';
 import { ActionField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
+import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
@@ -211,6 +212,8 @@ export const PluginManifest = z.object({
    * other plugins' events need `events:read`. Its own events are not sent back.
    */
   subscriptions: z.array(EventPattern).max(100).optional(),
+  /** Background work at its API (`PluginJobs`): core POSTs each job to `<api.url>/jobs/<name>`. */
+  jobs: PluginJobs.optional(),
   /**
    * Events it publishes: triggers for automations. `subject`: what its events
    * are about (published with `subject`), so automations started by it can
@@ -283,6 +286,7 @@ const {
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
+  INVALID_SCHEDULE,
   LIMIT_EXCEEDED,
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
@@ -296,6 +300,7 @@ const base = oc.errors({
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
+  INVALID_SCHEDULE,
   LIMIT_EXCEEDED,
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
@@ -324,7 +329,8 @@ export const pluginsContract = {
     .route({
       method: 'PUT',
       path: '/plugins/manifest',
-      summary: 'The calling plugin declares its UI, API, scopes, permissions and events',
+      summary:
+        "The calling plugin declares its UI, API, scopes, permissions, events and jobs. 400 INVALID_SCHEDULE when a job's cron doesn't parse",
     })
     .input(PluginManifest)
     .output(z.object({ ok: z.literal(true) })),

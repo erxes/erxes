@@ -1,6 +1,7 @@
 import type { PluginManifest } from '@erxes/core-contract';
 import { createCoreClient } from '@erxes/plugin-sdk';
 import { config, PLUGIN } from '#/config.ts';
+import { manifestJobs } from '#/jobs.ts';
 
 /**
  * Core, called as this plugin: `core.forOrg(orgId).customers.get({ id })`.
@@ -20,8 +21,9 @@ export const PERMISSIONS = {
 } as const;
 
 /**
- * What the plugin adds to core, sent on every start. Everything it names
- * starts with `__id__.`. A new scope waits for the owner's approval.
+ * What the plugin adds to core, sent on every start. Every permission,
+ * event and kind it names starts with `__id__.`; job names are its own.
+ * A new scope waits for the owner's approval.
  */
 export const manifest = {
   title: '__title__',
@@ -34,4 +36,5 @@ export const manifest = {
     { action: PERMISSIONS.view, label: 'View items', group: '__title__' },
     { action: PERMISSIONS.manage, label: 'Create and change items', group: '__title__' },
   ],
+  jobs: manifestJobs,
 } satisfies PluginManifest;
