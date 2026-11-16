@@ -17,10 +17,11 @@ import { RecycleBinPage } from './recycle-bin/RecycleBinPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 import { SecuritySettingsPage } from './profile/SecuritySettingsPage';
 import { SettingsLayout } from './SettingsLayout';
-import { StructurePage } from './structure/StructurePage';
 import { TeamMemberSettingsRoutes } from './team-members/TeamMemberSettingsRoutes';
 
-// Fetched on first visit: few members open it, so it stays out of settings' chunk.
+// Fetched on first visit: few members open these, so they stay out of settings' chunk.
+const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
+
 const ApiReferencePage = lazyNamed(
   () => import('./developer/ApiReferencePage'),
   'ApiReferencePage',
