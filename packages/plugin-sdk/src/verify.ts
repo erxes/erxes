@@ -4,6 +4,7 @@ import {
   PluginAccess,
   PluginJobDelivery,
   PluginTier,
+  RecordAccessCheck,
 } from '@erxes/core-contract';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
@@ -307,4 +308,32 @@ export const verifyCoreJob = async (
     throw new Error('the job does not match the token');
 
   return job;
+};
+
+const AccessClaims = z.object({ sha: z.string(), access: z.string(), org: z.string() });
+
+/**
+ * Verifies core's question for a timeline with `recordAccess` (`POST <api.url>/timelines/access`)
+ * and returns it: may `userId` read record `id` of timeline `type`? The token is core's, for this
+ * plugin, unexpired, and signs this exact body (pass the raw body text). Answer
+ * `{ "allowed": true }` or `{ "allowed": false }` within 5 seconds; anything else is no.
+ */
+export const verifyCoreAccessCheck = async (
+  authorization: string | undefined | null,
+  rawBody: string,
+  options: VerifyOptions,
+): Promise<RecordAccessCheck> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const claims = await verifyCoreToken(token, options, 'erxes-core-access+jwt', AccessClaims);
+
+  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  const check = RecordAccessCheck.parse(JSON.parse(rawBody));
+
+  if (check.orgId !== claims.org) throw new Error('the check does not match the token');
+
+  return check;
 };

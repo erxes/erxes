@@ -19,7 +19,11 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `timelines`) and `entityId`, and the customer or company in `subjectType` and `subjectId`;
      one event can reach both (`timelineConsumer` in
      `apps/api/src/modules/events/coreConsumers.ts`). Another plugin's or an undeclared type is
-     ignored. `activities.create` is for entries that are not events;
+     ignored. `activities.create` is for entries that are not events, and `activities.importNote`
+     brings an old note in with its author and date, once per `dedupeKey`. A timeline with
+     `recordAccess: true` asks the plugin before a member reads or notes on a record: core POSTs
+     `{ orgId, userId, type, id }` to `/timelines/access` (checked by `verifyCoreAccessCheck`),
+     and anything but `{ "allowed": true }` within 5 s is a 403;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
      plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
      `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`);

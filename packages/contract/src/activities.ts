@@ -1,4 +1,4 @@
-import { ACTIVITY_TARGETS, TIMELINE_KINDS } from '@erxes/core-db/enums';
+import { TIMELINE_KINDS } from '@erxes/core-db/enums';
 import { activities, notes, noteVersions } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -6,21 +6,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
 import { AppLink, DedupeKey, EntityType, EventType } from './platform';
-
-export const ActivityTarget = z.enum(ACTIVITY_TARGETS);
-
-export type ActivityTarget = z.infer<typeof ActivityTarget>;
-
-/**
- * What a timeline is about: a customer or company, or a plugin's own record
- * type declared in its manifest (`hr.employee`, `ecom.order`).
- */
-export const TimelineTarget = z.union([
-  ActivityTarget,
-  z.string().regex(/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/, 'customer, company or <plugin>.<type>'),
-]);
-
-export type TimelineTarget = z.infer<typeof TimelineTarget>;
+import { TimelineTarget } from './timelines';
 
 /**
  * Activity types core records itself; `data` has a known shape for each.
@@ -219,6 +205,26 @@ export const activitiesContract = {
     })
     .input(NoteInput.extend({ targetType: TimelineTarget, targetId: Id }))
     .output(Activity),
+  importNote: base
+    .route({
+      method: 'POST',
+      path: '/activities/notes/import',
+      successStatus: 201,
+      summary:
+        'Bring a note over from old erxes, with its author and time (plugins only). Nobody is notified; a retried `dedupeKey` returns the note made the first time',
+    })
+    .input(
+      z.object({
+        targetType: TimelineTarget,
+        targetId: Id,
+        body: NoteInput.shape.body,
+        /** The team member who wrote it. */
+        authorId: Id,
+        createdAt: z.iso.datetime(),
+        dedupeKey: DedupeKey,
+      }),
+    )
+    .output(z.object({ activity: Activity, created: z.boolean() })),
   react: base
     .route({
       method: 'POST',

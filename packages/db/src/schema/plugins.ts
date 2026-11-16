@@ -45,7 +45,7 @@ export interface StoredPluginManifest {
     cron?: string;
     retry?: { attempts: number; delay: number; maxDelay: number };
   }[];
-  timelines?: { type: string; label: string; permission?: string }[];
+  timelines?: { type: string; label: string; permission?: string; recordAccess?: boolean }[];
   /** Fields it keeps on customers or companies: core stores them as custom fields, the plugin their values. */
   fields?: {
     code: string;

@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { useTestDatabase } from './db';
+import { pluginApi } from './pluginApi';
 import { useTwoOrgs } from './support';
 
 describe(
@@ -136,6 +137,83 @@ describe(
       expect((await theNote())?.reactions['👍']).toHaveLength(2);
       await t.owner().activities.react(react);
       expect((await theNote())?.reactions['👍']).toHaveLength(1);
+    });
+
+    it('imports old notes once, as their author wrote them then', async () => {
+      const note = {
+        targetType: 'hr.employee',
+        targetId: 'emp-3',
+        body: 'Joined from the Darkhan branch',
+        authorId: t.ids.member,
+        createdAt: '2020-01-02T03:04:05.000Z',
+        dedupeKey: 'note-old-1',
+      };
+
+      const first = await t.hr().activities.importNote(note);
+      const retry = await t.hr().activities.importNote({ ...note, body: 'Changed on retry' });
+
+      expect(first.created).toBe(true);
+      expect(retry).toMatchObject({ created: false, activity: { id: first.activity.id } });
+      expect(
+        (await t.owner().activities.list({ ...note, kind: 'notes' })).data.map((entry) => ({
+          actorId: entry.actorId,
+          occurredAt: entry.occurredAt,
+          body: entry.note?.body,
+        })),
+      ).toEqual([
+        {
+          actorId: t.ids.member,
+          occurredAt: note.createdAt,
+          body: 'Joined from the Darkhan branch',
+        },
+      ]);
+      await expect(
+        t.hr().activities.importNote({ ...note, targetType: 'ecom.order', dedupeKey: 'x' }),
+      ).rejects.toMatchObject({ code: 'NOT_ALLOWED' });
+      await expect(t.owner().activities.importNote(note)).rejects.toMatchObject({ status: 403 });
+    });
+
+    it('asks the plugin whether a member may read a record with recordAccess', async () => {
+      const api = await pluginApi(t.url(''));
+
+      try {
+        await t.client(await t.pluginToken()).plugins.registerManifest({
+          title: 'HR',
+          version: '2',
+          scopes: ['activities:write'],
+          api: { url: api.url },
+          timelines: [{ type: 'hr.employee', label: 'Employee', recordAccess: true }],
+        });
+        api.readable.add('emp-1');
+
+        expect(
+          (await t.owner().activities.list({ targetType: 'hr.employee', targetId: 'emp-1' })).data,
+        ).not.toEqual([]);
+        expect(api.accessChecks).toContainEqual({
+          orgId: t.ids.org,
+          userId: t.ids.owner,
+          type: 'hr.employee',
+          id: 'emp-1',
+        });
+
+        const emp2 = { targetType: 'hr.employee', targetId: 'emp-2' };
+
+        await expect(t.owner().activities.list(emp2)).rejects.toMatchObject({
+          code: 'NOT_ALLOWED',
+        });
+        await expect(t.member().activities.addNote({ ...emp2, body: 'x' })).rejects.toMatchObject({
+          code: 'NOT_ALLOWED',
+        });
+        // The plugin writes to its records without asking itself.
+        await t.hr().activities.create({ ...emp2, type: 'hr.leave.approved', summary: 'x' });
+      } finally {
+        await api.close();
+      }
+
+      // A plugin that doesn't answer is a no.
+      await expect(
+        t.owner().activities.list({ targetType: 'hr.employee', targetId: 'emp-1' }),
+      ).rejects.toMatchObject({ code: 'NOT_ALLOWED' });
     });
   },
 );

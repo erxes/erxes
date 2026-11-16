@@ -78,6 +78,15 @@
  *     res.sendStatus(204);
  *   });
  *
+ * A timeline whose records not every member may read declares `recordAccess: true`; core asks the
+ * plugin before a member reads or notes on one, and anything but `{ allowed: true }` within 5 s is no:
+ *
+ *   timelines: [{ type: 'frontline.ticket', label: 'Ticket', recordAccess: true }],
+ *   app.post('/api/timelines/access', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const check = await verifyCoreAccessCheck(req.headers.authorization, req.body, { coreUrl, plugin: 'frontline' });
+ *     res.json({ allowed: await canRead(check.orgId, check.userId, check.id) });   // check.type too
+ *   });
+ *
  * List filters (erxes-ui's `ListFilter`): `@erxes/plugin-sdk/filter` compiles the bar's condition
  * group to SQL on a map of paths to columns, with core's operators and its 400 `INVALID_FILTER`:
  *
