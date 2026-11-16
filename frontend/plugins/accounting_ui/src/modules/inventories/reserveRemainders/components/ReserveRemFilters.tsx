@@ -115,7 +115,7 @@ export const ReserveRemFilter = ({
           filterKey="departmentId"
           mode="single"
         />
-        {afterBar && <>{afterBar}</>}
+        {afterBar}
       </Filter.Bar>
     </Filter>
   );

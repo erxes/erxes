@@ -16,6 +16,8 @@ import { ADJUST_CLOSING_PANEL } from '@/adjustments/closing/components/AdjustClo
 import { ADJUST_INVENTORY_PANEL } from '@/adjustments/inventories/components/AdjustInventoryForm';
 import { ADJUST_FIXED_ASSET_PANEL } from '@/adjustments/fxa/components/AdjustFixedAssetForm';
 import { SAFE_REMAINDER_PANEL } from '@/inventories/safeRemainders/components/SafeRemainderForm';
+import { RESERVE_REM_PANEL } from '@/inventories/reserveRemainders/components/ReserveRemForm';
+import { RECALC_REMAINDER_PANEL } from '@/inventories/remainders/components/ReCalcRemainderForm';
 import { TRANSACTION_PANEL } from '@/transactions/transaction-form/components/TrRightSidebar';
 import {
   ISettingsPanelViews,
@@ -40,6 +42,8 @@ import {
   ADJUST_INVENTORY_CONTENT_TYPE,
 } from '@/adjustments/constants/adjustmentPanel';
 import { SAFE_REMAINDER_CONTENT_TYPE } from '@/inventories/safeRemainders/constants/safeRemainderPanel';
+import { RESERVE_REM_CONTENT_TYPE } from '@/inventories/reserveRemainders/constants/reserveRemPanel';
+import { RECALC_REMAINDER_CONTENT_TYPE } from '@/inventories/remainders/constants/reCalcRemainderPanel';
 import { TRANSACTION_CONTENT_TYPE } from '@/transactions/constants/transactionPanel';
 
 const RECORD_PANELS: Record<string, ISettingsPanelViews> = {
@@ -58,6 +62,8 @@ const RECORD_PANELS: Record<string, ISettingsPanelViews> = {
   [ADJUST_INVENTORY_CONTENT_TYPE]: ADJUST_INVENTORY_PANEL,
   [ADJUST_FIXED_ASSET_CONTENT_TYPE]: ADJUST_FIXED_ASSET_PANEL,
   [SAFE_REMAINDER_CONTENT_TYPE]: SAFE_REMAINDER_PANEL,
+  [RESERVE_REM_CONTENT_TYPE]: RESERVE_REM_PANEL,
+  [RECALC_REMAINDER_CONTENT_TYPE]: RECALC_REMAINDER_PANEL,
   [TRANSACTION_CONTENT_TYPE]: TRANSACTION_PANEL,
 };
 
