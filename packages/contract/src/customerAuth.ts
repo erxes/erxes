@@ -4,7 +4,7 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber, listOf } from './common';
-import { PluginName } from './plugins';
+import { PluginName } from './values';
 
 /** The fields a request sends along with the address. */
 type AlongWith = NonNullable<Parameters<typeof z.object>[0]>;

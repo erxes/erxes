@@ -1,4 +1,4 @@
-import { bearerOf, verifyCoreJob, verifyPluginSession } from '@erxes/plugin-sdk';
+import { bearerOf, verifyCoreJob, verifyPluginCall, verifyPluginSession } from '@erxes/plugin-sdk';
 import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
 import { OpenAPIHandler } from '@orpc/openapi/node';
 import { onError, ORPCError } from '@orpc/server';
@@ -34,13 +34,21 @@ const memberDoc = pluginOpenApi(router, {
   prefix: '/v1',
 });
 
-/** The member behind a request from the plugin UI, or null without a valid session token. */
+/**
+ * Who is calling: the member behind a request from the plugin UI (a session token), or another
+ * plugin reading for an organisation (a plugin call token, `userId` `plugin:<name>`, with the
+ * permissions the owner approved for it). Null without a valid token of either kind.
+ */
 const memberOf = async (authorization: string | undefined) => {
   const token = bearerOf(authorization);
 
   if (!token) return null;
 
-  return verifyPluginSession(token, { coreUrl: config.coreUrl, plugin: PLUGIN }).catch(() => null);
+  const options = { coreUrl: config.coreUrl, plugin: PLUGIN };
+
+  return verifyPluginSession(token, options)
+    .catch(() => verifyPluginCall(token, options))
+    .catch(() => null);
 };
 
 export const createApp = () => {
@@ -66,7 +74,8 @@ export const createApp = () => {
   });
 
   // A 5-minute session token core issued for this member and plugin: erxes-ui's pluginFetch
-  // adds it, and a script gets one from core with an API key.
+  // adds it, and a script gets one from core with an API key. Another plugin's
+  // `core.fetchPlugin` sends a plugin call token, which `reads(...)` checks the same way.
   for (const [prefix, handler] of [
     ['/api/rpc', rpc],
     ['/api/v1', rest],

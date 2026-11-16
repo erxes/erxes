@@ -134,6 +134,8 @@ export * from './pluginFields';
 
 export * from './pluginRelations';
 
+export * from './pluginReads';
+
 export * from './products';
 
 export * from './roles';

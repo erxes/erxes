@@ -21,13 +21,8 @@ import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
 import { PluginApiDocs } from './pluginApiDocs';
 import { PluginSearchSource } from './search';
-
-/** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
-export const PluginName = z
-  .string()
-  .trim()
-  .regex(/^[a-z][a-z0-9_]{0,39}$/, 'lower case letters, digits and _ (starting with a letter)')
-  .refine((name) => name !== 'core', 'reserved');
+import { PluginRead, pluginReadsContract } from './pluginReads';
+import { PluginName } from './values';
 
 export { PLUGIN_SCOPES };
 
@@ -133,6 +128,13 @@ export const PluginManifest = z.object({
    */
   search: z.array(PluginSearchSource).max(5).optional(),
   scopes: z.array(PluginScope).max(PLUGIN_SCOPES.length).default([]),
+  /**
+   * Other plugins' APIs it reads on an organisation's behalf (`PluginRead`). Like a new scope,
+   * each waits for the owner's approval, and works only where the other plugin is installed
+   * too: `plugins.callToken` issues a token for that plugin's API with the approved
+   * permissions its manifest declares.
+   */
+  pluginReads: z.array(PluginRead).max(20).optional(),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z
     .array(
@@ -271,6 +273,7 @@ export const Plugin = createSelectSchema(plugins, {
       ui: true,
       api: true,
       search: true,
+      pluginReads: true,
     }),
 })
   .pick({ name: true, manifest: true })
@@ -295,8 +298,8 @@ export const TokenResponse = z.object({
 /**
  * Plugins: the registry (manifests), per-organisation installations with
  * granted scopes, tokens for plugin servers (client credentials) and for
- * plugin UIs (a member's short-lived session for one plugin's API), and live
- * signals to plugin UIs.
+ * plugin UIs (a member's short-lived session for one plugin's API), for one
+ * plugin reading another's (`pluginReadsContract`), and live signals to plugin UIs.
  */
 const {
   CROSS_SITE,
@@ -388,6 +391,7 @@ export const pluginsContract = {
         apiUrl: z.string().nullable(),
       }),
     ),
+  ...pluginReadsContract,
   signal: base
     .route({
       method: 'POST',

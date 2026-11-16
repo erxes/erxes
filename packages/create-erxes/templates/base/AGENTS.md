@@ -30,7 +30,8 @@ oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
   through `@erxes/core-contract/client` with the member's session. Neither reads
   `core_*` tables or imports core's app code.
 - Members are signed in by core: the UI sends a session token, the API checks it
-  with `verifyPluginSession`. The same procedures are REST at `/api/v1` for
+  with `verifyPluginSession`; another plugin reading for an organisation sends a
+  call token, checked with `verifyPluginCall`. The same procedures are REST at `/api/v1` for
   scripts, which get the token from core with an API key; `/api/openapi/member.json`
   documents them (`pluginOpenApi`), and core's Settings › Developer › API reference
   shows it. Routes for employees in the plugin's own app, customers or a website get

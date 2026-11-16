@@ -10,9 +10,14 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   owner's approval, so ask for one only when a procedure needs it. Owners and
   admins hold every permission; a permission set with `defaultRoles: ['member']`
   is what members get on install, and owners change it from there.
-- `src/server.ts` verifies the session token on `/api/rpc/*` and hands
-  procedures `context.member` (`PluginMember`: `orgId`, `userId`, `can()`,
-  `canChange()`).
+- `src/server.ts` verifies the session token, or another plugin's call token
+  (`verifyPluginCall`), on `/api/rpc/*` and `/api/v1/*` and hands procedures
+  `context.member` (`PluginMember`: `orgId`, `userId`, `can()`, `canChange()`).
+  A plugin call's `userId` is `plugin:<name>` and its permissions are the reads
+  the owner approved, so `reads(...)` serves it unchanged.
+- To read another plugin's API, name it in the manifest's `pluginReads`
+  (`{ plugin, permissions, reason }`, the owner approves it) and call
+  `core.fetchPlugin(orgId, plugin, '/v1/...')`, outside `context.tx`.
 - `src/orpc.ts`: build every procedure on `reads(action)` or `writes(action)`.
   Both check the permission and run the handler in `withOrg(member.orgId)`, so
   row-level security shows `context.tx` one organisation's rows. Queries carry

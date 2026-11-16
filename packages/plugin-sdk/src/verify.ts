@@ -150,6 +150,42 @@ const SessionClaims = z.object({
 export const verifyPluginSession = async (token: string, options: VerifyOptions) =>
   member(await verifyCoreToken(token, options, 'erxes-plugin-session+jwt', SessionClaims));
 
+/**
+ * Another plugin reading this plugin's API for an organisation (its manifest's `pluginReads`,
+ * approved by the owner). It passes for a member: `userId` is `plugin:<name>`, `role` `plugin`,
+ * and `can()` holds only for the approved permissions, so `reads(...)` procedures serve it as they
+ * are.
+ */
+export interface PluginCall extends PluginMember {
+  /** The calling plugin (`accounting`). */
+  plugin: string;
+}
+
+const PluginCallClaims = z.object({
+  sub: z.string().startsWith('plugin:'),
+  org: z.string().min(1),
+  plugin: z.string().min(1),
+  permissions: z.array(z.string()),
+  tier: Tier,
+  access: PluginAccess,
+});
+
+/**
+ * Verifies a token core issued for another plugin to call this plugin's API (`Authorization:
+ * Bearer …` from `core.fetchPlugin`): issued by core, for this plugin, unexpired (5 minutes).
+ * Throws if not.
+ */
+export const verifyPluginCall = async (
+  token: string,
+  options: VerifyOptions,
+): Promise<PluginCall> => {
+  const claims = await verifyCoreToken(token, options, 'erxes-plugin-call+jwt', PluginCallClaims);
+
+  if (claims.sub !== `plugin:${claims.plugin}`) throw new Error('not an erxes plugin call token');
+
+  return { ...member({ ...claims, role: 'plugin' }), plugin: claims.plugin };
+};
+
 /** The bearer token of a request's `Authorization` header, if any. */
 export const bearerOf = (authorization: string | undefined | null) =>
   authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() || null : null;

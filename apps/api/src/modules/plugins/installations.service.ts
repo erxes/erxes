@@ -1,4 +1,4 @@
-import { PLUGIN_SCOPES } from '@erxes/core-contract';
+import { PLUGIN_SCOPES, pluginReadScope } from '@erxes/core-contract';
 import { caller, type Db, db, pluginInstallations, plugins, requestOrgId } from '@erxes/core-db';
 import { and, eq, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -23,6 +23,9 @@ const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
 /** `requestedScopes()` in SQL. */
 const requested = sql<string[]>`case when ${plugins.manifest} ? 'scopes'
   then array(select jsonb_array_elements_text(${plugins.manifest} -> 'scopes'))
+    || array(select ${pluginReadScope('')} || permission
+      from jsonb_array_elements(coalesce(${plugins.manifest} -> 'pluginReads', '[]')) as entry,
+        jsonb_array_elements_text(entry -> 'permissions') as permission)
   else ${textArray([...PLUGIN_SCOPES])} end`;
 
 /** Active plugins with this organisation's installation, as members see them. */

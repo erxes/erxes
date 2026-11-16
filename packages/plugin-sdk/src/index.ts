@@ -128,6 +128,22 @@
  *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));
  *   app.get('/api/openapi/member.json', async (_req, res) => res.json(await pluginOpenApi(router, { plugin, audience: 'member', title, version, server: `${publicUrl}/api`, prefix: '/v1' })));
  *
+ * Another plugin's API (accounting reading sales' deals when sales' events arrive, which carry
+ * only ids and totals): name it in the manifest's `pluginReads`. Each organisation's owner
+ * approves it like a new scope, and it works where both plugins are installed. Core issues a
+ * 5-minute token for that plugin's API with the approved permissions its manifest declares:
+ *
+ *   pluginReads: [{ plugin: 'sales', permissions: ['sales.deal.view'], reason: 'Post deals to the ledger' }],
+ *   const response = await core.fetchPlugin(orgId, 'sales', `/v1/deals/${dealId}`);  // <sales api.url>/v1/deals/…
+ *   // a refused token throws PluginCallError: code READ_NOT_APPROVED, PLUGIN_NOT_INSTALLED, PLUGIN_UNREACHABLE, NOT_IN_PLAN
+ *
+ * The plugin being read accepts the token beside members' sessions on `/api/rpc/*` and
+ * `/api/v1/*`, so its `reads(...)` procedures serve it as they are:
+ *
+ *   const options = { coreUrl, plugin: 'sales' };
+ *   const member = await verifyPluginSession(token, options).catch(() => verifyPluginCall(token, options));
+ *   // a call: userId 'plugin:accounting', plugin 'accounting', role 'plugin', can() only the approved permissions
+ *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
  * also call `core_publish_event()`, `core_record_audit()` and
@@ -137,5 +153,7 @@
 export * from './client';
 
 export * from './jobs';
+
+export { PluginCallError } from './pluginCalls';
 
 export * from './verify';

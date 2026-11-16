@@ -4,7 +4,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ProductKind } from './values';
+import { ProductKind, PluginName } from './values';
 import {
   CursorQuery,
   CustomFields,
@@ -17,7 +17,6 @@ import {
   QueryBoolean,
 } from './common';
 import { Currency } from './money';
-import { PluginName } from './plugins';
 
 export const ProductStatus = z.enum(PRODUCT_STATUSES);
 

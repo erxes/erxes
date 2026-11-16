@@ -1,7 +1,7 @@
 import { TAX_CATEGORIES } from '@erxes/core-db/enums';
 import { z } from 'zod';
 import { Id } from './common';
-import { PluginName } from './plugins';
+import { PluginName } from './values';
 
 /**
  * How sales tax treats a line: `standard` (taxed), `zero` (zero-rated),

@@ -224,6 +224,8 @@ export const ACCESS = {
   'plugins.install': needs('plugins.manage'),
   'plugins.uninstall': needs('plugins.manage'),
   'plugins.session': MEMBER,
+  // Approved in the manifest's `pluginReads` per organisation (pluginCalls.ts checks).
+  'plugins.callToken': { plugin: 'installed' },
   'plugins.signal': { plugin: 'live:write' },
 
   // Plugins read product tags only (tags.service).

@@ -35,6 +35,16 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `type`) name what its answer or payload holds; the builder offers them in "Insert data" as
      `{{steps.<step id>.output.<key>}}` and `{{event.payload.<key>}}`, so renaming a key breaks
      saved automations. The route, the query key `parent` and the answer's shape are the contract.
+     The manifest's `pluginReads` (`PluginRead`: `plugin`, `permissions`, `reason`, in
+     `packages/contract/src/pluginReads.ts`) lets a plugin read another plugin's API for an
+     organisation: the owner approves it like a scope (stored in the installation's granted scopes
+     as `reads:<permission>`), and `plugins.callToken` (`apps/api/src/modules/plugins/pluginCalls.ts`)
+     issues a 5-minute token, typ `erxes-plugin-call+jwt`, `aud` the plugin read, `sub`
+     `plugin:<caller>`, claims `org`, `plugin`, `permissions` (approved and declared by the plugin
+     read), `tier` and `access`, while both are installed there. The SDK's `fetchPlugin` sends it
+     to `<api.url><path>`, and `verifyPluginCall` gives the plugin read a `PluginMember` with
+     `userId` `plugin:<caller>`. The scope prefix, the typ, the claims and the codes
+     `READ_NOT_APPROVED`, `PLUGIN_NOT_INSTALLED` and `PLUGIN_UNREACHABLE` are the contract.
      The manifest's `search` (`PluginSearchSource`: `label`, `path`) adds groups to global search:
      web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
      expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,

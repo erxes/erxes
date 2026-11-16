@@ -5,6 +5,7 @@ import {
   pluginSignal,
   uninstallPlugin,
 } from '~/modules/plugins/installations.service';
+import { pluginCallToken } from '~/modules/plugins/pluginCalls';
 import { issuePluginToken, registerManifest } from '~/modules/plugins/plugins.service';
 import { scoped, unscoped } from '~/orpc';
 
@@ -17,5 +18,6 @@ export const pluginsRouter = {
   install: scoped.plugins.install.handler(({ input }) => installPlugin(input.name)),
   uninstall: scoped.plugins.uninstall.handler(({ input }) => uninstallPlugin(input.name)),
   session: scoped.plugins.session.handler(({ input }) => pluginSession(input.name)),
+  callToken: scoped.plugins.callToken.handler(({ input }) => pluginCallToken(input.name)),
   signal: scoped.plugins.signal.handler(({ input }) => pluginSignal(input)),
 };

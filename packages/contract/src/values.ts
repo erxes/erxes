@@ -26,6 +26,13 @@ export const CORE_API_VERSION = 'v1';
 /** Every path in the contract is under this prefix (`/core/v1/customers`, …). */
 export const CORE_API_PREFIX = '/core/v1';
 
+/** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
+export const PluginName = z
+  .string()
+  .trim()
+  .regex(/^[a-z][a-z0-9_]{0,39}$/, 'lower case letters, digits and _ (starting with a letter)')
+  .refine((name) => name !== 'core', 'reserved');
+
 /** How long a new API key works, in days (or until it is revoked). */
 export const API_KEY_LIFETIMES = [30, 90, 365] as const;
 
@@ -50,6 +57,12 @@ export const EMPLOYEE_TOKEN_SCHEME = 'employeeToken';
 export const CUSTOMER_TOKEN_SCHEME = 'customerToken';
 
 export const WEBSITE_KEY_SCHEME = 'websiteKey';
+
+/**
+ * How an installation's granted scopes hold an approved read of another plugin's API
+ * (the manifest's `pluginReads`): `reads:sales.deal.view`. The permission names its plugin.
+ */
+export const pluginReadScope = (permission: string) => `reads:${permission}`;
 
 // ─── Members ────────────────────────────────────────────────────────────────
 

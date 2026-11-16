@@ -1,4 +1,4 @@
-import { PLUGIN_SCOPES, type PluginManifest } from '@erxes/core-contract';
+import { PLUGIN_SCOPES, type PluginManifest, pluginReadScope } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -31,9 +31,19 @@ const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 /** After rotation, the previous secret keeps working this long. */
 const SECRET_OVERLAP_HOURS = 24;
 
-/** Scopes a plugin asks for: its manifest's, or (before it sent one) what plugins could always do. */
+/**
+ * Scopes a plugin asks for: its manifest's, with each read of another plugin's API as
+ * `reads:<permission>`, or (before it sent one) what plugins could always do.
+ */
 export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
-  row.manifest?.scopes ?? [...PLUGIN_SCOPES];
+  row.manifest
+    ? [
+        ...row.manifest.scopes,
+        ...(row.manifest.pluginReads ?? []).flatMap((read) =>
+          read.permissions.map(pluginReadScope),
+        ),
+      ]
+    : [...PLUGIN_SCOPES];
 
 /**
  * With auto-install the deployment decides the plugins, so a newer version's scopes are granted
@@ -283,6 +293,17 @@ const ownRelations = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
+/** Reads name another plugin, with that plugin's permissions only. */
+const othersReads = (plugin: string, manifest: PluginManifest) => {
+  for (const read of manifest.pluginReads ?? []) {
+    if (read.plugin === plugin) {
+      throw fail('NAMESPACE_REQUIRED', `pluginReads names ${plugin} itself`);
+    }
+
+    namespaced(read.plugin, read.permissions, `Reads of ${read.plugin}`);
+  }
+};
+
 /** The plugin's own manifest (deployment-wide token). */
 export const registerManifest = async (manifest: PluginManifest) => {
   const { plugin } = caller('plugin');
@@ -305,6 +326,7 @@ export const registerManifest = async (manifest: PluginManifest) => {
   );
 
   ownRelations(plugin, manifest);
+  othersReads(plugin, manifest);
 
   await withSystem('plugin manifest', async (tx) => {
     const [before] = await tx

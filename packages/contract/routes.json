@@ -1892,6 +1892,16 @@
         }
       }
     },
+    "callToken": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/plugins/{name}/call-token"
+        }
+      }
+    },
     "signal": {
       "~orpc": {
         "errorMap": {},

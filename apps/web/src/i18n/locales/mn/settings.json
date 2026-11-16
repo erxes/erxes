@@ -788,6 +788,7 @@
     "empty": "Плагин алга",
     "empty-description": "Энэ erxes-д бүртгэгдсэн плагинууд энд харагдана (pnpm plugin:secret <нэр>).",
     "scope": {
+      "reads": "{{plugin}}-с {{permission}} унших: {{reason}}",
       "activities-write": "Харилцагч, байгууллагын цагийн хэлхээст бичлэг нэмэх",
       "audit-write": "Өөрчлөлтөө аудитын бүртгэлд тэмдэглэх",
       "customers-read": "Харилцагч, байгууллагыг харах, хайх",

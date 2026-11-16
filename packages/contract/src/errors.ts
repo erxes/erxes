@@ -182,6 +182,9 @@ export const ERRORS = {
   PLUGIN_NOT_FOUND: { status: 404 },
   // A public route's plugin didn't answer in time, or couldn't be reached.
   PLUGIN_UNREACHABLE: { status: 502 },
+  // A plugin asked to read another plugin's API that its manifest's `pluginReads` doesn't name,
+  // or that the organisation's owner hasn't approved.
+  READ_NOT_APPROVED: { status: 403 },
   INVALID_SUBDOMAIN: { status: 400 },
   UNKNOWN_PERMISSION: { status: 400, data: Permissions },
   DUPLICATE_PERMISSION_SET: { status: 400 },
