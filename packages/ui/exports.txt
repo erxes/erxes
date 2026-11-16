@@ -33,6 +33,7 @@ type PluginLiveMessage
 type PluginRuntime
 type PluginSession
 type RecordListGroup
+type RecordPageProps
 type RecordPanelControls
 type RecordRef
 type RecordTableColumnDef

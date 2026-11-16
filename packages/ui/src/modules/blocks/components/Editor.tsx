@@ -2,6 +2,7 @@ import { useBlockEditor } from '../hooks/useBlockEditor';
 import { useEditorValue } from '../hooks/useEditorValue';
 import { BlockEditor } from './BlockEditor';
 import type { BlockEditorProps, IEditorProps } from '../types/TextEditor';
+import { useFieldControl } from 'erxes-ui/components/field-control';
 import { cn } from 'erxes-ui/lib/utils';
 import { parseBlocks } from '../utils/parseBlocks';
 
@@ -13,6 +14,7 @@ export const Editor = ({
   isHTML = false,
   uploadFile,
   label,
+  placeholder,
   variant = 'outline',
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
@@ -20,6 +22,8 @@ export const Editor = ({
     initialContent: parseBlocks(initialContent ?? '') || undefined,
     uploadFile,
     label,
+    placeholder,
+    field: useFieldControl(),
   });
 
   const handleChange = useEditorValue({ editor, initialContent, isHTML, onChange });

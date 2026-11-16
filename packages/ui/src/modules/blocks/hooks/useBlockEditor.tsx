@@ -1,6 +1,7 @@
 import type { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { useEffect } from 'react';
+import type { FieldControlProps } from 'erxes-ui/components/field-control';
 import { useToast } from 'erxes-ui/hooks/use-toast';
 import { errorMessage, storeFile } from 'erxes-ui/utils/file-storage';
 import { readImage } from 'erxes-ui/utils/core';
@@ -14,8 +15,10 @@ export const useBlockEditor = (args?: {
   /** What screen readers call the editor; the placeholder when not given. */
   label?: string;
   uploadFile?: (file: File) => Promise<string>;
+  /** The form row it's in (`useFieldControl()`): its label names the editor. */
+  field?: FieldControlProps;
 }): IBlockEditor => {
-  const { initialContent, placeholder, label, uploadFile } = args ?? {};
+  const { initialContent, placeholder, label, uploadFile, field = {} } = args ?? {};
 
   const { toast } = useToast();
 
@@ -45,7 +48,12 @@ export const useBlockEditor = (args?: {
       editor: {
         role: 'textbox',
         'aria-multiline': 'true',
-        'aria-label': label || defaultPlaceholder,
+        ...(field['aria-labelledby'] && !label
+          ? { 'aria-labelledby': field['aria-labelledby'] }
+          : { 'aria-label': label || defaultPlaceholder }),
+        ...(field['aria-describedby'] && { 'aria-describedby': field['aria-describedby'] }),
+        ...(field['aria-invalid'] && { 'aria-invalid': 'true' }),
+        ...(field['aria-required'] && { 'aria-required': 'true' }),
       },
     },
     uploadFile: uploadFile ?? defaultUploadFile,

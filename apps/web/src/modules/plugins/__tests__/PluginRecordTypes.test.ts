@@ -7,6 +7,7 @@ import {
   type TRelationTabProps,
   useOpenRecord,
   usePanelExpanded,
+  useRecordPanel,
 } from 'erxes-ui';
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import { act, createElement, type ReactNode } from 'react';
@@ -29,6 +30,13 @@ const DealNew = ({ defaults, onCreated }: TRecordDraftProps) =>
     `Save deal in ${String(defaults.stageId)}`,
   );
 
+/** The header's actions: deleting takes the record out of where it shows. */
+const DealActions = () => {
+  const panel = useRecordPanel();
+
+  return createElement('button', { type: 'button', onClick: () => panel?.dismiss() }, 'Delete');
+};
+
 const Broken = () => {
   throw new Error('deal exploded');
 };
@@ -48,6 +56,7 @@ const deal = {
   title: 'Deal',
   icon: Icon,
   Title: Name,
+  Actions: DealActions,
   Detail,
   New: DealNew,
   detailPath: (id: string) => `/sales/deals/${id}`,
@@ -171,6 +180,17 @@ const DealsList = () => {
 const DealPage = () =>
   createElement(RecordPage, { contentType: 'sales:deal', contentId: useParams().id ?? '' });
 
+/** A deal's page in its pipeline: closing it goes back to that pipeline's deals. */
+const PipelineDealPage = () => {
+  const { pipelineId = '', id = '' } = useParams();
+
+  return createElement(RecordPage, {
+    contentType: 'sales:deal',
+    contentId: id,
+    listPath: `/sales/pipelines/${pipelineId}`,
+  });
+};
+
 const render = async (url: string) => {
   const { SidePanelLayout } = await import('~/modules/side-panel/SidePanelLayout');
   const { PanelRecordOpener } = await import('~/modules/side-panel/PanelRecordOpener');
@@ -196,6 +216,10 @@ const render = async (url: string) => {
           Routes,
           null,
           createElement(Route, { path: '/sales/deals/:id', element: createElement(DealPage) }),
+          createElement(Route, {
+            path: '/sales/pipelines/:pipelineId/deals/:id',
+            element: createElement(PipelineDealPage),
+          }),
           createElement(Route, { path: '*', element: createElement(DealsList) }),
         ),
       ),
@@ -239,6 +263,18 @@ describe('a plugin record in core’s side panel', () => {
 
     await vi.waitFor(() => expect(address(container)).toBe('/sales/deals/d1'));
     await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
+  });
+
+  it.each([
+    ['the list its page names', '/sales/pipelines/p1/deals/d1', '/sales/pipelines/p1'],
+    ['the plugin’s first page without one', '/sales/deals/d1', '/sales'],
+  ])('a record deleted on its own page goes back to %s', async (_case, url, list) => {
+    const container = await render(url);
+
+    await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
+    await click(button(container, 'Delete'));
+
+    await vi.waitFor(() => expect(address(container)).toBe(list));
   });
 
   it('shows another plugin’s relation tab where it names the type; a record opened there stacks, and Back returns', async () => {

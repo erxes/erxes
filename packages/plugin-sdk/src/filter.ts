@@ -18,6 +18,7 @@ import {
   type ConditionGroup,
   type ConditionRule,
   ERRORS,
+  type FilterField,
   RecordFilter,
 } from '@erxes/core-contract';
 import { ORPCError } from '@orpc/client';
@@ -30,7 +31,8 @@ export const invalidFilter = (message: string) =>
 
 /** One field a list can be filtered by, as `ListFilter`'s field `type` says it compares. */
 export interface FilterColumn {
-  type: 'text' | 'number' | 'date' | 'boolean' | 'select' | 'member' | 'tags';
+  /** `member`, `customer` and `company` hold ids of those records; "me" is a member. */
+  type: FilterField['type'];
   /** The value as SQL: a column, or an expression over the list's table. */
   expr: Column | SQL;
   /** Named in errors; the path when absent. */
@@ -248,8 +250,18 @@ const memberId = (value: unknown, { me }: FilterContext) => {
   return me;
 };
 
-const compileMember = (x: SQL | Column, rule: ConditionRule, context: FilterContext) => {
-  const id = (value: unknown) => memberId(value, context);
+const ID_TYPES = new Set<FilterColumn['type']>(['member', 'customer', 'company']);
+
+/** The fields whose values are record ids: a member's, customer's or company's. */
+const isId = (field: FilterColumn) => ID_TYPES.has(field.type);
+
+/** A rule's value as an id of `field`'s records; only a member field reads "me". */
+const idOf = (field: FilterColumn, value: unknown, context: FilterContext) =>
+  field.type === 'member' ? memberId(value, context) : text(value);
+
+const compileId = (field: FilterColumn, rule: ConditionRule, context: FilterContext) => {
+  const x = field.expr;
+  const id = (value: unknown) => idOf(field, value, context);
 
   switch (rule.op) {
     case 'eq':
@@ -344,17 +356,13 @@ export const compileColumn = (
     return not(compileColumn(field, path, { ...rule, op: 'exists' }, context));
 
   const compiled = isArray(field)
-    ? compileArray(
-        x,
-        (value) => [field.type === 'member' ? memberId(value, context) : text(value)],
-        rule,
-      )
+    ? compileArray(x, (value) => [idOf(field, value, context)], rule)
     : field.type === 'number'
       ? compileNumber(x, rule)
       : field.type === 'date'
         ? compileDate(x, op, rule.value, Boolean(field.dateOnly), field.monthDay)
-        : field.type === 'member'
-          ? compileMember(x, rule, context)
+        : isId(field)
+          ? compileId(field, rule, context)
           : field.type === 'boolean'
             ? compileBoolean(x, rule)
             : field.type === 'select' || field.type === 'text'

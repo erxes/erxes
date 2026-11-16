@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 import { act } from 'react';
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import { Input } from '../../components/input';
 import { setupDomRender } from '../../lib/render-in-dom';
+import { Editor } from '../blocks/components/Editor';
 import { PanelFormLayout, PanelFormRow } from './PanelForm';
 
 const render = setupDomRender();
@@ -50,6 +51,36 @@ describe('PanelFormRow', () => {
     expect(message?.textContent).toBe('Enter a name');
     expect(input?.getAttribute('aria-invalid')).toBe('true');
     expect(input?.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('names a text editor by the label, with its placeholder', async () => {
+    const container = render(
+      <PanelFormRow label="Description" hint="Shown on the card.">
+        <Editor onChange={() => undefined} placeholder="Add a description…" />
+      </PanelFormRow>,
+    );
+
+    const box = await vi.waitFor(() => {
+      const found = container.querySelector('[role=textbox]');
+
+      if (!found) throw new Error('no editor yet');
+
+      return found;
+    });
+
+    const label = document.getElementById(box.getAttribute('aria-labelledby') ?? '');
+    const hint = document.getElementById(box.getAttribute('aria-describedby') ?? '');
+
+    expect(label?.textContent).toBe('Description');
+    expect(hint?.textContent).toBe('Shown on the card.');
+    expect(box.hasAttribute('aria-label')).toBe(false);
+
+    // BlockNote draws the placeholder from a style it adds to the page.
+    const rules = [...document.styleSheets].flatMap((sheet) =>
+      [...sheet.cssRules].map((rule) => rule.cssText),
+    );
+
+    expect(rules.join('\n')).toContain('Add a description…');
   });
 });
 
