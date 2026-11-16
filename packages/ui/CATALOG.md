@@ -196,6 +196,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 ## Plugin runtime
 
 - `addPluginStyles(plugin, css)` Adds a plugin UI's compiled Tailwind to the page, minus what web has.
+- `DASHBOARD_WIDGET_PREVIEWS` Every schematic the widget catalog can draw for a dashboard widget.
 - `type FileStorageAdapter { upload, remove }` Where erxes-ui's upload hooks and components send files.
 - `getPluginAssetsUrl(pluginName, url)` A file's URL in a plugin UI's deployed `assets` folder.
 - `getPluginRuntime()` The host's plugin runtime, or null outside erxes.
@@ -207,12 +208,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type PluginSession { token, expiresAt, apiUrl }` A member's short-lived token for one plugin's API, and its address.
 - `setFileStorage(next)` Sets where uploads go; web calls it at startup and plugins don't.
 - `setPluginRuntime(next)` Sets the plugin runtime; web calls it at startup and plugins don't.
-- `type TActivityRowProps { activity }` Props of a plugin's activity row component in `widgets.activityRows`.
+- `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page, linked from core's settings sidebar.
-- `type TPropertyInputMeta` A property input's own settings, stored with the custom field.
-- `type TPropertyInputProps { value, onValueChange, meta, onMetaChange, disabled }` Props of a custom property input in `widgets.propertyInputs`.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.
 - `type TRecordDraftProps { defaults, onCreated, onCancel }` Props of a plugin record type's `New` slot, the draft form.
 - `type TRecordSection { contentType, title, icon, component }` A plugin's section on a customer's or company's detail in core's panel.

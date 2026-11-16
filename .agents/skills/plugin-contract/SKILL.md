@@ -46,18 +46,23 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
-     `relationTabs`, `settings`), and its first module renders under `/<path>/*`. `settings`
-     (`{ path, label, icon? }`, each `path` under `/<path>/`) are links to the plugin's own
-     settings pages, a group per plugin at the end of core's settings sidebar
-     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `recordSections` are drawn
-     in core's customer and company panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`).
+     `relationTabs`, `settings`, `dashboardWidgets`), and its first module renders under
+     `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are links
+     to the plugin's own settings pages, a group per plugin at the end of core's settings sidebar
+     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `dashboardWidgets`
+     (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
+     draws as the tile's body under its title) join core's home dashboard catalog under the
+     plugin's name; a placed tile is saved as `<name>:<widget name>`
+     (`apps/web/src/modules/home/dashboard/widgets/homeWidgets.tsx`), so renaming one drops it
+     from members' dashboards. `recordSections` are drawn in core's customer and company panel
+     (`apps/web/src/modules/plugins/PluginRecordSections.tsx`).
      For `recordTypes` (`<name>:<thing>`) core draws the side panel and the plugin fills slots:
      `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the
      expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
      relation tabs and `activity` for core's timeline
      (`apps/web/src/modules/plugins/PluginRecordView.tsx`). `relationTabs` show on core's
      customers and companies, and on the record types with `contacts` that their `hosts` name
-     (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates all three when it
+     (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
      entry. Core shows the config's words (the app's name, `title`s and `label`s) through
      `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the

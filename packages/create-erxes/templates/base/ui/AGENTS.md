@@ -55,11 +55,14 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   record. A plugin's records of other records' customers are `relationTabs`
   (the `ui-patterns` skill). A settings page is a route of the plugin's
   (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`):
-  core links it from its settings sidebar, under the plugin's name. Forms are core's
+  core links it from its settings sidebar, under the plugin's name. Tiles for core's
+  home dashboard are `CONFIG.dashboardWidgets`: `name`, `title`, `icon`, `preview`,
+  `size` and a `lazy` `component`, which core draws as the tile's body under the
+  title. Forms are core's
   `PanelFormRow` rows with Cancel and Save at the bottom; nothing saves until
   Save. Dialogs are for confirmations, not forms.
 - Text uses `t(key, 'English default')` from `react-i18next`. Core shows the config's words (the
-  app's name, tab labels, section titles) in the member's language by looking them up in the
+  app's name, tab labels, section and widget titles) in the member's language by looking them up in the
   plugin's namespace, its `name`, with the English as the key. Add them from `src/config.tsx`
   with react-i18next's getI18n and i18next's addResourceBundle, so they are there before core
   draws them.

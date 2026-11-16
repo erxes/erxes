@@ -34,12 +34,12 @@ type RecordListGroup
 type RecordRef
 type RecordTableColumnDef
 type RecordTimelineProps
-type TActivityRowProps
 type TConditionField
 type TConditionGroup
 type TConditionLookups
 type TConditionRule
 type TContactContentType
+type TDashboardWidget
 type TDashboardWidgetPreview
 type TListDisplay
 type TListFilterField
@@ -48,8 +48,6 @@ type TListViews
 type TPanelRecordType
 type TPluginListType
 type TPluginSettingsPage
-type TPropertyInputMeta
-type TPropertyInputProps
 type TRecordContacts
 type TRecordDraftProps
 type TRecordSection
@@ -87,6 +85,7 @@ value ConditionsEditor
 value ContactLink
 value ContextMenu
 value CopyText
+value DASHBOARD_WIDGET_PREVIEWS
 value DateInput
 value DatePicker
 value Dialog

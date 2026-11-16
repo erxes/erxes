@@ -11,7 +11,8 @@ import {
   newTileId,
   sameLayout,
 } from '../utils/dashboardLayout';
-import { DASHBOARD_WIDGETS, DASHBOARD_WIDGETS_BY_TYPE } from '../widgets/homeWidgets';
+import { usePlugins } from '~/modules/plugins/usePlugins';
+import { DASHBOARD_WIDGETS, pluginDashboardWidget } from '../widgets/homeWidgets';
 
 type TDashboardContext = {
   items: TDashboardItem[];
@@ -41,21 +42,37 @@ type TDashboardContext = {
 
 const DashboardContext = createContext<TDashboardContext | null>(null);
 
-const WIDGETS = { available: DASHBOARD_WIDGETS, byType: DASHBOARD_WIDGETS_BY_TYPE };
+/** Core's widgets, then those of the plugins the member may use. */
+const useDashboardWidgets = () => {
+  const { plugins } = usePlugins();
+
+  return useMemo(() => {
+    const available = [
+      ...DASHBOARD_WIDGETS,
+      ...plugins.flatMap(({ config }) =>
+        config.dashboardWidgets.map((widget) => pluginDashboardWidget(config.name, widget)),
+      ),
+    ];
+
+    return { available, byType: new Map(available.map((widget) => [widget.type, widget])) };
+  }, [plugins]);
+};
 
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
   const { confirm } = useConfirm();
   const layout = useDashboardLayout();
+  const widgets = useDashboardWidgets();
   const [draft, setDraft] = useState<TDashboardItem[] | null>(null);
   const [draggingWidget, setDraggingWidget] = useState<TDashboardWidgetDefinition | null>(null);
 
   const isEditing = draft !== null;
 
-  // Tiles whose widget is gone simply don't render; the saved layout keeps them.
+  // Tiles whose widget is gone (or whose plugin is still loading) don't render; the saved
+  // layout keeps them.
   const items = useMemo(
-    () => (draft ?? layout.items).filter(({ type }) => WIDGETS.byType.has(type)),
-    [draft, layout.items],
+    () => (draft ?? layout.items).filter(({ type }) => widgets.byType.has(type)),
+    [draft, layout.items, widgets.byType],
   );
 
   const value = useMemo<TDashboardContext>(() => {
@@ -67,7 +84,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
 
     return {
       items,
-      widgets: WIDGETS,
+      widgets,
       isCustomized: layout.isCustomized,
       isEditing,
       canAddMore: items.length < DASHBOARD_MAX_ITEMS,
@@ -121,7 +138,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       setDraftItems: (next) =>
         setDraft((current) => (current && sameLayout(current, next) ? current : next)),
     };
-  }, [items, layout, isEditing, draft, draggingWidget, t, confirm]);
+  }, [items, widgets, layout, isEditing, draft, draggingWidget, t, confirm]);
 
   return <DashboardContext.Provider value={value}>{children}</DashboardContext.Provider>;
 };

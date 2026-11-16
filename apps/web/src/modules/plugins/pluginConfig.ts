@@ -1,16 +1,18 @@
 import type { Icon as TablerIcon } from '@tabler/icons-react';
-import type {
-  TContactContentType,
-  TPanelRecordType,
-  TPluginSettingsPage,
-  TRecordContacts,
-  TRecordDraftProps,
-  TRecordSection,
-  TRecordSectionProps,
-  TRecordSlotProps,
-  TRecordTab,
-  TRelationTab,
-  TRelationTabProps,
+import {
+  DASHBOARD_WIDGET_PREVIEWS,
+  type TContactContentType,
+  type TDashboardWidget,
+  type TPanelRecordType,
+  type TPluginSettingsPage,
+  type TRecordContacts,
+  type TRecordDraftProps,
+  type TRecordSection,
+  type TRecordSectionProps,
+  type TRecordSlotProps,
+  type TRecordTab,
+  type TRelationTab,
+  type TRelationTabProps,
 } from 'erxes-ui';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ComponentType, ElementType } from 'react';
@@ -43,6 +45,7 @@ const Config = z.object({
   recordTypes: z.unknown().optional(),
   relationTabs: z.unknown().optional(),
   settings: z.unknown().optional(),
+  dashboardWidgets: z.unknown().optional(),
 });
 
 /** A settings page is one of the plugin's own, under its `path`. */
@@ -82,6 +85,16 @@ const RelationTab = z.object({
   hosts: z.array(z.string().min(1)).optional(),
   component: component<TRelationTabProps>(),
 }) satisfies z.ZodType<TRelationTab>;
+
+const DashboardWidget = z.object({
+  name: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  icon: z.custom<ElementType>(isComponent),
+  preview: z.enum(DASHBOARD_WIDGET_PREVIEWS).optional(),
+  size: z.object({ w: z.int().positive(), h: z.int().positive() }).optional(),
+  component: component<object>(),
+}) satisfies z.ZodType<TDashboardWidget>;
 
 /** The address a `detailPath` gives a sample id, if it gives one. */
 const samplePath = (detailPath: (id: string) => unknown) => {
@@ -156,15 +169,15 @@ const validEntries = <T>(
 
 /**
  * A plugin's `CONFIG`, with only its well-formed sections, record types, relation tabs and
- * settings pages;
- * null when it has no name or path.
+ * settings pages and dashboard widgets; null when it has no name or path.
  */
 export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginConfig | null => {
   const config = Config.safeParse(value);
 
   if (!config.success) return null;
 
-  const { recordSections, recordTypes, relationTabs, settings, ...rest } = config.data;
+  const { recordSections, recordTypes, relationTabs, settings, dashboardWidgets, ...rest } =
+    config.data;
 
   const sections: TRecordSection[] = validEntries(
     remote,
@@ -184,5 +197,6 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
     ),
     relationTabs: validEntries(remote, 'relationTabs', relationTabs, RelationTab),
     settings: validEntries(remote, 'settings', settings, settingsPageSchema(rest.path)),
+    dashboardWidgets: validEntries(remote, 'dashboardWidgets', dashboardWidgets, DashboardWidget),
   };
 };

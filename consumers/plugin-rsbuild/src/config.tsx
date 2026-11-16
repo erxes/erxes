@@ -137,6 +137,9 @@ export const CONFIG: IUIConfig = {
       component: CustomerSection,
     },
   ],
+  dashboardWidgets: [
+    { name: 'load', title: 'Load', icon: SectionIcon, preview: 'kpi', component: Main },
+  ],
 };
 
 export default Main;
