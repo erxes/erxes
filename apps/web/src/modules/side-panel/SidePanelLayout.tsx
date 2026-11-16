@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { PanelRecordOpener } from './PanelRecordOpener';
+import { recordPageHref } from './panelNavigation';
 import { recordPagePath, usePanelRecordType } from './panelRecordTypes';
 import { type RecordPanelControls, RecordPanelProvider, Spinner } from 'erxes-ui';
 import { RecordSidePanel } from './RecordSidePanel';
@@ -195,7 +196,7 @@ const SidePanelRoute = () => {
 };
 
 const SidePanelColumn = () => {
-  const { open, record } = useSidePanel();
+  const { open, record, tab } = useSidePanel();
   const [width, setWidth] = useAtom(sidePanelWidthState);
   const [expanded] = useQueryState('panelExpanded', parseAsBoolean);
   const { pathname } = useLocation();
@@ -214,8 +215,9 @@ const SidePanelColumn = () => {
           key="record"
           expanded={false}
           expandable={Boolean(recordPage)}
+          // The page opens on the tab the panel shows.
           onExpandedChange={() => {
-            if (recordPage) void navigate(recordPage);
+            if (recordPage) void navigate(recordPageHref(recordPage, tab));
           }}
           width={width}
           onWidthChange={setWidth}

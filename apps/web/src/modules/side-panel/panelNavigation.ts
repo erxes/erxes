@@ -42,6 +42,13 @@ const serializePanelQuery = createSerializer(panelQuery);
 export const panelHref = (list: string, entity: TRelationEntity) =>
   serializePanelQuery(list, { panel: getSidePanelRecordPath(entity) });
 
+// A record's own page keeps its tab in the address (`RecordPage`).
+const serializePageQuery = createSerializer({ tab: parseAsString });
+
+/** A record's own page on a tab: `/sales/deals/d1?tab=notes`; empty is its default. */
+export const recordPageHref = (page: string, tab: string) =>
+  serializePageQuery(page, { tab: tab || null });
+
 /** Updates panel history, active route, and per-record tabs in one navigation. */
 type PanelNavigate = (
   nextPath: string | null,
@@ -208,7 +215,12 @@ export const openPathIn = (
     return;
   }
 
-  if (nextPath === now.path) return;
+  if (nextPath === now.path) {
+    // Already open: only the tab it names changes.
+    if (options?.tab) now.navigate(now.path, now.history, true, options.tab);
+
+    return;
+  }
 
   let nextHistory: string[] = [];
 
@@ -220,5 +232,5 @@ export const openPathIn = (
 
   if (!options?.stack && !options?.replace) startSession();
 
-  now.navigate(nextPath, nextHistory, Boolean(options?.replace), '');
+  now.navigate(nextPath, nextHistory, Boolean(options?.replace), options?.tab ?? '');
 };

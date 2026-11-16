@@ -64,6 +64,7 @@ const pages = [
   ['List', 'PageHeader, ViewBar, ListFilter, RecordTable', 'ui/src/modules/items/ItemsPage.tsx'],
   ['Grouped list (by status)', 'RecordList, DisplayMenu, useListDisplay', ''],
   ['Board', 'DisplayMenu, useListDisplay', `${core}leads/LeadsBoard.tsx`],
+  ['Cards or chart', 'DisplayMenu, useListDisplay, TListDisplayOption', ''],
   [
     'Record detail',
     'PanelSection, PanelField, RecordTableInlineCell, RecordPage',

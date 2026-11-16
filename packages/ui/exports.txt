@@ -46,6 +46,7 @@ type TContactContentType
 type TDashboardWidget
 type TDashboardWidgetPreview
 type TListDisplay
+type TListDisplayOption
 type TListFilterField
 type TListFilterProps
 type TListViews

@@ -46,6 +46,13 @@ what erxes-ui already has, and the screen each kind of page copies.
   checkbox each and its `RecordList.useSelection` hook for the bulk command bar.
   Give `DisplayMenu` and `useListDisplay` the same `displays`, such as
   `['list', 'board', 'table']`; the first shows until the member picks another.
+- A display core doesn't have, such as a cards grid or a chart, is the list's
+  own entry in those `displays`, an erxes-ui `TListDisplayOption`:
+  `[{ key: 'cards', label: t('cards', 'Cards'), icon: IconLayoutGrid }, 'table']`.
+  It shows in the Display menu beside the built-in ones and is remembered the
+  same way; `useListDisplay` returns `'cards'` and the page draws the cards
+  under the same header and bar. A display only some members may see is left
+  out of `displays` for the others.
 
 ## Filter
 
@@ -63,8 +70,8 @@ gives it its fields, and `FILTER_FIELDS` in `api/src/modules/items/items.ts` app
   `compileFilter` from `@erxes/plugin-sdk/filter`, which refuses a path it has
   no column for.
 - Never: a search box, toggle buttons ("Mine", "Archived"), status tabs, a
-  ToggleGroup for table and board, or a row of pickers above the table. Each of
-  those is a field in the menu or the Display menu.
+  ToggleGroup for table, board, cards or chart, or a row of pickers above the
+  table. Each of those is a field in the menu or an entry in the Display menu.
 - Saved views (the tabs core's contacts lists have) are core's lists only;
   a plugin list shows the one "All …" tab.
 
@@ -94,7 +101,11 @@ gives it its fields, and `FILTER_FIELDS` in `api/src/modules/items/items.ts` app
   tab is `PanelSection`s of `PanelField` rows. Never an erxes-ui `Sheet`, a
   header or tabs of the plugin's own, or a `?item=` param.
 - Open a record with `useOpenRecord().open({ contentType, contentId })` and a
-  draft with `openNew(contentType, defaults)`. `detailPath(id)` is a route of
+  draft with `openNew(contentType, defaults)`. `tab` opens the record on one of
+  its tabs, a `tabs` entry's `value`, `detail` or `activity`:
+  `open({ contentType: 'hr:employee', contentId, tab: 'leave' })` from a leave
+  list or a dashboard tile. A tab the record lacks opens its default, and
+  expanding the panel keeps the tab. `detailPath(id)` is a route of
   the plugin's that renders `<RecordPage contentType contentId />`
   (`ui/src/__Pascal__.tsx`): the expanded record.
 - A plugin whose records belong to customers or companies lists them on those

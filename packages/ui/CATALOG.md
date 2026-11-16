@@ -13,6 +13,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 | List                     | `PageHeader`, `ViewBar`, `ListFilter`, `RecordTable`                | `ui/src/modules/items/ItemsPage.tsx`                            |
 | Grouped list (by status) | `RecordList`, `DisplayMenu`, `useListDisplay`                       | none in core yet                                                |
 | Board                    | `DisplayMenu`, `useListDisplay`                                     | `apps/web/src/modules/leads/LeadsBoard.tsx`                     |
+| Cards or chart           | `DisplayMenu`, `useListDisplay`, `TListDisplayOption`               | none in core yet                                                |
 | Record detail            | `PanelSection`, `PanelField`, `RecordTableInlineCell`, `RecordPage` | `ui/src/modules/items/ItemPanel.tsx`                            |
 | Create/edit form         | `PanelFormLayout`, `PanelFormRow`                                   | `ui/src/modules/items/ItemPanel.tsx`                            |
 | Settings list            | `PageHeader`, `RecordTable`                                         | `apps/web/src/modules/settings/tags/TagsSettingsPage.tsx`       |
@@ -30,7 +31,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Lists
 
-- `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board or grouped list.
+- `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board, list or its own.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
 - `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, for a page without saved views.
 - `<ListFilter recordType>` A list's filter: a view bar button, and a chip row while it filters.
@@ -43,6 +44,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
 - `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
+- `type TListDisplayOption { key, label, icon }` A list's own display, such as a cards grid or a chart.
 - `type TListFilterField { path, label, type, options, icon, … }` A field a list can filter by, for `ListFilter`'s `fields`.
 - `type TListFilterProps` The props of `ListFilter`: its `id`, `fields`, lookups and record count.
 - `type TListViews { Tabs, Changes }` The host's saved views for a list.
