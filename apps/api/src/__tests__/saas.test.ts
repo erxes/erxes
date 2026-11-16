@@ -17,7 +17,7 @@ const WORKSPACE = { organization: { subdomain: 'cloud', name: 'Cloud Co' } };
 /** What erxes.io sends to create or change a workspace. */
 interface WorkspaceBody {
   organization?: { subdomain: string; name: string };
-  owner?: { email: string };
+  owner?: { email: string; password?: string };
   status?: string;
 }
 
@@ -293,5 +293,38 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     expect((await fromErxesIo('GET', `/organizations/${ORG_ID}`, undefined, 'nope')).status).toBe(
       401,
     );
+  });
+
+  it('gives the owner the password they chose on erxes.io, for the workspace’s own sign-in', async () => {
+    const id = 'saasOrg0000000002';
+    const chosen = { email: 'owner@withpass.mn', password: 'Owner-pass-123' };
+    const body = { organization: { subdomain: 'withpass', name: 'With Pass' }, owner: chosen };
+
+    expect(
+      (
+        await fromErxesIo('PUT', `/organizations/${id}`, {
+          ...body,
+          owner: { ...chosen, password: 'short' },
+        })
+      ).status,
+    ).toBe(400);
+    expect((await fromErxesIo('PUT', `/organizations/${id}`, body)).status).toBe(201);
+
+    const signIn = (password: string) =>
+      server.client().auth.signIn({ email: chosen.email, password, subdomain: 'withpass' });
+
+    await expect(signIn('Wrong-pass-123')).rejects.toMatchObject({ status: 401 });
+    await expect(signIn(chosen.password)).resolves.toMatchObject({ user: { email: chosen.email } });
+
+    // Sent again for a workspace that exists, the password changes nothing.
+    expect(
+      (
+        await fromErxesIo('PUT', `/organizations/${id}`, {
+          ...body,
+          owner: { ...chosen, password: 'Other-pass-456' },
+        })
+      ).status,
+    ).toBe(200);
+    await expect(signIn(chosen.password)).resolves.toMatchObject({ user: { email: chosen.email } });
   });
 });

@@ -8,6 +8,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { z } from 'zod';
 import { OrganizationRegion } from './organizations';
+import { NewPassword } from './values';
 
 /** erxes.io's plugin tiers: Free is never billed; Plus and Pro have their own monthly prices. */
 export const PluginTier = z.enum(PLUGIN_TIERS);
@@ -38,6 +39,8 @@ export const SaasWorkspace = z.object({
     .object({
       email: z.string().trim().check(z.email()).max(254),
       fullName: z.string().trim().max(200).optional(),
+      /** Chosen while making the workspace, so the owner can also sign in at its own address. */
+      password: NewPassword.optional(),
     })
     .optional(),
   status: OrganizationStatus.optional(),

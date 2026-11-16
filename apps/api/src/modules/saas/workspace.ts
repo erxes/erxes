@@ -11,7 +11,7 @@ import {
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
-import { safeEqual } from '~/lib/crypto';
+import { hashPassword, safeEqual } from '~/lib/crypto';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
 import { forgetEntitlements, refreshEntitlements } from './entitlements';
 
@@ -26,7 +26,12 @@ export const platformAuthorized = (header: string | undefined) => {
 };
 
 /** Creates the organisation and its owner, or renames it; a taken subdomain is a 409. */
-const upsertOrganization = async (tx: Transaction, orgId: string, input: SaasWorkspace) => {
+const upsertOrganization = async (
+  tx: Transaction,
+  orgId: string,
+  input: SaasWorkspace,
+  passwordHash: string | undefined,
+) => {
   const [org] = await tx
     .select()
     .from(organizations)
@@ -45,7 +50,7 @@ const upsertOrganization = async (tx: Transaction, orgId: string, input: SaasWor
       name,
       country,
       currency,
-      owner: input.owner,
+      owner: { email: input.owner.email, fullName: input.owner.fullName, passwordHash },
     });
   } else if (org.subdomain !== subdomain || org.name !== name) {
     // Country and currency are the organisation's own settings after it is made.
@@ -60,8 +65,11 @@ const upsertOrganization = async (tx: Transaction, orgId: string, input: SaasWor
 
 /** Creates the workspace (organisation and owner) the first time; renames, enables or disables it after. Then reads its plugins. */
 export const applyWorkspace = async (orgId: string, input: SaasWorkspace) => {
+  // Hashed before the transaction: scrypt is slow, and the lock on the organisation is held meanwhile.
+  const passwordHash = input.owner?.password ? await hashPassword(input.owner.password) : undefined;
+
   const created = await withSystem('saas: workspace', async (tx) => {
-    const isNew = await upsertOrganization(tx, orgId, input);
+    const isNew = await upsertOrganization(tx, orgId, input, passwordHash);
 
     if (input.status) {
       await tx
