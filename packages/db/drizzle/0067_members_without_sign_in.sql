@@ -1,0 +1,3 @@
+ALTER TABLE "core_users" ALTER COLUMN "email" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "core_users" ADD COLUMN "can_sign_in" boolean DEFAULT true NOT NULL;--> statement-breakpoint
+ALTER TABLE "core_users" ADD CONSTRAINT "core_users_sign_in_check" CHECK (not "core_users"."can_sign_in" and "core_users"."status" <> 'invited' or "core_users"."can_sign_in" and "core_users"."email" is not null);

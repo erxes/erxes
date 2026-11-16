@@ -1,3 +1,4 @@
+import { DEFAULT_GRANT_ROLES } from '@erxes/core-db/enums';
 import { roles } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -41,6 +42,11 @@ export const CORE_PERMISSIONS = [
   },
   { action: 'roles.manage', group: 'Team', label: 'Create and edit roles' },
   {
+    action: 'structure.manage',
+    group: 'Team',
+    label: 'Add, change and remove branches and departments, and who is in them',
+  },
+  {
     action: 'settings.manage',
     group: 'Settings',
     label: 'Change organisation settings (file upload, …)',
@@ -52,6 +58,21 @@ export const CORE_PERMISSIONS = [
     label: 'See the event stream and retry failed events',
   },
   { action: 'webhooks.manage', group: 'Integrations', label: 'Manage webhooks' },
+  {
+    action: 'api_keys.create',
+    group: 'Integrations',
+    label: 'Create API keys that act as themselves',
+  },
+  {
+    action: 'api_keys.manage',
+    group: 'Integrations',
+    label: "See and revoke everyone's API keys",
+  },
+  {
+    action: 'integrations.manage',
+    group: 'Integrations',
+    label: 'Set up, turn on or off and remove integrations (eBarimt)',
+  },
   {
     action: 'payments.manage',
     group: 'Payments',
@@ -68,6 +89,21 @@ export const CORE_PERMISSIONS = [
     action: 'assistant.manage',
     group: 'Assistant',
     label: 'Choose when the assistant asks before acting',
+  },
+  {
+    action: 'broadcasts.view',
+    group: 'Broadcasts',
+    label: 'See broadcasts, who got them and suppressed addresses',
+  },
+  {
+    action: 'broadcasts.manage',
+    group: 'Broadcasts',
+    label: 'Write, test and delete broadcasts; suppress addresses',
+  },
+  {
+    action: 'broadcasts.send',
+    group: 'Broadcasts',
+    label: 'Send, schedule, pause and cancel broadcasts',
   },
   { action: 'automations.view', group: 'Automations', label: 'See automations and their runs' },
   {
@@ -107,6 +143,14 @@ export const CORE_PERMISSIONS = [
 }[];
 
 export type CorePermission = (typeof CORE_PERMISSIONS)[number]['action'];
+
+/**
+ * The first word of core's actions (`team`, `payments`, …): no plugin is named one, since a
+ * plugin's permissions start with its name and would read as core's.
+ */
+export const CORE_PERMISSION_AREAS: ReadonlySet<string> = new Set(
+  CORE_PERMISSIONS.map(({ action }) => action.slice(0, action.indexOf('.'))),
+);
 
 /** Owner-only core actions: never granted to another role. */
 export const OWNER_ONLY_PERMISSIONS: readonly string[] = CORE_PERMISSIONS.filter(
@@ -148,6 +192,12 @@ export const ManifestPermissionSet = z.object({
   label: z.string().trim().min(1).max(100),
   description: z.string().trim().max(300).optional(),
   permissions: z.array(PermissionAction).min(1).max(500),
+  /**
+   * Built-in roles that get the set by default: `member` (Owner and Admin have everything
+   * already). Core adds its permissions to the role where the plugin is installed, and adds a
+   * permission the set gains later. It never takes one back, so an owner's changes stay.
+   */
+  defaultRoles: z.array(z.enum(DEFAULT_GRANT_ROLES)).max(1).optional(),
 });
 
 export const PermissionSet = z.object({

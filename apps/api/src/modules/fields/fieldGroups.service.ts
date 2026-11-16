@@ -1,3 +1,4 @@
+import { isCoreFieldType } from '@erxes/core-contract';
 import { type PropertyContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -59,6 +60,23 @@ const groupCode = (code: string | undefined, name: string) => {
   return value;
 };
 
+/** `appliesTo` limits a plugin type's group to some of its records; core's records take none. */
+const assertAppliesTo = (
+  contentType: PropertyContentType,
+  appliesTo: Record<string, string[]> | undefined,
+  groupId = '',
+) => {
+  const limits = Object.values(appliesTo ?? {}).some((ids) => ids.length > 0);
+
+  if (limits && isCoreFieldType(contentType)) {
+    throw fail(
+      'INVALID_FIELD_GROUP',
+      'Only a plugin record type’s groups apply to some records',
+      groupId ? { groupId } : undefined,
+    );
+  }
+};
+
 export const createFieldGroup = async (
   client: Db,
   input: {
@@ -66,9 +84,11 @@ export const createFieldGroup = async (
     name: string;
     code?: string;
     description?: string | null;
+    appliesTo?: Record<string, string[]>;
   },
 ) => {
   await assertPropertyType(client, input.contentType);
+  assertAppliesTo(input.contentType, input.appliesTo);
 
   const code = groupCode(input.code, input.name);
   const order = await nextOrder(client, fieldGroups, input.contentType);
@@ -82,6 +102,7 @@ export const createFieldGroup = async (
         name: input.name,
         code,
         description: input.description || null,
+        appliesTo: input.appliesTo,
         order,
       })
       .returning(),
@@ -112,9 +133,17 @@ export const updateFieldGroup = async (
   {
     description,
     ...rest
-  }: { name?: string; code?: string; description?: string | null; order?: number },
+  }: {
+    name?: string;
+    code?: string;
+    description?: string | null;
+    order?: number;
+    appliesTo?: Record<string, string[]>;
+  },
 ) => {
-  await findGroup(client, id);
+  const group = await findGroup(client, id);
+
+  assertAppliesTo(group.contentType, rest.appliesTo, id);
 
   return updateGroupRow(client, id, {
     ...rest,

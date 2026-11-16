@@ -225,7 +225,12 @@ export { RecordTableInlineCell } from './modules/record-table/components/RecordT
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
-export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/DisplayMenu';
+export {
+  DisplayMenu,
+  type TListDisplay,
+  type TListDisplayOption,
+  useListDisplay,
+} from './modules/list/DisplayMenu';
 
 export {
   ListFilter,
@@ -273,6 +278,14 @@ export { PanelExpansionContext, usePanelExpanded } from './modules/record-panel/
 export { ContactLink } from './modules/records/ContactLink';
 
 export {
+  ContactRelationInput,
+  SelectContactContent,
+  type TContactKind,
+} from './modules/records/ContactPicker';
+
+export { MEMBER_CONTENT_TYPE, MemberLink } from './modules/records/MemberLink';
+
+export {
   type CompanyContact,
   companyTitle,
   type ContactQueries,
@@ -286,6 +299,7 @@ export {
 export {
   RecordOpenerProvider,
   RecordPage,
+  type RecordPageProps,
   type RecordPanelControls,
   RecordPanelProvider,
   type RecordRef,
@@ -305,6 +319,7 @@ export {
   type TDashboardWidgetPreview,
   type TPanelRecordType,
   type TPluginSettingsPage,
+  type TPropertyLimit,
   type TPropertyValue,
   type TRecordContacts,
   type TRecordProperties,

@@ -9,6 +9,7 @@ allowBuilds:
   esbuild: true
   protobufjs: false
   tesseract.js: false
+  vue-demi: false
 
 # Vite+ runs its own Vite build and Vitest version; dependencies must resolve to the same ones.
 overrides:

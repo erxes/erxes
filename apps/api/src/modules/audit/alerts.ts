@@ -61,11 +61,13 @@ const emailAlert = async (client: Db, input: AlertInput, recipients: string[]) =
   await sendEmail(
     client,
     org.id,
-    people.map((person) => ({
-      to: person.email,
-      template: 'security_alert',
-      data: { organization: org.name, title: input.title, body: input.body, link },
-    })),
+    people
+      .flatMap(({ email }) => (email ? [email] : []))
+      .map((email) => ({
+        to: email,
+        template: 'security_alert',
+        data: { organization: org.name, title: input.title, body: input.body, link },
+      })),
   );
 };
 
@@ -156,8 +158,8 @@ const newDevice = async (client: Db, entry: Entry) => {
   await securityAlert(client, {
     key: `new-sign-in:${entry.targetId}:${entry.ip ?? ''}:${entry.userAgent ?? ''}`,
     title: `New sign-in to your account from ${describeDevice(entry.userAgent)}`,
-    body: `${entry.ip ? `Address ${entry.ip}. ` : ''}If it was you, there's nothing to do. If not, change your password and sign out everywhere (Settings › Profile).`,
-    link: '/settings/profile',
+    body: `${entry.ip ? `Address ${entry.ip}. ` : ''}If it was you, there's nothing to do. If not, change your password and sign out everywhere (Settings › Security).`,
+    link: '/settings/security',
     userIds: [entry.targetId],
     email: true,
   });
@@ -170,7 +172,7 @@ const recoveryCodeUsed = async (client: Db, entry: Entry) => {
     key: `recovery:${entry.targetId}`,
     title: 'A recovery code was used to sign in to your account',
     body: `From ${describeDevice(entry.userAgent)}${entry.ip ? ` (${entry.ip})` : ''}. If it wasn't you, change your password and renew your recovery codes.`,
-    link: '/settings/profile',
+    link: '/settings/security',
     userIds: [entry.targetId],
     email: true,
   });

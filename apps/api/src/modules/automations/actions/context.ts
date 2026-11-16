@@ -32,7 +32,8 @@ export interface ActionContext extends CallContext {
  * system: it runs outside any transaction, may run more than once, and sends
  * `idempotencyKey(ctx)` so the other side does the work once.
  */
-export type CoreAction = Omit<ActionInfo, 'source'> &
+export type CoreAction = Omit<ActionInfo, 'source' | 'outputs'> &
+  Partial<Pick<ActionInfo, 'outputs'>> &
   (
     | { run: (ctx: ActionContext) => Promise<unknown> }
     | { call: (ctx: CallContext) => Promise<unknown> }

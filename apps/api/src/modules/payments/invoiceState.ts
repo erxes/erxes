@@ -1,6 +1,5 @@
-import type { Invoice } from '@erxes/core-contract';
+import { type Invoice, PAYMENT_GATEWAYS } from '@erxes/core-contract';
 import { type Db, paymentGateways, paymentInvoices, runAs, system, withOrg } from '@erxes/core-db';
-import { GATEWAY_REFUNDS } from '@erxes/payment-gateways';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { notFound } from '~/http/errors';
@@ -19,10 +18,8 @@ export type InvoiceRow = typeof paymentInvoices.$inferSelect;
 const payment = paymentInvoices.payment;
 
 /** How each gateway kind refunds, as SQL over the joined gateway. */
-const refundKind = sql<
-  (typeof GATEWAY_REFUNDS)[keyof typeof GATEWAY_REFUNDS]
->`case ${paymentGateways.kind} ${sql.join(
-  Object.entries(GATEWAY_REFUNDS).map(([kind, refunds]) => sql`when ${kind} then ${refunds}`),
+const refundKind = sql<Invoice['refundable']['gateway']>`case ${paymentGateways.kind} ${sql.join(
+  Object.entries(PAYMENT_GATEWAYS).map(([kind, { refunds }]) => sql`when ${kind} then ${refunds}`),
   sql` `,
 )} else 'none' end`;
 
@@ -49,7 +46,7 @@ export const selectInvoices = (client: Db) =>
       },
     })
     .from(paymentInvoices)
-    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId));
+    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId));
 
 export const shownInvoice = async (client: Db, id: string) =>
   oneRow(await selectInvoices(client).where(eq(paymentInvoices.id, id)).limit(1));
@@ -66,6 +63,7 @@ export const eventPayload = (invoice: InvoiceRow) => ({
   referenceId: invoice.referenceId,
   amount: invoice.amount,
   currency: invoice.currency,
+  method: invoice.method,
   metadata: invoice.metadata,
   lines: invoice.lines,
 });
@@ -135,12 +133,12 @@ const markExpired = async (tx: Db, invoice: InvoiceRow) => {
 const current = async (tx: Db, id: string) =>
   oneRow(await tx.select().from(paymentInvoices).where(eq(paymentInvoices.id, id)).limit(1));
 
-/** The organisation's invoice with its gateway. */
+/** The organisation's invoice with its gateway (null for a payment recorded outside one). */
 export const invoiceWithGateway = async (tx: Db, id: string) => {
   const [row] = await tx
     .select({ invoice: paymentInvoices, gateway: paymentGateways })
     .from(paymentInvoices)
-    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
+    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
     .where(eq(paymentInvoices.id, id))
     .limit(1);
 
@@ -158,7 +156,9 @@ export const invoiceWithGateway = async (tx: Db, id: string) => {
 export const refresh = async (orgId: string, id: string) => {
   const { invoice, gateway } = await withOrg(orgId, (tx) => invoiceWithGateway(tx, id));
 
-  if (invoice.status !== 'pending' || !invoice.gatewayInvoiceId) return { invoice, gateway };
+  if (invoice.status !== 'pending' || !invoice.gatewayInvoiceId || !gateway) {
+    return { invoice, gateway };
+  }
 
   const check = await driverOf(gateway).check(
     invoice.gatewayInvoiceId,
@@ -195,11 +195,18 @@ export const paymentCheckJob = defineJob({
   },
 });
 
-/** Checks pending invoices with the gateway every 30 s at first, then every 2 minutes, until they expire. */
+/**
+ * How long until check `round`: most payers pay within a minute of seeing the
+ * QR, so every 5 s for the first minute, every 15 s for the next four, then
+ * every minute until the invoice expires.
+ */
+const checkDelay = (round: number) => (round < 12 ? 5_000 : round < 28 ? 15_000 : 60_000);
+
+/** Checks a pending invoice with the gateway (`checkDelay`), so a lost callback still settles it. */
 export const queueCheck = (client: Db, invoice: InvoiceRow, round: number) =>
   paymentCheckJob.enqueue(client, {
     orgId: invoice.orgId,
     payload: { invoiceId: invoice.id, round },
-    runAt: new Date(Date.now() + (round < 20 ? 30_000 : 120_000)),
+    runAt: new Date(Date.now() + checkDelay(round)),
     dedupeKey: `${invoice.id}:${round}`,
   });

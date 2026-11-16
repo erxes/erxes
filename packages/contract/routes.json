@@ -10,6 +10,16 @@
         }
       }
     },
+    "byMember": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/activities/members/{actorId}"
+        }
+      }
+    },
     "addNote": {
       "~orpc": {
         "errorMap": {},
@@ -279,6 +289,38 @@
         "route": {
           "method": "PUT",
           "path": "/assistant/appearance"
+        }
+      }
+    }
+  },
+  "apiKeys": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/api-keys"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/api-keys"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/api-keys/{id}"
         }
       }
     }
@@ -779,6 +821,168 @@
       }
     }
   },
+  "broadcasts": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/broadcasts/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/broadcasts/{id}"
+        }
+      }
+    },
+    "duplicate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/duplicate"
+        }
+      }
+    },
+    "audience": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/audience"
+        }
+      }
+    },
+    "preview": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/preview"
+        }
+      }
+    },
+    "test": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/test"
+        }
+      }
+    },
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/send"
+        }
+      }
+    },
+    "schedule": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule"
+        }
+      }
+    },
+    "unschedule": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/unschedule"
+        }
+      }
+    },
+    "pause": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/pause"
+        }
+      }
+    },
+    "resume": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/resume"
+        }
+      }
+    },
+    "cancel": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/cancel"
+        }
+      }
+    },
+    "recipients": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts/{id}/recipients"
+        }
+      }
+    }
+  },
   "companies": {
     "list": {
       "~orpc": {
@@ -993,6 +1197,58 @@
       }
     }
   },
+  "favorites": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/favorites"
+        }
+      }
+    },
+    "add": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/favorites"
+        }
+      }
+    },
+    "rename": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/favorites/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/favorites/{id}"
+        }
+      }
+    },
+    "reorder": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/favorites/order"
+        }
+      }
+    }
+  },
   "customerAccount": {
     "me": {
       "~orpc": {
@@ -1123,6 +1379,48 @@
         "route": {
           "method": "POST",
           "path": "/customer-auth/sign-out"
+        }
+      }
+    }
+  },
+  "customerNotifications": {
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer-notifications"
+        }
+      }
+    },
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customer/notifications"
+        }
+      }
+    },
+    "unreadCount": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customer/notifications/unread-count"
+        }
+      }
+    },
+    "markRead": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer/notifications/read"
         }
       }
     }
@@ -1684,6 +1982,16 @@
         }
       }
     },
+    "recordPayment": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/payments/invoices/recorded"
+        }
+      }
+    },
     "getInvoice": {
       "~orpc": {
         "errorMap": {},
@@ -1765,6 +2073,98 @@
       }
     }
   },
+  "ebarimt": {
+    "settings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/settings"
+        }
+      }
+    },
+    "plugins": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/plugins"
+        }
+      }
+    },
+    "saveSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/ebarimt/settings"
+        }
+      }
+    },
+    "removeSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/ebarimt/settings"
+        }
+      }
+    },
+    "testConnection": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/settings/test"
+        }
+      }
+    },
+    "receipts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/receipts"
+        }
+      }
+    },
+    "sync": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/invoices/{invoiceId}/sync"
+        }
+      }
+    },
+    "setBuyer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/ebarimt/invoices/{invoiceId}/buyer"
+        }
+      }
+    },
+    "findCompany": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/companies/{no}"
+        }
+      }
+    }
+  },
   "plugins": {
     "token": {
       "~orpc": {
@@ -1823,6 +2223,16 @@
         "route": {
           "method": "POST",
           "path": "/plugins/{name}/session"
+        }
+      }
+    },
+    "callToken": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/plugins/{name}/call-token"
         }
       }
     },
@@ -2045,6 +2455,50 @@
       }
     }
   },
+  "search": {
+    "global": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/search"
+        }
+      }
+    }
+  },
+  "suppressions": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/suppressions"
+        }
+      }
+    },
+    "add": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/suppressions"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/suppressions/{id}"
+        }
+      }
+    }
+  },
   "tags": {
     "list": {
       "~orpc": {
@@ -2083,6 +2537,130 @@
         "route": {
           "method": "DELETE",
           "path": "/tags/{id}"
+        }
+      }
+    }
+  },
+  "units": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/units"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/units/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/units/{id}"
+        }
+      }
+    },
+    "assign": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/units/members/{userId}"
+        }
+      }
+    },
+    "import": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/units/import"
+        }
+      }
+    }
+  },
+  "unitTypes": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/unit-types"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/unit-types"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/unit-types/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/unit-types/{id}"
+        }
+      }
+    },
+    "import": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/unit-types/import"
         }
       }
     }
@@ -2279,6 +2857,36 @@
         "route": {
           "method": "POST",
           "path": "/users/invitations"
+        }
+      }
+    },
+    "add": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/users/without-sign-in"
+        }
+      }
+    },
+    "allowSignIn": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/users/{id}/sign-in"
+        }
+      }
+    },
+    "stopSignIn": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/users/{id}/sign-in"
         }
       }
     },

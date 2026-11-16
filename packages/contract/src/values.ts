@@ -1,4 +1,25 @@
 import {
+  AUDIT_STREAM_FORMATS,
+  AUTOMATION_STATUSES,
+  BROADCAST_CHANNELS,
+  BROADCAST_RECIPIENT_STATUSES,
+  BROADCAST_STATUSES,
+  CUSTOMER_SEXES,
+  CUSTOMER_STATES,
+  EBARIMT_RECEIPT_STATUSES,
+  EBARIMT_TAX_TYPES,
+  FIELD_TYPES,
+  FIELD_VALIDATIONS,
+  INVOICE_STATUSES,
+  LIVE_MODES,
+  NOTIFICATION_DELIVERIES,
+  ORG_UNIT_KINDS,
+  PLUGIN_VIEW_TYPE,
+  PRODUCT_KINDS,
+  SEARCH_RECORD_TYPES,
+  SUPPRESSION_REASONS,
+} from '@erxes/core-db/enums';
+import {
   ASSISTANT_APPROVAL_MODES,
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
@@ -6,18 +27,7 @@ import {
   ASSISTANT_PROVIDERS,
   ASSISTANT_QUESTION_MODES,
   ASSISTANT_THINKING_LEVELS,
-  AUDIT_STREAM_FORMATS,
-  AUTOMATION_STATUSES,
-  CUSTOMER_SEXES,
-  CUSTOMER_STATES,
-  FIELD_TYPES,
-  FIELD_VALIDATIONS,
-  INVOICE_STATUSES,
-  LIVE_MODES,
-  NOTIFICATION_DELIVERIES,
-  PAYMENT_GATEWAY_KINDS,
-  PRODUCT_KINDS,
-} from '@erxes/core-db/enums';
+} from '@erxes/core-db/assistantEnums';
 import { z } from 'zod';
 
 // The constants and schemas a browser uses at runtime. Nothing here builds on a
@@ -28,6 +38,44 @@ export const CORE_API_VERSION = 'v1';
 
 /** Every path in the contract is under this prefix (`/core/v1/customers`, …). */
 export const CORE_API_PREFIX = '/core/v1';
+
+/** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
+export const PluginName = z
+  .string()
+  .trim()
+  .regex(/^[a-z][a-z0-9_]{0,39}$/, 'lower case letters, digits and _ (starting with a letter)')
+  .refine((name) => name !== 'core', 'reserved');
+
+/** How long a new API key works, in days (or until it is revoked). */
+export const API_KEY_LIFETIMES = [30, 90, 365] as const;
+
+/**
+ * Who a plugin's API document is for (the manifest's `api.docs`): its team members in erxes
+ * (with a plugin session token), employees in the plugin's own app (with a token the plugin
+ * issues when they sign in, like HR's mobile app), customers (with a customer token from
+ * core) or a website's server (with a key the plugin issues).
+ */
+export const PLUGIN_API_AUDIENCES = ['member', 'employee', 'customer', 'website'] as const;
+
+export type PluginApiAudience = (typeof PLUGIN_API_AUDIENCES)[number];
+
+/**
+ * The security schemes a plugin's OpenAPI document declares (`@erxes/plugin-sdk/openapi`).
+ * The API reference fills in the member's session token for "try it".
+ */
+export const PLUGIN_SESSION_SCHEME = 'pluginSession';
+
+export const EMPLOYEE_TOKEN_SCHEME = 'employeeToken';
+
+export const CUSTOMER_TOKEN_SCHEME = 'customerToken';
+
+export const WEBSITE_KEY_SCHEME = 'websiteKey';
+
+/**
+ * How an installation's granted scopes hold an approved read of another plugin's API
+ * (the manifest's `pluginReads`): `reads:sales.deal.view`. The permission names its plugin.
+ */
+export const pluginReadScope = (permission: string) => `reads:${permission}`;
 
 // ─── Members ────────────────────────────────────────────────────────────────
 
@@ -82,6 +130,44 @@ export const ProductKind = z.enum(PRODUCT_KINDS);
 
 export type ProductKind = z.infer<typeof ProductKind>;
 
+/** Where a member works (`branch`) or what they do (`department`). */
+export const UnitKind = z.enum(ORG_UNIT_KINDS);
+
+export type UnitKind = z.infer<typeof UnitKind>;
+
+/** What global search finds in core, in the order its groups show. */
+export const SearchType = z.enum(SEARCH_RECORD_TYPES);
+
+export type SearchType = z.infer<typeof SearchType>;
+
+/** A plugin's record type, `<plugin>:<record>` (`sales:deal`). */
+export const PluginViewType = z
+  .templateLiteral([z.string(), ':', z.string()])
+  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
+
+/**
+ * What a plugin's search route (`search[].path` in its manifest) answers:
+ * `GET <api.url><path>?q=<text>&limit=<n>` with the member's plugin session
+ * token, at most `limit` (≤ 20) records the member may see. A hit opens in
+ * core's side panel when it names a `recordType` the plugin UI registers
+ * (`sales:deal`), else at `path`, a route of the plugin UI.
+ */
+export const PluginSearchHit = z.object({
+  id: z.string().trim().min(1).max(100),
+  title: z.string().trim().min(1).max(200),
+  subtitle: z.string().trim().max(300).nullish(),
+  recordType: PluginViewType.optional(),
+  path: z
+    .string()
+    .regex(/^\/[^\s]*$/, 'a path like /sales/deals/1')
+    .max(500)
+    .optional(),
+});
+
+export type PluginSearchHit = z.infer<typeof PluginSearchHit>;
+
+export const PluginSearchResults = z.object({ data: z.array(PluginSearchHit).max(20) });
+
 // ─── Custom fields ──────────────────────────────────────────────────────────
 
 export const FieldType = z.enum(FIELD_TYPES);
@@ -113,30 +199,42 @@ export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
 /** Who changed what in core (owners and admins). */
 export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
-// ─── Payments ───────────────────────────────────────────────────────────────
-
-/**
- * The gateways core can connect, and where each works: the currencies it
- * takes and the countries it serves (empty: any). QPay is Mongolian; global
- * ones (Stripe …) join here as drivers in `@erxes/payment-gateways`.
- */
-export const PAYMENT_GATEWAYS = {
-  qpay: { currencies: ['MNT'], countries: ['MN'] },
-  test: { currencies: [], countries: [] },
-} as const satisfies Record<string, { currencies: string[]; countries: string[] }>;
-
-export const PaymentGatewayKind = z.enum(PAYMENT_GATEWAY_KINDS);
-
-export type PaymentGatewayKind = z.infer<typeof PaymentGatewayKind>;
-
-/** Does this kind of gateway take this currency? */
-export const gatewayTakes = (kind: PaymentGatewayKind, currency: string) => {
-  const { currencies } = PAYMENT_GATEWAYS[kind];
-
-  return currencies.length === 0 || currencies.some((code) => code === currency);
-};
+// ─── Payments (gateways: `./paymentGateways`) ───────────────────────────────
 
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
+
+// ─── Broadcasts ─────────────────────────────────────────────────────────────
+
+export const BroadcastChannel = z.enum(BROADCAST_CHANNELS);
+
+export const BroadcastStatus = z.enum(BROADCAST_STATUSES);
+
+export const BroadcastRecipientStatus = z.enum(BROADCAST_RECIPIENT_STATUSES);
+
+export const SuppressionReason = z.enum(SUPPRESSION_REASONS);
+
+/** What `{{ firstName | there }}` in a broadcast fills in: each customer's value, or the organisation's name. */
+export const BROADCAST_PLACEHOLDERS = [
+  'firstName',
+  'lastName',
+  'fullName',
+  'email',
+  'phone',
+  'code',
+  'position',
+  'organization',
+] as const;
+
+export type BroadcastPlaceholder = (typeof BROADCAST_PLACEHOLDERS)[number];
+
+// ─── eBarimt ────────────────────────────────────────────────────────────────
+
+/** How eBarimt taxes a product's lines (Settings › Integrations › eBarimt). */
+export const EbarimtTaxType = z.enum(EBARIMT_TAX_TYPES);
+
+export type EbarimtTaxType = z.infer<typeof EbarimtTaxType>;
+
+export const EbarimtReceiptStatus = z.enum(EBARIMT_RECEIPT_STATUSES);
 
 // ─── Notifications ──────────────────────────────────────────────────────────
 

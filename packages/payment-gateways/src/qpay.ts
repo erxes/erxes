@@ -1,17 +1,18 @@
 import { z } from 'zod';
 import {
-  type CreateInvoiceInput,
-  type DriverOptions,
-  type GatewayDriver,
-  GatewayError,
-  type QPayConfig,
-} from './types';
-
-const tokens = new Map<string, { token: string; expiresAt: number }>();
-
-/** QPay sends ids and amounts as strings or numbers. */
-const Text = z.union([z.string(), z.number()]).transform(String);
-const Amount = z.union([z.string(), z.number()]).transform(Number);
+  Amount,
+  basic,
+  fromTugrug,
+  gatewayHttp,
+  json,
+  parse,
+  type Send,
+  Text,
+  tokenCache,
+  toTugrug,
+  withBearer,
+} from './http';
+import type { CreateInvoiceInput, DriverOptions, GatewayDriver, QPayConfig } from './types';
 
 const TokenAnswer = z.object({
   access_token: z.string().min(1),
@@ -50,87 +51,51 @@ const CheckAnswer = z.object({
   paid_amount: Amount.nullish(),
 });
 
-/** QPay's answer as `schema`; text that isn't JSON of that shape is a GatewayError saying what was missing. */
-const parse = <T>(schema: z.ZodType<T>, text: string, what: string) => {
-  try {
-    return schema.parse(JSON.parse(text));
-  } catch {
-    throw new GatewayError(`QPay gave ${what}`);
-  }
-};
-
-/** QPay's answer text, after a 2xx. */
-type Request = (path: string, init?: RequestInit) => Promise<string>;
-
 /** QPay's API with its access token, cached per connection and mode. */
 const qpayClient = (config: QPayConfig, options: DriverOptions) => {
-  const base = config.sandbox
-    ? 'https://merchant-sandbox.qpay.mn/v2'
-    : 'https://merchant.qpay.mn/v2';
+  const send = gatewayHttp(
+    'QPay',
+    config.sandbox ? 'https://merchant-sandbox.qpay.mn/v2' : 'https://merchant.qpay.mn/v2',
+    options,
+  );
 
-  const cacheKey = `${options.cacheKey ?? config.clientId}:${config.sandbox ? 'sandbox' : 'live'}`;
-  const basic = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64');
-
-  const send = async (path: string, init: RequestInit, authorization: string) => {
-    const headers = new Headers(init.headers);
-
-    headers.set('Content-Type', 'application/json');
-    headers.set('Authorization', authorization);
-
-    const response = await (options.fetch ?? globalThis.fetch)(`${base}${path}`, {
-      ...init,
-      headers,
-      signal: AbortSignal.timeout(15_000),
-    });
-
-    const text = await response.text();
-
-    if (!response.ok)
-      throw new GatewayError(
-        `QPay ${path} answered ${response.status}: ${text.slice(0, 300)}`,
-        response.status,
+  const cache = tokenCache(
+    `qpay:${options.cacheKey ?? config.clientId}:${config.sandbox ? 'sandbox' : 'live'}`,
+    async () => {
+      const answer = parse(
+        'QPay',
+        TokenAnswer,
+        await send('/auth/token', {
+          method: 'POST',
+          headers: { Authorization: basic(config.clientId, config.clientSecret) },
+        }),
+        'no access token',
       );
 
-    return text;
-  };
+      const expires = answer.expires_in ?? 0;
 
-  const token = async () => {
-    const cached = tokens.get(cacheKey);
+      return {
+        token: answer.access_token,
+        expiresIn: expires > 1e9 ? expires - Date.now() / 1000 : undefined,
+      };
+    },
+  );
 
-    if (cached && cached.expiresAt - Date.now() > 60_000) return cached.token;
-
-    const answer = parse(
-      TokenAnswer,
-      await send('/auth/token', { method: 'POST' }, `Basic ${basic}`),
-      'no access token',
-    );
-
-    const expires = answer.expires_in ?? 0;
-
-    tokens.set(cacheKey, {
-      token: answer.access_token,
-      expiresAt: expires > 1e9 ? expires * 1000 : Date.now() + 3600_000,
-    });
-
-    return answer.access_token;
-  };
-
-  const request: Request = async (path, init = {}) => send(path, init, `Bearer ${await token()}`);
-
-  return { request, token, forgetToken: () => tokens.delete(cacheKey) };
+  return { request: withBearer(send, cache.token), cache };
 };
 
-const createInvoice = async (request: Request, config: QPayConfig, input: CreateInvoiceInput) => {
+const createInvoice = async (request: Send, config: QPayConfig, input: CreateInvoiceInput) => {
   const answer = parse(
+    'QPay',
     InvoiceAnswer,
     await request('/invoice', {
       method: 'POST',
-      body: JSON.stringify({
+      body: json({
         invoice_code: config.invoiceCode,
         sender_invoice_no: input.invoiceId,
         invoice_receiver_code: 'terminal',
         invoice_description: input.description,
-        amount: input.amount / 100,
+        amount: toTugrug(input.amount),
         callback_url: input.callbackUrl,
       }),
     }),
@@ -150,12 +115,13 @@ const createInvoice = async (request: Request, config: QPayConfig, input: Create
   };
 };
 
-const checkPayment = async (request: Request, gatewayInvoiceId: string, amount: number) => {
+const checkPayment = async (request: Send, gatewayInvoiceId: string, amount: number) => {
   const answer = parse(
+    'QPay',
     CheckAnswer,
     await request('/payment/check', {
       method: 'POST',
-      body: JSON.stringify({
+      body: json({
         object_type: 'INVOICE',
         object_id: gatewayInvoiceId,
         offset: { page_number: 1, page_limit: 100 },
@@ -168,12 +134,8 @@ const checkPayment = async (request: Request, gatewayInvoiceId: string, amount: 
     (row) => !row.payment_status || row.payment_status === 'PAID',
   );
 
-  const fromRows = paidRows.reduce(
-    (sum, row) => sum + Math.round((row.payment_amount ?? 0) * 100),
-    0,
-  );
-
-  const paidAmount = answer.rows.length ? fromRows : Math.round((answer.paid_amount ?? 0) * 100);
+  const fromRows = paidRows.reduce((sum, row) => sum + fromTugrug(row.payment_amount ?? 0), 0);
+  const paidAmount = answer.rows.length ? fromRows : fromTugrug(answer.paid_amount ?? 0);
 
   return {
     paid: paidAmount >= amount,
@@ -189,26 +151,23 @@ const checkPayment = async (request: Request, gatewayInvoiceId: string, amount: 
  * sends it MNT invoices only.
  */
 export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): GatewayDriver => {
-  const client = qpayClient(config, options);
+  const { request, cache } = qpayClient(config, options);
 
   return {
     kind: 'qpay',
-    refunds: 'full',
     async verify() {
-      client.forgetToken();
-      await client.token();
+      cache.forget();
+      await cache.token();
     },
-    createInvoice: (input) => createInvoice(client.request, config, input),
-    check: (gatewayInvoiceId, amount) => checkPayment(client.request, gatewayInvoiceId, amount),
+    createInvoice: (input) => createInvoice(request, config, input),
+    check: (gatewayInvoiceId, amount) => checkPayment(request, gatewayInvoiceId, amount),
     async cancel(gatewayInvoiceId) {
-      await client.request(`/invoice/${encodeURIComponent(gatewayInvoiceId)}`, {
-        method: 'DELETE',
-      });
+      await request(`/invoice/${encodeURIComponent(gatewayInvoiceId)}`, { method: 'DELETE' });
     },
     async refund(input) {
-      await client.request(`/payment/refund/${encodeURIComponent(input.paymentId)}`, {
+      await request(`/payment/refund/${encodeURIComponent(input.paymentId)}`, {
         method: 'DELETE',
-        body: JSON.stringify({
+        body: json({
           note: input.note.slice(0, 255),
           ...(input.callbackUrl ? { callback_url: input.callbackUrl } : {}),
         }),

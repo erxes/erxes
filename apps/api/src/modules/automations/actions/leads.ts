@@ -68,6 +68,7 @@ export const LEAD_ACTIONS: CoreAction[] = [
     fields: [
       { key: 'userIds', label: 'Members to rotate through', type: 'members', required: true },
     ],
+    outputs: [{ key: 'ownerId', label: 'New owner', type: 'member' }],
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
       const members = list(ctx.input.userIds);

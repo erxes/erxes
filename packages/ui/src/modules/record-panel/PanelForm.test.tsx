@@ -1,11 +1,28 @@
 // @vitest-environment happy-dom
-import { act } from 'react';
-import { describe, expect, it } from 'vite-plus/test';
+import { act, useState } from 'react';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import { Input } from '../../components/input';
 import { setupDomRender } from '../../lib/render-in-dom';
+import { Editor } from '../blocks/components/Editor';
 import { PanelFormLayout, PanelFormRow } from './PanelForm';
 
 const render = setupDomRender();
+
+/** A required editor whose row gets an error when Save is pressed. */
+const Checked = () => {
+  const [error, setError] = useState<string>();
+
+  return (
+    <>
+      <PanelFormRow label="Description" required error={error}>
+        <Editor onChange={() => undefined} />
+      </PanelFormRow>
+      <button type="button" onClick={() => setError('Enter a description')}>
+        Save
+      </button>
+    </>
+  );
+};
 
 const switchRow = (props: { error?: string; hint?: string }) => (
   <PanelFormRow label="Open in a new tab" htmlFor="new-tab" {...props}>
@@ -50,6 +67,58 @@ describe('PanelFormRow', () => {
     expect(message?.textContent).toBe('Enter a name');
     expect(input?.getAttribute('aria-invalid')).toBe('true');
     expect(input?.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('names a text editor by the label, with its placeholder', async () => {
+    const container = render(
+      <PanelFormRow label="Description" hint="Shown on the card.">
+        <Editor onChange={() => undefined} placeholder="Add a description…" />
+      </PanelFormRow>,
+    );
+
+    const box = await vi.waitFor(() => {
+      const found = container.querySelector('[role=textbox]');
+
+      if (!found) throw new Error('no editor yet');
+
+      return found;
+    });
+
+    const label = document.getElementById(box.getAttribute('aria-labelledby') ?? '');
+    const hint = document.getElementById(box.getAttribute('aria-describedby') ?? '');
+
+    expect(label?.textContent).toBe('Description');
+    expect(hint?.textContent).toBe('Shown on the card.');
+    expect(box.hasAttribute('aria-label')).toBe(false);
+
+    // BlockNote draws the placeholder from a style it adds to the page.
+    const rules = [...document.styleSheets].flatMap((sheet) =>
+      [...sheet.cssRules].map((rule) => rule.cssText),
+    );
+
+    expect(rules.join('\n')).toContain('Add a description…');
+  });
+
+  it('marks a text editor invalid, described by the error, once the row has one', async () => {
+    const container = render(<Checked />);
+
+    const box = await vi.waitFor(() => {
+      const found = container.querySelector('[role=textbox]');
+
+      if (!found) throw new Error('no editor yet');
+
+      return found;
+    });
+
+    expect(box.getAttribute('aria-required')).toBe('true');
+    expect(box.hasAttribute('aria-invalid')).toBe(false);
+
+    act(() => container.querySelector('button')?.click());
+
+    expect(box.getAttribute('aria-invalid')).toBe('true');
+    expect(document.getElementById(box.getAttribute('aria-describedby') ?? '')?.textContent).toBe(
+      'Enter a description',
+    );
   });
 });
 

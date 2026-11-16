@@ -13,6 +13,7 @@ import { fieldShown, pluginTitle } from '~/modules/fields/fieldRows';
 import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { productFields } from './productFilterFields';
+import { relationFields } from './relationFields';
 
 const STORAGE: Record<string, CustomSpec['storage']> = {
   number: 'number',
@@ -235,5 +236,6 @@ export const filterFields = async (
     ...commonFields(isCompany ? companies : customers),
     ...(isCompany ? COMPANY_RELATED : CUSTOMER_RELATED),
     ...(await customFields(client, recordType)),
+    ...(await relationFields(client, isCompany ? 'company' : 'customer')),
   ];
 };

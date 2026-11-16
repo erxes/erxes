@@ -1,4 +1,4 @@
-import { AUTOMATION_FIELD_TYPES, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -7,7 +7,15 @@ import { z } from 'zod';
 import { AutomationId } from './records';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
-import { ActionInfo, AutomationRun, DryRunStep, RunStatus, RunStep } from './automationRuns';
+import {
+  ActionInfo,
+  AutomationFieldPath,
+  AutomationRun,
+  DataField,
+  DryRunStep,
+  RunStatus,
+  RunStep,
+} from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const Automation = createSelectSchema(automations, {
@@ -38,16 +46,6 @@ export const Automation = createSelectSchema(automations, {
   });
 
 export type Automation = z.infer<typeof Automation>;
-
-/** A path conditions and placeholders can read, with how its values compare. */
-export const AutomationFieldPath = z.object({
-  path: z.string(),
-  label: z.string(),
-  type: z.enum(AUTOMATION_FIELD_TYPES),
-  options: z.array(z.string()).optional(),
-});
-
-export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
 
 const Fields = createUpdateSchema(automations, {
   name: (name) => name.trim().min(1).max(120),
@@ -113,6 +111,8 @@ export const automationsContract = {
             description: z.string().nullable().optional(),
             source: z.string(),
             subject: z.enum(CONTENT_TYPES).nullable(),
+            /** Its payload's values later steps can insert (`{{event.payload.<key>}}`). */
+            fields: z.array(DataField),
           }),
         ),
         actions: z.array(ActionInfo),

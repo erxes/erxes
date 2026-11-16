@@ -1,7 +1,6 @@
 import {
   FILTER_FIELD_GROUPS,
   FILTER_FIELD_TYPES,
-  PLUGIN_VIEW_TYPE,
   SORT_DIRECTIONS,
   VIEW_RECORD_TYPES,
 } from '@erxes/core-db/enums';
@@ -12,16 +11,12 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
 import { Id, isoDate, listOf } from './common';
+import { PluginViewType } from './values';
 
 /** The list a view belongs to: customers, leads (people), companies, company leads, products. */
 export const ViewRecordType = z.enum(VIEW_RECORD_TYPES);
 
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
-
-/** A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`). Its API applies the filter. */
-export const PluginViewType = z
-  .templateLiteral([z.string(), ':', z.string()])
-  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
 
 /** Any list views can belong to: one of core's, or a plugin's. */
 export const ViewListType = z.union([ViewRecordType, PluginViewType]);
@@ -46,6 +41,26 @@ export const FilterField = z.object({
   group: z.enum(FILTER_FIELD_GROUPS),
   /** The heading to list it under instead of the group's own: a plugin's title (`plugin`). */
   groupLabel: z.string().optional(),
+  /** A number that is money, in this currency's smallest unit. */
+  currency: z.string().optional(),
+  /**
+   * A measure of a plugin's related records (`subject.related.<plugin>.<relation>.<measure>`):
+   * a rule on it may narrow them with `where`, on these fields (`subject.<field>`).
+   */
+  relation: z
+    .object({
+      label: z.string(),
+      fields: z.array(
+        z.object({
+          path: z.string(),
+          label: z.string(),
+          type: z.enum(FILTER_FIELD_TYPES),
+          options: z.array(z.string()).optional(),
+          currency: z.string().optional(),
+        }),
+      ),
+    })
+    .optional(),
 });
 
 export type FilterField = z.infer<typeof FilterField>;
@@ -97,10 +112,10 @@ const ViewFields = createUpdateSchema(views, {
 /** The most record ids one `views.matches` call checks. */
 export const VIEW_MATCHES_MAX = 500;
 
-const { INVALID_TYPE, VIEW_NOT_SHARED } = ERRORS;
+const { INVALID_TYPE, VIEW_NOT_SHARED, VIEW_IN_USE } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
-const base = oc.errors({ ...COMMON_ERRORS, INVALID_TYPE, VIEW_NOT_SHARED });
+const base = oc.errors({ ...COMMON_ERRORS, INVALID_TYPE, VIEW_NOT_SHARED, VIEW_IN_USE });
 
 /** Saved lists (views) and what lists can be filtered by. */
 export const viewsContract = {
@@ -133,7 +148,11 @@ export const viewsContract = {
     .input(ViewFields.extend({ id: Id }))
     .output(View),
   remove: base
-    .route({ method: 'DELETE', path: '/views/{id}' })
+    .route({
+      method: 'DELETE',
+      path: '/views/{id}',
+      summary: '409 VIEW_IN_USE while a draft or scheduled broadcast sends to the view',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   fields: base

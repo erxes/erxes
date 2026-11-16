@@ -1,4 +1,7 @@
-import { ASSISTANT_PROGRAM_FAILURES, ASSISTANT_PROGRAM_HOST_FUNCTIONS } from '@erxes/core-db/enums';
+import {
+  ASSISTANT_PROGRAM_FAILURES,
+  ASSISTANT_PROGRAM_HOST_FUNCTIONS,
+} from '@erxes/core-db/assistantEnums';
 import { z } from 'zod';
 import { logger } from '~/logger';
 import type { HostAnswer, ProgramJob } from './codeMode.worker';

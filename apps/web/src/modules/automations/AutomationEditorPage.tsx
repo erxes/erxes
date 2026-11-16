@@ -94,13 +94,20 @@ const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automati
 
   const builder = useMemo(() => {
     const events = catalog.triggers.filter((item) => item.subject);
+    const { trigger } = definition;
+
+    const started =
+      trigger.kind === 'event'
+        ? catalog.triggers.find((item) => item.type === trigger.event)
+        : undefined;
 
     return {
       events,
       stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
-      outputsBefore: (stepId: string) => stepOutputFields(definition.steps, stepId, { events }),
+      outputsBefore: (stepId: string) =>
+        stepOutputFields(definition.steps, stepId, { events, actions, trigger: started }),
     };
-  }, [catalog.triggers, stats.data, definition]);
+  }, [catalog.triggers, stats.data, definition, actions]);
 
   return { stats, subject, hasSubject, fields, fieldsError, actions, problems, builder };
 };

@@ -3,12 +3,15 @@ import {
   INVOICE_STATUSES,
   PAYMENT_GATEWAY_KINDS,
   PAYMENT_GATEWAY_STATUSES,
+  PAYMENT_METHODS,
   REFUND_METHODS,
   REFUND_STATUSES,
+  type TAX_CATEGORIES,
 } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
+  boolean,
   check,
   foreignKey,
   index,
@@ -33,6 +36,23 @@ export interface InvoiceLine {
   amount: number;
   /** The plugin the line belongs to, when one invoice pays for several (an order and its delivery). */
   plugin: string | null;
+  /** The item's barcode, for lines without a core product (a product's own barcode wins). */
+  barcode?: string;
+  /**
+   * How sales tax treats the line, for lines the organisation's tax rules
+   * don't cover; `code` is the tax office's code for an exempt or zero-rated item.
+   */
+  tax?: { category: (typeof TAX_CATEGORIES)[number]; code?: string };
+}
+
+/**
+ * Who a paid invoice's tax receipt is for (eBarimt): a company by its
+ * registration or tax number, or a person by their eBarimt consumer number.
+ * None: a receipt for a person.
+ */
+export interface TaxBuyer {
+  companyNo?: string;
+  consumerNo?: string;
 }
 
 /**
@@ -75,7 +95,10 @@ export const paymentInvoices = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    gatewayId: text().notNull(),
+    /** Null for a payment recorded as taken outside a gateway (`method`). */
+    gatewayId: text(),
+    /** `gateway`, or how a payment taken outside one was made (cash, card, transfer). */
+    method: text({ enum: PAYMENT_METHODS }).default('gateway').notNull(),
     /** `core` or the plugin that asked for it. */
     source: text().notNull(),
     /** The plugin's own record (`order`, `abc123`). */
@@ -93,6 +116,9 @@ export const paymentInvoices = pgTable(
     /** The caller's own data (order lines, room number), returned in events. */
     metadata: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     lines: jsonb().$type<InvoiceLine[]>().default([]).notNull(),
+    taxBuyer: jsonb().$type<TaxBuyer>(),
+    /** Send an eBarimt receipt once it is paid; false: this order needs none. */
+    taxReceipt: boolean().default(true).notNull(),
     /** What the gateway says was paid, and its payment id (for refunds). */
     paidAmount: bigint({ mode: 'number' }),
     gatewayPaymentId: text(),
@@ -121,6 +147,11 @@ export const paymentInvoices = pgTable(
       .where(sql`${table.dedupeKey} IS NOT NULL`),
     check('core_payment_invoices_status_check', inList(table.status, INVOICE_STATUSES)),
     check('core_payment_invoices_amount_check', sql`${table.amount} > 0`),
+    check('core_payment_invoices_method_check', inList(table.method, PAYMENT_METHODS)),
+    check(
+      'core_payment_invoices_gateway_check',
+      sql`(${table.method} = 'gateway') = (${table.gatewayId} IS NOT NULL)`,
+    ),
     check(
       'core_payment_invoices_refunded_check',
       sql`${table.refundedAmount} >= 0 AND ${table.refundedAmount} <= coalesce(${table.paidAmount}, ${table.amount})`,

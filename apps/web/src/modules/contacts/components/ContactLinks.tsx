@@ -9,13 +9,14 @@ import {
   Input,
   Popover,
   readImage,
+  SelectContactContent,
   Spinner,
 } from 'erxes-ui';
+import { contactSearchQueries } from '@erxes/core-contract/client';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
-import { SelectContactContent } from './ContactPicker';
 import { type ContactSide, type LinkRow, useContactLinks } from './useContactLinks';
 
 type LinkChange = { role?: string | null; isPrimaryContact?: boolean; ended?: boolean };
@@ -197,6 +198,7 @@ const AddLink = ({
       <Combobox.Content>
         <SelectContactContent
           kind={side === 'core:customer' ? 'company' : 'customer'}
+          contacts={contactSearchQueries}
           value={linked}
           onValueChange={(ids) => {
             const added = ids.find((otherId) => !linked.includes(otherId));

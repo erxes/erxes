@@ -1,16 +1,44 @@
 import { type ComponentType, useCallback } from 'react';
 import { getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
-import { PluginRecordNew, PluginRecordView } from '~/modules/plugins/PluginRecordView';
 import { findPluginRecordType, usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import { usePlugins } from '~/modules/plugins/usePlugins';
-import { ProductPanel } from '~/modules/products/panel/ProductPanel';
-import { ProductPanelNew } from '~/modules/products/panel/ProductPanelNew';
 import { paths } from '~/lib/paths';
-import { CompanyPanelNew } from './details/CompanyPanelNew';
-import { CustomerPanelNew } from './details/CustomerPanelNew';
+import { lazyPanelView } from './lazyPanelView';
 import type { IRecordViewProps } from './recordView';
-import { SidePanelSavedRecord } from './SidePanelSavedRecord';
 import { NEW_RECORD_ID, type TRelationEntity } from './sidePanelPaths';
+
+// Each loads the first time a record of its type opens, so the shell carries none of them.
+const SidePanelSavedRecord = lazyPanelView(
+  async () => (await import('./SidePanelSavedRecord')).SidePanelSavedRecord,
+);
+
+const CustomerPanelNew = lazyPanelView(
+  async () => (await import('./details/CustomerPanelNew')).CustomerPanelNew,
+);
+
+const CompanyPanelNew = lazyPanelView(
+  async () => (await import('./details/CompanyPanelNew')).CompanyPanelNew,
+);
+
+const ProductPanel = lazyPanelView(
+  async () => (await import('~/modules/products/panel/ProductPanel')).ProductPanel,
+);
+
+const ProductPanelNew = lazyPanelView(
+  async () => (await import('~/modules/products/panel/ProductPanelNew')).ProductPanelNew,
+);
+
+const MemberDetail = lazyPanelView(
+  async () => (await import('~/modules/settings/team-members/details/MemberDetail')).MemberDetail,
+);
+
+const PluginRecordView = lazyPanelView(
+  async () => (await import('~/modules/plugins/PluginRecordView')).PluginRecordView,
+);
+
+const PluginRecordNew = lazyPanelView(
+  async () => (await import('~/modules/plugins/PluginRecordView')).PluginRecordNew,
+);
 
 interface IPanelRecordType {
   /** What one is called, for its draft's title: "New customer". */
@@ -25,7 +53,7 @@ interface IPanelRecordType {
   pagePath?: (contentId: string) => string;
 }
 
-/** Core's records the side panel shows. Each expands to its own page, `<listPath>/<id>`. */
+/** Core's records the side panel shows. Each expands to its own page, `<listPath>/<id>` or `pagePath`. */
 const PANEL_RECORD_TYPES = {
   'core:customer': {
     label: 'Customer',
@@ -44,6 +72,13 @@ const PANEL_RECORD_TYPES = {
     View: ProductPanel,
     New: ProductPanelNew,
     listPath: () => paths.products.list,
+  },
+  // A team member: their detail, links and what they did. Invited, not drafted.
+  'core:user': {
+    label: 'Team member',
+    View: MemberDetail,
+    listPath: () => paths.settings.teamMembers,
+    pagePath: paths.settings.teamMember,
   },
 } satisfies Record<string, IPanelRecordType>;
 

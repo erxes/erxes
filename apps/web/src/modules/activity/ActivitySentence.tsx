@@ -9,6 +9,8 @@ import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { useStageName } from '~/modules/leads/i18n';
+import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
+import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import {
   readCompanyLink,
   readCustomerLink,
@@ -78,7 +80,21 @@ export const LinkedRecord = ({
   id: string;
   fallback?: string;
 }) => {
-  if (!isActivityTarget(type)) {
+  if (!isActivityTarget(type)) return <PluginRecord type={type} id={id} />;
+
+  return <CoreRecord type={type} id={id} fallback={fallback || undefined} />;
+};
+
+/**
+ * A plugin record by its type's name (`sales.deal`'s timeline is the `sales:deal` record type),
+ * opening it in the side panel; the raw type and id when no installed plugin draws it.
+ */
+const PluginRecord = ({ type, id }: { type: string; id: string }) => {
+  const contentType = type.replace('.', ':');
+  const { entry } = usePluginRecordType(contentType);
+  const { openRecord } = useSidePanel();
+
+  if (!entry) {
     return (
       <span className="font-medium">
         {type} {id}
@@ -86,7 +102,15 @@ export const LinkedRecord = ({
     );
   }
 
-  return <CoreRecord type={type} id={id} fallback={fallback || undefined} />;
+  return (
+    <button
+      type="button"
+      className="font-medium hover:underline"
+      onClick={() => openRecord({ contentType, contentId: id })}
+    >
+      {entry.type.title}
+    </button>
+  );
 };
 
 /** The stage as the board names it: default stages translated, the organisation's own as written. */

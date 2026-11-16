@@ -1,4 +1,4 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import { IconPlus, IconTags } from '@tabler/icons-react';
 import {
   Empty,
@@ -22,7 +22,7 @@ import { TAG_COLORS, useTagCreate, useTags } from '~/modules/tags/useTags';
 import { ContentTypeSwitch, useContentTypeParam } from '../ContentTypeSwitch';
 import { ColorSwatches, tagColumns } from './tagColumns';
 
-const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
+const AddTag = ({ type, count }: { type: FieldContentType; count: number }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [open, setOpen] = useState(false);
 

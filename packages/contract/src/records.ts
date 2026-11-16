@@ -1,4 +1,4 @@
-import { ASSISTANT_RECORD_TYPES } from '@erxes/core-db/enums';
+import { ASSISTANT_RECORD_TYPES } from '@erxes/core-db/assistantEnums';
 import { z } from 'zod';
 import { Id } from './common';
 

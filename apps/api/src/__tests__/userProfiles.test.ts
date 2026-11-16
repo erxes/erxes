@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { useTestDatabase } from './db';
 import { type CoreClient, type CoreInputs, useTwoOrgs } from './support';
 
-const emails = (page: { data: { email: string }[] }) => page.data.map((user) => user.email);
+const emails = (page: { data: { email: string | null }[] }) => page.data.map((user) => user.email);
 
 /** Profile details, bulk invitations, passwords and emails of team members. */
 describe('team member profiles', () => {

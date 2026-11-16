@@ -6,7 +6,7 @@ import {
   ASSISTANT_MESSAGE_ROLES,
   ASSISTANT_PROVIDERS,
   ASSISTANT_RECORD_TYPES,
-} from '../enums';
+} from '../assistantEnums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,

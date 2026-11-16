@@ -1,4 +1,8 @@
-import { GATEWAY_REFUND_KINDS, PAYMENT_GATEWAY_STATUSES } from '@erxes/core-db/enums';
+import {
+  GATEWAY_REFUND_KINDS,
+  PAYMENT_GATEWAY_STATUSES,
+  RECORDED_PAYMENT_METHODS,
+} from '@erxes/core-db/enums';
 import {
   paymentGateways,
   paymentInvoices,
@@ -9,27 +13,13 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { InvoiceStatus, PaymentGatewayKind } from './values';
+import { InvoiceStatus } from './values';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { Currency } from './money';
 import { DedupeKey } from './platform';
-import { PluginName } from './plugins';
-
-/** What each gateway needs (secrets are write-only: never returned). */
-export const GatewayConfig = z.discriminatedUnion('kind', [
-  z.object({
-    kind: z.literal('qpay'),
-    clientId: z.string().trim().min(1).max(200),
-    clientSecret: z.string().trim().min(1).max(500),
-    invoiceCode: z.string().trim().min(1).max(200),
-    /** merchant-sandbox.qpay.mn instead of merchant.qpay.mn */
-    sandbox: z.boolean().default(false),
-  }),
-  /** Development and tests: invoices are paid by calling the test endpoint. */
-  z.object({ kind: z.literal('test') }),
-]);
-
-export type GatewayConfig = z.infer<typeof GatewayConfig>;
+import { TaxBuyer } from './ebarimt';
+import { InvoiceLine, InvoiceLineInput } from './invoiceLines';
+import { GatewayConfig, PaymentGatewayKind } from './paymentGateways';
 
 export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, createdAt: isoDate })
   .pick({ id: true, kind: true, name: true, status: true, createdAt: true })
@@ -45,48 +35,32 @@ export const InvoiceMetadata = z
   .record(z.string(), z.unknown())
   .refine((value) => JSON.stringify(value).length <= 8192, 'at most 8 KB of JSON');
 
-/**
- * What an invoice is for. `plugin`: whose line it is when one invoice pays
- * for several plugins' records (an order and its delivery); that plugin
- * hears the invoice's events too.
- */
-export const InvoiceLine = z.object({
-  productId: Id.nullable(),
-  name: z.string(),
-  quantity: z.number(),
-  /** In the smallest unit, like `amount`. */
-  unitPrice: z.int(),
-  /** quantity × unit price, rounded to the smallest unit. */
-  amount: z.int(),
-  plugin: z.string().nullable(),
+/** What an invoice is for, whether it goes to a gateway or records a payment made outside one. */
+const InvoiceFields = z.object({
+  amount: z.int().min(1).max(1_000_000_000_00),
+  currency: Currency.optional(),
+  description: z.string().trim().min(1).max(255),
+  /** The caller's record it is for: `order` and its id. */
+  referenceType: z.string().trim().min(1).max(60),
+  referenceId: z.string().trim().min(1).max(100),
+  dedupeKey: DedupeKey.optional(),
+  metadata: InvoiceMetadata.optional(),
+  lines: z.array(InvoiceLineInput).max(100).optional(),
+  /** Who the tax receipt is for, where the organisation issues them (eBarimt). */
+  taxBuyer: TaxBuyer.optional(),
+  /** False: no tax receipt for it, as for an order that needs none. */
+  taxReceipt: z.boolean().default(true),
 });
-
-export type InvoiceLine = z.infer<typeof InvoiceLine>;
-
-export const InvoiceLineInput = z.object({
-  productId: Id.optional(),
-  /** Defaults to the product's name. */
-  name: z.string().trim().min(1).max(200).optional(),
-  /** Up to 3 decimals (1.5 kg). */
-  quantity: z
-    .number()
-    .positive()
-    .max(1_000_000)
-    .refine((value) => Number.isInteger(value * 1000), 'at most 3 decimals'),
-  unitPrice: z.int().min(0).max(1_000_000_000_00),
-  plugin: PluginName.optional(),
-});
-
-export type InvoiceLineInput = z.infer<typeof InvoiceLineInput>;
 
 const int = () => z.int();
 
 export const Invoice = createSelectSchema(paymentInvoices, {
   id: Id,
-  gatewayId: Id,
+  gatewayId: () => Id.nullable(),
   amount: int,
   metadata: z.record(z.string(), z.unknown()),
   lines: z.array(InvoiceLine),
+  taxBuyer: () => z.object({ companyNo: z.string().optional(), consumerNo: z.string().optional() }),
   paidAmount: int,
   refundedAmount: int,
   payment: z.object({
@@ -101,7 +75,10 @@ export const Invoice = createSelectSchema(paymentInvoices, {
 })
   .pick({
     id: true,
+    /** Null when the payment was recorded as taken outside a gateway (`method`). */
     gatewayId: true,
+    /** `gateway`, or `cash`, `card` or `transfer` for a payment recorded by hand (`recordPayment`). */
+    method: true,
     source: true,
     /** In the currency's smallest unit: $12.50 → 1250, ₮1,500 → 150000, ¥500 → 500 (`currencyDigits`). */
     amount: true,
@@ -114,6 +91,10 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     status: true,
     metadata: true,
     lines: true,
+    /** Who its tax receipt is for (eBarimt); null: a person. */
+    taxBuyer: true,
+    /** Whether it gets a tax receipt (eBarimt) once paid. */
+    taxReceipt: true,
     /** What the gateway says was paid, and how much of it was given back. */
     paidAmount: true,
     refundedAmount: true,
@@ -124,8 +105,8 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     createdAt: true,
   })
   .extend({
-    /** The gateway's kind, joined in the query. */
-    gatewayKind: PaymentGatewayKind,
+    /** The gateway's kind, joined in the query; null without a gateway. */
+    gatewayKind: PaymentGatewayKind.nullable(),
     /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
     refundable: z.object({ amount: z.int(), gateway: z.enum(GATEWAY_REFUND_KINDS) }),
   });
@@ -252,25 +233,35 @@ export const paymentsContract = {
         "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the first allowed gateway that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
     })
     .input(
-      z.object({
+      InvoiceFields.extend({
         gatewayId: Id.optional(),
-        amount: z.int().min(1).max(1_000_000_000_00),
-        currency: Currency.optional(),
-        description: z.string().trim().min(1).max(255),
-        /** The caller's record it is for: `order` and its id. */
-        referenceType: z.string().trim().min(1).max(60),
-        referenceId: z.string().trim().min(1).max(100),
         /** Minutes the invoice can be paid in (default 30). */
         expiresInMinutes: z
           .int()
           .min(1)
           .max(60 * 24 * 7)
           .default(30),
-        dedupeKey: DedupeKey.optional(),
-        metadata: InvoiceMetadata.optional(),
-        lines: z.array(InvoiceLineInput).max(100).optional(),
+        /** The payer's phone: StorePay bills it (required there); SocialPay sends the invoice to it. */
+        payerPhone: z.string().trim().min(6).max(20).optional(),
+        /** The payer's email, prefilled on card pages (Stripe, PayPal). */
+        payerEmail: z.email().max(200).optional(),
+        /** Where card pages (Golomt, TDB, HiPay, Stripe, PayPal) send the payer once done. */
+        returnUrl: z
+          .url({ protocol: /^https?$/ })
+          .max(1000)
+          .optional(),
       }),
     )
+    .output(Invoice),
+  recordPayment: base
+    .route({
+      method: 'POST',
+      path: '/payments/invoices/recorded',
+      successStatus: 201,
+      summary:
+        'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT',
+    })
+    .input(InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) }))
     .output(Invoice),
   getInvoice: base
     .route({

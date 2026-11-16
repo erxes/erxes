@@ -7,10 +7,17 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   (`PLUGINS_AUTO_INSTALL`).
 - `src/core.ts` holds the core client and the manifest. Every permission, event
   and kind in the manifest starts with `__id__.`. A new scope waits for the
-  owner's approval, so ask for one only when a procedure needs it.
-- `src/server.ts` verifies the session token on `/api/rpc/*` and hands
-  procedures `context.member` (`PluginMember`: `orgId`, `userId`, `can()`,
-  `canChange()`).
+  owner's approval, so ask for one only when a procedure needs it. Owners and
+  admins hold every permission; a permission set with `defaultRoles: ['member']`
+  is what members get on install, and owners change it from there.
+- `src/server.ts` verifies the session token, or another plugin's call token
+  (`verifyPluginCall`), on `/api/rpc/*` and `/api/v1/*` and hands procedures
+  `context.member` (`PluginMember`: `orgId`, `userId`, `can()`, `canChange()`).
+  A plugin call's `userId` is `plugin:<name>` and its permissions are the reads
+  the owner approved, so `reads(...)` serves it unchanged.
+- To read another plugin's API, name it in the manifest's `pluginReads`
+  (`{ plugin, permissions, reason }`, the owner approves it) and call
+  `core.fetchPlugin(orgId, plugin, '/v1/...')`, outside `context.tx`.
 - `src/orpc.ts`: build every procedure on `reads(action)` or `writes(action)`.
   Both check the permission and run the handler in `withOrg(member.orgId)`, so
   row-level security shows `context.tx` one organisation's rows. Queries carry
@@ -38,7 +45,10 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   and `dependsOn: 'pipelineId'` on another narrows it to that pipeline's. Web
   fills the list from `GET /api/automations/records/<recordType>?parent=<value>`,
   sent with the member's session token like `/api/rpc/*`; answer
-  `[{ value, label }]` with the records that member may see.
+  `[{ value, label }]` with the records that member may see. Never ask a member
+  to type an id. Name what the action answers in `outputs`
+  (`[{ key: 'dealId', label: 'Deal', type: 'text' }]`) and what an event's
+  payload holds in its `fields`: later steps insert them from "Insert data".
 - A fact the plugin computes about a customer or company (total spent, last
   order) is a field in the manifest's `fields` (`code`, `contentType`, `label`,
   `type`: number, date, text, select or multiselect). Core shows it read-only
@@ -49,6 +59,18 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   while the plugin has `fields:write` there, so fill the values that existed
   before in a job with `onInstall: true`: core runs it once when an
   organisation installs the plugin or approves its new scopes.
+- Records that belong to customers or companies (deals, orders, tickets) are a
+  relation in the manifest's `relations` (`key`, `contentType`, `label`,
+  `view`, `permission?`, `fields`: `key`, `label`, `type` text, number, date,
+  boolean, select or member, `options`, `array`, `money`). Members then filter
+  contacts by them, live, with no values to sync: "Deals: count ≥ 3 where
+  Stage is Won", "Deals: Amount (total) > 1,000,000", "Deals: Closed (latest)
+  more than 60 days ago". Keep a view `<plugin>_*` in a migration, owned by the
+  plugin's role, with `record_id` (the customer's or company's id) and one
+  column per field, and grant it:
+  `GRANT SELECT ON sales_customer_deals TO erxes_core_reader;`. It reads the
+  plugin's tables as their owner, so their row level security keeps it to the
+  organisation. Index what it joins on (`org_id`, the customer id).
 - A segment (a price list's audience, a campaign's) is a shared view members
   build in core. Store its id; `views.list({ recordType })` lists the shared
   ones and `views.matches({ viewId, recordIds })` says which records it

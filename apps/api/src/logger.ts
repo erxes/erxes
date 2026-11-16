@@ -18,6 +18,13 @@ const SECRET_FIELDS = [
   'apiKey',
   'signature',
   'tokenSealed',
+  // Payment gateway credentials (`GATEWAY_SECRETS` in the contract).
+  'terminalKey',
+  'checksumKey',
+  'accountId',
+  'appPassword',
+  'secretKey',
+  'privateKey',
 ];
 
 /**

@@ -7,7 +7,10 @@ import {
   RELATIVE_DATE_UNITS,
   SCHEDULE_INTERVALS,
 } from './enums';
-import type { ConditionGroup as StoredConditionGroup } from './schema/common';
+import type {
+  ConditionGroup as StoredConditionGroup,
+  ConditionRule as StoredConditionRule,
+} from './schema/common';
 import { z } from 'zod';
 
 // ─── Definition ─────────────────────────────────────────────────────────────
@@ -30,13 +33,17 @@ export const RelativeAmount = z.object({
 
 export type RelativeAmount = z.infer<typeof RelativeAmount>;
 
-export const ConditionRule = z.object({
-  path: ContextPath,
-  op: ConditionOperator,
-  value: z.unknown().optional(),
-});
+export type ConditionRule = StoredConditionRule;
 
-export type ConditionRule = z.infer<typeof ConditionRule>;
+export const ConditionRule: z.ZodType<ConditionRule> = z.lazy(() =>
+  z.object({
+    path: ContextPath,
+    op: ConditionOperator,
+    value: z.unknown().optional(),
+    /** On a list filter's relation rule: only the related rows that match. */
+    where: ConditionGroup.optional(),
+  }),
+);
 
 export type ConditionGroup = StoredConditionGroup;
 

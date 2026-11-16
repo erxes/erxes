@@ -33,6 +33,7 @@ type PluginLiveMessage
 type PluginRuntime
 type PluginSession
 type RecordListGroup
+type RecordPageProps
 type RecordPanelControls
 type RecordRef
 type RecordTableColumnDef
@@ -42,15 +43,18 @@ type TConditionGroup
 type TConditionLookups
 type TConditionRule
 type TContactContentType
+type TContactKind
 type TDashboardWidget
 type TDashboardWidgetPreview
 type TListDisplay
+type TListDisplayOption
 type TListFilterField
 type TListFilterProps
 type TListViews
 type TPanelRecordType
 type TPluginListType
 type TPluginSettingsPage
+type TPropertyLimit
 type TPropertyValue
 type TRecordContacts
 type TRecordDraftProps
@@ -89,6 +93,7 @@ value Command
 value CommandBar
 value ConditionsEditor
 value ContactLink
+value ContactRelationInput
 value ContextMenu
 value CopyText
 value DASHBOARD_WIDGET_PREVIEWS
@@ -123,7 +128,9 @@ value ListFilter
 value ListFilterEmpty
 value ListViewsProvider
 value LookupPicker
+value MEMBER_CONTENT_TYPE
 value MemberInline
+value MemberLink
 value MultipleSelector
 value NavigationMenuLinkItem
 value NumberField
@@ -156,6 +163,7 @@ value RelativeDateDisplay
 value Resizable
 value ScrollArea
 value Select
+value SelectContactContent
 value SelectMember
 value Separator
 value SexCode

@@ -1,7 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
-import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { lazyNamed } from '~/lib/lazyNamed';
+import { NotFoundPage } from '~/modules/app/NotFoundPage';
+import { usePlan } from '~/modules/saas/usePlan';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
@@ -10,7 +11,6 @@ import { NotificationSettingsPage } from './notifications/NotificationSettingsPa
 import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
-import { PaymentsSettingsPage } from './payments/PaymentsSettingsPage';
 import { PlanPage } from './plan/PlanPage';
 import { RecycleBinPage } from './recycle-bin/RecycleBinPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
@@ -43,6 +43,40 @@ const AssistantAppearancePage = lazyNamed(
   'AssistantAppearancePage',
 );
 
+// Fetched on first visit: few members open these, so they stay out of settings' chunk.
+const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
+
+const ApiReferencePage = lazyNamed(
+  () => import('./developer/ApiReferencePage'),
+  'ApiReferencePage',
+);
+
+const ApiKeysPage = lazyNamed(() => import('./developer/ApiKeysPage'), 'ApiKeysPage');
+
+const PaymentsSettingsPage = lazyNamed(
+  () => import('./payments/PaymentsSettingsPage'),
+  'PaymentsSettingsPage',
+);
+
+const IntegrationsSettingsPage = lazyNamed(
+  () => import('./integrations/IntegrationsSettingsPage'),
+  'IntegrationsSettingsPage',
+);
+
+const IntegrationPage = lazyNamed(
+  () => import('./integrations/IntegrationPage'),
+  'IntegrationPage',
+);
+
+/** Settings › Plugins, unless the deployment installs and approves plugins itself. */
+const PluginsRoute = () => {
+  const plan = usePlan().data;
+
+  if (plan?.pluginsManaged) return <Navigate to={paths.settings.general} replace />;
+
+  return <PluginsSettingsPage />;
+};
+
 /** Everything under `/settings/*` (mount as `<Route path="settings/*" element={<SettingsRoutes />} />`). */
 export const SettingsRoutes = () => (
   <Routes>
@@ -53,10 +87,15 @@ export const SettingsRoutes = () => (
       <Route path="file-upload" element={<FileUploadSettingsPage />} />
       <Route path="audit-log" element={<AuditLogPage />} />
       <Route path="event-delivery" element={<EventDeliveryPage />} />
-      <Route path="plugins" element={<PluginsSettingsPage />} />
+      <Route path="api-reference/:api?/:audience?" element={<ApiReferencePage />} />
+      <Route path="api-keys" element={<ApiKeysPage />} />
+      <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />
+      <Route path="structure" element={<StructurePage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
+      <Route path="integrations" element={<IntegrationsSettingsPage />} />
+      <Route path="integrations/:key" element={<IntegrationPage />} />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
       <Route path="plan" element={<PlanPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />

@@ -16,6 +16,7 @@ import {
   listPluginSettings,
   updatePluginSettings,
 } from '~/modules/payments/pluginSettings.service';
+import { recordPayment } from '~/modules/payments/recorded.service';
 import { listRefunds, refundInvoice } from '~/modules/payments/refunds.service';
 import { scoped, unscoped } from '~/orpc';
 
@@ -29,6 +30,7 @@ export const paymentsRouter = {
     removeGateway(db(), input.id),
   ),
   createInvoice: unscoped.payments.createInvoice.handler(({ input }) => createInvoice(input)),
+  recordPayment: scoped.payments.recordPayment.handler(({ input }) => recordPayment(db(), input)),
   getInvoice: unscoped.payments.getInvoice.handler(({ input }) => getInvoice(input.id)),
   cancelInvoice: unscoped.payments.cancelInvoice.handler(({ input }) => cancelInvoice(input.id)),
   invoices: scoped.payments.invoices.handler(({ input }) => listInvoices(db(), input)),

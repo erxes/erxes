@@ -39,11 +39,30 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string(),
     }),
   }),
+  /** A plugin's notification to a customer; the link opens the plugin's customer app. */
+  z.object({
+    to: z.string(),
+    template: z.literal('customer_notification'),
+    data: z.object({
+      organization: z.string(),
+      title: z.string(),
+      body: z.string().nullable(),
+      link: z.string().nullable(),
+    }),
+  }),
   /** A customer's one-time sign-in code. */
   z.object({
     to: z.string(),
     template: z.literal('sign_in_code'),
     data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
+  }),
+  /** An email rendered already (a broadcast's test copy). */
+  z.object({
+    to: z.string(),
+    template: z.literal('rendered'),
+    replyTo: z.string().optional(),
+    fromName: z.string().optional(),
+    data: z.object({ subject: z.string(), html: z.string(), text: z.string() }),
   }),
   /** A plain message (automations, plugins): a subject and text. */
   z.object({
@@ -63,7 +82,34 @@ interface EmailContent {
   button: z.infer<typeof Button> | null;
 }
 
-const contentOf = (email: EmailPayload): EmailContent => {
+/** A notification by email: to a team member (about erxes) or to a customer (from the organisation). */
+const noticeOf = (
+  email: Extract<EmailPayload, { template: 'notification' | 'customer_notification' }>,
+): EmailContent => {
+  const { data } = email;
+  const body = data.body ? [data.body] : [];
+
+  if (email.template === 'customer_notification') {
+    return {
+      subject: data.title,
+      heading: data.title,
+      lines: [...body, `From ${data.organization}.`],
+      button: email.data.link ? { label: 'Open', link: email.data.link } : null,
+    };
+  }
+
+  return {
+    subject: data.title,
+    heading: data.title,
+    lines: [
+      ...body,
+      `${data.organization} on erxes · change what you get by email in Settings › Notifications.`,
+    ],
+    button: { label: 'Open in erxes', link: email.data.link },
+  };
+};
+
+const contentOf = (email: Exclude<EmailPayload, { template: 'rendered' }>): EmailContent => {
   switch (email.template) {
     case 'invitation': {
       const { data } = email;
@@ -107,19 +153,9 @@ const contentOf = (email: EmailPayload): EmailContent => {
       };
     }
 
-    case 'notification': {
-      const { data } = email;
-
-      return {
-        subject: data.title,
-        heading: data.title,
-        lines: [
-          ...(data.body ? [data.body] : []),
-          `${data.organization} on erxes · change what you get by email in Settings › Notifications.`,
-        ],
-        button: { label: 'Open in erxes', link: data.link },
-      };
-    }
+    case 'notification':
+    case 'customer_notification':
+      return noticeOf(email);
 
     case 'sign_in_code': {
       const { data } = email;
@@ -156,10 +192,15 @@ const HTML_ESCAPES: Record<string, string> = {
   "'": '&#39;',
 };
 
-const escape = (value: string) => value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char] ?? char);
+export const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char] ?? char);
+
+const escape = escapeHtml;
 
 /** Plain HTML (no remote images or scripts) and a text version. */
 export const renderEmail = (email: EmailPayload) => {
+  if (email.template === 'rendered') return email.data;
+
   const content = contentOf(email);
 
   const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6f7f9;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#111">

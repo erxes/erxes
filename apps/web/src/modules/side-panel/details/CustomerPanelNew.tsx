@@ -11,15 +11,28 @@ import {
   IconPhone,
   IconUser,
 } from '@tabler/icons-react';
-import { DatePicker, Form, Input, Select, useToast, toIsoDay, PanelFormRow } from 'erxes-ui';
+import {
+  ContactRelationInput,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  useToast,
+  toIsoDay,
+  PanelFormRow,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { isApiError, messageOf } from '@erxes/core-contract/client';
+import {
+  contactQueries,
+  contactSearchQueries,
+  isApiError,
+  messageOf,
+} from '@erxes/core-contract/client';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
 import { useContactDraft } from '../useSidePanel';
-import { ContactRelationInput } from './ContactRelationInput';
 import {
   ContactAvatarRow,
   ContactDescriptionRow,
@@ -274,6 +287,8 @@ export const CustomerPanelNew = () => {
           kind="company"
           value={companyIds}
           onValueChange={setCompanyIds}
+          contacts={contactQueries}
+          contactSearch={contactSearchQueries}
           scope="side-panel-customer-new.companies"
           disabled={saving}
         />

@@ -1,5 +1,8 @@
 import type { AssistantProvider } from '@erxes/core-contract';
-import { ASSISTANT_THINKING_LEVELS, type ASSISTANT_THINKING_KINDS } from '@erxes/core-db/enums';
+import {
+  ASSISTANT_THINKING_LEVELS,
+  type ASSISTANT_THINKING_KINDS,
+} from '@erxes/core-db/assistantEnums';
 import type { streamText } from 'ai';
 import { findModelsDevModel } from './modelsDev';
 

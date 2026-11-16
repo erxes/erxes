@@ -12,6 +12,7 @@ import { logger, type RsbuildPlugin, type Rspack } from '@rsbuild/core';
  */
 const BUDGET_KB: Record<string, number> = {
   'automations/AutomationsRoutes': 850,
+  'broadcasts/BroadcastsRoutes': 830,
   'contacts/ContactsRoutes': 880,
   'home/HomePage': 810,
   'notifications/NotificationsPage': 790,

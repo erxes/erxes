@@ -1,4 +1,4 @@
-import { ASSISTANT_QUESTION_MODES } from '@erxes/core-db/enums';
+import { ASSISTANT_QUESTION_MODES } from '@erxes/core-db/assistantEnums';
 import { tool } from 'ai';
 import { z } from 'zod';
 

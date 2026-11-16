@@ -21,6 +21,8 @@ export const ERRORS = {
   SCOPE_REQUIRED: { status: 403 },
   SERVICE_TOKEN_REQUIRED: { status: 403 },
   CROSS_SITE: { status: 403 },
+  // Signed in with an API key where only a signed-in session will do (managing API keys).
+  SESSION_REQUIRED: { status: 403 },
   // A signed address (file links, payment callbacks) that is forged or expired.
   INVALID_SIGNATURE: { status: 403 },
   OWNER_ONLY: { status: 403 },
@@ -77,6 +79,10 @@ export const ERRORS = {
   SETUP_DISABLED: { status: 403 },
   SETUP_DONE: { status: 409 },
   LAST_OWNER: { status: 409 },
+  /** Owners always sign in. */
+  OWNER_SIGNS_IN: { status: 409 },
+  /** Signing in needs an email to invite them at. */
+  EMAIL_REQUIRED: { status: 400 },
 
   // Customer sign-in.
   INVALID_CODE: { status: 400 },
@@ -111,6 +117,14 @@ export const ERRORS = {
   LEAD_STAGE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
   INVALID_TAG: { status: 400 },
   TAG_LIMIT: { status: 409 },
+  /** A member keeps at most FAVORITES_MAX favorites. */
+  FAVORITE_LIMIT: { status: 409 },
+  // Branches and departments: at most LIST_MAX per organisation, read whole.
+  UNIT_LIMIT: { status: 409 },
+  /** Units still have the type: move them to another first. */
+  UNIT_TYPE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
+  /** Each kind keeps at least one active type. */
+  LAST_UNIT_TYPE: { status: 409 },
   INVALID_FIELD: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_VALUE: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_GROUP: { status: 400, data: z.object({ groupId: z.string() }).optional() },
@@ -119,6 +133,8 @@ export const ERRORS = {
   PLUGIN_FIELD: { status: 403, data: z.object({ fieldId: z.string(), plugin: z.string() }) },
   // `views.matches` on a member's own view: only views shared with the team decide for plugins.
   VIEW_NOT_SHARED: { status: 403 },
+  /** Draft or scheduled broadcasts send to the view: change their audience first. */
+  VIEW_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
 
   // Products.
   INVALID_CATEGORY: { status: 400 },
@@ -150,6 +166,18 @@ export const ERRORS = {
   NOT_REFUNDABLE: { status: 409 },
   PARTIAL_NOT_SUPPORTED: { status: 409 },
 
+  // Broadcasts: the action doesn't fit where the broadcast stands (`status`), it lacks what
+  // sending needs (`missing`), it names a placeholder that doesn't exist, or nobody can get it.
+  BROADCAST_STATUS: { status: 409, data: z.object({ status: z.string() }) },
+  BROADCAST_INCOMPLETE: { status: 400, data: z.object({ missing: z.array(z.string()) }) },
+  UNKNOWN_PLACEHOLDER: { status: 400, data: z.object({ placeholders: z.array(z.string()) }) },
+  NO_RECIPIENTS: { status: 409 },
+
+  // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down.
+  EBARIMT_NOT_SET_UP: { status: 409 },
+  COMPANY_NOT_FOUND: { status: 404 },
+  TAX_OFFICE_UNAVAILABLE: { status: 503 },
+
   // erxes.io: workspaces and sign-in links (saas.http.ts).
   OWNER_REQUIRED: { status: 400 },
   TOKEN_USED: { status: 400 },
@@ -161,6 +189,11 @@ export const ERRORS = {
   NAMESPACE_REQUIRED: { status: 400 },
   INVALID_SCHEDULE: { status: 400 },
   PLUGIN_NOT_FOUND: { status: 404 },
+  // A public route's plugin didn't answer in time, or couldn't be reached.
+  PLUGIN_UNREACHABLE: { status: 502 },
+  // A plugin asked to read another plugin's API that its manifest's `pluginReads` doesn't name,
+  // or that the organisation's owner hasn't approved.
+  READ_NOT_APPROVED: { status: 403 },
   INVALID_SUBDOMAIN: { status: 400 },
   UNKNOWN_PERMISSION: { status: 400, data: Permissions },
   DUPLICATE_PERMISSION_SET: { status: 400 },

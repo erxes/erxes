@@ -6,6 +6,8 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { EditGateway } from './EditGateway';
+import { GATEWAY_NAMES, GATEWAY_PAYS } from './gatewayCatalog';
 
 const useSaveFailed = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
@@ -181,28 +183,41 @@ export const GatewayList = ({ gateways }: { gateways: PaymentGateway[] }) => {
     <ul className="divide-y rounded-lg border">
       {gateways.map((gateway) => (
         <li key={gateway.id} className="flex items-center gap-3 p-3">
-          <span className="font-medium">{gateway.name}</span>
-          <Badge variant="secondary">{gateway.kind}</Badge>
-          {gateway.settings.sandbox === true && (
-            <Badge variant="warning">{t('sandbox-badge', 'sandbox')}</Badge>
-          )}
-          {typeof gateway.settings.invoiceCode === 'string' && (
-            <span className="text-xs text-muted-foreground">{gateway.settings.invoiceCode}</span>
-          )}
-          <Button
-            className="ml-auto"
-            size="sm"
-            variant="outline"
-            disabled={toggle.isPending}
-            onClick={() =>
-              toggle.mutate({
-                id: gateway.id,
-                status: gateway.status === 'active' ? 'disabled' : 'active',
-              })
-            }
-          >
-            {gateway.status === 'active' ? t('turn-off', 'Turn off') : t('turn-on', 'Turn on')}
-          </Button>
+          <span className="min-w-0 space-y-0.5">
+            <span className="flex flex-wrap items-center gap-2">
+              <span
+                className={
+                  gateway.status === 'active' ? 'font-medium' : 'font-medium text-muted-foreground'
+                }
+              >
+                {gateway.name}
+              </span>
+              <Badge variant="secondary">{GATEWAY_NAMES[gateway.kind]}</Badge>
+              {gateway.status !== 'active' && <Badge>{t('off-badge', 'off')}</Badge>}
+              {gateway.settings.sandbox === true && (
+                <Badge variant="warning">{t('sandbox-badge', 'sandbox')}</Badge>
+              )}
+            </span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {t(`pays-${GATEWAY_PAYS[gateway.kind]}`)}
+            </span>
+          </span>
+          <span className="ml-auto flex shrink-0 items-center gap-1">
+            <EditGateway gateway={gateway} />
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={toggle.isPending}
+              onClick={() =>
+                toggle.mutate({
+                  id: gateway.id,
+                  status: gateway.status === 'active' ? 'disabled' : 'active',
+                })
+              }
+            >
+              {gateway.status === 'active' ? t('turn-off', 'Turn off') : t('turn-on', 'Turn on')}
+            </Button>
+          </span>
         </li>
       ))}
     </ul>

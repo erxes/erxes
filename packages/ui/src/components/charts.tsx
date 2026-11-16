@@ -1,5 +1,5 @@
 import React from 'react';
-import * as RechartsPrimitive from 'recharts';
+import type * as RechartsPrimitive from 'recharts';
 import type { LegendPayload } from 'recharts/types/component/DefaultLegendContent';
 import type { Payload } from 'recharts/types/component/DefaultTooltipContent';
 import { useFormat } from '../lib/format';
@@ -18,8 +18,10 @@ const colorVariables = (config: ChartConfig) => {
 };
 
 /**
- * The frame for a recharts chart: size, theme and series colours.
- * Each `config` colour becomes a `--color-<key>` variable the chart's parts can use.
+ * The frame for a `responsive` recharts chart: size, theme and colours.
+ * The chart (`<BarChart responsive …>`) fills the frame and follows its size. Each `config`
+ * colour becomes a `--color-<key>` variable the chart's parts can use. The frame needs nothing
+ * from recharts, so a plugin's chart from its own recharts sizes the same.
  */
 const ChartContainer = ({
   ref,
@@ -28,10 +30,7 @@ const ChartContainer = ({
   config,
   style,
   ...props
-}: React.ComponentProps<'div'> & {
-  config: ChartConfig;
-  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
-}) => {
+}: React.ComponentProps<'div'> & { config: ChartConfig }) => {
   const cssVariables = colorVariables(config);
   const chart = React.useMemo(() => ({ config }), [config]);
 
@@ -41,12 +40,12 @@ const ChartContainer = ({
         ref={ref}
         style={{ ...cssVariables, ...style }}
         className={cn(
-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
+          "flex aspect-video justify-center text-xs [&>.recharts-wrapper]:size-full [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
           className,
         )}
         {...props}
       >
-        <RechartsPrimitive.ResponsiveContainer>{children}</RechartsPrimitive.ResponsiveContainer>
+        {children}
       </div>
     </ChartContext.Provider>
   );

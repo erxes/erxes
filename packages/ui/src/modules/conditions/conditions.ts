@@ -45,6 +45,8 @@ export type TConditionRule = {
   path: string;
   op: TConditionOperator;
   value?: unknown;
+  /** On a relation's measure ("Deals: count"): only the related records that match. */
+  where?: TConditionGroup;
 };
 
 /** Rules (or nested groups) that must all, or any, hold. */
@@ -60,7 +62,7 @@ const MAX_AMOUNT = 3650;
 /** Groups nest as deep as the editor builds them: a group, and two levels inside it. */
 const MAX_DEPTH = 3;
 
-const ConditionRule = z.object({
+const ConditionRuleBase = z.object({
   path: z
     .string()
     .trim()
@@ -70,16 +72,19 @@ const ConditionRule = z.object({
 });
 
 /** A group whose groups nest at most `depth` levels, so a crafted address can't recurse on. */
-const groupOf = (depth: number): z.ZodType<TConditionGroup> =>
+const groupOf = (depth: number, rule: z.ZodType<TConditionRule>): z.ZodType<TConditionGroup> =>
   z.object({
     match: z.enum(CONDITION_MATCHES),
-    rules: z
-      .array(depth > 1 ? z.union([ConditionRule, groupOf(depth - 1)]) : ConditionRule)
-      .max(MAX_RULES),
+    rules: z.array(depth > 1 ? z.union([rule, groupOf(depth - 1, rule)]) : rule).max(MAX_RULES),
   });
 
+/** A rule, which may narrow a relation's records with a `where` of plain rules. */
+const ConditionRule = ConditionRuleBase.extend({
+  where: groupOf(MAX_DEPTH - 1, ConditionRuleBase).optional(),
+});
+
 /** Parses a condition group from outside (the address); core checks the rest. */
-export const ConditionGroup = groupOf(MAX_DEPTH);
+export const ConditionGroup = groupOf(MAX_DEPTH, ConditionRule);
 
 /** The value of a relative-date rule: "within the last 30 days". */
 export const RelativeAmount = z.object({
@@ -110,7 +115,15 @@ export type TConditionField = {
   icon?: ElementType;
   /** A money amount, stored in this currency's smallest unit and typed in its major unit. */
   currency?: string;
+  /**
+   * A measure of related records (`Deals: count`): a rule on it may keep to the records that
+   * match a `where` on these fields, which `label` names ("Only deals where…").
+   */
+  relation?: TConditionRelation;
 };
+
+/** What a relation's measure counts or adds up: its records' name and their fields. */
+export type TConditionRelation = { label: string; fields: TConditionField[] };
 
 /**
  * Where `member`, `tags`, `customer` and `company` values pick from. In erxes: `memberQueries`

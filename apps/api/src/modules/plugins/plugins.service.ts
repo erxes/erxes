@@ -1,4 +1,9 @@
-import { PLUGIN_SCOPES, type PluginManifest } from '@erxes/core-contract';
+import {
+  CORE_PERMISSION_AREAS,
+  PLUGIN_SCOPES,
+  type PluginManifest,
+  pluginReadScope,
+} from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -10,7 +15,8 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { textArray } from '@erxes/plugin-sdk/filter';
+import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { PLUGIN_ACCESS_TYP } from '~/http/auth';
 import { fail } from '~/http/errors';
@@ -19,7 +25,8 @@ import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
-import { schedulePluginJobs } from './pluginJobs';
+import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
+import { queueInstallJobs, schedulePluginJobs } from './pluginJobs';
 
 type PluginRow = typeof plugins.$inferSelect;
 
@@ -29,9 +36,46 @@ const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 /** After rotation, the previous secret keeps working this long. */
 const SECRET_OVERLAP_HOURS = 24;
 
-/** Scopes a plugin asks for: its manifest's, or (before it sent one) what plugins could always do. */
+/**
+ * Scopes a plugin asks for: its manifest's, with each read of another plugin's API as
+ * `reads:<permission>`, or (before it sent one) what plugins could always do.
+ */
 export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
-  row.manifest?.scopes ?? [...PLUGIN_SCOPES];
+  row.manifest
+    ? [
+        ...row.manifest.scopes,
+        ...(row.manifest.pluginReads ?? []).flatMap((read) =>
+          read.permissions.map(pluginReadScope),
+        ),
+      ]
+    : [...PLUGIN_SCOPES];
+
+/**
+ * With auto-install the deployment decides the plugins, so a newer version's scopes are granted
+ * where it is installed, as an owner approving them on Settings › Plugins would (that page is
+ * hidden then); its `onInstall` jobs run for what it could not do before. Not on SaaS.
+ */
+const approveNewScopes = async (tx: Db, plugin: string, manifest: PluginManifest) => {
+  if (!config.plugins.autoInstall || config.saas.enabled) return;
+
+  const scopes = requestedScopes({ manifest });
+
+  const approved = await tx
+    .update(pluginInstallations)
+    .set({ grantedScopes: scopes, updatedAt: sql`now()` })
+    .where(
+      and(
+        eq(pluginInstallations.plugin, plugin),
+        eq(pluginInstallations.status, 'active'),
+        sql`not ${textArray(scopes)} <@ ${pluginInstallations.grantedScopes}`,
+      ),
+    )
+    .returning({ orgId: pluginInstallations.orgId, updatedAt: pluginInstallations.updatedAt });
+
+  await inOrder(approved, (row) =>
+    queueInstallJobs(tx, row.orgId, plugin, manifest.jobs, row.updatedAt),
+  );
+};
 
 /** Installs every plugin row in every organisation, in one insert. */
 const installAll = async (
@@ -95,10 +139,22 @@ const storeSecret = (name: string, hash: string) =>
       .where(eq(plugins.name, name));
   });
 
+/** A plugin named after a core area would declare core's permissions as its own. */
+const reservedName = (name: string) => CORE_PERMISSION_AREAS.has(name);
+
 /** Brings the registry in line with `CORE_PLUGIN_KEYS` (`name:secret`) at startup. */
-export const syncPluginSecrets = () =>
+export const syncPluginSecrets = async () => {
+  const reserved = [...config.pluginKeys.values()].filter(reservedName);
+
+  if (reserved.length) {
+    throw new Error(
+      `CORE_PLUGIN_KEYS: ${reserved.join(', ')} ${reserved.length > 1 ? 'are' : 'is'} reserved for core's own permissions; rename the plugin`,
+    );
+  }
+
   // In order: one name may come with two secrets (a rotation), and the later one wins.
-  inOrder(config.pluginKeys, ([secret, name]) => storeSecret(name, sha256(secret)));
+  return inOrder(config.pluginKeys, ([secret, name]) => storeSecret(name, sha256(secret)));
+};
 
 /** A new random client secret for a plugin; the previous one works 24 more hours. Prints nowhere: the caller shows it once. */
 export const rotatePluginSecret = async (name: string) => {
@@ -118,7 +174,10 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
 
   await installAll(tx, [orgId], rows);
   await withOrg(orgId, (scoped) =>
-    inOrder(rows, (row) => syncPluginFields(scoped, row.name, row.manifest?.fields)),
+    inOrder(rows, async (row) => {
+      await syncPluginFields(scoped, row.name, row.manifest?.fields);
+      await grantDefaultPermissions(scoped, row.name, row.manifest?.permissionSets);
+    }),
   );
 };
 
@@ -229,9 +288,47 @@ const ownPermissionSets = (manifest: PluginManifest) => {
   }
 };
 
+/** Relations read the plugin's own views, and need one of its own permissions. */
+const ownRelations = (plugin: string, manifest: PluginManifest) => {
+  const permissions = new Set(manifest.permissions?.map((item) => item.action));
+
+  for (const relation of manifest.relations ?? []) {
+    if (!relation.view.startsWith(`${plugin}_`)) {
+      throw fail(
+        'NAMESPACE_REQUIRED',
+        `Relation "${relation.key}" must read a view of the plugin, named ${plugin}_*: ${relation.view}`,
+      );
+    }
+
+    if (relation.permission && !permissions.has(relation.permission)) {
+      throw fail(
+        'UNKNOWN_PERMISSION',
+        `Relation "${relation.key}" needs ${relation.permission}, which the manifest's permissions don't declare`,
+        { permissions: [relation.permission] },
+      );
+    }
+  }
+};
+
+/** Reads name another plugin, with that plugin's permissions only. */
+const othersReads = (plugin: string, manifest: PluginManifest) => {
+  for (const read of manifest.pluginReads ?? []) {
+    if (read.plugin === plugin) {
+      throw fail('NAMESPACE_REQUIRED', `pluginReads names ${plugin} itself`);
+    }
+
+    namespaced(read.plugin, read.permissions, `Reads of ${read.plugin}`);
+  }
+};
+
 /** The plugin's own manifest (deployment-wide token). */
 export const registerManifest = async (manifest: PluginManifest) => {
   const { plugin } = caller('plugin');
+
+  // A row registered before the name was reserved still can't claim core's permissions.
+  if (reservedName(plugin)) {
+    throw fail('NAMESPACE_REQUIRED', `"${plugin}" is a core area: rename the plugin`);
+  }
 
   namespaced(
     plugin,
@@ -254,14 +351,30 @@ export const registerManifest = async (manifest: PluginManifest) => {
     throw fail('API_REQUIRED', 'Assistant operations are called at api.url: add api');
   }
 
+  ownRelations(plugin, manifest);
+  othersReads(plugin, manifest);
+
   await withSystem('plugin manifest', async (tx) => {
+    const [before] = await tx
+      .select({ manifest: plugins.manifest })
+      .from(plugins)
+      .where(eq(plugins.name, plugin))
+      .for('update');
+
     await tx
       .update(plugins)
       .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
       .where(eq(plugins.name, plugin));
     await schedulePluginJobs(tx, plugin, manifest.jobs);
-    // Every organisation that has it gets the manifest's fields.
+    await approveNewScopes(tx, plugin, manifest);
+    // Every organisation that has it gets the manifest's fields, and what its sets newly give.
     await syncPluginFields(tx, plugin, manifest.fields);
+    await grantDefaultPermissions(
+      tx,
+      plugin,
+      manifest.permissionSets,
+      before?.manifest?.permissionSets,
+    );
   });
 
   return { ok: true as const };

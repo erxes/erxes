@@ -5,7 +5,7 @@ import { isApiError } from '@erxes/core-contract/client';
 import { RecordSidePanel } from './RecordSidePanel';
 
 /** Why a panel shows no record, under a header of its own. */
-export const PanelMessage = ({ title, description }: { title: string; description: string }) => (
+const PanelMessage = ({ title, description }: { title: string; description: string }) => (
   <div className="flex flex-1 items-center justify-center p-6">
     <Empty>
       <Empty.Header>

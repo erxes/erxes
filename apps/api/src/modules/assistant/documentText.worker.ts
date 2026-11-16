@@ -1,4 +1,4 @@
-import { ASSISTANT_DOCUMENT_FORMATS } from '@erxes/core-db/enums';
+import { ASSISTANT_DOCUMENT_FORMATS } from '@erxes/core-db/assistantEnums';
 import { OfficeParser, type OfficeParserConfig, OfficeWarningType } from 'officeparser';
 import { parentPort, workerData } from 'node:worker_threads';
 import { z } from 'zod';

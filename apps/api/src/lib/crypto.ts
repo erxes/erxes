@@ -22,6 +22,7 @@ export {
   type KeyObject,
   randomInt,
   randomUUID,
+  verify,
 } from 'node:crypto';
 
 type TextEncoding = 'hex' | 'base64url';
@@ -36,7 +37,7 @@ export const safeEqual = (a: string | Buffer, b: string | Buffer) => {
   return left.length === right.length && timingSafeEqual(left, right);
 };
 
-export const sha256 = (value: string, encoding: TextEncoding = 'hex') =>
+export const sha256 = (value: string | Buffer, encoding: TextEncoding = 'hex') =>
   createHash('sha256').update(value).digest(encoding);
 
 export const hmacSha256 = (key: string | Buffer, value: string, encoding: TextEncoding) =>

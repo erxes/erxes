@@ -5,6 +5,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Logger, SerializedRequest } from 'pino';
 import { pinoHttp } from 'pino-http';
 import { logger } from '~/logger';
+import { apiReference } from '~/http/apiReference';
 import { authenticate } from '~/http/auth';
 import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
@@ -19,6 +20,8 @@ import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerApps';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
+import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
+import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
 import { standingGuard } from '~/modules/saas/saas.service';
@@ -117,6 +120,9 @@ export const createApp = (log: Logger = logger): Express => {
   app.use('/core/v1/saas', limit.token, saasRouter);
   app.get('/gateway/pl\\:core/core-login', limit.token, saasLogin);
 
+  // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
+  app.use('/core/v1', pluginPublicRouter(limit.pluginPublic));
+
   app.use(express.json({ limit: '1mb' }));
 
   app.get('/health', (_req, res) => {
@@ -146,6 +152,9 @@ export const createApp = (log: Logger = logger): Express => {
   });
 
   app.get('/core/v1/openapi.json', openApiDocument);
+  // The references Settings › Developer shows: what members, or customers, can call.
+  app.get('/core/v1/openapi/member.json', apiReference('member'));
+  app.get('/core/v1/openapi/customer.json', apiReference('customer'));
 
   // Core's public signing keys: plugins verify plugin tokens and auditors
   // verify audit checkpoints with them.
@@ -155,6 +164,9 @@ export const createApp = (log: Logger = logger): Express => {
 
   // Payment gateways call back here: signed addresses, confirmed with the gateway.
   app.use('/core/v1', paymentCallbackRouter);
+
+  // A broadcast's own links: unsubscribe, open pixel, tracked clicks (signed per recipient).
+  app.use('/core/v1', broadcastLinksRouter);
 
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
   app.use('/core/v1/oauth', limit.token, oauthRouter);

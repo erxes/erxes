@@ -1,13 +1,13 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import { ToggleGroup } from 'erxes-ui';
 import { useQueryState } from 'nuqs';
 
-/** Customers / Companies switch for settings that exist per record type (`?type=`). */
-export const useContentTypeParam = (): [ContentType, (type: ContentType) => void] => {
+/** Customers / Companies / Products switch for settings that exist per record type (`?type=`). */
+export const useContentTypeParam = (): [FieldContentType, (type: FieldContentType) => void] => {
   const [type, setType] = useQueryState('type');
 
   return [
-    type === 'company' ? 'company' : 'customer',
+    type === 'company' || type === 'product' ? type : 'customer',
     (next) => void setType(next === 'customer' ? null : next),
   ];
 };
@@ -28,6 +28,7 @@ export const ContentTypeSwitch = () => {
         [
           ['customer', 'Customers'],
           ['company', 'Companies'],
+          ['product', 'Products'],
         ] as const
       ).map(([value, label]) => (
         <ToggleGroup.Item key={value} value={value}>

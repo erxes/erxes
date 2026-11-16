@@ -6,6 +6,7 @@ import { EVENT_QUEUE_PREFIX } from './events.service';
 import { webhooksConsumer } from '~/modules/webhooks/webhookDelivery';
 import { automationsConsumer } from '~/modules/automations/consumer';
 import { pluginEventsConsumer } from '~/modules/plugins/pluginEvents';
+import { ebarimtConsumer } from '~/modules/ebarimt/consumer';
 import { notificationsConsumer, timelineConsumer } from './coreConsumers';
 
 type EventRow = typeof events.$inferSelect;
@@ -52,6 +53,7 @@ const CONSUMERS: EventConsumer[] = [
   webhooksConsumer,
   automationsConsumer,
   pluginEventsConsumer,
+  ebarimtConsumer,
 ];
 
 export const CONSUMER_JOBS = CONSUMERS.map(consumerJob);

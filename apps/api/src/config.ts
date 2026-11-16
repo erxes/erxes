@@ -129,12 +129,15 @@ const Env = z
 
     SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
 
+    BROADCAST_PER_MINUTE: positive(600),
+
     OUTBOUND_ALLOW_PRIVATE: flag,
 
     ASSISTANT_OPENAI_URL: baseUrl('https://api.openai.com/v1'),
     ASSISTANT_GROK_URL: baseUrl('https://api.x.ai/v1'),
     ASSISTANT_KIMI_URL: baseUrl('https://api.moonshot.ai/v1'),
     ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
+    EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
 
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
@@ -326,6 +329,10 @@ export const config = {
     smtpUrl: env.EMAIL_SMTP_URL,
     from: env.EMAIL_FROM ?? 'erxes <no-reply@erxes.io>',
   },
+  broadcast: {
+    /** Copies one broadcast sends a minute, within what the mail or SMS provider allows. */
+    perMinute: env.BROADCAST_PER_MINUTE,
+  },
   sms: {
     /**
      * How customer sign-in codes reach phones. `log` (development: written to
@@ -339,6 +346,10 @@ export const config = {
      * (development only: refused in production, against SSRF).
      */
     allowPrivate: env.OUTBOUND_ALLOW_PRIVATE ?? !isProduction,
+  },
+  ebarimt: {
+    /** The tax office's taxpayer lookup (`getTinInfo`, `getInfo`): company receipts check the number there. */
+    taxpayerUrl: env.EBARIMT_TAXPAYER_URL,
   },
   /**
    * SaaS (erxes.io): core reads each organisation's plugins and tiers from

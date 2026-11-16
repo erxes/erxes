@@ -13,11 +13,13 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 | List                     | `PageHeader`, `ViewBar`, `ListFilter`, `RecordTable`                | `ui/src/modules/items/ItemsPage.tsx`                            |
 | Grouped list (by status) | `RecordList`, `DisplayMenu`, `useListDisplay`                       | none in core yet                                                |
 | Board                    | `DisplayMenu`, `useListDisplay`                                     | `apps/web/src/modules/leads/LeadsBoard.tsx`                     |
+| Cards or chart           | `DisplayMenu`, `useListDisplay`, `TListDisplayOption`               | none in core yet                                                |
 | Record detail            | `PanelSection`, `PanelField`, `RecordTableInlineCell`, `RecordPage` | `ui/src/modules/items/ItemPanel.tsx`                            |
 | Create/edit form         | `PanelFormLayout`, `PanelFormRow`                                   | `ui/src/modules/items/ItemPanel.tsx`                            |
 | Settings list            | `PageHeader`, `RecordTable`                                         | `apps/web/src/modules/settings/tags/TagsSettingsPage.tsx`       |
 | Settings form            | `Form`, `Switch`, `ScrollArea`                                      | `apps/web/src/modules/settings/profile/ProfileSettingsPage.tsx` |
 | Filters                  | `ListFilter`, `useListFilterParams`                                 | `ui/src/modules/items/ItemsPage.tsx`                            |
+| Chart                    | `ChartContainer`, `ChartTooltipContent`, `ChartLegendContent`       | none in core yet                                                |
 
 ## Page
 
@@ -30,7 +32,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Lists
 
-- `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board or grouped list.
+- `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board, list or its own.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
 - `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, for a page without saved views.
 - `<ListFilter recordType>` A list's filter: a view bar button, and a chip row while it filters.
@@ -43,6 +45,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
 - `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
+- `type TListDisplayOption { key, label, icon }` A list's own display, such as a cards grid or a chart.
 - `type TListFilterField { path, label, type, options, icon, … }` A field a list can filter by, for `ListFilter`'s `fields`.
 - `type TListFilterProps` The props of `ListFilter`: its `id`, `fields`, lookups and record count.
 - `type TListViews { Tabs, Changes }` The host's saved views for a list.
@@ -61,10 +64,13 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `companyTitle(company)` A company's name, else its email or phone.
 - `<ContactLink contentType contentId contacts placeholder>` A customer or company as a chip: its avatar and name.
 - `type ContactQueries { customer, company }` Where customers and companies come from, as TanStack query options.
+- `<ContactRelationInput {...RelationProps}>` A record's customers or companies in a side panel field.
 - `type ContactSearch { search, ids }` What a contact search asks for: matches, or the contacts with these ids.
 - `type ContactSearchQueries { customers, companies }` Where a filter's `customer` and `company` fields search contacts.
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
 - `customerTitle(customer)` A customer's name, else its email or phone.
+- `MEMBER_CONTENT_TYPE` The content type core's side panel opens team members as.
+- `<MemberLink memberId members>` A team member as a chip: their avatar and name.
 - `<PanelDescriptionEditor value scope readonly isHTML onSave>` A record's description as a full-size tab.
 - `<PanelDescriptionField label value scope readonly isHTML>` A rich-text description row in the side panel, across its width.
 - `PanelExpansionContext` Provided by the host's record panel; erxes-ui's panel parts read it.
@@ -76,14 +82,17 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
 - `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
+- `type RecordPageProps { listPath }` A `RecordPage`'s record, and the list it goes back to.
 - `type RecordPanelControls { record, tab, setTab, close, dismiss, … }` What a record shown in core's panel, or on its own page, can do to it.
 - `RecordPanelProvider` Web gives each record it shows its controls.
 - `type RecordRef { contentType, contentId }` A record the host can open, by `contentType` and `contentId`.
 - `RecordTimeline` Core's timeline of notes, calls and events for a plugin's record.
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
+- `<SelectContactContent kind value onValueChange contacts multiple>` A picker's searchable list of customers or companies, the picked first.
 - `setRecordPage` Web registers how a record draws on its own page.
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
 - `type TContactContentType` The customer or company types `ContactLink` shows.
+- `type TContactKind` Which contacts a picker lists: core's customers or its companies.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
 - `useRecordPanel()` The record a slot is in, and what the slot can do to it.
@@ -112,7 +121,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PhoneField recordId onValueChange onValidationStatusChange primaryPhone phones>` An editable list of a record's phones, each with its own menu.
 - `<PhoneInput value onChange defaultCountry placeholder onEnter>` A phone input with a country flag picker that formats as you type.
 - `RelativeDateDisplay.{Value}` A date as how long ago it was, with the date and time on hover.
-- `SelectMember` The member picker as a table cell and as a field.
+- `SelectMember` The member picker: a table cell, a field, or a row opening the member.
 - `<SexDisplay value>` A sex code as its label, or nothing when it is not known.
 - `<SexField value onValueChange>` A searchable list to pick a sex code, for a popover or cell editor.
 - `type Tag { id, name }` A tag as the pickers show one: core's `Tag` has these fields and more.
@@ -120,7 +129,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TConditionField { path, label, type, options, group, … }` A field conditions can use: a record's, or an earlier step's output.
 - `type TConditionGroup { match, rules }` Rules (or nested groups) that must all, or any, hold.
 - `type TConditionLookups { members, tags, contacts }` Where `member`, `tags`, `customer` and `company` values pick from.
-- `type TConditionRule { path, op, value }` One rule of a condition: a `path`, an operator and maybe a value.
+- `type TConditionRule { path, op, value, where }` One rule of a condition: a `path`, an operator and maybe a value.
 - `<TextField placeholder value scope onSave onValueChange>` A text value in a table cell or panel row that edits in a popover.
 - `useMemberOptions(members, enabled, picked)` The active team members as picker options.
 - `useMembersById(ids, members)` Members by id, any status.
@@ -145,7 +154,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type CalendarProps` react-day-picker's `DayPicker` props.
 - `Card.{Header, Footer, Title, Description, Content}` A raised panel with header, title, description, content and footer.
 - `type ChartConfig` Each series' label, icon and colour by data key, for `ChartContainer`.
-- `<ChartContainer config style>` The frame for a recharts chart: size, theme and series colours.
+- `<ChartContainer config style>` The frame for a `responsive` recharts chart: size, theme and colours.
 - `<ChartLegendContent hideIcon payload verticalAlign nameKey>` The themed body for a recharts `Legend`: each series' icon and label.
 - `<ChartTooltipContent>` The themed body for a recharts `Tooltip`, labelled from the config.
 - `<Checkbox>` A themed checkbox; pass `indeterminate` for a partial selection.
@@ -218,10 +227,11 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page, linked from core's settings sidebar.
+- `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
 - `type TPropertyValue` A custom field's value: text, number, date, yes/no or options.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.
 - `type TRecordDraftProps { defaults, onCreated, onCancel }` Props of a plugin record type's `New` slot, the draft form.
-- `type TRecordProperties { type, values, save }` Custom fields on a plugin record type, whose values the plugin keeps.
+- `type TRecordProperties { type, values, save, limits, appliesTo }` Custom fields on a plugin record type, whose values the plugin keeps.
 - `type TRecordSection { contentType, title, icon, component }` A plugin's section on a customer's or company's detail in core's panel.
 - `type TRecordSectionProps { contentType, contentId }` What a record section is given: the customer or company it shows on.
 - `type TRecordSlotProps` What each slot of a plugin record is given: the record.

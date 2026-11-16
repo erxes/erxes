@@ -30,6 +30,11 @@ points here. `CATALOG.md` lists every export with the first sentence of its doc 
 - Motion goes through the theme too. An entrance is `animate-appear` with its offset and timing
   in `--appear-x`, `--appear-y`, `--appear-scale`, `--appear-duration`, `--appear-easing` and
   `--appear-delay`. Styles for the collapsed sidebar use the `navigation-collapsed:` variant.
+- A chart is `ChartContainer` around a recharts chart with `responsive`, which fills the frame
+  and follows its size, with `ChartTooltipContent` and `ChartLegendContent` as its `Tooltip` and
+  `Legend` content and series colours as `var(--color-<key>)` from the config. These parts import
+  only recharts' types: the chart and its elements come from the caller's own recharts, which
+  for a plugin is a copy of its own, since web doesn't share recharts.
 - Class names are written out in full, never built (`` `bg-${tone}` ``): a variant map such as
   `{ success: 'bg-success', warning: 'bg-warning' }[tone]`, or a cva variant.
 

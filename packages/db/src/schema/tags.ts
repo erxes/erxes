@@ -1,4 +1,4 @@
-import { CONTENT_TYPES } from '../enums';
+import { FIELD_CONTENT_TYPES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
@@ -6,14 +6,15 @@ import { createdAt, updatedAt } from './common';
 import { companies } from './companies';
 import { customers } from './customers';
 import { organizations } from './organizations';
+import { products } from './products';
 
-/** Labels for customers and companies (plugins keep their own tags). */
+/** Labels for customers, companies and products (plugins keep their own tags). */
 export const tags = pgTable(
   'tags',
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    type: text({ enum: CONTENT_TYPES }).notNull(),
+    type: text({ enum: FIELD_CONTENT_TYPES }).notNull(),
     name: text().notNull(),
     colorCode: text(),
     createdBy: text(),
@@ -31,20 +32,22 @@ export const tags = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_tags_org_id_fkey',
     }).onDelete('cascade'),
-    check('core_tags_type_check', inList(table.type, CONTENT_TYPES)),
+    check('core_tags_type_check', inList(table.type, FIELD_CONTENT_TYPES)),
   ],
 );
 
 /**
  * Which tags a record has. One table per record type so both sides have real
  * foreign keys: deleting a tag or a record removes its links.
- * `recordId` is the customer / company id.
+ * `recordId` is the customer, company or product id.
  */
+const RECORDS = { customer_id: customers, company_id: companies, product_id: products };
+
 const tagLinks = (
-  name: 'customer_tags' | 'company_tags',
-  recordColumn: 'customer_id' | 'company_id',
+  name: 'customer_tags' | 'company_tags' | 'product_tags',
+  recordColumn: keyof typeof RECORDS,
 ) => {
-  const records = recordColumn === 'customer_id' ? customers : companies;
+  const records = RECORDS[recordColumn];
 
   return pgTable(
     name,
@@ -78,3 +81,4 @@ const tagLinks = (
 
 export const customerTags = tagLinks('customer_tags', 'customer_id');
 export const companyTags = tagLinks('company_tags', 'company_id');
+export const productTags = tagLinks('product_tags', 'product_id');

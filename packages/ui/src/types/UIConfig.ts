@@ -110,6 +110,24 @@ export type TRecordProperties = {
   values: (contentId: string) => UseQueryOptions<Record<string, TPropertyValue>>;
   /** Saves a patch of values by field id; `null` clears one. */
   save: (contentId: string, patch: Record<string, TPropertyValue | null>) => Promise<unknown>;
+  /**
+   * What a field group can be limited to, as old sales' groups were to boards and pipelines
+   * (`team`, `project`): the group shows only on records in one of the picked ids of each.
+   * The plugin passes a record's `appliesTo` to `fields.check`, which refuses the rest.
+   */
+  limits?: TPropertyLimit[];
+  /** What a record is in, by the limits' keys (`{ team: [id] }`); needed with `limits`. */
+  appliesTo?: (contentId: string) => UseQueryOptions<Record<string, string[]>>;
+};
+
+/** One thing a plugin's field groups can be limited to. */
+export type TPropertyLimit = {
+  /** The key in the group's `appliesTo`: lower case letters, digits and `_`. */
+  key: string;
+  /** What it lists, in the plugin's words ("Teams"). */
+  label: string;
+  /** The choices, as query options. */
+  options: UseQueryOptions<{ value: string; label: string }[]>;
 };
 
 /**

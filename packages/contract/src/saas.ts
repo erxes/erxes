@@ -48,6 +48,11 @@ export type SaasWorkspace = z.infer<typeof SaasWorkspace>;
 export const SubscriptionInfo = z.object({
   /** False on self-hosted installations: every plugin, no tiers. */
   saas: z.boolean(),
+  /**
+   * The deployment installs every plugin and grants what it asks for (`PLUGINS_AUTO_INSTALL`,
+   * self-hosted): there is nothing to install or approve, so Settings › Plugins is hidden.
+   */
+  pluginsManaged: z.boolean(),
   organizationStatus: OrganizationStatus,
   plugins: z.array(
     z.object({

@@ -44,7 +44,7 @@ const announceInvites = async (tx: Db, rows: UserRow[]) => {
 
   await sendInvitations(
     tx,
-    rows.filter((row) => row.status === 'invited'),
+    rows.flatMap(({ id, email, status }) => (status === 'invited' && email ? [{ id, email }] : [])),
   );
 };
 
@@ -87,7 +87,7 @@ export const inviteUsers = async (entries: InviteInput[]) => {
     .where(inArray(sql`lower(${users.email})`, emails));
 
   if (taken.length) {
-    const list = taken.map(({ email }) => email.toLowerCase());
+    const list = taken.flatMap(({ email }) => (email ? [email.toLowerCase()] : []));
 
     throw fail('TAKEN', `Already a team member: ${list.join(', ')}`, {
       field: 'email',

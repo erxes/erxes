@@ -8,6 +8,7 @@ import { BuilderContext } from './BuilderContext';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
+import { emptyRequired } from './flowChecks';
 import { actionDefaults } from './flowModel';
 import type { SettingsProps } from './stepSettingsProps';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
@@ -43,6 +44,8 @@ const ActionInputs = ({
   disabled,
   onChange,
 }: SettingsProps<'action'> & { action: ActionInfo; dataFields: FieldInfo[] }) => {
+  const { t } = useTranslation('automations');
+
   // The inputs that follow `key` (a status follows its pipeline), and the ones that follow those.
   const dependents = (key: string): string[] =>
     action.fields
@@ -58,6 +61,8 @@ const ActionInputs = ({
         [key]: value,
       },
     });
+
+  const empty = new Set(emptyRequired(step.input, action).map((field) => field.key));
 
   return (
     <div className="space-y-4 border-t pt-4">
@@ -97,6 +102,11 @@ const ActionInputs = ({
             />
             {field.description && (
               <p className="text-xs text-muted-foreground">{field.description}</p>
+            )}
+            {empty.has(field.key) && (
+              <p className="text-xs text-destructive">
+                {t('fill-in-field', 'Fill in {{field}}', { field: field.label.toLowerCase() })}
+              </p>
             )}
           </div>
         ),

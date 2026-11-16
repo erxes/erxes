@@ -453,8 +453,120 @@
     {
       "idx": 64,
       "version": "7",
-      "when": 1794822116307,
-      "tag": "0064_assistant",
+      "when": 1794830120153,
+      "tag": "0064_org_units",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1794836191421,
+      "tag": "0065_api_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1794840719269,
+      "tag": "0066_unit_types",
+      "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1794842073429,
+      "tag": "0067_members_without_sign_in",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1794844461503,
+      "tag": "0068_ebarimt",
+      "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1794847932451,
+      "tag": "0069_invoice_tax_receipt",
+      "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1794850289002,
+      "tag": "0070_payment_gateway_kinds",
+      "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1794852581883,
+      "tag": "0071_integrations_manage",
+      "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1794853825615,
+      "tag": "0072_customer_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1794854316136,
+      "tag": "0073_payment_gateway_wechatpay",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1794855521434,
+      "tag": "0074_product_variants_tags",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1794857655640,
+      "tag": "0075_filter_relations",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1794858175926,
+      "tag": "0076_recorded_payments",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1794858939016,
+      "tag": "0077_favorites",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1794859707223,
+      "tag": "0078_field_group_applies_to",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1794860901193,
+      "tag": "0079_broadcasts",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1794863880394,
+      "tag": "0080_assistant",
       "breakpoints": true
     }
   ]

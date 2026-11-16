@@ -1,5 +1,5 @@
 import { paths } from '~/lib/paths';
-import type { Plugin } from '@erxes/core-contract';
+import { type Plugin, pluginReadScope } from '@erxes/core-contract';
 import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Empty, PageContainer, PageHeader, ScrollArea, useToast } from 'erxes-ui';
@@ -28,7 +28,10 @@ const SCOPE_LABELS: Record<string, string> = {
   'payments:write': 'Create invoices and refunds',
   'products:read': 'Read the product catalog',
   'products:write': 'Create and edit products',
+  'units:read': 'Read branches and departments',
+  'units:write': 'Change branches and departments, and who is in them',
   'users:read': 'Read team members',
+  'users:write': "Add team members who don't sign in, and change them",
   'views:read': "Use the team's shared views as segments",
 };
 
@@ -70,6 +73,22 @@ const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
 
   const isNew = (scope: string) => installed && !plugin.installation?.grantedScopes.includes(scope);
 
+  /** A scope in words: core's, or a read of another plugin's API with the plugin's reason. */
+  const labelOf = (scope: string) => {
+    for (const read of plugin.manifest?.pluginReads ?? []) {
+      const permission = read.permissions.find((item) => pluginReadScope(item) === scope);
+
+      if (permission)
+        return t('scope.reads', 'Read {{permission}} in {{plugin}}: {{reason}}', {
+          permission,
+          plugin: read.plugin,
+          reason: read.reason,
+        });
+    }
+
+    return t(`scope.${scope.replace(':', '-')}`, SCOPE_LABELS[scope] ?? scope);
+  };
+
   if (!plugin.requestedScopes.length) return null;
 
   return (
@@ -80,9 +99,7 @@ const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
       <ul className="space-y-0.5">
         {plugin.requestedScopes.map((scope) => (
           <li key={scope} className="flex items-center gap-2">
-            <span className={isNew(scope) ? 'text-warning-text' : ''}>
-              {t(`scope.${scope.replace(':', '-')}`, SCOPE_LABELS[scope] ?? scope)}
-            </span>
+            <span className={isNew(scope) ? 'text-warning-text' : ''}>{labelOf(scope)}</span>
             {isNew(scope) && (
               <span className="text-xs text-warning-text">
                 {t('new-scope', '(new — needs approval)')}

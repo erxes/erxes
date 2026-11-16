@@ -54,7 +54,14 @@ export const users = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    email: text().notNull(),
+    /** How they sign in; optional for a member who doesn't. */
+    email: text(),
+    /**
+     * Signs in to erxes. Off for people the organisation keeps on its team without an
+     * account (workers who only use a plugin's own app, such as HR's): they count for
+     * branches, departments and records, not for seats.
+     */
+    canSignIn: boolean().default(true).notNull(),
     username: text(),
     /** Display name; kept in step with first/middle/last name. */
     fullName: text(),
@@ -128,5 +135,10 @@ export const users = pgTable(
       name: 'core_users_role_fkey',
     }),
     check('core_users_status_check', inList(table.status, USER_STATUSES)),
+    // Whoever signs in has an email, and only they are invited.
+    check(
+      'core_users_sign_in_check',
+      sql`not ${table.canSignIn} and ${table.status} <> 'invited' or ${table.canSignIn} and ${table.email} is not null`,
+    ),
   ],
 );

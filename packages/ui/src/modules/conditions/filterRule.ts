@@ -62,8 +62,24 @@ export const between = (path: string, from: unknown, to: unknown): TBetween => (
   ],
 });
 
-/** The operators that fit a field's type, in the order the menus list them. */
-export const operatorsFor = (type: string | undefined): readonly TFilterOperator[] => {
+/**
+ * A relation's measures always have a value (no records count 0), and a rule on one carries its
+ * `where`, which a "between" would split in two: comparisons only.
+ */
+const RELATION_OPERATORS: Record<string, readonly TFilterOperator[]> = {
+  number: ['gte', 'gt', 'eq', 'neq', 'lt', 'lte'],
+  date: ['within_last', 'more_than_ago', 'within_next', 'eq', 'lt', 'gt'],
+};
+
+/** The operators that fit a field, by its type, in the order the menus list them. */
+export const operatorsFor = (
+  field: Pick<TConditionField, 'type' | 'relation'> | undefined,
+): readonly TFilterOperator[] => {
+  const type = field?.type;
+  const related = field?.relation && type ? RELATION_OPERATORS[type] : undefined;
+
+  if (related) return related;
+
   switch (type) {
     case 'date':
       return [
@@ -101,8 +117,10 @@ export const operatorsFor = (type: string | undefined): readonly TFilterOperator
 };
 
 /** A new rule on `field`: its type's first operator, no value yet. */
-export const ruleFor = (field: Pick<TConditionField, 'path' | 'type'>): TFilterRule => {
-  const op = operatorsFor(field.type)[0] ?? 'eq';
+export const ruleFor = (
+  field: Pick<TConditionField, 'path' | 'type' | 'relation'>,
+): TFilterRule => {
+  const op = operatorsFor(field)[0] ?? 'eq';
 
   if (op === 'between') return between(field.path, undefined, undefined);
 
@@ -117,15 +135,37 @@ export const valuesBetween = (rule: TBetween): [unknown, unknown] => [
   rule.rules[1].value,
 ];
 
+/** `subject.related.<plugin>.<relation>` of a measure's path; null off a relation. */
+const relationOf = (path: string) =>
+  /^subject\.related\.[^.]+\.[^.]+(?=\.)/.exec(path)?.[0] ?? null;
+
+/** `next` with `rule`'s `where`, while both measure the same relation's records; without it otherwise. */
+const withWhereOf = (rule: TFilterRule, next: TFilterRule): TFilterRule => {
+  if (!isRule(next)) return next;
+
+  const { where, ...plain } = next;
+  const kept = isRule(rule) ? rule.where : undefined;
+
+  const relation = relationOf(pathOf(rule));
+  const same = !!kept && relation !== null && relation === relationOf(next.path);
+
+  return same ? { ...plain, where: kept } : plain;
+};
+
 /** The same rule on another field: kept when the field reads the same way, else started anew. */
 export const withField = (
   rule: TFilterRule,
   from: TConditionField | undefined,
   to: TConditionField,
 ): TFilterRule => {
-  if (from?.type !== to.type) return ruleFor(to);
+  if (from?.type !== to.type || !from?.relation !== !to.relation) {
+    return withWhereOf(rule, ruleFor(to));
+  }
 
-  return isRule(rule) ? { ...rule, path: to.path } : between(to.path, ...valuesBetween(rule));
+  return withWhereOf(
+    rule,
+    isRule(rule) ? { ...rule, path: to.path } : between(to.path, ...valuesBetween(rule)),
+  );
 };
 
 const kindOf = (op: TFilterOperator) =>
@@ -135,7 +175,10 @@ const kindOf = (op: TFilterOperator) =>
  * The rule with another operator. The value stays while it still means the same (a list for
  * "is any of" and "is none of", a number for the comparisons); otherwise it starts empty.
  */
-export const withOperator = (rule: TFilterRule, op: TFilterOperator): TFilterRule => {
+export const withOperator = (rule: TFilterRule, op: TFilterOperator): TFilterRule =>
+  withWhereOf(rule, operatorChanged(rule, op));
+
+const operatorChanged = (rule: TFilterRule, op: TFilterOperator): TFilterRule => {
   const path = pathOf(rule);
   const current = opOf(rule);
 
@@ -186,7 +229,15 @@ export const isFilled = (rule: TFilterRule) =>
  */
 export const completeOf = (group: TConditionGroup): TConditionGroup | null => {
   const rules = group.rules.flatMap((node): (TConditionRule | TConditionGroup)[] => {
-    if (isRule(node)) return isComplete(node) ? [node] : [];
+    if (isRule(node)) {
+      if (!isComplete(node)) return [];
+
+      // A `where` keeps its finished rules; with none left, the rule counts every record.
+      const { where, ...plain } = node;
+      const narrowed = where ? completeOf(where) : null;
+
+      return [narrowed ? { ...plain, where: narrowed } : plain];
+    }
 
     const inner = completeOf(node);
 

@@ -149,7 +149,31 @@ export const describeTrigger = (
   }
 };
 
-const valueText = (value: unknown): string => {
+const PLACEHOLDER = /\{\{\s*([^{}|]+?)\s*(\|[^{}]*)?\}\}/g;
+const ADD_DAYS = /\|\s*add_days:\s*(-?\d+)/;
+
+/** `{{now | add_days: 7}}` reads "7 days after it runs". */
+const nowText = (filters = '') => {
+  const days = Number(ADD_DAYS.exec(filters)?.[1] ?? 0);
+
+  if (days === 0) return "Today's date";
+
+  return `${plural(Math.abs(days), 'day')} ${days > 0 ? 'after' : 'before'} it runs`;
+};
+
+/**
+ * Text with its placeholders named as the data picker names them: "Welcome
+ * {{subject.firstName}}!" reads "Welcome [First name]!".
+ */
+export const readableTemplate = (text: string, fields: FieldInfo[]) =>
+  text.replace(PLACEHOLDER, (whole, path: string, filters?: string) => {
+    const label =
+      path === 'now' ? nowText(filters) : fields.find((field) => field.path === path)?.label;
+
+    return label ? `[${label.replace(/ \(custom\)$/, '')}]` : whole;
+  });
+
+const valueText = (value: unknown, fields: FieldInfo[]): string => {
   if (Array.isArray(value)) return value.length ? plural(value.length, 'item') : '';
 
   if (value === true) return 'yes';
@@ -158,7 +182,7 @@ const valueText = (value: unknown): string => {
 
   if (value === 'subject') return 'the record';
 
-  return textOf(value);
+  return readableTemplate(textOf(value), fields);
 };
 
 const truncate = (text: string, length = 60) =>
@@ -199,7 +223,7 @@ const actionDetail = (
           ? context.stages?.find((stage) => stage.id === value)?.name
           : undefined;
 
-    const text = named ?? valueText(value);
+    const text = named ?? valueText(value, context.fields);
 
     return text ? [`${field.label.split(' (')[0]}: ${text}`] : [];
   });

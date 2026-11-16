@@ -1,33 +1,5 @@
-import type { CorePermission, coreContract, PluginScope } from '@erxes/core-contract';
-
-type Contract = typeof coreContract;
-
-/** Every procedure of the core API: `customers.list`, `plugins.token`, … */
-type ProcedurePath = {
-  [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}`;
-}[keyof Contract];
-
-/** Which members: any signed-in member, or those whose role has this permission. */
-type MemberRule = 'any' | CorePermission;
-
-/**
- * Who may call a procedure. Nothing is allowed unless written here:
- * `member` for signed-in team members (a permission their role must hold),
- * `plugin` for plugin tokens with that scope (`manifest`: the plugin's own
- * deployment-wide token, no organisation; `installed`: any token for an
- * organisation that has it, no scope needed), `customer` for a signed-in
- * customer on `/customer/*` (`authenticate` lets nobody else in there).
- * Services may check more (a member's own note, an owner's account).
- */
-export type Policy =
-  | { public: true }
-  | { customer: true }
-  | { member?: MemberRule; plugin?: PluginScope | 'manifest' | 'installed' };
-
-const MEMBER = { member: 'any' } as const;
-const PUBLIC = { public: true } as const;
-const CUSTOMER = { customer: true } as const;
-const needs = <P extends CorePermission>(permission: P) => ({ member: permission }) as const;
+import { ASSISTANT_ACCESS } from './assistantPolicies';
+import { CUSTOMER, MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 
 /**
  * The access map: one entry per procedure, checked before the procedure runs
@@ -45,27 +17,18 @@ export const ACCESS = {
   'activities.removeNote': MEMBER,
   'activities.react': MEMBER,
   'activities.types': MEMBER,
+  // Then only the timelines the member may read.
+  'activities.byMember': needs('team.view'),
   'activities.update': { plugin: 'activities:write' },
   'activities.remove': { plugin: 'activities:write' },
   'activities.create': { plugin: 'activities:write' },
   'activities.importNote': { plugin: 'activities:write' },
 
-  'assistant.connections': needs('assistant.chat'),
-  'assistant.saveConnection': needs('assistant.chat'),
-  'assistant.removeConnection': needs('assistant.chat'),
-  'assistant.setDefaultProvider': needs('assistant.chat'),
-  'assistant.models': needs('assistant.chat'),
-  'assistant.verifyModel': needs('assistant.chat'),
-  'assistant.threads': needs('assistant.chat'),
-  'assistant.thread': needs('assistant.chat'),
-  'assistant.updateThread': needs('assistant.chat'),
-  'assistant.removeThread': needs('assistant.chat'),
-  'assistant.reference': needs('assistant.chat'),
-  'assistant.record': needs('assistant.chat'),
-  'assistant.settings': needs('assistant.chat'),
-  'assistant.updateSettings': needs('assistant.manage'),
-  'assistant.appearance': needs('assistant.chat'),
-  'assistant.updateAppearance': needs('assistant.chat'),
+  ...ASSISTANT_ACCESS,
+  // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
+  'apiKeys.list': MEMBER,
+  'apiKeys.create': needs('api_keys.create'),
+  'apiKeys.remove': MEMBER,
 
   'audit.list': needs('audit.view'),
   'audit.record': { plugin: 'audit:write' },
@@ -107,6 +70,11 @@ export const ACCESS = {
   'transfer.createExport': needs('contacts.export'),
   // Views check per list: contacts.view for contact lists; every member sees products.
   // Plugins see shared views only, and test records against them (segments).
+  'favorites.list': MEMBER,
+  'favorites.add': MEMBER,
+  'favorites.rename': MEMBER,
+  'favorites.remove': MEMBER,
+  'favorites.reorder': MEMBER,
   'views.list': { member: 'any', plugin: 'views:read' },
   'views.create': MEMBER,
   'views.update': MEMBER,
@@ -133,6 +101,11 @@ export const ACCESS = {
   'customerAccount.sessions': CUSTOMER,
   'customerAccount.revokeSession': CUSTOMER,
   'customerAccount.signOutEverywhere': CUSTOMER,
+
+  'customerNotifications.create': { plugin: 'notifications:write' },
+  'customerNotifications.list': CUSTOMER,
+  'customerNotifications.unreadCount': CUSTOMER,
+  'customerNotifications.markRead': CUSTOMER,
 
   'companies.list': { member: 'contacts.view', plugin: 'customers:read' },
   'companies.get': { member: 'contacts.view', plugin: 'customers:read' },
@@ -224,12 +197,31 @@ export const ACCESS = {
   'plugins.install': needs('plugins.manage'),
   'plugins.uninstall': needs('plugins.manage'),
   'plugins.session': MEMBER,
+  // Approved in the manifest's `pluginReads` per organisation (pluginCalls.ts checks).
+  'plugins.callToken': { plugin: 'installed' },
   'plugins.signal': { plugin: 'live:write' },
 
-  'tags.list': MEMBER,
+  // Plugins read product tags only (tags.service).
+  // Each type needs what its own list needs (search.service).
+  'search.global': MEMBER,
+  'tags.list': { member: 'any', plugin: 'products:read' },
   'tags.create': needs('tags.manage'),
   'tags.update': needs('tags.manage'),
   'tags.remove': needs('tags.delete'),
+
+  // Branches and departments: every member reads them (pickers); plugins keep a copy.
+  'units.list': { member: 'any', plugin: 'units:read' },
+  'units.get': { member: 'any', plugin: 'units:read' },
+  'units.create': { member: 'structure.manage', plugin: 'units:write' },
+  'units.update': { member: 'structure.manage', plugin: 'units:write' },
+  'units.remove': { member: 'structure.manage', plugin: 'units:write' },
+  'units.assign': { member: 'structure.manage', plugin: 'units:write' },
+  'units.import': { plugin: 'units:write' },
+  'unitTypes.list': { member: 'any', plugin: 'units:read' },
+  'unitTypes.create': { member: 'structure.manage', plugin: 'units:write' },
+  'unitTypes.update': { member: 'structure.manage', plugin: 'units:write' },
+  'unitTypes.remove': { member: 'structure.manage', plugin: 'units:write' },
+  'unitTypes.import': { plugin: 'units:write' },
 
   'trash.list': needs('contacts.delete'),
   'trash.restore': needs('contacts.delete'),
@@ -240,10 +232,34 @@ export const ACCESS = {
   'users.invite': needs('team.invite'),
   'users.inviteMany': needs('team.invite'),
   'users.resendInvitation': needs('team.invite'),
-  'users.update': MEMBER,
+  'users.add': { member: 'team.invite', plugin: 'users:write' },
+  'users.allowSignIn': needs('team.manage'),
+  'users.stopSignIn': needs('team.manage'),
+  'users.update': { member: 'any', plugin: 'users:write' },
   'users.setPassword': needs('team.manage'),
-  'users.disable': needs('team.manage'),
-  'users.enable': needs('team.manage'),
+  'users.disable': { member: 'team.manage', plugin: 'users:write' },
+  'users.enable': { member: 'team.manage', plugin: 'users:write' },
+
+  'broadcasts.list': needs('broadcasts.view'),
+  'broadcasts.get': needs('broadcasts.view'),
+  'broadcasts.recipients': needs('broadcasts.view'),
+  // An estimate and a preview read customers through the audience, like the list does.
+  'broadcasts.audience': needs('broadcasts.view'),
+  'broadcasts.preview': needs('broadcasts.view'),
+  'broadcasts.create': needs('broadcasts.manage'),
+  'broadcasts.update': needs('broadcasts.manage'),
+  'broadcasts.remove': needs('broadcasts.manage'),
+  'broadcasts.duplicate': needs('broadcasts.manage'),
+  'broadcasts.test': needs('broadcasts.manage'),
+  'broadcasts.send': needs('broadcasts.send'),
+  'broadcasts.schedule': needs('broadcasts.send'),
+  'broadcasts.unschedule': needs('broadcasts.send'),
+  'broadcasts.pause': needs('broadcasts.send'),
+  'broadcasts.resume': needs('broadcasts.send'),
+  'broadcasts.cancel': needs('broadcasts.send'),
+  'suppressions.list': needs('broadcasts.view'),
+  'suppressions.add': needs('broadcasts.manage'),
+  'suppressions.remove': needs('broadcasts.manage'),
 
   'automations.catalog': needs('automations.view'),
   'automations.list': needs('automations.view'),
@@ -271,6 +287,7 @@ export const ACCESS = {
   'payments.updateGateway': needs('payments.manage'),
   'payments.removeGateway': needs('payments.manage'),
   'payments.createInvoice': { member: 'payments.manage', plugin: 'payments:write' },
+  'payments.recordPayment': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.getInvoice': { member: 'payments.manage', plugin: 'payments:read' },
   'payments.cancelInvoice': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.invoices': needs('payments.manage'),
@@ -279,6 +296,15 @@ export const ACCESS = {
   'payments.pluginSettings': needs('payments.manage'),
   'payments.updatePluginSettings': needs('payments.manage'),
   'payments.payTestInvoice': needs('payments.manage'),
+  'ebarimt.settings': needs('integrations.manage'),
+  'ebarimt.plugins': needs('integrations.manage'),
+  'ebarimt.saveSettings': needs('integrations.manage'),
+  'ebarimt.removeSettings': needs('integrations.manage'),
+  'ebarimt.testConnection': needs('integrations.manage'),
+  'ebarimt.receipts': { member: 'payments.manage', plugin: 'payments:read' },
+  'ebarimt.sync': { member: 'payments.manage', plugin: 'payments:write' },
+  'ebarimt.setBuyer': { member: 'payments.manage', plugin: 'payments:write' },
+  'ebarimt.findCompany': { member: 'any', plugin: 'payments:read' },
 
   'products.list': { member: 'any', plugin: 'products:read' },
   'products.get': { member: 'any', plugin: 'products:read' },

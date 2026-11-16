@@ -8,7 +8,7 @@ CI (`.github/workflows/ci.yml`) runs on every pull request and every push to `po
 | integration | every test on Postgres 18, split over two runners (API test files in parallel, each on its own database as a role without BYPASSRLS)                                                                                                                                                                              |
 | images      | builds `erxes-api` and `erxes-web` once, fails on HIGH or CRITICAL vulnerabilities that have a fix (Trivy), starts two copies of this folder's stack, runs `smoke.sh` on one and the daily flows (`e2e/`, Chromium with axe) on the other. Only branch runs write the layer cache; pull requests read `postgre`'s |
 | Check       | passes only when every job above passed; the one to require in branch protection                                                                                                                                                                                                                                  |
-| push        | on `postgre` only, after Check: pushes both images to GHCR as `sha-<12 chars>` and `postgre`                                                                                                                                                                                                                      |
+| push        | on `postgre` only, after Check: pushes both images to GHCR and Docker Hub (`erxes/core-api`, `erxes/core-web`) as `sha-<12 chars>` and `postgre`                                                                                                                                                                  |
 
 CodeQL (`codeql.yml`) scans weekly and on changes. `deploy.yml` deploys after a
 green CI run on `postgre` (or by hand with an image tag) once the `production`
@@ -29,6 +29,9 @@ deploy/smoke.sh http://localhost:8080   # on an empty install only (it runs setu
 - Put TLS in front of the `ui` container (port 8080); it serves the UI and
   forwards `/core` to the API, live updates included.
 - Plugin database roles: `docker compose … run --rm migrate node dist/plugin-role.js <plugin>`.
+  It sets a new password and prints it once. When the logins and their passwords are made
+  elsewhere (Ansible, a secret store), `node dist/plugin-role.js <plugin>... --keep-password`
+  only grants, so a deploy can run it every time.
 - Postgres is 18. Its image keeps data in `/var/lib/postgresql/18/docker` and the
   volume mounts at `/var/lib/postgresql`. A volume written by Postgres 16 does not
   start under 18: `pg_dumpall` it on 16 and restore into the new volume.

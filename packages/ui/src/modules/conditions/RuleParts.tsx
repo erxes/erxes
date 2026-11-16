@@ -21,7 +21,7 @@ const OperatorMenu = ({
 }) => {
   const label = useOperatorLabel();
   const current = opOf(rule);
-  const ops = operatorsFor(field.type);
+  const ops = operatorsFor(field);
 
   return (
     <Command>

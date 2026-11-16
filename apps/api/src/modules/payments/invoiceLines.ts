@@ -48,6 +48,8 @@ export const resolveInvoiceLines = async (
       unitPrice: line.unitPrice,
       amount: Math.round(line.quantity * line.unitPrice),
       plugin: line.plugin ?? null,
+      ...(line.barcode && { barcode: line.barcode }),
+      ...(line.tax && { tax: line.tax }),
     };
   });
 

@@ -1,4 +1,9 @@
-import { AUTOMATION_SUBJECTS, CONTENT_TYPES, PLUGIN_SCOPES } from '@erxes/core-db/enums';
+import {
+  AUTOMATION_SUBJECTS,
+  CONTENT_TYPES,
+  PLUGIN_SCOPES,
+  TAX_RECEIPT_ISSUERS,
+} from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -6,21 +11,19 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { httpUrl, Id, isoDate, listOf } from './common';
-import { ActionFields } from './automationRuns';
+import { ActionFields, DataField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
+import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
-
-/** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
-export const PluginName = z
-  .string()
-  .trim()
-  .regex(/^[a-z][a-z0-9_]{0,39}$/, 'lower case letters, digits and _ (starting with a letter)')
-  .refine((name) => name !== 'core', 'reserved');
+import { PluginApiDocs } from './pluginApiDocs';
+import { PluginSearchSource } from './search';
+import { PluginRead, pluginReadsContract } from './pluginReads';
+import { PluginName } from './values';
 
 export { PLUGIN_SCOPES };
 
@@ -60,6 +63,12 @@ export const PluginManifest = z.object({
    * anyone may still install it.
    */
   countries: z.array(Country).max(250).optional(),
+  /**
+   * Who issues tax receipts for its invoices: core's integration (eBarimt,
+   * the default), or `own` when the plugin sends them itself. An `own`
+   * plugin can't be picked in core's eBarimt settings, so no invoice gets two.
+   */
+  taxReceipts: z.enum(TAX_RECEIPT_ISSUERS).optional(),
   /** Module Federation remote: container name and `remoteEntry.js` address. */
   ui: z
     .object({
@@ -70,8 +79,8 @@ export const PluginManifest = z.object({
       entry: HttpsUrl,
     })
     .optional(),
-  /** The plugin API's public address: plugin UIs call it with a session token. */
-  api: z.object({ url: HttpsUrl }).optional(),
+  /** The plugin API's public address (plugin UIs call it with a session token), and its documents. */
+  api: z.object({ url: HttpsUrl, docs: PluginApiDocs.optional() }).optional(),
   /**
    * "Sign in with erxes" for the plugin's own app (OAuth 2.1 + PKCE): the
    * exact addresses codes may be sent to; `{subdomain}` stands for the
@@ -98,7 +107,30 @@ export const PluginManifest = z.object({
    * Apps without an origin (mobile) are limited by rate instead.
    */
   customerApp: z.object({ origins: z.array(AppOrigin).min(1).max(20) }).optional(),
+  /**
+   * Routes for callers outside erxes that can't sign in (a GitHub webhook, an app install's
+   * redirect). Core serves `/core/v1/plugins/<name>/public/<orgId>/<path>` and forwards a call
+   * whose path is one of these, or under one, to `<api.url>/public/<path>`, with a token naming
+   * the organisation (`verifyPublicCall`). `/github/webhook`.
+   */
+  publicPaths: z
+    .array(z.string().regex(/^(\/[a-z0-9][a-z0-9_.-]*)+$/, 'a path like /github/webhook'))
+    .max(20)
+    .optional(),
+  /**
+   * Its groups in erxes' global search (Deals, Tickets): web asks each
+   * `<api.url><path>?q=&limit=` with the member's session token and shows
+   * the answer (`PluginSearchResults`) under the label.
+   */
+  search: z.array(PluginSearchSource).max(5).optional(),
   scopes: z.array(PluginScope).max(PLUGIN_SCOPES.length).default([]),
+  /**
+   * Other plugins' APIs it reads on an organisation's behalf (`PluginRead`). Like a new scope,
+   * each waits for the owner's approval, and works only where the other plugin is installed
+   * too: `plugins.callToken` issues a token for that plugin's API with the approved
+   * permissions its manifest declares.
+   */
+  pluginReads: z.array(PluginRead).max(20).optional(),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z
     .array(
@@ -146,6 +178,8 @@ export const PluginManifest = z.object({
         description: z.string().trim().max(300).optional(),
         subject: z.enum(AUTOMATION_SUBJECTS).optional(),
         fields: ActionFields.default([]),
+        /** What its JSON answer holds that later steps can insert (`dealId` as "Deal"). */
+        outputs: z.array(DataField).max(50).optional(),
       }),
     )
     .max(200)
@@ -187,6 +221,11 @@ export const PluginManifest = z.object({
   /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
   fields: PluginFields.optional(),
   /**
+   * Its records that belong to customers or companies (`PluginRelations`): their lists filter
+   * by them ("has more than 3 won deals"), through a view the plugin keeps.
+   */
+  relations: PluginRelations.optional(),
+  /**
    * Events it publishes: triggers for automations. `subject`: what its events
    * are about (published with `subject`), so automations started by it can
    * use that record's fields and run customer or company actions.
@@ -198,6 +237,8 @@ export const PluginManifest = z.object({
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         subject: z.enum(CONTENT_TYPES).optional(),
+        /** Its payload's values later steps can insert (`dealId` as "Deal"). */
+        fields: z.array(DataField).max(50).optional(),
       }),
     )
     .max(500)
@@ -228,6 +269,8 @@ export const Plugin = createSelectSchema(plugins, {
       countries: true,
       ui: true,
       api: true,
+      search: true,
+      pluginReads: true,
     }),
 })
   .pick({ name: true, manifest: true })
@@ -252,8 +295,8 @@ export const TokenResponse = z.object({
 /**
  * Plugins: the registry (manifests), per-organisation installations with
  * granted scopes, tokens for plugin servers (client credentials) and for
- * plugin UIs (a member's short-lived session for one plugin's API), and live
- * signals to plugin UIs.
+ * plugin UIs (a member's short-lived session for one plugin's API), for one
+ * plugin reading another's (`pluginReadsContract`), and live signals to plugin UIs.
  */
 const {
   API_REQUIRED,
@@ -347,6 +390,7 @@ export const pluginsContract = {
         apiUrl: z.string().nullable(),
       }),
     ),
+  ...pluginReadsContract,
   signal: base
     .route({
       method: 'POST',

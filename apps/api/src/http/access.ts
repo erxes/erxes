@@ -2,7 +2,8 @@ import { coreContract, CORE_API_PREFIX, OWNER_ONLY_PERMISSIONS } from '@erxes/co
 import { caller, type Caller, scopedOrgId } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import { fail } from './errors';
-import { ACCESS, type Policy } from './policies';
+import { ACCESS } from './policies';
+import type { Policy } from './policyRules';
 
 const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
 

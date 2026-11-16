@@ -31,7 +31,24 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
      member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
-     that depend on it. The route, the query key `parent` and the answer's shape are the contract;
+     that depend on it. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
+     `type`) name what its answer or payload holds; the builder offers them in "Insert data" as
+     `{{steps.<step id>.output.<key>}}` and `{{event.payload.<key>}}`, so renaming a key breaks
+     saved automations. The route, the query key `parent` and the answer's shape are the contract.
+     The manifest's `pluginReads` (`PluginRead`: `plugin`, `permissions`, `reason`, in
+     `packages/contract/src/pluginReads.ts`) lets a plugin read another plugin's API for an
+     organisation: the owner approves it like a scope (stored in the installation's granted scopes
+     as `reads:<permission>`), and `plugins.callToken` (`apps/api/src/modules/plugins/pluginCalls.ts`)
+     issues a 5-minute token, typ `erxes-plugin-call+jwt`, `aud` the plugin read, `sub`
+     `plugin:<caller>`, claims `org`, `plugin`, `permissions` (approved and declared by the plugin
+     read), `tier` and `access`, while both are installed there. The SDK's `fetchPlugin` sends it
+     to `<api.url><path>`, and `verifyPluginCall` gives the plugin read a `PluginMember` with
+     `userId` `plugin:<caller>`. The scope prefix, the typ, the claims and the codes
+     `READ_NOT_APPROVED`, `PLUGIN_NOT_INSTALLED` and `PLUGIN_UNREACHABLE` are the contract.
+     The manifest's `search` (`PluginSearchSource`: `label`, `path`) adds groups to global search:
+     web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
+     expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,
+     `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set
@@ -43,6 +60,14 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      a plugin lists the shared views (`views.list`) and asks which records one matches now
      (`views.matches`). The field shape, the codes `PLUGIN_FIELD` and `VIEW_NOT_SHARED`, and
      "a personal view never matches" are the contract;
+   - relations (`packages/contract/src/pluginRelations.ts`, `apps/api/src/modules/views/relationFilter.ts`):
+     the manifest's `relations` name a view `<plugin>_*` its role owns and grants to
+     `erxes_core_reader`, with `record_id` and a column per field. Contact lists get
+     `subject.related.<plugin>.<key>.count` and, per number field, `sum`/`avg`/`min`/`max`
+     (`min`/`max` per date field) as filter fields with `relation`, and a rule on one may carry
+     `where` on `subject.<field>`. No related rows count 0 and total 0, so "fewer than 3" includes
+     them. Core reads only a view the plugin's role owns and has granted; otherwise the rule is
+     `INVALID_FILTER`. The path shape, the view's columns and the measures are the contract;
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
@@ -76,7 +101,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the
      plugin's `name` and the key is the English text, which shows when no translation is there. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
-     through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own; erxes-ui's
+     through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own. `open`'s
+     `tab` (a type's tab `value`, `detail` or `activity`; anything else opens the default) and a
+     record page's address key `tab` are the contract. erxes-ui's
      `RecordTimeline` and `RecordPage` render what web registers at startup
      (`apps/web/src/bootstrap.tsx`). erxes-ui's `ListFilter` draws core's filter bar itself, in
      web or outside it; its props (`TListFilterProps`, `TListFilterField`) and
@@ -86,6 +113,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      (`recordType="sales:deal"`): web provides the tabs and the save through `ListViewsProvider`,
      core stores the view (`views.recordType` takes `<plugin>:<record>`), and the plugin's API
      applies its filter. The prop, the address key `view` and that type's shape are the contract.
+     `DisplayMenu` and `useListDisplay` take built-in displays and the list's own
+     (`TListDisplayOption`: `key`, `label`, `icon`), and keep the chosen key per `list` in the
+     browser: a list's name and its displays' keys are the contract.
      The API compiles the filter with `compileFilter` from `@erxes/plugin-sdk/filter`, the
      compiler core's own lists use (`apps/api/src/modules/views/recordFilter.ts` adds core's
      custom fields, tags and lookups on top). A field type or operator it accepts is the contract,
@@ -93,7 +123,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
      plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`
-     (erxes-ui's `Form`).
+     (erxes-ui's `Form`). `recharts` is not shared, since sharing it would add its 145 kB to
+     every web route: erxes-ui's `ChartContainer` takes nothing from recharts, and a plugin's
+     chart from its own copy sizes itself with `responsive`.
 2. Classify it. The packages are prereleases on npm's `v2-next` dist-tag (`0.1.0-v2.N` for the
    contract and SDK, `4.0.0-v2.N` for `@erxes/ui`); this policy holds from each one's first
    stable release.

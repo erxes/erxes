@@ -64,6 +64,7 @@ const pages = [
   ['List', 'PageHeader, ViewBar, ListFilter, RecordTable', 'ui/src/modules/items/ItemsPage.tsx'],
   ['Grouped list (by status)', 'RecordList, DisplayMenu, useListDisplay', ''],
   ['Board', 'DisplayMenu, useListDisplay', `${core}leads/LeadsBoard.tsx`],
+  ['Cards or chart', 'DisplayMenu, useListDisplay, TListDisplayOption', ''],
   [
     'Record detail',
     'PanelSection, PanelField, RecordTableInlineCell, RecordPage',
@@ -73,6 +74,7 @@ const pages = [
   ['Settings list', 'PageHeader, RecordTable', `${core}settings/tags/TagsSettingsPage.tsx`],
   ['Settings form', 'Form, Switch, ScrollArea', `${core}settings/profile/ProfileSettingsPage.tsx`],
   ['Filters', 'ListFilter, useListFilterParams', 'ui/src/modules/items/ItemsPage.tsx'],
+  ['Chart', 'ChartContainer, ChartTooltipContent, ChartLegendContent', ''],
 ];
 
 for (const [, components = '', screen = ''] of pages) {

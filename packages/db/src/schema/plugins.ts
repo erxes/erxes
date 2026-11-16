@@ -1,4 +1,12 @@
-import { type AUTOMATION_SUBJECTS, type PLUGIN_FIELD_TYPES, PLUGIN_STATUSES } from '../enums';
+import {
+  type AUTOMATION_FIELD_TYPES,
+  type AUTOMATION_SUBJECTS,
+  type DefaultGrantRole,
+  type PLUGIN_FIELD_TYPES,
+  PLUGIN_STATUSES,
+  type RELATION_FIELD_TYPES,
+  type TAX_RECEIPT_ISSUERS,
+} from '../enums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 import { orgIdColumn, pgTable } from '../table';
@@ -8,6 +16,30 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export type PluginStatus = (typeof PLUGIN_STATUSES)[number];
+
+/** A value an event carries or an action answers, for later automation steps. */
+interface StoredDataField {
+  key: string;
+  label: string;
+  type: (typeof AUTOMATION_FIELD_TYPES)[number];
+}
+
+/** A relation of a plugin's manifest (`PluginRelation` in the contract). */
+export interface StoredPluginRelation {
+  key: string;
+  contentType: ContentType;
+  label: string;
+  view: string;
+  permission?: string;
+  fields: {
+    key: string;
+    label: string;
+    type: (typeof RELATION_FIELD_TYPES)[number];
+    options?: string[];
+    array?: boolean;
+    money?: boolean;
+  }[];
+}
 
 /**
  * What a plugin declares about itself (`PUT /plugins/manifest`): where its UI
@@ -20,22 +52,40 @@ export interface StoredPluginManifest {
   description?: string;
   /** Made for these countries (ISO 3166); none: everywhere. */
   countries?: string[];
+  /** `own`: it issues its invoices' tax receipts itself, so core's eBarimt never does. */
+  taxReceipts?: (typeof TAX_RECEIPT_ISSUERS)[number];
   ui?: { remote: string; entry: string };
-  api?: { url: string };
+  /** `docs`: its OpenAPI documents' paths under `url`, one per audience, shown in the API reference. */
+  api?: {
+    url: string;
+    docs?: { audience: 'member' | 'employee' | 'customer' | 'website'; path: string }[];
+  };
   /** "Sign in with erxes" for the plugin's own app: where codes may be sent (`{subdomain}` allowed). */
   oauth?: { redirectUris: string[] };
   /** Its app for customers: the web origins that may sign customers in (`{subdomain}` allowed). */
   customerApp?: { origins: string[] };
+  /** Paths under its API's `/public` that core forwards outside callers to (webhooks, redirects). */
+  publicPaths?: string[];
   scopes: string[];
+  /** Other plugins' APIs it reads, with their permissions: each waits for the owner's approval. */
+  pluginReads?: { plugin: string; permissions: string[]; reason: string }[];
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   /** Ready-made bundles of its permissions, added to a role in one click. */
-  permissionSets?: { key: string; label: string; description?: string; permissions: string[] }[];
+  permissionSets?: {
+    key: string;
+    label: string;
+    description?: string;
+    permissions: string[];
+    /** Built-in roles core gives the set to where the plugin is installed. */
+    defaultRoles?: DefaultGrantRole[];
+  }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];
   events?: {
     type: string;
     label: string;
     description?: string;
     subject?: ContentType;
+    fields?: StoredDataField[];
   }[];
   /** Events it wants at `<api.url>/events` (patterns: `core.payment.*`). */
   subscriptions?: string[];
@@ -59,6 +109,11 @@ export interface StoredPluginManifest {
     options?: string[];
     description?: string;
   }[];
+  /**
+   * Its records that belong to customers or companies, read from its view `view` (`record_id`
+   * and a column per field), so their lists filter by them.
+   */
+  relations?: StoredPluginRelation[];
   activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
   actions?: {
     type: string;
@@ -73,6 +128,7 @@ export interface StoredPluginManifest {
       options?: { value: string; label: string }[];
       description?: string;
     }[];
+    outputs?: StoredDataField[];
   }[];
   assistant?: {
     skills: { name: string; description: string; instructions: string }[];

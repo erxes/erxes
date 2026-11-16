@@ -1,5 +1,5 @@
 import { assistantSettings, type Db } from '@erxes/core-db';
-import type { ASSISTANT_APPROVAL_MODES } from '@erxes/core-db/enums';
+import type { ASSISTANT_APPROVAL_MODES } from '@erxes/core-db/assistantEnums';
 import { sql } from 'drizzle-orm';
 
 export type ApprovalMode = (typeof ASSISTANT_APPROVAL_MODES)[number];

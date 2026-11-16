@@ -3,7 +3,7 @@ import {
   ASSISTANT_DOCUMENT_TYPES,
   ASSISTANT_IMAGE_TYPES,
   ASSISTANT_TEXT_TYPES,
-} from '@erxes/core-db/enums';
+} from '@erxes/core-db/assistantEnums';
 import { z } from 'zod';
 import { Id } from './common';
 import { AssistantMentions, AssistantPage, AssistantPagePath } from './records';

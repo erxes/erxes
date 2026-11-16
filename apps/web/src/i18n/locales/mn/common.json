@@ -56,6 +56,7 @@
       "contacts": "Харилцагчид",
       "products": "Бүтээгдэхүүнүүд",
       "automations": "Автоматжуулалт",
+      "broadcasts": "Мэдээлэл түгээх",
       "reports": "Тайлан",
       "settings": "Тохиргоо"
     }
@@ -76,7 +77,7 @@
     "change-password": "Нууц үг солих",
     "general": "Ерөнхий",
     "team-member": "Багийн гишүүн",
-    "structure": "Багийн бүтэц",
+    "structure": "Бүтэц",
     "tags": "Тагууд",
     "brands": "Брэндүүд",
     "file-upload": "Файл байршуулах",
@@ -117,6 +118,8 @@
     "plugins": "Плагинууд",
     "roles": "Үүргүүд",
     "webhooks": "Вэбхүүк",
+    "api-reference": "API лавлах",
+    "api-keys": "API түлхүүр",
     "payments": "Төлбөр",
     "recycle-bin": "Хогийн сав",
     "plan": "Багц",
@@ -127,7 +130,8 @@
     "assistant-keys": "Түлхүүрүүд",
     "assistant-approvals": "Зөвшөөрөл",
     "assistant-code-mode": "Код горим",
-    "assistant-appearance": "Төрх"
+    "assistant-appearance": "Төрх",
+    "integrations": "Холболтууд"
   },
   "auth": {
     "welcome": "Тавтай морил",
@@ -549,6 +553,34 @@
     "keep-editing": "Үргэлжлүүлэн засах",
     "cancel": "Цуцлах"
   },
+  "favorites": {
+    "add": "Дуртайд нэмэх",
+    "added": "Дуртайд нэмэгдлээ",
+    "done": "Болсон",
+    "edit": "Дуртайг засах",
+    "failed": "Дуртайг хадгалж чадсангүй",
+    "name": "Нэр",
+    "remove": "Хасах",
+    "remove-named": "{{name}}-г дуртайгаас хасах",
+    "title": "Дуртай"
+  },
+  "search": {
+    "apps": "Аппууд",
+    "description": "Бичлэг болон апп хайх",
+    "failed": "Энд хайж чадсангүй",
+    "hint": "Дор хаяж 2 тэмдэгт бичнэ үү",
+    "none": "“{{q}}”-д тохирох зүйл алга",
+    "placeholder": "Хүн, байгууллага, бүтээгдэхүүн гэх мэтийг хайх",
+    "title": "Хайх",
+    "types": {
+      "company": "Байгууллагууд",
+      "customer": "Хүмүүс",
+      "member": "Багийн гишүүд",
+      "product": "Бүтээгдэхүүн",
+      "unit": "Салбар, хэлтэс"
+    },
+    "untitled": "Нэргүй"
+  },
   "side-panel": {
     "title": "Хажуу самбар",
     "close": "Хаах",
@@ -590,6 +622,8 @@
     "add-customer": "Харилцагч нэмэх",
     "edit-companies": "Компаниудыг засах",
     "edit-customers": "Харилцагчдыг засах",
+    "add-owner": "Хариуцагч нэмэх",
+    "change-owner": "Хариуцагч солих",
     "not-specified": "Тодорхойгүй",
     "link-company": "Компани холбох",
     "add-person": "Хүн нэмэх",

@@ -1,0 +1,308 @@
+import { IconPlugConnected, IconSearch } from '@tabler/icons-react';
+import { messageOf } from '@erxes/core-contract/client';
+import {
+  Button,
+  Empty,
+  InputGroup,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  ToggleGroup,
+} from 'erxes-ui';
+import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs';
+import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, Navigate } from 'react-router-dom';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { paths } from '~/lib/paths';
+import { countryNames } from '~/lib/region';
+import { useCan, useSession } from '~/modules/auth/session';
+import {
+  type Integration,
+  INTEGRATION_CATEGORIES,
+  INTEGRATIONS,
+  type IntegrationCategory,
+  integrationPath,
+  servesCountry,
+} from './catalog';
+import {
+  IntegrationMark,
+  IntegrationStatusBadge,
+  useIntegrationText,
+} from './IntegrationStatusBadge';
+import { type IntegrationStatus, useIntegrationStatus } from './useIntegrationStatus';
+
+const useCategoryLabel = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.category' });
+
+  return (category: IntegrationCategory) =>
+    ({ payments: t('payments', 'Payments'), tax: t('tax', 'Tax receipts') })[category];
+};
+
+const IntegrationTile = ({
+  integration,
+  status,
+  foreign,
+}: {
+  integration: Integration;
+  status: IntegrationStatus | null;
+  /** Listed under other regions: say where it works. */
+  foreign: boolean;
+}) => {
+  const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
+  const categoryLabel = useCategoryLabel();
+  const { name, summary } = useIntegrationText()(integration);
+
+  return (
+    <li>
+      <Link
+        to={integrationPath(integration)}
+        className="flex h-full flex-col gap-3 rounded-lg border p-4 transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      >
+        <span className="flex items-start gap-3">
+          <IntegrationMark integration={integration} />
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">{name}</span>
+            <span className="block text-xs text-muted-foreground">
+              {categoryLabel(integration.category)}
+            </span>
+          </span>
+          {/* Only what is connected carries a state; the rest are simply available. */}
+          <IntegrationStatusBadge status={status?.state === 'not-set-up' ? null : status} />
+        </span>
+        <span className="line-clamp-2 text-sm text-muted-foreground">{summary}</span>
+        {foreign && (
+          <span className="mt-auto text-xs text-muted-foreground">
+            {t('made-for', 'Made for {{countries}}', {
+              countries: countryNames([...integration.countries], i18n.language),
+            })}
+          </span>
+        )}
+      </Link>
+    </li>
+  );
+};
+
+const Section = ({
+  title,
+  items,
+  statusOf,
+  foreign = false,
+}: {
+  title: string;
+  items: Integration[];
+  statusOf: (integration: Integration) => IntegrationStatus | null;
+  foreign?: boolean;
+}) => {
+  const id = useId();
+
+  if (!items.length) return null;
+
+  return (
+    <section aria-labelledby={id} className="space-y-3">
+      <h2 id={id} className="text-sm font-medium text-muted-foreground">
+        {title}
+      </h2>
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((integration) => (
+          <IntegrationTile
+            key={integration.key}
+            integration={integration}
+            status={statusOf(integration)}
+            foreign={foreign}
+          />
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+const Filters = ({
+  search,
+  category,
+  onChange,
+}: {
+  search: string;
+  category: IntegrationCategory | null;
+  onChange: (next: { q?: string | null; category?: IntegrationCategory | null }) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+  const categoryLabel = useCategoryLabel();
+
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <InputGroup className="h-8 w-full sm:w-64">
+        <InputGroup.Addon>
+          <IconSearch className="pointer-events-none size-3.5" />
+        </InputGroup.Addon>
+        <InputGroup.Input
+          type="search"
+          placeholder={t('search', 'Search integrations…')}
+          aria-label={t('search', 'Search integrations…')}
+          value={search}
+          onChange={(event) => onChange({ q: event.target.value || null })}
+        />
+      </InputGroup>
+      <ToggleGroup
+        variant="outline"
+        size="sm"
+        aria-label={t('categories', 'Categories')}
+        value={[category ?? 'all']}
+        onValueChange={([next]) =>
+          onChange({ category: INTEGRATION_CATEGORIES.find((item) => item === next) ?? null })
+        }
+      >
+        <ToggleGroup.Item value="all">{t('all', 'All')}</ToggleGroup.Item>
+        {INTEGRATION_CATEGORIES.map((item) => (
+          <ToggleGroup.Item key={item} value={item}>
+            {categoryLabel(item)}
+          </ToggleGroup.Item>
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+};
+
+/** The catalog cut by the search and category, then into connected, local and other regions. */
+const useSections = (search: string, category: IntegrationCategory | null) => {
+  const { country } = useSession().organization;
+  const { statusOf, error, refetch } = useIntegrationStatus();
+  const categoryLabel = useCategoryLabel();
+  const textOf = useIntegrationText();
+  const canPayments = useCan()('payments.manage');
+  const needle = search.trim().toLocaleLowerCase();
+
+  const matches = (integration: Integration) => {
+    const { name, summary } = textOf(integration);
+
+    return [name, summary, categoryLabel(integration.category)].some((text) =>
+      text.toLocaleLowerCase().includes(needle),
+    );
+  };
+
+  // Gateways are managed on Settings › Payments: only those who may open it see the tile.
+  const shown = INTEGRATIONS.filter(
+    (integration) =>
+      (integration.kind !== 'gateways' || canPayments) &&
+      (!category || integration.category === category) &&
+      matches(integration),
+  );
+
+  const isSetUp = (integration: Integration) =>
+    (statusOf(integration)?.state ?? 'not-set-up') !== 'not-set-up';
+
+  const local = (integration: Integration) => !country || servesCountry(integration, country);
+
+  return {
+    statusOf,
+    error,
+    refetch,
+    shown,
+    connected: shown.filter(isSetUp),
+    available: shown.filter((integration) => !isSetUp(integration) && local(integration)),
+    elsewhere: shown.filter((integration) => !isSetUp(integration) && !local(integration)),
+  };
+};
+
+const Catalog = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+
+  const [params, setParams] = useQueryStates({
+    q: parseAsString,
+    category: parseAsStringLiteral(INTEGRATION_CATEGORIES),
+  });
+
+  const search = params.q ?? '';
+  const sections = useSections(search, params.category);
+
+  return (
+    <div className="mx-auto max-w-5xl space-y-6 p-6">
+      <div className="space-y-1">
+        <h1 className="text-lg font-semibold">{t('title', 'Integrations')}</h1>
+        <p className="text-sm text-muted-foreground">
+          {t(
+            'intro',
+            'Connect the services your organisation works with. Each one runs for all your plugins.',
+          )}
+        </p>
+      </div>
+      <Filters
+        search={search}
+        category={params.category}
+        onChange={(next) => void setParams(next)}
+      />
+      {sections.error && (
+        <div role="alert" className="flex items-center gap-3 rounded-lg border p-3 text-sm">
+          <span className="flex-1 text-destructive">
+            {t('status-failed', 'Could not load what is connected: {{message}}', {
+              message: messageOf(sections.error),
+            })}
+          </span>
+          <Button variant="outline" size="sm" onClick={() => void sections.refetch()}>
+            {t('retry', 'Retry')}
+          </Button>
+        </div>
+      )}
+      {sections.shown.length === 0 ? (
+        <Empty>
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconSearch />
+            </Empty.Media>
+            <Empty.Title>{t('no-match', 'No integrations match')}</Empty.Title>
+            <Empty.Description>
+              {t('no-match-description', 'Try another word or category.')}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
+      ) : (
+        <>
+          <Section
+            title={t('section.connected', 'Connected')}
+            items={sections.connected}
+            statusOf={sections.statusOf}
+          />
+          <Section
+            title={t('section.available', 'Available')}
+            items={sections.available}
+            statusOf={sections.statusOf}
+          />
+          <Section
+            title={t('section.elsewhere', 'Other regions')}
+            items={sections.elsewhere}
+            statusOf={sections.statusOf}
+            foreign
+          />
+        </>
+      )}
+    </div>
+  );
+};
+
+/** Settings › Integrations: the outside services core connects to, as a searchable catalog. */
+export const IntegrationsSettingsPage = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+
+  if (!useCan()('integrations.manage')) return <Navigate to={paths.settings.root} replace />;
+
+  return (
+    <PageContainer>
+      <PageHeader>
+        <PageHeader.Start>
+          <AppBreadcrumb
+            items={[
+              {
+                label: t('title', 'Integrations'),
+                to: paths.settings.integrations,
+                icon: IconPlugConnected,
+              },
+            ]}
+          />
+        </PageHeader.Start>
+      </PageHeader>
+      <ScrollArea className="flex-1">
+        <Catalog />
+      </ScrollArea>
+    </PageContainer>
+  );
+};

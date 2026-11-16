@@ -1,4 +1,4 @@
-import { ASSISTANT_MESSAGE_ROLES, ASSISTANT_THINKING_KINDS } from '@erxes/core-db/enums';
+import { ASSISTANT_MESSAGE_ROLES, ASSISTANT_THINKING_KINDS } from '@erxes/core-db/assistantEnums';
 import {
   assistantAppearances,
   assistantConnections,

@@ -17,6 +17,7 @@ export const actionCatalog = (installed: ActionPlugin[]): ActionInfo[] => [
     description: action.description,
     subject: action.subject,
     fields: action.fields,
+    outputs: action.outputs ?? [],
     source: 'core',
   })),
   ...installed.flatMap((plugin) =>
@@ -28,6 +29,7 @@ export const actionCatalog = (installed: ActionPlugin[]): ActionInfo[] => [
       subject: action.subject ?? null,
       // Checked against the contract when the plugin registered.
       fields: action.fields.map((field) => ActionField.parse(field)),
+      outputs: action.outputs ?? [],
     })),
   ),
 ];

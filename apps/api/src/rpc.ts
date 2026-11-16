@@ -110,8 +110,9 @@ const shareErrorResponses = (doc: OpenAPI.Document) => {
 };
 
 /** Drops the components no route reaches through `$ref`, such as an unused `<Name>.input`. */
-const dropUnreferenced = (doc: OpenAPI.Document) => {
+export const dropUnreferenced = (doc: OpenAPI.Document) => {
   const schemas = doc.components?.schemas ?? {};
+  const responses = doc.components?.responses ?? {};
   const reached = new Set<string>();
 
   const visit = (value: unknown) =>
@@ -120,17 +121,17 @@ const dropUnreferenced = (doc: OpenAPI.Document) => {
 
       if (name !== undefined && !reached.has(name)) {
         reached.add(name);
-        visit(schemas[name] ?? doc.components?.responses?.[name]);
+        visit(schemas[name] ?? responses[name]);
       }
 
       return ref;
     });
 
+  const kept = <T>(components: Record<string, T>) =>
+    Object.fromEntries(Object.entries(components).filter(([name]) => reached.has(name)));
+
   visit(doc.paths);
-  doc.components = {
-    ...doc.components,
-    schemas: Object.fromEntries(Object.entries(schemas).filter(([name]) => reached.has(name))),
-  };
+  doc.components = { ...doc.components, schemas: kept(schemas), responses: kept(responses) };
 };
 
 const converter = new ZodToJsonSchemaConverter();
@@ -153,8 +154,10 @@ export const generateOpenApi = async () => {
 
 let spec: ReturnType<typeof generateOpenApi> | undefined;
 
+/** The whole API's document, generated once per process. */
+export const coreOpenApi = () => (spec ??= generateOpenApi());
+
 /** The OpenAPI document for plugins and tools (`GET /core/v1/openapi.json`). */
 export const openApiDocument: RequestHandler = async (_req, res) => {
-  spec ??= generateOpenApi();
-  res.json(await spec);
+  res.json(await coreOpenApi());
 };

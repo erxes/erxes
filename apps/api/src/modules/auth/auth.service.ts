@@ -1,6 +1,5 @@
 import { recordAudit } from '~/modules/audit/audit.service';
 import {
-  auditLogs,
   caller,
   db,
   organizations,
@@ -13,7 +12,7 @@ import {
   withSystem,
 } from '@erxes/core-db';
 import { effectivePermissions } from '~/modules/roles/roles.service';
-import { twoFactorChallenge } from './twoFactor.service';
+import { assertNotLockedOut, twoFactorChallenge } from './twoFactor.service';
 import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
@@ -48,6 +47,7 @@ const findAccount = async (email: string, subdomain: string | undefined) => {
       .where(
         and(
           sql`lower(${users.email}) = ${email}`,
+          eq(users.canSignIn, true),
           subdomain ? sql`lower(${organizations.subdomain}) = ${subdomain}` : undefined,
         ),
       )
@@ -65,29 +65,6 @@ const findAccount = async (email: string, subdomain: string | undefined) => {
 };
 
 type Account = NonNullable<Awaited<ReturnType<typeof findAccount>>>;
-
-/** Lockout per account, across replicas: 10 failures in 15 minutes. */
-const assertNotLockedOut = async ({ user }: Account) => {
-  const [recent] = await withOrg(user.orgId, (tx) =>
-    tx
-      .select({ failures: sql<number>`count(*)::int` })
-      .from(auditLogs)
-      .where(
-        and(
-          eq(auditLogs.targetId, user.id),
-          eq(auditLogs.action, 'auth.sign_in_failed'),
-          sql`${auditLogs.createdAt} > now() - interval '15 minutes'`,
-        ),
-      ),
-  );
-
-  if ((recent?.failures ?? 0) >= 10) {
-    throw fail(
-      'TOO_MANY_ATTEMPTS',
-      'Too many failed sign-ins for this account: try again in 15 minutes',
-    );
-  }
-};
 
 /** A failed sign-in goes in the audit log: the account's, or the organisation's for an unknown email. */
 const recordFailure = async (
@@ -156,7 +133,7 @@ export const signIn = async (
 
   const match = await findAccount(email, subdomain);
 
-  if (match) await assertNotLockedOut(match);
+  if (match) await assertNotLockedOut(match.user.orgId, match.user.id);
 
   const valid = await verifyPassword(input.password, match?.user.passwordHash ?? null);
 
@@ -180,7 +157,7 @@ export const signIn = async (
 };
 
 export const recordSignedIn = (
-  user: { id: string; orgId: string; role: string; email: string },
+  user: { id: string; orgId: string; role: string; email: string | null },
   metadata?: Record<string, unknown>,
 ) =>
   withOrg(user.orgId, (tx) =>

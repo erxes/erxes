@@ -150,6 +150,42 @@ const SessionClaims = z.object({
 export const verifyPluginSession = async (token: string, options: VerifyOptions) =>
   member(await verifyCoreToken(token, options, 'erxes-plugin-session+jwt', SessionClaims));
 
+/**
+ * Another plugin reading this plugin's API for an organisation (its manifest's `pluginReads`,
+ * approved by the owner). It passes for a member: `userId` is `plugin:<name>`, `role` `plugin`,
+ * and `can()` holds only for the approved permissions, so `reads(...)` procedures serve it as they
+ * are.
+ */
+export interface PluginCall extends PluginMember {
+  /** The calling plugin (`accounting`). */
+  plugin: string;
+}
+
+const PluginCallClaims = z.object({
+  sub: z.string().startsWith('plugin:'),
+  org: z.string().min(1),
+  plugin: z.string().min(1),
+  permissions: z.array(z.string()),
+  tier: Tier,
+  access: PluginAccess,
+});
+
+/**
+ * Verifies a token core issued for another plugin to call this plugin's API (`Authorization:
+ * Bearer …` from `core.fetchPlugin`): issued by core, for this plugin, unexpired (5 minutes).
+ * Throws if not.
+ */
+export const verifyPluginCall = async (
+  token: string,
+  options: VerifyOptions,
+): Promise<PluginCall> => {
+  const claims = await verifyCoreToken(token, options, 'erxes-plugin-call+jwt', PluginCallClaims);
+
+  if (claims.sub !== `plugin:${claims.plugin}`) throw new Error('not an erxes plugin call token');
+
+  return { ...member({ ...claims, role: 'plugin' }), plugin: claims.plugin };
+};
+
 /** The bearer token of a request's `Authorization` header, if any. */
 export const bearerOf = (authorization: string | undefined | null) =>
   authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() || null : null;
@@ -239,9 +275,13 @@ export const verifyCustomerToken = async (
   return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
 };
 
-const sha256 = async (text: string) => {
+/** A body's SHA-256, base64url: text as UTF-8, or its bytes as they came. */
+const sha256 = async (body: string | Uint8Array<ArrayBuffer>) => {
   const digest = new Uint8Array(
-    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)),
+    await crypto.subtle.digest(
+      'SHA-256',
+      typeof body === 'string' ? new TextEncoder().encode(body) : body,
+    ),
   );
 
   return btoa(String.fromCharCode(...digest))
@@ -278,6 +318,39 @@ export const verifyCoreEvent = async (
     throw new Error('the event does not match the token');
 
   return event;
+};
+
+/** A call from outside erxes that core forwarded to the plugin's `/public` route. */
+export interface PublicCall {
+  /** The organisation the caller's address named, which has the plugin installed. */
+  orgId: string;
+  /** Core's id for this call. */
+  callId: string;
+}
+
+const PublicClaims = z.object({ sha: z.string(), public: z.string(), org: z.string() });
+
+/**
+ * Verifies a call core forwarded to `<api.url>/public/<path>` (one of the manifest's
+ * `publicPaths`) and returns its organisation: the token is core's, for this plugin, at most a
+ * minute old, and signs this exact body (its raw text, or its bytes from `express.raw` for one
+ * that isn't text; '' without one). Throws if not. The caller is anyone on the internet: check
+ * what they send (a webhook's signature).
+ */
+export const verifyPublicCall = async (
+  authorization: string | undefined | null,
+  rawBody: string | Uint8Array<ArrayBuffer>,
+  options: VerifyOptions,
+): Promise<PublicCall> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const claims = await verifyCoreToken(token, options, 'erxes-core-public+jwt', PublicClaims);
+
+  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  return { orgId: claims.org, callId: claims.public };
 };
 
 const JobClaims = z.object({ sha: z.string(), job: z.string(), org: z.string() });

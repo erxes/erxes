@@ -1,5 +1,6 @@
 import type { FilterField } from '@erxes/core-contract';
-import type { FieldContentType } from '@erxes/core-db';
+import type { FieldContentType, StoredPluginRelation } from '@erxes/core-db';
+import type { RELATION_MEASURES } from '@erxes/core-db/enums';
 import type { FilterColumn } from '@erxes/plugin-sdk/filter';
 import type { SQL } from 'drizzle-orm';
 
@@ -14,6 +15,19 @@ export interface CustomSpec {
   storage: 'text' | 'number' | 'date' | 'bool';
 }
 
+export type RelationMeasure = (typeof RELATION_MEASURES)[number];
+
+export type RelationField = StoredPluginRelation['fields'][number];
+
+/** A measure of a plugin's related records: what a `subject.related.…` path names. */
+export interface RelatedSpec {
+  plugin: string;
+  relation: StoredPluginRelation;
+  measure: RelationMeasure;
+  /** The measured field (all but `count`). */
+  field?: RelationField;
+}
+
 /** One filterable thing: how it reads in SQL for the list's table, compiled the way plugins compile theirs. */
 export interface FieldSpec extends FilterField, Omit<FilterColumn, 'label' | 'expr'> {
   /** The value as SQL (for `tags` and custom fields: unused; for `company.*`: a column of `core_companies`). */
@@ -23,6 +37,8 @@ export interface FieldSpec extends FilterField, Omit<FilterColumn, 'label' | 'ex
   viaCompany?: boolean;
   /** Rules name records (a lead stage, a category), the column holds ids: the names' ids as a `text[]`. */
   lookup?: (names: string[]) => SQL;
+  /** A measure of a plugin's related records, read from its view. */
+  related?: RelatedSpec;
 }
 
 /** A built-in field of the list's record (`subject.<path>`). */

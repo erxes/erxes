@@ -22,6 +22,8 @@ import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
+import { EbarimtReceipts } from './EbarimtReceipts';
+import { GATEWAY_NAMES } from './gatewayCatalog';
 import { STATUS_BADGE } from './invoiceStatus';
 
 const Refunds = ({ invoice }: { invoice: Invoice }) => {
@@ -196,6 +198,14 @@ export const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose
           <dd>{money(invoice.amount, invoice.currency)}</dd>
           <dt className="text-muted-foreground">{t('paid', 'Paid')}</dt>
           <dd>{invoice.paidAmount === null ? '—' : money(invoice.paidAmount, invoice.currency)}</dd>
+          <dt className="text-muted-foreground">{t('paid-with', 'Paid with')}</dt>
+          <dd>
+            {invoice.method !== 'gateway'
+              ? t(`method.${invoice.method}`, invoice.method)
+              : invoice.gatewayKind
+                ? GATEWAY_NAMES[invoice.gatewayKind]
+                : '—'}
+          </dd>
           <dt className="text-muted-foreground">{t('refunded-total', 'Refunded')}</dt>
           <dd>{money(invoice.refundedAmount, invoice.currency)}</dd>
           <dt className="text-muted-foreground">{t('status-label', 'Status')}</dt>
@@ -211,6 +221,7 @@ export const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose
           </pre>
         )}
         <Refunds invoice={invoice} />
+        <EbarimtReceipts invoice={invoice} />
         {can('payments.refund') && invoice.refundable.amount > 0 && (
           <RefundForm invoice={invoice} onDone={onClose} />
         )}

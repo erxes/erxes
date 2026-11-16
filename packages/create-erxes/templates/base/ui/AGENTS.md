@@ -21,6 +21,11 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   `src/__Pascal__.tsx` passes them to `addPluginStyles`, which adds only the
   classes web's stylesheet lacks. erxes-ui's design rules hold here too (its
   `AGENTS.md`, enforced by `vp run check`): no inline styles or raw colours.
+- Charts: add `recharts` to the plugin and draw the chart with it, inside
+  erxes-ui's `ChartContainer`: `<BarChart responsive data={rows}>` fills the
+  container and follows its size, with no wrapper or fixed size. Its `Tooltip`
+  and `Legend` take erxes-ui's `ChartTooltipContent` and `ChartLegendContent`
+  as `content`.
 - The plugin's API goes through `src/orpc.ts`:
   `useQuery(orpc.items.list.queryOptions(...))`,
   `useMutation(orpc.items.create.mutationOptions(...))`. Types come from
@@ -41,18 +46,22 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
 - Pages look and behave like core's: follow the `ui-patterns` skill.
 - Lists have core's bar (`src/modules/items/ItemsPage.tsx`): erxes-ui's `ViewBar` with
   `ListFilter`, given the list's fields and, for `member` fields, `members={memberQueries}`
-  (a `tags` query for `tags` fields). It draws the bar itself, in erxes or on its own. Its conditions and search live in the
+  (a `tags` query for `tags` fields, `contacts={contactSearchQueries}` for `customer` and
+  `company` fields). It draws the bar itself, in erxes or on its own. Its conditions and search live in the
   address; `useListFilterParams()` hands them to the list's query, and the API
   applies them with `@erxes/plugin-sdk/filter`'s `compileFilter`, core's own compiler, on a map
   of the same paths to columns (`FILTER_FIELDS` in `api/src/modules/items/items.ts`). No search boxes, toggle
-  tabs or pickers in a row above the table. Give both the record type
+  tabs or pickers in a row above the table. Another display (board, cards, a chart) is an
+  entry in erxes-ui's `DisplayMenu`, the list's own as a `TListDisplayOption`, read back with
+  `useListDisplay`. Give both the record type
   (`recordType={ITEM_TYPE}`): in erxes the bar then shows the member's saved
   views as tabs, and the filter offers to save one, as on core's customers.
 - Records open in core's side panel, like a customer: core draws the panel and
   `CONFIG.recordTypes` (`src/config.tsx`) fills its slots, the item's `Title`,
   `Detail` and `New` (`src/modules/items/ItemPanel.tsx`). `useOpenRecord()`
   opens them, and `/__id__/:id` renders erxes-ui's `RecordPage` for the expanded
-  record. A plugin's records of other records' customers are `relationTabs`
+  record; its `listPath` is the list a deleted or closed record goes back to, when
+  that isn't the plugin's first page. A plugin's records of other records' customers are `relationTabs`
   (the `ui-patterns` skill). A settings page is a route of the plugin's
   (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`):
   core links it from its settings sidebar, under the plugin's name. Custom fields
@@ -62,7 +71,8 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   with core's `fields.check` before saving. Tiles for core's
   home dashboard are `CONFIG.dashboardWidgets`: `name`, `title`, `icon`, `preview`,
   `size` and a `lazy` `component`, which core draws as the tile's body under the
-  title. Forms are core's
+  title. A tile or list that leads to one part of a record opens it on that tab:
+  `useOpenRecord().open({ contentType, contentId, tab: 'leave' })`. Forms are core's
   `PanelFormRow` rows with Cancel and Save at the bottom; nothing saves until
   Save. Dialogs are for confirmations, not forms.
 - Something that must outlive a page, such as a softphone during a call, is

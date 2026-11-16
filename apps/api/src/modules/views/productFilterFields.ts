@@ -77,6 +77,7 @@ export const productFields = async (client: Db): Promise<FieldSpec[]> => [
     options: await distinctOf(client, sql<string>`${products.currency}`),
   }),
   field('unit', 'Unit', 'text', sql`${products.unit}`),
+  field('tagIds', 'Tags', 'tags', sql`null`),
   field('description', 'Description', 'text', sql`${products.description}`),
   field('plugins', 'Used by', 'select', sql`${products.plugins}`, {
     options: await distinctOf(client, sql<string>`unnest(${products.plugins})`),

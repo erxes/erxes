@@ -75,7 +75,7 @@ const AvatarField = () => {
     name: ['avatar', 'firstName', 'lastName'],
   });
 
-  const name = [firstName, lastName].filter(Boolean).join(' ') || user.email;
+  const name = [firstName, lastName].filter(Boolean).join(' ') || (user.email ?? '');
 
   return (
     <Form.Field

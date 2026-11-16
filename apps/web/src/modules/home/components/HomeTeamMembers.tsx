@@ -1,5 +1,5 @@
 import { paths } from '~/lib/paths';
-import { Badge } from 'erxes-ui';
+import { Badge, memberName } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '~/modules/auth/session';
 import { useHomeTeamMembers } from '../hooks';
@@ -25,7 +25,7 @@ export const HomeTeamMembers = () => {
       // Alone in the organization, the list would only show the user
       rows={(members.length === 1 && members[0]?.id === me.id ? [] : members).map((member) => ({
         id: member.id,
-        name: member.fullName || member.username || member.email,
+        name: memberName(member),
         avatarUrl: member.avatarUrl,
         detail: member.fullName ? member.email : null,
         meta:

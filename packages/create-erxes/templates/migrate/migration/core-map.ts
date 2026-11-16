@@ -23,17 +23,18 @@ const gap = (note: string): Equivalent => ({ kind: 'gap', to: '', note });
 const drop = (note: string): Equivalent => ({ kind: 'drop', to: '', note });
 
 /**
- * Old core's structure (departments, branches, units, positions): core has none. A plugin that
- * used it keeps its own teams; migration/checklist.ts drafts the tables and the import.
+ * Old core's structure (departments, branches, units): core's `units` (decision 43). A plugin
+ * that used it keeps a read-only copy for its own queries; migration/checklist.ts drafts the
+ * copy's tables and the import. Positions are HR's.
  */
-export const OWN_TEAMS = owned(
-  '<plugin>_teams',
-  "the plugin's departments and branches; members in <plugin>_team_members, names from users.list (users:read)",
+export const OWN_TEAMS = contract(
+  'units.list',
+  "units:read; a read-only copy in <plugin>_teams and <plugin>_team_members, refreshed on core.unit.* events, for the plugin's own visibility queries. Old units go to core once with units.import (units:write), keeping their ids",
 );
 
-/** A field holding old structure ids or switches: `departmentIds`, `branchId`, `isCheckBranch`. */
+/** A field holding old unit ids or switches: `departmentIds`, `branchId`, `isCheckBranch`. */
 export const isStructureField = (name: string) =>
-  /^(department|branch|unit|position)Ids?$|^isCheck(Department|Branch)$/.test(name);
+  /^(department|branch|unit)Ids?$|^isCheck(Department|Branch)$/.test(name);
 
 const NO_SEGMENTS = drop('the new core has no segments; the plugin filters its own records');
 
@@ -47,13 +48,16 @@ export const WHOLE_MODULES: Record<string, Equivalent> = {
   branches: OWN_TEAMS,
   departments: OWN_TEAMS,
   units: OWN_TEAMS,
-  positions: OWN_TEAMS,
+  positions: drop("positions are the HR plugin's; other plugins leave them out"),
   brands: drop('the new core has no brands; leave brand ids and names out'),
   clientPortal: CLIENT_PORTAL,
   clientPortals: CLIENT_PORTAL,
   clientPortalUsers: CLIENT_PORTAL,
   cpUsers: CLIENT_PORTAL,
-  cpNotifications: CLIENT_PORTAL,
+  cpNotifications: sdk(
+    'customerNotifications.create',
+    'scope notifications:write; customerIds or everyone who signs in, channels email/sms; customers read them at /customer/notifications (decision 45)',
+  ),
 };
 
 /** Starting automations for a record: they start from the events a plugin publishes. */

@@ -4,6 +4,7 @@ import { createORPCClient } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { z } from 'zod';
+import { pluginCalls } from './pluginCalls';
 
 export type CoreClient = ContractRouterClient<typeof coreContract>;
 
@@ -163,19 +164,28 @@ export const createCoreClient = (options: CoreClientOptions) => {
 
   const orgClients = new Map<string, CoreClient>();
 
+  /** The core API acting in one organisation (that installed the plugin). */
+  const forOrg = (orgId: string): CoreClient => {
+    const known = orgClients.get(orgId);
+
+    if (known) return known;
+
+    const client = clientFor(orgId);
+
+    orgClients.set(orgId, client);
+
+    return client;
+  };
+
   return {
-    /** The core API acting in one organisation (that installed the plugin). */
-    forOrg(orgId: string): CoreClient {
-      const known = orgClients.get(orgId);
-
-      if (known) return known;
-
-      const client = clientFor(orgId);
-
-      orgClients.set(orgId, client);
-
-      return client;
-    },
+    forOrg,
+    /**
+     * Another plugin's API, read for an organisation: `fetchPlugin(orgId, 'sales', '/v1/deals/x')`
+     * requests `<sales api.url>/v1/deals/x` with a 5-minute token core issued for the reads the
+     * manifest's `pluginReads` asks and the owner approved, and returns the Response. Throws
+     * `PluginCallError` when core refuses the token (`READ_NOT_APPROVED`, `PLUGIN_NOT_INSTALLED`).
+     */
+    fetchPlugin: pluginCalls(forOrg, fetcher),
     /** Declares the plugin's UI, API, scopes, permissions and events. Call at startup. */
     registerManifest: (manifest: PluginManifest) => clientFor().plugins.registerManifest(manifest),
     /** Tells the plugin's open UIs that topics changed (needs `live:write`). */

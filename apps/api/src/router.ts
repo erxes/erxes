@@ -1,5 +1,6 @@
 import { activitiesRouter } from '~/modules/activities/activities.router';
 import { assistantRouter } from '~/modules/assistant/assistant.router';
+import { apiKeysRouter } from '~/modules/apiKeys/apiKeys.router';
 import { auditRouter } from '~/modules/audit/audit.router';
 import { emailsRouter } from '~/modules/email/emails.router';
 import { eventsRouter } from '~/modules/events/events.router';
@@ -7,7 +8,9 @@ import { filesRouter } from '~/modules/files/files.router';
 import { notificationsRouter } from '~/modules/notifications/notifications.router';
 import { authRouter } from '~/modules/auth/auth.router';
 import { automationsRouter } from '~/modules/automations/automations.router';
+import { broadcastsRouter, suppressionsRouter } from '~/modules/broadcasts/broadcasts.router';
 import { paymentsRouter } from '~/modules/payments/payments.router';
+import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
 import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
 import { webhooksRouter } from '~/modules/webhooks/webhooks.router';
 import { trashRouter } from '~/modules/trash/trash.router';
@@ -19,13 +22,17 @@ import { usersRouter } from '~/modules/users/users.router';
 import { transferRouter } from '~/modules/transfer/transfer.router';
 import { leadsRouter } from '~/modules/leads/leads.router';
 import { viewsRouter } from '~/modules/views/views.router';
+import { favoritesRouter } from '~/modules/favorites/favorites.router';
 import { customersRouter } from '~/modules/customers/customers.router';
 import {
   customerAccountRouter,
   customerAuthRouter,
 } from '~/modules/customerAuth/customerAuth.router';
+import { customerNotificationsRouter } from '~/modules/customerNotifications/customerNotifications.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
+import { searchRouter } from '~/modules/search/search.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
+import { unitTypesRouter, unitsRouter } from '~/modules/units/units.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
 import { unscoped } from '~/orpc';
 
@@ -40,10 +47,14 @@ export const coreRouter = unscoped.router({
   notifications: notificationsRouter,
   auth: authRouter,
   automations: automationsRouter,
+  broadcasts: broadcastsRouter,
+  suppressions: suppressionsRouter,
   payments: paymentsRouter,
+  ebarimt: ebarimtRouter,
   productCategories: productCategoriesRouter,
   products: productsRouter,
   webhooks: webhooksRouter,
+  apiKeys: apiKeysRouter,
   trash: trashRouter,
   roles: rolesRouter,
   plugins: pluginsRouter,
@@ -53,11 +64,16 @@ export const coreRouter = unscoped.router({
   transfer: transferRouter,
   leads: leadsRouter,
   views: viewsRouter,
+  favorites: favoritesRouter,
   customers: customersRouter,
   customerAccount: customerAccountRouter,
   customerAuth: customerAuthRouter,
+  customerNotifications: customerNotificationsRouter,
   companies: companiesRouter,
+  search: searchRouter,
   tags: tagsRouter,
+  units: unitsRouter,
+  unitTypes: unitTypesRouter,
   fields: fieldsRouter,
   fieldGroups: fieldGroupsRouter,
 });

@@ -1,4 +1,4 @@
-import { ASSISTANT_PROGRAM_HOST_FUNCTIONS } from '@erxes/core-db/enums';
+import { ASSISTANT_PROGRAM_HOST_FUNCTIONS } from '@erxes/core-db/assistantEnums';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
 import {
   newQuickJSWASMModuleFromVariant,

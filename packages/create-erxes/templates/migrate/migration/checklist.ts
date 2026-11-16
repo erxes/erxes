@@ -210,15 +210,15 @@ for (const call of inventory.trpcCalls) {
   if (equivalent === OWN_TEAMS) usesTeams = true;
 }
 
-// Old core's structure: the plugin keeps its own departments and branches, imported with
-// their Mongo ids, so the ids its records hold stay valid.
+// Old core's structure: core's units, imported with their Mongo ids, so the ids the plugin's
+// records hold stay valid; the plugin queries its copy.
 for (const schema of inventory.schemas) {
   for (const field of schema.fields.filter((entry) => isStructureField(entry.name))) {
     usesTeams = true;
     add(
       schema.module,
       'Tables',
-      `\`${schema.name}.${field.name}\` → plugin-owned: ids in \`${TEAMS}\`, unchanged by the import ${at(schema)}`,
+      `\`${schema.name}.${field.name}\` → core unit ids (copy in \`${TEAMS}\`), unchanged by the import ${at(schema)}`,
       OWN_TEAMS.kind,
     );
   }
@@ -228,7 +228,7 @@ if (usesTeams) {
   add(
     '(plugin)',
     'Tables',
-    `\`${TEAMS}\` and \`${TEAM_MEMBERS}\` from old core's \`departments\`, \`branches\` and the members' \`departmentIds\` and \`branchIds\` (drafts in migration/schema-draft.ts, imported by scripts/import-mongo.ts): core has no departments or branches`,
+    `\`${TEAMS}\` and \`${TEAM_MEMBERS}\`: a read-only copy of core's units (drafts in migration/schema-draft.ts). scripts/import-mongo.ts fills it from old core's \`departments\`, \`branches\` and the members' \`departmentIds\` and \`branchIds\`; push it to core once with \`units.import\`, then refresh it on \`core.unit.*\` events (scopes \`units:read\`, \`units:write\`; subscription \`core.unit.*\`)`,
     OWN_TEAMS.kind,
   );
 }
@@ -457,7 +457,7 @@ for (const collection of inventory.collections) {
 if (usesTeams) {
   tables.push(
     [
-      "/** Old core's departments and branches, now the plugin's. Ids are the Mongo `_id`s. */",
+      "/** A read-only copy of core's branches and departments. Imported ones keep the Mongo `_id`s. */",
       `export const ${camel(TEAMS)} = table(`,
       "  'teams',",
       '  {',

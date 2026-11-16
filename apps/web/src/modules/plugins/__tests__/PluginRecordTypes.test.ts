@@ -7,6 +7,7 @@ import {
   type TRelationTabProps,
   useOpenRecord,
   usePanelExpanded,
+  useRecordPanel,
 } from 'erxes-ui';
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import { act, createElement, type ReactNode } from 'react';
@@ -29,6 +30,16 @@ const DealNew = ({ defaults, onCreated }: TRecordDraftProps) =>
     `Save deal in ${String(defaults.stageId)}`,
   );
 
+/** The header's actions: deleting takes the record out of where it shows. */
+const DealActions = () => {
+  const panel = useRecordPanel();
+
+  return createElement('button', { type: 'button', onClick: () => panel?.dismiss() }, 'Delete');
+};
+
+const Terms = ({ contentId }: TRecordSlotProps) =>
+  createElement('p', null, `Terms of ${contentId}`);
+
 const Broken = () => {
   throw new Error('deal exploded');
 };
@@ -48,6 +59,7 @@ const deal = {
   title: 'Deal',
   icon: Icon,
   Title: Name,
+  Actions: DealActions,
   Detail,
   New: DealNew,
   detailPath: (id: string) => `/sales/deals/${id}`,
@@ -89,6 +101,12 @@ const CONFIGS: Record<string, unknown> = {
     recordTypes: [
       { ...deal, contentType: 'sales:deal' },
       { ...deal, contentType: 'sales:broken', Detail: Broken },
+      {
+        ...deal,
+        contentType: 'sales:contract',
+        detailPath: (id: string) => `/sales/contracts/${id}`,
+        tabs: [{ value: 'terms', label: 'Terms', icon: Icon, component: Terms }],
+      },
       // Not the plugin's own type, and a page outside the plugin's: both left out.
       { ...deal, contentType: 'shop:order' },
       { ...deal, contentType: 'sales:quote', detailPath: (id: string) => `/contacts/${id}` },
@@ -156,20 +174,44 @@ const QueryState = ({ children }: { children?: ReactNode }) => {
   return createElement(NuqsAdapter, props);
 };
 
-/** A plugin's list: it opens a draft deal in a stage. */
+/** A plugin's list: it opens a draft deal in a stage, and a contract on a tab. */
 const DealsList = () => {
-  const { openNew } = useOpenRecord();
+  const { open, openNew } = useOpenRecord();
 
-  return createElement(
-    'button',
-    { type: 'button', onClick: () => openNew('sales:deal', { stageId: 's1' }) },
-    'Add deal',
-  );
+  return [
+    createElement(
+      'button',
+      { key: 'new', type: 'button', onClick: () => openNew('sales:deal', { stageId: 's1' }) },
+      'Add deal',
+    ),
+    ...['terms', 'notes'].map((tab) =>
+      createElement(
+        'button',
+        {
+          key: tab,
+          type: 'button',
+          onClick: () => open({ contentType: 'sales:contract', contentId: 'k1', tab }),
+        },
+        `Contract on ${tab}`,
+      ),
+    ),
+  ];
 };
 
 /** The plugin's route for a deal's own page. */
 const DealPage = () =>
   createElement(RecordPage, { contentType: 'sales:deal', contentId: useParams().id ?? '' });
+
+/** A deal's page in its pipeline: closing it goes back to that pipeline's deals. */
+const PipelineDealPage = () => {
+  const { pipelineId = '', id = '' } = useParams();
+
+  return createElement(RecordPage, {
+    contentType: 'sales:deal',
+    contentId: id,
+    listPath: `/sales/pipelines/${pipelineId}`,
+  });
+};
 
 const render = async (url: string) => {
   const { SidePanelLayout } = await import('~/modules/side-panel/SidePanelLayout');
@@ -196,6 +238,10 @@ const render = async (url: string) => {
           Routes,
           null,
           createElement(Route, { path: '/sales/deals/:id', element: createElement(DealPage) }),
+          createElement(Route, {
+            path: '/sales/pipelines/:pipelineId/deals/:id',
+            element: createElement(PipelineDealPage),
+          }),
           createElement(Route, { path: '*', element: createElement(DealsList) }),
         ),
       ),
@@ -226,6 +272,9 @@ const panel = (container: HTMLElement) =>
 const tabNames = (container: HTMLElement) =>
   [...container.querySelectorAll('[data-panel-tab]')].map((tab) => tab.textContent);
 
+const selectedTab = (container: HTMLElement) =>
+  container.querySelector('[data-panel-tab][aria-selected="true"]')?.textContent;
+
 describe('a plugin record in core’s side panel', () => {
   it('draws the plugin’s slots in core’s panel and expands to the plugin’s page', async () => {
     const container = await render('/sales/deals?panel=/detail/sales:deal/d1');
@@ -239,6 +288,18 @@ describe('a plugin record in core’s side panel', () => {
 
     await vi.waitFor(() => expect(address(container)).toBe('/sales/deals/d1'));
     await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
+  });
+
+  it.each([
+    ['the list its page names', '/sales/pipelines/p1/deals/d1', '/sales/pipelines/p1'],
+    ['the plugin’s first page without one', '/sales/deals/d1', '/sales'],
+  ])('a record deleted on its own page goes back to %s', async (_case, url, list) => {
+    const container = await render(url);
+
+    await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
+    await click(button(container, 'Delete'));
+
+    await vi.waitFor(() => expect(address(container)).toBe(list));
   });
 
   it('shows another plugin’s relation tab where it names the type; a record opened there stacks, and Back returns', async () => {
@@ -272,6 +333,32 @@ describe('a plugin record in core’s side panel', () => {
 
     await vi.waitFor(() => expect(panel(container)).toContain('d9 in the panel'));
     expect(address(container)).toContain('panel=/detail/sales:deal/d9');
+  });
+
+  it('opens a record on the tab its opener names, and expands to its page on that tab', async () => {
+    const container = await render('/sales/deals');
+
+    await click(button(container, 'Contract on terms'));
+
+    await vi.waitFor(() => expect(selectedTab(container)).toBe('Terms'));
+    expect(panel(container)).toContain('Terms of k1');
+    expect(address(container)).toContain('panel=/detail/sales:contract/k1');
+
+    await click(container.querySelector('[data-record-side-panel] button[aria-expanded]'));
+
+    await vi.waitFor(() => expect(address(container)).toBe('/sales/contracts/k1?tab=terms'));
+  });
+
+  it('opens a tab the record lacks on its default; opened again, only the tab changes', async () => {
+    const container = await render('/sales/deals');
+
+    await click(button(container, 'Contract on notes'));
+    await vi.waitFor(() => expect(selectedTab(container)).toBe('Detail'));
+
+    await click(button(container, 'Contract on terms'));
+
+    await vi.waitFor(() => expect(selectedTab(container)).toBe('Terms'));
+    expect(address(container)).not.toContain('panelHistory');
   });
 
   it('keeps a crashing slot to itself: the header still closes the panel', async () => {

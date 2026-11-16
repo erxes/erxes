@@ -16,7 +16,13 @@ import {
   TimelineSearch,
   TimelineToolbar,
 } from './TimelineToolbar';
-import { useActivities, useActivityTypes, useNoteActions, usePinnedNotes } from './useActivities';
+import {
+  type TimelinePages,
+  useActivities,
+  useActivityTypes,
+  useNoteActions,
+  usePinnedNotes,
+} from './useActivities';
 
 const PLACEHOLDER_ROWS = [1, 2, 3, 4, 5];
 
@@ -52,7 +58,7 @@ const TimelineEmpty = () => {
   );
 };
 
-const TimelineError = ({ error, onRetry }: { error: Error; onRetry?: () => void }) => (
+export const TimelineError = ({ error, onRetry }: { error: Error; onRetry?: () => void }) => (
   <div role="alert" className="flex flex-col items-center gap-2 p-6 text-center text-sm">
     <p className="text-destructive">{messageOf(error)}</p>
     {onRetry && (
@@ -116,13 +122,14 @@ const PinnedNotes = ({
   );
 };
 
-const TimelineEntries = ({
+/** The entries by day, newest first, with Load more; a record's or a member's. */
+export const TimelineEntries = ({
   timeline,
   lookups,
   pageTarget,
   now,
 }: {
-  timeline: ReturnType<typeof useActivities>;
+  timeline: TimelinePages;
   lookups: Lookups;
   pageTarget: TimelineTarget;
   now: number;
@@ -171,6 +178,19 @@ const TimelineEntries = ({
   );
 };
 
+/** The entry types, and the plugins that record entries (the Source filter's choices). */
+export const useTimelineSources = () => {
+  const catalog = useActivityTypes();
+
+  const sources = [
+    ...new Set(
+      (catalog.data?.types ?? []).map((item) => item.source).filter((name) => name !== 'core'),
+    ),
+  ];
+
+  return { catalog, sources };
+};
+
 /** Names for owners, tags, fields and members the entries mention. */
 const useTimelineLookups = (targetType: string, entries: Activity[]) =>
   useChangeLookups(
@@ -199,13 +219,7 @@ export const ActivityTimeline = ({
   const [search, setSearch] = useState<string | null>(null);
   const now = useMinuteClock();
   const q = useDeferredValue(search?.trim() ?? '');
-  const catalog = useActivityTypes();
-
-  const sources = [
-    ...new Set(
-      (catalog.data?.types ?? []).map((item) => item.source).filter((name) => name !== 'core'),
-    ),
-  ];
+  const { catalog, sources } = useTimelineSources();
 
   const timeline = useActivities(targetType, targetId, {
     kind: filters.kind,

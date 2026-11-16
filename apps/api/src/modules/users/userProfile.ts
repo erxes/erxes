@@ -3,7 +3,7 @@ import type { users } from '@erxes/core-db';
 import type { UserRow } from './userRows';
 
 export interface UserChanges {
-  email?: string;
+  email?: string | null;
   fullName?: string;
   username?: string;
   avatarUrl?: string | null;

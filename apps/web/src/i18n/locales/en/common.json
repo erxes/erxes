@@ -109,6 +109,8 @@
     "plugins": "Plugins",
     "roles": "Roles",
     "webhooks": "Webhooks",
+    "api-reference": "API reference",
+    "api-keys": "API keys",
     "payments": "Payments",
     "recycle-bin": "Recycle bin",
     "plan": "Plan",
@@ -119,7 +121,8 @@
     "assistant-keys": "Provider keys",
     "assistant-approvals": "Approvals",
     "assistant-code-mode": "Code mode",
-    "assistant-appearance": "Appearance"
+    "assistant-appearance": "Appearance",
+    "integrations": "Integrations"
   },
   "auth": {
     "welcome": "Welcome",
@@ -541,6 +544,34 @@
     "keep-editing": "Keep editing",
     "cancel": "Cancel"
   },
+  "favorites": {
+    "add": "Add to favorites",
+    "added": "Added to favorites",
+    "done": "Done",
+    "edit": "Edit favorite",
+    "failed": "Favorites not saved",
+    "name": "Name",
+    "remove": "Remove",
+    "remove-named": "Remove {{name}} from favorites",
+    "title": "Favorites"
+  },
+  "search": {
+    "apps": "Apps",
+    "description": "Search records and apps",
+    "failed": "Could not search here",
+    "hint": "Type at least 2 characters",
+    "none": "Nothing matches “{{q}}”",
+    "placeholder": "Search people, companies, products and more",
+    "title": "Search",
+    "types": {
+      "company": "Companies",
+      "customer": "People",
+      "member": "Team members",
+      "product": "Products",
+      "unit": "Branches and departments"
+    },
+    "untitled": "Untitled"
+  },
   "side-panel": {
     "title": "Side panel",
     "close": "Close",
@@ -582,6 +613,8 @@
     "add-customer": "Add customer",
     "edit-companies": "Edit companies",
     "edit-customers": "Edit customers",
+    "add-owner": "Add owner",
+    "change-owner": "Change owner",
     "not-specified": "Not specified",
     "link-company": "Link a company",
     "add-person": "Add a person",

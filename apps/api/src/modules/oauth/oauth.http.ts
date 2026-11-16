@@ -74,7 +74,12 @@ const memberOfSession = async (req: Request) => {
       .limit(1),
   );
 
-  if (!row || row.user.status !== 'active' || row.user.sessionVersion !== claims.sessionVersion)
+  if (
+    !row ||
+    row.user.status !== 'active' ||
+    !row.user.canSignIn ||
+    row.user.sessionVersion !== claims.sessionVersion
+  )
     return null;
 
   return row;
@@ -254,7 +259,7 @@ oauthRouter.get('/userinfo', async (req, res) => {
       .limit(1),
   );
 
-  if (!row || row.user.status !== 'active') {
+  if (!row || row.user.status !== 'active' || !row.user.canSignIn) {
     oauthError(res, 401, 'invalid_token', 'The member is not active');
 
     return;

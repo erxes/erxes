@@ -10,10 +10,13 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { applyCustomFields } from '~/modules/fields/customValues';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
+import { setRecordTags } from '~/modules/tags/tagLinks';
+import { checkTagIds } from '~/modules/tags/tags.service';
 import {
   checkCategory,
   checkImages,
   checkUnique,
+  checkVariant,
   findProduct,
   pluginsFor,
   productColumns,
@@ -24,7 +27,7 @@ import { lookupProducts } from './productList';
 type ProductFields = Omit<
   Partial<typeof products.$inferInsert>,
   'id' | 'orgId' | 'status' | 'createdBy' | 'createdAt' | 'updatedAt' | 'archivedAt'
-> & { customFields?: Record<string, CustomValue | null> };
+> & { customFields?: Record<string, CustomValue | null>; tagIds?: string[] };
 
 /**
  * Checks what the caller sends: the columns to write, and the product's
@@ -32,11 +35,28 @@ type ProductFields = Omit<
  */
 const writable = async (
   client: Db,
-  { customFields: patch, ...input }: ProductFields,
+  { customFields: patch, tagIds: tags, ...input }: ProductFields,
   before?: ProductRow,
 ) => {
   await checkCategory(client, input.categoryId);
   await checkUnique(client, input, before?.id);
+
+  if (input.parentId !== undefined || input.kind !== undefined) {
+    const kind = input.kind ?? before?.kind;
+
+    if (kind) {
+      await checkVariant(
+        client,
+        {
+          kind,
+          parentId: input.parentId === undefined ? (before?.parentId ?? null) : input.parentId,
+        },
+        before,
+      );
+    }
+  }
+
+  const tagIds = tags === undefined ? undefined : await checkTagIds(client, 'product', tags);
 
   const imageIds = input.imageIds ? await checkImages(client, input.imageIds) : undefined;
 
@@ -47,6 +67,7 @@ const writable = async (
   return {
     columns: { ...input, ...(imageIds ? { imageIds } : {}), plugins },
     customFields,
+    tagIds,
     changedFields: Object.keys(patch ?? {}),
   };
 };
@@ -95,7 +116,10 @@ export const createProduct = async (
   input: ProductFields & { kind: ProductKind; name: string },
 ) => {
   const who = caller();
-  const { columns, customFields } = await writable(client, input);
+
+  if (input.parentId) await lockRows(client, 'core_products', [input.parentId]);
+
+  const { columns, customFields, tagIds } = await writable(client, input);
   const plugins = who.type === 'plugin' ? [who.plugin] : (columns.plugins ?? []);
 
   // Row level security shows only the caller's organisation.
@@ -117,6 +141,8 @@ export const createProduct = async (
 
   await saveCustomFields(client, 'product', id, customFields, Object.keys(customFields));
 
+  if (tagIds?.length) await setRecordTags(client, 'product', id, tagIds);
+
   const row = await findProduct(client, id);
 
   await announce(client, 'created', [{ row }]);
@@ -126,10 +152,11 @@ export const createProduct = async (
 
 /** Changes a product; custom fields are merged with what is stored (others' edits wait, then build on it). */
 export const updateProduct = async (client: Db, id: string, changes: ProductFields) => {
-  await lockRows(client, 'core_products', [id]);
+  // Its item too: two changes to a product and its item take turns.
+  await lockRows(client, 'core_products', changes.parentId ? [id, changes.parentId] : [id]);
 
   const before = await findProduct(client, id);
-  const { columns, customFields, changedFields } = await writable(client, changes, before);
+  const { columns, customFields, tagIds, changedFields } = await writable(client, changes, before);
 
   await client
     .update(products)
@@ -137,6 +164,8 @@ export const updateProduct = async (client: Db, id: string, changes: ProductFiel
     .where(eq(products.id, id));
 
   await saveCustomFields(client, 'product', id, customFields, changedFields);
+
+  if (tagIds) await setRecordTags(client, 'product', id, tagIds);
 
   const row = await findProduct(client, id);
 

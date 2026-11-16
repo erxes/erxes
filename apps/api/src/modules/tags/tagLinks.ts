@@ -1,10 +1,12 @@
 import {
   companies,
   companyTags,
-  type ContentType,
   customers,
   customerTags,
   type Db,
+  type FieldContentType,
+  products,
+  productTags,
 } from '@erxes/core-db';
 import { and, eq, inArray, notInArray, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn } from 'drizzle-orm/pg-core';
@@ -13,10 +15,11 @@ import type { PgColumn } from 'drizzle-orm/pg-core';
 const LINKS = {
   customer: { links: customerTags, records: customers },
   company: { links: companyTags, records: companies },
+  product: { links: productTags, records: products },
 } as const;
 
 /** A record's tag ids (in the order they were added), as a select column. */
-export const tagIdsColumn = (type: ContentType, recordId: PgColumn) => {
+export const tagIdsColumn = (type: FieldContentType, recordId: PgColumn) => {
   const { links } = LINKS[type];
 
   return sql<string[]>`coalesce((
@@ -25,17 +28,18 @@ export const tagIdsColumn = (type: ContentType, recordId: PgColumn) => {
   ), '{}'::text[])`.as('tag_ids');
 };
 
-/** Records with any of `tagIds` (for list filters). */
-export const hasAnyTag = (type: ContentType, recordId: PgColumn, tagIds: string[]): SQL => {
+/** Records with any of `tagIds`, or with any tag at all when left out (for list filters). */
+export const hasAnyTag = (type: FieldContentType, recordId: PgColumn, tagIds?: string[]): SQL => {
   const { links } = LINKS[type];
+  const which = tagIds ? sql` and ${inArray(links.tagId, tagIds)}` : sql``;
 
-  return sql`exists (select 1 from ${links} where ${links.recordId} = ${recordId} and ${inArray(links.tagId, tagIds)})`;
+  return sql`exists (select 1 from ${links} where ${links.recordId} = ${recordId}${which})`;
 };
 
 /** Makes a record's tags exactly `tagIds` (already checked by `checkTagIds`). */
 export const setRecordTags = async (
   client: Db,
-  type: ContentType,
+  type: FieldContentType,
   recordId: string,
   tagIds: string[],
 ) => {
@@ -64,7 +68,7 @@ export const setRecordTags = async (
  */
 export const changeTags = async (
   client: Db,
-  type: ContentType,
+  type: FieldContentType,
   recordIds: string[],
   change: { add: string[]; remove: string[] },
 ) => {
@@ -98,11 +102,16 @@ export const changeTags = async (
 };
 
 /** Gives `toId` every tag of `fromIds` (merge, before the others are deleted). */
-export const copyTags = async (client: Db, type: ContentType, fromIds: string[], toId: string) => {
+export const copyTags = async (
+  client: Db,
+  type: FieldContentType,
+  fromIds: string[],
+  toId: string,
+) => {
   const { links } = LINKS[type];
 
   await client.execute(sql`
-    insert into ${links} (${sql.raw(type === 'customer' ? 'customer_id' : 'company_id')}, tag_id, created_at)
+    insert into ${links} (${sql.raw(`${type}_id`)}, tag_id, created_at)
     select ${toId}, tag_id, created_at from ${links}
     where ${inArray(links.recordId, fromIds)}
     on conflict do nothing

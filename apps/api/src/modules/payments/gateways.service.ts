@@ -1,4 +1,4 @@
-import { GatewayConfig, gatewayTakes } from '@erxes/core-contract';
+import { GatewayConfig, gatewayTakes, visibleGatewaySettings } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -95,16 +95,10 @@ const configOf = (row: GatewayRow) => GatewayConfig.parse(JSON.parse(unseal(row.
 
 export const driverOf = (row: GatewayRow) => createGateway(configOf(row), { cacheKey: row.id });
 
-/** What may be shown of a gateway's settings: never secrets. */
-const visibleSettings = (settings: GatewayConfig) =>
-  settings.kind === 'qpay'
-    ? { invoiceCode: settings.invoiceCode, sandbox: settings.sandbox, clientId: settings.clientId }
-    : {};
-
 /** The row with the settings a member may see; the sealed credentials stay out. */
 const withVisibleSettings = (row: GatewayRow) => ({
   ...row,
-  settings: visibleSettings(configOf(row)),
+  settings: visibleGatewaySettings(configOf(row)),
 });
 
 const gatewayOrThrow = async (client: Db, id: string) => {
@@ -161,7 +155,7 @@ export const addGateway = async (client: Db, input: { name: string; config: Gate
     targetType: 'payment_gateway',
     targetId: id,
     targetLabel: input.name,
-    metadata: { kind: input.config.kind, ...visibleSettings(input.config) },
+    metadata: { kind: input.config.kind, ...visibleGatewaySettings(input.config) },
   });
 
   return withVisibleSettings(row);

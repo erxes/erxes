@@ -15,6 +15,7 @@ import {
 import {
   activityTypes,
   listActivities,
+  listMemberActivities,
   reactToActivity,
 } from '~/modules/activities/timeline.service';
 import { entryTarget, onTimeline } from '~/modules/activities/timelineAccess';
@@ -32,6 +33,7 @@ export const activitiesRouter = {
       (tx) => listActivities(tx, input),
     ),
   ),
+  byMember: scoped.activities.byMember.handler(({ input }) => listMemberActivities(db(), input)),
   create: scoped.activities.create.handler(({ input }) => createPluginActivity(db(), input)),
   addNote: unscoped.activities.addNote.handler(({ input }) =>
     onTimeline(

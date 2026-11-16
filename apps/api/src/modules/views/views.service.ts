@@ -1,7 +1,7 @@
 import { type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
 import type { ConditionGroup, ViewListType, ViewRecordType } from '@erxes/core-contract';
-import { caller, type Db, newId, views } from '@erxes/core-db';
-import { and, asc, eq, getTableColumns, or, sql } from 'drizzle-orm';
+import { broadcasts, caller, type Db, newId, views } from '@erxes/core-db';
+import { and, asc, count, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
@@ -177,6 +177,22 @@ export const removeView = async (client: Db, id: string) => {
 
   if (!row.editable) throw notEditable('delete');
 
+  // Deleting would clear their view and send them to every customer.
+  const [counted] = await client
+    .select({ waiting: count() })
+    .from(broadcasts)
+    .where(and(eq(broadcasts.viewId, id), inArray(broadcasts.status, ['draft', 'scheduled'])));
+
+  const waiting = counted?.waiting ?? 0;
+
+  if (waiting) {
+    throw fail(
+      'VIEW_IN_USE',
+      `${waiting} draft or scheduled broadcasts send to this view. Give them another audience first`,
+      { count: waiting },
+    );
+  }
+
   await client.delete(views).where(eq(views.id, id));
 
   return { ok: true as const };
@@ -188,13 +204,15 @@ export const listFilterFields = async (client: Db, recordType: ViewRecordType) =
 
   return {
     data: (await filterFields(client, recordType)).map(
-      ({ path, label, type, options, group, groupLabel }) => ({
+      ({ path, label, type, options, group, groupLabel, currency, relation }) => ({
         path,
         label,
         type,
         options,
         group,
         groupLabel,
+        currency,
+        relation,
       }),
     ),
   };

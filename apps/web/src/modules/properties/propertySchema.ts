@@ -24,6 +24,8 @@ export const propertyGroupSchema = z
     name: z.string().trim().min(1, 'Group name is required').max(100),
     code: z.string().trim().max(100).regex(CODE, 'Only letters, digits, _ . -').optional(),
     description: z.string().max(1000).optional(),
+    /** The ids a plugin type's group is limited to, by the plugin's limit keys. */
+    appliesTo: z.record(z.string(), z.array(z.string())).default({}),
   })
   .transform((data) => ({ ...data, code: data.code?.trim() || codeOf(data.name) }))
   .refine(hasCode, CODE_REQUIRED);

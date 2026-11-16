@@ -30,11 +30,25 @@ export const manifest = {
   description: '__description__',
   version: config.version,
   ui: { remote: '__id___ui', entry: config.uiEntryUrl },
-  api: { url: `${config.publicUrl}/api` },
+  // `server.ts` serves the REST routes at /api/v1 and their document here.
+  api: {
+    url: `${config.publicUrl}/api`,
+    docs: [{ audience: 'member', path: '/openapi/member.json' }],
+  },
   scopes: [],
   permissions: [
     { action: PERMISSIONS.view, label: 'View items', group: '__title__' },
     { action: PERMISSIONS.manage, label: 'Create and change items', group: '__title__' },
+  ],
+  // Ready-made sets owners add to roles; core gives Members this one when the plugin is installed.
+  permissionSets: [
+    {
+      key: 'member',
+      label: '__title__ member',
+      description: 'Views, creates and changes items',
+      permissions: [PERMISSIONS.view, PERMISSIONS.manage],
+      defaultRoles: ['member'],
+    },
   ],
   jobs: manifestJobs,
 } satisfies PluginManifest;

@@ -36,7 +36,7 @@ const NewRule = ({ field, onDone }: { field: TListFilterField; onDone: () => voi
   const [rule, setRule] = useState<TFilterRule>(() => ruleFor(field));
   // Where the rule sits in the filter once it joins; only the handlers read it.
   const index = useRef<number | null>(null);
-  const ops = operatorsFor(field.type);
+  const ops = operatorsFor(field);
 
   const change = (next: TFilterRule) => {
     setRule(next);

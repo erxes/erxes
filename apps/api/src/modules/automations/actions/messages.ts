@@ -81,6 +81,7 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       },
       { key: 'body', label: 'Message', type: 'longtext', required: true },
     ],
+    outputs: [{ key: 'sent', label: 'Emails sent', type: 'number' }],
     // Queues the emails in the step's transaction; the email job sends them.
     run: async (ctx) => {
       const to = (text(ctx.input.to) ?? '').trim();
@@ -135,6 +136,10 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         required: false,
         description: 'JSON; leave empty to send the event and the record',
       },
+    ],
+    outputs: [
+      { key: 'status', label: 'Response status', type: 'number' },
+      { key: 'body', label: 'Response', type: 'text' },
     ],
     call: async (ctx) => {
       const body = JSON.stringify(

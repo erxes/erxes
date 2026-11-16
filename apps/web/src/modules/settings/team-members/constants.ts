@@ -9,12 +9,6 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 
-/** The member open in the side panel beside the list. */
-export const MEMBER_PANEL_QUERY_KEY = 'user_id';
-
-/** The member whose password is being set. */
-export const RESET_PASSWORD_QUERY_KEY = 'reset_password_id';
-
 export const TEAM_MEMBER_CURSOR_SESSION_KEY = 'core_team_members_cursor';
 
 export const TEAM_MEMBERS_HOTKEY_SCOPE = 'core-team-members-page';

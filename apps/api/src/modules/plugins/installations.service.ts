@@ -1,4 +1,4 @@
-import { PLUGIN_SCOPES } from '@erxes/core-contract';
+import { PLUGIN_SCOPES, pluginReadScope } from '@erxes/core-contract';
 import { caller, type Db, db, pluginInstallations, plugins, requestOrgId } from '@erxes/core-db';
 import { and, eq, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -8,6 +8,7 @@ import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '@erxes/plugin-sdk/filter';
@@ -22,6 +23,9 @@ const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
 /** `requestedScopes()` in SQL. */
 const requested = sql<string[]>`case when ${plugins.manifest} ? 'scopes'
   then array(select jsonb_array_elements_text(${plugins.manifest} -> 'scopes'))
+    || array(select ${pluginReadScope('')} || permission
+      from jsonb_array_elements(coalesce(${plugins.manifest} -> 'pluginReads', '[]')) as entry,
+        jsonb_array_elements_text(entry -> 'permissions') as permission)
   else ${textArray([...PLUGIN_SCOPES])} end`;
 
 /** Active plugins with this organisation's installation, as members see them. */
@@ -102,6 +106,10 @@ export const installPlugin = async (name: string) => {
   );
 
   await syncPluginFields(tx, name, row.manifest?.fields);
+
+  if (before?.status !== 'active')
+    await grantDefaultPermissions(tx, name, row.manifest?.permissionSets);
+
   await queueInstallJobs(tx, installed.orgId, name, row.manifest?.jobs, installed.updatedAt);
 
   await recordAudit(tx, {

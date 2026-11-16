@@ -73,10 +73,13 @@ const MemberContactFields = ({ user }: { user: User }) => {
         <MemberPanelTextField
           icon={IconMail}
           scope={`${id}.email`}
-          value={user.email}
+          value={user.email ?? ''}
           placeholder={t('add-primary-email')}
           disabled={!permissions?.canEditEmail}
-          onSave={(email) => email.trim() && edit.mutate({ id, email: email.trim() })}
+          // Whoever signs in keeps an email; a member who doesn't may clear theirs.
+          onSave={(email) =>
+            (email.trim() || !user.canSignIn) && edit.mutate({ id, email: email.trim() || null })
+          }
         />
       </PanelField>
       <PanelField icon={IconPhone} label={t('phone')}>

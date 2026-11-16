@@ -1,10 +1,40 @@
-import { ACTION_FIELD_TYPES, AUTOMATION_SUBJECTS, RUN_STATUSES } from '@erxes/core-db/enums';
+import {
+  ACTION_FIELD_TYPES,
+  AUTOMATION_FIELD_TYPES,
+  AUTOMATION_SUBJECTS,
+  RUN_STATUSES,
+} from '@erxes/core-db/enums';
 import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
+
+/**
+ * A value later steps can use: one an event carries (`{{event.payload.<key>}}`) or an
+ * action answers (`{{steps.<step id>.output.<key>}}`). The builder lists them in
+ * "Insert data" and in conditions, by `label`.
+ */
+export const DataField = z.object({
+  key: z
+    .string()
+    .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}$/, 'letters, digits and _, starting with a letter'),
+  label: z.string().trim().min(1).max(100),
+  type: z.enum(AUTOMATION_FIELD_TYPES),
+});
+
+export type DataField = z.infer<typeof DataField>;
+
+/** A path conditions and placeholders can read, with how its values compare. */
+export const AutomationFieldPath = z.object({
+  path: z.string(),
+  label: z.string(),
+  type: z.enum(AUTOMATION_FIELD_TYPES),
+  options: z.array(z.string()).optional(),
+});
+
+export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
 
 /**
  * One input of an action. Besides plain values: `custom_field` (one of the
@@ -91,6 +121,8 @@ export const ActionInfo = z.object({
   /** Needs a customer or company as the run's subject. */
   subject: z.enum(AUTOMATION_SUBJECTS).nullable(),
   fields: z.array(ActionField),
+  /** What the step answers, for later steps (`dealId` of "Create a deal"). */
+  outputs: z.array(DataField),
 });
 
 export type ActionInfo = z.infer<typeof ActionInfo>;

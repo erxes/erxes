@@ -268,5 +268,11 @@
   "date-summary-once": "Нэг удаа.",
   "date-example": "Жишээ нь: {{field}} {{date}} → {{run}}, {{time}} цагт ажиллана.",
   "when-before": "Өмнө",
-  "when-after": "Дараа"
+  "when-after": "Дараа",
+  "the-trigger": "Эхлүүлсэн үйл явдал",
+  "fill-in-field": "{{field}} бөглөнө үү",
+  "on-a-date": "Тодорхой өдөр",
+  "days-after-run": "Ажилласнаас хойш",
+  "choose-date": "Өдөр сонгох",
+  "days-later": "хоногийн дараа"
 }

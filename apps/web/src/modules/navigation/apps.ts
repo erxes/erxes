@@ -5,6 +5,7 @@ import {
   IconChartPie,
   IconPackage,
   IconSettings,
+  IconSpeakerphone,
 } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +35,13 @@ const CORE_APPS: NavApp[] = [
   { id: 'contacts', label: 'Contacts', icon: IconAddressBook, path: 'contacts', kind: 'core' },
   { id: 'products', label: 'Products', icon: IconPackage, path: 'products', kind: 'core' },
   { id: 'automations', label: 'Automations', icon: IconBolt, path: 'automations', kind: 'core' },
+  {
+    id: 'broadcasts',
+    label: 'Broadcasts',
+    icon: IconSpeakerphone,
+    path: 'broadcasts',
+    kind: 'core',
+  },
   { id: 'reports', label: 'Reports', icon: IconChartPie, path: 'reports', kind: 'core' },
 ];
 
@@ -52,13 +60,13 @@ export const useNavApps = (): NavApp[] => {
   const text = usePluginText();
 
   return [
-    ...CORE_APPS.filter((app) =>
-      app.id === 'automations'
-        ? can('automations.view')
-        : app.id === 'reports'
-          ? can('contacts.view')
-          : true,
-    ).map((app) => ({ ...app, label: coreLabel(app) })),
+    ...CORE_APPS.filter((app) => {
+      if (app.id === 'automations') return can('automations.view');
+
+      if (app.id === 'broadcasts') return can('broadcasts.view');
+
+      return app.id === 'reports' ? can('contacts.view') : true;
+    }).map((app) => ({ ...app, label: coreLabel(app) })),
     ...plugins.map(({ remote, config }): NavApp => ({
       id: `plugin:${remote}`,
       label: pluginName(text, config.name),

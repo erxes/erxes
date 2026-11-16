@@ -41,6 +41,7 @@ export const AddPropertyGroup = ({
                   name: data.name,
                   code: data.code,
                   description: data.description || null,
+                  appliesTo: data.appliesTo,
                 },
                 {
                   onSuccess: (group) => {
@@ -51,7 +52,7 @@ export const AddPropertyGroup = ({
               )
             }
             loading={isPending}
-            defaultValues={{ name: '', code: '', description: '' }}
+            defaultValues={{ name: '', code: '', description: '', appliesTo: {} }}
             onCancel={() => setOpen(false)}
             contentType={contentType}
           />

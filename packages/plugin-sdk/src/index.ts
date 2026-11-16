@@ -29,6 +29,22 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Team members who don't sign in (scope `users:write`): people a plugin keeps on the team for its own app
+ * (HR's employees). They take no seat and never sign in to erxes; a plugin adds them and changes
+ * their profile, never a member who signs in.
+ *
+ *   const worker = await core.forOrg(orgId).users.add({ fullName, employeeId, phone });
+ *
+ * Branches and departments (scopes `units:read`, `units:write`; subscribe to `core.unit.*`): core's,
+ * shared by plugins. Keep a read-only copy for your own visibility queries and refresh it whenever
+ * a `core.unit.*` event arrives (the event names the unit in `entityId`); bring your old units in
+ * once with `units.import`, which keeps their ids and answers where each one went. Each unit has a
+ * `typeId`, one of the organisation's `unitTypes` of its kind (Branch and Department to start);
+ * bring your own types first with `unitTypes.import` and name them on the units you import.
+ *
+ *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
+ *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
+ *
  * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
  * then write their values. Members see them read-only and filter by them; no timeline entry or event.
  *
@@ -87,11 +103,46 @@
  *     res.json({ allowed: await canRead(check.orgId, check.userId, check.id) });   // check.type too
  *   });
  *
+ * Callers outside erxes (a webhook, a redirect after an app install) reach the plugin through
+ * core, at `<coreUrl>/core/v1/plugins/<name>/public/<orgId>/<path>`, for a path under one of the
+ * manifest's `publicPaths`. Core forwards them to `<api.url>/public/<path>` with a token naming
+ * the organisation, and passes the answer's status, type and redirect back:
+ *
+ *   publicPaths: ['/github/webhook'],
+ *   app.all('/api/public/*path', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const { orgId } = await verifyPublicCall(req.headers.authorization, req.body ?? '', { coreUrl, plugin: 'operation' });
+ *     // anyone can call: check the sender's own signature (X-Hub-Signature-256) before acting
+ *   });
+ *
  * List filters (erxes-ui's `ListFilter`): `@erxes/plugin-sdk/filter` compiles the bar's condition
  * group to SQL on a map of paths to columns, with core's operators and its 400 `INVALID_FILTER`:
  *
  *   const FIELDS = { 'subject.name': { type: 'text', expr: tickets.name } } satisfies FilterFields;
  *   .where(compileFilter(FIELDS, input.filter, { me: member.userId }))   // filter: FilterParam
+ *
+ * API reference: `@erxes/plugin-sdk/openapi` documents the plugin's routes, served as REST beside
+ * the RPC handler. The manifest's `api.docs` lists one document per audience (`member`, and
+ * `employee`, `customer` or `website` for routes those call), and Settings › Developer shows them:
+ *
+ *   api: { url: `${publicUrl}/api`, docs: [{ audience: 'member', path: '/openapi/member.json' }] },
+ *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));
+ *   app.get('/api/openapi/member.json', async (_req, res) => res.json(await pluginOpenApi(router, { plugin, audience: 'member', title, version, server: `${publicUrl}/api`, prefix: '/v1' })));
+ *
+ * Another plugin's API (accounting reading sales' deals when sales' events arrive, which carry
+ * only ids and totals): name it in the manifest's `pluginReads`. Each organisation's owner
+ * approves it like a new scope, and it works where both plugins are installed. Core issues a
+ * 5-minute token for that plugin's API with the approved permissions its manifest declares:
+ *
+ *   pluginReads: [{ plugin: 'sales', permissions: ['sales.deal.view'], reason: 'Post deals to the ledger' }],
+ *   const response = await core.fetchPlugin(orgId, 'sales', `/v1/deals/${dealId}`);  // <sales api.url>/v1/deals/…
+ *   // a refused token throws PluginCallError: code READ_NOT_APPROVED, PLUGIN_NOT_INSTALLED, PLUGIN_UNREACHABLE, NOT_IN_PLAN
+ *
+ * The plugin being read accepts the token beside members' sessions on `/api/rpc/*` and
+ * `/api/v1/*`, so its `reads(...)` procedures serve it as they are:
+ *
+ *   const options = { coreUrl, plugin: 'sales' };
+ *   const member = await verifyPluginSession(token, options).catch(() => verifyPluginCall(token, options));
+ *   // a call: userId 'plugin:accounting', plugin 'accounting', role 'plugin', can() only the approved permissions
  *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
@@ -102,5 +153,7 @@
 export * from './client';
 
 export * from './jobs';
+
+export { PluginCallError } from './pluginCalls';
 
 export * from './verify';

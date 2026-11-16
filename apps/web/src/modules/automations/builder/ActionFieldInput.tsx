@@ -1,5 +1,14 @@
-import { IconAt, IconBuilding, IconUser } from '@tabler/icons-react';
-import { Input, jsonOf, Select, Switch, Textarea, textOf } from 'erxes-ui';
+import { IconAt, IconBuilding, IconCalendar, IconClockPlus, IconUser } from '@tabler/icons-react';
+import {
+  DatePicker,
+  InputGroup,
+  jsonOf,
+  Select,
+  Switch,
+  Textarea,
+  textOf,
+  toIsoDay,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -36,14 +45,56 @@ const TextField = ({
   />
 );
 
-const DateInput = ({ value, onChange, disabled }: ActionInputProps) => (
-  <Input
-    type="date"
-    value={textOf(value)}
-    disabled={disabled}
-    onChange={(event) => onChange(event.target.value)}
-  />
-);
+/** `{{now | add_days: 7 | date}}`: the day, a number of days after the step runs. */
+const AFTER_RUN = /^\{\{\s*now\s*\|\s*add_days:\s*(\d+)\s*\|\s*date\s*\}\}$/;
+
+const afterRun = (days: number) => `{{now | add_days: ${days} | date}}`;
+
+/** A fixed day, or (what an automation usually wants) some days after the step runs. */
+const DateInput = ({ field, value, onChange, disabled }: ActionInputProps) => {
+  const { t } = useTranslation('automations');
+  const text = textOf(value);
+  const days = AFTER_RUN.exec(text)?.[1];
+
+  return (
+    <div className="space-y-2">
+      <Segmented
+        value={days === undefined ? 'on' : 'after'}
+        disabled={disabled}
+        label={field.label}
+        onChange={(next) => onChange(next === 'after' ? afterRun(7) : '')}
+        options={[
+          { value: 'on', label: t('on-a-date', 'On a date'), icon: IconCalendar },
+          { value: 'after', label: t('days-after-run', 'Days after it runs'), icon: IconClockPlus },
+        ]}
+      />
+      {days === undefined ? (
+        <DatePicker
+          value={text || undefined}
+          placeholder={t('choose-date', 'Choose a date')}
+          onChange={(date) => onChange(date instanceof Date ? toIsoDay(date) : '')}
+        />
+      ) : (
+        <InputGroup>
+          <InputGroup.Input
+            type="number"
+            min={0}
+            max={3650}
+            value={days}
+            disabled={disabled}
+            aria-label={t('days-after-run', 'Days after it runs')}
+            onChange={(event) =>
+              onChange(
+                afterRun(Math.min(3650, Math.max(0, Math.trunc(Number(event.target.value))))),
+              )
+            }
+          />
+          <InputGroup.Addon align="end">{t('days-later', 'days later')}</InputGroup.Addon>
+        </InputGroup>
+      )}
+    </div>
+  );
+};
 
 const CLEAR = '__clear';
 

@@ -14,12 +14,13 @@ import {
   Badge,
   FullNameField,
   FullNameValue,
+  MEMBER_CONTENT_TYPE,
   readImage,
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TEAM_MEMBERS_HOTKEY_SCOPE } from '../constants';
-import { useOpenMemberPanel } from '../details/useMemberPanel';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 import { TeamMemberEmailField } from './TeamMemberEmailField';
 import { TeamMemberWorkStartedField } from './TeamMemberInlineFields';
@@ -50,7 +51,7 @@ export const MemberAvatar = ({ user, className }: { user: User; className?: stri
 
 /** Name as a badge that opens the member; editable in place. */
 const NameCell = ({ user }: { user: User }) => {
-  const openPanel = useOpenMemberPanel();
+  const { openRecord } = useSidePanel();
   const edit = useTeamMemberEdit();
   const permissions = useMemberPermissions(user);
   const { firstName, lastName } = nameParts(user);
@@ -60,7 +61,7 @@ const NameCell = ({ user }: { user: User }) => {
       variant="secondary"
       onClick={(event) => {
         event.stopPropagation();
-        openPanel(user.id);
+        openRecord({ contentType: MEMBER_CONTENT_TYPE, contentId: user.id });
       }}
     >
       <FullNameValue />
@@ -89,11 +90,14 @@ const NameCell = ({ user }: { user: User }) => {
   );
 };
 
-/** Invitation status: verified once the member can sign in; deactivated members say so. */
+/** Invitation status: verified once the member can sign in; deactivated members and those who
+ * don't sign in say so. */
 const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
   <RecordTableInlineCell>
     {user.status === 'disabled' ? (
       <Badge variant="secondary">{t('deactivated', 'Deactivated')}</Badge>
+    ) : !user.canSignIn ? (
+      <Badge variant="muted">{t('no-sign-in', 'No sign-in')}</Badge>
     ) : (
       <Badge variant={user.status === 'invited' ? 'destructive' : 'success'}>
         {user.status === 'invited' ? t('not-verified') : t('verified', 'Verified')}

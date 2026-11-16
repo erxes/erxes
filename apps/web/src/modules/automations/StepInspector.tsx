@@ -17,6 +17,7 @@ import {
   removeStep,
   STEP_TITLES,
 } from './builder/flowModel';
+import { emptyRequired, fillIn } from './builder/flowChecks';
 import { describeStep } from './builder/flowText';
 import { BuilderContext } from './builder/BuilderContext';
 import { StepSettings } from './builder/StepSettings';
@@ -123,6 +124,18 @@ export const StepInspector = ({
     fields: [...fields, ...outputsBefore(step.id)],
   });
 
+  // An empty required input says so under itself; the rest are listed here.
+  const inline = new Set(
+    step.type === 'action'
+      ? emptyRequired(
+          step.input,
+          actions.find((item) => item.type === step.action),
+        ).map(fillIn)
+      : [],
+  );
+
+  const listed = problems.filter((problem) => !inline.has(problem));
+
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-2">
@@ -139,9 +152,9 @@ export const StepInspector = ({
           {t('step-stats', 'Last 30 days: {{succeeded}} done, {{failed}} failed', counts)}
         </p>
       )}
-      {problems.length > 0 && (
+      {listed.length > 0 && (
         <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-          {problems.map((problem) => (
+          {listed.map((problem) => (
             <li key={problem} className="flex items-center gap-2">
               <IconAlertTriangle className="size-4 shrink-0" />
               {problem}

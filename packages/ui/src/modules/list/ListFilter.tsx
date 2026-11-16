@@ -49,6 +49,12 @@ export type TListFilterField = {
   groupLabel?: string;
   /** A `number` that is money: stored in this currency's smallest unit, typed in its major one. */
   currency?: string;
+  /**
+   * A measure of related records (`Deals: count`, `Deals: Amount (total)`): the advanced filter
+   * keeps a rule on it to the records matching a "where" on `fields` ("only deals where Stage is
+   * Won"). The rule sends it as its `where`, on the fields' paths.
+   */
+  relation?: { label: string; fields: TListFilterField[] };
 };
 
 /** The props of `ListFilter`: its `id`, `fields`, lookups and record count. */

@@ -96,7 +96,10 @@ export const workspaceUsage = (orgId: string) =>
     const [{ members } = { members: 0 }] = await tx
       .select({ members: sql<number>`count(*)::int` })
       .from(users)
-      .where(and(ne(users.status, 'disabled'), eq(users.isSupport, false)));
+      // Seats: who signs in. Members kept on the team without sign-in take none.
+      .where(
+        and(ne(users.status, 'disabled'), eq(users.isSupport, false), eq(users.canSignIn, true)),
+      );
 
     const installed = await tx
       .select({

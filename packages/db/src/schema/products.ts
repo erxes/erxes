@@ -6,6 +6,7 @@ import {
   foreignKey,
   index,
   integer,
+  jsonb,
   text,
   timestamp,
   uniqueIndex,
@@ -83,6 +84,13 @@ export const products = pgTable(
     lengthMm: integer(),
     widthMm: integer(),
     heightMm: integer(),
+    /**
+     * A variant points at the item it is a variant of (size M of a T-shirt), one level deep.
+     * Each variant is its own product, with its own code, barcode and price.
+     */
+    parentId: text(),
+    /** What sets a variant apart, by option name: `{ Size: 'M', Color: 'Red' }`. */
+    variantOptions: jsonb().$type<Record<string, string>>().default({}).notNull(),
     plugins: text()
       .array()
       .default(sql`'{}'::text[]`)
@@ -102,6 +110,9 @@ export const products = pgTable(
       .where(sql`${table.barcode} IS NOT NULL`),
     index('core_products_org_created_idx').on(table.orgId, table.createdAt, table.id),
     index('core_products_org_category_idx').on(table.orgId, table.categoryId),
+    index('core_products_org_parent_idx')
+      .on(table.orgId, table.parentId)
+      .where(sql`${table.parentId} IS NOT NULL`),
     index('core_products_plugins_idx').using('gin', table.plugins),
     foreignKey({
       columns: [table.orgId],
@@ -113,6 +124,12 @@ export const products = pgTable(
       foreignColumns: [productCategories.orgId, productCategories.id],
       name: 'core_products_category_fkey',
     }),
+    foreignKey({
+      columns: [table.orgId, table.parentId],
+      foreignColumns: [table.orgId, table.id],
+      name: 'core_products_parent_fkey',
+    }),
+    check('core_products_parent_check', sql`${table.parentId} <> ${table.id}`),
     check('core_products_kind_check', inList(table.kind, PRODUCT_KINDS)),
     check('core_products_status_check', inList(table.status, PRODUCT_STATUSES)),
     check('core_products_price_check', sql`${table.price} >= 0`),

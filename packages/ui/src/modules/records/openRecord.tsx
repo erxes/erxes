@@ -10,16 +10,22 @@ export interface RecordRef {
   contentId: string;
 }
 
-type OpenRecord = (record: RecordRef) => void;
+/**
+ * Opens a record; `tab` picks the tab it opens on: `detail`, `activity` or one of its type's
+ * `tabs` by `value`. A tab the record lacks opens its default.
+ */
+type OpenRecord = (record: RecordRef & { tab?: string }) => void;
 
 /** Opens a draft of a record type, starting with `defaults` (e.g. the stage it was added in). */
 type OpenNewRecord = (contentType: string, defaults?: Record<string, unknown>) => void;
+
+type DismissRecord = (record: RecordRef) => void;
 
 interface RecordOpener {
   open: OpenRecord;
   openNew: OpenNewRecord;
   current: RecordRef | null;
-  dismiss: OpenRecord;
+  dismiss: DismissRecord;
 }
 
 const RecordOpenerContext = createContext<RecordOpener | null>(null);
@@ -42,7 +48,7 @@ export const RecordOpenerProvider = ({
   open: OpenRecord;
   openNew?: OpenNewRecord;
   current?: RecordRef | null;
-  dismiss?: OpenRecord;
+  dismiss?: DismissRecord;
 }>) => {
   const opener = useMemo(
     () => ({ open, openNew, current, dismiss }),
@@ -55,7 +61,8 @@ export const RecordOpenerProvider = ({
 /**
  * Opens a record, or a new draft, in core's side panel.
  * `const { open, openNew } = useOpenRecord()`: `open({ contentType: 'sales:deal', contentId })`
- * opens a record in core's side panel, the page staying under it, and
+ * opens a record in core's side panel, the page staying under it, on its default tab, or on
+ * the one `tab` names (`open({ contentType: 'hr:employee', contentId, tab: 'leave' })`), and
  * `openNew('sales:deal', { stageId })` opens a draft that becomes the record on Save. Any
  * type core or an installed plugin registers opens (`IUIConfig.recordTypes`). `canOpen` is
  * false outside erxes (a plugin page rendered on its own), where both do nothing.
@@ -107,7 +114,16 @@ export const RecordPanelProvider = RecordPanelContext;
  */
 export const useRecordPanel = () => use(RecordPanelContext);
 
-const page = hostComponent<RecordRef>();
+/** A `RecordPage`'s record, and the list it goes back to. */
+export interface RecordPageProps extends RecordRef {
+  /**
+   * The list closing or deleting the record goes back to, e.g. its team's tasks; without it, the
+   * plugin's first page. Pass it once the record is known.
+   */
+  listPath?: string;
+}
+
+const page = hostComponent<RecordPageProps>();
 
 /** Web registers how a record draws on its own page. */
 export const setRecordPage = page.set;
@@ -115,6 +131,6 @@ export const setRecordPage = page.set;
 /**
  * A record on its own page, as core draws a customer's.
  * The record's View at full size, under the page header, with Back to its list. A plugin
- * routes its record type's `listPath/:id` to `<RecordPage contentType="sales:deal" contentId={id} />`.
+ * routes its record type's `detailPath` to `<RecordPage contentType="sales:deal" contentId={id} listPath="/sales/deals" />`.
  */
 export const RecordPage = page.Host;

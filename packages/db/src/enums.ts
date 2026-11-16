@@ -13,7 +13,7 @@ export const CONTENT_TYPES = ['customer', 'company'] as const;
 /** An automation or plugin action's subject: a contact record, or either. */
 export const AUTOMATION_SUBJECTS = [...CONTENT_TYPES, 'any'] as const;
 
-/** Records custom fields attach to: contacts, and the shared product catalog. */
+/** Records custom fields and tags attach to: contacts, and the shared product catalog. */
 export const FIELD_CONTENT_TYPES = [...CONTENT_TYPES, 'product'] as const;
 
 /**
@@ -32,8 +32,17 @@ export const LEAD_STAGE_KINDS = ['open', 'qualified', 'disqualified'] as const;
 
 export const LEAD_EVENTS = ['created', 'stage', 'converted', 'reopened'] as const;
 
+/**
+ * The organisation's structure: where a member works (branch) and what they do (department).
+ * Two independent trees in one table; a unit's parent is always of its own kind.
+ */
+export const ORG_UNIT_KINDS = ['branch', 'department'] as const;
+
 export const PRODUCT_KINDS = ['goods', 'service'] as const;
 export const PRODUCT_STATUSES = ['active', 'archived'] as const;
+
+/** What global search finds in core: people (customers and leads), companies, products, team members, branches and departments. */
+export const SEARCH_RECORD_TYPES = ['customer', 'company', 'product', 'member', 'unit'] as const;
 
 /** Lists views belong to: customers, leads (people), companies, company leads, products. */
 export const VIEW_RECORD_TYPES = [
@@ -76,6 +85,8 @@ export const FILTER_FIELD_TYPES = [
   'select',
   'member',
   'tags',
+  'customer',
+  'company',
 ] as const;
 
 /** Where a list filter comes from, for grouping in the picker; `plugin`: a plugin's fields, under its name. */
@@ -87,6 +98,25 @@ export const FILTER_FIELD_GROUPS = [
   'activity',
   'plugin',
 ] as const;
+
+/** How a field of a plugin's relation (`relations` in its manifest) compares: its view column's kind. */
+export const RELATION_FIELD_TYPES = [
+  'text',
+  'number',
+  'date',
+  'boolean',
+  'select',
+  'member',
+] as const;
+
+/**
+ * What a relation rule measures over the related rows: how many, or a number field's total,
+ * average, least or most (a date field's earliest or latest).
+ */
+export const RELATION_MEASURES = ['count', 'sum', 'avg', 'min', 'max'] as const;
+
+/** What a relation's `view` may be (`pg_class.relkind`): a view, a materialized view or a table. */
+export const RELATION_VIEW_KINDS = ['v', 'm', 'r', 'p'] as const;
 
 // ─── Custom fields and conditions ───────────────────────────────────────────
 
@@ -145,6 +175,11 @@ export const USER_STATUSES = ['invited', 'active', 'disabled'] as const;
 /** The built-in roles every organisation has. */
 export const USER_ROLES = ['owner', 'admin', 'member'] as const;
 
+/** Built-in roles a plugin's permission set can be given to by default; Owner and Admin have everything. */
+export const DEFAULT_GRANT_ROLES = ['member'] as const;
+
+export type DefaultGrantRole = (typeof DEFAULT_GRANT_ROLES)[number];
+
 export const AUTH_TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
 
 /** The languages core's emails and example data come in. */
@@ -155,6 +190,39 @@ export const NOTIFICATION_DELIVERIES = ['email', 'inbox', 'off'] as const;
 
 /** How a customer signs in: a code sent to an email address or a phone. */
 export const CUSTOMER_LOGIN_KINDS = ['email', 'phone'] as const;
+
+/** Where a customer notification also goes besides the customer's inbox. */
+export const CUSTOMER_NOTIFICATION_CHANNELS = ['email', 'sms'] as const;
+
+/** How a broadcast reaches customers. */
+export const BROADCAST_CHANNELS = ['email', 'sms'] as const;
+
+/**
+ * Where a broadcast stands: written (`draft`), waiting for its time
+ * (`scheduled`), going out (`sending`), stopped by a member (`paused`), done
+ * (`sent`), stopped for good (`cancelled`), or stopped by an error (`failed`).
+ */
+export const BROADCAST_STATUSES = [
+  'draft',
+  'scheduled',
+  'sending',
+  'paused',
+  'sent',
+  'cancelled',
+  'failed',
+] as const;
+
+/** One recipient's copy: waiting, being sent, sent, refused by the server, or not sent (with why). */
+export const BROADCAST_RECIPIENT_STATUSES = [
+  'queued',
+  'sending',
+  'sent',
+  'failed',
+  'skipped',
+] as const;
+
+/** Why an address gets no more broadcasts. */
+export const SUPPRESSION_REASONS = ['unsubscribed', 'bounced', 'complained', 'manual'] as const;
 
 /** What a sign-in code is for: signing in (or up), or adding a login to a signed-in customer. */
 export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
@@ -184,7 +252,10 @@ export const PLUGIN_SCOPES = [
   'payments:write',
   'products:read',
   'products:write',
+  'units:read',
+  'units:write',
   'users:read',
+  'users:write',
   'views:read',
 ] as const;
 
@@ -307,8 +378,32 @@ export const ACTION_FIELD_TYPES = [
 
 // ─── Payments ───────────────────────────────────────────────────────────────
 
-export const PAYMENT_GATEWAY_KINDS = ['qpay', 'test'] as const;
+export const PAYMENT_GATEWAY_KINDS = [
+  'qpay',
+  'socialpay',
+  'monpay',
+  'storepay',
+  'pocket',
+  'toki',
+  'golomt',
+  'tdb',
+  'hipay',
+  'stripe',
+  'paypal',
+  'wechatpay',
+  'test',
+] as const;
+
 export const PAYMENT_GATEWAY_STATUSES = ['active', 'disabled'] as const;
+
+/**
+ * How an invoice was paid: through its gateway, or recorded as taken outside
+ * one (cash, a card terminal, a bank transfer).
+ */
+export const PAYMENT_METHODS = ['gateway', 'cash', 'card', 'transfer'] as const;
+
+/** The methods a payment taken outside a gateway is recorded with. */
+export const RECORDED_PAYMENT_METHODS = ['cash', 'card', 'transfer'] as const;
 
 /** How a gateway refunds: any part, only the whole payment, or not at all. */
 export const GATEWAY_REFUND_KINDS = ['partial', 'full', 'none'] as const;
@@ -325,105 +420,34 @@ export const INVOICE_STATUSES = [
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
-export const ASSISTANT_PROVIDERS = ['openai', 'grok', 'kimi', 'kimi-code'] as const;
+/**
+ * How a sales tax (VAT, GST) treats an invoice line, whatever the country:
+ * taxed at the standard rate, zero-rated, exempt, or outside its scope (not
+ * reported). A tax receipt integration maps these onto its own types.
+ */
+export const TAX_CATEGORIES = ['standard', 'zero', 'exempt', 'outside'] as const;
 
-export const ASSISTANT_APPROVAL_MODES = ['writes', 'destructive'] as const;
+/**
+ * Who issues the tax receipts for a plugin's invoices: core's integration
+ * (eBarimt), or the plugin itself (`own`: sales has its own eBarimt module).
+ */
+export const TAX_RECEIPT_ISSUERS = ['core', 'own'] as const;
 
-export const ASSISTANT_THINKING_LEVELS = [
-  'off',
-  'minimal',
-  'low',
-  'medium',
-  'high',
-  'xhigh',
-  'max',
-] as const;
+// ─── eBarimt (Mongolia's tax receipts) ──────────────────────────────────────
 
-export const ASSISTANT_THINKING_KINDS = ['effort', 'toggle', 'budget', 'fixed', 'none'] as const;
+/** Whether paid invoices get receipts: `active`, or `disabled` with the settings kept. */
+export const EBARIMT_STATUSES = ['active', 'disabled'] as const;
 
-export const ASSISTANT_MESSAGE_ROLES = ['user', 'assistant'] as const;
+/** How PosAPI taxes a line: with VAT, VAT-free, 0% VAT, or left off the receipt. */
+export const EBARIMT_TAX_TYPES = ['VAT_ABLE', 'VAT_FREE', 'VAT_ZERO', 'NOT_SEND'] as const;
 
-export const ASSISTANT_QUESTION_MODES = ['single_select', 'multi_select'] as const;
+/** `put` issues (or replaces) a receipt; `return` cancels one. */
+export const EBARIMT_RECEIPT_KINDS = ['put', 'return'] as const;
 
-export const ASSISTANT_RECORD_TYPES = [
-  'customer',
-  'company',
-  'member',
-  'product',
-  'automation',
-] as const;
+export const EBARIMT_RECEIPT_STATUSES = ['pending', 'success', 'failed'] as const;
 
-export const ASSISTANT_IMAGE_TYPES = [
-  'image/png',
-  'image/jpeg',
-  'image/webp',
-  'image/gif',
-] as const;
-
-export const ASSISTANT_DOCUMENT_TYPES = [
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-] as const;
-
-export const ASSISTANT_DOCUMENT_FORMATS = ['pdf', 'docx', 'xlsx'] as const;
-
-export const ASSISTANT_TEXT_TYPES = [
-  'text/plain',
-  'text/markdown',
-  'text/csv',
-  'application/json',
-] as const;
-
-export const ASSISTANT_ARTIFACT_FORMATS = ['html', 'csv', 'markdown'] as const;
-
-export const ASSISTANT_PROGRAM_HOST_FUNCTIONS = ['searchApi', 'callApi'] as const;
-
-export const ASSISTANT_PROGRAM_FAILURES = ['TIMEOUT', 'OUT_OF_MEMORY', 'PROGRAM_ERROR'] as const;
-
-export const ASSISTANT_AVATAR_BODIES = [
-  'circle',
-  'pebble',
-  'squircle',
-  'capsule',
-  'triangle',
-  'hexagon',
-  'cloud',
-  'drop',
-] as const;
-
-export const ASSISTANT_AVATAR_COLORS = [
-  'ink',
-  'brown',
-  'red',
-  'orange',
-  'amber',
-  'green',
-  'teal',
-  'blue',
-  'violet',
-  'pink',
-  'grey',
-] as const;
-
-export const ASSISTANT_AVATAR_EXPRESSIONS = [
-  'neutral',
-  'attentive',
-  'surprised',
-  'excited',
-  'happy',
-  'laughing',
-  'angry',
-  'sad',
-  'scared',
-  'wary',
-  'confused',
-  'curious',
-  'proud',
-  'shy',
-  'bored',
-  'sleepy',
-] as const;
+/** A receipt for a person (B2C) or a company (B2B, with its tax number). */
+export const EBARIMT_BUYER_TYPES = ['B2C_RECEIPT', 'B2B_RECEIPT'] as const;
 
 // ─── Settings ───────────────────────────────────────────────────────────────
 

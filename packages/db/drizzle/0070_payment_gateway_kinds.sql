@@ -1,0 +1,2 @@
+ALTER TABLE "core_payment_gateways" DROP CONSTRAINT "core_payment_gateways_kind_check";--> statement-breakpoint
+ALTER TABLE "core_payment_gateways" ADD CONSTRAINT "core_payment_gateways_kind_check" CHECK ("core_payment_gateways"."kind" IN ('qpay', 'socialpay', 'monpay', 'storepay', 'pocket', 'toki', 'golomt', 'tdb', 'hipay', 'stripe', 'paypal', 'test'));

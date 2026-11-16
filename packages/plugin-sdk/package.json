@@ -1,6 +1,6 @@
 {
   "name": "@erxes/plugin-sdk",
-  "version": "0.1.0-v2.8",
+  "version": "0.1.0-v2.23",
   "private": false,
   "description": "For erxes plugin servers: a typed core client with automatic plugin tokens, verification of members' plugin session tokens and of core's deliveries, and plugin jobs",
   "license": "AGPL-3.0-only",
@@ -19,6 +19,8 @@
     "./client": "./src/client.ts",
     "./filter": "./src/filter.ts",
     "./jobs": "./src/jobs.ts",
+    "./openapi": "./src/openapi.ts",
+    "./pluginCalls": "./src/pluginCalls.ts",
     "./verify": "./src/verify.ts",
     "./package.json": "./package.json"
   },
@@ -28,6 +30,8 @@
       "./client": "./dist/client.js",
       "./filter": "./dist/filter.js",
       "./jobs": "./dist/jobs.js",
+      "./openapi": "./dist/openapi.js",
+      "./pluginCalls": "./dist/pluginCalls.js",
       "./verify": "./dist/verify.js",
       "./package.json": "./package.json"
     },
@@ -42,7 +46,9 @@
     "@erxes/core-contract": "workspace:*",
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
+    "@orpc/openapi": "1.16.2",
     "@orpc/openapi-client": "1.16.2",
+    "@orpc/zod": "1.16.2",
     "jose": "^6.2.17",
     "zod": "^4.6.7"
   },

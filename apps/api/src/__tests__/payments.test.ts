@@ -43,7 +43,7 @@ describe('payments', { timeout: 240_000 }, () => {
     expect((await t.hr().payments.createInvoice(input)).id).toBe(id);
 
     // A callback that isn't ours is refused; ours only makes core ask the gateway.
-    expect((await fetch(t.url(`/core/v1/payments/callback/${id}?sig=forged`))).status).toBe(403);
+    expect((await fetch(t.url(`/core/v1/payments/callback/${id}/forged`))).status).toBe(403);
     expect(await t.owner().payments.payTestInvoice({ id })).toMatchObject({ status: 'paid' });
     expect((await t.hr().payments.getInvoice({ id })).status).toBe('paid');
 

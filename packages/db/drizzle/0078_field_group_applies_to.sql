@@ -1,0 +1,1 @@
+ALTER TABLE "core_field_groups" ADD COLUMN "applies_to" jsonb DEFAULT '{}'::jsonb NOT NULL;

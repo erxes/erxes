@@ -7,6 +7,7 @@ import {
   foreignKey,
   index,
   integer,
+  jsonb,
   text,
   timestamp,
   uniqueIndex,
@@ -34,6 +35,11 @@ export const fieldGroups = pgTable(
     code: text().notNull(),
     description: text(),
     order: integer().default(0).notNull(),
+    /**
+     * The records of a plugin's type the group shows on, by what the plugin's UI config names
+     * (`{ team: [id], project: [id] }`): a record must be in each listed key. Empty: every record.
+     */
+    appliesTo: jsonb().$type<Record<string, string[]>>().default({}).notNull(),
     archivedAt: timestamp({ withTimezone: true, mode: 'date' }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

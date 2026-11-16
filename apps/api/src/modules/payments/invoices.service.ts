@@ -1,4 +1,4 @@
-import type { CursorQuery, Invoice, InvoiceLineInput } from '@erxes/core-contract';
+import type { CursorQuery, Invoice, InvoiceLineInput, TaxBuyer } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -8,6 +8,7 @@ import {
   sourceOf,
   withOrg,
 } from '@erxes/core-db';
+import { type CreateInvoiceInput, GatewayError } from '@erxes/payment-gateways';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
@@ -15,7 +16,7 @@ import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { getOrganization } from '~/modules/organizations/organizations.service';
-import { driverOf, resolveGateway } from './gateways.service';
+import { driverOf, type GatewayRow, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';
 import {
   callbackSignature,
@@ -29,7 +30,8 @@ import {
 
 const log = logger.child({ component: 'payments' });
 
-const invoiceByDedupeKey = async (client: Db, dedupeKey: string) => {
+/** The caller's invoice its dedupe key already made, or null. */
+export const invoiceByDedupeKey = async (client: Db, dedupeKey: string) => {
   const [existing] = await selectInvoices(client)
     .where(
       and(eq(paymentInvoices.source, sourceOf(caller())), eq(paymentInvoices.dedupeKey, dedupeKey)),
@@ -51,7 +53,23 @@ interface InvoiceInput {
   dedupeKey?: string;
   metadata?: Record<string, unknown>;
   lines?: InvoiceLineInput[];
+  taxBuyer?: TaxBuyer;
+  taxReceipt?: boolean;
+  payerPhone?: string;
+  payerEmail?: string;
+  returnUrl?: string;
 }
+
+/** The gateway's invoice; a refusal (a payer it can't bill, an amount it won't take) is a 400. */
+const openAtGateway = async (gateway: GatewayRow, input: CreateInvoiceInput) => {
+  try {
+    return await driverOf(gateway).createInvoice(input);
+  } catch (error) {
+    if (!(error instanceof GatewayError)) throw error;
+
+    throw fail('GATEWAY_REFUSED', error.message);
+  }
+};
 
 /** What creating an invoice needs before asking the gateway, or the invoice its dedupe key already made. */
 const prepareInvoice = (orgId: string, input: InvoiceInput) =>
@@ -64,7 +82,8 @@ const prepareInvoice = (orgId: string, input: InvoiceInput) =>
     const currency = input.currency ?? (await getOrganization(tx)).currency;
     const gateway = await resolveGateway(tx, currency, input.gatewayId);
     const id = newId();
-    const path = `/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`;
+    // Signed in the path: some gateways (WeChat Pay) take no query in a callback address.
+    const path = `/core/v1/payments/callback/${id}/${callbackSignature(id)}`;
 
     return { gateway, id, lines, currency, callbackUrl: await appLink(tx, path) };
   });
@@ -82,12 +101,15 @@ export const createInvoice = async (input: InvoiceInput) => {
 
   const { gateway, id, lines, currency, callbackUrl } = prepared;
 
-  const created = await driverOf(gateway).createInvoice({
+  const created = await openAtGateway(gateway, {
     invoiceId: id,
     amount: input.amount,
     currency,
     description: input.description,
     callbackUrl,
+    returnUrl: `${callbackUrl}/return`,
+    payerPhone: input.payerPhone,
+    payerEmail: input.payerEmail,
   });
 
   return withOrg(orgId, async (tx) => {
@@ -103,11 +125,14 @@ export const createInvoice = async (input: InvoiceInput) => {
         currency,
         description: input.description,
         gatewayInvoiceId: created.gatewayInvoiceId,
-        payment: created.payment,
+        // The payer's part and the driver's own state; only the payer's part is shown.
+        payment: { ...created.state, ...created.payment, returnUrl: input.returnUrl },
         expiresAt: sql`now() + make_interval(mins => ${input.expiresInMinutes})`,
         dedupeKey: input.dedupeKey ?? null,
         metadata: input.metadata ?? {},
         lines,
+        taxBuyer: input.taxBuyer ?? null,
+        taxReceipt: input.taxReceipt ?? true,
       })
       .onConflictDoNothing()
       .returning();
@@ -155,10 +180,13 @@ export const getInvoice = async (id: string) => {
 export const cancelInvoice = async (id: string) => {
   const { invoice, gateway } = await visibleInvoice(id, 'owner');
 
-  if (invoice.status !== 'pending') throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
+  // A payment recorded outside a gateway is paid from the start, so it never gets here.
+  if (invoice.status !== 'pending' || !gateway) {
+    throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
+  }
 
   await driverOf(gateway)
-    .cancel(invoice.gatewayInvoiceId ?? '')
+    .cancel(invoice.gatewayInvoiceId ?? '', invoice.amount, invoice.payment)
     .catch((error: unknown) =>
       log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );
@@ -217,7 +245,7 @@ export const payTestInvoice = async (id: string) => {
   await withOrg(orgId, async (tx) => {
     const { gateway } = await invoiceWithGateway(tx, id);
 
-    if (gateway.kind !== 'test')
+    if (gateway?.kind !== 'test')
       throw fail('NOT_TEST', 'Only invoices of the test gateway can be paid this way');
 
     await tx

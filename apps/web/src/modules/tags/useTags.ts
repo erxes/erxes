@@ -1,4 +1,4 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import {
   type SkipToken,
   skipToken,
@@ -24,14 +24,14 @@ export const TAG_COLORS = [
 ];
 
 /** All tags of a type (an organisation has few): one request and cache entry per type. */
-export const tagsQuery = (type: ContentType | SkipToken) =>
+export const tagsQuery = (type: FieldContentType | SkipToken) =>
   orpc.tags.list.queryOptions({
     input: type === skipToken ? skipToken : { type },
     staleTime: 60_000,
   });
 
 /** All tags of a type, with a by-id lookup. */
-export const useTags = (type: ContentType) => {
+export const useTags = (type: FieldContentType) => {
   const query = useQuery(tagsQuery(type));
   const tags = useMemo(() => query.data?.data ?? [], [query.data]);
   const byId = useMemo(() => new Map(tags.map((tag) => [tag.id, tag])), [tags]);
