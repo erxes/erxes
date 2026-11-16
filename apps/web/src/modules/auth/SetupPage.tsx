@@ -8,45 +8,67 @@ import { z } from 'zod';
 import { CountrySelect, CurrencySelect } from '~/components/RegionSelect';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignedIn } from '~/modules/auth/session';
-import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
+import { AuthForm, AuthShell } from './components/AuthParts';
 
-const schema = z
-  .object({
-    organizationName: z.string().trim().min(1, 'Enter the organization name').max(100),
-    country: z.string(),
-    currency: z.string(),
-    firstName: z.string().trim().min(1, 'Enter your first name').max(100),
-    lastName: z.string().trim().max(100),
-    email: z.string().trim().check(z.email('Enter a valid email')),
-    password: NewPassword,
-    confirmPassword: z.string(),
-  })
-  .refine((values) => values.password === values.confirmPassword, {
-    path: ['confirmPassword'],
-    error: 'The passwords do not match',
-  });
+type Translate = (key: string, defaultValue: string) => string;
 
-type Values = z.infer<typeof schema>;
+const setupSchema = (t: Translate) =>
+  z
+    .object({
+      organizationName: z
+        .string()
+        .trim()
+        .min(1, t('organization-required', 'Enter the organization name'))
+        .max(100),
+      country: z.string(),
+      currency: z.string(),
+      firstName: z
+        .string()
+        .trim()
+        .min(1, t('first-name-required', 'Enter your first name'))
+        .max(100),
+      lastName: z.string().trim().max(100),
+      email: z
+        .string()
+        .trim()
+        .check(z.email(t('email-invalid', 'Enter your email, like name@example.com'))),
+      password: NewPassword,
+      confirmPassword: z.string(),
+    })
+    .refine((values) => values.password === values.confirmPassword, {
+      path: ['confirmPassword'],
+      error: t('password-mismatch', "The passwords don't match"),
+    });
+
+type Values = z.infer<ReturnType<typeof setupSchema>>;
 
 const Field = ({
   name,
   label,
   type = 'text',
   autoComplete,
+  required,
+  hint,
 }: {
   name: keyof Values;
   label: string;
   type?: string;
   autoComplete?: string;
+  required?: boolean;
+  /** What the field takes, under it until it has an error. */
+  hint?: string;
 }) => (
   <Form.Field
     name={name}
-    render={({ field }) => (
+    render={({ field, fieldState }) => (
       <Form.Item>
-        <Form.Label variant="plain">{label}</Form.Label>
+        <Form.Label variant="plain" required={required}>
+          {label}
+        </Form.Label>
         <Form.Control>
           <Input {...field} type={type} autoComplete={autoComplete} />
         </Form.Control>
+        {hint && !fieldState.error && <Form.Description>{hint}</Form.Description>}
         <Form.Message />
       </Form.Item>
     )}
@@ -94,6 +116,44 @@ const RegionFields = () => {
   );
 };
 
+/** The owner's name, email and password. */
+const OwnerFields = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth.setup' });
+
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3">
+        <Field
+          name="firstName"
+          label={t('first-name', 'First name')}
+          autoComplete="given-name"
+          required
+        />
+        <Field name="lastName" label={t('last-name', 'Last name')} autoComplete="family-name" />
+      </div>
+      <Field name="email" label={t('email', 'Email')} type="email" autoComplete="email" required />
+      <Field
+        name="password"
+        label={t('password', 'Password')}
+        type="password"
+        autoComplete="new-password"
+        required
+        hint={t(
+          'password-rule',
+          'At least 8 characters, with a lower-case and an upper-case letter and a digit.',
+        )}
+      />
+      <Field
+        name="confirmPassword"
+        label={t('confirm-password', 'Repeat password')}
+        type="password"
+        autoComplete="new-password"
+        required
+      />
+    </>
+  );
+};
+
 /** Creates the organisation and its owner, then signs in. */
 const useSetup = () => {
   const client = useQueryClient();
@@ -120,10 +180,11 @@ const useSetup = () => {
  * organisation yet, so the first visitor creates it and becomes its owner.
  */
 export const SetupPage = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth.setup' });
   const setup = useSetup();
 
   const form = useForm<Values>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(setupSchema(t)),
     defaultValues: {
       organizationName: '',
       country: '',
@@ -147,47 +208,31 @@ export const SetupPage = () => {
   );
 
   return (
-    <div className="z-10 flex min-h-screen w-full">
-      <AuthBanner />
-      <AuthenticationLayout>
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="text-xl font-semibold leading-none">Initial Configuration Steps</div>
-          <div className="text-muted-foreground">
-            Please fill out the following form to complete your installation
-          </div>
-        </div>
-        <Form {...form}>
-          <form
-            onSubmit={(event) => void onSubmit(event)}
-            className="mx-auto grid w-full gap-5"
-            noValidate
-          >
-            <Field name="organizationName" label="Organization name" autoComplete="organization" />
-            <RegionFields />
-            <div className="grid grid-cols-2 gap-3">
-              <Field name="firstName" label="First name" autoComplete="given-name" />
-              <Field name="lastName" label="Last name" autoComplete="family-name" />
-            </div>
-            <Field name="email" label="Email" type="email" autoComplete="email" />
-            <Field name="password" label="Password" type="password" autoComplete="new-password" />
-            <Field
-              name="confirmPassword"
-              label="Confirm password"
-              type="password"
-              autoComplete="new-password"
-            />
-            {setup.isError && (
-              <p role="alert" className="text-center text-sm text-destructive">
-                {messageOf(setup.error)}
-              </p>
-            )}
-            <Button type="submit" className="h-8" disabled={setup.isPending}>
-              {setup.isPending && <Spinner size="sm" />}
-              Create owner
-            </Button>
-          </form>
-        </Form>
-      </AuthenticationLayout>
-    </div>
+    <AuthShell
+      title={t('title', 'Set up erxes')}
+      subtitle={t('subtitle', 'Create your organization and its owner account to get started.')}
+    >
+      <Form {...form}>
+        <AuthForm onSubmit={(event) => void onSubmit(event)} className="mx-auto grid w-full gap-5">
+          <Field
+            name="organizationName"
+            label={t('organization', 'Organization name')}
+            autoComplete="organization"
+            required
+          />
+          <RegionFields />
+          <OwnerFields />
+          {setup.isError && (
+            <p role="alert" className="text-center text-sm text-destructive">
+              {messageOf(setup.error)}
+            </p>
+          )}
+          <Button type="submit" className="h-8" disabled={setup.isPending}>
+            {setup.isPending && <Spinner size="sm" />}
+            {t('submit', 'Create organization')}
+          </Button>
+        </AuthForm>
+      </Form>
+    </AuthShell>
   );
 };

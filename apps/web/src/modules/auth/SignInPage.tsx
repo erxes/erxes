@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignedIn } from '~/modules/auth/session';
-import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
+import { AuthForm, AuthShell } from './components/AuthParts';
 import { TwoFactorStep } from './TwoFactorStep';
 
 const PASSWORD_REVEAL_MS = 10_000;
@@ -124,11 +124,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={(event) => void onSubmit(event)}
-        className="mx-auto grid w-full gap-6"
-        noValidate
-      >
+      <AuthForm onSubmit={(event) => void onSubmit(event)} className="mx-auto grid w-full gap-6">
         <SignInTextField
           name="email"
           label={t('email')}
@@ -152,7 +148,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
         {needsOrganization && (
           <SignInTextField
             name="subdomain"
-            label="Organization address"
+            label={t('organization-address', 'Organization address')}
             autoComplete="organization"
             placeholder="acme"
           />
@@ -172,7 +168,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
         >
           {t('forgot-password', 'Forgot your password?')}
         </Link>
-      </form>
+      </AuthForm>
     </Form>
   );
 };
@@ -183,19 +179,12 @@ export const SignInPage = () => {
   const [challenge, setChallenge] = useState<string | null>(null);
 
   return (
-    <div className="z-10 flex min-h-screen w-full">
-      <AuthBanner />
-      <AuthenticationLayout>
-        <div className="flex flex-col items-center gap-3">
-          <div className="text-xl font-semibold leading-none">{t('welcome')}</div>
-          <div className="text-center text-muted-foreground">{t('sign-in-to-continue')}</div>
-        </div>
-        {challenge ? (
-          <TwoFactorStep challenge={challenge} onBack={() => setChallenge(null)} />
-        ) : (
-          <SignInForm onChallenge={setChallenge} />
-        )}
-      </AuthenticationLayout>
-    </div>
+    <AuthShell title={t('welcome')} subtitle={t('sign-in-to-continue')}>
+      {challenge ? (
+        <TwoFactorStep challenge={challenge} onBack={() => setChallenge(null)} />
+      ) : (
+        <SignInForm onChallenge={setChallenge} />
+      )}
+    </AuthShell>
   );
 };
