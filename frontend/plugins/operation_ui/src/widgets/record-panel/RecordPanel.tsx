@@ -1,3 +1,5 @@
+import { ProjectConnectionPanel } from '../contact/ProjectConnectionPanel';
+import { PROJECT_CONNECTION_CONTENT_TYPE } from '../contact/projectContactConnection';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { PropertiesSidePanel } from '@/operation/components/PropertiesSidePanel';
 import { isRecord } from '@/operation/utils/isRecord';
@@ -163,6 +165,11 @@ export const RecordPanel = ({
   view,
 }: IRecordPanelProps) => {
   const { t } = useTranslation('operation');
+
+  if (contentType === PROJECT_CONNECTION_CONTENT_TYPE) {
+    if (view === 'title') return t('connect-project', 'Connect project');
+    return view === 'new' ? <ProjectConnectionPanel /> : null;
+  }
 
   if (contentType === TASK_CONNECTION_CONTENT_TYPE) {
     if (view === 'title') return t('connect-task', 'Connect task');

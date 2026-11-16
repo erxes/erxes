@@ -1,6 +1,6 @@
 import { getProjectDetailPath } from '@/project/utils/getProjectDetailPath';
 import { IProjectDetail } from '@/project/types';
-import { IconChecklist, IconLink } from '@tabler/icons-react';
+import { IconLink } from '@tabler/icons-react';
 import { Button, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
@@ -38,16 +38,9 @@ export const ProjectPanelActions = ({
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-7"
-        title={t('tasks')}
-        aria-label={t('tasks')}
-        asChild
-      >
+      <Button variant="secondary" size="sm" className="h-7" asChild>
         <Link to={detailPath.replace(/\/overview$/, '/tasks')}>
-          <IconChecklist className="size-4" />
+          {t('view-tasks', 'View tasks')}
         </Link>
       </Button>
       <Button

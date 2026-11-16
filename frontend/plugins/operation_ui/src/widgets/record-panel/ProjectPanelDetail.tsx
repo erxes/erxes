@@ -1,13 +1,13 @@
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
 import { SelectProjectTeam } from '@/project/components/select/SelectProjectTeam';
+import { ProjectContactsField } from '@/project/components/details/ProjectContactsField';
 import { DateSelect, SelectLead } from '@/project/components/select';
 import { PROJECT_CONTENT_TYPE } from '@/project/constants/contentType';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import { IProjectDetail } from '@/project/types';
 import { compactList } from '@/operation/utils/cursorList';
 import {
-  IconBuilding,
   IconCalendar,
   IconCalendarDue,
   IconCircleCheck,
@@ -22,11 +22,11 @@ import { IconPicker, ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { type ReactNode, useRef, useState } from 'react';
 import { PanelField, SelectMember, TagsSelect } from 'ui-modules';
-import { RecordContactsField } from './RecordContactsField';
 import { RecordDescriptionField } from './RecordDescriptionField';
 
 const ProjectFields = ({ project }: { project: IProjectDetail }) => {
   const { t } = useTranslation('operation');
+  const { t: contactT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { updateProject } = useUpdateProject();
   const { _id, teamIds } = project;
   const scope = `side-panel-project.${_id}`;
@@ -124,34 +124,24 @@ const ProjectFields = ({ project }: { project: IProjectDetail }) => {
           }
         />
       </PanelField>
-      <PanelField icon={IconUsers} label={t('customer', 'Customer')}>
-        <RecordContactsField
+      <div className="mt-3 border-t">
+        <ProjectContactsField
+          projectId={_id}
           kind="customer"
           value={project.customerId}
-          scope={`${scope}.customer`}
-          onValueChange={(customerId) =>
-            updateProject({
-              variables: { _id, customerId },
-              update: (cache) =>
-                cache.evict({ id: 'ROOT_QUERY', fieldName: 'getProjects' }),
-            })
-          }
+          label={contactT('customers', 'Customers')}
+          variant="section"
+          scope={scope}
         />
-      </PanelField>
-      <PanelField icon={IconBuilding} label={t('company', 'Company')}>
-        <RecordContactsField
+        <ProjectContactsField
+          projectId={_id}
           kind="company"
           value={project.companyId}
-          scope={`${scope}.company`}
-          onValueChange={(companyId) =>
-            updateProject({
-              variables: { _id, companyId },
-              update: (cache) =>
-                cache.evict({ id: 'ROOT_QUERY', fieldName: 'getProjects' }),
-            })
-          }
+          label={contactT('companies', 'Companies')}
+          variant="section"
+          scope={scope}
         />
-      </PanelField>
+      </div>
     </div>
   );
 };
