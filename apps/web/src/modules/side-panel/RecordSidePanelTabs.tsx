@@ -1,8 +1,7 @@
 import { IconChevronDown } from '@tabler/icons-react';
-import { Button, cn, DropdownMenu, Tabs } from 'erxes-ui';
+import { Button, cn, DropdownMenu, PanelExpansionContext, Tabs } from 'erxes-ui';
 import { type Ref, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PanelExpansionContext } from './panelExpansion';
 import type { IRecordSidePanelTab, RecordSidePanelTabsProps } from './recordSidePanelTypes';
 import { useTabFit } from './useTabFit';
 

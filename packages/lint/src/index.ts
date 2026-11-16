@@ -73,6 +73,8 @@ export const preset = {
       rules: {
         ...browserRules,
         ...designRules,
+        // A component or hook erxes-ui exports is imported, never written again.
+        'erxes/no-erxes-ui-copy': 'error',
         // A folder's own files import as ./; anything else by where it lives.
         'no-restricted-imports': [
           'error',

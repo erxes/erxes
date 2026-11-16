@@ -155,6 +155,7 @@ export const ERRORS = {
   INVALID_CLIENT: { status: 401 },
   NOT_INSTALLED: { status: 403 },
   NAMESPACE_REQUIRED: { status: 400 },
+  INVALID_SCHEDULE: { status: 400 },
   PLUGIN_NOT_FOUND: { status: 404 },
   INVALID_SUBDOMAIN: { status: 400 },
   UNKNOWN_PERMISSION: { status: 400, data: Permissions },

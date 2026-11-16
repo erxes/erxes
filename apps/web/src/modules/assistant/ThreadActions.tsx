@@ -10,12 +10,20 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Dialog, DropdownMenu, Input, Label, useConfirm, useToast } from 'erxes-ui';
+import {
+  Button,
+  Dialog,
+  DropdownMenu,
+  IconTip,
+  Input,
+  Label,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import type { UIMessage } from 'ai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { IconTip } from '~/components/IconTip';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { saveFile } from '~/lib/files';
 import { threadMarkdown } from './exportMarkdown';

@@ -1,22 +1,18 @@
 import type { User } from '@erxes/core-contract';
 import { IconId, IconLink } from '@tabler/icons-react';
-import { memberName, Skeleton, Spinner } from 'erxes-ui';
+import { memberName, Skeleton, Spinner, usePanelExpanded } from 'erxes-ui';
+import { type IRecordSidePanelTab, RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
+import { PanelMessage } from '~/modules/side-panel/SidePanelEmpty';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
 import { isApiError, messageOf } from '@erxes/core-contract/client';
 import { MemberAvatar } from '../record/TeamMemberColumns';
 import { useMemberPermissions, useTeamMember, useTeamMemberEdit } from '../useTeamMembers';
-import { PanelMessage } from '~/modules/side-panel/SidePanelEmpty';
 import { MemberLinks } from './MemberLinks';
 import { MemberPanelActions } from './MemberPanelActions';
 import { MemberPanelBreadcrumb } from './MemberPanelBreadcrumb';
 import { MemberPanelDetail, MemberPanelName } from './MemberPanelDetail';
-import {
-  type IRecordSidePanelTab,
-  RecordSidePanel,
-  usePanelExpanded,
-} from '~/modules/side-panel/RecordSidePanel';
 
 const DETAIL_TAB = 'overview';
 
@@ -144,7 +140,7 @@ export const MemberDetail = ({
   return (
     <>
       <RecordSidePanel.Header
-        className={expanded ? 'h-10 bg-background px-3' : undefined}
+        variant={expanded ? 'page' : 'panel'}
         avatar={expanded ? undefined : avatar}
         title={expanded ? <MemberPanelBreadcrumb title={plainTitle} /> : title}
         actions={user && <MemberPanelActions user={user} />}

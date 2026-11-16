@@ -50,6 +50,9 @@ const useBoardSensors = () =>
     useSensor(KeyboardSensor),
   );
 
+/** The lead lists' Display choice (table or board), one for people and companies. */
+export const LEADS_DISPLAY = 'leads';
+
 export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
   const { stages, loading, error } = useLeadStages();
   const client = useQueryClient();

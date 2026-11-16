@@ -107,6 +107,7 @@ function EmptyContent({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** A list's or page's empty state: icon, title, a line and an action. */
 export const Empty = Object.assign(EmptyRoot, {
   Header: EmptyHeader,
   Title: EmptyTitle,

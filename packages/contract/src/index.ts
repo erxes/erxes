@@ -104,6 +104,8 @@ export * from './organizations';
 
 export * from './payments';
 
+export * from './pluginJobs';
+
 export * from './plugins';
 
 export * from './pluginAssistant';

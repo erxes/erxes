@@ -3,8 +3,8 @@
  * database:  pnpm db:plugin-role hr
  *
  * `erxes_plugin_hr` may create and own `hr_*` tables, and reach core only
- * through core_publish_event / core_record_audit / core_live_signal (which
- * know it is HR: it can't act as another plugin). It has no rights on any
+ * through core_publish_event / core_record_audit / core_live_signal /
+ * core_enqueue_job (which know it is HR: it can't act as another plugin). It has no rights on any
  * core table, can't bypass row level security, and can't change core's
  * schema. Prints a new password once.
  */

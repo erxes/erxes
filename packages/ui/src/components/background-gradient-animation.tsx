@@ -30,7 +30,10 @@ const GooFilter = () => (
   </svg>
 );
 
-/** Slowly moving colour blobs behind `children` (components.css draws them). */
+/**
+ * Slowly moving colour blobs behind `children`, as a backdrop.
+ * components.css draws them.
+ */
 export const BackgroundGradientAnimation = ({
   children,
   className,

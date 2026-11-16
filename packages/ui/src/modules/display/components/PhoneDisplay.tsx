@@ -5,6 +5,10 @@ import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
 import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
 
+/**
+ * A record's phones as chips, the primary one with its validation mark.
+ * `maxVisible` shows that many and a +N badge for the rest.
+ */
 export const PhoneDisplay = ({
   maxVisible,
   primaryPhone,

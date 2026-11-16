@@ -1,9 +1,8 @@
 import { IconArchive } from '@tabler/icons-react';
-import { Toggle } from 'erxes-ui';
+import { Toggle, IconTip } from 'erxes-ui';
 import { parseAsBoolean, useQueryState } from 'nuqs';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
-import { ListFilter } from '~/modules/views/filter/ListFilter';
+import { CoreListFilter } from '~/modules/views/CoreListFilter';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
 import { useProducts } from '../useProducts';
 
@@ -47,13 +46,13 @@ export const ProductsFilter = () => {
   const { totalCount, totalCapped } = useProducts();
 
   return (
-    <ListFilter
+    <CoreListFilter
       recordType="product"
       optionLabel={optionLabel}
       totalCount={totalCount}
       totalCapped={totalCapped}
     >
       <ArchivedToggle />
-    </ListFilter>
+    </CoreListFilter>
   );
 };

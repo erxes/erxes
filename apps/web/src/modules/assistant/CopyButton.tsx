@@ -1,8 +1,7 @@
 import { IconCopy } from '@tabler/icons-react';
 import { isTextUIPart, type UIMessage } from 'ai';
-import { Button, useToast } from 'erxes-ui';
+import { Button, IconTip, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 
 export const textOf = (message: UIMessage) =>
   message.parts

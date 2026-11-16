@@ -3,24 +3,31 @@ import { IconBox, IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   Button,
   Empty,
+  ListFilter,
   MemberInline,
   PageContainer,
   PageHeader,
   RecordTable,
   type RecordTableColumnDef,
   RecordTableInlineCell,
+  type TListFilterField,
   useFormat,
+  useOpenRecord,
+  ViewBar,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { ItemSheet } from './ItemSheet.tsx';
-import { ItemsFilter } from './ItemsFilter.tsx';
-import { type Item, useItems, useOpenItem, useRemoveItem } from './useItems.ts';
+import { type Item, ITEM_TYPE, useItems, useRemoveItem } from './useItems.ts';
 
+/** The name opens the item in core's side panel, as a customer's name does. */
 const NameCell = ({ item }: { item: Item }) => {
-  const { open } = useOpenItem();
+  const { open } = useOpenRecord();
 
   return (
-    <Button variant="ghost" className="w-full justify-start" onClick={() => open(item.id)}>
+    <Button
+      variant="ghost"
+      className="w-full justify-start"
+      onClick={() => open({ contentType: ITEM_TYPE, contentId: item.id })}
+    >
       {item.name}
     </Button>
   );
@@ -88,12 +95,21 @@ const columns: RecordTableColumnDef<Item>[] = [
   },
 ];
 
-/** The item list, newest first, with each item opening in the side panel. */
+/**
+ * The item list, newest first, under core's list bar: its one view, then the filter (`F`) on
+ * the fields below, whose rules the API applies (`api/src/modules/items/itemFilter.ts`). Each
+ * item opens in core's side panel; Add opens a new one there.
+ */
 export const ItemsPage = () => {
   const { t } = useTranslation('__id__');
-  const { open } = useOpenItem();
+  const { openNew } = useOpenRecord();
   const { data, isPending, error, hasNextPage, fetchNextPage } = useItems();
   const list = data?.pages.flatMap((page) => page.items) ?? [];
+
+  const fields: TListFilterField[] = [
+    { path: 'subject.name', label: t('name', 'Name'), type: 'text' },
+    { path: 'subject.createdBy', label: t('created-by', 'Created by'), type: 'member' },
+  ];
 
   return (
     <PageContainer>
@@ -103,16 +119,21 @@ export const ItemsPage = () => {
           <h1 className="text-sm font-semibold">{t('items', 'Items')}</h1>
         </PageHeader.Start>
         <PageHeader.End>
-          <Button onClick={() => open('new')}>
+          <Button onClick={() => openNew(ITEM_TYPE)}>
             <IconPlus />
             {t('add', 'Add item')}
           </Button>
         </PageHeader.End>
       </PageHeader>
-      {/* The filter bar sits under the header, as on core's lists. */}
-      <div className="flex min-h-10 items-center border-b px-3">
-        <ItemsFilter />
-      </div>
+      <ViewBar allLabel={t('all-items', 'All items')}>
+        <ListFilter
+          id="__id__-items"
+          fields={fields}
+          members={memberQueries}
+          totalCount={isPending ? undefined : list.length}
+          totalCapped={hasNextPage}
+        />
+      </ViewBar>
       {error ? (
         <p className="m-3 text-sm text-destructive">{error.message}</p>
       ) : (
@@ -135,7 +156,6 @@ export const ItemsPage = () => {
           )}
         </RecordTable.Provider>
       )}
-      <ItemSheet items={list} />
     </PageContainer>
   );
 };

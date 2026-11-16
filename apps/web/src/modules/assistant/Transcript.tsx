@@ -1,9 +1,8 @@
 import { IconLoader2, IconRefresh } from '@tabler/icons-react';
 import type { UIMessage } from 'ai';
-import { Button, Spinner } from 'erxes-ui';
+import { Button, IconTip, Spinner } from 'erxes-ui';
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { ApprovalCard } from './ApprovalCard';
 import { AssistantAvatar } from './AssistantAvatar';
 import { CopyButton, textOf } from './CopyButton';

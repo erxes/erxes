@@ -1,8 +1,7 @@
 import { IconHistory, IconPin, IconPlus, IconX } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Button, cn, IconTip } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { type AssistantTab, wantComposerFocus } from './assistantState';
 import { HistoryDialog } from './HistoryDialog';
 import { ThreadActions } from './ThreadActions';

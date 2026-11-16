@@ -34,6 +34,10 @@ const SeparatorInline = ({
   />
 );
 
+/**
+ * A thin horizontal or vertical line between sections.
+ * `Separator.Inline` is a short tick in text.
+ */
 export const Separator = Object.assign(SeparatorRoot, {
   Inline: SeparatorInline,
 });

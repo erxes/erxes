@@ -260,6 +260,10 @@ const RemoveButton = ({
   );
 };
 
+/**
+ * An image upload: a preview tile, an upload button and a remove button.
+ * `Upload.Root` takes the stored `value` and gets the new address, empty after a removal.
+ */
 export const Upload = {
   Root: UploadRoot,
   Preview: UploadPreview,

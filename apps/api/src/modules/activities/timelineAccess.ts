@@ -44,7 +44,7 @@ export const assertTargets = async (
 };
 
 /** The plugin timeline a target type belongs to (from installed plugins' manifests), or null. */
-const pluginTimeline = async (client: Db, targetType: string) => {
+export const pluginTimeline = async (client: Db, targetType: string) => {
   const [plugin] = targetType.split('.');
 
   const [row] = await client

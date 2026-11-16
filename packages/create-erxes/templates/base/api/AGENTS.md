@@ -17,6 +17,18 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   no org filter; only an insert sets `orgId`, from `context.member`.
 - Call core (`core.forOrg(orgId)...`) outside `context.tx`; a failed core call
   must not roll back the plugin's own change.
+- What happens to a record is an event: publish it with core's core_publish_event SQL function
+  in `context.tx`, so it commits with the change, with a `summary`,
+  a flat payload, `entityType` (a type in the manifest's `timelines`) and
+  `entityId`. It appears on the record's Activity tab, and on the customer's or
+  company's too when it names `subjectType` and `subjectId`. A retried event
+  adds nothing. `activities.create` is for entries that are not events.
+- Background work is a job in `src/jobs.ts`, which the manifest declares
+  (`jobs`, with an optional `cron` in UTC and `retry`). Queue one inside the
+  change that needs it, `enqueueJob(context.tx, { orgId, name, payload })` from
+  `@erxes/plugin-sdk`, so it exists only if the change commits. Core POSTs it
+  to `/api/jobs/<name>`, which `src/server.ts` checks with `verifyCoreJob`, and
+  retries until it answers 2xx. A job may run twice: key its effect by `jobId`.
 - Tests: `vite-plus/test`, run with `call(procedure, input, { context: { member } })`.
   `src/test/setup.ts` gives each file its own database, owned by a role without
   BYPASSRLS, so row-level security is real in tests.

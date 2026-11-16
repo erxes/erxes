@@ -283,9 +283,6 @@ importers:
       '@erxes/core-contract':
         specifier: workspace:*
         version: link:../../packages/contract
-      '@formkit/auto-animate':
-        specifier: 0.10.2
-        version: 0.10.2
       '@hookform/resolvers':
         specifier: 7.0.6
         version: 7.0.6(@standard-schema/spec@1.1.0)(ajv-formats@3.0.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.92.0(@types/react@19.3.0)(react@19.3.1))(zod@4.6.7)
@@ -536,6 +533,10 @@ importers:
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+    devDependencies:
+      drizzle-orm:
+        specifier: 0.45.4
+        version: 0.45.4(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(pg@8.23.1)
 
   packages/ui:
     dependencies:
@@ -654,6 +655,9 @@ importers:
       happy-dom:
         specifier: 21.0.4
         version: 21.0.4
+      i18next:
+        specifier: ^27.1.1
+        version: 27.1.1(typescript@7.0.2)
       jotai:
         specifier: ^3.0.2
         version: 3.0.2(@types/react@19.3.0)(react@19.3.1)

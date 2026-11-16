@@ -59,6 +59,8 @@ export { Form } from './components/form';
 
 export { HoverCard } from './components/hover-card';
 
+export { IconTip } from './components/icon-tip';
+
 export { InfoCard } from './components/info-card';
 
 export { Input } from './components/input';
@@ -115,7 +117,11 @@ export { Upload } from './components/upload';
 
 export { useConfirm } from './hooks/use-confirm';
 
+export { useItemKeys } from './hooks/use-item-keys';
+
 export { useMediaQuery } from './hooks/use-media-query';
+
+export { usePageHotkey } from './hooks/use-page-hotkey';
 
 export { toast, useToast } from './hooks/use-toast';
 
@@ -125,7 +131,11 @@ export { cn } from './lib/utils';
 
 export { LANGUAGES, formatter, localTimeZone, toIsoDay, useFormat, zoneOffset } from './lib/format';
 
+export { amountStep, formatMoney, fromAmountInput, toAmountInput, useMoney } from './lib/money';
+
 export { stored, storedFamily } from './lib/stored';
+
+export { oneOf, textOf } from './lib/text';
 
 export { Editor } from './modules/blocks/components/LazyEditor';
 
@@ -182,11 +192,23 @@ export {
 
 export { MemberInline, SelectMember } from './modules/pickers/SelectMember';
 
+export {
+  LookupPicker,
+  type Tag,
+  type TagsQuery,
+  useMemberOptions,
+  useTagOptions,
+} from './modules/pickers/LookupPicker';
+
 export { NumberField } from './modules/record-field/components/NumberField';
 
 export { TextField } from './modules/record-field/components/TextField';
 
 export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneInput';
+
+export { RecordList } from './modules/record-list/RecordList';
+
+export type { RecordListGroup } from './modules/record-list/RecordListRoot';
 
 export { RecordTable } from './modules/record-table/components/RecordTable';
 
@@ -195,6 +217,43 @@ export type { RecordTableColumnDef } from './modules/record-table/components/Rec
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
+
+export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/DisplayMenu';
+
+export {
+  ListFilter,
+  type TListFilterField,
+  type TListFilterProps,
+  useListFilterParams,
+} from './modules/list/ListFilter';
+
+export { listFilterQuery } from './modules/list/filter/listFilterQuery';
+
+export {
+  isRule,
+  type TConditionField,
+  type TConditionGroup,
+  type TConditionLookups,
+  type TConditionRule,
+} from './modules/conditions/conditions';
+
+export { ConditionsEditor } from './modules/conditions/LazyConditionsEditor';
+
+export { ViewBar } from './modules/list/ViewBar';
+
+export { PanelDescriptionEditor } from './modules/record-panel/PanelDescriptionEditor';
+
+export { PanelDescriptionField } from './modules/record-panel/PanelDescriptionField';
+
+export { PanelField, PanelFieldTrigger } from './modules/record-panel/PanelField';
+
+export { PanelFormLayout, PanelFormRow } from './modules/record-panel/PanelForm';
+
+export { PanelLabel } from './modules/record-panel/PanelLabel';
+
+export { PanelSection } from './modules/record-panel/PanelSection';
+
+export { PanelExpansionContext, usePanelExpanded } from './modules/record-panel/panelExpansion';
 
 export { ContactLink } from './modules/records/ContactLink';
 
@@ -207,7 +266,13 @@ export {
   type TContactContentType,
 } from './modules/records/contacts';
 
-export { type RecordRef, RecordOpenerProvider, useOpenRecord } from './modules/records/openRecord';
+export {
+  RecordOpenerProvider,
+  RecordPage,
+  type RecordRef,
+  setRecordPage,
+  useOpenRecord,
+} from './modules/records/openRecord';
 
 export { ThemeOption, themeState } from './state/themeState';
 
@@ -218,9 +283,16 @@ export {
   type TActivityRowProps,
   type TDashboardWidgetPreview,
   type TPropertyInputMeta,
+  type TPanelRecordType,
   type TPropertyInputProps,
+  type TRecordContacts,
+  type TRecordDraftProps,
   type TRecordSection,
   type TRecordSectionProps,
+  type TRecordSlotProps,
+  type TRecordTab,
+  type TRelationTab,
+  type TRelationTabProps,
 } from './types/UIConfig';
 
 export { isUndefinedOrNull } from './utils/IsUndefinedOrNull';

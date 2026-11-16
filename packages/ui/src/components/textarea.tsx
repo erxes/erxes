@@ -24,6 +24,7 @@ const textareaVariants = cva(
   },
 );
 
+/** A themed multi-line text box; `flat` and `ghost` drop the border. */
 export const Textarea = ({
   ref,
   className,

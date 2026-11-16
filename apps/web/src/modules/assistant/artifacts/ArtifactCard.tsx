@@ -7,11 +7,10 @@ import {
   IconTable,
   type Icon,
 } from '@tabler/icons-react';
-import { Button, Dialog, DropdownMenu, useToast } from 'erxes-ui';
+import { Button, Dialog, DropdownMenu, IconTip, useToast } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { type RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { Reply } from '../Reply';
 import { CsvTable, HtmlFrame } from './ArtifactPreview';
 import { csvRows } from './csvRows';

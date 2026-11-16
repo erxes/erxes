@@ -1,7 +1,7 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { IconProgress } from '@tabler/icons-react';
 import { useState } from 'react';
-import { PanelField } from '~/modules/side-panel/PanelField';
+import { PanelField } from 'erxes-ui';
 import { DisqualifyDialog } from './DisqualifyDialog';
 import { LeadStageMenu, LeadStageTrigger } from './LeadStageBadge';
 import { type LeadRecord, useLeadStages, useMoveLeads } from './useLeads';

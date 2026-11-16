@@ -1,8 +1,7 @@
 import type { AutomationStep, ConditionGroup } from '@erxes/core-contract';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Input } from 'erxes-ui';
+import { Button, Input, useItemKeys } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useItemKeys } from '~/lib/useItemKeys';
 import { ConditionsEditor } from './ConditionsEditor';
 import type { FieldInfo } from './useAutomationFields';
 

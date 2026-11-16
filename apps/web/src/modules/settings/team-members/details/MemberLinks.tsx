@@ -1,11 +1,10 @@
 import type { User } from '@erxes/core-contract';
 import { IconExternalLink } from '@tabler/icons-react';
-import { Button, ScrollArea } from 'erxes-ui';
+import { Button, ScrollArea, PanelField } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { USER_LINK_FIELDS } from '../constants';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 import { MemberPanelTextField } from './MemberFieldInputs';
-import { PanelField } from '~/modules/side-panel/PanelField';
 
 const toLinkUrl = (linkField: string, value: string) => {
   const trimmed = value.trim();

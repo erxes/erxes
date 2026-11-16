@@ -1,11 +1,10 @@
 import type { AssistantPage } from '@erxes/core-contract';
 import { IconLayoutDashboard, IconX } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { badgeVariants, Button, cn } from 'erxes-ui';
+import { badgeVariants, Button, cn, IconTip } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { IconTip } from '~/components/IconTip';
 import { orpc } from '@erxes/core-contract/client';
 import { appOfPath, SETTINGS_APP, useNavApps } from '~/modules/navigation/apps';
 import { RecordIcon } from './RecordChip';

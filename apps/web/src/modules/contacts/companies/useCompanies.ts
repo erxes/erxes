@@ -1,10 +1,8 @@
 import type { Company } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'erxes-ui';
-import { useQueryState } from 'nuqs';
+import { useListFilterParams, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
-import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 type CompanyState = 'lead' | 'customer';
 
@@ -13,11 +11,10 @@ const companiesSessionKey = (state: CompanyState) =>
   state === 'lead' ? 'core_company_leads_cursor' : 'core_companies_cursor';
 
 /** The list filters, read from the URL; `state` splits companies that are customers from company leads. */
-export const useCompaniesFilters = (state: CompanyState = 'customer') => {
-  const [searchValue] = useQueryState('searchValue');
-
-  return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
-};
+export const useCompaniesFilters = (state: CompanyState = 'customer') => ({
+  state,
+  ...useListFilterParams(),
+});
 
 export const useCompanies = (state: CompanyState = 'customer') => {
   const filters = useCompaniesFilters(state);

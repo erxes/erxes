@@ -4,8 +4,7 @@ import type {
   AutomationTrigger,
   ConditionGroup,
 } from '@erxes/core-contract';
-import { textOf } from '~/lib/text';
-import { isRule } from './conditionOperators';
+import { isRule, textOf } from 'erxes-ui';
 import { zoneLabel } from './timezones';
 import type { FieldInfo } from './useAutomationFields';
 

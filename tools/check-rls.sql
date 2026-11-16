@@ -20,7 +20,8 @@
 --    checks: its tables have no row level security, a job carries its
 --    organisation in its data, and failed jobs are read by the scope's
 --    organisation. So no plugin role and not PUBLIC may use it; plugins queue
---    work through core_events and its insert trigger.
+--    work through core_events and its insert trigger, and their own jobs
+--    through core_enqueue_job().
 create temp table no_org_id (table_name text primary key, tenant_key text, reason text not null);
 insert into no_org_id values (format('__drizzle_migrations_%s', :'scope'), null, 'The migration log.');
 \ir no-org-id.sql

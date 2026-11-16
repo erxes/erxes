@@ -1,6 +1,6 @@
 ---
 name: plugin-contract
-description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in packages/ui/src/federation.ts, exports of packages/ui, or when releasing those packages.
+description: Breaking change or not, for what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema, the core_publish_event, core_record_audit, core_live_signal or core_enqueue_job SQL functions, packages/plugin-sdk, the SHARED list in packages/ui/src/federation.ts, exports of packages/ui, or when releasing those packages.
 ---
 
 Plugins live in their own repos and upgrade on their own schedule, so every change here is either
@@ -10,17 +10,42 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - the HTTP contract (`packages/contract/src/*.ts` and the OpenAPI document). Plugin UIs call it
      through `@erxes/core-contract/client`, which bundles `routes.json` into each plugin build, so
      a plugin built before a path moved keeps calling the old one;
-   - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction.
+   - event payloads (`src/events.ts`) and the SQL functions plugins call in their own transaction:
+     `core_publish_event`, `core_record_audit`, `core_live_signal` and `core_enqueue_job`
+     (`packages/db/drizzle/0060_plugin_jobs.sql`), which queues a job the manifest's `jobs` declares.
      Core's own events name the record (`entityId`, `subjectId`) and what changed, never the row:
-     a subscriber reads the record from core;
-   - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`);
+     a subscriber reads the record from core. A plugin event with a `summary` goes on the
+     timeline of the record it names: `entityType` (a type the plugin's manifest declares in
+     `timelines`) and `entityId`, and the customer or company in `subjectType` and `subjectId`;
+     one event can reach both (`timelineConsumer` in
+     `apps/api/src/modules/events/coreConsumers.ts`). Another plugin's or an undeclared type is
+     ignored. `activities.create` is for entries that are not events;
+   - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
+     plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`);
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
-     `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`), and its first
-     module renders under `/<path>/*`. `recordSections` are drawn in core's customer and company
-     panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`); web drops a malformed one.
-     erxes-ui's `useOpenRecord` and `ContactLink` open core's records through the
-     `RecordOpenerProvider` web mounts, so the panel's URL stays core's own.
+     `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
+     `relationTabs`), and its first module renders under `/<path>/*`. `recordSections` are drawn
+     in core's customer and company panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`).
+     For `recordTypes` (`<name>:<thing>`) core draws the side panel and the plugin fills slots:
+     `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the
+     expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
+     relation tabs and `activity` for core's timeline
+     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). `relationTabs` show on core's
+     customers and companies, and on the record types with `contacts` that their `hosts` name
+     (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates all three when it
+     loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
+     entry. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
+     through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own; erxes-ui's
+     `RecordTimeline` and `RecordPage` render what web registers at startup
+     (`apps/web/src/bootstrap.tsx`). erxes-ui's `ListFilter` draws core's filter bar itself, in
+     web or outside it; its props (`TListFilterProps`, `TListFilterField`) and
+     `useListFilterParams()`'s address keys (`advanced`, `searchValue`) are the contract, and its
+     `member` and `tags` fields read through the `members` and `tags` query options the plugin
+     passes. A plugin list's saved views are not part of the contract:
+     `views.recordType` is core's lists only.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
      plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`
@@ -40,6 +65,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    plugin UIs at runtime, not at build time. `packages/ui/exports.txt` lists both, and
    `pnpm check:generated` fails until it is regenerated, so a removed line in its diff is a
    breaking change. Search the plugin repos (the HR plugin first) for a symbol before removing it.
+   A new export needs a doc comment: `node tools/ui-exports.ts` fails without one, and its first
+   sentence is the export's line in `packages/ui/CATALOG.md`, which ships in erxes-ui.
 5. Check a consumer: load the HR plugin UI in web with `PUBLIC_PLUGINS=<remote>@<remoteEntry url>`
    (`.agents/skills/verify-feature/SKILL.md`), or call the changed procedure with a token from
    `POST /core/v1/plugins/token`, or through `@erxes/plugin-sdk`'s `createCoreClient`.

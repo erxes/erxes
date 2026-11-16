@@ -1,9 +1,7 @@
 import { IconChevronLeft, IconMaximize, IconMinimize, IconX } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
 import { type RefObject, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePageHotkey } from '~/lib/usePageHotkey';
-import { PanelExpansionContext } from './panelExpansion';
+import { Button, cn, PanelExpansionContext, usePageHotkey } from 'erxes-ui';
 import type { RecordSidePanelHeaderProps } from './recordSidePanelTypes';
 
 /** Whether the button sits in the topmost panel, shown. */
@@ -29,6 +27,7 @@ const useExpandShortcut = (
 /** Renders record navigation, actions, and the guarded expansion shortcut. */
 export const RecordSidePanelHeader = ({
   className,
+  variant = 'panel',
   avatar,
   title,
   actions,
@@ -50,7 +49,8 @@ export const RecordSidePanelHeader = ({
     // Lines up with a page's breadcrumb row: h-10 plus its 1px rule.
     <div
       className={cn(
-        'box-content flex items-center gap-1 h-10 px-2 border-b bg-sidebar flex-none',
+        'box-content flex items-center gap-1 h-10 border-b flex-none',
+        variant === 'page' ? 'px-3 bg-background' : 'px-2 bg-sidebar',
         className,
       )}
     >

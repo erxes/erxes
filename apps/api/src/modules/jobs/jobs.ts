@@ -155,7 +155,8 @@ const StoredError = z.object({ message: z.string() });
 export const storedError = (output: unknown) =>
   StoredError.safeParse(output).data?.message ?? 'the attempt timed out or its worker stopped';
 
-const queueOptions = (definition: { retry?: Partial<Retry>; timeoutSeconds?: number }) => {
+/** A queue's pg-boss settings: retries with backoff (core's default unless given) and its timeout. */
+export const queueOptions = (definition: { retry?: Partial<Retry>; timeoutSeconds?: number }) => {
   const retry = { ...DEFAULT_RETRY, ...definition.retry };
 
   return {

@@ -54,6 +54,10 @@ const InfoCardContent = ({ ref, children, className, ...props }: React.Component
   );
 };
 
+/**
+ * A tinted dashboard tile: a caps title, an info tip and a content box.
+ * `description` shows in the tooltip behind the info icon.
+ */
 export const InfoCard = Object.assign(InfoCardRoot, {
   Content: InfoCardContent,
 });

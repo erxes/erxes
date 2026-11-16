@@ -5,7 +5,10 @@ import { useIcons } from 'erxes-ui/modules/icons/hooks/useIcons';
 import { useState } from 'react';
 import { IconComponent } from './IconComponent';
 
-/** Controlled: shows `value`, and reports a pick through `onValueChange`. */
+/**
+ * A button that picks a Tabler icon from a searchable list in a popover.
+ * Controlled: shows `value`, and reports a pick through `onValueChange`.
+ */
 export const IconPicker = ({
   ref,
   value,

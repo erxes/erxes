@@ -147,6 +147,10 @@ const SheetDescription = ({ className, ...props }: SheetPrimitive.Description.Pr
   />
 );
 
+/**
+ * A panel that slides in from a page edge over a dimmed page.
+ * A plugin's records open in core's side panel through `useOpenRecord`, never in a Sheet.
+ */
 export const Sheet = Object.assign(SheetRoot, {
   Trigger: SheetPrimitive.Trigger,
   View: SheetView,

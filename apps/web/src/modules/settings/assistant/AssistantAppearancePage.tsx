@@ -6,12 +6,11 @@ import {
 } from '@erxes/core-contract';
 import { IconMoodSmile } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PageContainer, PageHeader, ScrollArea, ToggleGroup, useToast } from 'erxes-ui';
+import { IconTip, PageContainer, PageHeader, ScrollArea, ToggleGroup, useToast } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { IconTip } from '~/components/IconTip';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { AssistantAvatar, appearanceQuery } from '~/modules/assistant/AssistantAvatar';

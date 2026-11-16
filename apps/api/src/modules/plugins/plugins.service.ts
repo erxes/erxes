@@ -18,6 +18,7 @@ import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
+import { schedulePluginJobs } from './pluginJobs';
 
 type PluginRow = typeof plugins.$inferSelect;
 
@@ -249,10 +250,13 @@ export const registerManifest = async (manifest: PluginManifest) => {
     throw fail('API_REQUIRED', 'Assistant operations are called at api.url: add api');
   }
 
-  await db()
-    .update(plugins)
-    .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
-    .where(eq(plugins.name, plugin));
+  await withSystem('plugin manifest', async (tx) => {
+    await tx
+      .update(plugins)
+      .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
+      .where(eq(plugins.name, plugin));
+    await schedulePluginJobs(tx, plugin, manifest.jobs);
+  });
 
   return { ok: true as const };
 };

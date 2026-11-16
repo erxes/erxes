@@ -1,9 +1,8 @@
 import { IconAt, IconBuilding, IconUser } from '@tabler/icons-react';
-import { Input, jsonOf, Select, Switch, Textarea } from 'erxes-ui';
+import { Input, jsonOf, Select, Switch, Textarea, textOf } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { textOf } from '~/lib/text';
 import {
   type ActionInputProps,
   CustomFieldSelect,

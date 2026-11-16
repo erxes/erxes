@@ -3,7 +3,11 @@ import { useCallback } from 'react';
 import { type HotkeyCallback, type Keys, type Options, useHotkeys } from 'react-hotkeys-hook';
 import { internalHotkeysEnabledScopesState } from '../states/internal/internalHotkeysEnabledScopeState';
 
-/** Runs `callback` on `keys` only while `scope` is one of the enabled hotkey scopes. */
+/**
+ * Runs `callback` on `keys` while the hotkey `scope` is enabled.
+ * It stops the key's default and propagation unless `options.preventDefault` is false, and
+ * works in content-editable elements.
+ */
 export const useScopedHotkeys = (
   keys: Keys,
   callback: HotkeyCallback,

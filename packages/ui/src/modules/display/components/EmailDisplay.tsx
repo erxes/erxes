@@ -67,6 +67,10 @@ const EmailChip = ({
   );
 };
 
+/**
+ * A record's emails as chips, the primary one with its validation mark.
+ * `maxVisible` shows that many and a +N badge for the rest; `onEmailClick` makes each a button.
+ */
 export const EmailDisplay = ({
   maxVisible,
   primaryEmail,

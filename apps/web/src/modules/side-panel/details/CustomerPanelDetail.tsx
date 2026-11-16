@@ -16,6 +16,10 @@ import {
   Spinner,
   toIsoDay,
   useFormat,
+  PanelField,
+  PanelFieldTrigger,
+  PanelSection,
+  usePanelExpanded,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,15 +29,12 @@ import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCu
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
 import { PluginRecordSections } from '~/modules/plugins/PluginRecordSections';
-import { PanelField, PanelFieldTrigger } from '../PanelField';
-import { usePanelExpanded } from '../RecordSidePanel';
 import {
   ContactChannelsSection,
   ContactDetailScroll,
   ContactOwnerField,
   ContactTextField,
 } from './ContactDetailFields';
-import { ContactDetailSection } from './ContactDetailSection';
 import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
@@ -154,7 +155,7 @@ const CustomerPersonalSections = ({ customer }: { customer: Customer }) => {
 
   return (
     <>
-      <ContactDetailSection title={sectionT('personal', 'Personal')} nested>
+      <PanelSection title={sectionT('personal', 'Personal')} nested>
         <PanelField
           icon={IconGenderBigender}
           label={t('sex', 'Sex')}
@@ -165,15 +166,15 @@ const CustomerPersonalSections = ({ customer }: { customer: Customer }) => {
         <PanelField icon={IconCalendar} label={addT('birth-date', 'Birth date')}>
           <CustomerBirthDateField customer={customer} />
         </PanelField>
-      </ContactDetailSection>
-      <ContactDetailSection title={sectionT('work', 'Work')} nested>
+      </PanelSection>
+      <PanelSection title={sectionT('work', 'Work')} nested>
         <CustomerTextRow customer={customer} code="position" label={t('position', 'Position')} />
         <CustomerTextRow
           customer={customer}
           code="department"
           label={t('department', 'Department')}
         />
-      </ContactDetailSection>
+      </PanelSection>
     </>
   );
 };
@@ -194,7 +195,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   return (
     <ContactDetailScroll>
       <div className="border-b px-3 pb-2">
-        <ContactDetailSection title={sectionT('general', 'General')} nested>
+        <PanelSection title={sectionT('general', 'General')} nested>
           <ContactOwnerField
             label={t('owner', 'Owner')}
             scope={`${SCOPE}.owner`}
@@ -203,7 +204,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           />
           <CustomerTextRow customer={customer} code="code" label={addT('code', 'Code')} />
           <LeadStageField recordType="customer" record={customer} />
-        </ContactDetailSection>
+        </PanelSection>
         <LeadPanelSection recordType="customer" record={customer} />
         <ContactChannelsSection
           title={sectionT('contact', 'Contact')}

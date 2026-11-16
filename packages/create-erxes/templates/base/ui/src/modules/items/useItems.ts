@@ -6,19 +6,20 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import type { Client } from '@__id__/api';
-import { toast } from 'erxes-ui';
-import { useQueryState } from 'nuqs';
+import { toast, useListFilterParams } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { orpc } from '~/orpc.ts';
-import { useItemsFilter } from './ItemsFilter.tsx';
+import { orpc, PLUGIN } from '~/orpc.ts';
 
 type Outputs = InferClientOutputs<Client>['items'];
 
 export type Item = Outputs['create'];
 
-/** Every page loaded so far, newest first, narrowed by the filter bar's search and member. */
+/** An item in core's side panel: `useOpenRecord().open({ contentType: ITEM_TYPE, contentId })`. */
+export const ITEM_TYPE = `${PLUGIN}:item`;
+
+/** Every page loaded so far, newest first, narrowed by the filter bar's conditions and search. */
 export const useItems = () => {
-  const filters = useItemsFilter();
+  const filters = useListFilterParams();
 
   return useInfiniteQuery(
     orpc.items.list.infiniteOptions({
@@ -69,18 +70,4 @@ export const useRemoveItem = () => {
       onSettled: () => queryClient.invalidateQueries(lists),
     }),
   );
-};
-
-/**
- * `?item=<id>` opens that item in the side panel, `?item=new` a blank one.
- * The filter bar's params stay as they are.
- */
-export const useOpenItem = () => {
-  const [openId, setOpenId] = useQueryState('item');
-
-  return {
-    openId,
-    open: (id: string) => void setOpenId(id),
-    close: () => void setOpenId(null),
-  };
 };

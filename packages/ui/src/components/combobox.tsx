@@ -263,6 +263,11 @@ const ComboboxEmpty = ({
   );
 };
 
+/**
+ * Parts of a popover picker: trigger, value, content, check, load-more.
+ * Put a `Command` inside `Combobox.Content` for the searchable list. `ChipTrigger` is the
+ * labelled chip a filter bar uses.
+ */
 export const Combobox = {
   TriggerBase: ComboboxTriggerBase,
   Trigger: ComboboxTrigger,

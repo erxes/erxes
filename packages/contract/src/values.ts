@@ -9,6 +9,7 @@ import {
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
   CUSTOMER_SEXES,
+  CUSTOMER_STATES,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
@@ -73,6 +74,9 @@ export type UserLinkName = z.infer<typeof UserLinkName>;
 export const CustomerSex = z.union(CUSTOMER_SEXES.map((code) => z.literal(code)));
 
 export type CustomerSex = z.infer<typeof CustomerSex>;
+
+/** `lead`: not a customer yet. People and companies alike. */
+export const ContactState = z.enum(CUSTOMER_STATES);
 
 export const ProductKind = z.enum(PRODUCT_KINDS);
 

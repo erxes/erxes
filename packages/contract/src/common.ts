@@ -140,3 +140,11 @@ export const ImageAddress = z
       /^https?:\/\/\S+$/.test(value) || /^\/core\/v1\/files\/[A-Za-z0-9]+\/download$/.test(value),
     'a URL or an uploaded file',
   );
+
+export const httpUrl = (max: number) =>
+  z
+    .string()
+    .trim()
+    .check(z.url())
+    .max(max)
+    .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');

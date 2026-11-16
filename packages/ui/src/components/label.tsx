@@ -26,7 +26,7 @@ const labelVariants = cva(
   },
 );
 
-/** A native label: Base UI has no label primitive. */
+/** A form control's label, a native `<label>` since Base UI has none. */
 export const Label = ({
   className,
   variant,

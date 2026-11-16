@@ -86,6 +86,7 @@ const ChoiceboxItem = ({
   );
 };
 
+/** Radio choices drawn as large tiles with a title and text. */
 export const ChoiceboxGroup = Object.assign(ChoiceboxGroupRoot, {
   Item: ChoiceboxItem,
 });

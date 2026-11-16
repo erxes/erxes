@@ -3,7 +3,8 @@ import React from 'react';
 import { cn } from 'erxes-ui/lib/utils';
 
 /**
- * This component is based on the `kbd` element and supports all of its props
+ * A keyboard key, such as a shortcut in a tooltip or menu.
+ * A `<kbd>` that takes all of its props; `variant` picks a light or dark tint.
  */
 export const Kbd = ({
   ref,

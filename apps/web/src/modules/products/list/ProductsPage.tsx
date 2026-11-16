@@ -1,8 +1,7 @@
 import { IconPackage, IconPlus } from '@tabler/icons-react';
-import { Button, Kbd, PageContainer, PageHeader } from 'erxes-ui';
+import { Button, Kbd, PageContainer, PageHeader, usePageHotkey } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { usePageHotkey } from '~/lib/usePageHotkey';
 import { ViewBar } from '~/modules/views/ViewBar';
 import { paths } from '~/lib/paths';
 import { useCanManageProducts, useOpenProduct } from '../useProducts';

@@ -27,6 +27,7 @@ import { SidebarProvider, useOptionalSidebar, useSidebar } from './sidebar/conte
 import { SidebarTreeIndicator } from './sidebar-tree-indicator';
 import { SidebarTrigger } from './sidebar/trigger';
 
+/** A collapsible side navigation with groups, menus and sub-menus. */
 export const Sidebar = Object.assign(SidebarRoot, {
   Content: SidebarContent,
   Footer: SidebarFooter,

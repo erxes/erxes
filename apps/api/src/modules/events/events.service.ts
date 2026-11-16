@@ -64,8 +64,11 @@ export const publishPluginEvents = async (client: Db, inputs: EventInput[]) => {
   for (const input of inputs) {
     assertPluginNamespace(plugin, input.type);
 
-    if (input.summary && !input.subjectId) {
-      throw fail('SUBJECT_REQUIRED', 'A timeline summary needs a subject (customer or company)');
+    if (input.summary && !input.subjectId && !input.entityId) {
+      throw fail(
+        'SUBJECT_REQUIRED',
+        'A timeline summary needs a subject (customer or company) or a record (entityType)',
+      );
     }
   }
 

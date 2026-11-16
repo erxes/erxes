@@ -6,21 +6,25 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { NumberField, Spinner, useFormat } from 'erxes-ui';
+import {
+  NumberField,
+  Spinner,
+  useFormat,
+  PanelField,
+  PanelSection,
+  usePanelExpanded,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
 import { PluginRecordSections } from '~/modules/plugins/PluginRecordSections';
-import { PanelField } from '../PanelField';
-import { usePanelExpanded } from '../RecordSidePanel';
 import {
   ContactChannelsSection,
   ContactDetailScroll,
   ContactOwnerField,
   ContactTextField,
 } from './ContactDetailFields';
-import { ContactDetailSection } from './ContactDetailSection';
 import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
@@ -70,7 +74,7 @@ const CompanyBusinessSection = ({ company }: { company: Company }) => {
   const noSize = company.size == null;
 
   return (
-    <ContactDetailSection title={sectionT('business', 'Business')} nested>
+    <PanelSection title={sectionT('business', 'Business')} nested>
       <CompanyTextRow
         company={company}
         code="businessType"
@@ -93,7 +97,7 @@ const CompanyBusinessSection = ({ company }: { company: Company }) => {
           )}
         </NumberField>
       </PanelField>
-    </ContactDetailSection>
+    </PanelSection>
   );
 };
 
@@ -106,7 +110,7 @@ const CompanyFields = ({ company }: { company: Company }) => {
 
   return (
     <div className="border-b px-3 pb-2">
-      <ContactDetailSection title={sectionT('general', 'General')} nested>
+      <PanelSection title={sectionT('general', 'General')} nested>
         <ContactOwnerField
           label={t('owner', 'Owner')}
           scope={`${SCOPE}.owner`}
@@ -116,7 +120,7 @@ const CompanyFields = ({ company }: { company: Company }) => {
         <CompanyTextRow company={company} code="code" label={t('field.code', 'Code')} />
         <LeadStageField recordType="company" record={company} />
         <CompanyTextRow company={company} code="website" label={t('field.website', 'Website')} />
-      </ContactDetailSection>
+      </PanelSection>
       <CompanyBusinessSection company={company} />
       <ContactChannelsSection
         title={sectionT('contact', 'Contact')}

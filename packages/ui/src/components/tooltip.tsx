@@ -39,6 +39,10 @@ const TooltipContent = ({
   </TooltipPrimitive.Portal>
 );
 
+/**
+ * A short label that shows on hover or focus of its trigger.
+ * Wrap it in `Tooltip.Provider`. For an icon button's label, use `IconTip`.
+ */
 export const Tooltip = Object.assign(TooltipPrimitive.Root, {
   Provider: TooltipProvider,
   Trigger: TooltipPrimitive.Trigger,

@@ -94,6 +94,10 @@ const Bar = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
   );
 };
 
+/**
+ * A bar floating at the page bottom with bulk actions for a selection.
+ * The page opens it through `open`, so it has no trigger.
+ */
 export const CommandBar = Object.assign(Root, {
   Value,
   Bar,

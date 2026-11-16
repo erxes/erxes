@@ -219,6 +219,7 @@ const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTML
   );
 };
 
+/** A menu of actions that opens from a button, such as a row's "more" menu. */
 export const DropdownMenu = Object.assign(DropdownMenuRoot, {
   Trigger: MenuPrimitive.Trigger,
   Group: MenuPrimitive.Group,

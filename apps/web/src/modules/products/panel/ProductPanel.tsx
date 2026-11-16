@@ -1,13 +1,9 @@
 import type { Product } from '@erxes/core-contract';
 import { IconAlignLeft, IconHierarchy2, IconId } from '@tabler/icons-react';
-import { Skeleton, Spinner } from 'erxes-ui';
+import { Skeleton, Spinner, usePanelExpanded } from 'erxes-ui';
+import { type IRecordSidePanelTab, RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { useTranslation } from 'react-i18next';
 import { ContactPanelIdentity } from '~/modules/side-panel/details/ContactPanelActions';
-import {
-  type IRecordSidePanelTab,
-  RecordSidePanel,
-  usePanelExpanded,
-} from '~/modules/side-panel/RecordSidePanel';
 import type { IRecordViewProps } from '~/modules/side-panel/recordView';
 import { SidePanelFailed } from '~/modules/side-panel/SidePanelEmpty';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';

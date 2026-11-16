@@ -156,8 +156,8 @@ export const CORE_CALLS: Record<string, Equivalent> = {
     'country and currency: organizations.current (sdk)',
   ),
   'activityLog.createActivityLog': sdk(
-    'activities.create',
-    'scope activities:write; customer or company targets, else manifest timelines',
+    'core_publish_event() in the same transaction',
+    'summary, entityType (a manifest timelines type) and entityId put it on the record; subjectType and subjectId on a customer or company; activities.create only for entries that are not events',
   ),
   'notifications.send': sdk('notifications.create', 'scope notifications:write; team members only'),
   'core.sendEmail': sdk(
@@ -197,7 +197,7 @@ export const HELPERS: Record<string, Equivalent> = {
   sendAutomationTrigger: START_AUTOMATIONS,
   sendAutomationDeferredCompletion: owned(
     'the action answers at once ({ queued: true, jobId })',
-    'the plugin keeps the final result on its own job row, and on the timeline with activities.create',
+    'the plugin keeps the final result on its own job row, and on the timeline as an event naming the record',
   ),
 };
 

@@ -114,6 +114,11 @@ const usePhoneValidation = (onValidationChange: PhoneInputProps['onValidationCha
   return { validationError, validate };
 };
 
+/**
+ * A phone input with a country flag picker that formats as you type.
+ * It validates on change and blur and reports through `onValidationChange`; `onChange` gets
+ * the number and its country code.
+ */
 export const PhoneInput = ({
   ref,
   value,

@@ -18,6 +18,12 @@ import { RecordTableRowList } from './RecordTableRowList';
 import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
 import { RecordTableScroll } from './RecordTableScroll';
 
+/**
+ * The table every record list uses; never `Table` or a plain `<table>`.
+ * `RecordTable.Provider` takes the `columns` and `data`; `checkboxColumn` adds row selection,
+ * `ColumnSelector` lets a member pick columns, and `CursorProvider` with its skeletons loads
+ * more rows by cursor.
+ */
 export const RecordTable = Object.assign(RecordTableRoot, {
   Provider: RecordTableProvider,
   Header: RecordTableHeader,

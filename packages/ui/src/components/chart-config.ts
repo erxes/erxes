@@ -1,7 +1,10 @@
 import React from 'react';
 import { z } from 'zod';
 
-/** A series' colour is a theme colour, such as `var(--chart-1)`, so it follows light and dark. */
+/**
+ * Each series' label, icon and colour by data key, for `ChartContainer`.
+ * A series' colour is a theme colour, such as `var(--chart-1)`, so it follows light and dark.
+ */
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode;

@@ -24,7 +24,7 @@ const MemberLabel = ({ member }: { member: Member }) =>
     </span>
   );
 
-/** One member by id: avatar and name, or the placeholder when there is none. */
+/** A member's avatar and name by id, or a placeholder without one. */
 export const MemberInline = ({
   memberId,
   members,

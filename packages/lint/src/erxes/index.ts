@@ -1,4 +1,5 @@
 import { defineRule, eslintCompatPlugin, type ESTree } from 'vite-plus/lint/plugins';
+import { noErxesUiCopyRule } from './no-erxes-ui-copy.ts';
 import { procedureOutputRule } from './procedure-output.ts';
 
 const SESSION_LOCK = /\bpg_(try_)?advisory_lock(_shared)?\s*\(/i;
@@ -222,11 +223,15 @@ const noKeyListenerRule = defineRule({
   },
 });
 
-/** Rules for how erxes code talks to Postgres, shapes API output and binds keys, in core and plugins. */
+/**
+ * Rules for how erxes code talks to Postgres, shapes API output, binds keys and builds on
+ * erxes-ui, in core and plugins.
+ */
 const erxesPlugin = eslintCompatPlugin({
   meta: { name: 'erxes' },
   rules: {
     'no-dto-mapper': noDtoMapperRule,
+    'no-erxes-ui-copy': noErxesUiCopyRule,
     'no-key-listener': noKeyListenerRule,
     'no-org-filter': noOrgFilterRule,
     'no-session-advisory-lock': noSessionAdvisoryLockRule,

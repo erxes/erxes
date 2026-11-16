@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
 /**
- * A JSON string that decodes to `schema`: `jsonOf(schema).safeParse(text)` fails
- * on text that isn't JSON the same way it fails on JSON of the wrong shape.
+ * A zod schema for a JSON string that decodes to `schema`.
+ * `jsonOf(schema).safeParse(text)` fails on text that isn't JSON the same way it fails on JSON
+ * of the wrong shape.
  */
 export const jsonOf = <S extends z.ZodType>(schema: S) =>
   z

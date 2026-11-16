@@ -1,13 +1,12 @@
 import type { Automation, AutomationDefinition } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import { PageContainer, Tabs } from 'erxes-ui';
+import { PageContainer, Tabs, usePageHotkey } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { usePageHotkey } from '~/lib/usePageHotkey';
 import { useCan } from '~/modules/auth/session';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';

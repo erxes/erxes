@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { z } from 'zod';
 import { jsonOf } from './json';
 
-/**
+/*
  * How plugin UIs reach their own API and hear about changes. The host app
  * (web) provides the runtime; erxes-ui is a Module Federation singleton,
  * so every plugin UI gets the host's.
@@ -16,6 +16,7 @@ import { jsonOf } from './json';
  *   after reconnecting, over the one stream the browser keeps with core.
  */
 
+/** A member's short-lived token for one plugin's API, and its address. */
 export interface PluginSession {
   token: string;
   /** ISO time the token stops working. */
@@ -24,8 +25,17 @@ export interface PluginSession {
   apiUrl: string | null;
 }
 
+/**
+ * A message on core's live stream: a plugin's changed topics, or resync.
+ * `resync` comes after a reconnect, when signals sent meanwhile were missed.
+ */
 export type PluginLiveMessage = { plugin: string; topics: string[] } | { resync: true };
 
+/**
+ * What the host gives plugin UIs: plugin API sessions and the live stream.
+ * web provides it with `setPluginRuntime`; plugins call `pluginFetch`, `pluginJson` and
+ * `useLiveSignal`, which use it.
+ */
 export interface PluginRuntime {
   session(plugin: string): Promise<PluginSession>;
   subscribe(listener: (message: PluginLiveMessage) => void): () => void;
@@ -43,11 +53,16 @@ const sessions = new Map<string, Promise<Held>>();
 /** A token is replaced this long before it ends, so no call carries one about to expire. */
 const RENEW_BEFORE_MS = 30_000;
 
+/**
+ * Sets the plugin runtime; web calls it at startup and plugins don't.
+ * It drops every cached plugin session.
+ */
 export const setPluginRuntime = (next: PluginRuntime | null) => {
   runtime = next;
   sessions.clear();
 };
 
+/** The host's plugin runtime, or null outside erxes. */
 export const getPluginRuntime = () => runtime;
 
 const need = () => {
@@ -184,9 +199,9 @@ export const pluginJson = async <S extends z.ZodType>(
 };
 
 /**
- * Runs `onSignal(topics)` when the plugin announces a change to any of
- * `topics` — and after a reconnect (with every topic), since signals sent
- * meanwhile were missed.
+ * Runs `onSignal` when a plugin says one of `topics` changed, to refetch.
+ * It also runs after a reconnect, with every topic, since signals sent meanwhile were missed.
+ * Outside erxes it never runs.
  */
 export const useLiveSignal = (
   plugin: string,

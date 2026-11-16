@@ -27,12 +27,29 @@ Only what something uses:
   `useLiveSignal`, `RecordTimeline`, `getPluginAssetsUrl`, `addPluginStyles` and the `IUIConfig` types,
 - the design-system primitives in `src/components` (Accordion, Card, Slider …), even unused,
   because plugins build on them,
+- the record views plugins build lists from: `RecordTable` and `RecordList` (rows grouped under
+  headers that fold away, such as tasks by status; the Operation plugin is the first consumer),
 - the pickers in `src/modules/pickers`: `EntityPicker`, and `SelectMember`, `MemberInline` and
   `useMembersById`, which take `memberQueries` from `@erxes/core-contract/client`. They read
   through TanStack query options, so erxes-ui imports nothing from core.
 - core's records in `src/modules/records`: `ContactLink` (a customer or company by id, read
   through `contactQueries` from `@erxes/core-contract/client`) and `useOpenRecord`, which open a
-  record in web's side panel through the `RecordOpenerProvider` web mounts.
+  record or a draft in web's side panel through the `RecordOpenerProvider` web mounts, and
+  `RecordPage`, a record on its own page.
+- the record panel's rows in `src/modules/record-panel`, which web's side panel and the slots
+  of a plugin's record types (`IUIConfig.recordTypes`) both fill it with: `PanelSection`,
+  `PanelField`, `PanelFormRow`, `PanelFormLayout`, `PanelLabel`, the description field and
+  editor, and `usePanelExpanded`. The panel itself (header, tabs, resize) is web's.
+- a list's bar in `src/modules/list`: `ViewBar`, `DisplayMenu` with `useListDisplay`, and
+  `ListFilter` with `useListFilterParams`. `ListFilter` draws core's filter bar itself, with or
+  without web: its `member` fields pick from `members` (`memberQueries` from
+  `@erxes/core-contract/client`) and its `tags` fields from `tags` (a tags query of the record
+  type); a plugin outside erxes passes its own. Web's lists and the automation builder use the
+  same bar and the condition editor under its advanced filter (`ConditionsEditor`,
+  `src/modules/conditions`).
+- what the host app provides at startup, rendered through `hostComponent`
+  (`src/utils/host-component.tsx`): `setRecordTimeline` and `setRecordPage`. Outside erxes they
+  render nothing.
 
 Anything else is removed, not kept "in case". Before you remove an export, check the HR plugin
 UI and `.agents/skills/plugin-contract/SKILL.md`.

@@ -94,7 +94,10 @@ const tabButtonVariants = cva(
   },
 );
 
-/** A tab-like button outside a tab list; `render` swaps the element, as menu triggers do. */
+/**
+ * A tab-looking button for a strip that isn't a `Tabs` list.
+ * `render` swaps the element, as menu triggers do.
+ */
 export const TabButton = ({
   render,
   variant,
@@ -171,6 +174,10 @@ const TabsContent = ({
   />
 );
 
+/**
+ * Tabs that switch between panels of one view.
+ * Separate lists under one sidebar item are separate routes, not tabs.
+ */
 export const Tabs = Object.assign(TabsRoot, {
   List: TabsList,
   Trigger: TabsTrigger,

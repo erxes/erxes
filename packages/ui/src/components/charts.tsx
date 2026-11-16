@@ -17,6 +17,10 @@ const colorVariables = (config: ChartConfig) => {
   return variables;
 };
 
+/**
+ * The frame for a recharts chart: size, theme and series colours.
+ * Each `config` colour becomes a `--color-<key>` variable the chart's parts can use.
+ */
 const ChartContainer = ({
   ref,
   className,
@@ -163,6 +167,7 @@ const TooltipRow = ({
   );
 };
 
+/** The themed body for a recharts `Tooltip`, labelled from the config. */
 const ChartTooltipContent = ({
   ref,
   ...props
@@ -206,6 +211,7 @@ const ChartTooltipContent = ({
   );
 };
 
+/** The themed body for a recharts `Legend`: each series' icon and label. */
 const ChartLegendContent = ({
   ref,
   className,

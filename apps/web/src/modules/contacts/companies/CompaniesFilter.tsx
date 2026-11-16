@@ -1,5 +1,6 @@
-import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
-import { ListFilter } from '~/modules/views/filter/ListFilter';
+import { DisplayMenu } from 'erxes-ui';
+import { LEADS_DISPLAY } from '~/modules/leads/LeadsBoard';
+import { CoreListFilter } from '~/modules/views/CoreListFilter';
 import { useContactOptionLabel } from '../components/contactOptionLabel';
 import { useCompanies } from './useCompanies';
 
@@ -9,13 +10,13 @@ export const CompaniesFilter = ({ state = 'customer' }: { state?: 'lead' | 'cust
   const { totalCount, totalCapped } = useCompanies(state);
 
   return (
-    <ListFilter
+    <CoreListFilter
       recordType={state === 'lead' ? 'company_lead' : 'company'}
       optionLabel={optionLabel}
       totalCount={totalCount}
       totalCapped={totalCapped}
     >
-      {state === 'lead' && <LeadDisplayMenu />}
-    </ListFilter>
+      {state === 'lead' && <DisplayMenu list={LEADS_DISPLAY} />}
+    </CoreListFilter>
   );
 };

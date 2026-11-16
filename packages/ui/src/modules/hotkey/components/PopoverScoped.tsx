@@ -7,6 +7,11 @@ import { currentHotkeyScopeState } from 'erxes-ui/modules/hotkey/states/internal
 import { useAtomValue, useStore } from 'jotai';
 import { useSetHotkeyScope } from '../hooks/useSetHotkeyScope';
 
+/**
+ * A `Popover` that takes over the hotkey scope while it is open.
+ * Hotkeys of `<scope>.Popover` work only while it is open, and the scope before it comes back
+ * on close. Enter calls `onEnter`, and closes it with `closeOnEnter`.
+ */
 export const PopoverScoped = ({
   scope,
   onOpenChange,

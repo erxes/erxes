@@ -9,6 +9,7 @@ interface CopyTextProps {
   className?: string;
 }
 
+/** Text that copies `value` to the clipboard on click and shows "Copied!". */
 export const CopyText = ({ value, children, className }: CopyTextProps) => {
   const [copied, setCopied] = useState(false);
 

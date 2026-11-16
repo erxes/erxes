@@ -1,6 +1,7 @@
 import type { CustomerState } from '@erxes/core-contract';
-import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
-import { ListFilter } from '~/modules/views/filter/ListFilter';
+import { DisplayMenu } from 'erxes-ui';
+import { LEADS_DISPLAY } from '~/modules/leads/LeadsBoard';
+import { CoreListFilter } from '~/modules/views/CoreListFilter';
 import { useContactOptionLabel } from '../components/contactOptionLabel';
 import { useCustomers } from './useCustomers';
 
@@ -10,13 +11,13 @@ export const CustomersFilter = ({ state }: { state: CustomerState }) => {
   const { totalCount, totalCapped } = useCustomers(state);
 
   return (
-    <ListFilter
+    <CoreListFilter
       recordType={state}
       optionLabel={optionLabel}
       totalCount={totalCount}
       totalCapped={totalCapped}
     >
-      {state === 'lead' && <LeadDisplayMenu />}
-    </ListFilter>
+      {state === 'lead' && <DisplayMenu list={LEADS_DISPLAY} />}
+    </CoreListFilter>
   );
 };

@@ -5,11 +5,10 @@ import {
   IconPointer,
   IconX,
 } from '@tabler/icons-react';
-import { Button, Spinner } from 'erxes-ui';
+import { Button, IconTip, Spinner } from 'erxes-ui';
 import { useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { ATTACH_ACCEPT, sizeLabel, typeLabel } from './attachments';
 import type { Attachments, Upload } from './useAttachments';
 import type { PagePicker, Picked, PickTarget } from './usePagePicker';

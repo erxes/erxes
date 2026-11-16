@@ -50,6 +50,21 @@
  *   if (!member.canChange()) throw new Error('HR is read-only: buy it again on erxes.io');
  *   // server-side jobs: await core.forOrg(orgId).saas.pluginPlan() → { tier, access }
  *
+ * Jobs (plugins on core's database): declare them in the manifest, queue them in the
+ * plugin's own transaction, and serve each at `<api.url>/jobs/<name>`. Core retries
+ * until the route answers 2xx (`retry`: attempts in all, the first wait and the
+ * longest, in seconds; default 8, 30 s, 6 h). A `cron` (UTC) job runs once per
+ * organisation that has the plugin.
+ *
+ *   jobs: [{ name: 'mail.sync', retry: { attempts: 5, delay: 60, maxDelay: 3600 } },
+ *          { name: 'sla.check', cron: '*\/5 * * * *' }],
+ *   await enqueueJob(tx, { orgId, name: 'mail.sync', payload: { accountId }, dedupeKey: accountId });
+ *   app.post('/api/jobs/:name', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const job = await verifyCoreJob(req.headers.authorization, req.body, { coreUrl, plugin: 'frontline' });
+ *     await JOBS[job.name](job);         // { jobId, orgId, name, attempt, payload }; may repeat
+ *     res.sendStatus(204);
+ *   });
+ *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
  * also call `core_publish_event()`, `core_record_audit()` and
@@ -57,5 +72,7 @@
  */
 
 export * from './client';
+
+export * from './jobs';
 
 export * from './verify';

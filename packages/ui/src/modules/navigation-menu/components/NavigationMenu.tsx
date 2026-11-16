@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from 'erxes-ui/lib/utils';
 import { useNavigationMenuItemControls } from './NavigationMenuItemControls';
 
+/** A sidebar link that lights up while the address is under its `to`. */
 export const NavigationMenuLinkItem = ({
   ref,
   name,

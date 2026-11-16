@@ -28,10 +28,6 @@ export const en = {
   insights: 'Insights',
   people: 'People',
   companies: 'Companies',
-  display: 'Display',
-  view: 'View',
-  'table-view': 'Table',
-  'board-view': 'Board',
   settings: {
     title: 'Lead stages',
     description:

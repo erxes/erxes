@@ -425,8 +425,15 @@
     {
       "idx": 60,
       "version": "7",
-      "when": 1794740537237,
-      "tag": "0060_assistant",
+      "when": 1794749765469,
+      "tag": "0060_plugin_jobs",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1794792114518,
+      "tag": "0061_assistant",
       "breakpoints": true
     }
   ]

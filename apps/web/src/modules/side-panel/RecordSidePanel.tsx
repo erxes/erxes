@@ -1,14 +1,11 @@
-import { cn } from 'erxes-ui';
+import { cn, PanelExpansionContext } from 'erxes-ui';
 import { type RefObject, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { PanelExpansionContext } from './panelExpansion';
 import { RecordSidePanelHeader } from './RecordSidePanelHeader';
 import { RecordSidePanelResizeHandle } from './RecordSidePanelResizeHandle';
 import { RecordSidePanelTabs } from './RecordSidePanelTabs';
 import type { RecordSidePanelLayoutProps, RecordSidePanelRootProps } from './recordSidePanelTypes';
 import { clampWidth } from './resizeDrag';
 import { SIDE_PANEL_WIDTH } from './sidePanelPaths';
-
-export { usePanelExpanded } from './panelExpansion';
 
 export type { IRecordSidePanelTab } from './recordSidePanelTypes';
 

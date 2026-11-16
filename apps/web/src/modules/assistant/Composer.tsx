@@ -5,10 +5,9 @@ import type {
   AssistantSelection,
 } from '@erxes/core-contract';
 import { IconArrowUp, IconPlayerStopFilled } from '@tabler/icons-react';
-import { Button, Textarea } from 'erxes-ui';
+import { Button, IconTip, Textarea } from 'erxes-ui';
 import { type ClipboardEvent, type DragEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { takeComposerFocus } from './assistantState';
 import { AttachButton, AttachmentTray, PickButton, PickHint } from './ComposerAttachments';
 import { MENTION_MENU_ID, MentionMenu } from './MentionMenu';

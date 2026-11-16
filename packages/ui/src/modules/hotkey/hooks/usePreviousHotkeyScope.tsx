@@ -5,6 +5,7 @@ import { previousHotkeyScopeState } from '../states/internal/previousHotkeyScope
 import type { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
 import { useSetHotkeyScope } from './useSetHotkeyScope';
 
+/** Sets a hotkey scope and remembers the old one to go back to. */
 export const usePreviousHotkeyScope = () => {
   const setHotKeyScope = useSetHotkeyScope();
 

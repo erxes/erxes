@@ -1,10 +1,9 @@
 import { AssistantMentions } from '@erxes/core-contract';
 import { IconInfoCircle, IconPencil } from '@tabler/icons-react';
 import type { UIMessage } from 'ai';
-import { Button, Textarea } from 'erxes-ui';
+import { Button, IconTip, Textarea } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconTip } from '~/components/IconTip';
 import { CopyButton, textOf } from './CopyButton';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageText } from './MessageText';

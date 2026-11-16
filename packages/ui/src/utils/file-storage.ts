@@ -15,6 +15,7 @@ export interface FileStorageAdapter {
 
 let adapter: FileStorageAdapter | null = null;
 
+/** Sets where uploads go; web calls it at startup and plugins don't. */
 export const setFileStorage = (next: FileStorageAdapter | null) => {
   adapter = next;
 };

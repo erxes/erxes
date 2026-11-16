@@ -1,20 +1,17 @@
 import type { Customer, CustomerState } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'erxes-ui';
-import { useQueryState } from 'nuqs';
+import { useListFilterParams, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
-import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 /** RecordTable remembers the scroll position per list under this key. */
 const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
 
 /** The list filters, read from the URL: the search and the filter (views save both). */
-export const useCustomersFilters = (state: CustomerState) => {
-  const [searchValue] = useQueryState('searchValue');
-
-  return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
-};
+export const useCustomersFilters = (state: CustomerState) => ({
+  state,
+  ...useListFilterParams(),
+});
 
 export const useCustomers = (state: CustomerState) => {
   const filters = useCustomersFilters(state);

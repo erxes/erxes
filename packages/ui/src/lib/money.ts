@@ -1,0 +1,34 @@
+import { useTranslation } from 'react-i18next';
+import { currencyDigits, formatter } from './format';
+
+/*
+ * Amounts are integers in the currency's smallest unit (`currencyDigits`): $12.50 is 1250,
+ * ₮1,500 is 150000, ¥500 is 500.
+ */
+
+const unit = (currency: string) => 10 ** currencyDigits(currency);
+
+/** An amount as people read it in `language`: 150000 MNT → "MNT 1,500.00". */
+export const formatMoney = (amount: number, currency: string, language: string) =>
+  formatter(language).currency(amount / unit(currency), currency);
+
+/**
+ * An amount as a number input's value, with all the currency's decimals.
+ * 1250 USD → "12.50", 500 JPY → "500".
+ */
+export const toAmountInput = (amount: number, currency: string) =>
+  (amount / unit(currency)).toFixed(currencyDigits(currency));
+
+/** A number input's text as an amount in minor units: "12.5" USD → 1250. */
+export const fromAmountInput = (text: string, currency: string) =>
+  Math.round(Number(text) * unit(currency));
+
+/** A number input's `step` for a currency: 0.01 for USD, 1 for JPY. */
+export const amountStep = (currency: string) => 1 / unit(currency);
+
+/** `formatMoney` in the UI's language. */
+export const useMoney = () => {
+  const { i18n } = useTranslation();
+
+  return (amount: number, currency: string) => formatMoney(amount, currency, i18n.language);
+};

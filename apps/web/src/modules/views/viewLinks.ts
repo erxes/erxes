@@ -1,14 +1,10 @@
-import { ConditionGroup, type View, type ViewRecordType } from '@erxes/core-contract';
-import { createSerializer, parseAsJson, parseAsString } from 'nuqs';
+import type { View, ViewRecordType } from '@erxes/core-contract';
+import { listFilterQuery } from 'erxes-ui';
+import { createSerializer, parseAsString } from 'nuqs';
 import { LIST_PATHS } from '~/lib/paths';
 
-/** A list's query: the advanced filter, the selected view and the search. */
-export const listQuery = {
-  // Anyone can edit a URL: a filter that doesn't parse reads as none.
-  advanced: parseAsJson((value) => ConditionGroup.safeParse(value).data ?? null),
-  view: parseAsString,
-  searchValue: parseAsString,
-};
+/** A list's query: erxes-ui's filter bar's (the advanced filter and the search) and the selected view. */
+export const listQuery = { ...listFilterQuery, view: parseAsString };
 
 const serializeListQuery = createSerializer(listQuery);
 

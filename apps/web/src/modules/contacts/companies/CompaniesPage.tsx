@@ -1,6 +1,5 @@
-import { PageContainer } from 'erxes-ui';
-import { LeadsBoard } from '~/modules/leads/LeadsBoard';
-import { useLeadView } from '~/modules/leads/leadView';
+import { PageContainer, useListDisplay } from 'erxes-ui';
+import { LEADS_DISPLAY, LeadsBoard } from '~/modules/leads/LeadsBoard';
 import { CompaniesFilter } from './CompaniesFilter';
 import { CompaniesHeader } from './CompaniesHeader';
 import { ViewBar } from '~/modules/views/ViewBar';
@@ -12,9 +11,9 @@ import { CompaniesRecordTable } from './CompaniesRecordTable';
  * same screens as for people, with a board for leads.
  */
 export const CompaniesPage = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
-  const [view] = useLeadView();
+  const [display] = useListDisplay(LEADS_DISPLAY);
   const t = useLeadsT();
-  const board = state === 'lead' && view === 'board';
+  const board = state === 'lead' && display === 'board';
 
   return (
     <PageContainer>

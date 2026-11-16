@@ -94,7 +94,10 @@ const EmailFieldBody = ({ emails, ...props }: Omit<EmailListProps, 'input'>) => 
   );
 };
 
-/** A record's emails: the list with a menu per email, and an input to add or edit one. */
+/**
+ * An editable list of a record's emails, each with its own menu.
+ * An input adds an email or edits one.
+ */
 export const EmailListField = ({
   recordId,
   onValueChange,

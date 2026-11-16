@@ -1,10 +1,16 @@
 import type { Product } from '@erxes/core-contract';
 import { IconCoin, IconCurrencyDollar, IconRulerMeasure, IconWeight } from '@tabler/icons-react';
-import { NumberField, useToast, useFormat } from 'erxes-ui';
+import {
+  fromAmountInput,
+  NumberField,
+  toAmountInput,
+  useMoney,
+  useToast,
+  useFormat,
+  PanelField,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CurrencySelect } from '~/components/RegionSelect';
-import { fromAmountInput, toAmountInput, useMoney } from '~/lib/money';
-import { PanelField } from '~/modules/side-panel/PanelField';
 import { PRODUCT_PANEL_SCOPE } from './ProductPanelFields';
 import { useProductEdit } from './useProductEdit';
 
