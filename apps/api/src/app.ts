@@ -18,6 +18,7 @@ import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerApps';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
+import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
 import { standingGuard } from '~/modules/saas/saas.service';
@@ -115,6 +116,10 @@ export const createApp = (log: Logger = logger): Express => {
   // erxes.io's door and sign-in hand-off (its own token; also at the path old erxes used).
   app.use('/core/v1/saas', limit.token, saasRouter);
   app.get('/gateway/pl\\:core/core-login', limit.token, saasLogin);
+
+  // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
+  app.use('/core/v1/plugins/:name/public', limit.pluginPublic);
+  app.use('/core/v1', pluginPublicRouter);
 
   app.use(express.json({ limit: '1mb' }));
 

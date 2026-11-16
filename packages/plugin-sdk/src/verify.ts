@@ -280,6 +280,38 @@ export const verifyCoreEvent = async (
   return event;
 };
 
+/** A call from outside erxes that core forwarded to the plugin's `/public` route. */
+export interface PublicCall {
+  /** The organisation the caller's address named, which has the plugin installed. */
+  orgId: string;
+  /** Core's id for this call. */
+  callId: string;
+}
+
+const PublicClaims = z.object({ sha: z.string(), public: z.string(), org: z.string() });
+
+/**
+ * Verifies a call core forwarded to `<api.url>/public/<path>` (one of the manifest's
+ * `publicPaths`) and returns its organisation: the token is core's, for this plugin, at most a
+ * minute old, and signs this exact body (pass the raw body text; '' without one). Throws if
+ * not. The caller is anyone on the internet: check what they send (a webhook's signature).
+ */
+export const verifyPublicCall = async (
+  authorization: string | undefined | null,
+  rawBody: string,
+  options: VerifyOptions,
+): Promise<PublicCall> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const claims = await verifyCoreToken(token, options, 'erxes-core-public+jwt', PublicClaims);
+
+  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  return { orgId: claims.org, callId: claims.public };
+};
+
 const JobClaims = z.object({ sha: z.string(), job: z.string(), org: z.string() });
 
 /**

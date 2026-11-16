@@ -75,6 +75,16 @@ export const createRateLimits = () => ({
     max: 120,
     key: (req) => (req.method === 'POST' ? `token:${ip(req)}` : null),
   }),
+  /**
+   * Calls to plugins' public routes: 600 a minute per address for each plugin and organisation
+   * (a webhook sender calls for many organisations from the same addresses).
+   */
+  pluginPublic: rateLimit({
+    windowSeconds: 60,
+    max: 600,
+    key: (req) =>
+      `plugin-public:${ip(req)}:${req.originalUrl.split('?')[0]?.split('/').slice(4, 7).join('/') ?? ''}`,
+  }),
   /** Uploads through signed links: 120 a minute per address. */
   upload: rateLimit({
     windowSeconds: 60,
