@@ -1033,7 +1033,8 @@
       "send": "Илгээх",
       "not-connected": "Туслах одоогоор холбогдоогүй байна."
     },
-    "relations": "Холбоосууд"
+    "relations": "Холбоосууд",
+    "links": "Холбоосууд"
   },
   "two-factor": {
     "authenticator-code": "Authenticator код",
