@@ -97,7 +97,7 @@ const columns: RecordTableColumnDef<Item>[] = [
 
 /**
  * The item list, newest first, under core's list bar: its one view, then the filter (`F`) on
- * the fields below, whose rules the API applies (`api/src/modules/items/itemFilter.ts`). Each
+ * the fields below, whose rules the API applies (`FILTER_FIELDS` in `api/src/modules/items/items.ts`). Each
  * item opens in core's side panel; Add opens a new one there.
  */
 export const ItemsPage = () => {

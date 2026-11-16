@@ -43,7 +43,8 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   `ListFilter`, given the list's fields and, for `member` fields, `members={memberQueries}`
   (a `tags` query for `tags` fields). It draws the bar itself, in erxes or on its own. Its conditions and search live in the
   address; `useListFilterParams()` hands them to the list's query, and the API
-  applies them (`api/src/modules/items/itemFilter.ts`). No search boxes, toggle
+  applies them with `@erxes/plugin-sdk/filter`'s `compileFilter`, core's own compiler, on a map
+  of the same paths to columns (`FILTER_FIELDS` in `api/src/modules/items/items.ts`). No search boxes, toggle
   tabs or pickers in a row above the table. Give both the record type
   (`recordType={ITEM_TYPE}`): in erxes the bar then shows the member's saved
   views as tabs, and the filter offers to save one, as on core's customers.

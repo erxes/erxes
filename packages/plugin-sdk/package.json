@@ -17,6 +17,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
+    "./filter": "./src/filter.ts",
     "./jobs": "./src/jobs.ts",
     "./verify": "./src/verify.ts",
     "./package.json": "./package.json"
@@ -25,6 +26,7 @@
     "exports": {
       ".": "./dist/index.js",
       "./client": "./dist/client.js",
+      "./filter": "./dist/filter.js",
       "./jobs": "./dist/jobs.js",
       "./verify": "./dist/verify.js",
       "./package.json": "./package.json"

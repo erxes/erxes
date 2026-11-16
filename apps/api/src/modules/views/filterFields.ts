@@ -10,7 +10,7 @@ import {
 import { asc, eq, ne, sql } from 'drizzle-orm';
 import { pluginTitle } from '~/modules/fields/fieldRows';
 import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
-import { textArray } from './filterValues';
+import { textArray } from '@erxes/plugin-sdk/filter';
 import { productFields } from './productFilterFields';
 
 const STORAGE: Record<string, CustomSpec['storage']> = {

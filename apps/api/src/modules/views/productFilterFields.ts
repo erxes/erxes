@@ -1,7 +1,7 @@
 import { type Db, PRODUCT_KINDS, productCategories, products } from '@erxes/core-db';
 import { asc, type SQL, sql } from 'drizzle-orm';
 import { field, type FieldSpec } from './fieldSpec';
-import { textArray } from './filterValues';
+import { textArray } from '@erxes/plugin-sdk/filter';
 
 /** Categories by their path (`Drinks › Tea`): rules name paths, a category takes in its subcategories. */
 const categoryField = async (client: Db) => {

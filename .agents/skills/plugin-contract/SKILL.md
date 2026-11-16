@@ -59,6 +59,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      (`recordType="sales:deal"`): web provides the tabs and the save through `ListViewsProvider`,
      core stores the view (`views.recordType` takes `<plugin>:<record>`), and the plugin's API
      applies its filter. The prop, the address key `view` and that type's shape are the contract.
+     The API compiles the filter with `compileFilter` from `@erxes/plugin-sdk/filter`, the
+     compiler core's own lists use (`apps/api/src/modules/views/recordFilter.ts` adds core's
+     custom fields, tags and lookups on top). A field type or operator it accepts is the contract,
+     and so is its 400 `INVALID_FILTER`.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
      plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`

@@ -1,3 +1,9 @@
+import {
+  compileFilter,
+  escapeLike,
+  type FilterFields,
+  FilterParam,
+} from '@erxes/plugin-sdk/filter';
 import { type ORPCErrorConstructorMap, ORPCError } from '@orpc/server';
 import { and, desc, eq, getTableColumns, ilike, sql } from 'drizzle-orm';
 import { createSelectSchema } from 'drizzle-zod';
@@ -6,10 +12,18 @@ import { PERMISSIONS } from '#/core.ts';
 import { uniqueViolation } from '#/db/client.ts';
 import { ITEM_NAME_INDEX, items } from '#/db/schema.ts';
 import { reads, writes } from '#/orpc.ts';
-import { escapeLike, filterSql, ItemFilter } from './itemFilter.ts';
 
 /** What a procedure returns: the row without `org_id`, which the caller already knows. */
 const { orgId, ...columns } = getTableColumns(items);
+
+/**
+ * What the list's filter bar can filter by: the paths and types of the UI's `ListFilter` fields
+ * (`ItemsPage.tsx`), with the column each compares. A rule on another path answers 400.
+ */
+const FILTER_FIELDS = {
+  'subject.name': { type: 'text', expr: items.name },
+  'subject.createdBy': { type: 'member', expr: items.createdBy },
+} satisfies FilterFields;
 
 const Name = z.string().trim().min(1).max(200);
 const Description = z.string().trim().max(5000);
@@ -47,7 +61,7 @@ const list = reads(PERMISSIONS.view)
   .input(
     z.object({
       search: z.string().trim().max(200).optional(),
-      filter: ItemFilter.optional(),
+      filter: FilterParam.optional(),
       cursor: z.string().optional(),
       limit: z.number().int().min(1).max(100).default(50),
     }),
@@ -64,7 +78,7 @@ const list = reads(PERMISSIONS.view)
       .where(
         and(
           input.search ? ilike(items.name, `%${escapeLike(input.search)}%`) : undefined,
-          input.filter ? filterSql(input.filter, member.userId) : undefined,
+          compileFilter(FILTER_FIELDS, input.filter, { me: member.userId }),
           after,
         ),
       )

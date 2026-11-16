@@ -9,11 +9,11 @@ import {
   pluginInstallations,
   type StoredPluginManifest,
 } from '@erxes/core-db';
+import { textArray } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { inOrder } from '~/lib/sequence';
-import { textArray } from '~/modules/views/filterValues';
 import { checkValue, isEmpty } from './customValues';
 import { hasOptions } from './fieldRows';
 import { rowsOf, valuesTable } from './fieldValues';
