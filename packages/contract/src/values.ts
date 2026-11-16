@@ -23,6 +23,9 @@ export const CORE_API_VERSION = 'v1';
 /** Every path in the contract is under this prefix (`/core/v1/customers`, …). */
 export const CORE_API_PREFIX = '/core/v1';
 
+/** How long a new API key works, in days (or until it is revoked). */
+export const API_KEY_LIFETIMES = [30, 90, 365] as const;
+
 // ─── Members ────────────────────────────────────────────────────────────────
 
 /** `owner`, `admin`, `member`, or a custom role's `r_<id>`. */

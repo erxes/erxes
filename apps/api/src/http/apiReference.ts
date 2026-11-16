@@ -43,10 +43,12 @@ const INTROS: Record<ApiAudience, Pick<OpenAPI.Document, 'info' | 'components' |
     info: {
       title: 'erxes team member API',
       version: 'v1',
-      description: `What a signed-in team member can call. Scripts send a member token as \`Authorization: Bearer\`; erxes' own pages, and calls tried here, send the \`${SESSION_COOKIE}\` session cookie instead. Each call also needs the permission its role must hold.`,
+      description: `What a signed-in team member can call. Scripts send an API key (Settings › Developer › API keys) as \`Authorization: Bearer\`; it acts as the member who made it. erxes' own pages, and calls tried here, send the \`${SESSION_COOKIE}\` session cookie instead. Each call also needs the permission the member's role holds.`,
     },
     components: {
-      securitySchemes: { memberToken: { ...BEARER, description: 'A member access token' } },
+      securitySchemes: {
+        memberToken: { ...BEARER, description: 'An API key, or a member access token' },
+      },
     },
     security: [{ memberToken: [] }],
   },

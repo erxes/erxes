@@ -1,4 +1,5 @@
 import { activitiesRouter } from '~/modules/activities/activities.router';
+import { apiKeysRouter } from '~/modules/apiKeys/apiKeys.router';
 import { auditRouter } from '~/modules/audit/audit.router';
 import { emailsRouter } from '~/modules/email/emails.router';
 import { eventsRouter } from '~/modules/events/events.router';
@@ -43,6 +44,7 @@ export const coreRouter = unscoped.router({
   productCategories: productCategoriesRouter,
   products: productsRouter,
   webhooks: webhooksRouter,
+  apiKeys: apiKeysRouter,
   trash: trashRouter,
   roles: rolesRouter,
   plugins: pluginsRouter,

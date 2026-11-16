@@ -17,6 +17,7 @@ import { publicPaths } from '~/http/access';
 import { fail } from '~/http/errors';
 import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
+import { apiKeyOwner, isApiKey } from '~/modules/apiKeys/apiKeys.service';
 import { appServes } from '~/modules/customerAuth/customerApps';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
 
@@ -126,6 +127,18 @@ const resolveCustomer = async (req: Request, bearer: string): Promise<Resolved> 
   return { caller: { type: 'customer', ...ids }, orgId };
 };
 
+/** A member's API key: it acts as the member, with their role as it is now. */
+const resolveApiKey = async (req: Request, key: string): Promise<Resolved> => {
+  const owner = await apiKeyOwner(key);
+  const member = owner && (await memberOf(owner.orgId, owner.userId));
+
+  if (!owner || !member) throw unauthorized();
+
+  req.log.setBindings({ orgId: owner.orgId, actorId: member.userId, apiKeyId: owner.apiKeyId });
+
+  return { caller: { ...member, apiKeyId: owner.apiKeyId }, orgId: owner.orgId };
+};
+
 const resolveMember = async (req: Request, res: Response, bearer: string): Promise<Resolved> => {
   const cookie = bearer ? '' : (readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '');
   const token = bearer || cookie;
@@ -230,7 +243,9 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     ? await resolveCustomer(req, bearer)
     : bearer && isPluginToken(bearer)
       ? await resolvePlugin(req, bearer)
-      : await resolveMember(req, res, bearer);
+      : bearer && isApiKey(bearer)
+        ? await resolveApiKey(req, bearer)
+        : await resolveMember(req, res, bearer);
 
   enterScope(resolved.caller, resolved.orgId, next);
 };

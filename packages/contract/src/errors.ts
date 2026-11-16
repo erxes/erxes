@@ -21,6 +21,8 @@ export const ERRORS = {
   SCOPE_REQUIRED: { status: 403 },
   SERVICE_TOKEN_REQUIRED: { status: 403 },
   CROSS_SITE: { status: 403 },
+  // Signed in with an API key where only a signed-in session will do (managing API keys).
+  SESSION_REQUIRED: { status: 403 },
   // A signed address (file links, payment callbacks) that is forged or expired.
   INVALID_SIGNATURE: { status: 403 },
   OWNER_ONLY: { status: 403 },

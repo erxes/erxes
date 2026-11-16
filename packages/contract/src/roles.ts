@@ -59,6 +59,16 @@ export const CORE_PERMISSIONS = [
   },
   { action: 'webhooks.manage', group: 'Integrations', label: 'Manage webhooks' },
   {
+    action: 'api_keys.create',
+    group: 'Integrations',
+    label: 'Create API keys that act as themselves',
+  },
+  {
+    action: 'api_keys.manage',
+    group: 'Integrations',
+    label: "See and revoke everyone's API keys",
+  },
+  {
     action: 'payments.manage',
     group: 'Payments',
     label: 'Connect payment gateways and see invoices',

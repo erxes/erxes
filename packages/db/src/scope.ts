@@ -8,7 +8,14 @@ import type { Transaction } from './types';
  * request's scope; work outside a request runs as `system`.
  */
 export type Caller =
-  | { type: 'user'; userId: string; role: string; permissions: readonly string[] }
+  | {
+      type: 'user';
+      userId: string;
+      role: string;
+      permissions: readonly string[];
+      /** Set when the member called with one of their API keys, not a session. */
+      apiKeyId?: string;
+    }
   | { type: 'plugin'; plugin: string; scopes: readonly string[] }
   | { type: 'customer'; customerId: string; sessionId: string; clientId: string }
   | { type: 'system'; reason: string };

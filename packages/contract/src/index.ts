@@ -1,4 +1,5 @@
 import { activitiesContract } from './activities';
+import { apiKeysContract } from './apiKeys';
 import { automationsContract } from './automations';
 import { auditContract } from './audit';
 import { authContract } from './auth';
@@ -28,6 +29,7 @@ import { leadsContract } from './leads';
 /** The whole core API. Core implements it; plugins call it with a typed client. */
 export const coreContract = {
   activities: activitiesContract,
+  apiKeys: apiKeysContract,
   automations: automationsContract,
   audit: auditContract,
   auth: authContract,
@@ -131,3 +133,5 @@ export * from './values';
 export * from './views';
 
 export * from './webhooks';
+
+export * from './apiKeys';

@@ -16,6 +16,7 @@ export * as schema from './schema';
 
 export {
   activities,
+  apiKeys,
   orgUnitMembers,
   orgUnits,
   automationRuns,

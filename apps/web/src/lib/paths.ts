@@ -73,6 +73,7 @@ export const paths = {
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',
     apiReference: '/settings/api-reference',
+    apiKeys: '/settings/api-keys',
     profile: '/settings/profile',
     security: '/settings/security',
     notifications: '/settings/notifications',

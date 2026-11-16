@@ -1,68 +1,17 @@
 import { paths } from '~/lib/paths';
-import { IconCheck, IconCopy, IconWebhook } from '@tabler/icons-react';
+import { IconWebhook } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import {
-  Button,
-  Dialog,
-  Empty,
-  Input,
-  PageContainer,
-  PageHeader,
-  ScrollArea,
-  useToast,
-} from 'erxes-ui';
+import { Empty, PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '@erxes/core-contract/client';
+import { ShownOnce } from '~/components/ShownOnce';
+import { orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { NewWebhook } from './NewWebhook';
 import { WebhookRow } from './WebhookRow';
-
-/** The secret, shown once: copy it now. */
-const SecretNotice = ({ secret, onClose }: { secret: string; onClose: () => void }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
-  const { toast } = useToast();
-  const [copied, setCopied] = useState(false);
-
-  const copy = () =>
-    navigator.clipboard.writeText(secret).then(
-      () => setCopied(true),
-      (error: unknown) =>
-        toast({
-          variant: 'destructive',
-          title: t('copy-failed', 'Could not copy'),
-          description: messageOf(error),
-        }),
-    );
-
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <Dialog.Content>
-        <Dialog.HeaderCombined
-          title={t('secret-title', 'Signing secret')}
-          description={t(
-            'secret-description',
-            "Copy it now: it won't be shown again. Check every request's Erxes-Signature with it.",
-          )}
-        />
-        <div className="flex gap-2">
-          <Input
-            readOnly
-            value={secret}
-            aria-label={t('secret-title', 'Signing secret')}
-            text="code"
-          />
-          <Button variant="outline" aria-label={t('copy', 'Copy')} onClick={() => void copy()}>
-            {copied ? <IconCheck /> : <IconCopy />}
-          </Button>
-        </div>
-      </Dialog.Content>
-    </Dialog>
-  );
-};
 
 const NoWebhooks = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
@@ -132,7 +81,17 @@ export const WebhooksSettingsPage = () => {
           </QueryState>
         </div>
       </ScrollArea>
-      {secret && <SecretNotice secret={secret} onClose={() => setSecret(null)} />}
+      {secret && (
+        <ShownOnce
+          value={secret}
+          title={t('secret-title', 'Signing secret')}
+          description={t(
+            'secret-description',
+            "Copy it now: it won't be shown again. Check every request's Erxes-Signature with it.",
+          )}
+          onClose={() => setSecret(null)}
+        />
+      )}
     </PageContainer>
   );
 };

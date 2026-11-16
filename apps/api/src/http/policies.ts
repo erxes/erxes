@@ -52,6 +52,11 @@ export const ACCESS = {
   'activities.create': { plugin: 'activities:write' },
   'activities.importNote': { plugin: 'activities:write' },
 
+  // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
+  'apiKeys.list': MEMBER,
+  'apiKeys.create': needs('api_keys.create'),
+  'apiKeys.remove': MEMBER,
+
   'audit.list': needs('audit.view'),
   'audit.record': { plugin: 'audit:write' },
   'audit.verify': needs('audit.view'),

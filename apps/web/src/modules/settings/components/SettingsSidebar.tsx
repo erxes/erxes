@@ -1,6 +1,7 @@
 import { paths, propertyPaths } from '~/lib/paths';
 import {
   IconSourceCode,
+  IconKey,
   IconBellCog,
   IconCash,
   IconChevronLeft,
@@ -74,6 +75,7 @@ const useSettingsDeveloperPaths = (): SettingsPath[] => {
       to: paths.settings.apiReference,
       icon: IconSourceCode,
     },
+    { name: t('api-keys', 'API keys'), to: paths.settings.apiKeys, icon: IconKey },
     ...(can('webhooks.manage')
       ? [{ name: t('webhooks', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook }]
       : []),
