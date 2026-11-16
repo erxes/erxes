@@ -5,8 +5,9 @@ import { cva } from 'class-variance-authority';
 
 import { cn } from 'erxes-ui/lib/utils';
 import type { Except } from 'type-fest';
-import { IMaskInput, type ReactElementProps } from 'react-imask';
+import type { ReactElementProps } from 'react-imask';
 import { useFieldControl } from './field-control';
+import { MaskInput } from './on-demand';
 
 /** The text of an input or textarea: its size and, for codes, a monospace face. */
 export const fieldTextVariants = {
@@ -95,7 +96,7 @@ const InputNumber = ({
   const field = useFieldControl();
 
   return (
-    <IMaskInput
+    <MaskInput
       {...field}
       mask={Number}
       onAccept={(accepted) => {

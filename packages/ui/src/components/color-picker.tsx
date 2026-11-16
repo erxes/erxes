@@ -5,7 +5,7 @@ import { inputVariants } from 'erxes-ui/components/input';
 import { cn } from 'erxes-ui/lib/utils';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import { IMaskInput } from 'react-imask';
+import { MaskInput } from './on-demand';
 
 const DEFAULT_COLORS = {
   red: '#dc2626',
@@ -126,7 +126,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
             />
             #
           </div>
-          <IMaskInput
+          <MaskInput
             mask={/^[0-9A-Fa-f]+$/}
             className={cn(inputVariants(), 'pl-9')}
             value={(value || '').replace('#', '')}

@@ -6,8 +6,29 @@ import type { SliderProps } from './slider';
 
 // erxes-ui is one shared chunk that every route loads. Components here are fetched the first
 // time one renders, because the library behind each serves only that component: Base UI's
-// Combobox (37 kB minified) for the multi-select, its Slider (17 kB) for the slider, and
-// react-resizable-panels for Resizable.
+// Combobox (37 kB minified) for the multi-select, its Slider (17 kB) for the slider,
+// react-resizable-panels for Resizable, and imask for masked inputs.
+
+const LoadedMaskInput = lazy(async () => ({ default: (await import('react-imask')).IMaskInput }));
+
+/**
+ * imask's input (numbers with separators, hex colours). Until its code loads, a read-only input
+ * with the same value and classes holds its place.
+ */
+export const MaskInput = (props: ComponentProps<typeof LoadedMaskInput>) => (
+  <Suspense
+    fallback={
+      <input
+        readOnly
+        aria-label={props['aria-label']}
+        className={props.className}
+        value={props.value ?? ''}
+      />
+    }
+  >
+    <LoadedMaskInput {...props} />
+  </Suspense>
+);
 
 const Selector = lazy(async () => ({ default: (await import('./multiselect')).MultipleSelector }));
 
