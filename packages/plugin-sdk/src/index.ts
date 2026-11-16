@@ -155,6 +155,22 @@
  *   const member = await verifyPluginSession(token, options).catch(() => verifyPluginCall(token, options));
  *   // a call: userId 'plugin:accounting', plugin 'accounting', role 'plugin', can() only the approved permissions
  *
+ * Import and export of the plugin's records (Contacts › Settings › Import & export): core keeps
+ * the file, the mapping, the check, the jobs and the progress; the plugin answers pages. Each
+ * permission must be one of the manifest's `permissions`.
+ *
+ *   transfer: [{ type: 'frontline:ticket', label: 'tickets',
+ *     exportPermission: 'frontline.ticket.export', importPermission: 'frontline.ticket.import',
+ *     columns: [{ key: 'name', label: 'Name', aliases: ['title'] },
+ *               { key: 'createdAt', label: 'Created', importable: false }] }],
+ *   app.post('/api/transfer/:kind', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const request = await verifyCoreTransfer(req.headers.authorization, req.body, { coreUrl, plugin: 'frontline' });
+ *     if (request.kind === 'export')     // { rows: [{ name, createdAt }], cursor: null on the last page }
+ *       return res.json(await tickets.page(request.userId, request.query, request.cursor, request.limit));
+ *     // { rows: [{ rowNumber, action: 'create' | 'update' | 'skip' | 'error', recordId?, error? }] }
+ *     res.json(await tickets.importRows(request.userId, request.rows, request.mode, request.dryRun));
+ *   });
+ *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
  * also call `core_publish_event()`, `core_record_audit()` and

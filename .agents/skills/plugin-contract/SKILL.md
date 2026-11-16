@@ -25,8 +25,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `{ orgId, userId, type, id }` to `/timelines/access` (checked by `verifyCoreAccessCheck`),
      and anything but `{ "allowed": true }` within 5 s is a 403;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
-     plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
-     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`).
+     plugin's API: events to `/events`, actions to `/automations/actions/<type>`, jobs to
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`), and
+     transfer requests to `/transfer/export` and `/transfer/import` (below).
      An action field `{ type: 'plugin_record', recordType, dependsOn?, multiple? }` (`ActionField` in
      `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
@@ -54,6 +55,17 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
      expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,
      `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`;
+   - import and export (`packages/contract/src/pluginTransfer.ts`,
+     `apps/api/src/modules/transfer/pluginTransfer.ts`): the manifest's `transfer` names record
+     types (`<plugin>:<record>`) with their `columns` and an `exportPermission` and
+     `importPermission` from its own `permissions`. Core's transfer runs them like customers:
+     `transfer.types` lists them for members who hold a permission while the plugin is installed
+     and active, and the file, the mapping, the check, the jobs and the history stay core's
+     (Contacts › Settings › Import & export). Core POSTs `PluginExportRequest` (a page after
+     `cursor`, answered `PluginExportPage`) and `PluginImportRequest` (a batch of rows, `dryRun`
+     for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
+     token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
+     be undone. The shapes, the token `typ` and the two paths are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set
