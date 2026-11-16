@@ -27,6 +27,17 @@ const CONFIGS: Record<string, unknown> = {
       { path: '/pms/settings', label: 'Property management', icon: Icon },
       { path: '/pms/settings/rates', label: 'Rates', icon: Icon },
     ],
+    recordTypes: [
+      {
+        contentType: 'pms:room',
+        title: 'Room',
+        icon: Icon,
+        detailPath: (id: string) => `/pms/rooms/${id}`,
+        Title: Page,
+        Detail: Page,
+        properties: properties('pms.room'),
+      },
+    ],
   },
   'tms_ui/config': {
     name: 'tms',
@@ -129,5 +140,6 @@ describe('plugins in core’s settings', () => {
     ]);
     expect(container.textContent).not.toContain('Property management');
     expect(container.textContent).not.toContain('Rates');
+    expect(container.textContent).not.toContain('Properties');
   });
 });

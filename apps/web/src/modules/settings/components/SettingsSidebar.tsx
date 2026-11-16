@@ -198,7 +198,9 @@ function PluginSettingsLinks() {
           name={link.name}
           icon={link.icon ?? IconApps}
         >
-          <IconArrowUpRight className="text-muted-foreground ml-auto" />
+          {!link.to.startsWith(paths.settings.root) && (
+            <IconArrowUpRight className="text-muted-foreground ml-auto" />
+          )}
         </NavigationMenuLinkItem>
       ))}
     </SettingsNavigationGroup>

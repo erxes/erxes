@@ -68,8 +68,9 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   plugin sidebar's `footer`; a plugin with several pages lists them in its own
   settings. Core's settings show one link per plugin, to its first page. Custom fields
   on a record type are its `properties` (`type: '__id__.item'`, `values(id)`,
-  `save(id, patch)`): core keeps the fields and draws their settings page and the
-  Properties tab; the API keeps the values in a jsonb column and checks a patch
+  `save(id, patch)`): core keeps the fields and draws the Properties tab and their
+  settings page, `/settings/properties/__id__.item`, which the plugin's own settings
+  link when it has any; the API keeps the values in a jsonb column and checks a patch
   with core's `fields.check` before saving. Tiles for core's
   home dashboard are `CONFIG.dashboardWidgets`: `name`, `title`, `icon`, `preview`,
   `size` and a `lazy` `component`, which core draws as the tile's body under the

@@ -164,7 +164,10 @@ export type TPanelRecordType = {
   contacts?: (contentId: string) => UseQueryOptions<TRecordContacts, Error, TRecordContacts>;
   /** A timeline type of the plugin's manifest (`timelines`): core's Activity tab shows it. */
   activity?: string;
-  /** Custom fields: core adds a Properties tab and a settings page for them. */
+  /**
+   * Custom fields: core adds a Properties tab and their settings page,
+   * `/settings/properties/<plugin>.<type>`, which the plugin's own settings link.
+   */
   properties?: TRecordProperties;
 };
 
