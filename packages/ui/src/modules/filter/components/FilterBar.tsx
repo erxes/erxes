@@ -1,6 +1,7 @@
 import React from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
+import { useTranslation } from 'react-i18next';
 import type { Except } from 'type-fest';
 import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
@@ -25,6 +26,7 @@ export const FilterBarCloseButton = ({
   filterKey?: string;
 } & React.RefAttributes<React.ComponentRef<typeof Button>>) => {
   const [, setQuery] = useQueryState(filterKey ?? '');
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
 
   return (
     <Button
@@ -32,6 +34,7 @@ export const FilterBarCloseButton = ({
       variant="segment"
       size="icon"
       className={className}
+      aria-label={t('remove', 'Remove filter')}
       onClick={() => void setQuery(null)}
       {...props}
     >
