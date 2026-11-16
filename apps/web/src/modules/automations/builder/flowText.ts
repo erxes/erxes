@@ -149,7 +149,21 @@ export const describeTrigger = (
   }
 };
 
-const valueText = (value: unknown): string => {
+const PLACEHOLDER = /\{\{\s*([^{}|]+?)\s*(?:\|[^{}]*)?\}\}/g;
+
+/**
+ * Text with its placeholders named as the data picker names them: "Welcome
+ * {{subject.firstName}}!" reads "Welcome [First name]!".
+ */
+export const readableTemplate = (text: string, fields: FieldInfo[]) =>
+  text.replace(PLACEHOLDER, (whole, path: string) => {
+    const label =
+      path === 'now' ? "Today's date" : fields.find((field) => field.path === path)?.label;
+
+    return label ? `[${label.replace(/ \(custom\)$/, '')}]` : whole;
+  });
+
+const valueText = (value: unknown, fields: FieldInfo[]): string => {
   if (Array.isArray(value)) return value.length ? plural(value.length, 'item') : '';
 
   if (value === true) return 'yes';
@@ -158,7 +172,7 @@ const valueText = (value: unknown): string => {
 
   if (value === 'subject') return 'the record';
 
-  return textOf(value);
+  return readableTemplate(textOf(value), fields);
 };
 
 const truncate = (text: string, length = 60) =>
@@ -199,7 +213,7 @@ const actionDetail = (
           ? context.stages?.find((stage) => stage.id === value)?.name
           : undefined;
 
-    const text = named ?? valueText(value);
+    const text = named ?? valueText(value, context.fields);
 
     return text ? [`${field.label.split(' (')[0]}: ${text}`] : [];
   });

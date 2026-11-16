@@ -48,6 +48,7 @@ const actions: ActionInfo[] = [
     fields: [
       { key: 'userIds', label: 'Members to rotate through', type: 'members', required: true },
     ],
+    outputs: [{ key: 'ownerId', label: 'New owner', type: 'member' }],
   },
   {
     type: 'core.notification.send',
@@ -56,6 +57,7 @@ const actions: ActionInfo[] = [
     source: 'core',
     subject: null,
     fields: [{ key: 'title', label: 'Title', type: 'text', required: true }],
+    outputs: [],
   },
 ];
 
@@ -106,15 +108,39 @@ describe('flow model', () => {
   });
 
   it('names what each step does, with outputs of earlier steps as fields', () => {
-    const outputs = stepOutputFields(flow, 'b', { events });
+    const outputs = stepOutputFields(flow, 'b', { events, actions });
 
     expect(outputs).toEqual([
+      { path: 'steps.a.output.ownerId', label: 'Assign an owner: New owner', type: 'member' },
       {
         path: 'steps.w.output.matched',
         label: 'Customer updated within the wait',
         type: 'boolean',
       },
     ]);
+    // The trigger's own values come first, and only steps before this one count.
+    expect(
+      stepOutputFields(flow, 'w', {
+        events,
+        actions,
+        trigger: {
+          label: 'Deal created',
+          fields: [{ key: 'dealId', label: 'Deal', type: 'text' }],
+        },
+      }).map((field) => field.path),
+    ).toEqual(['event.payload.dealId', 'steps.a.output.ownerId']);
+    expect(
+      describeStep(
+        {
+          id: 'n2',
+          type: 'action',
+          action: 'core.notification.send',
+          // An unknown path stays as typed.
+          input: { title: '{{ steps.a.output.ownerId | upper }} {{x}}' },
+        },
+        { actions, events, fields: outputs },
+      ).detail,
+    ).toBe('Title: [Assign an owner: New owner] {{x}}');
     expect(describeStep(branch, { actions, events, fields: outputs }).title).toBe(
       'If Customer updated within the wait: no',
     );
@@ -168,6 +194,7 @@ describe('action inputs', () => {
       { key: 'to', label: 'To', type: 'recipients', required: true },
       { key: 'subject', label: 'Subject', type: 'text', required: true },
     ],
+    outputs: [],
   };
 
   const move: ActionInfo = {
@@ -177,6 +204,7 @@ describe('action inputs', () => {
     source: 'core',
     subject: 'customer',
     fields: [{ key: 'stage', label: 'Stage', type: 'lead_stage', required: true }],
+    outputs: [],
   };
 
   const setField: ActionInfo = {
@@ -186,6 +214,7 @@ describe('action inputs', () => {
     source: 'core',
     subject: 'customer',
     fields: [{ key: 'fieldId', label: 'Field', type: 'custom_field', required: true }],
+    outputs: [],
   };
 
   it('starts an email addressed to the record', () => {

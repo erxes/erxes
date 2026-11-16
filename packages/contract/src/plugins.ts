@@ -6,7 +6,7 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { Id, isoDate, listOf } from './common';
-import { ActionFields } from './automationRuns';
+import { ActionFields, DataField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginFields } from './pluginFields';
@@ -150,6 +150,8 @@ export const PluginManifest = z.object({
         description: z.string().trim().max(300).optional(),
         subject: z.enum(AUTOMATION_SUBJECTS).optional(),
         fields: ActionFields.default([]),
+        /** What its JSON answer holds that later steps can insert (`dealId` as "Deal"). */
+        outputs: z.array(DataField).max(50).optional(),
       }),
     )
     .max(200)
@@ -202,6 +204,8 @@ export const PluginManifest = z.object({
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         subject: z.enum(CONTENT_TYPES).optional(),
+        /** Its payload's values later steps can insert (`dealId` as "Deal"). */
+        fields: z.array(DataField).max(50).optional(),
       }),
     )
     .max(500)

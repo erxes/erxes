@@ -38,7 +38,10 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   and `dependsOn: 'pipelineId'` on another narrows it to that pipeline's. Web
   fills the list from `GET /api/automations/records/<recordType>?parent=<value>`,
   sent with the member's session token like `/api/rpc/*`; answer
-  `[{ value, label }]` with the records that member may see.
+  `[{ value, label }]` with the records that member may see. Never ask a member
+  to type an id. Name what the action answers in `outputs`
+  (`[{ key: 'dealId', label: 'Deal', type: 'text' }]`) and what an event's
+  payload holds in its `fields`: later steps insert them from "Insert data".
 - A fact the plugin computes about a customer or company (total spent, last
   order) is a field in the manifest's `fields` (`code`, `contentType`, `label`,
   `type`: number, date, text, select or multiselect). Core shows it read-only

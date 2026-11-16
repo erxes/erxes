@@ -6,7 +6,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
-import { ActionInfo, AutomationRun, RunStatus, RunStep } from './automationRuns';
+import { ActionInfo, AutomationRun, DataField, RunStatus, RunStep } from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const Automation = createSelectSchema(automations, {
@@ -123,6 +123,8 @@ export const automationsContract = {
             description: z.string().nullable().optional(),
             source: z.string(),
             subject: z.enum(CONTENT_TYPES).nullable(),
+            /** Its payload's values later steps can insert (`{{event.payload.<key>}}`). */
+            fields: z.array(DataField),
           }),
         ),
         actions: z.array(ActionInfo),

@@ -1,4 +1,9 @@
-import { type AUTOMATION_SUBJECTS, type PLUGIN_FIELD_TYPES, PLUGIN_STATUSES } from '../enums';
+import {
+  type AUTOMATION_FIELD_TYPES,
+  type AUTOMATION_SUBJECTS,
+  type PLUGIN_FIELD_TYPES,
+  PLUGIN_STATUSES,
+} from '../enums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 import { orgIdColumn, pgTable } from '../table';
@@ -8,6 +13,13 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export type PluginStatus = (typeof PLUGIN_STATUSES)[number];
+
+/** A value an event carries or an action answers, for later automation steps. */
+interface StoredDataField {
+  key: string;
+  label: string;
+  type: (typeof AUTOMATION_FIELD_TYPES)[number];
+}
 
 /**
  * What a plugin declares about itself (`PUT /plugins/manifest`): where its UI
@@ -36,6 +48,7 @@ export interface StoredPluginManifest {
     label: string;
     description?: string;
     subject?: ContentType;
+    fields?: StoredDataField[];
   }[];
   /** Events it wants at `<api.url>/events` (patterns: `core.payment.*`). */
   subscriptions?: string[];
@@ -73,6 +86,7 @@ export interface StoredPluginManifest {
       options?: { value: string; label: string }[];
       description?: string;
     }[];
+    outputs?: StoredDataField[];
   }[];
 }
 

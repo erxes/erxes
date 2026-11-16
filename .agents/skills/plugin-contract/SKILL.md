@@ -31,7 +31,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
      member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
-     that depend on it. The route, the query key `parent` and the answer's shape are the contract;
+     that depend on it. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
+     `type`) name what its answer or payload holds; the builder offers them in "Insert data" as
+     `{{steps.<step id>.output.<key>}}` and `{{event.payload.<key>}}`, so renaming a key breaks
+     saved automations. The route, the query key `parent` and the answer's shape are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set

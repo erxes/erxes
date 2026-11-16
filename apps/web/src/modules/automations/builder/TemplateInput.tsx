@@ -1,7 +1,15 @@
-import { IconBraces, IconBuilding, IconClock, IconRoute, IconUser } from '@tabler/icons-react';
+import {
+  IconBolt,
+  IconBraces,
+  IconBuilding,
+  IconClock,
+  IconRoute,
+  IconUser,
+} from '@tabler/icons-react';
 import { Button, Command, InputGroup, Popover } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { readableTemplate } from './flowText';
 import type { FieldInfo } from './useAutomationFields';
 
 /** The record's fields, earlier steps' results and the time, searchable. */
@@ -16,8 +24,25 @@ const DataPicker = ({
 }) => {
   const { t } = useTranslation('automations');
   const record = fields.filter((field) => field.path.startsWith('subject.'));
+  const trigger = fields.filter((field) => field.path.startsWith('event.payload.'));
   const steps = fields.filter((field) => field.path.startsWith('steps.'));
   const RecordIcon = subject === 'company' ? IconBuilding : IconUser;
+
+  const group = (heading: string, items: FieldInfo[], Icon: typeof IconRoute) =>
+    items.length > 0 && (
+      <Command.Group heading={heading}>
+        {items.map((field) => (
+          <Command.Item
+            key={field.path}
+            value={`${field.label} ${field.path}`}
+            onSelect={() => onPick(field.path)}
+          >
+            <Icon className="text-muted-foreground" />
+            <span className="truncate">{field.label}</span>
+          </Command.Item>
+        ))}
+      </Command.Group>
+    );
 
   return (
     <Command loop>
@@ -49,20 +74,8 @@ const DataPicker = ({
             ))}
           </Command.Group>
         )}
-        {steps.length > 0 && (
-          <Command.Group heading={t('earlier-steps', 'Earlier steps')}>
-            {steps.map((field) => (
-              <Command.Item
-                key={field.path}
-                value={`${field.label} ${field.path}`}
-                onSelect={() => onPick(field.path)}
-              >
-                <IconRoute className="text-muted-foreground" />
-                <span className="truncate">{field.label}</span>
-              </Command.Item>
-            ))}
-          </Command.Group>
-        )}
+        {group(t('the-trigger', 'The trigger'), trigger, IconBolt)}
+        {group(t('earlier-steps', 'Earlier steps'), steps, IconRoute)}
         <Command.Group heading={t('other-data', 'Other')}>
           <Command.Item value="now current time date" onSelect={() => onPick('now | date')}>
             <IconClock className="text-muted-foreground" />
@@ -71,6 +84,40 @@ const DataPicker = ({
         </Command.Group>
       </Command.List>
     </Command>
+  );
+};
+
+/** The `{ }` button that opens the data picker. */
+const InsertData = ({
+  open,
+  onOpenChange,
+  children,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
+}) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <Popover.Trigger
+        title={t('insert-data', 'Insert data')}
+        aria-label={t('insert-data', 'Insert data')}
+        render={<Button variant="ghost" size="icon" tone="muted" className="size-6" />}
+      >
+        <IconBraces className="size-4" />
+      </Popover.Trigger>
+      <Popover.Content
+        align="end"
+        sideOffset={6}
+        collisionPadding={12}
+        variant="flush"
+        className="w-72"
+      >
+        {children}
+      </Popover.Content>
+    </Popover>
   );
 };
 
@@ -102,7 +149,6 @@ export const TemplateInput = ({
 }) => {
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const [open, setOpen] = useState(false);
-  const { t } = useTranslation('automations');
 
   const insert = (path: string) => {
     const element = ref.current;
@@ -130,31 +176,30 @@ export const TemplateInput = ({
     onChange: (event: { target: { value: string } }) => onChange(event.target.value),
   };
 
+  // `{{steps.x1.output.dealId}}` means little: say what each placeholder is.
+  const readable = readableTemplate(value, fields);
+
   return (
-    <InputGroup>
-      {multiline ? <InputGroup.Textarea {...shared} rows={4} /> : <InputGroup.Input {...shared} />}
-      {!disabled && (
-        <InputGroup.Addon align="end">
-          <Popover open={open} onOpenChange={setOpen}>
-            <Popover.Trigger
-              title={t('insert-data', 'Insert data')}
-              aria-label={t('insert-data', 'Insert data')}
-              render={<Button variant="ghost" size="icon" tone="muted" className="size-6" />}
-            >
-              <IconBraces className="size-4" />
-            </Popover.Trigger>
-            <Popover.Content
-              align="end"
-              sideOffset={6}
-              collisionPadding={12}
-              variant="flush"
-              className="w-72"
-            >
+    <div className="space-y-1">
+      <InputGroup>
+        {multiline ? (
+          <InputGroup.Textarea {...shared} rows={4} />
+        ) : (
+          <InputGroup.Input {...shared} />
+        )}
+        {!disabled && (
+          <InputGroup.Addon align="end">
+            <InsertData open={open} onOpenChange={setOpen}>
               <DataPicker fields={fields} subject={subject} onPick={insert} />
-            </Popover.Content>
-          </Popover>
-        </InputGroup.Addon>
+            </InsertData>
+          </InputGroup.Addon>
+        )}
+      </InputGroup>
+      {readable !== value && (
+        <p className="truncate text-xs text-muted-foreground" title={readable}>
+          {readable}
+        </p>
       )}
-    </InputGroup>
+    </div>
   );
 };

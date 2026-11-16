@@ -268,5 +268,11 @@
   "date-summary-once": "Once.",
   "date-example": "For example: {{field}} {{date}} → runs {{run}} at {{time}}.",
   "when-before": "Before",
-  "when-after": "After"
+  "when-after": "After",
+  "the-trigger": "The trigger",
+  "fill-in-field": "Fill in {{field}}",
+  "on-a-date": "On a date",
+  "days-after-run": "Days after it runs",
+  "choose-date": "Choose a date",
+  "days-later": "days later"
 }
