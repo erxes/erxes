@@ -73,6 +73,7 @@ const pages = [
   ['Settings list', 'PageHeader, RecordTable', `${core}settings/tags/TagsSettingsPage.tsx`],
   ['Settings form', 'Form, Switch, ScrollArea', `${core}settings/profile/ProfileSettingsPage.tsx`],
   ['Filters', 'ListFilter, useListFilterParams', 'ui/src/modules/items/ItemsPage.tsx'],
+  ['Chart', 'ChartContainer, ChartTooltipContent, ChartLegendContent', ''],
 ];
 
 for (const [, components = '', screen = ''] of pages) {
