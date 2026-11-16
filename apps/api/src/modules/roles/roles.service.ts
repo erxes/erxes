@@ -186,6 +186,30 @@ const roleOrThrow = async (client: Db, key: string) => {
   return row;
 };
 
+/** A role that can do something `me` can't (owners are never outdone). */
+const widerThanMe = (me: ReturnType<typeof caller<'user'>>, row: { permissions: string[] }) =>
+  me.role !== 'owner' &&
+  (row.permissions.includes('*')
+    ? !me.permissions.includes('*')
+    : row.permissions.some((action) => !can(me, action)));
+
+/**
+ * Acting on another member (password, email, sign-in, role, status): their
+ * current role holds nothing beyond the caller's own permissions, so a team
+ * manager can't take over or lock out an Admin.
+ */
+export const assertNotAbove = async (client: Db, targetRole: string) => {
+  const me = caller('user');
+  const [row] = await client.select().from(roles).where(eq(roles.key, targetRole)).limit(1);
+
+  if (row && widerThanMe(me, row)) {
+    throw fail(
+      'BEYOND_OWN_PERMISSIONS',
+      `You can't change a ${row.name}: their role can do more than you`,
+    );
+  }
+};
+
 /**
  * Assigning roles (invite, role change): each must exist, and hold nothing
  * beyond the assigner's own permissions (owners assign anything). One query
@@ -207,13 +231,7 @@ export const assertAssignable = async (client: Db, keys: string | string[]) => {
 
     if (!row) throw noSuchRole();
 
-    const wider =
-      me.role !== 'owner' &&
-      (row.permissions.includes('*')
-        ? !me.permissions.includes('*')
-        : row.permissions.some((action) => !can(me, action)));
-
-    if (wider) {
+    if (widerThanMe(me, row)) {
       throw fail(
         'BEYOND_OWN_PERMISSIONS',
         `You can't give the ${row.name} role: it can do more than you`,

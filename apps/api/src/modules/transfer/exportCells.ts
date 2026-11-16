@@ -136,7 +136,7 @@ export const exportFile = async (
     );
 
     // A BOM: Excel then reads UTF-8 (Mongolian) correctly.
-    return Buffer.concat([Buffer.from('﻿'), Buffer.from(stringify([header, ...lines]))]);
+    return Buffer.concat([Buffer.from('﻿'), Buffer.from(stringify([header.map(defuse), ...lines]))]);
   }
 
   return writeXlsxFile(

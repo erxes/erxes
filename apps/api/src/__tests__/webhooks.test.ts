@@ -154,7 +154,14 @@ describe('webhooks', () => {
     config.outbound.allowPrivate = false;
 
     try {
-      for (const url of ['http://example.com/x', 'https://10.0.0.5/x'])
+      for (const url of [
+        'http://example.com/x',
+        'https://10.0.0.5/x',
+        // IPv6 literals, which Node connects to without a lookup.
+        'https://[::1]/x',
+        'https://[::ffff:10.0.0.5]/x',
+        'https://[::ffff:127.0.0.1]/x',
+      ])
         await expect(t.owner().webhooks.create({ url, eventTypes: ['*'] })).rejects.toMatchObject({
           code: 'INVALID_URL',
         });

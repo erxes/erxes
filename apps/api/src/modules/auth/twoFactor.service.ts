@@ -1,5 +1,5 @@
-import { caller, type Db, runAs, users, withOrg } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { auditLogs, caller, type Db, runAs, users, withOrg } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { seal, unseal } from '~/lib/secrets';
 import { signJwt, verifyJwt } from '~/lib/signing';
@@ -168,7 +168,10 @@ export const completeTwoFactor = async (input: {
 
   const { org: orgId, sub: userId } = challenge;
 
-  return withOrg(orgId, async (tx) => {
+  // The password step's lockout covers this step too, so a challenge can't be guessed at.
+  await assertNotLockedOut(orgId, userId);
+
+  const outcome = await withOrg(orgId, async (tx) => {
     // One second step at a time per member: a code can't be used twice in a race.
     const [member] = await tx
       .select()
@@ -184,24 +187,16 @@ export const completeTwoFactor = async (input: {
       const step = matchStep(unseal(member.totpSecretSealed), input.code);
 
       if (step === null || (member.totpLastStep !== null && step <= member.totpLastStep)) {
-        await runAs(asMember(member), () =>
-          recordAudit(tx, {
-            action: 'auth.sign_in_failed',
-            targetType: 'user',
-            targetId: userId,
-            targetLabel: member.email,
-            metadata: { reason: 'wrong two-factor code' },
-          }),
-        );
-        throw fail('WRONG_CODE', "That code doesn't match");
+        return { wrong: 'two-factor code', member } as const;
       }
 
       await tx.update(users).set({ totpLastStep: step }).where(eq(users.id, userId));
     } else {
       const hashed = hashCode(input.recoveryCode ?? '');
 
-      if (!member.recoveryCodes?.includes(hashed))
-        throw fail('WRONG_CODE', "That recovery code doesn't match");
+      if (!member.recoveryCodes?.includes(hashed)) {
+        return { wrong: 'recovery code', member } as const;
+      }
 
       const left = member.recoveryCodes.filter((code) => code !== hashed);
 
@@ -216,6 +211,50 @@ export const completeTwoFactor = async (input: {
       );
     }
 
-    return { orgId, userId };
+    return { wrong: null };
   });
+
+  if (outcome.wrong) {
+    const { member } = outcome;
+
+    // Its own transaction, committed before the answer, so failures reach the lockout.
+    await withOrg(orgId, (tx) =>
+      runAs(asMember(member), () =>
+        recordAudit(tx, {
+          action: 'auth.sign_in_failed',
+          targetType: 'user',
+          targetId: userId,
+          targetLabel: member.email,
+          metadata: { reason: `wrong ${outcome.wrong}` },
+        }),
+      ),
+    );
+
+    throw fail('WRONG_CODE', `That ${outcome.wrong} doesn't match`);
+  }
+
+  return { orgId, userId };
+};
+
+/** Lockout per account, across replicas: 10 failed sign-in steps in 15 minutes. */
+export const assertNotLockedOut = async (orgId: string, userId: string) => {
+  const [recent] = await withOrg(orgId, (tx) =>
+    tx
+      .select({ failures: sql<number>`count(*)::int` })
+      .from(auditLogs)
+      .where(
+        and(
+          eq(auditLogs.targetId, userId),
+          eq(auditLogs.action, 'auth.sign_in_failed'),
+          sql`${auditLogs.createdAt} > now() - interval '15 minutes'`,
+        ),
+      ),
+  );
+
+  if ((recent?.failures ?? 0) >= 10) {
+    throw fail(
+      'TOO_MANY_ATTEMPTS',
+      'Too many failed sign-ins for this account: try again in 15 minutes',
+    );
+  }
 };

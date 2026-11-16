@@ -1,8 +1,10 @@
+import { rateLimits } from '@erxes/core-db';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/lib/crypto';
+import { inOrder } from '~/lib/sequence';
 import { codeAt, currentStep } from '~/modules/auth/totp';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 describe('two-factor sign-in', { timeout: 240_000 }, () => {
@@ -87,6 +89,49 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     await recovered.api.auth.twoFactorDisable({ password: credentials.password });
     expect(await server.browser().api.auth.signIn(credentials)).toMatchObject({
       user: { totpEnabledAt: null },
+    });
+  });
+
+  it('locks the account after 10 wrong second steps, even on one challenge', async () => {
+    const globex = { email: 'o@globex.mn', password: 'Owner-pass-1', subdomain: 'globex' };
+
+    await createOrganization({
+      subdomain: 'globex',
+      name: 'Globex',
+      owner: { email: globex.email, passwordHash: await hashPassword(globex.password) },
+    });
+
+    const owner = server.browser();
+
+    await owner.api.auth.signIn(globex);
+
+    const { secret } = await owner.api.auth.twoFactorSetup({});
+
+    await owner.api.auth.twoFactorEnable({ code: codeAt(secret, currentStep()) });
+
+    const answer = await server.browser().api.auth.signIn(globex);
+
+    if (!('challenge' in answer)) throw new Error('signed in without a second factor');
+
+    const guess = (body: { code?: string; recoveryCode?: string }) =>
+      server.browser().api.auth.signInTwoFactor({ challenge: answer.challenge, ...body });
+
+    // A fresh minute for the per-address limit, so the account lockout is what answers.
+    await adminDb().delete(rateLimits);
+
+    // Wrong recovery codes count as much as wrong authenticator codes.
+    await expect(guess({ recoveryCode: 'aaaaa-aaaaa' })).rejects.toMatchObject({
+      code: 'WRONG_CODE',
+    });
+
+    // Nine wrong codes on the same challenge (a match is one in a million per guess).
+    await inOrder(
+      ['000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888'],
+      (code) => expect(guess({ code })).rejects.toMatchObject({ code: 'WRONG_CODE' }),
+    );
+
+    await expect(guess({ code: codeAt(secret, currentStep() + 1) })).rejects.toMatchObject({
+      code: 'TOO_MANY_ATTEMPTS',
     });
   });
 });

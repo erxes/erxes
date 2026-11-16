@@ -33,7 +33,10 @@ export const assertOutboundUrl = (raw: string) => {
 
   if (url.username || url.password) throw new OutboundError("Don't put credentials in the address");
 
-  if (!config.outbound.allowPrivate && isIP(url.hostname) && isPrivateAddress(url.hostname)) {
+  // An IPv6 literal keeps its brackets in `hostname`, and Node connects to a literal without a lookup.
+  const host = url.hostname.replace(/^\[(.*)\]$/, '$1');
+
+  if (!config.outbound.allowPrivate && isIP(host) && isPrivateAddress(host)) {
     throw new OutboundError('Private and local addresses are not allowed');
   }
 

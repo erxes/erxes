@@ -149,6 +149,36 @@ describe('team members (/core/v1/users)', () => {
     });
   });
 
+  it('keeps a team manager off members whose role can do more than theirs', async () => {
+    const lead = await owner.roles.create({
+      name: 'Team lead',
+      permissions: ['team.view', 'team.invite', 'team.manage'],
+    });
+
+    const manager = await owner.users.invite({ email: 'lead@acme.mn', role: lead.key });
+    const admin = await owner.users.invite({ email: 'boss@acme.mn', role: 'admin' });
+    const peer = await owner.users.invite({ email: 'peer@acme.mn', role: lead.key });
+
+    await Promise.all([activate(manager.id), activate(admin.id), activate(peer.id)]);
+
+    const asLead = as(manager.id);
+    const refused = { code: 'BEYOND_OWN_PERMISSIONS' };
+
+    await expect(
+      asLead.users.setPassword({ id: admin.id, password: 'Taken-over-1' }),
+    ).rejects.toMatchObject(refused);
+    await expect(
+      asLead.users.update({ id: admin.id, email: 'lead+x@acme.mn' }),
+    ).rejects.toMatchObject(refused);
+    await expect(asLead.users.disable({ id: admin.id })).rejects.toMatchObject(refused);
+    await expect(asLead.users.update({ id: admin.id, role: 'member' })).rejects.toMatchObject(
+      refused,
+    );
+
+    // A member within the manager's own permissions is still theirs to manage.
+    expect((await asLead.users.disable({ id: peer.id })).status).toBe('disabled');
+  });
+
   it('disables and re-enables a member; a disabled member is signed out', async () => {
     const { id } = await owner.users.invite({ email: 'temp@acme.mn' });
 

@@ -9,7 +9,7 @@ import { matchEveryWord } from '~/lib/search';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/lib/crypto';
 import { notify } from '~/modules/notifications/notifications.service';
-import { assertAssignable } from '~/modules/roles/roles.service';
+import { assertAssignable, assertNotAbove } from '~/modules/roles/roles.service';
 import { profileChanges, type UserChanges } from './userProfile';
 import { assertTeamManager, findUser, lockTeam, otherActiveOwners, type UserRow } from './userRows';
 import { asPlugin } from './withoutSignIn.service';
@@ -93,6 +93,7 @@ const checkUserChange = async (
 
   if (!self) {
     assertTeamManager();
+    await assertNotAbove(tx, target.role);
   }
 
   // An owner's email is how they sign in: only owners change it.
@@ -227,6 +228,8 @@ export const manageMember = <T>(
     if (target.role === 'owner' && me.role !== 'owner') {
       throw fail('OWNER_ONLY', refusals.owner);
     }
+
+    await assertNotAbove(tx, target.role);
 
     return fn(target);
   });
