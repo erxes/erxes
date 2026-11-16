@@ -1,5 +1,6 @@
 import { RecordOpenerProvider } from 'erxes-ui';
 import type { PropsWithChildren } from 'react';
+import { getSidePanelRecordPath, NEW_RECORD_ID } from './sidePanelPaths';
 import { useSidePanel } from './useSidePanel';
 
 /**
@@ -11,13 +12,15 @@ export const PanelRecordOpener = ({
   stack = false,
   children,
 }: PropsWithChildren<{ stack?: boolean }>) => {
-  const { openRecord, openNewRecord } = useSidePanel();
+  const { openRecord, openNewRecord, record, dismissPath } = useSidePanel();
   const options = stack ? { stack } : undefined;
 
   return (
     <RecordOpenerProvider
-      open={(record) => openRecord(record, options)}
+      open={(entity) => openRecord(entity, options)}
       openNew={(contentType, defaults) => openNewRecord(contentType, defaults, options)}
+      current={record?.contentId === NEW_RECORD_ID ? null : record}
+      dismiss={(entity) => dismissPath(getSidePanelRecordPath(entity))}
     >
       {children}
     </RecordOpenerProvider>

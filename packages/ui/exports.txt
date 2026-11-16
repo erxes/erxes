@@ -31,6 +31,7 @@ type PluginLiveMessage
 type PluginRuntime
 type PluginSession
 type RecordListGroup
+type RecordPanelControls
 type RecordRef
 type RecordTableColumnDef
 type RecordTimelineProps
@@ -54,6 +55,7 @@ type TRecordSection
 type TRecordSectionProps
 type TRecordSlotProps
 type TRecordTab
+type TRecordTableSort
 type TRelationTab
 type TRelationTabProps
 type TViewTabsProps
@@ -142,6 +144,7 @@ value RadioGroup
 value RecordList
 value RecordOpenerProvider
 value RecordPage
+value RecordPanelProvider
 value RecordTable
 value RecordTableInlineCell
 value RecordTimeline
@@ -227,6 +230,7 @@ value useOpenRecord
 value usePageHotkey
 value usePanelExpanded
 value usePreviousHotkeyScope
+value useRecordPanel
 value useScopedHotkeys
 value useTagOptions
 value useToast

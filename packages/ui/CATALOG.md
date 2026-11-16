@@ -47,6 +47,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TListFilterProps` The props of `ListFilter`: its `id`, `fields`, lookups and record count.
 - `type TListViews { Tabs, Changes }` The host's saved views for a list.
 - `type TPluginListType` A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`).
+- `type TRecordTableSort { by, direction }` The order a list's rows come in: by a column, either way.
 - `type TViewTabsProps { recordType, allLabel }` The props of the host's saved-view tabs: the list and its "All …" label.
 - `useFilterContext()` Controls of the enclosing `Filter`: open or close it and switch views.
 - `useListDisplay(list, displays)` The display a list shows, as picked in its Display menu.
@@ -71,8 +72,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelFormRow label icon required error hint>` One field of a form in the side panel, laid out like `PanelField`.
 - `<PanelLabel tooltip>` A side panel label cut at two lines, with the full text on hover.
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
-- `<RecordOpenerProvider open openNew>` The host app's way to open records, which `useOpenRecord` calls.
+- `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
+- `type RecordPanelControls { record, tab, setTab, close, dismiss, … }` What a record shown in core's panel, or on its own page, can do to it.
+- `RecordPanelProvider` Web gives each record it shows its controls.
 - `type RecordRef { contentType, contentId }` A record the host can open, by `contentType` and `contentId`.
 - `RecordTimeline` Core's timeline of notes, calls and events for a plugin's record.
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
@@ -81,6 +84,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TContactContentType` The customer or company types `ContactLink` shows.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
+- `useRecordPanel()` The record a slot is in, and what the slot can do to it.
 
 ## Fields and pickers
 

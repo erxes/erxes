@@ -214,7 +214,10 @@ export type { RecordListGroup } from './modules/record-list/RecordListRoot';
 
 export { RecordTable } from './modules/record-table/components/RecordTable';
 
-export type { RecordTableColumnDef } from './modules/record-table/components/RecordTableProvider';
+export type {
+  RecordTableColumnDef,
+  TRecordTableSort,
+} from './modules/record-table/components/RecordTableProvider';
 
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
@@ -279,9 +282,12 @@ export {
 export {
   RecordOpenerProvider,
   RecordPage,
+  type RecordPanelControls,
+  RecordPanelProvider,
   type RecordRef,
   setRecordPage,
   useOpenRecord,
+  useRecordPanel,
 } from './modules/records/openRecord';
 
 export { ThemeOption, themeState } from './state/themeState';

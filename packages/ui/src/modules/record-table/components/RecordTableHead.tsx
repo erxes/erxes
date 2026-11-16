@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { IconArrowDown, IconArrowUp, IconArrowsSort } from '@tabler/icons-react';
 
 import { useDndContext } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
@@ -14,6 +15,7 @@ import {
   useRecordTable,
   useRecordTableState,
   type RecordTableFeatures,
+  type TRecordTableSort,
 } from './RecordTableProvider';
 
 type RecordTableHeader = Header<RecordTableFeatures, RowData>;
@@ -28,7 +30,57 @@ const recordTableHeadVariants = cva(
   },
 );
 
-/** A header cell: drag it to reorder its column, drag its right edge to resize it. */
+// What the button shows for each order, and what a press does next.
+const SORT_BUTTON = {
+  none: { Icon: IconArrowsSort, label: 'Sort ascending' },
+  asc: { Icon: IconArrowUp, label: 'Sort descending' },
+  desc: { Icon: IconArrowDown, label: 'Clear sort' },
+};
+
+const ARIA_SORT = { asc: 'ascending', desc: 'descending', none: 'none' } as const;
+
+// Longer than this between press and release is a hold that drags the column, not a click.
+const CLICK_MS = 300;
+
+/** Off → ascending → descending → off. */
+export const nextSort = (sort: TRecordTableSort | null, by: string): TRecordTableSort | null => {
+  if (sort?.by !== by) return { by, direction: 'asc' };
+
+  return sort.direction === 'asc' ? { by, direction: 'desc' } : null;
+};
+
+/** The header's sort control: the order shown, and a button for the keyboard. */
+const SortButton = ({
+  direction,
+  onSort,
+}: {
+  direction: TRecordTableSort['direction'] | undefined;
+  onSort: () => void;
+}) => {
+  const { Icon, label } = SORT_BUTTON[direction ?? 'none'];
+
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className={cn(
+        'relative z-1 ml-1 inline-flex size-5 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-ring',
+        !direction && 'opacity-0 group-hover/head:opacity-100',
+      )}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSort();
+      }}
+    >
+      <Icon className="size-3.5" aria-hidden />
+    </button>
+  );
+};
+
+/**
+ * A header cell: drag it to reorder its column, drag its right edge to resize it, click it to
+ * sort by it when the table sorts (`RecordTable.Provider`'s `sortable`).
+ */
 export const RecordTableHead = ({
   header,
   pinned,
@@ -40,7 +92,11 @@ export const RecordTableHead = ({
   pinned: boolean;
 }) => {
   const { id } = header.column;
-  const { headId } = useRecordTable();
+  const { headId, sorting } = useRecordTable();
+  const pressedAt = useRef(0);
+  const sortable = Boolean(sorting?.columns.includes(id));
+  const direction = sorting?.sort?.by === id ? sorting.sort.direction : undefined;
+  const sort = () => sorting?.onChange(nextSort(sorting.sort, id));
 
   const { isDragging, listeners, setNodeRef, transform } = useSortable({
     id,
@@ -51,14 +107,34 @@ export const RecordTableHead = ({
     <Table.Head
       ref={setNodeRef}
       id={headId(id)}
-      className={cn(recordTableHeadVariants({ isDragging, pinned }), className)}
+      className={cn(
+        recordTableHeadVariants({ isDragging, pinned }),
+        sortable && 'group/head cursor-pointer',
+        className,
+      )}
       style={{
         '--head-width': `var(--header-${header.id}-width)`,
         '--head-start': pinned ? `var(--col-${id}-start)` : undefined,
       }}
+      aria-sort={sortable ? ARIA_SORT[direction ?? 'none'] : undefined}
+      onPointerDown={sortable ? () => (pressedAt.current = Date.now()) : undefined}
+      onClick={
+        sortable
+          ? () => {
+              if (Date.now() - pressedAt.current < CLICK_MS) sort();
+            }
+          : undefined
+      }
       {...props}
     >
-      {children}
+      {sortable ? (
+        <div className="flex items-center">
+          {children}
+          <SortButton direction={direction} onSort={sort} />
+        </div>
+      ) : (
+        children
+      )}
       {!isStructuralColumn(id) && (
         <>
           {/* Pointer-only drag area: a role="button" inside the header would hide its name. */}
