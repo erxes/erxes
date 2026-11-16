@@ -67,9 +67,16 @@ describe('scaffold', () => {
     await scaffold(dir, options);
 
     expect(await withTokens(dir)).toEqual([]);
-    expect(missing(dir, ['.gitignore', '.dockerignore', '.env.example', '.node-version'])).toEqual(
-      [],
-    );
+    expect(
+      missing(dir, [
+        '.gitignore',
+        '.dockerignore',
+        '.env.example',
+        '.node-version',
+        '.agents/skills/no-comments/SKILL.md',
+        '.agents/skills/no-comments/LICENSE',
+      ]),
+    ).toEqual([]);
     expect(await readlink(join(dir, '.claude/skills'))).toBe(join('..', '.agents', 'skills'));
     expect(existsSync(join(dir, '.claude/skills/endpoint/SKILL.md'))).toBe(true);
     expect(existsSync(join(dir, 'migration'))).toBe(false);

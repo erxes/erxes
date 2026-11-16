@@ -24,8 +24,8 @@ oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
   `org_id` with forced row-level security, or is listed in `tools/no-org-id.sql`
   with the reason. Core and other plugins share the database. [pnpm check:rls]
 - The lint rules are `@erxes/lint`'s preset (`vite.config.ts`). It,
-  `tools/test/no-skips.ts` and `tools/check-rls.sql` come from core unchanged, as
-  does the quality section above. Change them in core.
+  `tools/test/no-skips.ts`, `tools/check-rls.sql` and the `no-comments` skill come
+  from core unchanged, as does the quality section above. Change them in core.
 - The API reaches core through `@erxes/plugin-sdk` (`api/src/core.ts`), the UI
   through `@erxes/core-contract/client` with the member's session. Neither reads
   `core_*` tables or imports core's app code.
@@ -35,6 +35,7 @@ oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
   check it with `verifyPublicCall` (`@erxes/plugin-sdk`'s overview has the route).
 - Skills in `.agents/skills/`: `endpoint` for a procedure, `schema-change` for a
   table or column, `ui-patterns` for any page (lists, filters, forms, record
-  details look like core's), `verify` before calling a change done.__migrationSkill__
+  details look like core's), `verify` before calling a change done, and `/no-comments`,
+  run by hand, to cut the comments that narrate code.__migrationSkill__
 - What core promises plugins, and what counts as a breaking change, is core's
   `plugin-contract` skill (erxes repo, branch `postgre`).
