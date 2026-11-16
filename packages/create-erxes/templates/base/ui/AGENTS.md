@@ -63,8 +63,10 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   record; its `listPath` is the list a deleted or closed record goes back to, when
   that isn't the plugin's first page. A plugin's records of other records' customers are `relationTabs`
   (the `ui-patterns` skill). A settings page is a route of the plugin's
-  (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`):
-  core links it from its settings sidebar, under the plugin's name. Custom fields
+  (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`),
+  drawn in the plugin's own layout and opened from an `AppLayoutFooterLink` in the
+  plugin sidebar's `footer`; a plugin with several pages lists them in its own
+  settings. Core's settings show one link per plugin, to its first page. Custom fields
   on a record type are its `properties` (`type: '__id__.item'`, `values(id)`,
   `save(id, patch)`): core keeps the fields and draws their settings page and the
   Properties tab; the API keeps the values in a jsonb column and checks a patch

@@ -230,7 +230,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
-- `type TPluginSettingsPage { path, label, icon }` A plugin's settings page, linked from core's settings sidebar.
+- `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.
 - `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
 - `type TPropertyValue` A custom field's value: text, number, date, yes/no or options.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.
