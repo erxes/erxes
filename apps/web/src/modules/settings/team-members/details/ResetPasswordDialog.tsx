@@ -3,10 +3,8 @@ import { Button, Dialog, Form, Input, Spinner, useToast } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useQueryState } from 'nuqs';
 import { z } from 'zod';
 import { messageOf } from '@erxes/core-contract/client';
-import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useTeamMemberSetPassword } from '../useTeamMembers';
 
 type T = TFunction<'settings', 'team-member'>;
@@ -63,11 +61,17 @@ const PasswordField = ({
   );
 };
 
-/** A manager sets another member's password (`?reset_password_id=`); someone invited can then sign in. */
-export const ResetPasswordDialog = () => {
+/** A manager sets another member's password; someone invited can then sign in. */
+export const ResetPasswordDialog = ({
+  userId,
+  onClose,
+}: {
+  /** The member whose password is being set; none: closed. */
+  userId: string | null;
+  onClose: () => void;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { toast } = useToast();
-  const [userId, setUserId] = useQueryState(RESET_PASSWORD_QUERY_KEY);
   const setPassword = useTeamMemberSetPassword();
 
   const form = useForm<TResetPasswordForm>({
@@ -80,7 +84,7 @@ export const ResetPasswordDialog = () => {
 
   const close = () => {
     reset();
-    void setUserId(null);
+    onClose();
   };
 
   const onSubmit = (data: TResetPasswordForm) => {

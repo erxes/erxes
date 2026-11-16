@@ -2,8 +2,6 @@ import type { User } from '@erxes/core-contract';
 import { IconLock, IconToggleLeft, IconToggleRight } from '@tabler/icons-react';
 import { Command, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useQueryState } from 'nuqs';
-import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useMemberPermissions, useTeamMemberDisable } from '../useTeamMembers';
 
 /**
@@ -12,12 +10,13 @@ import { useMemberPermissions, useTeamMemberDisable } from '../useTeamMembers';
 export const TeamMemberActionItems = ({
   user,
   onAction,
+  onResetPassword,
 }: {
   user: User;
   onAction?: () => void;
+  onResetPassword: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
-  const [, setResetPasswordId] = useQueryState(RESET_PASSWORD_QUERY_KEY);
   const toggle = useTeamMemberDisable();
   const permissions = useMemberPermissions(user);
   const isActive = user.status !== 'disabled';
@@ -34,10 +33,7 @@ export const TeamMemberActionItems = ({
         className="[&:not(:has([cmdk-item]))]:hidden"
       >
         {permissions?.canSetPassword && (
-          <Command.Item
-            value="reset-password"
-            onSelect={select(() => void setResetPasswordId(user.id))}
-          >
+          <Command.Item value="reset-password" onSelect={select(onResetPassword)}>
             <IconLock /> {t('reset-password')}
           </Command.Item>
         )}

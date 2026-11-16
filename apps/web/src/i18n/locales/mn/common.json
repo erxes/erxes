@@ -583,6 +583,8 @@
     "add-customer": "Харилцагч нэмэх",
     "edit-companies": "Компаниудыг засах",
     "edit-customers": "Харилцагчдыг засах",
+    "add-owner": "Хариуцагч нэмэх",
+    "change-owner": "Хариуцагч солих",
     "not-specified": "Тодорхойгүй",
     "link-company": "Компани холбох",
     "add-person": "Хүн нэмэх",

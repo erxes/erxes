@@ -8,7 +8,7 @@ import {
   PanelFieldTrigger,
   PanelSection,
 } from 'erxes-ui';
-import { type ReactNode, useId } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
 
@@ -63,24 +63,18 @@ export const ContactOwnerField = ({
   ownerId: string | null;
   onChange: (ownerId: string | null) => void;
 }) => {
-  const controlId = useId();
-  const empty = useEmptyText();
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
+  // The owner opens in the side panel, as a linked customer does; the button beside picks another.
   return (
-    <PanelField
-      icon={IconUser}
-      label={label}
-      htmlFor={controlId}
-      placeholder={ownerId ? undefined : empty}
-    >
-      <SelectMember.InlineCell
-        id={controlId}
+    <PanelField icon={IconUser} label={label}>
+      <SelectMember.Linked
         scope={scope}
         value={ownerId}
-        placeholder={ownerId ? label : ''}
-        variant="field"
         members={memberQueries}
         onValueChange={onChange}
+        addLabel={t('add-owner', 'Add owner')}
+        changeLabel={t('change-owner', 'Change owner')}
       />
     </PanelField>
   );

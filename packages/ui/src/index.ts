@@ -275,6 +275,8 @@ export { PanelExpansionContext, usePanelExpanded } from './modules/record-panel/
 
 export { ContactLink } from './modules/records/ContactLink';
 
+export { MEMBER_CONTENT_TYPE, MemberLink } from './modules/records/MemberLink';
+
 export {
   type CompanyContact,
   companyTitle,

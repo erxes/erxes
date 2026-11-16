@@ -45,6 +45,8 @@ export const ACCESS = {
   'activities.removeNote': MEMBER,
   'activities.react': MEMBER,
   'activities.types': MEMBER,
+  // Then only the timelines the member may read.
+  'activities.byMember': needs('team.view'),
   'activities.update': { plugin: 'activities:write' },
   'activities.remove': { plugin: 'activities:write' },
   'activities.create': { plugin: 'activities:write' },

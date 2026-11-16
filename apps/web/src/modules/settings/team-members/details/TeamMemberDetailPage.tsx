@@ -1,21 +1,4 @@
-import { PageContainer } from 'erxes-ui';
-import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
-import { useQueryState } from 'nuqs';
-import { useParams } from 'react-router-dom';
-import { MemberDetail } from './MemberDetail';
-import { ResetPasswordDialog } from './ResetPasswordDialog';
+import { RecordPage } from '~/modules/side-panel/RecordPage';
 
-/** The member's own page: the record panel, expanded. */
-export const TeamMemberDetailPage = () => {
-  const { id = '' } = useParams<{ id: string }>();
-  const [tab, setTab] = useQueryState('tab');
-
-  return (
-    <PageContainer className="min-w-0 flex-1">
-      <RecordSidePanel expanded expandedMode="page" expandable={false}>
-        <MemberDetail key={id} memberId={id} tab={tab} onTabChange={(next) => void setTab(next)} />
-      </RecordSidePanel>
-      <ResetPasswordDialog />
-    </PageContainer>
-  );
-};
+/** A member's own page: the side panel's member view at full size. */
+export const TeamMemberDetailPage = () => <RecordPage contentType="core:user" />;

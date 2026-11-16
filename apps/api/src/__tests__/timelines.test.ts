@@ -88,6 +88,32 @@ describe(
       });
     });
 
+    it('lists what a member did on the timelines the reader may read', async () => {
+      const customer = await t.owner().customers.create({ firstName: 'Feed' });
+      const onCustomer = { targetType: 'customer', targetId: customer.id };
+      const employee = { targetType: 'hr.employee', targetId: 'emp-feed' };
+
+      await t.owner().activities.addNote({ ...onCustomer, body: 'feed: owner on customer' });
+      await t.owner().activities.addNote({ ...employee, body: 'feed: owner on employee' });
+      await t.member().activities.addNote({ ...onCustomer, body: 'feed: member on customer' });
+
+      const feed = async (reader: typeof t.owner, actorId: string) =>
+        (await reader().activities.byMember({ actorId, q: 'feed:' })).data.map(
+          (entry) => entry.note?.body,
+        );
+
+      expect(await feed(t.owner, t.ids.owner)).toEqual([
+        'feed: owner on employee',
+        'feed: owner on customer',
+      ]);
+      // The member's role doesn't see employees.
+      expect(await feed(t.member, t.ids.owner)).toEqual(['feed: owner on customer']);
+      expect(await feed(t.owner, t.ids.member)).toEqual(['feed: member on customer']);
+      await expect(
+        t.owner().activities.byMember({ actorId: t.ids.otherOwner }),
+      ).rejects.toMatchObject({ code: 'INVALID_ACTOR' });
+    });
+
     it('searches and filters, keeps note history, and counts reactions', async () => {
       const customer = await t.owner().customers.create({ firstName: 'Timeline' });
       const target = { targetType: 'customer', targetId: customer.id };
@@ -185,6 +211,12 @@ describe(
           timelines: [{ type: 'hr.employee', label: 'Employee', recordAccess: true }],
         });
         api.readable.add('emp-1');
+
+        // A member's activity leaves out timelines checked record by record.
+        expect(
+          (await t.owner().activities.byMember({ actorId: t.ids.owner, q: 'owner on employee' }))
+            .data,
+        ).toEqual([]);
 
         expect(
           (await t.owner().activities.list({ targetType: 'hr.employee', targetId: 'emp-1' })).data,

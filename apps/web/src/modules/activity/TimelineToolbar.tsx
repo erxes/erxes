@@ -40,7 +40,8 @@ export const NO_FILTERS: TimelineFilterState = {
 interface FiltersProps {
   filters: TimelineFilterState;
   onChange: (filters: TimelineFilterState) => void;
-  members: Member[];
+  /** Who the entries are by; none on one member's own activity. */
+  members?: Member[];
   /** Plugins that record entries. */
   sources: string[];
   /** Companies can include their customers' entries. */
@@ -52,25 +53,27 @@ const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) =>
 
   return (
     <>
-      <div className="space-y-1.5">
-        <p className="text-xs font-medium text-muted-foreground">{t('who', 'Who')}</p>
-        <Select
-          value={filters.actorId}
-          onValueChange={(actorId) => onChange({ ...filters, actorId })}
-        >
-          <Select.Trigger className="h-8 w-full">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Content>
-            <Select.Item value="all">{t('anyone', 'Anyone')}</Select.Item>
-            {members.map((member) => (
-              <Select.Item key={member.id} value={member.id}>
-                {memberName(member)}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
-      </div>
+      {members && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">{t('who', 'Who')}</p>
+          <Select
+            value={filters.actorId}
+            onValueChange={(actorId) => onChange({ ...filters, actorId })}
+          >
+            <Select.Trigger className="h-8 w-full">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="all">{t('anyone', 'Anyone')}</Select.Item>
+              {members.map((member) => (
+                <Select.Item key={member.id} value={member.id}>
+                  {memberName(member)}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </div>
+      )}
       {sources.length > 0 && (
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">{t('source', 'Source')}</p>
@@ -249,7 +252,9 @@ export const TimelineToolbar = ({
         >
           <IconSearch className="size-4" />
         </Button>
-        <FilterPopover {...props} />
+        {(props.members !== undefined || props.sources.length > 0 || props.canIncludeRelated) && (
+          <FilterPopover {...props} />
+        )}
       </div>
     </div>
   );

@@ -125,7 +125,9 @@ value ListFilter
 value ListFilterEmpty
 value ListViewsProvider
 value LookupPicker
+value MEMBER_CONTENT_TYPE
 value MemberInline
+value MemberLink
 value MultipleSelector
 value NavigationMenuLinkItem
 value NumberField

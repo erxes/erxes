@@ -68,6 +68,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type ContactSearchQueries { customers, companies }` Where a filter's `customer` and `company` fields search contacts.
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
 - `customerTitle(customer)` A customer's name, else its email or phone.
+- `MEMBER_CONTENT_TYPE` The content type core's side panel opens team members as.
+- `<MemberLink memberId members>` A team member as a chip: their avatar and name.
 - `<PanelDescriptionEditor value scope readonly isHTML onSave>` A record's description as a full-size tab.
 - `<PanelDescriptionField label value scope readonly isHTML>` A rich-text description row in the side panel, across its width.
 - `PanelExpansionContext` Provided by the host's record panel; erxes-ui's panel parts read it.
@@ -116,7 +118,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PhoneField recordId onValueChange onValidationStatusChange primaryPhone phones>` An editable list of a record's phones, each with its own menu.
 - `<PhoneInput value onChange defaultCountry placeholder onEnter>` A phone input with a country flag picker that formats as you type.
 - `RelativeDateDisplay.{Value}` A date as how long ago it was, with the date and time on hover.
-- `SelectMember` The member picker as a table cell and as a field.
+- `SelectMember` The member picker: a table cell, a field, or a row opening the member.
 - `<SexDisplay value>` A sex code as its label, or nothing when it is not known.
 - `<SexField value onValueChange>` A searchable list to pick a sex code, for a popover or cell editor.
 - `type Tag { id, name }` A tag as the pickers show one: core's `Tag` has these fields and more.

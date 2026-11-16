@@ -575,6 +575,8 @@
     "add-customer": "Add customer",
     "edit-companies": "Edit companies",
     "edit-customers": "Edit customers",
+    "add-owner": "Add owner",
+    "change-owner": "Change owner",
     "not-specified": "Not specified",
     "link-company": "Link a company",
     "add-person": "Add a person",

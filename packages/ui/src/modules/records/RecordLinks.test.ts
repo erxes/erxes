@@ -4,7 +4,9 @@ import { act, createElement, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { ContactLink } from './ContactLink';
+import type { MemberQueries } from '../pickers/members';
 import type { ContactQueries } from './contacts';
+import { MemberLink } from './MemberLink';
 import { type RecordRef, RecordOpenerProvider } from './openRecord';
 
 const contacts: ContactQueries = {
@@ -96,5 +98,42 @@ describe('ContactLink', () => {
     const container = await render(inHost(() => undefined, link('core:company', 'missing')));
 
     expect(container.querySelector('button')?.textContent).toContain('Company not found');
+  });
+});
+
+const members: MemberQueries = {
+  team: {
+    queryKey: ['team'],
+    queryFn: async () => ({
+      data: [
+        {
+          id: 'u1',
+          email: 'saraa@acme.mn',
+          fullName: 'Saraa Bat',
+          username: null,
+          avatarUrl: null,
+          status: 'active',
+        },
+      ],
+    }),
+  },
+  byIds: (ids) => ({ queryKey: ['members', ids], queryFn: async () => ({ data: [] }) }),
+};
+
+describe('MemberLink', () => {
+  it('opens the member through the host as core:user', async () => {
+    const open = vi.fn<(record: RecordRef) => void>();
+
+    const container = await render(
+      inHost(open, createElement(MemberLink, { memberId: 'u1', members })),
+    );
+
+    const button = container.querySelector('button');
+
+    expect(button?.textContent).toContain('Saraa Bat');
+
+    await act(async () => button?.click());
+
+    expect(open).toHaveBeenCalledWith({ contentType: 'core:user', contentId: 'u1' });
   });
 });

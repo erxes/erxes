@@ -18,3 +18,11 @@ export const installedPlugin = async (client: Db, name: string) => {
 
   return row?.plugin;
 };
+
+/** Every plugin that is active and that this organisation has installed and running. */
+export const installedPlugins = (client: Db) =>
+  client
+    .select({ name: plugins.name, manifest: plugins.manifest })
+    .from(plugins)
+    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
+    .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));

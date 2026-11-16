@@ -6,6 +6,7 @@ import { usePlugins } from '~/modules/plugins/usePlugins';
 import { ProductPanel } from '~/modules/products/panel/ProductPanel';
 import { ProductPanelNew } from '~/modules/products/panel/ProductPanelNew';
 import { paths } from '~/lib/paths';
+import { LazyMemberDetail } from './LazyMemberDetail';
 import { CompanyPanelNew } from './details/CompanyPanelNew';
 import { CustomerPanelNew } from './details/CustomerPanelNew';
 import type { IRecordViewProps } from './recordView';
@@ -25,7 +26,7 @@ interface IPanelRecordType {
   pagePath?: (contentId: string) => string;
 }
 
-/** Core's records the side panel shows. Each expands to its own page, `<listPath>/<id>`. */
+/** Core's records the side panel shows. Each expands to its own page, `<listPath>/<id>` or `pagePath`. */
 const PANEL_RECORD_TYPES = {
   'core:customer': {
     label: 'Customer',
@@ -44,6 +45,13 @@ const PANEL_RECORD_TYPES = {
     View: ProductPanel,
     New: ProductPanelNew,
     listPath: () => paths.products.list,
+  },
+  // A team member: their detail, links and what they did. Invited, not drafted.
+  'core:user': {
+    label: 'Team member',
+    View: LazyMemberDetail,
+    listPath: () => paths.settings.teamMembers,
+    pagePath: paths.settings.teamMember,
   },
 } satisfies Record<string, IPanelRecordType>;
 

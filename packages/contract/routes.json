@@ -10,6 +10,16 @@
         }
       }
     },
+    "byMember": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/activities/members/{actorId}"
+        }
+      }
+    },
     "addNote": {
       "~orpc": {
         "errorMap": {},

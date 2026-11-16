@@ -1,4 +1,12 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { Activity } from '@erxes/core-contract';
+import {
+  type InfiniteData,
+  type UseInfiniteQueryResult,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useLivePolling } from '~/lib/live';
@@ -43,26 +51,69 @@ export const useActivities = (
       initialPageParam: undefined,
       getNextPageParam: (last) =>
         last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
-      refetchInterval,
-      // Live updates refetch what changed; reopening the tab shows what is there at once.
-      staleTime: 30_000,
-      // Changing a filter keeps the current entries (dimmed) until the new ones arrive.
-      placeholderData: (previous) => previous,
+      ...pageOptions(refetchInterval),
     }),
   );
 
-  return {
-    activities: query.data?.pages.flatMap((page) => page.data) ?? [],
-    loading: query.isPending,
-    error: query.error,
-    retry: () => void query.refetch(),
-    /** Showing older results while a filter's arrive. */
-    updating: query.isPlaceholderData,
-    hasMore: query.hasNextPage,
-    loadingMore: query.isFetchingNextPage,
-    loadMore: () => void query.fetchNextPage(),
-  };
+  return entryPages(query);
 };
+
+/**
+ * What a team member did, across the timelines this member may read: newest first, 20 at a
+ * time, refreshed as `useActivities` is.
+ */
+export const useMemberActivities = (
+  actorId: string,
+  filters: Pick<TimelineFilters, 'kind' | 'q' | 'source'> = {},
+) => {
+  const { kind = 'all', q, source } = filters;
+  const refetchInterval = useLivePolling();
+
+  const query = useInfiniteQuery(
+    orpc.activities.byMember.infiniteOptions({
+      input: (cursor: string | undefined) => ({
+        actorId,
+        kind,
+        q: q || undefined,
+        source: source || undefined,
+        limit: 20,
+        cursor,
+        direction: 'forward',
+        cursorMode: 'exclusive',
+      }),
+      initialPageParam: undefined,
+      getNextPageParam: (last) =>
+        last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
+      ...pageOptions(refetchInterval),
+    }),
+  );
+
+  return entryPages(query);
+};
+
+/** How a timeline's pages refresh. */
+const pageOptions = (refetchInterval: ReturnType<typeof useLivePolling>) => ({
+  refetchInterval,
+  // Live updates refetch what changed; reopening the tab shows what is there at once.
+  staleTime: 30_000,
+  // Changing a filter keeps the current entries (dimmed) until the new ones arrive.
+  placeholderData: <T>(previous: T) => previous,
+});
+
+/** A timeline's pages as the timeline shows them. */
+const entryPages = (query: UseInfiniteQueryResult<InfiniteData<{ data: Activity[] }>>) => ({
+  activities: query.data?.pages.flatMap((page) => page.data) ?? [],
+  loading: query.isPending,
+  error: query.error,
+  retry: () => void query.refetch(),
+  /** Showing older results while a filter's arrive. */
+  updating: query.isPlaceholderData,
+  hasMore: query.hasNextPage,
+  loadingMore: query.isFetchingNextPage,
+  loadMore: () => void query.fetchNextPage(),
+});
+
+export type TimelinePages = ReturnType<typeof entryPages>;
 
 /** Pinned notes, shown above the timeline. */
 export const usePinnedNotes = (targetType: string, targetId: string) =>

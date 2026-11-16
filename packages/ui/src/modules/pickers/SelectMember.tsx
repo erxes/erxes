@@ -1,13 +1,16 @@
+import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { type ComponentProps, type ComponentRef, type RefAttributes, useState } from 'react';
 import { Avatar, type AvatarProps } from '../../components/avatar';
 import { Badge } from '../../components/badge';
+import { Button } from '../../components/button';
 import { Combobox } from '../../components/combobox';
 import { Popover } from '../../components/popover';
 import { cn } from '../../lib/utils';
 import { readImage } from '../../utils/core';
 import { PopoverScoped } from '../hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
+import { MemberLink } from '../records/MemberLink';
 import { EntityPicker } from './EntityPicker';
 import { type Member, type MemberQueries, memberName, useMembersById } from './members';
 
@@ -187,8 +190,82 @@ const SelectMemberField = ({
   );
 };
 
-/** The member picker as a table cell and as a field. */
+/**
+ * A record panel's member row: the member as a chip that opens them in core's side panel, and a
+ * button, shown on hover, to pick another; with none, "+ Add". Read-only without `onValueChange`.
+ */
+const SelectMemberLinked = ({
+  value,
+  onValueChange,
+  members,
+  noneLabel,
+  scope,
+  addLabel = 'Add',
+  changeLabel = 'Change',
+  emptyLabel = 'Not specified',
+}: Omit<SelectMemberProps, 'onValueChange' | 'placeholder'> & {
+  onValueChange?: (id: string | null) => void;
+  scope?: string;
+  /** The button's words while no member is picked. */
+  addLabel?: string;
+  /** The hover button's name for screen readers once one is. */
+  changeLabel?: string;
+  /** Read-only and empty. */
+  emptyLabel?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="group/relations flex min-h-7 min-w-0 items-center gap-1 px-1">
+      {value && (
+        <div className="flex min-w-0 overflow-hidden">
+          <MemberLink memberId={value} members={members} />
+        </div>
+      )}
+      {!value && !onValueChange && (
+        <span className="px-1 text-xs text-muted-foreground">{emptyLabel}</span>
+      )}
+      {onValueChange && (
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <Popover.Trigger
+            render={
+              <Button
+                variant="ghost"
+                size="xs"
+                tone="muted"
+                data-panel-inline=""
+                aria-label={value ? changeLabel : addLabel}
+                className={cn(
+                  'shrink-0 [&>svg]:size-3.5',
+                  value &&
+                    'opacity-0 group-hover/relations:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100',
+                )}
+              />
+            }
+          >
+            <IconPlus aria-hidden="true" />
+            {!value && <span className="font-normal">{addLabel}</span>}
+          </Popover.Trigger>
+          <Combobox.Content>
+            <MemberList
+              value={value}
+              members={members}
+              noneLabel={noneLabel}
+              onPick={(next) => {
+                onValueChange(next);
+                setOpen(false);
+              }}
+            />
+          </Combobox.Content>
+        </PopoverScoped>
+      )}
+    </div>
+  );
+};
+
+/** The member picker: a table cell, a field, or a row opening the member. */
 export const SelectMember = {
   InlineCell: SelectMemberInlineCell,
   Field: SelectMemberField,
+  Linked: SelectMemberLinked,
 };

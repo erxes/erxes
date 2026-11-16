@@ -2,18 +2,18 @@ import type { User } from '@erxes/core-contract';
 import { IconEdit, IconMailForward } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import type { RecordTableColumnDef } from 'erxes-ui';
-import { Combobox, Command, Popover, RecordTable, useToast } from 'erxes-ui';
+import { Combobox, Command, MEMBER_CONTENT_TYPE, Popover, RecordTable, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
+import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useOpenMemberPanel } from '../details/useMemberPanel';
 import { useMemberPermissions } from '../useTeamMembers';
 
 const TeamMemberMoreColumnCell = ({ user }: { user: User }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [menuOpen, setMenuOpen] = useState(false);
-  const openPanel = useOpenMemberPanel();
+  const { openRecord } = useSidePanel();
   const permissions = useMemberPermissions(user);
   const can = useCan();
   const { toast } = useToast();
@@ -31,7 +31,7 @@ const TeamMemberMoreColumnCell = ({ user }: { user: User }) => {
   );
 
   const handleEdit = () => {
-    openPanel(user.id);
+    openRecord({ contentType: MEMBER_CONTENT_TYPE, contentId: user.id });
     setMenuOpen(false);
   };
 
