@@ -11,8 +11,6 @@ import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
 import { PluginPropertiesSettings } from './properties/PluginPropertiesSettings';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
-import { PaymentsSettingsPage } from './payments/PaymentsSettingsPage';
-import { IntegrationsSettingsPage } from './integrations/IntegrationsSettingsPage';
 import { PlanPage } from './plan/PlanPage';
 import { RecycleBinPage } from './recycle-bin/RecycleBinPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
@@ -29,6 +27,16 @@ const ApiReferencePage = lazyNamed(
 );
 
 const ApiKeysPage = lazyNamed(() => import('./developer/ApiKeysPage'), 'ApiKeysPage');
+
+const PaymentsSettingsPage = lazyNamed(
+  () => import('./payments/PaymentsSettingsPage'),
+  'PaymentsSettingsPage',
+);
+
+const IntegrationsSettingsPage = lazyNamed(
+  () => import('./integrations/IntegrationsSettingsPage'),
+  'IntegrationsSettingsPage',
+);
 
 /** Everything under `/settings/*` (mount as `<Route path="settings/*" element={<SettingsRoutes />} />`). */
 export const SettingsRoutes = () => (
