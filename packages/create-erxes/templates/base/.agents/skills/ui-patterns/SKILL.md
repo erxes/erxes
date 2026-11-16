@@ -186,6 +186,10 @@ page looks like core's Settings › Profile (`apps/web/src/modules/settings/prof
   `@erxes/core-contract/client`: its name, and a click opens it in core's side
   panel beside the page. Never its id, a name copied into the plugin's table,
   or a link to a URL. `useOpenRecord()` opens one from your own control.
+- In the record's panel the field is erxes-ui's `ContactRelationInput` in a
+  `PanelField cell={false}`, given `contacts={contactQueries}` and
+  `contactSearch={contactSearchQueries}`: the chip, then a small "Add customer"
+  button, sized like core's. `multiple={false}` when the record keeps one.
 - A plugin's records of a customer or company are a relation tab on its panel
   (`relationTabs`, above). `recordSections` still draws a section in the
   customer's Detail tab, for a summary that belongs beside its fields.

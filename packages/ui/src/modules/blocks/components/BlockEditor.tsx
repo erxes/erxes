@@ -22,11 +22,11 @@ const blockEditorVariants = cva('erxes-blocknote transition', {
     variant: {
       // Bare text: the screen draws any box around it.
       default: '',
-      // A field: the drop shadow of an input, and its focus ring.
-      outline: 'rounded-md pt-1 styled-scroll shadow-xs data-focused:shadow-focus',
-      // A value in a side panel: no border until hovered or focused.
+      // A field: the drop shadow of an input, its focus ring and its text size.
+      outline: 'rounded-md pt-1 text-sm styled-scroll shadow-xs data-focused:shadow-focus',
+      // A value in a side panel: no border until hovered or focused, the field's text size.
       ghost:
-        'rounded-sm pt-1 styled-scroll hover:bg-accent focus-within:bg-background focus-within:shadow-focus',
+        'rounded-sm pt-1 text-sm styled-scroll hover:bg-accent focus-within:bg-background focus-within:shadow-focus',
     },
   },
   defaultVariants: { variant: 'default' },

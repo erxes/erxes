@@ -11,19 +11,31 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { Form, Input, MultipleSelector, Select, useToast, PanelFormRow } from 'erxes-ui';
+import {
+  ContactRelationInput,
+  Form,
+  Input,
+  MultipleSelector,
+  Select,
+  useToast,
+  PanelFormRow,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { isApiError, messageOf } from '@erxes/core-contract/client';
+import {
+  contactQueries,
+  contactSearchQueries,
+  isApiError,
+  messageOf,
+} from '@erxes/core-contract/client';
 import {
   COMPANY_BUSINESS_TYPES,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
 import { useContactDraft } from '../useSidePanel';
-import { ContactRelationInput } from './ContactRelationInput';
 import {
   ContactAvatarRow,
   ContactDescriptionRow,
@@ -253,6 +265,8 @@ export const CompanyPanelNew = () => {
           kind="customer"
           value={customerIds}
           onValueChange={setCustomerIds}
+          contacts={contactQueries}
+          contactSearch={contactSearchQueries}
           scope="side-panel-company-new.customers"
           disabled={saving}
         />
