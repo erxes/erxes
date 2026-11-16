@@ -128,6 +128,7 @@ export const useConversation = (
   const pending = pendingAction(chat.messages.at(-1));
   const runningElsewhere = !busy && thread.data?.running === true;
   const stopThread = useMutation(orpc.assistant.stopThread.mutationOptions());
+  const stopServer = (id: string) => stopThread.mutate({ id });
 
   useEffect(() => {
     session.chooseModel(model.run);
@@ -159,9 +160,8 @@ export const useConversation = (
     block,
     send,
     stop: () => {
-      void chat.stop();
-
-      if (session.threadId) stopThread.mutate({ id: session.threadId });
+      if (runningElsewhere && session.threadId) stopServer(session.threadId);
+      else session.stop(stopServer);
     },
     reload: () => {
       chat.clearError();

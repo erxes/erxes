@@ -72,6 +72,7 @@
   "untitled": "Untitled conversation",
   "history": "Conversations",
   "history-description": "Find a conversation by its title. Pinned ones come first.",
+  "history-failed": "Could not load your conversations.",
   "search-history": "Search conversations",
   "no-match": "No conversation matches.",
   "no-history": "No conversations yet.",
@@ -133,7 +134,8 @@
     "code-running": "Running a program",
     "code-done": "Ran a program",
     "code-failed": "The program failed",
-    "approved": "Approved"
+    "approved": "Approved",
+    "stopped": "Stopped"
   },
   "attach": {
     "files": "Attach files",

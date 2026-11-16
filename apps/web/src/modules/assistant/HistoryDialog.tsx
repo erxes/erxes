@@ -2,7 +2,7 @@ import type { AssistantThread } from '@erxes/core-contract';
 import { IconHistory, IconLoader2, IconMessage, IconPin } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { isToday, isYesterday, subDays } from 'date-fns';
-import { Command, Spinner, useFormat } from 'erxes-ui';
+import { Button, Command, Spinner, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
 import { type CursorParams, forwardPaging } from '~/lib/cursorList';
@@ -65,6 +65,19 @@ const HistoryList = ({ onOpen }: { onOpen: (id: string) => void }) => {
   };
 
   if (query.isPending) return <Spinner size="sm" className="my-6" />;
+
+  if (query.isError) {
+    return (
+      <div role="alert" className="flex flex-col items-center gap-2 py-6 text-sm">
+        <p className="text-muted-foreground">
+          {t('history-failed', 'Could not load your conversations.')}
+        </p>
+        <Button variant="outline" size="sm" onClick={() => void query.refetch()}>
+          {t('retry', 'Try again')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>

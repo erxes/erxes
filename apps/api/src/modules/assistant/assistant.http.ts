@@ -78,10 +78,22 @@ const startRun = async (req: Request, res: Response, orgId: string) => {
     return { run: started, titled: turn.thread.title !== null };
   });
 
-  if (request.message.role === 'user') return { run, titled };
+  const tracked = trackTurn(run.threadId);
 
-  return { run: { ...run, contents: await contentsToContinue(orgId, run.messages) }, titled };
+  if (request.message.role === 'user') return { run, titled, tracked };
+
+  try {
+    const contents = await contentsToContinue(orgId, run.messages);
+
+    return { run: { ...run, contents }, titled, tracked };
+  } catch (error) {
+    tracked.end();
+    await withOrg(orgId, (tx) => saveReply(tx, run.threadId, null));
+    throw error;
+  }
 };
+
+type Started = Awaited<ReturnType<typeof startRun>>;
 
 const drain = (stream: ReadableStream<UIMessageChunk>) => stream.pipeTo(new WritableStream());
 
@@ -98,8 +110,8 @@ const titleThread = async (req: Request, orgId: string, run: Run) => {
   }
 };
 
-const answer = async (req: Request, res: Response, orgId: string, run: Run, titled: boolean) => {
-  const tracked = trackTurn(run.threadId);
+const answer = async (req: Request, res: Response, orgId: string, started: Started) => {
+  const { run, titled, tracked } = started;
 
   const turn = await streamTurn(run, tracked.signal).catch((error: unknown) => {
     tracked.end();
@@ -132,16 +144,16 @@ export const assistantChatRouter = Router();
 
 assistantChatRouter.post('/assistant/chat', async (req, res) => {
   const orgId = requestOrgId();
-  const { run, titled } = await startRun(req, res, orgId);
+  const started = await startRun(req, res, orgId);
 
   try {
-    await answer(req, res, orgId, run, titled);
+    await answer(req, res, orgId, started);
   } catch (error) {
-    await withOrg(orgId, (tx) => saveReply(tx, run.threadId, null));
+    await withOrg(orgId, (tx) => saveReply(tx, started.run.threadId, null));
 
     if (!res.headersSent) throw error;
 
-    req.log.error({ err: error, threadId: run.threadId }, 'assistant: the chat failed');
+    req.log.error({ err: error, threadId: started.run.threadId }, 'assistant: the chat failed');
     res.destroy();
   }
 });

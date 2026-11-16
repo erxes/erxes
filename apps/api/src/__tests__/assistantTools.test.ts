@@ -116,6 +116,18 @@ describe('assistant tools', () => {
     expect(model.lastToolResult()).toContain('audit.list');
   });
 
+  it('finds a procedure by the plural the member uses, like companies', async () => {
+    model.script((request) =>
+      lastToolResult(request) === null
+        ? { tool: 'searchApi', input: { query: 'list companies', limit: 3 } }
+        : { text: 'Found.' },
+    );
+
+    await chat({ message: userMessage('Which companies do we have?') });
+
+    expect(model.lastToolResult()).toContain('"procedure":"companies.list"');
+  });
+
   it('asks the member a question and continues with the answer', async () => {
     model.script((request) =>
       lastToolResult(request) === null

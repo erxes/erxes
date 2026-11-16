@@ -141,7 +141,7 @@ export const Conversation = ({
       <Composer
         open={open}
         model={model}
-        busy={view.busy}
+        busy={view.busy || view.runningElsewhere}
         block={view.block}
         page={context.page}
         onHidePage={context.hide}

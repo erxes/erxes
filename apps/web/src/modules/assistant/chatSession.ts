@@ -15,6 +15,8 @@ export class ChatSession {
   threadId: string | null;
   run: ModelRun | null = null;
   readonly chat: Chat<UIMessage>;
+  private started = false;
+  private stopOnStart: (() => void) | null = null;
 
   constructor(
     readonly tabKey: string,
@@ -35,9 +37,17 @@ export class ChatSession {
             this.threadId = threadId;
             this.onThreadId(this.tabKey, threadId);
           }
+
+          this.started = true;
         }
 
         controller.enqueue(chunk);
+
+        const stop = chunk.type === 'start' ? this.stopOnStart : null;
+
+        this.stopOnStart = null;
+
+        if (stop) queueMicrotask(stop);
       },
     });
   }
@@ -58,10 +68,29 @@ export class ChatSession {
     });
 
     return {
-      sendMessages: async (options) =>
-        (await http.sendMessages(options)).pipeThrough(this.watchThreadId()),
+      sendMessages: async (options) => {
+        this.started = false;
+        this.stopOnStart = null;
+
+        return (await http.sendMessages(options)).pipeThrough(this.watchThreadId());
+      },
       reconnectToStream: () => Promise.resolve(null),
     };
+  }
+
+  /**
+   * Stops the reply here and on the server. Before the server has started the reply, it waits
+   * for the start, so a new chat learns its thread and the server stops what it began.
+   */
+  stop(stopServer: (threadId: string) => void) {
+    const stopBoth = () => {
+      if (this.threadId) stopServer(this.threadId);
+
+      void this.chat.stop();
+    };
+
+    if (this.started) stopBoth();
+    else this.stopOnStart = stopBoth;
   }
 
   chooseModel(run: ModelRun | null) {

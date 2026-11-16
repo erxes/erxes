@@ -216,8 +216,16 @@ const groupLabel = (
   });
 };
 
-export const StepsGroup = ({ steps, live }: { steps: Step[]; live: boolean }) => {
+const stoppedUnlessLive = (steps: Step[], live: boolean, stopped: string) =>
+  live
+    ? steps
+    : steps.map((step) =>
+        step.status === 'running' ? { ...step, status: 'failed' as const, error: stopped } : step,
+      );
+
+export const StepsGroup = ({ steps: given, live }: { steps: Step[]; live: boolean }) => {
   const { t } = useTranslation('assistant');
+  const steps = stoppedUnlessLive(given, live, t('step.stopped', 'Stopped'));
   const current = steps.findLast((step) => step.status === 'running' || step.status === 'waiting');
   const active = current !== undefined || live;
   const failed = steps.filter((step) => step.status === 'failed').length;

@@ -8,6 +8,7 @@ import { useLocation } from 'react-router-dom';
 import { orpc } from '@erxes/core-contract/client';
 import { appOfPath, SETTINGS_APP, useNavApps } from '~/modules/navigation/apps';
 import { RecordIcon } from './RecordChip';
+import { NEW_RECORD_ID } from '~/modules/side-panel/sidePanelPaths';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { pageOfPath, recordOfContentType } from './recordPages';
 
@@ -16,7 +17,8 @@ export const usePageContext = () => {
   const { record } = useSidePanel();
   const [hidden, setHidden] = useState<string | null>(null);
   const page = pageOfPath(pathname);
-  const opened = record && recordOfContentType(record.contentType, record.contentId);
+  const saved = record && record.contentId !== NEW_RECORD_ID ? record : null;
+  const opened = saved && recordOfContentType(saved.contentType, saved.contentId);
   const shown = page && opened ? { ...page, record: opened } : page;
   const key = opened ? `${pathname}#${opened.id}` : pathname;
 

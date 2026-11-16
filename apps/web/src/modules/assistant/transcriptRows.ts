@@ -17,7 +17,10 @@ type ToolPart = ToolUIPart | DynamicToolUIPart;
 const CallApiInput = z.object({
   procedure: z.string(),
   input: z.record(z.string(), z.unknown()).optional(),
-  title: z.string().optional(),
+  title: z
+    .string()
+    .transform((title) => title.slice(0, 120))
+    .optional(),
 });
 
 const SearchApiInput = z.object({ query: z.string() });

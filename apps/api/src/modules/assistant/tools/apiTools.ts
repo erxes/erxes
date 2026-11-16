@@ -41,7 +41,6 @@ export const CallApiInput = z.object({
   title: z
     .string()
     .trim()
-    .max(80)
     .optional()
     .describe(
       'What this call does, in a few plain words the member reads in the chat and on an approval, e.g. "Find customers with a .mn email" or "Tag 3 customers VIP". Always give it.',
@@ -57,14 +56,21 @@ const tokensOf = (text: string) =>
     .filter((token) => token.length > 1)
     .map((token) => token.replace(/(ies|s)$/, (end) => (end === 'ies' ? 'y' : '')));
 
-const scoreOf = (procedure: ApiProcedure, tokens: string[]) =>
-  tokens.reduce((score, token) => {
-    const inName = procedure.name.toLowerCase().includes(token) ? 3 : 0;
-    const inPath = procedure.path.toLowerCase().includes(token) ? 2 : 0;
-    const inSummary = procedure.summary.toLowerCase().includes(token) ? 1 : 0;
+const stemmed = (text: string) => tokensOf(text).join(' ');
+
+const scoreOf = (procedure: ApiProcedure, tokens: string[]) => {
+  const name = stemmed(procedure.name);
+  const path = stemmed(procedure.path);
+  const summary = stemmed(procedure.summary);
+
+  return tokens.reduce((score, token) => {
+    const inName = name.includes(token) ? 3 : 0;
+    const inPath = path.includes(token) ? 2 : 0;
+    const inSummary = summary.includes(token) ? 1 : 0;
 
     return score + inName + inPath + inSummary;
   }, 0);
+};
 
 type Entry = ApiProcedure | PluginProcedure;
 

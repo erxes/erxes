@@ -3,6 +3,7 @@ import { newId } from '@erxes/core-db';
 import {
   convertToModelMessages,
   generateText,
+  isToolUIPart,
   stepCountIs,
   streamText,
   toUIMessageStream,
@@ -63,6 +64,15 @@ export interface Run {
 const temperatureFor = (provider: AssistantProvider) =>
   provider === 'kimi' ? {} : { temperature: TEMPERATURE };
 
+const stoppedReply = (message: UIMessage): UIMessage => ({
+  ...message,
+  parts: message.parts.map((part) =>
+    isToolUIPart(part) && (part.state === 'input-streaming' || part.state === 'input-available')
+      ? { ...part, state: 'output-error', input: part.input ?? {}, errorText: 'Stopped' }
+      : part,
+  ),
+});
+
 export const streamTurn = async (run: Run, abortSignal: AbortSignal) => {
   const { provider, apiKey, tools, scope, request } = run;
   const model = request.model ?? DEFAULT_MODELS[provider];
@@ -94,7 +104,7 @@ export const streamTurn = async (run: Run, abortSignal: AbortSignal) => {
     messageMetadata: ({ part }) => (part.type === 'start' ? { threadId: run.threadId } : undefined),
     onError: (error) => describeProviderError(provider, model, error, apiKey),
     onEnd: ({ responseMessage }) => {
-      reply = responseMessage;
+      reply = abortSignal.aborted ? stoppedReply(responseMessage) : responseMessage;
     },
   });
 
