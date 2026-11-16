@@ -13,7 +13,9 @@ const GROUP_LABELS: Record<string, string> = {
 
 const CUSTOM_PATH = '__custom__';
 
-const groupOf = (field: TConditionField) => field.group ?? 'fields';
+/** A heading per group, and one per `groupLabel` (a plugin's fields under its title). */
+const groupOf = (field: TConditionField) =>
+  field.groupLabel ? `label:${field.groupLabel}` : (field.group ?? 'fields');
 
 const FieldItems = ({ fields }: { fields: TConditionField[] }) =>
   fields.map((field) => (
@@ -25,12 +27,19 @@ const FieldItems = ({ fields }: { fields: TConditionField[] }) =>
 const GroupedFieldItems = ({ fields }: { fields: TConditionField[] }) => {
   const { t } = useTranslation('automations');
 
-  return [...new Set(fields.map(groupOf))].map((group) => (
-    <Select.Group key={group}>
-      <Select.Label>{t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}</Select.Label>
-      <FieldItems fields={fields.filter((field) => groupOf(field) === group)} />
-    </Select.Group>
-  ));
+  return [...new Set(fields.map(groupOf))].map((group) => {
+    const inGroup = fields.filter((field) => groupOf(field) === group);
+    const label = inGroup[0]?.groupLabel;
+
+    return (
+      <Select.Group key={group}>
+        <Select.Label>
+          {label ?? t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}
+        </Select.Label>
+        <FieldItems fields={inGroup} />
+      </Select.Group>
+    );
+  });
 };
 
 /** A field from the catalog, or any path typed by hand (`event.payload.amount`, `steps.x.output.y`). */

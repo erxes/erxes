@@ -11,11 +11,15 @@ import { messageOf } from '@erxes/core-contract/client';
 import { useSortSensors } from '~/lib/sortSensors';
 import { reorderItems } from '../reorder';
 import { selectedFieldIdsState } from '../states';
-import { groupFields, useAllFields, useFieldGroups } from '../useFields';
+import { type FieldSection, groupFields, useAllFields, useFieldGroups } from '../useFields';
 import { useReorder } from '../usePropertyMutations';
 import { PropertiesArchivedSection } from './PropertiesArchivedSection';
 import { PropertiesCommandBar } from './PropertiesCommandBar';
-import { PropertiesGroupSection, PropertiesUngroupedSection } from './PropertiesGroupSection';
+import {
+  PropertiesGroupSection,
+  PropertiesPluginSection,
+  PropertiesUngroupedSection,
+} from './PropertiesGroupSection';
 import { PropertyArchiveDialog } from './PropertyArchiveDialog';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 import { PropertyGroupLayoutSheet } from './PropertyGroupLayoutSheet';
@@ -35,7 +39,20 @@ const NoGroups = () => {
   );
 };
 
-/** A record type's properties: its groups (drag to reorder) with their fields, then Archived. */
+/** Each plugin's fields under its title, after the members' own. */
+const PluginSections = ({ sections }: { sections: FieldSection[] }) =>
+  sections.map((section) => (
+    <PropertiesPluginSection
+      key={section.plugin}
+      title={section.title ?? ''}
+      fields={section.fields}
+    />
+  ));
+
+/**
+ * A record type's properties: its groups (drag to reorder) with their fields, the fields each
+ * plugin keeps (read-only), then Archived.
+ */
 export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: FieldContentType }) => {
   const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
   const { fields, loading: fieldsLoading, error: fieldsError } = useAllFields(contentType);
@@ -43,7 +60,8 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Fiel
   const reorder = useReorder('groups', contentType);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
   const sections = useMemo(() => groupFields(groups, fields), [groups, fields]);
-  const ungrouped = sections.find((section) => !section.group)?.fields ?? [];
+  const ungrouped = sections.find((section) => !section.group && !section.plugin)?.fields ?? [];
+  const pluginSections = sections.filter((section) => section.plugin);
   const loading = groupsLoading || fieldsLoading;
 
   // Selections belong to the record type on screen (the page is keyed by it).
@@ -78,7 +96,7 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Fiel
           <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
         ) : loading ? (
           <Spinner area="lg" />
-        ) : groups.length === 0 && ungrouped.length === 0 ? (
+        ) : groups.length === 0 && ungrouped.length === 0 && pluginSections.length === 0 ? (
           <NoGroups />
         ) : (
           <>
@@ -108,6 +126,7 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Fiel
             {ungrouped.length > 0 && (
               <PropertiesUngroupedSection fields={ungrouped} contentType={contentType} />
             )}
+            <PluginSections sections={pluginSections} />
           </>
         )}
         <PropertiesArchivedSection contentType={contentType} />

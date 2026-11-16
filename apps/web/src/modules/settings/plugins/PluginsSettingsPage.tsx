@@ -19,6 +19,7 @@ const SCOPE_LABELS: Record<string, string> = {
   'emails:write': 'Send emails from erxes',
   'events:read': 'Receive core events',
   'events:write': 'Publish events (timelines, notifications, automations)',
+  'fields:write': 'Keep its own properties on customers and companies',
   'files:read': 'Read files',
   'files:write': 'Upload and delete files',
   'live:write': 'Refresh its screens live',
@@ -28,6 +29,7 @@ const SCOPE_LABELS: Record<string, string> = {
   'products:read': 'Read the product catalog',
   'products:write': 'Create and edit products',
   'users:read': 'Read team members',
+  'views:read': "Use the team's shared views as segments",
 };
 
 /** Installs (or approves) and uninstalls a plugin, updating the list in place. */

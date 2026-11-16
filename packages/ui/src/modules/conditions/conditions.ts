@@ -96,6 +96,8 @@ export type TConditionField = {
   type: string;
   options?: string[];
   group?: string;
+  /** The heading to list it under instead of the group's own (a plugin's title). */
+  groupLabel?: string;
   /** A money amount, stored in this currency's smallest unit and typed in its major unit. */
   currency?: string;
 };

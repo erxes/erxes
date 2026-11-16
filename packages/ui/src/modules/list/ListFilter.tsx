@@ -30,8 +30,10 @@ export type TListFilterField = {
   options?: { value: string; label: string }[];
   /** Instead of the type's icon. */
   icon?: ElementType;
-  /** The menu's heading it lists under; `fields` by default. */
-  group?: 'fields' | 'lead' | 'company' | 'activity' | 'custom';
+  /** The menu's heading it lists under; `fields` by default. `plugin`: under `groupLabel`. */
+  group?: 'fields' | 'lead' | 'company' | 'activity' | 'custom' | 'plugin';
+  /** The heading instead of the group's own: a plugin's title, for the fields it keeps. */
+  groupLabel?: string;
   /** A `number` that is money: stored in this currency's smallest unit, typed in its major one. */
   currency?: string;
 };

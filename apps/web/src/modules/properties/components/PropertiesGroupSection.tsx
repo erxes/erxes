@@ -84,7 +84,8 @@ const PropertiesGroupActions = ({
 type GroupShellProps = {
   name: string;
   fields: Field[];
-  addPath: string;
+  /** Where "Add field" goes; none for a plugin's fields. */
+  addPath?: string;
   handle?: ReactNode;
   actions?: ReactNode;
 };
@@ -98,7 +99,10 @@ const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps)
   const open = toggled ?? fields.length > 0;
 
   const columns = useMemo(
-    () => propertiesColumns(t, { fieldIds: fields.map((field) => field.id) }),
+    () =>
+      propertiesColumns(t, {
+        fieldIds: fields.filter((field) => !field.plugin).map((field) => field.id),
+      }),
     [t, fields],
   );
 
@@ -139,7 +143,7 @@ const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps)
             </RecordTable.Scroll>
           </RecordTable.Provider>
         )}
-        {manager && (
+        {manager && addPath && (
           <div className="flex items-center justify-end mt-2">
             <Link to={addPath} className={buttonVariants({ variant: 'secondary' })}>
               <IconPlus />
@@ -204,6 +208,11 @@ export const PropertiesGroupSection = ({
     </div>
   );
 };
+
+/** The fields a plugin keeps, under its title: it defines them and writes their values. */
+export const PropertiesPluginSection = ({ title, fields }: { title: string; fields: Field[] }) => (
+  <GroupShell name={title} fields={fields} />
+);
 
 /** Fields made before groups existed (no group): listed together until moved into one. */
 export const PropertiesUngroupedSection = ({

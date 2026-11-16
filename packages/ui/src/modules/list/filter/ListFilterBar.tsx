@@ -36,13 +36,25 @@ const FieldItems = () => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { fields } = useListFilter();
 
-  return GROUPS.map(({ group, label }) => {
-    const inGroup = fields.filter((field) => (field.group ?? 'fields') === group);
+  // The built-in groups, then one per `groupLabel` (a plugin's fields under its title).
+  const headings = [
+    ...GROUPS.map(({ group, label }) => ({
+      key: group,
+      heading: t(`group.${group}`, label),
+      fields: fields.filter((field) => !field.groupLabel && (field.group ?? 'fields') === group),
+    })),
+    ...[...new Set(fields.flatMap((field) => field.groupLabel ?? []))].map((heading) => ({
+      key: `label:${heading}`,
+      heading,
+      fields: fields.filter((field) => field.groupLabel === heading),
+    })),
+  ];
 
+  return headings.map(({ key, heading, fields: inGroup }) => {
     if (!inGroup.length) return null;
 
     return (
-      <Command.Group key={group} heading={t(`group.${group}`, label)}>
+      <Command.Group key={key} heading={heading}>
         {inGroup.map((field) => {
           const Icon = field.icon ?? FIELD_ICONS[field.type];
 

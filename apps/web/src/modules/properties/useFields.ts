@@ -28,18 +28,44 @@ export const useAllFields = (
   return { fields: query.data?.data ?? [], loading: query.isPending, error: query.error };
 };
 
-/** Fields under their groups, groups in order; fields without a group come last (`group: null`). */
-export const groupFields = (groups: FieldGroup[], fields: Field[]) => {
-  const known = new Set(groups.map((group) => group.id));
+/** Fields under one heading: a group, the ungrouped ones, or a plugin's (`plugin`, under its `title`). */
+export type FieldSection = {
+  group: FieldGroup | null;
+  plugin: string | null;
+  title: string | null;
+  fields: Field[];
+};
 
-  const sections: { group: FieldGroup | null; fields: Field[] }[] = groups.map((group) => ({
+/**
+ * Members' fields under their groups, groups in order, then those without a group
+ * (`group: null`), then each plugin's fields under its title.
+ */
+export const groupFields = (groups: FieldGroup[], fields: Field[]): FieldSection[] => {
+  const known = new Set(groups.map((group) => group.id));
+  const own = fields.filter((field) => !field.plugin);
+
+  const sections: FieldSection[] = groups.map((group) => ({
     group,
-    fields: fields.filter((field) => field.groupId === group.id),
+    plugin: null,
+    title: group.name,
+    fields: own.filter((field) => field.groupId === group.id),
   }));
 
-  const ungrouped = fields.filter((field) => !field.groupId || !known.has(field.groupId));
+  const ungrouped = own.filter((field) => !field.groupId || !known.has(field.groupId));
 
-  return ungrouped.length ? [...sections, { group: null, fields: ungrouped }] : sections;
+  const plugins = [...new Set(fields.flatMap((field) => field.plugin ?? []))].map(
+    (plugin): FieldSection => {
+      const inPlugin = fields.filter((field) => field.plugin === plugin);
+
+      return { group: null, plugin, title: inPlugin[0]?.pluginTitle ?? plugin, fields: inPlugin };
+    },
+  );
+
+  return [
+    ...sections,
+    ...(ungrouped.length ? [{ group: null, plugin: null, title: null, fields: ungrouped }] : []),
+    ...plugins,
+  ];
 };
 
 /**

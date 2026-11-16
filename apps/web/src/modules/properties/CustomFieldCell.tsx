@@ -7,6 +7,7 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
   TextField,
+  useFormat,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { DateInlineCell } from '~/components/inlineCells';
@@ -70,6 +71,36 @@ const OptionsCell = ({
   );
 };
 
+/** A plugin's field: the value it wrote, shown only (the plugin keeps it current). */
+const PluginValueCell = ({ field, value }: { field: Field; value: CustomValue | undefined }) => {
+  const format = useFormat();
+
+  const text =
+    typeof value === 'number'
+      ? format.number(value)
+      : field.type === 'date' && typeof value === 'string'
+        ? format.date(value)
+        : typeof value === 'string'
+          ? value
+          : '';
+
+  return (
+    <RecordTableInlineCell>
+      {Array.isArray(value) ? (
+        <span className="flex min-w-0 gap-1 overflow-hidden">
+          {value.map((option) => (
+            <Badge key={option} variant="secondary" className="shrink-0">
+              {option}
+            </Badge>
+          ))}
+        </span>
+      ) : (
+        <span className="truncate">{text}</span>
+      )}
+    </RecordTableInlineCell>
+  );
+};
+
 /** "a, b, c" as its items. */
 const listOf = (text: string) =>
   text
@@ -78,7 +109,8 @@ const listOf = (text: string) =>
     .filter(Boolean);
 
 /**
- * One custom field value, edited in place by its type. `onSave(null)` clears it.
+ * One custom field value, edited in place by its type. `onSave(null)` clears it. A plugin's
+ * field only shows its value.
  */
 export const CustomFieldCell = ({
   field,
@@ -91,6 +123,8 @@ export const CustomFieldCell = ({
   scope: string;
   onSave: (value: CustomValue | null) => void;
 }) => {
+  if (field.plugin) return <PluginValueCell field={field} value={value} />;
+
   switch (field.type) {
     case 'boolean':
       return (
