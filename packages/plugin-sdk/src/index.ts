@@ -32,7 +32,9 @@
  * Branches and departments (scopes `units:read`, `units:write`; subscribe to `core.unit.*`): core's,
  * shared by plugins. Keep a read-only copy for your own visibility queries and refresh it whenever
  * a `core.unit.*` event arrives (the event names the unit in `entityId`); bring your old units in
- * once with `units.import`, which keeps their ids and answers where each one went.
+ * once with `units.import`, which keeps their ids and answers where each one went. Each unit has a
+ * `typeId`, one of the organisation's `unitTypes` of its kind (Branch and Department to start);
+ * bring your own types first with `unitTypes.import` and name them on the units you import.
  *
  *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
  *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
