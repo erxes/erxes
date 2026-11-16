@@ -180,7 +180,8 @@ export type IUIConfig = {
   dashboardWidgets?: TDashboardWidget[];
   /**
    * One component web mounts once beside the app shell, on every page, for members who may use
-   * the plugin, and keeps mounted across navigation (a softphone). It positions itself.
+   * the plugin, and keeps mounted across navigation (a softphone). It sits in the bottom-right
+   * corner above the page.
    */
   floatingWidget?: React.ComponentType;
   i18n?: boolean;

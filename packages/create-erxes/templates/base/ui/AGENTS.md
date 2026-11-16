@@ -63,7 +63,8 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   Save. Dialogs are for confirmations, not forms.
 - Something that must outlive a page, such as a softphone during a call, is
   `CONFIG.floatingWidget`: one component core mounts once on every page and keeps
-  across navigation. It positions itself (`fixed`) and loads lazily, like the slots.
+  across navigation, in the bottom-right corner above the page. Load it lazily,
+  like the slots.
 - Text uses `t(key, 'English default')` from `react-i18next`. Core shows the config's words (the
   app's name, tab labels, section and widget titles) in the member's language by looking them up in the
   plugin's namespace, its `name`, with the English as the key. Add them from `src/config.tsx`
