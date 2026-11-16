@@ -1,10 +1,11 @@
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
 import { AdminPermissions } from '@/pos/components/permission/AdminPermissions';
 import { CashierPermissions } from '@/pos/components/permission/CashierPermissions';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { Form, isDefined, Label, toast } from 'erxes-ui';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -148,16 +149,11 @@ const Permission: React.FC<PermissionProps> = ({
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={PERMISSION_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={PERMISSION_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -207,13 +203,7 @@ const Permission: React.FC<PermissionProps> = ({
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('permission-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { Permission };

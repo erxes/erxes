@@ -1,10 +1,11 @@
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
 import { KitchenScreen } from '@/pos/components/screenConfig/KitchenScreen';
 import { PrintConfig } from '@/pos/components/screenConfig/PrintConfig';
 import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
+import { Form, Label, toast } from 'erxes-ui';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -133,16 +134,11 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={SCREEN_CONFIG_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={SCREEN_CONFIG_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -200,13 +196,7 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('screen-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { ScreenConfig };

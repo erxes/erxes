@@ -1,13 +1,23 @@
 import {
+  Icon,
+  IconBolt,
   IconBrandMastercard,
   IconBrandVisa,
   IconBuilding,
   IconCashBanknote,
   IconCreditCard,
+  IconDeviceDesktop,
   IconFile,
+  IconInfoCircle,
+  IconLayoutGrid,
+  IconPackage,
+  IconPalette,
   IconPhone,
+  IconRefresh,
+  IconShieldLock,
+  IconTruckDelivery,
+  IconUserPlus,
 } from '@tabler/icons-react';
-import { CustomNode } from '../slot/types';
 
 export type AllowedPosType =
   | 'eat'
@@ -46,65 +56,55 @@ export const options = [
   { value: 'debtBarterAmount', label: 'Бартер данс' },
 ];
 
-export const DefaultNode: CustomNode = {
-  id: '1',
-  type: 'tableNode',
-  position: { x: 250, y: 100 },
-  zIndex: 0,
-  data: {
-    label: 'TABLE 1',
-    code: '1',
-    color: '#4F46E5',
-    width: 80,
-    height: 80,
-    positionX: 250,
-    positionY: 100,
-    rounded: 0,
-    rotateAngle: 0,
-    zIndex: 0,
-    disabled: false,
-  },
-};
-
-export const GRID_LAYOUT = {
-  SPACING_X: 200,
-  SPACING_Y: 150,
-  COLUMNS: 3,
-  START_X: 100,
-  START_Y: 100,
-};
-
-export const DEFAULT_SLOT_DIMENSIONS = {
-  WIDTH: 80,
-  HEIGHT: 80,
-};
-
-export const SNAP_GRID = [20, 20] as const;
-
-export const CANVAS = {
-  WIDTH: 1000,
-  HEIGHT: 1000,
-} as const;
-
 // Tabs other plugins add (`relationSettingsWidgets`) are keyed under this.
 export const POS_RELATION_TAB_PREFIX = 'relation.';
 
-export const getSteps = () => {
-  return [
-    { value: 'properties', title: 'general-information' },
-    { value: 'slots', title: 'slots' },
-    { value: 'payments', title: 'payments' },
-    { value: 'permission', title: 'permission' },
-    { value: 'customer', title: 'customer-registration' },
-    { value: 'product', title: 'product-and-service' },
-    { value: 'appearance', title: 'brand-color-and-logo' },
-    { value: 'screen', title: 'screen' },
-    { value: 'delivery', title: 'delivery' },
-    { value: 'sync', title: 'sync-card' },
-    // Last, so it sits beside the tabs other plugins add (Loyalty).
-    { value: 'automations', title: 'pos-automations' },
-  ];
-};
+export interface PosEditStep {
+  value: string;
+  title: string;
+  icon: Icon;
+}
+
+export interface PosEditStepGroup {
+  title: string;
+  steps: PosEditStep[];
+}
+
+export const POS_EDIT_STEP_GROUPS: PosEditStepGroup[] = [
+  {
+    title: 'general',
+    steps: [
+      {
+        value: 'properties',
+        title: 'general-information',
+        icon: IconInfoCircle,
+      },
+      { value: 'permission', title: 'permission', icon: IconShieldLock },
+      { value: 'customer', title: 'customer-registration', icon: IconUserPlus },
+    ],
+  },
+  {
+    title: 'sales',
+    steps: [
+      { value: 'product', title: 'product-and-service', icon: IconPackage },
+      { value: 'payments', title: 'payments', icon: IconCreditCard },
+      { value: 'delivery', title: 'delivery', icon: IconTruckDelivery },
+      { value: 'sync', title: 'sync-card', icon: IconRefresh },
+    ],
+  },
+  {
+    title: 'display',
+    steps: [
+      { value: 'slots', title: 'slots', icon: IconLayoutGrid },
+      { value: 'appearance', title: 'brand-color-and-logo', icon: IconPalette },
+      { value: 'screen', title: 'screen', icon: IconDeviceDesktop },
+    ],
+  },
+  {
+    title: 'plugins',
+    steps: [{ value: 'automations', title: 'pos-automations', icon: IconBolt }],
+  },
+];
 
 interface PaymentIconProps {
   iconType: string;

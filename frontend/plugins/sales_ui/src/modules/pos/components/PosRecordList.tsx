@@ -18,10 +18,10 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
   return (
     <Link
       to={`/sales/settings/pos/${pos._id}`}
-      className="p-2 rounded-2xl border h-[200px]"
+      className="p-2 rounded-2xl border min-h-[200px]"
     >
       <div className="grid grid-cols-2 h-full">
-        <div className="flex overflow-hidden relative justify-center items-center w-full h-full rounded-xl">
+        <div className="flex overflow-hidden relative justify-center items-center w-full h-full min-h-[184px] rounded-xl">
           {coverImage ? (
             <img
               src={readImage(coverImage)}
@@ -35,11 +35,14 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
         </div>
 
         <div className="flex flex-col gap-3 px-4 py-2 min-h-0">
-          <div className="flex justify-between">
-            <h3 className="text-lg font-medium truncate">
+          <div className="flex gap-2 justify-between items-start">
+            <h3 className="min-w-0 text-lg font-medium leading-snug [overflow-wrap:anywhere]">
               {pos.name || t('no-name')}
             </h3>
-            <Badge variant={pos.isOnline ? 'success' : 'secondary'}>
+            <Badge
+              variant={pos.isOnline ? 'success' : 'secondary'}
+              className="shrink-0"
+            >
               {pos.isOnline ? t('online') : t('offline')}
             </Badge>
           </div>

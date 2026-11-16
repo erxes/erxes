@@ -1,39 +1,79 @@
-import { useState } from 'react';
+import { useMutation } from '@apollo/client';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { Button, toast, useConfirm } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { useSidePanel } from 'ui-modules';
+import {
+  type CatProdMappingDraft,
+  toCatProdMappingsInput,
+} from '@/pos/components/products/catProdMappings';
+import { POS_CATEGORY_MAPPING_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { mutations } from '@/pos/graphql/mutations';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
-import { AddMappingSheet } from '@/pos/components/products/AddMappingSheet';
 
 interface ProductAndCategoryMappingProps {
+  posId?: string;
   mappings: CatProd[];
-  onMappingAdded: (mapping: CatProd) => void;
-  onMappingUpdated: (mapping: CatProd) => void;
-  onMappingDeleted: (mappingId: string) => void;
 }
 
 export const ProductAndCategoryMapping: React.FC<
   ProductAndCategoryMappingProps
-> = ({ mappings, onMappingAdded, onMappingUpdated, onMappingDeleted }) => {
+> = ({ posId, mappings }) => {
   const { t } = useTranslation('sales');
-  const [editingMapping, setEditingMapping] = useState<CatProd | null>(null);
+  const { openNewRecord } = useSidePanel();
+  const { confirm } = useConfirm();
+  const [posEdit, { loading: deleting }] = useMutation(mutations.posEdit);
+
+  const openMapping = (mappingId?: string) => {
+    const draft: CatProdMappingDraft = { posId, mappingId };
+    openNewRecord(POS_CATEGORY_MAPPING_CONTENT_TYPE, { ...draft });
+  };
+
+  const handleDelete = (mappingId: string) => {
+    if (!posId) return;
+
+    confirm({ message: t('confirm-remove-selected') }).then(async () => {
+      try {
+        await posEdit({
+          variables: {
+            _id: posId,
+            catProdMappings: toCatProdMappingsInput(
+              mappings.filter((mapping) => mapping._id !== mappingId),
+            ),
+          },
+          refetchQueries: ['salesPosSettingsDetail'],
+        });
+        toast({
+          title: t('success'),
+          description: t('product-settings-saved'),
+        });
+      } catch (e) {
+        toast({
+          title: t('error'),
+          description:
+            e instanceof Error ? e.message : t('product-settings-save-failed'),
+          variant: 'destructive',
+        });
+      }
+    });
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">
-          {t('map-product-categories-description')}
-        </p>
-        <AddMappingSheet
-          onMappingAdded={onMappingAdded}
-          onMappingUpdated={onMappingUpdated}
-          editingMapping={editingMapping}
-          onEditComplete={() => setEditingMapping(null)}
-        />
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!posId}
+          onClick={() => openMapping()}
+        >
+          <IconPlus />
+          {t('add-mapping')}
+        </Button>
       </div>
 
-      {!mappings || mappings.length === 0 ? (
-        <div className="py-8 text-center text-gray-500">
+      {mappings.length === 0 ? (
+        <div className="py-8 text-center text-muted-foreground">
           <p>{t('no-mappings-found')}</p>
         </div>
       ) : (
@@ -49,16 +89,21 @@ export const ProductAndCategoryMapping: React.FC<
 
               <div className="flex gap-2">
                 <Button
+                  type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => setEditingMapping(mapping)}
+                  aria-label={t('edit')}
+                  onClick={() => openMapping(mapping._id)}
                 >
                   <IconEdit size={16} />
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => onMappingDeleted(mapping._id)}
+                  aria-label={t('delete')}
+                  disabled={deleting}
+                  onClick={() => handleDelete(mapping._id)}
                   className="text-destructive"
                 >
                   <IconTrash size={16} />

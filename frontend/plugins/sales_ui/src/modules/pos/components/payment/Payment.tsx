@@ -1,3 +1,4 @@
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
 import {
   restorePosPaymentConfig,
   restorePosPaymentText,
@@ -12,7 +13,7 @@ import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { IPosEarnTier } from '@/pos/types/pos';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, toast } from 'erxes-ui';
+import { Form, isDefined, toast } from 'erxes-ui';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -161,16 +162,11 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={PAYMENT_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={PAYMENT_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -217,13 +213,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('payment-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { Payment };

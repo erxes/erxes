@@ -1,7 +1,8 @@
+import { IconPuzzle, Icon } from '@tabler/icons-react';
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { getSteps, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
+import { POS_EDIT_STEP_GROUPS, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
 import {
   relationSettingsModuleKey,
   useRelationSettingsModules,
@@ -13,57 +14,62 @@ interface PosEditSidebarProps {
   posId?: string;
 }
 
-export const PosEditSidebar = ({
-  activeTab,
-  posId,
-}: PosEditSidebarProps) => {
+export const PosEditSidebar = ({ activeTab, posId }: PosEditSidebarProps) => {
   const { t } = useTranslation('sales');
-  const steps = getSteps();
   const relationModules = useRelationSettingsModules();
+  const lastGroupIndex = POS_EDIT_STEP_GROUPS.length - 1;
 
   return (
     <Sidebar.Panel className="flex-none border-r" label={t('pos')}>
-      <Sidebar.Group>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            {steps.map((step) => (
-              <PosEditSidebarItem
-                key={step.value}
-                to={step.value}
-                isActive={activeTab === step.value}
-              >
-                {t(step.title)}
-              </PosEditSidebarItem>
-            ))}
-            {posId &&
-              relationModules.map((module) => {
-                const tab = `${POS_RELATION_TAB_PREFIX}${relationSettingsModuleKey(
-                  module,
-                )}`;
+      {POS_EDIT_STEP_GROUPS.map((group, index) => (
+        <Sidebar.Group key={group.title}>
+          <Sidebar.GroupLabel>{t(group.title)}</Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              {group.steps.map((step) => (
+                <PosEditSidebarItem
+                  key={step.value}
+                  to={step.value}
+                  icon={step.icon}
+                  isActive={activeTab === step.value}
+                >
+                  {t(step.title)}
+                </PosEditSidebarItem>
+              ))}
+              {posId &&
+                index === lastGroupIndex &&
+                relationModules.map((module) => {
+                  const tab = `${POS_RELATION_TAB_PREFIX}${relationSettingsModuleKey(
+                    module,
+                  )}`;
 
-                return (
-                  <PosEditSidebarItem
-                    key={tab}
-                    to={tab}
-                    isActive={activeTab === tab}
-                  >
-                    {module.label || module.name}
-                  </PosEditSidebarItem>
-                );
-              })}
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
+                  return (
+                    <PosEditSidebarItem
+                      key={tab}
+                      to={tab}
+                      icon={IconPuzzle}
+                      isActive={activeTab === tab}
+                    >
+                      {module.label || module.name}
+                    </PosEditSidebarItem>
+                  );
+                })}
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+      ))}
     </Sidebar.Panel>
   );
 };
 
 export const PosEditSidebarItem = ({
   to,
+  icon: ItemIcon,
   children,
   isActive,
 }: {
   to: string;
+  icon: Icon;
   children: React.ReactNode;
   isActive: boolean;
 }) => {
@@ -73,7 +79,10 @@ export const PosEditSidebarItem = ({
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>
-        <Link to={currentUrl}>{children}</Link>
+        <Link to={currentUrl}>
+          <ItemIcon />
+          <span>{children}</span>
+        </Link>
       </Sidebar.MenuButton>
     </Sidebar.MenuItem>
   );

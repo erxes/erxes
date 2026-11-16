@@ -1,72 +1,61 @@
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import type { FieldArrayWithId } from 'react-hook-form';
-import {
-  AddConfigSheet,
-  CardConfig,
-} from '@/pos/components/syncCard/AddConfigSheet';
-import type { SyncCardFormData } from './SyncCard';
+import type { CardConfig } from '@/pos/components/syncCard/cardConfig';
 
 interface SyncListProps {
-  fields: FieldArrayWithId<SyncCardFormData, 'configs', 'id'>[];
-  onConfigAdded: (config: CardConfig) => void;
-  onConfigUpdated: (config: CardConfig) => void;
-  onDelete: (index: number) => void;
+  configs: CardConfig[];
+  deleting: boolean;
+  onAdd: () => void;
   onEdit: (config: CardConfig) => void;
-  editingConfig: CardConfig | null;
-  onEditComplete: () => void;
+  onDelete: (config: CardConfig) => void;
 }
 
 export const SyncList: React.FC<SyncListProps> = ({
-  fields,
-  onConfigAdded,
-  onConfigUpdated,
-  onDelete,
+  configs,
+  deleting,
+  onAdd,
   onEdit,
-  editingConfig,
-  onEditComplete,
+  onDelete,
 }) => {
   const { t } = useTranslation('sales');
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <AddConfigSheet
-          onConfigAdded={onConfigAdded}
-          onConfigUpdated={onConfigUpdated}
-          editingConfig={editingConfig}
-          onEditComplete={onEditComplete}
-        />
+        <Button variant="outline" onClick={onAdd}>
+          <IconPlus />
+          {t('add-config')}
+        </Button>
       </div>
 
-      {fields.length === 0 ? (
+      {configs.length === 0 ? (
         <div className="py-8 text-center text-muted-foreground">
           {t('no-configs-yet')}
         </div>
       ) : (
         <div className="space-y-2">
-          {fields.map((field, index) => (
+          {configs.map((config) => (
             <div
-              key={field.id || `${field.branchId}_${index}`}
+              key={config._id}
               className="flex justify-between items-center p-4 rounded-lg border"
             >
-              <div>
-                <div className="font-medium">
-                  {(field as unknown as CardConfig).title || t('untitled')}
-                </div>
-              </div>
+              <div className="font-medium">{config.title || t('untitled')}</div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onEdit(field as unknown as CardConfig)}
+                  aria-label={t('edit')}
+                  onClick={() => onEdit(config)}
                 >
                   <IconEdit size={16} />
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onDelete(index)}
+                  aria-label={t('delete')}
+                  disabled={deleting}
+                  onClick={() => onDelete(config)}
                   className="text-destructive"
                 >
                   <IconTrash size={16} />

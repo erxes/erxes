@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-16`
 
 ## Scope
 
@@ -41,7 +41,7 @@
   Buttons render only with `dealsExportManage` / `posOrdersExportManage`.
 - Pipeline Product config edits include products, include product tags, and exclude product tags; create/edit and detail documents carry all three arrays. Category, tag and explicit-product includes form a union; all exclusions override that union, even explicit products. Category/tag descendants are included by Core. Pipeline categories now scope products as well as prioritizing them. Pipeline edits evict `productsMain` and `productsTotalCount` so cached deal choosers reload the changed scope.
 
-- Pipeline and POS product filters share a two-column layout. Collapsed, category and More occupy one row. Expanded, rows pair category/exclude category, include tag/exclude tag, and include products/exclude products; the collapse button follows the grid. Hidden fields retain their saved values.
+- Pipeline and POS product filters share a two-column layout whose rows pair category/exclude category, include tag/exclude tag, and include products/exclude products. The pipeline filter collapses to category and More on one row, the collapse button following the grid, and hidden fields retain their saved values. The POS product group form (`AddGroupForm`) always shows every field: POS settings tabs have no More options toggles.
 - POS product-group settings edit and reload include products (`productIds`), include tags (`tagIds`), and exclude tags (`excludeTagIds`). React Hook Form with Zod validates selections. Saves project all six filter arrays into `GroupInput` and refetch the current POS groups.
 - Product filters use OR between category/tag/product includes; all category/tag/product exclusions always win, including against explicit product ids. Category/tag filters include descendants. Product tag pickers use public `ui-modules` `SelectTags` scoped to `core:product`; English/Mongolian explanatory labels live in `modules/productFilters`.
 - POS orders and covers open in the app's side panel (no sheets): the
@@ -117,6 +117,77 @@
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
+- The POS settings list (`/sales/settings/pos`, `PosSettingsPage`) switches
+  between cards (`PosCardGrid`; the full POS name wraps, never truncated, and
+  the card grows to fit it) and a table (`PosRecordTable`) with a
+  `ToggleGroup` in the header, like CMS websites; the choice persists per
+  browser in `posListViewAtom` (`localStorage` `salesPosListView`, default
+  `card`). Table rows show logo, name (opens the POS settings), online
+  status, description, branch, department, admin and cashier counts, creator
+  and created date; the row menu edits or deletes (confirm, toast;
+  `usePosRemove` evicts `posList`). Both views share `usePosList` and
+  `PosEmptyState`.
+- POS settings forms open in the app side panel as drafts (`openNewRecord`,
+  `view: 'new'`, titled by `view: 'title'`; registered in `config.tsx`
+  `recordPanels` with `properties: false, draftTitle: true` and drawn by
+  `POS_FORM_PANELS` in `widgets/record-panel/RecordPanel.tsx`), laid out with
+  `ui-modules` `PanelFormLayout` / `PanelFormRow` like contact drafts, every
+  field borderless and shaded on hover: text inputs take
+  `POS_PANEL_INPUT_CLASS_NAME`, and `RecordPanel` wraps each form in
+  `POS_PANEL_FIELDS_CLASS_NAME`, which drops the shadow border of inputs,
+  selects and comboboxes (`[role=combobox]`) as content's panels do:
+  Create POS (`sales:pos.create`, `PosCreatePanel`; Save opens the new POS's
+  settings), Sync Card config (`sales:pos.cardConfig`, `PosCardConfigPanel`,
+  draft `{ posId, configKey }`) and product & category mapping
+  (`sales:pos.categoryMapping`, `PosCategoryMappingPanel`, draft
+  `{ posId, mappingId }`). These panels save on their own Save through
+  `posEdit` (`cardsConfig` keyed by unique title, or `catProdMappings`) and
+  refetch `salesPosSettingsDetail`; the tabs list straight from `posDetail`
+  and delete with a confirm, saving at once. The Products tab form no longer
+  holds `catProdMappings` and resets with `keepDirtyValues`, so a panel save
+  keeps its unsaved edits; the Sync Card tab has no save action. Draft
+  defaults live only in memory: after a reload the panel shows
+  `PosPanelMissing`. `PosCreate` (sheet, `usePosCreateForm`) remains only for
+  callers that pick the new POS (automation template requirement). The
+  customer layout editor and `PropertyAddSheet` stay sheets.
+- POS settings (`/sales/settings/pos/:id`, `PosEdit`) follow core's 3.0
+  settings pages: one `SettingsHeader` (POS › POS picker crumbs, Remove POS on
+  the right), then `MainContent` draws the active tab as a centered column
+  (`max-w-4xl`; `WIDE_TABS` Product & Service `max-w-6xl`) under an `h2` of the
+  tab's name, with no `InfoCard` frames (`SourceAutomations` takes
+  `framed={false}` here; pipeline settings keep its card). A tab with several
+  parts splits them with `PosSettingsSection` (`pos-edit/PosSettingsSection.tsx`:
+  an `h3` title, optional description, `separated` rule above), as Product &
+  Service does; every field shows at once, with no More options toggle
+  (General information keeps its advanced fields under a rule). The tab's
+  `PosSaveAction` (`onSaveActionChange`) sits in a footer pinned to the
+  bottom of the tab, outside the scroll area and aligned with the form
+  column, so it stays in one place across tabs: Save Changes always shown on form tabs, disabled until the
+  form is dirty, with an "Unsaved changes" badge while it is. `FULL_HEIGHT_TABS`
+  (Slots) keep the `h2` and footer but fill the full width and height
+  without scrolling.
+- The Slots tab (`components/slots/Slots.tsx`, `modules/pos/slot`) is a floor
+  plan editor: `SlotEditor` holds the layout in local state (`SlotNode`, an
+  `@xyflow/react` node whose `width`/`height`/`position`/`zIndex` are the
+  slot's box) beside an inspector column, `SlotList` until a slot is selected,
+  then `SlotInspector` (name, colour, size, position, rotation, radius, layer;
+  edits apply live). `SlotCanvas` keeps slots inside the 1000×1000 floor
+  (`nodeExtent`, dashed `ViewportPortal` floor), snaps to 20px, resizes with
+  `NodeResizer`, deletes with Backspace/Delete, and has an Add/Arrange
+  toolbar and zoom/fit controls. Nothing saves until the tab's Save Changes,
+  which is dirty when the layout's `posSlotBulkUpdate` input
+  (`slot/slotNodes.ts` `toSlotInputs`) differs from the saved one; the save
+  sends every slot (the API deletes missing ones) and refetches `posSlots`.
+  `toSlotInputs` writes the `option` keys the POS client reads (`width`,
+  `height`, `top`, `left`, `rotateAngle`, `borderRadius`, `zIndex`) plus
+  `color`, spreading the saved `option` so keys such as `isShape` survive.
+  New slots get a `nanoid` `_id` and the next free numeric `code`; an
+  existing slot's `code` is read-only because orders reference it. The tab sidebar groups
+  `POS_EDIT_STEP_GROUPS` (`modules/pos/constants`) under General, Sales,
+  Display and Plugins, each item with an icon; other plugins' relation tabs
+  (`relation.*`, saved POS only) join the last group and title their page with
+  the module label. A missing `activeTab` is set to `properties` with
+  `replace`, so Back leaves the page in one step.
 - POS product settings independently persist `isShowRemainder` for display and
   `isCheckRemainder` for preventing negative stock, with category exclusions.
 
@@ -400,6 +471,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | Dashboard widgets   | `frontend/plugins/sales_ui/src/widgets/dashboard`                                                    | `./dashboardWidget` remote: loyalty points tiles, their config form and states                                             |
 | Loyalty sections    | `frontend/plugins/sales_ui/src/modules/loyalty-points/components`                                    | Insight/timeline sections shared by the Loyalty points pages and the dashboard widgets                                     |
 | Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                        | Voucher and coupon line on a deal's Products tab, saved with the products                                                  |
+| POS settings list   | `frontend/plugins/sales_ui/src/modules/pos/components/PosRecordTable.tsx`                            | Table view of the POS settings list; cards stay in `PosRecordList.tsx`                                                     |
+| POS settings shell  | `frontend/plugins/sales_ui/src/modules/pos/components/pos-edit`                                      | POS settings page: grouped tab sidebar, single header with save/remove, per-tab content width                              |
+| POS slots editor    | `frontend/plugins/sales_ui/src/modules/pos/slot`                                                     | Slots tab floor plan: canvas, slot list, inspector, slot ⇄ `posSlotBulkUpdate` input mapping                               |
 | POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                    | Manages admin and cashier POS permission controls                                                                          |
 | POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                                                                        |
 | POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                                                                |
@@ -713,7 +787,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SalesSettingsIndexPage` renders `BoardsList` beside its `SettingsHeader`, and `PosEdit` takes the POS page header as `header` so `PosEditSidebar` sits beside it. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row. The deal settings `BoardsList` passes its heading as `label` and `BoardForm` as `actions`; keep that single `BoardForm` instance, because every instance opens its dialog from the `boardId` query state and a second copy stacks two dialogs on edit.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SalesSettingsIndexPage` renders `BoardsList` beside its `SettingsHeader`, and `PosEdit` renders the POS page's single `SettingsHeader` (it takes the crumbs as `breadcrumbs` and page actions such as `PosDelete` as `actions`) so `PosEditSidebar` sits beside it. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row. The deal settings `BoardsList` passes its heading as `label` and `BoardForm` as `actions`; keep that single `BoardForm` instance, because every instance opens its dialog from the `boardId` query state and a second copy stacks two dialogs on edit.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal detail chips render through erxes-ui `Combobox.ChipTrigger`; every chip except stage
   passes a translated `label` by default so the field is named.

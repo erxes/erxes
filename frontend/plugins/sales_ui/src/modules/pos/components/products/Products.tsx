@@ -1,22 +1,28 @@
-import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
 import { InitialProductCategories } from '@/pos/components/products/InitialProductCategories';
 import { KioskExcludeProducts } from '@/pos/components/products/KioskExcludeProducts';
 import { ProductAndCategoryMapping } from '@/pos/components/products/ProductAndCategoryMapping';
+import { toCatProdMappings } from '@/pos/components/products/catProdMappings';
 import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
 import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
 import { ServiceCharge } from '@/pos/components/products/ServiceCharge';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
-import { type CatProd } from '@/pos/pos-detail/types/IPos';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Form, isDefined, toast } from 'erxes-ui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 interface ProductsProps {
   posId?: string;
-  posType?: string;
   onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
@@ -30,7 +36,6 @@ export interface ProductsFormData {
   initialCategoryIds: string[];
   kioskExcludeCategoryIds: string[];
   kioskExcludeProductIds: string[];
-  catProdMappings: CatProd[];
   isShowRemainder: boolean;
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
@@ -46,7 +51,6 @@ const DEFAULT_FORM_VALUES: ProductsFormData = {
   initialCategoryIds: [],
   kioskExcludeCategoryIds: [],
   kioskExcludeProductIds: [],
-  catProdMappings: [],
   isShowRemainder: false,
   isCheckRemainder: false,
   checkExcludeCategoryIds: [],
@@ -55,17 +59,6 @@ const DEFAULT_FORM_VALUES: ProductsFormData = {
   serviceCharge: '',
   serviceChargeApplicableProductId: '',
 };
-
-const sanitizeMappings = (mappings: CatProd[]) =>
-  mappings.map((mapping) => {
-    return {
-      _id: mapping._id,
-      categoryId: mapping.categoryId,
-      code: mapping.code || '',
-      name: mapping.name || '',
-      productId: mapping.productId,
-    };
-  });
 
 const parseServiceCharge = (value: string): number | undefined => {
   if (value === '') {
@@ -76,13 +69,8 @@ const parseServiceCharge = (value: string): number | undefined => {
   return Number.isFinite(parsedValue) ? parsedValue : undefined;
 };
 
-const Products: React.FC<ProductsProps> = ({
-  posId,
-  posType,
-  onSaveActionChange,
-}) => {
+const Products: React.FC<ProductsProps> = ({ posId, onSaveActionChange }) => {
   const { t } = useTranslation('sales');
-  const [showMore, setShowMore] = useState(false);
   const [productGroupSaveState, setProductGroupSaveState] =
     useState<ProductGroupSaveState | null>(null);
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
@@ -90,13 +78,13 @@ const Products: React.FC<ProductsProps> = ({
   const form = useForm<ProductsFormData>({
     defaultValues: DEFAULT_FORM_VALUES,
   });
-  const { control, handleSubmit, reset, setValue, watch, formState } = form;
+  const { control, handleSubmit, reset, formState } = form;
   const { isDirty } = formState;
 
-  const isRestaurant = posType === 'restaurant';
-
-  const catProdMappings = watch('catProdMappings');
-  const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
+  const catProdMappings = useMemo(
+    () => toCatProdMappings(posDetail?.catProdMappings),
+    [posDetail?.catProdMappings],
+  );
   const hasChanges = isDirty || !!productGroupSaveState?.isDirty;
   const isSaving = saving || !!productGroupSaveState?.saving;
 
@@ -105,66 +93,35 @@ const Products: React.FC<ProductsProps> = ({
       return;
     }
 
-    reset({
-      initialCategoryIds: (posDetail.initialCategoryIds ?? []).filter(
-        isDefined,
-      ),
-      kioskExcludeCategoryIds: (posDetail.kioskExcludeCategoryIds ?? []).filter(
-        isDefined,
-      ),
-      kioskExcludeProductIds: (posDetail.kioskExcludeProductIds ?? []).filter(
-        isDefined,
-      ),
-      catProdMappings: (posDetail.catProdMappings ?? [])
-        .filter(isDefined)
-        .map((mapping) => ({
-          ...mapping,
-          _id: mapping._id ?? '',
-          categoryId: mapping.categoryId ?? '',
-          productId: mapping.productId ?? '',
-          code: mapping.code ?? undefined,
-          name: mapping.name ?? undefined,
-        })),
-      isShowRemainder: posDetail.isShowRemainder || false,
-      isCheckRemainder: posDetail.isCheckRemainder || false,
-      checkExcludeCategoryIds: (posDetail.checkExcludeCategoryIds ?? []).filter(
-        isDefined,
-      ),
-      saveRemainder: posDetail.saveRemainder || false,
-      banFractions: posDetail.banFractions || false,
-      serviceCharge:
-        posDetail.serviceCharge === undefined ||
-        posDetail.serviceCharge === null
-          ? ''
-          : String(posDetail.serviceCharge),
-      serviceChargeApplicableProductId:
-        posDetail.serviceChargeApplicableProductId || '',
-    });
+    reset(
+      {
+        initialCategoryIds: (posDetail.initialCategoryIds ?? []).filter(
+          isDefined,
+        ),
+        kioskExcludeCategoryIds: (
+          posDetail.kioskExcludeCategoryIds ?? []
+        ).filter(isDefined),
+        kioskExcludeProductIds: (posDetail.kioskExcludeProductIds ?? []).filter(
+          isDefined,
+        ),
+        isShowRemainder: posDetail.isShowRemainder || false,
+        isCheckRemainder: posDetail.isCheckRemainder || false,
+        checkExcludeCategoryIds: (
+          posDetail.checkExcludeCategoryIds ?? []
+        ).filter(isDefined),
+        saveRemainder: posDetail.saveRemainder || false,
+        banFractions: posDetail.banFractions || false,
+        serviceCharge:
+          posDetail.serviceCharge === undefined ||
+          posDetail.serviceCharge === null
+            ? ''
+            : String(posDetail.serviceCharge),
+        serviceChargeApplicableProductId:
+          posDetail.serviceChargeApplicableProductId || '',
+      },
+      { keepDirtyValues: true },
+    );
   }, [posDetail, reset]);
-
-  const handleMappingAdded = (mapping: CatProd) => {
-    setValue('catProdMappings', [...catProdMappings, mapping], {
-      shouldDirty: true,
-    });
-  };
-
-  const handleMappingUpdated = (updatedMapping: CatProd) => {
-    setValue(
-      'catProdMappings',
-      catProdMappings.map((mapping) =>
-        mapping._id === updatedMapping._id ? updatedMapping : mapping,
-      ),
-      { shouldDirty: true },
-    );
-  };
-
-  const handleMappingDeleted = (mappingId: string) => {
-    setValue(
-      'catProdMappings',
-      catProdMappings.filter((mapping) => mapping._id !== mappingId),
-      { shouldDirty: true },
-    );
-  };
 
   const handleSaveChanges = useCallback(
     async (data: ProductsFormData) => {
@@ -185,8 +142,6 @@ const Products: React.FC<ProductsProps> = ({
 
             kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
             kioskExcludeProductIds: data.kioskExcludeProductIds,
-
-            catProdMappings: sanitizeMappings(data.catProdMappings),
 
             isShowRemainder: data.isShowRemainder,
             isCheckRemainder: data.isCheckRemainder,
@@ -225,7 +180,7 @@ const Products: React.FC<ProductsProps> = ({
         });
       }
     },
-    [posEdit, posId, reset],
+    [posEdit, posId, reset, t],
   );
 
   const handleHeaderSaveChanges = useCallback(async () => {
@@ -244,16 +199,11 @@ const Products: React.FC<ProductsProps> = ({
     }
 
     onSaveActionChange(
-      hasChanges ? (
-        <Button
-          type="button"
-          size="sm"
-          disabled={isSaving}
-          onClick={handleHeaderSaveChanges}
-        >
-          {isSaving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={hasChanges}
+        saving={isSaving}
+        onClick={handleHeaderSaveChanges}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -290,64 +240,46 @@ const Products: React.FC<ProductsProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <section className="space-y-4">
-            <Label>{t('initial-product-categories')}</Label>
+          <PosSettingsSection separated title={t('initial-product-categories')}>
             <InitialProductCategories control={control} />
-          </section>
+          </PosSettingsSection>
 
-          <div className="flex justify-center">
-            <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
-          </div>
+          <PosSettingsSection separated title={t('kiosk-exclude-products')}>
+            <KioskExcludeProducts control={control} />
+          </PosSettingsSection>
 
-          {(!isRestaurant || showMore) && (
-            <>
-              <section className="pt-6 space-y-4 border-t">
-                <Label>{t('kiosk-exclude-products')}</Label>
-                <KioskExcludeProducts control={control} />
-              </section>
+          <PosSettingsSection
+            separated
+            title={t('product-category-mapping')}
+            description={t('map-product-categories-description')}
+          >
+            <ProductAndCategoryMapping
+              posId={posId}
+              mappings={catProdMappings}
+            />
+          </PosSettingsSection>
 
-              <section className="pt-6 space-y-4 border-t">
-                <Label>{t('product-category-mapping')}</Label>
-                <ProductAndCategoryMapping
-                  mappings={catProdMappings}
-                  onMappingAdded={handleMappingAdded}
-                  onMappingUpdated={handleMappingUpdated}
-                  onMappingDeleted={handleMappingDeleted}
-                />
-              </section>
+          <PosSettingsSection separated title={t('remainder-configs')}>
+            <RemainderConfigs control={control} />
+          </PosSettingsSection>
 
-              <section className="pt-6 space-y-4 border-t">
-                <Label>{t('remainder-configs')}</Label>
-                <RemainderConfigs control={control} />
-              </section>
-
-              <section className="pt-6 space-y-4 border-t">
-                <Label>{t('service-charge')}</Label>
-                <ServiceCharge control={control} />
-              </section>
-            </>
-          )}
+          <PosSettingsSection separated title={t('service-charge')}>
+            <ServiceCharge control={control} />
+          </PosSettingsSection>
         </form>
       </Form>
     );
   };
 
   return (
-    <div className="p-6">
-      <InfoCard title={t('product-config')}>
-        <InfoCard.Content>
-          <div className="space-y-8">
-            <section className="space-y-4">
-              <Label>{t('product-groups')}</Label>
-              <ProductGroupsList
-                posId={posId}
-                onSaveStateChange={setProductGroupSaveState}
-              />
-            </section>
-            {renderProductSettings()}
-          </div>
-        </InfoCard.Content>
-      </InfoCard>
+    <div className="space-y-8">
+      <PosSettingsSection title={t('product-groups')}>
+        <ProductGroupsList
+          posId={posId}
+          onSaveStateChange={setProductGroupSaveState}
+        />
+      </PosSettingsSection>
+      {renderProductSettings()}
     </div>
   );
 };

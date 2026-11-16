@@ -1,10 +1,11 @@
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
 import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
 import { Stage } from '@/pos/components/deliveryConfig/Stage';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { Form, isDefined, Label, toast } from 'erxes-ui';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -120,16 +121,11 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={DELIVERY_CONFIG_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={DELIVERY_CONFIG_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -196,13 +192,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('delivery-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { DeliveryConfig };

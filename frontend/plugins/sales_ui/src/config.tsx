@@ -15,7 +15,10 @@ import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
 import {
+  POS_CARD_CONFIG_CONTENT_TYPE,
+  POS_CATEGORY_MAPPING_CONTENT_TYPE,
   POS_COVER_CONTENT_TYPE,
+  POS_CREATE_CONTENT_TYPE,
   POS_ORDER_CONTENT_TYPE,
   getPosCoverDetailPath,
   getPosOrderDetailPath,
@@ -160,6 +163,21 @@ export const CONFIG: IUIConfig = {
         contentType: POS_COVER_CONTENT_TYPE,
         properties: false,
         detailPath: getPosCoverDetailPath,
+      },
+      {
+        contentType: POS_CREATE_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+      },
+      {
+        contentType: POS_CARD_CONFIG_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+      },
+      {
+        contentType: POS_CATEGORY_MAPPING_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
       },
     ],
     relationWidgets: [

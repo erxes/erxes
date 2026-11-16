@@ -1,3 +1,4 @@
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
 import {
   AllowBranchesField,
   AllowTypesField,
@@ -18,17 +19,10 @@ import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { usePosEnv } from '@/pos/hooks/usePosEnv';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, toast } from 'erxes-ui';
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type FC,
-  type ReactNode,
-} from 'react';
+import { Form, isDefined, toast } from 'erxes-ui';
+import { useCallback, useEffect, type FC, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { MoreOptionsButton } from '../MoreOptionsButton';
 
 interface PropertiesProps {
   posId?: string;
@@ -37,21 +31,16 @@ interface PropertiesProps {
 }
 
 const LoadingSkeleton = () => {
-  const { t } = useTranslation('sales');
   return (
-    <div className="p-6">
-      <InfoCard title={t('general-configuration')}>
-        <InfoCard.Content>
-          <div className="grid grid-cols-2 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="space-y-2">
-                <div className="w-24 h-4 rounded animate-pulse bg-muted" />
-                <div className="h-8 rounded animate-pulse bg-muted" />
-              </div>
-            ))}
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="space-y-2">
+            <div className="w-24 h-4 rounded animate-pulse bg-muted" />
+            <div className="h-8 rounded animate-pulse bg-muted" />
           </div>
-        </InfoCard.Content>
-      </InfoCard>
+        ))}
+      </div>
     </div>
   );
 };
@@ -91,9 +80,6 @@ const Properties: FC<PropertiesProps> = ({
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const { posEnv } = usePosEnv();
-
-  const [showMore, setShowMore] = useState(false);
-  const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
 
   const form = useForm<FormData>({ defaultValues: DEFAULT_FORM_VALUES });
   const { control, handleSubmit, reset, watch, formState } = form;
@@ -169,7 +155,7 @@ const Properties: FC<PropertiesProps> = ({
         });
       }
     },
-    [posId, posEdit, reset],
+    [posId, posEdit, reset, t],
   );
 
   useEffect(() => {
@@ -178,16 +164,11 @@ const Properties: FC<PropertiesProps> = ({
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={PROPERTIES_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={PROPERTIES_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -206,50 +187,41 @@ const Properties: FC<PropertiesProps> = ({
   }
 
   return (
-    <div className="p-6">
-      <InfoCard title={t('general-configuration')}>
-        <InfoCard.Content>
-          <Form {...form}>
-            <form
-              id={PROPERTIES_FORM_ID}
-              onSubmit={handleSubmit(handleSaveChanges)}
-              className="space-y-6"
-            >
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <NameField control={control} />
-                <IsOnlineField control={control} />
-                <BranchField control={control} />
-                <DepartmentField control={control} />
-              </div>
+    <div className="space-y-6">
+      <Form {...form}>
+        <form
+          id={PROPERTIES_FORM_ID}
+          onSubmit={handleSubmit(handleSaveChanges)}
+          className="space-y-6"
+        >
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <NameField control={control} />
+            <IsOnlineField control={control} />
+            <BranchField control={control} />
+            <DepartmentField control={control} />
+          </div>
 
-              {isOnline ? (
-                <>
-                  <AllowBranchesField control={control} />
-                  <PosDomainField control={control} />
-                </>
-              ) : (
-                <AllowTypesField control={control} />
-              )}
+          {isOnline ? (
+            <>
+              <AllowBranchesField control={control} />
+              <PosDomainField control={control} />
+            </>
+          ) : (
+            <AllowTypesField control={control} />
+          )}
 
-              <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
-
-              {showMore && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <BeginNumberField control={control} />
-                  <MaxSkipNumberField control={control} />
-                  <OrderPasswordField control={control} />
-                  <BrandField control={control} />
-                  {!isOnline &&
-                    OFFLINE_POS_VALUES.has(posEnv?.ALLOW_OFFLINE_POS) && (
-                      <OnServerField control={control} />
-                    )}
-                  <DescriptionField control={control} />
-                </div>
-              )}
-            </form>
-          </Form>
-        </InfoCard.Content>
-      </InfoCard>
+          <div className="grid grid-cols-1 gap-4 border-t pt-6 md:grid-cols-2">
+            <BeginNumberField control={control} />
+            <MaxSkipNumberField control={control} />
+            <OrderPasswordField control={control} />
+            <BrandField control={control} />
+            {!isOnline && OFFLINE_POS_VALUES.has(posEnv?.ALLOW_OFFLINE_POS) && (
+              <OnServerField control={control} />
+            )}
+            <DescriptionField control={control} />
+          </div>
+        </form>
+      </Form>
     </div>
   );
 };

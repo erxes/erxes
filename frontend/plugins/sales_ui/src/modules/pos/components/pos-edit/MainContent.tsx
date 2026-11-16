@@ -10,11 +10,15 @@ import { Properties } from '@/pos/components/properties';
 import { ScreenConfig } from '@/pos/components/screenConfig';
 import { Slots } from '@/pos/components/slots';
 import { SyncCard } from '@/pos/components/syncCard';
-import { POS_RELATION_TAB_PREFIX } from '@/pos/constants';
+import { POS_EDIT_STEP_GROUPS, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
 import { IPos } from '@/pos/types/pos';
-import { Spinner } from 'erxes-ui';
-import React, { useCallback, useState } from 'react';
+import { cn, Spinner } from 'erxes-ui';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  relationSettingsModuleKey,
+  useRelationSettingsModules,
+} from 'ui-modules';
 
 interface MainContentProps {
   activeStep: string;
@@ -22,7 +26,18 @@ interface MainContentProps {
   posDetail?: IPos;
   loading: boolean;
   error?: Error;
+  onSaveActionChange: (action: React.ReactNode | null) => void;
+  saveAction?: React.ReactNode;
 }
+
+const FULL_HEIGHT_TABS = new Set(['slots']);
+const WIDE_TABS = new Set(['product']);
+
+const POS_EDIT_STEP_TITLES = new Map(
+  POS_EDIT_STEP_GROUPS.flatMap((group) =>
+    group.steps.map((step) => [step.value, step.title] as const),
+  ),
+);
 
 export const MainContent: React.FC<MainContentProps> = ({
   activeStep,
@@ -30,17 +45,29 @@ export const MainContent: React.FC<MainContentProps> = ({
   posDetail,
   loading,
   error,
+  onSaveActionChange: handleSaveActionChange,
+  saveAction,
 }) => {
   const { t } = useTranslation('sales');
-  const [headerSaveAction, setHeaderSaveAction] =
-    useState<React.ReactNode | null>(null);
+  const relationModules = useRelationSettingsModules();
 
-  const handleSaveActionChange = useCallback(
-    (action: React.ReactNode | null) => {
-      setHeaderSaveAction(action);
-    },
-    [],
-  );
+  const getTitle = () => {
+    const stepTitle = POS_EDIT_STEP_TITLES.get(activeStep);
+
+    if (stepTitle) {
+      return t(stepTitle);
+    }
+
+    const relationModule = relationModules.find(
+      (module) =>
+        `${POS_RELATION_TAB_PREFIX}${relationSettingsModuleKey(module)}` ===
+        activeStep,
+    );
+
+    return (
+      relationModule?.label || relationModule?.name || t('general-information')
+    );
+  };
 
   const renderContent = (): React.ReactNode => {
     if (posId && activeStep.startsWith(POS_RELATION_TAB_PREFIX)) {
@@ -62,7 +89,9 @@ export const MainContent: React.FC<MainContentProps> = ({
           />
         );
       case 'slots':
-        return posId ? <Slots posId={posId} /> : null;
+        return posId ? (
+          <Slots posId={posId} onSaveActionChange={handleSaveActionChange} />
+        ) : null;
       case 'payments':
         return (
           <Payment posId={posId} onSaveActionChange={handleSaveActionChange} />
@@ -114,9 +143,7 @@ export const MainContent: React.FC<MainContentProps> = ({
           />
         );
       case 'sync':
-        return (
-          <SyncCard posId={posId} onSaveActionChange={handleSaveActionChange} />
-        );
+        return <SyncCard posId={posId} />;
 
       default:
         return (
@@ -146,22 +173,44 @@ export const MainContent: React.FC<MainContentProps> = ({
     );
   }
 
+  const fullHeight = FULL_HEIGHT_TABS.has(activeStep);
+  const columnClassName = cn('mx-auto w-full px-6', {
+    'max-w-6xl': !fullHeight && WIDE_TABS.has(activeStep),
+    'max-w-4xl': !fullHeight && !WIDE_TABS.has(activeStep),
+  });
+
   return (
-    <div className="flex overflow-hidden flex-col flex-1 h-full min-h-0">
-      <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-background shrink-0">
-        <div className="flex flex-1 gap-4 items-center min-w-0">
-          <h1 className="max-w-[100px] text-xl font-semibold truncate text-foreground">
-            {posDetail?.name || t('new-pos')}
-          </h1>
+    <div className="flex min-h-0 flex-1 flex-col">
+      {fullHeight ? (
+        <section
+          className={cn(
+            columnClassName,
+            'flex min-h-0 flex-1 flex-col pt-8 pb-6',
+          )}
+        >
+          <h2 className="mb-6 text-lg font-semibold">{getTitle()}</h2>
+          <div className="min-h-0 flex-1">{renderContent()}</div>
+        </section>
+      ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <section className={cn(columnClassName, 'pt-8 pb-10')}>
+            <h2 className="mb-8 text-lg font-semibold">{getTitle()}</h2>
+            {renderContent()}
+          </section>
         </div>
-
-        <div className="flex gap-2 items-center shrink-0">
-          {headerSaveAction}
-        </div>
-      </div>
-
-      {/* Content Area */}
-      <div className="overflow-y-auto flex-1 min-h-0">{renderContent()}</div>
+      )}
+      {saveAction && (
+        <footer className="shrink-0 border-t bg-background">
+          <div
+            className={cn(
+              columnClassName,
+              'flex items-center justify-end gap-3 py-3',
+            )}
+          >
+            {saveAction}
+          </div>
+        </footer>
+      )}
     </div>
   );
 };
