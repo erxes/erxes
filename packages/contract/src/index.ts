@@ -10,7 +10,8 @@ import { customersContract } from './customers';
 import { favoritesContract } from './favorites';
 import { customerAccountContract, customerAuthContract } from './customerAuth';
 import { customerNotificationsContract } from './customerNotifications';
-import { fieldGroupsContract, fieldsContract } from './fields';
+import { fieldGroupsContract } from './fieldGroups';
+import { fieldsContract } from './fields';
 import { filesContract } from './files';
 import { notificationsContract } from './notifications';
 import { organizationsContract } from './organizations';
@@ -100,6 +101,8 @@ export * from './emails';
 export * from './events';
 
 export * from './favorites';
+
+export * from './fieldGroups';
 
 export * from './fields';
 

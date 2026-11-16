@@ -131,6 +131,71 @@ describe('plugin record properties', { timeout: 120_000 }, () => {
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_FIELD' });
   });
 
+  it('limits a group to some records, as old sales limited them to pipelines', async () => {
+    const group = await t.owner().fieldGroups.create({
+      contentType: employee,
+      name: 'Engineering',
+      appliesTo: { team: ['eng', 'ops'], office: [] },
+    });
+
+    expect(group.appliesTo).toEqual({ team: ['eng', 'ops'], office: [] });
+
+    const stack = await t.owner().fields.create({
+      contentType: employee,
+      groupId: group.id,
+      label: 'Stack',
+      type: 'text',
+    });
+
+    const patch = { [stack.id]: 'rust' };
+
+    // A record in one of the group's teams takes it; any other, or one the plugin says nothing
+    // about, takes only clearing.
+    expect(
+      (
+        await t.hr().fields.check({
+          contentType: employee,
+          current: {},
+          patch,
+          appliesTo: { team: ['ops'], office: ['ub'] },
+        })
+      ).values,
+    ).toEqual(patch);
+
+    for (const appliesTo of [{ team: ['sales'] }, undefined]) {
+      await expect(
+        t.hr().fields.check({ contentType: employee, current: {}, patch, appliesTo }),
+      ).rejects.toMatchObject({ status: 400, code: 'INVALID_FIELD' });
+    }
+
+    expect(
+      (
+        await t.hr().fields.check({
+          contentType: employee,
+          current: patch,
+          patch: { [stack.id]: null },
+        })
+      ).values,
+    ).toEqual({});
+
+    // Once it applies to every record, any record takes it.
+    const open = await t.owner().fieldGroups.update({ id: group.id, appliesTo: {} });
+
+    expect(open.appliesTo).toEqual({});
+    expect(
+      (await t.hr().fields.check({ contentType: employee, current: {}, patch })).values,
+    ).toEqual(patch);
+
+    // Core's own records have no limits.
+    await expect(
+      t.owner().fieldGroups.create({
+        contentType: 'customer',
+        name: 'Engineering',
+        appliesTo: { team: ['eng'] },
+      }),
+    ).rejects.toMatchObject({ status: 400, code: 'INVALID_FIELD_GROUP' });
+  });
+
   it('counts no values and deletes only definitions, as the plugin keeps the values', async () => {
     const group = await t.owner().fieldGroups.create({ contentType: employee, name: 'Extra' });
 

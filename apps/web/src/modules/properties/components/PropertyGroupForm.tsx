@@ -1,3 +1,4 @@
+import type { PropertyContentType } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import { Button, Form, Input, Sheet, Spinner, Textarea } from 'erxes-ui';
@@ -8,6 +9,7 @@ import {
   type IPropertyGroupValues,
   propertyGroupSchema,
 } from '../propertySchema';
+import { PropertyGroupLimits } from './PropertyGroupLimits';
 
 /** Name, code and description. */
 const GroupFields = ({
@@ -88,7 +90,7 @@ export const PropertyGroupForm = ({
   loading: boolean;
   defaultValues: IPropertyGroupForm;
   onCancel: () => void;
-  contentType: string;
+  contentType: PropertyContentType;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
 
@@ -122,6 +124,7 @@ export const PropertyGroupForm = ({
         <Sheet.Content className="grow size-full h-auto">
           <div className="flex flex-col gap-5">
             <GroupFields form={form} />
+            <PropertyGroupLimits form={form} contentType={contentType} />
           </div>
         </Sheet.Content>
         <Sheet.Footer>

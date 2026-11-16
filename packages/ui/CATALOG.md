@@ -227,10 +227,11 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page, linked from core's settings sidebar.
+- `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
 - `type TPropertyValue` A custom field's value: text, number, date, yes/no or options.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.
 - `type TRecordDraftProps { defaults, onCreated, onCancel }` Props of a plugin record type's `New` slot, the draft form.
-- `type TRecordProperties { type, values, save }` Custom fields on a plugin record type, whose values the plugin keeps.
+- `type TRecordProperties { type, values, save, limits, appliesTo }` Custom fields on a plugin record type, whose values the plugin keeps.
 - `type TRecordSection { contentType, title, icon, component }` A plugin's section on a customer's or company's detail in core's panel.
 - `type TRecordSectionProps { contentType, contentId }` What a record section is given: the customer or company it shows on.
 - `type TRecordSlotProps` What each slot of a plugin record is given: the record.

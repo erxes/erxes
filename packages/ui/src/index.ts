@@ -317,6 +317,7 @@ export {
   type TDashboardWidgetPreview,
   type TPanelRecordType,
   type TPluginSettingsPage,
+  type TPropertyLimit,
   type TPropertyValue,
   type TRecordContacts,
   type TRecordProperties,

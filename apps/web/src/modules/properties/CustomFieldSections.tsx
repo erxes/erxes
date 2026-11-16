@@ -1,4 +1,9 @@
-import type { CustomValue, PropertyContentType } from '@erxes/core-contract';
+import {
+  type AppliesTo,
+  type CustomValue,
+  groupApplies,
+  type PropertyContentType,
+} from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
 import { Button, Collapsible, Empty, Spinner, buttonVariants, PanelField } from 'erxes-ui';
 import type { ReactNode } from 'react';
@@ -42,6 +47,7 @@ export const CustomFieldSections = ({
   contentType,
   scope,
   values,
+  appliesTo,
   onSave,
   empty = <EmptyProperties contentType={contentType} />,
 }: {
@@ -49,12 +55,22 @@ export const CustomFieldSections = ({
   /** Hotkey scope prefix, unique to the record on screen. */
   scope: string;
   values: Record<string, CustomValue> | undefined;
+  /**
+   * What the record is in, for a plugin type whose groups apply to some records: the others
+   * are left out. Without it every group shows.
+   */
+  appliesTo?: AppliesTo;
   onSave: (patch: Record<string, CustomValue | null>) => void;
   /** Shown when the record type has no properties yet. */
   empty?: ReactNode;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { sections, loading, error } = useFields(contentType);
+  const found = useFields(contentType);
+  const { loading, error } = found;
+
+  const sections = appliesTo
+    ? found.sections.filter(({ group }) => !group || groupApplies(group.appliesTo, appliesTo))
+    : found.sections;
 
   if (error) return <p className="px-2 py-6 text-sm text-destructive">{messageOf(error)}</p>;
 

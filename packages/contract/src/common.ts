@@ -138,6 +138,22 @@ export const CustomFields = z.record(Id, CustomValue);
 /** Changes to custom field values; `null` clears one. */
 export const CustomFieldsPatch = z.record(Id, CustomValue.nullable());
 
+/**
+ * Ids by what a plugin's UI config names (`{ team: [id], project: [id] }`): the records of its
+ * type a field group shows on, or the ones a record is in. At most 5 keys of 200 ids.
+ */
+export const AppliesTo = z
+  .record(z.string().regex(/^[a-z][a-z0-9_]{0,29}$/), z.array(Id).max(200))
+  .refine((value) => Object.keys(value).length <= 5, 'at most 5 keys');
+
+export type AppliesTo = z.infer<typeof AppliesTo>;
+
+/** Whether a group shows on a record: the record is in one of the ids of each key the group lists. */
+export const groupApplies = (group: AppliesTo, record: AppliesTo) =>
+  Object.entries(group).every(
+    ([key, ids]) => !ids.length || ids.some((id) => record[key]?.includes(id)),
+  );
+
 export const EmailAddress = z.string().trim().toLowerCase().check(z.email()).max(254);
 
 export const PhoneNumber = z

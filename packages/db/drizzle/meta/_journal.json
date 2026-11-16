@@ -547,6 +547,13 @@
       "when": 1794858939016,
       "tag": "0077_favorites",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1794859707223,
+      "tag": "0078_field_group_applies_to",
+      "breakpoints": true
     }
   ]
 }

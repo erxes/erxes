@@ -1,3 +1,4 @@
+import { type AppliesTo, groupApplies } from '@erxes/core-contract';
 import {
   caller,
   type PluginRecordType,
@@ -97,13 +98,15 @@ export const isEmpty = (value: CustomValue) =>
 /**
  * Applies a custom field patch to a record's values: each key must be a field
  * of `contentType` in the organisation; empty values (`null`, `''`, `[]`) clear it.
- * Archived fields (or fields of an archived group) can only be cleared.
+ * Archived fields (or fields of an archived group) can only be cleared, as can those of a group
+ * that doesn't apply to the record (`appliesTo`: what the record is in).
  */
 export const applyCustomFields = async (
   client: Db,
   contentType: PropertyContentType,
   current: Record<string, CustomValue>,
   patch: Record<string, CustomValue | null> | undefined,
+  appliesTo: AppliesTo = {},
 ) => {
   const ids = Object.keys(patch ?? {});
 
@@ -112,7 +115,11 @@ export const applyCustomFields = async (
   }
 
   const definitions = await client
-    .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
+    .select({
+      field: fields,
+      groupArchivedAt: fieldGroups.archivedAt,
+      groupAppliesTo: fieldGroups.appliesTo,
+    })
     .from(fields)
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
     .where(and(eq(fields.contentType, contentType), inArray(fields.id, ids)))
@@ -142,6 +149,12 @@ export const applyCustomFields = async (
       });
     }
 
+    if (definition.groupAppliesTo && !groupApplies(definition.groupAppliesTo, appliesTo)) {
+      throw fail('INVALID_FIELD', `${definition.field.label} doesn't apply to this record`, {
+        fieldId: id,
+      });
+    }
+
     const checked = checkValue(definition.field, value);
 
     if (isEmpty(checked)) {
@@ -164,6 +177,7 @@ export const checkPluginValues = async (
     contentType: PluginRecordType;
     current: Record<string, CustomValue>;
     patch: Record<string, CustomValue | null>;
+    appliesTo: AppliesTo;
   },
 ) => {
   const { plugin } = caller('plugin');
@@ -171,5 +185,13 @@ export const checkPluginValues = async (
   if (!input.contentType.startsWith(`${plugin}.`))
     throw fail('NOT_ALLOWED', 'A plugin checks values of its own record types only');
 
-  return { values: await applyCustomFields(client, input.contentType, input.current, input.patch) };
+  return {
+    values: await applyCustomFields(
+      client,
+      input.contentType,
+      input.current,
+      input.patch,
+      input.appliesTo,
+    ),
+  };
 };

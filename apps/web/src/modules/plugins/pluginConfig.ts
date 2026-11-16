@@ -5,6 +5,7 @@ import {
   type TDashboardWidget,
   type TPanelRecordType,
   type TPluginSettingsPage,
+  type TPropertyLimit,
   type TRecordContacts,
   type TRecordDraftProps,
   type TRecordProperties,
@@ -151,6 +152,23 @@ const recordTypeSchema = (name: string, path: string) => {
         ),
         values: z.custom<TRecordProperties['values']>(isFunction),
         save: z.custom<TRecordProperties['save']>(isFunction),
+        limits: z
+          .array(
+            z.object({
+              key: z.string().regex(/^[a-z][a-z0-9_]{0,29}$/),
+              label: z.string().min(1),
+              options: z.custom<TPropertyLimit['options']>(
+                (value) => typeof value === 'object' && value !== null,
+              ),
+            }),
+          )
+          .max(5)
+          .optional(),
+        appliesTo: z.custom<NonNullable<TRecordProperties['appliesTo']>>(isFunction).optional(),
+      })
+      .refine((value) => !value.limits?.length || value.appliesTo, {
+        path: ['appliesTo'],
+        error: 'needed with limits',
       })
       .optional(),
   }) satisfies z.ZodType<TPanelRecordType>;

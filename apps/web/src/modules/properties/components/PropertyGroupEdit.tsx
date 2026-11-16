@@ -24,6 +24,7 @@ export const PropertyGroupEditSheet = () => {
                   name: data.name,
                   code: data.code,
                   description: data.description || null,
+                  appliesTo: data.appliesTo,
                 },
                 { onSuccess: close },
               )
@@ -33,6 +34,7 @@ export const PropertyGroupEditSheet = () => {
               name: group.name,
               code: group.code,
               description: group.description ?? '',
+              appliesTo: group.appliesTo,
             }}
             onCancel={close}
             contentType={group.contentType}
