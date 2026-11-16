@@ -10,7 +10,7 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
-import { textArray } from '~/modules/views/filterValues';
+import { textArray } from '@erxes/plugin-sdk/filter';
 import { requestedScopes } from './plugins.service';
 
 /** Plugin UI tokens: a member's session for one plugin's API. */

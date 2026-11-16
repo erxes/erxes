@@ -5,34 +5,37 @@ import {
   type ViewRecordType,
 } from '@erxes/core-contract';
 import {
+  callerUserId,
   companies,
   companyTags,
   customerCompanies,
   customers,
   customerTags,
-  caller,
   type Db,
   type FieldContentType,
   products,
 } from '@erxes/core-db';
-import { and, inArray, not, or, type SQL, sql } from 'drizzle-orm';
-import { valuesTable } from '~/modules/fields/fieldValues';
-import type { CustomSpec, FieldSpec } from './fieldSpec';
-import { filterFields, isCompanyList } from './filterFields';
 import {
   COMPARE,
+  compileColumn,
   compileDate,
+  compileGroup,
   escapeLike,
-  invalid,
+  type FilterContext,
+  invalidFilter,
   list,
+  lowerList,
   NEGATIVE,
   number,
   text,
-  textArray,
-} from './filterValues';
+} from '@erxes/plugin-sdk/filter';
+import { inArray, not, type SQL, sql } from 'drizzle-orm';
+import { valuesTable } from '~/modules/fields/fieldValues';
+import type { CustomSpec, FieldSpec } from './fieldSpec';
+import { filterFields, isCompanyList } from './filterFields';
 
 const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
-  invalid(`“${spec.label}” can't use “${op}”`);
+  invalidFilter(`“${spec.label}” can't use “${op}”`);
 
 /** Rules name records (a lead stage, a category); the column holds their ids. */
 const compileLookup = (x: SQL, rule: ConditionRule, lookup: (names: string[]) => SQL) => {
@@ -44,136 +47,13 @@ const compileLookup = (x: SQL, rule: ConditionRule, lookup: (names: string[]) =>
     : sql`(${x} is null or not (${x} = any(${ids})))`;
 };
 
-/** A `text[]` column: "is" and "contains" mean it has the value, "is any of" that it has one of them. */
-const compileArray = (x: SQL, rule: ConditionRule) => {
-  switch (rule.op) {
-    case 'eq':
-    case 'contains':
-      return sql`${x} @> ${textArray([text(rule.value)])}`;
-
-    case 'neq':
-    case 'not_contains':
-      return sql`not (${x} @> ${textArray([text(rule.value)])})`;
-
-    case 'in':
-      return sql`${x} && ${textArray(list(rule.value))}`;
-
-    case 'not_in':
-      return sql`not (${x} && ${textArray(list(rule.value))})`;
-
-    default:
-      return undefined;
-  }
-};
-
-/** A member id; "me" is the calling member. */
-const memberId = (value: unknown) => {
-  if (value !== 'me') return text(value);
-
-  const who = caller();
-
-  if (who.type !== 'user') throw invalid('“me” is a member; this caller is not one');
-
-  return who.userId;
-};
-
-const compileMember = (x: SQL, rule: ConditionRule) => {
-  switch (rule.op) {
-    case 'eq':
-      return sql`${x} = ${memberId(rule.value)}`;
-
-    case 'neq':
-      return sql`(${x} is null or ${x} <> ${memberId(rule.value)})`;
-
-    case 'in':
-      return inArray(sql`${x}`, list(rule.value).map(memberId));
-
-    case 'not_in':
-      return sql`(${x} is null or not ${inArray(sql`${x}`, list(rule.value).map(memberId))})`;
-
-    default:
-      return undefined;
-  }
-};
-
-const lowerList = (value: unknown) => textArray(list(value).map((item) => item.toLowerCase()));
-
-const compileText = (spec: FieldSpec, rule: ConditionRule) => {
-  const x = spec.expr;
-
-  // With a trigram index, "is" as a wildcard-free ILIKE uses it; otherwise lower() = lower().
-  const is = (value: string) =>
-    spec.trigram ? sql`${x} ilike ${escapeLike(value)}` : sql`lower(${x}) = lower(${value})`;
-
-  switch (rule.op) {
-    case 'eq':
-      return is(text(rule.value));
-
-    case 'neq':
-      return sql`(${x} is null or not ${is(text(rule.value))})`;
-
-    case 'contains':
-      return sql`${x} ilike ${`%${escapeLike(text(rule.value))}%`}`;
-
-    case 'not_contains':
-      return sql`(${x} is null or ${x} not ilike ${`%${escapeLike(text(rule.value))}%`})`;
-
-    case 'starts_with':
-      return sql`${x} ilike ${`${escapeLike(text(rule.value))}%`}`;
-
-    case 'in':
-      return sql`lower(${x}) = any(${lowerList(rule.value)})`;
-
-    case 'not_in':
-      return sql`(${x} is null or not (lower(${x}) = any(${lowerList(rule.value)})))`;
-
-    default:
-      return undefined;
-  }
-};
-
-const compileNumber = (x: SQL, rule: ConditionRule) => {
-  if (rule.op === 'neq') return sql`(${x} is null or ${x} <> ${number(rule.value)})`;
-
-  const compare = COMPARE[rule.op];
-
-  return compare ? sql`${x} ${sql.raw(compare)} ${number(rule.value)}` : undefined;
-};
+const LOOKUP_OPS: ConditionRule['op'][] = ['eq', 'neq', 'in', 'not_in'];
 
 /** A built-in column (or a linked company's). */
-const compileValue = (spec: FieldSpec, rule: ConditionRule): SQL => {
-  const x = spec.expr;
-  const { op } = rule;
-
-  if (op === 'exists')
-    return spec.array
-      ? sql`cardinality(${x}) > 0`
-      : spec.type === 'text'
-        ? sql`coalesce(${x}, '') <> ''`
-        : sql`${x} is not null`;
-
-  if (op === 'not_exists') return not(compileValue(spec, { ...rule, op: 'exists' }));
-
-  if (spec.lookup && ['eq', 'neq', 'in', 'not_in'].includes(op)) {
-    return compileLookup(x, rule, spec.lookup);
-  }
-
-  const compiled = spec.array
-    ? compileArray(x, rule)
-    : spec.type === 'number'
-      ? compileNumber(x, rule)
-      : spec.type === 'date'
-        ? compileDate(x, op, rule.value, Boolean(spec.dateOnly), spec.monthDay)
-        : spec.type === 'member'
-          ? compileMember(x, rule)
-          : spec.type === 'select' || spec.type === 'text'
-            ? compileText(spec, rule)
-            : undefined;
-
-  if (!compiled) throw cannotUse(spec, op);
-
-  return compiled;
-};
+const compileValue = (spec: FieldSpec, rule: ConditionRule, context: FilterContext) =>
+  spec.lookup && LOOKUP_OPS.includes(rule.op)
+    ? compileLookup(spec.expr, rule, spec.lookup)
+    : compileColumn(spec, spec.path, rule, context);
 
 /** A custom field's text values: a choice field "contains" an option; a text or list field contains text. */
 const customText = (x: SQL, spec: FieldSpec, rule: ConditionRule) => {
@@ -277,59 +157,42 @@ const compileTags = (recordType: ViewRecordType, rule: ConditionRule): SQL => {
       return not(any);
 
     default:
-      throw invalid(`Tags can't use “${rule.op}”`);
+      throw invalidFilter(`Tags can't use “${rule.op}”`);
   }
 };
-
-const compileField = (spec: FieldSpec, rule: ConditionRule) =>
-  spec.custom ? compileCustom(spec, spec.custom, rule) : compileValue(spec, rule);
 
 interface Compiling {
   specs: Map<string, FieldSpec>;
   recordType: ViewRecordType;
+  context: FilterContext;
 }
 
-const compileRule = (rule: ConditionRule, { specs, recordType }: Compiling): SQL => {
+const compileField = (spec: FieldSpec, rule: ConditionRule, context: FilterContext) =>
+  spec.custom ? compileCustom(spec, spec.custom, rule) : compileValue(spec, rule, context);
+
+const compileRule = (rule: ConditionRule, { specs, recordType, context }: Compiling): SQL => {
   const spec = specs.get(rule.path);
 
-  if (!spec) throw invalid(`Unknown field: ${rule.path}`);
+  if (!spec) throw invalidFilter(`Unknown field: ${rule.path}`);
 
   if (spec.type === 'tags') return compileTags(recordType, rule);
 
   if (spec.viaCompany) {
     const positive = NEGATIVE[rule.op];
-    const inner = compileField(spec, positive ? { ...rule, op: positive } : rule);
+    const inner = compileField(spec, positive ? { ...rule, op: positive } : rule, context);
     const linked = sql`exists (select 1 from ${customerCompanies} join ${companies} on ${companies.id} = ${customerCompanies.companyId} and ${companies.orgId} = ${customerCompanies.orgId} where ${customerCompanies.orgId} = ${customers.orgId} and ${customerCompanies.customerId} = ${customers.id} and ${inner})`;
 
     return positive ? not(linked) : linked;
   }
 
-  return compileField(spec, rule);
-};
-
-const compileGroup = (
-  group: ConditionGroup,
-  compiling: Compiling,
-  depth: number,
-): SQL | undefined => {
-  if (depth > 3) throw invalid('At most three levels of groups');
-
-  const parts = group.rules
-    .map((rule) =>
-      'match' in rule ? compileGroup(rule, compiling, depth + 1) : compileRule(rule, compiling),
-    )
-    .filter((part): part is SQL => Boolean(part));
-
-  if (!parts.length) return undefined;
-
-  return group.match === 'all' ? and(...parts) : or(...parts);
+  return compileField(spec, rule, context);
 };
 
 const parseFilter = (filter: string | ConditionGroup) => {
   try {
     return RecordFilter.parse(typeof filter === 'string' ? JSON.parse(filter) : filter);
   } catch {
-    throw invalid('The filter is not a valid condition group');
+    throw invalidFilter('The filter is not a valid condition group');
   }
 };
 
@@ -344,6 +207,7 @@ export const compileRecordFilter = async (
   const group = parseFilter(filter);
 
   const specs = new Map((await filterFields(client, recordType)).map((spec) => [spec.path, spec]));
+  const compiling = { specs, recordType, context: { me: callerUserId() } };
 
-  return compileGroup(group, { specs, recordType }, 1);
+  return compileGroup(group, (rule) => compileRule(rule, compiling));
 };

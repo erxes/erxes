@@ -78,6 +78,12 @@
  *     res.sendStatus(204);
  *   });
  *
+ * List filters (erxes-ui's `ListFilter`): `@erxes/plugin-sdk/filter` compiles the bar's condition
+ * group to SQL on a map of paths to columns, with core's operators and its 400 `INVALID_FILTER`:
+ *
+ *   const FIELDS = { 'subject.name': { type: 'text', expr: tickets.name } } satisfies FilterFields;
+ *   .where(compileFilter(FIELDS, input.filter, { me: member.userId }))   // filter: FilterParam
+ *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
  * also call `core_publish_event()`, `core_record_audit()` and
