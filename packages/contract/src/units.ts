@@ -1,14 +1,10 @@
-import { ORG_UNIT_KINDS } from '@erxes/core-db/enums';
 import { orgUnits } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate, LIST_MAX, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
-
-export const UnitKind = z.enum(ORG_UNIT_KINDS);
-
-export type UnitKind = z.infer<typeof UnitKind>;
+import { UnitKind } from './values';
 
 /** Members of one unit, or one member's units of a kind, set at once. */
 const MemberIds = z.array(Id).max(5000);

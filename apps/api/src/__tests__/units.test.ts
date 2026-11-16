@@ -10,6 +10,7 @@ describe('units', { timeout: 120_000 }, () => {
   it('keeps branches and departments as two trees that only their organisation sees', async () => {
     const owner = t.owner();
     const ub = await owner.units.create({ kind: 'branch', name: 'Ulaanbaatar', code: 'UB' });
+
     const zaisan = await owner.units.create({
       kind: 'branch',
       name: 'Zaisan',
@@ -18,6 +19,7 @@ describe('units', { timeout: 120_000 }, () => {
       memberIds: [t.ids.member, t.ids.owner],
       address: 'Zaisan street 1',
     });
+
     const finance = await owner.units.create({ kind: 'department', name: 'Finance' });
 
     expect(zaisan).toMatchObject({
@@ -31,27 +33,35 @@ describe('units', { timeout: 120_000 }, () => {
     // A department never sits under a branch, and codes are unique per kind.
     await expect(
       owner.units.create({ kind: 'department', name: 'Sales', parentId: ub.id }),
-    ).rejects.toMatchObject({ status: 400, code: 'INVALID_REFERENCE', data: { field: 'parentId' } });
+    ).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_REFERENCE',
+      data: { field: 'parentId' },
+    });
     await expect(
       owner.units.create({ kind: 'branch', name: 'Again', code: 'ub' }),
     ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'code' } });
-    expect(
-      (await owner.units.create({ kind: 'department', name: 'Ops', code: 'UB' })).code,
-    ).toBe('UB');
+    expect((await owner.units.create({ kind: 'department', name: 'Ops', code: 'UB' })).code).toBe(
+      'UB',
+    );
 
     // Members come from the team only.
     await expect(
       owner.units.update({ id: finance.id, memberIds: [t.ids.otherOwner] }),
-    ).rejects.toMatchObject({ status: 400, code: 'INVALID_REFERENCE', data: { field: 'memberIds' } });
+    ).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_REFERENCE',
+      data: { field: 'memberIds' },
+    });
 
     // Every member reads them, by kind or by who is in them; only managers change them.
     expect((await t.member().units.list({ kind: 'branch' })).data.map((u) => u.name)).toEqual([
       'Ulaanbaatar',
       'Zaisan',
     ]);
-    expect((await t.member().units.list({ userId: t.ids.member })).data.map((u) => u.id)).toEqual(
-      [zaisan.id],
-    );
+    expect((await t.member().units.list({ userId: t.ids.member })).data.map((u) => u.id)).toEqual([
+      zaisan.id,
+    ]);
     await expect(t.member().units.create({ kind: 'branch', name: 'X' })).rejects.toMatchObject({
       status: 403,
     });
@@ -85,6 +95,7 @@ describe('units', { timeout: 120_000 }, () => {
     });
 
     const events = await owner.events.list({ type: 'core.unit.*' });
+
     const about = (id: string) =>
       events.data.filter((event) => event.entityId === id).map((event) => event.type);
 

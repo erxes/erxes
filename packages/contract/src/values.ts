@@ -8,6 +8,7 @@ import {
   INVOICE_STATUSES,
   LIVE_MODES,
   NOTIFICATION_DELIVERIES,
+  ORG_UNIT_KINDS,
   PAYMENT_GATEWAY_KINDS,
   PRODUCT_KINDS,
 } from '@erxes/core-db/enums';
@@ -74,6 +75,11 @@ export const ContactState = z.enum(CUSTOMER_STATES);
 export const ProductKind = z.enum(PRODUCT_KINDS);
 
 export type ProductKind = z.infer<typeof ProductKind>;
+
+/** Where a member works (`branch`) or what they do (`department`). */
+export const UnitKind = z.enum(ORG_UNIT_KINDS);
+
+export type UnitKind = z.infer<typeof UnitKind>;
 
 // ─── Custom fields ──────────────────────────────────────────────────────────
 

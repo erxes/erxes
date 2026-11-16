@@ -63,6 +63,7 @@ export const paths = {
     teamMembers: '/settings/team-members',
     teamMember: (userId: string) => `/settings/team-members/${id(userId)}`,
     roles: '/settings/roles',
+    structure: '/settings/structure',
     fileUpload: '/settings/file-upload',
     plugins: '/settings/plugins',
     plan: '/settings/plan',

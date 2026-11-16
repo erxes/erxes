@@ -16,6 +16,7 @@ import { RecycleBinPage } from './recycle-bin/RecycleBinPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 import { SecuritySettingsPage } from './profile/SecuritySettingsPage';
 import { SettingsLayout } from './SettingsLayout';
+import { StructurePage } from './structure/StructurePage';
 import { TeamMemberSettingsRoutes } from './team-members/TeamMemberSettingsRoutes';
 
 /** Everything under `/settings/*` (mount as `<Route path="settings/*" element={<SettingsRoutes />} />`). */
@@ -30,6 +31,7 @@ export const SettingsRoutes = () => (
       <Route path="event-delivery" element={<EventDeliveryPage />} />
       <Route path="plugins" element={<PluginsSettingsPage />} />
       <Route path="roles" element={<RolesSettingsPage />} />
+      <Route path="structure" element={<StructurePage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
