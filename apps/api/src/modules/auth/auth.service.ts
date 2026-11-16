@@ -48,6 +48,7 @@ const findAccount = async (email: string, subdomain: string | undefined) => {
       .where(
         and(
           sql`lower(${users.email}) = ${email}`,
+          eq(users.canSignIn, true),
           subdomain ? sql`lower(${organizations.subdomain}) = ${subdomain}` : undefined,
         ),
       )
@@ -180,7 +181,7 @@ export const signIn = async (
 };
 
 export const recordSignedIn = (
-  user: { id: string; orgId: string; role: string; email: string },
+  user: { id: string; orgId: string; role: string; email: string | null },
   metadata?: Record<string, unknown>,
 ) =>
   withOrg(user.orgId, (tx) =>

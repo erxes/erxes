@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 /** A team member as the pickers show one. Core's `User` has these fields and more. */
 export interface Member {
   id: string;
-  email: string;
+  /** Empty for a member who doesn't sign in. */
+  email: string | null;
   fullName: string | null;
   username: string | null;
   avatarUrl: string | null;
@@ -26,7 +27,7 @@ export interface MemberQueries {
 
 /** How a member reads: the display name, else the username, else the email. */
 export const memberName = (member: Pick<Member, 'fullName' | 'username' | 'email'>) =>
-  member.fullName || member.username || member.email;
+  member.fullName || member.username || member.email || '';
 
 /** Members by id, any status. The active team answers most; only the rest are fetched. */
 export const useMembersById = (ids: (string | null | undefined)[], members: MemberQueries) => {

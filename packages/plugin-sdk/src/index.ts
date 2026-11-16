@@ -29,6 +29,12 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Team members who don't sign in (scope `users:write`): people a plugin keeps on the team for its own app
+ * (HR's employees). They take no seat and never sign in to erxes; a plugin adds them and changes
+ * their profile, never a member who signs in.
+ *
+ *   const worker = await core.forOrg(orgId).users.add({ fullName, employeeId, phone });
+ *
  * Branches and departments (scopes `units:read`, `units:write`; subscribe to `core.unit.*`): core's,
  * shared by plugins. Keep a read-only copy for your own visibility queries and refresh it whenever
  * a `core.unit.*` event arrives (the event names the unit in `entityId`); bring your old units in

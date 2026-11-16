@@ -200,6 +200,7 @@ export const PLUGIN_SCOPES = [
   'units:read',
   'units:write',
   'users:read',
+  'users:write',
   'views:read',
 ] as const;
 

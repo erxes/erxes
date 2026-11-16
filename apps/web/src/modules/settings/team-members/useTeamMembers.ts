@@ -135,6 +135,40 @@ export const useTeamMembersInvite = () => {
   );
 };
 
+/** Adds someone to the team who doesn't sign in. */
+export const useTeamMemberAdd = () => {
+  const client = useQueryClient();
+
+  return useMutation(
+    orpc.users.add.mutationOptions({
+      onSuccess: () => client.invalidateQueries({ queryKey: orpc.users.key() }),
+    }),
+  );
+};
+
+/** Lets a member sign in (they get an invitation) or keeps them on the team without it. */
+export const useTeamMemberSignIn = () => {
+  const store = useStoreMember();
+  const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+
+  return useMutation({
+    mutationFn: ({ id, allow }: { id: string; allow: boolean }) =>
+      allow ? orpc.users.allowSignIn.call({ id }) : orpc.users.stopSignIn.call({ id }),
+    onSuccess: (user) => {
+      store(user);
+      toast({
+        variant: 'success',
+        title: user.canSignIn
+          ? t('sign-in-allowed', 'Invited: they can sign in once they accept')
+          : t('sign-in-stopped', 'They stay on the team without sign-in'),
+      });
+    },
+    onError: (error) =>
+      toast({ variant: 'destructive', title: t('error'), description: messageOf(error) }),
+  });
+};
+
 /** Sets a member's password. */
 export const useTeamMemberSetPassword = () => {
   const store = useStoreMember();
@@ -153,7 +187,7 @@ export const useTeamMemberSetPassword = () => {
 /** What the signed-in member may do to `user` (the API enforces the same rules). */
 export const permissionsFor = (
   me: Pick<User, 'id' | 'role'>,
-  user: Pick<User, 'id' | 'role'>,
+  user: Pick<User, 'id' | 'role' | 'canSignIn'>,
   can: (action: string) => boolean,
 ) => {
   const self = user.id === me.id;
@@ -165,14 +199,16 @@ export const permissionsFor = (
     canEditEmail: self || (manager && ownerRights),
     canChangeRole: manager && !self && ownerRights,
     canToggle: manager && !self && ownerRights,
-    canSetPassword: manager && !self && ownerRights,
+    canSetPassword: manager && !self && ownerRights && user.canSignIn,
+    /** Owners always sign in. */
+    canChangeSignIn: manager && !self && user.role !== 'owner',
     /** Only owners grant owner rights (the API also refuses roles wider than yours). */
     canGrantOwner: me.role === 'owner',
   };
 };
 
 /** `permissionsFor` the signed-in member. */
-export const useMemberPermissions = (user: Pick<User, 'id' | 'role'> | undefined) => {
+export const useMemberPermissions = (user: Pick<User, 'id' | 'role' | 'canSignIn'> | undefined) => {
   const { user: me } = useSession();
   const can = useCan();
 

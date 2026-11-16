@@ -90,11 +90,14 @@ const NameCell = ({ user }: { user: User }) => {
   );
 };
 
-/** Invitation status: verified once the member can sign in; deactivated members say so. */
+/** Invitation status: verified once the member can sign in; deactivated members and those who
+ * don't sign in say so. */
 const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
   <RecordTableInlineCell>
     {user.status === 'disabled' ? (
       <Badge variant="secondary">{t('deactivated', 'Deactivated')}</Badge>
+    ) : !user.canSignIn ? (
+      <Badge variant="muted">{t('no-sign-in', 'No sign-in')}</Badge>
     ) : (
       <Badge variant={user.status === 'invited' ? 'destructive' : 'success'}>
         {user.status === 'invited' ? t('not-verified') : t('verified', 'Verified')}

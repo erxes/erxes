@@ -54,10 +54,9 @@ describe('contacts and members for plugins', () => {
 
     const team = await hr.users.list({ isActive: true });
 
-    expect(team.data.map((user) => user.email).toSorted((a, b) => a.localeCompare(b))).toEqual([
-      'member@acme.mn',
-      'owner@acme.mn',
-    ]);
+    expect(
+      team.data.map((user) => user.email ?? '').toSorted((a, b) => a.localeCompare(b)),
+    ).toEqual(['member@acme.mn', 'owner@acme.mn']);
     expect(await hr.users.get({ id: t.ids.member })).toMatchObject({ email: 'member@acme.mn' });
   });
 

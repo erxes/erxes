@@ -75,7 +75,10 @@ const MemberList = ({
   return (
     <EntityPicker
       items={team.data?.data ?? []}
-      itemKey={(member) => ({ id: member.id, label: `${memberName(member)} ${member.email}` })}
+      itemKey={(member) => ({
+        id: member.id,
+        label: `${memberName(member)} ${member.email ?? ''}`,
+      })}
       renderItem={(member) => (
         <MemberInline memberId={member.id} members={members} placeholder="Unnamed user" />
       )}

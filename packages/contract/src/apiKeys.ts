@@ -17,7 +17,7 @@ export const ApiKey = createSelectSchema(apiKeys, {
   .extend({
     /** The member the key acts as. */
     memberName: z.string().nullable(),
-    memberEmail: z.string(),
+    memberEmail: z.string().nullable(),
   });
 
 export type ApiKey = z.infer<typeof ApiKey>;

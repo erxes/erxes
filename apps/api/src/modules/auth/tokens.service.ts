@@ -136,9 +136,11 @@ export const resendInvitation = async (tx: Db, userId: string) => {
 
   if (!user) throw fail('NOT_FOUND', 'Team member not found');
 
-  if (user.status !== 'invited') throw fail('NOT_INVITED', 'This member has already joined');
+  if (user.status !== 'invited' || !user.email) {
+    throw fail('NOT_INVITED', 'This member has already joined');
+  }
 
-  await sendInvitations(tx, [user]);
+  await sendInvitations(tx, [{ id: user.id, email: user.email }]);
   await recordAudit(tx, {
     action: 'user.invitation_sent',
     targetType: 'user',
@@ -169,7 +171,7 @@ export const invitationInfo = async (token: string) => {
           .limit(1)
       : [];
 
-    if (!user || !org) throw invalidLink();
+    if (!user?.email || !org) throw invalidLink();
 
     return {
       organization: org.name,

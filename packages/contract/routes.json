@@ -2276,6 +2276,36 @@
         }
       }
     },
+    "add": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/users/without-sign-in"
+        }
+      }
+    },
+    "allowSignIn": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/users/{id}/sign-in"
+        }
+      }
+    },
+    "stopSignIn": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/users/{id}/sign-in"
+        }
+      }
+    },
     "update": {
       "~orpc": {
         "errorMap": {},

@@ -53,7 +53,7 @@ export const valuesOf = (user: User): ProfileValues => ({
   lastName: user.lastName ?? '',
   shortName: user.shortName ?? '',
   username: user.username ?? '',
-  email: user.email,
+  email: user.email ?? '',
   phone: user.phone ?? '',
   birthDate: user.birthDate ?? '',
   workStartedDate: user.workStartedDate ?? '',

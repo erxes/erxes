@@ -31,6 +31,7 @@ const SCOPE_LABELS: Record<string, string> = {
   'units:read': 'Read branches and departments',
   'units:write': 'Change branches and departments, and who is in them',
   'users:read': 'Read team members',
+  'users:write': "Add team members who don't sign in, and change them",
   'views:read': "Use the team's shared views as segments",
 };
 

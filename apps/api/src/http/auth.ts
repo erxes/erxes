@@ -85,6 +85,7 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
         id: users.id,
         role: users.role,
         status: users.status,
+        canSignIn: users.canSignIn,
         sessionVersion: users.sessionVersion,
         permissions: roles.permissions,
       })
@@ -94,8 +95,9 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
       .limit(1),
   );
 
-  // Disabled, or the session predates a password change, reset or sign-out everywhere.
-  if (user?.status !== 'active') return null;
+  // Disabled, kept on the team without sign-in, or the session predates a password change,
+  // reset or sign-out everywhere.
+  if (user?.status !== 'active' || !user.canSignIn) return null;
 
   if (sessionVersion !== undefined && user.sessionVersion !== sessionVersion) return null;
 

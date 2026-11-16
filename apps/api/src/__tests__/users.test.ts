@@ -5,7 +5,7 @@ import { createOrganization } from '~/modules/organizations/organizations.servic
 import { adminDb, currentToken, useTestDatabase } from './db';
 import { type CoreClient, useTestServer } from './support';
 
-const emails = (page: { data: { email: string }[] }) => page.data.map((user) => user.email);
+const emails = (page: { data: { email: string | null }[] }) => page.data.map((user) => user.email);
 
 /** Makes an invited member active, as accepting the invitation would. */
 const activate = (id: string) =>

@@ -79,6 +79,10 @@ export const ERRORS = {
   SETUP_DISABLED: { status: 403 },
   SETUP_DONE: { status: 409 },
   LAST_OWNER: { status: 409 },
+  /** Owners always sign in. */
+  OWNER_SIGNS_IN: { status: 409 },
+  /** Signing in needs an email to invite them at. */
+  EMAIL_REQUIRED: { status: 400 },
 
   // Customer sign-in.
   INVALID_CODE: { status: 400 },

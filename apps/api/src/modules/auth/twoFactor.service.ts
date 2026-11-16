@@ -58,7 +58,7 @@ export const setupTwoFactor = async (client: Db) => {
     .set({ totpPendingSealed: seal(secret), updatedAt: sql`now()` })
     .where(eq(users.id, member.id));
 
-  return { secret, uri: otpauthUri(secret, member.email) };
+  return { secret, uri: otpauthUri(secret, member.email ?? member.id) };
 };
 
 export const enableTwoFactor = async (client: Db, code: string) => {

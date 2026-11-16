@@ -1,8 +1,14 @@
 import type { User } from '@erxes/core-contract';
-import { IconLock, IconToggleLeft, IconToggleRight } from '@tabler/icons-react';
+import {
+  IconLock,
+  IconLogin,
+  IconLogout,
+  IconToggleLeft,
+  IconToggleRight,
+} from '@tabler/icons-react';
 import { Command, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useMemberPermissions, useTeamMemberDisable } from '../useTeamMembers';
+import { useMemberPermissions, useTeamMemberDisable, useTeamMemberSignIn } from '../useTeamMembers';
 
 /**
  * A member's actions: reset password and deactivate / activate.
@@ -18,6 +24,7 @@ export const TeamMemberActionItems = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const toggle = useTeamMemberDisable();
+  const signIn = useTeamMemberSignIn();
   const permissions = useMemberPermissions(user);
   const isActive = user.status !== 'disabled';
 
@@ -35,6 +42,17 @@ export const TeamMemberActionItems = ({
         {permissions?.canSetPassword && (
           <Command.Item value="reset-password" onSelect={select(onResetPassword)}>
             <IconLock /> {t('reset-password')}
+          </Command.Item>
+        )}
+        {permissions?.canChangeSignIn && (
+          <Command.Item
+            value="sign-in"
+            onSelect={select(() => signIn.mutate({ id: user.id, allow: !user.canSignIn }))}
+          >
+            {user.canSignIn ? <IconLogout /> : <IconLogin />}
+            {user.canSignIn
+              ? t('stop-sign-in', 'Keep on the team without sign-in')
+              : t('allow-sign-in', 'Invite to sign in')}
           </Command.Item>
         )}
         {permissions?.canToggle && (

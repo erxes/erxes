@@ -2,11 +2,14 @@ import type { User } from '@erxes/core-contract';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { Badge, Input, Popover, RecordTableInlineCell } from 'erxes-ui';
 import { type ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 
-/** Not verified until the member can sign in. */
-const EmailStatus = ({ status }: { status: User['status'] }) => {
-  if (status === 'invited') {
+/** Not verified until the member can sign in; nothing to verify for one who doesn't. */
+const EmailStatus = ({ user }: { user: User }) => {
+  if (!user.canSignIn) return null;
+
+  if (user.status === 'invited') {
     return <IconCircleDashed size={16} className="text-muted-foreground" />;
   }
 
@@ -14,28 +17,34 @@ const EmailStatus = ({ status }: { status: User['status'] }) => {
 };
 
 export const TeamMemberEmailField = ({ user }: { user: User }) => {
-  const { email, id, status } = user;
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { id } = user;
+  const email = user.email ?? '';
   const [draft, setDraft] = useState(email);
   const [open, setOpen] = useState(false);
   const edit = useTeamMemberEdit();
   const permissions = useMemberPermissions(user);
 
-  const badge = (
+  // A member who doesn't sign in may have no email at all.
+  const shown = email ? (
     <Badge variant="secondary" className="flex">
-      <EmailStatus status={status} />
+      <EmailStatus user={user} />
       {email}
     </Badge>
+  ) : (
+    <span className="text-muted-foreground">{t('no-email', 'No email')}</span>
   );
 
   if (!permissions?.canEditEmail) {
-    return <RecordTableInlineCell>{badge}</RecordTableInlineCell>;
+    return <RecordTableInlineCell>{shown}</RecordTableInlineCell>;
   }
 
   const onSave = () => {
     const next = draft.trim();
 
-    if (next && next !== email) {
-      edit.mutate({ id, email: next }, { onError: () => setDraft(email) });
+    // Whoever signs in keeps an email; a member who doesn't may clear theirs.
+    if ((next || !user.canSignIn) && next !== email) {
+      edit.mutate({ id, email: next || null }, { onError: () => setDraft(email) });
     } else {
       setDraft(email);
     }
@@ -51,7 +60,7 @@ export const TeamMemberEmailField = ({ user }: { user: User }) => {
         else onSave();
       }}
     >
-      <RecordTableInlineCell.Trigger>{badge}</RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Trigger>{shown}</RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Input
           key={id}

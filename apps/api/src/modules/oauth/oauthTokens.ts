@@ -41,7 +41,7 @@ const memberOf = async (tx: Db, issued: Issued) => {
     .where(eq(users.id, issued.userId))
     .limit(1);
 
-  return row?.user.status === 'active' ? row : null;
+  return row?.user.status === 'active' && row.user.canSignIn ? row : null;
 };
 
 type Member = NonNullable<Awaited<ReturnType<typeof memberOf>>>;

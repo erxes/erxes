@@ -28,7 +28,7 @@ export type UserLinks = z.infer<typeof UserLinks>;
 /** A team member. Never carries credentials. */
 export const User = createSelectSchema(users, {
   id: Id,
-  email: z.email(),
+  email: z.email().nullable(),
   role: RoleKey,
   links: UserLinks,
   onboardedAt: isoDate,
@@ -37,7 +37,10 @@ export const User = createSelectSchema(users, {
   updatedAt: isoDate,
 }).pick({
   id: true,
+  /** How they sign in; may be empty for a member who doesn't. */
   email: true,
+  /** Signs in to erxes. Off for people on the team without an account (they use a plugin's own app, or nothing): no seat, no sign-in. */
+  canSignIn: true,
   username: true,
   /** Display name: first, middle and last name, or what was given at invite. */
   fullName: true,
@@ -83,6 +86,9 @@ export const DateOnly = z
 
 const name = (value: z.ZodString) => value.trim().max(100);
 
+/** Where a member signs in and gets email. */
+const Email = z.string().trim().check(z.email()).max(254);
+
 /**
  * What a member's update may set. The names are never cleared; the profile
  * details (old erxes `users.details`) are, with `null`.
@@ -107,7 +113,7 @@ const UserFields = createUpdateSchema(users, {
   description: (value) => value.trim().max(DESCRIPTION_MAX),
   /** Sets the given links; an empty string or `null` removes one. Others stay. */
   links: z.partialRecord(UserLinkName, z.string().trim().max(500).nullable()).optional(),
-  email: (email) => email.trim().check(z.email()).max(254),
+  email: () => Email.nullish(),
   avatarUrl: () => ImageAddress,
   role: () => RoleKey,
 }).pick({
@@ -129,12 +135,28 @@ const UserFields = createUpdateSchema(users, {
 });
 
 const InviteEntry = z.object({
-  email: z.string().trim().check(z.email()).max(254),
+  email: Email,
   role: InviteRole.default('member'),
   /** Given: the member can sign in at once (active). Otherwise they stay invited. */
   password: NewPassword.optional(),
   ...UserFields.pick({ fullName: true, username: true }).shape,
 });
+
+/** Someone on the team who doesn't sign in: their name, and optionally how to reach them. */
+const NewMember = UserFields.pick({
+  fullName: true,
+  firstName: true,
+  middleName: true,
+  lastName: true,
+  shortName: true,
+  employeeId: true,
+  phone: true,
+  email: true,
+  birthDate: true,
+  workStartedDate: true,
+  description: true,
+  role: true,
+}).required({ fullName: true });
 
 /** Something to change: at least one field besides `id`. */
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
@@ -150,11 +172,13 @@ const {
   NOT_INVITED,
   OWNER_ONLY,
   OWNER_ONLY_PERMISSION,
+  OWNER_SIGNS_IN,
   OWN_ACCOUNT,
   OWN_ROLE,
   ROLE_IN_USE,
   ROLE_NOT_FOUND,
   UNKNOWN_PERMISSION,
+  EMAIL_REQUIRED,
 } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
@@ -170,11 +194,13 @@ const base = oc.errors({
   NOT_INVITED,
   OWNER_ONLY,
   OWNER_ONLY_PERMISSION,
+  OWNER_SIGNS_IN,
   OWN_ACCOUNT,
   OWN_ROLE,
   ROLE_IN_USE,
   ROLE_NOT_FOUND,
   UNKNOWN_PERMISSION,
+  EMAIL_REQUIRED,
 });
 
 export const usersContract = {
@@ -191,6 +217,8 @@ export const usersContract = {
         /** `true`: invited and active members; `false`: disabled ones. */
         isActive: QueryBoolean.optional(),
         role: RoleKey.optional(),
+        /** `false`: only the members who don't sign in. */
+        canSignIn: QueryBoolean.optional(),
         ids: IdList.optional(),
       }),
     )
@@ -225,12 +253,40 @@ export const usersContract = {
     })
     .input(z.object({ entries: z.array(InviteEntry).min(1).max(50) }))
     .output(z.object({ data: z.array(User).max(50) })),
+  add: base
+    .route({
+      method: 'POST',
+      path: '/users/without-sign-in',
+      successStatus: 201,
+      summary:
+        'Add someone to the team who doesn’t sign in (no seat): a worker who uses a plugin’s own app, such as HR’s. Members with team.invite; plugins with users:write. 409 TAKEN when the email is a member’s',
+    })
+    .input(NewMember)
+    .output(User),
+  allowSignIn: base
+    .route({
+      method: 'POST',
+      path: '/users/{id}/sign-in',
+      summary:
+        'Let a member who doesn’t sign in join: they are invited at their email (or the one given). 400 EMAIL_REQUIRED without one',
+    })
+    .input(z.object({ id: Id, email: Email.optional() }))
+    .output(User),
+  stopSignIn: base
+    .route({
+      method: 'DELETE',
+      path: '/users/{id}/sign-in',
+      summary:
+        'Keep a member on the team without sign-in: their sessions, password and API keys stop working, and they no longer take a seat. 409 OWNER_SIGNS_IN for an owner',
+    })
+    .input(z.object({ id: Id }))
+    .output(User),
   update: base
     .route({
       method: 'PATCH',
       path: '/users/{id}',
       summary:
-        'Update a team member (self: own profile; owners/admins: anyone’s profile and role; only owners change an owner’s email)',
+        'Update a team member (self: own profile; owners/admins: anyone’s profile and role; only owners change an owner’s email). Plugins with users:write change the profile of members who don’t sign in',
     })
     .input(UserFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(User),
@@ -244,7 +300,11 @@ export const usersContract = {
     .input(z.object({ id: Id, password: NewPassword }))
     .output(User),
   disable: base
-    .route({ method: 'POST', path: '/users/{id}/disable' })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/disable',
+      summary: 'Plugins with users:write disable and enable members who don’t sign in',
+    })
     .input(z.object({ id: Id }))
     .output(User),
   enable: base

@@ -29,6 +29,7 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
         and(
           sql`lower(${users.email}) = ${email}`,
           eq(users.status, 'active'),
+          eq(users.canSignIn, true),
           input.subdomain
             ? sql`lower(${organizations.subdomain}) = ${input.subdomain.toLowerCase()}`
             : undefined,

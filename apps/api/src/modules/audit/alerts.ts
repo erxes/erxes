@@ -61,11 +61,13 @@ const emailAlert = async (client: Db, input: AlertInput, recipients: string[]) =
   await sendEmail(
     client,
     org.id,
-    people.map((person) => ({
-      to: person.email,
-      template: 'security_alert',
-      data: { organization: org.name, title: input.title, body: input.body, link },
-    })),
+    people
+      .flatMap(({ email }) => (email ? [email] : []))
+      .map((email) => ({
+        to: email,
+        template: 'security_alert',
+        data: { organization: org.name, title: input.title, body: input.body, link },
+      })),
   );
 };
 

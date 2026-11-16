@@ -12,6 +12,7 @@ import { notify } from '~/modules/notifications/notifications.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { profileChanges, type UserChanges } from './userProfile';
 import { assertTeamManager, findUser, lockTeam, otherActiveOwners, type UserRow } from './userRows';
+import { asPlugin } from './withoutSignIn.service';
 
 type Status = UserRow['status'];
 
@@ -22,10 +23,15 @@ export const listUsers = async (
     status?: Status;
     isActive?: boolean;
     role?: string;
+    canSignIn?: boolean;
     ids?: string[];
   },
 ) => {
   const filters: (SQL | undefined)[] = [];
+
+  if (query.canSignIn !== undefined) {
+    filters.push(eq(users.canSignIn, query.canSignIn));
+  }
 
   if (query.status) {
     filters.push(eq(users.status, query.status));
@@ -78,7 +84,7 @@ export const getUser = (client: Db, id: string) => findUser(client, id);
 const checkUserChange = async (
   tx: Db,
   target: UserRow,
-  change: { email?: string; role?: string },
+  change: { email?: string | null; role?: string },
 ) => {
   const me = caller('user');
   const self = target.id === me.userId;
@@ -144,36 +150,55 @@ const announceUserChange = async (tx: Db, before: UserRow, after: UserRow) => {
     action: changes.role ? 'user.role_changed' : 'user.updated',
     targetType: 'user',
     targetId: after.id,
-    targetLabel: after.email,
+    targetLabel: after.email ?? after.fullName ?? after.id,
     changes,
   });
+};
+
+/** Saves profile, email and role changes; whoever signs in keeps an email. */
+const saveChanges = async (tx: Db, target: UserRow, input: UserChanges) => {
+  const email = input.email === null ? null : input.email?.trim().toLowerCase();
+
+  if (email === null && target.canSignIn) {
+    throw fail('EMAIL_REQUIRED', 'A member who signs in keeps an email');
+  }
+
+  const row = oneRow(
+    await tx
+      .update(users)
+      .set({
+        ...profileChanges(input, target),
+        email,
+        role: input.role,
+        updatedAt: sql`now()`,
+      })
+      .where(eq(users.id, target.id))
+      .returning(),
+  );
+
+  await announceUserChange(tx, target, row);
+
+  return row;
 };
 
 export const updateUser = async (id: string, input: UserChanges) => {
   const tx = db();
 
+  if (caller().type === 'plugin') {
+    if (input.role) throw fail('NOT_ALLOWED', 'Plugins never change a role');
+
+    return asPlugin(id, (target) => saveChanges(tx, target, input));
+  }
+
   return lockTeam(tx, async () => {
     const target = await findUser(tx, id, true);
-    const email = input.email?.trim().toLowerCase();
 
-    await checkUserChange(tx, target, { email, role: input.role });
+    await checkUserChange(tx, target, {
+      email: input.email?.trim().toLowerCase(),
+      role: input.role,
+    });
 
-    const row = oneRow(
-      await tx
-        .update(users)
-        .set({
-          ...profileChanges(input, target),
-          email,
-          role: input.role,
-          updatedAt: sql`now()`,
-        })
-        .where(eq(users.id, id))
-        .returning(),
-    );
-
-    await announceUserChange(tx, target, row);
-
-    return row;
+    return saveChanges(tx, target, input);
   });
 };
 
@@ -181,7 +206,7 @@ export const updateUser = async (id: string, input: UserChanges) => {
  * Under the team lock: a manager acting on another member, where only owners
  * act on owners. `fn` gets the locked target row.
  */
-const manageMember = <T>(
+export const manageMember = <T>(
   tx: Db,
   id: string,
   refusals: { self: string; owner: string },
@@ -217,6 +242,10 @@ export const setUserPassword = async (id: string, password: string) => {
       owner: 'Only an owner can set an owner’s password',
     },
     async (target) => {
+      if (!target.canSignIn) {
+        throw fail('NOT_ALLOWED', 'They don’t sign in: let them sign in first');
+      }
+
       const row = oneRow(
         await tx
           .update(users)
@@ -245,7 +274,7 @@ export const setUserPassword = async (id: string, password: string) => {
         action: 'user.password_set',
         targetType: 'user',
         targetId: id,
-        targetLabel: row.email,
+        targetLabel: row.email ?? row.id,
       });
 
       return row;
@@ -253,8 +282,45 @@ export const setUserPassword = async (id: string, password: string) => {
   );
 };
 
+/** Disables or enables `target`: either way their sessions end. */
+const applyDisabled = async (tx: Db, target: UserRow, disabled: boolean) => {
+  if (disabled && target.role === 'owner' && (await otherActiveOwners(tx, target.id)) === 0) {
+    throw fail('LAST_OWNER', 'The organisation must keep an active owner');
+  }
+
+  // Enabling returns a member to where they were: someone invited who never
+  // set a password is still invited; everyone else is active again.
+  const status: Status = disabled
+    ? 'disabled'
+    : target.canSignIn && target.invitedBy && !target.passwordHash
+      ? 'invited'
+      : 'active';
+
+  const row = oneRow(
+    await tx
+      .update(users)
+      // Either way old sessions end: enabling doesn't bring back tokens issued before.
+      .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
+      .where(eq(users.id, target.id))
+      .returning(),
+  );
+
+  await recordAudit(tx, {
+    action: disabled ? 'user.disabled' : 'user.enabled',
+    targetType: 'user',
+    targetId: target.id,
+    targetLabel: row.email ?? row.fullName ?? row.id,
+    changes: { status: [target.status, status] },
+  });
+
+  return row;
+};
+
 export const setUserDisabled = async (id: string, disabled: boolean) => {
   const tx = db();
+
+  if (caller().type === 'plugin')
+    return asPlugin(id, (target) => applyDisabled(tx, target, disabled));
 
   return manageMember(
     tx,
@@ -263,37 +329,6 @@ export const setUserDisabled = async (id: string, disabled: boolean) => {
       self: 'You cannot disable or enable your own account',
       owner: 'Only an owner can disable or enable an owner',
     },
-    async (target) => {
-      if (disabled && target.role === 'owner' && (await otherActiveOwners(tx, target.id)) === 0) {
-        throw fail('LAST_OWNER', 'The organisation must keep an active owner');
-      }
-
-      // Enabling returns a member to where they were: someone invited who never
-      // set a password is still invited; everyone else is active again.
-      const status: Status = disabled
-        ? 'disabled'
-        : target.invitedBy && !target.passwordHash
-          ? 'invited'
-          : 'active';
-
-      const row = oneRow(
-        await tx
-          .update(users)
-          // Either way old sessions end: enabling doesn't bring back tokens issued before.
-          .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
-          .where(eq(users.id, id))
-          .returning(),
-      );
-
-      await recordAudit(tx, {
-        action: disabled ? 'user.disabled' : 'user.enabled',
-        targetType: 'user',
-        targetId: id,
-        targetLabel: row.email,
-        changes: { status: [target.status, status] },
-      });
-
-      return row;
-    },
+    (target) => applyDisabled(tx, target, disabled),
   );
 };
