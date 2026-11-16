@@ -301,14 +301,15 @@ jobs:
           source: .
           push: true
           # A target's first `tags=` replaces docker-bake.hcl's tag, the others add one.
+          # Docker Hub's names are core-api/core-web: erxes/erxes-api is erxes 3.x's.
           set: |
             api.cache-from=type=gha,scope=api
             web.cache-from=type=gha,scope=web
             api.tags=${{ steps.names.outputs.registry }}/erxes-api:${{ steps.names.outputs.sha }}
             api.tags=${{ steps.names.outputs.registry }}/erxes-api:postgre
-            api.tags=${{ steps.names.outputs.hub }}/erxes-api:${{ steps.names.outputs.sha }}
-            api.tags=${{ steps.names.outputs.hub }}/erxes-api:postgre
+            api.tags=${{ steps.names.outputs.hub }}/core-api:${{ steps.names.outputs.sha }}
+            api.tags=${{ steps.names.outputs.hub }}/core-api:postgre
             web.tags=${{ steps.names.outputs.registry }}/erxes-web:${{ steps.names.outputs.sha }}
             web.tags=${{ steps.names.outputs.registry }}/erxes-web:postgre
-            web.tags=${{ steps.names.outputs.hub }}/erxes-web:${{ steps.names.outputs.sha }}
-            web.tags=${{ steps.names.outputs.hub }}/erxes-web:postgre
+            web.tags=${{ steps.names.outputs.hub }}/core-web:${{ steps.names.outputs.sha }}
+            web.tags=${{ steps.names.outputs.hub }}/core-web:postgre
