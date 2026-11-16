@@ -154,9 +154,9 @@ export const pipelineMutations = {
   async salesPipelinesArchive(
     _root,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models }: IContext,
   ) {
-    await models.Pipelines.archivePipeline(_id, user._id);
+    await models.Pipelines.archivePipeline(_id);
 
     const pipeline = await models.Pipelines.getPipeline(_id);
 

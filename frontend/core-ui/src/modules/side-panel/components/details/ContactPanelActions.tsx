@@ -21,7 +21,7 @@ const ACTIONS_WIDTH = 900;
 const SEND_EMAIL_LABEL_WIDTH = 480;
 
 /** Reads a stored website as a link, ignoring values that are not http(s). */
-const getWebsiteUrl = (website?: string) => {
+export const getWebsiteUrl = (website?: string) => {
   if (!website) return undefined;
   try {
     const candidate = new URL(
