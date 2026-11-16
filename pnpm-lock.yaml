@@ -1190,15 +1190,6 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3
 
-  backend/services/dataextensions:
-    dependencies:
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../erxes-api-shared
-      graphql-tag:
-        specifier: ^2.12.6
-        version: 2.12.6(graphql@16.10.0)
-
   backend/plugins/frontline_api:
     dependencies:
       '@discordjs/rest':
@@ -1495,6 +1486,12 @@ importers:
         specifier: ^1.13.7
         version: 1.13.7
 
+  backend/plugins/storage_api:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+
   backend/plugins/tourism_api:
     dependencies:
       erxes-api-shared:
@@ -1563,6 +1560,15 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.23.8
+
+  backend/services/dataextensions:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
 
   backend/services/logs:
     dependencies:
@@ -5877,7 +5883,6 @@ packages:
   '@opentelemetry/sdk-trace-base@2.7.1':
     resolution: {integrity: sha512-NAYIlsF8MPUsKqJMiDQJTMPOmlbawC1Iz/omMLygZ1C9am8fTKYjTaI+OZM+WTY3t3Glo0wnOg/6/pac6RGPPw==}
     engines: {node: ^18.19.0 || >=20.6.0}
-    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
