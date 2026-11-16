@@ -15,8 +15,8 @@ const pkg = resolve(import.meta.dirname, '..');
 const repo = resolve(pkg, '../..');
 const out = join(pkg, 'dist/templates');
 
-/** Core files every plugin gets unchanged, at the same path. */
-const CORE_FILES = ['tools/check-rls.sql', 'tools/test/no-skips.ts'];
+/** Core files and folders every plugin gets unchanged, at the same path. */
+const CORE_FILES = ['tools/check-rls.sql', 'tools/test/no-skips.ts', '.agents/skills/no-comments'];
 
 /** The section every erxes repo's AGENTS.md has, unchanged. */
 const QUALITY = /<!-- quality:start -->[\s\S]*?<!-- quality:end -->/;
@@ -150,7 +150,8 @@ export const writeTemplates = async () => {
   await rm(out, { recursive: true, force: true });
   await cp(join(pkg, 'templates'), out, { recursive: true });
 
-  for (const file of CORE_FILES) await cp(join(repo, file), join(out, 'base', file));
+  for (const file of CORE_FILES)
+    await cp(join(repo, file), join(out, 'base', file), { recursive: true });
 
   await writeFile(join(out, 'base', DOCTOR_CONFIG), await doctorConfig());
 
