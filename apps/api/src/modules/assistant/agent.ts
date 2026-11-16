@@ -14,6 +14,7 @@ import {
   anthropicThinking,
   MIN_ANTHROPIC_THINKING_BUDGET,
   outputTokens,
+  type ThinkingLevel,
   thinkingProviderOptions,
 } from './modelThinking';
 import { createModel, DEFAULT_MODELS, describeProviderError } from './providers';
@@ -64,6 +65,14 @@ export interface Run {
 const temperatureFor = (provider: AssistantProvider) =>
   provider === 'kimi' ? {} : { temperature: TEMPERATURE };
 
+const turnProviderOptions = (provider: AssistantProvider, model: string, level: ThinkingLevel) => {
+  const thinking = thinkingProviderOptions(provider, model, level);
+
+  return provider === 'openai'
+    ? { ...thinking, openai: { ...thinking?.openai, store: false } }
+    : thinking;
+};
+
 const stoppedReply = (message: UIMessage): UIMessage => ({
   ...message,
   parts: message.parts.map((part) =>
@@ -92,7 +101,7 @@ export const streamTurn = async (run: Run, abortSignal: AbortSignal) => {
     stopWhen: stepCountIs(MAX_STEPS),
     abortSignal,
     maxOutputTokens: outputTokens(provider, model, level, MAX_OUTPUT_TOKENS),
-    providerOptions: thinkingProviderOptions(provider, model, level),
+    providerOptions: turnProviderOptions(provider, model, level),
     ...temperatureFor(provider),
   });
 
