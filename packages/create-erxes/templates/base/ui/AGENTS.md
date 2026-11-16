@@ -21,6 +21,11 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   `src/__Pascal__.tsx` passes them to `addPluginStyles`, which adds only the
   classes web's stylesheet lacks. erxes-ui's design rules hold here too (its
   `AGENTS.md`, enforced by `vp run check`): no inline styles or raw colours.
+- Charts: add `recharts` to the plugin and draw the chart with it, inside
+  erxes-ui's `ChartContainer`: `<BarChart responsive data={rows}>` fills the
+  container and follows its size, with no wrapper or fixed size. Its `Tooltip`
+  and `Legend` take erxes-ui's `ChartTooltipContent` and `ChartLegendContent`
+  as `content`.
 - The plugin's API goes through `src/orpc.ts`:
   `useQuery(orpc.items.list.queryOptions(...))`,
   `useMutation(orpc.items.create.mutationOptions(...))`. Types come from
