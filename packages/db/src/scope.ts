@@ -1,11 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { ActorType, ApiKeyAreas } from './schema';
+import type { ActorType, ApiKeyAreas, ApiKeyPlugins } from './schema';
 import type { Transaction } from './types';
 
 /**
  * Which contacts a caller sees and writes, on top of its organisation: those owned by one of
  * `owners`, those with one of `tags`; null for no limit. Row level security applies it
- * (`app.key_owners`, `app.key_tags`, drizzle/0078_api_key_rules.sql), so every query obeys it.
+ * (`app.key_owners`, `app.key_tags`, drizzle/0080_api_key_rules.sql), so every query obeys it.
  */
 export interface RowLimits {
   owners: readonly string[] | null;
@@ -17,6 +17,8 @@ export interface KeyRules {
   id: string;
   kind: 'regular' | 'management';
   areas: ApiKeyAreas;
+  /** The plugins whose APIs it may call (`plugins.session`). */
+  plugins: ApiKeyPlugins;
   rows: RowLimits;
 }
 

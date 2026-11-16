@@ -460,7 +460,7 @@
       "name-placeholder": "What uses it, like \"Website sync\"",
       "kind-title": "What is it for?",
       "regular": "Regular key",
-      "regular-text": "Works with data: contacts, products, payments, files, automations.",
+      "regular-text": "Works with data: contacts, products, payments, files, automations, plugins.",
       "management": "Management key",
       "management-text": "Sets up the organisation. Never sees customers.",
       "management-owner": "Only an owner or admin can make one.",
@@ -525,11 +525,12 @@
       "old-text": "It can do everything {{name}} can. Choose what it may do and save to limit it.",
       "key-title": "Your API key",
       "key-description": "Copy it now: it won't be shown again. Send it with each call as \"Authorization: Bearer <key>\".",
-      "not-limited": "Payments, files and automations are off: this key sees only some contacts (see Limits).",
-      "limited-areas": "With contact limits the key opens contacts and products only: payments, files and automations don't follow them.",
+      "not-limited": "Payments, files, automations and plugins are off: this key sees only some contacts (see Limits).",
+      "limited-areas": "With contact limits the key opens contacts and products only: payments, files, automations and plugins don't follow them.",
       "keep-date": "{{date}} (no change)",
       "keep-never": "Only when revoked (no change)",
-      "ips-hint": "Leave empty for any address. Press Enter after each one."
+      "ips-hint": "Leave empty for any address. Press Enter after each one.",
+      "plugins-title": "Plugins"
     },
     "sentence": {
       "area": {

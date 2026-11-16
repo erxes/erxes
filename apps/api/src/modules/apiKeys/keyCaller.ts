@@ -115,8 +115,11 @@ export const keyCaller = async (
   const allows = roleAllows(maker.role, maker.permissions);
   const opened = new Set<string>(areaPermissions(key.areas));
 
+  const inOpenedPlugin = (action: string) =>
+    Object.hasOwn(key.pluginAccess, action.split('.')[0] ?? '');
+
   const permissions = (key.permissions ?? []).filter(
-    (action) => opened.has(action) && allows(action),
+    (action) => (opened.has(action) || inOpenedPlugin(action)) && allows(action),
   );
 
   return {
@@ -130,6 +133,7 @@ export const keyCaller = async (
         id: key.id,
         kind: key.kind,
         areas: key.areas,
+        plugins: key.pluginAccess,
         rows: await rowLimitsOf(client, key),
       },
     },

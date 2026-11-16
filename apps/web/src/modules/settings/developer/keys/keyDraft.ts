@@ -7,6 +7,7 @@ import {
   type ApiKeyAccess,
   type ApiKeyArea,
   type ApiKeyAreas,
+  type ApiKeyPlugins,
 } from '@erxes/core-contract';
 
 export type KeyKind = 'regular' | 'management';
@@ -18,12 +19,20 @@ export type ContactScope = 'all' | 'own' | 'units';
 
 export type Lifetime = (typeof API_KEY_LIFETIMES)[number] | null;
 
+/** What the member may give a key: their permissions, and the installed plugins they use. */
+export interface Giver {
+  can: (action: string) => boolean;
+  plugins: readonly string[];
+}
+
 /** What the form holds; `keyRules` turns it into the API's input. */
 export interface KeyDraft {
   name: string;
   kind: KeyKind;
   preset: Preset;
   areas: ApiKeyAreas;
+  /** Regular keys: the plugins whose APIs it may call. */
+  plugins: ApiKeyPlugins;
   scope: ContactScope;
   unitIds: string[];
   tagIds: string[];
@@ -51,27 +60,29 @@ export const canGive = (
   return access === 'read' ? reads : reads && writes;
 };
 
-/** The areas a preset opens: each of the kind's, as far as the member may give it. */
-export const presetAreas = (
-  kind: KeyKind,
-  preset: 'read' | 'write',
-  can: (a: string) => boolean,
-) => {
+/**
+ * What a preset opens: each of the kind's areas, as far as the member may give it, and for a
+ * regular key each plugin the member uses.
+ */
+export const presetAccess = (kind: KeyKind, preset: 'read' | 'write', giver: Giver) => {
   const areas: ApiKeyAreas = {};
 
   for (const area of areasOf(kind)) {
-    if (preset === 'write' && canGive(area, 'write', can)) areas[area] = 'write';
-    else if (canGive(area, 'read', can)) areas[area] = 'read';
+    if (preset === 'write' && canGive(area, 'write', giver.can)) areas[area] = 'write';
+    else if (canGive(area, 'read', giver.can)) areas[area] = 'read';
   }
 
-  return areas;
+  const plugins: ApiKeyPlugins =
+    kind === 'regular' ? Object.fromEntries(giver.plugins.map((name) => [name, preset])) : {};
+
+  return { areas, plugins };
 };
 
-export const newDraft = (can: (action: string) => boolean): KeyDraft => ({
+export const newDraft = (giver: Giver): KeyDraft => ({
   name: '',
   kind: 'regular',
   preset: 'read',
-  areas: presetAreas('regular', 'read', can),
+  ...presetAccess('regular', 'read', giver),
   scope: 'all',
   unitIds: [],
   tagIds: [],
@@ -79,26 +90,34 @@ export const newDraft = (can: (action: string) => boolean): KeyDraft => ({
   lifetime: 90,
 });
 
-const sameAreas = (kind: KeyKind, left: ApiKeyAreas, right: ApiKeyAreas) =>
-  areasOf(kind).every((area) => left[area] === right[area]);
+const sameAccess = <K extends string>(
+  keys: readonly K[],
+  left: Partial<Record<K, ApiKeyAccess>>,
+  right: Partial<Record<K, ApiKeyAccess>>,
+) => keys.every((key) => left[key] === right[key]);
 
-/** The preset whose areas, within the draft's limits, the key has; or custom. */
-const presetOf = (draft: KeyDraft, can: (action: string) => boolean): Preset =>
+/** The preset whose areas and plugins, within the draft's limits, the key has; or custom. */
+const presetOf = (draft: KeyDraft, giver: Giver): Preset =>
   (['read', 'write'] as const).find((preset) => {
-    const opened = fitLimits({ ...draft, areas: presetAreas(draft.kind, preset, can) }).areas;
+    const opened = fitLimits({ ...draft, ...presetAccess(draft.kind, preset, giver) });
+    const plugins = [...new Set([...Object.keys(draft.plugins), ...giver.plugins])];
 
-    return sameAreas(draft.kind, draft.areas, opened);
+    return (
+      sameAccess(areasOf(draft.kind), draft.areas, opened.areas) &&
+      sameAccess(plugins, draft.plugins, opened.plugins)
+    );
   }) ?? 'custom';
 
 /** The form for a key that exists; a key made before rules starts from "read only". */
-export const draftOf = (key: ApiKey, can: (action: string) => boolean): KeyDraft => {
-  if (key.kind === 'member') return { ...newDraft(can), name: key.name, lifetime: 'keep' };
+export const draftOf = (key: ApiKey, giver: Giver): KeyDraft => {
+  if (key.kind === 'member') return { ...newDraft(giver), name: key.name, lifetime: 'keep' };
 
   const draft: KeyDraft = {
     name: key.name,
     kind: key.kind,
     preset: 'custom',
     areas: key.areas,
+    plugins: key.pluginAccess,
     scope: key.ownRecords ? 'own' : key.unitIds.length ? 'units' : 'all',
     unitIds: key.unitIds,
     tagIds: key.tagIds,
@@ -106,7 +125,7 @@ export const draftOf = (key: ApiKey, can: (action: string) => boolean): KeyDraft
     lifetime: 'keep',
   };
 
-  return { ...draft, preset: presetOf(draft, can) };
+  return { ...draft, preset: presetOf(draft, giver) };
 };
 
 /** Does the key see only some contacts? */
@@ -117,7 +136,10 @@ export const isLimited = (draft: KeyDraft) =>
 export const fitsLimits = (draft: KeyDraft, area: ApiKeyArea) =>
   !isLimited(draft) || !('outsideContactLimits' in API_KEY_AREA_INFO[area]);
 
-/** The draft with the areas its contact limits rule out closed. */
+/**
+ * The draft with what its contact limits rule out closed: areas outside them, and plugins,
+ * which keep their own records.
+ */
 export const fitLimits = (draft: KeyDraft): KeyDraft => {
   const areas: ApiKeyAreas = {};
 
@@ -125,7 +147,9 @@ export const fitLimits = (draft: KeyDraft): KeyDraft => {
     if (fitsLimits(draft, area)) areas[area] = draft.areas[area];
   }
 
-  return { ...draft, areas };
+  const plugins = draft.kind === 'regular' && !isLimited(draft) ? draft.plugins : {};
+
+  return { ...draft, areas, plugins };
 };
 
 /** The rules the API takes. */
@@ -143,6 +167,7 @@ export const keyRules = (draft: KeyDraft) => {
     name: draft.name.trim(),
     kind: draft.kind,
     areas,
+    pluginAccess: regular ? draft.plugins : {},
     ownRecords: regular && draft.scope === 'own',
     unitIds: regular && draft.scope === 'units' ? draft.unitIds : [],
     tagIds: regular ? draft.tagIds : [],
@@ -150,4 +175,5 @@ export const keyRules = (draft: KeyDraft) => {
   };
 };
 
-export const opensAny = (draft: KeyDraft) => areasOf(draft.kind).some((area) => draft.areas[area]);
+export const opensAny = (draft: KeyDraft) =>
+  areasOf(draft.kind).some((area) => draft.areas[area]) || Object.keys(draft.plugins).length > 0;

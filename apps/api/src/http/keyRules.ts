@@ -103,8 +103,6 @@ const PROCEDURE_RULES: Partial<Record<ProcedurePath, ApiKeyArea | null>> = {
   'ebarimt.saveSettings': 'settings',
   'ebarimt.removeSettings': 'settings',
   'ebarimt.testConnection': 'settings',
-  // A plugin session acts as the member, without the key's rules.
-  'plugins.session': null,
   'users.setPassword': null,
   'users.update': null,
   // Webhooks carry the events' data: where they send it and what is a signed-in member's call.
@@ -179,6 +177,52 @@ export interface KeyDecision {
   reason: string;
 }
 
+const isLimited = (rows: KeyRules['rows']) => rows.owners !== null || rows.tags !== null;
+
+/**
+ * May the key take a token for a plugin's API (`plugins.session`)? A regular key without
+ * contact limits, for a plugin it opens; without `plugin`, for any. Plugins keep their own
+ * records, outside the rows a key's limits hide.
+ */
+export const decidePluginKey = (
+  key: Pick<KeyRules, 'kind' | 'plugins' | 'rows'>,
+  plugin?: string,
+): KeyDecision => {
+  if (key.kind !== 'regular') {
+    return {
+      allowed: false,
+      rule: `kind:${key.kind}`,
+      reason: 'Management keys work with setup; plugins are data',
+    };
+  }
+
+  if (isLimited(key.rows)) {
+    return {
+      allowed: false,
+      rule: 'rows:plugins',
+      reason: "Plugins don't follow this key's contact limits, so it can't open them",
+    };
+  }
+
+  if (plugin === undefined) {
+    return Object.keys(key.plugins).length
+      ? { allowed: true, rule: 'plugins', reason: 'This key calls the plugins it opens' }
+      : { allowed: false, rule: 'plugins', reason: "This key doesn't open any plugin" };
+  }
+
+  const access = key.plugins[plugin];
+
+  if (!access) {
+    return { allowed: false, rule: `plugin:${plugin}`, reason: `This key doesn't open ${plugin}` };
+  }
+
+  return {
+    allowed: true,
+    rule: `plugin:${plugin}:${access}`,
+    reason: access === 'write' ? `This key reads and writes ${plugin}` : `This key reads ${plugin}`,
+  };
+};
+
 /**
  * May a regular or management key call the procedure? Deny by default: the procedure must
  * be one keys call, in an area of the key's kind that the key opens, with the access it gives.
@@ -186,9 +230,11 @@ export interface KeyDecision {
  * holds is `permissions`'.
  */
 export const decideKey = (
-  key: Pick<KeyRules, 'kind' | 'areas' | 'rows'>,
+  key: Pick<KeyRules, 'kind' | 'areas' | 'plugins' | 'rows'>,
   path: string,
 ): KeyDecision => {
+  if (path === 'plugins.session') return decidePluginKey(key);
+
   const need = keyNeed(path);
 
   if (!need) {
@@ -218,9 +264,7 @@ export const decideKey = (
     return { allowed: false, rule: `area:${need.area}`, reason: `This key doesn't open ${label}` };
   }
 
-  const limited = key.rows.owners !== null || key.rows.tags !== null;
-
-  if (limited && 'outsideContactLimits' in API_KEY_AREA_INFO[need.area]) {
+  if (isLimited(key.rows) && 'outsideContactLimits' in API_KEY_AREA_INFO[need.area]) {
     return {
       allowed: false,
       rule: `rows:${need.area}`,

@@ -1,0 +1,2 @@
+ALTER TABLE "core_api_keys" ADD COLUMN "plugin_access" jsonb DEFAULT '{}'::jsonb NOT NULL;--> statement-breakpoint
+ALTER TABLE "core_api_keys" ADD CONSTRAINT "core_api_keys_plugin_access_check" CHECK ("core_api_keys"."kind" = 'regular' OR "core_api_keys"."plugin_access" = '{}'::jsonb);

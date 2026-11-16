@@ -1,4 +1,4 @@
-import { API_KEY_AREA_INFO, type ApiKeyAreas } from '@erxes/core-contract';
+import { API_KEY_AREA_INFO, type ApiKeyAccess, type ApiKeyAreas } from '@erxes/core-contract';
 import { useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { areasOf, type ContactScope, type KeyKind } from './keyDraft';
@@ -6,6 +6,8 @@ import { areasOf, type ContactScope, type KeyKind } from './keyDraft';
 export interface SentenceInput {
   kind: KeyKind;
   areas: ApiKeyAreas;
+  /** The plugins it opens, under their titles. */
+  plugins: { title: string; access: ApiKeyAccess }[];
   scope: ContactScope;
   unitNames: string[];
   tagNames: string[];
@@ -28,12 +30,16 @@ export const useKeySentence = () => {
   return (input: SentenceInput) => {
     const opened = areasOf(input.kind).filter((area) => input.areas[area]);
 
-    const nouns = (access: 'read' | 'write') =>
-      opened
+    const nouns = (access: ApiKeyAccess) => [
+      ...opened
         .filter((area) => input.areas[area] === access)
-        .map((area) => t(`area.${area}`, API_KEY_AREA_INFO[area].label.toLowerCase()));
+        .map((area) => t(`area.${area}`, API_KEY_AREA_INFO[area].label.toLowerCase())),
+      ...input.plugins.filter((plugin) => plugin.access === access).map((plugin) => plugin.title),
+    ];
 
-    if (!opened.length) return t('nothing', 'Opens nothing yet: choose what it may use.');
+    if (!opened.length && !input.plugins.length) {
+      return t('nothing', 'Opens nothing yet: choose what it may use.');
+    }
 
     const writes = nouns('write');
     const reads = nouns('read');

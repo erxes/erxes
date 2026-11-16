@@ -62,6 +62,11 @@ export const ApiKeyAreas = z.partialRecord(ApiKeyArea, ApiKeyAccess);
 
 export type ApiKeyAreas = z.infer<typeof ApiKeyAreas>;
 
+/** What a regular key may do in each installed plugin's API, by plugin name. */
+export const ApiKeyPlugins = z.record(PluginName, ApiKeyAccess);
+
+export type ApiKeyPlugins = z.infer<typeof ApiKeyPlugins>;
+
 /**
  * What each area covers, as the key screens say it, and the permissions it brings when read
  * or written. A key holds its maker's permissions, its maker's role's now, and its areas', all

@@ -6,7 +6,7 @@ import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { checkKeyRules, type KeyRulesInput, ruleColumns } from './keyRulesInput';
+import { type KeyRulesInput, keyRuleColumns } from './keyRulesInput';
 
 /** Keys read `erxes_<id>.<secret>`: the prefix tells them from session and plugin tokens. */
 const KEY_PREFIX = 'erxes_';
@@ -84,6 +84,7 @@ const mustExpire = (kind: KeyRulesInput['kind'], lifetimeDays: number | null | u
 const auditRules = (input: KeyRulesInput) => ({
   kind: input.kind,
   areas: input.areas,
+  pluginAccess: input.pluginAccess,
   ownRecords: input.ownRecords,
   unitIds: input.unitIds,
   tagIds: input.tagIds,
@@ -97,7 +98,8 @@ export const createApiKey = async (
   const me = sessionMember();
 
   mustExpire(input.kind, input.lifetimeDays);
-  await checkKeyRules(client, me, input);
+
+  const rules = await keyRuleColumns(client, me, input);
 
   const [held] = await client
     .select({ total: count() })
@@ -116,7 +118,7 @@ export const createApiKey = async (
     userId: me.userId,
     name: input.name,
     secretHash: sha256(secret),
-    ...ruleColumns(me, input),
+    ...rules,
     expiresAt: expiry(input.lifetimeDays),
   });
 
@@ -150,13 +152,14 @@ export const updateApiKey = async (
   const keepsExpiry = input.lifetimeDays === undefined;
 
   mustExpire(input.kind, keepsExpiry && !row.expiresAt ? null : input.lifetimeDays);
-  await checkKeyRules(client, me, input);
+
+  const rules = await keyRuleColumns(client, me, input);
 
   await client
     .update(apiKeys)
     .set({
       name: input.name,
-      ...ruleColumns(me, input),
+      ...rules,
       expiresAt: keepsExpiry ? row.expiresAt : expiry(input.lifetimeDays ?? null),
       updatedAt: sql`now()`,
     })

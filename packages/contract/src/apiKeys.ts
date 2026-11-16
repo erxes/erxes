@@ -4,13 +4,21 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { API_KEY_LIFETIMES, ApiKeyAccess, ApiKeyArea, ApiKeyAreas, ApiKeyKind } from './values';
+import {
+  API_KEY_LIFETIMES,
+  ApiKeyAccess,
+  ApiKeyArea,
+  ApiKeyAreas,
+  ApiKeyKind,
+  ApiKeyPlugins,
+} from './values';
 
 export const ApiKey = createSelectSchema(apiKeys, {
   id: Id,
   userId: Id,
   kind: ApiKeyKind,
   areas: ApiKeyAreas,
+  pluginAccess: ApiKeyPlugins,
   expiresAt: isoDate,
   lastUsedAt: isoDate,
   createdAt: isoDate,
@@ -22,6 +30,7 @@ export const ApiKey = createSelectSchema(apiKeys, {
     name: true,
     kind: true,
     areas: true,
+    pluginAccess: true,
     ownRecords: true,
     unitIds: true,
     tagIds: true,
@@ -49,6 +58,11 @@ const KeyRules = createUpdateSchema(apiKeys, { name: (name) => name.trim().min(1
     kind: ApiKeyKind.exclude(['member']),
     /** At least one area, all of the key's kind. */
     areas: ApiKeyAreas,
+    /**
+     * Regular keys: the installed plugins whose APIs it may call (`plugins.session`), read only
+     * or read and write. Not with contact limits: plugins keep their own records.
+     */
+    pluginAccess: ApiKeyPlugins.default({}),
     /** Regular keys: only contacts the maker owns. */
     ownRecords: z.boolean().default(false),
     /** Regular keys: only contacts owned by members of these units or units under them. */

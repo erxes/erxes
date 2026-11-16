@@ -2,7 +2,7 @@ import type { ApiKey } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconKey } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, PageContainer, PageHeader, ScrollArea, useToast } from 'erxes-ui';
+import { Alert, Button, PageContainer, PageHeader, ScrollArea, Spinner, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,11 +10,11 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { ShownOnce } from '~/components/ShownOnce';
 import { paths } from '~/lib/paths';
-import { useCan } from '~/modules/auth/session';
 import { KeyForm } from './KeyForm';
 import { type KeyDraft, draftOf, keyRules, newDraft, opensAny } from './keyDraft';
 import { TryKey } from './TryKey';
 import { useKeyLookups } from './useKeyLookups';
+import { useGiver, useKeyPlugins } from './useKeyPlugins';
 import { useKeySentence } from './useKeySentence';
 
 const DAY = 86_400_000;
@@ -23,11 +23,13 @@ const DAY = 86_400_000;
 const useDraftSentence = (draft: KeyDraft, saved?: ApiKey) => {
   const sentence = useKeySentence();
   const { nameOf } = useKeyLookups();
+  const { titled } = useKeyPlugins();
   const [now] = useState(() => Date.now());
 
   return sentence({
     kind: draft.kind,
     areas: draft.areas,
+    plugins: titled(draft.plugins),
     scope: draft.scope,
     unitNames: draft.scope === 'units' ? draft.unitIds.map(nameOf) : [],
     tagNames: draft.tagIds.map(nameOf),
@@ -128,9 +130,9 @@ const useSaveKey = (saved: ApiKey | undefined, onCreated: (key: string, id: stri
 
 const KeyEditor = ({ saved }: { saved?: ApiKey }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys.form' });
-  const can = useCan();
+  const giver = useGiver();
   const navigate = useNavigate();
-  const [draft, setDraft] = useState(() => (saved ? draftOf(saved, can) : newDraft(can)));
+  const [draft, setDraft] = useState(() => (saved ? draftOf(saved, giver) : newDraft(giver)));
   const [shown, setShown] = useState<{ key: string; id: string } | null>(null);
   const { save, busy } = useSaveKey(saved, (key, id) => setShown({ key, id }));
 
@@ -181,6 +183,7 @@ export const KeyEditorPage = () => {
   const { id } = useParams();
   const keys = useQuery({ ...orpc.apiKeys.list.queryOptions(), enabled: Boolean(id) });
   const saved = keys.data?.data.find((key) => key.id === id);
+  const { loading: pluginsLoading } = useKeyPlugins();
 
   return (
     <PageContainer>
@@ -197,7 +200,9 @@ export const KeyEditorPage = () => {
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">
-        {id ? (
+        {pluginsLoading ? (
+          <Spinner className="mx-auto my-12" />
+        ) : id ? (
           <QueryState query={keys} className="py-12">
             {() =>
               saved ? (
