@@ -14,9 +14,9 @@ const layoutOf = (expanded: boolean, splitOverview: boolean) => {
 
 const NAVIGATION = {
   split:
-    'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1',
+    'col-start-1 row-start-2 h-10 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1',
   sidebar: 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3',
-  bar: 'box-content items-center gap-1 h-9 px-2 border-b bg-background',
+  bar: 'items-center gap-1 h-10 px-2 border-b bg-background',
 };
 
 /** The tab triggers that fit, and a "+N More" menu with the rest. */
@@ -43,7 +43,7 @@ const TabBar = ({
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
   return (
-    // Lines up with a page's filter row: h-9 plus its 1px rule. Never wider than its
+    // Lines up with a list's bar (erxes-ui's ViewBar): 40px, its rule included. Never wider than its
     // container: pinning a tab moves tabs into More instead of widening the panel's holder.
     <div ref={barRef} className={cn('flex flex-none min-w-0 overflow-hidden', className)}>
       <Tabs.List
@@ -108,12 +108,12 @@ const TabContent = ({
     // The split overview shows beside the selected tab, so it is never hidden.
     hidden={splitOverview && isOverview ? false : undefined}
     inert={splitOverview && isOverview ? false : undefined}
-    // A widget's own header lines up with a page's filter row (37px). A quick fade when
-    // switching tabs or opening another record in the panel; a record's page opens without one.
+    // A quick fade when switching tabs or opening another record in the panel; a record's page
+    // opens without one.
     variant={splitOverview && isOverview ? 'aside' : 'default'}
     fade={!splitOverview}
     className={cn(
-      'flex-1 min-h-0 min-w-0 flex-col [&_[data-side-menu-header]]:h-9',
+      'flex-1 min-h-0 min-w-0 flex-col',
       splitOverview && isOverview
         ? 'col-start-1 row-start-1 flex md:row-span-2'
         : 'not-data-hidden:flex data-hidden:hidden',
@@ -121,7 +121,7 @@ const TabContent = ({
     )}
   >
     {splitOverview && isOverview && overviewHeader && (
-      <div className="box-content flex h-9 min-w-0 flex-none items-center gap-2 border-b px-3">
+      <div className="flex h-10 min-w-0 flex-none items-center gap-2 border-b px-3">
         {overviewHeader}
       </div>
     )}
