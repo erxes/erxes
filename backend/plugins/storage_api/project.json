@@ -52,6 +52,7 @@
         "build"
       ],
       "command": "docker build -f backend/plugins/storage_api/Dockerfile . -t erxes/erxes-next-storage_api"
-    }
+    },
+    "schema:print": {}
   }
 }

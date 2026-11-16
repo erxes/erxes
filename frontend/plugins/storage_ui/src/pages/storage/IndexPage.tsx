@@ -17,6 +17,15 @@ import {
   STORAGE_VAT_AUTO_RECONCILE,
   STORAGE_VAT_MANUAL_RECONCILE,
 } from '~/modules/storage/graphql/operations';
+import {
+  IStorageIssueStockResult,
+  IStorageIssueStockVariables,
+  IStorageItemsQueryResult,
+  IStorageRfidScanQueryResult,
+  IStorageToolAssetsQueryResult,
+  IStorageVatDataQueryResult,
+  IStorageWorkOrdersQueryResult,
+} from '~/modules/storage/types';
 
 const fmt = (n: number) => `${new Intl.NumberFormat('mn-MN').format(Math.round(n || 0))}₮`;
 
@@ -54,20 +63,20 @@ export const IndexPage: React.FC = () => {
   const [selectedPayables, setSelectedPayables] = useState<string[]>([]);
   const [selectedReceipt, setSelectedReceipt] = useState<string>('');
 
-  const { data: itemsData, refetch: refetchItems } = useQuery(STORAGE_ITEMS_QUERY, {
+  const { data: itemsData, refetch: refetchItems } = useQuery<IStorageItemsQueryResult>(STORAGE_ITEMS_QUERY, {
     variables: { company: company || undefined },
   });
-  const [runRfidScan, { data: rfidData }] = useLazyQuery(STORAGE_RFID_SCAN_QUERY, {
+  const [runRfidScan, { data: rfidData }] = useLazyQuery<IStorageRfidScanQueryResult>(STORAGE_RFID_SCAN_QUERY, {
     fetchPolicy: 'network-only',
   });
-  const { data: woData, refetch: refetchWo } = useQuery(STORAGE_WORK_ORDERS_QUERY);
-  const { data: toolsData, refetch: refetchTools } = useQuery(STORAGE_TOOL_ASSETS_QUERY);
-  const { data: vatData, refetch: refetchVat } = useQuery(STORAGE_VAT_DATA_QUERY);
+  const { data: woData, refetch: refetchWo } = useQuery<IStorageWorkOrdersQueryResult>(STORAGE_WORK_ORDERS_QUERY);
+  const { data: toolsData, refetch: refetchTools } = useQuery<IStorageToolAssetsQueryResult>(STORAGE_TOOL_ASSETS_QUERY);
+  const { data: vatData, refetch: refetchVat } = useQuery<IStorageVatDataQueryResult>(STORAGE_VAT_DATA_QUERY);
 
   const onError = (e: Error) => setError(e.message);
 
   const [breakBox] = useMutation(STORAGE_BREAK_SEALED_BOX, { onCompleted: () => refetchItems(), onError });
-  const [issueStock] = useMutation(STORAGE_ISSUE_STOCK, {
+  const [issueStock] = useMutation<IStorageIssueStockResult, IStorageIssueStockVariables>(STORAGE_ISSUE_STOCK, {
     onError,
     onCompleted: (res, options) => {
       refetchItems();
@@ -79,7 +88,7 @@ export const IndexPage: React.FC = () => {
         {
           sku: it.sku,
           name: it.name,
-          nickname: it.nickname,
+          nickname: it.nickname ?? undefined,
           unitCost: it.avgCost,
           qty: Number(options?.variables?.qty) || 1,
         },
@@ -105,10 +114,10 @@ export const IndexPage: React.FC = () => {
   const payables = vatData?.storageVatPayables || [];
   const receipts = vatData?.storageEBarimtReceipts || [];
   const printPages = printerType === 'DOT_MATRIX_13' ? chunkForDotMatrix(packingLines, 13) : [packingLines];
-  const activeWorkOrders = workOrders.filter((wo: any) => wo.status === 'ACTIVE');
-  const receiptTin = receipts.find((r: any) => r._id === selectedReceipt)?.vendorTin;
-  const selectedPayableTins = payables.filter((p: any) => selectedPayables.includes(p._id)).map((p: any) => p.vendorTin);
-  const tinMismatch = Boolean(receiptTin) && selectedPayableTins.some((tin: string) => tin !== receiptTin);
+  const activeWorkOrders = workOrders.filter((wo) => wo.status === 'ACTIVE');
+  const receiptTin = receipts.find((r) => r._id === selectedReceipt)?.vendorTin;
+  const selectedPayableTins = payables.filter((p) => selectedPayables.includes(p._id)).map((p) => p.vendorTin);
+  const tinMismatch = Boolean(receiptTin) && selectedPayableTins.some((tin) => tin !== receiptTin);
   const displayName = (ln: IPackingLine) => (printMode === 'NICKNAME' ? ln.nickname || ln.name : ln.name);
 
   return (
@@ -160,7 +169,7 @@ export const IndexPage: React.FC = () => {
                 <span>Зарлагын төсөл:</span>
                 <select className="border rounded px-2 py-1 text-sm" value={issueWo} onChange={(e) => setIssueWo(e.target.value)}>
                   <option value="">— Ажлын захиалга сонгох —</option>
-                  {activeWorkOrders.map((wo: any) => (
+                  {activeWorkOrders.map((wo) => (
                     <option key={wo._id} value={wo.code}>#{wo.code} {wo.name}</option>
                   ))}
                 </select>
@@ -188,7 +197,7 @@ export const IndexPage: React.FC = () => {
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {items.map((it: any) => (
+                {items.map((it) => (
                   <Table.Row key={it._id}>
                     <Table.Cell>
                       <div className="font-medium">{it.name}</div>
@@ -248,7 +257,7 @@ export const IndexPage: React.FC = () => {
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {rfidData.storageRfidScan.map((r: any) => (
+                  {rfidData.storageRfidScan.map((r) => (
                     <Table.Row key={r.itemId}>
                       <Table.Cell>{r.name}</Table.Cell>
                       <Table.Cell className="font-mono text-xs">{r.sampleEpc || '-'}</Table.Cell>
@@ -263,7 +272,7 @@ export const IndexPage: React.FC = () => {
           </Tabs.Content>
 
           <Tabs.Content value="workorders" className="space-y-4 pt-4">
-            {workOrders.map((wo: any) => (
+            {workOrders.map((wo) => (
               <div key={wo._id} className="border rounded-lg p-4 space-y-3">
                 <div className="flex justify-between items-center">
                   <div>
@@ -300,7 +309,7 @@ export const IndexPage: React.FC = () => {
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
-                    {wo.costLines.map((ln: any) => (
+                    {wo.costLines.map((ln) => (
                       <Table.Row key={ln._id}>
                         <Table.Cell><Badge variant="secondary">{ln.taxCode}</Badge></Table.Cell>
                         <Table.Cell>{ln.description}</Table.Cell>
@@ -333,7 +342,7 @@ export const IndexPage: React.FC = () => {
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {tools.map((t: any) => {
+                {tools.map((t) => {
                   const finDep = t.status === 'IN_WAREHOUSE' ? 0 : (t.cost / (t.finLifeYears * 12)) * t.monthsUsed;
                   const taxDep = t.status === 'IN_WAREHOUSE' ? 0 : (t.cost / (t.taxLifeYears * 12)) * t.monthsUsed;
                   return (
@@ -376,7 +385,7 @@ export const IndexPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="border rounded-lg p-3">
                 <h4 className="font-semibold mb-2 text-sm">Өглөгийн бүртгэл (Хэрэгжээгүй НӨАТ)</h4>
-                {payables.map((p: any) => (
+                {payables.map((p) => (
                   <div
                     key={p._id}
                     onClick={() =>
@@ -394,7 +403,7 @@ export const IndexPage: React.FC = () => {
               </div>
               <div className="border rounded-lg p-3">
                 <h4 className="font-semibold mb-2 text-sm">e-Barimt баримтууд</h4>
-                {receipts.map((r: any) => (
+                {receipts.map((r) => (
                   <div
                     key={r._id}
                     onClick={() => r.status === 'UNMATCHED' && setSelectedReceipt(r._id)}

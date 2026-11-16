@@ -1,6 +1,6 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
-import { IModels, IToolAsset } from '../../modules/storage/db/models/Storage';
+import { IModels, IStorageItem, IToolAsset } from '../../modules/storage/db/models/Storage';
 import { closePeriod, reopenPeriod } from '../../modules/storage/services/movementService';
 import {
   breakSealedBox,
@@ -16,11 +16,27 @@ import {
   monthsInService,
   sendToRepair,
 } from '../../modules/storage/services/toolService';
+import {
+  assertNonNegativeNumber,
+  assertPositiveInt,
+  LIMITS,
+} from '../../modules/storage/services/validation';
 import { autoReconcileVat, manualReconcileVat } from '../../modules/storage/services/vatService';
 import { closeWorkOrderPercent, reopenWorkOrderLine } from '../../modules/storage/services/workOrderService';
 
 interface IContext extends IMainContext {
   models: IModels;
+}
+
+interface IItemCreateArgs {
+  sku: string;
+  name: string;
+  nickname?: string | null;
+  itemType: IStorageItem['itemType'];
+  useRfid: boolean;
+  packSize: number;
+  avgCost: number;
+  costCenter: IStorageItem['costCenter'];
 }
 
 const userIdOf = (ctx: IContext) => (ctx.user?._id ? String(ctx.user._id) : undefined);
@@ -88,8 +104,10 @@ export const resolvers = {
   },
 
   Mutation: {
-    storageItemCreate: async (_: unknown, args: Record<string, unknown>, ctx: IContext) => {
+    storageItemCreate: async (_: unknown, args: IItemCreateArgs, ctx: IContext) => {
       await ctx.checkPermission('manageStorageItems');
+      assertPositiveInt(args.packSize, 'Хайрцагны багтаамж', LIMITS.MAX_OPEN_UNITS);
+      assertNonNegativeNumber(args.avgCost, 'Дундаж өртөг');
       return ctx.models.StorageItems.create(args);
     },
     storageReceiveStock: async (_: unknown, args: IReceiveParams, ctx: IContext) => {
