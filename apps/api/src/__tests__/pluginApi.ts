@@ -1,9 +1,14 @@
-import { type PluginJobDelivery, type RecordAccessCheck } from '@erxes/core-contract';
+import {
+  type PluginJobDelivery,
+  type PluginTransferRequest,
+  type RecordAccessCheck,
+} from '@erxes/core-contract';
 import {
   type PublicCall,
   verifyCoreAccessCheck,
   verifyCoreEvent,
   verifyCoreJob,
+  verifyCoreTransfer,
   verifyPublicCall,
 } from '@erxes/plugin-sdk';
 import { once } from 'node:events';
@@ -19,8 +24,10 @@ interface Answer {
 /**
  * A plugin's API that verifies each delivery like a plugin would and records
  * it: events at `/events`, jobs at `/jobs/<name>`, record access checks at
- * `/timelines/access`, public calls at `/public/*`. A job answers with the next status in `jobAnswers`,
- * then 204; a check allows the records in `readable`. `subjects` names each event's customer or company.
+ * `/timelines/access`, transfer requests at `/transfer/<kind>`, public calls at `/public/*`.
+ * A job answers with the next status in `jobAnswers`, then 204; a check allows the records in
+ * `readable`; a transfer request gets what `answers.transfer` returns. `subjects` names each
+ * event's customer or company.
  */
 export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   const received: { type: string; payload: Record<string, unknown> }[] = [];
@@ -31,6 +38,10 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   const accessChecks: RecordAccessCheck[] = [];
   const readable = new Set<string>();
   const rejected: string[] = [];
+  const transfers: (PluginTransferRequest & { path: string; idempotencyKey: unknown })[] = [];
+  const answers: { transfer: (request: PluginTransferRequest) => unknown } = {
+    transfer: () => ({}),
+  };
 
   const publicCalls: (PublicCall & {
     method: string;
@@ -85,6 +96,14 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
         accessChecks.push(check);
 
         return { status: 200, body: JSON.stringify({ allowed: readable.has(check.id) }) };
+      }
+
+      if (path.startsWith('/transfer/')) {
+        const request = await verifyCoreTransfer(headers.authorization, raw, { coreUrl, plugin });
+
+        transfers.push({ ...request, path, idempotencyKey: headers['idempotency-key'] });
+
+        return { status: 200, body: JSON.stringify(answers.transfer(request)) };
       }
 
       if (path.startsWith('/jobs/')) {
@@ -144,6 +163,9 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
     readable,
     rejected,
     publicCalls,
+    transfers,
+    /** Set `answers.transfer` to answer transfer requests. */
+    answers,
     close: () => {
       server.closeAllConnections();
 

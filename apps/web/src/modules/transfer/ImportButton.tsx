@@ -7,13 +7,13 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { orpc } from '@erxes/core-contract/client';
 import { uploadErrorMessage, uploadFile } from '~/lib/files';
-import { useCan } from '~/modules/auth/session';
 import { paths } from '~/lib/paths';
+import { useTransferType } from './useTransfer';
 
 /** "Import": pick a CSV or Excel file; it is uploaded and opens in the import wizard. */
 export const ImportButton = ({ recordType }: { recordType: TransferRecordType }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'transfer' });
-  const can = useCan();
+  const type = useTransferType(recordType);
   const navigate = useNavigate();
   const client = useQueryClient();
   const { toast } = useToast();
@@ -41,7 +41,7 @@ export const ImportButton = ({ recordType }: { recordType: TransferRecordType })
     },
   });
 
-  if (!can('contacts.import')) return null;
+  if (!type?.canImport) return null;
 
   return (
     <>

@@ -12,14 +12,14 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, orgIdColumn, pgTable } from '../table';
+import { inList, inListOrMatch, orgIdColumn, pgTable } from '../table';
 import { createdAt, type PropertyContentType, updatedAt } from './common';
 import { organizations } from './organizations';
 import { plugins } from './plugins';
 
 /** One of core's records (`FIELD_CONTENT_TYPES`) or a plugin's, `<plugin>.<type>`. */
 const propertyContentType = (column: AnyPgColumn) =>
-  sql`${inList(column, FIELD_CONTENT_TYPES)} OR ${column} ~ ${sql.raw(`'${PLUGIN_RECORD_TYPE}'`)}`;
+  inListOrMatch(column, FIELD_CONTENT_TYPES, PLUGIN_RECORD_TYPE);
 
 /**
  * Groups that properties of a record type are organised in (old erxes field

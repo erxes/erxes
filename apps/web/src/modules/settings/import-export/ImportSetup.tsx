@@ -177,25 +177,33 @@ const TagsOption = ({ imp, onChange }: Omit<SetupProps, 'disabled'>) => {
   );
 };
 
-/** How rows find existing records, and what every imported record gets. */
+/** How rows find existing records, and what every imported record gets; a plugin's records only the first. */
 export const ImportOptionsForm = ({ imp, onChange }: Omit<SetupProps, 'disabled'>) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
   const isCompany = imp.recordType === 'company';
   const labels = useOptionLabels(isCompany);
   const { options } = imp;
 
+  const mode = (
+    <OptionSelect
+      label={t('mode', 'Rows that match an existing record')}
+      value={options.mode}
+      items={labels.modes}
+      onChange={(value) => {
+        const next = MODES.find((item) => item === value);
+
+        if (next) onChange({ options: { mode: next } });
+      }}
+    />
+  );
+
+  // The plugin finds existing records its own way and owns the rest.
+  if (imp.recordType.includes(':'))
+    return <section className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">{mode}</section>;
+
   return (
     <section className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-      <OptionSelect
-        label={t('mode', 'Rows that match an existing record')}
-        value={options.mode}
-        items={labels.modes}
-        onChange={(value) => {
-          const mode = MODES.find((item) => item === value);
-
-          if (mode) onChange({ options: { mode } });
-        }}
-      />
+      {mode}
       <OptionSelect
         label={t('match-by', 'Match by')}
         value={options.matchBy}

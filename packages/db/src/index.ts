@@ -112,6 +112,7 @@ export type {
   ContentType,
   CustomerLoginKind,
   FieldContentType,
+  PluginListType,
   PluginRecordType,
   PropertyContentType,
   CustomValue,

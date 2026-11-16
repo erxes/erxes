@@ -311,6 +311,29 @@ const ownRelations = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
+/** Its transfer record types are its own (`<plugin>:<record>`) and name permissions the manifest declares. */
+const ownTransfers = (plugin: string, manifest: PluginManifest) => {
+  const declared = new Set(manifest.permissions?.map((item) => item.action));
+
+  for (const spec of manifest.transfer ?? []) {
+    if (!spec.type.startsWith(`${plugin}:`)) {
+      throw fail('NAMESPACE_REQUIRED', `Transfer types must start with "${plugin}:": ${spec.type}`);
+    }
+
+    const unknown = [spec.exportPermission, spec.importPermission].find(
+      (action) => !declared.has(action),
+    );
+
+    if (unknown) {
+      throw fail(
+        'UNKNOWN_PERMISSION',
+        `Transfer type "${spec.type}" names ${unknown}, which the manifest's permissions don't declare`,
+        { permissions: [unknown] },
+      );
+    }
+  }
+};
+
 /** Reads name another plugin, with that plugin's permissions only. */
 const othersReads = (plugin: string, manifest: PluginManifest) => {
   for (const read of manifest.pluginReads ?? []) {
@@ -337,6 +360,7 @@ export const registerManifest = async (manifest: PluginManifest) => {
     'Permission actions',
   );
   ownPermissionSets(manifest);
+  ownTransfers(plugin, manifest);
   namespaced(
     plugin,
     manifest.notificationKinds?.map((item) => item.kind),

@@ -200,6 +200,8 @@ export * from './pluginTranslations';
 
 export * from './pluginReads';
 
+export * from './pluginTransfer';
+
 export * from './products';
 
 export * from './records';

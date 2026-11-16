@@ -15,11 +15,9 @@ import { useParams } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { paths } from '~/lib/paths';
-import { importQuery } from '~/modules/transfer/useTransfer';
+import { importQuery, useTransferLabel } from '~/modules/transfer/useTransfer';
 import { ErrorRows, ImportProgress, ImportSummary } from './ImportResults';
 import { type ImportChanges, ImportMapping, ImportOptionsForm } from './ImportSetup';
-
-const NOUNS = { customer: 'customers', lead: 'leads', company: 'companies' } as const;
 
 /** Every step answers with the import as it now stands. */
 const useImportActions = (id: string) => {
@@ -108,6 +106,7 @@ export const ImportWizardPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
   const query = useQuery(importQuery(id));
   const actions = useImportActions(id);
+  const labelOf = useTransferLabel();
   const imp = query.data;
 
   if (query.error) {
@@ -119,7 +118,7 @@ export const ImportWizardPage = () => {
   if (!imp) return <Spinner area="lg" />;
 
   const editable = imp.status === 'mapping' || imp.status === 'checked';
-  const noun = t(`noun.${imp.recordType}`, NOUNS[imp.recordType]);
+  const noun = labelOf(imp.recordType);
   const change = (changes: ImportChanges) => actions.update.mutate({ id, ...changes });
 
   return (

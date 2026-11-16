@@ -14,8 +14,10 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
+import { PluginListType } from './values';
 
-export const TransferRecordType = z.enum(TRANSFER_RECORD_TYPES);
+/** Customers, leads, companies, or an installed plugin's records (`frontline:ticket`, its manifest's `transfer`). */
+export const TransferRecordType = z.union([z.enum(TRANSFER_RECORD_TYPES), PluginListType]);
 
 export type TransferRecordType = z.infer<typeof TransferRecordType>;
 
@@ -36,6 +38,19 @@ export const TransferColumn = z.object({
 });
 
 export type TransferColumn = z.infer<typeof TransferColumn>;
+
+/** A record type the member may import or export, and which of the two. */
+export const TransferType = z.object({
+  recordType: TransferRecordType,
+  /** What the records are called (`Customers`, a plugin's `Tickets`). */
+  label: z.string(),
+  /** The plugin whose records they are; null for core's. */
+  plugin: z.string().nullable(),
+  canImport: z.boolean(),
+  canExport: z.boolean(),
+});
+
+export type TransferType = z.infer<typeof TransferType>;
 
 /**
  * No zod defaults: the server sets them when it creates an import, and `updateImport`
@@ -66,6 +81,7 @@ const strings = () => z.array(z.string());
 
 export const Import = createSelectSchema(imports, {
   id: Id,
+  recordType: TransferRecordType,
   headers: strings,
   mapping: z.record(z.string(), z.string()),
   options: ImportOptions,
@@ -118,6 +134,7 @@ export type ExportQuery = z.infer<typeof ExportQuery>;
 
 export const Export = createSelectSchema(exports, {
   id: Id,
+  recordType: TransferRecordType,
   columns: strings,
   rowCount: () => z.int(),
   fileId: () => Id,
@@ -177,6 +194,14 @@ const base = oc.errors({
 });
 
 export const transferContract = {
+  types: base
+    .route({
+      method: 'GET',
+      path: '/transfer/types',
+      summary:
+        "The record types the member may import or export: core's, and those of installed plugins whose permission they hold",
+    })
+    .output(listOf(TransferType)),
   columns: base
     .route({
       method: 'GET',

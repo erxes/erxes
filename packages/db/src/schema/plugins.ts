@@ -11,7 +11,7 @@ import {
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 import { orgIdColumn, pgTable } from '../table';
-import { type ContentType, createdAt, updatedAt } from './common';
+import { type ContentType, createdAt, type PluginListType, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -121,6 +121,21 @@ export interface StoredPluginManifest {
    * and a column per field), so their lists filter by them.
    */
   relations?: StoredPluginRelation[];
+  /** Its record types members import and export through core: core asks `<api.url>/transfer/*` for the rows. */
+  transfer?: {
+    type: PluginListType;
+    label: string;
+    exportPermission: string;
+    importPermission: string;
+    columns: {
+      key: string;
+      label: string;
+      importable: boolean;
+      exportable: boolean;
+      default: boolean;
+      aliases?: string[];
+    }[];
+  }[];
   activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
   actions?: {
     type: string;

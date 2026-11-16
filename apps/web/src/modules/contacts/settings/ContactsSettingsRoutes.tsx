@@ -9,12 +9,14 @@ import { ImportWizardPage } from '~/modules/settings/import-export/ImportWizardP
 import { LeadStagesPage } from '~/modules/settings/lead-stages/LeadStagesPage';
 import { PropertiesSettingsRoutes } from '~/modules/settings/properties/PropertiesSettingsRoutes';
 import { TagsSettingsPage } from '~/modules/settings/tags/TagsSettingsPage';
+import { useTransferTypes } from '~/modules/transfer/useTransfer';
 import { paths } from '~/lib/paths';
 
 /** Contacts › Settings; "Exit settings" goes back to the customers. */
 const ContactsSettingsLayout = () => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
+  const transfers = useTransferTypes().data ?? [];
 
   const items = [
     { name: t('properties', 'Properties'), to: paths.contacts.properties, icon: IconHierarchy2 },
@@ -28,7 +30,7 @@ const ContactsSettingsLayout = () => {
           },
         ]
       : []),
-    ...(can('contacts.import') || can('contacts.export')
+    ...(transfers.length
       ? [
           {
             name: t('import-export', 'Import & export history'),

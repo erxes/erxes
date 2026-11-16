@@ -6,10 +6,9 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { useCan } from '~/modules/auth/session';
 import { paths } from '~/lib/paths';
 import { useListQuery } from '~/modules/views/useViews';
-import { useTransferColumns } from './useTransfer';
+import { useTransferColumns, useTransferType } from './useTransfer';
 
 const ColumnPicker = ({
   columns,
@@ -111,7 +110,7 @@ const useStartExport = (onStarted: () => void) => {
 /** "Export": what the list shows (its filters and view) to CSV or Excel, with chosen columns, in the background. */
 export const ExportButton = ({ recordType }: { recordType: TransferRecordType }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'transfer' });
-  const can = useCan();
+  const type = useTransferType(recordType);
   const columns = useTransferColumns(recordType);
   const exportable = (columns.data ?? []).filter((column) => column.exportable);
   const list = useListQuery();
@@ -126,7 +125,7 @@ export const ExportButton = ({ recordType }: { recordType: TransferRecordType })
 
   const start = useStartExport(() => setOpen(false));
 
-  if (!can('contacts.export')) return null;
+  if (!type?.canExport) return null;
 
   const submit = () =>
     start.mutate({

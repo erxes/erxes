@@ -186,6 +186,12 @@ export const ImportSummary = ({ imp, noun }: { imp: Import; noun: string }) => {
 
   if (imp.status !== 'checked' && imp.status !== 'done' && imp.status !== 'undone') return null;
 
+  // A plugin's records live in the plugin's own list.
+  const listPath =
+    imp.recordType === 'customer' || imp.recordType === 'lead' || imp.recordType === 'company'
+      ? LIST_PATHS[imp.recordType]
+      : null;
+
   return (
     <section className="space-y-3 rounded-lg border p-4">
       <h2 className="flex items-center gap-2 text-sm font-medium">
@@ -197,8 +203,8 @@ export const ImportSummary = ({ imp, noun }: { imp: Import; noun: string }) => {
             : t('done', 'Imported')}
       </h2>
       <Counts imp={imp} />
-      {imp.status === 'done' && (
-        <Link to={LIST_PATHS[imp.recordType]} className="text-sm text-primary-text hover:underline">
+      {imp.status === 'done' && listPath && (
+        <Link to={listPath} className="text-sm text-primary-text hover:underline">
           {t('open-list', 'Open {{noun}}', { noun })}
         </Link>
       )}

@@ -1,6 +1,7 @@
 import type { TransferColumn, TransferRecordType } from '@erxes/core-contract';
 import { type Db, fields } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
+import { type CoreRecordType, isCoreType, pluginTransfer } from './pluginTransfer';
 
 type FieldType = (typeof fields.$inferSelect)['type'];
 
@@ -44,7 +45,7 @@ const COMPANY_COLUMNS: Column[] = [
   column('description', 'Description', { default: false, aliases: ['notes', 'тайлбар'] }),
 ];
 
-const customerColumns = (recordType: TransferRecordType): Column[] => [
+const customerColumns = (recordType: CoreRecordType): Column[] => [
   column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
   column('name', 'Full name', {
     exportable: false,
@@ -106,15 +107,27 @@ const relationColumns = (isCompany: boolean): Column[] => [
   column('updatedAt', 'Updated', { importable: false, default: false }),
 ];
 
+/** A plugin's records: the columns its manifest declares. */
+const pluginColumns = async (client: Db, recordType: TransferRecordType) =>
+  (await pluginTransfer(client, recordType)).columns.map(({ aliases, ...rest }) =>
+    column(rest.key, rest.label, {
+      ...rest,
+      aliases: (aliases ?? []).map((alias) => alias.toLowerCase()),
+    }),
+  );
+
 /**
- * Everything a customer/lead or company list can import and export, in
- * export order. `name` (customers) splits into first and last name on import;
- * `owner` is an email; `tags` and `companies` are names, `;`-separated.
+ * Everything a list can import and export, in export order. For customers,
+ * leads and companies: `name` (customers) splits into first and last name on
+ * import; `owner` is an email; `tags` and `companies` are names, `;`-separated.
+ * A plugin's records have the columns its manifest declares.
  */
 export const transferColumns = async (
   client: Db,
   recordType: TransferRecordType,
 ): Promise<Column[]> => {
+  if (!isCoreType(recordType)) return pluginColumns(client, recordType);
+
   const isCompany = recordType === 'company';
 
   const builtIn = isCompany ? COMPANY_COLUMNS : customerColumns(recordType);

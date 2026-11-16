@@ -126,7 +126,7 @@ const finish = async (tx: Db, imp: ImportRow, processed: number, dry: boolean) =
 };
 
 /** The importer, or null when the import failed because they can't act any more. */
-const importer = async (tx: Db, imp: ImportRow) => {
+export const importer = async (tx: Db, imp: ImportRow) => {
   try {
     return await importingMember(imp.orgId, imp.createdBy);
   } catch (error) {
@@ -135,6 +135,44 @@ const importer = async (tx: Db, imp: ImportRow) => {
 
     return null;
   }
+};
+
+/** The next batch of rows: after `after` (a row number, or the first batch's `0:<nonce>`). */
+export const batchRows = (tx: Db, importId: string, after: string | number) =>
+  tx
+    .select()
+    .from(importRows)
+    .where(
+      and(
+        eq(importRows.importId, importId),
+        gt(importRows.rowNumber, Number(String(after).split(':')[0])),
+      ),
+    )
+    .orderBy(asc(importRows.rowNumber))
+    .limit(BATCH);
+
+/** After a batch: the next one queued (`next`) in the same transaction, or the import finished. */
+export const afterBatch = async (
+  tx: Db,
+  step: {
+    imp: ImportRow;
+    rows: Row[];
+    member: Awaited<ReturnType<typeof importingMember>>;
+    dry: boolean;
+    next: (after: number) => Promise<unknown>;
+  },
+) => {
+  const { imp, rows, member, dry } = step;
+  const processed = imp.processed + rows.length;
+  const last = rows.at(-1);
+
+  if (rows.length < BATCH || !last) return runAs(member, () => finish(tx, imp, processed, dry));
+
+  await tx
+    .update(imports)
+    .set({ processed, updatedAt: sql`now()` })
+    .where(eq(imports.id, imp.id));
+  await step.next(last.rowNumber);
 };
 
 /** The check and the run: a batch of rows per job, the next batch queued in the same transaction. */
@@ -155,34 +193,21 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean) => {
 
       if (!member) return;
 
-      const rows = await tx
-        .select()
-        .from(importRows)
-        .where(
-          and(
-            eq(importRows.importId, imp.id),
-            gt(importRows.rowNumber, Number(String(payload.after).split(':')[0])),
-          ),
-        )
-        .orderBy(asc(importRows.rowNumber))
-        .limit(BATCH);
+      const rows = await batchRows(tx, imp.id, payload.after);
 
       // The rows, and the import's audit entry, are the importer's own work.
       await runAs(member, async () => processBatch(tx, await contextOf(tx, imp), rows, dry));
-
-      const processed = imp.processed + rows.length;
-      const last = rows.at(-1);
-
-      if (rows.length < BATCH || !last) return runAs(member, () => finish(tx, imp, processed, dry));
-
-      await tx
-        .update(imports)
-        .set({ processed, updatedAt: sql`now()` })
-        .where(eq(imports.id, imp.id));
-      await job.enqueue(tx, {
-        orgId,
-        payload: { importId: imp.id, after: last.rowNumber },
-        dedupeKey: stepKey(imp.id, queue, last.rowNumber),
+      await afterBatch(tx, {
+        imp,
+        rows,
+        member,
+        dry,
+        next: (after) =>
+          job.enqueue(tx, {
+            orgId,
+            payload: { importId: imp.id, after },
+            dedupeKey: stepKey(imp.id, queue, after),
+          }),
       });
     },
     async onDead(dead, error, tx) {

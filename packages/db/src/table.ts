@@ -28,3 +28,10 @@ const literal = (value: string | number) =>
  */
 export const inList = (column: AnyPgColumn, values: readonly (string | number)[]) =>
   sql`${column} IN (${sql.raw(values.map(literal).join(', '))})`;
+
+/**
+ * One of core's types in `values`, or a plugin's matching `pattern`: `PLUGIN_LIST_TYPE`
+ * (`sales:deal`) or `PLUGIN_RECORD_TYPE` (`operation.task`).
+ */
+export const inListOrMatch = (column: AnyPgColumn, values: readonly string[], pattern: string) =>
+  sql`${inList(column, values)} OR ${column} ~ ${sql.raw(literal(pattern))}`;

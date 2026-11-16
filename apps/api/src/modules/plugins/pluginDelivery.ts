@@ -4,10 +4,10 @@ import { sha256 } from '~/lib/crypto';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 
-/** Installations of the plugin, joined to it, where both are active. */
-export const installedWhere = (plugin: string) =>
+/** Installations of the plugin (or of any), joined to it, where both are active. */
+export const installedWhere = (plugin?: string) =>
   and(
-    eq(pluginInstallations.plugin, plugin),
+    plugin ? eq(pluginInstallations.plugin, plugin) : undefined,
     eq(pluginInstallations.status, 'active'),
     eq(plugins.status, 'active'),
   );
@@ -32,7 +32,7 @@ interface Delivery {
   path: string;
   orgId: string;
   /** The token's subject is `<kind>:<id>` and its claims carry `<kind>: <id>`; the id is the `Idempotency-Key`. */
-  kind: 'event' | 'job' | 'access';
+  kind: 'event' | 'job' | 'access' | 'transfer';
   id: string;
   body: string;
   typ: string;
