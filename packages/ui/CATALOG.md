@@ -199,7 +199,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type FileStorageAdapter { upload, remove }` Where erxes-ui's upload hooks and components send files.
 - `getPluginAssetsUrl(pluginName, url)` A file's URL in a plugin UI's deployed `assets` folder.
 - `getPluginRuntime()` The host's plugin runtime, or null outside erxes.
-- `type IUIConfig { name, path, icon, recordSections, recordTypes, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
+- `type IUIConfig { name, path, icon, settings, recordSections, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
 - `pluginFetch(plugin, path, init)` `fetch` against a plugin's API as the signed-in member.
 - `pluginJson(plugin, path, schema, init)` JSON in, JSON out, checked against `schema`.
 - `type PluginLiveMessage` A message on core's live stream: a plugin's changed topics, or resync.
@@ -210,6 +210,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TActivityRowProps { activity }` Props of a plugin's activity row component in `widgets.activityRows`.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
+- `type TPluginSettingsPage { path, label, icon }` A plugin's settings page, linked from core's settings sidebar.
 - `type TPropertyInputMeta` A property input's own settings, stored with the custom field.
 - `type TPropertyInputProps { value, onValueChange, meta, onMetaChange, disabled }` Props of a custom property input in `widgets.propertyInputs`.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.

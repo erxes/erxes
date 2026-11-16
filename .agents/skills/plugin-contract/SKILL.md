@@ -35,7 +35,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
-     `relationTabs`), and its first module renders under `/<path>/*`. `recordSections` are drawn
+     `relationTabs`, `settings`), and its first module renders under `/<path>/*`. `settings`
+     (`{ path, label, icon? }`, each `path` under `/<path>/`) are links to the plugin's own
+     settings pages, a group per plugin at the end of core's settings sidebar
+     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `recordSections` are drawn
      in core's customer and company panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`).
      For `recordTypes` (`<name>:<thing>`) core draws the side panel and the plugin fills slots:
      `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the

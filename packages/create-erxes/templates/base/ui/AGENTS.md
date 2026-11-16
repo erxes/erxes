@@ -53,7 +53,9 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   `Detail` and `New` (`src/modules/items/ItemPanel.tsx`). `useOpenRecord()`
   opens them, and `/__id__/:id` renders erxes-ui's `RecordPage` for the expanded
   record. A plugin's records of other records' customers are `relationTabs`
-  (the `ui-patterns` skill). Forms are core's
+  (the `ui-patterns` skill). A settings page is a route of the plugin's
+  (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`):
+  core links it from its settings sidebar, under the plugin's name. Forms are core's
   `PanelFormRow` rows with Cancel and Save at the bottom; nothing saves until
   Save. Dialogs are for confirmations, not forms.
 - Text uses `t(key, 'English default')` from `react-i18next`. Core shows the config's words (the

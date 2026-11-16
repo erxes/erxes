@@ -156,15 +156,28 @@ export type TRelationTab = {
 };
 
 /**
+ * A plugin's settings page, linked from core's settings sidebar.
+ * The page is a route of the plugin's own, under its `path`, e.g. `/frontline/settings/tags`.
+ */
+export type TPluginSettingsPage = {
+  /** The page's address, under the plugin's `path`. */
+  path: string;
+  label: string;
+  icon?: React.ElementType;
+};
+
+/**
  * A plugin UI's `CONFIG`, exported from its `./config` remote.
- * web reads `name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`
- * and `relationTabs`; its first module renders under `/<path>/*`. The other fields come from
- * erxes 3.x and web ignores them.
+ * web reads `name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
+ * `relationTabs` and `settings`; its first module renders under `/<path>/*`. The other fields
+ * come from erxes 3.x and web ignores them.
  */
 export type IUIConfig = {
   name: string;
   path: string;
   icon?: React.ElementType;
+  /** The plugin's settings pages, in core's settings sidebar for members who may use the plugin. */
+  settings?: TPluginSettingsPage[];
   /** Sections on core's customer and company detail, shown to members who may use the plugin. */
   recordSections?: TRecordSection[];
   /** The plugin's records core's side panel opens, for members who may use the plugin. */
