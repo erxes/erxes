@@ -44,6 +44,14 @@ const problems = async () =>
 const idFrom = async (client: Client, statement: string, params: string[]) =>
   (await client.query<{ id: string | null }>(statement, params)).rows[0]?.id;
 
+/** Whether the testpw plugin's role may sign in, and its stored password hash. */
+const login = async () =>
+  (
+    await adminDb().execute<{ canLogin: boolean; password: string | null }>(
+      sql`select rolcanlogin as "canLogin", rolpassword as password from pg_authid where rolname = 'erxes_plugin_testpw'`,
+    )
+  ).rows[0];
+
 /** A plugin's database role can't read, change or drop core data, and can't act as another plugin. */
 describe('plugin database roles', { timeout: 240_000 }, () => {
   useTestDatabase();
@@ -200,5 +208,16 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
     });
 
     expect(await problems()).toEqual([]);
+  });
+
+  it('grants again without a password and leaves the login and its password as they were', async () => {
+    await adminDb().execute(sql.raw(pluginRoleSql('testpw', 'first-password-of-32-characters')));
+    const before = await login();
+
+    await adminDb().execute(sql.raw(pluginRoleSql('testpw')));
+
+    expect(before?.canLogin).toBe(true);
+    expect(before?.password).toMatch(/^SCRAM-SHA-256\$/);
+    expect(await login()).toEqual(before);
   });
 });

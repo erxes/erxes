@@ -29,6 +29,9 @@ deploy/smoke.sh http://localhost:8080   # on an empty install only (it runs setu
 - Put TLS in front of the `ui` container (port 8080); it serves the UI and
   forwards `/core` to the API, live updates included.
 - Plugin database roles: `docker compose … run --rm migrate node dist/plugin-role.js <plugin>`.
+  It sets a new password and prints it once. When the logins and their passwords are made
+  elsewhere (Ansible, a secret store), `node dist/plugin-role.js <plugin>... --keep-password`
+  only grants, so a deploy can run it every time.
 - Postgres is 18. Its image keeps data in `/var/lib/postgresql/18/docker` and the
   volume mounts at `/var/lib/postgresql`. A volume written by Postgres 16 does not
   start under 18: `pg_dumpall` it on 16 and restore into the new volume.
