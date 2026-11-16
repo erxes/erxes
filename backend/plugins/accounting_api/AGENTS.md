@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-15`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -157,6 +157,11 @@
 - Shared backend utilities, cursor pagination helpers, pubsub, and service startup APIs from `erxes-api-shared`.
 
 ## Data and State
+
+- New tunable report sections start with an empty optional name and no columns. Empty sections may be saved; formulas require at least one column. Columns are added explicitly by the user.
+
+- Tunable report definitions persist per tenant in `tunable_reports` through `Reports` (`db/models/Reports.ts`, `db/definitions/report.ts`). A report embeds sections with independent columns, rows, row/cell formula scope and structured formula terms. Orientation is report-wide; amount scale and decimal precision are run-time display options and are not persisted. `isPre` is optional on formulas, rows and columns so explicit false overrides an inherited previous-period selection; both period fields resolve formula → row → column. Every formula cell needs an effective date, and balance formulas require an opening or closing boundary. `utils/reportValidation.ts` validates stable ids, formula targets, cross-report/section/column references and dependency cycles, including inherited column contexts. The read-permission-gated `accountingTunableReportGenerate` query validates id, exact date-only range, amountUnit (units/thousands) and decimals (0–6), then calls tenant-scoped `Reports.generateReport`. It returns report metadata, normalized run parameters and a separate `cells` array keyed by section/row/column ids; cell values are raw base-unit amounts. Generation never persists run parameters or results. Numeric evaluation is not implemented, so cells are currently empty. Formula `percent` remains text for conditional percentage rules.
+- `accountingTunableReports`, `accountingTunableReportDetail`, `accountingTunableReportSave`, and `accountingTunableReportRemove` expose report management under `readTunableReports`, `manageTunableReports`, and `removeTunableReports` (`tunableReport` permission module). Save validates structured input and tenant-owned account/category references before writes; updates/deletes compare `version` to prevent lost edits. Removal and structural changes reject broken references from other reports. Successful writes emit database event logs.
 
 - Income detail `followInfos.revaluationLoss` and `revaluationReserve` are nonnegative total detail opening history, not extra asset or profit/loss postings. The asset-scoped revaluation state reads the latest active prior adjustment snapshot and sums only later active detail deltas; if the asset has no snapshot it sums acquisition history and subsequent deltas. Disposal/sale store proportional negative loss/reserve deltas on their source details; internal movement preserves asset totals.
 - Each adjustment detail is one period-end snapshot keyed uniquely by adjustId + fixedAssetId + branchId + departmentId. It stores total count/cost/residual/accumulated depreciation and revaluationLoss/revaluationReserve once, plus a single period depreciationAmount used for posting. Do not persist opening/closing pairs, derived book values or duplicate book depreciation. Tax-enabled adjustments additionally store only period tax depreciation and accumulated tax depreciation. Never persist `temporaryDifference`, `deferredTaxAsset`, or `deferredTaxLiability` on adjustment details: `utils/fxaTaxValues.ts` derives them from tax minus book accumulated depreciation and the asset’s dated `followInfos.incomeTaxRate`. GraphQL current/previous details derive their display values using their respective dates’ transaction-rule rates, overriding any legacy stored values. Journal generation uses the same calculation and compares the target to actual tax-account ledger balances; it never reads legacy derived caches. `getFxaRevaluationStates` reads a whole asset batch with one previous-adjustment lookup and shared snapshot/ledger queries. Snapshot cutoffs apply per asset; a missing or partial snapshot replays that asset’s full history without reapplying cached assets’ earlier movements. Revaluation limits are apportioned by active location quantity and never multiplied by count again. `attachPreviousFxaDetails` batches the immediately previous completed/published adjustment snapshots by asset/location for GraphQL `previous`; it never persists comparison values. Financial depreciation still follows the dated ledger so movements/revaluations cannot be mistaken for period expense.
@@ -350,6 +355,8 @@
 - Automatic fixed asset adjustment calculation supports every fixed asset depreciation method except `manual`; `manual` must fail validation until an entered-depreciation detail flow exists.
 
 ## Validation
+
+- Tunable report smoke scenario: add a report with two sections using different columns, add rows and formulas, reorder sections/rows/columns, save and reopen. Verify stable formula references, formula → row → column date/comparison inheritance (including explicit current-period false), Show layout, list refresh after writes, delete confirmations, cross-report reference rejection and stale-version conflicts. Cell amounts are not evaluated by this management feature.
 
 - Smoke scenario: post a January 31 fixed asset adjustment, then try creating, editing, deleting or moving a January 1 acquisition to February. All must fail before writes; February transactions remain allowed. Cancel the adjustment and retry. Repeat with published inventory, completed fund/debt rate and completed/published closing adjustments, including adjustment post/undo with and without later periods. Verify 23:59:59.999 is locked, next midnight is allowed, and a closing rejection skips journal-specific lookups.
 

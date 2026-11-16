@@ -1,3 +1,4 @@
+export { reportMutations as TunableReports } from './reports';
 export { accountsMutations as Accounts } from './accounts';
 import AccountCategories from './accountCategories';
 export { vatRowsMutations as VatRows } from './vatRows';
