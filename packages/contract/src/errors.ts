@@ -115,6 +115,10 @@ export const ERRORS = {
   TAG_LIMIT: { status: 409 },
   // Branches and departments: at most LIST_MAX per organisation, read whole.
   UNIT_LIMIT: { status: 409 },
+  /** Units still have the type: move them to another first. */
+  UNIT_TYPE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
+  /** Each kind keeps at least one active type. */
+  LAST_UNIT_TYPE: { status: 409 },
   INVALID_FIELD: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_VALUE: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_GROUP: { status: 400, data: z.object({ groupId: z.string() }).optional() },

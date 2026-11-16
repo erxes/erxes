@@ -1,4 +1,5 @@
 import { seedLeadStages } from '~/modules/leads/leadStages.service';
+import { seedUnitTypes } from '~/modules/units/unitTypes.service';
 import type { Db } from '@erxes/core-db';
 import { newId, organizations, users, withSystem } from '@erxes/core-db';
 import { currencyOfCountry } from '@erxes/core-contract';
@@ -64,6 +65,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
 
   await seedRoles(tx, organization.id);
   await seedLeadStages(tx, organization.id);
+  await seedUnitTypes(tx, organization.id);
 
   const owner = oneRow(
     await tx

@@ -3,6 +3,7 @@ import { actorOf, caller, type Db, orgUnitMembers, orgUnits } from '@erxes/core-
 import { fail } from '~/http/errors';
 import { assertRoom, publishUnitEvents, teamMembers } from './unitRows';
 import type { UnitFields } from './units.service';
+import { unitTypeRows } from './unitTypes.service';
 
 export type ImportedUnit = Omit<UnitFields, 'memberIds'> & {
   id: string;
@@ -120,12 +121,25 @@ export const importUnits = async (client: Db, units: ImportedUnit[]) => {
   await assertRoom(client, inserts.length);
 
   const createdBy = actorOf(caller()).actorId;
+  const types = await unitTypeRows(client);
+
+  // A unit keeps the type it names when that is one of its kind; others get the kind's default.
+  const typeFor = (kind: UnitKind, typeId: string | undefined) => {
+    const named = types.find((type) => type.id === typeId && type.kind === kind);
+    const fallback = types.find((type) => type.kind === kind && type.isActive);
+    const type = named ?? fallback;
+
+    if (!type) throw fail('INVALID_REFERENCE', `No active ${kind} type`, { field: 'typeId' });
+
+    return type.id;
+  };
 
   // One statement, parents first: its foreign keys are checked once every row is in.
   if (inserts.length) {
     await client.insert(orgUnits).values(
       inserts.map(({ memberIds: _members, supervisorId, ...row }) => ({
         ...row,
+        typeId: typeFor(row.kind, row.typeId),
         supervisorId: supervisorId && team.has(supervisorId) ? supervisorId : null,
         createdBy,
       })),

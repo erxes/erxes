@@ -111,6 +111,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     field: 'code',
     message: 'Another unit of this kind has this code',
   },
+  core_org_unit_types_org_kind_code_key: {
+    field: 'code',
+    message: 'Another unit type of this kind has this code',
+  },
 };
 
 /**

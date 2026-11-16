@@ -165,6 +165,105 @@ describe('units', { timeout: 120_000 }, () => {
     ).rejects.toMatchObject({ status: 403 });
   });
 
+  it('gives units types of their kind, whose rules say where they may sit', async () => {
+    const owner = t.owner();
+    const { data: defaults } = await owner.unitTypes.list({});
+
+    // Every organisation starts with one type per kind, and a unit gets its kind's.
+    expect(defaults.map(({ kind, name, code }) => ({ kind, name, code }))).toEqual([
+      { kind: 'branch', name: 'Branch', code: 'branch' },
+      { kind: 'department', name: 'Department', code: 'department' },
+    ]);
+    expect((await t.other().unitTypes.list({ kind: 'branch' })).data).toHaveLength(1);
+
+    const department = defaults[1]?.id ?? '';
+    const finance = await owner.units.create({ kind: 'department', name: 'Finance' });
+
+    expect(finance.typeId).toBe(department);
+
+    // A Team sits only under a Department, never at the top.
+    const team = await owner.unitTypes.create({
+      kind: 'department',
+      name: 'Team',
+      code: 'team',
+      canBeRoot: false,
+      allowedParentTypeIds: [department],
+    });
+
+    await expect(
+      owner.units.create({ kind: 'department', name: 'Loose', typeId: team.id }),
+    ).rejects.toMatchObject({ status: 400, data: { field: 'typeId' } });
+
+    const payroll = await owner.units.create({
+      kind: 'department',
+      name: 'Payroll',
+      typeId: team.id,
+      parentId: finance.id,
+    });
+
+    // A branch type is not a department's, and a type's code is unique for its kind.
+    await expect(
+      owner.units.create({ kind: 'branch', name: 'Depot', typeId: team.id }),
+    ).rejects.toMatchObject({ status: 400, data: { field: 'typeId' } });
+    await expect(
+      owner.unitTypes.create({ kind: 'department', name: 'Squad', code: 'TEAM' }),
+    ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'code' } });
+
+    // Finance can't become a Team (it is at the top), nor Payroll move to the top.
+    await expect(owner.units.update({ id: finance.id, typeId: team.id })).rejects.toMatchObject({
+      status: 400,
+      data: { field: 'typeId' },
+    });
+    await expect(owner.units.update({ id: payroll.id, parentId: null })).rejects.toMatchObject({
+      status: 400,
+      data: { field: 'typeId' },
+    });
+
+    // A used type stays, and so does a kind's last active one.
+    await expect(owner.unitTypes.remove({ id: team.id })).rejects.toMatchObject({
+      status: 409,
+      code: 'UNIT_TYPE_IN_USE',
+      data: { count: 1 },
+    });
+    await expect(
+      owner.unitTypes.update({ id: defaults[0]?.id ?? '', isActive: false }),
+    ).rejects.toMatchObject({ status: 409, code: 'LAST_UNIT_TYPE' });
+
+    await owner.units.update({ id: payroll.id, typeId: department });
+    await owner.unitTypes.remove({ id: team.id });
+
+    // A plugin brings its types: by id, by code, or new with its old id.
+    const imported = await t.hr().unitTypes.import({
+      types: [
+        { id: 'hr-dept', kind: 'department', name: 'Dept', code: 'DEPARTMENT' },
+        {
+          id: 'hr-office',
+          kind: 'department',
+          name: 'Office',
+          canBeRoot: false,
+          allowedParentTypeIds: ['hr-dept', 'unknown'],
+        },
+      ],
+    });
+
+    expect(imported.ids).toEqual({ 'hr-dept': department, 'hr-office': 'hr-office' });
+    expect(
+      (await owner.unitTypes.list({ kind: 'department' })).data.find(
+        (type) => type.id === 'hr-office',
+      ),
+    ).toMatchObject({ canBeRoot: false, allowedParentTypeIds: [department] });
+
+    // Imported units keep a type of their kind, or get their kind's first.
+    await t.hr().units.import({
+      units: [
+        { id: 'hr-a', kind: 'department', name: 'A', typeId: 'hr-office', memberIds: [] },
+        { id: 'hr-b', kind: 'branch', name: 'B', typeId: 'hr-office', memberIds: [] },
+      ],
+    });
+    expect((await owner.units.get({ id: 'hr-a' })).typeId).toBe('hr-office');
+    expect((await owner.units.get({ id: 'hr-b' })).typeId).toBe(defaults[0]?.id);
+  });
+
   it('sends core.unit.* to plugins that may read units', async () => {
     const api = await pluginApi(t.url(''), 'tms');
 

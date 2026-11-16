@@ -229,6 +229,11 @@ export const ACCESS = {
   'units.remove': { member: 'structure.manage', plugin: 'units:write' },
   'units.assign': { member: 'structure.manage', plugin: 'units:write' },
   'units.import': { plugin: 'units:write' },
+  'unitTypes.list': { member: 'any', plugin: 'units:read' },
+  'unitTypes.create': { member: 'structure.manage', plugin: 'units:write' },
+  'unitTypes.update': { member: 'structure.manage', plugin: 'units:write' },
+  'unitTypes.remove': { member: 'structure.manage', plugin: 'units:write' },
+  'unitTypes.import': { plugin: 'units:write' },
 
   'trash.list': needs('contacts.delete'),
   'trash.restore': needs('contacts.delete'),

@@ -4,8 +4,10 @@ import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertRoom, assertTeam, findUnit, publishUnitEvents, setMembers } from './unitRows';
+import { assertChildrenFit, assertPlacement, findType, typeForUnit } from './unitTypes.service';
 
 export interface UnitFields {
+  typeId?: string;
   name?: string;
   code?: string | null;
   parentId?: string | null;
@@ -19,12 +21,12 @@ export interface UnitFields {
 
 const badParent = (message: string) => fail('INVALID_REFERENCE', message, { field: 'parentId' });
 
-/** The parent's path, after checking it is a unit of the same kind. */
-const parentPath = async (client: Db, kind: UnitKind, parentId: string | null | undefined) => {
-  if (!parentId) return '/';
+/** The parent's path and type, after checking it is a unit of the same kind. */
+const parentOf = async (client: Db, kind: UnitKind, parentId: string | null | undefined) => {
+  if (!parentId) return { path: '/', typeId: null };
 
   const [parent] = await client
-    .select({ kind: orgUnits.kind, path: orgUnits.path })
+    .select({ kind: orgUnits.kind, path: orgUnits.path, typeId: orgUnits.typeId })
     .from(orgUnits)
     .where(eq(orgUnits.id, parentId));
 
@@ -32,7 +34,7 @@ const parentPath = async (client: Db, kind: UnitKind, parentId: string | null | 
 
   if (parent.kind !== kind) throw badParent(`A ${kind} can only sit under a ${kind}`);
 
-  return parent.path;
+  return parent;
 };
 
 const assertPeople = async (client: Db, fields: UnitFields) => {
@@ -48,11 +50,18 @@ export const createUnit = async (
   await assertPeople(client, { ...fields, memberIds });
 
   const id = newId();
-  const path = `${await parentPath(client, fields.kind, fields.parentId)}${id}/`;
+  const parent = await parentOf(client, fields.kind, fields.parentId);
+  const type = await typeForUnit(client, fields.kind, fields.typeId);
 
-  await client
-    .insert(orgUnits)
-    .values({ ...fields, id, path, createdBy: actorOf(caller()).actorId });
+  assertPlacement(type, parent.typeId);
+
+  await client.insert(orgUnits).values({
+    ...fields,
+    id,
+    typeId: type.id,
+    path: `${parent.path}${id}/`,
+    createdBy: actorOf(caller()).actorId,
+  });
   await setMembers(client, id, memberIds);
   await publishUnitEvents(client, 'created', [{ id, kind: fields.kind }]);
 
@@ -77,9 +86,23 @@ export const updateUnit = async (client: Db, id: string, { memberIds, ...fields 
 
   const changed = Object.keys(fields);
   const below: string[] = [];
+  const moving = fields.parentId !== undefined && fields.parentId !== unit.parentId;
+  const retyping = fields.typeId !== undefined && fields.typeId !== unit.typeId;
+  const parent = await parentOf(client, unit.kind, moving ? fields.parentId : unit.parentId);
 
-  if (fields.parentId !== undefined && fields.parentId !== unit.parentId) {
-    const to = `${await parentPath(client, unit.kind, fields.parentId)}${id}/`;
+  if (moving || retyping) {
+    // A new type must be active; a unit keeps an inactive one when it only moves.
+    const type = retyping
+      ? await typeForUnit(client, unit.kind, fields.typeId)
+      : await findType(client, unit.typeId);
+
+    assertPlacement(type, parent.typeId);
+
+    if (retyping) await assertChildrenFit(client, id, fields.typeId ?? unit.typeId);
+  }
+
+  if (moving) {
+    const to = `${parent.path}${id}/`;
 
     if (to.startsWith(unit.path)) throw badParent('A unit cannot sit under itself');
 

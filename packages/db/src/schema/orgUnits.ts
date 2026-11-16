@@ -1,10 +1,67 @@
 import { ORG_UNIT_KINDS } from '../enums';
 import { sql } from 'drizzle-orm';
-import { check, foreignKey, index, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  check,
+  foreignKey,
+  index,
+  integer,
+  primaryKey,
+  text,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 import { users } from './users';
+
+/**
+ * The kinds of branch and department an organisation uses (head office, store; division, team), and
+ * where each may sit: at the top (`canBeRoot`) and under which types of its kind
+ * (`allowedParentTypeIds`, empty for any). Every organisation starts with a Branch and a
+ * Department type and keeps at least one of each kind.
+ */
+export const orgUnitTypes = pgTable(
+  'org_unit_types',
+  {
+    id: text().primaryKey(),
+    orgId: orgIdColumn(),
+    kind: text({ enum: ORG_UNIT_KINDS }).notNull(),
+    name: text().notNull(),
+    /** The organisation's own code, unique per kind. */
+    code: text(),
+    description: text(),
+    /** `#rrggbb` */
+    color: text().default('#64748b').notNull(),
+    /** A Tabler icon name (`IconBuilding`). */
+    icon: text(),
+    canBeRoot: boolean().default(true).notNull(),
+    allowedParentTypeIds: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
+    /** Inactive types stay on their units but aren't given to new ones. */
+    isActive: boolean().default(true).notNull(),
+    /** The first active type of a kind is the one a unit gets when none is named. */
+    sortOrder: integer().default(0).notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    // The target of the units' kind-checked type key.
+    uniqueIndex('core_org_unit_types_org_id_kind_key').on(table.orgId, table.id, table.kind),
+    uniqueIndex('core_org_unit_types_org_kind_code_key')
+      .on(table.orgId, table.kind, sql`lower(${table.code})`)
+      .where(sql`${table.code} IS NOT NULL`),
+    index('core_org_unit_types_org_kind_order_idx').on(table.orgId, table.kind, table.sortOrder),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_org_unit_types_org_id_fkey',
+    }).onDelete('cascade'),
+    check('core_org_unit_types_kind_check', inList(table.kind, ORG_UNIT_KINDS)),
+  ],
+);
 
 /**
  * Branches and departments, shared by every plugin: two trees in one table. Plugins keep a
@@ -17,6 +74,8 @@ export const orgUnits = pgTable(
     id: text().primaryKey(),
     orgId: orgIdColumn(),
     kind: text({ enum: ORG_UNIT_KINDS }).notNull(),
+    /** One of the organisation's unit types, of the unit's kind. */
+    typeId: text().notNull(),
     name: text().notNull(),
     /** The organisation's own code, unique per kind when set. */
     code: text(),
@@ -60,6 +119,12 @@ export const orgUnits = pgTable(
       foreignColumns: [table.orgId, table.id, table.kind],
       name: 'core_org_units_parent_fkey',
     }),
+    foreignKey({
+      columns: [table.orgId, table.typeId, table.kind],
+      foreignColumns: [orgUnitTypes.orgId, orgUnitTypes.id, orgUnitTypes.kind],
+      name: 'core_org_units_type_fkey',
+    }),
+    index('core_org_units_org_type_idx').on(table.orgId, table.typeId),
     foreignKey({
       columns: [table.supervisorId],
       foreignColumns: [users.id],

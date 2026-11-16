@@ -18,7 +18,7 @@ import { productCategoriesContract, productsContract } from './products';
 import { rolesContract } from './roles';
 import { tagsContract } from './tags';
 import { trashContract } from './trash';
-import { unitsContract } from './units';
+import { unitTypesContract, unitsContract } from './units';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
 import { saasContract } from './saas';
@@ -53,6 +53,7 @@ export const coreContract = {
   saas: saasContract,
   tags: tagsContract,
   units: unitsContract,
+  unitTypes: unitTypesContract,
   trash: trashContract,
   transfer: transferContract,
   users: usersContract,

@@ -1,4 +1,4 @@
-import type { Unit, UnitKind } from '@erxes/core-contract';
+import type { Unit, UnitKind, UnitType } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
@@ -6,6 +6,20 @@ import { useTranslation } from 'react-i18next';
 
 export const useUnits = (kind: UnitKind) =>
   useQuery(orpc.units.list.queryOptions({ input: { kind } }));
+
+export const useUnitTypes = (kind: UnitKind) =>
+  useQuery(orpc.unitTypes.list.queryOptions({ input: { kind } }));
+
+/** Active types a unit may have under `parent` (null: at the top), keeping its own. */
+export const typesFor = (types: UnitType[], parentTypeId: string | null, current?: string) =>
+  types.filter(
+    (type) =>
+      type.id === current ||
+      (type.isActive &&
+        (parentTypeId === null
+          ? type.canBeRoot
+          : !type.allowedParentTypeIds.length || type.allowedParentTypeIds.includes(parentTypeId))),
+  );
 
 /** A unit with how deep it sits, for an indented list. */
 export interface UnitRow {
@@ -47,20 +61,24 @@ export const useUnitMutations = () => {
   const client = useQueryClient();
 
   const handlers = (failed: string) => ({
-    onSuccess: () => void client.invalidateQueries({ queryKey: orpc.units.key() }),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: orpc.units.key() });
+      void client.invalidateQueries({ queryKey: orpc.unitTypes.key() });
+    },
     onError: (error: Error) =>
       toast({ variant: 'destructive', title: failed, description: messageOf(error) }),
   });
 
+  const added = handlers(t('create-failed', 'Could not add it'));
+  const saved = handlers(t('update-failed', 'Could not save it'));
+  const removed = handlers(t('remove-failed', 'Could not delete it'));
+
   return {
-    create: useMutation(
-      orpc.units.create.mutationOptions(handlers(t('create-failed', 'Could not add it'))),
-    ),
-    update: useMutation(
-      orpc.units.update.mutationOptions(handlers(t('update-failed', 'Could not save it'))),
-    ),
-    remove: useMutation(
-      orpc.units.remove.mutationOptions(handlers(t('remove-failed', 'Could not delete it'))),
-    ),
+    create: useMutation(orpc.units.create.mutationOptions(added)),
+    update: useMutation(orpc.units.update.mutationOptions(saved)),
+    remove: useMutation(orpc.units.remove.mutationOptions(removed)),
+    createType: useMutation(orpc.unitTypes.create.mutationOptions(added)),
+    updateType: useMutation(orpc.unitTypes.update.mutationOptions(saved)),
+    removeType: useMutation(orpc.unitTypes.remove.mutationOptions(removed)),
   };
 };

@@ -1,4 +1,4 @@
-import type { Unit } from '@erxes/core-contract';
+import type { Unit, UnitType } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
 import { UnitKind } from '@erxes/core-contract/values';
 import { IconHierarchy2, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
@@ -19,7 +19,8 @@ import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { UnitDialog } from './UnitDialog';
-import { treeRows, useUnitMutations, useUnits } from './useUnits';
+import { TypeBadge, UnitTypes } from './UnitTypes';
+import { treeRows, useUnitMutations, useUnits, useUnitTypes } from './useUnits';
 
 /** How the page words branches or departments. */
 const useWords = (kind: UnitKind) => {
@@ -45,25 +46,62 @@ const useWords = (kind: UnitKind) => {
       };
 };
 
+/** A row's edit and delete buttons. */
+const UnitActions = ({ unit, onEdit }: { unit: Unit; onEdit: (unit: Unit) => void }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { confirm } = useConfirm();
+  const { remove } = useUnitMutations();
+
+  return (
+    <Table.Cell className="text-right">
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={t('edit', 'Edit')}
+        onClick={() => onEdit(unit)}
+      >
+        <IconPencil />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={t('remove', 'Delete')}
+        onClick={() =>
+          void confirm({
+            message: t(
+              'remove-confirm',
+              'Delete {{name}}? The units under it move up a level, and plugins drop it from their records.',
+              { name: unit.name },
+            ),
+          }).then(() => remove.mutate({ id: unit.id }))
+        }
+      >
+        <IconTrash />
+      </Button>
+    </Table.Cell>
+  );
+};
+
 /** The units of one kind as an indented tree, with who leads each and how many are in it. */
 const UnitTable = ({
   units,
+  types,
   canChange,
   onEdit,
 }: {
   units: Unit[];
+  types: UnitType[];
   canChange: boolean;
   onEdit: (unit: Unit) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { confirm } = useConfirm();
-  const { remove } = useUnitMutations();
 
   return (
     <Table variant="card" className="overflow-hidden">
       <Table.Header>
         <Table.Row>
           <Table.Head>{t('name', 'Name')}</Table.Head>
+          <Table.Head>{t('type', 'Type')}</Table.Head>
           <Table.Head>{t('code', 'Code')}</Table.Head>
           <Table.Head>{t('supervisor', 'Supervisor')}</Table.Head>
           <Table.Head className="text-right">{t('members', 'Members')}</Table.Head>
@@ -78,6 +116,9 @@ const UnitTable = ({
               <span className="font-medium">{unit.name}</span>
             </Table.Cell>
             <Table.Cell>
+              <TypeBadge type={types.find((type) => type.id === unit.typeId)} />
+            </Table.Cell>
+            <Table.Cell>
               <span className="text-muted-foreground">{unit.code}</span>
             </Table.Cell>
             <Table.Cell>
@@ -88,34 +129,7 @@ const UnitTable = ({
               )}
             </Table.Cell>
             <Table.Cell className="text-right">{unit.memberIds.length}</Table.Cell>
-            {canChange && (
-              <Table.Cell className="text-right">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('edit', 'Edit')}
-                  onClick={() => onEdit(unit)}
-                >
-                  <IconPencil />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('remove', 'Delete')}
-                  onClick={() =>
-                    void confirm({
-                      message: t(
-                        'remove-confirm',
-                        'Delete {{name}}? The units under it move up a level, and plugins drop it from their records.',
-                        { name: unit.name },
-                      ),
-                    }).then(() => remove.mutate({ id: unit.id }))
-                  }
-                >
-                  <IconTrash />
-                </Button>
-              </Table.Cell>
-            )}
+            {canChange && <UnitActions unit={unit} onEdit={onEdit} />}
           </Table.Row>
         ))}
       </Table.Body>
@@ -126,30 +140,38 @@ const UnitTable = ({
 const KindPanel = ({ kind, canChange }: { kind: UnitKind; canChange: boolean }) => {
   const words = useWords(kind);
   const query = useUnits(kind);
+  const typeQuery = useUnitTypes(kind);
   const [editing, setEditing] = useState<Unit | 'new' | null>(null);
   const units = query.data?.data ?? [];
+  const types = typeQuery.data?.data ?? [];
 
   return (
     <div className="flex flex-col gap-4">
-      {canChange && (
-        <div className="flex justify-end">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <QueryState query={typeQuery}>
+          {() => <UnitTypes kind={kind} types={types} canChange={canChange} />}
+        </QueryState>
+        {canChange && (
           <Button onClick={() => setEditing('new')}>
             <IconPlus />
             {words.add}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
       <QueryState
         query={query}
         isEmpty={(data) => !data.data.length}
         empty={<p className="py-12 text-center text-sm text-muted-foreground">{words.empty}</p>}
       >
-        {(data) => <UnitTable units={data.data} canChange={canChange} onEdit={setEditing} />}
+        {(data) => (
+          <UnitTable units={data.data} types={types} canChange={canChange} onEdit={setEditing} />
+        )}
       </QueryState>
       <UnitDialog
         kind={kind}
         unit={editing === 'new' ? null : editing}
         units={units}
+        types={types}
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
         title={editing === 'new' ? words.add : words.edit}

@@ -18,6 +18,7 @@ export {
   activities,
   apiKeys,
   orgUnitMembers,
+  orgUnitTypes,
   orgUnits,
   automationRuns,
   automationRunSteps,

@@ -3,6 +3,13 @@ import { audited, recordOf, scoped } from '~/orpc';
 import { findUnit, unitRows } from './unitRows';
 import { importUnits } from './units.import';
 import { assignUnits, createUnit, removeUnit, updateUnit } from './units.service';
+import {
+  createUnitType,
+  importUnitTypes,
+  removeUnitType,
+  unitTypeRows,
+  updateUnitType,
+} from './unitTypes.service';
 
 /** Members with `structure.manage` and plugins with `units:write` change them; each write is audited. */
 export const unitsRouter = {
@@ -42,6 +49,41 @@ export const unitsRouter = {
         action: 'unit.imported',
         targetType: 'unit',
         metadata: { count: input.units.length, skippedMembers: result.skippedMembers },
+      }),
+    ),
+  ),
+};
+
+/** The types of branch and department: written like units, by the same members and plugins. */
+export const unitTypesRouter = {
+  list: scoped.unitTypes.list.handler(async ({ input }) => ({
+    data: await unitTypeRows(db(), input),
+  })),
+  create: scoped.unitTypes.create.handler(({ input }) =>
+    audited(
+      (tx) => createUnitType(tx, input),
+      (type) => recordOf('unit_type', 'created', type.id, type),
+    ),
+  ),
+  update: scoped.unitTypes.update.handler(({ input: { id, ...changes } }) =>
+    audited(
+      (tx) => updateUnitType(tx, id, changes),
+      (type) => ({ ...recordOf('unit_type', 'updated', id, type), metadata: changes }),
+    ),
+  ),
+  remove: scoped.unitTypes.remove.handler(({ input }) =>
+    audited(
+      (tx) => removeUnitType(tx, input.id),
+      (type) => recordOf('unit_type', 'deleted', type.id, type),
+    ).then(() => ({ ok: true as const })),
+  ),
+  import: scoped.unitTypes.import.handler(({ input }) =>
+    audited(
+      (tx) => importUnitTypes(tx, input.types),
+      () => ({
+        action: 'unit_type.imported',
+        targetType: 'unit_type',
+        metadata: { count: input.types.length },
       }),
     ),
   ),
