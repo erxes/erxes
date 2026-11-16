@@ -72,6 +72,8 @@ export const loadAdjustFixedAssetClass = (
           doc.expenseAccountId ||
           previous?.expenseAccountId ||
           previousTransaction?.details[0]?.accountId,
+        taxExpenseAccountId:
+          doc.taxExpenseAccountId || previous?.taxExpenseAccountId,
         status: ADJ_FXA_STATUSES.DRAFT,
         createdAt: new Date(),
       });

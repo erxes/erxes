@@ -23,6 +23,7 @@ import { AssistantButton } from '@/agent/components/AssistantButton';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { useEffect } from 'react';
+import { NavPosition } from '@/app/constants/appearance';
 import { useTranslation } from 'react-i18next';
 
 export type CoreTabOrientation = 'horizontal' | 'vertical';
@@ -34,7 +35,8 @@ export type CoreTabOrientation = 'horizontal' | 'vertical';
  */
 export const CoreTab = ({
   orientation = 'horizontal',
-}: Readonly<{ orientation?: CoreTabOrientation }>) => {
+  position = 'start',
+}: Readonly<{ orientation?: CoreTabOrientation; position?: NavPosition }>) => {
   const {
     activities,
     closeOtherTabs,
@@ -52,6 +54,7 @@ export const CoreTab = ({
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const vertical = orientation === 'vertical';
+  const atEnd = position === 'end';
   const routeActivityId = routeActivity?.id;
   const isInboxActive = routeActivityId === INBOX_TAB_ID;
   const isSettingsActive = routeActivityId === SETTINGS_TAB_ID;
@@ -169,7 +172,7 @@ export const CoreTab = ({
 
   if (vertical) {
     return (
-      <CoreTabSideContext.Provider value="right">
+      <CoreTabSideContext.Provider value={atEnd ? 'left' : 'right'}>
         <Tooltip.Provider delayDuration={300}>
           <nav
             aria-label={t('plugins')}
@@ -187,16 +190,18 @@ export const CoreTab = ({
   }
 
   return (
-    <Tooltip.Provider delayDuration={300}>
-      <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2 group-data-[framed=true]/layout:border-b-0 group-data-[framed=true]/layout:bg-transparent dark:group-data-[framed=true]/layout:text-primary-foreground">
-        {brand}
-        {switcher}
-        {appTabs}
-        <div className="flex shrink-0 items-center gap-0.5">
-          {search}
-          {actions}
-        </div>
-      </header>
-    </Tooltip.Provider>
+    <CoreTabSideContext.Provider value={atEnd ? 'top' : 'bottom'}>
+      <Tooltip.Provider delayDuration={300}>
+        <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2 group-data-[framed=true]/layout:border-b-0 group-data-[framed=true]/layout:bg-transparent dark:group-data-[framed=true]/layout:text-primary-foreground">
+          {brand}
+          {switcher}
+          {appTabs}
+          <div className="flex shrink-0 items-center gap-0.5">
+            {search}
+            {actions}
+          </div>
+        </header>
+      </Tooltip.Provider>
+    </CoreTabSideContext.Provider>
   );
 };

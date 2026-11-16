@@ -340,6 +340,20 @@ const linksOf = (
     );
   }
 
+  if (node.type === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
+    entries.push(
+      ['config.met', config.met],
+      ['config.timedOut', config.timedOut],
+    );
+  }
+
+  if (node.type === AUTOMATION_CORE_ACTIONS.APPROVAL) {
+    entries.push(
+      ['config.approved', config.approved],
+      ['config.rejected', config.rejected],
+    );
+  }
+
   const optionalConnects = Array.isArray(config.optionalConnects)
     ? config.optionalConnects
     : [];

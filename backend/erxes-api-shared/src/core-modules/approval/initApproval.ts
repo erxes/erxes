@@ -4,7 +4,10 @@ import { Express } from 'express';
 import { initializePluginConfig } from '../../utils/service-discovery';
 import { createTRPCContext } from '../../utils/trpc';
 import { TApprovalChangeProducers, TApprovalConfig } from './types';
-import { approvalChangeApplyInputSchema } from './zodSchemas';
+import {
+  approvalChangeApplyInputSchema,
+  approvalChangeRejectInputSchema,
+} from './zodSchemas';
 import {
   localApprovalChangeType,
   normalizeApprovalConfig,
@@ -46,6 +49,24 @@ export const initApproval = async (
         await applier({ ...data, models, subdomain });
 
         return { applied: true };
+      }),
+    [TApprovalChangeProducers.REJECT]: t.procedure
+      .input(approvalChangeRejectInputSchema)
+      .mutation(async ({ input }) => {
+        const { subdomain, data } = input;
+        const rejecter =
+          config.rejecters?.[localApprovalChangeType(pluginName, data.changeType)];
+
+        // A change that simply does not happen needs no rejecter.
+        if (!rejecter) {
+          return { handled: false };
+        }
+
+        const models = await config.generateModels(subdomain);
+
+        await rejecter({ ...data, models, subdomain });
+
+        return { handled: true };
       }),
   };
 

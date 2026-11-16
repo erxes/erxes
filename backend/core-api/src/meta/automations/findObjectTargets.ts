@@ -4,6 +4,9 @@ import {
   TAutomationFindObjectResult,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import { SECRET_USER_FIELDS_PROJECTION } from '~/modules/organization/team-member/loggedUser';
+import { PRODUCT_STATUSES } from '@/products/constants';
+import { toProductStockView } from '@/products/meta/productStock';
 import {
   COMPANY_TRIGGER_OUTPUT,
   CUSTOMER_TRIGGER_OUTPUT,
@@ -14,15 +17,43 @@ type TFindObjectTarget = {
   label: string;
   lookupFields: TAutomationFindObjectTargetDefinition['lookupFields'];
   getCollection: (models: IModels) => {
-    findOne: (filter: Record<string, unknown>) => {
+    findOne: (
+      filter: Record<string, unknown>,
+      projection?: Record<string, 0>,
+      options?: { sort: Record<string, -1> },
+    ) => {
       lean: () => Promise<Record<string, unknown> | null>;
     };
   };
+  // Fields never handed to an automation run, its history or an agent
+  projection?: Record<string, 0>;
   generateFilter: (
     field: string,
     value: string,
   ) => Record<string, unknown> | null;
   output: TAutomationFindObjectTargetDefinition['output'];
+  lookup?: TAutomationFindObjectTargetDefinition['lookup'];
+  // The record as a run reads it, when that differs from the stored document
+  toObject?: (
+    models: IModels,
+    doc: Record<string, unknown>,
+  ) => Promise<Record<string, unknown>>;
+};
+
+export const CORE_PRODUCT_FIND_OBJECT_TYPE = 'core:products.products';
+
+const generateProductFilter = (field: string, value: string) => {
+  const base = { status: { $ne: PRODUCT_STATUSES.DELETED } };
+
+  if (field === '_id') {
+    return { ...base, _id: value };
+  }
+
+  if (field === 'code') {
+    return { ...base, code: value };
+  }
+
+  return null;
 };
 
 const generateCompanyFilter = (field: string, value: string) => {
@@ -113,6 +144,34 @@ const generateUserFilter = (field: string, value: string) => {
 };
 
 export const CORE_FIND_OBJECT_TARGETS: Record<string, TFindObjectTarget> = {
+  [CORE_PRODUCT_FIND_OBJECT_TYPE]: {
+    label: 'Product',
+    lookupFields: [
+      { value: '_id', label: 'ID' },
+      { value: 'code', label: 'Code' },
+    ],
+    getCollection: (models) => models.Products,
+    generateFilter: generateProductFilter,
+    output: {
+      variables: [
+        { key: 'name', label: 'Name' },
+        { key: 'code', label: 'Code' },
+        { key: 'unitPrice', label: 'Unit price' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'uom', label: 'Unit' },
+        { key: 'stockTracked', label: 'Stock tracked' },
+        { key: 'remainder', label: 'In stock' },
+        { key: 'branches', label: 'Stock by branch' },
+      ],
+    },
+    lookup: {
+      description:
+        'A product\'s price and stock as they are now, found by the product code from the knowledge. remainder is the total in stock and branches splits it by branch. When stockTracked is false stock is not tracked: say nothing about availability.',
+      byFields: ['code'],
+    },
+    toObject: (models, doc) =>
+      toProductStockView(models, doc as Parameters<typeof toProductStockView>[1]),
+  },
   [TAutomationFindObjectType.COMPANY]: {
     label: 'Company',
     lookupFields: [
@@ -137,6 +196,11 @@ export const CORE_FIND_OBJECT_TARGETS: Record<string, TFindObjectTarget> = {
     getCollection: (models) => models.Customers,
     generateFilter: generateCustomerFilter,
     output: CUSTOMER_TRIGGER_OUTPUT,
+    lookup: {
+      description:
+        "The customer's own profile as it is now: name, email, phone and status. Call it before stating anything about the customer.",
+      customerField: '_id',
+    },
   },
   [TAutomationFindObjectType.USER]: {
     label: 'Team member',
@@ -148,6 +212,7 @@ export const CORE_FIND_OBJECT_TARGETS: Record<string, TFindObjectTarget> = {
       { value: 'employeeId', label: 'Employee ID' },
     ],
     getCollection: (models) => models.Users,
+    projection: SECRET_USER_FIELDS_PROJECTION,
     generateFilter: generateUserFilter,
     output: TEAM_MEMBER_TRIGGER_OUTPUT,
   },
@@ -159,6 +224,7 @@ export const CORE_FIND_OBJECT_TARGETS_CONST: TAutomationFindObjectTargetDefiniti
     label: target.label,
     lookupFields: target.lookupFields,
     output: target.output,
+    ...(target.lookup ? { lookup: target.lookup } : {}),
   }));
 
 export const buildFindObjectResult = ({

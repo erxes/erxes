@@ -815,9 +815,8 @@ const orderMutations: Record<string, Resolver> = {
           pluginName: 'sales',
           module: 'pos',
           action: 'createOrUpdateOrders',
-          input: {
-            query: { action: 'statusToDone', order, posToken: config.token },
-          },
+          // Flat like every other sync: sales reads action and order here
+          input: { action: 'statusToDone', order, posToken: config.token },
           defaultValue: {},
         });
       } catch (e) {

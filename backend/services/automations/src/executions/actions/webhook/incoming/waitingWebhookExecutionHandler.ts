@@ -1,3 +1,4 @@
+import { claimWaitEvent } from '../../../resolveWaitEvent';
 import { generateModels } from '../../../../connectionResolver';
 import { validateAgainstSchema } from './bodyValidator';
 import { executeActions } from '../../../executeActions';
@@ -155,10 +156,24 @@ export const waitingWebhookExecutionHandler = async (
     });
   }
 
+  // The wait may also time out: only the first of the two resumes the run.
+  const claimed = await claimWaitEvent(models, {
+    executionId: execution._id,
+    actionId,
+    outcome: 'met',
+  });
+
+  if (!claimed) {
+    return res.status(409).json({
+      success: false,
+      message: 'Execution already processed',
+    });
+  }
+
   await executeActions(
     subdomain,
-    execution.triggerType,
-    execution,
+    claimed.triggerType,
+    claimed,
     actionsMap,
     responseAction?.id,
   );

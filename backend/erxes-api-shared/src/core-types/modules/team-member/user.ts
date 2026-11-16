@@ -34,6 +34,21 @@ export interface IDetail {
 export interface IUserAppearance {
   layout?: string;
   frameColor?: string;
+  // Which edge of the frame the navigation sits on: start is top (notch) or
+  // left (sidebar), end is bottom or right.
+  navPosition?: string;
+}
+
+/**
+ * Whether a member takes new work, as they or a manager declared it. Absent
+ * means not declared; `until` ends the declaration without a job.
+ */
+export interface IUserAvailability {
+  status?: 'available' | 'unavailable';
+  until?: Date;
+  reason?: string;
+  setBy?: string;
+  setAt?: Date;
 }
 
 export interface IUser {
@@ -70,6 +85,7 @@ export interface IUser {
   positionIds?: string[];
   employeeId?: string;
   chatStatus?: IUserChatStatus;
+  availability?: IUserAvailability;
   lastSeenAt?: Date;
   onboardedPlugins?: string[];
   isOnboarded?: boolean;

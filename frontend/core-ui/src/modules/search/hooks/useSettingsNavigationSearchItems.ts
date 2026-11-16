@@ -72,7 +72,7 @@ export const useSettingsNavigationSearchItems = () => {
       ...toItems(t('developer', 'Developer'), settingsData.developer),
       ...toItems(
         t('core-modules', 'Core modules'),
-        GET_CORE_MODULES(t, version).filter(({ hasSettings }) => hasSettings),
+        GET_CORE_MODULES(t).filter(({ hasSettings }) => hasSettings),
       ),
     ];
 

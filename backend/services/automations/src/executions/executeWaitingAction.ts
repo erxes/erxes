@@ -1,4 +1,8 @@
-import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
+import {
+  AUTOMATION_CORE_ACTIONS,
+  AUTOMATION_EXECUTION_STATUS,
+} from 'erxes-api-shared/core-modules';
+import { claimWaitEvent } from './resolveWaitEvent';
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debugger';
 import { executeActions } from './executeActions';
@@ -36,6 +40,28 @@ export const executeWaitingAction = async (
   }
 
   const { responseActionId } = waitingAction || {};
+
+  // A wait event may also time out: whichever comes first resumes the run.
+  if (currentAction.type === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
+    const claimed = await claimWaitEvent(models, {
+      executionId: waitingExecution._id,
+      actionId: currentAction.id,
+      outcome: 'met',
+    });
+
+    if (!claimed) {
+      await models.WaitingActions.deleteOne({ _id: waitingAction._id });
+      return;
+    }
+
+    return await executeActions(
+      subdomain,
+      claimed.triggerType,
+      claimed,
+      actionsMap,
+      responseActionId,
+    );
+  }
 
   return await executeActions(
     subdomain,

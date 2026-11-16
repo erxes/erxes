@@ -1,5 +1,5 @@
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
-import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
+import { useAutomationsListLayout } from '@/automations/hooks/useAutomationsListLayout';
 import { WorkflowTemplatesCardList } from '@/automations/components/templates/WorkflowTemplatesCardList';
 import {
   useWorkflowTemplateFilters,

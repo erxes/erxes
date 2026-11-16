@@ -27,12 +27,16 @@ export const FxaChangeNumberField = ({
   label,
   compact = false,
   usefulYears = false,
+  labelOverride,
+  fallbackValue,
 }: IFxaChangeFieldProps & {
   rule:
     | 'revaluationLoss'
     | 'revaluationReserve'
     | 'taxAnnualDepreciationRate'
     | 'taxSalvageValue'
+    | 'taxPreDeprecation'
+    | 'incomeTaxRate'
     | 'originalCost'
     | 'preDeprecation'
     | 'salvageValue'
@@ -40,20 +44,24 @@ export const FxaChangeNumberField = ({
   label: string;
   compact?: boolean;
   usefulYears?: boolean;
+  labelOverride?: string;
+  fallbackValue?: number;
 }) => {
   const { t } = useTranslation('accounting');
   const fieldLabel =
-    rule === 'revaluationLoss' || rule === 'revaluationReserve'
+    labelOverride ??
+    (rule === 'revaluationLoss' || rule === 'revaluationReserve'
       ? `${t('total-amount')} ${t(label)}`
-      : t(label);
+      : t(label));
   return (
     <Form.Field
       control={form.control}
       name={`trDocs.${index}.details.${detailIndex}.followInfos.${rule}`}
       render={({ field }) => {
+        const numericValue = field.value ?? fallbackValue;
         const value = usefulYears
-          ? getUsefulLifeFromRate(field.value)
-          : field.value;
+          ? getUsefulLifeFromRate(numericValue)
+          : numericValue;
         const input = (
           <Input
             type="number"
@@ -61,7 +69,8 @@ export const FxaChangeNumberField = ({
             min={usefulYears ? 1 : 0}
             max={
               (rule === 'annualDepreciationRate' ||
-                rule === 'taxAnnualDepreciationRate') &&
+                rule === 'taxAnnualDepreciationRate' ||
+                rule === 'incomeTaxRate') &&
               !usefulYears
                 ? 100
                 : undefined
@@ -124,19 +133,27 @@ export const FxaChangeNumberField = ({
 
 export const FxaChangeLifeFields = ({
   tax = false,
+  className = 'grid grid-cols-2 gap-3',
+  fallbackRate,
   ...props
-}: IFxaChangeFieldProps & { tax?: boolean }) => (
-  <div className="grid grid-cols-2 gap-3">
+}: IFxaChangeFieldProps & {
+  tax?: boolean;
+  className?: string;
+  fallbackRate?: number;
+}) => (
+  <div className={className}>
     <FxaChangeNumberField
       {...props}
       rule={tax ? 'taxAnnualDepreciationRate' : 'annualDepreciationRate'}
-      label={tax ? 'tax-useful-life' : 'useful-life-in-years'}
+      label={tax ? 'tax-useful-life-in-years' : 'useful-life-in-years'}
       usefulYears
+      fallbackValue={fallbackRate}
     />
     <FxaChangeNumberField
       {...props}
       rule={tax ? 'taxAnnualDepreciationRate' : 'annualDepreciationRate'}
       label={tax ? 'annual-tax-depreciation-rate' : 'annual-depreciation-rate'}
+      fallbackValue={fallbackRate}
     />
   </div>
 );
@@ -148,10 +165,12 @@ export const FxaChangeMethodField = ({
   capital,
   tax = false,
   income = false,
+  fallbackValue,
 }: IFxaChangeFieldProps & {
   capital: boolean;
   tax?: boolean;
   income?: boolean;
+  fallbackValue?: string;
 }) => {
   const { t } = useTranslation('accounting');
   return (
@@ -166,7 +185,11 @@ export const FxaChangeMethodField = ({
             {t(tax ? 'tax-depreciation-method' : 'depreciation-method')}
           </Form.Label>
           <Select
-            value={field.value || (capital ? 'straightLine' : 'unchanged')}
+            value={
+              field.value ||
+              fallbackValue ||
+              (capital ? 'straightLine' : 'unchanged')
+            }
             onValueChange={(value) =>
               field.onChange(value === 'unchanged' ? undefined : value)
             }

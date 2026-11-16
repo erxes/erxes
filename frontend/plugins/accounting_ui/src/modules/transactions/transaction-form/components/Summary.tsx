@@ -27,8 +27,18 @@ import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
 import { followTrDocsState } from '../states/trStates';
 import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
 import { TrRightSidebar } from './TrRightSidebar';
+import { isHiddenTransaction } from './utils';
 
-const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
+type TSummableTrDoc = {
+  side?: string | null;
+  details?: Pick<ITrDetail, 'amount'>[] | null;
+};
+
+const getSum = (
+  trDocs: TSummableTrDoc[],
+  sumDebit: number,
+  sumCredit: number,
+) => {
   trDocs?.forEach((tr) => {
     if (!tr?.details?.[0]) {
       return;
@@ -79,9 +89,7 @@ export const Summary = ({
 
   const [sumDebit, sumCredit] = sumDtAndCt(trDocs as TTrDoc[], followTrDocs);
   const diffAmount = fixNum(sumCredit - sumDebit, 4);
-  const hasHiddenTransaction = (trDocs || []).some(
-    (trDoc: any) => trDoc?.permission === 'hidden',
-  );
+  const hasHiddenTransaction = (trDocs || []).some(isHiddenTransaction);
   const isDraftedStatus = DRAFTED_STATUSES.includes(status || '');
   const SubmitIcon = isDraftedStatus ? IconFilePencil : IconGavel;
 

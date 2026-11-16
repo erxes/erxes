@@ -13,7 +13,7 @@ export const useDelay = (config: TDelayConfigForm) => {
   });
   const { control, setValue, handleSubmit } = form;
 
-  const { value, type } =
+  const { value, type, workingTime } =
     useWatch<TDelayConfigForm>({
       control,
     }) || {};
@@ -87,5 +87,6 @@ export const useDelay = (config: TDelayConfigForm) => {
     handleValueChange,
     handleIntervalChange,
     handleSubmit,
+    workingTime,
   };
 };

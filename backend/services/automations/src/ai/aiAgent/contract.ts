@@ -43,14 +43,6 @@ const aiAgentKnowledgeSourceSchema = z.object({
   config: z.record(z.unknown()).default({}),
 });
 
-const aiAgentToolSchema = z.object({
-  pluginName: z.string().trim().min(1),
-  moduleName: z.string().trim().min(1),
-  key: z.string().trim().min(1),
-  enabled: z.boolean().default(true),
-  config: z.record(z.unknown()).default({}),
-});
-
 const aiAgentRuntimeSchema = z
   .object({
     temperature: z
@@ -92,7 +84,8 @@ const aiAgentContextSchema = z
       .default({}),
     files: z.array(aiAgentFileSchema).max(AI_AGENT_LIMITS.maxFiles).default([]),
     knowledgeSources: z.array(aiAgentKnowledgeSourceSchema).max(20).default([]),
-    tools: z.array(aiAgentToolSchema).max(20).default([]),
+    // Find object types the agent may look up for the customer it talks to
+    lookups: z.array(z.string().trim().min(1)).max(20).default([]),
   })
   .default({});
 
@@ -115,10 +108,6 @@ export type TAiAgentFile = z.infer<
 export type TAiAgentKnowledgeSource = z.infer<
   typeof aiAgentInputSchema
 >['context']['knowledgeSources'][number];
-export type TAiAgentTool = z.infer<
-  typeof aiAgentInputSchema
->['context']['tools'][number];
-
 export const parseAiAgentInput = (input: unknown): TAiAgentInput => {
   return aiAgentInputSchema.parse(input);
 };

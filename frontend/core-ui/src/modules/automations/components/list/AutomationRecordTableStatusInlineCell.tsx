@@ -1,5 +1,5 @@
 import {
-  AutomationStatusBadge,
+  AutomationStatusDot,
   AutomationStatusToggle,
   useAutomationStatusToggle,
 } from '@/automations/components/list/AutomationStatusToggle';
@@ -32,7 +32,7 @@ export const AutomationRecordTableStatusInlineCell = ({
     >
       <RecordTableInlineCell.Trigger>
         <div className="w-full flex">
-          <AutomationStatusBadge status={status} loading={loading} />
+          <AutomationStatusDot status={status} loading={loading} />
         </div>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content className="h-auto">

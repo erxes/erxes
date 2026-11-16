@@ -66,7 +66,11 @@ jest.mock('@/adjustments/fxa/components/AdjustFixedAssetTransactions', () => ({
 }));
 jest.mock('@/adjustments/fxa/hooks/useAdjustFixedAssetDetail', () => ({
   useAdjustFixedAssetDetail: () => ({
-    adjustFixedAsset: { _id: 'adjust', status: mockStatus, error: mockError },
+    adjustFixedAsset: {
+      _id: 'adjust',
+      status: mockStatus,
+      error: mockError,
+    },
     loading: false,
   }),
 }));
@@ -172,4 +176,15 @@ test('running periods do not expose conflicting operations', () => {
   expect(screen.queryByRole('button', { name: 'run' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'cancel' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'delete' })).toBeNull();
+});
+
+test('calculation runs directly without an adjustment income tax setting', () => {
+  mockStatus = 'process';
+  render(<AdjustFixedAssetDetail />);
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(
+    screen.getByRole('button', { name: 'depreciation-transaction' }),
+  ).toBeDefined();
+  fireEvent.click(screen.getByRole('button', { name: 'run' }));
+  expect(mockRun).toHaveBeenCalledWith();
 });

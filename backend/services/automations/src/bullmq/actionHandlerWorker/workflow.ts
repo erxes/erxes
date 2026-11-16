@@ -4,6 +4,12 @@ import { IModels } from '../../connectionResolver';
 import { debugInfo } from '../../debugger';
 import { executeActions } from '../../executions/executeActions';
 import { finalizeExecAction } from '../../executions/executionActionMetrics';
+import { createWorkflowChildExecution } from '../../executions/startWorkflowExecution';
+import {
+  advanceForEach,
+  forEachItemSuffix,
+  TWorkflowForEachState,
+} from '../../executions/workflowForEach';
 import { getExecutionActionsMap } from '../../utils/utils';
 import { IJobData } from '../initMQWorkers';
 
@@ -55,6 +61,7 @@ type TResumeParentData = {
 
 // A child execution finished: close the parent's waiting workflow action and
 // either continue the parent from the workflow node's nextActionId or fail it.
+// A for-each node starts the next item's child instead, until none is left.
 export const resumeParentExecutionWorker = async (
   models: IModels,
   job: Job<IJobData<TResumeParentData>>,
@@ -77,20 +84,66 @@ export const resumeParentExecutionWorker = async (
       (action) => action.actionId === workflowId && action.status === 'waiting',
     );
 
-  if (execAction) {
-    finalizeExecAction(execAction, status === 'complete' ? 'success' : 'error');
-    execAction.childExecutionId = childExecutionId;
+  const automation = await models.Automations.findOne({
+    _id: execution.automationId,
+  }).lean();
+  const workflow = (automation?.workflows || []).find(
+    ({ id }) => id === workflowId,
+  );
 
-    if (data.errorMessage) {
-      execAction.result = { error: data.errorMessage };
+  let failsRun = status === 'error';
+  let errorMessage = data.errorMessage;
+
+  const forEach: TWorkflowForEachState | undefined =
+    execAction?.result?.forEach;
+
+  if (execAction && forEach?.items) {
+    // A repeated notification for a child that is no longer the current one
+    if (forEach.currentChildId !== childExecutionId) {
+      return;
     }
+
+    const step = advanceForEach(forEach, status, errorMessage);
+
+    if (step.kind === 'nextItem') {
+      const { state } = step;
+
+      state.currentChildId = await createWorkflowChildExecution(
+        subdomain,
+        execution,
+        { id: workflowId, label: workflow?.name },
+        { ...state.inputs, [state.itemInput]: state.items[state.index] },
+        forEachItemSuffix(state.index, state.items.length),
+      );
+      execAction.result = { forEach: state };
+      execAction.childExecutionId = state.currentChildId;
+      execution.markModified('actions');
+      await execution.save();
+      return;
+    }
+
+    execAction.result = { forEach: step.summary };
+    failsRun = step.kind === 'stopped';
+
+    if (failsRun) {
+      errorMessage = `Item ${forEach.index + 1} of ${
+        forEach.items.length
+      } failed: ${errorMessage || 'unknown error'}`;
+    }
+  } else if (execAction && errorMessage) {
+    execAction.result = { error: errorMessage };
+  }
+
+  if (execAction) {
+    finalizeExecAction(execAction, failsRun ? 'error' : 'success');
+    execAction.childExecutionId = childExecutionId;
     execution.markModified('actions');
   }
 
-  if (status === 'error') {
+  if (failsRun) {
     execution.status = AUTOMATION_EXECUTION_STATUS.ERROR;
     execution.description = `Workflow failed: ${
-      data.errorMessage || 'unknown error'
+      errorMessage || 'unknown error'
     }`;
     execution.failedActionId = execAction?.actionId;
     execution.failedActionType = execAction?.actionType;
@@ -98,13 +151,6 @@ export const resumeParentExecutionWorker = async (
     await execution.save();
     return;
   }
-
-  const automation = await models.Automations.findOne({
-    _id: execution.automationId,
-  }).lean();
-  const workflow = (automation?.workflows || []).find(
-    ({ id }) => id === workflowId,
-  );
 
   if (!automation) {
     execution.status = AUTOMATION_EXECUTION_STATUS.MISSID;

@@ -16,8 +16,19 @@ jest.mock('erxes-ui', () => {
       (props: React.ComponentProps<typeof FormProvider>) =>
         react.createElement(FormProvider, props),
       {
-        Field: (props: ControllerProps<{ expenseAccountId: string }>) =>
-          react.createElement(Controller<{ expenseAccountId: string }>, props),
+        Field: (
+          props: ControllerProps<{
+            expenseAccountId: string;
+            taxExpenseAccountId: string;
+          }>,
+        ) =>
+          react.createElement(
+            Controller<{
+              expenseAccountId: string;
+              taxExpenseAccountId: string;
+            }>,
+            props,
+          ),
         Item: wrapper,
         Label: wrapper,
         Message: () => null,
@@ -88,18 +99,26 @@ test('posting starts with the remembered expense account and allows a replacemen
   render(
     <AdjustFixedAssetTransactionDialog
       expenseAccountId="saved-expense"
+      taxExpenseAccountId="saved-tax-expense"
       transaction={{ createTransaction, loading: false }}
       disabled={false}
     />,
   );
-  const account = screen.getByLabelText('expense-account');
+  const [account, taxAccount] = screen.getAllByLabelText('expense-account');
+  expect(taxAccount).toHaveProperty('value', 'saved-tax-expense');
+  fireEvent.change(taxAccount, {
+    target: { value: 'replacement-tax-expense' },
+  });
   expect(account).toHaveProperty('value', 'saved-expense');
   fireEvent.change(account, { target: { value: 'replacement-expense' } });
   fireEvent.click(screen.getByRole('button', { name: 'save' }));
   await waitFor(() =>
     expect(createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
-        variables: { expenseAccountId: 'replacement-expense' },
+        variables: {
+          expenseAccountId: 'replacement-expense',
+          taxExpenseAccountId: 'replacement-tax-expense',
+        },
       }),
     ),
   );

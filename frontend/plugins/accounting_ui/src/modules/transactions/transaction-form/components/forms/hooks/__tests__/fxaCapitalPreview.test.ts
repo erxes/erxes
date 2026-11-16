@@ -30,6 +30,9 @@ const valuation: TFxaCapitalValuation = {
   count: 3,
   originalCost: 100,
   preDeprecation: 90,
+  taxPreDeprecation: 90,
+  hasTaxDepreciation: false,
+  incomeTaxRate: null,
   annualDepreciationRate: 10,
   depreciationMethod: 'straightLine',
   salvageValue: 0,
@@ -37,8 +40,20 @@ const valuation: TFxaCapitalValuation = {
   depreciationThrough: '2026-01-31',
   ready: true,
   locations: [
-    { branchId: 'a', departmentId: '', count: 2 },
-    { branchId: 'b', departmentId: '', count: 1 },
+    {
+      branchId: 'a',
+      departmentId: '',
+      count: 2,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
+    {
+      branchId: 'b',
+      departmentId: '',
+      count: 1,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
   ],
 };
 const journal = () =>
@@ -359,4 +374,181 @@ test('capital detail validation requires a loaded cost while accepting an explic
       },
     }).success,
   ).toBe(true);
+});
+
+const taxAccounts = {
+  'asset-account': {
+    accountId: 'asset-account',
+    taxAssetAccountId: 'tax-asset',
+    taxLiabilityAccountId: 'tax-liability',
+    TaxExpenseAccountId: 'tax-expense',
+    revaluationReserveAccountId: 'reserve',
+    revaluationLossAccountId: 'loss',
+  },
+};
+const activeTaxValuation: TFxaCapitalValuation = {
+  ...valuation,
+  hasTaxDepreciation: true,
+  taxPreDeprecation: 30,
+  incomeTaxRate: 10,
+  locations: valuation.locations.map((row) => ({
+    ...row,
+    deferredTaxAsset: row.count * 2,
+    deferredTaxLiability: 0,
+  })),
+};
+const signedTax = (
+  rows: NonNullable<ReturnType<typeof buildFxaCapitalPreview>>['follows'],
+  accountId: string,
+) =>
+  rows.reduce(
+    (sum, row) =>
+      sum +
+      row.details.reduce(
+        (value, detail) =>
+          detail.accountId === accountId
+            ? value + (detail.amount || 0) * (row.side === 'dt' ? 1 : -1)
+            : value,
+        0,
+      ),
+    0,
+  );
+
+test('capital preview allocates separate tax targets and posts only the change from prior deferred balances', () => {
+  const doc = journal();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    preDeprecation: 120,
+    taxPreDeprecation: 90,
+  };
+  const result = buildFxaCapitalPreview(doc, activeTaxValuation, taxAccounts);
+  expect(
+    result?.details.map((row) => row.followInfos?.taxPreDeprecation),
+  ).toEqual([60, 30]);
+  const tax =
+    result?.follows.filter((row) => row.originType === 'fxaDeferredTax') || [];
+  expect(tax).toHaveLength(1);
+  expect(tax[0].journal).toBe(TrJournalEnum.FXA_DEFERRED_TAX);
+  expect(signedTax(tax, 'tax-asset')).toBe(-3);
+  expect(signedTax(tax, 'tax-liability')).toBe(0);
+  expect(signedTax(tax, 'tax-expense')).toBe(0);
+});
+
+test('blank tax target retains dated tax depreciation while an explicit zero remains zero', () => {
+  const doc = journal();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    preDeprecation: 120,
+  };
+  expect(
+    buildFxaCapitalPreview(doc, activeTaxValuation, taxAccounts)?.details.map(
+      (row) => row.followInfos?.taxPreDeprecation,
+    ),
+  ).toEqual([20, 10]);
+  doc.details[0].followInfos.taxPreDeprecation = 0;
+  const result = buildFxaCapitalPreview(doc, activeTaxValuation, taxAccounts);
+  expect(
+    result?.details.every((row) => row.followInfos?.taxPreDeprecation === 0),
+  ).toBe(true);
+  expect(signedTax(result?.follows || [], 'tax-asset')).toBe(6);
+});
+
+test('passive capital preview mirrors business depreciation and generates no tax pair', () => {
+  const doc = journal();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    preDeprecation: 120,
+    taxPreDeprecation: 999,
+  };
+  const result = buildFxaCapitalPreview(doc, valuation, taxAccounts);
+  expect(
+    result?.details.map((row) => row.followInfos?.taxPreDeprecation),
+  ).toEqual([80, 40]);
+  expect(
+    result?.follows.some((row) => row.originType === 'fxaDeferredTax'),
+  ).toBe(false);
+});
+
+test('tax account configuration errors are visible before saving', () => {
+  const result = buildFxaCapitalPreview(journal(), activeTaxValuation, {});
+  expect(result?.error).toBe('fxa-capital-tax-accounts-required');
+});
+
+test('tax preview merging preserves both saved sides and distinct account detail ids at a sign reversal', () => {
+  const doc = journal();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    preDeprecation: 120,
+    taxPreDeprecation: 150,
+  };
+  const follows =
+    buildFxaCapitalPreview(
+      doc,
+      activeTaxValuation,
+      taxAccounts,
+    )?.follows.filter((row) => row.originType === 'fxaDeferredTax') || [];
+  const saved = follows.map((row) => ({
+    ...row,
+    _id: `saved-${row.side}`,
+    details: row.details.map((detail, index) => ({
+      ...detail,
+      _id: `${row.side}-${index}`,
+    })),
+  }));
+  const merged = mergeFxaDepreciationFollows(saved, follows, doc._id, true);
+  expect(merged.map((row) => row._id)).toEqual(['saved-ct']);
+  expect(
+    new Set(merged.flatMap((row) => row.details.map((detail) => detail._id)))
+      .size,
+  ).toBe(4);
+  expect(signedTax(merged, 'tax-asset')).toBe(-6);
+  expect(signedTax(merged, 'tax-liability')).toBe(-3);
+  expect(signedTax(merged, 'tax-expense')).toBe(0);
+  expect(mergeFxaDepreciationFollows(merged, [], doc._id, true)).toEqual([]);
+});
+
+test('revaluation preview preserves the tax difference and balances through reserve/loss without tax rows', () => {
+  const doc = journal();
+  doc.journal = TrJournalEnum.FXA_REVALUATION;
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 60,
+  };
+  const result = buildFxaCapitalPreview(doc, activeTaxValuation, taxAccounts);
+  expect(result?.error).toBeUndefined();
+  expect(
+    result?.follows.some(
+      (tr) => tr.journal === TrJournalEnum.FXA_REVALUATION_RESULT,
+    ),
+  ).toBe(true);
+  expect(
+    result?.follows.some((tr) => tr.journal === TrJournalEnum.FXA_DEFERRED_TAX),
+  ).toBe(false);
+  expect(
+    result?.details.map((row) => row.followInfos?.taxPreDeprecation),
+  ).toEqual([40, 20]);
+  const all = [
+    { ...doc, side: result?.side, details: result?.details || [] },
+    ...(result?.follows || []),
+  ];
+  expect(
+    all.reduce(
+      (sum, tr) =>
+        sum +
+        (tr.side === 'dt' ? 1 : -1) *
+          tr.details.reduce((total, row) => total + (row.amount ?? 0), 0),
+      0,
+    ),
+  ).toBeCloseTo(0);
+  expect(signedTax(result?.follows || [], 'reserve')).toBeCloseTo(-120);
+  expect(signedTax(result?.follows || [], 'tax-asset')).toBeCloseTo(0);
+  expect(signedTax(result?.follows || [], 'tax-expense')).toBeCloseTo(0);
+});
+
+test('revaluation missing reserve/loss matching reports a configuration error', () => {
+  const doc = journal();
+  doc.journal = TrJournalEnum.FXA_REVALUATION;
+  expect(buildFxaCapitalPreview(doc, valuation, {})?.error).toBe(
+    'fxa-revaluation-accounts-required',
+  );
 });

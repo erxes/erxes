@@ -1,5 +1,5 @@
 import type { TIncomingWebhookForm } from '@/automations/components/builder/nodes/triggers/webhooks/states/automationIncomingWebhookFormDefinition';
-import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationOptional } from '@/automations/context/AutomationProvider';
 import { AutomationNodeType } from '@/automations/types';
 import { generateAttributesFromWebhookSchema } from '@/automations/utils/webhookSchemaUtils';
 import {
@@ -55,7 +55,10 @@ export const useAutomationCoreNodeOutput = ({
   variables,
   propertySource,
 }: TUseAutomationCoreNodeOutputArgs) => {
-  const { findObjectTargetsConst } = useAutomation();
+  // Outside the builder (the template wizard's email editor) there is no
+  // live automation to find an object type's output in, so this stays empty.
+  const findObjectTargetsConst =
+    useAutomationOptional()?.findObjectTargetsConst || [];
 
   const isAction = activeSourceNode?.nodeType === AutomationNodeType.Action;
 

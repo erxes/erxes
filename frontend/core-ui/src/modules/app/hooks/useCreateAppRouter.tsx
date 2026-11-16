@@ -9,6 +9,7 @@ import { currentUserState, useVersion } from 'ui-modules';
 import { AppPath } from '@/types/paths/AppPath';
 import { AutomationRoutes } from '@/app/components/AutomationRoutes';
 import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
+import { TemplateRoutes } from '@/app/components/TemplateRoutes';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 import { ContactsRoutes } from '@/app/components/ContactsRoutes';
 import { DefaultLayout } from '@/app/components/MainLayout';
@@ -29,7 +30,6 @@ import { RouteErrorBoundary } from '@/error-handler/components/RouteErrorBoundar
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { DataExtensionsRoutes } from '@/app/components/DataExtensionsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
-import { TemplateRoutes } from '../components/TemplateRoutes';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
 import { lazy } from 'react';
@@ -164,12 +164,10 @@ export const useCreateAppRouter = () => {
                 }
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.TemplatesCatchAll}
-                  element={<TemplateRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.TemplatesCatchAll}
+                element={<TemplateRoutes />}
+              />
 
               <Route
                 path={AppPath.ImportExportCatchAll}

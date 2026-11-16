@@ -4,6 +4,7 @@ import {
   IconCpu,
   IconHeartbeat,
   IconId,
+  IconListSearch,
 } from '@tabler/icons-react';
 
 export const AI_AGENT_STEPS = [
@@ -11,6 +12,7 @@ export const AI_AGENT_STEPS = [
   'connection',
   'brain',
   'memory',
+  'lookup',
   'test',
 ] as const;
 
@@ -48,6 +50,7 @@ export const AI_AGENT_STEP_META: Record<
   connection: { label: 'Connection', icon: IconAntenna },
   brain: { label: 'Brain', icon: IconCpu },
   memory: { label: 'Memory', icon: IconBooks },
+  lookup: { label: 'Lookup', icon: IconListSearch },
   test: { label: 'Test run', icon: IconHeartbeat },
 };
 

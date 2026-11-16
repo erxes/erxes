@@ -1,11 +1,7 @@
-import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
-import { AutomationNodeType, NodeData } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { Node, useReactFlow } from '@xyflow/react';
+import { useNodeEditMetaDataForm } from '@/automations/components/builder/nodes/hooks/useNodeEditMetaDataForm';
+import { NodeData } from '@/automations/types';
+import { Node } from '@xyflow/react';
 import { Button, Dialog, IconPicker, Input } from 'erxes-ui';
-import { useState } from 'react';
-import type { ChangeEvent } from 'react';
-import { FieldPath, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 type NodeMetadataFormData = NodeData &
@@ -18,56 +14,9 @@ type Props = {
 };
 
 export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
-  const { setAutomationBuilderFormValue } = useAutomationFormController();
-  const { getValues } = useFormContext<TAutomationBuilderForm>();
-  const { updateNodeData, getNode } = useReactFlow<Node<NodeData>>();
   const { t } = useTranslation('automations');
-
-  const { label, description, icon } = data || {};
-
-  const [doc, setDoc] = useState({
-    label: label || '',
-    description: description || '',
-    icon,
-  });
-
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { value, name } = e.currentTarget;
-
-    setDoc({ ...doc, [name]: value });
-  };
-
-  const handleSave = () => {
-    if (!data.formPath) {
-      return;
-    }
-
-    const formPath = data.formPath as FieldPath<TAutomationBuilderForm>;
-    const currentNode = getNode(id);
-    const currentEntry = getValues(formPath) || {};
-
-    // The form entry shape differs per node kind: workflows store the title
-    // as `name`, triggers/actions as `label`.
-    const metaValues =
-      data.nodeType === AutomationNodeType.Workflow
-        ? { name: doc.label, description: doc.description, icon: doc.icon }
-        : { label: doc.label, description: doc.description, icon: doc.icon };
-
-    const updatedEntry = {
-      ...currentEntry,
-      ...metaValues,
-      position: currentNode?.position ?? currentEntry?.position,
-    };
-
-    setAutomationBuilderFormValue(formPath, updatedEntry, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    updateNodeData(id, { ...data, ...doc });
-    callback();
-  };
+  const { doc, handleChange, handleIconChange, handleSave } =
+    useNodeEditMetaDataForm({ id, data, callback });
 
   return (
     <Dialog.Content>
@@ -76,7 +25,7 @@ export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
         {t('edit-node-metadata-description')}
       </Dialog.Description>
       <IconPicker
-        onValueChange={(icon) => setDoc({ ...doc, icon: icon || '' })}
+        onValueChange={handleIconChange}
         value={doc.icon}
         variant="secondary"
         size="lg"

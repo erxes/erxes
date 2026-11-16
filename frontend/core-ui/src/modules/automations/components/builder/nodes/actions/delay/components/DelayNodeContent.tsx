@@ -7,11 +7,15 @@ export const DelayNodeContent = ({
   config,
 }: NodeContentComponentProps<TDelayConfigForm>) => {
   const { t } = useTranslation('automations');
-  const { value, type } = config || {};
+  const { value, type, workingTime } = config || {};
+  const suffix = workingTime
+    ? ` · ${t('delay-working-hours-short', { defaultValue: 'working hours' })}`
+    : '';
+
   return (
     <AutomationNodeMetaInfoRow
       fieldName={t('delay-for')}
-      content={`${value} ${type}s`}
+      content={`${value} ${type}s${suffix}`}
     />
   );
 };

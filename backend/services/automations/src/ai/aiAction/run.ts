@@ -30,6 +30,7 @@ import { getLatestUserText, stringifyAiContextValue } from './context';
 import {
   buildUngroundedNumbersDirective,
   findUngroundedNumbers,
+  shouldCheckGrounding,
 } from './grounding';
 import {
   AI_DISCLOSURE_BLOCKED_TEXT,
@@ -104,14 +105,18 @@ const buildToolInstruction = (
   const hasKnowledgeTool = tools.some(
     (tool) => tool.toolId === AI_KNOWLEDGE_TOOL_ID,
   );
+  const hasLookupTools = tools.some((tool) => tool.kind === 'lookup');
   const hasActionTools = tools.some(
-    (tool) => tool.toolId !== AI_KNOWLEDGE_TOOL_ID,
+    (tool) => tool.toolId !== AI_KNOWLEDGE_TOOL_ID && tool.kind !== 'lookup',
   );
 
   return [
     'Tools are available for this reply.',
     hasKnowledgeTool && knowledge.kind === 'indexed'
       ? `The organization's knowledge is not in this conversation. Its sections are:\n${knowledge.indexText}\nBefore stating any fact — prices, items, policies, schedules, availability — call ${AI_KNOWLEDGE_TOOL_NAME} with the matching section and answer from what it returns. Greetings and small talk need no search. A topic with no plausible section is not covered by the knowledge — say so plainly instead of offering to check. Answering facts from your own knowledge, or from something the user asserted earlier in this conversation, is never acceptable.`
+      : '',
+    hasLookupTools
+      ? "Lookup tools read records as they are now, the customer's own or organization data such as stock; they change nothing. Before stating a record's status, amount, points, stock or a profile detail, call the matching lookup and answer from what it returns — it outranks context documents and anything said earlier in the conversation. A lookup that finds nothing means there is no such record for this customer: say so, never guess."
       : '',
     hasActionTools
       ? 'Every other tool performs a real action. Its description states WHEN to call it — call it only when that condition is fully satisfied AND you can truthfully fill every required parameter from the conversation or memory. If anything is missing, do not call it; reply to the user to gather it. A tool that records what the user gives needs the thing itself in the messages: when the user only says they will send or add something, ask for it instead of calling the tool. Fill parameters with what the user actually said or sent, never with a description of their request.'
@@ -485,7 +490,13 @@ export const runAiAction = async ({
 
     // A figure no source contained gets one rewrite; if it survives, the
     // reply is withheld rather than sent with an invented price.
-    if (!handoff && knowledge.kind !== 'none') {
+    if (
+      shouldCheckGrounding({
+        handedOff: !!handoff,
+        hasKnowledge: knowledge.kind !== 'none',
+        toolKinds: (toolCallTrace || []).map(({ kind }) => kind),
+      })
+    ) {
       const sources = [
         ...loadedContext.files.map(({ content }) => content),
         ...(toolCallTrace || []).map(({ result: toolResult }) =>
@@ -493,6 +504,7 @@ export const runAiAction = async ({
         ),
         stringifyAiContextValue(inputData),
         stringifyAiContextValue(aiContext?.input?.text),
+        stringifyAiContextValue(aiContext?.facts),
         ...(aiContext?.history || []).map(({ text }) => text || ''),
         agent.context.systemPrompt || '',
         stringifyAiContextValue(memory),

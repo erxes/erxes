@@ -118,6 +118,8 @@ export const getAutomatedReplyReason = (reason?: string) => {
       return AUTOMATED_REPLY_REASON.MANUAL;
     case AUTOMATED_REPLY_REASON.TIMEOUT_EXPIRED:
       return AUTOMATED_REPLY_REASON.TIMEOUT_EXPIRED;
+    case AUTOMATED_REPLY_REASON.AUTOMATION:
+      return AUTOMATED_REPLY_REASON.AUTOMATION;
     default:
       throw new Error('Invalid automated reply reason');
   }

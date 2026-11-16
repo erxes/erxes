@@ -1,7 +1,6 @@
 import {
   IconAddressBook,
   IconAffiliate,
-  IconBrandDatabricks,
   IconBroadcast,
   IconBuilding,
   IconChartPie,
@@ -9,6 +8,8 @@ import {
   IconFolders,
   IconLayoutGrid,
   IconMagnet,
+  IconPackage,
+  IconPackageImport,
   IconTrash,
   IconUser,
   IconUsersGroup,
@@ -18,10 +19,7 @@ import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { AutomationsAbsolutePath } from '@/types/paths/AutomationPath';
 
-export const GET_CORE_MODULES = (
-  t: TFunction,
-  version?: boolean,
-): ICoreModule[] => {
+export const GET_CORE_MODULES = (t: TFunction): ICoreModule[] => {
   const MODULES: ICoreModule[] = [
     {
       name: t('contacts'),
@@ -71,7 +69,7 @@ export const GET_CORE_MODULES = (
           icon: IconAffiliate,
         },
         {
-          name: t('templates'),
+          name: t('workflow-templates'),
           path: AutomationsAbsolutePath.Templates.slice(1),
           icon: IconLayoutGrid,
         },
@@ -86,6 +84,23 @@ export const GET_CORE_MODULES = (
       name: t('broadcasts'),
       icon: IconBroadcast,
       path: 'broadcasts',
+    },
+    {
+      name: t('templates'),
+      icon: IconPackage,
+      path: 'templates',
+      submenus: [
+        {
+          name: t('templates'),
+          path: 'templates',
+          icon: IconPackage,
+        },
+        {
+          name: t('installed-templates'),
+          path: 'templates/installed',
+          icon: IconPackageImport,
+        },
+      ],
     },
     {
       name: t('documents'),
@@ -120,14 +135,6 @@ export const GET_CORE_MODULES = (
       ],
     },
   ];
-
-  if (version) {
-    MODULES?.push({
-      name: t('templates'),
-      icon: IconBrandDatabricks,
-      path: 'templates',
-    });
-  }
 
   return MODULES;
 };

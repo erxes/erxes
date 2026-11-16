@@ -2,7 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CategoriesDelete } from './delete/CategoryDelete';
 import { useState } from 'react';
-import { Can, TemplateSheet } from 'ui-modules';
+import { Can } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export const CategoryCommandBar = () => {
@@ -37,12 +37,6 @@ export const CategoryCommandBar = () => {
             {t('create')}
           </Button>
         </Can>
-
-        <Separator.Inline />
-        <TemplateSheet
-          contentType="core:product:productCategory"
-          contentId={selectedCategories[0]?._id}
-        />
       </CommandBar.Bar>
     </CommandBar>
   );

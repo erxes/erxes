@@ -1,4 +1,7 @@
 import { atomWithStorage } from 'jotai/utils';
+import { atom } from 'jotai';
+
+export const notFoundLocationState = atom<string | null>(null);
 
 /**
  * The last URL (path + query) visited in each app, keyed by navigation

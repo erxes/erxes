@@ -41,28 +41,6 @@ export const FxaSaleAccountFields = ({
           )}
         />
       )}
-      <Form.Field
-        control={form.control}
-        name={`trDocs.${index}.followInfos.accumulatedDepreciationAccountId`}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>
-              {t('accumulated-depreciation-account-label')}
-            </Form.Label>
-            <Form.Control>
-              <SelectAccount
-                value={field.value || ''}
-                onValueChange={field.onChange}
-                defaultFilter={{
-                  journals: [JournalEnum.FIXED_ASSET],
-                  permissionMode: 'write',
-                }}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
       {showSaleAccounts && (
         <Form.Field
           control={form.control}

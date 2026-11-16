@@ -1,3 +1,4 @@
+import { DetailTotalsFooter } from '@/transactions/transaction-form/components/forms/DetailTotalsFooter';
 import { useTranslation } from 'react-i18next';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
@@ -12,11 +13,11 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
-import { ITrDetail } from '~/modules/transactions/types/Transaction';
 import { showAdvancedViewState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvSaleJournal,
+  TInvSaleReturnJournal,
 } from '../../../types/JournalForms';
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
@@ -29,7 +30,7 @@ export const InventoryForm = ({
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
-  replaceDetails: ITrDetail[];
+  replaceDetails: TInvSaleReturnJournal['details'];
 }) => {
   const { t } = useTranslation('accounting');
   const { fields, append, replace } = useFieldArray({
@@ -39,7 +40,7 @@ export const InventoryForm = ({
 
   useEffect(() => {
     if (replaceDetails) {
-      replace(replaceDetails as any[]);
+      replace(replaceDetails);
     }
   }, [replaceDetails, replace]);
 
@@ -85,6 +86,18 @@ export const InventoryForm = ({
                 />
               ))}
             </Table.Body>
+            <DetailTotalsFooter
+              form={form}
+              journalIndex={journalIndex}
+              leadingColumns={3}
+              columns={[
+                'count',
+                null,
+                'amount',
+                'tax',
+                ...(showAdvancedView ? [null, null] : []),
+              ]}
+            />
           </Table>
           <ScrollArea.Bar orientation="horizontal" className="z-10" />
         </ScrollArea>

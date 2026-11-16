@@ -6,6 +6,9 @@ export type TFormSubmittedTriggerTarget = {
   customerId: string;
   conversationId: string | null;
   fieldValues: Record<string, unknown>;
+  // Set when the answer came through a form link made for a record.
+  aboutRecordType?: string;
+  aboutRecordId?: string;
 };
 
 export type TFormFieldCondition = {

@@ -4,6 +4,7 @@ import { emailTemplateCustomResolvers } from '@/emailTemplates/graphql/resolvers
 import { notificationTemplateVersionCustomResolvers } from '@/notificationTemplates/graphql/resolvers';
 import { approvalCustomResolvers } from '@/approval/graphql/resolvers/customResolvers';
 import { filesCustomResolvers } from '@/files/graphql/resolvers/customResolvers';
+import { TemplateInstallation } from '@/template/graphql/customResolver';
 import permissionResolvers from '@/permissions/graphql/resolvers/customResolvers';
 import broadcastResolvers from '@/broadcast/graphql/resolvers/customResolvers';
 import clientPortalResolvers from '@/clientportal/graphql/resolvers/customResolvers';
@@ -19,7 +20,6 @@ import productResolvers from '@/products/graphql/resolvers/customResolvers';
 import propertiesResolvers from '@/properties/graphql/resolvers/customResolvers';
 import segmentResolvers from '@/segments/graphql/resolvers/customResolvers';
 import tagResolvers from '@/tags/graphql/customResolvers';
-import templateResolvers from '@/template/graphql/customResolvers';
 
 export const customResolvers = {
   ...clientPortalResolvers,
@@ -41,7 +41,7 @@ export const customResolvers = {
   ...internalNoteResolvers,
   ...propertiesResolvers,
   ...broadcastResolvers,
-  ...templateResolvers,
   ...permissionResolvers,
   ...supportAccessCustomResolvers,
+  TemplateInstallation,
 };

@@ -160,6 +160,7 @@ export type ApprovalNotificationMetadata = {
 
 export enum TApprovalChangeProducers {
   APPLY = 'applyChange',
+  REJECT = 'rejectChange',
 }
 
 /**
@@ -176,8 +177,26 @@ export type TApprovalChangeApplyInput = {
   approverId: string;
 };
 
+/**
+ * A change request that ended without the change: rejected by an approver, or
+ * cancelled. Sent only to a plugin that registered a rejecter for the type, so
+ * a module whose change simply does not happen needs nothing.
+ */
+export type TApprovalChangeRejectInput = {
+  requestId: string;
+  changeType: string;
+  payload?: Record<string, unknown>;
+  contentType: string;
+  contentId: string;
+  requesterId: string;
+  /** Who rejected it; absent when nobody did (the request was cancelled). */
+  rejecterId?: string;
+  reason?: string;
+};
+
 export type TApprovalChangeProducersInput = {
   [TApprovalChangeProducers.APPLY]: TApprovalChangeApplyInput;
+  [TApprovalChangeProducers.REJECT]: TApprovalChangeRejectInput;
 };
 
 export type TApprovalChangeApplierProps<TModels = any> =
@@ -188,6 +207,16 @@ export type TApprovalChangeApplierProps<TModels = any> =
 
 export type TApprovalChangeApplier<TModels = any> = (
   props: TApprovalChangeApplierProps<TModels>,
+) => Promise<void>;
+
+export type TApprovalChangeRejecterProps<TModels = any> =
+  TApprovalChangeRejectInput & {
+    models: TModels;
+    subdomain: string;
+  };
+
+export type TApprovalChangeRejecter<TModels = any> = (
+  props: TApprovalChangeRejecterProps<TModels>,
 ) => Promise<void>;
 
 export type TApprovalChangeType = {
@@ -202,5 +231,7 @@ export type TApprovalChangeType = {
 export type TApprovalConfig<TModels = any> = {
   changeTypes: TApprovalChangeType[];
   appliers: Record<string, TApprovalChangeApplier<TModels>>;
+  /** Optional: what to do when a change request of the type is rejected. */
+  rejecters?: Record<string, TApprovalChangeRejecter<TModels>>;
   generateModels: (subdomain: string) => Promise<TModels>;
 };

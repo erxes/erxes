@@ -1,7 +1,7 @@
 import { buildRecordPanelTabs } from '@/side-panel/components/recordPanelTabs';
 import { ContactDetailHeader } from '@/side-panel/components/details/ContactDetailHeader';
 import { ContactPanelDescription } from '@/side-panel/components/details/ContactPanelDescription';
-import { useContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
+import { useRecordPanelOverview } from '@/side-panel/hooks/useRecordPanelOverview';
 import { useRecordRelationTabs } from '@/side-panel/hooks/useRecordRelationTabs';
 import {
   getContactDetailPath,
@@ -366,6 +366,7 @@ const SidePanelSavedRecord = ({
     pluginName,
     i18nNamespace,
     hasProperties,
+    hasSummary,
     tabs: pluginTabs,
   } = useRecordPanelPlugin(record.contentType);
   const panelPluginName = coreViews ? null : pluginName;
@@ -416,7 +417,7 @@ const SidePanelSavedRecord = ({
     hasCoreViews: Boolean(coreViews),
     isPluginRecord: Boolean(panelPluginName),
   });
-  const overview = useContactPanelOverview(record.contentType, relationTabs);
+  const overview = useRecordPanelOverview(record.contentType, relationTabs);
   const { contactType } = overview;
   const { tab: selectedTab, setTab } = useSidePanel();
   const activityRef = useRef<HTMLDivElement>(null);
@@ -575,6 +576,18 @@ const SidePanelSavedRecord = ({
         />
       )}
       <RecordSidePanel.Layout
+        profile={
+          panelPluginName &&
+          hasSummary && (
+            <PluginRecordPanel
+              pluginName={panelPluginName}
+              contentType={record.contentType}
+              contentId={record.contentId}
+              view="summary"
+              quiet
+            />
+          )
+        }
         tabs={tabs}
         value={tab}
         onValueChange={setTab}

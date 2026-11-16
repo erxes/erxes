@@ -1,6 +1,10 @@
 import { IModels } from '~/connectionResolvers';
 import { ADJ_FXA_STATUSES } from '../../@types/adjustFixedAsset';
 import { attachPreviousFxaDetails } from '../fxaAdjustmentState';
+import { getFxaIncomeTaxRates } from '../fxaIncomeTaxRates';
+jest.mock('../fxaIncomeTaxRates', () => ({
+  getFxaIncomeTaxRates: jest.fn(async () => new Map()),
+}));
 
 const query = <T>(rows: T) => ({
   sort() {
@@ -101,4 +105,44 @@ test('empty pages require no history reads', async () => {
   await expect(
     attachPreviousFxaDetails({} as IModels, 'current', []),
   ).resolves.toEqual([]);
+});
+
+test('current and previous tax displays use their dated transaction rates, ignoring stale caches', async () => {
+  jest
+    .mocked(getFxaIncomeTaxRates)
+    .mockResolvedValueOnce(new Map([['asset', 10]]))
+    .mockResolvedValueOnce(new Map([['asset', 20]]));
+  const stale = {
+    ...snapshot('asset'),
+    accumulatedDepreciation: 1000,
+    taxAccumulatedDepreciation: 600,
+    temporaryDifference: 999,
+    deferredTaxAsset: 999,
+    deferredTaxLiability: 999,
+  };
+  const models = {
+    AdjustFixedAssets: {
+      findOne: (filter: Record<string, unknown>) =>
+        query(
+          filter._id
+            ? { date: new Date('2026-02-28') }
+            : { _id: 'previous', date: new Date('2026-01-31') },
+        ),
+    },
+    AdjustFxaDetails: {
+      find: () => query([{ ...stale, adjustId: 'previous' }]),
+    },
+  } as unknown as IModels;
+  const [result] = await attachPreviousFxaDetails(models, 'current', [stale]);
+  expect(result).toMatchObject({
+    temporaryDifference: -400,
+    deferredTaxAsset: 40,
+    deferredTaxLiability: 0,
+    previous: {
+      temporaryDifference: -400,
+      deferredTaxAsset: 80,
+      deferredTaxLiability: 0,
+    },
+  });
+  expect(stale.deferredTaxAsset).toBe(999);
 });

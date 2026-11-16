@@ -8,8 +8,10 @@ import {
 import { supportAccessMutations } from '@/auth/graphql/resolvers/supportAccess';
 import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationMutations } from '@/automations/graphql/resolvers/mutations';
+import { automationFolderMutations } from '@/automations/graphql/resolvers/folders';
 import { emailTemplateMutations } from '@/emailTemplates/graphql/resolvers';
 import { notificationTemplateMutations } from '@/notificationTemplates/graphql/resolvers';
+import { currencyRateMutations } from '@/currencyRates/graphql/resolvers';
 import conformityMutations from '@/conformities/graphql/mutations';
 import { contactMutations } from '@/contacts/graphql/resolvers/mutations';
 import { documentMutations } from '@/documents/graphql/mutations';
@@ -41,7 +43,7 @@ import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUs
 import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/comment';
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
 import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
-import { templateMutations } from '@/template/graphql/mutations';
+import { templateMutations } from '@/template/graphql/resolvers';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
 import { agentsThreadMutations } from '@/agents/graphql/resolvers/mutations/threads';
 import { agentsSettingsMutations } from '@/agents/graphql/resolvers/mutations/settings';
@@ -71,8 +73,10 @@ export const mutations = {
   ...filesMutations,
   ...documentMutations,
   ...automationMutations,
+  ...automationFolderMutations,
   ...emailTemplateMutations,
   ...notificationTemplateMutations,
+  ...currencyRateMutations,
   ...notificationMutations,
   ...internalNoteMutations,
   ...broadcastMutations,

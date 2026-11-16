@@ -9,7 +9,11 @@ export type TAutomatedReplyControlStatus =
   'active' | 'handoff_requested' | 'human_active';
 
 export type TAutomatedReplyControlReason =
-  'customer_requested' | 'operator_reply' | 'manual' | 'timeout_expired';
+  | 'customer_requested'
+  | 'operator_reply'
+  | 'manual'
+  | 'timeout_expired'
+  | 'automation';
 
 export type TAutomatedReplyControl = {
   status: TAutomatedReplyControlStatus;

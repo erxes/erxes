@@ -118,6 +118,11 @@ const ProductsSettingsRoutes = lazy(() =>
     }),
   ),
 );
+const ExchangeRatesPage = lazy(() =>
+  import('~/pages/settings/workspace/ExchangeRatesPage').then((module) => ({
+    default: module.ExchangeRatesPage,
+  })),
+);
 const BrandsSettingsRoutes = lazy(() =>
   import('~/pages/settings/workspace/BrandsPage').then((module) => ({
     default: module.BrandsPage,
@@ -292,6 +297,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.Brands}
           element={<BrandsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.ExchangeRates}
+          element={<ExchangeRatesPage />}
         />
         <Route
           path={SettingsWorkspacePath.ProductsCatchAll}

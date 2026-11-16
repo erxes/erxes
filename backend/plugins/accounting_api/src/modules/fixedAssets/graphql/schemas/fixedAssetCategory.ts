@@ -13,6 +13,7 @@ export const types = `
     taxDepreciationMethod: String
     defaultTaxAnnualDepreciationRate: Float
     defaultTaxSalvageValue: Float
+    incomeTaxRate: Float
 
     createdAt: Date
     updatedAt: Date
@@ -39,6 +40,7 @@ export const mutations = `
     taxDepreciationMethod: String
     defaultTaxAnnualDepreciationRate: Float
     defaultTaxSalvageValue: Float
+    incomeTaxRate: Float
   ): FixedAssetCategory
 
   fixedAssetCategoriesEdit(
@@ -54,6 +56,7 @@ export const mutations = `
     taxDepreciationMethod: String
     defaultTaxAnnualDepreciationRate: Float
     defaultTaxSalvageValue: Float
+    incomeTaxRate: Float
   ): FixedAssetCategory
 
   fixedAssetCategoriesRemove(_id: String!): JSON

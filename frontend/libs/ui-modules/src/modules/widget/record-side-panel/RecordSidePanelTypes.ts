@@ -1,5 +1,6 @@
 import type { Icon } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
+import type { IRecordPageMinimizeTarget } from 'ui-modules/modules/widget/record-side-panel/recordView';
 export interface IRecordSidePanelTab {
   value: string;
   label: string;
@@ -14,7 +15,15 @@ export type PanelExpansionContextValue = {
 
 export type RecordSidePanelResizeHandleProps = {
   width: number;
+  minWidth?: number;
   maxWidth: number;
+  // The resized pane's edge the handle sits on; dragging outwards widens it.
+  // A panel is resized from its start (left) edge.
+  edge?: 'start' | 'end';
+  label?: string;
+  className?: string;
+  // Paints a width while dragging; the pane's own width by default.
+  onResize?: (width: number) => void;
   onWidthChange: (width: number) => void;
 };
 
@@ -29,6 +38,8 @@ export type RecordSidePanelRootProps = {
   expandedMode?: 'viewport' | 'page';
   onExpandedChange?: (expanded: boolean) => void;
   expandable?: boolean;
+  // A record page without a navigator: where its header's minimize returns.
+  minimizeTo?: IRecordPageMinimizeTarget;
   children: ReactNode;
 };
 

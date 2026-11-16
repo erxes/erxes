@@ -25,6 +25,7 @@ export interface ISelectLabelContext {
   setNewLabelName: (labelName: string) => void;
   mode: 'single' | 'multiple';
   labelIds?: string[];
+  pipelineId?: string;
 }
 
 export type ISelectLabelProviderProps = {
@@ -33,6 +34,7 @@ export type ISelectLabelProviderProps = {
   onValueChange?: (labels?: (string | undefined)[] | string) => void;
   mode?: 'single' | 'multiple';
   labelIds?: string[];
+  pipelineId?: string;
   children?: React.ReactNode;
 };
 

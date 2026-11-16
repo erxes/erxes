@@ -55,6 +55,9 @@ export interface ITrDetailFollowInfos extends Record<string, unknown> {
   departmentCode?: string;
   /** Total accumulated depreciation for this detail, not per unit. */
   preDeprecation?: number;
+  taxPreDeprecation?: number;
+  hasTaxDepreciation?: boolean;
+  incomeTaxRate?: number;
   revaluationLoss?: number;
   revaluationReserve?: number;
   salvageValue?: number;

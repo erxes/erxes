@@ -1,6 +1,6 @@
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ITicketPipelineDocument } from '@/ticket/@types/pipeline';
+import { ITicketPipeline } from '@/ticket/@types/pipeline';
 
 // ─── Number config ────────────────────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ function numberCalculator(size: number, num: string, skip?: boolean): string {
 
 export async function generateTicketNumber(
   models: IModels,
-  pipeline: ITicketPipelineDocument,
+  pipeline: Pick<ITicketPipeline, 'numberConfig' | 'numberSize'>,
 ): Promise<string | undefined> {
   if (!pipeline.numberSize) return undefined;
 
@@ -55,6 +55,25 @@ export async function updatePipelineLastNum(
   lastNum: string,
 ): Promise<void> {
   await models.Pipeline.updateMany({ numberConfig }, { $set: { lastNum } });
+}
+
+// The pipeline's number format, or a timestamp when it has none
+export async function assignTicketNumber(
+  models: IModels,
+  pipelineId?: string,
+): Promise<string> {
+  const pipeline = pipelineId
+    ? await models.Pipeline.findOne({ _id: pipelineId }).lean()
+    : null;
+  const number = pipeline
+    ? await generateTicketNumber(models, pipeline)
+    : undefined;
+
+  if (!number) return new Date().getTime().toString();
+
+  await updatePipelineLastNum(models, pipeline?.numberConfig || '', number);
+
+  return number;
 }
 
 async function fetchCustomers(

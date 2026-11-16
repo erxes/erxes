@@ -1,3 +1,4 @@
+import { markConversationTicketsResponded } from '@/ticket/utils/slaResponse';
 import type {
   IConversationMessageAdd,
   IMessage,
@@ -179,6 +180,7 @@ export const storeDispatchedMessage = async ({
     subdomain,
   });
   await markAutomatedReplyHumanActive({ models, conversation, userId });
+  await markConversationTicketsResponded(models, conversation._id);
   for (const message of messages) {
     await pConversationClientMessageInserted(subdomain, message);
   }

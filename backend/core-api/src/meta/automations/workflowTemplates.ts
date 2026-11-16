@@ -1,6 +1,7 @@
 import {
   AUTOMATION_CORE_ACTIONS,
   TAutomationBuiltInTemplate,
+  TEMPLATE_CORE_REQUIREMENT_KINDS,
   TAutomationBuiltInTemplateRequirement,
 } from 'erxes-api-shared/core-modules';
 
@@ -69,10 +70,23 @@ const wait = (order: number, value: string, next: number) => ({
   next,
 });
 
-/** Said once per template: the words are a starting point, not a finished one. */
-const rewriteTheWording = (order: number) => [
-  { order, label: 'Replace the wording with your own' },
-];
+/**
+ * The wording of an email step is a starting point only the organization can
+ * finish, so each one is written in the email editor before installing.
+ */
+const writeTheEmail = (
+  order: number,
+  label: string,
+): TAutomationBuiltInTemplateRequirement => ({
+  key: `content-${order}`,
+  kind: TEMPLATE_CORE_REQUIREMENT_KINDS.EMAIL_CONTENT,
+  label: `Write “${label}”`,
+  description:
+    'Starts from the template text; change it to sound like you, then use it.',
+  fills: ['subject', 'content', 'contentJson', 'contentFormat', 'html'].map(
+    (path) => ({ order, path, from: path }),
+  ),
+});
 
 /**
  * Flows that ship with core, built only from core's own actions.
@@ -114,8 +128,11 @@ export const CORE_AUTOMATION_WORKFLOW_TEMPLATES: TAutomationBuiltInTemplate[] =
           ),
         }),
       ],
-      requirements: [senderRequirement([1, 3])],
-      mustConfigure: rewriteTheWording(1),
+      requirements: [
+        senderRequirement([1, 3]),
+        writeTheEmail(1, 'Welcome email'),
+        writeTheEmail(3, 'Getting started'),
+      ],
     },
     {
       id: 'core.win-back',
@@ -134,8 +151,10 @@ export const CORE_AUTOMATION_WORKFLOW_TEMPLATES: TAutomationBuiltInTemplate[] =
           ),
         }),
       ],
-      requirements: [senderRequirement([2])],
-      mustConfigure: rewriteTheWording(2),
+      requirements: [
+        senderRequirement([2]),
+        writeTheEmail(2, 'Check-in email'),
+      ],
     },
     {
       id: 'core.ask-for-feedback',
@@ -154,8 +173,10 @@ export const CORE_AUTOMATION_WORKFLOW_TEMPLATES: TAutomationBuiltInTemplate[] =
           ),
         }),
       ],
-      requirements: [senderRequirement([2])],
-      mustConfigure: rewriteTheWording(2),
+      requirements: [
+        senderRequirement([2]),
+        writeTheEmail(2, 'Feedback request'),
+      ],
     },
     {
       id: 'core.nurture-drip',
@@ -193,8 +214,12 @@ export const CORE_AUTOMATION_WORKFLOW_TEMPLATES: TAutomationBuiltInTemplate[] =
           ),
         }),
       ],
-      requirements: [senderRequirement([1, 3, 5])],
-      mustConfigure: rewriteTheWording(1),
+      requirements: [
+        senderRequirement([1, 3, 5]),
+        writeTheEmail(1, 'First email'),
+        writeTheEmail(3, 'Second email'),
+        writeTheEmail(5, 'Last email'),
+      ],
     },
     {
       id: 'core.wait-then-email',
@@ -213,7 +238,9 @@ export const CORE_AUTOMATION_WORKFLOW_TEMPLATES: TAutomationBuiltInTemplate[] =
           ),
         }),
       ],
-      requirements: [senderRequirement([2])],
-      mustConfigure: rewriteTheWording(2),
+      requirements: [
+        senderRequirement([2]),
+        writeTheEmail(2, 'Follow-up email'),
+      ],
     },
   ];

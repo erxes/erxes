@@ -3,6 +3,9 @@ import { executeAiAgentAction } from './actions/executeAiAgentAction';
 import { executeDelayAction } from './actions/executeDelayAction';
 import { executeIfCondition } from './actions/executeIfCondition';
 import { executeMessageProAction } from './actions/executeMessageProAction';
+import { executeNotificationAction } from './actions/executeNotificationAction';
+import { executeApprovalAction } from './actions/executeApprovalAction';
+import { executePickMemberAction } from './actions/executePickMemberAction';
 import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
 import { executeSplitAction } from './actions/executeSplitAction';
 import { executeTransformAction } from './actions/executeTransformAction';
@@ -44,16 +47,13 @@ export const executeCoreActions = async (
   let actionResponse: any = null;
 
   // Entering a workflow pauses this execution; the child execution resumes
-  // it from the workflow node's nextActionId when it completes.
+  // it from the workflow node's nextActionId when it completes. An empty
+  // for-each list starts no child and continues straight away.
   if (actionType === AUTOMATION_CORE_ACTIONS.WORKFLOW) {
-    actionResponse = await startWorkflowExecution(
-      subdomain,
-      execution,
-      action,
-    );
-    execAction.childExecutionId = actionResponse?.childExecutionId;
+    const started = await startWorkflowExecution(subdomain, execution, action);
+    execAction.childExecutionId = started.result.childExecutionId;
 
-    return { actionResponse, shouldBreak: true };
+    return { actionResponse: started.result, shouldBreak: started.shouldBreak };
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
@@ -88,6 +88,12 @@ export const executeCoreActions = async (
 
     execAction.nextActionId = splitResponse?.nextActionId;
     actionResponse = splitResponse?.result ?? splitResponse;
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.APPROVAL) {
+    actionResponse = await executeApprovalAction(subdomain, execution, action);
+
+    return { actionResponse, shouldBreak: true };
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
@@ -135,6 +141,22 @@ export const executeCoreActions = async (
       targetType,
       config: action.config,
       execution,
+    });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.SEND_NOTIFICATION) {
+    actionResponse = await executeNotificationAction({
+      subdomain,
+      execution,
+      action,
+    });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.PICK_MEMBER) {
+    actionResponse = await executePickMemberAction({
+      subdomain,
+      execution,
+      action,
     });
   }
 

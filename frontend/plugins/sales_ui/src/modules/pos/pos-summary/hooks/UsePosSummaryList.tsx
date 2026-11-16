@@ -170,9 +170,9 @@ export const usePosSummaryList = (
   }, [posSummaryList.length, fetchMore, summary?.amounts?.length]);
 
   useEffect(() => {
-    if (!totalCount) return;
+    if (loading || error || parsed.error) return;
     setPosSummaryTotalCount(totalCount);
-  }, [totalCount, setPosSummaryTotalCount]);
+  }, [totalCount, loading, error, parsed.error, setPosSummaryTotalCount]);
 
   const columns = useMemo(
     () =>

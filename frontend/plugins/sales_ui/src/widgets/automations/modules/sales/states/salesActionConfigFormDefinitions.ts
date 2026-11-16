@@ -10,6 +10,8 @@ export const salesActionConfigFormSchema = z.object({
   closeDate: z.string().optional(),
   labelIds: z.string().optional(),
   priority: z.string().optional(),
+  productIds: z.string().optional(),
+  items: z.string().optional(),
 });
 
 export type TSalesActionConfigForm = z.infer<

@@ -4,30 +4,38 @@ import type { ProductDataWithUom, ProductUomInfo } from './productUom';
 
 const NUMERIC_TOLERANCE = 0.0001;
 
-const NUMERIC_PATCH_FIELDS = new Set<keyof DealProductData>([
-  'quantity',
-  'unitPrice',
-  'globalUnitPrice',
-  'unitPricePercent',
-  'taxPercent',
-  'tax',
-  'vatPercent',
-  'discountPercent',
-  'discount',
-  'amount',
-  'maxQuantity',
-]);
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const isFieldApplied = (a: unknown, b: unknown, key: string) => {
-  if (
-    NUMERIC_PATCH_FIELDS.has(key as keyof DealProductData) &&
-    typeof a === 'number' &&
-    typeof b === 'number'
-  ) {
-    return Math.abs(a - b) < NUMERIC_TOLERANCE;
+const isValueApplied = (actual: unknown, expected: unknown): boolean => {
+  if (typeof actual === 'number' && typeof expected === 'number') {
+    return Math.abs(actual - expected) < NUMERIC_TOLERANCE;
   }
 
-  return Object.is(a, b);
+  if (Array.isArray(expected)) {
+    const actualList: unknown = actual ?? [];
+
+    return (
+      Array.isArray(actualList) &&
+      actualList.length === expected.length &&
+      expected.every((item, index) => isValueApplied(actualList[index], item))
+    );
+  }
+
+  if (isRecord(expected)) {
+    return (
+      isRecord(actual) &&
+      Object.entries(expected).every(([key, value]) =>
+        isValueApplied(actual[key], value),
+      )
+    );
+  }
+
+  if (expected === null || expected === undefined) {
+    return actual === null || actual === undefined;
+  }
+
+  return Object.is(actual, expected);
 };
 
 const isProductPatchApplied = (
@@ -82,5 +90,5 @@ export const isPatchAppliedByServer = (
       );
     }
 
-    return isFieldApplied(data[key as keyof DealProductData], value, key);
+    return isValueApplied(data[key as keyof DealProductData], value);
   });

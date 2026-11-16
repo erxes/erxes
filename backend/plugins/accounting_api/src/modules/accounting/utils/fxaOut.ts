@@ -16,7 +16,7 @@ import { createOrUpdateTr } from './utils';
 import {
   cleanFxaFollowTr,
   deleteEmptyFxaFollowTr,
-  getFxaDisposalFollowInfos,
+  resolveFxaDisposalAccounts,
   getFxaDisposalSummaries,
   removeFxaOwnerRecordsByTransaction,
   syncFxaOwnerRecordMovements,
@@ -111,7 +111,8 @@ export const createFxaDisposalFollowTrs = async (
   transaction: ITransactionDocument,
 ) => {
   const summaries = await getFxaDisposalSummaries(models, transaction);
-  validateFxaDisposalAccounts(transaction, summaries);
+  const followInfos = await resolveFxaDisposalAccounts(models, transaction);
+  validateFxaDisposalAccounts(transaction, summaries, followInfos);
 
   const [oldCostTr, oldDepreciationTr, oldLossTr] = await Promise.all([
     cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_SALE_OUT),
@@ -124,7 +125,6 @@ export const createFxaDisposalFollowTrs = async (
   const ptrId = isSale
     ? oldFollowPtrId || nanoid()
     : transaction.ptrId || oldFollowPtrId || nanoid();
-  const followInfos = getFxaDisposalFollowInfos(transaction);
   const costDetails = isSale
     ? buildFxaDisposalFollowDetails({
         accountId: followInfos.saleOutAccountId,

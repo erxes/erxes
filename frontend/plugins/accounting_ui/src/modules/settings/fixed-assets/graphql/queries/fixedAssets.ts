@@ -15,6 +15,7 @@ query accountingFixedAssetCategories($searchValue: String) {
     taxDepreciationMethod
     defaultTaxAnnualDepreciationRate
     defaultTaxSalvageValue
+    incomeTaxRate
   }
 }
 `);
@@ -34,6 +35,7 @@ query accountingFixedAssetCategoryDetail($id: String!) {
     taxDepreciationMethod
     defaultTaxAnnualDepreciationRate
     defaultTaxSalvageValue
+    incomeTaxRate
   }
 }
 `);

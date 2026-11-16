@@ -56,9 +56,9 @@ export const automationsRouter = t.router({
     find: t.procedure
       .input(z.object({ query: z.any() }))
       .query(async ({ input, ctx }) => {
-        const { ...query } = input;
-        const { models } = ctx;
-        return await models.AutomationExecutions.find(query);
+        // The filter is `query` itself; spreading the input searched by a
+        // field named "query" and found nothing
+        return await ctx.models.AutomationExecutions.find(input.query).lean();
       }),
   }),
 });

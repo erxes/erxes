@@ -33,15 +33,14 @@ export const HomeApps = ({
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {apps.map((app) => {
             const Icon = app.icon || IconApps;
+            const homePath = `/${app.defaultPath.replace(/^\/+/, '')}`;
 
             return (
               <Link
                 key={app.id}
                 className="flex min-w-0 items-center gap-3 rounded-lg border border-transparent p-3 text-sm font-medium transition-colors hover:border-border hover:bg-accent/60"
-                to={
-                  lastLocations[app.id] ||
-                  `/${app.defaultPath.replace(/^\/+/, '')}`
-                }
+                to={lastLocations[app.id] || homePath}
+                state={{ appResumePath: homePath }}
               >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="size-5" />

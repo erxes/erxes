@@ -6,13 +6,14 @@ import { useQuery } from '@apollo/client';
 import { isDefined } from 'erxes-ui';
 
 export const useFacebookBots = () => {
-  const { data, loading } = useQuery(FACEBOOK_BOTS_LIST);
+  const { data, loading, refetch } = useQuery(FACEBOOK_BOTS_LIST);
 
   const bots = data?.facebookMessengerBots?.filter(isDefined) ?? [];
 
   return {
     bots,
     loading,
+    refetch,
   };
 };
 

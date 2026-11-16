@@ -353,10 +353,8 @@
     "flow": "Flow",
     "step-settings": "What each step is set to",
     "before-install": "Before you install",
-    "requirements": "These have to exist in this organization before the flow can run.",
+    "requirements": "Answer these in order. Installing stays closed until every one is done.",
     "no-requirements": "Nothing to set up — this flow runs on what you already have.",
-    "write-yourself": "Then write yourself",
-    "write-yourself-body": "Installing works without these, but the flow is not finished until they are filled in.",
     "left-to-set-up_one": "{{count}} left to set up",
     "left-to-set-up_other": "{{count}} left to set up",
     "install": "Install",
@@ -367,7 +365,10 @@
       "draw-body": "Add actions from the canvas beside this panel. The Start node stands for the customer each run receives.",
       "live": "Live once the flow exists",
       "live-body": "A campaign with an empty flow cannot go live, so add at least one action before setting it live."
-    }
+    },
+    "installing": "Installing…",
+    "install-failed": "Couldn't install the template",
+    "preview-failed": "Couldn't build the preview"
   },
   "approval": {
     "lock": "Lock"

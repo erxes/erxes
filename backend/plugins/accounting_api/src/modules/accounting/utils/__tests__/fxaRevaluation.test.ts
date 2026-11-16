@@ -11,6 +11,7 @@ import { validateFxaIncomeAcquisition } from '../fxaIncome';
 import { ITransaction } from '../../@types/transaction';
 import { JOURNALS, TR_SIDES } from '../../@types/constants';
 import { TFxaCapitalValuation } from '../fxaCapitalValuation';
+import { getFxaRevaluationTransactions } from '../fxaRevaluationTransactions';
 
 const query = <T>(value: T) => ({
   sort() {
@@ -18,6 +19,64 @@ const query = <T>(value: T) => ({
   },
   lean: async () => value,
 });
+
+test.each([
+  [-5, 6, 0, 1],
+  [-5, 4, 1, 0],
+  [5, -6, 1, 0],
+  [5, -4, 0, 1],
+])(
+  'matched revaluation accounts post recovery/reserve use for %s followed by %s',
+  async (first, second, finalLoss, finalReserve) => {
+    const opening = allocateFxaRevaluation(first, 0, 0);
+    const delta = allocateFxaRevaluation(
+      second,
+      opening.revaluationLoss,
+      opening.revaluationReserve,
+    );
+    const models = {
+      Configs: {
+        getConfigs: async () => [
+          {
+            subId: 'asset-account',
+            value: {
+              revaluationReserveAccountId: 'reserve',
+              revaluationLossAccountId: 'loss',
+            },
+          },
+        ],
+      },
+    } as unknown as IModels;
+    const docs = await getFxaRevaluationTransactions(models, {
+      journal: JOURNALS.FXA_REVALUATION,
+      date: new Date('2026-02-01'),
+      details: [
+        {
+          accountId: 'asset-account',
+          amount: Math.abs(second),
+          fixedAssetId: 'asset',
+          followInfos: delta,
+        },
+      ],
+    });
+    const signed = (account: string) =>
+      docs.reduce(
+        (sum, tr) =>
+          sum +
+          (tr.side === TR_SIDES.DEBIT ? 1 : -1) *
+            tr.details
+              .filter((row) => row.accountId === account)
+              .reduce((total, row) => total + row.amount, 0),
+        0,
+      );
+    expect(
+      docs.every((tr) => tr.journal === JOURNALS.FXA_REVALUATION_RESULT),
+    ).toBe(true);
+    expect(signed('loss')).toBe(finalLoss - opening.revaluationLoss);
+    expect(signed('reserve')).toBe(opening.revaluationReserve - finalReserve);
+    expect(signed('loss') + signed('reserve')).toBe(-second);
+  },
+);
 
 test.each([
   ['A', -5, 6, 0, 1, 5, 0],
@@ -141,6 +200,9 @@ const valuation: TFxaCapitalValuation = {
   count: 3,
   originalCost: 30,
   preDeprecation: 24,
+  taxPreDeprecation: 24,
+  hasTaxDepreciation: false,
+  incomeTaxRate: undefined,
   annualDepreciationRate: 20,
   depreciationMethod: 'straightLine',
   salvageValue: 0,
@@ -153,8 +215,20 @@ const valuation: TFxaCapitalValuation = {
   taxAnnualDepreciationRate: 20,
   taxSalvageValue: 0,
   locations: [
-    { branchId: 'a', departmentId: '', count: 2 },
-    { branchId: 'b', departmentId: '', count: 1 },
+    {
+      branchId: 'a',
+      departmentId: '',
+      count: 2,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
+    {
+      branchId: 'b',
+      departmentId: '',
+      count: 1,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
   ],
 };
 

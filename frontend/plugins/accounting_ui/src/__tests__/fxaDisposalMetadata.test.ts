@@ -1,5 +1,8 @@
 import { JOURNALS_BY_JOURNAL } from '@/transactions/transaction-form/contants/defaultValues';
-import { fxaDetailSchema } from '@/transactions/transaction-form/contants/transactionSchema';
+import {
+  fxaDetailSchema,
+  fxaSaleFollowInfosSchema,
+} from '@/transactions/transaction-form/contants/transactionSchema';
 import { TrJournalEnum } from '@/transactions/types/constants';
 import { buildFxaDisposalPreviewSummaries } from '@/transactions/transaction-form/components/forms/hooks/useFxaDisposalFollowTrs';
 
@@ -9,8 +12,22 @@ jest.mock(
   { virtual: true },
 );
 jest.mock('ui-modules', () => ({ CustomerType: { CUSTOMER: 'customer' } }));
+jest.mock('react-i18next', () => ({
+  getI18n: () => ({ t: (key: string) => key }),
+}));
 
 describe('fixed asset disposal total depreciation metadata', () => {
+  it('sale requires its asset and cost accounts without requiring a manual depreciation account', () => {
+    expect(
+      fxaSaleFollowInfosSchema.safeParse({
+        saleOutAccountId: 'asset',
+        saleCostAccountId: 'loss',
+      }).success,
+    ).toBe(true);
+    expect(
+      fxaSaleFollowInfosSchema.safeParse({ saleOutAccountId: 'asset' }).success,
+    ).toBe(false);
+  });
   const detail = {
     _id: 'detail-1',
     accountId: 'account-1',

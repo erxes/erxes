@@ -243,6 +243,45 @@ export const CreateDealActionConfigForm = ({
           </Form.Item>
         )}
       />
+      <Form.Field
+        control={control}
+        name="productIds"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('products')}</Form.Label>
+            <PlaceholderInput
+              propertyType={targetType}
+              value={field.value || ''}
+              onChange={field.onChange}
+              placeholderConfig={{
+                selectMode: 'many',
+                delimiter: ',',
+                allowOnlyTriggers: true,
+              }}
+              enabled={[TPlaceholderInputSuggestion.CallProduct]}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={control}
+        name="items"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('order-items')}</Form.Label>
+            <PlaceholderInput
+              propertyType={targetType}
+              value={field.value || ''}
+              onChange={field.onChange}
+              placeholderConfig={{ selectMode: 'one' }}
+              enabled={[TPlaceholderInputSuggestion.Attribute]}
+            />
+            <Form.Description>{t('order-items-description')}</Form.Description>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
       {/* </div> */}
     </Form>
   );

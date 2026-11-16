@@ -233,6 +233,7 @@ export const FixedAssetRow = ({
                         taxAnnualDepreciationRate:
                           category.defaultTaxAnnualDepreciationRate ?? 0,
                         taxSalvageValue: category.defaultTaxSalvageValue ?? 0,
+                        incomeTaxRate: category.incomeTaxRate ?? undefined,
                       },
                       { shouldDirty: true },
                     );

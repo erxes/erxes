@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next';
-import { memo, useCallback } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { memo } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { setAtJSONProperty } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
+import {
+  TJSONBodyPath,
+  useJSONArrayContainer,
+} from '@/automations/components/builder/nodes/actions/webhooks/hooks/useJSONBodyTree';
 import { JSONTreeNode } from '../editor/JSONTreeNode';
-
-type OutgoinWebhookBodyPath = Array<string | number>;
 
 interface JSONArrayContainerProps {
   name: string;
-  path: OutgoinWebhookBodyPath;
-  value: any[];
+  path: TJSONBodyPath;
+  value: unknown[];
 }
 
 export const JSONArrayContainer = memo(function JSONArrayContainer({
@@ -19,41 +19,21 @@ export const JSONArrayContainer = memo(function JSONArrayContainer({
   path,
   value,
 }: JSONArrayContainerProps) {
-  const { getValues, setValue } = useFormContext();
   const { t } = useTranslation('automations');
-
-  const apply = useCallback(
-    (next: any[]) => {
-      const root = getValues();
-      const newRoot = setAtJSONProperty(root, path, next);
-      setValue(name, newRoot[name], { shouldDirty: true, shouldTouch: true });
-    },
-    [getValues, name, path, setValue],
-  );
-
-  const addItem = useCallback(
-    () => apply([...(value ?? []), '']),
-    [apply, value],
-  );
-
-  const removeItem = useCallback(
-    (idx: number) =>
-      apply([...(value ?? []).slice(0, idx), ...(value ?? []).slice(idx + 1)]),
-    [apply, value],
-  );
+  const { items, isEmpty, addItem } = useJSONArrayContainer(name, path, value);
 
   return (
     <div className="space-y-2">
       <div className="space-y-2">
-        {(value ?? []).map((item, idx) => (
+        {items.map((item) => (
           <JSONTreeNode
-            key={idx}
+            key={item.key}
             name={name}
-            path={[...path, idx]}
-            value={item}
+            path={item.path}
+            value={item.value}
           />
         ))}
-        {(value ?? []).length === 0 && (
+        {isEmpty && (
           <div className="text-xs text-muted-foreground">
             {t('webhook-json-empty-array')}
           </div>

@@ -1,3 +1,7 @@
+jest.mock('@/accounting/utils/transactionDateValidation', () => ({
+  validateTransactionDate: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { IModels } from '~/connectionResolvers';
 import { IJobDocument } from '@/inventories/@types/jobs';
 import { getExecutionProductUnits } from '@/inventories/utils/jobExecutionUnits';

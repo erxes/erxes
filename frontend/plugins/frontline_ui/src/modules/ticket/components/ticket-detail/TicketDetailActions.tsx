@@ -81,9 +81,14 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="outline" disabled={pending}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          disabled={pending}
+          aria-label={t('actions')}
+        >
           <IconDotsVertical />
-          {t('actions')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" className="w-48 min-w-fit!">

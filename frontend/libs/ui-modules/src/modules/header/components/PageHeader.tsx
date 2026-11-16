@@ -1,8 +1,13 @@
 import { Separator, cn } from 'erxes-ui';
 
 import { FavoriteToggleIconButton } from '../../favorites/components/FavoriteToggleIconButton';
+import { RecordPageMinimize } from '../../widget/record-side-panel/RecordPageMinimize';
+import {
+  RecordPageMinimizeContext,
+  SidePanelNavigatorContext,
+} from '../../widget/record-side-panel/recordView';
 import { PAGE_HEADER_FIRST_CRUMB_CLASS_NAME } from '../constants/pageHeaderClassNames';
-import React from 'react';
+import React, { useContext } from 'react';
 
 export const PageHeaderRoot = React.forwardRef<
   HTMLDivElement,
@@ -56,8 +61,14 @@ export const PageHeaderEnd = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     children: React.ReactNode;
+    // On a record's own page, ends with the minimize button back to its list.
+    minimize?: boolean;
   }
->(({ children, className, ...props }, ref) => {
+>(({ children, className, minimize = true, ...props }, ref) => {
+  const navigator = useContext(SidePanelNavigatorContext);
+  const pageTarget = useContext(RecordPageMinimizeContext);
+  const isRecordPage = Boolean(pageTarget || navigator?.listPath);
+
   return (
     <div
       ref={ref}
@@ -65,6 +76,7 @@ export const PageHeaderEnd = React.forwardRef<
       {...props}
     >
       {children}
+      {minimize && isRecordPage && <RecordPageMinimize />}
     </div>
   );
 });

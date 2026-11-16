@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -46,8 +46,10 @@
   fresh deployment; a copy is materialized only when someone installs one.
   Neither restricts the target, so both are offered on a broadcast campaign as
   well — giving the team a task per customer rather than messaging that
-  customer. Both declare `operation:task.team` and `operation:task.status`
-  requirements, the status scoped by the team.
+  customer. Both declare an `operation:task.status` requirement (team and
+  status together) and a `core:text` requirement that becomes the task
+  description, so installing stays closed until the organization writes what
+  the task asks.
 
 - Task segment `tagIds` lists `operation:task` tags plus workspace tags
   (`query.variables`).

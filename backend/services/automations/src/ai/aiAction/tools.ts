@@ -3,10 +3,10 @@ import { TAiToolCallTrace } from './contract';
 
 // A tool wired for one agent run: the provider-facing definition plus how to
 // execute it. Handoff tools have no executor — the call ends the turn and
-// routing happens via optionalConnects.
+// routing happens via optionalConnects. Lookup tools only read.
 export type TAiToolRuntime = {
   toolId: string;
-  kind: 'helper' | 'handoff';
+  kind: 'helper' | 'handoff' | 'lookup';
   definition: TAiBridgeToolDefinition;
   execute?: (args: Record<string, unknown>) => Promise<unknown>;
 };
@@ -189,7 +189,7 @@ export const runAiToolLoop = async ({
         resultsByCall.set(callKey, result);
         trace.push({
           name: call.name,
-          kind: 'helper',
+          kind: tool.kind === 'lookup' ? 'lookup' : 'helper',
           arguments: call.arguments || {},
           result,
         });
@@ -197,7 +197,7 @@ export const runAiToolLoop = async ({
       } catch (error: any) {
         trace.push({
           name: call.name,
-          kind: 'helper',
+          kind: tool?.kind === 'lookup' ? 'lookup' : 'helper',
           arguments: call.arguments || {},
           error: error.message,
         });

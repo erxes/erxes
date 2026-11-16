@@ -7,6 +7,7 @@ import {
   splitAutomationNodeType,
 } from 'ui-modules';
 import { TICKET_STATUS_CHANGED_RELATION } from '../states/ticketStatusChangedTriggerForm';
+import { TICKET_SLA_RELATION } from '../states/ticketSlaTriggerForm';
 
 type TTicketHistoryTarget = {
   name?: string;
@@ -42,8 +43,23 @@ const TicketStatusChangedTriggerNodeContent = lazy(() =>
   })),
 );
 
+const TicketSlaTriggerForm = lazy(() =>
+  import('./trigger/TicketSlaTriggerForm').then((module) => ({
+    default: module.TicketSlaTriggerForm,
+  })),
+);
+
+const TicketSlaTriggerNodeContent = lazy(() =>
+  import('./trigger/TicketSlaTriggerNodeContent').then((module) => ({
+    default: module.TicketSlaTriggerNodeContent,
+  })),
+);
+
 const isStatusChangedTrigger = (type?: string) =>
   splitAutomationNodeType(type)[3] === TICKET_STATUS_CHANGED_RELATION;
+
+const isSlaTrigger = (type?: string) =>
+  splitAutomationNodeType(type)[3] === TICKET_SLA_RELATION;
 
 const CreateTicketActionResult = lazy(() =>
   import('./action/CreateTicketActionResult').then((module) => ({
@@ -72,6 +88,10 @@ export const TicketRemoteEntry = (props: AutomationRemoteEntryProps) => {
 };
 
 function renderTriggerForm(props: AutomationRemoteEntryTypes['triggerForm']) {
+  if (isSlaTrigger(props.activeTrigger?.type)) {
+    return <TicketSlaTriggerForm {...props} />;
+  }
+
   return isStatusChangedTrigger(props.activeTrigger?.type) ? (
     <TicketStatusChangedTriggerForm {...props} />
   ) : null;
@@ -80,6 +100,10 @@ function renderTriggerForm(props: AutomationRemoteEntryTypes['triggerForm']) {
 function renderTriggerConfigContent(
   props: AutomationRemoteEntryTypes['triggerConfigContent'],
 ) {
+  if (isSlaTrigger(props.type)) {
+    return <TicketSlaTriggerNodeContent {...props} />;
+  }
+
   return isStatusChangedTrigger(props.type) ? (
     <TicketStatusChangedTriggerNodeContent {...props} />
   ) : null;

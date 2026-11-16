@@ -1,5 +1,11 @@
 /// <reference types="jest" />
 
+import type { IModels } from '~/connectionResolvers';
+import type {
+  ITransaction,
+  ITransactionDocument,
+} from '../../@types/transaction';
+
 import { ADJ_FXA_STATUSES } from '../../@types/adjustFixedAsset';
 import {
   JOURNALS,
@@ -110,6 +116,7 @@ const makeModels = () => {
             taxDepreciationMethod: 'straightLine',
             defaultTaxAnnualDepreciationRate: 10,
             defaultTaxSalvageValue: 0,
+            incomeTaxRate: 10,
           },
         ]),
       ),
@@ -1664,92 +1671,139 @@ describe('fixed asset sale and disposal summaries', () => {
     expect(summaries[0].accumulatedDepreciation).toBe(100);
   });
 
-  it('creates sale follow transactions for sale out, accumulated depreciation out, and sale cost', async () => {
-    const models = makeModels();
-    const transaction = {
-      _id: 'sale-a',
-      ptrId: 'ptr-sale-revenue',
+  it.each([undefined, 'obsolete-depreciation-account'])(
+    'creates sale follows from the matched asset account despite saved depreciation override %s',
+    async (savedAccount) => {
+      const models = makeModels();
+      const transaction = {
+        _id: 'sale-a',
+        ptrId: 'ptr-sale-revenue',
+        journal: JOURNALS.FXA_SALE,
+        status: TR_STATUSES.COMPLETE,
+        date: new Date('2026-02-01T00:00:00.000Z'),
+        branchId: 'branch-a',
+        departmentId: 'dept-a',
+        followInfos: {
+          saleOutAccountId: 'asset-account',
+          accumulatedDepreciationAccountId: savedAccount,
+          saleCostAccountId: 'loss-account',
+        },
+        details: [{ _id: 'detail-sale', fixedAssetId: 'asset-a', count: 1 }],
+      };
+
+      models.FixedAssets.find.mockReturnValue(
+        queryResult([
+          {
+            _id: 'asset-a',
+            originalCost: 500,
+            count: 2,
+            currentCount: 1,
+          },
+        ]),
+      );
+      models.AdjustFxaDetails.find.mockReturnValue(
+        queryResult([
+          {
+            adjustId: 'adjust-a',
+            fixedAssetId: 'asset-a',
+            accumulatedDepreciation: 100,
+            closingBookValue: 900,
+          },
+        ]),
+      );
+
+      const followTrs = await createFxaDisposalFollowTrs(
+        models as never,
+        'user-a',
+        transaction as never,
+      );
+
+      expect(followTrs).toHaveLength(3);
+      expect(new Set(followTrs.map((followTr) => followTr.ptrId)).size).toBe(1);
+      expect(followTrs[0].ptrId).not.toBe('ptr-sale-revenue');
+      expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          journal: JOURNALS.FXA_SALE_OUT,
+          side: 'ct',
+          details: [
+            expect.objectContaining({
+              fixedAssetId: 'asset-a',
+              accountId: 'asset-account',
+              amount: 500,
+            }),
+          ],
+        }),
+        'user-a',
+      );
+      expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          journal: JOURNALS.FXA_DEP_OUT,
+          details: [
+            expect.objectContaining({
+              accountId: 'acc-dep-account',
+              amount: 50,
+            }),
+          ],
+        }),
+        'user-a',
+      );
+      expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          journal: JOURNALS.FXA_SALE_COST,
+          details: [
+            expect.objectContaining({
+              accountId: 'loss-account',
+              amount: 450,
+            }),
+          ],
+        }),
+        'user-a',
+      );
+    },
+  );
+
+  it('resolves the sale depreciation account before source validation and rejects a missing mapping before writes', async () => {
+    const raw = makeModels();
+    const models = raw as unknown as IModels;
+    const transaction: ITransaction = {
+      _id: 'sale',
+      date: new Date('2026-02-01'),
       journal: JOURNALS.FXA_SALE,
-      status: TR_STATUSES.COMPLETE,
-      date: new Date('2026-02-01T00:00:00.000Z'),
-      branchId: 'branch-a',
-      departmentId: 'dept-a',
       followInfos: {
         saleOutAccountId: 'asset-account',
-        accumulatedDepreciationAccountId: 'acc-dep-account',
         saleCostAccountId: 'loss-account',
+        accumulatedDepreciationAccountId: 'obsolete',
       },
-      details: [{ _id: 'detail-sale', fixedAssetId: 'asset-a', count: 1 }],
-    };
-
-    models.FixedAssets.find.mockReturnValue(
-      queryResult([
+      details: [
         {
-          _id: 'asset-a',
-          originalCost: 500,
-          count: 2,
-          currentCount: 1,
-        },
-      ]),
-    );
-    models.AdjustFxaDetails.find.mockReturnValue(
-      queryResult([
-        {
-          adjustId: 'adjust-a',
+          _id: 'row',
+          accountId: 'revenue',
           fixedAssetId: 'asset-a',
-          accumulatedDepreciation: 100,
-          closingBookValue: 900,
+          count: 1,
+          amount: 600,
+          unitPrice: 600,
         },
-      ]),
+      ],
+    };
+    const prepared = await prepareFxaOwnerRecordTransaction(
+      models,
+      transaction,
+      { updateDetails: false, validateDisposalAccounts: true },
     );
-
-    const followTrs = await createFxaDisposalFollowTrs(
-      models as never,
-      'user-a',
-      transaction as never,
+    expect(prepared.followInfos?.accumulatedDepreciationAccountId).toBe(
+      'acc-dep-account',
     );
-
-    expect(followTrs).toHaveLength(3);
-    expect(new Set(followTrs.map((followTr) => followTr.ptrId)).size).toBe(1);
-    expect(followTrs[0].ptrId).not.toBe('ptr-sale-revenue');
-    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        journal: JOURNALS.FXA_SALE_OUT,
-        side: 'ct',
-        details: [
-          expect.objectContaining({
-            fixedAssetId: 'asset-a',
-            accountId: 'asset-account',
-            amount: 500,
-          }),
-        ],
+    expect(transaction.followInfos?.accumulatedDepreciationAccountId).toBe(
+      'obsolete',
+    );
+    raw.Configs.getConfigs.mockResolvedValue([]);
+    await expect(
+      prepareFxaOwnerRecordTransaction(models, transaction, {
+        updateDetails: false,
+        validateDisposalAccounts: true,
       }),
-      'user-a',
-    );
-    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        journal: JOURNALS.FXA_DEP_OUT,
-        details: [
-          expect.objectContaining({
-            accountId: 'acc-dep-account',
-            amount: 50,
-          }),
-        ],
-      }),
-      'user-a',
-    );
-    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        journal: JOURNALS.FXA_SALE_COST,
-        details: [
-          expect.objectContaining({
-            accountId: 'loss-account',
-            amount: 450,
-          }),
-        ],
-      }),
-      'user-a',
-    );
+    ).rejects.toThrow('Accumulated depreciation account is required');
+    expect(raw.Transactions.createTransaction).not.toHaveBeenCalled();
   });
 
   it('creates only accumulated depreciation out follow transaction for fixed asset out', async () => {
@@ -1928,6 +1982,7 @@ test('saved income snapshots survive later category rule edits', async () => {
         taxDepreciationMethod: 'decliningBalance',
         defaultTaxAnnualDepreciationRate: 20,
         defaultTaxSalvageValue: 88,
+        incomeTaxRate: 25,
       },
     ]),
   );
@@ -1939,12 +1994,29 @@ test('saved income snapshots survive later category rule edits', async () => {
     taxDepreciationMethod: 'straightLine',
     taxAnnualDepreciationRate: 10,
     taxSalvageValue: 0,
+    incomeTaxRate: 10,
   });
   for (const [doc] of models.FixedAssets.create.mock.calls) {
     expect(doc).not.toHaveProperty('annualDepreciationRate');
     expect(doc).not.toHaveProperty('currentCount');
   }
 });
+
+test.each([0, 15])(
+  'income tax rate override %s takes precedence over category defaults',
+  async (incomeTaxRate) => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction();
+    transaction.details[0].followInfos = {
+      ...transaction.details[0].followInfos,
+      incomeTaxRate,
+    };
+    await syncFxaIncomeDetails(models as never, 'user-a', transaction as never);
+    expect(transaction.details[0].followInfos.incomeTaxRate).toBe(
+      incomeTaxRate,
+    );
+  },
+);
 
 it('transfers owner quantity from the selected source to a different destination custodian', async () => {
   const models = makeModels();
@@ -2157,4 +2229,81 @@ it('preparing the same asset at different locations preserves each detail quanti
       branchId: 'b',
     }),
   ]);
+});
+
+test('income saves the tax toggle and posts both book opening depreciation and a balanced opening deferred tax pair', async () => {
+  const raw = makeModels();
+  raw.Configs.getConfigs.mockImplementation(async () => [
+    {
+      subId: 'asset-account',
+      value: {
+        depreciationAccountId: 'acc-dep-account',
+        taxAssetAccountId: 'tax-asset',
+        taxLiabilityAccountId: 'tax-liability',
+        TaxExpenseAccountId: 'tax-expense',
+      },
+    },
+  ]);
+  const models = {
+    ...raw,
+    Configs: {
+      ...raw.Configs,
+      findOne: () => queryResult({ value: ['user-a'] }),
+    },
+  } as unknown as IModels;
+  const transaction = makeIncomeTransaction();
+  transaction.details[0].followInfos = {
+    ...transaction.details[0].followInfos,
+    preDeprecation: 1000,
+    ...{ hasTaxDepreciation: true, taxPreDeprecation: 600, incomeTaxRate: 10 },
+  };
+  await syncFxaIncomeDetails(
+    models,
+    'user-a',
+    transaction as unknown as ITransactionDocument,
+  );
+  expect(raw.Transactions.createTransaction).toHaveBeenCalledWith(
+    expect.objectContaining({
+      journal: JOURNALS.FXA_DEP_IN,
+      details: [expect.objectContaining({ amount: 1000 })],
+    }),
+    'user-a',
+  );
+  expect(raw.Transactions.createTransaction).toHaveBeenCalledWith(
+    expect.objectContaining({
+      journal: JOURNALS.FXA_DEFERRED_TAX,
+      originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+      side: TR_SIDES.DEBIT,
+      details: [
+        expect.objectContaining({ accountId: 'tax-asset', amount: 40 }),
+      ],
+    }),
+    'user-a',
+  );
+  expect(raw.Transactions.createTransaction).not.toHaveBeenCalledWith(
+    expect.objectContaining({
+      journal: JOURNALS.FXA_DEFERRED_TAX,
+      originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+      side: TR_SIDES.CREDIT,
+      details: [
+        expect.objectContaining({ accountId: 'tax-expense', amount: 40 }),
+      ],
+    }),
+    'user-a',
+  );
+  expect(raw.Transactions.updateOne).toHaveBeenCalledWith(
+    { _id: transaction._id },
+    {
+      $set: {
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            followInfos: expect.objectContaining({
+              hasTaxDepreciation: true,
+              incomeTaxRate: 10,
+            }),
+          }),
+        ]),
+      },
+    },
+  );
 });

@@ -9,6 +9,8 @@ import { InboxMessageTriggerForm } from './trigger/InboxMessageTriggerForm';
 import { MessengerMessageTriggerNodeContent } from './trigger/MessengerMessageTriggerNodeContent';
 import { InboxMessageActionForm } from './action/InboxMessageActionForm';
 import { InboxMessageActionConfig } from './action/InboxMessageActionConfig';
+import { HandoffActionForm } from './action/HandoffActionForm';
+import { HandoffActionConfig } from './action/HandoffActionConfig';
 import { AutomationHistoryName } from './AutomationHistoryName';
 import { AutomationHistoryResult } from './AutomationHistoryResult';
 
@@ -32,7 +34,7 @@ export const InboxRemoteEntry = (props: AutomationRemoteEntryProps) => {
         triggerForm: renderTriggerForm,
         triggerConfigContent: renderTriggerConfigContent,
         actionForm: renderActionForm,
-        actionNodeConfiguration: InboxMessageActionConfig,
+        actionNodeConfiguration: renderActionNodeConfiguration,
         historyName: AutomationHistoryName,
         historyActionResult: AutomationHistoryResult,
       }}
@@ -63,6 +65,23 @@ function renderTriggerConfigContent(
   return <ConversationEventTriggerNodeContent {...props} />;
 }
 
+const isHandoffAction = (type?: string) =>
+  splitAutomationNodeType(type || '')[2] === 'handoffs';
+
 function renderActionForm(props: AutomationRemoteEntryTypes['actionForm']) {
+  if (isHandoffAction(props.currentAction?.type)) {
+    return <HandoffActionForm {...props} />;
+  }
+
   return <InboxMessageActionForm {...props} />;
+}
+
+function renderActionNodeConfiguration(
+  props: AutomationRemoteEntryTypes['actionNodeConfiguration'],
+) {
+  if (isHandoffAction(props.actionData?.type)) {
+    return <HandoffActionConfig {...props} />;
+  }
+
+  return <InboxMessageActionConfig {...props} />;
 }

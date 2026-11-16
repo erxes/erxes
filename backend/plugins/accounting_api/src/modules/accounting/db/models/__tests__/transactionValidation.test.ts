@@ -1,3 +1,5 @@
+import { graphqlPubsub } from 'erxes-api-shared/utils';
+import * as modelUtils from '../utils';
 import type { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { connection } from 'mongoose';
 import type { IModels } from '~/connectionResolvers';
@@ -191,4 +193,69 @@ describe('transaction model validation phases', () => {
     );
     expect(calls.remove).toHaveBeenCalledWith('tenant', models, rows[0], group);
   });
+});
+
+describe('multiple pointers in one parent workflow', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  test.each([
+    ['create', false],
+    ['create', true],
+    ['update', false],
+    ['update', true],
+  ] as const)(
+    '%s preserves supplied pointers only when requested (%s)',
+    async (operation, preservePtrIds) => {
+      const { methods } = setup();
+      Object.assign(methods, {
+        getPtrNumber: jest.fn().mockResolvedValue('number'),
+        syncParentWorkflowIdentifiers: jest.fn().mockResolvedValue(undefined),
+      });
+      jest.spyOn(connection, 'startSession').mockResolvedValue({
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn(),
+        abortTransaction: jest.fn(),
+        endSession: jest.fn(),
+      } as never);
+      jest
+        .spyOn(saveUtils, 'commonSaveValidation')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(removeUtils, 'commonRemoveValidation')
+        .mockResolvedValue(undefined);
+      jest.spyOn(removeUtils, 'commonRemove').mockResolvedValue(undefined);
+      jest.spyOn(modelUtils, 'setPtrStatus').mockResolvedValue('ok');
+      jest.spyOn(graphqlPubsub, 'publish').mockResolvedValue(undefined);
+      const save = jest
+        .spyOn(saveUtils, 'commonSave')
+        .mockImplementation(async (_tenant, _models, _user, doc) => ({
+          mainTr: {
+            ...doc,
+            _id: doc._id || 'saved',
+            parentId: doc.parentId || 'parent',
+          } as never,
+          otherTrs: [],
+        }));
+      const docs = rows.map((row, index) => ({
+        ...row,
+        journal: 'main',
+        ptrId: index === 0 ? 'book-pointer' : 'tax-pointer',
+      }));
+      const options = { skipAccountPermission: true, preservePtrIds };
+      const saved =
+        operation === 'create'
+          ? await methods.createPTransaction(docs, 'user', options)
+          : await methods.updatePTransaction('parent', docs, 'user', options);
+      const pointers = save.mock.calls.map((call) => call[3].ptrId);
+      if (preservePtrIds)
+        expect(pointers).toEqual(['book-pointer', 'tax-pointer']);
+      else {
+        expect(pointers[0]).toBe(pointers[1]);
+        expect(pointers[0]).not.toBe('book-pointer');
+      }
+      expect(new Set(saved.map((row) => row.parentId))).toEqual(
+        new Set(['parent']),
+      );
+    },
+  );
 });

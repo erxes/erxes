@@ -138,6 +138,15 @@ export const ApprovalRequestRecordPanel = ({
             </DetailField>
           </div>
 
+          {/* What a change request asks for, e.g. an automation's discount */}
+          {request.change?.summary && (
+            <DetailField label={t('requested-change', 'Asked for')}>
+              <div className="whitespace-pre-wrap break-words rounded-md border bg-muted/30 p-3">
+                {request.change.summary}
+              </div>
+            </DetailField>
+          )}
+
           <DetailField label={t('reason')}>
             <div className="whitespace-pre-wrap break-words rounded-md border bg-muted/30 p-3 text-muted-foreground">
               {request.reason || '-'}

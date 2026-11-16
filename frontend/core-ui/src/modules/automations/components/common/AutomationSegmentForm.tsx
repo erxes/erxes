@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   IconBookmarkPlus,
@@ -6,14 +5,12 @@ import {
   IconLoader2,
 } from '@tabler/icons-react';
 import { Button, Popover, Dialog } from 'erxes-ui';
+import { SegmentForm, SelectSegment } from 'ui-modules';
 import {
-  SegmentForm,
-  SelectSegment,
-  useFormValidationErrorHandler,
-} from 'ui-modules';
-import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
-import { useAutomation } from '@/automations/context/AutomationProvider';
+  useAutomationSegmentFormFooter,
+  useKeepAsSegment,
+  useUseExistingSegment,
+} from '@/automations/hooks/useAutomationSegmentForm';
 import { AutoamtionConfigFormFooter } from './AutomationConfigFormFooter';
 
 // Segments an automation writes belong to it: no name, not listed, not
@@ -70,7 +67,7 @@ const UseExistingSegment = ({
   onSelect: (contentId: string) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, select } = useUseExistingSegment(onSelect);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -91,12 +88,7 @@ const UseExistingSegment = ({
           contentType={contentType}
           selected={segmentId}
           unnamedLabel={t('common-current-conditions')}
-          onSelect={(id) => {
-            if (id) {
-              onSelect(id);
-              setOpen(false);
-            }
-          }}
+          onSelect={select}
         />
       </Popover.Content>
     </Popover>
@@ -110,16 +102,9 @@ const AutomationSegmentFormFooter = ({
   callback: (contentId: string) => void;
   saveButtonLabel?: string;
 }) => {
-  const { form } = useSegment();
-  const { isReadOnly } = useAutomation();
-  const { handleSave, saving } = useSegmentActions({ callback });
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Trigger',
-  });
+  const { canSave, saving, onSave } = useAutomationSegmentFormFooter(callback);
 
-  // Saving here writes the segment immediately, before and regardless of the
-  // automation's own save, so it needs the same permission the automation does
-  if (isReadOnly) {
+  if (!canSave) {
     return null;
   }
 
@@ -127,7 +112,7 @@ const AutomationSegmentFormFooter = ({
     <AutoamtionConfigFormFooter
       label={saveButtonLabel}
       saving={saving}
-      onSave={form.handleSubmit(handleSave, handleValidationErrors)}
+      onSave={onSave}
     />
   );
 };
@@ -138,35 +123,15 @@ const KeepAsSegment = ({
   callback: (contentId: string) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { form, ownedBy } = useSegment();
-  const [open, setOpen] = useState(false);
+  const { canKeep, open, onOpenChange, saving, onSave } =
+    useKeepAsSegment(callback);
 
-  const { handleSave, saving } = useSegmentActions({
-    callback: (contentId) => {
-      callback(contentId);
-      setOpen(false);
-    },
-  });
-
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Segment',
-  });
-
-  if (!ownedBy) {
+  if (!canKeep) {
     return null;
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-
-        if (!next) {
-          form.setValue('name', '', { shouldDirty: false });
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger asChild>
         <Button variant="ghost" size="sm" type="button">
           <IconBookmarkPlus />
@@ -187,11 +152,7 @@ const KeepAsSegment = ({
         <Dialog.Footer>
           {/* Explicitly not a submit: this sits inside the segment form, and
               the footer's own save is a different action. */}
-          <Button
-            type="button"
-            disabled={saving}
-            onClick={form.handleSubmit(handleSave, handleValidationErrors)}
-          >
+          <Button type="button" disabled={saving} onClick={onSave}>
             {saving ? (
               <>
                 <IconLoader2 className="animate-spin" />

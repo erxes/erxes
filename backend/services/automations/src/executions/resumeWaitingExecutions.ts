@@ -4,10 +4,10 @@ import {
   AUTOMATION_STATUSES,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
-import moment from 'moment';
 import { IModels } from '../connectionResolver';
 import { debugInfo } from '../debugger';
 import { getExecutionActionsMap } from '../utils/utils';
+import { computeDelayEndsAt } from './workingTime';
 
 /**
  * Arms the delays that came due while the automation was not active.
@@ -52,13 +52,20 @@ export const resumeWaitingExecutions = async (
 
     const { value, type } = action.config || {};
 
-    if (!value || !type) {
+    // A working-time delay of 0 waits for opening only.
+    if ((!Number(value) && !action.config?.workingTime) || !type) {
       continue;
     }
 
-    const dueAt = moment(execution.startWaitingDate)
-      .add(Number(value), type)
-      .toDate();
+    // The same end the delay was armed with, working hours included.
+    const dueAt = await computeDelayEndsAt({
+      subdomain,
+      target: execution.target,
+      config: action.config,
+      from: execution.startWaitingDate
+        ? new Date(execution.startWaitingDate)
+        : new Date(),
+    });
 
     // A delay still in the future has its original job waiting in the queue.
     // Arming a second one would run the action twice.

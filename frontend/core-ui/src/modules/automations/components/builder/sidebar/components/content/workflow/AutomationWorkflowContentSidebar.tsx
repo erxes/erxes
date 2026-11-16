@@ -4,6 +4,7 @@ import {
   useWorkflowNodeContext,
   WorkflowNodeProvider,
 } from '@/automations/context/WorkflowNodeProvider';
+import { WorkflowForEachSection } from '@/automations/components/builder/sidebar/components/content/workflow/WorkflowForEachSection';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useCallback } from 'react';
 import { PlaceholderInput } from 'ui-modules';
@@ -16,6 +17,7 @@ export const AutomationWorkflowContentSidebar = () => {
 
   return (
     <WorkflowNodeProvider workflowId={queryParams?.activeNodeId || ''}>
+      <WorkflowForEachSection />
       <WorkflowInputBindingFields />
     </WorkflowNodeProvider>
   );
@@ -48,7 +50,8 @@ const WorkflowInputBindingField = ({
 }: {
   binding: TWorkflowInputBinding;
 }) => {
-  const { updateBinding } = useWorkflowNodeContext();
+  const { t } = useTranslation('automations');
+  const { updateBinding, forEach } = useWorkflowNodeContext();
 
   const handleChange = useCallback(
     (expression: string) => updateBinding(binding.name, expression),
@@ -63,7 +66,13 @@ const WorkflowInputBindingField = ({
           <IconAlertTriangle className="size-3.5 shrink-0 text-warning" />
         )}
       </div>
-      <PlaceholderInput value={binding.expression} onChange={handleChange} />
+      {forEach?.itemInput === binding.name ? (
+        <p className="text-xs text-muted-foreground">
+          {t('workflow-for-each-item-binding')}
+        </p>
+      ) : (
+        <PlaceholderInput value={binding.expression} onChange={handleChange} />
+      )}
     </div>
   );
 };

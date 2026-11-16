@@ -5,6 +5,7 @@ import { MemberDetailEmptyState } from '@/settings/team-member/details/component
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
 import { MemberLinks } from '@/settings/team-member/details/components/MemberLinks';
 import { MemberPanelActions } from '@/settings/team-member/details/components/MemberPanelActions';
+import { MemberAvailabilityEditor } from '@/settings/team-member/availability/components/MemberAvailabilityEditor';
 import { MemberPanelAvatar } from '@/settings/team-member/details/components/MemberPanelAvatar';
 import {
   MemberPanelDetail,
@@ -32,6 +33,7 @@ import {
   currentUserState,
   FieldsInDetail,
   IRecordSidePanelTab,
+  RecordPageMinimize,
   RecordSidePanel,
   usePermissionCheck,
   useSidePanel,
@@ -236,7 +238,18 @@ export const MemberDetail = ({
         title={
           expanded ? <MemberPanelBreadcrumb title={breadcrumbTitle} /> : title
         }
-        actions={userDetail && <MemberPanelActions user={userDetail} />}
+        actions={
+          userDetail && (
+            <div className="flex items-center gap-2">
+              <MemberAvailabilityEditor
+                userId={userDetail._id}
+                availability={userDetail.availability}
+              />
+              <MemberPanelActions user={userDetail} />
+              {expanded && <RecordPageMinimize />}
+            </div>
+          )
+        }
         onBack={onBack}
         onClose={onClose}
       />

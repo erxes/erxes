@@ -7,6 +7,7 @@ import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import { itemsAdd, setDealContacts } from '~/modules/sales/utils';
 import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
+import { buildDealProductsData } from './dealProducts';
 
 export const createDealAction = async ({
   models,
@@ -33,6 +34,12 @@ export const createDealAction = async ({
   });
 
   const newData = normalizeDealActionData(resolvedConfig);
+
+  const productsData = await buildDealProductsData(subdomain, resolvedConfig);
+
+  if (productsData) {
+    newData.productsData = productsData;
+  }
 
   const createdVia = getCreatedVia(execution);
 
@@ -87,7 +94,9 @@ export const createDealAction = async ({
 
   return {
     name: item.name,
+    number: item.number,
     targetId: item._id,
+    totalAmount: item.totalAmount,
     stageId: item.stageId,
     pipelineId: newData.pipelineId,
     boardId: newData.boardId,
@@ -103,6 +112,10 @@ const getCreatedVia = (execution: any): TCreatedVia | undefined => {
 
 const normalizeDealActionData = (data: Record<string, any>) => {
   const newData = { ...data };
+
+  // Line inputs, turned into productsData separately; never deal fields.
+  delete newData.items;
+  delete newData.productIds;
 
   if (hasOwn(newData, 'assignedTo')) {
     newData.assignedUserIds = toIds(newData.assignedTo);

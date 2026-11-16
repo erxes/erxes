@@ -72,5 +72,6 @@
   "change-to-approve": "Таны батлах гэж буй зүйл",
   "change-apply-failed": "Батлагдсан ч хэрэгжээгүй: {{reason}}",
   "status-applyFailed": "Хэрэгжээгүй",
-  "request-gone": "Энэ хүсэлт байхгүй болсон байна."
+  "request-gone": "Энэ хүсэлт байхгүй болсон байна.",
+  "requested-change": "Хүссэн зүйл"
 }

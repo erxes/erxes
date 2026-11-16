@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { IUIConfig } from 'erxes-ui';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { pluginsConfigState, useVersion, usePermissionCheck } from 'ui-modules';
+import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export const usePluginsModules = () => {
@@ -10,9 +10,8 @@ export const usePluginsModules = () => {
   const { t } = useTranslation('common', { keyPrefix: 'core-modules' });
   const { isLoaded, hasPluginPermission, isWildcard } = usePermissionCheck();
 
-  const version = useVersion();
 
-  const CORE_MODULES = GET_CORE_MODULES(t, version);
+  const CORE_MODULES = GET_CORE_MODULES(t);
 
   const modules = useMemo(() => {
     if (pluginsMetaData) {

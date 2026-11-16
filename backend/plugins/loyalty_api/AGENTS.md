@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-14`
 
 ## Scope
 
@@ -95,6 +95,7 @@
 
 ### Provides
 
+- Template `loyalty.tier-upgrade` (`src/meta/templates/`, `startPlugin({ meta: { templates } })`): trigger `loyalty:score.tier` with `direction: 'up'` and the wallet answered by the `loyalty:score.accountType` requirement (an account type id; the trigger matches nothing without one), then a maily email to `{{ trigger.customerId.primaryEmail }}` with `contentJson` beside its html.
 - Query `loyaltyScoreLogsByIds(ids: [String!]!): [ScoreLogItem]` (at most 100 ids, `scoreLogView`).
 - GraphQL contracts for loyalty modules registered through `src/apollo`, including `loyaltyAccountOfOwner`, `loyaltyAccountFreeze`, `loyaltyAccountUnfreeze`, `loyaltyAccountSetTier`, `loyaltyAccountTypes`, `loyaltyAccountType`, `loyaltyAccountTypeLegacyFieldCount`, `loyaltyAccountTypeAdd`, `loyaltyAccountTypeEdit`, `loyaltyAccountTypeArchive`, `loyaltyAccountTypeUnarchive`, and `loyaltyAccountTypesAdoptCampaignFields`; `ScoreCampaign` exposes `accountTypeId` and `accountType`.
 - tRPC procedures in `src/trpc/init-trpc.ts`, including `loyalty.ownerSummary`, `score.scoreCampaign`, `score.checkSpend`, `score.spend`, `score.earn` (a purchase as it stands now: per campaign and target one entry stands; a recalculation reverses it and writes a replacement; returns `changeScore`, `skips`, `scoreLogId` (the standing entry, absent when nothing was written) and `scoreLogIds` (every entry the call wrote, a reversal with its replacement)); `score.spend` returns the standing entry plus `scoreLogIds` the same way, `score.applyPurchaseTier`, `score.refund` and `pricing.checkPricing`.
@@ -102,6 +103,7 @@
 - `VoucherCampaign.autoIssue`, mutations `voucherCampaignSetAutoIssue(_id, kind, segmentId, parts)` / `voucherCampaignRemoveAutoIssue(_id, kind)` (permission `loyaltyCampaignUpdate`).
 - `VoucherCampaign.validity {count, unit}` (`VoucherValidityInput`); voucher campaign `startDate`/`endDate` may be null.
 - Automation action `loyalty:score.score.create` declares `inputs` `totalAmount`, `paidAmount`, `items`.
+- Find object target `loyalty:score.accounts` (Loyalty account; `findLoyaltyObject`, `src/meta/automations/findObject.ts`) by `_id`, `number`, or `ownerId` (customer accounts only). Its object is a readable view, not the stored document: `number`, `status`, `ownerId`, `wallets` (name, balance, pending, tier name, expiringSoon) and `vouchers` (title, kind, value, expiresAt, status) from `getOwnerSummary`. It declares an AI agent `lookup` (`customerField: 'ownerId'`, no `byFields`); its output leaves `ownerId` out.
 - Automation trigger `loyalty:score.tier` (Tier changed) with output `_id`, `ownerType`, `customerId` (reference to `core:customer`), `accountTypeName`, `fromTier`, `toTier`, `direction`.
 - Metadata, permission, automation, and after-process handlers under `src/meta`.
 

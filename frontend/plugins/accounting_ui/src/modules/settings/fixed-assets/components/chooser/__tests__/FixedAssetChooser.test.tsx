@@ -53,6 +53,7 @@ jest.mock('erxes-ui', () => {
         onChange={onCheckedChange}
       />
     ),
+    Badge: 'span',
     Sheet: { Content: 'div', Footer: 'div' },
     Input: 'input',
     Label: 'span',
@@ -67,8 +68,6 @@ jest.mock('ui-modules', () => ({
   DepartmentBadge: ({ departmentId }: { departmentId: string }) => (
     <span>{`Department ${departmentId.slice(-1)}`}</span>
   ),
-  SelectBranches: { Root: () => null },
-  SelectDepartments: { Root: () => null },
   SelectMember: () => null,
 }));
 jest.mock('@/settings/fixed-assets/components/SelectFixedAsset', () => ({
@@ -77,6 +76,28 @@ jest.mock('@/settings/fixed-assets/components/SelectFixedAsset', () => ({
 jest.mock(
   '@/settings/fixed-assets/components/SelectFixedAssetCategory',
   () => ({ SelectFixedAssetCategory: () => null }),
+);
+jest.mock(
+  '@/settings/fixed-assets/components/chooser/FixedAssetChooserLocationFilter',
+  () => ({
+    FixedAssetChooserLocationFilter: ({
+      kind,
+      value,
+      onValueChange,
+    }: {
+      kind: string;
+      value: string;
+      onValueChange: (value: string) => void;
+    }) => (
+      <button
+        type="button"
+        aria-pressed={value === '_'}
+        onClick={() => onValueChange(value === '_' ? '' : '_')}
+      >
+        {`no-${kind}`}
+      </button>
+    ),
+  }),
 );
 jest.mock('@/layout/components/AccountingEmptyState', () => ({
   AccountingEmptyState: ({ description }: { description: string }) => (
@@ -216,6 +237,33 @@ test.each([
     ]);
   },
 );
+
+test('filtering by unassigned branch queries the sentinel from page one and clear filters restores every location', () => {
+  renderChooser();
+  expect(screen.queryByRole('button', { name: 'clear-filters' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'next' }));
+  expect(mockQuery.mock.lastCall[1].variables.page).toBe(2);
+  fireEvent.click(screen.getByRole('button', { name: 'no-branch' }));
+  expect(mockQuery.mock.lastCall[1].variables).toEqual(
+    expect.objectContaining({ branchId: '_', page: 1 }),
+  );
+  expect(
+    screen
+      .getByRole('button', { name: 'no-branch' })
+      .getAttribute('aria-pressed'),
+  ).toBe('true');
+  fireEvent.click(screen.getByRole('button', { name: 'clear-filters' }));
+  expect(mockQuery.mock.lastCall[1].variables.branchId).toBeUndefined();
+  expect(screen.queryByRole('button', { name: 'clear-filters' })).toBeNull();
+});
+
+test('previous page stays disabled on the first page and leaves the query untouched', () => {
+  renderChooser();
+  const previous = screen.getByRole('button', { name: 'previous-page' });
+  expect(previous.hasAttribute('disabled')).toBe(true);
+  fireEvent.click(previous);
+  expect(mockQuery.mock.lastCall[1].variables.page).toBe(1);
+});
 
 test('custodian and whole-location choices replace one another without double-counting', () => {
   const location = item.locations[0];

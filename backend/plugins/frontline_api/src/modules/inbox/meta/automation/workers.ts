@@ -1,4 +1,5 @@
 import { toAiMemoryScopes } from './aiMemoryScopes';
+import { executeHandoffAction } from './handoffAction';
 import {
   AUTOMATION_ERROR_CODES,
   buildFailedAction,
@@ -541,6 +542,15 @@ export const inboxAutomationWorkers = {
     }: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
+    if (collectionType === 'handoffs') {
+      return await executeHandoffAction({
+        models,
+        subdomain,
+        action,
+        execution,
+      });
+    }
+
     if (collectionType !== 'messages') {
       return buildFailedAction(
         `Inbox automations do not handle "${collectionType}"`,

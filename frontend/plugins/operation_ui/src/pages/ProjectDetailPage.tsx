@@ -4,15 +4,11 @@ import { ProjectReport } from '@/project/components/details/ProjectsSideWidget';
 import { PROJECT_CONTENT_TYPE } from '@/project/constants/contentType';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { AddTaskButton } from '@/task/components/add-task/AddTaskButton';
-import {
-  IconChartHistogram,
-  IconHierarchy2,
-  IconMinimize,
-} from '@tabler/icons-react';
-import { Button, ScrollArea } from 'erxes-ui';
+import { IconChartHistogram, IconHierarchy2 } from '@tabler/icons-react';
+import { ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { createSearchParams, Link, useParams } from 'react-router-dom';
-import { Can, getSidePanelRecordPath } from 'ui-modules';
+import { useParams } from 'react-router-dom';
+import { Can } from 'ui-modules';
 import {
   ProjectPanel,
   ProjectPanelTitle,
@@ -25,9 +21,6 @@ import {
 
 export const ProjectDetailPage = () => {
   const { t } = useTranslation('operation');
-  const { t: sidePanelT } = useTranslation('common', {
-    keyPrefix: 'side-panel',
-  });
   const { projectId, teamId } = useParams<{
     projectId: string;
     teamId?: string;
@@ -36,36 +29,24 @@ export const ProjectDetailPage = () => {
 
   if (!projectId) return null;
 
-  // Collapse onto the team list only while the project still belongs to it.
+  // Minimize onto the team list only while the project still belongs to it.
   const listPath =
     teamId && project?.teamIds?.includes(teamId)
       ? `/operation/team/${teamId}/projects`
       : '/operation/projects';
-  const panelSearch = createSearchParams({
-    panel: getSidePanelRecordPath({
-      contentType: PROJECT_CONTENT_TYPE,
-      contentId: projectId,
-    }),
-  });
-  const collapseLabel = sidePanelT('collapse', 'Collapse record');
 
   return (
     <OperationRecordPage
       recordId={projectId}
+      minimizeTo={{
+        record: { contentType: PROJECT_CONTENT_TYPE, contentId: projectId },
+        listPath,
+      }}
       breadcrumb={<ProjectPageBreadcrumb />}
       actions={
         project && (
           <>
             <ProjectPanelActions project={project} />
-            <Button variant="ghost" size="icon" className="size-7" asChild>
-              <Link
-                to={{ pathname: listPath, search: `?${panelSearch}` }}
-                title={collapseLabel}
-                aria-label={collapseLabel}
-              >
-                <IconMinimize className="size-4" />
-              </Link>
-            </Button>
             <Can action="taskCreate">
               <AddTaskButton />
             </Can>

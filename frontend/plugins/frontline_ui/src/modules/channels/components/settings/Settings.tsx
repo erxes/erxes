@@ -128,6 +128,11 @@ export const PipelinePropertiesPage = lazy(() =>
   })),
 );
 
+export const PipelineSlaPage = lazy(() =>
+  import('~/pages/PipelineSlaPage').then((module) => ({
+    default: module.PipelineSlaPage,
+  })),
+);
 export const PipelineMailPage = lazy(() =>
   import('~/pages/PipelineMailPage').then((module) => ({
     default: module.PipelineMailPage,
@@ -205,6 +210,10 @@ const ChannelsSettings = () => {
             <Route
               path={PIPELINE_TAB_SEGMENTS.mail}
               element={<PipelineMailPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.sla}
+              element={<PipelineSlaPage />}
             />
           </Route>
           <Route

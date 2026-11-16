@@ -51,10 +51,17 @@ export const AdjustFixedAssetTransactions = ({
       journalIndex: String(index),
     })),
   );
+  const byPointer = new Map<string, ITBalanceTransaction[]>();
+  for (const row of rows) {
+    const pointer = row.ptrId || '';
+    const group = byPointer.get(pointer) || [];
+    group.push(row);
+    byPointer.set(pointer, group);
+  }
   return (
     <RecordTable.Provider
       columns={tbalanceColumns(t).filter((column) => column.id !== 'more')}
-      data={rows}
+      data={[...byPointer.values()].flat()}
       stickyColumns={['account']}
       tableId={`accounting_adjust_fxa_transactions_${parentId}`}
     >

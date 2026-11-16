@@ -20,7 +20,7 @@ export const posOrderCreateActionConfigSchema = z
     ).optional(),
     items: described(
       z.string(),
-      'Order lines as JSON text: [{"productId", "count", "unitPrice"}].',
+      'Order lines as JSON text: [{"productId" or "code", "count", "unitPrice"}]. A code is resolved to its product; the POS sets prices from the product.',
     ).optional(),
     productIds: described(
       z.string(),

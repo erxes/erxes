@@ -1,5 +1,9 @@
 /// <reference types="jest" />
 
+jest.mock('@/accounting/utils/transactionDateValidation', () => ({
+  validateTransactionDate: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { IModels } from '~/connectionResolvers';
 import { ITransaction } from '../../@types/transaction';
 import { commonSave } from '../commonSave';
@@ -25,10 +29,15 @@ describe('commonSave inventory costs', () => {
     jest.clearAllMocks();
   });
 
-  it.each(['dt', 'ct'])('persists a calculated depreciation %s leg', async (side) => {
+  it.each([
+    ['fxaDep', 'dt'],
+    ['fxaDep', 'ct'],
+    ['fxaDeferredTax', 'dt'],
+    ['fxaDeferredTax', 'ct'],
+  ])('posts %s %s through commonSave', async (journal, side) => {
     const doc: ITransaction = {
       date: new Date(),
-      journal: 'fxaDep',
+      journal,
       side,
       details: [{ accountId: 'account', fixedAssetId: 'asset', amount: 20 }],
     };
@@ -196,24 +205,20 @@ describe('commonSave inventory costs', () => {
     const models = {
       Transactions: {
         getTransaction: jest.fn().mockResolvedValue(saved),
-        find: jest
-          .fn()
-          .mockReturnValue({
-            lean: jest
-              .fn()
-              .mockResolvedValue([
-                { _id: 'out' },
-                { _id: 'income' },
-                { _id: 'cost' },
-              ]),
-          }),
+        find: jest.fn().mockReturnValue({
+          lean: jest
+            .fn()
+            .mockResolvedValue([
+              { _id: 'out' },
+              { _id: 'income' },
+              { _id: 'cost' },
+            ]),
+        }),
       },
     } as unknown as IModels;
-    jest
-      .mocked(activeCost)
-      .mockResolvedValue({
-        'product-a': { unitCost: 12, totalCost: 120, remainder: 10 },
-      });
+    jest.mocked(activeCost).mockResolvedValue({
+      'product-a': { unitCost: 12, totalCost: 120, remainder: 10 },
+    });
     jest.mocked(createOrUpdateTr).mockResolvedValue(saved as never);
     await commonSave('tenant', models, 'user', doc, oldTransaction as never);
     expect(activeCost).toHaveBeenCalledWith(

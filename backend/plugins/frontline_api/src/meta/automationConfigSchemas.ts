@@ -101,6 +101,27 @@ export const messengerMessageActionConfigSchema = z.object({
   optionalConnects: branchLinks,
 });
 
+export const handoffActionConfigSchema = z.object({
+  assignTo: described(
+    z.string(),
+    'Team member _ids assigned to the conversation, comma-separated, or a {{ }} variable, as text.',
+  ).optional(),
+  pauseMinutes: described(
+    z.union([z.number(), z.string()]),
+    'Minutes automated replies stay paused on the conversation; 30 when absent, at most a week.',
+  ).optional(),
+});
+
+export const createFormLinkActionConfigSchema = z.object({
+  formId: requiredText(
+    '_id of the form the link opens; its answer is saved as about the run record and from its customer.',
+  ),
+  expiresInDays: described(
+    z.union([z.number(), z.string()]),
+    'Days the link accepts an answer; 30 when absent, at most 365.',
+  ).optional(),
+});
+
 export const socialMessageActionConfigSchema = z.object({
   botId: described(
     z.string(),
@@ -128,6 +149,18 @@ export const socialCommentActionConfigSchema = z
       !!text?.trim() || (texts || []).some((variant) => variant.trim()),
     { path: ['texts'], message: 'Add at least one reply' },
   );
+
+export const telegramMessageActionConfigSchema = z
+  .object({
+    content: described(
+      z.string(),
+      'Message text sent as the bot to the triggering chat; {{ }} placeholders allowed.',
+    ).optional(),
+  })
+  .refine(({ content }) => !!content?.trim(), {
+    path: ['content'],
+    message: 'Add the message text',
+  });
 
 export const discordMessageActionConfigSchema = z
   .object({

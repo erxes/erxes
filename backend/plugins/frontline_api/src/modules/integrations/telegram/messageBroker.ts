@@ -108,7 +108,8 @@ export const handleTelegramIntegration = async ({
     const reply = await sendTelegramReply({
       models,
       subdomain,
-      payload: parsed.data,
+      // Inbox replies always come from a person; only automations send as bot
+      payload: { ...parsed.data, fromBot: false },
     });
 
     return {

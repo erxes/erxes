@@ -6,8 +6,11 @@ import { twoFactorQueries } from '@/auth/graphql/resolvers/twoFactor';
 import { supportAccessQueries } from '@/auth/graphql/resolvers/supportAccess';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
+import { automationFolderQueries } from '@/automations/graphql/resolvers/folders';
+import { automationVersionQueries } from '@/automations/graphql/resolvers/versions';
 import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
 import { notificationTemplateQueries } from '@/notificationTemplates/graphql/resolvers';
+import { currencyRateQueries } from '@/currencyRates/graphql/resolvers';
 import { beforeResolverQueries } from '@/beforeResolvers/graphql/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
@@ -41,7 +44,7 @@ import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries'
 import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
-import { templateQueries } from '@/template/graphql/queries';
+import { templateQueries } from '@/template/graphql/resolvers';
 import { globalSearchQueries } from '@/search/graphql/resolvers/queries/globalSearch';
 import { referenceQueries } from '~/meta/references/graphql/queries';
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
@@ -90,8 +93,11 @@ export const queries = {
   ...filesQueries,
   ...documentQueries,
   ...automationQueries,
+  ...automationFolderQueries,
+  ...automationVersionQueries,
   ...emailTemplateQueries,
   ...notificationTemplateQueries,
+  ...currencyRateQueries,
   ...beforeResolverQueries,
   ...logQueries,
   ...notificationQueries,

@@ -1,17 +1,17 @@
 import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
-import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import {
   BlockEditor,
-  EmailPreviewDevice,
   EmailPreviewDeviceToggle,
   EmailPreviewFrame,
   Spinner,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MembersInline } from 'ui-modules';
-import { useEmailContentPreview } from '@/emailTemplates/hooks/useEmailContentPreview';
 import { useBroadcastBlockPreview } from '../../hooks/useBroadcastBlockPreview';
+import {
+  useBroadcastEmailTabPreview,
+  useMailyContentPreview,
+} from '../../hooks/useBroadcastEmailTabPreview';
 import { TBroadcastMessage } from '../../types';
 
 const LegacyBlockContentPreview = ({ content }: { content: string }) => {
@@ -28,17 +28,14 @@ const LegacyBlockContentPreview = ({ content }: { content: string }) => {
 
 const MailyContentPreview = ({ content }: { content: string }) => {
   // The saved html is the email as sent, so only its fields are filled here.
-  const { html, loading, error } = useEmailContentPreview({
-    content,
-    contentFormat: 'maily',
-  });
-  const [device, setDevice] = useState<EmailPreviewDevice>('desktop');
+  const { html, loading, error, device, setDevice } =
+    useMailyContentPreview(content);
 
   if (error) {
     return <p className="text-sm text-destructive">{error.message}</p>;
   }
 
-  if (loading && !html) {
+  if (loading) {
     return <Spinner />;
   }
 
@@ -53,10 +50,9 @@ const MailyContentPreview = ({ content }: { content: string }) => {
 };
 
 const EmailPreview = ({ message }: { message?: TBroadcastMessage }) => {
-  const { fromEmail, fromUserId, email } = message || {};
-  const { sender, subject, content, contentJson, replyTo } = email || {};
   const { t } = useTranslation('broadcasts');
-  const { alignedFrom } = useSenderOptions();
+  const { subject, fromLine, fromMemberIds, replyToLine, isMaily, content } =
+    useBroadcastEmailTabPreview(message);
 
   return (
     <div className="flex flex-col gap-8 h-full w-full">
@@ -72,38 +68,30 @@ const EmailPreview = ({ message }: { message?: TBroadcastMessage }) => {
           <span className="text-sm text-muted-foreground">
             {t('composer.from')}:
           </span>
-          {alignedFrom ? (
-            <span className="font-semibold">
-              {sender} &lt;{alignedFrom}&gt;
-            </span>
-          ) : fromEmail ? (
-            <span className="font-semibold">
-              {sender ? `${sender} <${fromEmail}>` : fromEmail}
-            </span>
+          {fromLine ? (
+            <span className="font-semibold">{fromLine}</span>
           ) : (
             <MembersInline
-              memberIds={fromUserId ? [fromUserId] : []}
+              memberIds={fromMemberIds}
               className="font-semibold"
             />
           )}
         </div>
 
-        {(alignedFrom ? fromEmail : replyTo) && (
+        {replyToLine && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">
               {t('composer.replyTo')}:
             </span>
-            <span className="font-semibold">
-              {alignedFrom ? fromEmail : replyTo}
-            </span>
+            <span className="font-semibold">{replyToLine}</span>
           </div>
         )}
       </div>
 
-      {contentJson ? (
-        <MailyContentPreview content={content || ''} />
+      {isMaily ? (
+        <MailyContentPreview content={content} />
       ) : (
-        <LegacyBlockContentPreview content={content || ''} />
+        <LegacyBlockContentPreview content={content} />
       )}
     </div>
   );

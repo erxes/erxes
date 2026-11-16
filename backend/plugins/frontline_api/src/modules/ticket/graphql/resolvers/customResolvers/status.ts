@@ -1,7 +1,15 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { getFormResponsesAbout } from '~/modules/form/formResponses';
+
+// The record type a form link made from a ticket trigger stores.
+export const TICKET_RECORD_TYPE = 'frontline:tickets.tickets';
 
 export const Ticket = {
+  async formResponses({ _id }: { _id: string }, _params, { models }: IContext) {
+    return getFormResponsesAbout(models, { type: TICKET_RECORD_TYPE, id: _id });
+  },
+
   async status({ statusId }, _params, { models }: IContext) {
     if (!statusId) {
       return null;
@@ -9,7 +17,7 @@ export const Ticket = {
     return await models.Status.findOne({ _id: statusId });
   },
   async assignee(
-    { assigneeId }: { assigneeId: String },
+    { assigneeId }: { assigneeId: string },
     _params,
     { subdomain }: IContext,
   ) {

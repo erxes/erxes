@@ -323,3 +323,7 @@ export const useAutomation = () => {
     throw new Error('useAutomation must be used within AutomationProvider');
   return ctx;
 };
+
+// For a component shared with a page outside the builder (the template
+// wizard's email editor): null there, never a thrown error.
+export const useAutomationOptional = () => useContext(AutomationContext);

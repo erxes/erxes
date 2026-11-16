@@ -5,7 +5,7 @@ import {
   IconListDetails,
 } from '@tabler/icons-react';
 import { Button, Empty, PageContainer, Spinner, useQueryState } from 'erxes-ui';
-import type { ReactElement, ReactNode } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IRecordSidePanelTab, PageHeader, RecordSidePanel } from 'ui-modules';
 
@@ -23,6 +23,8 @@ interface OperationRecordPageProps {
   error?: Error;
   notFoundLabel: string;
   onRetry?: () => void;
+  // Where the page header's minimize button returns, with the record in the panel.
+  minimizeTo?: ComponentProps<typeof RecordSidePanel>['minimizeTo'];
 }
 
 export const OperationRecordPage = ({
@@ -39,6 +41,7 @@ export const OperationRecordPage = ({
   error,
   notFoundLabel,
   onRetry,
+  minimizeTo,
 }: OperationRecordPageProps): ReactElement => {
   const { t } = useTranslation('operation');
   const [tab, setTab] = useQueryState<string>('tab');
@@ -113,7 +116,12 @@ export const OperationRecordPage = ({
 
   return (
     <PageContainer>
-      <RecordSidePanel expanded expandedMode="page" expandable={false}>
+      <RecordSidePanel
+        expanded
+        expandedMode="page"
+        expandable={false}
+        minimizeTo={minimizeTo}
+      >
         <PageHeader>
           <PageHeader.Start>{breadcrumb}</PageHeader.Start>
           <PageHeader.End>{actions}</PageHeader.End>

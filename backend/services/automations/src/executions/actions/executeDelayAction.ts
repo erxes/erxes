@@ -10,6 +10,7 @@ import {
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
 import { AutomationActionError } from '../errorCodes';
+import { computeDelayEndsAt } from '../workingTime';
 
 export const executeDelayAction = async (
   subdomain: string,
@@ -30,6 +31,17 @@ export const executeDelayAction = async (
     );
   }
 
+  const startWaitingDate = new Date();
+  // Working hours move the end; a plain delay keeps its clock arithmetic.
+  const performAt = action.config?.workingTime
+    ? await computeDelayEndsAt({
+        subdomain,
+        target: execution.target,
+        config: action.config,
+        from: startWaitingDate,
+      })
+    : undefined;
+
   await setExecutionWaitAction(models, {
     automationId: execution.automationId,
     executionId: execution._id,
@@ -40,7 +52,8 @@ export const executeDelayAction = async (
       subdomain,
       waitFor: Number(value),
       timeUnit: type,
-      startWaitingDate: new Date(),
+      startWaitingDate,
+      ...(performAt ? { performAt } : {}),
     },
   });
 

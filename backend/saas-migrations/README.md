@@ -160,6 +160,17 @@ created but gets no plugins, and the run says so. A target subdomain that alread
 organization stops the run before any data is copied. `DRY_RUN=true` only
 prints what would be created.
 
+`appsumo/commands/restoreOwner.ts` (run-commands) puts the held
+organization's owner back on a provisioned organization that was created with
+another owner, such as `APPSUMO_OWNER_ID`: the owner is restored from
+`users_held` when needed, the organization moves between the two users'
+`organizationIds`, `gpOwnerEmail` and the Stripe customer's email follow.
+`DRY_RUN=true` only reports.
+
+```bash
+npx tsx backend/saas-migrations/run-commands.ts restoreOwner --continue
+```
+
 ## Frontline channel
 
 `frontline/commands/migrateChannel.ts` creates a team channel (named

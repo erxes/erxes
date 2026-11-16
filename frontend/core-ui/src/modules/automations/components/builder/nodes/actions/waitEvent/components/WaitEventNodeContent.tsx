@@ -14,10 +14,20 @@ export const WaitEventNodeContent = ({
 }: NodeContentComponentProps<TAutomationWaitEventConfig>) => {
   const { t } = useTranslation('automations');
   const textKey = nodeContentMaps[config?.targetType];
+  const timeout = config?.timeout;
+
   return (
-    <AutomationNodeMetaInfoRow
-      fieldName={t('wait-event-when')}
-      content={textKey ? t(textKey) : undefined}
-    />
+    <>
+      <AutomationNodeMetaInfoRow
+        fieldName={t('wait-event-when')}
+        content={textKey ? t(textKey) : undefined}
+      />
+      {timeout ? (
+        <AutomationNodeMetaInfoRow
+          fieldName={t('wait-event-timeout-short', 'At most')}
+          content={`${timeout.value} ${t(timeout.unit, timeout.unit)}`}
+        />
+      ) : null}
+    </>
   );
 };
