@@ -7,7 +7,9 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   (`PLUGINS_AUTO_INSTALL`).
 - `src/core.ts` holds the core client and the manifest. Every permission, event
   and kind in the manifest starts with `__id__.`. A new scope waits for the
-  owner's approval, so ask for one only when a procedure needs it.
+  owner's approval, so ask for one only when a procedure needs it. Owners and
+  admins hold every permission; a permission set with `defaultRoles: ['member']`
+  is what members get on install, and owners change it from there.
 - `src/server.ts` verifies the session token on `/api/rpc/*` and hands
   procedures `context.member` (`PluginMember`: `orgId`, `userId`, `can()`,
   `canChange()`).

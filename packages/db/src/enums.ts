@@ -147,6 +147,11 @@ export const USER_STATUSES = ['invited', 'active', 'disabled'] as const;
 /** The built-in roles every organisation has. */
 export const USER_ROLES = ['owner', 'admin', 'member'] as const;
 
+/** Built-in roles a plugin's permission set can be given to by default; Owner and Admin have everything. */
+export const DEFAULT_GRANT_ROLES = ['member'] as const;
+
+export type DefaultGrantRole = (typeof DEFAULT_GRANT_ROLES)[number];
+
 export const AUTH_TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
 
 /** The languages core's emails and example data come in. */

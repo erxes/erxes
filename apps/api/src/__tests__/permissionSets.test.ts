@@ -1,7 +1,18 @@
 import type { PluginManifest } from '@erxes/core-contract';
+import { pluginInstallations, roles } from '@erxes/core-db';
+import { and, eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
-import { useTestDatabase } from './db';
-import { useTwoOrgs } from './support';
+import { createOrganization } from '~/modules/organizations/organizations.service';
+import { adminDb, useTestDatabase } from './db';
+import { type CoreClient, useTwoOrgs } from './support';
+
+/** The Member role's permissions the plugin declares, as `client`'s organisation has them. */
+const membersHr = async (client: CoreClient) =>
+  (await client.roles.list()).data
+    .find((role) => role.key === 'member')
+    ?.permissions.filter((action) => action.startsWith('hr.'));
+
+const MEMBER_SET = { key: 'member', label: 'HR member', defaultRoles: ['member' as const] };
 
 describe('plugin permission sets', () => {
   useTestDatabase();
@@ -69,5 +80,57 @@ describe('plugin permission sets', () => {
         { key: 'viewer', label: 'B', permissions: ['hr.leave.view'] },
       ]),
     ).rejects.toMatchObject({ status: 400, code: 'DUPLICATE_PERMISSION_SET' });
+  });
+
+  it('gives a set marked for members to the Member role where the plugin is installed, and keeps what an owner took out', async () => {
+    await register([
+      { ...MEMBER_SET, permissions: ['hr.leave.view'] },
+      { key: 'manager', label: 'HR manager', permissions: ['hr.leave.approve'] },
+    ]);
+
+    expect(await membersHr(t.owner())).toEqual(['hr.leave.view']);
+    expect(await membersHr(t.other())).toEqual(['hr.leave.view']);
+
+    const member = (await t.owner().roles.list()).data.find((role) => role.key === 'member');
+
+    await t.owner().roles.update({
+      key: 'member',
+      permissions: (member?.permissions ?? []).filter((action) => action !== 'hr.leave.view'),
+    });
+
+    // The plugin starts again, then adds a permission to the set: only the new one is given.
+    await register([{ ...MEMBER_SET, permissions: ['hr.leave.view'] }]);
+    await register([{ ...MEMBER_SET, permissions: ['hr.leave.view', 'hr.employee.edit'] }]);
+
+    expect(await membersHr(t.owner())).toEqual(['hr.employee.edit']);
+    expect(await membersHr(t.other())).toEqual(['hr.employee.edit', 'hr.leave.view']);
+  });
+
+  it('gives the set to an organisation that installs the plugin later, or is new', async () => {
+    await adminDb()
+      .delete(pluginInstallations)
+      .where(
+        and(eq(pluginInstallations.orgId, t.ids.otherOrg), eq(pluginInstallations.plugin, 'hr')),
+      );
+    await adminDb()
+      .update(roles)
+      .set({ permissions: ['contacts.view'] })
+      .where(and(eq(roles.orgId, t.ids.otherOrg), eq(roles.key, 'member')));
+
+    expect(await membersHr(t.other())).toEqual([]);
+
+    await t.other().plugins.install({ name: 'hr' });
+
+    expect(await membersHr(t.other())).toEqual(['hr.employee.edit', 'hr.leave.view']);
+
+    const fresh = await createOrganization({
+      subdomain: 'initech',
+      name: 'Initech',
+      owner: { email: 'owner@initech.mn' },
+    });
+
+    expect(await membersHr(t.client({ user: fresh.owner.id, org: fresh.organization.id }))).toEqual(
+      ['hr.employee.edit', 'hr.leave.view'],
+    );
   });
 });
