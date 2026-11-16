@@ -12,7 +12,8 @@ import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { ITriageDetail } from '@/triage/types/triage';
 import { IconChecklist, IconInbox, IconUserOff } from '@tabler/icons-react';
 import { format } from 'date-fns';
-import { Badge, Button, Skeleton } from 'erxes-ui';
+import { Badge, Skeleton } from 'erxes-ui';
+import { RelationRecordRow } from './RelationRecordRow';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MembersInline, useSidePanel } from 'ui-modules';
@@ -29,39 +30,25 @@ const TaskRelationRow = ({
   children: ReactNode;
 }) => {
   const { t } = useTranslation('operation');
-  const title = name || t('untitled', 'Untitled');
   const Icon = triage ? IconInbox : IconChecklist;
 
   return (
-    <Button
-      variant="ghost"
+    <RelationRecordRow
+      name={name}
       onClick={onClick}
-      className="h-auto w-full min-w-0 items-center justify-start gap-2.5 rounded-sm p-2 text-left"
+      leading={<Icon className="size-4" />}
+      leadingClassName={triage ? 'bg-primary/10 text-primary' : undefined}
+      trailing={
+        <Badge
+          variant={triage ? 'default' : 'secondary'}
+          className="h-5 shrink-0 px-1.5 font-normal"
+        >
+          {triage ? t('triage', 'Triage') : t('task', 'Task')}
+        </Badge>
+      }
     >
-      <span
-        className={`flex size-7 shrink-0 items-center justify-center rounded ${
-          triage
-            ? 'bg-primary/10 text-primary'
-            : 'bg-accent text-muted-foreground'
-        }`}
-      >
-        <Icon className="size-4" />
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <span className="min-w-0 truncate text-sm" title={title}>
-          {title}
-        </span>
-        <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs font-normal text-muted-foreground">
-          {children}
-        </span>
-      </span>
-      <Badge
-        variant={triage ? 'default' : 'secondary'}
-        className="h-5 shrink-0 px-1.5 font-normal"
-      >
-        {triage ? t('triage', 'Triage') : t('task', 'Task')}
-      </Badge>
-    </Button>
+      {children}
+    </RelationRecordRow>
   );
 };
 
