@@ -13,14 +13,16 @@ export const getProjectDraft = (
   defaults: Partial<TProjectDraft>,
   teamId?: string,
   firstTeamId?: string,
-): TProjectDraft => ({
-  name: '',
-  icon: 'IconBox',
-  status: 2,
-  priority: 0,
-  memberIds: [],
-  tagIds: [],
-  ...defaults,
-  teamIds:
-    defaults.teamIds ?? (teamId ? [teamId] : firstTeamId ? [firstTeamId] : []),
-});
+): TProjectDraft => {
+  const fallbackTeamId = teamId || firstTeamId;
+  return {
+    name: '',
+    icon: 'IconBox',
+    status: 2,
+    priority: 0,
+    memberIds: [],
+    tagIds: [],
+    ...defaults,
+    teamIds: defaults.teamIds ?? (fallbackTeamId ? [fallbackTeamId] : []),
+  };
+};

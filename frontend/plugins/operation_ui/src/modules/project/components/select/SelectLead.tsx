@@ -189,6 +189,9 @@ export const SelectLeadFilterBar = ({
   );
 };
 
+// Null clears the lead; the provider reports an array only in multiple mode.
+type SelectLeadValueChange = string | string[] | null;
+
 export const SelectLeadInlineCell = ({
   teamIds,
   value,
@@ -200,7 +203,7 @@ export const SelectLeadInlineCell = ({
   teamIds?: string[] | string;
   value?: string | null;
   id?: string;
-  onValueChange?: (value: string | string[] | null) => void;
+  onValueChange?: (value: SelectLeadValueChange) => void;
   scope?: string;
 } & Omit<
   React.ComponentProps<typeof SelectLeadProvider>,
@@ -211,7 +214,7 @@ export const SelectLeadInlineCell = ({
   const [open, setOpen] = useState(false);
   const cachedMembers = useCachedMembers(value);
 
-  const handleValueChange = (value: string | string[] | null) => {
+  const handleValueChange = (value: SelectLeadValueChange) => {
     if (id) {
       updateProject({
         variables: {
@@ -361,7 +364,7 @@ export const SelectLeadDetail = React.forwardRef<
   }, [value]);
 
   const { updateProject } = useUpdateProject();
-  const handleValueChange = (lead: string | string[] | null) => {
+  const handleValueChange = (lead: SelectLeadValueChange) => {
     setInternalValue(lead ?? undefined);
     if (id) {
       updateProject({

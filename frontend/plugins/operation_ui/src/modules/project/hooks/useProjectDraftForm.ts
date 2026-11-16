@@ -16,8 +16,14 @@ import { useCreateProjectRecord } from './useCreateProjectRecord';
 export const useProjectDraftForm = () => {
   const { t } = useTranslation('operation');
   const draft = useSidePanelDraft<TProjectDraft>(PROJECT_CONTENT_TYPE);
-  const { teams, loading: loadingTeams } = useGetCurrentUsersTeams({
+  const {
+    teams,
+    loading: loadingTeams,
+    error: teamsError,
+    refetch: refetchTeams,
+  } = useGetCurrentUsersTeams({
     skip: draft.teamIds !== undefined,
+    notifyOnNetworkStatusChange: true,
   });
   const firstTeamId = teams?.[0]?._id;
   const form = useForm<TProjectDraft>({
@@ -40,15 +46,33 @@ export const useProjectDraftForm = () => {
     }
   }, [draft.teamIds, firstTeamId, form]);
 
-  const ready = isReady && (draft.teamIds !== undefined || !loadingTeams);
+  // A failed team lookup must not silently create a project without a team;
+  // the draft waits for a retry or a team picked by hand.
+  const teamsPicked = Boolean(form.formState.dirtyFields.teamIds);
+  const teamsResolved =
+    draft.teamIds !== undefined ||
+    teamsPicked ||
+    (!loadingTeams && !teamsError);
+  const ready = isReady && teamsResolved;
+  const retryTeams = (): void => {
+    void refetchTeams().catch(() => undefined);
+  };
   const onSubmit = form.handleSubmit((values) => {
     if (!ready) return;
-    
+
     return createProjectRecord({
       ...values,
       description: JSON.stringify(editor.document),
     });
   });
 
-  return { form, editor, ready, loading, onSubmit };
+  return {
+    form,
+    editor,
+    ready,
+    loading,
+    onSubmit,
+    teamsError: teamsResolved ? undefined : teamsError,
+    retryTeams,
+  };
 };
