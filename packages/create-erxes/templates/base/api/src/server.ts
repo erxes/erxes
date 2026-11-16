@@ -12,13 +12,13 @@ import { runJob } from '#/jobs.ts';
 import { logger } from '#/logger.ts';
 import { router } from '#/router.ts';
 
-const logFailure = onError((error) => {
+const logFailure = (error: unknown) => {
   if (!(error instanceof ORPCError) || error.status >= 500) logger.error(error);
-});
+};
 
 // The same procedures twice: RPC for the plugin UI, REST (documented below) for scripts.
-const rpc = new RPCHandler(router, { interceptors: [logFailure] });
-const rest = new OpenAPIHandler(router, { interceptors: [logFailure] });
+const rpc = new RPCHandler(router, { interceptors: [onError(logFailure)] });
+const rest = new OpenAPIHandler(router, { interceptors: [onError(logFailure)] });
 
 /** Settings › Developer › API reference shows it (the manifest's `api.openapi`). */
 const openApi = pluginOpenApi(router, {
