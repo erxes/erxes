@@ -1,4 +1,9 @@
-import { PLUGIN_SCOPES, type PluginManifest, pluginReadScope } from '@erxes/core-contract';
+import {
+  CORE_PERMISSION_AREAS,
+  PLUGIN_SCOPES,
+  type PluginManifest,
+  pluginReadScope,
+} from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -134,10 +139,22 @@ const storeSecret = (name: string, hash: string) =>
       .where(eq(plugins.name, name));
   });
 
+/** A plugin named after a core area would declare core's permissions as its own. */
+const reservedName = (name: string) => CORE_PERMISSION_AREAS.has(name);
+
 /** Brings the registry in line with `CORE_PLUGIN_KEYS` (`name:secret`) at startup. */
-export const syncPluginSecrets = () =>
+export const syncPluginSecrets = async () => {
+  const reserved = [...config.pluginKeys.values()].filter(reservedName);
+
+  if (reserved.length) {
+    throw new Error(
+      `CORE_PLUGIN_KEYS: ${reserved.join(', ')} ${reserved.length > 1 ? 'are' : 'is'} reserved for core's own permissions; rename the plugin`,
+    );
+  }
+
   // In order: one name may come with two secrets (a rotation), and the later one wins.
-  inOrder(config.pluginKeys, ([secret, name]) => storeSecret(name, sha256(secret)));
+  return inOrder(config.pluginKeys, ([secret, name]) => storeSecret(name, sha256(secret)));
+};
 
 /** A new random client secret for a plugin; the previous one works 24 more hours. Prints nowhere: the caller shows it once. */
 export const rotatePluginSecret = async (name: string) => {
@@ -307,6 +324,11 @@ const othersReads = (plugin: string, manifest: PluginManifest) => {
 /** The plugin's own manifest (deployment-wide token). */
 export const registerManifest = async (manifest: PluginManifest) => {
   const { plugin } = caller('plugin');
+
+  // A row registered before the name was reserved still can't claim core's permissions.
+  if (reservedName(plugin)) {
+    throw fail('NAMESPACE_REQUIRED', `"${plugin}" is a core area: rename the plugin`);
+  }
 
   namespaced(
     plugin,

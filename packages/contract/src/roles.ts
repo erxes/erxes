@@ -138,6 +138,14 @@ export const CORE_PERMISSIONS = [
 
 export type CorePermission = (typeof CORE_PERMISSIONS)[number]['action'];
 
+/**
+ * The first word of core's actions (`team`, `payments`, …): no plugin is named one, since a
+ * plugin's permissions start with its name and would read as core's.
+ */
+export const CORE_PERMISSION_AREAS: ReadonlySet<string> = new Set(
+  CORE_PERMISSIONS.map(({ action }) => action.slice(0, action.indexOf('.'))),
+);
+
 /** Owner-only core actions: never granted to another role. */
 export const OWNER_ONLY_PERMISSIONS: readonly string[] = CORE_PERMISSIONS.filter(
   (permission) => 'ownerOnly' in permission && permission.ownerOnly,
