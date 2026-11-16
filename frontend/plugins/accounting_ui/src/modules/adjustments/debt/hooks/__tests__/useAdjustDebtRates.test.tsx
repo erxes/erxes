@@ -285,4 +285,72 @@ describe('debt rate adjustment list', () => {
       'darkhan-2',
     ]);
   });
+  it('keeps the Retry for the current branch when an older branch page fails late', async () => {
+    const otherBranch = { ...filtered, branchId: 'branch-darkhan' };
+    const darkhanRates = Array.from(
+      { length: 20 },
+      (_, i) => `darkhan-${i + 1}`,
+    );
+    const { result, rerender } = renderList(
+      '/accounting/adjustment/debRate?searchValue=USD&branchId=branch-ub',
+      [
+        {
+          request: { query: ADJUST_DEBT_RATE_QUERY, variables: filtered },
+          result: page(twentyRates, {
+            hasNextPage: true,
+            endCursor: 'debt-20',
+          }),
+        },
+        {
+          request: {
+            query: ADJUST_DEBT_RATE_QUERY,
+            variables: { ...filtered, cursor: 'debt-20' },
+          },
+          delay: 200,
+          error: new Error('Gateway timeout'),
+        },
+        {
+          request: { query: ADJUST_DEBT_RATE_QUERY, variables: otherBranch },
+          result: page(darkhanRates, {
+            hasNextPage: true,
+            endCursor: 'darkhan-20',
+          }),
+        },
+        {
+          request: {
+            query: ADJUST_DEBT_RATE_QUERY,
+            variables: { ...otherBranch, cursor: 'darkhan-20' },
+          },
+          error: new Error('Network request failed'),
+        },
+      ],
+    );
+
+    await waitFor(() =>
+      expect(result.current.adjustDebtRates).toHaveLength(20),
+    );
+
+    act(() => result.current.handleFetchMore());
+    mockUrl.search = '?searchValue=USD&branchId=branch-darkhan';
+    rerender();
+
+    await waitFor(() =>
+      expect(result.current.adjustDebtRates[0]?._id).toBe('darkhan-1'),
+    );
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => result.current.handleFetchMore());
+
+    await waitFor(() =>
+      expect(result.current.fetchMoreError?.message).toBe(
+        'Network request failed',
+      ),
+    );
+    await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
+
+    expect(result.current.fetchMoreError?.message).toBe(
+      'Network request failed',
+    );
+    expect(result.current.adjustDebtRates).toHaveLength(20);
+  });
 });

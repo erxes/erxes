@@ -1,10 +1,5 @@
 import { useState } from 'react';
 
-type TFetchMoreFailure = {
-  cursor: string;
-  error: Error;
-};
-
 export const useAdjustRateFetchMore = ({
   loading,
   hasNextPage,
@@ -16,15 +11,14 @@ export const useAdjustRateFetchMore = ({
   endCursor?: string | null;
   fetchNext: (cursor: string) => Promise<unknown>;
 }) => {
-  const [failure, setFailure] = useState<TFetchMoreFailure>();
-  const fetchMoreError =
-    failure && failure.cursor === endCursor ? failure.error : undefined;
+  const [failures, setFailures] = useState<Record<string, Error>>({});
+  const fetchMoreError = endCursor ? failures[endCursor] : undefined;
 
   const loadNextPage = () => {
     if (loading || !hasNextPage || !endCursor) return;
 
     fetchNext(endCursor).catch((error: Error) =>
-      setFailure({ cursor: endCursor, error }),
+      setFailures((current) => ({ ...current, [endCursor]: error })),
     );
   };
 
@@ -34,7 +28,13 @@ export const useAdjustRateFetchMore = ({
   };
 
   const retryFetchMore = () => {
-    setFailure(undefined);
+    if (!endCursor) return;
+
+    setFailures((current) => {
+      const next = { ...current };
+      delete next[endCursor];
+      return next;
+    });
     loadNextPage();
   };
 
