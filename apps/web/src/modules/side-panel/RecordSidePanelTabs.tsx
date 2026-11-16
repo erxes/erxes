@@ -3,6 +3,7 @@ import { Button, cn, DropdownMenu, PanelExpansionContext, Tabs } from 'erxes-ui'
 import { type Ref, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IRecordSidePanelTab, RecordSidePanelTabsProps } from './recordSidePanelTypes';
+import { leadWith } from './tabOrder';
 import { useTabFit } from './useTabFit';
 
 /** Collapsed: a row of tabs over the content. Expanded: a sidebar, or an overview column beside the tabs. */
@@ -157,7 +158,12 @@ export const RecordSidePanelTabs = ({
   const expanded = controlledExpanded ?? contextExpanded;
   const splitOverview = expanded && Boolean(overviewTab);
   const sidebar = expanded && !splitOverview;
-  const navigationTabs = splitOverview ? tabs.filter((tab) => tab.value !== overviewTab) : tabs;
+
+  const navigationTabs = leadWith(
+    splitOverview ? tabs.filter((tab) => tab.value !== overviewTab) : tabs,
+    expandedDefaultTab,
+    overviewTab,
+  );
 
   const selectedValue =
     splitOverview && value === overviewTab
