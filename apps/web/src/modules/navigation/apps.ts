@@ -9,6 +9,7 @@ import {
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
+import { usePluginText } from '~/modules/plugins/pluginText';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
 /** Something the top bar can open: a core app or a plugin. */
@@ -38,7 +39,7 @@ const CORE_APPS: NavApp[] = [
 
 const label = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
 
-/** A core app's name in the member's language; plugins name themselves. */
+/** A core app's name in the member's language; a plugin's comes from its own text (`usePluginText`). */
 export const useCoreAppLabel = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
 
@@ -50,6 +51,7 @@ export const useNavApps = (): NavApp[] => {
   const { plugins } = usePlugins();
   const can = useCan();
   const coreLabel = useCoreAppLabel();
+  const text = usePluginText();
 
   return [
     ...CORE_APPS.filter((app) =>
@@ -61,7 +63,7 @@ export const useNavApps = (): NavApp[] => {
     ).map((app) => ({ ...app, label: coreLabel(app) })),
     ...plugins.map(({ remote, config }): NavApp => ({
       id: `plugin:${remote}`,
-      label: label(config.name),
+      label: text(config.name, label(config.name)),
       icon: config.icon ?? IconApps,
       path: config.path.replace(/^\/+|\/+$/g, ''),
       kind: 'plugin',

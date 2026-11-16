@@ -1,6 +1,7 @@
 import { PanelSection, Spinner, type TContactContentType, type TRecordSection } from 'erxes-ui';
 import { Suspense } from 'react';
 import { PluginBoundary } from './PluginBoundary';
+import { usePluginText } from './pluginText';
 import { usePlugins } from './usePlugins';
 
 /** One plugin's section: its heading, then what it draws, kept apart if it crashes. */
@@ -16,9 +17,10 @@ const PluginRecordSection = ({
   contentId: string;
 }) => {
   const Content = section.component;
+  const text = usePluginText();
 
   return (
-    <PanelSection title={section.title} icon={section.icon}>
+    <PanelSection title={text(plugin, section.title)} icon={section.icon}>
       <PluginBoundary name={plugin} compact resetKey={contentId}>
         <Suspense fallback={<Spinner size="sm" />}>
           <Content contentType={contentType} contentId={contentId} />

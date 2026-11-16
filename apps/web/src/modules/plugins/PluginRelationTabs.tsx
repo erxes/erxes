@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { ContactDetailScroll } from '~/modules/side-panel/details/ContactDetailFields';
 import type { IRecordSidePanelTab } from '~/modules/side-panel/RecordSidePanel';
 import { PluginBoundary } from './PluginBoundary';
+import { usePluginText } from './pluginText';
 import { usePlugins } from './usePlugins';
 
 /** Where a relation tab shows when it names no hosts: a customer's and a company's panels. */
@@ -62,6 +63,7 @@ export const usePluginRelationTabs = ({
   contacts: TRecordContacts | undefined;
 }): IRecordSidePanelTab[] => {
   const { plugins } = usePlugins();
+  const text = usePluginText();
 
   if (!contacts) return [];
 
@@ -70,7 +72,7 @@ export const usePluginRelationTabs = ({
       .filter((tab) => showsOn(tab, contentType))
       .map((tab) => ({
         value: `${remote}:${tab.name}`,
-        label: tab.title,
+        label: text(config.name, tab.title),
         icon: tab.icon,
         content: (
           <RelationTabContent

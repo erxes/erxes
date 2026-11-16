@@ -36,7 +36,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      customers and companies, and on the record types with `contacts` that their `hosts` name
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates all three when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
-     entry. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     entry. Core shows the config's words (the app's name, `title`s and `label`s) through
+     `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the
+     plugin's `name` and the key is the English text, which shows when no translation is there. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
      through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own; erxes-ui's
      `RecordTimeline` and `RecordPage` render what web registers at startup

@@ -18,6 +18,7 @@ import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecor
 import { useSidePanel, useSidePanelDraft } from '~/modules/side-panel/useSidePanel';
 import { PluginBoundary } from './PluginBoundary';
 import { usePluginRelationTabs } from './PluginRelationTabs';
+import { usePluginText } from './pluginText';
 import { usePluginRecordType } from './usePluginRecordType';
 
 const DETAIL_TAB = 'detail';
@@ -63,11 +64,12 @@ const useRecordTabs = (
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const contacts = useRecordContacts(type, record.contentId);
   const relationTabs = usePluginRelationTabs({ ...record, contacts });
+  const text = usePluginText();
   const own = type.tabs ?? [];
 
   const ownTab = (tab: TRecordTab): IRecordSidePanelTab => ({
     value: tab.value,
-    label: tab.label,
+    label: text(plugin, tab.label),
     icon: tab.icon,
     content: (
       <ContactDetailScroll>
