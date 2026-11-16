@@ -285,6 +285,7 @@ export const ACCESS = {
   'payments.updateGateway': needs('payments.manage'),
   'payments.removeGateway': needs('payments.manage'),
   'payments.createInvoice': { member: 'payments.manage', plugin: 'payments:write' },
+  'payments.recordPayment': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.getInvoice': { member: 'payments.manage', plugin: 'payments:read' },
   'payments.cancelInvoice': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.invoices': needs('payments.manage'),

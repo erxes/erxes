@@ -3,6 +3,7 @@ import {
   INVOICE_STATUSES,
   PAYMENT_GATEWAY_KINDS,
   PAYMENT_GATEWAY_STATUSES,
+  PAYMENT_METHODS,
   REFUND_METHODS,
   REFUND_STATUSES,
   type TAX_CATEGORIES,
@@ -94,7 +95,10 @@ export const paymentInvoices = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    gatewayId: text().notNull(),
+    /** Null for a payment recorded as taken outside a gateway (`method`). */
+    gatewayId: text(),
+    /** `gateway`, or how a payment taken outside one was made (cash, card, transfer). */
+    method: text({ enum: PAYMENT_METHODS }).default('gateway').notNull(),
     /** `core` or the plugin that asked for it. */
     source: text().notNull(),
     /** The plugin's own record (`order`, `abc123`). */
@@ -143,6 +147,11 @@ export const paymentInvoices = pgTable(
       .where(sql`${table.dedupeKey} IS NOT NULL`),
     check('core_payment_invoices_status_check', inList(table.status, INVOICE_STATUSES)),
     check('core_payment_invoices_amount_check', sql`${table.amount} > 0`),
+    check('core_payment_invoices_method_check', inList(table.method, PAYMENT_METHODS)),
+    check(
+      'core_payment_invoices_gateway_check',
+      sql`(${table.method} = 'gateway') = (${table.gatewayId} IS NOT NULL)`,
+    ),
     check(
       'core_payment_invoices_refunded_check',
       sql`${table.refundedAmount} >= 0 AND ${table.refundedAmount} <= coalesce(${table.paidAmount}, ${table.amount})`,

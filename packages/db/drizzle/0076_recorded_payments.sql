@@ -1,0 +1,4 @@
+ALTER TABLE "core_payment_invoices" ALTER COLUMN "gateway_id" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "core_payment_invoices" ADD COLUMN "method" text DEFAULT 'gateway' NOT NULL;--> statement-breakpoint
+ALTER TABLE "core_payment_invoices" ADD CONSTRAINT "core_payment_invoices_method_check" CHECK ("core_payment_invoices"."method" IN ('gateway', 'cash', 'card', 'transfer'));--> statement-breakpoint
+ALTER TABLE "core_payment_invoices" ADD CONSTRAINT "core_payment_invoices_gateway_check" CHECK (("core_payment_invoices"."method" = 'gateway') = ("core_payment_invoices"."gateway_id" IS NOT NULL));

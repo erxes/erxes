@@ -30,7 +30,8 @@ import {
 
 const log = logger.child({ component: 'payments' });
 
-const invoiceByDedupeKey = async (client: Db, dedupeKey: string) => {
+/** The caller's invoice its dedupe key already made, or null. */
+export const invoiceByDedupeKey = async (client: Db, dedupeKey: string) => {
   const [existing] = await selectInvoices(client)
     .where(
       and(eq(paymentInvoices.source, sourceOf(caller())), eq(paymentInvoices.dedupeKey, dedupeKey)),
@@ -179,7 +180,10 @@ export const getInvoice = async (id: string) => {
 export const cancelInvoice = async (id: string) => {
   const { invoice, gateway } = await visibleInvoice(id, 'owner');
 
-  if (invoice.status !== 'pending') throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
+  // A payment recorded outside a gateway is paid from the start, so it never gets here.
+  if (invoice.status !== 'pending' || !gateway) {
+    throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
+  }
 
   await driverOf(gateway)
     .cancel(invoice.gatewayInvoiceId ?? '', invoice.amount, invoice.payment)
@@ -241,7 +245,7 @@ export const payTestInvoice = async (id: string) => {
   await withOrg(orgId, async (tx) => {
     const { gateway } = await invoiceWithGateway(tx, id);
 
-    if (gateway.kind !== 'test')
+    if (gateway?.kind !== 'test')
       throw fail('NOT_TEST', 'Only invoices of the test gateway can be paid this way');
 
     await tx

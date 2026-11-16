@@ -1,24 +1,29 @@
 import type { EbarimtSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Checkbox, Dialog, Input, Label, Spinner, useToast } from 'erxes-ui';
-import { useId, useState } from 'react';
+import { Button, Checkbox, Input, Label, Spinner, useToast } from 'erxes-ui';
+import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type DraftRule, draftRule, EbarimtRules } from './EbarimtRules';
 
-const TEXT_FIELDS = [
-  { key: 'posApiUrl', label: 'PosAPI address', placeholder: 'https://posapi.example.mn' },
+const BUSINESS_FIELDS = [
   { key: 'companyName', label: 'Company name', placeholder: '' },
   { key: 'merchantTin', label: 'Merchant tax number (TIN)', placeholder: '11–14 digits' },
   { key: 'districtCode', label: 'District code', placeholder: '4 digits' },
   { key: 'posNo', label: 'POS number', placeholder: '' },
   { key: 'branchNo', label: 'Branch number', placeholder: '' },
-  { key: 'classificationCode', label: 'Product classification code', placeholder: '' },
-  { key: 'vatPercent', label: 'VAT %', placeholder: '10' },
-  { key: 'cityTaxPercent', label: 'City tax %', placeholder: '0' },
 ] as const;
 
-type TextKey = (typeof TEXT_FIELDS)[number]['key'];
+const TAX_FIELDS = [
+  { key: 'vatPercent', label: 'VAT %', placeholder: '10' },
+  { key: 'cityTaxPercent', label: 'City tax %', placeholder: '0' },
+  { key: 'classificationCode', label: 'Product classification code', placeholder: '' },
+] as const;
+
+type TextKey =
+  | 'posApiUrl'
+  | (typeof BUSINESS_FIELDS)[number]['key']
+  | (typeof TAX_FIELDS)[number]['key'];
 
 const draftOf = (saved: EbarimtSettings | null) => ({
   text: {
@@ -35,6 +40,8 @@ const draftOf = (saved: EbarimtSettings | null) => ({
   plugins: saved?.plugins ?? [],
   rules: (saved?.rules ?? []).map(draftRule),
 });
+
+type Draft = ReturnType<typeof draftOf>;
 
 /** The plugins that take payments here: each one's paid invoices may get receipts. */
 const PluginChoice = ({
@@ -129,7 +136,7 @@ const TestConnection = ({ posApiUrl }: { posApiUrl: string }) => {
   );
 };
 
-const useSave = (onSaved: () => void) => {
+const useSave = (onSaved?: () => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
   const { toast } = useToast();
   const client = useQueryClient();
@@ -139,7 +146,7 @@ const useSave = (onSaved: () => void) => {
       onSuccess: () => {
         void client.invalidateQueries({ queryKey: orpc.ebarimt.settings.key() });
         toast({ title: t('saved', 'eBarimt settings saved') });
-        onSaved();
+        onSaved?.();
       },
       onError: (error) =>
         toast({
@@ -152,7 +159,7 @@ const useSave = (onSaved: () => void) => {
 };
 
 /** What the form sends: numbers parsed, and rules that name a category or product. */
-const inputOf = (draft: ReturnType<typeof draftOf>, rules: DraftRule[]) => ({
+const inputOf = (draft: Draft, rules: DraftRule[]) => ({
   ...draft.text,
   vatPercent: Number(draft.text.vatPercent || 0),
   cityTaxPercent: Number(draft.text.cityTaxPercent || 0),
@@ -162,16 +169,88 @@ const inputOf = (draft: ReturnType<typeof draftOf>, rules: DraftRule[]) => ({
     .map(({ key: _key, ...rule }) => rule),
 });
 
-/** Mounted while the dialog is open, so closing it drops unsaved changes. */
-const EbarimtFormBody = ({
+/** The form's groups: connection, business, taxes and plugins. */
+const FormSections = ({
+  draft,
+  onChange: setDraft,
+}: {
+  draft: Draft;
+  onChange: (draft: Draft) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
+  const id = useId();
+  const { text } = draft;
+
+  const field = (key: TextKey, label: string, placeholder: string) => (
+    <div key={key} className="space-y-1.5">
+      <Label htmlFor={`${id}-${key}`}>{t(`field.${key}`, label)}</Label>
+      <Input
+        id={`${id}-${key}`}
+        value={text[key]}
+        placeholder={placeholder}
+        inputMode={key.endsWith('Percent') ? 'decimal' : undefined}
+        onChange={(event) => setDraft({ ...draft, text: { ...text, [key]: event.target.value } })}
+      />
+    </div>
+  );
+
+  return (
+    <>
+      <FormSection
+        title={t('section.connection', 'Connection')}
+        description={t(
+          'form-description',
+          'Receipts go to your PosAPI 3.0, which reports them to the tax office.',
+        )}
+      >
+        {field('posApiUrl', 'PosAPI address', 'https://posapi.example.mn')}
+        <TestConnection posApiUrl={text.posApiUrl} />
+      </FormSection>
+      <FormSection
+        title={t('section.business', 'Business')}
+        description={t('section.business-description', 'As registered with the tax office.')}
+      >
+        <div className="grid gap-3 sm:grid-cols-2">
+          {BUSINESS_FIELDS.map(({ key, label, placeholder }) => field(key, label, placeholder))}
+        </div>
+      </FormSection>
+      <FormSection
+        title={t('section.taxes', 'Taxes')}
+        description={t(
+          'section.taxes-description',
+          'The rates every line takes, and rules for the products taxed otherwise.',
+        )}
+      >
+        <div className="grid gap-3 sm:grid-cols-3">
+          {TAX_FIELDS.map(({ key, label, placeholder }) => field(key, label, placeholder))}
+        </div>
+        <EbarimtRules rules={draft.rules} onChange={(rules) => setDraft({ ...draft, rules })} />
+      </FormSection>
+      <FormSection
+        title={t('section.plugins', 'Plugins')}
+        description={t(
+          'section.plugins-description',
+          'Paid invoices of these plugins get receipts, whether paid through a gateway or in cash.',
+        )}
+      >
+        <PluginChoice
+          value={draft.plugins}
+          onChange={(plugins) => setDraft({ ...draft, plugins })}
+        />
+      </FormSection>
+    </>
+  );
+};
+
+/** Sets eBarimt up, or changes its settings; the draft starts from `saved`. */
+export const EbarimtForm = ({
   saved,
   onSaved,
 }: {
   saved: EbarimtSettings | null;
-  onSaved: () => void;
+  onSaved?: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
-  const id = useId();
   const [draft, setDraft] = useState(() => draftOf(saved));
   const save = useSave(onSaved);
   const { text } = draft;
@@ -180,57 +259,41 @@ const EbarimtFormBody = ({
     !text.posApiUrl || !text.companyName || !text.merchantTin || !text.districtCode;
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        {TEXT_FIELDS.map(({ key, label, placeholder }) => (
-          <div key={key} className={key === 'posApiUrl' ? 'col-span-2 space-y-1.5' : 'space-y-1.5'}>
-            <Label htmlFor={`${id}-${key}`}>{t(`field.${key}`, label)}</Label>
-            <Input
-              id={`${id}-${key}`}
-              value={text[key]}
-              placeholder={placeholder}
-              inputMode={key.endsWith('Percent') ? 'decimal' : undefined}
-              onChange={(event) =>
-                setDraft({ ...draft, text: { ...text, [key]: event.target.value } })
-              }
-            />
-          </div>
-        ))}
+    <div className="space-y-6">
+      <FormSections draft={draft} onChange={setDraft} />
+      <div className="flex justify-end">
+        <Button
+          disabled={save.isPending || incomplete}
+          onClick={() => save.mutate({ ...inputOf(draft, draft.rules), status: saved?.status })}
+        >
+          {save.isPending ? (
+            <Spinner size="sm" />
+          ) : saved ? (
+            t('save', 'Save changes')
+          ) : (
+            t('set-up', 'Set up eBarimt')
+          )}
+        </Button>
       </div>
-      <TestConnection posApiUrl={text.posApiUrl} />
-      <PluginChoice value={draft.plugins} onChange={(plugins) => setDraft({ ...draft, plugins })} />
-      <EbarimtRules rules={draft.rules} onChange={(rules) => setDraft({ ...draft, rules })} />
-      <Button
-        className="w-full"
-        disabled={save.isPending || incomplete}
-        onClick={() => save.mutate({ ...inputOf(draft, draft.rules), status: saved?.status })}
-      >
-        {save.isPending ? <Spinner size="sm" /> : t('save', 'Save')}
-      </Button>
     </div>
   );
 };
 
-/** Sets eBarimt up, or changes its settings. */
-export const EbarimtForm = ({ saved }: { saved: EbarimtSettings | null }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger render={<Button variant={saved ? 'secondary' : 'default'} />}>
-        {saved ? t('change', 'Settings') : t('set-up-short', 'Set up')}
-      </Dialog.Trigger>
-      <Dialog.Content className="max-w-2xl">
-        <Dialog.HeaderCombined
-          title={saved ? t('edit', 'eBarimt settings') : t('set-up', 'Set up eBarimt')}
-          description={t(
-            'form-description',
-            'Receipts go to your PosAPI 3.0, which reports them to the tax office.',
-          )}
-        />
-        {open && <EbarimtFormBody saved={saved} onSaved={() => setOpen(false)} />}
-      </Dialog.Content>
-    </Dialog>
-  );
-};
+/** A settings group: what it is on the left, its fields on the right. */
+const FormSection = ({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) => (
+  <section className="grid gap-4 border-b pb-6 md:grid-cols-3">
+    <div className="space-y-1">
+      <h3 className="text-sm font-medium">{title}</h3>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </div>
+    <div className="space-y-3 md:col-span-2">{children}</div>
+  </section>
+);

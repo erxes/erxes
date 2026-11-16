@@ -38,7 +38,8 @@ const ConnectForm = ({
   onAdded,
 }: {
   kind: PaymentGatewayKind;
-  onBack: () => void;
+  /** Back to all gateways; none when the dialog connects one gateway only. */
+  onBack?: () => void;
   onAdded: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
@@ -57,10 +58,12 @@ const ConnectForm = ({
         if (config.success) add.mutate({ name, config: config.data });
       }}
     >
-      <Button type="button" variant="ghost" size="sm" className="-ml-2" onClick={onBack}>
-        <IconArrowLeft />
-        {t('all-gateways', 'All gateways')}
-      </Button>
+      {onBack && (
+        <Button type="button" variant="ghost" size="sm" className="-ml-2" onClick={onBack}>
+          <IconArrowLeft />
+          {t('all-gateways', 'All gateways')}
+        </Button>
+      )}
       <CredentialsHelp kind={kind} />
       <div className="space-y-1.5">
         <Label htmlFor={`${id}-name`}>{t('name', 'Name')}</Label>
@@ -86,10 +89,14 @@ const ConnectForm = ({
   );
 };
 
-export const AddGateway = () => {
+/**
+ * Connects a gateway: picked from all of them, or `only` this one (its
+ * integration page), which opens on its credentials.
+ */
+export const AddGateway = ({ only = null }: { only?: PaymentGatewayKind | null }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const [open, setOpen] = useState(false);
-  const [kind, setKind] = useState<PaymentGatewayKind | null>(null);
+  const [kind, setKind] = useState<PaymentGatewayKind | null>(only);
 
   return (
     <Dialog
@@ -98,7 +105,7 @@ export const AddGateway = () => {
         setOpen(next);
 
         // Closing clears the credentials: the form unmounts.
-        if (!next) setKind(null);
+        if (!next) setKind(only);
       }}
     >
       <Dialog.Trigger render={<Button />}>
@@ -121,10 +128,10 @@ export const AddGateway = () => {
           (kind ? (
             <ConnectForm
               kind={kind}
-              onBack={() => setKind(null)}
+              onBack={only ? undefined : () => setKind(null)}
               onAdded={() => {
                 setOpen(false);
-                setKind(null);
+                setKind(only);
               }}
             />
           ) : (

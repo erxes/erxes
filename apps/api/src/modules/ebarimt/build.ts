@@ -1,4 +1,4 @@
-import type { EBARIMT_TAX_TYPES } from '@erxes/core-db/enums';
+import type { EBARIMT_TAX_TYPES, PAYMENT_METHODS } from '@erxes/core-db/enums';
 import type { EbarimtTaxRule, InvoiceLine, ebarimtSettings } from '@erxes/core-db';
 
 // Builds the PosAPI 3.0 receipt for an invoice. Core keeps money in the
@@ -48,6 +48,8 @@ export interface BuildInput {
   paidAt: Date;
   /** The bill this receipt replaces. */
   inactiveId: string | null;
+  /** How the invoice was paid: cash goes to PosAPI as `CASH`. */
+  method: (typeof PAYMENT_METHODS)[number];
   today?: Date;
 }
 
@@ -171,8 +173,8 @@ const sum = (items: Item[], pick: (item: Item) => number) =>
 
 /**
  * The receipt PosAPI takes and its totals in the smallest unit; null when
- * every line is left off (NOT_SEND) or nothing is paid. Paid through a
- * gateway, so the payment is non-cash (`PAYMENT_CARD`).
+ * every line is left off (NOT_SEND) or nothing is paid. Cash is `CASH`;
+ * a gateway, card terminal or transfer is non-cash (`PAYMENT_CARD`).
  */
 export const buildReceipt = (input: BuildInput) => {
   const items = input.lines
@@ -227,7 +229,7 @@ export const buildReceipt = (input: BuildInput) => {
       })),
       payments: [
         {
-          code: 'PAYMENT_CARD',
+          code: input.method === 'cash' ? 'CASH' : 'PAYMENT_CARD',
           exchangeCode: '',
           status: 'PAID',
           paidAmount: toTugrik(totals.totalAmount),

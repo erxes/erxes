@@ -41,7 +41,7 @@ const ownInvoice = async (client: Db, id: string) => {
   const [row] = await client
     .select({ invoice: paymentInvoices, gateway: paymentGateways })
     .from(paymentInvoices)
-    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
+    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
     .where(eq(paymentInvoices.id, id))
     .for('update', { of: paymentInvoices })
     .limit(1);
@@ -62,7 +62,7 @@ const refundByDedupeKey = async (client: Db, invoiceId: string, key: string) => 
 };
 
 /** How much is refunded, checked against what is left and what the gateway can refund. */
-const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow, input: RefundInput) => {
+const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow | null, input: RefundInput) => {
   const left =
     invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
 
@@ -77,6 +77,13 @@ const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow, input: RefundInp
   if (amount > left) throw fail('NOT_REFUNDABLE', `Only ${left} can still be refunded`);
 
   if (input.manual) return { amount, full: amount === left, paymentId: null };
+
+  if (!gateway) {
+    throw fail(
+      'PARTIAL_NOT_SUPPORTED',
+      `It was paid by ${invoice.method}: give the money back outside erxes and record it as manual`,
+    );
+  }
 
   const { refunds } = PAYMENT_GATEWAYS[gateway.kind];
 
@@ -187,9 +194,10 @@ export const refundInvoice = async (client: Db, input: RefundInput) => {
 
   const { amount, full, paymentId } = refundAmount(invoice, gateway, input);
 
-  const outcome = paymentId
-    ? await gatewayRefund(invoice, gateway, { paymentId, amount, note: input.reason })
-    : { status: 'succeeded' as const, gatewayRefundId: null, error: null };
+  const outcome =
+    paymentId && gateway
+      ? await gatewayRefund(invoice, gateway, { paymentId, amount, note: input.reason })
+      : { status: 'succeeded' as const, gatewayRefundId: null, error: null };
 
   const requester = actorOf(caller());
 

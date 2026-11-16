@@ -70,6 +70,7 @@ export const paths = {
     recycleBin: '/settings/recycle-bin',
     payments: '/settings/payments',
     integrations: '/settings/integrations',
+    integration: (key: string) => `/settings/integrations/${id(key)}`,
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',

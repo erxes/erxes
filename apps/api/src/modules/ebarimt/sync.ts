@@ -82,6 +82,7 @@ const planFor = async (read: NonNullable<Awaited<ReturnType<typeof readForSync>>
     buyer,
     paidAt: invoice.paidAt ?? invoice.createdAt,
     inactiveId: active?.billId ?? null,
+    method: invoice.method,
   });
 
   if (!built) return active ? ({ kind: 'return', previous: active } satisfies Plan) : null;

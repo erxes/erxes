@@ -39,6 +39,11 @@ const IntegrationsSettingsPage = lazyNamed(
   'IntegrationsSettingsPage',
 );
 
+const IntegrationPage = lazyNamed(
+  () => import('./integrations/IntegrationPage'),
+  'IntegrationPage',
+);
+
 /** Settings › Plugins, unless the deployment installs and approves plugins itself. */
 const PluginsRoute = () => {
   const plan = usePlan().data;
@@ -66,6 +71,7 @@ export const SettingsRoutes = () => (
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />
+      <Route path="integrations/:key" element={<IntegrationPage />} />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
       <Route path="plan" element={<PlanPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />

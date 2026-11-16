@@ -44,7 +44,17 @@ const SendAgain = ({ invoiceId }: { invoiceId: string }) => {
   );
 };
 
-const ReceiptRow = ({ receipt, currency }: { receipt: EbarimtReceipt; currency: string }) => {
+/**
+ * One receipt: its state, amount, buyer and bill. `withInvoice` (a list
+ * across invoices) adds whose invoice it is, and Send again when it failed.
+ */
+export const ReceiptRow = ({
+  receipt,
+  withInvoice = false,
+}: {
+  receipt: EbarimtReceipt;
+  withInvoice?: boolean;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments.ebarimt' });
   const money = useMoney();
   const what = receipt.kind === 'return' ? t('returned', 'Return') : t('issued', 'Receipt');
@@ -56,8 +66,13 @@ const ReceiptRow = ({ receipt, currency }: { receipt: EbarimtReceipt; currency: 
           {t(`status.${receipt.status}`, receipt.status)}
         </Badge>
         <span className={receipt.inactiveAt ? 'text-muted-foreground line-through' : ''}>
-          {what} {money(receipt.totalAmount, currency)}
+          {what} {money(receipt.totalAmount, receipt.currency)}
         </span>
+        {withInvoice && (
+          <span className="truncate text-xs text-muted-foreground">
+            {receipt.source} · {receipt.referenceType} {receipt.referenceId}
+          </span>
+        )}
         <span className="truncate text-muted-foreground">
           {receipt.customerName ?? receipt.customerTin ?? receipt.consumerNo ?? ''}
         </span>
@@ -76,6 +91,7 @@ const ReceiptRow = ({ receipt, currency }: { receipt: EbarimtReceipt; currency: 
         </p>
       )}
       {receipt.error && <p className="text-xs text-destructive-text">{receipt.error}</p>}
+      {withInvoice && receipt.status === 'failed' && <SendAgain invoiceId={receipt.invoiceId} />}
     </li>
   );
 };
@@ -113,7 +129,7 @@ export const EbarimtReceipts = ({ invoice }: { invoice: Invoice }) => {
           )}
           <ul className="divide-y rounded-lg border text-sm">
             {data.map((receipt) => (
-              <ReceiptRow key={receipt.id} receipt={receipt} currency={invoice.currency} />
+              <ReceiptRow key={receipt.id} receipt={receipt} />
             ))}
           </ul>
         </div>

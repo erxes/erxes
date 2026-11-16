@@ -366,6 +366,15 @@ export const PAYMENT_GATEWAY_KINDS = [
 
 export const PAYMENT_GATEWAY_STATUSES = ['active', 'disabled'] as const;
 
+/**
+ * How an invoice was paid: through its gateway, or recorded as taken outside
+ * one (cash, a card terminal, a bank transfer).
+ */
+export const PAYMENT_METHODS = ['gateway', 'cash', 'card', 'transfer'] as const;
+
+/** The methods a payment taken outside a gateway is recorded with. */
+export const RECORDED_PAYMENT_METHODS = ['cash', 'card', 'transfer'] as const;
+
 /** How a gateway refunds: any part, only the whole payment, or not at all. */
 export const GATEWAY_REFUND_KINDS = ['partial', 'full', 'none'] as const;
 

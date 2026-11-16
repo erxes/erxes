@@ -889,6 +889,12 @@
     "refund-failed": "Could not refund",
     "amount": "Amount",
     "paid": "Paid",
+    "paid-with": "Paid with",
+    "method": {
+      "cash": "Cash",
+      "card": "Card terminal",
+      "transfer": "Bank transfer"
+    },
     "refunded-total": "Refunded",
     "status-label": "Status",
     "manual": "manual",
@@ -971,7 +977,10 @@
         "pending": "Sending",
         "success": "Sent",
         "failed": "Failed"
-      }
+      },
+      "filter": "Receipts by state",
+      "all": "All",
+      "more": "Show more"
     }
   },
   "recycle-bin": {
@@ -1091,10 +1100,74 @@
   },
   "integrations": {
     "title": "Integrations",
-    "on": "On",
+    "intro": "Connect the services your organisation works with. Each one runs for all your plugins.",
+    "connected": "Connected",
     "off": "Off",
+    "attention": "Needs attention",
     "not-set-up": "Not set up",
+    "search": "Search integrations…",
+    "categories": "Categories",
+    "all": "All",
+    "category": {
+      "payments": "Payments",
+      "tax": "Tax receipts"
+    },
+    "section": {
+      "connected": "Connected",
+      "available": "Available",
+      "elsewhere": "Other regions"
+    },
+    "made-for": "Made for {{countries}}",
+    "anywhere": "Works in any country",
+    "no-match": "No integrations match",
+    "no-match-description": "Try another word or category.",
+    "status-failed": "Could not load what is connected: {{message}}",
+    "retry": "Retry",
+    "tab": {
+      "overview": "Overview",
+      "settings": "Settings",
+      "activity": "Activity",
+      "connections": "Connections"
+    },
+    "catalog": {
+      "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI."
+    },
+    "gateway": {
+      "takes": "Takes and refunds",
+      "how": "How it works",
+      "how-invoices": "Plugins bill through it: the payer pays on its page or app, and core marks the invoice paid.",
+      "how-credentials": "Credentials are checked with the gateway when you connect, and stored encrypted.",
+      "how-payments": "Which plugins use which gateway is set on",
+      "payments-link": "Payments",
+      "none": "Not connected yet. Connect your merchant account to take payments."
+    },
     "ebarimt": {
+      "remove-title": "Remove eBarimt",
+      "remove-description": "No more receipts are sent. Issued ones stay with their invoices.",
+      "failed-count_one": "{{count}} receipt could not be sent.",
+      "failed-count_other": "{{count}} receipts could not be sent.",
+      "review": "Review",
+      "connected-to": "Connected to",
+      "tin": "TIN",
+      "for-plugins": "Receipts for",
+      "no-plugin": "No plugin yet",
+      "set-up-hint": "You need your PosAPI 3.0 address and your business as registered with the tax office.",
+      "how": "How it works",
+      "how-paid": "Each paid invoice of the plugins you pick gets a receipt, by gateway or in cash.",
+      "how-refunds": "A partial refund replaces the receipt; a full refund returns it.",
+      "how-rules": "Rules tax chosen products and categories VAT-free, at 0%, or leave them off.",
+      "how-own": "Plugins that send their own receipts are left out.",
+      "section": {
+        "connection": "Connection",
+        "business": "Business",
+        "business-description": "As registered with the tax office.",
+        "taxes": "Taxes",
+        "taxes-description": "The rates every line takes, and rules for the products taxed otherwise.",
+        "plugins": "Plugins",
+        "plugins-description": "Paid invoices of these plugins get receipts, whether paid through a gateway or in cash."
+      },
+      "no-receipts": "No receipts here",
+      "no-receipts-description": "Receipts appear as the plugins’ invoices are paid.",
       "plugins": "Issue receipts for invoices of",
       "no-plugins": "No installed plugin takes payments yet.",
       "own-receipts": "{{plugins}} send their own eBarimt receipts, so core issues none for them.",
@@ -1104,10 +1177,8 @@
       "test": "Test connection",
       "saved": "eBarimt settings saved",
       "save-failed": "Could not save",
-      "save": "Save",
-      "change": "Settings",
+      "save": "Save changes",
       "set-up-short": "Set up",
-      "edit": "eBarimt settings",
       "set-up": "Set up eBarimt",
       "form-description": "Receipts go to your PosAPI 3.0, which reports them to the tax office.",
       "rule-category": "Pick a category",
@@ -1120,7 +1191,6 @@
       "active": "Send receipts",
       "remove-confirm": "Remove eBarimt? Issued receipts stay with their invoices.",
       "remove": "Remove",
-      "description": "Mongolian tax receipts. Each paid invoice of the plugins you pick gets a receipt from your PosAPI; refunds return or replace it.",
       "field": {
         "posApiUrl": "PosAPI address",
         "companyName": "Company name",

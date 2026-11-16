@@ -46,7 +46,7 @@ export const selectInvoices = (client: Db) =>
       },
     })
     .from(paymentInvoices)
-    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId));
+    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId));
 
 export const shownInvoice = async (client: Db, id: string) =>
   oneRow(await selectInvoices(client).where(eq(paymentInvoices.id, id)).limit(1));
@@ -63,6 +63,7 @@ export const eventPayload = (invoice: InvoiceRow) => ({
   referenceId: invoice.referenceId,
   amount: invoice.amount,
   currency: invoice.currency,
+  method: invoice.method,
   metadata: invoice.metadata,
   lines: invoice.lines,
 });
@@ -132,12 +133,12 @@ const markExpired = async (tx: Db, invoice: InvoiceRow) => {
 const current = async (tx: Db, id: string) =>
   oneRow(await tx.select().from(paymentInvoices).where(eq(paymentInvoices.id, id)).limit(1));
 
-/** The organisation's invoice with its gateway. */
+/** The organisation's invoice with its gateway (null for a payment recorded outside one). */
 export const invoiceWithGateway = async (tx: Db, id: string) => {
   const [row] = await tx
     .select({ invoice: paymentInvoices, gateway: paymentGateways })
     .from(paymentInvoices)
-    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
+    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
     .where(eq(paymentInvoices.id, id))
     .limit(1);
 
@@ -155,7 +156,9 @@ export const invoiceWithGateway = async (tx: Db, id: string) => {
 export const refresh = async (orgId: string, id: string) => {
   const { invoice, gateway } = await withOrg(orgId, (tx) => invoiceWithGateway(tx, id));
 
-  if (invoice.status !== 'pending' || !invoice.gatewayInvoiceId) return { invoice, gateway };
+  if (invoice.status !== 'pending' || !invoice.gatewayInvoiceId || !gateway) {
+    return { invoice, gateway };
+  }
 
   const check = await driverOf(gateway).check(
     invoice.gatewayInvoiceId,

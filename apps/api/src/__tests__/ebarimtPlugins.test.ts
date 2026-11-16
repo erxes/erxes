@@ -68,6 +68,32 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
     ]);
   });
 
+  it('issues receipts for payments taken outside a gateway, coded by how they were paid', async () => {
+    const recorded = (method: 'cash' | 'card', referenceId: string) =>
+      t.hr().payments.recordPayment({
+        method,
+        amount: 30_000,
+        currency: 'MNT',
+        description: 'Tour',
+        referenceType: 'order',
+        referenceId,
+      });
+
+    await recorded('cash', 'cash1');
+    await settle();
+    expect(fake.puts.at(-1)).toMatchObject({ payments: [{ code: 'CASH', paidAmount: 300 }] });
+
+    const card = await recorded('card', 'card1');
+
+    await settle();
+    expect(fake.puts.at(-1)).toMatchObject({
+      payments: [{ code: 'PAYMENT_CARD', paidAmount: 300 }],
+    });
+    expect((await t.owner().ebarimt.receipts({ invoiceId: card.id })).data).toMatchObject([
+      { kind: 'put', status: 'success' },
+    ]);
+  });
+
   it('never issues receipts for a plugin that sends its own', async () => {
     const picked = await order('own');
 

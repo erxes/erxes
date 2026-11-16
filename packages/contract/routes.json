@@ -1596,6 +1596,16 @@
         }
       }
     },
+    "recordPayment": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/payments/invoices/recorded"
+        }
+      }
+    },
     "getInvoice": {
       "~orpc": {
         "errorMap": {},
