@@ -1,4 +1,5 @@
 import {
+  type Icon,
   IconAdjustmentsHorizontal,
   IconLayoutKanban,
   IconList,
@@ -13,55 +14,76 @@ import { Popover } from '../../components/popover';
 import { storedFamily } from '../../lib/stored';
 import { cn } from '../../lib/utils';
 
-const LIST_DISPLAYS = ['list', 'table', 'board'] as const;
-
 /**
  * How a list shows its records: grouped rows, a table or a board.
  * Grouped rows are `RecordList`; a board shows cards.
  */
-export type TListDisplay = (typeof LIST_DISPLAYS)[number];
+export type TListDisplay = 'list' | 'table' | 'board';
+
+/**
+ * A list's own display, such as a cards grid or a chart.
+ * It shows in `DisplayMenu` beside the built-in ones:
+ * `{ key: 'cards', label: t('cards', 'Cards'), icon: IconLayoutGrid }`. The list renders it
+ * when `useListDisplay` returns its `key`.
+ */
+export interface TListDisplayOption<K extends string = string> {
+  key: K;
+  label: string;
+  icon: Icon;
+}
 
 /** The displays a list offers, in the menu's order; the first shows until one is chosen. */
-type ListDisplays = readonly [TListDisplay, ...TListDisplay[]];
+type ListDisplays<K extends string> = readonly [
+  TListDisplay | TListDisplayOption<K>,
+  ...(TListDisplay | TListDisplayOption<K>)[],
+];
 
-const TABLE_AND_BOARD: ListDisplays = ['table', 'board'];
+const TABLE_AND_BOARD: ListDisplays<never> = ['table', 'board'];
+
+const keyOf = <K extends string>(display: TListDisplay | TListDisplayOption<K>) =>
+  typeof display === 'string' ? display : display.key;
 
 /** Null until the member picks one. */
-const listDisplayFamily = storedFamily<TListDisplay | null>({
+const listDisplayFamily = storedFamily<string | null>({
   key: 'erxes:list-display',
-  schema: z.enum(LIST_DISPLAYS).nullable(),
+  schema: z.string().nullable(),
   initial: null,
 });
 
 /**
  * The display a list shows, as picked in its Display menu.
  * `const [display] = useListDisplay('sales-deals')`. The choice is remembered in this browser,
- * one per list. Give it the same `displays` as the list's `DisplayMenu`.
+ * one per list. Give it the same `displays` as the list's `DisplayMenu`; a list's own display
+ * comes back as its `key`.
  */
-export const useListDisplay = (list: string, displays: ListDisplays = TABLE_AND_BOARD) => {
+export const useListDisplay = <const K extends string = never>(
+  list: string,
+  displays: ListDisplays<K> = TABLE_AND_BOARD,
+) => {
   const [chosen, setDisplay] = useAtom(listDisplayFamily(list));
-  const display = chosen && displays.includes(chosen) ? chosen : displays[0];
+  const display = displays.map(keyOf).find((key) => key === chosen) ?? keyOf<K>(displays[0]);
 
   return [display, setDisplay] as const;
 };
 
-const DISPLAYS = {
+const BUILT_IN = {
   list: { fallback: 'List', icon: IconList },
   table: { fallback: 'Table', icon: IconTable },
   board: { fallback: 'Board', icon: IconLayoutKanban },
 } as const;
 
 /**
- * The Display menu in a list's filter bar: table, board or grouped list.
+ * The Display menu in a list's filter bar: table, board, list or its own.
  * It offers table or board, or the `displays` the list offers, such as
- * `['list', 'board', 'table']`; `useListDisplay(list, displays)` reads the choice.
+ * `['list', 'board', 'table']`, or the list's own (`TListDisplayOption`) among them:
+ * `[{ key: 'cards', label, icon }, 'table']`. `useListDisplay(list, displays)` reads the choice.
  */
-export const DisplayMenu = ({
+export const DisplayMenu = <const K extends string = never>({
   list,
   displays = TABLE_AND_BOARD,
 }: {
   list: string;
-  displays?: ListDisplays;
+  displays?: ListDisplays<K>;
 }) => {
   const [current, setDisplay] = useListDisplay(list, displays);
   const { t } = useTranslation('views', { keyPrefix: 'display' });
@@ -77,11 +99,16 @@ export const DisplayMenu = ({
           <IconAdjustmentsHorizontal className="size-4" />
         </Popover.Trigger>
       </IconTip>
-      <Popover.Content align="end" className="w-64">
+      <Popover.Content align="end" className={displays.length > 2 ? 'w-80' : 'w-64'}>
         <p className="mb-2 text-xs font-medium text-muted-foreground">{t('view', 'View')}</p>
         <div className={cn('grid gap-2', displays.length > 2 ? 'grid-cols-3' : 'grid-cols-2')}>
-          {displays.map((value) => {
-            const { fallback, icon: Icon } = DISPLAYS[value];
+          {displays.map((display) => {
+            const value = keyOf(display);
+
+            const { label, icon: DisplayIcon } =
+              typeof display === 'string'
+                ? { label: t(display, BUILT_IN[display].fallback), icon: BUILT_IN[display].icon }
+                : display;
 
             return (
               <button
@@ -94,8 +121,8 @@ export const DisplayMenu = ({
                   current === value && 'border-primary bg-primary/5 font-medium text-foreground',
                 )}
               >
-                <Icon className="size-5" />
-                {t(value, fallback)}
+                <DisplayIcon className="size-5" />
+                <span className="text-center">{label}</span>
               </button>
             );
           })}

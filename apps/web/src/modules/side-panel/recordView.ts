@@ -13,6 +13,8 @@ export interface IOpenRecordOptions {
   stack?: boolean;
   // Takes the open record's place, Back unchanged: a draft once saved.
   replace?: boolean;
+  // The tab it opens on; a tab the record lacks, like none, opens its default.
+  tab?: string;
 }
 
 /**

@@ -223,7 +223,12 @@ export { RecordTableInlineCell } from './modules/record-table/components/RecordT
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
-export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/DisplayMenu';
+export {
+  DisplayMenu,
+  type TListDisplay,
+  type TListDisplayOption,
+  useListDisplay,
+} from './modules/list/DisplayMenu';
 
 export {
   ListFilter,

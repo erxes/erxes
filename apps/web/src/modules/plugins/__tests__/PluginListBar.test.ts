@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 // @vitest-environment-options { "settings": { "device": { "prefersReducedMotion": "reduce" } } }
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { IconLayoutGrid, IconSitemap } from '@tabler/icons-react';
 import {
   DisplayMenu,
   ListFilter,
@@ -171,5 +172,49 @@ describe('a plugin list’s bar', () => {
     await act(async () => options.at(-1)?.click());
 
     expect(container.querySelector('p')?.textContent).toBe('table');
+  });
+
+  it('offers the list’s own displays beside the built-in ones, and remembers the key picked', async () => {
+    const cards = { key: 'cards', label: 'Cards', icon: IconLayoutGrid } as const;
+
+    const displays = [
+      cards,
+      'table',
+      { key: 'chart', label: 'Reporting lines', icon: IconSitemap },
+    ] as const;
+
+    const ShownOf = () => createElement('p', null, useListDisplay('people', displays)[0]);
+
+    const container = await render([
+      createElement(DisplayMenu, { key: 'menu', list: 'people', displays }),
+      createElement(ShownOf, { key: 'people' }),
+    ]);
+
+    expect(container.querySelector('p')?.textContent).toBe('cards');
+
+    await act(async () => container.querySelector('button')?.click());
+
+    const options = [...document.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')];
+
+    expect(options.map((button) => button.textContent)).toEqual([
+      'Cards',
+      'Table',
+      'Reporting lines',
+    ]);
+
+    await act(async () => options.at(-1)?.click());
+
+    expect(container.querySelector('p')?.textContent).toBe('chart');
+
+    // A page load whose list no longer offers the chart shows its first display.
+    act(() => root?.unmount());
+
+    const Fewer = () => createElement('p', null, useListDisplay('people', [cards, 'table'])[0]);
+
+    const reloaded = await render(
+      createElement(Provider, { store: createStore() }, createElement(Fewer)),
+    );
+
+    expect(reloaded.textContent).toBe('cards');
   });
 });

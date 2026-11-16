@@ -79,7 +79,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the
      plugin's `name` and the key is the English text, which shows when no translation is there. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
-     through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own; erxes-ui's
+     through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own. `open`'s
+     `tab` (a type's tab `value`, `detail` or `activity`; anything else opens the default) and a
+     record page's address key `tab` are the contract. erxes-ui's
      `RecordTimeline` and `RecordPage` render what web registers at startup
      (`apps/web/src/bootstrap.tsx`). erxes-ui's `ListFilter` draws core's filter bar itself, in
      web or outside it; its props (`TListFilterProps`, `TListFilterField`) and
@@ -89,6 +91,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      (`recordType="sales:deal"`): web provides the tabs and the save through `ListViewsProvider`,
      core stores the view (`views.recordType` takes `<plugin>:<record>`), and the plugin's API
      applies its filter. The prop, the address key `view` and that type's shape are the contract.
+     `DisplayMenu` and `useListDisplay` take built-in displays and the list's own
+     (`TListDisplayOption`: `key`, `label`, `icon`), and keep the chosen key per `list` in the
+     browser: a list's name and its displays' keys are the contract.
      The API compiles the filter with `compileFilter` from `@erxes/plugin-sdk/filter`, the
      compiler core's own lists use (`apps/api/src/modules/views/recordFilter.ts` adds core's
      custom fields, tags and lookups on top). A field type or operator it accepts is the contract,

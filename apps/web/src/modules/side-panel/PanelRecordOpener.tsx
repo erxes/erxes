@@ -6,7 +6,8 @@ import { useSidePanel } from './useSidePanel';
 /**
  * How erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts, in core and plugin
  * UIs alike: in the side panel beside the page, or, from inside an open record (`stack`), on
- * top of it so Back returns there. On a record's own page they open on that page.
+ * top of it so Back returns there, on the `tab` the opener names. On a record's own page they
+ * open on that page.
  */
 export const PanelRecordOpener = ({
   stack = false,
@@ -17,7 +18,7 @@ export const PanelRecordOpener = ({
 
   return (
     <RecordOpenerProvider
-      open={(entity) => openRecord(entity, options)}
+      open={({ tab, ...entity }) => openRecord(entity, { ...options, tab })}
       openNew={(contentType, defaults) => openNewRecord(contentType, defaults, options)}
       current={record?.contentId === NEW_RECORD_ID ? null : record}
       dismiss={(entity) => dismissPath(getSidePanelRecordPath(entity))}
