@@ -181,4 +181,108 @@ describe('debt rate adjustment list', () => {
     );
     expect(result.current.adjustDebtRates).toEqual([]);
   });
+  it('keeps the loaded rows, stops auto-loading and retries only when asked after the next page fails', async () => {
+    const nextPage = {
+      query: ADJUST_DEBT_RATE_QUERY,
+      variables: { ...filtered, cursor: 'debt-20' },
+    };
+    const { result } = renderList(
+      '/accounting/adjustment/debRate?searchValue=USD&branchId=branch-ub',
+      [
+        {
+          request: { query: ADJUST_DEBT_RATE_QUERY, variables: filtered },
+          result: page(twentyRates, {
+            hasNextPage: true,
+            endCursor: 'debt-20',
+          }),
+        },
+        { request: nextPage, error: new Error('Network request failed') },
+        {
+          request: nextPage,
+          result: page(['debt-21', 'debt-22'], {
+            hasNextPage: false,
+            endCursor: 'debt-22',
+          }),
+        },
+      ],
+    );
+
+    await waitFor(() =>
+      expect(result.current.adjustDebtRates).toHaveLength(20),
+    );
+
+    act(() => result.current.handleFetchMore());
+
+    await waitFor(() =>
+      expect(result.current.fetchMoreError?.message).toBe(
+        'Network request failed',
+      ),
+    );
+    expect(result.current.adjustDebtRates).toHaveLength(20);
+
+    await act(async () => {
+      result.current.handleFetchMore();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+    expect(result.current.adjustDebtRates).toHaveLength(20);
+
+    act(() => result.current.retryFetchMore());
+
+    await waitFor(() =>
+      expect(result.current.adjustDebtRates).toHaveLength(22),
+    );
+    expect(result.current.fetchMoreError).toBeUndefined();
+  });
+
+  it('does not mix the old branch rows into the list when the branch changes while the next page loads', async () => {
+    const otherBranch = { ...filtered, branchId: 'branch-darkhan' };
+    const { result, rerender } = renderList(
+      '/accounting/adjustment/debRate?searchValue=USD&branchId=branch-ub',
+      [
+        {
+          request: { query: ADJUST_DEBT_RATE_QUERY, variables: filtered },
+          result: page(twentyRates, {
+            hasNextPage: true,
+            endCursor: 'debt-20',
+          }),
+        },
+        {
+          request: {
+            query: ADJUST_DEBT_RATE_QUERY,
+            variables: { ...filtered, cursor: 'debt-20' },
+          },
+          delay: 150,
+          result: page(['debt-21'], {
+            hasNextPage: false,
+            endCursor: 'debt-21',
+          }),
+        },
+        {
+          request: { query: ADJUST_DEBT_RATE_QUERY, variables: otherBranch },
+          result: page(['darkhan-1', 'darkhan-2'], {
+            hasNextPage: false,
+            endCursor: 'darkhan-2',
+          }),
+        },
+      ],
+    );
+
+    await waitFor(() =>
+      expect(result.current.adjustDebtRates).toHaveLength(20),
+    );
+
+    act(() => result.current.handleFetchMore());
+    mockUrl.search = '?searchValue=USD&branchId=branch-darkhan';
+    rerender();
+
+    await waitFor(() =>
+      expect(result.current.adjustDebtRates[0]?._id).toBe('darkhan-1'),
+    );
+    await act(() => new Promise((resolve) => setTimeout(resolve, 250)));
+
+    expect(result.current.adjustDebtRates.map(({ _id }) => _id)).toEqual([
+      'darkhan-1',
+      'darkhan-2',
+    ]);
+  });
 });

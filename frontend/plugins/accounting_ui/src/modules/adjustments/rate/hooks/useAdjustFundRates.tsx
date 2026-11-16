@@ -1,5 +1,6 @@
 import { toGraphqlView } from '@/utils/graphql';
 import { mergeGraphqlCursorData } from '@/utils/graphqlCursor';
+import { useAdjustRateFetchMore } from '@/adjustments/hooks/useAdjustRateFetchMore';
 import { useQuery } from '@apollo/client';
 import { EnumCursorDirection, useQueryState } from 'erxes-ui';
 import { ADJUST_FUND_RATE_QUERY } from '../graphql/adjustFundRateQueries';
@@ -33,24 +34,36 @@ export const useAdjustFundRates = (variables?: TAdjustFundRatesVariables) => {
   const data = toGraphqlView(queryData);
   const pageInfo = data?.adjustFundRates?.pageInfo;
 
-  const handleFetchMore = () => {
-    if (loading || !pageInfo?.hasNextPage || !pageInfo.endCursor) return;
-
-    fetchMore({
-      variables: { cursor: pageInfo.endCursor },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.adjustFundRates) return prev;
-        return {
-          ...prev,
-          adjustFundRates: mergeGraphqlCursorData({
-            direction: EnumCursorDirection.FORWARD,
-            fetchMoreResult: fetchMoreResult.adjustFundRates,
-            prevResult: prev.adjustFundRates,
-          }),
-        };
-      },
+  const { handleFetchMore, retryFetchMore, fetchMoreError } =
+    useAdjustRateFetchMore({
+      loading,
+      hasNextPage: pageInfo?.hasNextPage,
+      endCursor: pageInfo?.endCursor,
+      fetchNext: (cursor) =>
+        fetchMore({
+          variables: { cursor },
+          updateQuery: (
+            prev,
+            { fetchMoreResult, variables: pageVariables },
+          ) => {
+            if (
+              !fetchMoreResult?.adjustFundRates ||
+              prev.adjustFundRates?.pageInfo?.endCursor !==
+                pageVariables?.cursor
+            ) {
+              return prev;
+            }
+            return {
+              ...prev,
+              adjustFundRates: mergeGraphqlCursorData({
+                direction: EnumCursorDirection.FORWARD,
+                fetchMoreResult: fetchMoreResult.adjustFundRates,
+                prevResult: prev.adjustFundRates,
+              }),
+            };
+          },
+        }),
     });
-  };
 
   return {
     adjustFundRates: data?.adjustFundRates?.list || [],
@@ -60,5 +73,7 @@ export const useAdjustFundRates = (variables?: TAdjustFundRatesVariables) => {
     error,
     refetch,
     handleFetchMore,
+    retryFetchMore,
+    fetchMoreError,
   };
 };

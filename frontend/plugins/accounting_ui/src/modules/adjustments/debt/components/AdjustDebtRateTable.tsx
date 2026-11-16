@@ -6,8 +6,15 @@ import { AdjustRateTable } from '@/adjustments/components/AdjustRateTable';
 
 export const AdjustDebtRateTable = () => {
   const { t } = useTranslation('accounting');
-  const { adjustDebtRates, loading, error, pageInfo, handleFetchMore } =
-    useAdjustDebtRates();
+  const {
+    adjustDebtRates,
+    loading,
+    error,
+    pageInfo,
+    handleFetchMore,
+    retryFetchMore,
+    fetchMoreError,
+  } = useAdjustDebtRates();
 
   return (
     <AdjustRateTable
@@ -17,6 +24,8 @@ export const AdjustDebtRateTable = () => {
       error={error}
       hasNextPage={pageInfo?.hasNextPage}
       onFetchMore={handleFetchMore}
+      fetchMoreError={fetchMoreError}
+      onRetryFetchMore={retryFetchMore}
       addAction={<AddAdjustDebtRate />}
     />
   );
