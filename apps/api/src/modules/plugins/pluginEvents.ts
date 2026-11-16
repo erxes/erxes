@@ -29,7 +29,8 @@ const paymentConcerns = (plugin: string, payload: unknown) => {
 /**
  * May this plugin see this event? Payment events: its own invoices and those
  * with a line for it (`payments:read`); customers and companies:
- * `customers:read`; products: `products:read`; anything else from core or
+ * `customers:read`; products: `products:read`; branches and departments:
+ * `units:read`; anything else from core or
  * other plugins: `events:read`.
  */
 const pluginMaySee = (
@@ -47,6 +48,8 @@ const pluginMaySee = (
     return scopes.includes('customers:read');
 
   if (event.type.startsWith('core.product.')) return scopes.includes('products:read');
+
+  if (event.type.startsWith('core.unit.')) return scopes.includes('units:read');
 
   return scopes.includes('events:read');
 };

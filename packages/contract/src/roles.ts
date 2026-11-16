@@ -42,6 +42,11 @@ export const CORE_PERMISSIONS = [
   },
   { action: 'roles.manage', group: 'Team', label: 'Create and edit roles' },
   {
+    action: 'structure.manage',
+    group: 'Team',
+    label: 'Add, change and remove branches and departments, and who is in them',
+  },
+  {
     action: 'settings.manage',
     group: 'Settings',
     label: 'Change organisation settings (file upload, …)',

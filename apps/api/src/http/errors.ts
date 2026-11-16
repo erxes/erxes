@@ -107,6 +107,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
   core_products_category_fkey: { field: 'categoryId', message: 'No such category' },
   core_product_categories_parent_fkey: { field: 'parentId', message: 'No such category' },
   core_users_role_fkey: { field: 'role', message: 'No such role' },
+  core_org_units_org_kind_code_key: {
+    field: 'code',
+    message: 'Another unit of this kind has this code',
+  },
 };
 
 /**

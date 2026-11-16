@@ -111,6 +111,8 @@ export const ERRORS = {
   LEAD_STAGE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
   INVALID_TAG: { status: 400 },
   TAG_LIMIT: { status: 409 },
+  // Branches and departments: at most LIST_MAX per organisation, read whole.
+  UNIT_LIMIT: { status: 409 },
   INVALID_FIELD: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_VALUE: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_GROUP: { status: 400, data: z.object({ groupId: z.string() }).optional() },

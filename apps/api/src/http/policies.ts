@@ -214,6 +214,15 @@ export const ACCESS = {
   'tags.update': needs('tags.manage'),
   'tags.remove': needs('tags.delete'),
 
+  // Branches and departments: every member reads them (pickers); plugins keep a copy.
+  'units.list': { member: 'any', plugin: 'units:read' },
+  'units.get': { member: 'any', plugin: 'units:read' },
+  'units.create': { member: 'structure.manage', plugin: 'units:write' },
+  'units.update': { member: 'structure.manage', plugin: 'units:write' },
+  'units.remove': { member: 'structure.manage', plugin: 'units:write' },
+  'units.assign': { member: 'structure.manage', plugin: 'units:write' },
+  'units.import': { plugin: 'units:write' },
+
   'trash.list': needs('contacts.delete'),
   'trash.restore': needs('contacts.delete'),
   'trash.purge': needs('trash.purge'),

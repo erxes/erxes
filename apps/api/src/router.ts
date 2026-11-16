@@ -25,6 +25,7 @@ import {
 } from '~/modules/customerAuth/customerAuth.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
+import { unitsRouter } from '~/modules/units/units.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
 import { unscoped } from '~/orpc';
 
@@ -56,6 +57,7 @@ export const coreRouter = unscoped.router({
   customerAuth: customerAuthRouter,
   companies: companiesRouter,
   tags: tagsRouter,
+  units: unitsRouter,
   fields: fieldsRouter,
   fieldGroups: fieldGroupsRouter,
 });
