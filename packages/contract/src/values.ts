@@ -194,10 +194,31 @@ export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 
+// ─── Broadcasts ─────────────────────────────────────────────────────────────
+
 export const BroadcastChannel = z.enum(BROADCAST_CHANNELS);
+
 export const BroadcastStatus = z.enum(BROADCAST_STATUSES);
+
 export const BroadcastRecipientStatus = z.enum(BROADCAST_RECIPIENT_STATUSES);
+
 export const SuppressionReason = z.enum(SUPPRESSION_REASONS);
+
+/** What `{{ firstName | there }}` in a broadcast fills in: each customer's value, or the organisation's name. */
+export const BROADCAST_PLACEHOLDERS = [
+  'firstName',
+  'lastName',
+  'fullName',
+  'email',
+  'phone',
+  'code',
+  'position',
+  'organization',
+] as const;
+
+export type BroadcastPlaceholder = (typeof BROADCAST_PLACEHOLDERS)[number];
+
+// ─── eBarimt ────────────────────────────────────────────────────────────────
 
 /** How eBarimt taxes a product's lines (Settings › Integrations › eBarimt). */
 export const EbarimtTaxType = z.enum(EBARIMT_TAX_TYPES);

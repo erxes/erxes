@@ -1,3 +1,4 @@
+import { BROADCAST_PLACEHOLDERS as NAMES, type BroadcastPlaceholder } from '@erxes/core-contract';
 import { fail } from '~/http/errors';
 
 /** What a placeholder can be filled with: one customer's values and the organisation's name. */
@@ -11,20 +12,7 @@ export interface PlaceholderValues {
   organization: string;
 }
 
-const NAMES = [
-  'firstName',
-  'lastName',
-  'fullName',
-  'email',
-  'phone',
-  'code',
-  'position',
-  'organization',
-] as const;
-
-type PlaceholderName = (typeof NAMES)[number];
-
-const isName = (name: string): name is PlaceholderName =>
+const isName = (name: string): name is BroadcastPlaceholder =>
   (NAMES as readonly string[]).includes(name);
 
 /** `{{ firstName }}` or `{{ firstName | there }}`: the value, else the text after the bar. */
@@ -60,7 +48,7 @@ export const assertPlaceholders = (...texts: (string | null | undefined)[]) => {
   }
 };
 
-const valueOf = (values: PlaceholderValues, name: PlaceholderName) => {
+const valueOf = (values: PlaceholderValues, name: BroadcastPlaceholder) => {
   if (name === 'fullName') {
     return [values.firstName, values.lastName].filter(Boolean).join(' ') || null;
   }

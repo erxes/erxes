@@ -53,6 +53,8 @@ export const i18nReady = i18n
     partialBundledLanguages: true,
     lng: store.get(languageState),
     fallbackLng: 'en',
+    // Namespaces not listed here (`broadcasts`) load, in every language, when a page first uses
+    // them; until then the strings' defaults in the code show.
     ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views'],
     defaultNS: 'common',
     fallbackNS: 'common',

@@ -23,9 +23,14 @@ export interface RenderedCopy {
 
 const isWebLink = (href: string) => /^https?:\/\//i.test(href);
 
+/** Links may open the web, mail or a call; pictures only come from the web. */
+const isAllowed = (type: 'link' | 'image', href: string) =>
+  isWebLink(href) || (type === 'link' && /^(mailto|tel):/i.test(href));
+
 /**
  * Markdown to HTML with raw HTML shown as text (a broadcast is written in
- * Markdown, never smuggles markup), and web links sent through `track`.
+ * Markdown, never smuggles markup), any other link scheme (`javascript:`)
+ * dropped, and web links sent through `track`.
  */
 const markdownToHtml = (markdown: string, track: ((href: string) => string) | null) =>
   new Marked({
@@ -36,11 +41,14 @@ const markdownToHtml = (markdown: string, track: ((href: string) => string) | nu
       html: ({ text }: Tokens.HTML | Tokens.Tag) => escapeHtml(text),
     },
     walkTokens: (token) => {
-      if (token.type !== 'link' || !track || !('href' in token)) return;
+      if ((token.type !== 'link' && token.type !== 'image') || !('href' in token)) return;
 
       const href: unknown = token.href;
 
-      if (typeof href === 'string' && isWebLink(href)) token.href = track(href);
+      if (typeof href !== 'string') return;
+
+      if (!isAllowed(token.type, href.trim())) token.href = '';
+      else if (token.type === 'link' && track && isWebLink(href)) token.href = track(href);
     },
   }).parse(markdown, { async: false });
 

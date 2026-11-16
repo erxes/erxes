@@ -116,6 +116,48 @@ describe('broadcasts', { timeout: 300_000 }, () => {
     });
   });
 
+  it('sends to a saved view, which stays while a broadcast waits on it', async () => {
+    const owner = t.owner();
+
+    await t.customersIn('viewed', [
+      { firstName: 'Saran', primaryEmail: 'saran@viewed.mn' },
+      { firstName: 'Gerel', primaryEmail: 'gerel@viewed.mn' },
+    ]);
+
+    const view = await owner.views.create({
+      name: 'Viewed',
+      recordType: 'customer',
+      filter: audienceOf('viewed'),
+    });
+
+    const broadcast = await owner.broadcasts.create({
+      name: 'To the view',
+      channel: 'email',
+      viewId: view.id,
+      subject: 'Hi {{ firstName }}',
+      body: 'Hi',
+    });
+
+    expect(await owner.broadcasts.audience({ channel: 'email', viewId: view.id })).toMatchObject({
+      matched: 2,
+      reachable: 2,
+    });
+    // Deleting it would clear the draft's view and send it to every customer.
+    await expect(owner.views.remove({ id: view.id })).rejects.toMatchObject({
+      status: 409,
+      code: 'VIEW_IN_USE',
+      data: { count: 1 },
+    });
+
+    await owner.broadcasts.send({ id: broadcast.id });
+    await settle();
+
+    expect(emailsTo('saran@viewed.mn')[0]?.subject).toBe('Hi Saran');
+    expect(await owner.broadcasts.get({ id: broadcast.id })).toMatchObject({ total: 2 });
+    // Once it went, the view can go: the recipients are already fixed.
+    expect(await owner.views.remove({ id: view.id })).toEqual({ ok: true });
+  });
+
   it('pauses, resumes and texts by SMS', async () => {
     const owner = t.owner();
 
@@ -163,6 +205,15 @@ describe('broadcasts', { timeout: 300_000 }, () => {
       code: 'UNKNOWN_PLACEHOLDER',
       data: { placeholders: ['fristName'] },
     });
+
+    const scripted = await t.emailTo('news', {
+      body: '[win](javascript:alert(1)) ![x](data:image/svg+xml,1) <b onclick="x">hi</b> [mail](mailto:a@acme.mn)',
+    });
+
+    const { html } = await owner.broadcasts.preview({ id: scripted.id });
+
+    expect(html).not.toMatch(/javascript:|data:image|<b /);
+    expect(html).toContain('href="mailto:a@acme.mn"');
 
     const draft = await t.emailTo('news', { subject: '', body: '' });
 

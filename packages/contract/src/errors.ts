@@ -133,6 +133,8 @@ export const ERRORS = {
   PLUGIN_FIELD: { status: 403, data: z.object({ fieldId: z.string(), plugin: z.string() }) },
   // `views.matches` on a member's own view: only views shared with the team decide for plugins.
   VIEW_NOT_SHARED: { status: 403 },
+  /** Draft or scheduled broadcasts send to the view: change their audience first. */
+  VIEW_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
 
   // Products.
   INVALID_CATEGORY: { status: 400 },

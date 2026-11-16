@@ -135,6 +135,8 @@ export const BroadcastRecipient = createSelectSchema(broadcastRecipients, {
   })
   .extend({ customerName: z.string().nullable() });
 
+export type BroadcastRecipient = z.infer<typeof BroadcastRecipient>;
+
 /** One customer's copy as it would be sent (`text` only for SMS). */
 export const BroadcastRendered = z.object({
   to: z.string().nullable(),

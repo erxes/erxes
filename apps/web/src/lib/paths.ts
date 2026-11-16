@@ -53,6 +53,11 @@ export const paths = {
     list: '/automations',
     automation: (automationId: string) => `/automations/${id(automationId)}`,
   },
+  broadcasts: {
+    list: '/broadcasts',
+    broadcast: (broadcastId: string) => `/broadcasts/${id(broadcastId)}`,
+    suppressions: '/broadcasts/suppressions',
+  },
   reports: {
     list: '/reports',
     leads: '/reports/leads',

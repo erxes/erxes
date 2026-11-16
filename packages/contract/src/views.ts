@@ -112,10 +112,10 @@ const ViewFields = createUpdateSchema(views, {
 /** The most record ids one `views.matches` call checks. */
 export const VIEW_MATCHES_MAX = 500;
 
-const { INVALID_TYPE, VIEW_NOT_SHARED } = ERRORS;
+const { INVALID_TYPE, VIEW_NOT_SHARED, VIEW_IN_USE } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
-const base = oc.errors({ ...COMMON_ERRORS, INVALID_TYPE, VIEW_NOT_SHARED });
+const base = oc.errors({ ...COMMON_ERRORS, INVALID_TYPE, VIEW_NOT_SHARED, VIEW_IN_USE });
 
 /** Saved lists (views) and what lists can be filtered by. */
 export const viewsContract = {
@@ -148,7 +148,11 @@ export const viewsContract = {
     .input(ViewFields.extend({ id: Id }))
     .output(View),
   remove: base
-    .route({ method: 'DELETE', path: '/views/{id}' })
+    .route({
+      method: 'DELETE',
+      path: '/views/{id}',
+      summary: '409 VIEW_IN_USE while a draft or scheduled broadcast sends to the view',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   fields: base
