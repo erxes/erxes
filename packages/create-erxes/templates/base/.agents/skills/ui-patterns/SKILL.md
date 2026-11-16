@@ -72,8 +72,11 @@ gives it its fields, and `FILTER_FIELDS` in `api/src/modules/items/items.ts` app
 - Never: a search box, toggle buttons ("Mine", "Archived"), status tabs, a
   ToggleGroup for table, board, cards or chart, or a row of pickers above the
   table. Each of those is a field in the menu or an entry in the Display menu.
-- Saved views (the tabs core's contacts lists have) are core's lists only;
-  a plugin list shows the one "All …" tab.
+- Saved views (the tabs core's contacts lists have) come from the record type:
+  `<ViewBar recordType="<plugin>:<thing>" allLabel>` and the same `recordType`
+  on `ListFilter`. Core stores the member's views of that list and draws their
+  tabs and the filter's save; opening one puts its conditions and search in the
+  address, so the API applies it through the `filter` and `search` it already gets.
 
 ## Records in core's side panel
 

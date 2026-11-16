@@ -19,6 +19,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 | Settings list            | `PageHeader`, `RecordTable`                                         | `apps/web/src/modules/settings/tags/TagsSettingsPage.tsx`       |
 | Settings form            | `Form`, `Switch`, `ScrollArea`                                      | `apps/web/src/modules/settings/profile/ProfileSettingsPage.tsx` |
 | Filters                  | `ListFilter`, `useListFilterParams`                                 | `ui/src/modules/items/ItemsPage.tsx`                            |
+| Chart                    | `ChartContainer`, `ChartTooltipContent`, `ChartLegendContent`       | none in core yet                                                |
 
 ## Page
 
@@ -148,7 +149,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type CalendarProps` react-day-picker's `DayPicker` props.
 - `Card.{Header, Footer, Title, Description, Content}` A raised panel with header, title, description, content and footer.
 - `type ChartConfig` Each series' label, icon and colour by data key, for `ChartContainer`.
-- `<ChartContainer config style>` The frame for a recharts chart: size, theme and series colours.
+- `<ChartContainer config style>` The frame for a `responsive` recharts chart: size, theme and colours.
 - `<ChartLegendContent hideIcon payload verticalAlign nameKey>` The themed body for a recharts `Legend`: each series' icon and label.
 - `<ChartTooltipContent>` The themed body for a recharts `Tooltip`, labelled from the config.
 - `<Checkbox>` A themed checkbox; pass `indeterminate` for a partial selection.

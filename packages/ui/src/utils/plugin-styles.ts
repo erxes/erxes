@@ -8,17 +8,52 @@
 
 const sheets = new Map<string, CSSStyleSheet>();
 
-/** The class a rule is for: `md\:flex` in `.md\:flex`, `space-y-2` in `:where(.space-y-2 > …)`. */
+/** The class a selector is for: `md\:flex` in `.md\:flex`, `space-y-2` in `:where(.space-y-2 > …)`. */
 const CLASS = /\.((?:\\[\da-f]{1,6} ?|\\.|[\w-])+)/i;
 
-const classOf = (rule: CSSRule) =>
-  rule instanceof CSSStyleRule ? CLASS.exec(rule.selectorText)?.[1] : undefined;
+const classOf = (selector: string) => CLASS.exec(selector)?.[1];
+
+/** The selectors of a list, split at the commas outside brackets: `:is(.a, .b)` stays one. */
+const selectorList = (selectorText: string) => {
+  const selectors: string[] = [];
+  let depth = 0;
+  let start = 0;
+
+  for (let index = 0; index < selectorText.length; index++) {
+    const char = selectorText[index];
+
+    if (char === '\\') index++;
+    else if (char === '(' || char === '[') depth++;
+    else if (char === ')' || char === ']') depth--;
+    else if (char === ',' && depth === 0) {
+      selectors.push(selectorText.slice(start, index).trim());
+      start = index + 1;
+    }
+  }
+
+  return [...selectors, selectorText.slice(start).trim()];
+};
+
+/**
+ * The selectors of a list whose class the page lacks, and those with no class. Minified Tailwind
+ * merges rules with the same body into one list (`.bg-info,.bg-info\/10{…}`), so each selector
+ * is judged on its own.
+ */
+export const unknownSelectors = (selectorText: string, known: Set<string>) =>
+  selectorList(selectorText).filter((selector) => {
+    const name = classOf(selector);
+
+    return name === undefined || !known.has(name);
+  });
 
 const collectClasses = (rules: CSSRuleList, into: Set<string>) => {
   for (const rule of rules) {
-    const name = classOf(rule);
+    const names =
+      rule instanceof CSSStyleRule
+        ? selectorList(rule.selectorText).flatMap((selector) => classOf(selector) ?? [])
+        : [];
 
-    if (name) into.add(name);
+    if (names.length > 0) for (const name of names) into.add(name);
     else if (rule instanceof CSSGroupingRule) collectClasses(rule.cssRules, into);
   }
 };
@@ -38,14 +73,20 @@ const pageClasses = (except: CSSStyleSheet | undefined) => {
   return classes;
 };
 
-/** Deletes the rules for classes the page has, and the groups that leave empty. */
+/**
+ * Deletes the selectors for classes the page has, the rules that leave with none, and the groups
+ * that leave empty.
+ */
 const dropKnown = (group: CSSStyleSheet | CSSGroupingRule, known: Set<string>) => {
   for (let index = group.cssRules.length - 1; index >= 0; index--) {
     const rule = group.cssRules[index];
-    const name = rule && classOf(rule);
 
-    if (name !== undefined && known.has(name)) group.deleteRule(index);
-    else if (rule instanceof CSSGroupingRule && !(rule instanceof CSSStyleRule)) {
+    if (rule instanceof CSSStyleRule) {
+      const kept = unknownSelectors(rule.selectorText, known);
+
+      if (kept.length === 0) group.deleteRule(index);
+      else rule.selectorText = kept.join(', ');
+    } else if (rule instanceof CSSGroupingRule) {
       dropKnown(rule, known);
 
       if (rule.cssRules.length === 0) group.deleteRule(index);

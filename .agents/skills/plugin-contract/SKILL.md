@@ -101,7 +101,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
      plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`
-     (erxes-ui's `Form`).
+     (erxes-ui's `Form`). `recharts` is not shared, since sharing it would add its 145 kB to
+     every web route: erxes-ui's `ChartContainer` takes nothing from recharts, and a plugin's
+     chart from its own copy sizes itself with `responsive`.
 2. Classify it. The packages are prereleases on npm's `v2-next` dist-tag (`0.1.0-v2.N` for the
    contract and SDK, `4.0.0-v2.N` for `@erxes/ui`); this policy holds from each one's first
    stable release.
