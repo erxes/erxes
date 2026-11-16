@@ -28,7 +28,7 @@ export interface UnitRow {
 }
 
 /** Each unit after its parent, siblings by name: the tree read top down. */
-export const treeRows = (units: Unit[]): UnitRow[] => {
+const treeRows = (units: Unit[]): UnitRow[] => {
   const ids = new Set(units.map((unit) => unit.id));
   const children = new Map<string | null, Unit[]>();
 
@@ -52,6 +52,53 @@ export const treeRows = (units: Unit[]): UnitRow[] => {
   walk(null, 0);
 
   return rows;
+};
+
+/** How many units sit directly under each one. */
+export const childCounts = (units: Unit[]) => {
+  const counts = new Map<string, number>();
+
+  for (const unit of units) {
+    if (unit.parentId) counts.set(unit.parentId, (counts.get(unit.parentId) ?? 0) + 1);
+  }
+
+  return counts;
+};
+
+/** A unit's place in its tree, top down: `Head office › Region › Store 1`. */
+export const pathLabel = (unit: Unit, byId: Map<string, Unit>) =>
+  unit.path
+    .split('/')
+    .filter(Boolean)
+    .map((id) => byId.get(id)?.name ?? '')
+    .filter(Boolean)
+    .join(' › ');
+
+/**
+ * The rows the tree shows: under a search, the units whose name or code match and the units
+ * above them; otherwise every unit whose parents are all expanded.
+ */
+export const visibleRows = (units: Unit[], collapsed: Set<string>, search: string) => {
+  const rows = treeRows(units);
+  const term = search.trim().toLowerCase();
+
+  if (term) {
+    const hits = units.filter((unit) =>
+      [unit.name, unit.code ?? ''].some((text) => text.toLowerCase().includes(term)),
+    );
+
+    const shown = new Set(hits.flatMap((unit) => unit.path.split('/').filter(Boolean)));
+
+    return rows.filter(({ unit }) => shown.has(unit.id));
+  }
+
+  return rows.filter(
+    ({ unit }) =>
+      !unit.path
+        .split('/')
+        .filter((id) => id && id !== unit.id)
+        .some((id) => collapsed.has(id)),
+  );
 };
 
 /** Create, change and remove units; each refreshes the lists and reports a failure. */

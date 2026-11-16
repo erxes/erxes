@@ -1,18 +1,9 @@
 import type { UnitKind, UnitType } from '@erxes/core-contract';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import {
-  Badge,
-  Button,
-  Dialog,
-  Input,
-  Label,
-  LookupPicker,
-  Switch,
-  Textarea,
-  useConfirm,
-} from 'erxes-ui';
+import { Badge, Button, Input, Label, LookupPicker, Switch, Textarea, useConfirm } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FormSheet } from '~/components/FormSheet';
 import { useUnitMutations } from './useUnits';
 
 type Draft = Pick<
@@ -93,22 +84,19 @@ const NameFields = ({ draft, set }: { draft: Draft; set: (changes: Partial<Draft
   );
 };
 
-/** Mounted while the dialog is open, so closing it drops what was typed. */
-const TypeForm = ({
-  kind,
+/** The type's fields: name, code, colour, where it may sit, and whether it is in use. */
+const TypeFields = ({
+  draft,
+  set,
   type,
   types,
-  onDone,
 }: {
-  kind: UnitKind;
+  draft: Draft;
+  set: (changes: Partial<Draft>) => void;
   type: UnitType | null;
   types: UnitType[];
-  onDone: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { createType, updateType } = useUnitMutations();
-  const [draft, setDraft] = useState(() => draftOf(type));
-  const set = (changes: Partial<Draft>) => setDraft((current) => ({ ...current, ...changes }));
   const parentsId = useId();
 
   const parents = {
@@ -119,23 +107,15 @@ const TypeForm = ({
     error: null,
   };
 
-  const save = () => {
-    const fields = { ...draft, name: draft.name.trim() };
-    const done = { onSuccess: onDone };
-
-    if (type) updateType.mutate({ id: type.id, ...fields }, done);
-    else createType.mutate({ kind, ...fields }, done);
-  };
-
   return (
-    <div className="space-y-4">
+    <>
       <NameFields draft={draft} set={set} />
       <SwitchRow
         label={t('can-be-root', 'Can be at the top')}
         checked={draft.canBeRoot}
         onChange={(canBeRoot) => set({ canBeRoot })}
       />
-      <div className="space-y-1.5">
+      <div className="flex flex-col gap-1.5">
         <Label htmlFor={parentsId}>{t('allowed-parents', 'Sits under')}</Label>
         <LookupPicker
           lookup={parents}
@@ -153,17 +133,86 @@ const TypeForm = ({
       <Textarea
         aria-label={t('description-field', 'Description')}
         placeholder={t('description-field', 'Description')}
+        rows={3}
         value={draft.description ?? ''}
         onChange={(event) => set({ description: event.target.value || null })}
       />
+    </>
+  );
+};
+
+/** Deletes a type no unit has, after asking. */
+const DeleteType = ({ type, onDeleted }: { type: UnitType; onDeleted: () => void }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { confirm } = useConfirm();
+  const { removeType } = useUnitMutations();
+
+  return (
+    <div className="border-t pt-4">
       <Button
-        className="w-full"
-        disabled={!draft.name.trim() || createType.isPending || updateType.isPending}
-        onClick={save}
+        type="button"
+        variant="outline"
+        onClick={() =>
+          void confirm({
+            message: t('remove-type-confirm', 'Delete the {{name}} type?', { name: type.name }),
+          }).then(() => removeType.mutate({ id: type.id }, { onSuccess: onDeleted }))
+        }
       >
-        {type ? t('save', 'Save') : t('add', 'Add')}
+        <IconTrash />
+        {t('remove-type-button', 'Delete type')}
       </Button>
     </div>
+  );
+};
+
+/** Adds a type of `kind`, or edits `type`, in a side sheet; its rules apply from now on. */
+const TypeSheet = ({
+  kind,
+  type,
+  types,
+  open,
+  onOpenChange,
+}: {
+  kind: UnitKind;
+  type: UnitType | null;
+  types: UnitType[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { createType, updateType } = useUnitMutations();
+  const [draft, setDraft] = useState(() => draftOf(type));
+  const set = (changes: Partial<Draft>) => setDraft((current) => ({ ...current, ...changes }));
+  const done = { onSuccess: () => onOpenChange(false) };
+
+  const save = () => {
+    const fields = { ...draft, name: draft.name.trim() };
+
+    if (!fields.name) return;
+
+    if (type) updateType.mutate({ id: type.id, ...fields }, done);
+    else createType.mutate({ kind, ...fields }, done);
+  };
+
+  return (
+    <FormSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={type ? t('edit-type-title', 'Edit type') : t('add-type', 'Add type')}
+      description={t(
+        'type-hint',
+        'A kind of unit and where it may sit. Units added or moved follow its rules.',
+      )}
+      submitLabel={type ? t('save', 'Save') : t('add', 'Add')}
+      submitting={createType.isPending || updateType.isPending}
+      onSubmit={(event) => {
+        event.preventDefault();
+        save();
+      }}
+    >
+      <TypeFields draft={draft} set={set} type={type} types={types} />
+      {type && <DeleteType type={type} onDeleted={() => onOpenChange(false)} />}
+    </FormSheet>
   );
 };
 
@@ -193,69 +242,46 @@ export const UnitTypes = ({
   canChange: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { confirm } = useConfirm();
-  const { removeType } = useUnitMutations();
-  const [editing, setEditing] = useState<UnitType | 'new' | null>(null);
+  // A new key per opening starts the sheet from the type it opens.
+  const [editing, setEditing] = useState<{ type: UnitType | null; key: number } | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const edit = (type: UnitType | null) => {
+    setEditing((current) => ({ type, key: (current?.key ?? 0) + 1 }));
+    setOpen(true);
+  };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-muted-foreground">{t('types', 'Types')}</span>
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="mr-1 text-xs font-medium text-muted-foreground">{t('types', 'Types')}</span>
       {types.map((type) => (
-        <span key={type.id} className="inline-flex items-center">
-          <button
-            type="button"
-            disabled={!canChange}
-            aria-label={t('edit-type', 'Edit {{name}}', { name: type.name })}
-            onClick={() => setEditing(type)}
-          >
-            <TypeBadge type={type} />
-          </button>
-          {canChange && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              aria-label={t('remove-type', 'Delete {{name}}', { name: type.name })}
-              onClick={() =>
-                void confirm({
-                  message: t('remove-type-confirm', 'Delete the {{name}} type?', {
-                    name: type.name,
-                  }),
-                }).then(() => removeType.mutate({ id: type.id }))
-              }
-            >
-              <IconTrash />
-            </Button>
-          )}
-        </span>
+        <button
+          key={type.id}
+          type="button"
+          disabled={!canChange}
+          className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring enabled:hover:opacity-80"
+          aria-label={t('edit-type', 'Edit {{name}}', { name: type.name })}
+          onClick={() => edit(type)}
+        >
+          <TypeBadge type={type} />
+        </button>
       ))}
       {canChange && (
-        <Button variant="ghost" size="sm" onClick={() => setEditing('new')}>
+        <Button variant="ghost" size="sm" onClick={() => edit(null)}>
           <IconPlus />
           {t('add-type', 'Add type')}
         </Button>
       )}
-      <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
-        <Dialog.Content>
-          <Dialog.HeaderCombined
-            title={
-              editing === 'new' ? t('add-type', 'Add type') : t('edit-type-title', 'Edit type')
-            }
-            description={t(
-              'type-hint',
-              'A kind of unit and where it may sit. Units added or moved follow its rules.',
-            )}
-          />
-          {editing !== null && (
-            <TypeForm
-              kind={kind}
-              type={editing === 'new' ? null : editing}
-              types={types}
-              onDone={() => setEditing(null)}
-            />
-          )}
-        </Dialog.Content>
-      </Dialog>
+      {editing && (
+        <TypeSheet
+          key={editing.key}
+          kind={kind}
+          type={editing.type}
+          types={types}
+          open={open}
+          onOpenChange={setOpen}
+        />
+      )}
     </div>
   );
 };
