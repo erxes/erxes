@@ -63,6 +63,7 @@ describe('QPay driver', () => {
         currency: 'MNT',
         description: 'Order #1',
         callbackUrl: 'https://x/cb',
+        returnUrl: 'https://x/cb&return=1',
       });
 
       expect(calls[0]).toMatchObject({

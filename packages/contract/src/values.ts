@@ -143,11 +143,52 @@ export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
 /**
  * The gateways core can connect, and where each works: the currencies it
- * takes and the countries it serves (empty: any). QPay is Mongolian; global
- * ones (Stripe …) join here as drivers in `@erxes/payment-gateways`.
+ * takes and the countries it serves (empty: any). The drivers are in
+ * `@erxes/payment-gateways`.
  */
+const MONGOLIAN = { currencies: ['MNT'], countries: ['MN'] };
+
 export const PAYMENT_GATEWAYS = {
-  qpay: { currencies: ['MNT'], countries: ['MN'] },
+  qpay: MONGOLIAN,
+  socialpay: MONGOLIAN,
+  monpay: MONGOLIAN,
+  storepay: MONGOLIAN,
+  pocket: MONGOLIAN,
+  toki: MONGOLIAN,
+  golomt: MONGOLIAN,
+  tdb: MONGOLIAN,
+  hipay: MONGOLIAN,
+  stripe: { currencies: [], countries: [] },
+  // developer.paypal.com/api/rest/reference/currency-codes
+  paypal: {
+    currencies: [
+      'AUD',
+      'BRL',
+      'CAD',
+      'CHF',
+      'CNY',
+      'CZK',
+      'DKK',
+      'EUR',
+      'GBP',
+      'HKD',
+      'HUF',
+      'ILS',
+      'JPY',
+      'MXN',
+      'MYR',
+      'NOK',
+      'NZD',
+      'PHP',
+      'PLN',
+      'SEK',
+      'SGD',
+      'THB',
+      'TWD',
+      'USD',
+    ],
+    countries: [],
+  },
   test: { currencies: [], countries: [] },
 } as const satisfies Record<string, { currencies: string[]; countries: string[] }>;
 

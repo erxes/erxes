@@ -6,6 +6,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { GATEWAY_NAMES } from './gatewayNames';
 
 const useSaveFailed = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
@@ -182,7 +183,7 @@ export const GatewayList = ({ gateways }: { gateways: PaymentGateway[] }) => {
       {gateways.map((gateway) => (
         <li key={gateway.id} className="flex items-center gap-3 p-3">
           <span className="font-medium">{gateway.name}</span>
-          <Badge variant="secondary">{gateway.kind}</Badge>
+          <Badge variant="secondary">{GATEWAY_NAMES[gateway.kind]}</Badge>
           {gateway.settings.sandbox === true && (
             <Badge variant="warning">{t('sandbox-badge', 'sandbox')}</Badge>
           )}

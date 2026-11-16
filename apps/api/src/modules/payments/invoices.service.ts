@@ -8,6 +8,7 @@ import {
   sourceOf,
   withOrg,
 } from '@erxes/core-db';
+import { type CreateInvoiceInput, GatewayError } from '@erxes/payment-gateways';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
@@ -15,7 +16,7 @@ import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { getOrganization } from '~/modules/organizations/organizations.service';
-import { driverOf, resolveGateway } from './gateways.service';
+import { driverOf, type GatewayRow, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';
 import {
   callbackSignature,
@@ -53,7 +54,21 @@ interface InvoiceInput {
   lines?: InvoiceLineInput[];
   taxBuyer?: TaxBuyer;
   taxReceipt?: boolean;
+  payerPhone?: string;
+  payerEmail?: string;
+  returnUrl?: string;
 }
+
+/** The gateway's invoice; a refusal (a payer it can't bill, an amount it won't take) is a 400. */
+const openAtGateway = async (gateway: GatewayRow, input: CreateInvoiceInput) => {
+  try {
+    return await driverOf(gateway).createInvoice(input);
+  } catch (error) {
+    if (!(error instanceof GatewayError)) throw error;
+
+    throw fail('GATEWAY_REFUSED', error.message);
+  }
+};
 
 /** What creating an invoice needs before asking the gateway, or the invoice its dedupe key already made. */
 const prepareInvoice = (orgId: string, input: InvoiceInput) =>
@@ -84,12 +99,15 @@ export const createInvoice = async (input: InvoiceInput) => {
 
   const { gateway, id, lines, currency, callbackUrl } = prepared;
 
-  const created = await driverOf(gateway).createInvoice({
+  const created = await openAtGateway(gateway, {
     invoiceId: id,
     amount: input.amount,
     currency,
     description: input.description,
     callbackUrl,
+    returnUrl: `${callbackUrl}&return=1`,
+    payerPhone: input.payerPhone,
+    payerEmail: input.payerEmail,
   });
 
   return withOrg(orgId, async (tx) => {
@@ -105,7 +123,8 @@ export const createInvoice = async (input: InvoiceInput) => {
         currency,
         description: input.description,
         gatewayInvoiceId: created.gatewayInvoiceId,
-        payment: created.payment,
+        // The payer's part and the driver's own state; only the payer's part is shown.
+        payment: { ...created.state, ...created.payment, returnUrl: input.returnUrl },
         expiresAt: sql`now() + make_interval(mins => ${input.expiresInMinutes})`,
         dedupeKey: input.dedupeKey ?? null,
         metadata: input.metadata ?? {},
@@ -162,7 +181,7 @@ export const cancelInvoice = async (id: string) => {
   if (invoice.status !== 'pending') throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
 
   await driverOf(gateway)
-    .cancel(invoice.gatewayInvoiceId ?? '')
+    .cancel(invoice.gatewayInvoiceId ?? '', invoice.amount, invoice.payment)
     .catch((error: unknown) =>
       log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );

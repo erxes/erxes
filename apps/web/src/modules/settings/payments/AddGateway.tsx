@@ -1,5 +1,6 @@
 import {
-  type GatewayConfig,
+  GatewayConfig,
+  gatewayFields,
   gatewayTakes,
   PAYMENT_GATEWAYS,
   PaymentGatewayKind,
@@ -11,17 +12,32 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';
+import { GATEWAY_NAMES } from './gatewayNames';
 
 type Kind = GatewayConfig['kind'];
 
-const QPAY_FIELDS = [
-  { key: 'clientId', label: 'Client ID', type: 'text' },
-  { key: 'clientSecret', label: 'Client secret', type: 'password' },
-  { key: 'invoiceCode', label: 'Invoice code', type: 'text' },
-] as const;
-
-/** A new connection's name until it's changed. */
-const DEFAULT_NAME: Record<Kind, string> = { qpay: 'QPay', test: 'Test' };
+/** What each setting is called on the gateway's merchant portal. */
+const FIELD_LABELS: Record<string, string> = {
+  clientId: 'Client ID',
+  clientSecret: 'Client secret',
+  invoiceCode: 'Invoice code',
+  terminal: 'Terminal',
+  terminalKey: 'Terminal key',
+  username: 'Username',
+  accountId: 'Account ID',
+  storeId: 'Store ID',
+  password: 'Password',
+  appUsername: 'App username',
+  appPassword: 'App password',
+  terminalId: 'Terminal ID',
+  merchantId: 'Merchant ID',
+  checksumKey: 'Checksum key',
+  token: 'Token',
+  apiUrl: 'API address',
+  entityId: 'Entity ID (client_id)',
+  secretKey: 'Secret key',
+  sandbox: 'Sandbox (test environment)',
+};
 
 /** The gateway kinds that take `currency` first; the rest still listed after them. */
 const kindsFor = (currency: string) =>
@@ -43,7 +59,7 @@ const KindOption = ({ kind, currency }: { kind: Kind; currency: string }) => {
   return (
     <span className="flex items-baseline gap-2">
       <span className={gatewayTakes(kind, currency) ? '' : 'text-muted-foreground'}>
-        {kind === 'qpay' ? 'QPay' : t('test-gateway', 'Test (development)')}
+        {kind === 'test' ? t('test-gateway', 'Test (development)') : GATEWAY_NAMES[kind]}
       </span>
       <span className="text-xs text-muted-foreground">{note}</span>
     </span>
@@ -98,6 +114,51 @@ const useAddGateway = (onAdded: () => void) => {
   );
 };
 
+/** The kind's settings, from the contract: text, credentials (password inputs) and switches. */
+const GatewayFields = ({
+  kind,
+  values,
+  onChange,
+}: {
+  kind: Kind;
+  values: Record<string, string | boolean>;
+  onChange: (key: string, value: string | boolean) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
+  const id = useId();
+
+  return gatewayFields(kind).map(({ key, type, optional }) =>
+    type === 'switch' ? (
+      <div key={key} className="flex items-center gap-2 text-sm">
+        <Switch
+          id={`${id}-${key}`}
+          checked={values[key] === true}
+          onCheckedChange={(on) => onChange(key, on)}
+        />
+        <Label htmlFor={`${id}-${key}`} variant="option">
+          {t(`field-${key}`, FIELD_LABELS[key] ?? key)}
+        </Label>
+      </div>
+    ) : (
+      <div key={key} className="space-y-1.5">
+        <Label htmlFor={`${id}-${key}`}>
+          {t(`field-${key}`, FIELD_LABELS[key] ?? key)}
+          {optional && (
+            <span className="text-muted-foreground"> {t('optional', '(optional)')}</span>
+          )}
+        </Label>
+        <Input
+          id={`${id}-${key}`}
+          type={type === 'secret' ? 'password' : 'text'}
+          autoComplete="off"
+          value={typeof values[key] === 'string' ? values[key] : ''}
+          onChange={(event) => onChange(key, event.target.value)}
+        />
+      </div>
+    ),
+  );
+};
+
 /** Mounted while the dialog is open, so closing it clears the credentials. */
 const AddGatewayForm = ({ onAdded }: { onAdded: () => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
@@ -105,18 +166,15 @@ const AddGatewayForm = ({ onAdded }: { onAdded: () => void }) => {
   const { currency } = useSession().organization;
   const [first = 'qpay'] = kindsFor(currency);
   const [kind, setKind] = useState<Kind>(first);
-  const [name, setName] = useState(DEFAULT_NAME[first]);
-
-  const [qpay, setQpay] = useState({
-    clientId: '',
-    clientSecret: '',
-    invoiceCode: '',
-    sandbox: false,
-  });
-
+  const [name, setName] = useState(GATEWAY_NAMES[first]);
+  const [values, setValues] = useState<Record<string, string | boolean>>({});
   const add = useAddGateway(onAdded);
-  const config: GatewayConfig = kind === 'qpay' ? { kind, ...qpay } : { kind };
-  const incomplete = kind === 'qpay' && QPAY_FIELDS.some(({ key }) => !qpay[key]);
+
+  // Empty text is left out, so a setting with a default takes it.
+  const config = GatewayConfig.safeParse({
+    kind,
+    ...Object.fromEntries(Object.entries(values).filter(([, value]) => value !== '')),
+  });
 
   return (
     <div className="space-y-3">
@@ -126,7 +184,8 @@ const AddGatewayForm = ({ onAdded }: { onAdded: () => void }) => {
           value={kind}
           onChange={(next) => {
             setKind(next);
-            setName(DEFAULT_NAME[next]);
+            setName(GATEWAY_NAMES[next]);
+            setValues({});
           }}
         />
       </div>
@@ -134,35 +193,17 @@ const AddGatewayForm = ({ onAdded }: { onAdded: () => void }) => {
         <Label htmlFor={`${id}-name`}>{t('name', 'Name')}</Label>
         <Input id={`${id}-name`} value={name} onChange={(event) => setName(event.target.value)} />
       </div>
-      {kind === 'qpay' && (
-        <>
-          {QPAY_FIELDS.map(({ key, label, type }) => (
-            <div key={key} className="space-y-1.5">
-              <Label htmlFor={`${id}-${key}`}>{t(`qpay-${key}`, label)}</Label>
-              <Input
-                id={`${id}-${key}`}
-                type={type}
-                value={qpay[key]}
-                onChange={(event) => setQpay({ ...qpay, [key]: event.target.value })}
-              />
-            </div>
-          ))}
-          <div className="flex items-center gap-2 text-sm">
-            <Switch
-              id={`${id}-sandbox`}
-              checked={qpay.sandbox}
-              onCheckedChange={(sandbox) => setQpay({ ...qpay, sandbox })}
-            />
-            <Label htmlFor={`${id}-sandbox`} variant="option">
-              {t('sandbox', 'Sandbox (merchant-sandbox.qpay.mn)')}
-            </Label>
-          </div>
-        </>
-      )}
+      <GatewayFields
+        kind={kind}
+        values={values}
+        onChange={(key, value) => setValues({ ...values, [key]: value })}
+      />
       <Button
         className="w-full"
-        disabled={add.isPending || !name || incomplete}
-        onClick={() => add.mutate({ name, config })}
+        disabled={add.isPending || !name || !config.success}
+        onClick={() => {
+          if (config.success) add.mutate({ name, config: config.data });
+        }}
       >
         {add.isPending ? <Spinner size="sm" /> : t('connect', 'Connect')}
       </Button>

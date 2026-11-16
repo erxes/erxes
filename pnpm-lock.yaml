@@ -446,9 +446,16 @@ importers:
 
   packages/payment-gateways:
     dependencies:
+      qrcode:
+        specifier: ^1.5.4
+        version: 1.5.4
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+    devDependencies:
+      '@types/qrcode':
+        specifier: ^1.5.5
+        version: 1.5.6
 
   packages/plugin-sdk:
     dependencies:

@@ -105,6 +105,8 @@ export * from './platform';
 
 export * from './organizations';
 
+export * from './paymentGateways';
+
 export * from './payments';
 
 export * from './ebarimt';

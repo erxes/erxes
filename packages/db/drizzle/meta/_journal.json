@@ -491,6 +491,13 @@
       "when": 1794847932451,
       "tag": "0069_invoice_tax_receipt",
       "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1794850289002,
+      "tag": "0070_payment_gateway_kinds",
+      "breakpoints": true
     }
   ]
 }

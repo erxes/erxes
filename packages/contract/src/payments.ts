@@ -15,22 +15,7 @@ import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { PluginName } from './plugins';
 import { TaxBuyer } from './ebarimt';
-
-/** What each gateway needs (secrets are write-only: never returned). */
-export const GatewayConfig = z.discriminatedUnion('kind', [
-  z.object({
-    kind: z.literal('qpay'),
-    clientId: z.string().trim().min(1).max(200),
-    clientSecret: z.string().trim().min(1).max(500),
-    invoiceCode: z.string().trim().min(1).max(200),
-    /** merchant-sandbox.qpay.mn instead of merchant.qpay.mn */
-    sandbox: z.boolean().default(false),
-  }),
-  /** Development and tests: invoices are paid by calling the test endpoint. */
-  z.object({ kind: z.literal('test') }),
-]);
-
-export type GatewayConfig = z.infer<typeof GatewayConfig>;
+import { GatewayConfig } from './paymentGateways';
 
 export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, createdAt: isoDate })
   .pick({ id: true, kind: true, name: true, status: true, createdAt: true })
@@ -279,6 +264,15 @@ export const paymentsContract = {
         taxBuyer: TaxBuyer.optional(),
         /** False: no tax receipt for it, as for an order that needs none. */
         taxReceipt: z.boolean().default(true),
+        /** The payer's phone: StorePay bills it (required there); SocialPay sends the invoice to it. */
+        payerPhone: z.string().trim().min(6).max(20).optional(),
+        /** The payer's email, prefilled on card pages (Stripe, PayPal). */
+        payerEmail: z.email().max(200).optional(),
+        /** Where card pages (Golomt, TDB, HiPay, Stripe, PayPal) send the payer once done. */
+        returnUrl: z
+          .url({ protocol: /^https?$/ })
+          .max(1000)
+          .optional(),
       }),
     )
     .output(Invoice),

@@ -323,7 +323,21 @@ export const ACTION_FIELD_TYPES = [
 
 // ─── Payments ───────────────────────────────────────────────────────────────
 
-export const PAYMENT_GATEWAY_KINDS = ['qpay', 'test'] as const;
+export const PAYMENT_GATEWAY_KINDS = [
+  'qpay',
+  'socialpay',
+  'monpay',
+  'storepay',
+  'pocket',
+  'toki',
+  'golomt',
+  'tdb',
+  'hipay',
+  'stripe',
+  'paypal',
+  'test',
+] as const;
+
 export const PAYMENT_GATEWAY_STATUSES = ['active', 'disabled'] as const;
 
 /** How a gateway refunds: any part, only the whole payment, or not at all. */

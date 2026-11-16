@@ -1,7 +1,7 @@
 {
   "name": "@erxes/payment-gateways",
   "version": "0.0.0",
-  "description": "Payment gateway drivers (QPay, test) behind one interface: invoices, payment checks, cancellation and refunds",
+  "description": "Payment gateway drivers (QPay, SocialPay, MonPay, StorePay, Pocket, Toki, Golomt, TDB, HiPay, Stripe, PayPal, test) behind one interface: invoices, payment checks, cancellation and refunds",
   "license": "AGPL-3.0-only",
   "type": "module",
   "main": "./src/index.ts",
@@ -10,6 +10,10 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "qrcode": "^1.5.4",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.5"
   }
 }

@@ -8,12 +8,103 @@ export interface QPayConfig {
   sandbox: boolean;
 }
 
+/** SocialPay in-store invoices (Golomt Bank, instore.golomtbank.com). */
+export interface SocialPayConfig {
+  kind: 'socialpay';
+  terminal: string;
+  terminalKey: string;
+}
+
+/** MonPay branch QR purchases (wallet.monpay.mn). */
+export interface MonPayConfig {
+  kind: 'monpay';
+  username: string;
+  accountId: string;
+}
+
+/** StorePay buy-now-pay-later loans (service.storepay.mn); the payer confirms in the app. */
+export interface StorePayConfig {
+  kind: 'storepay';
+  appUsername: string;
+  appPassword: string;
+  username: string;
+  password: string;
+  storeId: string;
+}
+
+/** Pocket (InvesCore) invoices (service.invescore.mn). */
+export interface PocketConfig {
+  kind: 'pocket';
+  clientId: string;
+  clientSecret: string;
+  terminalId: string;
+}
+
+/** Toki merchant QR payment requests (ms-api.toki.mn). */
+export interface TokiConfig {
+  kind: 'toki';
+  merchantId: string;
+  username: string;
+  password: string;
+}
+
+/** Golomt Bank card e-commerce (ecommerce.golomtbank.com). */
+export interface GolomtConfig {
+  kind: 'golomt';
+  checksumKey: string;
+  token: string;
+}
+
+/** TDB (Trade and Development Bank) card e-commerce: a hosted payment page. */
+export interface TdbConfig {
+  kind: 'tdb';
+  username: string;
+  password: string;
+  /** The bank's API address for this merchant (https://www.bankcard.mn:8000 by default). */
+  apiUrl: string;
+}
+
+/** HiPay checkouts (developers.hipay.mn); the API address comes with the merchant account. */
+export interface HiPayConfig {
+  kind: 'hipay';
+  entityId: string;
+  clientSecret: string;
+  apiUrl: string;
+}
+
+/** Stripe Checkout (cards and wallets, any currency Stripe takes). */
+export interface StripeConfig {
+  kind: 'stripe';
+  secretKey: string;
+}
+
+/** PayPal Checkout orders (v2). */
+export interface PayPalConfig {
+  kind: 'paypal';
+  clientId: string;
+  clientSecret: string;
+  /** api-m.sandbox.paypal.com instead of api-m.paypal.com */
+  sandbox: boolean;
+}
+
 /** Development and tests: nothing leaves the server. */
 export interface TestConfig {
   kind: 'test';
 }
 
-export type GatewayConfig = QPayConfig | TestConfig;
+export type GatewayConfig =
+  | QPayConfig
+  | SocialPayConfig
+  | MonPayConfig
+  | StorePayConfig
+  | PocketConfig
+  | TokiConfig
+  | GolomtConfig
+  | TdbConfig
+  | HiPayConfig
+  | StripeConfig
+  | PayPalConfig
+  | TestConfig;
 
 export type GatewayKind = GatewayConfig['kind'];
 
@@ -39,8 +130,21 @@ export interface CreateInvoiceInput {
   /** ISO 4217; core only sends currencies the gateway takes (`PAYMENT_GATEWAYS` in the contract). */
   currency: string;
   description: string;
-  /** Where the gateway tells us something happened (never trusted alone). */
+  /** Where the gateway's server tells us something happened (never trusted alone). */
   callbackUrl: string;
+  /** Where a card page sends the payer when done: core checks, then sends them on. */
+  returnUrl: string;
+  /** The payer's phone: StorePay bills it; SocialPay sends the invoice to it. */
+  payerPhone?: string;
+  /** Prefilled on card pages (Stripe, PayPal). */
+  payerEmail?: string;
+}
+
+export interface CreatedInvoice {
+  gatewayInvoiceId: string;
+  payment: PayerInstructions;
+  /** What the driver needs later (`check`, `refund`); kept with the invoice, never shown. */
+  state?: Record<string, unknown>;
 }
 
 export interface PaymentCheck {
@@ -67,16 +171,14 @@ export interface GatewayDriver {
   readonly refunds: 'partial' | 'full' | 'none';
   /** Checks the credentials (on connecting). */
   verify(): Promise<void>;
-  createInvoice(
-    input: CreateInvoiceInput,
-  ): Promise<{ gatewayInvoiceId: string; payment: PayerInstructions }>;
+  createInvoice(input: CreateInvoiceInput): Promise<CreatedInvoice>;
   /** Asked of the gateway itself: callbacks are never trusted alone. `state` is the invoice's stored `payment`. */
   check(
     gatewayInvoiceId: string,
     amount: number,
     state: Record<string, unknown>,
   ): Promise<PaymentCheck>;
-  cancel(gatewayInvoiceId: string): Promise<void>;
+  cancel(gatewayInvoiceId: string, amount: number, state: Record<string, unknown>): Promise<void>;
   refund(input: RefundInput, state: Record<string, unknown>): Promise<{ refundId: string | null }>;
 }
 
