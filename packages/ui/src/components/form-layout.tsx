@@ -2,6 +2,7 @@ import { IconDeviceFloppy } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { cn } from '../lib/utils';
 import { Button } from './button';
 import { Spinner } from './spinner';
 
@@ -10,18 +11,33 @@ export const FormSection = ({
   title,
   description,
   action,
+  variant = 'default',
   children,
 }: {
   title: ReactNode;
   description?: ReactNode;
   /** A control beside the title, such as a status badge. */
   action?: ReactNode;
+  /** `destructive`: a red card for what can't be undone, such as deleting a team. */
+  variant?: 'default' | 'destructive';
   children: ReactNode;
 }) => (
-  <section className="space-y-4 rounded-lg border bg-background p-5">
+  <section
+    className={cn(
+      'space-y-4 rounded-lg border bg-background p-5',
+      variant === 'destructive' && 'border-destructive/40',
+    )}
+  >
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0 space-y-0.5">
-        <h2 className="text-base font-semibold">{title}</h2>
+        <h2
+          className={cn(
+            'text-base font-semibold',
+            variant === 'destructive' && 'text-(--destructive-text)',
+          )}
+        >
+          {title}
+        </h2>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}

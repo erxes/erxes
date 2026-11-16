@@ -1,4 +1,4 @@
-import { PageContainer, type RecordRef } from 'erxes-ui';
+import { PageContainer, type RecordPageProps } from 'erxes-ui';
 import { RecordSidePanel } from './RecordSidePanel';
 import { useQueryState } from 'nuqs';
 import { useMemo } from 'react';
@@ -14,17 +14,17 @@ import { useSidePanel } from './useSidePanel';
 
 /**
  * A record on its own page: the side panel's record view at full size, core's or a plugin's
- * (erxes-ui's `RecordPage`, which a plugin's `<listPath>/:id` route renders). Related records
- * still open in the side panel beside it.
+ * (erxes-ui's `RecordPage`, which a plugin's `detailPath` route renders). Related records
+ * still open in the side panel beside it. Closing goes to the page's `listPath`, else the type's.
  */
-export const RecordPageView = ({ contentType, contentId }: RecordRef) => {
+export const RecordPageView = ({ contentType, contentId, listPath: pageList }: RecordPageProps) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { openRecord } = useSidePanel();
   const [tab, setTab] = useQueryState('tab');
   const { type } = usePanelRecordType(contentType);
   const pagePathOf = useRecordPagePathOf();
-  const listPath = type?.listPath(pathname) ?? '/';
+  const listPath = pageList ?? type?.listPath(pathname) ?? '/';
   const record = useMemo(() => ({ contentType, contentId }), [contentType, contentId]);
 
   const navigator = useMemo<ISidePanelNavigator>(() => {

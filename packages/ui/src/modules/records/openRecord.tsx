@@ -107,7 +107,16 @@ export const RecordPanelProvider = RecordPanelContext;
  */
 export const useRecordPanel = () => use(RecordPanelContext);
 
-const page = hostComponent<RecordRef>();
+/** A `RecordPage`'s record, and the list it goes back to. */
+export interface RecordPageProps extends RecordRef {
+  /**
+   * The list closing or deleting the record goes back to, e.g. its team's tasks; without it, the
+   * plugin's first page. Pass it once the record is known.
+   */
+  listPath?: string;
+}
+
+const page = hostComponent<RecordPageProps>();
 
 /** Web registers how a record draws on its own page. */
 export const setRecordPage = page.set;
@@ -115,6 +124,6 @@ export const setRecordPage = page.set;
 /**
  * A record on its own page, as core draws a customer's.
  * The record's View at full size, under the page header, with Back to its list. A plugin
- * routes its record type's `listPath/:id` to `<RecordPage contentType="sales:deal" contentId={id} />`.
+ * routes its record type's `detailPath` to `<RecordPage contentType="sales:deal" contentId={id} listPath="/sales/deals" />`.
  */
 export const RecordPage = page.Host;

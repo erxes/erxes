@@ -76,6 +76,8 @@ export const FILTER_FIELD_TYPES = [
   'select',
   'member',
   'tags',
+  'customer',
+  'company',
 ] as const;
 
 /** Where a list filter comes from, for grouping in the picker; `plugin`: a plugin's fields, under its name. */

@@ -284,6 +284,7 @@ export {
 export {
   RecordOpenerProvider,
   RecordPage,
+  type RecordPageProps,
   type RecordPanelControls,
   RecordPanelProvider,
   type RecordRef,

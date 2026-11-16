@@ -41,7 +41,8 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
 - Pages look and behave like core's: follow the `ui-patterns` skill.
 - Lists have core's bar (`src/modules/items/ItemsPage.tsx`): erxes-ui's `ViewBar` with
   `ListFilter`, given the list's fields and, for `member` fields, `members={memberQueries}`
-  (a `tags` query for `tags` fields). It draws the bar itself, in erxes or on its own. Its conditions and search live in the
+  (a `tags` query for `tags` fields, `contacts={contactSearchQueries}` for `customer` and
+  `company` fields). It draws the bar itself, in erxes or on its own. Its conditions and search live in the
   address; `useListFilterParams()` hands them to the list's query, and the API
   applies them with `@erxes/plugin-sdk/filter`'s `compileFilter`, core's own compiler, on a map
   of the same paths to columns (`FILTER_FIELDS` in `api/src/modules/items/items.ts`). No search boxes, toggle
@@ -52,7 +53,8 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   `CONFIG.recordTypes` (`src/config.tsx`) fills its slots, the item's `Title`,
   `Detail` and `New` (`src/modules/items/ItemPanel.tsx`). `useOpenRecord()`
   opens them, and `/__id__/:id` renders erxes-ui's `RecordPage` for the expanded
-  record. A plugin's records of other records' customers are `relationTabs`
+  record; its `listPath` is the list a deleted or closed record goes back to, when
+  that isn't the plugin's first page. A plugin's records of other records' customers are `relationTabs`
   (the `ui-patterns` skill). A settings page is a route of the plugin's
   (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`):
   core links it from its settings sidebar, under the plugin's name. Custom fields
