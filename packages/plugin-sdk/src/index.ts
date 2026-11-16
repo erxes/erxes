@@ -29,6 +29,14 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Branches and departments (scopes `units:read`, `units:write`; subscribe to `core.unit.*`): core's,
+ * shared by plugins. Keep a read-only copy for your own visibility queries and refresh it whenever
+ * a `core.unit.*` event arrives (the event names the unit in `entityId`); bring your old units in
+ * once with `units.import`, which keeps their ids and answers where each one went.
+ *
+ *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
+ *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
+ *
  * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
  * then write their values. Members see them read-only and filter by them; no timeline entry or event.
  *
