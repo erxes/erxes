@@ -21,7 +21,6 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignOutEverywhere } from '~/modules/auth/session';
-import { Section } from './Section';
 import { TwoFactorSection } from './TwoFactorSection';
 
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
@@ -31,7 +30,7 @@ const usePasswordSchema = () => {
 
   return z
     .object({
-      currentPassword: z.string().min(1, t('required', 'Required')),
+      currentPassword: z.string().min(1, t('current-password-required', 'Enter your password')),
       newPassword: z
         .string()
         .regex(
@@ -55,19 +54,23 @@ const PasswordField = ({
   name,
   label,
   autoComplete,
+  hint,
 }: {
   name: keyof PasswordValues;
   label: string;
   autoComplete: string;
+  /** What the password must have, under it until it has an error. */
+  hint?: string;
 }) => (
   <Form.Field
     name={name}
-    render={({ field }) => (
+    render={({ field, fieldState }) => (
       <Form.Item>
-        <Form.Label>{label}</Form.Label>
+        <Form.Label required>{label}</Form.Label>
         <Form.Control>
           <Input {...field} type="password" autoComplete={autoComplete} />
         </Form.Control>
+        {hint && !fieldState.error && <Form.Description>{hint}</Form.Description>}
         <Form.Message />
       </Form.Item>
     )}
@@ -106,13 +109,14 @@ const PasswordForm = () => {
   );
 
   return (
-    <Section
+    <Form.Section
       title={t('password', 'Password')}
       description={t('password-description', 'Use a password you don’t use elsewhere.')}
     >
       <Form {...form}>
         <form
-          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+          className="grid grid-cols-1 items-start gap-4 sm:grid-cols-3"
+          noValidate
           onSubmit={(event) =>
             void form.handleSubmit(({ currentPassword, newPassword }) =>
               change.mutate({ currentPassword, newPassword }),
@@ -128,6 +132,7 @@ const PasswordForm = () => {
             name="newPassword"
             label={t('new-password', 'New password')}
             autoComplete="new-password"
+            hint={t('password-hint', '8 or more characters, with A–Z, a–z and 0–9')}
           />
           <PasswordField
             name="confirm"
@@ -142,7 +147,7 @@ const PasswordForm = () => {
           </div>
         </form>
       </Form>
-    </Section>
+    </Form.Section>
   );
 };
 
@@ -182,7 +187,7 @@ const SignIns = () => {
   const signIns = useQuery(orpc.auth.signIns.queryOptions());
 
   return (
-    <Section
+    <Form.Section
       title={t('sign-ins', 'Recent sign-ins')}
       description={t('sign-ins-description', 'If you don’t recognise one, change your password.')}
     >
@@ -219,7 +224,7 @@ const SignIns = () => {
         )}
       </QueryState>
       <SignOutEverywhere />
-    </Section>
+    </Form.Section>
   );
 };
 

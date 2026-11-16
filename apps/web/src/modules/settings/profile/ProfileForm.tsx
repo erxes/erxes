@@ -5,18 +5,16 @@ import {
   IconBrandGithub,
   IconBrandInstagram,
   IconBrandX,
-  IconDeviceFloppy,
   IconWorld,
   type Icon,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Form, Input, Spinner, Textarea, Upload, useToast } from 'erxes-ui';
+import { DatePicker, Form, Input, Textarea, toIsoDay, Upload, useToast } from 'erxes-ui';
 import type { ReactNode } from 'react';
-import { type UseFormReturn, useForm, useFormContext } from 'react-hook-form';
+import { type RegisterOptions, type UseFormReturn, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { PROFILE_FIELDS, type ProfileValues, patchOf, valuesOf } from './profileValues';
-import { Section } from './Section';
 
 const LINK_ICONS: Record<UserLinkName, Icon> = {
   facebook: IconBrandFacebook,
@@ -27,17 +25,55 @@ const LINK_ICONS: Record<UserLinkName, Icon> = {
   instagram: IconBrandInstagram,
 };
 
+// The shape the API checks; it has the final say.
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type TextName = Exclude<keyof ProfileValues, 'avatarUrl' | 'links'> | `links.${UserLinkName}`;
+
 const TextInput = ({
   name,
   label,
   placeholder,
   type = 'text',
+  autoComplete,
+  rules,
 }: {
-  name: Exclude<keyof ProfileValues, 'avatarUrl' | 'links'> | `links.${UserLinkName}`;
+  name: TextName;
   label: ReactNode;
   placeholder?: string;
-  type?: string;
+  type?: 'text' | 'email' | 'tel' | 'url';
+  autoComplete?: string;
+  /** A field the profile can't be saved without, and what it must look like. */
+  rules?: RegisterOptions<ProfileValues, TextName>;
 }) => {
+  const { control } = useFormContext<ProfileValues>();
+
+  return (
+    <Form.Field
+      control={control}
+      name={name}
+      rules={rules}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label required={Boolean(rules?.required)}>{label}</Form.Label>
+          <Form.Control>
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              type={type}
+              autoComplete={autoComplete}
+              placeholder={placeholder}
+            />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+/** A day (`2024-03-01`), picked from a calendar or typed. */
+const DayInput = ({ name, label }: { name: 'birthDate' | 'workStartedDate'; label: string }) => {
   const { control } = useFormContext<ProfileValues>();
 
   return (
@@ -48,7 +84,11 @@ const TextInput = ({
         <Form.Item>
           <Form.Label>{label}</Form.Label>
           <Form.Control>
-            <Input {...field} value={field.value ?? ''} type={type} placeholder={placeholder} />
+            <DatePicker
+              value={field.value || undefined}
+              placeholder="YYYY/MM/DD"
+              onChange={(date) => field.onChange(date instanceof Date ? toIsoDay(date) : '')}
+            />
           </Form.Control>
           <Form.Message />
         </Form.Item>
@@ -96,7 +136,7 @@ const PictureSection = () => {
   const { control } = useFormContext<ProfileValues>();
 
   return (
-    <Section
+    <Form.Section
       title={t('picture', 'Profile picture')}
       description={t('picture-description', 'Shown next to your name across erxes.')}
     >
@@ -118,7 +158,7 @@ const PictureSection = () => {
           </Upload.Root>
         )}
       />
-    </Section>
+    </Form.Section>
   );
 };
 
@@ -126,24 +166,54 @@ const BasicSection = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
   return (
-    <Section title={t('basic', 'Basic information')}>
+    <Form.Section
+      title={t('basic', 'Basic information')}
+      description={t('basic-description', 'How teammates see and reach you.')}
+    >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <TextInput name="firstName" label={t('first-name', 'First name')} />
-        <TextInput name="middleName" label={t('middle-name', 'Middle name')} />
-        <TextInput name="lastName" label={t('last-name', 'Last name')} />
+        <TextInput
+          name="firstName"
+          label={t('first-name', 'First name')}
+          autoComplete="given-name"
+        />
+        <TextInput
+          name="middleName"
+          label={t('middle-name', 'Middle name')}
+          autoComplete="additional-name"
+        />
+        <TextInput name="lastName" label={t('last-name', 'Last name')} autoComplete="family-name" />
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <TextInput name="shortName" label={t('short-name', 'Short name')} />
-        <TextInput name="username" label={t('username', 'Username')} placeholder="bold.bat" />
-        <TextInput name="email" type="email" label={t('email', 'Email (you sign in with it)')} />
+        <TextInput name="shortName" label={t('short-name', 'Short name')} autoComplete="nickname" />
+        <TextInput
+          name="username"
+          label={t('username', 'Username')}
+          placeholder="bold.bat"
+          autoComplete="username"
+          rules={{ required: t('username-required', 'Enter a username') }}
+        />
+        <TextInput
+          name="email"
+          type="email"
+          label={t('email', 'Email (you sign in with it)')}
+          autoComplete="email"
+          rules={{
+            required: t('email-required', 'Enter your email'),
+            pattern: {
+              value: EMAIL,
+              message: t('email-invalid', 'Enter an email like name@example.com'),
+            },
+          }}
+        />
         <TextInput
           name="phone"
           type="tel"
           label={t('phone', 'Phone')}
           placeholder="+976 9911 2233"
+          autoComplete="tel"
         />
       </div>
-    </Section>
+    </Form.Section>
   );
 };
 
@@ -151,10 +221,10 @@ const MoreSection = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
   return (
-    <Section title={t('more', 'More information')}>
+    <Form.Section title={t('more', 'More information')}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <TextInput name="birthDate" type="date" label={t('birth-date', 'Birth date')} />
-        <TextInput name="workStartedDate" type="date" label={t('work-started', 'Started work')} />
+        <DayInput name="birthDate" label={t('birth-date', 'Birth date')} />
+        <DayInput name="workStartedDate" label={t('work-started', 'Started work')} />
       </div>
       <Form.Field
         name="description"
@@ -172,7 +242,7 @@ const MoreSection = () => {
           </Form.Item>
         )}
       />
-    </Section>
+    </Form.Section>
   );
 };
 
@@ -180,7 +250,7 @@ const LinksSection = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
   return (
-    <Section title={t('links', 'Links')}>
+    <Form.Section title={t('links', 'Links')}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {USER_LINK_NAMES.map((name) => {
           const LinkIcon = LINK_ICONS[name];
@@ -189,9 +259,10 @@ const LinksSection = () => {
             <TextInput
               key={name}
               name={`links.${name}`}
+              type="url"
               label={
                 <span className="flex items-center gap-1.5 capitalize">
-                  <LinkIcon className="size-3.5" />
+                  <LinkIcon className="size-3.5" aria-hidden="true" />
                   {name === 'twitter' ? 'X (Twitter)' : name}
                 </span>
               }
@@ -200,22 +271,22 @@ const LinksSection = () => {
           );
         })}
       </div>
-    </Section>
+    </Form.Section>
   );
 };
 
 /** Picture, names, contact details, about and links: what teammates see. */
 export const ProfileForm = ({ user }: { user: User }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
-  const { toast } = useToast();
   const form = useForm<ProfileValues>({ defaultValues: valuesOf(user) });
   const save = useSaveProfile(user, form);
 
   const submit = form.handleSubmit((values) => {
     const patch = patchOf(valuesOf(user), values);
 
+    // The bar's Save is off until something changed; typing a value back counts as no change.
     if (!Object.keys(patch).length) {
-      toast({ title: t('no-changes', 'Nothing to save') });
+      form.reset(values);
 
       return;
     }
@@ -225,25 +296,12 @@ export const ProfileForm = ({ user }: { user: User }) => {
 
   return (
     <Form {...form}>
-      <form className="flex flex-col gap-4" onSubmit={(event) => void submit(event)}>
+      <form className="flex flex-col gap-4" noValidate onSubmit={(event) => void submit(event)}>
         <PictureSection />
         <BasicSection />
         <MoreSection />
         <LinksSection />
-        <div className="sticky bottom-0 flex justify-end gap-2 border-t bg-background/95 py-3 backdrop-blur">
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={!form.formState.isDirty}
-            onClick={() => form.reset(valuesOf(user))}
-          >
-            {t('discard', 'Discard')}
-          </Button>
-          <Button type="submit" disabled={save.isPending || !form.formState.isDirty}>
-            {save.isPending ? <Spinner size="sm" /> : <IconDeviceFloppy />}
-            {t('save', 'Save profile')}
-          </Button>
-        </div>
+        <Form.SaveBar saving={save.isPending} saveLabel={t('save', 'Save profile')} />
       </form>
     </Form>
   );
