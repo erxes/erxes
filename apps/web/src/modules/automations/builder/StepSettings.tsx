@@ -43,8 +43,21 @@ const ActionInputs = ({
   disabled,
   onChange,
 }: SettingsProps<'action'> & { action: ActionInfo; dataFields: FieldInfo[] }) => {
+  // The inputs that follow `key` (a status follows its pipeline), and the ones that follow those.
+  const dependents = (key: string): string[] =>
+    action.fields
+      .filter((field) => field.dependsOn === key)
+      .flatMap((field) => [field.key, ...dependents(field.key)]);
+
   const setInput = (key: string, value: unknown) =>
-    onChange({ ...step, input: { ...step.input, [key]: value } });
+    onChange({
+      ...step,
+      input: {
+        ...step.input,
+        ...Object.fromEntries(dependents(key).map((dependent) => [dependent, undefined])),
+        [key]: value,
+      },
+    });
 
   return (
     <div className="space-y-4 border-t pt-4">
@@ -73,6 +86,7 @@ const ActionInputs = ({
               {field.required && <span className="text-destructive"> *</span>}
             </FieldLabel>
             <ActionFieldInput
+              action={action}
               field={field}
               subject={subject}
               value={step.input[field.key]}

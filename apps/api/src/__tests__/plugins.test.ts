@@ -1,4 +1,4 @@
-import type { PluginManifest, PluginScope } from '@erxes/core-contract';
+import type { ActionFields, PluginManifest, PluginScope } from '@erxes/core-contract';
 import { plugins } from '@erxes/core-db';
 import { createCoreClient, verifyPluginSession } from '@erxes/plugin-sdk';
 import { eq, sql } from 'drizzle-orm';
@@ -110,15 +110,66 @@ describe('plugin connection (registry, installations, tokens)', () => {
         { type: 'hr.leave.approved', label: 'Leave approved' },
         { type: 'hr.employee.hired', label: 'Employee hired', subject: 'customer' as const },
       ],
+      actions: [
+        {
+          type: 'hr.leave.create',
+          label: 'Create leave',
+          fields: [
+            { key: 'policy', label: 'Policy', type: 'plugin_record', recordType: 'policy' },
+            {
+              key: 'kind',
+              label: 'Kind',
+              type: 'plugin_record',
+              recordType: 'leave-kind',
+              dependsOn: 'policy',
+            },
+          ],
+        },
+      ],
     };
 
     await (await service()).plugins.registerManifest(manifest);
 
     // A plugin event that says what it is about starts automations about that record.
-    const { triggers } = await t.owner().automations.catalog({});
+    const { triggers, actions } = await t.owner().automations.catalog({});
 
     expect(triggers.find((item) => item.type === 'hr.employee.hired')?.subject).toBe('customer');
     expect(triggers.find((item) => item.type === 'hr.leave.approved')?.subject).toBeNull();
+
+    // An action input can pick the plugin's own records, narrowed by another input.
+    expect(actions.find((item) => item.type === 'hr.leave.create')?.fields).toMatchObject([
+      { key: 'policy', type: 'plugin_record', recordType: 'policy' },
+      { key: 'kind', type: 'plugin_record', recordType: 'leave-kind', dependsOn: 'policy' },
+    ]);
+
+    // A record input names its records, and dependsOn names another input without a circle.
+    const withFields = (fields: z.input<typeof ActionFields>) =>
+      service().then((client) =>
+        client.plugins.registerManifest({
+          ...manifest,
+          actions: [{ type: 'hr.leave.create', label: 'Create leave', fields }],
+        }),
+      );
+
+    for (const fields of [
+      [{ key: 'policy', label: 'Policy', type: 'plugin_record' as const }],
+      [{ key: 'note', label: 'Note', type: 'text' as const, recordType: 'policy' }],
+      [
+        {
+          key: 'kind',
+          label: 'Kind',
+          type: 'plugin_record' as const,
+          recordType: 'kind',
+          dependsOn: 'policy',
+        },
+      ],
+      [
+        { key: 'a', label: 'A', type: 'plugin_record' as const, recordType: 'a', dependsOn: 'b' },
+        { key: 'b', label: 'B', type: 'plugin_record' as const, recordType: 'b', dependsOn: 'a' },
+      ],
+    ]) {
+      await expect(withFields(fields)).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+    }
 
     // Granted before (everything), now asked for less: tokens carry only notifications:write.
     const narrow = await tokenFor();

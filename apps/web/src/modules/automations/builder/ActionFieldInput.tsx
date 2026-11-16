@@ -11,6 +11,7 @@ import {
   LeadStageSelect,
   LookupMultiSelect,
   OptionSelect,
+  PluginRecordSelect,
 } from './actionFieldSelects';
 import { Segmented } from './Segmented';
 import { TemplateInput } from './TemplateInput';
@@ -190,6 +191,8 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <CustomFieldSelect {...props} />;
     case 'lead_stage':
       return <LeadStageSelect {...props} />;
+    case 'plugin_record':
+      return <PluginRecordSelect {...props} />;
     case 'select':
       return <OptionSelect {...props} />;
     case 'members':

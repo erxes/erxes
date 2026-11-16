@@ -31,6 +31,14 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   `@erxes/plugin-sdk`, so it exists only if the change commits. Core POSTs it
   to `/api/jobs/<name>`, which `src/server.ts` checks with `verifyCoreJob`, and
   retries until it answers 2xx. A job may run twice: key its effect by `jobId`.
+- An automation action is an entry in the manifest's `actions`; core POSTs
+  each run to `/api/automations/actions/<type>`, checked with `verifyCoreCall`.
+  A field that picks one of the plugin's records is
+  `{ key: 'pipelineId', label: 'Pipeline', type: 'plugin_record', recordType: 'pipeline' }`,
+  and `dependsOn: 'pipelineId'` on another narrows it to that pipeline's. Web
+  fills the list from `GET /api/automations/records/<recordType>?parent=<value>`,
+  sent with the member's session token like `/api/rpc/*`; answer
+  `[{ value, label }]` with the records that member may see.
 - A fact the plugin computes about a customer or company (total spent, last
   order) is a field in the manifest's `fields` (`code`, `contentType`, `label`,
   `type`: number, date, text, select or multiselect). Core shows it read-only

@@ -296,6 +296,7 @@ export const ACTION_FIELD_TYPES = [
   'custom_field',
   'lead_stage',
   'recipients',
+  'plugin_record',
 ] as const;
 
 // ─── Payments ───────────────────────────────────────────────────────────────

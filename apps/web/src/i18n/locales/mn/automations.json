@@ -238,6 +238,7 @@
   "no-custom-fields": "Нэмэлт талбар алга байна.",
   "add-in-properties": "Шинж чанар хэсэгт нэмэх",
   "choose-stage": "Үе шат сонгох",
+  "choose-parent-first": "Эхлээд {{field}} сонгоно уу",
   "choose-members": "Гишүүд сонгох…",
   "choose-tags": "Шошго сонгох…",
   "the-date": "огноо",

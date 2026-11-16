@@ -26,7 +26,12 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      and anything but `{ "allowed": true }` within 5 s is a 403;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
      plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
-     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`);
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`).
+     An action field `{ type: 'plugin_record', recordType, dependsOn? }` (`ActionField` in
+     `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
+     `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
+     member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
+     that depend on it. The route, the query key `parent` and the answer's shape are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set

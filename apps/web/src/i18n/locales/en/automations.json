@@ -238,6 +238,7 @@
   "no-custom-fields": "No custom fields yet.",
   "add-in-properties": "Add one in Properties",
   "choose-stage": "Choose a stage",
+  "choose-parent-first": "Choose {{field}} first",
   "choose-members": "Choose members…",
   "choose-tags": "Choose tags…",
   "the-date": "the date",
