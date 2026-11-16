@@ -1,3 +1,4 @@
+import { DEFAULT_GRANT_ROLES } from '@erxes/core-db/enums';
 import { roles } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -142,6 +143,12 @@ export const ManifestPermissionSet = z.object({
   label: z.string().trim().min(1).max(100),
   description: z.string().trim().max(300).optional(),
   permissions: z.array(PermissionAction).min(1).max(500),
+  /**
+   * Built-in roles that get the set by default: `member` (Owner and Admin have everything
+   * already). Core adds its permissions to the role where the plugin is installed, and adds a
+   * permission the set gains later. It never takes one back, so an owner's changes stay.
+   */
+  defaultRoles: z.array(z.enum(DEFAULT_GRANT_ROLES)).max(1).optional(),
 });
 
 export const PermissionSet = z.object({
