@@ -1,12 +1,14 @@
 import { gql } from '~/gql';
 
 export const ADJUST_DEBT_RATE_QUERY = gql(`
-query AccountingAdjustDebtRates($limit: Int, $cursor: String, $orderBy: JSON, $searchValue: String) {
+query AccountingAdjustDebtRates($limit: Int, $cursor: String, $orderBy: JSON, $searchValue: String, $branchId: String, $departmentId: String) {
   adjustDebtRates(
     limit: $limit
     cursor: $cursor
     orderBy: $orderBy
     searchValue: $searchValue
+    branchId: $branchId
+    departmentId: $departmentId
   ) {
     list {
       _id

@@ -8,7 +8,8 @@ import { AddAdjustDebtRate } from '@/adjustments/debt/components/AdjustDebtRateF
 
 export const AdjustDebtRateTable = () => {
   const { t } = useTranslation('accounting');
-  const { adjustDebtRates, loading, error } = useAdjustDebtRates();
+  const { adjustDebtRates, loading, error, pageInfo, handleFetchMore } =
+    useAdjustDebtRates();
 
   const isEmpty = !loading && !adjustDebtRates?.length;
 
@@ -25,6 +26,12 @@ export const AdjustDebtRateTable = () => {
           <RecordTable.Body>
             <RecordTable.RowList />
             {loading && <RecordTable.RowSkeleton rows={5} />}
+            {!loading && pageInfo?.hasNextPage && (
+              <RecordTable.RowSkeleton
+                rows={4}
+                handleInView={handleFetchMore}
+              />
+            )}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>

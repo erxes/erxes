@@ -42,7 +42,7 @@ export const useAdjustClosingRun = (
     onError: (error: ApolloError) => {
       toast({
         title: t('error'),
-        description: error.message,
+        description: t(error.message, { nsSeparator: false }),
         variant: 'destructive',
       });
       callOptions?.onError?.(error);
@@ -51,7 +51,7 @@ export const useAdjustClosingRun = (
     onCompleted: (data: Data) => {
       toast({
         title: t('success'),
-        description,
+        description: t(description),
       });
       callOptions?.onCompleted?.(data);
     },

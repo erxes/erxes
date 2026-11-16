@@ -8,7 +8,8 @@ import { AddAdjustFundRate } from '@/adjustments/rate/components/AdjustFundRateF
 
 export const AdjustFundRateTable = () => {
   const { t } = useTranslation('accounting');
-  const { adjustFundRates, loading, error } = useAdjustFundRates();
+  const { adjustFundRates, loading, error, pageInfo, handleFetchMore } =
+    useAdjustFundRates();
 
   const isEmpty = !loading && !adjustFundRates?.length;
 
@@ -25,6 +26,12 @@ export const AdjustFundRateTable = () => {
           <RecordTable.Body>
             <RecordTable.RowList />
             {loading && <RecordTable.RowSkeleton rows={5} />}
+            {!loading && pageInfo?.hasNextPage && (
+              <RecordTable.RowSkeleton
+                rows={4}
+                handleInView={handleFetchMore}
+              />
+            )}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
