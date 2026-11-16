@@ -39,9 +39,13 @@ test('a member writes an email broadcast, sends it to a filter and reads its num
   // Sending saves what is typed first.
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(`News ${suffix}`);
   await page.getByRole('textbox', { name: 'Subject' }).fill('Hello {{ firstName | friend }}');
-  await page.getByRole('combobox', { name: 'Message', exact: true }).click();
+  const body = page.getByRole('combobox', { name: 'Message', exact: true });
+
+  await body.click();
   await page.keyboard.type('Hi {first');
+  await expect(body).toHaveAttribute('aria-expanded', 'true');
   await page.getByRole('button', { name: 'First name' }).click();
+  await expect(body).toHaveAttribute('aria-expanded', 'false');
   await page.keyboard.type(', read the news.');
   await expect(page.getByText('Unsaved changes')).toBeVisible();
   await expectAccessible(page);
