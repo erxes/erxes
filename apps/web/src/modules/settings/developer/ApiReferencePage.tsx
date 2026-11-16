@@ -1,32 +1,35 @@
+import { messageOf } from '@erxes/core-contract/client';
 import { IconSourceCode } from '@tabler/icons-react';
-import { PageContainer, PageHeader, Tabs } from 'erxes-ui';
-import { useState } from 'react';
+import { PageContainer, PageHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
-import { type ApiAudience, ApiReferenceView } from './ApiReferenceView';
+import { NotFoundPage } from '~/modules/app/NotFoundPage';
+import { ApiReferencePicker } from './ApiReferencePicker';
+import { type ApiAudience, ApiReferenceView, type ReferenceSource } from './ApiReferenceView';
+import { usePluginReferences } from './pluginReferences';
 
 const isAudience = (value: string): value is ApiAudience =>
   value === 'member' || value === 'customer';
 
 /**
  * Settings › API reference: every endpoint a team member or a customer can call, from
- * core's OpenAPI documents, with a client to try them. Plugins' references have their own
- * pages (`PluginApiReferencePage`).
+ * core's OpenAPI documents, and each installed plugin's own, with a client to try them.
+ * The address names the one shown (`/settings/api-reference/<api>`), so a link opens it.
  */
 export const ApiReferencePage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-reference' });
-  const [audience, setAudience] = useState<ApiAudience>('member');
+  const { api = 'member' } = useParams();
   const navigate = useNavigate();
+  const plugins = usePluginReferences();
+  const references = plugins.data ?? [];
 
-  // Scalar keeps the open operation in the hash; the other reference must start without it.
-  const switchTo = (value: string) => {
-    if (!isAudience(value)) return;
+  const source: ReferenceSource | undefined = isAudience(api)
+    ? { audience: api }
+    : references.find((plugin) => plugin.name === api)?.source;
 
-    void navigate({ hash: '' }, { replace: true });
-    setAudience(value);
-  };
+  if (!source && !plugins.isPending) return <NotFoundPage />;
 
   return (
     <PageContainer>
@@ -43,16 +46,29 @@ export const ApiReferencePage = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          <Tabs value={audience} onValueChange={switchTo}>
-            <Tabs.List>
-              <Tabs.Trigger value="member">{t('member', 'Team member API')}</Tabs.Trigger>
-              <Tabs.Trigger value="customer">{t('customer', 'Customer API')}</Tabs.Trigger>
-            </Tabs.List>
-          </Tabs>
+          {plugins.error && (
+            <span className="text-xs text-destructive">
+              {t('plugins-failed', "Plugins' APIs could not load: {{message}}", {
+                message: messageOf(plugins.error),
+              })}
+            </span>
+          )}
+          <ApiReferencePicker
+            value={api}
+            core={[
+              { value: 'member', label: t('member', 'Team member API') },
+              { value: 'customer', label: t('customer', 'Customer API') },
+            ]}
+            plugins={references.map((plugin) => ({
+              value: plugin.name,
+              label: t('plugin-api', '{{title}} API', { title: plugin.title }),
+            }))}
+            onChange={(value) => void navigate(paths.settings.apiReferenceOf(value))}
+          />
         </PageHeader.End>
       </PageHeader>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <ApiReferenceView source={{ audience }} />
+        {source && <ApiReferenceView key={api} source={source} />}
       </div>
     </PageContainer>
   );

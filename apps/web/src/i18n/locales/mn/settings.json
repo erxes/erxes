@@ -451,7 +451,14 @@
   "api-reference": {
     "title": "API лавлах",
     "member": "Ажилтны API",
-    "customer": "Харилцагчийн API"
+    "customer": "Харилцагчийн API",
+    "plugin-api": "{{title}} API",
+    "pick": "API сонгох",
+    "search": "API хайх",
+    "no-match": "Тохирох API алга",
+    "core": "Үндсэн",
+    "plugins": "Плагинууд",
+    "plugins-failed": "Плагинуудын API ачаалагдсангүй: {{message}}"
   },
   "structure": {
     "removed-successfully": "Амжилттай устгагдлаа!",

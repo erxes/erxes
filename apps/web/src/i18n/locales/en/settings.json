@@ -461,7 +461,14 @@
   "api-reference": {
     "title": "API reference",
     "member": "Team member API",
-    "customer": "Customer API"
+    "customer": "Customer API",
+    "plugin-api": "{{title}} API",
+    "pick": "Choose an API",
+    "search": "Search APIs",
+    "no-match": "No API matches",
+    "core": "Core",
+    "plugins": "Plugins",
+    "plugins-failed": "Plugins' APIs could not load: {{message}}"
   },
   "structure": {
     "removed-successfully": "Removed successfully!",
