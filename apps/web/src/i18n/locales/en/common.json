@@ -108,6 +108,7 @@
     "roles": "Roles",
     "webhooks": "Webhooks",
     "api-reference": "API reference",
+    "plugin-api": "{{title}} API",
     "api-keys": "API keys",
     "payments": "Payments",
     "recycle-bin": "Recycle bin",

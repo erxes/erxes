@@ -29,6 +29,7 @@ import { pluginPropertyTypes } from '~/modules/plugins/pluginProperties';
 import { pluginName, usePluginText } from '~/modules/plugins/pluginText';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { usePlan } from '~/modules/saas/usePlan';
+import { usePluginReferences } from '~/modules/settings/developer/pluginReferences';
 
 interface SettingsPath {
   name: string;
@@ -64,10 +65,11 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
   ];
 };
 
-/** The settings "Developer" group: the API reference, then what sends events out. */
+/** The settings "Developer" group: core's API reference, each plugin's, then what sends events out. */
 const useSettingsDeveloperPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
+  const plugins = usePluginReferences().data ?? [];
 
   return [
     {
@@ -75,6 +77,11 @@ const useSettingsDeveloperPaths = (): SettingsPath[] => {
       to: paths.settings.apiReference,
       icon: IconSourceCode,
     },
+    ...plugins.map((plugin) => ({
+      name: t('plugin-api', '{{title}} API', { title: plugin.title }),
+      to: paths.settings.pluginApi(plugin.name),
+      icon: IconSourceCode,
+    })),
     { name: t('api-keys', 'API keys'), to: paths.settings.apiKeys, icon: IconKey },
     ...(can('webhooks.manage')
       ? [{ name: t('webhooks', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook }]

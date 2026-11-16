@@ -27,6 +27,11 @@ const ApiReferencePage = lazyNamed(
   'ApiReferencePage',
 );
 
+const PluginApiReferencePage = lazyNamed(
+  () => import('./developer/PluginApiReferencePage'),
+  'PluginApiReferencePage',
+);
+
 const ApiKeysPage = lazyNamed(() => import('./developer/ApiKeysPage'), 'ApiKeysPage');
 
 /** Everything under `/settings/*` (mount as `<Route path="settings/*" element={<SettingsRoutes />} />`). */
@@ -40,6 +45,7 @@ export const SettingsRoutes = () => (
       <Route path="audit-log" element={<AuditLogPage />} />
       <Route path="event-delivery" element={<EventDeliveryPage />} />
       <Route path="api-reference" element={<ApiReferencePage />} />
+      <Route path="plugin-api/:plugin" element={<PluginApiReferencePage />} />
       <Route path="api-keys" element={<ApiKeysPage />} />
       <Route path="plugins" element={<PluginsSettingsPage />} />
       <Route path="roles" element={<RolesSettingsPage />} />
