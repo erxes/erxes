@@ -17,6 +17,7 @@ import {
   nextOrder,
   optionCounts,
   fieldById,
+  fieldShown,
   selectFields,
   usageOf,
 } from './fieldRows';
@@ -80,6 +81,7 @@ export const listFields = async (
           eq(fields.contentType, input.contentType),
           input.groupId ? eq(fields.groupId, input.groupId) : undefined,
           input.archived ? archived : active,
+          fieldShown,
         ),
       )
       .orderBy(asc(fields.order), asc(fields.createdAt))

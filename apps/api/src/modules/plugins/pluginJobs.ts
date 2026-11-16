@@ -120,6 +120,39 @@ export const pluginJobSchedules = {
   ],
 };
 
+/**
+ * The organisation just installed the plugin or approved its new scopes: each job marked
+ * `onInstall` runs once, so the plugin backfills what it could not do before (a field's values
+ * before it had `fields:write`). In the approval's transaction, so it exists only if that
+ * commits, with the manifest's retry policy, and deduped per approval.
+ */
+export const queueInstallJobs = async (
+  tx: Db,
+  orgId: string,
+  plugin: string,
+  jobs: StoredPluginManifest['jobs'],
+  approvedAt: Date,
+) => {
+  const onInstall = (jobs ?? []).filter((job) => job.onInstall);
+
+  if (!onInstall.length) return;
+
+  await queue().insert(
+    JOB_QUEUE,
+    onInstall.map((job) => ({
+      data: { orgId, payload: { plugin, name: job.name, payload: {} } },
+      // As core_plugin_job keys one: a job per plugin, organisation, name and approval.
+      singletonKey: `${plugin}:${orgId}:${job.name}:install:${approvedAt.toISOString()}`,
+      ...(job.retry && {
+        retryLimit: job.retry.attempts - 1,
+        retryDelay: job.retry.delay,
+        retryDelayMax: job.retry.maxDelay,
+      }),
+    })),
+    inTransaction(tx),
+  );
+};
+
 /** pg-boss allows letters, digits and `_-./` in a key; plugin names have no `/`. */
 const scheduleKey = (plugin: string, name: string) => `${plugin}/${name}`;
 

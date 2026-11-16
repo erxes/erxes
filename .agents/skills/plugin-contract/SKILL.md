@@ -36,7 +36,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set
      (`syncPluginFields`). The plugin writes their values quietly with `fields.setPluginValues`
-     (scope `fields:write`), and members filter, sort and save views by them; a plugin's
+     (scope `fields:write`), and members filter, sort and save views by them while the
+     plugin is installed there with `fields:write` (`fieldShown`); a job with `onInstall`
+     runs once when an organisation installs the plugin or approves its scopes; a plugin's
      filter fields come with `group: 'plugin'` and its title in `groupLabel`. With `views:read`
      a plugin lists the shared views (`views.list`) and asks which records one matches now
      (`views.matches`). The field shape, the codes `PLUGIN_FIELD` and `VIEW_NOT_SHARED`, and

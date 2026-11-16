@@ -39,10 +39,14 @@ export interface StoredPluginManifest {
   }[];
   /** Events it wants at `<api.url>/events` (patterns: `core.payment.*`). */
   subscriptions?: string[];
-  /** Its jobs, POSTed to `<api.url>/jobs/<name>`; `cron` (UTC) runs one per organisation. */
+  /**
+   * Its jobs, POSTed to `<api.url>/jobs/<name>`; `cron` (UTC) runs one per organisation,
+   * `onInstall` one when an organisation installs the plugin or approves its new scopes.
+   */
   jobs?: {
     name: string;
     cron?: string;
+    onInstall?: boolean;
     retry?: { attempts: number; delay: number; maxDelay: number };
   }[];
   timelines?: { type: string; label: string; permission?: string; recordAccess?: boolean }[];

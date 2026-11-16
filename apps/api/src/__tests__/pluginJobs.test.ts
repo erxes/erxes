@@ -1,8 +1,10 @@
+import type { PluginManifest } from '@erxes/core-contract';
 import { enqueueJob, type JobInput, verifyCoreJob } from '@erxes/plugin-sdk';
 import { sql } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import type { z } from 'zod';
 import { describeError, queue } from '~/modules/jobs/jobs';
 import { pluginRoleSql } from '~/modules/plugins/pluginRole';
 import { adminDb, testDatabaseUrl, useTestDatabase } from './db';
@@ -26,7 +28,9 @@ const failure = (promise: Promise<unknown>) =>
     (error: unknown) => describeError(error),
   );
 
-const JOBS = [
+type Jobs = NonNullable<z.input<typeof PluginManifest>['jobs']>;
+
+const JOBS: Jobs = [
   { name: 'mail.sync', retry: { attempts: 2, delay: 1, maxDelay: 1 } },
   { name: 'sla.check', cron: '*/5 * * * *' },
 ];
@@ -40,7 +44,7 @@ describe('plugin jobs', { timeout: 240_000 }, () => {
   let pool: Pool;
   let plugin: NodePgDatabase;
 
-  const register = async (jobs: typeof JOBS) =>
+  const register = async (jobs: Jobs) =>
     t.client(await t.pluginToken()).plugins.registerManifest({
       title: 'HR',
       version: '2',
@@ -171,6 +175,34 @@ describe('plugin jobs', { timeout: 240_000 }, () => {
       attempts: 2,
       retryLimit: 1,
     });
+  });
+
+  it('runs an onInstall job once when an organisation installs the plugin or approves new scopes', async () => {
+    await register([...JOBS, { name: 'facts.backfill', onInstall: true }]);
+    api.jobs.length = 0;
+
+    const backfills = () =>
+      api.jobs.filter((job) => job.name === 'facts.backfill').map((job) => job.orgId);
+
+    await t.other().plugins.install({ name: 'hr' });
+    await settle();
+    expect(backfills()).toEqual([t.ids.otherOrg]);
+
+    // An owner approving the scopes a newer version asks for: once more.
+    await t.owner().plugins.install({ name: 'hr' });
+    await settle();
+    expect(backfills()).toEqual([t.ids.otherOrg, t.ids.org]);
+
+    // Uninstalled before it ran: nothing to send.
+    await t.other().plugins.uninstall({ name: 'hr' });
+    await t.owner().plugins.install({ name: 'hr' });
+    await t.owner().plugins.uninstall({ name: 'hr' });
+    await settle();
+    expect(backfills()).toEqual([t.ids.otherOrg, t.ids.org]);
+
+    await t.owner().plugins.install({ name: 'hr' });
+    await settle();
+    api.jobs.length = 0;
   });
 
   it('schedules a cron job and fans each occurrence out to every organisation with the plugin', async () => {

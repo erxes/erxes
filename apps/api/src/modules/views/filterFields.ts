@@ -7,8 +7,8 @@ import {
   fields,
   leadStages,
 } from '@erxes/core-db';
-import { asc, eq, ne, sql } from 'drizzle-orm';
-import { pluginTitle } from '~/modules/fields/fieldRows';
+import { and, asc, eq, ne, sql } from 'drizzle-orm';
+import { fieldShown, pluginTitle } from '~/modules/fields/fieldRows';
 import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { productFields } from './productFilterFields';
@@ -166,11 +166,14 @@ const customFields = async (client: Db, recordType: ViewRecordType) => {
     })
     .from(fields)
     .where(
-      recordType === 'product'
-        ? eq(fields.contentType, 'product')
-        : isCompany
-          ? eq(fields.contentType, 'company')
-          : ne(fields.contentType, 'product'),
+      and(
+        recordType === 'product'
+          ? eq(fields.contentType, 'product')
+          : isCompany
+            ? eq(fields.contentType, 'company')
+            : ne(fields.contentType, 'product'),
+        fieldShown,
+      ),
     )
     .orderBy(asc(fields.order));
 

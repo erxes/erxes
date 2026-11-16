@@ -1,4 +1,11 @@
-import { type FieldContentType, type Db, fieldGroups, fields, plugins } from '@erxes/core-db';
+import {
+  type FieldContentType,
+  type Db,
+  fieldGroups,
+  fields,
+  pluginInstallations,
+  plugins,
+} from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, isNotNull, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -19,6 +26,16 @@ export const hasOptions = (type: FieldType) => OPTION_TYPES.includes(type);
 export const pluginTitle = sql<
   string | null
 >`(select ${plugins.manifest} ->> 'title' from ${plugins} where ${plugins.name} = ${fields.plugin})`;
+
+/**
+ * Members' fields, and a plugin's while it is installed here and may write their values: a field
+ * the plugin can't fill (not approved, or uninstalled) would only ever show empty.
+ */
+export const fieldShown = sql<boolean>`(${fields.plugin} is null or exists (
+  select 1 from ${pluginInstallations}
+  where ${pluginInstallations.plugin} = ${fields.plugin}
+    and ${pluginInstallations.status} = 'active'
+    and 'fields:write' = any(${pluginInstallations.grantedScopes})))`;
 
 /** Fields as the API answers them: a field archives with its group. */
 export const selectFields = (client: Db) =>

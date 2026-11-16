@@ -26,7 +26,7 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   run on core's own `core_publish_event` (`src/test/core-calls.sql`): assert an
   event by reading `core_events` in `withOrg`, and an audit entry in `core_audit_logs`.
 - Background work is a job in `src/jobs.ts`, which the manifest declares
-  (`jobs`, with an optional `cron` in UTC and `retry`). Queue one inside the
+  (`jobs`, with an optional `cron` in UTC, `onInstall` and `retry`). Queue one inside the
   change that needs it, `enqueueJob(context.tx, { orgId, name, payload })` from
   `@erxes/plugin-sdk`, so it exists only if the change commits. Core POSTs it
   to `/api/jobs/<name>`, which `src/server.ts` checks with `verifyCoreJob`, and
@@ -45,7 +45,10 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   and members filter and save views by it. Write values with
   `core.forOrg(orgId).fields.setPluginValues({ contentType, values })` (scope
   `fields:write`, up to 500, `value: null` clears) after the change commits; it
-  adds nothing to the timeline and sends no event.
+  adds nothing to the timeline and sends no event. Members see the fields only
+  while the plugin has `fields:write` there, so fill the values that existed
+  before in a job with `onInstall: true`: core runs it once when an
+  organisation installs the plugin or approves its new scopes.
 - A segment (a price list's audience, a campaign's) is a shared view members
   build in core. Store its id; `views.list({ recordType })` lists the shared
   ones and `views.matches({ viewId, recordIds })` says which records it
