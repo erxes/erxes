@@ -158,6 +158,30 @@ export const TaskPanelActivity = ({ taskId }: { taskId: string }) => {
   );
 };
 
+// A task's side-panel views.
+const TaskPanel = ({
+  taskId,
+  view,
+}: {
+  taskId: string;
+  view: IRecordPanelProps['view'];
+}) => {
+  switch (view) {
+    case 'new':
+      return <TaskPanelNew />;
+    case 'title':
+      return <TaskPanelTitle taskId={taskId} />;
+    case 'actions':
+      return <TaskPanelActions taskId={taskId} />;
+    case 'properties':
+      return <TaskPanelProperties taskId={taskId} />;
+    case 'activity':
+      return <TaskPanelActivity taskId={taskId} />;
+    default:
+      return <TaskPanelDetail taskId={taskId} />;
+  }
+};
+
 // Operation records drawn in the app's side panel (`widgets.recordPanels`).
 export const RecordPanel = ({
   contentType,
@@ -166,53 +190,26 @@ export const RecordPanel = ({
 }: IRecordPanelProps) => {
   const { t } = useTranslation('operation');
 
-  if (contentType === PROJECT_CONNECTION_CONTENT_TYPE) {
-    if (view === 'title') return t('connect-project', 'Connect project');
-    return view === 'new' ? <ProjectConnectionPanel /> : null;
+  switch (contentType) {
+    case PROJECT_CONNECTION_CONTENT_TYPE:
+      if (view === 'title') return t('connect-project', 'Connect project');
+      return view === 'new' ? <ProjectConnectionPanel /> : null;
+    case TASK_CONNECTION_CONTENT_TYPE:
+      if (view === 'title') return t('connect-task', 'Connect task');
+      return view === 'new' ? <TaskConnectionPanel /> : null;
+    case TRIAGE_CONTENT_TYPE:
+      return <TriagePanel triageId={contentId} view={view} />;
+    case PROJECT_CONTENT_TYPE:
+      return (
+        <ProjectPanel
+          contentType={contentType}
+          contentId={contentId}
+          view={view}
+        />
+      );
+    case TASK_CONTENT_TYPE:
+      return <TaskPanel taskId={contentId} view={view} />;
+    default:
+      return null;
   }
-
-  if (contentType === TASK_CONNECTION_CONTENT_TYPE) {
-    if (view === 'title') return t('connect-task', 'Connect task');
-    return view === 'new' ? <TaskConnectionPanel /> : null;
-  }
-
-  if (contentType === TRIAGE_CONTENT_TYPE) {
-    return <TriagePanel triageId={contentId} view={view} />;
-  }
-
-  if (contentType === PROJECT_CONTENT_TYPE) {
-    return (
-      <ProjectPanel
-        contentType={contentType}
-        contentId={contentId}
-        view={view}
-      />
-    );
-  }
-
-  if (contentType !== TASK_CONTENT_TYPE) {
-    return null;
-  }
-
-  if (view === 'new') {
-    return <TaskPanelNew />;
-  }
-
-  if (view === 'title') {
-    return <TaskPanelTitle taskId={contentId} />;
-  }
-
-  if (view === 'actions') {
-    return <TaskPanelActions taskId={contentId} />;
-  }
-
-  if (view === 'properties') {
-    return <TaskPanelProperties taskId={contentId} />;
-  }
-
-  if (view === 'activity') {
-    return <TaskPanelActivity taskId={contentId} />;
-  }
-
-  return <TaskPanelDetail taskId={contentId} />;
 };

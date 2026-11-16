@@ -89,9 +89,9 @@ export const ContactConnectionPicker = ({
       </Command>
       <div className="flex items-center justify-between border-t p-3">
         {connecting ? (
-          <p role="status" className="text-xs text-muted-foreground">
+          <output className="text-xs text-muted-foreground">
             {labels.connecting}
-          </p>
+          </output>
         ) : (
           <span />
         )}

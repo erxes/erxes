@@ -28,61 +28,79 @@ export const ProjectPanelTitle = ({ project }: { project: IProjectDetail }) => {
   );
 };
 
-export const ProjectPanel = ({ contentId, view }: IRecordPanelProps) => {
+// Loading failed or the project is gone; offers Retry after an error.
+const ProjectPanelUnavailable = ({
+  error,
+  onRetry,
+}: {
+  error?: Error;
+  onRetry: () => void;
+}) => {
   const { t } = useTranslation('operation');
+  return (
+    <Empty role={error ? 'alert' : undefined} className="flex-1">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconInfoCircle />
+        </Empty.Media>
+        <Empty.Title>
+          {error
+            ? t('failed-to-load-project', 'Failed to load project')
+            : t('project-not-found', 'Project not found')}
+        </Empty.Title>
+        <Empty.Description>
+          {error?.message ||
+            t(
+              'project-no-longer-available',
+              'This project may have been removed or is no longer available.',
+            )}
+        </Empty.Description>
+      </Empty.Header>
+      {error && (
+        <Empty.Content>
+          <Button variant="secondary" onClick={onRetry}>
+            {t('retry', 'Retry')}
+          </Button>
+        </Empty.Content>
+      )}
+    </Empty>
+  );
+};
+
+const ProjectPanelTitleView = ({
+  project,
+  loading,
+}: {
+  project?: IProjectDetail | null;
+  loading: boolean;
+}) => {
+  const { t } = useTranslation('operation');
+  if (loading && !project) return <Skeleton className="h-4 w-32" />;
+  if (!project) return t('project', 'Project');
+  return <ProjectPanelTitle project={project} />;
+};
+
+export const ProjectPanel = ({ contentId, view }: IRecordPanelProps) => {
   const { project, loading, error, refetch } = useGetProject(
     view === 'new' ? undefined : contentId,
   );
 
   if (view === 'new') return <ProjectPanelNew />;
-
-  if (view === 'title') {
-    if (loading && !project) return <Skeleton className="h-4 w-32" />;
-    if (!project) return t('project', 'Project');
-    return <ProjectPanelTitle project={project} />;
-  }
-
+  if (view === 'title')
+    return <ProjectPanelTitleView project={project} loading={loading} />;
   if (view === 'actions')
     return project ? <ProjectPanelActions project={project} /> : null;
   if (loading && !project) return <Spinner containerClassName="py-12" />;
-  if (!project) {
+  if (!project)
     return (
-      <Empty role={error ? 'alert' : undefined} className="flex-1">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconInfoCircle />
-          </Empty.Media>
-          <Empty.Title>
-            {error
-              ? t('failed-to-load-project', 'Failed to load project')
-              : t('project-not-found', 'Project not found')}
-          </Empty.Title>
-          <Empty.Description>
-            {error?.message ||
-              t(
-                'project-no-longer-available',
-                'This project may have been removed or is no longer available.',
-              )}
-          </Empty.Description>
-        </Empty.Header>
-        {error && (
-          <Empty.Content>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                void refetch().catch(() => undefined);
-              }}
-            >
-              {t('retry', 'Retry')}
-            </Button>
-          </Empty.Content>
-        )}
-      </Empty>
+      <ProjectPanelUnavailable
+        error={error}
+        onRetry={() => {
+          void refetch().catch(() => undefined);
+        }}
+      />
     );
-  }
-
   if (view === 'properties') return <ProjectProperties project={project} />;
-
   if (view === 'activity')
     return (
       <ActivityList
@@ -92,6 +110,5 @@ export const ProjectPanel = ({ contentId, view }: IRecordPanelProps) => {
         inPanel
       />
     );
-
   return <ProjectPanelDetail key={contentId} project={project} />;
 };
