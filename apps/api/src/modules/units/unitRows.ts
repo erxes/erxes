@@ -11,7 +11,7 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 const unitColumns = {
   ...getTableColumns(orgUnits),
   memberIds: sql<string[]>`coalesce((
-    select array_agg(${orgUnitMembers.userId} order by ${orgUnitMembers.userId})
+    select array_agg(${orgUnitMembers.userId} order by ${orgUnitMembers.userId} collate "C")
     from ${orgUnitMembers} where ${orgUnitMembers.unitId} = ${orgUnits.id}
   ), '{}')`.as('member_ids'),
 };
