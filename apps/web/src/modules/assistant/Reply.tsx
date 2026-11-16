@@ -52,7 +52,7 @@ const COMPONENTS: Components = { a: ReplyLink, table: ReplyTable, th: ReplyTh, t
 
 export const Reply = ({ text, streaming }: { text: string; streaming: boolean }) => (
   <Streamdown
-    className="flex min-w-0 flex-col gap-2.5 space-y-0 text-sm leading-relaxed break-words"
+    className="flex min-w-0 flex-col gap-2.5 space-y-0 text-sm leading-relaxed break-words [&_h1]:text-base [&_h1]:font-semibold [&_h2]:text-base [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_h4]:text-sm [&_h1,&_h2,&_h3]:mt-2"
     mode={streaming ? 'streaming' : 'static'}
     isAnimating={streaming}
     controls={{ table: false, code: true, mermaid: false }}

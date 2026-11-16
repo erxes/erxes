@@ -102,8 +102,8 @@
   "steps-failed_one": "· {{count}} failed",
   "steps-failed_other": "· {{count}} failed",
   "step": {
-    "search": "Searched the API for “{{query}}”",
-    "search-any": "Searched the API",
+    "search": "Looked up “{{query}}”",
+    "search-any": "Looked up what it can do",
     "waiting": "Waiting for your approval: {{name}}",
     "failed": "Could not: {{name}}",
     "declined": "You declined: {{name}}",

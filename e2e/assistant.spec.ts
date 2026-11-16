@@ -73,8 +73,8 @@ test('closing a tab keeps the conversation; deleting asks first', async ({ page 
 
   const history = page.getByRole('dialog', { name: 'Conversations' });
 
-  await history.getByRole('searchbox', { name: 'Search conversations' }).fill(suffix);
-  await history.getByRole('button', { name: title }).click();
+  await history.getByRole('combobox').fill(suffix);
+  await history.getByRole('option', { name: new RegExp(title) }).click();
   await expect(panel.getByText(question)).toBeVisible();
   await expectAccessible(page);
 
@@ -105,15 +105,16 @@ test('a reply links each customer it lists, and the page it opens is sent as con
   await expect(panel.getByText('leads with')).toBeVisible();
   await expect(panel.getByRole('tab', { selected: true })).toHaveText('Top customers this quarter');
 
-  const chip = panel.getByRole('table').getByRole('link').first();
-  const name = (await chip.textContent())?.trim() ?? '';
+  const chip = panel.getByRole('table').getByRole('button').first();
+  const name = (await chip.getAttribute('title')) ?? '';
 
   expect(name).not.toBe('');
-  await expect(chip).toHaveAttribute('href', /^\/contacts\/customers\/[\w-]+$/);
   await expectAccessible(page);
 
   await chip.click();
-  await expect(page).toHaveURL(/\/contacts\/customers\/[\w-]+$/);
+  await expect(page).toHaveURL(
+    /panel=%2Fdetail%2Fcustomer%2F[\w-]+|panel=\/detail\/customer\/[\w-]+/,
+  );
 
   const context = panel.getByText(`Viewing${name}`);
 
@@ -149,12 +150,14 @@ test('a member mentions a record with @ and sees it linked in the message', asyn
   await expect(message).toHaveValue(`Tell me about @${label} `);
   await message.press('Enter');
 
-  const links = panel.getByRole('link', { name: label });
+  const chips = panel.getByRole('button', { name: new RegExp(label) });
 
-  await expect(links).toHaveCount(2);
-  await expect(links.first()).toHaveAttribute('href', `/contacts/customers/${customer.id}`);
+  await expect(chips).toHaveCount(2);
   await expect(panel.getByText('No open deals yet')).toBeVisible();
   await expectAccessible(page);
+
+  await chips.first().click();
+  await expect(page).toHaveURL(new RegExp(customer.id));
 });
 
 test('a member edits the newest question, sees the note, and asks again', async ({ page }) => {
@@ -196,6 +199,6 @@ test('the assistant reads a skill before it plans an automation, and says so', a
 
   await panel.getByRole('button', { name: '2 steps' }).click();
   await expect(panel.getByText('Read the author-automation skill')).toBeVisible();
-  await expect(panel.getByText('Searched the API for “automation triggers”')).toBeVisible();
+  await expect(panel.getByText('Looked up “automation triggers”')).toBeVisible();
   await expectAccessible(page);
 });

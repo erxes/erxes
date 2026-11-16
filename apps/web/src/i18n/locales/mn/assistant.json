@@ -102,8 +102,8 @@
   "steps-failed_one": "· {{count}} амжилтгүй",
   "steps-failed_other": "· {{count}} амжилтгүй",
   "step": {
-    "search": "API-аас “{{query}}” хайсан",
-    "search-any": "API-аас хайсан",
+    "search": "“{{query}}”-г хайсан",
+    "search-any": "Юу хийж болохыг хайсан",
     "waiting": "Таны зөвшөөрлийг хүлээж байна: {{name}}",
     "failed": "Чадсангүй: {{name}}",
     "declined": "Та татгалзсан: {{name}}",

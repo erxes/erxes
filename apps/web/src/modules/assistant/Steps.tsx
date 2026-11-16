@@ -48,8 +48,8 @@ const artifactStepLabel = (step: Step, t: TFunction<'assistant'>) => {
 const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
   if (step.tool === 'searchApi') {
     return step.query
-      ? t('step.search', 'Searched the API for “{{query}}”', { query: step.query })
-      : t('step.search-any', 'Searched the API');
+      ? t('step.search', 'Looked up “{{query}}”', { query: step.query })
+      : t('step.search-any', 'Looked up what it can do');
   }
 
   if (step.tool === 'readAttachment') return fileStepLabel(step, t);
