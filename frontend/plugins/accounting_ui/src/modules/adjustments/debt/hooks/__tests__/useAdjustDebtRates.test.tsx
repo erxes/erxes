@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
-import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { ApolloLink, Observable } from '@apollo/client';
+import {
+  MockedProvider,
+  MockLink,
+  type MockedResponse,
+} from '@apollo/client/testing';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useAdjustDebtRates } from '@/adjustments/debt/hooks/useAdjustDebtRates';
 import { ADJUST_DEBT_RATE_QUERY } from '@/adjustments/debt/graphql/adjustDebtRateQueries';
@@ -82,10 +87,46 @@ const filtered = {
 
 const twentyRates = Array.from({ length: 20 }, (_, i) => `debt-${i + 1}`);
 
-const renderList = (url: string, mocks: MockedResponse[]) => {
+const holdPage = (cursor: string) => {
+  let release: () => void = () => undefined;
+  let markSettled: () => void = () => undefined;
+  const released = new Promise<void>((resolve) => {
+    release = () => resolve();
+  });
+  const settled = new Promise<void>((resolve) => {
+    markSettled = () => resolve();
+  });
+  const link = new ApolloLink((operation, forward) =>
+    operation.variables.cursor === cursor
+      ? new Observable((observer) => {
+          released.then(() =>
+            forward(operation).subscribe({
+              next: (value) => observer.next(value),
+              error: (error) => {
+                observer.error(error);
+                markSettled();
+              },
+              complete: () => {
+                observer.complete();
+                markSettled();
+              },
+            }),
+          );
+        })
+      : forward(operation),
+  );
+  return { link, release, settled };
+};
+
+const renderList = (
+  url: string,
+  mocks: MockedResponse[],
+  gate?: ApolloLink,
+) => {
   mockUrl.search = new URL(url, 'https://erxes.test').search;
+  const link = gate && ApolloLink.from([gate, new MockLink(mocks, false)]);
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks} link={link} addTypename={false}>
       {children}
     </MockedProvider>
   );
@@ -291,6 +332,7 @@ describe('debt rate adjustment list', () => {
       { length: 20 },
       (_, i) => `darkhan-${i + 1}`,
     );
+    const oldBranchPage = holdPage('debt-20');
     const { result, rerender } = renderList(
       '/accounting/adjustment/debRate?searchValue=USD&branchId=branch-ub',
       [
@@ -306,7 +348,6 @@ describe('debt rate adjustment list', () => {
             query: ADJUST_DEBT_RATE_QUERY,
             variables: { ...filtered, cursor: 'debt-20' },
           },
-          delay: 200,
           error: new Error('Gateway timeout'),
         },
         {
@@ -324,6 +365,7 @@ describe('debt rate adjustment list', () => {
           error: new Error('Network request failed'),
         },
       ],
+      oldBranchPage.link,
     );
 
     await waitFor(() =>
@@ -346,7 +388,11 @@ describe('debt rate adjustment list', () => {
         'Network request failed',
       ),
     );
-    await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
+    await act(async () => {
+      oldBranchPage.release();
+      await oldBranchPage.settled;
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     expect(result.current.fetchMoreError?.message).toBe(
       'Network request failed',
