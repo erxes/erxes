@@ -15,6 +15,8 @@ interface PluginConfig {
   modules?: { name: string; path: string; icon?: ComponentType<{ className?: string }> }[];
   /** Hides the plugin from people it is not for (e.g. HR: linked employees). */
   checkAccess?: () => Promise<boolean>;
+  /** Mounted once beside the app shell on every page, kept across navigation (a softphone). */
+  floatingWidget?: ComponentType;
 }
 
 export interface LoadedPluginConfig extends PluginConfig {
