@@ -51,15 +51,34 @@ export const useBlockEditor = (args?: {
         ...(field['aria-labelledby'] && !label
           ? { 'aria-labelledby': field['aria-labelledby'] }
           : { 'aria-label': label || defaultPlaceholder }),
-        ...(field['aria-describedby'] && { 'aria-describedby': field['aria-describedby'] }),
-        ...(field['aria-invalid'] && { 'aria-invalid': 'true' }),
-        ...(field['aria-required'] && { 'aria-required': 'true' }),
       },
     },
     uploadFile: uploadFile ?? defaultUploadFile,
     resolveFileUrl: (url) => Promise.resolve(readImage(url)),
     initialContent,
   });
+
+  const describedBy = field['aria-describedby'];
+  const invalid = field['aria-invalid'];
+  const required = field['aria-required'];
+
+  // The row's hint or error, and whether it's invalid, change after the editor is made.
+  useEffect(() => {
+    const element = editor.domElement;
+
+    if (!element) return;
+
+    const state = {
+      'aria-describedby': describedBy,
+      'aria-invalid': invalid ? 'true' : undefined,
+      'aria-required': required ? 'true' : undefined,
+    };
+
+    for (const [name, value] of Object.entries(state)) {
+      if (value) element.setAttribute(name, value);
+      else element.removeAttribute(name);
+    }
+  }, [editor, describedBy, invalid, required]);
 
   useEffect(() => {
     const exportHTML = editor.blocksToHTMLLossy.bind(editor);

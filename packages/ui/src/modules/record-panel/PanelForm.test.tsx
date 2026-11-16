@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act } from 'react';
+import { act, useState } from 'react';
 import { describe, expect, it, vi } from 'vite-plus/test';
 import { Input } from '../../components/input';
 import { setupDomRender } from '../../lib/render-in-dom';
@@ -7,6 +7,22 @@ import { Editor } from '../blocks/components/Editor';
 import { PanelFormLayout, PanelFormRow } from './PanelForm';
 
 const render = setupDomRender();
+
+/** A required editor whose row gets an error when Save is pressed. */
+const Checked = () => {
+  const [error, setError] = useState<string>();
+
+  return (
+    <>
+      <PanelFormRow label="Description" required error={error}>
+        <Editor onChange={() => undefined} />
+      </PanelFormRow>
+      <button type="button" onClick={() => setError('Enter a description')}>
+        Save
+      </button>
+    </>
+  );
+};
 
 const switchRow = (props: { error?: string; hint?: string }) => (
   <PanelFormRow label="Open in a new tab" htmlFor="new-tab" {...props}>
@@ -81,6 +97,28 @@ describe('PanelFormRow', () => {
     );
 
     expect(rules.join('\n')).toContain('Add a description…');
+  });
+
+  it('marks a text editor invalid, described by the error, once the row has one', async () => {
+    const container = render(<Checked />);
+
+    const box = await vi.waitFor(() => {
+      const found = container.querySelector('[role=textbox]');
+
+      if (!found) throw new Error('no editor yet');
+
+      return found;
+    });
+
+    expect(box.getAttribute('aria-required')).toBe('true');
+    expect(box.hasAttribute('aria-invalid')).toBe(false);
+
+    act(() => container.querySelector('button')?.click());
+
+    expect(box.getAttribute('aria-invalid')).toBe('true');
+    expect(document.getElementById(box.getAttribute('aria-describedby') ?? '')?.textContent).toBe(
+      'Enter a description',
+    );
   });
 });
 
