@@ -341,6 +341,22 @@ export const INVOICE_STATUSES = [
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
+// ─── eBarimt (Mongolia's tax receipts) ──────────────────────────────────────
+
+/** Whether paid invoices get receipts: `active`, or `disabled` with the settings kept. */
+export const EBARIMT_STATUSES = ['active', 'disabled'] as const;
+
+/** How PosAPI taxes a line: with VAT, VAT-free, 0% VAT, or left off the receipt. */
+export const EBARIMT_TAX_TYPES = ['VAT_ABLE', 'VAT_FREE', 'VAT_ZERO', 'NOT_SEND'] as const;
+
+/** `put` issues (or replaces) a receipt; `return` cancels one. */
+export const EBARIMT_RECEIPT_KINDS = ['put', 'return'] as const;
+
+export const EBARIMT_RECEIPT_STATUSES = ['pending', 'success', 'failed'] as const;
+
+/** A receipt for a person (B2C) or a company (B2B, with its tax number). */
+export const EBARIMT_BUYER_TYPES = ['B2C_RECEIPT', 'B2B_RECEIPT'] as const;
+
 // ─── Settings ───────────────────────────────────────────────────────────────
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;

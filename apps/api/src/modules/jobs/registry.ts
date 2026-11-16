@@ -2,6 +2,7 @@ import { MAINTENANCE } from '~/lib/maintenance';
 import { auditStreamJob, auditStreamsSchedule } from '~/modules/audit/streamDelivery';
 import { advanceJob, callJob } from '~/modules/automations/engine';
 import { fireJob } from '~/modules/automations/triggers';
+import { ebarimtSyncJob } from '~/modules/ebarimt/sync';
 import { emailJob } from '~/modules/email/email';
 import { CONSUMER_JOBS } from '~/modules/events/consumers';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
@@ -23,6 +24,7 @@ export const JOBS = [
   emailJob,
   smsJob,
   paymentCheckJob,
+  ebarimtSyncJob,
   pluginEventJob,
   pluginJob,
   pluginJobSchedules,

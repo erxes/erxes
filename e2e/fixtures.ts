@@ -75,6 +75,15 @@ export const expectAccessible = async (page: Page) => {
   expect(blocking, `axe on ${page.url()}`).toEqual([]);
 };
 
+/** `expectAccessible` in the light theme, then the dark one, for specs that run in one project. */
+export const expectAccessibleInBothThemes = async (page: Page) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expectAccessible(page);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expectAccessible(page);
+  await page.emulateMedia({ colorScheme: 'light' });
+};
+
 export const test = base.extend<{ api: ReturnType<typeof coreClient> }>({
   api: async ({ page, baseURL }, use) => {
     await use(coreClient(page.request, baseURL));

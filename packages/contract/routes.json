@@ -1635,6 +1635,88 @@
       }
     }
   },
+  "ebarimt": {
+    "settings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/settings"
+        }
+      }
+    },
+    "saveSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/ebarimt/settings"
+        }
+      }
+    },
+    "removeSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/ebarimt/settings"
+        }
+      }
+    },
+    "testConnection": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/settings/test"
+        }
+      }
+    },
+    "receipts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/receipts"
+        }
+      }
+    },
+    "sync": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/invoices/{invoiceId}/sync"
+        }
+      }
+    },
+    "setBuyer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/ebarimt/invoices/{invoiceId}/buyer"
+        }
+      }
+    },
+    "findCompany": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/companies/{no}"
+        }
+      }
+    }
+  },
   "plugins": {
     "token": {
       "~orpc": {

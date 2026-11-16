@@ -9,6 +9,7 @@ import { oneRow } from '~/lib/rows';
 import { coreKey } from '~/lib/secrets';
 import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { queueReceiptSync } from '~/modules/ebarimt/sync';
 import { defineJob } from '~/modules/jobs/jobs';
 import { driverOf } from './gateways.service';
 
@@ -105,6 +106,7 @@ const markPaid = async (
       payload: { ...eventPayload(paid), paidAmount: check.paidAmount, gateway: kind },
     }),
   );
+  await queueReceiptSync(tx, paid);
 
   return paid;
 };

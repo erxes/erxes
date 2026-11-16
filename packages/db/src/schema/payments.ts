@@ -36,6 +36,16 @@ export interface InvoiceLine {
 }
 
 /**
+ * Who a paid invoice's tax receipt is for (eBarimt): a company by its
+ * registration or tax number, or a person by their eBarimt consumer number.
+ * None: a receipt for a person.
+ */
+export interface TaxBuyer {
+  companyNo?: string;
+  consumerNo?: string;
+}
+
+/**
  * An organisation's payment gateway connection (QPay, …). Credentials are
  * sealed (`src/lib/secrets.ts`); the API never returns them.
  */
@@ -93,6 +103,7 @@ export const paymentInvoices = pgTable(
     /** The caller's own data (order lines, room number), returned in events. */
     metadata: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     lines: jsonb().$type<InvoiceLine[]>().default([]).notNull(),
+    taxBuyer: jsonb().$type<TaxBuyer>(),
     /** What the gateway says was paid, and its payment id (for refunds). */
     paidAmount: bigint({ mode: 'number' }),
     gatewayPaymentId: text(),

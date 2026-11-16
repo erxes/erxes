@@ -131,6 +131,8 @@ const Env = z
 
     OUTBOUND_ALLOW_PRIVATE: flag,
 
+    EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
+
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
     SAAS_PLATFORM_TOKEN: text,
@@ -334,6 +336,10 @@ export const config = {
      * (development only: refused in production, against SSRF).
      */
     allowPrivate: env.OUTBOUND_ALLOW_PRIVATE ?? !isProduction,
+  },
+  ebarimt: {
+    /** The tax office's taxpayer lookup (`getTinInfo`, `getInfo`): company receipts check the number there. */
+    taxpayerUrl: env.EBARIMT_TAXPAYER_URL,
   },
   /**
    * SaaS (erxes.io): core reads each organisation's plugins and tiers from

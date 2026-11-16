@@ -14,6 +14,7 @@ import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { PluginName } from './plugins';
+import { TaxBuyer } from './ebarimt';
 
 /** What each gateway needs (secrets are write-only: never returned). */
 export const GatewayConfig = z.discriminatedUnion('kind', [
@@ -87,6 +88,7 @@ export const Invoice = createSelectSchema(paymentInvoices, {
   amount: int,
   metadata: z.record(z.string(), z.unknown()),
   lines: z.array(InvoiceLine),
+  taxBuyer: () => z.object({ companyNo: z.string().optional(), consumerNo: z.string().optional() }),
   paidAmount: int,
   refundedAmount: int,
   payment: z.object({
@@ -114,6 +116,8 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     status: true,
     metadata: true,
     lines: true,
+    /** Who its tax receipt is for (eBarimt); null: a person. */
+    taxBuyer: true,
     /** What the gateway says was paid, and how much of it was given back. */
     paidAmount: true,
     refundedAmount: true,
@@ -269,6 +273,8 @@ export const paymentsContract = {
         dedupeKey: DedupeKey.optional(),
         metadata: InvoiceMetadata.optional(),
         lines: z.array(InvoiceLineInput).max(100).optional(),
+        /** Who the tax receipt is for, where the organisation issues them (eBarimt). */
+        taxBuyer: TaxBuyer.optional(),
       }),
     )
     .output(Invoice),

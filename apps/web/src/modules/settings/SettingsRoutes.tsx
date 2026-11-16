@@ -12,6 +12,7 @@ import { PluginPropertiesSettings } from './properties/PluginPropertiesSettings'
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
 import { PaymentsSettingsPage } from './payments/PaymentsSettingsPage';
+import { IntegrationsSettingsPage } from './integrations/IntegrationsSettingsPage';
 import { PlanPage } from './plan/PlanPage';
 import { RecycleBinPage } from './recycle-bin/RecycleBinPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
@@ -46,6 +47,7 @@ export const SettingsRoutes = () => (
       <Route path="structure" element={<StructurePage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
+      <Route path="integrations" element={<IntegrationsSettingsPage />} />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
       <Route path="plan" element={<PlanPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />

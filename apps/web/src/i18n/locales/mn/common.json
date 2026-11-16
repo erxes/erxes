@@ -122,7 +122,8 @@
     "plan": "Багц",
     "lead-stages": "Үе шатууд",
     "settings": "Тохиргоо",
-    "contacts-settings": "Харилцагчийн тохиргоо"
+    "contacts-settings": "Харилцагчийн тохиргоо",
+    "integrations": "Холболтууд"
   },
   "auth": {
     "welcome": "Тавтай морил",

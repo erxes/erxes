@@ -162,6 +162,11 @@ export const ERRORS = {
   NOT_REFUNDABLE: { status: 409 },
   PARTIAL_NOT_SUPPORTED: { status: 409 },
 
+  // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down.
+  EBARIMT_NOT_SET_UP: { status: 409 },
+  COMPANY_NOT_FOUND: { status: 404 },
+  TAX_OFFICE_UNAVAILABLE: { status: 503 },
+
   // erxes.io: workspaces and sign-in links (saas.http.ts).
   OWNER_REQUIRED: { status: 400 },
   TOKEN_USED: { status: 400 },

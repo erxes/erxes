@@ -1,0 +1,287 @@
+import { once } from 'node:events';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { z } from 'zod';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import { config } from '~/config';
+import { useTestDatabase } from './db';
+import { settle } from './settle';
+import { useTwoOrgs } from './support';
+
+/** What PosAPI received, and the tax office's companies. */
+const fake = {
+  puts: [] as Record<string, unknown>[],
+  deletes: [] as Record<string, unknown>[],
+  refuse: null as string | null,
+  bills: 0,
+};
+
+const Body = z.record(z.string(), z.unknown());
+
+const readBody = async (req: IncomingMessage) => {
+  let raw = '';
+
+  for await (const chunk of req) raw += String(chunk);
+
+  return raw ? Body.parse(JSON.parse(raw)) : {};
+};
+
+const answer = (res: ServerResponse, status: number, body: unknown) => {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(body));
+};
+
+/** A merchant's PosAPI and the tax office's lookup, on one local server. */
+const handle = async (req: IncomingMessage, res: ServerResponse) => {
+  const url = new URL(req.url ?? '/', 'http://local');
+
+  if (url.pathname === '/posapi/rest/info')
+    return answer(res, 200, { version: '3.0', merchants: [] });
+
+  if (url.pathname === '/posapi/rest/receipt' && req.method === 'POST') {
+    fake.puts.push(await readBody(req));
+
+    if (fake.refuse) return answer(res, 200, { status: 'ERROR', message: fake.refuse });
+
+    fake.bills += 1;
+
+    return answer(res, 200, {
+      status: 'SUCCESS',
+      id: `BILL${fake.bills}`,
+      date: '2026-11-17 10:00:00',
+      lottery: `LT${fake.bills}`,
+      qrData: `QR${fake.bills}`,
+    });
+  }
+
+  if (url.pathname === '/posapi/rest/receipt' && req.method === 'DELETE') {
+    fake.deletes.push(await readBody(req));
+
+    return answer(res, 200, {});
+  }
+
+  if (url.pathname === '/tax/getTinInfo') {
+    return url.searchParams.get('regNo') === '1234567'
+      ? answer(res, 200, { status: 200, data: '12345678901' })
+      : answer(res, 200, { status: 400, data: null });
+  }
+
+  if (url.pathname === '/tax/getInfo')
+    return answer(res, 200, { status: 200, data: { name: 'Acme LLC' } });
+
+  return answer(res, 404, {});
+};
+
+const server = createServer((req, res) => {
+  void handle(req, res);
+});
+
+let base = '';
+
+const settings = () => ({
+  posApiUrl: `${base}/posapi`,
+  companyName: 'Acme Shop',
+  merchantTin: '37900846788',
+  districtCode: '3505',
+  posNo: '10001',
+  plugins: ['hr'],
+});
+
+describe('ebarimt', { timeout: 240_000 }, () => {
+  useTestDatabase();
+
+  const t = useTwoOrgs();
+
+  beforeAll(async () => {
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
+
+    const address = server.address();
+
+    base = `http://127.0.0.1:${typeof address === 'object' && address ? address.port : 0}`;
+    config.ebarimt.taxpayerUrl = `${base}/tax`;
+  });
+
+  afterAll(() => server.close());
+
+  const receiptsOf = async (invoiceId: string) =>
+    (await t.owner().ebarimt.receipts({ invoiceId })).data;
+
+  it('is set up by the owner and checked against PosAPI', async () => {
+    expect(await t.owner().ebarimt.settings({})).toBeNull();
+    await expect(t.member().ebarimt.saveSettings(settings())).rejects.toMatchObject({
+      status: 403,
+    });
+    expect(await t.owner().ebarimt.testConnection({ posApiUrl: `${base}/posapi` })).toMatchObject({
+      ok: true,
+      info: { version: '3.0' },
+    });
+
+    config.outbound.allowPrivate = false;
+
+    try {
+      await expect(t.owner().ebarimt.saveSettings(settings())).rejects.toMatchObject({
+        code: 'INVALID_URL',
+      });
+    } finally {
+      config.outbound.allowPrivate = true;
+    }
+
+    expect(await t.owner().ebarimt.saveSettings(settings())).toMatchObject({
+      status: 'active',
+      vatPercent: 10,
+      plugins: ['hr'],
+    });
+    // The other organisation sees none of it.
+    expect(await t.other().ebarimt.settings({})).toBeNull();
+  });
+
+  it('issues a receipt when an invoice is paid, and replaces or returns it on refunds', async () => {
+    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+
+    const books = await t.owner().productCategories.create({ name: 'Books' });
+    const phone = await t.owner().products.create({ kind: 'goods', name: 'Phone', code: 'P1' });
+
+    const book = await t
+      .owner()
+      .products.create({ kind: 'goods', name: 'Book', categoryId: books.id });
+
+    await t.owner().ebarimt.saveSettings({
+      ...settings(),
+      rules: [{ productIds: [], categoryIds: [books.id], taxType: 'VAT_FREE', taxCode: '305' }],
+    });
+
+    const invoice = await t.hr().payments.createInvoice({
+      amount: 130_000,
+      currency: 'MNT',
+      description: 'Order #7',
+      referenceType: 'order',
+      referenceId: 'o7',
+      lines: [
+        { productId: phone.id, quantity: 2, unitPrice: 55_000 },
+        { productId: book.id, quantity: 1, unitPrice: 20_000 },
+      ],
+      taxBuyer: { companyNo: '1234567' },
+    });
+
+    await t.owner().payments.payTestInvoice({ id: invoice.id });
+    await settle();
+
+    const [issued] = await receiptsOf(invoice.id);
+
+    expect(issued).toMatchObject({
+      kind: 'put',
+      status: 'success',
+      buyerType: 'B2B_RECEIPT',
+      customerTin: '12345678901',
+      customerName: 'Acme LLC',
+      totalAmount: 130_000,
+      totalVat: 10_000,
+      billId: 'BILL1',
+      lottery: 'LT1',
+      source: 'hr',
+      referenceId: 'o7',
+    });
+    expect(fake.puts[0]).toMatchObject({
+      type: 'B2B_RECEIPT',
+      customerTin: '12345678901',
+      merchantTin: '37900846788',
+      totalAmount: 1300,
+      totalVAT: 100,
+      receipts: [
+        { taxType: 'VAT_ABLE', totalAmount: 1100, items: [{ name: 'P1 - Phone', qty: 2 }] },
+        { taxType: 'VAT_FREE', totalAmount: 200, items: [{ taxProductCode: '305' }] },
+      ],
+      payments: [{ code: 'PAYMENT_CARD', paidAmount: 1300 }],
+    });
+
+    // A partial refund replaces it with a receipt for what is left.
+    await t.hr().payments.refund({ id: invoice.id, amount: 30_000, reason: 'One book back' });
+    await settle();
+
+    const afterPartial = await receiptsOf(invoice.id);
+
+    expect(afterPartial[0]).toMatchObject({
+      kind: 'put',
+      status: 'success',
+      previousId: issued?.id,
+      totalAmount: 100_000,
+      billId: 'BILL2',
+    });
+    expect(afterPartial[1]?.inactiveAt).not.toBeNull();
+    expect(fake.puts[1]).toMatchObject({ inactiveId: 'BILL1', totalAmount: 1000 });
+
+    // A new buyer: a person by their consumer number; an unknown company is refused.
+    await expect(
+      t.hr().ebarimt.setBuyer({ invoiceId: invoice.id, taxBuyer: { companyNo: '7654321' } }),
+    ).rejects.toMatchObject({ code: 'COMPANY_NOT_FOUND' });
+    await t.hr().ebarimt.setBuyer({ invoiceId: invoice.id, taxBuyer: { consumerNo: '12345678' } });
+    await settle();
+    expect((await receiptsOf(invoice.id))[0]).toMatchObject({
+      buyerType: 'B2C_RECEIPT',
+      consumerNo: '12345678',
+      billId: 'BILL3',
+    });
+
+    // Refunded in full: the receipt is returned.
+    await t.hr().payments.refund({ id: invoice.id, reason: 'Order cancelled' });
+    await settle();
+
+    const [returned, last] = await receiptsOf(invoice.id);
+
+    expect(returned).toMatchObject({ kind: 'return', status: 'success', previousId: last?.id });
+    expect(last?.inactiveAt).not.toBeNull();
+    expect(fake.deletes).toEqual([{ id: 'BILL3', date: '2026-11-17 10:00:00' }]);
+
+    // Plugins see their own invoices' receipts; the other organisation none.
+    expect((await t.hr().ebarimt.receipts({ referenceId: 'o7' })).data).toHaveLength(4);
+    expect((await t.other().ebarimt.receipts({})).data).toEqual([]);
+  });
+
+  it('keeps a refused receipt with its error and sends it again on request', async () => {
+    const paid = async (referenceId: string, currency = 'MNT') => {
+      const invoice = await t.hr().payments.createInvoice({
+        amount: 5_000,
+        currency,
+        description: 'Ticket',
+        referenceType: 'order',
+        referenceId,
+      });
+
+      await t.owner().payments.payTestInvoice({ id: invoice.id });
+
+      return invoice;
+    };
+
+    // Another currency, or a plugin eBarimt isn't on for: no receipt.
+    const dollars = await paid('usd', 'USD');
+
+    await t.owner().ebarimt.saveSettings({ ...settings(), plugins: [] });
+
+    const other = await paid('off');
+
+    await settle();
+    expect(await receiptsOf(dollars.id)).toEqual([]);
+    expect(await receiptsOf(other.id)).toEqual([]);
+
+    await t.owner().ebarimt.saveSettings(settings());
+    fake.refuse = 'Invalid merchant';
+
+    const invoice = await paid('o8');
+
+    await settle();
+    expect(await receiptsOf(invoice.id)).toMatchObject([
+      { status: 'failed', error: 'Invalid merchant', totalAmount: 5_000 },
+    ]);
+
+    fake.refuse = null;
+    await t.owner().ebarimt.sync({ invoiceId: invoice.id });
+    await settle();
+    // The failed try gives way to the one that went through.
+    expect(await receiptsOf(invoice.id)).toMatchObject([{ status: 'success' }]);
+
+    await t.owner().ebarimt.removeSettings({});
+    await expect(t.owner().ebarimt.sync({ invoiceId: invoice.id })).rejects.toMatchObject({
+      code: 'EBARIMT_NOT_SET_UP',
+    });
+  });
+});

@@ -13,6 +13,7 @@ import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { queueReceiptSync } from '~/modules/ebarimt/sync';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { driverOf, type GatewayRow } from './gateways.service';
 import { eventPayload, type InvoiceRow, shownInvoice } from './invoiceState';
@@ -151,6 +152,7 @@ const applyRefund = async (
       method: refund.method,
     },
   });
+  await queueReceiptSync(client, updated);
   await recordAudit(client, {
     action: 'payment.refunded',
     targetType: 'payment_invoice',

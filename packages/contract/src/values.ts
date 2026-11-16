@@ -3,6 +3,8 @@ import {
   AUTOMATION_STATUSES,
   CUSTOMER_SEXES,
   CUSTOMER_STATES,
+  EBARIMT_RECEIPT_STATUSES,
+  EBARIMT_TAX_TYPES,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
@@ -145,6 +147,13 @@ export const gatewayTakes = (kind: PaymentGatewayKind, currency: string) => {
 };
 
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
+
+/** How eBarimt taxes a product's lines (Settings › Integrations › eBarimt). */
+export const EbarimtTaxType = z.enum(EBARIMT_TAX_TYPES);
+
+export type EbarimtTaxType = z.infer<typeof EbarimtTaxType>;
+
+export const EbarimtReceiptStatus = z.enum(EBARIMT_RECEIPT_STATUSES);
 
 // ─── Notifications ──────────────────────────────────────────────────────────
 

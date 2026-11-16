@@ -69,6 +69,7 @@ export const paths = {
     plan: '/settings/plan',
     recycleBin: '/settings/recycle-bin',
     payments: '/settings/payments',
+    integrations: '/settings/integrations',
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',

@@ -56,7 +56,14 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       ? [{ name: t('recycle-bin', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash }]
       : []),
     ...(can('payments.manage')
-      ? [{ name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash }]
+      ? [
+          { name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash },
+          {
+            name: t('integrations', 'Integrations'),
+            to: paths.settings.integrations,
+            icon: IconPlugConnected,
+          },
+        ]
       : []),
     ...(can('audit.view')
       ? [{ name: t('audit-log', 'Audit log'), to: paths.settings.auditLog, icon: IconShieldCheck }]

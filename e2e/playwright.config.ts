@@ -5,6 +5,13 @@ import { OWNER_STATE } from './fixtures';
 const { CI, E2E_BASE_URL } = process.env;
 
 /**
+ * Specs that change an organisation-wide setting (eBarimt) run in the light project only and
+ * check the dark theme themselves (`expectAccessibleInBothThemes`): two runs at once would undo
+ * each other's settings.
+ */
+const ORG_WIDE = ['ebarimt.spec.ts'];
+
+/**
  * Daily flows in Chromium against a running stack on a fresh database. The setup
  * project creates the organisation through the API; every spec reuses its owner session.
  * Each flow runs in the light and the dark theme, so axe checks contrast in both.
@@ -26,6 +33,7 @@ export default defineConfig({
     ...(['light', 'dark'] as const).map((colorScheme) => ({
       name: colorScheme,
       dependencies: ['setup'],
+      ...(colorScheme === 'dark' && { testIgnore: ORG_WIDE }),
       use: { ...devices['Desktop Chrome'], colorScheme, storageState: OWNER_STATE },
     })),
   ],

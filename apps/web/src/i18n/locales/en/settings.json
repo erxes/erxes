@@ -885,6 +885,20 @@
     "refund-status": {
       "succeeded": "Succeeded",
       "failed": "Failed"
+    },
+    "ebarimt": {
+      "queued": "Sending the receipt again",
+      "send-failed": "Could not send",
+      "send-again": "Send again",
+      "returned": "Return",
+      "issued": "Receipt",
+      "bill": "Bill {{billId}} · lottery {{lottery}}",
+      "title": "eBarimt",
+      "status": {
+        "pending": "Sending",
+        "success": "Sent",
+        "failed": "Failed"
+      }
     }
   },
   "recycle-bin": {
@@ -1000,6 +1014,55 @@
       "running": "Running",
       "done": "Done",
       "failed": "Failed"
+    }
+  },
+  "integrations": {
+    "title": "Integrations",
+    "ebarimt": {
+      "plugins": "Issue receipts for invoices of",
+      "no-plugins": "No installed plugin takes payments yet.",
+      "test-ok": "PosAPI answered",
+      "test-failed": "PosAPI did not answer",
+      "test": "Test connection",
+      "saved": "eBarimt settings saved",
+      "save-failed": "Could not save",
+      "save": "Save",
+      "change": "Settings",
+      "set-up-short": "Set up",
+      "edit": "eBarimt settings",
+      "set-up": "Set up eBarimt",
+      "form-description": "Receipts go to your PosAPI 3.0, which reports them to the tax office.",
+      "rule-category": "Pick a category",
+      "rule-tax-type": "Tax",
+      "rule-tax-code": "Tax code",
+      "rule-remove": "Remove rule",
+      "rules": "Tax by product category",
+      "rules-help": "Products in these categories (and those under them) are taxed this way; the rest carry VAT.",
+      "rule-add": "Add a rule",
+      "active": "Send receipts",
+      "remove-confirm": "Remove eBarimt? Issued receipts stay with their invoices.",
+      "remove": "Remove",
+      "on": "On",
+      "off": "Off",
+      "not-set-up": "Not set up",
+      "description": "Mongolian tax receipts. Each paid invoice of the plugins you pick gets a receipt from your PosAPI; refunds return or replace it.",
+      "field": {
+        "posApiUrl": "PosAPI address",
+        "companyName": "Company name",
+        "merchantTin": "Merchant tax number (TIN)",
+        "districtCode": "District code",
+        "posNo": "POS number",
+        "branchNo": "Branch number",
+        "classificationCode": "Product classification code",
+        "vatPercent": "VAT %",
+        "cityTaxPercent": "City tax %"
+      },
+      "tax-type": {
+        "VAT_ABLE": "With VAT",
+        "VAT_FREE": "VAT-free",
+        "VAT_ZERO": "0% VAT",
+        "NOT_SEND": "Left off the receipt"
+      }
     }
   }
 }

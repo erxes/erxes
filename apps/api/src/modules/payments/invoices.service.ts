@@ -1,4 +1,4 @@
-import type { CursorQuery, Invoice, InvoiceLineInput } from '@erxes/core-contract';
+import type { CursorQuery, Invoice, InvoiceLineInput, TaxBuyer } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -51,6 +51,7 @@ interface InvoiceInput {
   dedupeKey?: string;
   metadata?: Record<string, unknown>;
   lines?: InvoiceLineInput[];
+  taxBuyer?: TaxBuyer;
 }
 
 /** What creating an invoice needs before asking the gateway, or the invoice its dedupe key already made. */
@@ -108,6 +109,7 @@ export const createInvoice = async (input: InvoiceInput) => {
         dedupeKey: input.dedupeKey ?? null,
         metadata: input.metadata ?? {},
         lines,
+        taxBuyer: input.taxBuyer ?? null,
       })
       .onConflictDoNothing()
       .returning();

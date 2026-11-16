@@ -55,3 +55,5 @@ export * from './rateLimits';
 export * from './orgUnits';
 
 export * from './apiKeys';
+
+export * from './ebarimt';

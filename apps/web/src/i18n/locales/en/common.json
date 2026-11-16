@@ -114,7 +114,8 @@
     "plan": "Plan",
     "lead-stages": "Lead stages",
     "settings": "Settings",
-    "contacts-settings": "Contacts settings"
+    "contacts-settings": "Contacts settings",
+    "integrations": "Integrations"
   },
   "auth": {
     "welcome": "Welcome",

@@ -13,6 +13,7 @@ import { filesContract } from './files';
 import { notificationsContract } from './notifications';
 import { organizationsContract } from './organizations';
 import { paymentsContract } from './payments';
+import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
 import { rolesContract } from './roles';
@@ -46,6 +47,7 @@ export const coreContract = {
   notifications: notificationsContract,
   organizations: organizationsContract,
   payments: paymentsContract,
+  ebarimt: ebarimtContract,
   plugins: pluginsContract,
   productCategories: productCategoriesContract,
   products: productsContract,
@@ -104,6 +106,8 @@ export * from './platform';
 export * from './organizations';
 
 export * from './payments';
+
+export * from './ebarimt';
 
 export * from './pluginJobs';
 

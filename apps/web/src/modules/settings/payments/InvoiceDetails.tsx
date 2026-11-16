@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
+import { EbarimtReceipts } from './EbarimtReceipts';
 import { STATUS_BADGE } from './invoiceStatus';
 
 const Refunds = ({ invoice }: { invoice: Invoice }) => {
@@ -211,6 +212,7 @@ export const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose
           </pre>
         )}
         <Refunds invoice={invoice} />
+        <EbarimtReceipts invoice={invoice} />
         {can('payments.refund') && invoice.refundable.amount > 0 && (
           <RefundForm invoice={invoice} onDone={onClose} />
         )}

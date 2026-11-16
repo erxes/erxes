@@ -8,6 +8,7 @@ import { notificationsRouter } from '~/modules/notifications/notifications.route
 import { authRouter } from '~/modules/auth/auth.router';
 import { automationsRouter } from '~/modules/automations/automations.router';
 import { paymentsRouter } from '~/modules/payments/payments.router';
+import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
 import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
 import { webhooksRouter } from '~/modules/webhooks/webhooks.router';
 import { trashRouter } from '~/modules/trash/trash.router';
@@ -41,6 +42,7 @@ export const coreRouter = unscoped.router({
   auth: authRouter,
   automations: automationsRouter,
   payments: paymentsRouter,
+  ebarimt: ebarimtRouter,
   productCategories: productCategoriesRouter,
   products: productsRouter,
   webhooks: webhooksRouter,
