@@ -1,3 +1,4 @@
+import { DetailTotalsFooter } from '@/transactions/transaction-form/components/forms/DetailTotalsFooter';
 import { useTranslation } from 'react-i18next';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
@@ -90,6 +91,18 @@ export const FixedAssetForm = ({
                 />
               ))}
             </Table.Body>
+            <DetailTotalsFooter
+              form={form}
+              journalIndex={journalIndex}
+              leadingColumns={5}
+              columns={[
+                'count',
+                null,
+                'amount',
+                'tax',
+                ...(showAdvancedView ? [null, null, null] : []),
+              ]}
+            />
           </Table>
           <ScrollArea.Bar orientation="horizontal" className="z-10" />
         </ScrollArea>
@@ -185,7 +198,9 @@ const FixedAssetTableHeader = ({
         )}
         {showAdvancedView && (
           <>
-            <Table.Head>{t('total-amount')} {t('accumulated-depreciation')}</Table.Head>
+            <Table.Head>
+              {t('total-amount')} {t('accumulated-depreciation')}
+            </Table.Head>
             <Table.Head>{t('branch')}</Table.Head>
             <Table.Head>{t('department')}</Table.Head>
           </>

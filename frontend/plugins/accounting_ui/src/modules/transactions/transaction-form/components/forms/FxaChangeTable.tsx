@@ -1,3 +1,4 @@
+import { DetailTotalsFooter } from '@/transactions/transaction-form/components/forms/DetailTotalsFooter';
 import { FxaAccountMatchingWarning } from '@/transactions/transaction-form/components/forms/FxaAccountMatchingWarning';
 import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -235,6 +236,24 @@ export const FxaChangeTable = ({
               </Table.Row>
             )}
           </Table.Body>
+          <DetailTotalsFooter
+            form={form}
+            journalIndex={index}
+            leadingColumns={2}
+            columns={[null, null, null, 'amount', null]}
+            amount={rows.reduce((sum, { detailIndex }) => {
+              const detail = details[detailIndex];
+              const valuation = valuationMap[detail.fixedAssetId || ''];
+              return (
+                sum +
+                (valuation
+                  ? ((detail.followInfos?.originalCost ?? 0) -
+                      valuation.originalCost) *
+                    valuation.count
+                  : 0)
+              );
+            }, 0)}
+          />
         </Table>
         <ScrollArea.Bar orientation="horizontal" />
       </ScrollArea>
