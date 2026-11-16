@@ -11,7 +11,7 @@ import { enqueueInvoiceCallback } from '~/modules/payment/services/invoiceCallba
  * Called by whoever claimed the paid transition (checkInvoiceAndClaim sets
  * notifyPending: true in the same update). notifyPending is cleared only after
  * both notifications are queued; if anything fails it stays set and the
- * pending-invoice cron calls this again. Both jobs use fixed job ids kept for
+ * invoice re-check worker calls this again. Both jobs use fixed job ids kept for
  * a day, so a repeated call does not notify twice.
  */
 export const notifyPaidInvoice = async (

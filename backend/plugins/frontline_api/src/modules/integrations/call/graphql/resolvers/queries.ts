@@ -5,7 +5,7 @@ import {
   ICallHistoryFilterOptions,
 } from '@/integrations/call/@types/histories';
 import {
-  deriveCallStatusFromLegs,
+  deriveInboxCallStatus,
   selectRelevantCdr,
 } from '@/integrations/call/services/cdrUtils';
 import {
@@ -278,7 +278,7 @@ const callQueries = {
               uniqueid: cdr.uniqueid,
             });
             if (legs.length) {
-              history.callStatus = deriveCallStatusFromLegs(legs);
+              history.callStatus = deriveInboxCallStatus(legs);
             }
           }
           return history;
@@ -299,7 +299,7 @@ const callQueries = {
 
         if (selected) {
           const history = mapCdrToCallHistory(selected);
-          history.callStatus = deriveCallStatusFromLegs(histories);
+          history.callStatus = deriveInboxCallStatus(histories);
           return history;
         }
 

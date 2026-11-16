@@ -112,6 +112,7 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         createdBy
         updatedBy
         tagIds
+        folderId
         # Slim node shape for the card view's flow preview. Never select
         # config, which is the heavy part of a trigger or action.
         triggers { id type icon label actionId }

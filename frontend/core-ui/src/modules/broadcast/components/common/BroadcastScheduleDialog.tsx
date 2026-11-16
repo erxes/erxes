@@ -6,10 +6,8 @@ import {
   isScheduleReady,
   TBroadcastScheduleForm,
 } from '../../utils/scheduleForm';
-import {
-  BroadcastScheduleFields,
-  emptySchedule,
-} from './BroadcastScheduleFields';
+import { emptySchedule } from '../../utils/scheduleDefaults';
+import { BroadcastScheduleFields } from './BroadcastScheduleFields';
 import { useTranslation } from 'react-i18next';
 
 type TBroadcastScheduleDialogProps = {

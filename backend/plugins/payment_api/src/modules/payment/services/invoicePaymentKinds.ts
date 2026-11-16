@@ -124,7 +124,7 @@ export const syncMarkedInvoicePaymentKinds = async (
 
 /**
  * Fills `paymentKinds` on invoices created before the field existed, in
- * batches. Runs from the per-org pending-invoice job; once every invoice has
+ * batches. Runs from the invoice re-check worker, at most hourly per org; once every invoice has
  * the field this is a single indexed lookup that finds nothing.
  */
 export const backfillInvoicePaymentKinds = async (models: IModels) => {

@@ -1,39 +1,26 @@
-import {
-  TWorkflowTemplate,
-  useWorkflowTemplates,
-} from '@/automations/components/builder/hooks/useWorkflowTemplates';
+import { TWorkflowTemplate } from '@/automations/components/builder/hooks/useWorkflowTemplates';
 import { NODE_LIBRARY_GROUP_CLASS } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibraryTabContent';
 import { NodeLibraryRow } from '@/automations/components/builder/sidebar/components/library/NodeLibraryRow';
 import { SidebarNodeLibrarySkeleton } from '@/automations/components/builder/sidebar/components/library/SidebarNodeLibrarySkeleton';
+import {
+  useWorkflowNodeLibraryContent,
+  useWorkflowTemplateRemoveButton,
+} from '@/automations/components/builder/sidebar/hooks/useWorkflowNodeLibraryContent';
 import { AutomationNodeType } from '@/automations/types';
 import { IconTrash } from '@tabler/icons-react';
 import { AlertDialog, Button, Command } from 'erxes-ui';
-import { MouseEvent, PointerEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const WorkflowNodeLibraryContent = () => {
   const { t } = useTranslation('automations');
-  const { templates, loading, insertTemplate, removeTemplate } =
-    useWorkflowTemplates();
-  // The confirm dialog lives OUTSIDE the Command.Item rows: cmdk items select
-  // on pointer events, so a dialog nested inside a row would leak its clicks
-  // into onSelect (inserting the template).
-  const [removeTarget, setRemoveTarget] = useState<TWorkflowTemplate | null>(
-    null,
-  );
-
-  const handleDialogOpenChange = useCallback((open: boolean) => {
-    if (!open) {
-      setRemoveTarget(null);
-    }
-  }, []);
-
-  const handleConfirmRemove = useCallback(() => {
-    if (removeTarget) {
-      removeTemplate(removeTarget._id);
-    }
-    setRemoveTarget(null);
-  }, [removeTarget, removeTemplate]);
+  const {
+    loading,
+    rows,
+    removeTarget,
+    requestRemove,
+    handleDialogOpenChange,
+    handleConfirmRemove,
+  } = useWorkflowNodeLibraryContent();
 
   if (loading) {
     return <SidebarNodeLibrarySkeleton />;
@@ -46,34 +33,17 @@ export const WorkflowNodeLibraryContent = () => {
         heading={t('templates')}
         className={NODE_LIBRARY_GROUP_CLASS}
       >
-        {templates.map((template) => (
+        {rows.map((row) => (
           <NodeLibraryRow
-            key={template._id}
+            key={row.key}
             nodeType={AutomationNodeType.Workflow}
-            item={{
-              type: template._id,
-              label: template.name,
-              description: template.description,
-              icon: 'IconArrowsSplit',
-            }}
-            onSelectNode={() => insertTemplate(template)}
-            onDragStart={(event) => {
-              event.dataTransfer.setData(
-                'application/reactflow/draggingNode',
-                JSON.stringify({
-                  nodeType: AutomationNodeType.Workflow,
-                  automationId: '',
-                  name: template.name,
-                  description: template.description || '',
-                  template,
-                }),
-              );
-              event.dataTransfer.effectAllowed = 'move';
-            }}
+            item={row.item}
+            onSelectNode={row.onSelect}
+            onDragStart={row.onDragStart}
             rightElement={
               <WorkflowTemplateRemoveButton
-                template={template}
-                onRequestRemove={setRemoveTarget}
+                template={row.template}
+                onRequestRemove={requestRemove}
               />
             }
           />
@@ -114,20 +84,10 @@ const WorkflowTemplateRemoveButton = ({
   template: TWorkflowTemplate;
   onRequestRemove: (template: TWorkflowTemplate) => void;
 }) => {
-  // cmdk selects rows on pointer-up, so that must be stopped too — a click
-  // handler alone fires after the row has already handled the pointer event.
-  const handlePointerUp = useCallback(
-    (event: PointerEvent) => event.stopPropagation(),
-    [],
-  );
-
-  const handleClick = useCallback(
-    (event: MouseEvent) => {
-      event.stopPropagation();
-      onRequestRemove(template);
-    },
-    [onRequestRemove, template],
-  );
+  const { handlePointerUp, handleClick } = useWorkflowTemplateRemoveButton({
+    template,
+    onRequestRemove,
+  });
 
   return (
     <Button

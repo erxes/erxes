@@ -206,6 +206,16 @@ import {
   loadAutomationWorkflowTemplateClass,
 } from './modules/automations/db/models/AutomationWorkflowTemplates';
 import {
+  IAutomationFolderDocument,
+  IAutomationFolderModel,
+  loadAutomationFolderClass,
+} from './modules/automations/db/models/AutomationFolders';
+import {
+  IAutomationVersionDocument,
+  IAutomationVersionModel,
+  loadAutomationVersionClass,
+} from './modules/automations/db/models/AutomationVersions';
+import {
   ITemplateInstallationDocument,
   ITemplateInstallationModel,
   loadTemplateInstallationClass,
@@ -462,6 +472,8 @@ export interface IModels {
   NotificationTemplates: INotificationTemplateModel;
   CurrencyRates: ICurrencyRateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
+  AutomationFolders: IAutomationFolderModel;
+  AutomationVersions: IAutomationVersionModel;
   TemplateInstallations: ITemplateInstallationModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -806,6 +818,16 @@ export const loadClasses = (
     'automation_workflow_templates',
     loadAutomationWorkflowTemplateClass(models),
   );
+
+  models.AutomationFolders = db.model<
+    IAutomationFolderDocument,
+    IAutomationFolderModel
+  >('automation_folders', loadAutomationFolderClass(models));
+
+  models.AutomationVersions = db.model<
+    IAutomationVersionDocument,
+    IAutomationVersionModel
+  >('automation_versions', loadAutomationVersionClass(models));
 
   models.TemplateInstallations = db.model<
     ITemplateInstallationDocument,

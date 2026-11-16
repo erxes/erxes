@@ -22,10 +22,8 @@ import { BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY } from '../../../constants';
 import { useBroadcastRunRecipients } from '../../../hooks/useBroadcastRunRecipients';
 import { TBroadcastRecipient } from '../../../types';
 import { recipientReason } from '../../../utils/recipientOutcome';
-import {
-  buildRecipientColumns,
-  recipientDisplayName,
-} from '../recipients/BroadcastRecipientColumns';
+import { recipientDisplayName } from '../../../utils/recipientDisplay';
+import { buildRecipientColumns } from '../recipients/BroadcastRecipientColumns';
 import { BroadcastRecipientEmail } from '../recipients/BroadcastRecipientEmail';
 import { BroadcastRecipientFilter } from '../recipients/BroadcastRecipientFilter';
 import { useTranslation } from 'react-i18next';
@@ -317,12 +315,15 @@ const RecipientRow =
     selected: TBroadcastRecipient | null,
     onSelect: (recipient: TBroadcastRecipient) => void,
   ) =>
-  ({ original, ...props }: React.ComponentProps<typeof RecordTable.Row>) => (
-    <RecordTable.Row
-      {...props}
-      original={original}
-      className="cursor-pointer"
-      onClick={() => onSelect(original)}
-      {...(selected?._id === original?._id ? { 'data-state': 'selected' } : {})}
-    />
-  );
+  ({ original, ...props }: React.ComponentProps<typeof RecordTable.Row>) =>
+    (
+      <RecordTable.Row
+        {...props}
+        original={original}
+        className="cursor-pointer"
+        onClick={() => onSelect(original)}
+        {...(selected?._id === original?._id
+          ? { 'data-state': 'selected' }
+          : {})}
+      />
+    );

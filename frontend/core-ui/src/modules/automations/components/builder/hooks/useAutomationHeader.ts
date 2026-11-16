@@ -101,6 +101,8 @@ export const useAutomationHeader = () => {
         ...generateValues(),
         ...(acknowledgeDuplicate && { acknowledgeDuplicate }),
       },
+      // A save that changed the flow is a new version
+      refetchQueries: ['AutomationVersions'],
       onError: (error) => {
         toast({
           title: 'Something went wrong',

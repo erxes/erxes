@@ -1,21 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
+import {
+  AI_AGENT_MEMORY_DEFAULT_TTL,
+  useAiAgentMemoryFields,
+} from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentMemoryFields';
 import { Form, Input, Select, Switch } from 'erxes-ui';
-import { useFormContext, useWatch } from 'react-hook-form';
 
 export const AiAgentMemoryFields = () => {
   const { t } = useTranslation('automations');
-  const { control } = useFormContext<TAiAgentConfigForm>();
-
-  const readEnabled = useWatch({
-    control,
-    name: 'memory.read.enabled',
-  });
-
-  const writeEnabled = useWatch({
-    control,
-    name: 'memory.write.enabled',
-  });
+  const { control, readEnabled, writeEnabled, asNumber } =
+    useAiAgentMemoryFields();
 
   return (
     <div className="grid gap-4 rounded-md border bg-muted/20 p-4">
@@ -174,10 +167,8 @@ export const AiAgentMemoryFields = () => {
                       type="number"
                       min={5}
                       max={10080}
-                      value={field.value ?? 1440}
-                      onChange={(event) =>
-                        field.onChange(Number(event.target.value))
-                      }
+                      value={field.value ?? AI_AGENT_MEMORY_DEFAULT_TTL}
+                      onChange={asNumber(field.onChange)}
                     />
                   </Form.Control>
                   <Form.Description>

@@ -35,6 +35,7 @@ export interface ISidePanelNavigator {
   back: () => void;
   canGoBack: boolean;
   close: () => void;
+  listPath?: string;
 }
 
 export const SidePanelNavigatorContext =

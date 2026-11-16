@@ -1,18 +1,10 @@
 import { IconChartPie } from '@tabler/icons-react';
 import { cn, Command, Spinner } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { ISegment } from 'ui-modules';
 import {
   CUSTOMER_SEGMENT_TYPE,
   useBroadcastSegmentSelection,
 } from '../../hooks/useBroadcastSegmentSelection';
 import { BroadcastTargetEmpty } from './BroadcastTargetEmpty';
-
-// A segment's name is optional in the segments module, so a row can arrive
-// with nothing to show. Naming it by its id at least leaves something to
-// recognise and click rather than a blank line.
-const segmentLabel = (segment: ISegment, t: (key: string) => string) =>
-  segment.name?.trim() || `${t('untitled')} · ${segment._id.slice(0, 6)}`;
 
 export const BroadcastSegmentStep = ({
   value,
@@ -21,8 +13,7 @@ export const BroadcastSegmentStep = ({
   value: string[];
   onChange: (value: string[]) => void;
 }) => {
-  const { t } = useTranslation('broadcasts');
-  const { segments, loading, error, isSelected, toggle } =
+  const { segments, loading, error, isSelected, toggle, labelOf, isUnnamed } =
     useBroadcastSegmentSelection({ value, onChange });
 
   if (loading) {
@@ -62,11 +53,11 @@ export const BroadcastSegmentStep = ({
             <span
               className={cn(
                 'min-w-0 flex-1 truncate',
-                !segment.name?.trim() && 'text-muted-foreground',
+                isUnnamed(segment) && 'text-muted-foreground',
               )}
-              title={segmentLabel(segment, t)}
+              title={labelOf(segment)}
             >
-              {segmentLabel(segment, t)}
+              {labelOf(segment)}
             </span>
             <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
               {segment.membersCount ?? '—'}

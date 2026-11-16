@@ -1,11 +1,6 @@
-import {
-  IconArrowLeft,
-  IconArrowsRightLeft,
-  IconListCheck,
-} from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
+import { IconArrowsRightLeft, IconListCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { TransactionsGroupForm } from '@/transactions/transaction-form/components/TransactionsGroupForm';
 import { getTransactionReturnPath } from '@/transactions/utils/transactionNavigation';
 import { AccountingLayout } from '@/layout/components/Layout';
@@ -14,9 +9,6 @@ import { AccountingPath } from '@/types/AccountingPath';
 
 export const TransactionPage = () => {
   const { t } = useTranslation('accounting');
-  const { t: tNavigation } = useTranslation('common', {
-    keyPrefix: 'navigation',
-  });
   const [searchParams] = useSearchParams();
   const returnPath = getTransactionReturnPath(searchParams.get('returnTo'));
   const isRecordsReturn = returnPath.split('?')[0] === AccountingPath.Records;
@@ -27,14 +19,7 @@ export const TransactionPage = () => {
         returnLink={returnPath}
         returnText={isRecordsReturn ? t('journal-entries') : t('transactions')}
         icon={isRecordsReturn ? IconListCheck : IconArrowsRightLeft}
-      >
-        <Button variant="outline" asChild>
-          <Link to={returnPath}>
-            <IconArrowLeft />
-            {tNavigation('back')}
-          </Link>
-        </Button>
-      </AccountingHeader>
+      />
       <TransactionsGroupForm />
     </AccountingLayout>
   );

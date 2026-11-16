@@ -3,8 +3,15 @@ import { useAutomationHistoryDetail } from '@/automations/components/builder/his
 import { GET_AUTOMATION_EXECUTION_DETAIL } from '@/automations/components/builder/history/graphql/automationExecutionQueries';
 import { ApolloError, useQuery } from '@apollo/client';
 import { createContext, useContext } from 'react';
+// The version each step ran on, in the order of `actions`; null before any
+// version was kept
+type TExecutionDetail = IAutomationHistory & {
+  actionVersions?: (number | null)[];
+};
+
 type TAutomationExecutionDetailContext = {
   executionDetail?: IAutomationHistory;
+  actionVersions: (number | null)[];
   loading: boolean;
   error?: ApolloError;
   refetch: () => void;
@@ -25,7 +32,7 @@ export const AutomationExecutionDetailProvider = ({
 }) => {
   const { executionId, canGoBack } = useAutomationHistoryDetail();
   const { data, loading, error, refetch } = useQuery<{
-    getAutomationExecutionDetail: IAutomationHistory;
+    getAutomationExecutionDetail: TExecutionDetail;
   }>(GET_AUTOMATION_EXECUTION_DETAIL, {
     variables: {
       executionId,
@@ -45,13 +52,13 @@ export const AutomationExecutionDetailProvider = ({
         errorMessage: 'This execution does not belong to this automation.',
       })
     : error;
+  const isShown = executionDetail?._id === executionId && !wrongAutomation;
+
   return (
     <AutomationExecutionDetailContext.Provider
       value={{
-        executionDetail:
-          executionDetail?._id === executionId && !wrongAutomation
-            ? executionDetail
-            : undefined,
+        executionDetail: isShown ? executionDetail : undefined,
+        actionVersions: (isShown && executionDetail?.actionVersions) || [],
         loading,
         error: selectionError,
         refetch,

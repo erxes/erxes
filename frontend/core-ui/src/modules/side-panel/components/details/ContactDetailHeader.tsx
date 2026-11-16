@@ -3,7 +3,11 @@ import { ContactsPath } from '@/types/paths/ContactsPath';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { createFavoriteBreadcrumb, PageHeader } from 'ui-modules';
+import {
+  createFavoriteBreadcrumb,
+  PageHeader,
+  RecordPageMinimize,
+} from 'ui-modules';
 
 /** A contact page's header: the contact lists' own, with the record's name. */
 export const ContactDetailHeader = ({
@@ -45,11 +49,10 @@ export const ContactDetailHeader = ({
           />
         )}
       </PageHeader.Start>
-      {actions && (
-        <PageHeader.End className="ml-auto min-w-0 max-w-full">
-          {actions}
-        </PageHeader.End>
-      )}
+      <PageHeader.End className="ml-auto min-w-0 max-w-full">
+        {actions}
+        <RecordPageMinimize />
+      </PageHeader.End>
     </PageHeader>
   );
 };

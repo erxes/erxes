@@ -82,6 +82,7 @@ export const DealPipelineProperties = (props: Props) => {
   ) {
     return (
       <FieldsInDetail
+        bare
         fieldContentType={CONTENT_TYPE}
         propertiesData={props.propertiesData}
         mutateHook={props.mutateHook}

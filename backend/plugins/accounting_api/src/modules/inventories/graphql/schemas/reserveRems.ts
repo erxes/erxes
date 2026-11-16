@@ -42,6 +42,7 @@ export const planFilterParams = `
 export const queries = `
   reserveRems(${planFilterParams}, ${paginateParams}): [ReserveRem],
   reserveRemsCount(${planFilterParams}, ${paginateParams}): Int,
+  reserveRemDetail(_id: String!): ReserveRem,
 `;
 
 export const planCreateParams = `
