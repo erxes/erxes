@@ -24,7 +24,10 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
 - The plugin's API goes through `src/orpc.ts`:
   `useQuery(orpc.items.list.queryOptions(...))`,
   `useMutation(orpc.items.create.mutationOptions(...))`. Types come from
-  `api/src/router.ts`; after a mutation, invalidate `orpc.<group>.key()`.
+  `api/src/router.ts`; after a mutation, invalidate `orpc.<group>.key()`. Its query
+  keys start with the plugin's name, because every plugin shares web's query cache:
+  without it, two plugins' `me` procedures answer each other. A key written by hand
+  starts with `PLUGIN` too.
 - Core's API goes through `orpc` from `@erxes/core-contract/client`, the client
   web uses, with the member's own session; import it as `core` beside the
   plugin's `orpc`: `useQuery(core.users.get.queryOptions({ input: { id } }))`.
