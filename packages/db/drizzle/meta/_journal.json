@@ -519,6 +519,13 @@
       "when": 1794854316136,
       "tag": "0073_payment_gateway_wechatpay",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1794855521434,
+      "tag": "0074_product_variants_tags",
+      "breakpoints": true
     }
   ]
 }

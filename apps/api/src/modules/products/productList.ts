@@ -3,6 +3,7 @@ import { caller, type Db, productCategories, products } from '@erxes/core-db';
 import { and, arrayContains, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import { unique } from '~/lib/contacts';
 import { containsPattern, keysetPage } from '~/lib/keyset';
+import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { productColumns } from './productChecks';
 
@@ -11,6 +12,8 @@ interface ProductQuery {
   kind?: ProductKind;
   status: ProductStatus;
   categoryId?: string;
+  parentId?: string;
+  tagIds?: string[];
   plugin?: string;
   all: boolean;
   filter?: string;
@@ -51,6 +54,8 @@ export const listProducts = async (client: Db, query: CursorQuery & ProductQuery
       filter,
       query.kind ? eq(products.kind, query.kind) : undefined,
       query.categoryId ? inCategory(query.categoryId) : undefined,
+      query.parentId ? eq(products.parentId, query.parentId) : undefined,
+      query.tagIds?.length ? hasAnyTag('product', products.id, query.tagIds) : undefined,
       usedBy(query),
       search && query.search
         ? or(

@@ -221,7 +221,8 @@ export const ACCESS = {
   'plugins.session': MEMBER,
   'plugins.signal': { plugin: 'live:write' },
 
-  'tags.list': MEMBER,
+  // Plugins read product tags only (tags.service).
+  'tags.list': { member: 'any', plugin: 'products:read' },
   'tags.create': needs('tags.manage'),
   'tags.update': needs('tags.manage'),
   'tags.remove': needs('tags.delete'),

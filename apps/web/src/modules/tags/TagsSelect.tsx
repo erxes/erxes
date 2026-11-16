@@ -1,4 +1,4 @@
-import type { ContentType, Tag } from '@erxes/core-contract';
+import type { FieldContentType, Tag } from '@erxes/core-contract';
 import { IconPlus, IconTags } from '@tabler/icons-react';
 import {
   Badge,
@@ -23,7 +23,7 @@ import { TAG_COLORS, useTagCreate, useTags } from './useTags';
  */
 
 interface TagsSelectProps {
-  type: ContentType;
+  type: FieldContentType;
   value: string[];
   onValueChange: (tagIds: string[]) => void;
 }
@@ -62,7 +62,7 @@ const TagBadges = ({
   onRemove,
   className,
 }: {
-  type: ContentType;
+  type: FieldContentType;
   ids: string[];
   maxVisible?: number;
   onRemove?: (id: string) => void;
@@ -105,7 +105,7 @@ const CreateTagItem = ({
   name,
   onCreated,
 }: {
-  type: ContentType;
+  type: FieldContentType;
   name: string;
   onCreated: (tag: Tag) => void;
 }) => {

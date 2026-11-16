@@ -1,3 +1,4 @@
+import type { ProductKind } from '@erxes/core-contract';
 import {
   caller,
   type CustomValue,
@@ -9,6 +10,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, ne, type SQL, sql } from 'drizzle-orm';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
+import { tagIdsColumn } from '~/modules/tags/tagLinks';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
@@ -16,10 +18,12 @@ import { unique } from '~/lib/contacts';
 export const productColumns = {
   ...getTableColumns(products),
   customFields: customFieldsColumn('product', products.id),
+  tagIds: tagIdsColumn('product', products.id),
 };
 
 export type ProductRow = typeof products.$inferSelect & {
   customFields: Record<string, CustomValue>;
+  tagIds: string[];
 };
 
 export const findProduct = async (client: Db, id: string): Promise<ProductRow> => {
@@ -133,5 +137,53 @@ export const checkUnique = async (
 
   if (byBarcode) {
     throw fail('TAKEN', 'Another product has this barcode', { field: 'barcode', id: byBarcode });
+  }
+};
+
+/**
+ * 400 INVALID_PRODUCT unless the product may be what it becomes: a variant's
+ * item is an active product of the same kind that is not a variant itself,
+ * and a product with variants is never a variant (one level deep) and keeps
+ * its variants' kind. The caller has locked the product and its item.
+ */
+export const checkVariant = async (
+  client: Db,
+  next: { kind: ProductKind; parentId: string | null },
+  self?: ProductRow,
+) => {
+  if (next.parentId) {
+    const [item] = await client
+      .select({ kind: products.kind, status: products.status, parentId: products.parentId })
+      .from(products)
+      .where(eq(products.id, next.parentId))
+      .limit(1);
+
+    if (!item || item.status !== 'active') {
+      throw fail('INVALID_PRODUCT', 'A variant belongs to an active product');
+    }
+
+    if (item.parentId) {
+      throw fail('INVALID_PRODUCT', 'That product is a variant itself');
+    }
+
+    if (item.kind !== next.kind) {
+      throw fail('INVALID_PRODUCT', 'A variant is the same kind as its product');
+    }
+  }
+
+  if (!self || (next.parentId === null && next.kind === self.kind)) return;
+
+  const [variant] = await client
+    .select({ id: products.id })
+    .from(products)
+    .where(eq(products.parentId, self.id))
+    .limit(1);
+
+  if (variant && next.parentId) {
+    throw fail('INVALID_PRODUCT', 'A product with variants is not a variant itself');
+  }
+
+  if (variant && next.kind !== self.kind) {
+    throw fail('INVALID_PRODUCT', 'A product with variants keeps their kind');
   }
 };

@@ -10,6 +10,7 @@ import {
   IconPlug,
   IconRestore,
   IconTag,
+  IconTags,
 } from '@tabler/icons-react';
 import type { RecordTableColumnDef } from 'erxes-ui';
 import {
@@ -24,7 +25,9 @@ import {
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProductCategories } from '../categories/useProductCategories';
+import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { ProductAvatar } from '../panel/ProductPanelImages';
+import { useProductEdit } from '../panel/useProductEdit';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
 import { useCanManageProducts, useOpenProduct, useProductStatus } from '../useProducts';
 
@@ -118,6 +121,19 @@ const PluginsCell = ({ names }: { names: string[] }) => {
   );
 };
 
+const TagsCell = ({ product }: { product: Product }) => {
+  const edit = useProductEdit();
+
+  return (
+    <TagsSelect.InlineCell
+      type="product"
+      scope={`products.${product.id}.tags`}
+      value={product.tagIds}
+      onValueChange={(tagIds) => edit.mutate({ id: product.id, tagIds })}
+    />
+  );
+};
+
 type Translate = (key: string, defaultValue: string) => string;
 
 const createColumns = (t: Translate): RecordTableColumnDef<Product>[] => [
@@ -177,6 +193,13 @@ const createColumns = (t: Translate): RecordTableColumnDef<Product>[] => [
     ),
     cell: ({ row }) => <PriceCell product={row.original} />,
     size: 140,
+  },
+  {
+    id: 'tags',
+    accessorKey: 'tagIds',
+    header: () => <RecordTable.InlineHead icon={IconTags} label={t('fields.tags', 'Tags')} />,
+    cell: ({ row }) => <TagsCell product={row.original} />,
+    size: 220,
   },
   {
     id: 'plugins',

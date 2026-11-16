@@ -45,8 +45,9 @@ describe('product filters and views', { timeout: 120_000 }, () => {
     expect(fields.find((entry) => entry.path === `subject.customFields.${brand.id}`)).toMatchObject(
       { label: 'Brand', group: 'custom' },
     );
-    // Contacts' fields are not the products list's.
-    expect(fields.some((entry) => entry.path === 'subject.tagIds')).toBe(false);
+    // Contacts' fields are not the products list's; tags are both.
+    expect(fields.some((entry) => entry.path === 'subject.ownerId')).toBe(false);
+    expect(fields.some((entry) => entry.path === 'subject.tagIds')).toBe(true);
 
     expect(await names(where({ path: 'subject.categoryId', op: 'eq', value: 'drinks' }))).toEqual([
       cola.name,
@@ -89,7 +90,7 @@ describe('product filters and views', { timeout: 120_000 }, () => {
       t.hr().products.list({ filter: where({ path: 'subject.createdBy', op: 'eq', value: 'me' }) }),
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_FILTER' });
     await expect(
-      t.owner().products.list({ filter: where({ path: 'subject.tagIds', op: 'exists' }) }),
+      t.owner().products.list({ filter: where({ path: 'subject.ownerId', op: 'exists' }) }),
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_FILTER' });
   });
 

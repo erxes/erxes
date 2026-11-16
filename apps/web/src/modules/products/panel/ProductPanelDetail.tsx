@@ -14,8 +14,10 @@ import {
   ProductFieldset,
   ProductKindRow,
   ProductPluginsRow,
+  ProductTagsRow,
   ProductTextRow,
 } from './ProductPanelFields';
+import { ProductPanelVariants } from './ProductPanelVariants';
 import { ProductPanelImages } from './ProductPanelImages';
 import { ProductPriceRows, ProductSizeRows } from './ProductPanelMeasures';
 import { useProductEdit } from './useProductEdit';
@@ -79,8 +81,12 @@ export const ProductPanelDetail = ({ product }: { product: Product }) => {
               <ProductSizeRows product={product} />
             </PanelSection>
           )}
+          <ProductPanelVariants product={product} />
           <PanelSection title={t('panel.usage', 'Apps')} nested>
             <ProductPluginsRow product={product} />
+          </PanelSection>
+          <PanelSection title={t('fields.tags', 'Tags')} nested>
+            <ProductTagsRow product={product} />
           </PanelSection>
           {!expanded && <ProductDescription product={product} />}
         </div>

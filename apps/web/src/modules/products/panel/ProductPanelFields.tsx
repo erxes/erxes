@@ -4,6 +4,7 @@ import {
   IconCategory,
   IconHash,
   IconPlug,
+  IconPlus,
   IconRuler,
   IconTag,
 } from '@tabler/icons-react';
@@ -21,6 +22,7 @@ import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
 import { ContactTextField, useEmptyText } from '~/modules/side-panel/details/ContactDetailFields';
+import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { CategoryPicker } from '../categories/CategoryPicker';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
 import { useCanManageProducts } from '../useProducts';
@@ -167,6 +169,30 @@ export const ProductCategoryRow = ({ product }: { product: Product }) => {
         }}
       />
     </PanelField>
+  );
+};
+
+/** The product's tags, picked in place; a new tag can be made from the picker. */
+export const ProductTagsRow = ({ product }: { product: Product }) => {
+  const { t } = useTranslation('product');
+  const edit = useProductEdit();
+
+  return (
+    <TagsSelect.InlineCell
+      type="product"
+      scope={`${PRODUCT_PANEL_SCOPE}.${product.id}.tags`}
+      value={product.tagIds}
+      onValueChange={(tagIds) => edit.mutate({ id: product.id, tagIds })}
+      maxVisible={3}
+      className="rounded-sm"
+      label={t('fields.tags', 'Tags')}
+      placeholder={
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <IconPlus className="size-3.5" aria-hidden="true" />
+          {t('form.add-tags', 'Add tags')}
+        </span>
+      }
+    />
   );
 };
 

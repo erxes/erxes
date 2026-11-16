@@ -3,7 +3,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ContentType, Id, isoDate, listOf } from './common';
+import { FieldContentType, Id, isoDate, listOf } from './common';
 
 export const Tag = createSelectSchema(tags, { id: Id, createdAt: isoDate }).pick({
   id: true,
@@ -26,11 +26,15 @@ const { INVALID_TAG, TAG_LIMIT } = ERRORS;
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({ ...COMMON_ERRORS, INVALID_TAG, TAG_LIMIT });
 
-/** Labels for customers and companies. Plugins keep their own tags. */
+/** Labels for customers, companies and products. Plugins keep their own tags. */
 export const tagsContract = {
   list: base
-    .route({ method: 'GET', path: '/tags', summary: 'Tags of a record type, by name' })
-    .input(z.object({ type: ContentType, search: z.string().trim().max(100).optional() }))
+    .route({
+      method: 'GET',
+      path: '/tags',
+      summary: 'Tags of a record type, by name. Plugins read product tags (products:read)',
+    })
+    .input(z.object({ type: FieldContentType, search: z.string().trim().max(100).optional() }))
     .output(listOf(Tag)),
   create: base
     .route({

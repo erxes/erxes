@@ -1,5 +1,5 @@
 import { LIST_MAX } from '@erxes/core-contract';
-import { caller, type ContentType, type Db, newId, requestOrgId, tags } from '@erxes/core-db';
+import { caller, type Db, type FieldContentType, newId, requestOrgId, tags } from '@erxes/core-db';
 import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -17,7 +17,11 @@ const findTag = async (client: Db, id: string) => {
   return row;
 };
 
-export const listTags = async (client: Db, query: { type: ContentType; search?: string }) => {
+export const listTags = async (client: Db, query: { type: FieldContentType; search?: string }) => {
+  if (caller().type === 'plugin' && query.type !== 'product') {
+    throw fail('NOT_ALLOWED', 'Plugins read product tags only');
+  }
+
   const rows = await wholeList((limit) =>
     client
       .select()
@@ -42,7 +46,7 @@ export const listTags = async (client: Db, query: { type: ContentType; search?: 
  */
 export const addTags = async (
   client: Db,
-  type: ContentType,
+  type: FieldContentType,
   values: { name: string; colorCode?: string | null }[],
 ) => {
   await lockKeys(client, [`tags:${requestOrgId()}:${type}`]);
@@ -72,7 +76,7 @@ export const addTags = async (
 
 export const createTag = async (
   client: Db,
-  input: { type: ContentType; name: string; colorCode?: string | null },
+  input: { type: FieldContentType; name: string; colorCode?: string | null },
 ) => {
   return oneRow(await addTags(client, input.type, [input]));
 };
@@ -102,7 +106,7 @@ export const removeTag = async (client: Db, id: string) => {
 };
 
 /** The given tag ids, deduplicated; 400 INVALID_TAG unless all are `type` tags of the organisation. */
-export const checkTagIds = async (client: Db, type: ContentType, ids: string[]) => {
+export const checkTagIds = async (client: Db, type: FieldContentType, ids: string[]) => {
   const wanted = unique(ids);
 
   if (!wanted.length) {

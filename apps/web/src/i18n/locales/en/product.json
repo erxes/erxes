@@ -58,12 +58,14 @@
     "name": "Name",
     "plugins": "Used by",
     "price": "Price",
+    "tags": "Tags",
     "unit": "Unit",
     "weight": "Weight (g)",
     "width": "Width (mm)"
   },
   "form": {
     "add-properties": "Add them in settings",
+    "add-tags": "Add tags",
     "name-required": "Enter a name",
     "no-plugins": "No apps installed",
     "all-plugins-chosen": "Every installed app is chosen",
@@ -102,5 +104,14 @@
   },
   "status": {
     "archived": "Archived"
+  },
+  "variants": {
+    "add": "Add variant",
+    "detach": "Make it a product of its own",
+    "none": "No variants. Add one for each size, color or model.",
+    "of": "Variant of",
+    "options": "Options",
+    "options-invalid": "Write options as “Size: M, Color: Red”",
+    "title": "Variants"
   }
 }

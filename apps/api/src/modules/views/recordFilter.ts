@@ -7,10 +7,8 @@ import {
 import {
   callerUserId,
   companies,
-  companyTags,
   customerCompanies,
   customers,
-  customerTags,
   type Db,
   type FieldContentType,
   products,
@@ -29,8 +27,9 @@ import {
   number,
   text,
 } from '@erxes/plugin-sdk/filter';
-import { inArray, not, type SQL, sql } from 'drizzle-orm';
+import { not, type SQL, sql } from 'drizzle-orm';
 import { valuesTable } from '~/modules/fields/fieldValues';
+import { hasAnyTag } from '~/modules/tags/tagLinks';
 import type { CustomSpec, FieldSpec } from './fieldSpec';
 import { filterFields, isCompanyList } from './filterFields';
 
@@ -125,15 +124,14 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
   return has(condition);
 };
 
+const tagType = (recordType: ViewRecordType): FieldContentType =>
+  recordType === 'product' ? 'product' : isCompanyList(recordType) ? 'company' : 'customer';
+
 const compileTags = (recordType: ViewRecordType, rule: ConditionRule): SQL => {
-  const isCompany = isCompanyList(recordType);
-  const links = isCompany ? companyTags : customerTags;
-  const record = isCompany ? companies.id : customers.id;
-
-  const tagged = (ids: string[]) =>
-    sql`exists (select 1 from ${links} where ${links.recordId} = ${record} and ${inArray(links.tagId, ids)})`;
-
-  const any = sql`exists (select 1 from ${links} where ${links.recordId} = ${record})`;
+  const type = tagType(recordType);
+  const record = RECORDS[type].id;
+  const tagged = (ids: string[]) => hasAnyTag(type, record, ids);
+  const any = hasAnyTag(type, record);
 
   switch (rule.op) {
     case 'contains':

@@ -13,7 +13,7 @@ export const CONTENT_TYPES = ['customer', 'company'] as const;
 /** An automation or plugin action's subject: a contact record, or either. */
 export const AUTOMATION_SUBJECTS = [...CONTENT_TYPES, 'any'] as const;
 
-/** Records custom fields attach to: contacts, and the shared product catalog. */
+/** Records custom fields and tags attach to: contacts, and the shared product catalog. */
 export const FIELD_CONTENT_TYPES = [...CONTENT_TYPES, 'product'] as const;
 
 /**

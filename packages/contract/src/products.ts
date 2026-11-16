@@ -33,6 +33,8 @@ const int = () => z.int();
 export const Product = createSelectSchema(products, {
   id: Id,
   categoryId: () => Id,
+  parentId: () => Id,
+  variantOptions: () => z.record(z.string(), z.string()),
   price: int,
   imageIds: () => z.array(Id),
   weightGrams: int,
@@ -63,6 +65,10 @@ export const Product = createSelectSchema(products, {
     lengthMm: true,
     widthMm: true,
     heightMm: true,
+    /** The item this product is a variant of; variants are products of their own. */
+    parentId: true,
+    /** What sets the variant apart, by option name: `{ Size: 'M', Color: 'Red' }`. */
+    variantOptions: true,
     /** The plugins that use it (`ecom`, `tms`); each lists its own by default. */
     plugins: true,
     createdAt: true,
@@ -76,6 +82,8 @@ export const Product = createSelectSchema(products, {
      * sees them; what only one plugin needs stays in that plugin.
      */
     customFields: CustomFields,
+    /** Product tags (`tags.list({ type: 'product' })`), in the order they were added. */
+    tagIds: z.array(Id),
   });
 
 export type Product = z.infer<typeof Product>;
@@ -90,12 +98,19 @@ export type ProductCategory = z.infer<typeof ProductCategory>;
 
 const size = () => z.int().min(0).max(100_000_000);
 
+/** At most 10 options, each a short name and value. */
+const VariantOptions = z
+  .record(z.string().trim().min(1).max(50), z.string().trim().min(1).max(100))
+  .refine((options) => Object.keys(options).length <= 10, 'at most 10 options');
+
 /** What a create or update may set; every field is optional here. */
 const ProductFields = createUpdateSchema(products, {
   name: (name) => name.trim().min(1).max(200),
   code: (code) => code.trim().min(1).max(100),
   barcode: (barcode) => barcode.trim().min(1).max(100),
   categoryId: () => Id,
+  parentId: () => Id,
+  variantOptions: () => VariantOptions,
   description: (value) => value.trim().max(10_000),
   unit: (unit) => unit.trim().min(1).max(20),
   price: () => z.int().min(0).max(1_000_000_000_00),
@@ -114,6 +129,9 @@ const ProductFields = createUpdateSchema(products, {
     code: true,
     barcode: true,
     categoryId: true,
+    /** Makes it a variant of that item (not itself a variant, of the same kind); `null` makes it an item again. 400 INVALID_PRODUCT. */
+    parentId: true,
+    variantOptions: true,
     description: true,
     unit: true,
     price: true,
@@ -126,6 +144,8 @@ const ProductFields = createUpdateSchema(products, {
     plugins: true,
   })
   .extend({
+    /** The product tags it has after the change. 400 INVALID_TAG. */
+    tagIds: z.array(Id).max(50).optional(),
     /** Values by field id; `null` or empty clears one, fields left out stay. 400 INVALID_FIELD, INVALID_FIELD_VALUE. */
     customFields: CustomFieldsPatch.optional(),
   });
@@ -147,6 +167,7 @@ const {
   INVALID_FIELD_VALUE,
   INVALID_FILE,
   INVALID_PRODUCT,
+  INVALID_TAG,
   LIMIT_EXCEEDED,
   NOTHING_TO_RETRY,
   PLUGIN_NOT_INSTALLED,
@@ -162,6 +183,7 @@ const base = oc.errors({
   INVALID_FIELD_VALUE,
   INVALID_FILE,
   INVALID_PRODUCT,
+  INVALID_TAG,
   LIMIT_EXCEEDED,
   NOTHING_TO_RETRY,
   PLUGIN_NOT_INSTALLED,
@@ -183,6 +205,10 @@ export const productsContract = {
         status: ProductStatus.default('active'),
         /** That category and its subcategories. */
         categoryId: Id.optional(),
+        /** The variants of that item. */
+        parentId: Id.optional(),
+        /** Products with any of these tags: `?tagIds=a,b`. */
+        tagIds: IdList.optional(),
         plugin: PluginName.optional(),
         all: QueryBoolean.default(false),
         /** A filter on `views.fields({ recordType: 'product' })`: JSON of a condition group (`RecordFilter`), as views save it. */
