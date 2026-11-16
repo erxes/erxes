@@ -48,7 +48,9 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('roles', 'Roles'), to: paths.settings.roles, icon: IconShieldHalf },
     { name: t('structure', 'Structure'), to: paths.settings.structure, icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), to: paths.settings.fileUpload, icon: IconCloudUpload },
-    { name: t('plugins', 'Plugins'), to: paths.settings.plugins, icon: IconApps },
+    ...(plan?.pluginsManaged
+      ? []
+      : [{ name: t('plugins', 'Plugins'), to: paths.settings.plugins, icon: IconApps }]),
     ...(plan?.saas
       ? [{ name: t('plan', 'Plan'), to: paths.settings.plan, icon: IconCreditCard }]
       : []),

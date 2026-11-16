@@ -179,7 +179,7 @@ describe('plugin connection (registry, installations, tokens)', () => {
       t.client(narrow.access_token).events.publish({ events: [{ type: 'hr.leave.approved' }] }),
     ).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
 
-    // A version that asks for more needs the owner's approval first.
+    // A version that asks for more needs the owner's approval first (pluginAutoApprove.test.ts).
     const asking = (version: string, scopes: PluginScope[]) =>
       service().then((client) => client.plugins.registerManifest({ ...manifest, version, scopes }));
 
@@ -195,15 +195,6 @@ describe('plugin connection (registry, installations, tokens)', () => {
       'live:write',
       'notifications:write',
     ]);
-
-    await t.owner().plugins.uninstall({ name: 'hr' });
-    await t.owner().plugins.install({ name: 'hr' });
-    await asking('2.2.0', ['notifications:write', 'events:write', 'live:write', 'audit:write']);
-    expect((await hrListing())?.needsApproval).toBe(true);
-    expect(await scopesNow()).not.toContain('audit:write');
-
-    await t.owner().plugins.install({ name: 'hr' });
-    expect(await scopesNow()).toContain('audit:write');
   });
 
   it("gives a member a short token for one plugin's API, verifiable with the public keys alone", async () => {

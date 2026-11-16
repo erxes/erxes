@@ -108,6 +108,7 @@ const planOf = async (
   if (!config.saas.enabled) {
     return {
       saas: false,
+      pluginsManaged: config.plugins.autoInstall,
       organizationStatus: 'active',
       plugins: [],
       manageUrl: null,
@@ -133,6 +134,7 @@ const planOf = async (
 
   return {
     saas: true,
+    pluginsManaged: false,
     organizationStatus: row?.orgStatus ?? 'active',
     plugins: codes.map((code) => {
       const entry = row?.plugins.find((plugin) => plugin.code === code);

@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
+import { usePlan } from '~/modules/saas/usePlan';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
@@ -38,6 +39,15 @@ const IntegrationsSettingsPage = lazyNamed(
   'IntegrationsSettingsPage',
 );
 
+/** Settings › Plugins, unless the deployment installs and approves plugins itself. */
+const PluginsRoute = () => {
+  const plan = usePlan().data;
+
+  if (plan?.pluginsManaged) return <Navigate to={paths.settings.general} replace />;
+
+  return <PluginsSettingsPage />;
+};
+
 /** Everything under `/settings/*` (mount as `<Route path="settings/*" element={<SettingsRoutes />} />`). */
 export const SettingsRoutes = () => (
   <Routes>
@@ -50,7 +60,7 @@ export const SettingsRoutes = () => (
       <Route path="event-delivery" element={<EventDeliveryPage />} />
       <Route path="api-reference/:api?" element={<ApiReferencePage />} />
       <Route path="api-keys" element={<ApiKeysPage />} />
-      <Route path="plugins" element={<PluginsSettingsPage />} />
+      <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />
       <Route path="structure" element={<StructurePage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />

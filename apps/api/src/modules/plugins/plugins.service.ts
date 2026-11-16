@@ -10,7 +10,8 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { textArray } from '@erxes/plugin-sdk/filter';
+import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { PLUGIN_ACCESS_TYP } from '~/http/auth';
 import { fail } from '~/http/errors';
@@ -20,7 +21,7 @@ import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
-import { schedulePluginJobs } from './pluginJobs';
+import { queueInstallJobs, schedulePluginJobs } from './pluginJobs';
 
 type PluginRow = typeof plugins.$inferSelect;
 
@@ -33,6 +34,33 @@ const SECRET_OVERLAP_HOURS = 24;
 /** Scopes a plugin asks for: its manifest's, or (before it sent one) what plugins could always do. */
 export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
   row.manifest?.scopes ?? [...PLUGIN_SCOPES];
+
+/**
+ * With auto-install the deployment decides the plugins, so a newer version's scopes are granted
+ * where it is installed, as an owner approving them on Settings › Plugins would (that page is
+ * hidden then); its `onInstall` jobs run for what it could not do before. Not on SaaS.
+ */
+const approveNewScopes = async (tx: Db, plugin: string, manifest: PluginManifest) => {
+  if (!config.plugins.autoInstall || config.saas.enabled) return;
+
+  const scopes = requestedScopes({ manifest });
+
+  const approved = await tx
+    .update(pluginInstallations)
+    .set({ grantedScopes: scopes, updatedAt: sql`now()` })
+    .where(
+      and(
+        eq(pluginInstallations.plugin, plugin),
+        eq(pluginInstallations.status, 'active'),
+        sql`not ${textArray(scopes)} <@ ${pluginInstallations.grantedScopes}`,
+      ),
+    )
+    .returning({ orgId: pluginInstallations.orgId, updatedAt: pluginInstallations.updatedAt });
+
+  await inOrder(approved, (row) =>
+    queueInstallJobs(tx, row.orgId, plugin, manifest.jobs, row.updatedAt),
+  );
+};
 
 /** Installs every plugin row in every organisation, in one insert. */
 const installAll = async (
@@ -266,6 +294,7 @@ export const registerManifest = async (manifest: PluginManifest) => {
       .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
       .where(eq(plugins.name, plugin));
     await schedulePluginJobs(tx, plugin, manifest.jobs);
+    await approveNewScopes(tx, plugin, manifest);
     // Every organisation that has it gets the manifest's fields, and what its sets newly give.
     await syncPluginFields(tx, plugin, manifest.fields);
     await grantDefaultPermissions(
