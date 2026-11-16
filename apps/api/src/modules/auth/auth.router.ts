@@ -40,7 +40,7 @@ export const authRouter = {
     required: await withSystem('setup status', (tx) => setupRequired(tx)),
   })),
   setup: unscoped.auth.setup.handler(async ({ input, context }) => {
-    const { organization, owner } = await runSetup(input);
+    const { organization, owner } = await runSetup(input, context.req.get('host'));
 
     await startSession(context, owner.id, organization.id);
 
