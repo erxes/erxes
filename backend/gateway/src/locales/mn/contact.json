@@ -76,7 +76,12 @@
     "action-merge-customers": "{{mergeCount}} харилцагчийг нийлүүлэх",
     "not-found": "Харилцагч олдсонгүй",
     "not-found-description": "Энэ ID-тай харилцагч олдсонгүй.",
-    "selected": "{{selectedCount}} сонгосон"
+    "selected": "{{selectedCount}} сонгосон",
+    "position": "Албан тушаал",
+    "department": "Хэлтэс",
+    "website": "Вэбсайт",
+    "add-link": "Холбоос нэмэх",
+    "invalid-link": "Зөв вэб холбоос оруулна уу"
   },
   "company": {
     "name": "Нэр",

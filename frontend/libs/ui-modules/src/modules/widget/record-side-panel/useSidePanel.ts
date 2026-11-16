@@ -1,6 +1,7 @@
 import {
   getSidePanelRecordPath,
   parseSidePanelRecord,
+  SIDE_PANEL_QUERY_KEY,
 } from 'ui-modules/modules/widget/record-side-panel/useSidePanelUtils';
 import { useMultiQueryState } from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
@@ -22,14 +23,12 @@ import { SidePanelNavigatorContext } from 'ui-modules/modules/widget/record-side
 
 export {
   SIDE_PANEL_DETAIL_PATH,
+  SIDE_PANEL_QUERY_KEY,
+  getRecordPanelListUrl,
   getSidePanelRecordPath,
   parseSidePanelRecord,
 } from 'ui-modules/modules/widget/record-side-panel/useSidePanelUtils';
 
-// The side panel keeps its own route in the URL, beside the page's:
-// `/contacts/customers?panel=/detail/customer/<id>`, so it can be linked,
-// survives a reload and stays open while the page underneath changes.
-export const SIDE_PANEL_QUERY_KEY = 'panel';
 export const SIDE_PANEL_HISTORY_QUERY_KEY = 'panelHistory';
 const MAX_PANEL_HISTORY = 20;
 
@@ -55,6 +54,8 @@ export interface IOpenRecordOptions {
   stack?: boolean;
   // Takes the open record's place, Back unchanged: a draft once saved.
   replace?: boolean;
+  // Opens the record on this tab instead of its default one.
+  tab?: string;
 }
 
 /**
@@ -251,7 +252,12 @@ export const useSidePanel = () => {
     }
     if (!options?.stack && !options?.replace)
       setSession((session) => session + 1);
-    navigate(nextPath, nextHistory, Boolean(options?.replace), '');
+    navigate(
+      nextPath,
+      nextHistory,
+      Boolean(options?.replace),
+      options?.tab ?? '',
+    );
   };
 
   /** Opens an entity route and starts a fresh session for a repeated top-level draft. */

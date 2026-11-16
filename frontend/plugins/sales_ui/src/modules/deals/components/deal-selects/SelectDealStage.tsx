@@ -1,45 +1,18 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo } from 'react';
 
-import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { DealStageChip } from '@/deals/components/deal-selects/DealDetailChips';
 import { DealStageProgress } from '@/deals/components/deal-selects/DealStageProgress';
-import { useOptimisticField } from '@/deals/components/deal-selects/hooks/useOptimisticField';
-import { useStages } from '@/deals/stage/hooks/useStages';
-import { IDeal } from '@/deals/types/deals';
+import {
+  DealStageMoveTarget,
+  useDealStageMove,
+} from '@/deals/components/deal-selects/hooks/useDealStageMove';
 
 export const SelectDealStage = memo(function SelectDealStage({
   deal,
 }: {
-  deal: Pick<IDeal, '_id' | 'stageId' | 'stage' | 'pipelineId' | 'pipeline'>;
+  deal: DealStageMoveTarget;
 }) {
-  const currentPipelineId =
-    deal.stage?.pipelineId || deal.pipelineId || deal.pipeline?._id || '';
-  const lastPipelineIdRef = useRef('');
-
-  useEffect(() => {
-    if (currentPipelineId) {
-      lastPipelineIdRef.current = currentPipelineId;
-    }
-  }, [currentPipelineId]);
-
-  const pipelineId = currentPipelineId || lastPipelineIdRef.current;
-  const { moveDealStage } = useMoveDealStage();
-  const { stages } = useStages({
-    variables: { pipelineId },
-    skip: !pipelineId,
-  });
-  const stage = useOptimisticField({
-    value: deal.stageId || '',
-    resetKey: deal._id,
-    onCommit: (stageId, previousStageId) =>
-      moveDealStage({
-        deal: {
-          ...deal,
-          stageId: previousStageId,
-        },
-        stageId,
-      }),
-  });
+  const { pipelineId, stages, stage } = useDealStageMove(deal);
 
   return (
     <div className="flex items-center gap-3 w-full">

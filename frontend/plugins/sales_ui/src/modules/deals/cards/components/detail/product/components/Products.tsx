@@ -11,38 +11,51 @@ import { ProductsPayment } from './ProductPayment';
 export const Products = ({
   deal,
   refetch,
+  compact,
 }: {
   deal: IDealDetail;
   refetch: () => void;
+  compact?: boolean;
 }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
+  const [paymentVisited, setPaymentVisited] = useState(false);
   const { t } = useTranslation('sales');
 
   return (
     <div className="relative flex h-full min-h-0 flex-col">
       <Tabs
         value={activeTab}
-        onValueChange={setActiveTab}
+        onValueChange={(value) => {
+          setActiveTab(value);
+          if (value === 'payment') setPaymentVisited(true);
+        }}
         className="flex h-full min-h-0 flex-col"
       >
         <Tabs.List variant="segment" className="shrink-0">
           <Tabs.Trigger value="product">{t('products')}</Tabs.Trigger>
           <Tabs.Trigger value="payment">{t('payments')}</Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value="product" className="mt-4 min-h-0 flex-1">
+        <Tabs.Content
+          value="product"
+          forceMount
+          className="mt-4 min-h-0 flex-1 data-[state=inactive]:hidden"
+        >
           <DealVoucherRow deal={deal} />
           <ProductsList
+            key={deal._id}
             products={deal.products}
             productsData={deal.productsData}
             dealId={deal._id}
             pipelineId={deal.pipelineId || deal.pipeline?._id}
             refetch={refetch}
             tickUsed={deal.stage?.defaultTick ?? true}
+            compact={compact}
           />
         </Tabs.Content>
         <Tabs.Content
           value="payment"
-          className="mt-4 min-h-0 flex-1 overflow-y-auto"
+          forceMount={paymentVisited || undefined}
+          className="mt-4 min-h-0 flex-1 overflow-y-auto data-[state=inactive]:hidden"
         >
           <ProductsPayment deal={deal} />
         </Tabs.Content>

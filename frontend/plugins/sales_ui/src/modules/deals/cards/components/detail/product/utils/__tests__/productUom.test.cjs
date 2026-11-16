@@ -189,3 +189,83 @@ test('UOM choices retain a cached base unit and deduplicate saved and catalog se
     ['pcs', 'box', 'new-base'],
   );
 });
+
+test('server acknowledgements compare lists and nested values by value', () => {
+  const discountInfos = [{ type: 'voucher', title: 'Voucher', amount: 10 }];
+  const patch = { discountInfos };
+
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      { ...row, discountInfos: JSON.parse(JSON.stringify(discountInfos)) },
+      patch,
+    ),
+    true,
+  );
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      {
+        ...row,
+        discountInfos: [{ type: 'voucher', title: 'Voucher', amount: 20 }],
+      },
+      patch,
+    ),
+    false,
+  );
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      { ...row, discountInfos: [...discountInfos, ...discountInfos] },
+      patch,
+    ),
+    false,
+  );
+  assert.equal(
+    patches.isPatchAppliedByServer({ ...row, discountInfos: [] }, patch),
+    false,
+  );
+});
+
+test('server acknowledgements accept every number within the save tolerance', () => {
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      { ...row, bonusCount: 0.1 + 0.2 },
+      { bonusCount: 0.3 },
+    ),
+    true,
+  );
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      {
+        ...row,
+        discountInfos: [
+          { type: 'voucher', title: 'Voucher', amount: 0.1 + 0.2 },
+        ],
+      },
+      { discountInfos: [{ type: 'voucher', title: 'Voucher', amount: 0.3 }] },
+    ),
+    true,
+  );
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      { ...row, bonusCount: 0.31 },
+      { bonusCount: 0.3 },
+    ),
+    false,
+  );
+});
+
+test('server acknowledgements treat a cleared value as missing', () => {
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      { ...row, assignUserId: undefined },
+      { assignUserId: null },
+    ),
+    true,
+  );
+  assert.equal(
+    patches.isPatchAppliedByServer(
+      { ...row, assignUserId: 'user' },
+      { assignUserId: null },
+    ),
+    false,
+  );
+});
