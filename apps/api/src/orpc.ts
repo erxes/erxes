@@ -28,7 +28,7 @@ export interface CoreContext extends LoggerContext {
 export const unscoped = implement(coreContract)
   .$context<CoreContext>()
   .use(async ({ context, path, next }) => {
-    enforceAccess(path.join('.'));
+    await enforceAccess(path.join('.'));
 
     try {
       return await next({ context: { log: getLogger(context) ?? context.req.log } });

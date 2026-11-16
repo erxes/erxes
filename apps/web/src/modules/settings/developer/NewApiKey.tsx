@@ -43,7 +43,16 @@ const NewApiKeyForm = ({ onCreated }: { onCreated: (key: string) => void }) => {
       className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
-        create.mutate({ name: name.trim(), lifetimeDays: lifetimeOf(lifetime) });
+        create.mutate({
+          name: name.trim(),
+          kind: 'regular',
+          areas: { contacts: 'read' },
+          ownRecords: false,
+          unitIds: [],
+          tagIds: [],
+          allowedIps: [],
+          lifetimeDays: lifetimeOf(lifetime),
+        });
       }}
     >
       <div className="space-y-1.5">

@@ -13,11 +13,13 @@ import type { NextFunction, Request, Response } from 'express';
 import { decodeProtectedHeader } from 'jose';
 import { z } from 'zod';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
-import { publicPaths } from '~/http/access';
+import { publicPaths, recordKeyDenial } from '~/http/access';
 import { fail } from '~/http/errors';
+import type { KeyDecision } from '~/http/keyRules';
 import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
-import { apiKeyOwner, isApiKey } from '~/modules/apiKeys/apiKeys.service';
+import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.service';
+import { keyCaller } from '~/modules/apiKeys/keyCaller';
 import { appServes } from '~/modules/customerAuth/customerApps';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
 
@@ -129,16 +131,55 @@ const resolveCustomer = async (req: Request, bearer: string): Promise<Resolved> 
   return { caller: { type: 'customer', ...ids }, orgId };
 };
 
-/** A member's API key: it acts as the member, with their role as it is now. */
-const resolveApiKey = async (req: Request, key: string): Promise<Resolved> => {
-  const owner = await apiKeyOwner(key);
-  const member = owner && (await memberOf(owner.orgId, owner.userId));
+type ApiKeyRow = NonNullable<Awaited<ReturnType<typeof apiKeyOfToken>>>;
 
-  if (!owner || !member) throw unauthorized();
+/** Refuses the key's call and records why, as its maker. */
+const refuseKey = async (key: ApiKeyRow, decision: KeyDecision) => {
+  const maker: Caller = { type: 'user', userId: key.userId, role: 'api_key', permissions: [] };
 
-  req.log.setBindings({ orgId: owner.orgId, actorId: member.userId, apiKeyId: owner.apiKeyId });
+  await enterScope(maker, key.orgId, () => recordKeyDenial(key.id, null, decision));
 
-  return { caller: { ...member, apiKeyId: owner.apiKeyId }, orgId: owner.orgId };
+  return decision.rule === 'expired'
+    ? unauthorized()
+    : fail('KEY_NOT_ALLOWED', decision.reason, { rule: decision.rule });
+};
+
+/** A member key acts as the member, with their role as it is now (keys made before rules). */
+const memberKeyCaller = async (key: ApiKeyRow) => {
+  if (key.expiresAt && key.expiresAt.getTime() <= Date.now()) {
+    throw await refuseKey(key, { allowed: false, rule: 'expired', reason: 'This key has expired' });
+  }
+
+  const member = await memberOf(key.orgId, key.userId);
+
+  if (!member) throw unauthorized();
+
+  return { ...member, apiKeyId: key.id };
+};
+
+/** An API key: a member key, or a regular or management key with its rules. */
+const resolveApiKey = async (req: Request, token: string): Promise<Resolved> => {
+  const key = await apiKeyOfToken(token);
+
+  if (!key) throw unauthorized();
+
+  let who: Caller;
+
+  if (key.kind === 'member') {
+    who = await memberKeyCaller(key);
+  } else {
+    const result = await withOrg(key.orgId, (tx) => keyCaller(tx, key, req.ip ?? null));
+
+    if ('denied' in result) throw await refuseKey(key, result.denied);
+
+    who = result.caller;
+  }
+
+  await markKeyUsed(key.orgId, key.id);
+
+  req.log.setBindings({ orgId: key.orgId, actorId: key.userId, apiKeyId: key.id });
+
+  return { caller: who, orgId: key.orgId };
 };
 
 const resolveMember = async (req: Request, res: Response, bearer: string): Promise<Resolved> => {

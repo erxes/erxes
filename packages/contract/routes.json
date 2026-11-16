@@ -152,6 +152,16 @@
         }
       }
     },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/api-keys/{id}"
+        }
+      }
+    },
     "remove": {
       "~orpc": {
         "errorMap": {},
@@ -159,6 +169,26 @@
         "route": {
           "method": "DELETE",
           "path": "/api-keys/{id}"
+        }
+      }
+    },
+    "calls": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/api-keys/calls"
+        }
+      }
+    },
+    "try": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/api-keys/{id}/try"
         }
       }
     }
