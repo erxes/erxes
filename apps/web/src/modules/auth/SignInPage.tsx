@@ -23,12 +23,19 @@ const schema = z.object({
 
 type Values = z.infer<typeof schema>;
 
-/** The password with a reveal button; a revealed password hides itself again after 10 s. */
+/**
+ * The password with a reveal button; a revealed password hides itself again after 10 s.
+ * Form.Control's id and aria props go to the input, so its label names it.
+ */
 const PasswordInput = ({
   ref,
   field,
-  ...slotProps
-}: { field: ControllerRenderProps<Values, 'password'> } & React.RefAttributes<HTMLDivElement>) => {
+  ...controlProps
+}: { field: ControllerRenderProps<Values, 'password'> } & React.RefAttributes<HTMLDivElement> &
+  Pick<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    'id' | 'aria-describedby' | 'aria-invalid'
+  >) => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const [shown, setShown] = useState(false);
 
@@ -41,8 +48,9 @@ const PasswordInput = ({
   }, [shown]);
 
   return (
-    <InputGroup ref={ref} {...slotProps}>
+    <InputGroup ref={ref}>
       <InputGroup.Input
+        {...controlProps}
         {...field}
         type={shown ? 'text' : 'password'}
         autoComplete="current-password"
