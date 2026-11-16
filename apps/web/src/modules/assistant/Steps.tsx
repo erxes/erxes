@@ -45,12 +45,13 @@ const artifactStepLabel = (step: Step, t: TFunction<'assistant'>) => {
     : t('step.artifact', 'Creating “{{title}}”', { title });
 };
 
+const searchLabel = (running: boolean, t: TFunction<'assistant'>) =>
+  running
+    ? t('step.searching', 'Looking up how to do it')
+    : t('step.search', 'Looked up how to do it');
+
 const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
-  if (step.tool === 'searchApi') {
-    return step.query
-      ? t('step.search', 'Looked up “{{query}}”', { query: step.query })
-      : t('step.search-any', 'Looked up what it can do');
-  }
+  if (step.tool === 'searchApi') return searchLabel(step.status === 'running', t);
 
   if (step.tool === 'readAttachment') return fileStepLabel(step, t);
 
@@ -146,10 +147,79 @@ const StepRow = ({ step }: { step: Step }) => {
   );
 };
 
-export const StepsGroup = ({ steps }: { steps: Step[] }) => {
+type StepItem = { key: string; step: Step } | { key: string; searches: Step[] };
+
+const foldSearches = (steps: Step[]) => {
+  const items: StepItem[] = [];
+
+  for (const step of steps) {
+    const last = items.at(-1);
+
+    if (step.tool !== 'searchApi') items.push({ key: step.key, step });
+    else if (last && 'searches' in last) last.searches.push(step);
+    else items.push({ key: step.key, searches: [step] });
+  }
+
+  return items;
+};
+
+const SearchesRow = ({ searches }: { searches: Step[] }) => {
+  const { t } = useTranslation('assistant');
+  const running = searches.find((step) => step.status === 'running');
+  const Icon = running ? IconLoader2 : IconSearch;
+
+  return (
+    <li>
+      <Collapsible>
+        <Collapsible.Trigger
+          render={
+            <Button variant="ghost" size="sm" tone="muted" className="w-full justify-start" />
+          }
+        >
+          <Collapsible.TriggerIcon className="size-3" />
+          <Icon aria-hidden className={cn('size-3.5 shrink-0', running && 'animate-spin')} />
+          <span className="min-w-0 flex-1 truncate text-left">
+            {searchLabel(running !== undefined, t)}
+          </span>
+          {searches.length > 1 && (
+            <span className="text-xs text-muted-foreground">
+              {t('step.search-count', '{{count}} searches', { count: searches.length })}
+            </span>
+          )}
+        </Collapsible.Trigger>
+        <Collapsible.Panel>
+          <ul className="flex flex-col gap-1 py-1 pl-8 text-xs text-muted-foreground">
+            {searches.map((step) => (
+              <li key={step.key}>{step.query ?? t('step.search-any', 'What it can do')}</li>
+            ))}
+          </ul>
+        </Collapsible.Panel>
+      </Collapsible>
+    </li>
+  );
+};
+
+const groupLabel = (
+  steps: Step[],
+  current: Step | undefined,
+  live: boolean,
+  t: TFunction<'assistant'>,
+) => {
+  if (current) return stepLabel(current, t);
+
+  if (live) return t('working', 'Working on it…');
+
+  return t('steps', {
+    count: steps.length,
+    defaultValue_one: '{{count}} step',
+    defaultValue_other: '{{count}} steps',
+  });
+};
+
+export const StepsGroup = ({ steps, live }: { steps: Step[]; live: boolean }) => {
   const { t } = useTranslation('assistant');
   const current = steps.findLast((step) => step.status === 'running' || step.status === 'waiting');
-  const active = current !== undefined;
+  const active = current !== undefined || live;
   const failed = steps.filter((step) => step.status === 'failed').length;
   const [open, setOpen] = useState<boolean | null>(null);
 
@@ -158,15 +228,7 @@ export const StepsGroup = ({ steps }: { steps: Step[] }) => {
       <Collapsible.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>
         <Collapsible.TriggerIcon className="size-3" />
         {active && <IconLoader2 aria-hidden className="size-3.5 animate-spin" />}
-        <span className="min-w-0 truncate">
-          {current
-            ? stepLabel(current, t)
-            : t('steps', {
-                count: steps.length,
-                defaultValue_one: '{{count}} step',
-                defaultValue_other: '{{count}} steps',
-              })}
-        </span>
+        <span className="min-w-0 truncate">{groupLabel(steps, current, live, t)}</span>
         {failed > 0 && (
           <span className="text-muted-foreground">
             {t('steps-failed', '· {{count}} failed', { count: failed })}
@@ -175,9 +237,13 @@ export const StepsGroup = ({ steps }: { steps: Step[] }) => {
       </Collapsible.Trigger>
       <Collapsible.Panel>
         <ul className="mt-1 ml-3 flex flex-col border-l pl-1">
-          {steps.map((step) => (
-            <StepRow key={step.key} step={step} />
-          ))}
+          {foldSearches(steps).map((item) =>
+            'searches' in item ? (
+              <SearchesRow key={item.key} searches={item.searches} />
+            ) : (
+              <StepRow key={item.key} step={item.step} />
+            ),
+          )}
         </ul>
       </Collapsible.Panel>
     </Collapsible>

@@ -67,11 +67,8 @@ const TranscriptFooter = ({ view }: { view: ReturnType<typeof useConversation> }
 
   return (
     <>
-      {chat.status === 'submitted' && (
-        <WorkingRow
-          label={t('working', 'Working on it…')}
-          avatar={chat.messages.at(-1)?.role !== 'assistant'}
-        />
+      {chat.status === 'submitted' && chat.messages.at(-1)?.role !== 'assistant' && (
+        <WorkingRow label={t('working', 'Working on it…')} avatar />
       )}
       {view.runningElsewhere && (
         <WorkingRow label={t('running-elsewhere', 'Writing a reply… it appears here when done.')} />

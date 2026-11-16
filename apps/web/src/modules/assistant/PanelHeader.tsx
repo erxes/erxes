@@ -49,8 +49,10 @@ const Tab = ({
         onClose();
       }}
       className={cn(
-        'group relative flex h-8 max-w-44 min-w-24 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
-        selected ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/60',
+        'group relative flex h-8 min-w-24 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
+        selected
+          ? 'max-w-60 shrink-0 bg-accent text-foreground'
+          : 'max-w-44 text-muted-foreground hover:bg-accent/60',
       )}
     >
       {thread?.pinned && <IconPin aria-hidden className="size-3.5 shrink-0" />}

@@ -113,8 +113,11 @@
   "steps-failed_one": "· {{count}} failed",
   "steps-failed_other": "· {{count}} failed",
   "step": {
-    "search": "Looked up “{{query}}”",
-    "search-any": "Looked up what it can do",
+    "search": "Looked up how to do it",
+    "searching": "Looking up how to do it",
+    "search-any": "What it can do",
+    "search-count_one": "{{count}} search",
+    "search-count_other": "{{count}} searches",
     "waiting": "Waiting for your approval: {{name}}",
     "failed": "Could not: {{name}}",
     "declined": "You declined: {{name}}",

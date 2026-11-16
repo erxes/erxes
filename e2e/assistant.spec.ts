@@ -199,6 +199,7 @@ test('the assistant reads a skill before it plans an automation, and says so', a
 
   await panel.getByRole('button', { name: '2 steps' }).click();
   await expect(panel.getByText('Read the author-automation skill')).toBeVisible();
-  await expect(panel.getByText('Looked up “automation triggers”')).toBeVisible();
+  await panel.getByRole('button', { name: 'Looked up how to do it' }).click();
+  await expect(panel.getByText('automation triggers')).toBeVisible();
   await expectAccessible(page);
 });

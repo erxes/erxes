@@ -113,8 +113,11 @@
   "steps-failed_one": "· {{count}} амжилтгүй",
   "steps-failed_other": "· {{count}} амжилтгүй",
   "step": {
-    "search": "“{{query}}”-г хайсан",
-    "search-any": "Юу хийж болохыг хайсан",
+    "search": "Яаж хийхийг хайсан",
+    "searching": "Яаж хийхийг хайж байна",
+    "search-any": "Юу хийж болох",
+    "search-count_one": "{{count}} хайлт",
+    "search-count_other": "{{count}} хайлт",
     "waiting": "Таны зөвшөөрлийг хүлээж байна: {{name}}",
     "failed": "Чадсангүй: {{name}}",
     "declined": "Та татгалзсан: {{name}}",

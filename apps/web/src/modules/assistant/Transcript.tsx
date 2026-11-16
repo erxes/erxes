@@ -25,14 +25,22 @@ export interface TranscriptActions {
   onEdit: (message: UIMessage, text: string) => void;
 }
 
-const Row = ({ row, actions }: { row: TranscriptRow; actions: TranscriptActions }) => {
+const Row = ({
+  row,
+  live,
+  actions,
+}: {
+  row: TranscriptRow;
+  live: boolean;
+  actions: TranscriptActions;
+}) => {
   switch (row.kind) {
     case 'text':
       return <Reply text={row.text} streaming={row.streaming} />;
     case 'thinking':
       return <ThinkingBlock text={row.text} streaming={row.streaming} />;
     case 'steps':
-      return <StepsGroup steps={row.steps} />;
+      return <StepsGroup steps={row.steps} live={live} />;
     case 'approval':
       return (
         <ApprovalCard
@@ -78,17 +86,33 @@ const AssistantMessage = ({
   const text = textOf(message);
   const waiting = rows.some((row) => row.kind === 'approval' || row.kind === 'question');
   const thinking = current && actions.busy && !rows.some((row) => row.kind === 'text');
+  const [first] = rows;
+  const lead = first?.kind === 'steps' || first?.kind === 'thinking' ? first : null;
+  const liveKey = current && actions.busy ? rows.at(-1)?.key : undefined;
 
   return (
     <div className="flex flex-col gap-2">
-      <AssistantAvatar
-        size={28}
-        state={thinking ? 'thinking' : 'idle'}
-        animated={current}
-        follow={current && !thinking}
-      />
-      {rows.map((row) => (
-        <Row key={row.key} row={row} actions={actions} />
+      <div className="flex min-w-0 items-start gap-2">
+        <AssistantAvatar
+          size={28}
+          state={thinking ? 'thinking' : 'idle'}
+          animated={current}
+          follow={current && !thinking}
+        />
+        {lead ? (
+          <div className="min-w-0 flex-1">
+            <Row row={lead} live={lead.key === liveKey} actions={actions} />
+          </div>
+        ) : (
+          thinking && (
+            <span className="self-center text-sm text-muted-foreground">
+              {t('working', 'Working on it…')}
+            </span>
+          )
+        )}
+      </div>
+      {rows.slice(lead ? 1 : 0).map((row) => (
+        <Row key={row.key} row={row} live={row.key === liveKey} actions={actions} />
       ))}
       {last && actions.canEdit && !waiting && (
         <div className="flex items-center gap-0.5">
