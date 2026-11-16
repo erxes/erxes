@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { FieldValues, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Spinner } from 'erxes-ui';
 import { useSidePanel } from 'ui-modules';
 import type { AccountingsConfigsCreateMutation } from '~/gql/graphql';
@@ -15,6 +16,7 @@ import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import { IConfig } from '@/settings/types/Config';
 import { SettingsRuleByCode } from '@/settings/syncSettings/AddEditConfigRules';
+import { getSyncConfigFormSchema } from '@/settings/syncSettings/syncConfigSchema';
 
 const useSyncConfig = (contentType: string, contentId: string) => {
   const code = getSyncConfigCode(contentType);
@@ -35,7 +37,10 @@ const SyncConfigPanelNew = ({ contentType }: ISettingsPanelViewProps) => {
   const { t } = useTranslation('accounting');
   const code = getSyncConfigCode(contentType);
   const { openDetail, cancelDraft } = useSettingsPanel(contentType);
-  const form = useForm<FieldValues>({ defaultValues: {} });
+  const form = useForm<FieldValues>({
+    defaultValues: {},
+    resolver: code ? zodResolver(getSyncConfigFormSchema(code, t)) : undefined,
+  });
   const { addConfig, loading } = useAccountingConfigAdd({
     onCompleted: ({
       accountingsConfigsCreate,
@@ -81,8 +86,12 @@ const SyncConfigEditForm = ({
   code: ACCOUNTING_SETTINGS_CODES;
   config: IConfig;
 }) => {
+  const { t } = useTranslation('accounting');
   const { close } = useSidePanel();
-  const form = useForm<FieldValues>({ defaultValues: { ...config.value } });
+  const form = useForm<FieldValues>({
+    defaultValues: { ...config.value },
+    resolver: zodResolver(getSyncConfigFormSchema(code, t)),
+  });
   const { editConfig, loading } = useAccountingConfigEdit();
   const { subIdFieldName, FormComponent } = SettingsRuleByCode[code];
 

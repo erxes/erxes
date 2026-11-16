@@ -487,6 +487,7 @@
   "Must fill fixed asset sale cost account": "Select the account for the carrying amount of assets sold",
   "Must fill destination branch": "Select a destination branch",
   "VAT row is required": "Select a VAT row",
+  "CTAX row is required": "Select a city tax row",
   "VAT amount is required": "Enter the VAT amount",
   "business-transaction": "Business transaction",
   "at-selling-price": "(at selling price)",
