@@ -65,7 +65,7 @@ export const ColorSwatches = ({
   value: string | null;
   onChange: (color: string) => void;
 }) => (
-  <div className="grid grid-cols-8 gap-1.5">
+  <div className="flex flex-wrap gap-2">
     {TAG_COLORS.map((color) => (
       <button
         key={color}

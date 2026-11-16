@@ -52,7 +52,7 @@ export const PropertyTypeField = ({
       name="type"
       render={({ field }) => (
         <Form.Item className="flex-auto">
-          <Form.Label>{t('type', 'Type')}</Form.Label>
+          <Form.Label required>{t('type', 'Type')}</Form.Label>
           <Select
             value={field.value}
             onValueChange={(value) => {

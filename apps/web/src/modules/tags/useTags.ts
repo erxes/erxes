@@ -8,7 +8,8 @@ import {
 } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useMemo } from 'react';
-import { messageOf, orpc } from '@erxes/core-contract/client';
+import { useTranslation } from 'react-i18next';
+import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 
 /** Tag colours offered when creating one. */
 export const TAG_COLORS = [
@@ -38,9 +39,14 @@ export const useTags = (type: ContentType) => {
   return { tags, byId, loading: query.isPending, error: query.error };
 };
 
-export const useTagCreate = () => {
+/**
+ * Creates a tag and adds it to its type's list. A failure is a toast, except a taken name when
+ * `onTaken` shows it by the name field.
+ */
+export const useTagCreate = ({ onTaken }: { onTaken?: (message: string) => void } = {}) => {
   const client = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
 
   return useMutation(
     orpc.tags.create.mutationOptions({
@@ -53,12 +59,19 @@ export const useTagCreate = () => {
               }
             : cache,
         ),
-      onError: (error) =>
+      onError: (error) => {
+        if (onTaken && isApiError(error, 'TAKEN')) {
+          onTaken(t('name-taken', 'A tag with this name is already there.'));
+
+          return;
+        }
+
         toast({
           variant: 'destructive',
-          title: 'Could not create the tag',
+          title: t('create-failed', 'Could not create the tag'),
           description: messageOf(error),
-        }),
+        });
+      },
     }),
   );
 };

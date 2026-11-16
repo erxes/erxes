@@ -50,7 +50,7 @@ const PropertyFormGroupField = ({
       name="groupId"
       render={({ field }) => (
         <Form.Item className="flex-auto">
-          <Form.Label>{t('group', 'Group')}</Form.Label>
+          <Form.Label required>{t('group', 'Group')}</Form.Label>
           <div className="flex gap-2">
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
@@ -115,7 +115,7 @@ const PropertyBasics = ({ form }: { form: PropertyFormApi }) => {
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>{t('name', 'Name')}</Form.Label>
+              <Form.Label required>{t('name', 'Name')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -133,6 +133,9 @@ const PropertyBasics = ({ form }: { form: PropertyFormApi }) => {
             <Form.Control>
               <Input {...field} value={field.value ?? ''} />
             </Form.Control>
+            <Form.Description>
+              {t('code-hint', 'Leave empty to make one from the name.')}
+            </Form.Description>
             <Form.Message />
           </Form.Item>
         )}
@@ -188,7 +191,7 @@ const PropertyFormFooter = ({
 
   return (
     <div className="flex shrink-0 justify-end gap-1 border-t p-2">
-      <Button type="button" variant="ghost" onClick={onCancel}>
+      <Button type="button" variant="ghost" onClick={onCancel} disabled={loading}>
         {t('cancel', 'Cancel')}
       </Button>
       {manager && (
@@ -200,7 +203,7 @@ const PropertyFormFooter = ({
           ) : (
             <IconPlus />
           )}
-          {isEdit ? t('update-property', 'Update Property') : t('add-property', 'Add Property')}
+          {isEdit ? t('update-property', 'Save property') : t('add-property', 'Add property')}
         </Button>
       )}
     </div>

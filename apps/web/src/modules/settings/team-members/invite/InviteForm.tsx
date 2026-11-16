@@ -129,6 +129,14 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
           <ScrollArea.Bar />
         </ScrollArea>
         <div className="mt-3 w-full flex gap-3 justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsOpen(false)}
+            disabled={sending}
+          >
+            {t('cancel', 'Cancel')}
+          </Button>
           <Button type="submit" disabled={sending}>
             {sending ? <Spinner size="sm" /> : <IconSend size={16} />}
             {t('send-invites')}
