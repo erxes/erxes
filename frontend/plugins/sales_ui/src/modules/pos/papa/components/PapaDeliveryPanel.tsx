@@ -143,10 +143,14 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
 
   const status = delivery?.status;
   const canQuote = !delivery || PAPA_RESENDABLE_STATUSES.includes(status ?? '');
-  const canSend =
-    status === 'QUOTED' || (status === 'FAILED' && !!delivery?.papaOrderId);
+  // A failed send that reached Papa (or may have) is retried, never re-quoted.
+  const failedWithOrder =
+    status === 'FAILED' &&
+    (!!delivery?.papaOrderId || !!delivery?.createUncertain);
+  const canSend = status === 'QUOTED' || failedWithOrder;
   const canCancel =
-    !!delivery?.papaOrderId && PAPA_CANCELLABLE_STATUSES.includes(status ?? '');
+    !!delivery?.papaOrderId &&
+    (status === 'FAILED' || PAPA_CANCELLABLE_STATUSES.includes(status ?? ''));
 
   const canMarkDelivered = status === 'START' && !!delivery?.cargoId;
   // Papa takes its fee from DTS's wallet when a delivery ends; an END
@@ -382,7 +386,7 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
         </section>
       )}
 
-      {canQuote && status !== 'FAILED' && (
+      {canQuote && !failedWithOrder && (
         <section className="space-y-2">
           <h4 className="text-sm font-medium">
             {delivery

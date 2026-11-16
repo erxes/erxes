@@ -1,5 +1,7 @@
 import {
   IPapaTokenStore,
+  isTrustedPapaUrl,
+  isUncertainPapaFailure,
   PapaApiError,
   PapaClient,
   TPapaFetch,
@@ -10,6 +12,7 @@ import {
   expandCarTypes,
   normalizeMnPhone,
   orderToDelivery,
+  trimTrailingSlashes,
 } from '../mapping';
 
 class MemoryStore implements IPapaTokenStore {
@@ -160,6 +163,14 @@ describe('Papa mapping', () => {
 
     expect(unpaid).toMatchObject({ isPaid: false, unpaidAmount: 10000 });
     expect(paid).toMatchObject({ isPaid: true, unpaidAmount: 0 });
+  });
+
+  it('trims trailing slashes', () => {
+    expect(trimTrailingSlashes('https://a.papa.mn/api/v4///')).toBe(
+      'https://a.papa.mn/api/v4',
+    );
+    expect(trimTrailingSlashes('https://a.papa.mn')).toBe('https://a.papa.mn');
+    expect(trimTrailingSlashes('///')).toBe('');
   });
 
   it('builds the gateway callback URL', () => {
@@ -379,6 +390,83 @@ describe('PapaClient', () => {
       is_tip: false,
       tip_amount: null,
     });
+  });
+
+  it('only trusts https papa.mn hosts with credentials', () => {
+    expect(isTrustedPapaUrl('https://dev-api.papa.mn/api/v4')).toBe(true);
+    expect(isTrustedPapaUrl('https://papa.mn/api/v4')).toBe(true);
+    expect(isTrustedPapaUrl('http://dev-api.papa.mn/api/v4')).toBe(false);
+    expect(isTrustedPapaUrl('https://papa.mn.attacker.io/api')).toBe(false);
+    expect(isTrustedPapaUrl('https://evilpapa.mn/api')).toBe(false);
+    expect(isTrustedPapaUrl('https://user:pw@api.papa.mn/api')).toBe(false);
+    expect(isTrustedPapaUrl('not a url')).toBe(false);
+    expect(
+      () =>
+        new PapaClient(
+          { ...credentials, apiUrl: 'https://attacker.example/api' },
+          new MemoryStore(),
+          fakeFetch(() => ok({}), []),
+        ),
+    ).toThrow('papa.mn');
+  });
+
+  it('treats only timeouts and server errors as uncertain', () => {
+    expect(isUncertainPapaFailure(new PapaApiError('x', 0, '/'))).toBe(true);
+    expect(isUncertainPapaFailure(new PapaApiError('x', 502, '/'))).toBe(true);
+    expect(isUncertainPapaFailure(new PapaApiError('x', 400, '/'))).toBe(false);
+    expect(isUncertainPapaFailure(new Error('x'))).toBe(false);
+  });
+
+  it('recovers the live Papa order by name, confirmed by reference_id', async () => {
+    const calls: TCall[] = [];
+    const references: Record<string, string> = {
+      cancelled: 'o1',
+      newest: 'o1',
+      other: 'o2',
+    };
+    const client = new PapaClient(
+      credentials,
+      new MemoryStore(),
+      fakeFetch((call) => {
+        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
+        if (call.url.endsWith('/dynamic/get')) {
+          const id = String(call.body.id);
+          return ok({ id, reference_id: references[id] });
+        }
+        // The list has no reference_id, as Papa dev returns it.
+        return ok({
+          rows: [
+            {
+              id: 'other',
+              name: 'Order 2',
+              parcel_order_status: 'CONFIRM',
+              created_at: '2026-11-16T05:40:00Z',
+            },
+            {
+              id: 'newest',
+              name: 'Order 1',
+              parcel_order_status: 'NEW',
+              created_at: '2026-11-16T05:37:00Z',
+            },
+            {
+              id: 'cancelled',
+              name: 'Order 1',
+              parcel_order_status: 'USER_CANCELLED',
+              created_at: '2026-11-16T05:20:00Z',
+            },
+          ],
+        });
+      }, calls),
+    );
+
+    const found = await client.findOrderByReference('o1', 'Order 1');
+    const checked = calls
+      .filter((call) => call.url.endsWith('/dynamic/get'))
+      .map((call) => call.body.id);
+
+    expect(found?.id).toBe('newest');
+    expect(checked).toEqual(['newest']);
+    expect(await client.findOrderByReference('o9', 'Order 1')).toBeUndefined();
   });
 
   it('creates with the quote in cargo.dynamic_price_id', async () => {

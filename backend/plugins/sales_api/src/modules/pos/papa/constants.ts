@@ -1,5 +1,14 @@
 export const PAPA_DEV_API_URL = 'https://dev-api.papa.mn/api/v4';
 
+/** Credentials are only ever sent to Papa's own hosts (papa.mn and its subdomains). */
+export const PAPA_TRUSTED_HOST = 'papa.mn';
+
+/** Papa orders that can no longer be the live order behind an erxes order. */
+export const PAPA_ENDED_ORDER_STATUSES = ['CANCELLED', 'USER_CANCELLED', 'EXPIRED'];
+
+/** At most this many same-named candidates are checked by their dynamic get. */
+export const PAPA_ORDER_LOOKUP_LIMIT = 3;
+
 export const PAPA_REQUEST_TIMEOUT_MS = 15_000;
 
 // Papa does not document the token lifetime; refresh well before an hour.

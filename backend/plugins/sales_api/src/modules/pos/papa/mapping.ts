@@ -16,6 +16,17 @@ import {
 } from './types';
 
 const MAX_CARGO_NAME = 255;
+
+/** Drops trailing slashes without a regex (Sonar flags `/\/+$/` for backtracking). */
+export const trimTrailingSlashes = (value: string) => {
+  let end = value.length;
+
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+
+  return value.slice(0, end);
+};
 const MAX_DESCRIPTION = 500;
 
 /** Expands the POS's UI car-type groups into Papa `car_type` values. */
@@ -182,4 +193,4 @@ export const buildCallbackUrl = (
   gatewayDomain: string,
   callbackPath: string,
   secret: string,
-) => `${gatewayDomain.replace(/\/+$/, '')}/pl:sales${callbackPath}/${secret}`;
+) => `${trimTrailingSlashes(gatewayDomain)}/pl:sales${callbackPath}/${secret}`;

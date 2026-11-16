@@ -2,7 +2,11 @@ import { getEnv, redis } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IPosOrderDocument } from '../@types/orders';
 import { IPapaConfigDocument } from '../@types/papaConfigs';
-import { PapaClient } from './client';
+import {
+  isTrustedPapaUrl,
+  isUncertainPapaFailure,
+  PapaClient,
+} from './client';
 import {
   PAPA_CALLBACK_OBJECT_TYPES,
   PAPA_CALLBACK_PATH,
@@ -190,8 +194,11 @@ export const savePapaConfig = async (
 
   const apiUrl = (input.apiUrl || PAPA_DEV_API_URL).trim();
 
-  if (!/^https:\/\//.test(apiUrl)) {
-    throw new Error('Papa API URL must start with https://');
+  // The saved secret is sent to this URL, so only Papa's own hosts qualify.
+  if (!isTrustedPapaUrl(apiUrl)) {
+    throw new Error(
+      'Papa API URL must be an https://papa.mn address, e.g. https://api.papa.mn/api/v4',
+    );
   }
 
   const config = await models.PapaConfigs.saveCredentials(
@@ -364,6 +371,17 @@ export const quotePapaDelivery = async (
     throw new Error(`Delivery is already ${current.status}`);
   }
 
+  // A failed send that reached Papa (or may have) still owns a Papa order;
+  // a new quote would drop its id and a later send would create a second one.
+  if (
+    current?.status === PAPA_LOCAL_STATUS.FAILED &&
+    (current.papaOrderId || current.createUncertain)
+  ) {
+    throw new Error(
+      'This delivery already has a Papa order: send it again to finish, or cancel it before getting a new price',
+    );
+  }
+
   if (!args.toLocationId || !args.toAddress?.trim()) {
     throw new Error('Delivery district and address are required');
   }
@@ -397,13 +415,27 @@ export const quotePapaDelivery = async (
   });
 
   const now = new Date();
-
-  return setDelivery(models, orderId, {
+  const delivery: IPapaDelivery = {
     ...quoteToDelivery(quote, now, destination),
     status: PAPA_LOCAL_STATUS.QUOTED,
     events: current?.events,
     updatedAt: now,
-  });
+  };
+
+  // Write only if nothing changed while Papa priced it: a send that claimed
+  // the order meanwhile must not be turned back into a quote.
+  const written = await models.PosOrders.updateOne(
+    current
+      ? { _id: orderId, 'papaDelivery.status': current.status }
+      : { _id: orderId, papaDelivery: { $in: [null] } },
+    { $set: { papaDelivery: delivery } },
+  );
+
+  if (!written.matchedCount) {
+    throw new Error('The delivery changed while getting a price; try again');
+  }
+
+  return delivery;
 };
 
 /** Creates the Papa order from the stored quote and announces it to drivers. */
@@ -418,9 +450,11 @@ export const sendPapaDelivery = async (
 
   const current = order.papaDelivery;
 
-  // A FAILED delivery that already has a Papa order only needs confirming.
+  // A FAILED delivery that has (or may have) a Papa order is retried without
+  // a second create: it only confirms, after looking the order up if needed.
   const retryConfirm =
-    current?.status === PAPA_LOCAL_STATUS.FAILED && !!current.papaOrderId;
+    current?.status === PAPA_LOCAL_STATUS.FAILED &&
+    (!!current.papaOrderId || !!current.createUncertain);
 
   const quoteId = current?.quoteId;
 
@@ -479,16 +513,47 @@ export const sendPapaDelivery = async (
   });
 
   let papaOrderId = current.papaOrderId;
+  let createUncertain = !!current.createUncertain;
+
+  // Papa keeps our POS order id as `reference_id`; find an order a lost
+  // create response left behind. A failed lookup counts as not found.
+  const recoverOrderId = async () =>
+    (
+      await client
+        .findOrderByReference(orderId, input.cargo.name)
+        .catch(() => undefined)
+    )?.id;
 
   try {
-    if (!retryConfirm || !papaOrderId) {
-      const created = await client.createDynamicOrder(input);
-      papaOrderId = created.id;
+    if (!papaOrderId && createUncertain) {
+      papaOrderId = await recoverOrderId();
+    }
+
+    if (!papaOrderId) {
+      try {
+        papaOrderId = (await client.createDynamicOrder(input)).id;
+      } catch (error) {
+        if (!isUncertainPapaFailure(error)) {
+          throw error;
+        }
+
+        papaOrderId = await recoverOrderId();
+
+        if (!papaOrderId) {
+          createUncertain = true;
+          throw error;
+        }
+      }
+
+      createUncertain = false;
 
       // Persist the Papa id before confirming so a failed confirm can retry.
       await models.PosOrders.updateOne(
         { _id: orderId },
-        { $set: { 'papaDelivery.papaOrderId': papaOrderId } },
+        {
+          $set: { 'papaDelivery.papaOrderId': papaOrderId },
+          $unset: { 'papaDelivery.createUncertain': '' },
+        },
       );
     }
 
@@ -499,6 +564,7 @@ export const sendPapaDelivery = async (
       ...current,
       ...orderToDelivery(confirmed, now),
       carTypes: input.car_type,
+      createUncertain: undefined,
       error: undefined,
       sentBy: userId,
       sentAt: now,
@@ -507,11 +573,19 @@ export const sendPapaDelivery = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
 
+    // Back to QUOTED only when Papa surely has no order for it; otherwise
+    // FAILED, so the next send confirms (or looks up) instead of creating.
     await setDelivery(models, orderId, {
       ...current,
-      status: papaOrderId ? PAPA_LOCAL_STATUS.FAILED : PAPA_LOCAL_STATUS.QUOTED,
+      status:
+        papaOrderId || createUncertain
+          ? PAPA_LOCAL_STATUS.FAILED
+          : PAPA_LOCAL_STATUS.QUOTED,
       papaOrderId,
-      error: message,
+      createUncertain: createUncertain || undefined,
+      error: createUncertain
+        ? `${message}. Papa may have created the order; sending again looks it up before creating another`
+        : message,
       updatedAt: new Date(),
     });
 
@@ -560,10 +634,17 @@ export const refreshPapaDelivery = async (models: IModels, orderId: string) => {
 
 export const cancelPapaDelivery = async (models: IModels, orderId: string) => {
   const order = await models.PosOrders.getOrder(orderId);
-  const current = order.papaDelivery;
+  let current = order.papaDelivery;
 
   if (!current?.papaOrderId) {
     throw new Error('This order has not been sent to Papa');
+  }
+
+  const { papaOrderId } = current;
+
+  // A failed send leaves a Papa order behind; cancel it by Papa's own status.
+  if (current.status === PAPA_LOCAL_STATUS.FAILED) {
+    current = await refreshPapaDelivery(models, orderId);
   }
 
   if (!PAPA_CANCELLABLE_STATUSES.includes(current.status)) {
@@ -574,9 +655,9 @@ export const cancelPapaDelivery = async (models: IModels, orderId: string) => {
   const client = createPapaClient(config);
 
   if (current.status === PAPA_ORDER_STATUS.CREATING_SHIPPING) {
-    await client.cancelAcceptedOrder(current.papaOrderId);
+    await client.cancelAcceptedOrder(papaOrderId);
   } else {
-    await client.cancelConfirmedOrder(current.papaOrderId);
+    await client.cancelConfirmedOrder(papaOrderId);
   }
 
   return refreshPapaDelivery(models, orderId);

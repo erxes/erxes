@@ -43,6 +43,15 @@ export interface IPapaWallet {
   account_status?: string;
 }
 
+/** A `/parcel_order` list row; it carries no `reference_id` (seen on dev). */
+export interface IPapaOrderListRow {
+  id: string;
+  name?: string | null;
+  code?: string;
+  parcel_order_status?: string;
+  created_at?: string;
+}
+
 export interface IPapaInvoice {
   id?: string;
   code?: string;
@@ -234,6 +243,12 @@ export interface IPapaDelivery {
   car?: IPapaCar | null;
   carTypes?: string[];
   error?: string;
+  /**
+   * The last create request failed without an answer (timeout, network,
+   * 5xx), so Papa may have created the order anyway; a retry looks it up by
+   * `reference_id` before creating another.
+   */
+  createUncertain?: boolean;
   sentBy?: string;
   sentAt?: Date;
   events?: IPapaDeliveryEvent[];

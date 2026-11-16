@@ -94,6 +94,7 @@ export const papaDeliverySchema = z
     car: carSchema.nullish(),
     carTypes: z.array(z.string()).nullish(),
     error: text,
+    createUncertain: z.boolean().nullish(),
     sentAt: text,
     updatedAt: text,
   })

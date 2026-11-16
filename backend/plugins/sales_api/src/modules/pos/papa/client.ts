@@ -1,10 +1,14 @@
 import { createHash } from 'crypto';
 import {
+  PAPA_ENDED_ORDER_STATUSES,
   PAPA_LIST_PAGE_SIZE,
+  PAPA_ORDER_LOOKUP_LIMIT,
+  PAPA_TRUSTED_HOST,
   PAPA_REQUEST_TIMEOUT_MS,
   PAPA_TOKEN_TTL_SECONDS,
   PAPA_UPDATE_VERSION_HEADER,
 } from './constants';
+import { trimTrailingSlashes } from './mapping';
 import {
   IPapaAddress,
   IPapaCargo,
@@ -16,6 +20,7 @@ import {
   IPapaDynamicOrder,
   IPapaEnvelope,
   IPapaInvoice,
+  IPapaOrderListRow,
   IPapaParcelOrder,
   IPapaPoint,
   IPapaQuote,
@@ -61,6 +66,30 @@ export class PapaApiError extends Error {
 
 const isUnauthorized = (status: number) => status === 401 || status === 403;
 
+/** Only `https://papa.mn` or one of its subdomains may receive credentials. */
+export const isTrustedPapaUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+
+    return (
+      url.protocol === 'https:' &&
+      !url.username &&
+      !url.password &&
+      (url.hostname === PAPA_TRUSTED_HOST ||
+        url.hostname.endsWith(`.${PAPA_TRUSTED_HOST}`))
+    );
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * No answer from Papa (timeout, network) or a server error: the request may
+ * still have taken effect on Papa's side.
+ */
+export const isUncertainPapaFailure = (error: unknown) =>
+  error instanceof PapaApiError && (error.status === 0 || error.status >= 500);
+
 /**
  * Thin typed client for the Papa Logistic organization API. Every Papa endpoint
  * is a JSON POST that answers with `{ success, message, data }`.
@@ -74,7 +103,17 @@ export class PapaClient {
     private readonly store: IPapaTokenStore,
     private readonly fetchFn: TPapaFetch = fetch,
   ) {
-    this.apiUrl = credentials.apiUrl.replace(/\/+$/, '');
+    this.apiUrl = trimTrailingSlashes(credentials.apiUrl);
+
+    // Re-checked here so a stored URL changed outside the settings form never
+    // receives the client secret.
+    if (!isTrustedPapaUrl(this.apiUrl)) {
+      throw new PapaApiError(
+        'The Papa API URL must be an https://papa.mn address',
+        0,
+        '/auth/token',
+      );
+    }
 
     const fingerprint = createHash('sha256')
       .update(
@@ -227,6 +266,43 @@ export class PapaClient {
         schedule_type: 'THREE_HOURS',
       },
     });
+  }
+
+  /**
+   * Finds the live Papa order created for an erxes order. The list (newest
+   * first) has no `reference_id`, so rows are matched by the order name erxes
+   * gave them, cancelled ones skipped, and each candidate is confirmed by the
+   * `reference_id` (the POS order id) its dynamic get returns.
+   */
+  public async findOrderByReference(referenceId: string, orderName: string) {
+    const list = await this.call<{ rows?: IPapaOrderListRow[] }>(
+      '/parcel_order',
+      {
+        filter: { query: '', order_name: orderName },
+        offset: { page: 1, limit: PAPA_LIST_PAGE_SIZE },
+      },
+    );
+
+    const candidates = (list?.rows || [])
+      .filter(
+        (row) =>
+          row.name === orderName &&
+          !PAPA_ENDED_ORDER_STATUSES.includes(row.parcel_order_status || ''),
+      )
+      .sort((a, b) =>
+        String(b.created_at || '').localeCompare(String(a.created_at || '')),
+      )
+      .slice(0, PAPA_ORDER_LOOKUP_LIMIT);
+
+    for (const row of candidates) {
+      const order = await this.getDynamicOrder(row.id);
+
+      if (order?.reference_id === referenceId) {
+        return order;
+      }
+    }
+
+    return undefined;
   }
 
   public confirmDynamicOrder(id: string) {
