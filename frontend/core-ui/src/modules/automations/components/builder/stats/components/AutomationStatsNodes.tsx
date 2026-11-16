@@ -1,11 +1,11 @@
 import { useAutomationStatsNodeLabel } from '@/automations/components/builder/stats/hooks/useAutomationStatsNodeLabel';
-import { formatStatsDuration } from '@/automations/components/builder/stats/utils/automationStatsFormat';
+import {
+  formatErrorCode,
+  formatStatsDuration,
+} from '@/automations/components/builder/stats/utils/automationStatsFormat';
 import { TAutomationStatsNode } from '@/automations/types';
 import { Badge, Table, TextOverflowTooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-const formatErrorCode = (code: string) =>
-  code.toLowerCase().split('_').join(' ');
 
 export const AutomationStatsNodes = ({
   nodes,

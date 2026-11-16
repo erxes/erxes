@@ -82,7 +82,8 @@
     "save": "Хадгалах",
     "settings": "Тохиргоо",
     "data-extensions": "Өгөгдлийн өргөтгөл",
-    "workflow-templates": "Workflow загварууд"
+    "workflow-templates": "Workflow загварууд",
+    "installed-templates": "Суулгасан"
   },
   "filter": {
     "_": "Шүүлтүүр",

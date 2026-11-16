@@ -1,5 +1,4 @@
-import { useActionNodeConfiguration } from '@/automations/components/builder/nodes/hooks/useActionNodeConfiguration';
-import { useNodeContent } from '@/automations/components/builder/nodes/hooks/useTriggerNodeContent';
+import { useBroadcastActionConfigSummary } from '@/broadcast/components/workflow/hooks/useBroadcastActionConfigSummary';
 import {
   NodeErrorDisplay,
   NodeErrorIndicator,
@@ -7,11 +6,9 @@ import {
 import { NodeDropdownActions } from '@/automations/components/builder/nodes/components/NodeDropdownActions';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { AutomationNodeType, NodeData } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Handle, Position } from '@xyflow/react';
 import { cn, Empty, IconComponent, Skeleton } from 'erxes-ui';
 import { memo, Suspense } from 'react';
-import { FieldPath, useFormContext, useWatch } from 'react-hook-form';
 
 /**
  * Broadcast's own action node.
@@ -100,19 +97,9 @@ const BroadcastActionNodeContent = ({
  * rendered by the very same action components.
  */
 const BroadcastActionConfigSummary = ({ data }: { data: NodeData }) => {
-  const { control } = useFormContext<TAutomationBuilderForm>();
-  const actionData = useWatch({
-    control,
-    name: data.formPath as FieldPath<TAutomationBuilderForm>,
-  });
+  const { Component, isVisible } = useBroadcastActionConfigSummary(data);
 
-  const { Component } = useActionNodeConfiguration(data, actionData);
-  const { hasError, shouldRender } = useNodeContent(
-    data,
-    AutomationNodeType.Action,
-  );
-
-  if (!shouldRender || hasError || !Component || !actionData) {
+  if (!isVisible) {
     return null;
   }
 

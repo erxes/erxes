@@ -53,3 +53,16 @@ query accountingReserveRems($searchValue: String, $branchId: String, $department
   )
 }
 `);
+
+export const RESERVE_REM_DETAIL_QUERY = gql(`
+query accountingReserveRemDetail($_id: String!) {
+  reserveRemDetail(_id: $_id) {
+    _id
+    branchId
+    departmentId
+    productId
+    uom
+    remainder
+  }
+}
+`);

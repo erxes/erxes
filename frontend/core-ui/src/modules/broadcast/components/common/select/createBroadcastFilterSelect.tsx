@@ -1,17 +1,11 @@
+import { BroadcastSelectValueProvider } from '@/broadcast/context/BroadcastSelectValueContext';
 import {
-  BroadcastSelectValueProvider,
-  useBroadcastSelectValue,
-} from '@/broadcast/context/BroadcastSelectValueContext';
-import {
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  PopoverScoped,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
-import { useState } from 'react';
+  useBroadcastFilterBar,
+  useBroadcastFilterOptionList,
+  useBroadcastFilterSelectedOption,
+  useBroadcastFilterView,
+} from '@/broadcast/hooks/useBroadcastFilterSelect';
+import { Combobox, Command, Filter, Popover, PopoverScoped } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 type TFilterOption = { value: string; labelKey: string };
@@ -38,8 +32,7 @@ export const createBroadcastFilterSelect = ({
 }) => {
   const SelectedValue = () => {
     const { t } = useTranslation('broadcasts');
-    const { value } = useBroadcastSelectValue();
-    const option = labels.find((item) => item.value === value);
+    const option = useBroadcastFilterSelectedOption(labels);
 
     if (!option) {
       return (
@@ -52,7 +45,7 @@ export const createBroadcastFilterSelect = ({
 
   const OptionList = () => {
     const { t } = useTranslation('broadcasts');
-    const { value, onValueChange } = useBroadcastSelectValue();
+    const { value, toggle } = useBroadcastFilterOptionList();
 
     return (
       <Command>
@@ -63,10 +56,7 @@ export const createBroadcastFilterSelect = ({
             <Command.Item
               key={option.value}
               value={option.value}
-              // Picking the chosen one again clears it.
-              onSelect={() =>
-                onValueChange(value === option.value ? '' : option.value)
-              }
+              onSelect={() => toggle(option.value)}
             >
               {t(option.labelKey)}
               <Combobox.Check checked={value === option.value} />
@@ -78,18 +68,11 @@ export const createBroadcastFilterSelect = ({
   };
 
   const FilterView = () => {
-    const [value, setValue] = useQueryState<string>(queryKey);
-    const { resetFilterState } = useFilterContext();
+    const { value, select } = useBroadcastFilterView(queryKey);
 
     return (
       <Filter.View filterKey={queryKey}>
-        <BroadcastSelectValueProvider
-          value={value ?? undefined}
-          onValueChange={(next) => {
-            setValue(next);
-            resetFilterState();
-          }}
-        >
+        <BroadcastSelectValueProvider value={value} onValueChange={select}>
           <OptionList />
         </BroadcastSelectValueProvider>
       </Filter.View>
@@ -97,17 +80,10 @@ export const createBroadcastFilterSelect = ({
   };
 
   const FilterBar = () => {
-    const [value, setValue] = useQueryState<string>(queryKey);
-    const [open, setOpen] = useState(false);
+    const { value, open, setOpen, select } = useBroadcastFilterBar(queryKey);
 
     return (
-      <BroadcastSelectValueProvider
-        value={value ?? undefined}
-        onValueChange={(next) => {
-          setValue(next);
-          setOpen(false);
-        }}
-      >
+      <BroadcastSelectValueProvider value={value} onValueChange={select}>
         <PopoverScoped open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey={queryKey}>

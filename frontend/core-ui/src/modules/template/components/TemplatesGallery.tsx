@@ -1,15 +1,21 @@
 import { TemplateCard } from '@/template/components/TemplateCard';
+import { TemplatesGalleryFilters } from '@/template/components/TemplatesGalleryFilters';
+import { TemplatesGalleryHero } from '@/template/components/TemplatesGalleryHero';
+import { TemplatesGallerySections } from '@/template/components/TemplatesGallerySections';
+import { TEMPLATE_GRID_CLASS } from '@/template/constants/templateGallery';
+import { cn } from 'erxes-ui';
 import {
   TemplateEmpty,
   TemplateError,
   TemplateLoading,
 } from '@/template/components/TemplateStateViews';
-import { useTemplates } from '@/template/hooks/useTemplates';
+import { useTemplatesGallery } from '@/template/hooks/useTemplatesGallery';
 import { useTranslation } from 'react-i18next';
 
 export const TemplatesGallery = () => {
   const { t } = useTranslation('templates');
-  const { templates, loading, error } = useTemplates();
+  const { templates, hasTemplates, loading, error, isBrowsing } =
+    useTemplatesGallery();
 
   if (loading) {
     return <TemplateLoading />;
@@ -19,7 +25,7 @@ export const TemplatesGallery = () => {
     return <TemplateError message={error.message} />;
   }
 
-  if (!templates.length) {
+  if (!hasTemplates) {
     return (
       <TemplateEmpty
         title={t('no-templates')}
@@ -29,13 +35,26 @@ export const TemplatesGallery = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-      {templates.map((template) => (
-        <TemplateCard
-          key={`${template.pluginName}:${template.id}`}
-          template={template}
+    <>
+      <TemplatesGalleryHero />
+      <TemplatesGalleryFilters />
+      {isBrowsing && <TemplatesGallerySections />}
+      {!isBrowsing && !!templates.length && (
+        <div className={cn(TEMPLATE_GRID_CLASS, 'p-5')}>
+          {templates.map((template) => (
+            <TemplateCard
+              key={`${template.pluginName}:${template.id}`}
+              template={template}
+            />
+          ))}
+        </div>
+      )}
+      {!isBrowsing && !templates.length && (
+        <TemplateEmpty
+          title={t('no-templates-filtered')}
+          description={t('no-templates-filtered-body')}
         />
-      ))}
-    </div>
+      )}
+    </>
   );
 };

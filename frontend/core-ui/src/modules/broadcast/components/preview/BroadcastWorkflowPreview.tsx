@@ -1,9 +1,5 @@
-import {
-  BroadcastWorkflowEditor,
-  TBroadcastWorkflow,
-} from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
-import { useCallback } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { BroadcastWorkflowEditor } from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
+import { useBroadcastWorkflowPreview } from '@/broadcast/hooks/useBroadcastWorkflowPreview';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -14,18 +10,11 @@ import { useTranslation } from 'react-i18next';
  */
 export const BroadcastWorkflowPreview = () => {
   const { t } = useTranslation('broadcasts');
-  const { setValue, getValues } = useFormContext();
-
-  const handleChange = useCallback(
-    (workflow: TBroadcastWorkflow) => {
-      setValue('workflow', workflow, { shouldDirty: true });
-    },
-    [setValue],
-  );
+  const { value, handleChange } = useBroadcastWorkflowPreview();
 
   return (
     <BroadcastWorkflowEditor
-      value={getValues('workflow')}
+      value={value}
       startLabel={t('workflow.start-customer')}
       onChange={handleChange}
     />

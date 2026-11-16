@@ -3,6 +3,7 @@ import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ACC_TRANSACTIONS_REMOVE } from '../graphql/accTransactionsRemove';
 import { TRANSACTIONS_QUERY } from '../graphql/transactionQueries';
+import { ITransaction } from '../types/Transaction';
 import { useTransactionsVariables } from './useTransactionVars';
 
 export const useTransactionsBulkRemove = () => {
@@ -13,7 +14,9 @@ export const useTransactionsBulkRemove = () => {
   );
   const { toast } = useToast();
 
-  const removeTransactions = async (transactions: any[]) => {
+  const removeTransactions = async (
+    transactions: Pick<ITransaction, 'parentId'>[],
+  ) => {
     try {
       const uniqueParentIds = [...new Set(transactions.map((t) => t.parentId))];
       const results = await Promise.allSettled(
@@ -44,13 +47,14 @@ export const useTransactionsBulkRemove = () => {
         variant: 'success',
         description: t('transactions-deleted-successfully'),
       });
-    } catch (e: any) {
+      return true;
+    } catch (error) {
       toast({
         title: t('error'),
-        description: e.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: 'destructive',
       });
-      throw e;
+      return false;
     }
   };
 

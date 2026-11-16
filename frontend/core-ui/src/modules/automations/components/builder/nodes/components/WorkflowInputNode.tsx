@@ -1,8 +1,10 @@
-import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
+import {
+  useWorkflowAddInput,
+  useWorkflowInputNames,
+} from '@/automations/components/builder/nodes/hooks/useWorkflowInputNode';
 import { IconArrowBarToRight, IconPlus } from '@tabler/icons-react';
 import { Handle, Position } from '@xyflow/react';
 import { Button, Input, Popover } from 'erxes-ui';
-import { FormEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const WORKFLOW_INPUT_NODE_ID = 'workflow-input';
@@ -11,8 +13,7 @@ export const WORKFLOW_INPUT_NODE_ID = 'workflow-input';
 // contract and lets the user register a new named input.
 export const WorkflowInputNode = () => {
   const { t } = useTranslation('automations');
-  const workflowEditScope = useWorkflowEditScope();
-  const inputNames = Object.keys(workflowEditScope?.inputs || {});
+  const inputNames = useWorkflowInputNames();
 
   return (
     <div className="relative flex flex-col rounded-md border bg-background px-4 py-3 font-mono shadow-md">
@@ -42,21 +43,10 @@ export const WorkflowInputNode = () => {
 
 const WorkflowAddInputButton = () => {
   const { t } = useTranslation('automations');
-  const workflowEditScope = useWorkflowEditScope();
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
+  const { canAdd, open, setOpen, name, onNameChange, handleSubmit } =
+    useWorkflowAddInput();
 
-  const handleSubmit = useCallback(
-    (event: FormEvent) => {
-      event.preventDefault();
-      workflowEditScope?.addInput?.(name);
-      setName('');
-      setOpen(false);
-    },
-    [workflowEditScope, name],
-  );
-
-  if (!workflowEditScope?.addInput) {
+  if (!canAdd) {
     return null;
   }
 
@@ -78,7 +68,7 @@ const WorkflowAddInputButton = () => {
           <Input
             value={name}
             placeholder={t('workflow-input-name-placeholder')}
-            onChange={(event) => setName(event.currentTarget.value)}
+            onChange={onNameChange}
           />
           <Button type="submit" size="sm">
             {t('workflow-input-add')}

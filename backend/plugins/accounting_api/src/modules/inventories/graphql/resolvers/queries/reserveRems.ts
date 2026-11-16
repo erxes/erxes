@@ -100,6 +100,14 @@ const reserveRemsQueries = {
     const filter = await getGenerateFilter(subdomain, params);
     return await models.ReserveRems.find(filter).countDocuments();
   },
+
+  reserveRemDetail: async (
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return await models.ReserveRems.findOne({ _id }).lean();
+  },
 };
 
 export default reserveRemsQueries;

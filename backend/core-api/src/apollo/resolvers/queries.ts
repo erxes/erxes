@@ -6,6 +6,8 @@ import { twoFactorQueries } from '@/auth/graphql/resolvers/twoFactor';
 import { supportAccessQueries } from '@/auth/graphql/resolvers/supportAccess';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
+import { automationFolderQueries } from '@/automations/graphql/resolvers/folders';
+import { automationVersionQueries } from '@/automations/graphql/resolvers/versions';
 import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
 import { notificationTemplateQueries } from '@/notificationTemplates/graphql/resolvers';
 import { currencyRateQueries } from '@/currencyRates/graphql/resolvers';
@@ -91,6 +93,8 @@ export const queries = {
   ...filesQueries,
   ...documentQueries,
   ...automationQueries,
+  ...automationFolderQueries,
+  ...automationVersionQueries,
   ...emailTemplateQueries,
   ...notificationTemplateQueries,
   ...currencyRateQueries,

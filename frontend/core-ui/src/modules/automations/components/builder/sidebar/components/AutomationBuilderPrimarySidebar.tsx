@@ -1,6 +1,3 @@
-import type { PagePanelEntry } from '@/side-panel/hooks/usePagePanel';
-import { RecordSidePanel } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
 import { AutomationBuilderNodeMetaEditor } from '@/automations/components/builder/sidebar/components/AutomationBuilderNodeMetaEditor';
 import { AutomationBuilderSidebarHeaderActions } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarHeaderActions';
 import { AutomationActionContentSidebar } from '@/automations/components/builder/sidebar/components/content/action/AutomationActionContentSidebar';
@@ -19,9 +16,7 @@ export const AutomationBuilderPrimarySidebar = ({
   className,
   handleBack,
   handleClose,
-  panelEntry,
 }: {
-  panelEntry?: PagePanelEntry;
   activeNode?: NodeData;
   showPanelToggles: boolean;
   className?: string;
@@ -37,7 +32,6 @@ export const AutomationBuilderPrimarySidebar = ({
     >
       <AutomationBuilderSidebarHeader
         activeNode={activeNode}
-        panelEntry={panelEntry}
         showPanelToggles={showPanelToggles}
         handleBack={handleBack}
         handleClose={handleClose}
@@ -54,46 +48,15 @@ export const AutomationBuilderPrimarySidebar = ({
 
 const AutomationBuilderSidebarHeader = ({
   activeNode,
-  panelEntry,
   showPanelToggles,
   handleClose,
   handleBack,
 }: {
-  panelEntry?: PagePanelEntry;
   activeNode?: NodeData;
   showPanelToggles: boolean;
   handleClose: () => void;
   handleBack: () => void;
 }) => {
-  const { t } = useTranslation('automations');
-  if (panelEntry)
-    return (
-      <>
-        <RecordSidePanel.Header
-          title={
-            activeNode ? (
-              <AutomationBuilderNodeMetaEditor activeNode={activeNode} />
-            ) : (
-              t('sidebar-automation-configuration')
-            )
-          }
-          avatar={activeNode && <IconComponent name={activeNode.icon} />}
-          onBack={panelEntry.onBack || (activeNode ? handleBack : undefined)}
-          onClose={panelEntry.onClose}
-          expanded={panelEntry.expanded}
-          onExpand={panelEntry.onExpand}
-          actions={
-            <AutomationBuilderSidebarHeaderActions
-              showPanelToggles={showPanelToggles}
-            />
-          }
-        />
-        {activeNode && (
-          <AutomationActionTargetSelector activeNode={activeNode} />
-        )}
-        <Separator />
-      </>
-    );
   if (!activeNode) {
     return null;
   }

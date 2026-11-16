@@ -1,23 +1,28 @@
-import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
+import { useBroadcastNotificationMethod } from '@/broadcast/hooks/useBroadcastNotificationMethod';
 import { IconBellRinging, IconDeviceMobile } from '@tabler/icons-react';
 import { cn, Form, Input, Label, Select, Textarea } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 export const BroadcastNotificationMethod = () => {
   const { t } = useTranslation('broadcasts');
-  const { control, watch } = useFormContext();
-  const { clientPortals, loading } = useClientPortals();
-
-  const title = watch('notification.title') || '';
-  const content = watch('notification.content') || '';
+  const {
+    control,
+    portals,
+    portalsState,
+    portalLabelOf,
+    titleLength,
+    contentLength,
+    portalRules,
+    titleRules,
+    contentRules,
+  } = useBroadcastNotificationMethod();
 
   return (
     <form className="flex flex-col h-full gap-3">
       <Form.Field
         name="cpId"
         control={control}
-        rules={{ required: t('notification.portal-required') }}
+        rules={portalRules}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('notification.portal')}</Form.Label>
@@ -27,19 +32,19 @@ export const BroadcastNotificationMethod = () => {
                   <Select.Value
                     placeholder={t('notification.portal-placeholder')}
                   >
-                    {clientPortals?.find((portal) => portal._id === field.value)
-                      ?.name || t('notification.portal-placeholder')}
+                    {portalLabelOf(field.value)}
                   </Select.Value>
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
                 <Select.Group>
-                  {loading ? (
+                  {portalsState === 'loading' && (
                     <Select.Item value="loading" disabled>
                       {t('loading')}
                     </Select.Item>
-                  ) : clientPortals?.length ? (
-                    clientPortals.map((portal) => (
+                  )}
+                  {portalsState === 'ready' &&
+                    portals.map((portal) => (
                       <Select.Item
                         key={portal._id}
                         className="text-xs h-7"
@@ -47,8 +52,8 @@ export const BroadcastNotificationMethod = () => {
                       >
                         {portal.name}
                       </Select.Item>
-                    ))
-                  ) : (
+                    ))}
+                  {portalsState === 'empty' && (
                     <Select.Item value="empty" disabled>
                       {t('notification.no-portals')}
                     </Select.Item>
@@ -119,13 +124,13 @@ export const BroadcastNotificationMethod = () => {
       <Form.Field
         name="notification.title"
         control={control}
-        rules={{ required: t('notification.title-required') }}
+        rules={titleRules}
         render={({ field }) => (
           <Form.Item>
             <div className="flex items-center justify-between">
               <Form.Label>{t('notification.title')}</Form.Label>
               <Form.Label className="text-muted-foreground font-normal">
-                {title.length}/15
+                {titleLength}/15
               </Form.Label>
             </div>
             <Form.Control>
@@ -142,13 +147,13 @@ export const BroadcastNotificationMethod = () => {
       <Form.Field
         name="notification.content"
         control={control}
-        rules={{ required: t('notification.content-required') }}
+        rules={contentRules}
         render={({ field }) => (
           <Form.Item>
             <div className="flex items-center justify-between">
               <Form.Label>{t('notification.content')}</Form.Label>
               <Form.Label className="text-muted-foreground font-normal">
-                {content.length}/160
+                {contentLength}/160
               </Form.Label>
             </div>
             <Form.Control>

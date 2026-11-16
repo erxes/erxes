@@ -183,7 +183,7 @@ export const SafeRemainderFilter = ({
           <Filter.Date filterKey="updatedDate" />
         </Filter.BarItem>
 
-        {afterBar && <>{afterBar}</>}
+        {afterBar}
       </Filter.Bar>
     </Filter>
   );

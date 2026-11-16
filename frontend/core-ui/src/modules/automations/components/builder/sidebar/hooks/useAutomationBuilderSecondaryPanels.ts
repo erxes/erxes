@@ -2,12 +2,22 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { AutomationSecondaryPanel } from '@/automations/types';
 import { supportsErrorPolicy } from '@/automations/utils/automationBuilderUtils/actionFolks';
-import { Icon, IconAlertTriangle, IconVariable } from '@tabler/icons-react';
+import {
+  Icon,
+  IconAlertTriangle,
+  IconHistory,
+  IconVariable,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export const useAutomationBuilderSecondaryPanels = () => {
-  const { queryParams, actionConstMap, secondaryPanel, setSecondaryPanel } =
-    useAutomation();
+  const {
+    queryParams,
+    actionConstMap,
+    secondaryPanel,
+    setSecondaryPanel,
+    detail,
+  } = useAutomation();
   const { actions } = useAutomationNodes();
   const { t } = useTranslation('automations');
 
@@ -25,6 +35,11 @@ export const useAutomationBuilderSecondaryPanels = () => {
       description: t('error-handling-description'),
       icon: IconAlertTriangle,
     },
+    [AutomationSecondaryPanel.History]: {
+      title: t('versions-node-title'),
+      description: t('versions-node-description'),
+      icon: IconHistory,
+    },
   };
 
   const currentAction = actions.find(
@@ -35,6 +50,10 @@ export const useAutomationBuilderSecondaryPanels = () => {
     AutomationSecondaryPanel.Variables,
     ...(supportsErrorPolicy(actionConstMap.get(currentAction?.type ?? ''))
       ? [AutomationSecondaryPanel.ErrorPolicy]
+      : []),
+    // Any selected step has a history once the automation is saved
+    ...(queryParams?.activeNodeId && detail?._id
+      ? [AutomationSecondaryPanel.History]
       : []),
   ];
 

@@ -47,7 +47,7 @@ export const createCampaignAutomation = async (
     return existing;
   }
 
-  return models.Automations.create({
+  const automation = await models.Automations.create({
     name: title,
     status: AUTOMATION_STATUSES.DRAFT,
     ownedBy: 'broadcast',
@@ -68,6 +68,14 @@ export const createCampaignAutomation = async (
     createdBy: userId,
     updatedBy: userId,
   });
+
+  await models.AutomationVersions.recordVersion({
+    automation: automation.toObject(),
+    userId,
+    note: 'created',
+  });
+
+  return automation;
 };
 
 /** Replaces the flow of the automation a campaign owns. */
@@ -78,8 +86,9 @@ export const setCampaignAutomationFlow = async (
     actions = [],
     entryActionId,
   }: { actions?: IAutomationAction[]; entryActionId?: string },
+  userId?: string,
 ) => {
-  await models.Automations.updateOne(
+  const automation = await models.Automations.findOneAndUpdate(
     { ownedBy: 'broadcast', ownerContentId: campaignId },
     {
       $set: {
@@ -90,7 +99,16 @@ export const setCampaignAutomationFlow = async (
         updatedAt: new Date(),
       },
     },
-  );
+    { new: true },
+  ).lean();
+
+  if (automation) {
+    await models.AutomationVersions.recordVersion({
+      automation,
+      userId,
+      note: 'edited',
+    });
+  }
 };
 
 /** Mirrors the campaign's live state onto the automation it owns. */
@@ -152,6 +170,7 @@ export const removeCampaignAutomations = async (
   const automationIds = automations.map(({ _id }) => _id);
 
   await models.AutomationExecutions.removeExecutions(automationIds);
+  await models.AutomationVersions.removeVersions(automationIds);
   await models.Automations.deleteMany({ _id: { $in: automationIds } });
 };
 

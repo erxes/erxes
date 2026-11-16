@@ -2,9 +2,8 @@ import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/act
 import { AiAgentToolBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentToolBuilder';
 import { AiAgentTopicBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentTopicBuilder';
 import { TAiAgentOutputTab } from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentConfigTabs';
-import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
+import { useAiAgentOutputFields } from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentOutputFields';
 import { Tabs } from 'erxes-ui';
-import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -20,11 +19,8 @@ export const AiAgentOutputFields = ({
   onOutputTabChange: (tab: TAiAgentOutputTab) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { control } = useFormContext<TAiAgentConfigForm>();
-  const goalType = useWatch({ control, name: 'goalType' });
-  const captureCount = (useWatch({ control, name: 'captureFields' }) || [])
-    .length;
-  const toolCount = (useWatch({ control, name: 'tools' }) || []).length;
+  const { goalType, captureCount, toolCount, onTabChange } =
+    useAiAgentOutputFields(onOutputTabChange);
 
   if (goalType === 'splitTopic') {
     return <AiAgentTopicBuilder />;
@@ -43,10 +39,7 @@ export const AiAgentOutputFields = ({
   }
 
   return (
-    <Tabs
-      value={outputTab}
-      onValueChange={(value) => onOutputTabChange(value as TAiAgentOutputTab)}
-    >
+    <Tabs value={outputTab} onValueChange={onTabChange}>
       <Tabs.List className="mb-3 w-fit">
         <Tabs.Trigger value="fields">
           {t('ai-agent-fields')}

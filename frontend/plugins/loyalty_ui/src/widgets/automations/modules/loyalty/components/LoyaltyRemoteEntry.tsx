@@ -6,6 +6,7 @@ import {
 import { LoyaltyActionConfigForm } from './action/LoyaltyActionConfigForm';
 import { LoyaltyActionNodeContent } from './action/LoyaltyActionNodeContent';
 import { LoyaltyActionResult } from './action/LoyaltyActionResult';
+import { LoyaltyTemplateRequirement } from './template/LoyaltyTemplateRequirement';
 import { TierChangedHistoryName } from './trigger/TierChangedHistoryName';
 import { TierChangedTriggerConfigForm } from './trigger/TierChangedTriggerConfigForm';
 import { TierChangedTriggerNodeContent } from './trigger/TierChangedTriggerNodeContent';
@@ -21,6 +22,7 @@ export const LoyaltyRemoteEntry = (props: AutomationRemoteEntryProps) => {
         actionNodeConfiguration: LoyaltyActionNodeContent,
         historyActionResult: LoyaltyActionResult,
         historyName: TierChangedHistoryName,
+        templateRequirement: LoyaltyTemplateRequirement,
       }}
     />
   );

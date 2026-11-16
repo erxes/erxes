@@ -4,41 +4,14 @@ import {
   AiAgentRowList,
 } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentRowList';
 import { AiAgentToolMemorizeFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentToolMemorizeFields';
-import { useAiAgentRowList } from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentRowList';
-import {
-  TAiAgentConfigForm,
-  TAiAgentToolFormValue,
-} from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
+import { useAiAgentToolBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentToolBuilder';
+import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { Badge, Form, Input, Select, Textarea } from 'erxes-ui';
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { generateAutomationElementId } from 'ui-modules';
-
-const getToolLabel = (tool?: TAiAgentToolFormValue) => tool?.name || '';
+import { useFormContext } from 'react-hook-form';
 
 export const AiAgentToolBuilder = () => {
   const { t } = useTranslation('automations');
-  const { control } = useFormContext<TAiAgentConfigForm>();
-  const { fields, append, remove } = useFieldArray({ control, name: 'tools' });
-  const tools: TAiAgentToolFormValue[] =
-    useWatch({ control, name: 'tools' }) || [];
-  const list = useAiAgentRowList({
-    name: 'tools',
-    fields,
-    values: tools,
-    getLabel: getToolLabel,
-  });
-
-  const handleAdd = () => {
-    const id = generateAutomationElementId();
-    append({
-      id,
-      name: `tool_${fields.length + 1}`,
-      description: '',
-      kind: 'helper',
-      memorizeFields: [],
-    });
-    list.openRow(id);
-  };
+  const { list, isEmpty, rows, handleAdd, remove } = useAiAgentToolBuilder();
 
   return (
     <div className="flex flex-col gap-3">
@@ -52,49 +25,41 @@ export const AiAgentToolBuilder = () => {
         onSearchChange={list.setSearch}
         showSearch={list.showSearch}
         hasNoMatch={list.hasNoMatch}
-        isEmpty={!fields.length}
+        isEmpty={isEmpty}
         errorMessage={list.listErrorMessage}
         addLabel={t('ai-agent-add-tool')}
         onAdd={handleAdd}
       >
-        {fields.map((field, index) => {
-          const { id } = list.items[index];
-          const tool = tools[index];
-
-          if (!list.isVisible(id)) {
-            return null;
-          }
-
-          return (
-            <AiAgentRow
-              key={field.id}
-              value={id}
-              title={tool?.name || ''}
-              badges={
-                <>
-                  <Badge variant="secondary" className="shrink-0">
-                    {tool?.kind === 'handoff'
-                      ? t('ai-agent-tool-kind-handoff')
-                      : t('ai-agent-tool-kind-helper')}
+        {rows.map((row) => (
+          <AiAgentRow
+            key={row.key}
+            value={row.id}
+            title={row.title}
+            badges={
+              <>
+                <Badge variant="secondary" className="shrink-0">
+                  {t(row.kindLabelKey)}
+                </Badge>
+                {row.missingDescription && (
+                  <Badge variant="warning" className="shrink-0">
+                    {t('ai-agent-tool-no-description')}
                   </Badge>
-                  {!tool?.description && (
-                    <Badge variant="warning" className="shrink-0">
-                      {t('ai-agent-tool-no-description')}
-                    </Badge>
-                  )}
-                </>
-              }
-              preview={tool?.description}
-              hasError={list.hasError(id)}
-              onRemove={() => remove(index)}
-            >
-              <AiAgentToolFields index={index} />
-              {tool?.id && (
-                <AiAgentToolMemorizeFields index={index} toolId={tool.id} />
-              )}
-            </AiAgentRow>
-          );
-        })}
+                )}
+              </>
+            }
+            preview={row.preview}
+            hasError={row.hasError}
+            onRemove={() => remove(row.index)}
+          >
+            <AiAgentToolFields index={row.index} />
+            {row.toolId && (
+              <AiAgentToolMemorizeFields
+                index={row.index}
+                toolId={row.toolId}
+              />
+            )}
+          </AiAgentRow>
+        ))}
       </AiAgentRowList>
     </div>
   );
