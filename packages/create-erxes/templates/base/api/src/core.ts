@@ -30,7 +30,8 @@ export const manifest = {
   description: '__description__',
   version: config.version,
   ui: { remote: '__id___ui', entry: config.uiEntryUrl },
-  api: { url: `${config.publicUrl}/api` },
+  // `server.ts` serves the REST routes at /api/v1 and their document here.
+  api: { url: `${config.publicUrl}/api`, openapi: '/openapi.json' },
   scopes: [],
   permissions: [
     { action: PERMISSIONS.view, label: 'View items', group: '__title__' },

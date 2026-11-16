@@ -1,20 +1,32 @@
 import { bearerOf, verifyCoreJob, verifyPluginSession } from '@erxes/plugin-sdk';
+import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
+import { OpenAPIHandler } from '@orpc/openapi/node';
 import { onError, ORPCError } from '@orpc/server';
 import { RPCHandler } from '@orpc/server/node';
 import cors from 'cors';
 import express from 'express';
 import { pinoHttp } from 'pino-http';
 import { config, PLUGIN } from '#/config.ts';
+import { manifest } from '#/core.ts';
 import { runJob } from '#/jobs.ts';
 import { logger } from '#/logger.ts';
 import { router } from '#/router.ts';
 
-const rpc = new RPCHandler(router, {
-  interceptors: [
-    onError((error) => {
-      if (!(error instanceof ORPCError) || error.status >= 500) logger.error(error);
-    }),
-  ],
+const logFailure = onError((error) => {
+  if (!(error instanceof ORPCError) || error.status >= 500) logger.error(error);
+});
+
+// The same procedures twice: RPC for the plugin UI, REST (documented below) for scripts.
+const rpc = new RPCHandler(router, { interceptors: [logFailure] });
+const rest = new OpenAPIHandler(router, { interceptors: [logFailure] });
+
+/** Settings › Developer › API reference shows it (the manifest's `api.openapi`). */
+const openApi = pluginOpenApi(router, {
+  plugin: PLUGIN,
+  title: manifest.title,
+  version: manifest.version,
+  description: manifest.description,
+  prefix: '/v1',
 });
 
 /** The member behind a request from the plugin UI, or null without a valid session token. */
@@ -35,26 +47,39 @@ export const createApp = () => {
   // uses (acme.app.erxes.io, its own domain). Any origin may: access is the
   // Bearer session token core issues, never a cookie, so CORS guards nothing here.
   // Routes for websites (an API key, customer tokens) set their own CORS.
-  app.use(['/api/rpc', '/ui'], cors({ origin: true, credentials: false, maxAge: 600 }));
+  app.use(
+    ['/api/rpc', '/api/v1', '/api/openapi.json', '/ui'],
+    cors({ origin: true, credentials: false, maxAge: 600 }),
+  );
 
   app.get('/health', (_req, res) => {
     res.json({ ok: true });
   });
 
-  // erxes-ui's pluginFetch adds a 5-minute session token core issued for this member and plugin.
-  app.use('/api/rpc', async (req, res, next) => {
-    const member = await memberOf(req.headers.authorization);
-
-    if (!member) {
-      res.status(401).json({ message: 'Open this plugin inside erxes to sign in' });
-
-      return;
-    }
-
-    const { matched } = await rpc.handle(req, res, { prefix: '/api/rpc', context: { member } });
-
-    if (!matched) next();
+  app.get('/api/openapi.json', async (_req, res) => {
+    res.json(await openApi);
   });
+
+  // A 5-minute session token core issued for this member and plugin: erxes-ui's pluginFetch
+  // adds it, and a script gets one from core with an API key.
+  for (const [prefix, handler] of [
+    ['/api/rpc', rpc],
+    ['/api/v1', rest],
+  ] as const) {
+    app.use(prefix, async (req, res, next) => {
+      const member = await memberOf(req.headers.authorization);
+
+      if (!member) {
+        res.status(401).json({ message: 'Send a session token for this plugin from core' });
+
+        return;
+      }
+
+      const { matched } = await handler.handle(req, res, { prefix, context: { member } });
+
+      if (!matched) next();
+    });
+  }
 
   // Core's jobs (`api/src/jobs.ts`). The token signs the raw body, so it stays text.
   app.post('/api/jobs/:name', express.text({ type: '*/*' }), async (req, res) => {

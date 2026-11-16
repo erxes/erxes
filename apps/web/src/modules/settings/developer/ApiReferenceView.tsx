@@ -1,6 +1,7 @@
-import { CORE_API_PREFIX } from '@erxes/core-contract';
+import { CORE_API_PREFIX, PLUGIN_SESSION_SCHEME } from '@erxes/core-contract';
+import { orpc } from '@erxes/core-contract/client';
 import type { createApiReference } from '@scalar/api-reference';
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { QueryState } from '~/components/QueryState';
@@ -35,44 +36,105 @@ const ERXES_COLORS = `
   --scalar-border-color: var(--border);
 }`;
 
-const Reference = ({ create, audience }: { create: CreateApiReference; audience: ApiAudience }) => {
+/** A document to show: core's for an audience, or an installed plugin's from its own API. */
+export type ReferenceSource =
+  | { audience: ApiAudience }
+  | { plugin: string; apiUrl: string; openapi: string };
+
+/** Where the document is and where its calls go: core's own origin, or the plugin's API. */
+const locate = (source: ReferenceSource) =>
+  'audience' in source
+    ? {
+        url: `${CORE_API_PREFIX}/openapi/${source.audience}.json`,
+        server: window.location.origin,
+      }
+    : { url: `${source.apiUrl}${source.openapi}`, server: source.apiUrl };
+
+type ScalarConfig = Parameters<ReturnType<CreateApiReference>['updateConfiguration']>[0];
+
+/** A plugin reference fills in the member's session token, so "try it" calls as them. */
+const configFor = (
+  url: string,
+  server: string,
+  theme: 'light' | 'dark',
+  token?: string,
+): ScalarConfig => ({
+  url,
+  servers: [{ url: server }],
+  layout: 'modern',
+  forceDarkModeState: theme,
+  hideDarkModeToggle: true,
+  // No proxy, telemetry, agent or remote fonts: calls go straight to core or the plugin.
+  // Scalar's own toolbar (share, SDKs, deploy) links to its hosted services.
+  showDeveloperTools: 'never',
+  withDefaultFonts: false,
+  telemetry: false,
+  persistAuth: false,
+  agent: { disabled: true },
+  mcp: { disabled: true },
+  documentDownloadType: 'json',
+  customCss: ERXES_COLORS,
+  authentication: token
+    ? {
+        preferredSecurityScheme: PLUGIN_SESSION_SCHEME,
+        securitySchemes: { [PLUGIN_SESSION_SCHEME]: { token } },
+      }
+    : undefined,
+});
+
+/** Plugin session tokens last 5 minutes: get the next one a minute early. */
+const SESSION_REFRESH_MS = 4 * 60_000;
+
+/** The member's session token for a plugin's API, kept fresh, so "try it" works signed in. */
+const useSessionToken = (plugin: string | null) => {
+  const session = useQuery(
+    orpc.plugins.session.queryOptions({
+      input: plugin ? { name: plugin } : skipToken,
+      staleTime: SESSION_REFRESH_MS,
+      refetchInterval: SESSION_REFRESH_MS,
+    }),
+  );
+
+  return session.data?.token;
+};
+
+const Reference = ({ create, source }: { create: CreateApiReference; source: ReferenceSource }) => {
   const theme = useAppliedTheme();
+  const { url, server } = locate(source);
+  const token = useSessionToken('plugin' in source ? source.plugin : null);
   const container = useRef<HTMLDivElement>(null);
+  const instance = useRef<ReturnType<CreateApiReference> | null>(null);
 
   useEffect(() => {
     if (!container.current) return;
 
-    // Calls go straight to this core: no proxy, telemetry, agent or remote fonts.
-    const reference = create(container.current, {
-      url: `${CORE_API_PREFIX}/openapi/${audience}.json`,
-      baseServerURL: window.location.origin,
-      layout: 'modern',
-      forceDarkModeState: theme,
-      hideDarkModeToggle: true,
-      // Scalar's own toolbar (share, SDKs, deploy) links to its hosted services.
-      showDeveloperTools: 'never',
-      withDefaultFonts: false,
-      telemetry: false,
-      persistAuth: false,
-      agent: { disabled: true },
-      mcp: { disabled: true },
-      documentDownloadType: 'json',
-      customCss: ERXES_COLORS,
-    });
+    const reference = create(container.current, configFor(url, server, theme));
 
-    return () => reference.destroy();
-  }, [create, audience, theme]);
+    instance.current = reference;
+
+    return () => {
+      instance.current = null;
+      reference.destroy();
+    };
+  }, [create, url, server, theme]);
+
+  // A new token updates the open reference in place, keeping where the member is.
+  useEffect(() => {
+    if (!token) return;
+
+    instance.current?.updateConfiguration(configFor(url, server, theme, token));
+  }, [url, server, theme, token]);
 
   return <div ref={container} />;
 };
 
-/** One audience's API reference, with Scalar's client to try calls. */
-export const ApiReferenceView = ({ audience }: { audience: ApiAudience }) => {
+/** One API reference, with Scalar's client to try calls. */
+export const ApiReferenceView = ({ source }: { source: ReferenceSource }) => {
   const scalar = useQuery({ queryKey: ['scalar'], queryFn: loadScalar, staleTime: Infinity });
 
   return (
     <QueryState query={scalar} className="py-12">
-      {(create) => <Reference create={create} audience={audience} />}
+      {(create) => <Reference create={create} source={source} />}
     </QueryState>
   );
 };

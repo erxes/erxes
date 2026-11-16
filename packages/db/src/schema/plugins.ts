@@ -34,7 +34,8 @@ export interface StoredPluginManifest {
   /** Made for these countries (ISO 3166); none: everywhere. */
   countries?: string[];
   ui?: { remote: string; entry: string };
-  api?: { url: string };
+  /** `openapi`: its OpenAPI document's path under `url`, shown in the API reference. */
+  api?: { url: string; openapi?: string };
   /** "Sign in with erxes" for the plugin's own app: where codes may be sent (`{subdomain}` allowed). */
   oauth?: { redirectUris: string[] };
   /** Its app for customers: the web origins that may sign customers in (`{subdomain}` allowed). */

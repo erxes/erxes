@@ -461,9 +461,15 @@ importers:
       '@orpc/contract':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)
+      '@orpc/openapi':
+        specifier: 1.16.2
+        version: 1.16.2(@opentelemetry/api@1.10.0)(ws@8.22.2)
       '@orpc/openapi-client':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)
+      '@orpc/zod':
+        specifier: 1.16.2
+        version: 1.16.2(@opentelemetry/api@1.10.0)(@orpc/contract@1.16.2(@opentelemetry/api@1.10.0))(@orpc/server@1.16.2(@opentelemetry/api@1.10.0)(ws@8.22.2))(ws@8.22.2)(zod@4.6.7)
       jose:
         specifier: ^6.2.17
         version: 6.2.17

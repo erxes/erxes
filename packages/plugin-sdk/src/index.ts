@@ -114,6 +114,13 @@
  *   const FIELDS = { 'subject.name': { type: 'text', expr: tickets.name } } satisfies FilterFields;
  *   .where(compileFilter(FIELDS, input.filter, { me: member.userId }))   // filter: FilterParam
  *
+ * API reference: `@erxes/plugin-sdk/openapi` documents the plugin's routes, served as REST beside
+ * the RPC handler; the manifest's `api.openapi` names the path, and Settings › Developer shows it:
+ *
+ *   api: { url: `${publicUrl}/api`, openapi: '/openapi.json' },
+ *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));
+ *   app.get('/api/openapi.json', async (_req, res) => res.json(await pluginOpenApi(router, { plugin, title, version, prefix: '/v1' })));
+ *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
  * also call `core_publish_event()`, `core_record_audit()` and
