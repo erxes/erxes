@@ -194,6 +194,36 @@ export const CUSTOMER_LOGIN_KINDS = ['email', 'phone'] as const;
 /** Where a customer notification also goes besides the customer's inbox. */
 export const CUSTOMER_NOTIFICATION_CHANNELS = ['email', 'sms'] as const;
 
+/** How a broadcast reaches customers. */
+export const BROADCAST_CHANNELS = ['email', 'sms'] as const;
+
+/**
+ * Where a broadcast stands: written (`draft`), waiting for its time
+ * (`scheduled`), going out (`sending`), stopped by a member (`paused`), done
+ * (`sent`), stopped for good (`cancelled`), or stopped by an error (`failed`).
+ */
+export const BROADCAST_STATUSES = [
+  'draft',
+  'scheduled',
+  'sending',
+  'paused',
+  'sent',
+  'cancelled',
+  'failed',
+] as const;
+
+/** One recipient's copy: waiting, being sent, sent, refused by the server, or not sent (with why). */
+export const BROADCAST_RECIPIENT_STATUSES = [
+  'queued',
+  'sending',
+  'sent',
+  'failed',
+  'skipped',
+] as const;
+
+/** Why an address gets no more broadcasts. */
+export const SUPPRESSION_REASONS = ['unsubscribed', 'bounced', 'complained', 'manual'] as const;
+
 /** What a sign-in code is for: signing in (or up), or adding a login to a signed-in customer. */
 export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
 

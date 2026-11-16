@@ -129,6 +129,8 @@ const Env = z
 
     SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
 
+    BROADCAST_PER_MINUTE: positive(600),
+
     OUTBOUND_ALLOW_PRIVATE: flag,
 
     EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
@@ -322,6 +324,10 @@ export const config = {
     /** `smtps://user:pass@smtp.example.com:465` (SES, Mailgun, Postmark, …). */
     smtpUrl: env.EMAIL_SMTP_URL,
     from: env.EMAIL_FROM ?? 'erxes <no-reply@erxes.io>',
+  },
+  broadcast: {
+    /** Copies one broadcast sends a minute, within what the mail or SMS provider allows. */
+    perMinute: env.BROADCAST_PER_MINUTE,
   },
   sms: {
     /**

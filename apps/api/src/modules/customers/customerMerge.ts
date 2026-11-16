@@ -1,4 +1,5 @@
 import {
+  broadcastRecipients,
   customerCompanies,
   customerLogins,
   customerNotifications,
@@ -64,6 +65,11 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
     .update(customerNotifications)
     .set({ customerId: keepId })
     .where(ofOthers(customerNotifications));
+  // What broadcasts they were sent stays counted, now as the kept customer's.
+  await tx
+    .update(broadcastRecipients)
+    .set({ customerId: keepId })
+    .where(inArray(broadcastRecipients.customerId, otherIds));
 };
 
 /** The kept customer's columns after the merge. */

@@ -58,6 +58,8 @@ export * from './orgUnits';
 
 export * from './apiKeys';
 
+export * from './broadcasts';
+
 export * from './ebarimt';
 
 export * from './favorites';

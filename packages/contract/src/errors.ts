@@ -164,6 +164,13 @@ export const ERRORS = {
   NOT_REFUNDABLE: { status: 409 },
   PARTIAL_NOT_SUPPORTED: { status: 409 },
 
+  // Broadcasts: the action doesn't fit where the broadcast stands (`status`), it lacks what
+  // sending needs (`missing`), it names a placeholder that doesn't exist, or nobody can get it.
+  BROADCAST_STATUS: { status: 409, data: z.object({ status: z.string() }) },
+  BROADCAST_INCOMPLETE: { status: 400, data: z.object({ missing: z.array(z.string()) }) },
+  UNKNOWN_PLACEHOLDER: { status: 400, data: z.object({ placeholders: z.array(z.string()) }) },
+  NO_RECIPIENTS: { status: 409 },
+
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down.
   EBARIMT_NOT_SET_UP: { status: 409 },
   COMPANY_NOT_FOUND: { status: 404 },

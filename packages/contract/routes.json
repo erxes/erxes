@@ -649,6 +649,168 @@
       }
     }
   },
+  "broadcasts": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/broadcasts/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/broadcasts/{id}"
+        }
+      }
+    },
+    "duplicate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/duplicate"
+        }
+      }
+    },
+    "audience": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/audience"
+        }
+      }
+    },
+    "preview": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/preview"
+        }
+      }
+    },
+    "test": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/test"
+        }
+      }
+    },
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/send"
+        }
+      }
+    },
+    "schedule": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule"
+        }
+      }
+    },
+    "unschedule": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/unschedule"
+        }
+      }
+    },
+    "pause": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/pause"
+        }
+      }
+    },
+    "resume": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/resume"
+        }
+      }
+    },
+    "cancel": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/cancel"
+        }
+      }
+    },
+    "recipients": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts/{id}/recipients"
+        }
+      }
+    }
+  },
   "companies": {
     "list": {
       "~orpc": {
@@ -2129,6 +2291,38 @@
         "route": {
           "method": "GET",
           "path": "/search"
+        }
+      }
+    }
+  },
+  "suppressions": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/suppressions"
+        }
+      }
+    },
+    "add": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/suppressions"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/suppressions/{id}"
         }
       }
     }

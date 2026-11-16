@@ -56,6 +56,14 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('sign_in_code'),
     data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
   }),
+  /** An email rendered already (a broadcast's test copy). */
+  z.object({
+    to: z.string(),
+    template: z.literal('rendered'),
+    replyTo: z.string().optional(),
+    fromName: z.string().optional(),
+    data: z.object({ subject: z.string(), html: z.string(), text: z.string() }),
+  }),
   /** A plain message (automations, plugins): a subject and text. */
   z.object({
     to: z.string(),
@@ -101,7 +109,7 @@ const noticeOf = (
   };
 };
 
-const contentOf = (email: EmailPayload): EmailContent => {
+const contentOf = (email: Exclude<EmailPayload, { template: 'rendered' }>): EmailContent => {
   switch (email.template) {
     case 'invitation': {
       const { data } = email;
@@ -184,10 +192,15 @@ const HTML_ESCAPES: Record<string, string> = {
   "'": '&#39;',
 };
 
-const escape = (value: string) => value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char] ?? char);
+export const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char] ?? char);
+
+const escape = escapeHtml;
 
 /** Plain HTML (no remote images or scripts) and a text version. */
 export const renderEmail = (email: EmailPayload) => {
+  if (email.template === 'rendered') return email.data;
+
   const content = contentOf(email);
 
   const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6f7f9;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#111">

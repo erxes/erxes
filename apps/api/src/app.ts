@@ -19,6 +19,7 @@ import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerApps';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
+import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
@@ -162,6 +163,9 @@ export const createApp = (log: Logger = logger): Express => {
 
   // Payment gateways call back here: signed addresses, confirmed with the gateway.
   app.use('/core/v1', paymentCallbackRouter);
+
+  // A broadcast's own links: unsubscribe, open pixel, tracked clicks (signed per recipient).
+  app.use('/core/v1', broadcastLinksRouter);
 
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
   app.use('/core/v1/oauth', limit.token, oauthRouter);

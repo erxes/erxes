@@ -24,6 +24,9 @@ export {
   automationRunSteps,
   automations,
   automationVersions,
+  broadcastRecipients,
+  broadcasts,
+  suppressions,
   auditCheckpoints,
   authTokens,
   auditLogs,
@@ -83,6 +86,10 @@ export {
 
 export type {
   ActorType,
+  BroadcastChannel,
+  BroadcastRecipientStatus,
+  BroadcastStatus,
+  SuppressionReason,
   EntitledPlugin,
   ImportCounts,
   ImportOptions,

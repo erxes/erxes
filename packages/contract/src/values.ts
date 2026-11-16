@@ -1,6 +1,9 @@
 import {
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
+  BROADCAST_CHANNELS,
+  BROADCAST_RECIPIENT_STATUSES,
+  BROADCAST_STATUSES,
   CUSTOMER_SEXES,
   CUSTOMER_STATES,
   EBARIMT_RECEIPT_STATUSES,
@@ -14,6 +17,7 @@ import {
   PLUGIN_VIEW_TYPE,
   PRODUCT_KINDS,
   SEARCH_RECORD_TYPES,
+  SUPPRESSION_REASONS,
 } from '@erxes/core-db/enums';
 import { z } from 'zod';
 
@@ -189,6 +193,11 @@ export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 // ─── Payments (gateways: `./paymentGateways`) ───────────────────────────────
 
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
+
+export const BroadcastChannel = z.enum(BROADCAST_CHANNELS);
+export const BroadcastStatus = z.enum(BROADCAST_STATUSES);
+export const BroadcastRecipientStatus = z.enum(BROADCAST_RECIPIENT_STATUSES);
+export const SuppressionReason = z.enum(SUPPRESSION_REASONS);
 
 /** How eBarimt taxes a product's lines (Settings › Integrations › eBarimt). */
 export const EbarimtTaxType = z.enum(EBARIMT_TAX_TYPES);

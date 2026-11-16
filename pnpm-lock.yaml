@@ -168,6 +168,9 @@ importers:
       jose:
         specifier: ^6.2.17
         version: 6.2.17
+      marked:
+        specifier: ^18.2.0
+        version: 18.2.0
       nodemailer:
         specifier: ^10.5.0
         version: 10.5.0
@@ -6260,6 +6263,11 @@ packages:
 
   markdown-table@3.1.0:
     resolution: {integrity: sha512-xpeSCdM+B+6P3ncfgaB7FoDbtJ30xAe6Z18TGT7AgXJsHqCElCICZovQqdRMm7kHgpTyYv36EupqewoFFSB8vw==}
+
+  marked@18.2.0:
+    resolution: {integrity: sha512-KaeL+tAbtvI930q7HE2PN5lYXYdT8EiSmxHlN6F3rsfb57wd5mp5W5TLazpdj4inTQBJdgjYwbs40W/0VUGU+Q==}
+    engines: {node: '>= 20'}
+    hasBin: true
 
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
@@ -13634,6 +13642,8 @@ snapshots:
       source-map-js: 1.2.2
 
   markdown-table@3.1.0: {}
+
+  marked@18.2.0: {}
 
   math-intrinsics@1.1.0: {}
 

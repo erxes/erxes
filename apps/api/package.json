@@ -46,6 +46,7 @@
     "import-in-the-middle": "^3.6.0",
     "ipaddr.js": "^2.5.0",
     "jose": "^6.2.17",
+    "marked": "^18.2.0",
     "nodemailer": "^10.5.0",
     "otpauth": "9.5.2",
     "pg": "^8.23.1",

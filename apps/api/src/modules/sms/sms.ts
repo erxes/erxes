@@ -23,13 +23,16 @@ const DRIVERS: Record<typeof config.sms.driver, (message: SmsPayload) => Promise
   },
 };
 
+/** Sends one text message now, or throws. */
+export const deliverSms = (message: SmsPayload) => DRIVERS[config.sms.driver](message);
+
 export const smsJob = defineJob({
   queue: 'sms.send',
   timeoutSeconds: 60,
   retry: { attempts: 4 },
   payload: SmsPayload,
   async handle(job) {
-    await DRIVERS[config.sms.driver](job.payload);
+    await deliverSms(job.payload);
   },
 });
 

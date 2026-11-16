@@ -84,6 +84,21 @@ export const CORE_PERMISSIONS = [
     group: 'Products',
     label: 'Add, edit and archive products and categories',
   },
+  {
+    action: 'broadcasts.view',
+    group: 'Broadcasts',
+    label: 'See broadcasts, who got them and suppressed addresses',
+  },
+  {
+    action: 'broadcasts.manage',
+    group: 'Broadcasts',
+    label: 'Write, test and delete broadcasts; suppress addresses',
+  },
+  {
+    action: 'broadcasts.send',
+    group: 'Broadcasts',
+    label: 'Send, schedule, pause and cancel broadcasts',
+  },
   { action: 'automations.view', group: 'Automations', label: 'See automations and their runs' },
   {
     action: 'automations.manage',

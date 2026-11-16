@@ -1,6 +1,8 @@
 import { activitiesContract } from './activities';
 import { apiKeysContract } from './apiKeys';
 import { automationsContract } from './automations';
+import { broadcastsContract } from './broadcasts';
+import { suppressionsContract } from './suppressions';
 import { auditContract } from './audit';
 import { authContract } from './auth';
 import { companiesContract } from './companies';
@@ -38,6 +40,7 @@ export const coreContract = {
   automations: automationsContract,
   audit: auditContract,
   auth: authContract,
+  broadcasts: broadcastsContract,
   companies: companiesContract,
   customers: customersContract,
   favorites: favoritesContract,
@@ -60,6 +63,7 @@ export const coreContract = {
   roles: rolesContract,
   saas: saasContract,
   search: searchContract,
+  suppressions: suppressionsContract,
   tags: tagsContract,
   units: unitsContract,
   unitTypes: unitTypesContract,
@@ -83,6 +87,10 @@ export * from './automations';
 export * from './audit';
 
 export * from './auth';
+
+export * from './broadcasts';
+
+export * from './suppressions';
 
 export * from './common';
 
