@@ -26,6 +26,7 @@ export * from './editor';
 export * from './errorClassifier';
 export * from './sentry-init';
 export * from './logger';
+export { flushTelemetry } from './tracing';
 export * from './sentryFingerprint';
 export * from './sentryScrub';
 export * from './email';

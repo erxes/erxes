@@ -25,6 +25,7 @@ import {
 import { initApiHandlers, TApiHandler } from './initApiHandlers';
 import { initPluginMeta, IPluginMeta } from './initPluginMeta';
 import { closeMongooose } from './mongo';
+import { flushTelemetry } from './tracing';
 import './sentry-instrument';
 import { joinErxesGateway, leaveErxesGateway } from './service-discovery';
 import { createTRPCContext } from './trpc';
@@ -256,6 +257,7 @@ export async function startPlugin(
       await closeHttpServer();
       await closeMongooose();
       await leaveServiceDiscovery();
+      await flushTelemetry();
       process.exit(0);
     });
   });

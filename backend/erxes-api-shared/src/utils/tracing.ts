@@ -33,6 +33,7 @@ const DEFAULT_SERVICE_NAME = 'erxes-plugin';
 const REQUEST_HEADER_PREFIX = 'http.request.header.';
 
 let started = false;
+let provider: BasicTracerProvider | undefined;
 let warnedNoDsn = false;
 
 export const isTracingRequested = (): boolean =>
@@ -127,7 +128,7 @@ export const startTracing = (): void => {
   const name = serviceName();
   const ratio = parseSampleRatio(process.env.OTEL_TRACES_SAMPLER_ARG);
 
-  const provider = new BasicTracerProvider({
+  provider = new BasicTracerProvider({
     resource: resourceFromAttributes({ 'service.name': name }),
     sampler: new ParentBasedSampler({
       root: new TraceIdRatioBasedSampler(ratio),
@@ -146,4 +147,21 @@ export const startTracing = (): void => {
   console.log(
     `[tracing] exporting spans as "${name}" over OTLP, new-trace sample ratio ${ratio}`,
   );
+};
+
+/**
+ * Sends the spans and Sentry events still in memory. Call on SIGTERM before process.exit, or a
+ * restart drops the last seconds of each. Never waits longer than timeoutMs.
+ */
+export const flushTelemetry = async (timeoutMs = 2000): Promise<void> => {
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<void>((resolve) => {
+    timer = setTimeout(resolve, timeoutMs);
+  });
+
+  await Promise.race([
+    Promise.allSettled([provider?.forceFlush(), Sentry.flush(timeoutMs)]),
+    timeout,
+  ]);
+  clearTimeout(timer);
 };

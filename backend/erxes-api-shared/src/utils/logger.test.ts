@@ -1,3 +1,4 @@
+import { trace, TraceFlags } from '@opentelemetry/api';
 // namespace import: the spec tsconfig has esModuleInterop off and express has no `default` export
 import * as express from 'express';
 import * as http from 'http';
@@ -160,6 +161,49 @@ describe('createLogger', () => {
     log.warn('shown');
 
     expect(lines.map((line) => line.msg)).toEqual(['shown']);
+  });
+});
+
+describe('trace ids on log lines', () => {
+  const TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';
+  const SPAN_ID = '00f067aa0ba902b7';
+
+  const inSpan = (traceFlags: number) =>
+    jest
+      .spyOn(trace, 'getActiveSpan')
+      .mockReturnValue(
+        trace.wrapSpanContext({ traceId: TRACE_ID, spanId: SPAN_ID, traceFlags }),
+      );
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it('adds traceId and spanId inside a sampled trace', () => {
+    inSpan(TraceFlags.SAMPLED);
+    const { lines, raw, destination } = capture();
+
+    createLogger({ destination }).info('in a request');
+
+    expect(lines[0]).toMatchObject({ traceId: TRACE_ID, spanId: SPAN_ID });
+    // the Loki → Tempo link in Grafana matches this exact text
+    expect(raw[0]).toContain(`"traceId":"${TRACE_ID}"`);
+  });
+
+  it('leaves them out when the trace is not sampled, so no line links to a missing trace', () => {
+    inSpan(TraceFlags.NONE);
+    const { lines, destination } = capture();
+
+    createLogger({ destination }).info('in a request');
+
+    expect(lines[0].traceId).toBeUndefined();
+    expect(lines[0].spanId).toBeUndefined();
+  });
+
+  it('leaves them out outside any span', () => {
+    const { lines, destination } = capture();
+
+    createLogger({ destination }).info('at startup');
+
+    expect(lines[0].traceId).toBeUndefined();
   });
 });
 

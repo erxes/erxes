@@ -199,4 +199,57 @@ describe('tracing', () => {
       });
     });
   });
+
+  describe('flushTelemetry', () => {
+    // The provider class of the same isolated module copy that tracing.ts uses.
+    const loadWithProvider = () => {
+      let tracing: Tracing | undefined;
+      let sdk: typeof import('@opentelemetry/sdk-trace-base') | undefined;
+      jest.isolateModules(() => {
+        sdk = require('@opentelemetry/sdk-trace-base');
+        tracing = require('./tracing');
+      });
+      return {
+        tracing: tracing as Tracing,
+        forceFlush: jest.spyOn(
+          (sdk as typeof import('@opentelemetry/sdk-trace-base'))
+            .BasicTracerProvider.prototype,
+          'forceFlush',
+        ),
+      };
+    };
+
+    test('sends the spans still in memory when tracing is on', async () => {
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://127.0.0.1:4318';
+      const { tracing, forceFlush } = loadWithProvider();
+      forceFlush.mockResolvedValue(undefined);
+
+      tracing.startTracing();
+      await tracing.flushTelemetry();
+
+      expect(forceFlush).toHaveBeenCalledTimes(1);
+    });
+
+    test('is a no-op for spans when tracing is off', async () => {
+      const { tracing, forceFlush } = loadWithProvider();
+
+      tracing.startTracing();
+      await tracing.flushTelemetry();
+
+      expect(forceFlush).not.toHaveBeenCalled();
+    });
+
+    test('never waits longer than the timeout for a collector that does not answer', async () => {
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://127.0.0.1:4318';
+      const { tracing, forceFlush } = loadWithProvider();
+      forceFlush.mockReturnValue(new Promise(() => undefined));
+
+      tracing.startTracing();
+      const startedAt = Date.now();
+      await tracing.flushTelemetry(50);
+
+      expect(forceFlush).toHaveBeenCalledTimes(1);
+      expect(Date.now() - startedAt).toBeLessThan(1000);
+    });
+  });
 });

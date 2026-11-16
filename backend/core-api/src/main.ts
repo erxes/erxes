@@ -13,6 +13,7 @@ import {
   applyTrustProxy,
   closeMongooose,
   createTRPCContext,
+  flushTelemetry,
   getSubdomain,
   isDev,
   joinErxesGateway,
@@ -244,6 +245,7 @@ async function closeHttpServer() {
     await closeHttpServer();
     await closeMongooose();
     await leaveServiceDiscovery();
+    await flushTelemetry();
     process.exit(0);
   });
 });

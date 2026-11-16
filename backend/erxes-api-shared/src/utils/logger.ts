@@ -1,3 +1,4 @@
+import { isSpanContextValid, trace, TraceFlags } from '@opentelemetry/api';
 import { randomUUID } from 'crypto';
 import * as dotenv from 'dotenv';
 import { STATUS_CODES } from 'http';
@@ -12,6 +13,7 @@ dotenv.config();
  *
  * - `"level":"error"` (string, not 50) and ISO `time`, so log tools filter without parsing.
  * - `service` on every line (SERVICE_NAME, or the plugin name set by startPlugin).
+ * - `traceId` / `spanId` on lines written inside a sampled trace, so Grafana links the line to Tempo.
  * - Secrets are masked HERE, before anything is written: credentials inside URLs
  *   (`mongodb://user:***@host`, also when the password itself contains `@`), Bearer tokens,
  *   and well-known secret keys (password, token, cookie, authorization, ...).
@@ -54,6 +56,21 @@ export const REDACT_PATHS = [
   'headers["erxes-core-token"]',
 ];
 
+/** The active span's ids, only when its trace is sampled (unsampled traces never reach Tempo). */
+export const traceFields = (): { traceId?: string; spanId?: string } => {
+  const spanContext = trace.getActiveSpan()?.spanContext();
+
+  if (
+    !spanContext ||
+    !isSpanContextValid(spanContext) ||
+    !(spanContext.traceFlags & TraceFlags.SAMPLED)
+  ) {
+    return {};
+  }
+
+  return { traceId: spanContext.traceId, spanId: spanContext.spanId };
+};
+
 export interface CreateLoggerOptions {
   service?: string;
   level?: string;
@@ -67,6 +84,7 @@ export function createLogger(options: CreateLoggerOptions = {}): Logger {
     level: options.level || process.env.LOG_LEVEL || 'info',
     base: service ? { service } : {},
     timestamp: pino.stdTimeFunctions.isoTime,
+    mixin: traceFields,
     formatters: {
       level: (label) => ({ level: label }),
     },

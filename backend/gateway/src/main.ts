@@ -32,6 +32,7 @@ import {
   decodeAgentToolsAuthHeader,
   DEFAULT_JOB_OPTIONS,
   errorLogger,
+  flushTelemetry,
   getPlugin,
   getPlugins,
   getSubdomain,
@@ -288,6 +289,7 @@ async function start() {
       if (httpServer) {
         await new Promise((resolve) => httpServer.close(resolve));
       }
+      await flushTelemetry();
       process.exit(0);
     } catch (error) {
       console.error('Error during shutdown:', error);
