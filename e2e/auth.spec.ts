@@ -10,7 +10,7 @@ test('a member signs in and signs out', async ({ page }) => {
   await expectAccessible(page);
 
   await page.getByRole('textbox', { name: 'Email' }).fill(OWNER.email);
-  await page.getByRole('textbox', { name: 'Enter your password' }).fill(OWNER.password);
+  await page.getByLabel('Password', { exact: true }).fill(OWNER.password);
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await expect(page.getByRole('heading', { level: 1, name: /^Good / })).toBeVisible();

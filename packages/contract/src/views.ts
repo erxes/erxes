@@ -1,6 +1,7 @@
 import {
   FILTER_FIELD_GROUPS,
   FILTER_FIELD_TYPES,
+  PLUGIN_VIEW_TYPE,
   SORT_DIRECTIONS,
   VIEW_RECORD_TYPES,
 } from '@erxes/core-db/enums';
@@ -16,6 +17,16 @@ import { Id, isoDate, listOf } from './common';
 export const ViewRecordType = z.enum(VIEW_RECORD_TYPES);
 
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
+
+/** A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`). Its API applies the filter. */
+export const PluginViewType = z
+  .templateLiteral([z.string(), ':', z.string()])
+  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
+
+/** Any list views can belong to: one of core's, or a plugin's. */
+export const ViewListType = z.union([ViewRecordType, PluginViewType]);
+
+export type ViewListType = z.infer<typeof ViewListType>;
 
 /**
  * A filter on a list: the condition language automations use, on the
@@ -44,6 +55,7 @@ export const ViewSort = z.object({
 
 export const View = createSelectSchema(views, {
   id: Id,
+  recordType: () => ViewListType,
   filter: () => ConditionGroup,
   columns: () => z.array(z.string()),
   sort: () => ViewSort,
@@ -89,9 +101,10 @@ export const viewsContract = {
     .route({
       method: 'GET',
       path: '/views',
-      summary: "Views of a list: the member's own and the team's shared ones",
+      summary:
+        "Views of a list (core's, or a plugin's `<plugin>:<record>`): the member's own and the team's shared ones",
     })
-    .input(z.object({ recordType: ViewRecordType }))
+    .input(z.object({ recordType: ViewListType }))
     .output(listOf(View)),
   create: base
     .route({
@@ -99,9 +112,9 @@ export const viewsContract = {
       path: '/views',
       successStatus: 201,
       summary:
-        'Save a view (sharing it with the team needs contacts.edit; for products, products.manage)',
+        "Save a view (sharing it with the team needs contacts.edit; for products, products.manage; a plugin's list, none)",
     })
-    .input(ViewFields.required({ name: true }).extend({ recordType: ViewRecordType }))
+    .input(ViewFields.required({ name: true }).extend({ recordType: ViewListType }))
     .output(View),
   update: base
     .route({

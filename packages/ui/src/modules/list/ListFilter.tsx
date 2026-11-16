@@ -3,6 +3,7 @@ import { type ElementType, lazy, type ReactNode, Suspense } from 'react';
 import type { TConditionLookups } from '../conditions/conditions';
 import { Filter } from '../filter/components/Filter';
 import { useListConditions } from './filter/listFilterQuery';
+import { type TPluginListType, useListViews } from './ViewBar';
 
 /**
  * The bar, fetched the first time a list renders one: erxes-ui is one shared chunk every route
@@ -51,6 +52,11 @@ export type TListFilterProps = TConditionLookups & {
   error?: Error | null;
   /** Beside the chips, before the count: what a saved view changed. */
   status?: ReactNode;
+  /**
+   * The list's record type, `<plugin>:<record>`, as its `ViewBar` has it: while the list differs
+   * from its saved view, the bar offers to reset it or save it as a view.
+   */
+  recordType?: TPluginListType;
 };
 
 /**
@@ -62,14 +68,16 @@ export type TListFilterProps = TConditionLookups & {
  * `@erxes/core-contract/client` and the tags query of the record type; outside erxes, the
  * plugin's own.
  */
-export const ListFilter = (props: TListFilterProps) => {
+export const ListFilter = ({ recordType, ...props }: TListFilterProps) => {
   const [barRef] = useAutoAnimate({ duration: 150 });
+  const host = useListViews();
+  const status = props.status ?? (recordType && host && <host.Changes recordType={recordType} />);
 
   return (
     <Filter id={`${props.id}-list-filter`}>
       <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end">
         <Suspense>
-          <ListFilterBar {...props} />
+          <ListFilterBar {...props} status={status} />
         </Suspense>
       </Filter.Bar>
     </Filter>

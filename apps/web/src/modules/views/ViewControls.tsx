@@ -1,4 +1,4 @@
-import type { ViewRecordType } from '@erxes/core-contract';
+import type { ViewListType } from '@erxes/core-contract';
 import { IconArrowBackUp, IconCopyPlus, IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, Dialog, Input, Label, Switch, IconTip } from 'erxes-ui';
 import { useState } from 'react';
@@ -17,7 +17,7 @@ const ViewForm = ({
   onSave,
   pending,
 }: {
-  recordType: ViewRecordType;
+  recordType: ViewListType;
   initial: ViewValues;
   onSave: (value: ViewValues) => void;
   pending: boolean;
@@ -69,7 +69,7 @@ export const ViewDialog = ({
   onSave,
   pending,
 }: {
-  recordType: ViewRecordType;
+  recordType: ViewListType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
@@ -93,7 +93,7 @@ export const ViewDialog = ({
  * While the list differs from the open view: reset it, save the changes to a
  * view of one's own, or save the list as a new view.
  */
-export const ViewChanges = ({ recordType }: { recordType: ViewRecordType }) => {
+export const ViewChanges = ({ recordType }: { recordType: ViewListType }) => {
   const { t } = useTranslation('views');
   const { current, changed, query } = useViewState(recordType);
   const { create, update } = useViewMutations(recordType);

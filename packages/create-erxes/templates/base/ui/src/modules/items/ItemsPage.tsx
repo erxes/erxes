@@ -125,9 +125,10 @@ export const ItemsPage = () => {
           </Button>
         </PageHeader.End>
       </PageHeader>
-      <ViewBar allLabel={t('all-items', 'All items')}>
+      <ViewBar recordType={ITEM_TYPE} allLabel={t('all-items', 'All items')}>
         <ListFilter
           id="__id__-items"
+          recordType={ITEM_TYPE}
           fields={fields}
           members={memberQueries}
           totalCount={isPending ? undefined : list.length}

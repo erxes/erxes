@@ -90,4 +90,36 @@ describe('saved views', { timeout: 300_000 }, () => {
 
     expect(leadFields.map((field) => field.path)).not.toContain('subject.state');
   });
+
+  it("keeps views of a plugin's list, whose filter the plugin applies", async () => {
+    const won = {
+      name: 'Won this month',
+      recordType: 'sales:deal' as const,
+      // A plugin's field: core stores it as it is, the plugin's API runs it.
+      filter: rule('subject.stageId', 'eq', 'won'),
+      search: 'acme',
+    };
+
+    // Any member may share one; a viewer too.
+    const shared = await t.viewer().views.create({ ...won, shared: true });
+
+    expect(shared).toMatchObject({ recordType: 'sales:deal', shared: true, editable: true });
+    expect((await t.member().views.list({ recordType: 'sales:deal' })).data).toEqual([
+      expect.objectContaining({ name: 'Won this month', search: 'acme', editable: true }),
+    ]);
+    // Another plugin's list, or core's, doesn't show it.
+    expect((await t.member().views.list({ recordType: 'sales:ticket' })).data).toEqual([]);
+    expect((await t.member().views.list({ recordType: 'customer' })).data).not.toContainEqual(
+      expect.objectContaining({ id: shared.id }),
+    );
+
+    expect(
+      await t.member().views.update({ id: shared.id, filter: rule('subject.amount', 'gt', 5) }),
+    ).toMatchObject({ filter: rule('subject.amount', 'gt', 5) });
+
+    // Only `<plugin>:<record>` names a plugin's list.
+    await expect(
+      t.member().views.create({ ...won, recordType: 'Sales:Deal' }),
+    ).rejects.toMatchObject({ status: 400 });
+  });
 });

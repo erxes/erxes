@@ -1,4 +1,4 @@
-import type { View, ViewRecordType } from '@erxes/core-contract';
+import type { View, ViewListType } from '@erxes/core-contract';
 import {
   IconBookmark,
   IconChevronDown,
@@ -41,7 +41,7 @@ const EditedDot = () => {
 };
 
 /** Copies a view's address, saying whether it worked. */
-const useCopyViewLink = (recordType: ViewRecordType) => {
+const useCopyViewLink = (recordType: ViewListType) => {
   const { t } = useTranslation('views');
   const { toast } = useToast();
 
@@ -60,7 +60,7 @@ const useCopyViewLink = (recordType: ViewRecordType) => {
 /** Duplicates a view (and opens the copy), or deletes it once confirmed. */
 const useViewCopyAndDelete = (
   view: View,
-  recordType: ViewRecordType,
+  recordType: ViewListType,
   onOpen: (view: View | null) => void,
   onClosed: () => void,
 ) => {
@@ -95,7 +95,7 @@ const ViewMenu = ({
   onClosed,
 }: {
   view: View;
-  recordType: ViewRecordType;
+  recordType: ViewListType;
   onOpen: (view: View | null) => void;
   onClosed: () => void;
 }) => {
@@ -189,7 +189,7 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
 };
 
 /** Saves the list as it is now as a new view, and opens it. */
-const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
+const NewViewButton = ({ recordType }: { recordType: ViewListType }) => {
   const { t } = useTranslation('views');
   const { query } = useViewState(recordType);
   const { create } = useViewMutations(recordType);
@@ -240,7 +240,7 @@ export const ViewTabs = ({
   recordType,
   allLabel,
 }: {
-  recordType: ViewRecordType;
+  recordType: ViewListType;
   allLabel: string;
 }) => {
   const { t } = useTranslation('views');

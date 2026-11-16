@@ -44,7 +44,9 @@ type TDashboardWidgetPreview
 type TListDisplay
 type TListFilterField
 type TListFilterProps
+type TListViews
 type TPanelRecordType
+type TPluginListType
 type TPropertyInputMeta
 type TPropertyInputProps
 type TRecordContacts
@@ -55,6 +57,7 @@ type TRecordSlotProps
 type TRecordTab
 type TRelationTab
 type TRelationTabProps
+type TViewTabsProps
 type Tag
 type TagsQuery
 value Accordion
@@ -111,6 +114,7 @@ value Kbd
 value LANGUAGES
 value Label
 value ListFilter
+value ListViewsProvider
 value LookupPicker
 value MemberInline
 value MultipleSelector
@@ -213,6 +217,7 @@ value useFormat
 value useItemKeys
 value useListDisplay
 value useListFilterParams
+value useListViews
 value useLiveSignal
 value useMemberOptions
 value useMembersById

@@ -241,7 +241,14 @@ export {
 
 export { ConditionsEditor } from './modules/conditions/LazyConditionsEditor';
 
-export { ViewBar } from './modules/list/ViewBar';
+export {
+  ListViewsProvider,
+  type TListViews,
+  type TPluginListType,
+  type TViewTabsProps,
+  useListViews,
+  ViewBar,
+} from './modules/list/ViewBar';
 
 export { PanelDescriptionEditor } from './modules/record-panel/PanelDescriptionEditor';
 

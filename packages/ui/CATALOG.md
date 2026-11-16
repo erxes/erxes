@@ -33,8 +33,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board or grouped list.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
 - `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, which `ListFilter` is built from.
-- `<ListFilter {...TListFilterProps}>` A list's filter bar, with a field menu, search and conditions as chips.
+- `<ListFilter recordType>` A list's filter bar, with a field menu, search and conditions as chips.
 - `listFilterQuery` The URL params holding a list's filter, as nuqs parsers.
+- `<ListViewsProvider views>` Gives every list with a `recordType` saved views, as core's lists have.
 - `RecordList.{Provider, Skeleton, useSelection}` Rows grouped under headers that fold away, such as tasks by status.
 - `type RecordListGroup { id, label, icon, rows, action }` A run of rows under one header, such as the tasks in one status.
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
@@ -43,10 +44,14 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
 - `type TListFilterField { path, label, type, options, icon, … }` A field a list can filter by, for `ListFilter`'s `fields`.
 - `type TListFilterProps` The props of `ListFilter`: its `id`, `fields`, lookups and record count.
+- `type TListViews { Tabs, Changes }` The host's saved views for a list.
+- `type TPluginListType` A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`).
+- `type TViewTabsProps { recordType, allLabel }` The props of the host's saved-view tabs: the list and its "All …" label.
 - `useFilterContext()` Controls of the enclosing `Filter`: open or close it and switch views.
 - `useListDisplay(list, displays)` The display a list shows, as picked in its Display menu.
 - `useListFilterParams()` `ListFilter`'s conditions and search, as params for the list's query.
-- `<ViewBar allLabel tabs>` A list's one bar under its page header: views left, filter right.
+- `useListViews()` The host's saved views, for `ViewBar` and `ListFilter`.
+- `<ViewBar allLabel recordType tabs>` A list's one bar under its page header: views left, filter right.
 
 ## Records
 

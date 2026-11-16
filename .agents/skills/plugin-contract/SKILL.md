@@ -44,8 +44,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      web or outside it; its props (`TListFilterProps`, `TListFilterField`) and
      `useListFilterParams()`'s address keys (`advanced`, `searchValue`) are the contract, and its
      `member` and `tags` fields read through the `members` and `tags` query options the plugin
-     passes. A plugin list's saved views are not part of the contract:
-     `views.recordType` is core's lists only.
+     passes. A plugin list keeps saved views by giving `ViewBar` and `ListFilter` its record type
+     (`recordType="sales:deal"`): web provides the tabs and the save through `ListViewsProvider`,
+     core stores the view (`views.recordType` takes `<plugin>:<record>`), and the plugin's API
+     applies its filter. The prop, the address key `view` and that type's shape are the contract.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
      plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`

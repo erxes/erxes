@@ -41,7 +41,9 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   (a `tags` query for `tags` fields). It draws the bar itself, in erxes or on its own. Its conditions and search live in the
   address; `useListFilterParams()` hands them to the list's query, and the API
   applies them (`api/src/modules/items/itemFilter.ts`). No search boxes, toggle
-  tabs or pickers in a row above the table.
+  tabs or pickers in a row above the table. Give both the record type
+  (`recordType={ITEM_TYPE}`): in erxes the bar then shows the member's saved
+  views as tabs, and the filter offers to save one, as on core's customers.
 - Records open in core's side panel, like a customer: core draws the panel and
   `CONFIG.recordTypes` (`src/config.tsx`) fills its slots, the item's `Title`,
   `Detail` and `New` (`src/modules/items/ItemPanel.tsx`). `useOpenRecord()`

@@ -1,11 +1,11 @@
-import type { FilterField, View, ViewRecordType } from '@erxes/core-contract';
+import type { FilterField, View, ViewListType, ViewRecordType } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useQueryStates } from 'nuqs';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
-import { listQuery } from './viewLinks';
+import { isPluginList, listQuery } from './viewLinks';
 
 /** Amounts stored in the currency's smallest unit, shown and typed in the organisation's currency. */
 const MONEY_PATHS: Partial<Record<ViewRecordType, string[]>> = { product: ['subject.price'] };
@@ -19,8 +19,14 @@ export const subjectOf = (recordType: ViewRecordType) =>
       : 'customer';
 
 /** Sharing a view with the team needs the list's edit permission. */
-export const useCanShareViews = (recordType: ViewRecordType) =>
-  useCan()(recordType === 'product' ? 'products.manage' : 'contacts.edit');
+export const useCanShareViews = (recordType: ViewListType) => {
+  const can = useCan();
+
+  // Any member may share a plugin's list: its API decides what the list shows.
+  if (isPluginList(recordType)) return true;
+
+  return can(recordType === 'product' ? 'products.manage' : 'contacts.edit');
+};
 
 /** The advanced filter, the selected view and the search, all kept in the address (shareable, survive reloads). */
 export const useListQuery = () => {
@@ -43,10 +49,10 @@ export const useListQuery = () => {
 };
 
 /** Saved views of a list; one cache entry per record type. */
-const viewsQuery = (recordType: ViewRecordType) =>
+const viewsQuery = (recordType: ViewListType) =>
   orpc.views.list.queryOptions({ input: { recordType }, staleTime: 30_000 });
 
-export const useViews = (recordType: ViewRecordType) => useQuery(viewsQuery(recordType));
+export const useViews = (recordType: ViewListType) => useQuery(viewsQuery(recordType));
 
 export const useFilterFields = (recordType: ViewRecordType) => {
   const { currency } = useSession().organization;
@@ -65,7 +71,7 @@ export const useFilterFields = (recordType: ViewRecordType) => {
 const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
 /** Whether the list shows something other than the selected view (or anything, without one). */
-export const useViewState = (recordType: ViewRecordType) => {
+export const useViewState = (recordType: ViewListType) => {
   const viewsList = useViews(recordType);
   const views = viewsList.data?.data ?? [];
   const query = useListQuery();
@@ -80,7 +86,7 @@ export const useViewState = (recordType: ViewRecordType) => {
   return { views, error: viewsList.error, current, changed, filtered, query };
 };
 
-export const useViewMutations = (recordType: ViewRecordType) => {
+export const useViewMutations = (recordType: ViewListType) => {
   const client = useQueryClient();
   const { toast } = useToast();
   const { t } = useTranslation('views');

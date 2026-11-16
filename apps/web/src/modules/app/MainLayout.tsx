@@ -1,4 +1,5 @@
-import { Sidebar } from 'erxes-ui';
+import { ListViewsProvider, Sidebar } from 'erxes-ui';
+import { lazy } from 'react';
 import { PageOutlet } from '~/components/CrashBoundary';
 import { useLiveUpdates } from '~/lib/live';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
@@ -7,6 +8,14 @@ import { PlanBanner } from '~/modules/saas/PlanBanner';
 import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
 import { PanelRecordOpener } from '~/modules/side-panel/PanelRecordOpener';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
+
+/** Saved views for plugins' lists, loaded when a list with a record type first shows. */
+const LIST_VIEWS = {
+  Tabs: lazy(async () => ({ default: (await import('~/modules/views/ViewTabs')).ViewTabs })),
+  Changes: lazy(async () => ({
+    default: (await import('~/modules/views/ViewControls')).ViewChanges,
+  })),
+};
 
 /**
  * The signed-in frame: the top bar, then the open
@@ -33,9 +42,11 @@ export const MainLayout = () => {
             tabIndex={-1}
             className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background outline-none"
           >
-            <PanelRecordOpener>
-              <PageOutlet />
-            </PanelRecordOpener>
+            <ListViewsProvider views={LIST_VIEWS}>
+              <PanelRecordOpener>
+                <PageOutlet />
+              </PanelRecordOpener>
+            </ListViewsProvider>
           </main>
           <SidePanelLayout />
         </div>

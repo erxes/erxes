@@ -38,6 +38,12 @@ export const VIEW_RECORD_TYPES = [
   'product',
 ] as const;
 
+/**
+ * A plugin's list a view can belong to: its record type, `<plugin>:<record>` (`sales:deal`).
+ * Core only stores these views; the plugin's own API applies their filter.
+ */
+export const PLUGIN_VIEW_TYPE = '^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$';
+
 export const ACTIVITY_TARGETS = ['customer', 'company'] as const;
 
 /** Which activities a record's timeline shows. */
