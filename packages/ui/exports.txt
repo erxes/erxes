@@ -43,6 +43,7 @@ type TConditionGroup
 type TConditionLookups
 type TConditionRule
 type TContactContentType
+type TContactKind
 type TDashboardWidget
 type TDashboardWidgetPreview
 type TListDisplay
@@ -91,6 +92,7 @@ value Command
 value CommandBar
 value ConditionsEditor
 value ContactLink
+value ContactRelationInput
 value ContextMenu
 value CopyText
 value DASHBOARD_WIDGET_PREVIEWS
@@ -160,6 +162,7 @@ value RelativeDateDisplay
 value Resizable
 value ScrollArea
 value Select
+value SelectContactContent
 value SelectMember
 value Separator
 value SexCode

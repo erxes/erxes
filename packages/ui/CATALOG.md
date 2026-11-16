@@ -64,6 +64,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `companyTitle(company)` A company's name, else its email or phone.
 - `<ContactLink contentType contentId contacts placeholder>` A customer or company as a chip: its avatar and name.
 - `type ContactQueries { customer, company }` Where customers and companies come from, as TanStack query options.
+- `<ContactRelationInput {...RelationProps}>` A record's customers or companies in a side panel field.
 - `type ContactSearch { search, ids }` What a contact search asks for: matches, or the contacts with these ids.
 - `type ContactSearchQueries { customers, companies }` Where a filter's `customer` and `company` fields search contacts.
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
@@ -87,9 +88,11 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordRef { contentType, contentId }` A record the host can open, by `contentType` and `contentId`.
 - `RecordTimeline` Core's timeline of notes, calls and events for a plugin's record.
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
+- `<SelectContactContent kind value onValueChange contacts multiple>` A picker's searchable list of customers or companies, the picked first.
 - `setRecordPage` Web registers how a record draws on its own page.
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
 - `type TContactContentType` The customer or company types `ContactLink` shows.
+- `type TContactKind` Which contacts a picker lists: core's customers or its companies.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
 - `useRecordPanel()` The record a slot is in, and what the slot can do to it.
