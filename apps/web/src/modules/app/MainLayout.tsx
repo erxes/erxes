@@ -1,9 +1,9 @@
 import { ListViewsProvider, Sidebar } from 'erxes-ui';
-import { lazy, type PropsWithChildren } from 'react';
+import { lazy, type PropsWithChildren, Suspense } from 'react';
 import { PageOutlet } from '~/components/CrashBoundary';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { useLiveUpdates } from '~/lib/live';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
-import { PluginFloatingWidgets } from '~/modules/plugins/PluginFloatingWidgets';
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
 import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
@@ -18,7 +18,13 @@ const LIST_VIEWS = {
   })),
 };
 
-/** What pages, core's and plugins', and plugins' floating widgets draw inside. */
+/** Plugins' floating widgets, a chunk of their own so the shell stays as small. */
+const PluginFloatingWidgets = lazyNamed(
+  () => import('~/modules/plugins/PluginFloatingWidgets'),
+  'PluginFloatingWidgets',
+);
+
+/** What pages, core's and plugins',and plugins' floating widgets draw inside. */
 const PageProviders = ({ children }: PropsWithChildren) => (
   <ListViewsProvider views={LIST_VIEWS}>
     <PanelRecordOpener>{children}</PanelRecordOpener>
@@ -59,7 +65,9 @@ export const MainLayout = () => {
         </div>
       </div>
       <PageProviders>
-        <PluginFloatingWidgets />
+        <Suspense fallback={null}>
+          <PluginFloatingWidgets />
+        </Suspense>
       </PageProviders>
     </Sidebar.Provider>
   );
