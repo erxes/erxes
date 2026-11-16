@@ -87,6 +87,17 @@
  *     res.json({ allowed: await canRead(check.orgId, check.userId, check.id) });   // check.type too
  *   });
  *
+ * Callers outside erxes (a webhook, a redirect after an app install) reach the plugin through
+ * core, at `<coreUrl>/core/v1/plugins/<name>/public/<orgId>/<path>`, for a path under one of the
+ * manifest's `publicPaths`. Core forwards them to `<api.url>/public/<path>` with a token naming
+ * the organisation, and passes the answer's status, type and redirect back:
+ *
+ *   publicPaths: ['/github/webhook'],
+ *   app.all('/api/public/*path', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const { orgId } = await verifyPublicCall(req.headers.authorization, req.body ?? '', { coreUrl, plugin: 'operation' });
+ *     // anyone can call: check the sender's own signature (X-Hub-Signature-256) before acting
+ *   });
+ *
  * List filters (erxes-ui's `ListFilter`): `@erxes/plugin-sdk/filter` compiles the bar's condition
  * group to SQL on a map of paths to columns, with core's operators and its 400 `INVALID_FILTER`:
  *
