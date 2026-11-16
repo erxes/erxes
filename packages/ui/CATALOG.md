@@ -77,6 +77,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
 - `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
+- `type RecordPageProps { listPath }` A `RecordPage`'s record, and the list it goes back to.
 - `type RecordPanelControls { record, tab, setTab, close, dismiss, … }` What a record shown in core's panel, or on its own page, can do to it.
 - `RecordPanelProvider` Web gives each record it shows its controls.
 - `type RecordRef { contentType, contentId }` A record the host can open, by `contentType` and `contentId`.

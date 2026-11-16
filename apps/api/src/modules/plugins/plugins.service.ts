@@ -19,6 +19,7 @@ import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { schedulePluginJobs } from './pluginJobs';
 
 type PluginRow = typeof plugins.$inferSelect;
@@ -118,7 +119,10 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
 
   await installAll(tx, [orgId], rows);
   await withOrg(orgId, (scoped) =>
-    inOrder(rows, (row) => syncPluginFields(scoped, row.name, row.manifest?.fields)),
+    inOrder(rows, async (row) => {
+      await syncPluginFields(scoped, row.name, row.manifest?.fields);
+      await grantDefaultPermissions(scoped, row.name, row.manifest?.permissionSets);
+    }),
   );
 };
 
@@ -251,13 +255,25 @@ export const registerManifest = async (manifest: PluginManifest) => {
   );
 
   await withSystem('plugin manifest', async (tx) => {
+    const [before] = await tx
+      .select({ manifest: plugins.manifest })
+      .from(plugins)
+      .where(eq(plugins.name, plugin))
+      .for('update');
+
     await tx
       .update(plugins)
       .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
       .where(eq(plugins.name, plugin));
     await schedulePluginJobs(tx, plugin, manifest.jobs);
-    // Every organisation that has it gets the manifest's fields.
+    // Every organisation that has it gets the manifest's fields, and what its sets newly give.
     await syncPluginFields(tx, plugin, manifest.fields);
+    await grantDefaultPermissions(
+      tx,
+      plugin,
+      manifest.permissionSets,
+      before?.manifest?.permissionSets,
+    );
   });
 
   return { ok: true as const };

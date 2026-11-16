@@ -8,6 +8,7 @@ import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '@erxes/plugin-sdk/filter';
@@ -102,6 +103,10 @@ export const installPlugin = async (name: string) => {
   );
 
   await syncPluginFields(tx, name, row.manifest?.fields);
+
+  if (before?.status !== 'active')
+    await grantDefaultPermissions(tx, name, row.manifest?.permissionSets);
+
   await queueInstallJobs(tx, installed.orgId, name, row.manifest?.jobs, installed.updatedAt);
 
   await recordAudit(tx, {

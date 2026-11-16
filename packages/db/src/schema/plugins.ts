@@ -1,6 +1,7 @@
 import {
   type AUTOMATION_FIELD_TYPES,
   type AUTOMATION_SUBJECTS,
+  type DefaultGrantRole,
   type PLUGIN_FIELD_TYPES,
   PLUGIN_STATUSES,
 } from '../enums';
@@ -38,10 +39,19 @@ export interface StoredPluginManifest {
   oauth?: { redirectUris: string[] };
   /** Its app for customers: the web origins that may sign customers in (`{subdomain}` allowed). */
   customerApp?: { origins: string[] };
+  /** Paths under its API's `/public` that core forwards outside callers to (webhooks, redirects). */
+  publicPaths?: string[];
   scopes: string[];
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   /** Ready-made bundles of its permissions, added to a role in one click. */
-  permissionSets?: { key: string; label: string; description?: string; permissions: string[] }[];
+  permissionSets?: {
+    key: string;
+    label: string;
+    description?: string;
+    permissions: string[];
+    /** Built-in roles core gives the set to where the plugin is installed. */
+    defaultRoles?: DefaultGrantRole[];
+  }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];
   events?: {
     type: string;

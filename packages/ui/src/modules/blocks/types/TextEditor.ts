@@ -27,8 +27,10 @@ export interface IEditorProps {
   initialContent?: string;
   scope?: string;
   isHTML?: boolean;
-  /** What screen readers call the editor. */
+  /** What screen readers call the editor; in a `PanelFormRow`, its label does. */
   label?: string;
+  /** Shown while it's empty, e.g. "Leave a comment…"; "Type '/' for commands..." without it. */
+  placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
 }
 
