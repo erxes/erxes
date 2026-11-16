@@ -33,8 +33,8 @@ export const ApiReferencePicker = ({
         {choices.map((choice) => (
           <Command.Item
             key={choice.value}
-            value={choice.value}
-            keywords={[choice.label]}
+            // The search matches what the member reads: with the id too, "ecom" found "customer".
+            value={choice.label}
             onSelect={() => {
               onChange(choice.value);
               setOpen(false);
