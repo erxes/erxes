@@ -21,6 +21,7 @@ const useAudienceLabels = (): Record<PluginApiAudience, string> => {
   return {
     member: t('member', 'Team member API'),
     customer: t('customer', 'Customer API'),
+    employee: t('employee', 'Employee API'),
     website: t('website', 'Website API'),
   };
 };

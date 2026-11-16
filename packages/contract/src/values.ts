@@ -29,11 +29,12 @@ export const CORE_API_PREFIX = '/core/v1';
 export const API_KEY_LIFETIMES = [30, 90, 365] as const;
 
 /**
- * Who a plugin's API document is for (the manifest's `api.docs`): its team members (with a
- * plugin session token), customers (with a customer token from core) or a website's server
- * (with a key the plugin issues).
+ * Who a plugin's API document is for (the manifest's `api.docs`): its team members in erxes
+ * (with a plugin session token), employees in the plugin's own app (with a token the plugin
+ * issues when they sign in, like HR's mobile app), customers (with a customer token from
+ * core) or a website's server (with a key the plugin issues).
  */
-export const PLUGIN_API_AUDIENCES = ['member', 'customer', 'website'] as const;
+export const PLUGIN_API_AUDIENCES = ['member', 'employee', 'customer', 'website'] as const;
 
 export type PluginApiAudience = (typeof PLUGIN_API_AUDIENCES)[number];
 
@@ -42,6 +43,8 @@ export type PluginApiAudience = (typeof PLUGIN_API_AUDIENCES)[number];
  * The API reference fills in the member's session token for "try it".
  */
 export const PLUGIN_SESSION_SCHEME = 'pluginSession';
+
+export const EMPLOYEE_TOKEN_SCHEME = 'employeeToken';
 
 export const CUSTOMER_TOKEN_SCHEME = 'customerToken';
 

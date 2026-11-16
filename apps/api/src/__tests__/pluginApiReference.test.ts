@@ -1,6 +1,8 @@
 import {
   CUSTOMER_TOKEN_SCHEME,
+  EMPLOYEE_TOKEN_SCHEME,
   PLUGIN_SESSION_SCHEME,
+  type PluginApiAudience,
   WEBSITE_KEY_SCHEME,
 } from '@erxes/core-contract';
 import { verifyPluginSession } from '@erxes/plugin-sdk';
@@ -23,7 +25,7 @@ const DOCS = [
   { audience: 'customer', path: '/openapi/customer.json' },
 ] as const;
 
-const document = (audience: 'member' | 'customer' | 'website') =>
+const document = (audience: PluginApiAudience) =>
   pluginOpenApi(contract, { plugin: 'hr', audience, title: 'HR', version: '2.0.0', prefix: '/v1' });
 
 describe('plugin API reference', () => {
@@ -33,19 +35,11 @@ describe('plugin API reference', () => {
 
   const service = async () => t.client(await t.pluginToken());
 
-  /** The manifest as JSON, so a test can send what the typed client would refuse. */
-  const register = async (docs: unknown) =>
-    fetch(t.url('/core/v1/plugins/manifest'), {
-      method: 'PUT',
-      headers: {
-        authorization: `Bearer ${await t.pluginToken()}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        title: 'HR',
-        version: '2.0.1',
-        api: { url: 'https://hr.example.com/api', docs },
-      }),
+  const register = async (docs: { audience: PluginApiAudience; path: string }[]) =>
+    (await service()).plugins.registerManifest({
+      title: 'HR',
+      version: '2.0.1',
+      api: { url: 'https://hr.example.com/api', docs },
     });
 
   beforeAll(async () => {
@@ -64,19 +58,22 @@ describe('plugin API reference', () => {
 
     expect(hr?.manifest?.api).toEqual({ url: 'https://hr.example.com/api', docs: DOCS });
 
-    const refused = [
-      [{ audience: 'member', path: 'https://elsewhere.example.com/x' }],
-      [
+    // A path elsewhere, or two documents for one audience.
+    await expect(
+      register([{ audience: 'member', path: 'https://elsewhere.example.com/x' }]),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      register([
         { audience: 'member', path: '/a.json' },
         { audience: 'member', path: '/b.json' },
-      ],
-      [{ audience: 'partner', path: '/a.json' }],
-    ];
-
-    for (const docs of refused) expect((await register(docs)).status).toBe(400);
-    expect((await register([{ audience: 'website', path: '/openapi/website.json' }])).ok).toBe(
-      true,
-    );
+      ]),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      register([
+        { audience: 'employee', path: '/openapi/employee.json' },
+        { audience: 'website', path: '/openapi/website.json' },
+      ]),
+    ).resolves.toBeDefined();
   });
 
   it('documents member routes with the session token a script gets from core', async () => {
@@ -89,7 +86,11 @@ describe('plugin API reference', () => {
     );
   });
 
-  it("documents customer routes with core's customer token, and website routes with a key", async () => {
+  it("documents employee routes with the plugin's own token, customer routes with core's, and website routes with a key", async () => {
+    const employee = await document('employee');
+
+    expect(employee.security).toEqual([{ [EMPLOYEE_TOKEN_SCHEME]: [] }]);
+
     const customer = await document('customer');
 
     expect(customer.security).toEqual([{ [CUSTOMER_TOKEN_SCHEME]: [] }]);

@@ -37,7 +37,7 @@ export interface StoredPluginManifest {
   /** `docs`: its OpenAPI documents' paths under `url`, one per audience, shown in the API reference. */
   api?: {
     url: string;
-    docs?: { audience: 'member' | 'customer' | 'website'; path: string }[];
+    docs?: { audience: 'member' | 'employee' | 'customer' | 'website'; path: string }[];
   };
   /** "Sign in with erxes" for the plugin's own app: where codes may be sent (`{subdomain}` allowed). */
   oauth?: { redirectUris: string[] };

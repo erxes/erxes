@@ -1,6 +1,7 @@
 import {
   CORE_API_PREFIX,
   CUSTOMER_TOKEN_SCHEME,
+  EMPLOYEE_TOKEN_SCHEME,
   PLUGIN_SESSION_SCHEME,
   type PluginApiAudience,
   WEBSITE_KEY_SCHEME,
@@ -48,6 +49,21 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
         },
       },
       security: [{ [PLUGIN_SESSION_SCHEME]: [] }],
+    };
+  }
+
+  if (audience === 'employee') {
+    return {
+      components: {
+        securitySchemes: {
+          [EMPLOYEE_TOKEN_SCHEME]: {
+            ...BEARER,
+            description:
+              "An employee's access token, from this plugin's own sign-in in this document (employees sign in to the plugin's app, not to erxes).",
+          },
+        },
+      },
+      security: [{ [EMPLOYEE_TOKEN_SCHEME]: [] }],
     };
   }
 

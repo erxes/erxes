@@ -462,6 +462,7 @@
     "title": "API reference",
     "member": "Team member API",
     "customer": "Customer API",
+    "employee": "Employee API",
     "website": "Website API",
     "pick": "Choose an API",
     "search": "Search APIs",
