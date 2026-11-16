@@ -95,7 +95,6 @@ export const compileDate = (
   dateOnly: boolean,
   monthDay?: SQL,
 ): SQL | undefined => {
-  const day = dateOnly ? x : sql`(${x})::date`;
   const today = dateOnly ? sql`current_date` : sql`now()`;
 
   const shift = (sign: '+' | '-') =>
@@ -103,13 +102,35 @@ export const compileDate = (
       ? sql`(current_date ${sql.raw(sign)} ${interval(value)})::date`
       : sql`now() ${sql.raw(sign)} ${interval(value)}`;
 
-  const compare = COMPARE[op];
+  // A day compares with the column as it is, so its index applies: on a timestamp, "on D" is
+  // from D's start to the next day's, "after D" from the next day's start. The bounds are cast to
+  // the column's type: a date-to-timestamp comparison isn't leakproof, and row level security
+  // keeps such a condition out of the index.
+  const cast = sql.raw(dateOnly ? 'date' : 'timestamptz');
+  const start = () => sql`${text(value)}::date::${cast}`;
+  const end = () => sql`(${text(value)}::date + 1)::${cast}`;
 
-  if (compare && op !== 'neq') return sql`${day} ${sql.raw(compare)} ${text(value)}::date`;
+  const on = () =>
+    dateOnly ? sql`${x} = ${start()}` : sql`(${x} >= ${start()} and ${x} < ${end()})`;
 
   switch (op) {
+    case 'eq':
+      return on();
+
     case 'neq':
-      return sql`(${x} is null or ${day} <> ${text(value)}::date)`;
+      return sql`(${x} is null or not ${on()})`;
+
+    case 'lt':
+      return sql`${x} < ${start()}`;
+
+    case 'gte':
+      return sql`${x} >= ${start()}`;
+
+    case 'lte':
+      return dateOnly ? sql`${x} <= ${start()}` : sql`${x} < ${end()}`;
+
+    case 'gt':
+      return dateOnly ? sql`${x} > ${start()}` : sql`${x} >= ${end()}`;
 
     case 'within_last':
       return sql`(${x} <= ${today} and ${x} >= ${shift('-')})`;
