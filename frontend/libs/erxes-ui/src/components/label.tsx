@@ -11,7 +11,7 @@ const labelVariants = cva(
     variants: {
       variant: {
         default:
-          'font-mono uppercase font-semibold text-xs text-accent-foreground ',
+          'font-mono uppercase font-semibold text-xs text-muted-foreground ',
         peer: '',
       },
     },

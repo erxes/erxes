@@ -25,7 +25,7 @@ export const PanelFormRow = ({
   children: React.ReactNode;
 }) => (
   <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-0.5 min-h-7">
-    <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground">
+    <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted-foreground">
       <Icon className="size-3.5 shrink-0" aria-hidden="true" />
       <PanelLabel tooltip={label}>
         {label}
