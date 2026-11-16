@@ -23,14 +23,43 @@ type Part = 'field' | 'op' | 'value';
 const fieldAt = (fields: TConditionField[], path: string): TConditionField =>
   fields.find((field) => field.path === path) ?? { path, label: path, type: 'text' };
 
-/** A row's part as a button; the popover it opens adds its handlers and state. */
-const RowButton = ({ className, ...props }: Omit<ComponentProps<typeof Button>, 'variant'>) => (
+/**
+ * A row's part as a button, named "Field: Name" (the part, then the text it shows); the popover
+ * it opens adds its handlers and state.
+ */
+const RowButton = ({
+  part,
+  shows,
+  className,
+  ...props
+}: Omit<ComponentProps<typeof Button>, 'variant'> & { part: string; shows: string }) => (
   <Button
     variant="outline"
+    aria-label={`${part}: ${shows}`}
     className={cn('h-8 w-full min-w-0 justify-start font-normal', className)}
     {...props}
   />
 );
+
+/** The operator's button: its words and a chevron. Props pass through to the popover trigger. */
+const OperatorButton = ({
+  shows,
+  ...props
+}: Omit<ComponentProps<typeof Button>, 'variant'> & { shows: string }) => {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+
+  return (
+    <RowButton
+      className="justify-between"
+      part={t('operator', 'Operator')}
+      shows={shows}
+      {...props}
+    >
+      <span className="truncate">{shows}</span>
+      <IconChevronDown className="text-muted-foreground" />
+    </RowButton>
+  );
+};
 
 /** The row's (or a group's) last cell: an X named for what it removes. */
 export const RemoveButton = ({
@@ -91,6 +120,7 @@ const RowValue = ({
   }
 
   const empty = text.value === '…';
+  const shows = empty ? t('choose', 'Choose…') : text.value;
 
   return (
     <ValuePart
@@ -101,10 +131,8 @@ const RowValue = ({
       open={open}
       onOpenChange={onOpenChange}
       button={
-        <RowButton disabled={disabled} aria-label={t('value', 'Value')}>
-          <span className={cn('truncate', empty && 'text-muted-foreground')}>
-            {empty ? t('choose', 'Choose…') : text.value}
-          </span>
+        <RowButton disabled={disabled} part={t('value', 'Value')} shows={shows}>
+          <span className={cn('truncate', empty && 'text-muted-foreground')}>{shows}</span>
         </RowButton>
       }
     />
@@ -153,7 +181,7 @@ export const RuleRow = ({
           setOpen(null);
         }}
         button={
-          <RowButton disabled={disabled} aria-label={t('field', 'Field')}>
+          <RowButton disabled={disabled} part={t('field', 'Field')} shows={field.label}>
             <FieldIcon field={field} className="text-muted-foreground" />
             <span className="truncate">{field.label}</span>
           </RowButton>
@@ -171,16 +199,7 @@ export const RuleRow = ({
           // A value picked from a list opens right after its operator.
           setOpen(NO_VALUE.has(op) || isTypedValue(next, field) ? null : 'value');
         }}
-        button={
-          <RowButton
-            className="justify-between"
-            disabled={disabled}
-            aria-label={t('operator', 'Operator')}
-          >
-            <span className="truncate">{text.op}</span>
-            <IconChevronDown className="text-muted-foreground" />
-          </RowButton>
-        }
+        button={<OperatorButton shows={text.op} disabled={disabled} />}
       />
       <RowValue
         rule={rule}

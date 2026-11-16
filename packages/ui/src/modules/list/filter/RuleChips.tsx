@@ -115,7 +115,11 @@ const RuleChip = ({ rule, index }: { rule: TFilterRule; index: number }) => {
           onOpenChange={toggle('value')}
           button={
             <Segment
-              aria-label={t('value-of', { name: field.label, defaultValue: '{{name}} value' })}
+              aria-label={t('value-of', {
+                name: field.label,
+                value: text.value,
+                defaultValue: '{{name}}: {{value}}',
+              })}
             >
               <span className="truncate font-medium">{text.value}</span>
             </Segment>

@@ -30,7 +30,8 @@ const FilterButton = ({ count }: { count: number }) => {
         trigger={
           <Button
             size="sm"
-            aria-label={label}
+            // The count it shows is part of its name.
+            aria-label={count > 0 ? `${label} ${count}` : label}
             aria-keyshortcuts="F"
             variant={count > 0 ? 'secondary' : 'ghost'}
             tone={count > 0 ? 'default' : 'muted'}

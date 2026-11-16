@@ -62,7 +62,7 @@
     "field": "Field",
     "operator": "Operator",
     "value": "Value",
-    "value-of": "{{name}} value",
+    "value-of": "{{name}}: {{value}}",
     "choose": "Choose…",
     "where": "Where",
     "and": "And",

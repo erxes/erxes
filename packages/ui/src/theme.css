@@ -127,7 +127,8 @@
   /* A side column of 18 to 24rem beside the content. */
   --grid-template-columns-aside: minmax(18rem, 24rem) minmax(0, 1fr);
   /* A condition row: "Where", "And" or "Or", the field, the operator, the value, then remove. */
-  --grid-template-columns-condition: 4rem minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.2fr) auto;
+  /* 5.5rem holds the And/Or picker in Mongolian ("Эсвэл"). */
+  --grid-template-columns-condition: 5.5rem minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.2fr) auto;
 
   /* Panels and sidebars sliding open or shut. */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);

@@ -127,7 +127,8 @@ describe('ListFilter outside erxes', () => {
 
     const button = await filterButton(container);
 
-    expect(button.getAttribute('aria-label')).toBe('Filter');
+    // Its name holds the count it shows.
+    expect(button.getAttribute('aria-label')).toBe('Filter 2');
     expect(button.textContent).toBe('2');
     expect(container.textContent).toContain('Stage');
     expect(container.textContent).toContain('Won');

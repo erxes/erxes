@@ -61,7 +61,7 @@
     "field": "Талбар",
     "operator": "Харьцуулалт",
     "value": "Утга",
-    "value-of": "{{name}}-н утга",
+    "value-of": "{{name}}: {{value}}",
     "choose": "Сонгох…",
     "where": "Хэрэв",
     "and": "Ба",
