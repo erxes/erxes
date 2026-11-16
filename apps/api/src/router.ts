@@ -27,6 +27,7 @@ import {
 } from '~/modules/customerAuth/customerAuth.router';
 import { customerNotificationsRouter } from '~/modules/customerNotifications/customerNotifications.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
+import { searchRouter } from '~/modules/search/search.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
 import { unitTypesRouter, unitsRouter } from '~/modules/units/units.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
@@ -62,6 +63,7 @@ export const coreRouter = unscoped.router({
   customerAuth: customerAuthRouter,
   customerNotifications: customerNotificationsRouter,
   companies: companiesRouter,
+  search: searchRouter,
   tags: tagsRouter,
   units: unitsRouter,
   unitTypes: unitTypesRouter,

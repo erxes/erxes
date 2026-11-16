@@ -21,11 +21,15 @@ const CommandRoot = ({
   />
 );
 
-/** A command palette in a dialog. The title names the dialog for screen readers; it isn't shown. */
+/**
+ * A command palette in a dialog. The title names the dialog for screen readers; it isn't shown.
+ * `shouldFilter={false}` shows the items as given, for results a server already matched.
+ */
 const CommandDialog = ({
   title,
   description,
   className,
+  shouldFilter,
   children,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, 'children'> & {
@@ -33,12 +37,16 @@ const CommandDialog = ({
   title: string;
   description?: string;
   className?: string;
+  shouldFilter?: boolean;
 }) => (
   <Dialog {...props}>
     <Dialog.Content className={cn('overflow-hidden p-0 rounded-lg border-0', className)}>
       <Dialog.Title className="sr-only">{title}</Dialog.Title>
       {description && <Dialog.Description className="sr-only">{description}</Dialog.Description>}
-      <CommandRoot className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+      <CommandRoot
+        shouldFilter={shouldFilter}
+        className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
+      >
         {children}
       </CommandRoot>
     </Dialog.Content>

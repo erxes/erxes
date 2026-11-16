@@ -34,7 +34,11 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      that depend on it. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
      `type`) name what its answer or payload holds; the builder offers them in "Insert data" as
      `{{steps.<step id>.output.<key>}}` and `{{event.payload.<key>}}`, so renaming a key breaks
-     saved automations. The route, the query key `parent` and the answer's shape are the contract;
+     saved automations. The route, the query key `parent` and the answer's shape are the contract.
+     The manifest's `search` (`PluginSearchSource`: `label`, `path`) adds groups to global search:
+     web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
+     expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,
+     `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set

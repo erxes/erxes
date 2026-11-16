@@ -40,6 +40,7 @@
     "react-hotkeys-hook": "5.4.0",
     "react-i18next": "^18.0.1",
     "react-router-dom": "^7.1.1",
+    "use-debounce": "^10.1.1",
     "zod": "4.6.7"
   },
   "devDependencies": {

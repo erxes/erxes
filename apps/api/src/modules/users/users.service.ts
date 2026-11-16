@@ -16,6 +16,18 @@ import { asPlugin } from './withoutSignIn.service';
 
 type Status = UserRow['status'];
 
+/** Every word in the email, a name, the username or the employee id. */
+export const userSearch = (search: string) =>
+  matchEveryWord(search, (pattern) =>
+    or(
+      ilike(users.email, pattern),
+      ilike(users.fullName, pattern),
+      ilike(users.username, pattern),
+      ilike(users.shortName, pattern),
+      ilike(users.employeeId, pattern),
+    ),
+  );
+
 export const listUsers = async (
   client: Db,
   query: CursorQuery & {
@@ -50,17 +62,7 @@ export const listUsers = async (
   }
 
   if (query.search) {
-    filters.push(
-      matchEveryWord(query.search, (pattern) =>
-        or(
-          ilike(users.email, pattern),
-          ilike(users.fullName, pattern),
-          ilike(users.username, pattern),
-          ilike(users.shortName, pattern),
-          ilike(users.employeeId, pattern),
-        ),
-      ),
-    );
+    filters.push(userSearch(query.search));
   }
 
   return keysetPage(

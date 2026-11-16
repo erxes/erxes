@@ -2049,6 +2049,18 @@
       }
     }
   },
+  "search": {
+    "global": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/search"
+        }
+      }
+    }
+  },
   "tags": {
     "list": {
       "~orpc": {

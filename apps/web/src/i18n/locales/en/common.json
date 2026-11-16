@@ -537,6 +537,23 @@
     "keep-editing": "Keep editing",
     "cancel": "Cancel"
   },
+  "search": {
+    "apps": "Apps",
+    "description": "Search records and apps",
+    "failed": "Could not search here",
+    "hint": "Type at least 2 characters",
+    "none": "Nothing matches “{{q}}”",
+    "placeholder": "Search people, companies, products and more",
+    "title": "Search",
+    "types": {
+      "company": "Companies",
+      "customer": "People",
+      "member": "Team members",
+      "product": "Products",
+      "unit": "Branches and departments"
+    },
+    "untitled": "Untitled"
+  },
   "side-panel": {
     "title": "Side panel",
     "close": "Close",

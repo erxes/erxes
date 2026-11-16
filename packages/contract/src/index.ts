@@ -18,6 +18,7 @@ import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
 import { rolesContract } from './roles';
+import { searchContract } from './search';
 import { tagsContract } from './tags';
 import { trashContract } from './trash';
 import { unitTypesContract, unitsContract } from './units';
@@ -55,6 +56,7 @@ export const coreContract = {
   products: productsContract,
   roles: rolesContract,
   saas: saasContract,
+  search: searchContract,
   tags: tagsContract,
   units: unitsContract,
   unitTypes: unitTypesContract,
@@ -128,6 +130,8 @@ export * from './products';
 export * from './roles';
 
 export * from './saas';
+
+export * from './search';
 
 export * from './tags';
 

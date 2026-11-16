@@ -4,6 +4,7 @@ import { Button, cn, Tooltip, buttonVariants } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { NotificationsBell } from '~/modules/notifications/NotificationsBell';
+import { GlobalSearch } from '~/modules/search/GlobalSearch';
 import { useSession } from '~/modules/auth/session';
 import { SETTINGS_APP, useCoreAppLabel, useNavApps } from './apps';
 import { CoreTabAppSwitcher } from './CoreTabAppSwitcher';
@@ -19,7 +20,8 @@ import { useAppTabs } from './useAppTabs';
 export const CoreTab = () => {
   const { organization } = useSession();
   const apps = useNavApps();
-  const settingsLabel = useCoreAppLabel()(SETTINGS_APP);
+  const appLabel = useCoreAppLabel();
+  const settingsLabel = appLabel(SETTINGS_APP);
   const { routeApp, tabs, open, close, closeOthers, closeToRight, move } = useAppTabs(apps);
 
   return (
@@ -47,6 +49,7 @@ export const CoreTab = () => {
           onMove={move}
         />
         <div className="flex shrink-0 items-center gap-0.5">
+          <GlobalSearch apps={[...apps, SETTINGS_APP]}appLabel={appLabel} onOpenApp={open} />
           <NotificationsBell />
           <CoreTabTooltip label={settingsLabel}>
             <Button

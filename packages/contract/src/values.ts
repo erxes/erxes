@@ -11,7 +11,9 @@ import {
   LIVE_MODES,
   NOTIFICATION_DELIVERIES,
   ORG_UNIT_KINDS,
+  PLUGIN_VIEW_TYPE,
   PRODUCT_KINDS,
+  SEARCH_RECORD_TYPES,
 } from '@erxes/core-db/enums';
 import { z } from 'zod';
 
@@ -106,6 +108,39 @@ export type ProductKind = z.infer<typeof ProductKind>;
 export const UnitKind = z.enum(ORG_UNIT_KINDS);
 
 export type UnitKind = z.infer<typeof UnitKind>;
+
+/** What global search finds in core, in the order its groups show. */
+export const SearchType = z.enum(SEARCH_RECORD_TYPES);
+
+export type SearchType = z.infer<typeof SearchType>;
+
+/** A plugin's record type, `<plugin>:<record>` (`sales:deal`). */
+export const PluginViewType = z
+  .templateLiteral([z.string(), ':', z.string()])
+  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
+
+/**
+ * What a plugin's search route (`search[].path` in its manifest) answers:
+ * `GET <api.url><path>?q=<text>&limit=<n>` with the member's plugin session
+ * token, at most `limit` (≤ 20) records the member may see. A hit opens in
+ * core's side panel when it names a `recordType` the plugin UI registers
+ * (`sales:deal`), else at `path`, a route of the plugin UI.
+ */
+export const PluginSearchHit = z.object({
+  id: z.string().trim().min(1).max(100),
+  title: z.string().trim().min(1).max(200),
+  subtitle: z.string().trim().max(300).nullish(),
+  recordType: PluginViewType.optional(),
+  path: z
+    .string()
+    .regex(/^\/[^\s]*$/, 'a path like /sales/deals/1')
+    .max(500)
+    .optional(),
+});
+
+export type PluginSearchHit = z.infer<typeof PluginSearchHit>;
+
+export const PluginSearchResults = z.object({ data: z.array(PluginSearchHit).max(20) });
 
 // ─── Custom fields ──────────────────────────────────────────────────────────
 

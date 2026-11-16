@@ -19,6 +19,7 @@ import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
 import { PluginApiDocs } from './pluginApiDocs';
+import { PluginSearchSource } from './search';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
 export const PluginName = z
@@ -124,6 +125,12 @@ export const PluginManifest = z.object({
     .array(z.string().regex(/^(\/[a-z0-9][a-z0-9_.-]*)+$/, 'a path like /github/webhook'))
     .max(20)
     .optional(),
+  /**
+   * Its groups in erxes' global search (Deals, Tickets): web asks each
+   * `<api.url><path>?q=&limit=` with the member's session token and shows
+   * the answer (`PluginSearchResults`) under the label.
+   */
+  search: z.array(PluginSearchSource).max(5).optional(),
   scopes: z.array(PluginScope).max(PLUGIN_SCOPES.length).default([]),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z
@@ -257,6 +264,7 @@ export const Plugin = createSelectSchema(plugins, {
       countries: true,
       ui: true,
       api: true,
+      search: true,
     }),
 })
   .pick({ name: true, manifest: true })

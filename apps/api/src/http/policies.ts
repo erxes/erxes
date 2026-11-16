@@ -222,6 +222,8 @@ export const ACCESS = {
   'plugins.signal': { plugin: 'live:write' },
 
   // Plugins read product tags only (tags.service).
+  // Each type needs what its own list needs (search.service).
+  'search.global': MEMBER,
   'tags.list': { member: 'any', plugin: 'products:read' },
   'tags.create': needs('tags.manage'),
   'tags.update': needs('tags.manage'),

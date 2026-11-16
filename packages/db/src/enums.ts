@@ -41,6 +41,9 @@ export const ORG_UNIT_KINDS = ['branch', 'department'] as const;
 export const PRODUCT_KINDS = ['goods', 'service'] as const;
 export const PRODUCT_STATUSES = ['active', 'archived'] as const;
 
+/** What global search finds in core: people (customers and leads), companies, products, team members, branches and departments. */
+export const SEARCH_RECORD_TYPES = ['customer', 'company', 'product', 'member', 'unit'] as const;
+
 /** Lists views belong to: customers, leads (people), companies, company leads, products. */
 export const VIEW_RECORD_TYPES = [
   'customer',

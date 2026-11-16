@@ -37,9 +37,18 @@ const usedBy = (query: ProductQuery) => {
   return plugin ? arrayContains(products.plugins, [plugin]) : undefined;
 };
 
-export const listProducts = async (client: Db, query: CursorQuery & ProductQuery) => {
-  const search = query.search ? containsPattern(query.search) : undefined;
+/** Name or code contains the text, or the barcode is it. */
+export const productSearch = (search: string) => {
+  const pattern = containsPattern(search);
 
+  return or(
+    ilike(products.name, pattern),
+    ilike(products.code, pattern),
+    eq(products.barcode, search),
+  );
+};
+
+export const listProducts = async (client: Db, query: CursorQuery & ProductQuery) => {
   const filter = await compileRecordFilter(client, 'product', query.filter);
 
   return keysetPage(
@@ -57,13 +66,7 @@ export const listProducts = async (client: Db, query: CursorQuery & ProductQuery
       query.parentId ? eq(products.parentId, query.parentId) : undefined,
       query.tagIds?.length ? hasAnyTag('product', products.id, query.tagIds) : undefined,
       usedBy(query),
-      search && query.search
-        ? or(
-            ilike(products.name, search),
-            ilike(products.code, search),
-            eq(products.barcode, query.search),
-          )
-        : undefined,
+      query.search ? productSearch(query.search) : undefined,
     ),
     query,
     (where, orderBy, limit) =>

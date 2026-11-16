@@ -1,7 +1,6 @@
 import {
   FILTER_FIELD_GROUPS,
   FILTER_FIELD_TYPES,
-  PLUGIN_VIEW_TYPE,
   SORT_DIRECTIONS,
   VIEW_RECORD_TYPES,
 } from '@erxes/core-db/enums';
@@ -12,16 +11,12 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
 import { Id, isoDate, listOf } from './common';
+import { PluginViewType } from './values';
 
 /** The list a view belongs to: customers, leads (people), companies, company leads, products. */
 export const ViewRecordType = z.enum(VIEW_RECORD_TYPES);
 
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
-
-/** A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`). Its API applies the filter. */
-export const PluginViewType = z
-  .templateLiteral([z.string(), ':', z.string()])
-  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
 
 /** Any list views can belong to: one of core's, or a plugin's. */
 export const ViewListType = z.union([ViewRecordType, PluginViewType]);
