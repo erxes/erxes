@@ -11,6 +11,8 @@ interface SelectProps {
   /** The trigger's look, e.g. `ghost` for a side panel cell. */
   variant?: ComponentProps<typeof Combobox.Trigger>['variant'];
   className?: string;
+  /** Only the code in the trigger ("MNT"), for a narrow field beside an amount. */
+  short?: boolean;
 }
 
 /** A searchable list of options (by name or code), one of them chosen. */
@@ -21,6 +23,7 @@ const SearchSelect = ({
   onChange,
   variant,
   className,
+  short,
   options,
   placeholder,
 }: SelectProps & { options: RegionOption[]; placeholder: string }) => {
@@ -35,8 +38,12 @@ const SearchSelect = ({
         variant={variant}
         className={cn('w-full', className)}
         disabled={disabled}
+        title={short ? chosen?.label : undefined}
       >
-        <Combobox.Value value={chosen?.label ?? value} placeholder={placeholder} />
+        <Combobox.Value
+          value={short ? value : (chosen?.label ?? value)}
+          placeholder={placeholder}
+        />
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
