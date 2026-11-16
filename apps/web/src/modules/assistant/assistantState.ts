@@ -43,7 +43,38 @@ export const assistantPickedModelState = stored({
   initial: {},
 });
 
+export const blankTab = (): AssistantTab => ({ key: crypto.randomUUID(), threadId: null });
+
+/** Makes a blank chat the active tab: the open one, or a new one. */
+export const newChatAction = atom(null, (get, set) => {
+  const tabs = get(assistantTabsState);
+  const blank = tabs.find((tab) => tab.threadId === null);
+
+  if (blank) {
+    set(assistantActiveTabState, blank.key);
+
+    return;
+  }
+
+  const tab = blankTab();
+
+  set(assistantTabsState, [...tabs, tab]);
+  set(assistantActiveTabState, tab.key);
+});
+
 export const assistantUnreadState = atom(false);
+
+/** A question asked from elsewhere (the top bar search), for a new chat to send. */
+export const assistantAskState = atom<string | null>(null);
+
+/** The asked question, cleared as it is read, so only one chat sends it. */
+export const takeAskAction = atom(null, (get, set) => {
+  const ask = get(assistantAskState);
+
+  set(assistantAskState, null);
+
+  return ask;
+});
 
 let composerFocusWanted = false;
 

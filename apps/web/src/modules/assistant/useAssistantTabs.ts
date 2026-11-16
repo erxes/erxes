@@ -1,9 +1,12 @@
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { type AssistantTab, assistantActiveTabState, assistantTabsState } from './assistantState';
+import {
+  assistantActiveTabState,
+  assistantTabsState,
+  blankTab,
+  newChatAction,
+} from './assistantState';
 import { dropSession } from './chatSession';
-
-const blankTab = (): AssistantTab => ({ key: crypto.randomUUID(), threadId: null });
 
 export const useAssistantTabs = () => {
   const [tabs, setTabs] = useAtom(assistantTabsState);
@@ -20,20 +23,7 @@ export const useAssistantTabs = () => {
 
   const active = tabs.find((tab) => tab.key === activeKey) ?? tabs[0] ?? null;
 
-  const newChat = () => {
-    const blank = tabs.find((tab) => tab.threadId === null);
-
-    if (blank) {
-      setActiveKey(blank.key);
-
-      return;
-    }
-
-    const tab = blankTab();
-
-    setTabs([...tabs, tab]);
-    setActiveKey(tab.key);
-  };
+  const newChat = useSetAtom(newChatAction);
 
   const openThread = (threadId: string) => {
     const open = tabs.find((tab) => tab.threadId === threadId);

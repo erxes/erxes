@@ -2,10 +2,15 @@ import { useChat } from '@ai-sdk/react';
 import { matchQuery, useQueryClient } from '@tanstack/react-query';
 import { AssistantMentions } from '@erxes/core-contract';
 import { getToolName, isDataUIPart, isToolUIPart, type UIMessage } from 'ai';
-import { useSetAtom } from 'jotai';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 import { orpc } from '@erxes/core-contract/client';
-import { type AssistantTab, assistantUnreadState } from './assistantState';
+import {
+  type AssistantTab,
+  assistantAskState,
+  assistantUnreadState,
+  takeAskAction,
+} from './assistantState';
 import { type ChatSession, sessionFor } from './chatSession';
 import type { ComposerBlock, ComposerMessage } from './Composer';
 import { pendingAction } from './transcriptRows';
@@ -61,6 +66,21 @@ const useRefreshAfterChanges = (status: Status, last: UIMessage | undefined) => 
 
     previous.current = status;
   }, [status, last, client]);
+};
+
+/** Sends a question asked from the top bar search, once, in a blank chat. */
+export const useAskedElsewhere = (blank: boolean, send: (text: string) => void) => {
+  const ask = useAtomValue(assistantAskState);
+  const takeAsk = useSetAtom(takeAskAction);
+  const sendAsked = useEffectEvent(send);
+
+  useEffect(() => {
+    if (!ask || !blank) return;
+
+    const asked = takeAsk();
+
+    if (asked) sendAsked(asked);
+  }, [ask, blank, takeAsk]);
 };
 
 const partsOf = ({

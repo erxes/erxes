@@ -265,5 +265,8 @@
       "bored": "Bored",
       "sleepy": "Sleepy"
     }
+  },
+  "search": {
+    "ask": "Ask the assistant: “{{question}}”"
   }
 }

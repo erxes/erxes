@@ -9,7 +9,7 @@ import { EmptyState, KeyNotice } from './EmptyState';
 import { usePageContext } from './PageContextChip';
 import { Transcript, WorkingRow } from './Transcript';
 import type { AssistantTabs } from './useAssistantTabs';
-import { useConversation } from './useConversation';
+import { useAskedElsewhere, useConversation } from './useConversation';
 
 const ChatFailure = ({ error, onReload }: { error: Error; onReload: () => void }) => {
   const { t } = useTranslation('assistant');
@@ -60,6 +60,10 @@ export const Conversation = ({
   const view = useConversation(tab, tabs, open);
   const context = usePageContext();
   const { chat, model } = view;
+
+  useAskedElsewhere(tab.threadId === null && view.loaded && chat.messages.length === 0, (text) =>
+    view.send({ text, mentions: [], page: context.page, files: [], selections: [] }),
+  );
 
   if (isApiError(view.thread.error, 'NOT_FOUND')) {
     return (
