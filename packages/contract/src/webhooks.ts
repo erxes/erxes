@@ -13,6 +13,8 @@ import {
   INVOICE_REFUNDED_DATA,
 } from './eventTypes';
 
+export { type CoreEventType, EventTypeInfo } from './eventTypes';
+
 /**
  * Events core publishes (plugins add theirs through their manifest). Webhooks
  * subscribe to them; automations start from them.

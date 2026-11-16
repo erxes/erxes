@@ -160,7 +160,9 @@ export const PluginRecordSelect = ({
   const parent = dependsOn === undefined ? '' : textOf(input[dependsOn]);
   const waiting = dependsOn !== undefined && !parent;
   // A parent taken from the run is known only when it runs: then only the run's records fit.
-  const listed = Boolean(recordType) && !waiting && !parent.startsWith('{{');
+  // A chosen parent lists its own records: a run's record may sit under another one.
+  const fromRun = parent.startsWith('{{');
+  const listed = Boolean(recordType) && !waiting && !fromRun;
   const query = new URLSearchParams(parent ? { parent } : {});
 
   const records = useQuery({
@@ -179,7 +181,9 @@ export const PluginRecordSelect = ({
       multiple={multiple}
       lookup={{
         options: [
-          ...runRecordOptions(dataFields, action.source, recordType),
+          ...(fromRun || dependsOn === undefined
+            ? runRecordOptions(dataFields, action.source, recordType)
+            : []),
           ...(listed ? (records.data ?? []) : []),
         ],
         loading: listed && records.isPending,
