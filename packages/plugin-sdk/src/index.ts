@@ -121,11 +121,12 @@
  *   .where(compileFilter(FIELDS, input.filter, { me: member.userId }))   // filter: FilterParam
  *
  * API reference: `@erxes/plugin-sdk/openapi` documents the plugin's routes, served as REST beside
- * the RPC handler; the manifest's `api.openapi` names the path, and Settings › Developer shows it:
+ * the RPC handler. The manifest's `api.docs` lists one document per audience (`member`, and
+ * `customer` or `website` for routes those call), and Settings › Developer shows them:
  *
- *   api: { url: `${publicUrl}/api`, openapi: '/openapi.json' },
+ *   api: { url: `${publicUrl}/api`, docs: [{ audience: 'member', path: '/openapi/member.json' }] },
  *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));
- *   app.get('/api/openapi.json', async (_req, res) => res.json(await pluginOpenApi(router, { plugin, title, version, prefix: '/v1' })));
+ *   app.get('/api/openapi/member.json', async (_req, res) => res.json(await pluginOpenApi(router, { plugin, audience: 'member', title, version, prefix: '/v1' })));
  *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can

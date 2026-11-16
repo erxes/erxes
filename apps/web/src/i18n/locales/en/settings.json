@@ -462,7 +462,7 @@
     "title": "API reference",
     "member": "Team member API",
     "customer": "Customer API",
-    "plugin-api": "{{title}} API",
+    "website": "Website API",
     "pick": "Choose an API",
     "search": "Search APIs",
     "no-match": "No API matches",

@@ -74,8 +74,9 @@ export const paths = {
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',
     apiReference: '/settings/api-reference',
-    /** One API's reference: `member`, `customer` or an installed plugin's name. */
-    apiReferenceOf: (api: string) => `/settings/api-reference/${id(api)}`,
+    /** One API's reference: core's `member` or `customer`, or a plugin's name and audience. */
+    apiReferenceOf: (api: string, audience?: string) =>
+      `/settings/api-reference/${id(api)}${audience ? `/${id(audience)}` : ''}`,
     apiKeys: '/settings/api-keys',
     profile: '/settings/profile',
     security: '/settings/security',

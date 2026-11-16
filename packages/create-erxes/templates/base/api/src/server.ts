@@ -20,9 +20,13 @@ const logFailure = (error: unknown) => {
 const rpc = new RPCHandler(router, { interceptors: [onError(logFailure)] });
 const rest = new OpenAPIHandler(router, { interceptors: [onError(logFailure)] });
 
-/** Settings › Developer › API reference shows it (the manifest's `api.openapi`). */
-const openApi = pluginOpenApi(router, {
+/**
+ * Settings › Developer › API reference shows it (the manifest's `api.docs`). Routes for
+ * customers or a website get their own document with that `audience`.
+ */
+const memberDoc = pluginOpenApi(router, {
   plugin: PLUGIN,
+  audience: 'member',
   title: manifest.title,
   version: manifest.version,
   description: manifest.description,
@@ -48,7 +52,7 @@ export const createApp = () => {
   // Bearer session token core issues, never a cookie, so CORS guards nothing here.
   // Routes for websites (an API key, customer tokens) set their own CORS.
   app.use(
-    ['/api/rpc', '/api/v1', '/api/openapi.json', '/ui'],
+    ['/api/rpc', '/api/v1', '/api/openapi', '/ui'],
     cors({ origin: true, credentials: false, maxAge: 600 }),
   );
 
@@ -56,8 +60,8 @@ export const createApp = () => {
     res.json({ ok: true });
   });
 
-  app.get('/api/openapi.json', async (_req, res) => {
-    res.json(await openApi);
+  app.get('/api/openapi/member.json', async (_req, res) => {
+    res.json(await memberDoc);
   });
 
   // A 5-minute session token core issued for this member and plugin: erxes-ui's pluginFetch

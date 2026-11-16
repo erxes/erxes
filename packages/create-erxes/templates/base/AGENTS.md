@@ -31,9 +31,10 @@ oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
   `core_*` tables or imports core's app code.
 - Members are signed in by core: the UI sends a session token, the API checks it
   with `verifyPluginSession`. The same procedures are REST at `/api/v1` for
-  scripts, which get the token from core with an API key; `/api/openapi.json`
+  scripts, which get the token from core with an API key; `/api/openapi/member.json`
   documents them (`pluginOpenApi`), and core's Settings › Developer › API reference
-  shows it. Renaming a procedure breaks those scripts. A caller outside erxes (a webhook) reaches a path
+  shows it. Routes for customers or a website get their own document with that
+  `audience`, listed in the manifest's `api.docs`. Renaming a procedure breaks those scripts. A caller outside erxes (a webhook) reaches a path
   the manifest's `publicPaths` lists through core, which names the organisation:
   check it with `verifyPublicCall` (`@erxes/plugin-sdk`'s overview has the route).
 - Skills in `.agents/skills/`: `endpoint` for a procedure, `schema-change` for a

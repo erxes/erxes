@@ -2,67 +2,84 @@ import { Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-/** One API the page can show: core's member or customer API, or an installed plugin's. */
+/** One API document the page can show, and the address that opens it. */
 export interface ApiChoice {
-  value: string;
+  key: string;
+  /** In the list, under its group's heading: "Customer API". */
   label: string;
+  /** On the closed picker, where the heading isn't shown: "Ecommerce · Customer API". */
+  title: string;
+  to: string;
+}
+
+/** Core's documents, or one plugin's, under its name. */
+export interface ApiGroup {
+  heading: string;
+  choices: ApiChoice[];
 }
 
 /**
+ * Matches the words typed anywhere in "<group> <label>", so "ecom" finds Ecommerce's APIs and
+ * "customer" every customer API. cmdk's default fuzzy match also takes scattered letters,
+ * which made "ecom" find "Customer API".
+ */
+const matchWords = (value: string, search: string) =>
+  search
+    .toLowerCase()
+    .split(/\s+/)
+    .every((word) => value.toLowerCase().includes(word))
+    ? 1
+    : 0;
+
+/**
  * Picks the API to show, searchable since an organisation may install many plugins:
- * core's two first, then the plugins' by name.
+ * core's first, then each plugin's documents under its name.
  */
 export const ApiReferencePicker = ({
   value,
-  core,
-  plugins,
+  groups,
   onChange,
 }: {
   value: string;
-  core: ApiChoice[];
-  plugins: ApiChoice[];
-  onChange: (value: string) => void;
+  groups: ApiGroup[];
+  onChange: (choice: ApiChoice) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-reference' });
   const [open, setOpen] = useState(false);
-  const chosen = [...core, ...plugins].find((choice) => choice.value === value);
 
-  const group = (heading: string, choices: ApiChoice[]) =>
-    choices.length > 0 && (
-      <Command.Group heading={heading}>
-        {choices.map((choice) => (
-          <Command.Item
-            key={choice.value}
-            // The search matches what the member reads: with the id too, "ecom" found "customer".
-            value={choice.label}
-            onSelect={() => {
-              onChange(choice.value);
-              setOpen(false);
-            }}
-          >
-            <span className="truncate">{choice.label}</span>
-            <Combobox.Check checked={choice.value === value} />
-          </Command.Item>
-        ))}
-      </Command.Group>
-    );
+  const chosen = groups.flatMap((group) => group.choices).find((choice) => choice.key === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger className="w-56">
-        <Combobox.Value value={chosen?.label ?? ''} placeholder={t('pick', 'Choose an API')} />
+      <Combobox.Trigger className="w-64">
+        <Combobox.Value value={chosen?.title ?? ''} placeholder={t('pick', 'Choose an API')} />
       </Combobox.Trigger>
       <Combobox.Content>
-        <Command>
+        <Command filter={matchWords}>
           <Command.Input
             placeholder={t('search', 'Search APIs')}
             variant="secondary"
             focusOnMount
           />
-          <Command.List className="max-h-80 overflow-y-auto">
+          <Command.List className="max-h-96 overflow-y-auto">
             <Command.Empty>{t('no-match', 'No API matches')}</Command.Empty>
-            {group(t('core', 'Core'), core)}
-            {group(t('plugins', 'Plugins'), plugins)}
+            {groups.map((group) => (
+              <Command.Group key={group.heading} heading={group.heading}>
+                {group.choices.map((choice) => (
+                  <Command.Item
+                    key={choice.key}
+                    value={`${group.heading} ${choice.label}`}
+                    onSelect={() => {
+                      onChange(choice);
+                      setOpen(false);
+                    }}
+                  >
+                    <span className="truncate">{choice.label}</span>
+                    <Combobox.Check checked={choice.key === value} />
+                  </Command.Item>
+                ))}
+              </Command.Group>
+            ))}
           </Command.List>
         </Command>
       </Combobox.Content>

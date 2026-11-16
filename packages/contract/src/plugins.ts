@@ -13,6 +13,7 @@ import { PluginFields } from './pluginFields';
 import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
+import { PluginApiDocs } from './pluginApiDocs';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
 export const PluginName = z
@@ -74,21 +75,8 @@ export const PluginManifest = z.object({
       entry: HttpsUrl,
     })
     .optional(),
-  /**
-   * The plugin API's public address: plugin UIs call it with a session token.
-   * `openapi` is the path of its OpenAPI document under `url` (`/openapi.json`):
-   * Settings › Developer › API reference shows it, and scripts call the plugin
-   * with a session token they get using an API key.
-   */
-  api: z
-    .object({
-      url: HttpsUrl,
-      openapi: z
-        .string()
-        .regex(/^(\/[a-z0-9][a-z0-9_.-]*)+$/, 'a path like /openapi.json')
-        .optional(),
-    })
-    .optional(),
+  /** The plugin API's public address (plugin UIs call it with a session token), and its documents. */
+  api: z.object({ url: HttpsUrl, docs: PluginApiDocs.optional() }).optional(),
   /**
    * "Sign in with erxes" for the plugin's own app (OAuth 2.1 + PKCE): the
    * exact addresses codes may be sent to; `{subdomain}` stands for the

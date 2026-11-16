@@ -29,10 +29,23 @@ export const CORE_API_PREFIX = '/core/v1';
 export const API_KEY_LIFETIMES = [30, 90, 365] as const;
 
 /**
- * The security scheme a plugin's OpenAPI document declares (`@erxes/plugin-sdk/openapi`):
- * a member's plugin session token, which the API reference fills in for "try it".
+ * Who a plugin's API document is for (the manifest's `api.docs`): its team members (with a
+ * plugin session token), customers (with a customer token from core) or a website's server
+ * (with a key the plugin issues).
+ */
+export const PLUGIN_API_AUDIENCES = ['member', 'customer', 'website'] as const;
+
+export type PluginApiAudience = (typeof PLUGIN_API_AUDIENCES)[number];
+
+/**
+ * The security schemes a plugin's OpenAPI document declares (`@erxes/plugin-sdk/openapi`).
+ * The API reference fills in the member's session token for "try it".
  */
 export const PLUGIN_SESSION_SCHEME = 'pluginSession';
+
+export const CUSTOMER_TOKEN_SCHEME = 'customerToken';
+
+export const WEBSITE_KEY_SCHEME = 'websiteKey';
 
 // ─── Members ────────────────────────────────────────────────────────────────
 

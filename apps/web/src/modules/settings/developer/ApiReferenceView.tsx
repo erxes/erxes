@@ -1,4 +1,8 @@
-import { CORE_API_PREFIX, PLUGIN_SESSION_SCHEME } from '@erxes/core-contract';
+import {
+  CORE_API_PREFIX,
+  PLUGIN_SESSION_SCHEME,
+  type PluginApiAudience,
+} from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import type { createApiReference } from '@scalar/api-reference';
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -36,19 +40,19 @@ const ERXES_COLORS = `
   --scalar-border-color: var(--border);
 }`;
 
-/** A document to show: core's for an audience, or an installed plugin's from its own API. */
+/** A document to show: core's for an audience, or one of an installed plugin's from its own API. */
 export type ReferenceSource =
   | { audience: ApiAudience }
-  | { plugin: string; apiUrl: string; openapi: string };
+  | { plugin: string; audience: PluginApiAudience; apiUrl: string; path: string };
 
 /** Where the document is and where its calls go: core's own origin, or the plugin's API. */
 const locate = (source: ReferenceSource) =>
-  'audience' in source
-    ? {
+  'plugin' in source
+    ? { url: `${source.apiUrl}${source.path}`, server: source.apiUrl }
+    : {
         url: `${CORE_API_PREFIX}/openapi/${source.audience}.json`,
         server: window.location.origin,
-      }
-    : { url: `${source.apiUrl}${source.openapi}`, server: source.apiUrl };
+      };
 
 type ScalarConfig = Parameters<ReturnType<CreateApiReference>['updateConfiguration']>[0];
 
@@ -101,7 +105,12 @@ const useSessionToken = (plugin: string | null) => {
 const Reference = ({ create, source }: { create: CreateApiReference; source: ReferenceSource }) => {
   const theme = useAppliedTheme();
   const { url, server } = locate(source);
-  const token = useSessionToken('plugin' in source ? source.plugin : null);
+
+  // Only a member document signs in as the member; customers and websites bring their own.
+  const token = useSessionToken(
+    'plugin' in source && source.audience === 'member' ? source.plugin : null,
+  );
+
   const container = useRef<HTMLDivElement>(null);
   const instance = useRef<ReturnType<CreateApiReference> | null>(null);
 

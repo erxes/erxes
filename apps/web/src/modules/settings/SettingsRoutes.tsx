@@ -58,7 +58,7 @@ export const SettingsRoutes = () => (
       <Route path="file-upload" element={<FileUploadSettingsPage />} />
       <Route path="audit-log" element={<AuditLogPage />} />
       <Route path="event-delivery" element={<EventDeliveryPage />} />
-      <Route path="api-reference/:api?" element={<ApiReferencePage />} />
+      <Route path="api-reference/:api?/:audience?" element={<ApiReferencePage />} />
       <Route path="api-keys" element={<ApiKeysPage />} />
       <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />

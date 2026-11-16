@@ -1,4 +1,10 @@
-import { CORE_API_PREFIX, PLUGIN_SESSION_SCHEME } from '@erxes/core-contract';
+import {
+  CORE_API_PREFIX,
+  CUSTOMER_TOKEN_SCHEME,
+  PLUGIN_SESSION_SCHEME,
+  type PluginApiAudience,
+  WEBSITE_KEY_SCHEME,
+} from '@erxes/core-contract';
 import { type OpenAPI, OpenAPIGenerator } from '@orpc/openapi';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 
@@ -8,6 +14,8 @@ type Documented = Parameters<OpenAPIGenerator['generate']>[0];
 export interface PluginOpenApiOptions {
   /** The plugin's name, as registered (`sales`). */
   plugin: string;
+  /** Who calls these routes, which decides how they sign in (the manifest's `api.docs`). */
+  audience: PluginApiAudience;
   title: string;
   version: string;
   description?: string;
@@ -18,35 +26,76 @@ export interface PluginOpenApiOptions {
   prefix: `/${string}`;
 }
 
+type Security = Pick<OpenAPI.Document, 'components' | 'security'>;
+
+const BEARER = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } as const;
+
+const customerToken = {
+  ...BEARER,
+  description: `A customer's access token from core: \`POST ${CORE_API_PREFIX}/customer-auth/sign-in\` returns it (core's Customer API documents the sign-in).`,
+};
+
+/** How each audience signs in, for the document's security schemes. */
+const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
+  if (audience === 'member') {
+    return {
+      components: {
+        securitySchemes: {
+          [PLUGIN_SESSION_SCHEME]: {
+            ...BEARER,
+            description: `A member's 5-minute session token for this plugin: \`POST ${CORE_API_PREFIX}/plugins/${plugin}/session\` on core with an API key (Settings › Developer › API keys) returns it.`,
+          },
+        },
+      },
+      security: [{ [PLUGIN_SESSION_SCHEME]: [] }],
+    };
+  }
+
+  if (audience === 'customer') {
+    return {
+      components: { securitySchemes: { [CUSTOMER_TOKEN_SCHEME]: customerToken } },
+      security: [{ [CUSTOMER_TOKEN_SCHEME]: [] }],
+    };
+  }
+
+  // A website's server sends the key the plugin issued; a signed-in visitor adds their token.
+  return {
+    components: {
+      securitySchemes: {
+        [WEBSITE_KEY_SCHEME]: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'x-api-key',
+          description: "The website's key, from the plugin's settings. Keep it on the server.",
+        },
+        [CUSTOMER_TOKEN_SCHEME]: customerToken,
+      },
+    },
+    security: [
+      { [WEBSITE_KEY_SCHEME]: [] },
+      { [WEBSITE_KEY_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
+    ],
+  };
+};
+
 /**
- * The OpenAPI document of a plugin's REST routes, for Settings › Developer › API
- * reference: serve it at the manifest's `api.openapi` (`/openapi.json` under `api.url`).
- * Calls carry a member's 5-minute plugin session token, which a script gets from core
- * with an API key; the document says how.
+ * One OpenAPI document of a plugin's REST routes, for Settings › Developer › API reference:
+ * serve it at its path in the manifest's `api.docs` (`/openapi/member.json` under `api.url`).
+ * Each audience signs in its own way (`securityOf`), and the document says how.
  *
  *   const rest = new OpenAPIHandler(router);   // mounted at `<api path>/v1`, like the RPC handler
- *   const doc = pluginOpenApi(router, { plugin: 'sales', title: 'Sales', version, prefix: '/v1' });
- *   app.get('/api/openapi.json', async (_req, res) => res.json(await doc));
+ *   const doc = pluginOpenApi(router, { plugin: 'sales', audience: 'member', title, version, prefix: '/v1' });
+ *   app.get('/api/openapi/member.json', async (_req, res) => res.json(await doc));
  */
 export const pluginOpenApi = async (
   router: Documented,
-  { plugin, title, version, description, prefix }: PluginOpenApiOptions,
+  { plugin, audience, title, version, description, prefix }: PluginOpenApiOptions,
 ): Promise<OpenAPI.Document> => {
   const doc = await new OpenAPIGenerator({
     schemaConverters: [new ZodToJsonSchemaConverter()],
   }).generate(router, {
     info: { title, version, description },
-    components: {
-      securitySchemes: {
-        [PLUGIN_SESSION_SCHEME]: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          description: `A member's 5-minute session token for this plugin: \`POST ${CORE_API_PREFIX}/plugins/${plugin}/session\` on core with an API key (Settings › Developer › API keys) returns it.`,
-        },
-      },
-    },
-    security: [{ [PLUGIN_SESSION_SCHEME]: [] }],
+    ...securityOf(plugin, audience),
   });
 
   doc.paths = Object.fromEntries(

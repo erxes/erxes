@@ -31,7 +31,10 @@ export const manifest = {
   version: config.version,
   ui: { remote: '__id___ui', entry: config.uiEntryUrl },
   // `server.ts` serves the REST routes at /api/v1 and their document here.
-  api: { url: `${config.publicUrl}/api`, openapi: '/openapi.json' },
+  api: {
+    url: `${config.publicUrl}/api`,
+    docs: [{ audience: 'member', path: '/openapi/member.json' }],
+  },
   scopes: [],
   permissions: [
     { action: PERMISSIONS.view, label: 'View items', group: '__title__' },
