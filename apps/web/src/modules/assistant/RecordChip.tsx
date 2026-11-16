@@ -8,12 +8,12 @@ import {
   IconUserCircle,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { badgeVariants, cn } from 'erxes-ui';
+import { badgeVariants, cn, RecordChip as PanelChip } from 'erxes-ui';
 import { createContext, type ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { orpc } from '@erxes/core-contract/client';
-import { recordPath } from './recordPages';
+import { RECORD_CONTENT_TYPES, recordPath } from './recordPages';
 
 const CHIP = 'mx-0.5 max-w-full align-middle';
 
@@ -50,6 +50,21 @@ export const RecordChip = ({
   label: string;
 }) => {
   const inTable = useContext(InTable);
+  const contentType = RECORD_CONTENT_TYPES[type];
+
+  if (contentType) {
+    return (
+      <span className={cn('inline-flex align-middle', CHIP, inTable && 'max-w-40')}>
+        <PanelChip
+          record={{ contentType, contentId: id }}
+          name={label}
+          avatarUrl={null}
+          loading={false}
+          failed={false}
+        />
+      </span>
+    );
+  }
 
   return (
     <Link

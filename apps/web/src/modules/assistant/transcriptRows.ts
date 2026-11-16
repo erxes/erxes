@@ -17,6 +17,7 @@ type ToolPart = ToolUIPart | DynamicToolUIPart;
 const CallApiInput = z.object({
   procedure: z.string(),
   input: z.record(z.string(), z.unknown()).optional(),
+  title: z.string().optional(),
 });
 
 const SearchApiInput = z.object({ query: z.string() });
@@ -48,6 +49,8 @@ export interface Step {
   key: string;
   tool: string;
   name: string;
+  title: string | null;
+  approved: boolean | null;
   query: string | null;
   status: StepStatus;
   input: unknown;
@@ -64,6 +67,7 @@ export type TranscriptRow =
       key: string;
       approvalId: string;
       procedure: string;
+      title: string | null;
       input: Record<string, unknown>;
     }
   | { kind: 'question'; key: string; toolCallId: string; questions: Question[] }
@@ -105,6 +109,8 @@ const stepOf = (part: ToolPart): Step => {
     key: part.toolCallId,
     tool,
     name: call?.procedure ?? skill?.name ?? tool,
+    title: call?.title || null,
+    approved: part.approval?.approved ?? null,
     query: tool === 'searchApi' ? (SearchApiInput.safeParse(part.input).data?.query ?? null) : null,
     status: statusOf(part),
     input: call?.input ?? part.input,
@@ -149,6 +155,7 @@ const approvalRow = (part: ToolPart): TranscriptRow | null => {
     key: part.toolCallId,
     approvalId: part.approval.id,
     procedure: call?.procedure ?? getToolName(part),
+    title: call?.title || null,
     input: call?.input ?? {},
   };
 };

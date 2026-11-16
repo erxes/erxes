@@ -152,6 +152,7 @@ value PhoneInput
 value Popover
 value PopoverScoped
 value RadioGroup
+value RecordChip
 value RecordList
 value RecordOpenerProvider
 value RecordPage

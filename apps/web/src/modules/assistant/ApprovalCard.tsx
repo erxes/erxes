@@ -4,11 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 export const ApprovalCard = ({
   procedure,
+  title,
   input,
   disabled,
   onRespond,
 }: {
   procedure: string;
+  title: string | null;
   input: Record<string, unknown>;
   disabled: boolean;
   onRespond: (approved: boolean) => void;
@@ -24,10 +26,14 @@ export const ApprovalCard = ({
           <p aria-hidden className="text-sm font-semibold">
             {t('approval.title', 'Approve this change?')}
           </p>
-          <p className="text-sm text-muted-foreground">
-            {t('approval.description', 'The assistant wants to run')}{' '}
-            <code className="rounded bg-muted px-1 font-mono text-foreground">{procedure}</code>
-          </p>
+          {title ? (
+            <p className="text-sm">{title}</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t('approval.description', 'The assistant wants to run')}{' '}
+              <code className="rounded bg-muted px-1 font-mono text-foreground">{procedure}</code>
+            </p>
+          )}
         </div>
       </div>
       <Collapsible>
@@ -36,6 +42,9 @@ export const ApprovalCard = ({
           {t('approval.details', 'What it will send')}
         </Collapsible.Trigger>
         <Collapsible.Panel>
+          {title && (
+            <code className="mt-1 block font-mono text-xs text-muted-foreground">{procedure}</code>
+          )}
           <pre className="mt-1 max-h-48 overflow-auto rounded-md bg-muted p-2 font-mono text-xs whitespace-pre-wrap">
             {JSON.stringify(input, null, 2)}
           </pre>

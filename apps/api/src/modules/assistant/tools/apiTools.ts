@@ -38,6 +38,14 @@ export const CallApiInput = z.object({
     .record(z.string(), z.unknown())
     .optional()
     .describe('One object: path parameters, query and body fields together'),
+  title: z
+    .string()
+    .trim()
+    .max(80)
+    .optional()
+    .describe(
+      'What this call does, in a few plain words the member reads in the chat and on an approval, e.g. "Find customers with a .mn email" or "Tag 3 customers VIP". Always give it.',
+    ),
 });
 
 export type CallApiInput = z.infer<typeof CallApiInput>;

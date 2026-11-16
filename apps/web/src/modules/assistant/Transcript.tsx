@@ -37,6 +37,7 @@ const Row = ({ row, actions }: { row: TranscriptRow; actions: TranscriptActions 
       return (
         <ApprovalCard
           procedure={row.procedure}
+          title={row.title}
           input={row.input}
           disabled={actions.busy}
           onRespond={(approved) => actions.onRespond(row.approvalId, approved)}

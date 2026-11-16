@@ -1,5 +1,6 @@
 import { type AssistantPage, AssistantRecordType } from '@erxes/core-contract';
 import { matchPath } from 'react-router-dom';
+import { MEMBER_CONTENT_TYPE } from 'erxes-ui';
 import { paths } from '~/lib/paths';
 
 const RECORD_PAGES: Record<AssistantRecordType, string[]> = {
@@ -20,6 +21,22 @@ const RECORD_LINKS: Record<AssistantRecordType, (id: string) => string> = {
   member: paths.settings.teamMember,
   product: paths.products.product,
   automation: paths.automations.automation,
+};
+
+/** How the side panel names each record type it can show. */
+export const RECORD_CONTENT_TYPES: Partial<Record<AssistantRecordType, string>> = {
+  customer: 'core:customer',
+  company: 'core:company',
+  member: MEMBER_CONTENT_TYPE,
+  product: 'core:product',
+};
+
+export const recordOfContentType = (contentType: string, id: string) => {
+  const type = AssistantRecordType.options.find(
+    (item) => RECORD_CONTENT_TYPES[item] === contentType,
+  );
+
+  return type ? { type, id } : undefined;
 };
 
 export const recordPath = (type: AssistantRecordType, id: string) => RECORD_LINKS[type](id);

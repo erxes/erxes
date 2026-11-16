@@ -1,7 +1,7 @@
 import { useChat } from '@ai-sdk/react';
-import { useQueryClient } from '@tanstack/react-query';
+import { matchQuery, useQueryClient } from '@tanstack/react-query';
 import { AssistantMentions } from '@erxes/core-contract';
-import { isDataUIPart, type UIMessage } from 'ai';
+import { getToolName, isDataUIPart, isToolUIPart, type UIMessage } from 'ai';
 import { useSetAtom } from 'jotai';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { orpc } from '@erxes/core-contract/client';
@@ -39,6 +39,28 @@ const useUnreadWhenClosed = (status: Status, open: boolean) => {
 
     previous.current = status;
   }, [status, open, setUnread]);
+};
+
+const calledApi = (message: UIMessage | undefined) =>
+  message?.role === 'assistant' &&
+  message.parts.some(
+    (part) =>
+      isToolUIPart(part) && getToolName(part) === 'callApi' && part.state === 'output-available',
+  );
+
+const useRefreshAfterChanges = (status: Status, last: UIMessage | undefined) => {
+  const client = useQueryClient();
+  const previous = useRef(status);
+
+  useEffect(() => {
+    if (isBusy(previous.current) && !isBusy(status) && calledApi(last)) {
+      void client.invalidateQueries({
+        predicate: (query) => !matchQuery({ queryKey: orpc.assistant.key() }, query),
+      });
+    }
+
+    previous.current = status;
+  }, [status, last, client]);
 };
 
 const partsOf = ({
@@ -83,6 +105,7 @@ export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: bo
   }, [session, model.run]);
 
   useUnreadWhenClosed(chat.status, open);
+  useRefreshAfterChanges(chat.status, chat.messages.at(-1));
 
   const sendParts = (parts: UIMessage['parts']) => {
     chat.clearError();

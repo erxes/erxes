@@ -80,6 +80,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelFormRow label icon required error hint>` One field of a form in the side panel, laid out like `PanelField`.
 - `<PanelLabel tooltip>` A side panel label cut at two lines, with the full text on hover.
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
+- `<RecordChip record name avatarUrl loading failed>` A record as a chip: its avatar and name.
 - `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
 - `type RecordPageProps { listPath }` A `RecordPage`'s record, and the list it goes back to.

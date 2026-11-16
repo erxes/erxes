@@ -285,6 +285,8 @@ export {
 
 export { MEMBER_CONTENT_TYPE, MemberLink } from './modules/records/MemberLink';
 
+export { RecordChip } from './modules/records/RecordChip';
+
 export {
   type CompanyContact,
   companyTitle,

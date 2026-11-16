@@ -8,7 +8,7 @@ import {
   IconSearch,
   type Icon,
 } from '@tabler/icons-react';
-import { Button, Collapsible, cn } from 'erxes-ui';
+import { Badge, Button, Collapsible, cn } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -72,12 +72,14 @@ const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
     }[step.status];
   }
 
+  const name = step.title ?? step.name;
+
   const labels: Record<StepStatus, string> = {
-    running: t('step.running', 'Calling {{name}}', { name: step.name }),
-    waiting: t('step.waiting', 'Waiting for approval: {{name}}', { name: step.name }),
-    done: t('step.done', 'Called {{name}}', { name: step.name }),
-    failed: t('step.failed', '{{name}} failed', { name: step.name }),
-    declined: t('step.declined', 'Declined {{name}}', { name: step.name }),
+    running: name,
+    waiting: t('step.waiting', 'Waiting for your approval: {{name}}', { name }),
+    done: name,
+    failed: t('step.failed', 'Could not: {{name}}', { name }),
+    declined: t('step.declined', 'You declined: {{name}}', { name }),
   };
 
   return labels[step.status];
@@ -121,10 +123,18 @@ const StepRow = ({ step }: { step: Step }) => {
           >
             {stepLabel(step, t)}
           </span>
+          {step.approved && (
+            <Badge variant="success" size="sm">
+              {t('step.approved', 'Approved')}
+            </Badge>
+          )}
         </Collapsible.Trigger>
         <Collapsible.Panel>
           <div className="flex flex-col gap-2 py-1 pl-8">
             {step.error && <p className="text-sm text-destructive-text">{step.error}</p>}
+            {step.title && (
+              <code className="font-mono text-xs text-muted-foreground">{step.name}</code>
+            )}
             <Json label={t('step.input', 'Sent')} value={step.input} />
             {step.output !== null && (
               <Json label={t('step.output', 'Returned')} value={step.output} />
@@ -138,7 +148,8 @@ const StepRow = ({ step }: { step: Step }) => {
 
 export const StepsGroup = ({ steps }: { steps: Step[] }) => {
   const { t } = useTranslation('assistant');
-  const active = steps.some((step) => step.status === 'running' || step.status === 'waiting');
+  const current = steps.findLast((step) => step.status === 'running' || step.status === 'waiting');
+  const active = current !== undefined;
   const failed = steps.filter((step) => step.status === 'failed').length;
   const [open, setOpen] = useState<boolean | null>(null);
 
@@ -147,15 +158,17 @@ export const StepsGroup = ({ steps }: { steps: Step[] }) => {
       <Collapsible.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>
         <Collapsible.TriggerIcon className="size-3" />
         {active && <IconLoader2 aria-hidden className="size-3.5 animate-spin" />}
-        <span>
-          {t('steps', {
-            count: steps.length,
-            defaultValue_one: '{{count}} step',
-            defaultValue_other: '{{count}} steps',
-          })}
+        <span className="min-w-0 truncate">
+          {current
+            ? stepLabel(current, t)
+            : t('steps', {
+                count: steps.length,
+                defaultValue_one: '{{count}} step',
+                defaultValue_other: '{{count}} steps',
+              })}
         </span>
         {failed > 0 && (
-          <span className="text-destructive-text">
+          <span className="text-muted-foreground">
             {t('steps-failed', '· {{count}} failed', { count: failed })}
           </span>
         )}

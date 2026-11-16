@@ -104,11 +104,9 @@
   "step": {
     "search": "Searched the API for “{{query}}”",
     "search-any": "Searched the API",
-    "running": "Calling {{name}}",
-    "waiting": "Waiting for approval: {{name}}",
-    "done": "Called {{name}}",
-    "failed": "{{name}} failed",
-    "declined": "Declined {{name}}",
+    "waiting": "Waiting for your approval: {{name}}",
+    "failed": "Could not: {{name}}",
+    "declined": "You declined: {{name}}",
     "input": "Sent",
     "output": "Returned",
     "read-file": "Read {{name}}",
@@ -120,7 +118,8 @@
     "skill-failed": "Could not read the {{name}} skill",
     "code-running": "Running a program",
     "code-done": "Ran a program",
-    "code-failed": "The program failed"
+    "code-failed": "The program failed",
+    "approved": "Approved"
   },
   "attach": {
     "files": "Attach files",
