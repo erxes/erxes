@@ -149,16 +149,26 @@ export const describeTrigger = (
   }
 };
 
-const PLACEHOLDER = /\{\{\s*([^{}|]+?)\s*(?:\|[^{}]*)?\}\}/g;
+const PLACEHOLDER = /\{\{\s*([^{}|]+?)\s*(\|[^{}]*)?\}\}/g;
+const ADD_DAYS = /\|\s*add_days:\s*(-?\d+)/;
+
+/** `{{now | add_days: 7}}` reads "7 days after it runs". */
+const nowText = (filters = '') => {
+  const days = Number(ADD_DAYS.exec(filters)?.[1] ?? 0);
+
+  if (days === 0) return "Today's date";
+
+  return `${plural(Math.abs(days), 'day')} ${days > 0 ? 'after' : 'before'} it runs`;
+};
 
 /**
  * Text with its placeholders named as the data picker names them: "Welcome
  * {{subject.firstName}}!" reads "Welcome [First name]!".
  */
 export const readableTemplate = (text: string, fields: FieldInfo[]) =>
-  text.replace(PLACEHOLDER, (whole, path: string) => {
+  text.replace(PLACEHOLDER, (whole, path: string, filters?: string) => {
     const label =
-      path === 'now' ? "Today's date" : fields.find((field) => field.path === path)?.label;
+      path === 'now' ? nowText(filters) : fields.find((field) => field.path === path)?.label;
 
     return label ? `[${label.replace(/ \(custom\)$/, '')}]` : whole;
   });

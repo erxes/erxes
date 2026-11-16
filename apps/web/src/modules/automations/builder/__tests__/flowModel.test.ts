@@ -141,6 +141,18 @@ describe('flow model', () => {
         { actions, events, fields: outputs },
       ).detail,
     ).toBe('Title: [Assign an owner: New owner] {{x}}');
+    // A relative day keeps its offset.
+    expect(
+      describeStep(
+        {
+          id: 'n3',
+          type: 'action',
+          action: 'core.notification.send',
+          input: { title: 'Due {{now | add_days: 7 | date}}, {{ now }}' },
+        },
+        { actions, events, fields: [] },
+      ).detail,
+    ).toBe("Title: Due [7 days after it runs], [Today's date]");
     expect(describeStep(branch, { actions, events, fields: outputs }).title).toBe(
       'If Customer updated within the wait: no',
     );

@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { readableTemplate } from './flowText';
 import type { FieldInfo } from './useAutomationFields';
 
-/** The record's fields, earlier steps' results and the time, searchable. */
+/** The trigger's values, earlier steps' results, the record's fields and the time, searchable. */
 const DataPicker = ({
   fields,
   subject,
@@ -49,6 +49,9 @@ const DataPicker = ({
       <Command.Input placeholder={t('insert-data-search', 'Search data…')} />
       <Command.List className="max-h-72">
         <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
+        {/* The trigger's values and earlier results first: short lists, and what an id field wants. */}
+        {group(t('the-trigger', 'The trigger'), trigger, IconBolt)}
+        {group(t('earlier-steps', 'Earlier steps'), steps, IconRoute)}
         {record.length > 0 && (
           <Command.Group
             heading={
@@ -74,8 +77,6 @@ const DataPicker = ({
             ))}
           </Command.Group>
         )}
-        {group(t('the-trigger', 'The trigger'), trigger, IconBolt)}
-        {group(t('earlier-steps', 'Earlier steps'), steps, IconRoute)}
         <Command.Group heading={t('other-data', 'Other')}>
           <Command.Item value="now current time date" onSelect={() => onPick('now | date')}>
             <IconClock className="text-muted-foreground" />
