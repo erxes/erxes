@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, onTestFinished } from 'vite-plus/test';
+import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 import { useTestDatabase } from './db';
+import { pluginApi } from './pluginApi';
+import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
 describe('units', { timeout: 120_000 }, () => {
@@ -160,5 +163,41 @@ describe('units', { timeout: 120_000 }, () => {
     await expect(
       owner.units.import({ units: [{ id: 'x', kind: 'branch', name: 'X', memberIds: [] }] }),
     ).rejects.toMatchObject({ status: 403 });
+  });
+
+  it('sends core.unit.* to plugins that may read units', async () => {
+    const api = await pluginApi(t.url(''), 'tms');
+
+    onTestFinished(api.close);
+
+    const secret = await rotatePluginSecret('tms');
+
+    const token = async (org?: string) =>
+      (
+        await t.client().plugins.token({
+          grant_type: 'client_credentials',
+          client_id: 'tms',
+          client_secret: secret,
+          org,
+        })
+      ).access_token;
+
+    await t.client(await token()).plugins.registerManifest({
+      title: 'TMS',
+      version: '1',
+      api: { url: api.url },
+      scopes: ['units:read'],
+      subscriptions: ['core.unit.*'],
+    });
+    await token(t.ids.org);
+
+    await t.owner().units.create({ kind: 'branch', name: 'Depot' });
+
+    await settle();
+
+    expect(api.received).toContainEqual({
+      type: 'core.unit.created',
+      payload: { kind: 'branch', changed: [] },
+    });
   });
 });
