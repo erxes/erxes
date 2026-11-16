@@ -1,10 +1,11 @@
 import React from 'react';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
-import { Controller, FormProvider, useFormContext } from 'react-hook-form';
+import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';
 
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { FormSaveBar, FormSection } from './form-layout';
 import { Label } from './label';
 import { cn } from '../lib/utils';
 
@@ -35,7 +36,9 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
   const itemContext = React.useContext(FormItemContext);
-  const { getFieldState, formState } = useFormContext();
+  const { getFieldState } = useFormContext();
+  // Subscribed here, so an error shows even when nothing above the field renders again.
+  const formState = useFormState({ name: fieldContext?.name });
   const fallbackId = React.useId();
 
   // Outside a field the parts render without field state; outside an item, with their own id.
@@ -89,11 +92,26 @@ const FormItem = ({
   );
 };
 
-const FormLabel = ({ className, ...props }: React.ComponentProps<typeof Label>) => {
+const FormLabel = ({
+  className,
+  children,
+  required,
+  ...props
+}: React.ComponentProps<typeof Label> & {
+  /** Marks the field as one the form can't be saved without. */
+  required?: boolean;
+}) => {
   const { error, formItemId } = useFormField();
 
   return (
-    <Label className={cn(error && 'text-destructive', className)} htmlFor={formItemId} {...props} />
+    <Label className={cn(error && 'text-destructive', className)} htmlFor={formItemId} {...props}>
+      {children}
+      {required && (
+        <span aria-hidden="true" className="text-destructive">
+          {' *'}
+        </span>
+      )}
+    </Label>
   );
 };
 
@@ -167,7 +185,8 @@ const FormMessage = ({
 
 /**
  * react-hook-form's provider with field, label, control and error parts.
- * A settings page lays out `Form.Item`s with `Form.Label` above and `Form.Message` below.
+ * A settings page lays out `Form.Item`s with `Form.Label` above and `Form.Message` below, in
+ * `Form.Section` cards, and ends with `Form.SaveBar`.
  */
 export const Form = Object.assign(FormProvider, {
   Control: FormControl,
@@ -176,5 +195,7 @@ export const Form = Object.assign(FormProvider, {
   Item: FormItem,
   Label: FormLabel,
   Message: FormMessage,
+  SaveBar: FormSaveBar,
+  Section: FormSection,
   useField: useFormField,
 });

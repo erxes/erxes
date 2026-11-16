@@ -6,6 +6,7 @@ import { cva } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 import type { Except } from 'type-fest';
 import { IMaskInput, type ReactElementProps } from 'react-imask';
+import { useFieldControl } from './field-control';
 
 /** The text of an input or textarea: its size and, for codes, a monospace face. */
 export const fieldTextVariants = {
@@ -19,7 +20,7 @@ export const fieldTextVariants = {
 };
 
 export const inputVariants = cva(
-  'flex h-7 w-full rounded-sm bg-background px-3 py-1 text-sm text-foreground shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus aria-invalid:focus-visible:shadow-focus-destructive',
+  'flex h-7 w-full rounded-sm bg-background px-3 py-1 text-sm text-foreground shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus aria-invalid:shadow-destructive aria-invalid:focus-visible:shadow-focus-destructive',
   {
     variants: {
       type: {
@@ -34,8 +35,8 @@ export const inputVariants = cva(
         default: '',
         secondary:
           'bg-muted shadow-none focus-visible:shadow-subtle aria-invalid:focus-visible:shadow-destructive',
-        // A 1px border instead of the drop shadow, for dense forms.
-        bordered: 'border border-input shadow-none',
+        // A 1px border instead of the drop shadow, for dense forms; red while it has an error.
+        bordered: 'border border-input shadow-none aria-invalid:border-destructive',
         // No border or corners: a cell in a grid that draws its own lines.
         flush: 'rounded-none shadow-none',
       },
@@ -60,8 +61,11 @@ const InputMain = ({
   text,
   ...props
 }: InputProps & React.RefAttributes<HTMLInputElement>) => {
+  const field = useFieldControl();
+
   return (
     <input
+      {...field}
       type={type}
       autoComplete="off"
       className={cn(
@@ -88,8 +92,11 @@ const InputNumber = ({
   onChange?: (value?: number | '') => void;
   value?: number;
 }) => {
+  const field = useFieldControl();
+
   return (
     <IMaskInput
+      {...field}
       mask={Number}
       onAccept={(accepted) => {
         onChange?.(accepted ? Number(accepted) : '');

@@ -206,7 +206,9 @@ value toAmountInput
 value toIsoDay
 value toast
 value useConfirm
+value useFieldControl
 value useFilterContext
+value useFocusFirstField
 value useFormat
 value useItemKeys
 value useListDisplay

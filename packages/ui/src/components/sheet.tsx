@@ -4,7 +4,8 @@ import { IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Button } from './button';
-import { cn } from '../lib/utils';
+import { findFirstField } from '../hooks/use-focus-first-field';
+import { cn, mergeRefs } from '../lib/utils';
 
 const SheetHeaderActionsContext = React.createContext<React.ReactNode>(null);
 
@@ -59,18 +60,32 @@ const SheetBackdrop = ({ className, ...props }: SheetPrimitive.Backdrop.Props) =
   />
 );
 
-/** The backdrop fades in under the panel, which slides in from its side and fades with it. */
+/**
+ * The backdrop fades in under the panel, which slides in from its side and fades with it.
+ * It opens with the cursor in its first field, when it has one.
+ */
 const SheetView = ({
+  ref,
   side = 'right',
   size,
   className,
+  initialFocus,
   ...props
-}: SheetPrimitive.Popup.Props & VariantProps<typeof sheetVariants>) => (
-  <SheetPrimitive.Portal>
-    <SheetBackdrop />
-    <SheetPrimitive.Popup className={cn(sheetVariants({ side, size }), className)} {...props} />
-  </SheetPrimitive.Portal>
-);
+}: SheetPrimitive.Popup.Props & VariantProps<typeof sheetVariants>) => {
+  const popupRef = React.useRef<HTMLDivElement>(null);
+
+  return (
+    <SheetPrimitive.Portal>
+      <SheetBackdrop />
+      <SheetPrimitive.Popup
+        ref={mergeRefs(popupRef, ref)}
+        initialFocus={initialFocus ?? (() => findFirstField(popupRef.current) ?? true)}
+        className={cn(sheetVariants({ side, size }), className)}
+        {...props}
+      />
+    </SheetPrimitive.Portal>
+  );
+};
 
 /** The close icon button in a sheet header. */
 const SheetClose = ({ className }: { className?: string }) => {

@@ -55,6 +55,8 @@ export { DropdownMenu } from './components/dropdown-menu';
 
 export { Empty } from './components/empty';
 
+export { useFieldControl } from './components/field-control';
+
 export { Form } from './components/form';
 
 export { HoverCard } from './components/hover-card';
@@ -120,6 +122,8 @@ export { useConfirm } from './hooks/use-confirm';
 export { useItemKeys } from './hooks/use-item-keys';
 
 export { usePageHotkey } from './hooks/use-page-hotkey';
+
+export { useFocusFirstField } from './hooks/use-focus-first-field';
 
 export { toast, useToast } from './hooks/use-toast';
 

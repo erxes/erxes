@@ -2,6 +2,7 @@ import { Combobox } from '@base-ui/react/combobox';
 import { IconX } from '@tabler/icons-react';
 import { type RefObject, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib/utils';
+import { useFieldControl } from './field-control';
 
 /** One option of `MultipleSelector`: its value and the label shown. */
 export type MultiSelectOption = { value: string; label: string };
@@ -38,6 +39,7 @@ const SelectorField = ({
     fieldRef: RefObject<HTMLDivElement | null>;
   }) => {
   const empty = value.length === 0;
+  const field = useFieldControl();
 
   return (
     <Combobox.Chips
@@ -67,10 +69,11 @@ const SelectorField = ({
         ))}
         <div className="flex items-center bg-background min-w-0 flex-1 basis-32 rounded-lg overflow-hidden">
           <Combobox.Input
+            {...field}
             id={id}
             placeholder={hidePlaceholderWhenSelected && !empty ? '' : placeholder}
             className={cn(
-              'flex h-7 w-full flex-1 rounded-md bg-transparent text-sm font-medium outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+              'flex h-7 w-full flex-1 rounded-md bg-transparent text-sm outline-hidden placeholder:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50',
               empty ? 'px-3 py-2' : 'ml-1 px-3',
             )}
           />

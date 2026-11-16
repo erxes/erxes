@@ -3,6 +3,12 @@ import { type Keys, useHotkeys } from 'react-hotkeys-hook';
 // While one of these is shown, it owns the keyboard.
 const OVERLAY = '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]';
 
+/** Whether a dialog, menu or list is shown, other than one that holds `inside`. */
+export const isOverlayShown = (inside?: Element | null) =>
+  Array.from(document.querySelectorAll(OVERLAY)).some(
+    (overlay) => !(inside && overlay.contains(inside)) && overlay.getClientRects().length > 0,
+  );
+
 /**
  * Keys meant for something else: a repeat, an IME composition, a key a handler already took,
  * one typed into a text box, or any key while an overlay is shown. react-hotkeys-hook already
@@ -13,9 +19,7 @@ const meantElsewhere = (event: KeyboardEvent) =>
   event.isComposing ||
   event.defaultPrevented ||
   (event.target instanceof Element && event.target.closest('[role="textbox"]') !== null) ||
-  Array.from(document.querySelectorAll(OVERLAY)).some(
-    (overlay) => overlay.getClientRects().length > 0,
-  );
+  isOverlayShown();
 
 /**
  * A page shortcut, skipped while typing or while a dialog or menu is open.

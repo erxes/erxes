@@ -185,6 +185,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `ToggleGroup.{Item}` A row of toggle buttons where one or several stay pressed.
 - `Tooltip.{Provider, Trigger, Content}` A short label that shows on hover or focus of its trigger.
 - `Upload` An image upload: a preview tile, an upload button and a remove button.
+- `useFieldControl()` A form row's label, error and state for its control.
 
 ## Plugin runtime
 
@@ -240,6 +241,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `toast({ title, description, variant, action })` Shows a toast: `toast({ title, description, variant: 'success' })`.
 - `toIsoDay(date)` A local day as stored and typed, `yyyy-MM-dd`, in every language.
 - `useConfirm()` `confirm` shows a confirmation dialog in its own root.
+- `useFocusFirstField(ref)` Puts the cursor in the first field under `ref` when the form opens.
 - `useFormat()` Date, number and money formatters in the UI's language, for components.
 - `useItemKeys(length)` Stable React keys for an editable list whose items have no id.
 - `useMoney()` `formatMoney` in the UI's language.
