@@ -11,7 +11,13 @@ const ColumnName = z
   .regex(/^[a-z][a-z0-9_]{0,49}$/, 'lower case letters, digits and _ (starting with a letter)')
   .refine((name) => name !== 'record_id', 'record_id is the column naming the customer or company');
 
-/** A column of a relation's view members filter its rows by: `amount`, `stage`, `closed_at`. */
+/** What the filter measures a number field by (total, average, lowest, highest); a date only by earliest and latest. */
+const FIELD_MEASURES = ['sum', 'avg', 'min', 'max'] as const;
+
+/**
+ * A column of a relation's view members filter its rows by: `amount`, `stage`, `closed_at`.
+ * `product` holds core product ids and picks products; `member` member ids.
+ */
 export const PluginRelationField = z
   .object({
     /** The view's column. */
@@ -24,6 +30,15 @@ export const PluginRelationField = z
     array: z.boolean().optional(),
     /** A `number` that is money, in the organisation's currency's smallest unit. */
     money: z.boolean().optional(),
+    /**
+     * The measures the filter lists for a number or date field: `['sum']` for an amount,
+     * `['avg', 'min']` for a rating, `[]` to only narrow by it. All that fit when absent.
+     */
+    measures: z
+      .array(z.enum(FIELD_MEASURES))
+      .max(FIELD_MEASURES.length)
+      .refine((list) => new Set(list).size === list.length, 'each measure once')
+      .optional(),
   })
   .refine((field) => field.type !== 'select' || !!field.options?.length, {
     path: ['options'],
@@ -32,7 +47,19 @@ export const PluginRelationField = z
   .refine((field) => !field.money || field.type === 'number', {
     path: ['money'],
     error: 'only number fields are money',
-  });
+  })
+  .refine(
+    (field) =>
+      !field.measures?.length ||
+      (!field.array &&
+        (field.type === 'number' ||
+          (field.type === 'date' &&
+            field.measures.every((measure) => measure === 'min' || measure === 'max')))),
+    {
+      path: ['measures'],
+      error: 'only number fields measure, and date fields by min and max',
+    },
+  );
 
 export type PluginRelationField = z.infer<typeof PluginRelationField>;
 

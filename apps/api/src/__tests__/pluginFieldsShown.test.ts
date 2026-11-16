@@ -53,4 +53,37 @@ describe('plugin fields members see', { timeout: 120_000 }, () => {
       (await t.other().fields.list({ contentType: 'customer' })).data.filter((f) => f.plugin),
     ).toHaveLength(1);
   });
+
+  it('keeps a field the manifest marks not filterable as a column only', async () => {
+    const other = t.other();
+
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'Sales',
+      version: '1.0.0',
+      scopes: ['fields:write', 'customers:read'],
+      fields: [
+        {
+          code: 'total_spent',
+          contentType: 'customer',
+          label: 'Total spent',
+          type: 'number',
+          filterable: false,
+        },
+      ],
+    });
+
+    const [field] = (await other.fields.list({ contentType: 'customer' })).data;
+    const path = `subject.customFields.${field?.id}`;
+
+    // Still a field (columns and sorting keep it), but not in the filter, which refuses it.
+    expect(field).toMatchObject({ code: 'total_spent', archivedAt: null });
+    expect(
+      (await other.views.fields({ recordType: 'customer' })).data.some((f) => f.path === path),
+    ).toBe(false);
+    await expect(
+      other.customers.list({
+        filter: JSON.stringify({ match: 'all', rules: [{ path, op: 'gte', value: 1 }] }),
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_FILTER' });
+  });
 });

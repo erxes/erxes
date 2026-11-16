@@ -87,6 +87,7 @@ export const FILTER_FIELD_TYPES = [
   'tags',
   'customer',
   'company',
+  'product',
 ] as const;
 
 /** Where a list filter comes from, for grouping in the picker; `plugin`: a plugin's fields, under its name. */
@@ -107,6 +108,7 @@ export const RELATION_FIELD_TYPES = [
   'boolean',
   'select',
   'member',
+  'product',
 ] as const;
 
 /**

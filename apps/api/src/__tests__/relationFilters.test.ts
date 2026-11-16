@@ -21,9 +21,17 @@ const MANIFEST: PluginManifest = {
       view: 'hr_customer_deals',
       permission: 'hr.deals.view',
       fields: [
-        { key: 'amount', label: 'Amount', type: 'number', money: true },
+        // No lowest amount: the filter lists the measures the plugin names.
+        {
+          key: 'amount',
+          label: 'Amount',
+          type: 'number',
+          money: true,
+          measures: ['sum', 'avg', 'max'],
+        },
         { key: 'stage', label: 'Stage', type: 'select', options: ['Won', 'Lost'] },
         { key: 'closed_on', label: 'Closed', type: 'date' },
+        { key: 'product_id', label: 'Product', type: 'product' },
       ],
     },
   ],
@@ -34,11 +42,12 @@ const PLUGIN_SQL = `
   GRANT erxes_plugin_hr TO current_user;
   SET ROLE erxes_plugin_hr;
   CREATE TABLE hr_deals (
-    id text PRIMARY KEY, org_id text NOT NULL, customer_id text, amount numeric, stage text, closed_on date
+    id text PRIMARY KEY, org_id text NOT NULL, customer_id text, amount numeric, stage text, closed_on date,
+    product_id text
   );
   SELECT core_enable_tenant_rls('hr_deals');
   CREATE VIEW hr_customer_deals AS
-    SELECT org_id, customer_id AS record_id, amount, stage, closed_on FROM hr_deals;
+    SELECT org_id, customer_id AS record_id, amount, stage, closed_on, product_id FROM hr_deals;
   GRANT SELECT ON hr_customer_deals TO erxes_core_reader;
   CREATE VIEW hr_unshared AS SELECT customer_id AS record_id FROM hr_deals;
   RESET ROLE;
@@ -69,16 +78,16 @@ describe('relation filters: customers by a plugin’s records', { timeout: 300_0
 
     const { bat, dorj, saraa } = t.contacts;
 
-    // Bat: won 1500 ten days ago, lost 300 a hundred days ago. Dorj: won 200 seventy days ago.
-    // Saraa: none here; Globex's deal on her id stays in Globex.
-    for (const [id, org, customer, amount, stage, days] of [
-      ['d1', t.ids.org, bat, 1500, 'Won', 10],
-      ['d2', t.ids.org, bat, 300, 'Lost', 100],
-      ['d3', t.ids.org, dorj, 200, 'Won', 70],
-      ['d4', t.ids.otherOrg, saraa, 9000, 'Won', 1],
+    // Bat: won 1500 ten days ago (product p1), lost 300 a hundred days ago (p2). Dorj: won 200
+    // seventy days ago (p2). Saraa: none here; Globex's deal on her id stays in Globex.
+    for (const [id, org, customer, amount, stage, days, product] of [
+      ['d1', t.ids.org, bat, 1500, 'Won', 10, 'p1'],
+      ['d2', t.ids.org, bat, 300, 'Lost', 100, 'p2'],
+      ['d3', t.ids.org, dorj, 200, 'Won', 70, 'p2'],
+      ['d4', t.ids.otherOrg, saraa, 9000, 'Won', 1, 'p1'],
     ] as const) {
       await adminDb().execute(
-        sql`insert into hr_deals values (${id}, ${org}, ${customer}, ${amount}, ${stage}, ${ago(days)})`,
+        sql`insert into hr_deals values (${id}, ${org}, ${customer}, ${amount}, ${stage}, ${ago(days)}, ${product})`,
       );
     }
   });
@@ -91,16 +100,16 @@ describe('relation filters: customers by a plugin’s records', { timeout: 300_0
       [`${DEALS}.count`, 'Deals: count', 'number'],
       [`${DEALS}.sum.amount`, 'Deals: Amount (total)', 'number'],
       [`${DEALS}.avg.amount`, 'Deals: Amount (average)', 'number'],
-      [`${DEALS}.min.amount`, 'Deals: Amount (lowest)', 'number'],
       [`${DEALS}.max.amount`, 'Deals: Amount (highest)', 'number'],
       [`${DEALS}.min.closed_on`, 'Deals: Closed (earliest)', 'date'],
       [`${DEALS}.max.closed_on`, 'Deals: Closed (latest)', 'date'],
     ]);
     expect(ofDeals[1]).toMatchObject({ group: 'plugin', groupLabel: 'HR', currency: 'USD' });
-    expect(ofDeals[0]?.relation?.fields.map((field) => field.path)).toEqual([
-      'subject.amount',
-      'subject.stage',
-      'subject.closed_on',
+    expect(ofDeals[0]?.relation?.fields.map((field) => [field.path, field.type])).toEqual([
+      ['subject.amount', 'number'],
+      ['subject.stage', 'select'],
+      ['subject.closed_on', 'date'],
+      ['subject.product_id', 'product'],
     ]);
     // Companies have no deals here.
     expect(
@@ -140,6 +149,29 @@ describe('relation filters: customers by a plugin’s records', { timeout: 300_0
         rules: [dealsWhere([{ path: 'subject.stage', op: 'in', value: ['Won'] }])],
       }),
     ).toEqual(['Bat', 'Dorj']);
+    // A product field holds product ids: "bought p1", "never bought p2".
+    expect(
+      await found({
+        match: 'all',
+        rules: [dealsWhere([{ path: 'subject.product_id', op: 'in', value: ['p1'] }])],
+      }),
+    ).toEqual(['Bat']);
+    expect(
+      await found({
+        match: 'all',
+        rules: [
+          {
+            path: `${DEALS}.count`,
+            op: 'eq',
+            value: 0,
+            where: {
+              match: 'all',
+              rules: [{ path: 'subject.product_id', op: 'eq', value: 'p2' }],
+            },
+          },
+        ],
+      }),
+    ).toEqual(['Saraa']);
     expect(
       await found({
         match: 'all',
@@ -203,6 +235,8 @@ describe('relation filters: customers by a plugin’s records', { timeout: 300_0
       }),
     ).rejects.toMatchObject(refused);
     await expect(found(rule(`${DEALS}.sum.stage`, 'gt', 1))).rejects.toMatchObject(refused);
+    // A measure the plugin doesn't list.
+    await expect(found(rule(`${DEALS}.min.amount`, 'gt', 1))).rejects.toMatchObject(refused);
 
     // The viewer's role lacks hr.deals.view: no deal fields, no deal rules.
     const viewer = t.viewer();

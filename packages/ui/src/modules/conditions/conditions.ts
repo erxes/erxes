@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { TagsQuery } from '../pickers/LookupPicker';
 import type { MemberQueries } from '../pickers/members';
 import type { ContactSearchQueries } from '../records/contacts';
+import type { ProductSearchQueries } from '../records/products';
 
 /*
  * Core's condition language, which automations and list filters share: rules `<path> <op>
@@ -126,18 +127,21 @@ export type TConditionField = {
 export type TConditionRelation = { label: string; fields: TConditionField[] };
 
 /**
- * Where `member`, `tags`, `customer` and `company` values pick from. In erxes: `memberQueries`
- * and `contactSearchQueries` from `@erxes/core-contract/client`, and web's tags query for the
+ * Where member, tag, contact and product values pick from.
+ * Each `member`, `tags`, `customer`, `company` and `product` field reads one. In erxes:
+ * `memberQueries`, `contactSearchQueries` and `productSearchQueries` from
+ * `@erxes/core-contract/client`, and web's tags query for the
  * record type. Without one, the picker has nothing to offer.
  */
 export type TConditionLookups = {
   members?: MemberQueries;
   tags?: TagsQuery;
   contacts?: ContactSearchQueries;
+  products?: ProductSearchQueries;
 };
 
 /** Field types whose values are ids picked from a lookup, not typed. */
-export const LOOKUP_TYPES = new Set<string>(['member', 'tags', 'customer', 'company']);
+export const LOOKUP_TYPES = new Set<string>(['member', 'tags', 'customer', 'company', 'product']);
 
 export const NO_VALUE = new Set<string>(['exists', 'not_exists']);
 

@@ -1,5 +1,5 @@
 import type { ViewRecordType } from '@erxes/core-contract';
-import { memberQueries } from '@erxes/core-contract/client';
+import { memberQueries, productSearchQueries } from '@erxes/core-contract/client';
 import { ListFilter, type TListFilterField } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { tagsQuery } from '~/modules/tags/useTags';
@@ -52,6 +52,7 @@ export const CoreListFilter = ({
       loading={fields.isLoading}
       error={fields.error}
       members={memberQueries}
+      products={productSearchQueries}
       tags={subject ? tagsQuery(subject) : undefined}
       status={<ViewChanges recordType={recordType} />}
     />

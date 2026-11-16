@@ -74,6 +74,18 @@ export const contactSearchQueries = {
     }),
 };
 
+/**
+ * Where erxes-ui's list filter searches products for `product` fields (a plugin relation's
+ * "Product is"): `<ListFilter products={productSearchQueries} … />`. Picked products load by id,
+ * archived ones too.
+ */
+export const productSearchQueries = {
+  search: (search: string | undefined) =>
+    orpc.products.list.queryOptions({ input: { limit: 20, search, all: true }, staleTime: 60_000 }),
+  byIds: (ids: string[]) =>
+    orpc.products.lookup.queryOptions({ input: { ids: ids.join(',') }, staleTime: 5 * 60_000 }),
+};
+
 /** Any error core answers with: one per code in `ERRORS`, with that code's `data`. */
 type ApiError = ORPCErrorFromErrorMap<typeof ERRORS>;
 

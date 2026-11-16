@@ -27,7 +27,7 @@ export type TListFilterField = {
   /**
    * How it compares: contains (text), ranges (number), relative dates, yes/no, a pick from
    * `options`, a team member (from `members`), a tag (from `tags`), a customer or company
-   * (searched in `contacts`). The rule's value is the picked ids.
+   * (searched in `contacts`), a product (searched in `products`). The rule's value is the picked ids.
    */
   type:
     | 'text'
@@ -38,7 +38,8 @@ export type TListFilterField = {
     | 'member'
     | 'tags'
     | 'customer'
-    | 'company';
+    | 'company'
+    | 'product';
   /** A `select`'s choices. */
   options?: { value: string; label: string }[];
   /** Instead of the type's icon. */
@@ -86,8 +87,9 @@ export type TListFilterProps = TConditionLookups & {
  * "Where / And / Or" rows. Each chip is one condition whose field, operator and value open in
  * place. The conditions and search live in the address (shared links and reloads keep them);
  * `useListFilterParams()` reads them for the list's query. `member` fields pick
- * from `members`, `tags` fields from `tags`, `customer` and `company` fields from `contacts`: in
- * erxes `memberQueries` and `contactSearchQueries` from `@erxes/core-contract/client` and the
+ * from `members`, `tags` fields from `tags`, `customer` and `company` fields from `contacts`,
+ * `product` fields from `products`: in erxes `memberQueries`, `contactSearchQueries` and
+ * `productSearchQueries` from `@erxes/core-contract/client` and the
  * tags query of the record type; outside erxes, the plugin's own.
  */
 export const ListFilter = ({ recordType, ...props }: TListFilterProps) => {

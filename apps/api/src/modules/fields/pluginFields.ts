@@ -30,9 +30,10 @@ const declaredRows = (declared: DeclaredField[]) =>
       type: field.type,
       options: hasOptions(field.type) ? unique(field.options ?? []) : [],
       description: field.description ?? null,
+      filterable: field.filterable ?? true,
       order,
     })),
-  )}::jsonb) as d(code text, content_type text, label text, type text, options text[], description text, "order" int)`;
+  )}::jsonb) as d(code text, content_type text, label text, type text, options text[], description text, filterable boolean, "order" int)`;
 
 /**
  * Brings the plugin's fields in line with its manifest in every organisation the scope sees
@@ -58,16 +59,17 @@ export const syncPluginFields = async (tx: Db, plugin: string, declared: Declare
   if (declared.length)
     // Ids from SQL: one statement for every organisation, however many have the plugin.
     await tx.execute(sql`insert into ${fields}
-        (id, org_id, content_type, plugin, code, label, type, options, description, "order")
+        (id, org_id, content_type, plugin, code, label, type, options, description, filterable, "order")
       select substr(md5(random()::text || i.org_id || d.content_type || d.code), 1, 17),
-        i.org_id, d.content_type, ${plugin}, d.code, d.label, d.type, d.options, d.description, d."order"
+        i.org_id, d.content_type, ${plugin}, d.code, d.label, d.type, d.options, d.description, d.filterable, d."order"
       from ${pluginInstallations} i cross join ${d}
       where i.plugin = ${plugin}
       on conflict (org_id, content_type, plugin, code) where plugin is not null do update
         set label = excluded.label, type = excluded.type, options = excluded.options,
-          description = excluded.description, archived_at = null, updated_at = now()
-        where (${fields}.label, ${fields}.type, ${fields}.options, ${fields}.description, ${fields}.archived_at)
-          is distinct from (excluded.label, excluded.type, excluded.options, excluded.description, null)`);
+          description = excluded.description, filterable = excluded.filterable, archived_at = null,
+          updated_at = now()
+        where (${fields}.label, ${fields}.type, ${fields}.options, ${fields}.description, ${fields}.filterable, ${fields}.archived_at)
+          is distinct from (excluded.label, excluded.type, excluded.options, excluded.description, excluded.filterable, null)`);
 
   await tx.execute(sql`update ${fields} f set archived_at = now(), updated_at = now()
     where f.plugin = ${plugin} and f.archived_at is null

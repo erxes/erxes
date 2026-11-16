@@ -175,6 +175,7 @@ const customFields = async (client: Db, recordType: ViewRecordType) => {
             ? eq(fields.contentType, 'company')
             : inArray(fields.contentType, CONTENT_TYPES),
         fieldShown,
+        eq(fields.filterable, true),
       ),
     )
     .orderBy(asc(fields.order));

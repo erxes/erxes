@@ -199,8 +199,15 @@ export {
   type Tag,
   type TagsQuery,
   useMemberOptions,
+  useProductOptions,
   useTagOptions,
 } from './modules/pickers/LookupPicker';
+
+export {
+  type ProductChoice,
+  type ProductSearchQueries,
+  productTitle,
+} from './modules/records/products';
 
 export { NumberField } from './modules/record-field/components/NumberField';
 

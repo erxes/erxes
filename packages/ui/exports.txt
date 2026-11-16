@@ -32,6 +32,8 @@ type MultiSelectOption
 type PluginLiveMessage
 type PluginRuntime
 type PluginSession
+type ProductChoice
+type ProductSearchQueries
 type RecordListGroup
 type RecordPageProps
 type RecordPanelControls
@@ -213,6 +215,7 @@ value memberName
 value oneOf
 value pluginFetch
 value pluginJson
+value productTitle
 value readImage
 value setFileStorage
 value setPluginRuntime
@@ -242,6 +245,7 @@ value useOpenRecord
 value usePageHotkey
 value usePanelExpanded
 value usePreviousHotkeyScope
+value useProductOptions
 value useRecordPanel
 value useScopedHotkeys
 value useTagOptions
