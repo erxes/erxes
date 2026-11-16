@@ -46,7 +46,10 @@ const Config = z.object({
   relationTabs: z.unknown().optional(),
   settings: z.unknown().optional(),
   dashboardWidgets: z.unknown().optional(),
+  floatingWidget: z.unknown().optional(),
 });
+
+const FloatingWidget = component().optional();
 
 /** A settings page is one of the plugin's own, under its `path`. */
 const settingsPageSchema = (path: string) => {
@@ -169,15 +172,26 @@ const validEntries = <T>(
 
 /**
  * A plugin's `CONFIG`, with only its well-formed sections, record types, relation tabs and
- * settings pages and dashboard widgets; null when it has no name or path.
+ * settings pages, dashboard widgets and floating widget; null when it has no name or path.
  */
 export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginConfig | null => {
   const config = Config.safeParse(value);
 
   if (!config.success) return null;
 
-  const { recordSections, recordTypes, relationTabs, settings, dashboardWidgets, ...rest } =
-    config.data;
+  const {
+    recordSections,
+    recordTypes,
+    relationTabs,
+    settings,
+    dashboardWidgets,
+    floatingWidget,
+    ...rest
+  } = config.data;
+
+  const widget = FloatingWidget.safeParse(floatingWidget);
+
+  if (!widget.success) console.error(`[plugins] ${remote}: floatingWidget is not a component`);
 
   const sections: TRecordSection[] = validEntries(
     remote,
@@ -198,5 +212,6 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
     relationTabs: validEntries(remote, 'relationTabs', relationTabs, RelationTab),
     settings: validEntries(remote, 'settings', settings, settingsPageSchema(rest.path)),
     dashboardWidgets: validEntries(remote, 'dashboardWidgets', dashboardWidgets, DashboardWidget),
+    floatingWidget: widget.success ? widget.data : undefined,
   };
 };

@@ -161,8 +161,8 @@ export type TPluginSettingsPage = {
 /**
  * A plugin UI's `CONFIG`, exported from its `./config` remote.
  * web reads `name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
- * `relationTabs`, `settings` and `dashboardWidgets`; its first module renders under `/<path>/*`.
- * The other fields come from erxes 3.x and web ignores them.
+ * `relationTabs`, `settings`, `dashboardWidgets` and `floatingWidget`; its first module renders
+ * under `/<path>/*`. The other fields come from erxes 3.x and web ignores them.
  */
 export type IUIConfig = {
   name: string;
@@ -178,9 +178,13 @@ export type IUIConfig = {
   relationTabs?: TRelationTab[];
   /** Tiles in core's home dashboard catalog, for members who may use the plugin. */
   dashboardWidgets?: TDashboardWidget[];
+  /**
+   * One component web mounts once beside the app shell, on every page, for members who may use
+   * the plugin, and keeps mounted across navigation (a softphone). It positions itself.
+   */
+  floatingWidget?: React.ComponentType;
   i18n?: boolean;
   i18nNamespace?: string;
-  hasFloatingWidget?: boolean;
   /**
    * erxes platform versions this plugin is built for, as a semver range
    * (e.g. `'~3.2'`, `'>=3.2.25 <3.4'`). Core warns, and still loads the
@@ -208,7 +212,6 @@ export type IUIConfig = {
     path: string;
     hasAutomation?: boolean;
     hasRelationWidget?: boolean;
-    hasFloatingWidget?: boolean;
     hasSegmentConfigWidget?: boolean;
   }[];
 };

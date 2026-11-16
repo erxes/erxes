@@ -1,8 +1,9 @@
 import { ListViewsProvider, Sidebar } from 'erxes-ui';
-import { lazy } from 'react';
+import { lazy, type PropsWithChildren } from 'react';
 import { PageOutlet } from '~/components/CrashBoundary';
 import { useLiveUpdates } from '~/lib/live';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
+import { PluginFloatingWidgets } from '~/modules/plugins/PluginFloatingWidgets';
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
 import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
@@ -17,9 +18,17 @@ const LIST_VIEWS = {
   })),
 };
 
+/** What pages, core's and plugins', and plugins' floating widgets draw inside. */
+const PageProviders = ({ children }: PropsWithChildren) => (
+  <ListViewsProvider views={LIST_VIEWS}>
+    <PanelRecordOpener>{children}</PanelRecordOpener>
+  </ListViewsProvider>
+);
+
 /**
  * The signed-in frame: the top bar, then the open
- * app, which draws its own sidebar (AppLayout) or, for plugins, everything.
+ * app, which draws its own sidebar (AppLayout) or, for plugins, everything. Plugins' floating
+ * widgets sit beside it, so a navigation keeps them mounted.
  */
 export const MainLayout = () => {
   // Inbox and timelines update as changes happen (one stream per browser).
@@ -42,15 +51,16 @@ export const MainLayout = () => {
             tabIndex={-1}
             className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background outline-none"
           >
-            <ListViewsProvider views={LIST_VIEWS}>
-              <PanelRecordOpener>
-                <PageOutlet />
-              </PanelRecordOpener>
-            </ListViewsProvider>
+            <PageProviders>
+              <PageOutlet />
+            </PageProviders>
           </main>
           <SidePanelLayout />
         </div>
       </div>
+      <PageProviders>
+        <PluginFloatingWidgets />
+      </PageProviders>
     </Sidebar.Provider>
   );
 };
