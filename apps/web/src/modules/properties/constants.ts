@@ -1,4 +1,4 @@
-import type { FieldContentType } from '@erxes/core-contract';
+import type { FieldContentType, PropertyContentType } from '@erxes/core-contract';
 
 /** Record types with properties: their `content-type.*` label key. */
 export const PROPERTY_TYPES = {
@@ -12,6 +12,6 @@ export const CONTACT_PROPERTY_TYPES = ['customer', 'company'] as const;
 
 /** Whether `value` is one of `types` (the record types one settings area lists). */
 export const isPropertyType = (
-  types: readonly FieldContentType[],
+  types: readonly PropertyContentType[],
   value: string | undefined,
-): value is FieldContentType => types.some((type) => type === value);
+): value is PropertyContentType => types.some((type) => type === value);

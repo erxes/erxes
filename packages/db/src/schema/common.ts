@@ -10,6 +10,15 @@ export type ContentType = (typeof CONTENT_TYPES)[number];
 
 export type FieldContentType = (typeof FIELD_CONTENT_TYPES)[number];
 
+/** A plugin's own record type, `<plugin>.<type>` (`operation.task`). */
+export type PluginRecordType = `${string}.${string}`;
+
+/**
+ * What custom fields are defined for: core's records, whose values core keeps, or a plugin's
+ * own record type, whose values the plugin keeps.
+ */
+export type PropertyContentType = FieldContentType | PluginRecordType;
+
 /** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
 export type CustomValue = string | number | boolean | string[];
 

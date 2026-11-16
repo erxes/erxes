@@ -442,6 +442,13 @@
       "when": 1794811579127,
       "tag": "0062_plugin_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1794820622877,
+      "tag": "0063_plugin_record_properties",
+      "breakpoints": true
     }
   ]
 }

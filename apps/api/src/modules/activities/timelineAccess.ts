@@ -10,16 +10,15 @@ import {
   customers,
   type Db,
   newId,
-  pluginInstallations,
-  plugins,
   requestOrgId,
   withOrg,
 } from '@erxes/core-db';
-import { and, eq, inArray } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { logger } from '~/logger';
+import { installedPlugin } from '~/modules/plugins/installedPlugin';
 import { deliverToPlugin } from '~/modules/plugins/pluginDelivery';
 
 /** Customers and companies: the timelines core keeps itself. */
@@ -59,20 +58,7 @@ export const assertTargets = async (
  */
 export const pluginTimeline = async (client: Db, targetType: string) => {
   const [plugin] = targetType.split('.');
-
-  const [row] = await client
-    .select({ name: plugins.name, manifest: plugins.manifest })
-    .from(plugins)
-    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(
-      and(
-        eq(plugins.name, plugin ?? ''),
-        eq(plugins.status, 'active'),
-        eq(pluginInstallations.status, 'active'),
-      ),
-    )
-    .limit(1);
-
+  const row = await installedPlugin(client, plugin ?? '');
   const timeline = row?.manifest?.timelines?.find((entry) => entry.type === targetType);
 
   return row && timeline ? { ...timeline, plugin: row.name, apiUrl: row.manifest?.api?.url } : null;

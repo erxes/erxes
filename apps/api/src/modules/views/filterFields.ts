@@ -1,4 +1,5 @@
-import { LEAD_SOURCES, type ViewRecordType } from '@erxes/core-contract';
+import { isCoreFieldType, LEAD_SOURCES, type ViewRecordType } from '@erxes/core-contract';
+import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import {
   companies,
   customerCompanies,
@@ -7,7 +8,7 @@ import {
   fields,
   leadStages,
 } from '@erxes/core-db';
-import { and, asc, eq, ne, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { fieldShown, pluginTitle } from '~/modules/fields/fieldRows';
 import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
 import { textArray } from '@erxes/plugin-sdk/filter';
@@ -171,35 +172,44 @@ const customFields = async (client: Db, recordType: ViewRecordType) => {
           ? eq(fields.contentType, 'product')
           : isCompany
             ? eq(fields.contentType, 'company')
-            : ne(fields.contentType, 'product'),
+            : inArray(fields.contentType, CONTENT_TYPES),
         fieldShown,
       ),
     )
     .orderBy(asc(fields.order));
 
-  return rows.map((row): FieldSpec => {
-    const ofCompany = row.contentType === 'company' && !isCompany;
+  return rows.flatMap((row): FieldSpec[] => {
+    const { contentType } = row;
 
-    return {
-      path: ofCompany ? `subject.company.customFields.${row.id}` : `subject.customFields.${row.id}`,
-      label: ofCompany ? `Company ${row.label}` : row.label,
-      // A plugin's fields list under its title (`Sales`: Total spent, Last order).
-      ...(ofCompany
-        ? { group: 'company' as const }
-        : row.plugin
-          ? { group: 'plugin' as const, groupLabel: row.pluginTitle ?? row.plugin }
-          : { group: 'custom' as const }),
-      type: FILTER_TYPE[row.type] ?? 'text',
-      options: row.options.length ? row.options : undefined,
-      expr: sql`null`,
-      dateOnly: row.type === 'date',
-      viaCompany: ofCompany,
-      custom: {
-        recordType: row.contentType,
-        fieldId: row.id,
-        storage: STORAGE[row.type] ?? 'text',
+    // Only core's records: plugin record types aren't among these rows (the query names the types).
+    if (!isCoreFieldType(contentType)) return [];
+
+    const ofCompany = contentType === 'company' && !isCompany;
+
+    return [
+      {
+        path: ofCompany
+          ? `subject.company.customFields.${row.id}`
+          : `subject.customFields.${row.id}`,
+        label: ofCompany ? `Company ${row.label}` : row.label,
+        // A plugin's fields list under its title (`Sales`: Total spent, Last order).
+        ...(ofCompany
+          ? { group: 'company' as const }
+          : row.plugin
+            ? { group: 'plugin' as const, groupLabel: row.pluginTitle ?? row.plugin }
+            : { group: 'custom' as const }),
+        type: FILTER_TYPE[row.type] ?? 'text',
+        options: row.options.length ? row.options : undefined,
+        expr: sql`null`,
+        dateOnly: row.type === 'date',
+        viaCompany: ofCompany,
+        custom: {
+          recordType: contentType,
+          fieldId: row.id,
+          storage: STORAGE[row.type] ?? 'text',
+        },
       },
-    };
+    ];
   });
 };
 

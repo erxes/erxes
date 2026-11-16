@@ -19,6 +19,7 @@ import {
   restoreField,
   updateField,
 } from '~/modules/fields/fields.service';
+import { checkPluginValues } from '~/modules/fields/customValues';
 import { setPluginValues } from '~/modules/fields/pluginFields';
 import { scoped, audited, recordOf } from '~/orpc';
 
@@ -66,6 +67,8 @@ export const fieldsRouter = {
   setPluginValues: scoped.fields.setPluginValues.handler(({ input }) =>
     setPluginValues(db(), input),
   ),
+  // Not audited: it changes nothing; the plugin saves and audits the values it keeps.
+  check: scoped.fields.check.handler(({ input }) => checkPluginValues(db(), input)),
 };
 
 export const fieldGroupsRouter = {

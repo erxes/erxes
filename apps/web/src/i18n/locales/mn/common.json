@@ -599,6 +599,7 @@
     "no-properties": "Шинж чанар алга",
     "no-properties-hint": "Эхний шинж чанараа үүсгэж эхлээрэй.",
     "create-property": "Шинж чанар үүсгэх",
+    "properties-not-saved": "Шинж чанарыг хадгалж чадсангүй",
     "empty": "Хоосон"
   },
   "two-factor": {

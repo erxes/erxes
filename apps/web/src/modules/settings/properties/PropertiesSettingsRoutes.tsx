@@ -1,4 +1,4 @@
-import type { FieldContentType } from '@erxes/core-contract';
+import type { PropertyContentType } from '@erxes/core-contract';
 import { IconsProvider, PageContainer } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { Navigate, Route, Routes, useParams } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { propertyPaths } from '~/lib/paths';
 import { isPropertyType } from '~/modules/properties/constants';
 import { useCanManageFields } from '~/modules/properties/usePropertyMutations';
 
-type Types = readonly [FieldContentType, ...FieldContentType[]];
+type Types = readonly [PropertyContentType, ...PropertyContentType[]];
 
 /** Pages of one record type; unknown types go back to the first one. */
 const PropertiesTypeRoutes = ({ types }: { types: Types }) => {

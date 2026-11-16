@@ -7,6 +7,7 @@ import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
 import { GeneralSettingsPage } from './general/GeneralSettingsPage';
 import { NotificationSettingsPage } from './notifications/NotificationSettingsPage';
 import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
+import { PluginPropertiesSettings } from './properties/PluginPropertiesSettings';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
 import { PaymentsSettingsPage } from './payments/PaymentsSettingsPage';
@@ -36,6 +37,7 @@ export const SettingsRoutes = () => (
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />
+      <Route path="properties/*" element={<PluginPropertiesSettings />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

@@ -1,5 +1,7 @@
 import {
-  type FieldContentType,
+  caller,
+  type PluginRecordType,
+  type PropertyContentType,
   type CustomValue,
   type Db,
   fieldGroups,
@@ -99,7 +101,7 @@ export const isEmpty = (value: CustomValue) =>
  */
 export const applyCustomFields = async (
   client: Db,
-  contentType: FieldContentType,
+  contentType: PropertyContentType,
   current: Record<string, CustomValue>,
   patch: Record<string, CustomValue | null> | undefined,
 ) => {
@@ -150,4 +152,24 @@ export const applyCustomFields = async (
   }
 
   return next;
+};
+
+/**
+ * `fields.check`: a plugin's record values after `patch`, for the plugin to save (it keeps the
+ * values of its own record types; core stores nothing).
+ */
+export const checkPluginValues = async (
+  client: Db,
+  input: {
+    contentType: PluginRecordType;
+    current: Record<string, CustomValue>;
+    patch: Record<string, CustomValue | null>;
+  },
+) => {
+  const { plugin } = caller('plugin');
+
+  if (!input.contentType.startsWith(`${plugin}.`))
+    throw fail('NOT_ALLOWED', 'A plugin checks values of its own record types only');
+
+  return { values: await applyCustomFields(client, input.contentType, input.current, input.patch) };
 };

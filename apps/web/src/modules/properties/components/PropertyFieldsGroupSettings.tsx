@@ -1,4 +1,4 @@
-import type { FieldContentType } from '@erxes/core-contract';
+import type { PropertyContentType } from '@erxes/core-contract';
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -53,7 +53,11 @@ const PluginSections = ({ sections }: { sections: FieldSection[] }) =>
  * A record type's properties: its groups (drag to reorder) with their fields, the fields each
  * plugin keeps (read-only), then Archived.
  */
-export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: FieldContentType }) => {
+export const PropertyFieldsGroupSettings = ({
+  contentType,
+}: {
+  contentType: PropertyContentType;
+}) => {
   const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
   const { fields, loading: fieldsLoading, error: fieldsError } = useAllFields(contentType);
   const error = groupsError ?? fieldsError;

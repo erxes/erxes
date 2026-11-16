@@ -11,6 +11,7 @@ import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '@erxes/plugin-sdk/filter';
+import { installedPlugin } from './installedPlugin';
 import { queueInstallJobs } from './pluginJobs';
 import { requestedScopes } from './plugins.service';
 
@@ -147,20 +148,9 @@ export const pluginSession = async (name: string) => {
   const me = caller('user');
   const orgId = requestOrgId();
 
-  const [row] = await db()
-    .select({ plugin: plugins, installation: pluginInstallations })
-    .from(plugins)
-    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(
-      and(
-        eq(plugins.name, name),
-        eq(plugins.status, 'active'),
-        eq(pluginInstallations.status, 'active'),
-      ),
-    )
-    .limit(1);
+  const plugin = await installedPlugin(db(), name);
 
-  if (!row) throw fail('NOT_INSTALLED', `${name} is not installed in this organisation`);
+  if (!plugin) throw fail('NOT_INSTALLED', `${name} is not installed in this organisation`);
 
   // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
   const plan = await entitlementsOf(orgId);
@@ -169,7 +159,7 @@ export const pluginSession = async (name: string) => {
   if (access === 'off') throw fail('NOT_IN_PLAN', `${name} is not in your plan`);
 
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
-  const permissions = (row.plugin.manifest?.permissions ?? [])
+  const permissions = (plugin.manifest?.permissions ?? [])
     .map((permission) => permission.action)
     .filter((action) => can(me, action));
 
@@ -186,7 +176,7 @@ export const pluginSession = async (name: string) => {
   return {
     token,
     expiresAt: new Date(Date.now() + PLUGIN_SESSION_TTL_SECONDS * 1000).toISOString(),
-    apiUrl: row.plugin.manifest?.api?.url ?? null,
+    apiUrl: plugin.manifest?.api?.url ?? null,
   };
 };
 

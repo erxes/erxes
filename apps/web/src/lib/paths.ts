@@ -1,4 +1,9 @@
-import type { FieldContentType, ViewRecordType } from '@erxes/core-contract';
+import {
+  type FieldContentType,
+  isCoreFieldType,
+  type PropertyContentType,
+  type ViewRecordType,
+} from '@erxes/core-contract';
 
 /*
  * Every address in core. Links, redirects and navigate() take them from here; the route files
@@ -69,6 +74,8 @@ export const paths = {
     profile: '/settings/profile',
     security: '/settings/security',
     notifications: '/settings/notifications',
+    /** Plugins' record types' properties: `/settings/properties/<plugin>.<type>`. */
+    properties: '/settings/properties',
   },
 } as const;
 
@@ -80,8 +87,11 @@ const PROPERTIES_AREA = {
 } satisfies Record<FieldContentType, string>;
 
 /** A record type's properties: its groups and fields, adding and editing one. */
-export const propertyPaths = (contentType: FieldContentType) => {
-  const area = PROPERTIES_AREA[contentType];
+export const propertyPaths = (contentType: PropertyContentType) => {
+  const area = isCoreFieldType(contentType)
+    ? PROPERTIES_AREA[contentType]
+    : paths.settings.properties;
+
   const list = `${area}/${contentType}`;
 
   return {

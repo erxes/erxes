@@ -51,8 +51,10 @@ type TListViews
 type TPanelRecordType
 type TPluginListType
 type TPluginSettingsPage
+type TPropertyValue
 type TRecordContacts
 type TRecordDraftProps
+type TRecordProperties
 type TRecordSection
 type TRecordSectionProps
 type TRecordSlotProps

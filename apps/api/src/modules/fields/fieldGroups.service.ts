@@ -1,13 +1,21 @@
-import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
+import { type PropertyContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail } from '~/http/errors';
 import { oneRow, setOrders } from '~/lib/rows';
-import { fieldsOfGroup, findGroup, type GroupRow, inUse, nextOrder, usageOf } from './fieldRows';
+import {
+  assertPropertyType,
+  fieldsOfGroup,
+  findGroup,
+  type GroupRow,
+  inUse,
+  nextOrder,
+  usageOf,
+} from './fieldRows';
 
 export const listFieldGroups = async (
   client: Db,
-  input: { contentType: FieldContentType; archived?: boolean },
+  input: { contentType: PropertyContentType; archived?: boolean },
 ) => {
   const rows = await wholeList((limit) =>
     client
@@ -54,12 +62,14 @@ const groupCode = (code: string | undefined, name: string) => {
 export const createFieldGroup = async (
   client: Db,
   input: {
-    contentType: FieldContentType;
+    contentType: PropertyContentType;
     name: string;
     code?: string;
     description?: string | null;
   },
 ) => {
+  await assertPropertyType(client, input.contentType);
+
   const code = groupCode(input.code, input.name);
   const order = await nextOrder(client, fieldGroups, input.contentType);
 

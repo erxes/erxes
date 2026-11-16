@@ -591,6 +591,7 @@
     "no-properties": "No properties found",
     "no-properties-hint": "Get started by creating your first property.",
     "create-property": "Create property",
+    "properties-not-saved": "Could not save the property",
     "empty": "Empty"
   },
   "two-factor": {

@@ -55,7 +55,11 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   record. A plugin's records of other records' customers are `relationTabs`
   (the `ui-patterns` skill). A settings page is a route of the plugin's
   (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`):
-  core links it from its settings sidebar, under the plugin's name. Tiles for core's
+  core links it from its settings sidebar, under the plugin's name. Custom fields
+  on a record type are its `properties` (`type: '__id__.item'`, `values(id)`,
+  `save(id, patch)`): core keeps the fields and draws their settings page and the
+  Properties tab; the API keeps the values in a jsonb column and checks a patch
+  with core's `fields.check` before saving. Tiles for core's
   home dashboard are `CONFIG.dashboardWidgets`: `name`, `title`, `icon`, `preview`,
   `size` and a `lazy` `component`, which core draws as the tile's body under the
   title. Forms are core's

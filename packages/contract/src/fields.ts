@@ -5,13 +5,14 @@ import { pluginFieldsContract } from './pluginFields';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { type FieldType, OPTION_FIELD_TYPES } from './values';
-import { FieldContentType, Id, IdList, isoDate, QueryBoolean, listOf } from './common';
+import { Id, IdList, isoDate, PropertyContentType, QueryBoolean, listOf } from './common';
 
-/** A custom field ("property") on customers or companies. */
 const int = () => z.int();
 
+/** A custom field ("property") on customers, companies, products or a plugin's record type. */
 export const Field = createSelectSchema(fields, {
   id: Id,
+  contentType: () => PropertyContentType,
   groupId: () => Id,
   order: int,
   archivedAt: isoDate,
@@ -52,6 +53,7 @@ export type Field = z.infer<typeof Field>;
 /** A group of custom fields of a record type. */
 export const FieldGroup = createSelectSchema(fieldGroups, {
   id: Id,
+  contentType: () => PropertyContentType,
   order: int,
   archivedAt: isoDate,
   createdAt: isoDate,
@@ -95,6 +97,7 @@ const order = () => z.int().min(0).max(100_000);
 
 /** What a field create or update may set. */
 const FieldFields = createUpdateSchema(fields, {
+  contentType: () => PropertyContentType.optional(),
   label,
   options: () => options,
   order,
@@ -118,6 +121,7 @@ const FieldFields = createUpdateSchema(fields, {
 
 /** What a field group create or update may set. */
 const GroupFields = createUpdateSchema(fieldGroups, {
+  contentType: () => PropertyContentType.optional(),
   name: label,
   code: () => code,
   description,
@@ -138,10 +142,16 @@ const changes = (value: Record<string, unknown>) => Object.keys(value).some((key
 const needsOptions = (value: { type?: FieldType; options?: string[] }) =>
   !value.type || !OPTION_FIELD_TYPES.includes(value.type) || (value.options?.length ?? 0) > 0;
 
-const { FIELD_IN_USE, INVALID_FIELD_GROUP, PLUGIN_FIELD } = ERRORS;
+const { FIELD_IN_USE, INVALID_FIELD_GROUP, PLUGIN_FIELD, PLUGIN_NOT_INSTALLED } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
-const base = oc.errors({ ...COMMON_ERRORS, FIELD_IN_USE, INVALID_FIELD_GROUP, PLUGIN_FIELD });
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  FIELD_IN_USE,
+  INVALID_FIELD_GROUP,
+  PLUGIN_FIELD,
+  PLUGIN_NOT_INSTALLED,
+});
 
 export const fieldsContract = {
   list: base
@@ -149,11 +159,11 @@ export const fieldsContract = {
       method: 'GET',
       path: '/fields',
       summary:
-        'Custom fields of a record type, in order. Archived ones (or those of an archived group) only with `archived=true`',
+        "Custom fields of a record type, in order. Archived ones (or those of an archived group) only with `archived=true`. Plugins read product fields (`products:read`) and their own record types'",
     })
     .input(
       z.object({
-        contentType: FieldContentType,
+        contentType: PropertyContentType,
         groupId: Id.optional(),
         archived: QueryBoolean.optional(),
       }),
@@ -163,7 +173,8 @@ export const fieldsContract = {
     .route({
       method: 'GET',
       path: '/fields/usage',
-      summary: 'How many records hold values of the given fields (or of a group’s fields)',
+      summary:
+        'How many records hold values of the given fields (or of a group’s fields). A plugin keeps its record types’ values, so their fields count none',
     })
     .input(
       z
@@ -179,7 +190,8 @@ export const fieldsContract = {
       method: 'POST',
       path: '/fields',
       successStatus: 201,
-      summary: 'Add a custom field (owners and admins). 409 TAKEN for a taken label or code',
+      summary:
+        'Add a custom field (owners and admins). 409 TAKEN for a taken label or code; 400 PLUGIN_NOT_INSTALLED for a `<plugin>.<type>` whose plugin this organisation has not installed',
     })
     .input(
       FieldFields.omit({ order: true })
@@ -240,7 +252,7 @@ export const fieldsContract = {
       method: 'DELETE',
       path: '/fields/{id}',
       summary:
-        "Delete a custom field and its values (owners and admins). 403 PLUGIN_FIELD for a plugin's field",
+        "Delete a custom field and its values (owners and admins); on a plugin's record type only the definition, as the plugin keeps the values. 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ id: Id }))
     .output(Ok),
@@ -254,7 +266,7 @@ export const fieldGroupsContract = {
       path: '/field-groups',
       summary: 'Field groups of a record type, in order. Archived ones only with `archived=true`',
     })
-    .input(z.object({ contentType: FieldContentType, archived: QueryBoolean.optional() }))
+    .input(z.object({ contentType: PropertyContentType, archived: QueryBoolean.optional() }))
     .output(listOf(FieldGroup)),
   create: base
     .route({
@@ -262,7 +274,7 @@ export const fieldGroupsContract = {
       path: '/field-groups',
       successStatus: 201,
       summary:
-        'Add a field group (owners and admins). The code defaults to the name; 409 TAKEN for a taken code',
+        'Add a field group (owners and admins). The code defaults to the name; 409 TAKEN for a taken code, 400 PLUGIN_NOT_INSTALLED as for fields',
     })
     .input(GroupFields.omit({ order: true }).required({ contentType: true, name: true }))
     .output(FieldGroup),

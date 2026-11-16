@@ -92,9 +92,30 @@ export type TRecordDraftProps = {
 };
 
 /**
+ * A custom field's value: text, number, date, yes/no or options.
+ * A date is `YYYY-MM-DD`; several options are a list.
+ */
+export type TPropertyValue = string | number | boolean | string[];
+
+/**
+ * Custom fields on a plugin record type, whose values the plugin keeps.
+ * Core keeps the fields of `type` (Settings › Properties, under the plugin) and draws the
+ * record's Properties tab; the plugin keeps each record's values by field id, checks a patch
+ * with core's `fields.check` and saves the values it answers.
+ */
+export type TRecordProperties = {
+  /** The record type the fields are defined on, `<plugin>.<type>`, e.g. `operation.task`. */
+  type: string;
+  /** The record's values by field id, as query options; core refetches them after a save. */
+  values: (contentId: string) => UseQueryOptions<Record<string, TPropertyValue>>;
+  /** Saves a patch of values by field id; `null` clears one. */
+  save: (contentId: string, patch: Record<string, TPropertyValue | null>) => Promise<unknown>;
+};
+
+/**
  * A record type a plugin shows in core's side panel. Core draws the panel as it draws a
  * customer's: header with Back, expand and close, the tabs (Detail, the type's own `tabs`,
- * every allowed plugin's relation tabs for it, Activity), resizing, the address
+ * Properties, every allowed plugin's relation tabs for it, Activity), resizing, the address
  * `?panel=/detail/<contentType>/<id>`, drafts. The plugin fills the slots. Open one with
  * `useOpenRecord().open({ contentType, contentId })`, a draft with `openNew(contentType)`.
  */
@@ -125,6 +146,8 @@ export type TPanelRecordType = {
   contacts?: (contentId: string) => UseQueryOptions<TRecordContacts, Error, TRecordContacts>;
   /** A timeline type of the plugin's manifest (`timelines`): core's Activity tab shows it. */
   activity?: string;
+  /** Custom fields: core adds a Properties tab and a settings page for them. */
+  properties?: TRecordProperties;
 };
 
 /** Props of a relation tab: the record it shows on, and its contacts. */
