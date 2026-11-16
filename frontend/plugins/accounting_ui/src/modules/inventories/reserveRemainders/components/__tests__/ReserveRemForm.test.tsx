@@ -8,6 +8,7 @@ const mockClosePanel = jest.fn();
 const mockCancelDraft = jest.fn();
 let mockDetail: Record<string, unknown> | undefined;
 let mockDetailLoading = false;
+let mockDetailError: Error | undefined;
 
 type TSelectProps = {
   scope: string;
@@ -120,7 +121,13 @@ jest.mock('@/inventories/reserveRemainders/hooks/useReserveRemDetail', () => ({
   useReserveRemDetail: () => ({
     reserveRemDetail: mockDetail,
     loading: mockDetailLoading,
+    error: mockDetailError,
   }),
+}));
+jest.mock('@/layout/components/AccountingEmptyState', () => ({
+  AccountingEmptyState: ({ error }: { error?: Error }) => (
+    <div role="status">{error ? error.message : 'no-results-found'}</div>
+  ),
 }));
 jest.mock('@/settings/hooks/useSettingsPanel', () => ({
   useSettingsPanel: () => ({
@@ -173,6 +180,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockDetail = SAVED_RESERVATION;
   mockDetailLoading = false;
+  mockDetailError = undefined;
 });
 
 describe('new reservation', () => {
@@ -338,7 +346,7 @@ describe('saved reservation', () => {
     ).toBe('');
   });
 
-  test('shows a spinner while loading and nothing for a deleted reservation', async () => {
+  test('shows a spinner while loading and a not-found state for a deleted reservation', async () => {
     mockDetail = undefined;
     mockDetailLoading = true;
     await openSaved();
@@ -347,10 +355,20 @@ describe('saved reservation', () => {
 
     mockDetailLoading = false;
     const { Detail } = RESERVE_REM_PANEL;
-    const { container } = render(
-      <Detail contentType="" contentId="deleted-reserve" />,
-    );
+    render(<Detail contentType="" contentId="deleted-reserve" />);
 
-    expect(container.innerHTML).toBe('');
+    expect(screen.getByRole('status').textContent).toBe('no-results-found');
+    expect(screen.queryByRole('button', { name: 'save' })).toBeNull();
+  });
+
+  test('shows the server error when the reservation cannot be loaded', async () => {
+    mockDetail = undefined;
+    mockDetailError = new Error('Network request failed');
+    await openSaved();
+
+    expect(screen.getByRole('status').textContent).toBe(
+      'Network request failed',
+    );
+    expect(screen.queryByRole('button', { name: 'save' })).toBeNull();
   });
 });

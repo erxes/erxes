@@ -3,7 +3,11 @@ import { toGraphqlView } from '@/utils/graphql';
 import { RESERVE_REM_DETAIL_QUERY } from '@/inventories/reserveRemainders/graphql/reserveRemQueries';
 
 export const useReserveRemDetail = (reserveRemId?: string) => {
-  const { data: queryData, loading } = useQuery(RESERVE_REM_DETAIL_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(RESERVE_REM_DETAIL_QUERY, {
     variables: { _id: reserveRemId ?? '' },
     skip: !reserveRemId,
   });
@@ -12,5 +16,6 @@ export const useReserveRemDetail = (reserveRemId?: string) => {
   return {
     reserveRemDetail: data?.reserveRemDetail,
     loading,
+    error,
   };
 };

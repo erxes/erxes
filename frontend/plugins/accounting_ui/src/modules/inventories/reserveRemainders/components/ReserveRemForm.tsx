@@ -11,6 +11,7 @@ import {
   SelectProduct,
 } from 'ui-modules';
 import { AdjustBranchDepartmentFields } from '@/adjustments/components/AdjustPanelFields';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { RESERVE_REM_CONTENT_TYPE } from '@/inventories/reserveRemainders/constants/reserveRemPanel';
 import { useReserveRemAdd } from '@/inventories/reserveRemainders/hooks/useReserveRemAdd';
 import { useReserveRemDetail } from '@/inventories/reserveRemainders/hooks/useReserveRemDetail';
@@ -257,10 +258,14 @@ const ReserveRemEditForm = ({
 };
 
 const ReserveRemPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
-  const { reserveRemDetail, loading } = useReserveRemDetail(contentId);
+  const { reserveRemDetail, loading, error } = useReserveRemDetail(contentId);
 
   if (!reserveRemDetail) {
-    return loading ? <Spinner containerClassName="py-12" /> : null;
+    if (loading) {
+      return <Spinner containerClassName="py-12" />;
+    }
+
+    return <AccountingEmptyState error={error} />;
   }
 
   return (
