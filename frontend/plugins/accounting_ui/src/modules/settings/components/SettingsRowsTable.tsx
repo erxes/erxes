@@ -9,7 +9,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
@@ -154,15 +154,21 @@ export const MoreActionsCell = ({
   onDelete: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+
+  const select = (action: () => void) => () => {
+    setOpen(false);
+    action();
+  };
 
   const actionsMenu = (
     <Combobox.Content>
       <Command shouldFilter={false}>
         <Command.List>
-          <Command.Item value="edit" onSelect={onEdit}>
+          <Command.Item value="edit" onSelect={select(onEdit)}>
             <IconEdit /> {t('edit')}
           </Command.Item>
-          <Command.Item value="delete" onSelect={onDelete}>
+          <Command.Item value="delete" onSelect={select(onDelete)}>
             <IconTrash /> {t('delete')}
           </Command.Item>
         </Command.List>
@@ -171,7 +177,7 @@ export const MoreActionsCell = ({
   );
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>

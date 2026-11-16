@@ -81,7 +81,8 @@
     "save": "Save",
     "settings": "Settings",
     "data-extensions": "Data Extensions",
-    "workflow-templates": "Workflow templates"
+    "workflow-templates": "Workflow templates",
+    "installed-templates": "Installed"
   },
   "filter": {
     "_": "Filter",

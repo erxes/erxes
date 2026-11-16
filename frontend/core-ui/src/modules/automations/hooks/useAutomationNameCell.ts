@@ -51,6 +51,8 @@ export const useAutomationNameCell = (
 
   return {
     automationId,
+    isNested: !!automation.parentFolderId,
+    isPrivate: !!lockState?.locked,
     currentName,
     editingName,
     setEditingName,

@@ -4,6 +4,13 @@ import { TR_SIDES, TrJournalEnum } from '../../types/constants';
 import { ITransaction, ITrDetail } from '../../types/Transaction';
 import { TAddTransactionGroup, TTrDoc } from '../types/JournalForms';
 
+export const isHiddenTransaction = (transaction?: object) =>
+  Boolean(
+    transaction &&
+      'permission' in transaction &&
+      transaction.permission === 'hidden',
+  );
+
 export const getTempId = () => {
   return nanoid();
 };

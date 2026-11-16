@@ -1,3 +1,4 @@
+import { AutomationVersionsMenu } from '@/automations/components/builder/header/AutomationVersionsMenu';
 import { AutomationBuilderHeaderActions } from '@/automations/components/builder/header/AutomationBuilderHeaderActions';
 import { AutomationBuilderNameInput } from '@/automations/components/builder/header/AutomationBuilderNameInput';
 import { AutomationBuilderStatusSwitch } from '@/automations/components/builder/header/AutomationBuilderStatusSwitch';
@@ -67,6 +68,7 @@ export const AutomationBuilderHeader = () => {
           <AutomationReturnLink />
         </PageHeader.Start>
         <PageHeader.End>
+          <AutomationVersionsMenu />
           <AutomationRefetchButton disabled={loading} />
           <Button variant="outline" asChild>
             <Link
