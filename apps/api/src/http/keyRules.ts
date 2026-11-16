@@ -4,13 +4,14 @@ import {
   API_KEY_DATA_AREAS,
   coreContract,
   type ApiKeyAccess,
+  type ApiKeyActions,
   type ApiKeyArea,
   type ApiKeyAreas,
   type CorePermission,
 } from '@erxes/core-contract';
 import type { KeyRules } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
-import type { ProcedurePath } from './policies';
+import { ACCESS, type ProcedurePath } from './policies';
 
 type Group = keyof typeof coreContract;
 
@@ -120,9 +121,24 @@ export const AREA_PERMISSIONS: Record<
   Record<ApiKeyAccess, readonly CorePermission[]>
 > = API_KEY_AREA_INFO;
 
-/** The permissions the areas open. */
-export const areaPermissions = (areas: ApiKeyAreas) =>
-  API_KEY_AREAS.flatMap((area): readonly CorePermission[] => {
+const POLICIES = new Map(Object.entries(ACCESS));
+
+/** The permission a member needs for the call; null when any member may make it. */
+export const callPermission = (path: string): string | null => {
+  const policy = POLICIES.get(path);
+
+  return policy && 'member' in policy && policy.member && policy.member !== 'any'
+    ? policy.member
+    : null;
+};
+
+/** The permissions the areas open: what their chosen calls need, or all their access brings. */
+export const areaPermissions = (areas: ApiKeyAreas, actions: ApiKeyActions) =>
+  API_KEY_AREAS.flatMap((area): readonly string[] => {
+    const chosen = actions[area];
+
+    if (chosen) return chosen.map(callPermission).filter((permission) => permission !== null);
+
     const perms = AREA_PERMISSIONS[area];
 
     if (areas[area] === 'write') return [...perms.read, ...perms.write];
@@ -169,6 +185,12 @@ export const keyNeed = (path: string): KeyNeed | null => {
 
   return access === 'read' ? { area: 'lookup', access } : { area: rule.writes, access };
 };
+
+const NEEDS = [...POLICIES.keys()].map((path) => ({ path, need: keyNeed(path) }));
+
+/** The calls a key may make in the area with the access. */
+export const areaCalls = (area: ApiKeyArea, access: ApiKeyAccess) =>
+  NEEDS.filter(({ need }) => need?.area === area && need.access === access).map(({ path }) => path);
 
 export interface KeyDecision {
   allowed: boolean;
@@ -230,7 +252,7 @@ export const decidePluginKey = (
  * holds is `permissions`'.
  */
 export const decideKey = (
-  key: Pick<KeyRules, 'kind' | 'areas' | 'plugins' | 'rows'>,
+  key: Pick<KeyRules, 'kind' | 'areas' | 'plugins' | 'actions' | 'rows'>,
   path: string,
 ): KeyDecision => {
   if (path === 'plugins.session') return decidePluginKey(key);
@@ -278,6 +300,12 @@ export const decideKey = (
       rule: `area:${need.area}:read`,
       reason: `This key only reads ${label}`,
     };
+  }
+
+  const chosen = key.actions[need.area];
+
+  if (chosen && !chosen.includes(path)) {
+    return { allowed: false, rule: `call:${path}`, reason: `This key wasn't given ${path}` };
   }
 
   return {

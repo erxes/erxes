@@ -6,6 +6,7 @@ import { Badge, Button, Combobox, Command, Form, Input, Label, Popover, cn } fro
 import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ContactSelect } from '~/modules/contacts/components/ContactPicker';
+import { useKeyCalls } from './useKeyCalls';
 
 type Call = {
   procedure: string;
@@ -47,9 +48,12 @@ const AREAS = new Set<string>(API_KEY_AREAS);
 /** The setting on the key's page that decided, in the words the page uses. */
 const useRuleLabel = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys' });
+  const { labelOf } = useKeyCalls();
 
   return (rule: string) => {
     const [head = '', area = ''] = rule.split(':');
+
+    if (head === 'call') return labelOf(area);
 
     if (head === 'area' && AREAS.has(area)) return t(`try.area.${area}`, area);
 

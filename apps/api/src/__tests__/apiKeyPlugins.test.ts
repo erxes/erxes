@@ -60,6 +60,24 @@ describe('API keys and plugins', () => {
     expect(await session(writer.key)).toMatchObject({ access: 'full' });
   });
 
+  it('gives a plugin token only the actions the key was given there', async () => {
+    const { apiKey, key } = await t.owner().apiKeys.create({
+      ...ONLY_HR,
+      name: 'Leave reader',
+      actions: { hr: ['hr.leave.view'] },
+    });
+
+    expect(apiKey).toMatchObject({
+      pluginAccess: { hr: 'write' },
+      actions: { hr: ['hr.leave.view'] },
+    });
+    expect(await session(key)).toMatchObject({ access: 'full', permissions: ['hr.leave.view'] });
+
+    await expect(
+      t.owner().apiKeys.create({ ...ONLY_HR, name: 'Odd', actions: { hr: ['hr.payroll.run'] } }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+  });
+
   it('refuses a plugin the key does not open, and records the rule', async () => {
     const contacts = await t.owner().apiKeys.create({
       ...READ_CONTACTS,

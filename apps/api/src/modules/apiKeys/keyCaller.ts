@@ -113,10 +113,15 @@ export const keyCaller = async (
   if (!maker) return refused('role', "Its maker's role was removed");
 
   const allows = roleAllows(maker.role, maker.permissions);
-  const opened = new Set<string>(areaPermissions(key.areas));
+  const opened = new Set<string>(areaPermissions(key.areas, key.actions));
 
-  const inOpenedPlugin = (action: string) =>
-    Object.hasOwn(key.pluginAccess, action.split('.')[0] ?? '');
+  const inOpenedPlugin = (action: string) => {
+    const plugin = action.split('.')[0] ?? '';
+
+    return (
+      Object.hasOwn(key.pluginAccess, plugin) && (key.actions[plugin]?.includes(action) ?? true)
+    );
+  };
 
   const permissions = (key.permissions ?? []).filter(
     (action) => (opened.has(action) || inOpenedPlugin(action)) && allows(action),
@@ -134,6 +139,7 @@ export const keyCaller = async (
         kind: key.kind,
         areas: key.areas,
         plugins: key.pluginAccess,
+        actions: key.actions,
         rows: await rowLimitsOf(client, key),
       },
     },

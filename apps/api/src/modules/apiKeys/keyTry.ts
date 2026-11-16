@@ -4,7 +4,7 @@ import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import { eq } from 'drizzle-orm';
 import { can, decideKeyCall } from '~/http/access';
 import { memberOf } from '~/http/auth';
-import { type KeyDecision, keyNeed } from '~/http/keyRules';
+import { callPermission, type KeyDecision, keyNeed } from '~/http/keyRules';
 import { ACCESS } from '~/http/policies';
 import { sessionMember, visibleKey } from './apiKeys.service';
 import { keyCaller } from './keyCaller';
@@ -31,6 +31,7 @@ export const keyCalls = () => ({
         summary: summary ?? null,
         area: need?.area ?? null,
         access: need?.access ?? 'read',
+        permission: callPermission(name),
       },
     ];
   }),

@@ -25,8 +25,8 @@ test('an owner makes a read-only key and tries it', async ({ page }) => {
   await expect(shown.getByRole('textbox')).toHaveValue(/^erxes_/);
   await shown.getByRole('button', { name: 'Close' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Try this key' })).toBeVisible();
   await expect(page.getByRole('radio', { name: /^Read only/ })).toBeChecked();
+  await page.getByRole('tab', { name: 'Try this key' }).click();
 
   await page.getByRole('button', { name: /Choose a call/ }).click();
   await page.keyboard.type('customers newest');
@@ -58,6 +58,7 @@ test('a read-only key is refused a write', async ({ page }) => {
     .getByRole('button', { name: 'Close' })
     .click();
 
+  await page.getByRole('tab', { name: 'Try this key' }).click();
   await page.getByRole('button', { name: /Choose a call/ }).click();
   await page.keyboard.type('create customer');
   await page.getByRole('option', { name: /^Create a customer/ }).click();
@@ -67,4 +68,43 @@ test('a read-only key is refused a write', async ({ page }) => {
 
   await expect(result).toContainText('Refused');
   await expect(result).toContainText('Decided by: Contacts');
+});
+
+test('a key given one call makes only that one', async ({ page }) => {
+  await page.goto('/settings/api-keys/new');
+  await page.getByRole('textbox', { name: 'Name' }).fill(`Website form ${unique()}`);
+
+  const contacts = page.getByRole('group', { name: 'Contacts' });
+
+  await contacts.getByRole('button', { name: 'Choose' }).click();
+  await page.getByRole('checkbox', { name: /^Read/ }).click();
+  await page.getByRole('textbox', { name: 'Search calls' }).fill('create a customer');
+  await page.getByRole('checkbox', { name: /^Create a customer/ }).click();
+
+  await expect(page.getByTestId('key-sentence')).toContainText(
+    'in contacts only create a customer',
+  );
+  await expectAccessible(page);
+
+  await page.getByRole('button', { name: 'Create key' }).click();
+  await page
+    .getByRole('dialog', { name: 'Your API key' })
+    .getByRole('button', { name: 'Close' })
+    .click();
+
+  await expect(contacts.getByRole('button', { name: 'Choose' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+
+  await page.getByRole('tab', { name: 'Try this key' }).click();
+  await page.getByRole('button', { name: /Choose a call/ }).click();
+  await page.keyboard.type('customers newest');
+  await page.getByRole('option', { name: /Customers of the organisation/ }).click();
+  await page.getByRole('button', { name: 'Check' }).click();
+
+  const result = page.getByTestId('try-result');
+
+  await expect(result).toContainText('Refused');
+  await expect(result).toContainText('Decided by: Customers of the organisation, newest first');
 });

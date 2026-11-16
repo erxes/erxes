@@ -470,7 +470,7 @@
       "read-write": "Read and write",
       "read-write-text": "Looks and changes.",
       "custom": "Custom",
-      "custom-text": "Choose area by area.",
+      "custom-text": "Area by area, call by call.",
       "off": "No access",
       "read": "Read",
       "write": "Read and write",
@@ -530,7 +530,19 @@
       "keep-date": "{{date}} (no change)",
       "keep-never": "Only when revoked (no change)",
       "ips-hint": "Leave empty for any address. Press Enter after each one.",
-      "plugins-title": "Plugins"
+      "plugins-title": "Plugins",
+      "level-off": "Off",
+      "level-write": "Read & write",
+      "level-choose": "Choose",
+      "search-calls": "Search calls",
+      "calls-read": "Read",
+      "calls-write": "Change",
+      "calls-chosen": "{{count}} of {{total}} calls",
+      "actions-chosen": "{{count}} of {{total}} actions",
+      "plugin-actions": "Actions",
+      "access-text": "Start from a preset, then change any area below. \"Choose\" picks single API calls.",
+      "tab-access": "Access",
+      "tab-try": "Try this key"
     },
     "sentence": {
       "area": {
@@ -556,7 +568,9 @@
       "any-ip": "from any address",
       "until": "until {{date}}",
       "forever": "until you revoke it",
-      "no-contacts": "It never sees customers or companies."
+      "no-contacts": "It never sees customers or companies.",
+      "chosen": "in {{area}} only {{actions}}",
+      "chosen-count": "in {{area}} only {{count}} chosen calls"
     },
     "try": {
       "title": "Try this key",

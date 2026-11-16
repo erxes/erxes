@@ -11,19 +11,24 @@ export interface KeyPlugin {
   title: string;
   description: string | null;
   usable: boolean;
+  /** Its actions, as the roles page names them. */
+  actions: { action: string; label: string }[];
 }
 
-/** The installed plugins, with the ones the member may give a key; titles by name. */
+/** The installed plugins, with the ones the member may give a key; titles and action labels. */
 export const useKeyPlugins = () => {
   const can = useCan();
   const list = useQuery(orpc.plugins.list.queryOptions());
   const catalog = useQuery(orpc.roles.permissions.queryOptions());
 
   return useMemo(() => {
+    const permissions = catalog.data?.data ?? [];
+    const labels = new Map(permissions.map(({ action, label }) => [action, label]));
+
     const actionsOf = (name: string) =>
-      (catalog.data?.data ?? [])
+      permissions
         .filter((permission) => permission.source === name)
-        .map((permission) => permission.action);
+        .map(({ action, label }) => ({ action, label }));
 
     const plugins: KeyPlugin[] = (list.data?.data ?? []).flatMap(
       ({ name, manifest, installation }) => {
@@ -36,7 +41,8 @@ export const useKeyPlugins = () => {
             name,
             title: manifest?.title ?? name,
             description: manifest?.description ?? null,
-            usable: !actions.length || actions.some(can),
+            usable: !actions.length || actions.some(({ action }) => can(action)),
+            actions,
           },
         ];
       },
@@ -50,9 +56,12 @@ export const useKeyPlugins = () => {
       /** A key's plugins under their titles, for its sentence. */
       titled: (access: ApiKeyPlugins) =>
         Object.entries(access).map(([name, level]) => ({
+          name,
           title: titles.get(name) ?? name,
           access: level,
         })),
+      /** An action as the roles page names it. */
+      labelOf: (action: string) => labels.get(action) ?? action,
       loading: list.isPending || catalog.isPending,
     };
   }, [list.data, list.isPending, catalog.data, catalog.isPending, can]);

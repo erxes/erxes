@@ -81,15 +81,9 @@ const mustExpire = (kind: KeyRulesInput['kind'], lifetimeDays: number | null | u
   }
 };
 
-const auditRules = (input: KeyRulesInput) => ({
-  kind: input.kind,
-  areas: input.areas,
-  pluginAccess: input.pluginAccess,
-  ownRecords: input.ownRecords,
-  unitIds: input.unitIds,
-  tagIds: input.tagIds,
-  allowedIps: input.allowedIps,
-});
+/** The rules as the key keeps them, for the audit log. */
+const auditRules = ({ permissions: _held, ...rules }: Awaited<ReturnType<typeof keyRuleColumns>>) =>
+  rules;
 
 export const createApiKey = async (
   client: Db,
@@ -129,7 +123,7 @@ export const createApiKey = async (
     targetType: 'api_key',
     targetId: id,
     targetLabel: input.name,
-    metadata: { ...auditRules(input), expiresAt: apiKey.expiresAt?.toISOString() ?? null },
+    metadata: { ...auditRules(rules), expiresAt: apiKey.expiresAt?.toISOString() ?? null },
   });
 
   return { apiKey, key: `${KEY_PREFIX}${id}.${secret}` };
@@ -170,7 +164,7 @@ export const updateApiKey = async (
     targetType: 'api_key',
     targetId: id,
     targetLabel: input.name,
-    metadata: { ...auditRules(input), was: row.kind },
+    metadata: { ...auditRules(rules), was: row.kind },
   });
 
   return oneRow(await withMember(client).where(eq(apiKeys.id, id)).limit(1));
