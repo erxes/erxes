@@ -17,6 +17,10 @@ export type RecordSidePanelResizeHandleProps = {
 
 export type RecordSidePanelRootProps = {
   className?: string;
+  id?: string;
+  label?: string;
+  // Kept mounted while closed, like the assistant's running chats.
+  hidden?: boolean;
   width?: number;
   // Larger surfaces can opt in without widening record panels.
   maxWidth?: number;

@@ -2,6 +2,7 @@ import { IconHistory, IconPin, IconPlus, IconX } from '@tabler/icons-react';
 import { Button, cn, IconTip } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { type AssistantTab, wantComposerFocus } from './assistantState';
 import { HistoryDialog } from './HistoryDialog';
 import { ThreadActions } from './ThreadActions';
@@ -49,7 +50,7 @@ const Tab = ({
         onClose();
       }}
       className={cn(
-        'group relative flex h-8 min-w-24 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
+        'group relative flex h-7 min-w-20 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
         selected
           ? 'max-w-48 shrink-0 bg-accent text-foreground'
           : 'max-w-44 text-muted-foreground hover:bg-accent/60',
@@ -64,7 +65,7 @@ const Tab = ({
           'size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:text-foreground',
           selected
             ? '-mr-1.5 inline-flex hover:bg-background'
-            : 'absolute top-1.5 right-1 hidden bg-accent group-hover:inline-flex group-focus-visible:inline-flex',
+            : 'absolute top-1 right-1 hidden bg-accent group-hover:inline-flex group-focus-visible:inline-flex',
         )}
         onClick={(event) => {
           event.stopPropagation();
@@ -101,7 +102,7 @@ const TabStrip = ({ tabs }: { tabs: AssistantTabs }) => {
       tabIndex={-1}
       aria-label={t('open-conversations', 'Open conversations')}
       onKeyDown={(event) => moveFocus(event, tabs)}
-      className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto hide-scroll"
+      className="flex min-w-0 items-center gap-0.5 overflow-x-auto font-normal hide-scroll"
     >
       {tabs.tabs.map((tab) => (
         <Tab
@@ -120,9 +121,8 @@ export const PanelHeader = ({ tabs, onClose }: { tabs: AssistantTabs; onClose: (
   const { t } = useTranslation('assistant');
   const [history, setHistory] = useState(false);
 
-  return (
-    <header className="flex h-12 shrink-0 items-center gap-1 border-b px-2">
-      <TabStrip tabs={tabs} />
+  const actions = (
+    <>
       <IconTip label={t('new-chat', 'New chat')}>
         <Button
           variant="ghost"
@@ -170,6 +170,8 @@ export const PanelHeader = ({ tabs, onClose }: { tabs: AssistantTabs; onClose: (
           setHistory(false);
         }}
       />
-    </header>
+    </>
   );
+
+  return <RecordSidePanel.Header title={<TabStrip tabs={tabs} />} actions={actions} />;
 };

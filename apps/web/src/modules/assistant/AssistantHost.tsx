@@ -4,7 +4,6 @@ import { Suspense, useState } from 'react';
 import { CrashBoundary } from '~/components/CrashBoundary';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { useCan } from '~/modules/auth/session';
-import { PanelRecordOpener } from '~/modules/side-panel/PanelRecordOpener';
 import { assistantOpenState } from './assistantState';
 
 const AssistantPanel = lazyNamed(() => import('./AssistantPanel'), 'AssistantPanel');
@@ -29,9 +28,7 @@ export const AssistantHost = () => {
           )
         }
       >
-        <PanelRecordOpener>
-          <AssistantPanel open={open} />
-        </PanelRecordOpener>
+        <AssistantPanel open={open} />
       </Suspense>
     </CrashBoundary>
   );

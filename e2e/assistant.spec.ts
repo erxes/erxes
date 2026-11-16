@@ -89,7 +89,7 @@ test('closing a tab keeps the conversation; deleting asks first', async ({ page 
   await expect(panel.getByRole('heading', { name: 'How can I help?' })).toBeVisible();
 });
 
-test('a reply links each customer it lists, and the page it opens is sent as context', async ({
+test('a reply links each customer it lists, and a link shows the customer in place of the chat', async ({
   page,
 }) => {
   await page.goto('/');
@@ -112,20 +112,17 @@ test('a reply links each customer it lists, and the page it opens is sent as con
   await expectAccessible(page);
 
   await chip.click();
-  await expect(page).toHaveURL(
-    /panel=%2Fdetail%2Fcustomer%2F[\w-]+|panel=\/detail\/customer\/[\w-]+/,
-  );
-
-  const context = panel.getByText(`Viewing${name}`);
-
-  await expect(context).toBeVisible();
+  await expect(panel.getByRole('tab', { name: 'Detail' })).toBeVisible();
+  await expect(panel.getByRole('textbox', { name: 'Message' })).toBeHidden();
+  await expect(page).not.toHaveURL(/panel=/);
   await expectAccessible(page);
 
-  await panel.getByRole('button', { name: "Don't send this page" }).click();
-  await expect(context).toBeHidden();
+  await panel.getByRole('button', { name: 'Back' }).click();
+  await expect(panel.getByRole('textbox', { name: 'Message' })).toBeVisible();
+  await expect(panel.getByText('leads with')).toBeVisible();
 });
 
-test('a member mentions a record with @ and sees it linked in the message', async ({
+test('a member mentions a record with @, opens it from the chat, and sends the open record as context', async ({
   page,
   api,
 }) => {
@@ -157,7 +154,18 @@ test('a member mentions a record with @ and sees it linked in the message', asyn
   await expectAccessible(page);
 
   await chips.first().click();
-  await expect(page).toHaveURL(new RegExp(customer.id));
+  await expect(panel.getByRole('tab', { name: 'Detail' })).toBeVisible();
+  await expect(panel.getByRole('button', { name: label, exact: true })).toBeVisible();
+  await panel.getByRole('button', { name: 'Back' }).click();
+  await expect(chips).toHaveCount(2);
+
+  await page.goto(`/contacts/customers?panel=/detail/customer/${customer.id}`);
+
+  const context = panel.getByText(`Viewing${label}`);
+
+  await expect(context).toBeVisible();
+  await panel.getByRole('button', { name: "Don't send this page" }).click();
+  await expect(context).toBeHidden();
 });
 
 test('a member edits the newest question, sees the note, and asks again', async ({ page }) => {

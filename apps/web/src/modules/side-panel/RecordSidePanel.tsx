@@ -42,6 +42,9 @@ const useExpandMotion = (panelRef: RefObject<HTMLElement | null>, expanded: bool
 /** A record shown beside its list, the list staying usable: a header and tabs. */
 const RecordSidePanelRoot = ({
   className,
+  id,
+  label,
+  hidden,
   width = SIDE_PANEL_WIDTH.default,
   maxWidth = SIDE_PANEL_WIDTH.max,
   onWidthChange,
@@ -83,6 +86,9 @@ const RecordSidePanelRoot = ({
     <PanelExpansionContext.Provider value={expansion}>
       <aside
         ref={panelRef}
+        id={id}
+        aria-label={label}
+        hidden={hidden}
         data-record-side-panel
         data-expanded={expanded || undefined}
         onAnimationEnd={(event) => {
