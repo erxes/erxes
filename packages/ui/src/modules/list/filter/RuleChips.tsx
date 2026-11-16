@@ -3,7 +3,7 @@ import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/button';
 import { useItemKeys } from '../../../hooks/use-item-keys';
-import { NO_VALUE } from '../../conditions/conditions';
+import { isRule, NO_VALUE, type TConditionGroup } from '../../conditions/conditions';
 import {
   isFilled,
   opOf,
@@ -126,7 +126,24 @@ const RuleChip = ({ rule, index }: { rule: TFilterRule; index: number }) => {
           }
         />
       )}
+      {isRule(shown) && shown.where && <WhereSegment where={shown.where} />}
     </Chip>
+  );
+};
+
+/** A relation rule's "where": how many rules narrow its records; the advanced filter edits them. */
+const WhereSegment = ({ where }: { where: TConditionGroup }) => {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+  const { setAdvancedOpen } = useListFilter();
+
+  return (
+    <Segment className="shrink-0 px-2 text-muted-foreground" onClick={() => setAdvancedOpen(true)}>
+      {t('where-chip', {
+        count: ruleCount(where),
+        defaultValue_one: 'where {{count}} rule',
+        defaultValue_other: 'where {{count}} rules',
+      })}
+    </Segment>
   );
 };
 

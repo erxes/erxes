@@ -99,6 +99,25 @@ export const FILTER_FIELD_GROUPS = [
   'plugin',
 ] as const;
 
+/** How a field of a plugin's relation (`relations` in its manifest) compares: its view column's kind. */
+export const RELATION_FIELD_TYPES = [
+  'text',
+  'number',
+  'date',
+  'boolean',
+  'select',
+  'member',
+] as const;
+
+/**
+ * What a relation rule measures over the related rows: how many, or a number field's total,
+ * average, least or most (a date field's earliest or latest).
+ */
+export const RELATION_MEASURES = ['count', 'sum', 'avg', 'min', 'max'] as const;
+
+/** What a relation's `view` may be (`pg_class.relkind`): a view, a materialized view or a table. */
+export const RELATION_VIEW_KINDS = ['v', 'm', 'r', 'p'] as const;
+
 // ─── Custom fields and conditions ───────────────────────────────────────────
 
 /** Types of the fields a plugin declares in its manifest (it writes their values). */

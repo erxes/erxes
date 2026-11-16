@@ -32,6 +32,7 @@ import { valuesTable } from '~/modules/fields/fieldValues';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import type { CustomSpec, FieldSpec } from './fieldSpec';
 import { filterFields, isCompanyList } from './filterFields';
+import { compileRelated, type RelationViews, relationViews } from './relationFilter';
 
 const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
   invalidFilter(`“${spec.label}” can't use “${op}”`);
@@ -163,15 +164,29 @@ interface Compiling {
   specs: Map<string, FieldSpec>;
   recordType: ViewRecordType;
   context: FilterContext;
+  views: RelationViews;
 }
 
 const compileField = (spec: FieldSpec, rule: ConditionRule, context: FilterContext) =>
   spec.custom ? compileCustom(spec, spec.custom, rule) : compileValue(spec, rule, context);
 
-const compileRule = (rule: ConditionRule, { specs, recordType, context }: Compiling): SQL => {
+const compileRule = (rule: ConditionRule, compiling: Compiling): SQL => {
+  const { specs, recordType, context, views } = compiling;
   const spec = specs.get(rule.path);
 
   if (!spec) throw invalidFilter(`Unknown field: ${rule.path}`);
+
+  const { related } = spec;
+
+  if (related) {
+    return compileRelated({ ...spec, related }, rule, {
+      company: isCompanyList(recordType),
+      views,
+      context,
+    });
+  }
+
+  if (rule.where) throw invalidFilter(`“${spec.label}” has no related records to narrow`);
 
   if (spec.type === 'tags') return compileTags(recordType, rule);
 
@@ -205,7 +220,8 @@ export const compileRecordFilter = async (
   const group = parseFilter(filter);
 
   const specs = new Map((await filterFields(client, recordType)).map((spec) => [spec.path, spec]));
-  const compiling = { specs, recordType, context: { me: callerUserId() } };
+  const views = await relationViews(client, specs, group);
+  const compiling = { specs, recordType, context: { me: callerUserId() }, views };
 
   return compileGroup(group, (rule) => compileRule(rule, compiling));
 };

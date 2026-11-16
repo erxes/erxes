@@ -27,10 +27,22 @@ export const CoreListFilter = ({
   const fields = useFilterFields(recordType);
   const subject = subjectOf(recordType);
 
-  const listFields = (fields.data ?? []).map(({ options, ...field }): TListFilterField => ({
-    ...field,
-    options: options?.map((value) => ({ value, label: optionLabel?.(field.path, value) ?? value })),
-  }));
+  const choices = (path: string, options: string[] | undefined) =>
+    options?.map((value) => ({ value, label: optionLabel?.(path, value) ?? value }));
+
+  const listFields = (fields.data ?? []).map(
+    ({ options, relation, ...field }): TListFilterField => ({
+      ...field,
+      options: choices(field.path, options),
+      relation: relation && {
+        label: relation.label,
+        fields: relation.fields.map((inner) => ({
+          ...inner,
+          options: choices(inner.path, inner.options),
+        })),
+      },
+    }),
+  );
 
   return (
     <ListFilter

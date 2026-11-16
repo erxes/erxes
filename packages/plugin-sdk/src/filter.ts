@@ -405,6 +405,9 @@ export const compileFilter = (
 
         if (!field) throw invalidFilter(`Unknown field: ${rule.path}`);
 
+        if (rule.where)
+          throw invalidFilter(`“${field.label ?? rule.path}” has no related records to narrow`);
+
         return compileColumn(field, rule.path, rule, context);
       })
     : undefined;

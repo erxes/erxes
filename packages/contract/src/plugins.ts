@@ -15,6 +15,7 @@ import { ActionFields, DataField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginFields } from './pluginFields';
+import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
@@ -221,6 +222,11 @@ export const PluginManifest = z.object({
   jobs: PluginJobs.optional(),
   /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
   fields: PluginFields.optional(),
+  /**
+   * Its records that belong to customers or companies (`PluginRelations`): their lists filter
+   * by them ("has more than 3 won deals"), through a view the plugin keeps.
+   */
+  relations: PluginRelations.optional(),
   /**
    * Events it publishes: triggers for automations. `subject`: what its events
    * are about (published with `subject`), so automations started by it can

@@ -50,6 +50,14 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      a plugin lists the shared views (`views.list`) and asks which records one matches now
      (`views.matches`). The field shape, the codes `PLUGIN_FIELD` and `VIEW_NOT_SHARED`, and
      "a personal view never matches" are the contract;
+   - relations (`packages/contract/src/pluginRelations.ts`, `apps/api/src/modules/views/relationFilter.ts`):
+     the manifest's `relations` name a view `<plugin>_*` its role owns and grants to
+     `erxes_core_reader`, with `record_id` and a column per field. Contact lists get
+     `subject.related.<plugin>.<key>.count` and, per number field, `sum`/`avg`/`min`/`max`
+     (`min`/`max` per date field) as filter fields with `relation`, and a rule on one may carry
+     `where` on `subject.<field>`. No related rows count 0 and total 0, so "fewer than 3" includes
+     them. Core reads only a view the plugin's role owns and has granted; otherwise the rule is
+     `INVALID_FILTER`. The path shape, the view's columns and the measures are the contract;
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,

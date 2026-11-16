@@ -129,7 +129,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TConditionField { path, label, type, options, group, … }` A field conditions can use: a record's, or an earlier step's output.
 - `type TConditionGroup { match, rules }` Rules (or nested groups) that must all, or any, hold.
 - `type TConditionLookups { members, tags, contacts }` Where `member`, `tags`, `customer` and `company` values pick from.
-- `type TConditionRule { path, op, value }` One rule of a condition: a `path`, an operator and maybe a value.
+- `type TConditionRule { path, op, value, where }` One rule of a condition: a `path`, an operator and maybe a value.
 - `<TextField placeholder value scope onSave onValueChange>` A text value in a table cell or panel row that edits in a popover.
 - `useMemberOptions(members, enabled, picked)` The active team members as picker options.
 - `useMembersById(ids, members)` Members by id, any status.

@@ -188,13 +188,15 @@ export const listFilterFields = async (client: Db, recordType: ViewRecordType) =
 
   return {
     data: (await filterFields(client, recordType)).map(
-      ({ path, label, type, options, group, groupLabel }) => ({
+      ({ path, label, type, options, group, groupLabel, currency, relation }) => ({
         path,
         label,
         type,
         options,
         group,
         groupLabel,
+        currency,
+        relation,
       }),
     ),
   };

@@ -90,6 +90,7 @@ export type {
   EbarimtTaxRule,
   PluginStatus,
   StoredPluginManifest,
+  StoredPluginRelation,
   ContentType,
   CustomerLoginKind,
   FieldContentType,

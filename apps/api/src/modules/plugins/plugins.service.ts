@@ -261,6 +261,28 @@ const ownPermissionSets = (manifest: PluginManifest) => {
   }
 };
 
+/** Relations read the plugin's own views, and need one of its own permissions. */
+const ownRelations = (plugin: string, manifest: PluginManifest) => {
+  const permissions = new Set(manifest.permissions?.map((item) => item.action));
+
+  for (const relation of manifest.relations ?? []) {
+    if (!relation.view.startsWith(`${plugin}_`)) {
+      throw fail(
+        'NAMESPACE_REQUIRED',
+        `Relation "${relation.key}" must read a view of the plugin, named ${plugin}_*: ${relation.view}`,
+      );
+    }
+
+    if (relation.permission && !permissions.has(relation.permission)) {
+      throw fail(
+        'UNKNOWN_PERMISSION',
+        `Relation "${relation.key}" needs ${relation.permission}, which the manifest's permissions don't declare`,
+        { permissions: [relation.permission] },
+      );
+    }
+  }
+};
+
 /** The plugin's own manifest (deployment-wide token). */
 export const registerManifest = async (manifest: PluginManifest) => {
   const { plugin } = caller('plugin');
@@ -281,6 +303,8 @@ export const registerManifest = async (manifest: PluginManifest) => {
     manifest.events?.map((item) => item.type),
     'Event types',
   );
+
+  ownRelations(plugin, manifest);
 
   await withSystem('plugin manifest', async (tx) => {
     const [before] = await tx

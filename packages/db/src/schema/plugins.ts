@@ -4,6 +4,7 @@ import {
   type DefaultGrantRole,
   type PLUGIN_FIELD_TYPES,
   PLUGIN_STATUSES,
+  type RELATION_FIELD_TYPES,
   type TAX_RECEIPT_ISSUERS,
 } from '../enums';
 import { sql } from 'drizzle-orm';
@@ -21,6 +22,23 @@ interface StoredDataField {
   key: string;
   label: string;
   type: (typeof AUTOMATION_FIELD_TYPES)[number];
+}
+
+/** A relation of a plugin's manifest (`PluginRelation` in the contract). */
+export interface StoredPluginRelation {
+  key: string;
+  contentType: ContentType;
+  label: string;
+  view: string;
+  permission?: string;
+  fields: {
+    key: string;
+    label: string;
+    type: (typeof RELATION_FIELD_TYPES)[number];
+    options?: string[];
+    array?: boolean;
+    money?: boolean;
+  }[];
 }
 
 /**
@@ -89,6 +107,11 @@ export interface StoredPluginManifest {
     options?: string[];
     description?: string;
   }[];
+  /**
+   * Its records that belong to customers or companies, read from its view `view` (`record_id`
+   * and a column per field), so their lists filter by them.
+   */
+  relations?: StoredPluginRelation[];
   activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
   actions?: {
     type: string;

@@ -1,4 +1,4 @@
-import { IconBraces, IconPlus } from '@tabler/icons-react';
+import { IconBraces, IconFilter, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/button';
@@ -137,15 +137,24 @@ const GroupEditor = ({
     <div className="flex flex-col gap-1.5">
       {group.rules.map((node, index) =>
         isFilterRule(node) ? (
-          <RuleRow
-            key={keys.keyAt(index)}
-            {...shared}
-            rule={node}
-            lead={lead(index)}
-            fresh={fresh === index}
-            onChange={(next) => update(index, next)}
-            onRemove={() => remove(index)}
-          />
+          <div key={keys.keyAt(index)} className="flex flex-col gap-1.5">
+            <RuleRow
+              {...shared}
+              rule={node}
+              lead={lead(index)}
+              fresh={fresh === index}
+              onChange={(next) => update(index, next)}
+              onRemove={() => remove(index)}
+            />
+            {isRule(node) && (
+              <RelationWhere
+                {...shared}
+                rule={node}
+                depth={depth}
+                onChange={(next) => update(index, next)}
+              />
+            )}
+          </div>
         ) : (
           <div key={keys.keyAt(index)} className="grid grid-cols-condition items-start gap-1.5">
             {lead(index)}
@@ -179,6 +188,75 @@ const GroupEditor = ({
     </div>
   );
 };
+
+/**
+ * Under a rule on a relation's measure ("Deals: count"): "Only deals where…", which starts a
+ * group on the relation's fields, or that group, which keeps the rule to the records matching it.
+ */
+function RelationWhere({
+  rule,
+  fields,
+  lookups,
+  disabled,
+  depth,
+  onChange,
+}: RowShared & {
+  rule: TConditionRule;
+  depth: number;
+  onChange: (next: TConditionRule) => void;
+}) {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+  const relation = fields.find((field) => field.path === rule.path)?.relation;
+
+  if (!relation) return null;
+
+  const records = relation.label.toLocaleLowerCase();
+  const { where, ...plain } = rule;
+
+  if (!where) {
+    return (
+      <div className="grid grid-cols-condition items-center gap-1.5">
+        <span />
+        <div className="col-span-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            tone="muted"
+            disabled={disabled}
+            onClick={() => onChange({ ...plain, where: { match: 'all', rules: [] } })}
+          >
+            <IconFilter />
+            {t('only-where', { records, defaultValue: 'Only {{records}} where…' })}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-condition items-start gap-1.5">
+      <span />
+      <div className="col-span-3 flex flex-col gap-1.5 rounded-md border bg-muted/40 p-2">
+        <span className="text-sm text-muted-foreground">
+          {t('only-matching', { records, defaultValue: 'Only {{records}} that match' })}
+        </span>
+        <GroupEditor
+          fields={relation.fields}
+          lookups={lookups}
+          disabled={disabled}
+          group={where}
+          depth={depth + 1}
+          onChange={(next) => onChange({ ...plain, where: next })}
+        />
+      </div>
+      <RemoveButton
+        label={t('remove-where', { records, defaultValue: 'Count all {{records}}' })}
+        disabled={disabled}
+        onRemove={() => onChange(plain)}
+      />
+    </div>
+  );
+}
 
 /**
  * Conditions as rows "Where <field> <operator> <value>", joined by "and" or "or", with nested

@@ -30,6 +30,11 @@ export interface ConditionRule {
   path: string;
   op: ConditionOperator;
   value?: unknown;
+  /**
+   * On a relation (`subject.related.<plugin>.<relation>.<measure>`): only the related rows that
+   * match, their fields at `subject.<field>` ("deals whose stage is Won").
+   */
+  where?: ConditionGroup;
 }
 
 /** Rules (or nested groups) that must all, or any, hold. */

@@ -41,6 +41,26 @@ export const FilterField = z.object({
   group: z.enum(FILTER_FIELD_GROUPS),
   /** The heading to list it under instead of the group's own: a plugin's title (`plugin`). */
   groupLabel: z.string().optional(),
+  /** A number that is money, in this currency's smallest unit. */
+  currency: z.string().optional(),
+  /**
+   * A measure of a plugin's related records (`subject.related.<plugin>.<relation>.<measure>`):
+   * a rule on it may narrow them with `where`, on these fields (`subject.<field>`).
+   */
+  relation: z
+    .object({
+      label: z.string(),
+      fields: z.array(
+        z.object({
+          path: z.string(),
+          label: z.string(),
+          type: z.enum(FILTER_FIELD_TYPES),
+          options: z.array(z.string()).optional(),
+          currency: z.string().optional(),
+        }),
+      ),
+    })
+    .optional(),
 });
 
 export type FilterField = z.infer<typeof FilterField>;

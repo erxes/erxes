@@ -526,6 +526,13 @@
       "when": 1794855521434,
       "tag": "0074_product_variants_tags",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1794857655640,
+      "tag": "0075_filter_relations",
+      "breakpoints": true
     }
   ]
 }

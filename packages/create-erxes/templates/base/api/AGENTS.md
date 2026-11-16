@@ -54,6 +54,18 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   while the plugin has `fields:write` there, so fill the values that existed
   before in a job with `onInstall: true`: core runs it once when an
   organisation installs the plugin or approves its new scopes.
+- Records that belong to customers or companies (deals, orders, tickets) are a
+  relation in the manifest's `relations` (`key`, `contentType`, `label`,
+  `view`, `permission?`, `fields`: `key`, `label`, `type` text, number, date,
+  boolean, select or member, `options`, `array`, `money`). Members then filter
+  contacts by them, live, with no values to sync: "Deals: count ≥ 3 where
+  Stage is Won", "Deals: Amount (total) > 1,000,000", "Deals: Closed (latest)
+  more than 60 days ago". Keep a view `<plugin>_*` in a migration, owned by the
+  plugin's role, with `record_id` (the customer's or company's id) and one
+  column per field, and grant it:
+  `GRANT SELECT ON sales_customer_deals TO erxes_core_reader;`. It reads the
+  plugin's tables as their owner, so their row level security keeps it to the
+  organisation. Index what it joins on (`org_id`, the customer id).
 - A segment (a price list's audience, a campaign's) is a shared view members
   build in core. Store its id; `views.list({ recordType })` lists the shared
   ones and `views.matches({ viewId, recordIds })` says which records it
