@@ -106,8 +106,10 @@ const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automati
       stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
       outputsBefore: (stepId: string) =>
         stepOutputFields(definition.steps, stepId, { events, actions, trigger: started }),
+      trigger: started,
+      hasSubject,
     };
-  }, [catalog.triggers, stats.data, definition, actions]);
+  }, [catalog.triggers, stats.data, definition, actions, hasSubject]);
 
   return { stats, subject, hasSubject, fields, fieldsError, actions, problems, builder };
 };

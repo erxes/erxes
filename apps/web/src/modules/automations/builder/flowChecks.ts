@@ -1,4 +1,5 @@
-import type { ActionField, ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
+import type { ActionField, ActionInfo, AutomationStep } from '@erxes/core-contract';
+import type { StartingEvent } from './BuilderContext';
 import { armsOf } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -69,13 +70,18 @@ export const stepOutputFields = (
     events: { type: string; label: string }[];
     actions: ActionInfo[];
     /** The trigger event's own values, as its plugin declares them. */
-    trigger?: { label: string; fields: DataField[] };
+    trigger?: StartingEvent;
   },
 ): FieldInfo[] => {
-  const out: FieldInfo[] = (context.trigger?.fields ?? []).map((field) => ({
+  const { trigger } = context;
+
+  const out: FieldInfo[] = (trigger?.fields ?? []).map((field) => ({
     path: `event.payload.${field.key}`,
     label: field.label,
     type: field.type,
+    group: trigger?.label,
+    source: trigger?.source,
+    recordType: field.recordType,
   }));
 
   const walk = (list: AutomationStep[]): boolean => {
@@ -91,6 +97,8 @@ export const stepOutputFields = (
             path: `steps.${step.id}.output.${output.key}`,
             label: `${title}: ${output.label}`,
             type: output.type,
+            source: action?.source,
+            recordType: output.recordType,
           });
         }
       }

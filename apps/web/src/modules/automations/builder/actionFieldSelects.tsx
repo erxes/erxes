@@ -126,8 +126,25 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
 const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
 
 /**
- * One of the plugin's own records, listed by its API with the member's session.
- * With `dependsOn`, the records under that input's value, once it has one.
+ * The run's values that are records of this type (the trigger's task, a deal an earlier step
+ * created), as picker options that insert them: "Task created: Task".
+ */
+const runRecordOptions = (
+  dataFields: FieldInfo[],
+  source: string,
+  recordType: string | undefined,
+) =>
+  dataFields
+    .filter((item) => recordType && item.recordType === recordType && item.source === source)
+    .map((item) => ({
+      value: `{{${item.path}}}`,
+      label: item.group ? `${item.group}: ${item.label}` : item.label,
+    }));
+
+/**
+ * The plugin's own records, listed by its API with the member's session, after the run's
+ * records of that type. With `dependsOn`, the records under that input's value, once it has
+ * one; with `multiple`, several.
  */
 export const PluginRecordSelect = ({
   action,
@@ -136,17 +153,20 @@ export const PluginRecordSelect = ({
   onChange,
   disabled = false,
   input,
+  dataFields,
 }: ActionInputProps) => {
   const { t } = useTranslation('automations');
-  const { recordType, dependsOn } = field;
+  const { recordType, dependsOn, multiple } = field;
   const parent = dependsOn === undefined ? '' : textOf(input[dependsOn]);
   const waiting = dependsOn !== undefined && !parent;
+  // A parent taken from the run is known only when it runs: then only the run's records fit.
+  const listed = Boolean(recordType) && !waiting && !parent.startsWith('{{');
   const query = new URLSearchParams(parent ? { parent } : {});
 
   const records = useQuery({
     queryKey: ['plugin-records', action.source, recordType, parent],
     queryFn:
-      recordType && !waiting
+      recordType && listed
         ? () =>
             pluginJson(action.source, `/automations/records/${recordType}?${query}`, PluginRecords)
         : skipToken,
@@ -156,13 +176,17 @@ export const PluginRecordSelect = ({
 
   return (
     <LookupPicker
+      multiple={multiple}
       lookup={{
-        options: records.data ?? [],
-        loading: !waiting && records.isPending,
+        options: [
+          ...runRecordOptions(dataFields, action.source, recordType),
+          ...(listed ? (records.data ?? []) : []),
+        ],
+        loading: listed && records.isPending,
         error: records.error,
       }}
       value={asList(value)}
-      onValueChange={(ids) => onChange(ids[0])}
+      onValueChange={(ids) => onChange(multiple ? ids : ids[0])}
       disabled={disabled || waiting}
       placeholder={
         waiting

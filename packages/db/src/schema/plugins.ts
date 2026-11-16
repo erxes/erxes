@@ -23,6 +23,7 @@ interface StoredDataField {
   key: string;
   label: string;
   type: (typeof AUTOMATION_FIELD_TYPES)[number];
+  recordType?: string;
 }
 
 /** A relation of a plugin's manifest (`PluginRelation` in the contract). */
@@ -88,6 +89,7 @@ export interface StoredPluginManifest {
     label: string;
     description?: string;
     subject?: ContentType;
+    record?: string;
     fields?: StoredDataField[];
   }[];
   /** Events it wants at `<api.url>/events` (patterns: `core.payment.*`). */

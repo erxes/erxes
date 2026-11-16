@@ -1,6 +1,6 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.1.0-v2.25",
+  "version": "0.1.0-v2.26",
   "private": false,
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",
@@ -34,6 +34,7 @@
     "./emails": "./src/emails.ts",
     "./errors": "./src/errors.ts",
     "./events": "./src/events.ts",
+    "./eventTypes": "./src/eventTypes.ts",
     "./favorites": "./src/favorites.ts",
     "./fieldGroups": "./src/fieldGroups.ts",
     "./fields": "./src/fields.ts",
@@ -91,6 +92,7 @@
       "./emails": "./dist/emails.js",
       "./errors": "./dist/errors.js",
       "./events": "./dist/events.js",
+      "./eventTypes": "./dist/eventTypes.js",
       "./favorites": "./dist/favorites.js",
       "./fieldGroups": "./dist/fieldGroups.js",
       "./fields": "./dist/fields.js",

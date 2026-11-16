@@ -202,6 +202,7 @@ const CommandItem = ({
   VariantProps<typeof commandItemVariants>) => (
   <CommandPrimitive.Item
     ref={ref}
+    aria-current={checked ? 'true' : undefined}
     className={cn(commandItemVariants({ variant, checked }), className)}
     {...props}
   />

@@ -168,6 +168,8 @@ export * from './values';
 
 export * from './views';
 
+export * from './eventTypes';
+
 export * from './webhooks';
 
 export * from './apiKeys';

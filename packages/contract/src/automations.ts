@@ -123,6 +123,8 @@ export const automationsContract = {
             description: z.string().nullable().optional(),
             source: z.string(),
             subject: z.enum(CONTENT_TYPES).nullable(),
+            /** The record it is about, as its plugin names it (`Order`). */
+            record: z.string().nullable(),
             /** Its payload's values later steps can insert (`{{event.payload.<key>}}`). */
             fields: z.array(DataField),
           }),

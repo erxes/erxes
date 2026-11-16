@@ -123,7 +123,9 @@ const ActionSettings = ({
   const { t } = useTranslation('automations');
   const { step, subject, disabled, onChange } = props;
   const action = actions.find((item) => item.type === step.action);
-  const { fields: recordFields } = useAutomationFields(subject);
+  const { hasSubject } = useContext(BuilderContext);
+  const { fields } = useAutomationFields(subject);
+  const recordFields = hasSubject ? fields : [];
 
   return (
     <>

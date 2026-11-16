@@ -16,12 +16,21 @@ import { Id, isoDate } from './common';
  * action answers (`{{steps.<step id>.output.<key>}}`). The builder lists them in
  * "Insert data" and in conditions, by `label`.
  */
+const RecordType = z
+  .string()
+  .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -');
+
 export const DataField = z.object({
   key: z
     .string()
     .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}$/, 'letters, digits and _, starting with a letter'),
   label: z.string().trim().min(1).max(100),
   type: z.enum(AUTOMATION_FIELD_TYPES),
+  /**
+   * The value is the id of one of the plugin's records of this type (a `plugin_record`
+   * input's `recordType`): the builder offers it in that input's picker ("Task created: Task").
+   */
+  recordType: RecordType.optional(),
 });
 
 export type DataField = z.infer<typeof DataField>;
@@ -45,12 +54,12 @@ export const ActionField = z
     sameTypeAs: z.string().optional(),
     /**
      * A `plugin_record` input's records (`pipeline`): web lists them from
-     * `GET <api.url>/automations/records/<recordType>`, which answers `[{ value, label }]`.
+     * `GET <api.url>/automations/records/<recordType>`, which answers `[{ value, label }]`,
+     * and offers the run's values of that `recordType` (the trigger's task, a created deal).
      */
-    recordType: z
-      .string()
-      .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -')
-      .optional(),
+    recordType: RecordType.optional(),
+    /** A `plugin_record` input that takes several records: its value is a list of ids. */
+    multiple: z.boolean().optional(),
     /**
      * The key of another input of the action: the records follow its value
      * (`?parent=<value>`), and changing it clears this one.
@@ -60,6 +69,10 @@ export const ActionField = z
   .refine((field) => (field.type === 'plugin_record') === (field.recordType !== undefined), {
     message: 'a plugin_record input names its recordType, and no other input does',
     path: ['recordType'],
+  })
+  .refine((field) => field.multiple === undefined || field.type === 'plugin_record', {
+    message: 'only a plugin_record input takes several records',
+    path: ['multiple'],
   })
   .refine((field) => field.dependsOn === undefined || field.type === 'plugin_record', {
     message: 'only a plugin_record input depends on another',
