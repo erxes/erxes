@@ -74,7 +74,10 @@ describe('automation data fields', () => {
           type: 'hr.leave.approved',
           label: 'Leave approved',
           record: 'Leave',
-          fields: [{ key: 'leaveId', label: 'Leave', type: 'text', recordType: 'leave' }],
+          fields: [
+            { key: 'leaveId', label: 'Leave', type: 'text', recordType: 'leave' },
+            { key: 'customerId', label: 'Employee', type: 'text' },
+          ],
         },
         { type: 'hr.leave.cancelled', label: 'Leave cancelled', subject: 'customer' },
       ],
@@ -102,7 +105,10 @@ describe('automation data fields', () => {
 
     expect(trigger('hr.leave.approved')).toMatchObject({
       record: 'Leave',
-      fields: [{ key: 'leaveId', label: 'Leave', type: 'text', recordType: 'leave' }],
+      fields: [
+        { key: 'leaveId', label: 'Leave', type: 'text', recordType: 'leave' },
+        { key: 'customerId', label: 'Employee', type: 'text' },
+      ],
     });
     // Core's invoice events say what they carry, like a plugin's.
     expect(trigger('core.payment.paid')).toMatchObject({ record: 'Invoice', subject: null });
@@ -117,6 +123,7 @@ describe('automation data fields', () => {
     });
 
     // The plugin hears what members would miss: an event with no data and an id typed as text.
+    // A customer's id is core's, so it needs no record type.
     expect(warnings).toEqual([
       expect.stringMatching(/^Event hr\.leave\.cancelled declares no fields/),
       expect.stringMatching(/^Action hr\.leave\.extend input teamId takes a typed id/),
@@ -132,6 +139,36 @@ describe('automation data fields', () => {
             type: 'hr.leave.extend',
             label: 'Extend a leave',
             fields: [{ key: 'note', label: 'Note', type: 'text', multiple: true }],
+          },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+
+    // A list of records can't narrow another picker: there is no one parent to list under.
+    await expect(
+      t.client(await t.pluginToken()).plugins.registerManifest({
+        title: 'HR',
+        version: '2.1.2',
+        actions: [
+          {
+            type: 'hr.leave.extend',
+            label: 'Extend a leave',
+            fields: [
+              {
+                key: 'teamIds',
+                label: 'Teams',
+                type: 'plugin_record',
+                recordType: 'team',
+                multiple: true,
+              },
+              {
+                key: 'memberId',
+                label: 'Member',
+                type: 'plugin_record',
+                recordType: 'member',
+                dependsOn: 'teamIds',
+              },
+            ],
           },
         ],
       }),

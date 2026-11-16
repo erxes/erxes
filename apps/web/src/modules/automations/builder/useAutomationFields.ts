@@ -4,11 +4,11 @@ import { orpc } from '@erxes/core-contract/client';
 
 /**
  * A field conditions and placeholders can use: a record's (from the API), the trigger's or an
- * earlier step's, with `group` for where it comes from ("Order created"). A value that is one
+ * earlier step's, with `from` for the trigger it comes from ("Order created"). A value that is one
  * of a plugin's records names its `source` plugin and `recordType`.
  */
 export type FieldInfo = AutomationFieldPath & {
-  group?: string;
+  from?: string;
   currency?: string;
   source?: string;
   recordType?: string;

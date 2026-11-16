@@ -1,7 +1,9 @@
 import type { AutomationStep, ConditionGroup } from '@erxes/core-contract';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Input, useItemKeys } from 'erxes-ui';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BuilderContext } from './BuilderContext';
 import { ConditionsEditor } from './ConditionsEditor';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -29,6 +31,7 @@ export const SwitchCases = ({
   onChange: (step: SwitchStep) => void;
 }) => {
   const { t } = useTranslation('automations');
+  const { hasSubject } = useContext(BuilderContext);
   const keys = useItemKeys(step.cases.length);
 
   const setCase = (index: number, next: SwitchStep['cases'][number]) =>
@@ -67,7 +70,7 @@ export const SwitchCases = ({
             )}
           </div>
           <ConditionsEditor
-            subject={subject}
+            subject={hasSubject ? subject : null}
             extraFields={outputs}
             value={item.conditions}
             disabled={disabled}

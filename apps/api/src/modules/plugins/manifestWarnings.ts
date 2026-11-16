@@ -2,10 +2,15 @@ import type { DataField, PluginManifest } from '@erxes/core-contract';
 
 const ID_KEY = /[a-z]Ids?$/;
 
-/** A value named like a record's id that doesn't say which record type it holds. */
+/** Core's records, which have no plugin record type: customers and companies are the subject. */
+const CORE_ID_KEY = /^(customer|company|subject)Ids?$/;
+
+const pluginIdKey = (key: string) => ID_KEY.test(key) && !CORE_ID_KEY.test(key);
+
+/** A text value named like a plugin record's id that doesn't say which record type it holds. */
 const untypedIds = (where: string, fields: DataField[]) =>
   fields
-    .filter((field) => ID_KEY.test(field.key) && !field.recordType)
+    .filter((field) => field.type === 'text' && pluginIdKey(field.key) && !field.recordType)
     .map(
       (field) =>
         `${where} field ${field.key} looks like a record id: give it a recordType so record pickers offer it`,
@@ -38,7 +43,7 @@ const actionWarnings = (actions: NonNullable<PluginManifest['actions']>) =>
       )
       .map(
         (field) =>
-          `Action ${action.type} input ${field.key} takes a typed id: make it a plugin_record with a recordType (multiple for a list) so members pick it`,
+          `Action ${action.type} input ${field.key} takes a typed id: make it a picker (members for team members, else a plugin_record with a recordType; multiple for a list)`,
       ),
     ...untypedIds(`Action ${action.type} output`, action.outputs ?? []),
   ]);

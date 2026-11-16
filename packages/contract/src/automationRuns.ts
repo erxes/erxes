@@ -112,6 +112,13 @@ export const ActionFields = z
     'dependsOn names another input of the same action',
   )
   .refine(
+    (fields) =>
+      fields.every(
+        (field) => !fields.some((other) => other.key === field.dependsOn && other.multiple),
+      ),
+    'dependsOn names an input of one record, not a multiple one',
+  )
+  .refine(
     (fields) => !dependsInCircle(fields),
     'dependsOn inputs depend on each other in a circle',
   );

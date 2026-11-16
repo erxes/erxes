@@ -166,6 +166,7 @@ const StepBody = ({
 }: SettingsProps<AutomationStep['type']> & { actions: ActionInfo[]; outputs: FieldInfo[] }) => {
   const { t } = useTranslation('automations');
   const { step, subject, disabled, onChange } = props;
+  const { hasSubject } = useContext(BuilderContext);
 
   switch (step.type) {
     case 'action':
@@ -179,7 +180,7 @@ const StepBody = ({
         <div className="space-y-1.5">
           <FieldLabel>{t('branch-if', 'Take the Yes path when')}</FieldLabel>
           <ConditionsEditor
-            subject={subject}
+            subject={hasSubject ? subject : null}
             extraFields={outputs}
             value={step.conditions}
             disabled={disabled}

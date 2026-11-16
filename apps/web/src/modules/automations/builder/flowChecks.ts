@@ -79,7 +79,7 @@ export const stepOutputFields = (
     path: `event.payload.${field.key}`,
     label: field.label,
     type: field.type,
-    group: trigger?.label,
+    from: trigger?.label,
     source: trigger?.source,
     recordType: field.recordType,
   }));

@@ -21,8 +21,8 @@ export const ConditionsEditor = ({
   extraFields?: FieldInfo[];
 }) => {
   const { fields } = useAutomationFields(subject);
-  // A trigger with no record has no tags to test: no tag field, no tag lookup.
-  const own = subject ? fields : fields.filter((field) => field.path !== 'subject.tagIds');
+  // Runs not about a customer or company have no record to test: no record fields, no tag lookup.
+  const own = subject ? fields : fields.filter((field) => !field.path.startsWith('subject.'));
 
   return (
     <Conditions
