@@ -20,7 +20,7 @@ import {
 import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
-import { ContactTextField } from '~/modules/side-panel/details/ContactDetailFields';
+import { ContactTextField, useEmptyText } from '~/modules/side-panel/details/ContactDetailFields';
 import { CategoryPicker } from '../categories/CategoryPicker';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
 import { useCanManageProducts } from '../useProducts';
@@ -126,6 +126,7 @@ export const ProductTextRow = ({
   label: string;
 }) => {
   const edit = useProductEdit();
+  const empty = useEmptyText();
 
   const save = (next: string | null) => {
     if (code === 'unit') {
@@ -142,7 +143,7 @@ export const ProductTextRow = ({
       <ContactTextField
         scope={`${PRODUCT_PANEL_SCOPE}.${product.id}.${code}`}
         value={product[code] ?? ''}
-        placeholder={label}
+        placeholder={empty}
         icon={TEXT_FIELD_ICONS[code]}
         onSave={save}
       />

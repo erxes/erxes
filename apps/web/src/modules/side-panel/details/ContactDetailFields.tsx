@@ -9,6 +9,7 @@ import {
   PanelSection,
 } from 'erxes-ui';
 import { type ReactNode, useId } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
 
 /** A contact's Detail tab scrolling under the panel header. */
@@ -47,6 +48,10 @@ export const ContactTextField = ({
   </TextField>
 );
 
+/** What an empty row of a record's panel says: "Empty", muted, not the row's label again. */
+export const useEmptyText = () =>
+  useTranslation('common', { keyPrefix: 'side-panel' }).t('empty', 'Empty');
+
 export const ContactOwnerField = ({
   label,
   scope,
@@ -59,13 +64,14 @@ export const ContactOwnerField = ({
   onChange: (ownerId: string | null) => void;
 }) => {
   const controlId = useId();
+  const empty = useEmptyText();
 
   return (
     <PanelField
       icon={IconUser}
       label={label}
       htmlFor={controlId}
-      placeholder={ownerId ? undefined : label}
+      placeholder={ownerId ? undefined : empty}
     >
       <SelectMember.InlineCell
         id={controlId}

@@ -598,7 +598,8 @@
     "former": "Хуучин",
     "no-properties": "Шинж чанар алга",
     "no-properties-hint": "Эхний шинж чанараа үүсгэж эхлээрэй.",
-    "create-property": "Шинж чанар үүсгэх"
+    "create-property": "Шинж чанар үүсгэх",
+    "empty": "Хоосон"
   },
   "two-factor": {
     "authenticator-code": "Authenticator код",

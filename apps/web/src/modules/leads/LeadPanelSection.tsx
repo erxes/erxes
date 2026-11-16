@@ -2,12 +2,35 @@ import { useFormat, PanelField, PanelSection } from 'erxes-ui';
 import type { LeadRecordType } from '@erxes/core-contract';
 import { IconCalendarCheck, IconHourglass, IconWorld } from '@tabler/icons-react';
 import { useMinuteClock } from '~/lib/useMinuteClock';
+import { pluginTitle, useInstalledPlugins } from '~/modules/products/useCatalogContext';
 import { daysSince, type LeadRecord, useLeadStages } from './useLeads';
 import { useLeadsT } from './i18n';
 
 const Text = ({ children }: { children: React.ReactNode }) => (
   <span className="truncate px-2 text-sm">{children}</span>
 );
+
+/**
+ * Where someone came from, in words: the app that added them by its title ("Ecommerce"), a
+ * member or an import, or a source a caller named, with its details.
+ */
+const useSourceText = (record: LeadRecord) => {
+  const t = useLeadsT();
+  const { plugins } = useInstalledPlugins();
+  const { source, sourceDetails } = record;
+
+  if (source === 'plugin') {
+    return sourceDetails.plugin ? pluginTitle(plugins, sourceDetails.plugin) : t('source-plugin');
+  }
+
+  if (source === 'manual') return t('source-manual');
+
+  if (source === 'import') return t('source-import');
+
+  const details = Object.values(sourceDetails).filter(Boolean);
+
+  return [source, ...details].join(' · ');
+};
 
 /** A lead's stage and time in it, and anyone's source and conversion date. */
 export const LeadPanelSection = ({
@@ -22,7 +45,7 @@ export const LeadPanelSection = ({
   const isLead = record.state === 'lead';
   const stage = record.leadStageId ? byId.get(record.leadStageId) : null;
   const days = daysSince(record.leadStageChangedAt, useMinuteClock());
-  const details = Object.entries(record.sourceDetails);
+  const sourceText = useSourceText(record);
 
   if (!isLead && !record.source && !record.convertedAt) return null;
 
@@ -42,13 +65,7 @@ export const LeadPanelSection = ({
       {record.source && (
         <PanelField icon={IconWorld} label={t('source')}>
           <Text>
-            <span className="capitalize">{record.source}</span>
-            {details.length > 0 && (
-              <span className="text-muted-foreground">
-                {' '}
-                · {details.map(([key, value]) => `${key}: ${value}`).join(', ')}
-              </span>
-            )}
+            <span className="first-letter:uppercase">{sourceText}</span>
           </Text>
         </PanelField>
       )}

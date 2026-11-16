@@ -34,6 +34,7 @@ import {
   ContactDetailScroll,
   ContactOwnerField,
   ContactTextField,
+  useEmptyText,
 } from './ContactDetailFields';
 import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
@@ -63,13 +64,14 @@ const CustomerTextRow = ({
   label: string;
 }) => {
   const edit = useCustomerEdit();
+  const empty = useEmptyText();
 
   return (
     <PanelField icon={TEXT_FIELD_ICONS[code]} label={label}>
       <ContactTextField
         scope={`${SCOPE}.${code}`}
         value={customer[code] || ''}
-        placeholder={label}
+        placeholder={empty}
         icon={TEXT_FIELD_ICONS[code]}
         onSave={(next) => edit.mutate({ id: customer.id, [code]: next })}
       />

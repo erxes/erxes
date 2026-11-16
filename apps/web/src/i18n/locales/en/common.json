@@ -590,7 +590,8 @@
     "former": "Former",
     "no-properties": "No properties found",
     "no-properties-hint": "Get started by creating your first property.",
-    "create-property": "Create property"
+    "create-property": "Create property",
+    "empty": "Empty"
   },
   "two-factor": {
     "authenticator-code": "Authenticator code",
