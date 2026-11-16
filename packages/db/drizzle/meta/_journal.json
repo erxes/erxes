@@ -498,6 +498,13 @@
       "when": 1794850289002,
       "tag": "0070_payment_gateway_kinds",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1794852581883,
+      "tag": "0071_integrations_manage",
+      "breakpoints": true
     }
   ]
 }

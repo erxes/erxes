@@ -3,7 +3,7 @@ import { ebarimtReceipts, ebarimtSettings, paymentInvoices } from '@erxes/core-d
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { EbarimtReceiptStatus } from './values';
 
@@ -98,6 +98,15 @@ const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
   })
   .required({ posApiUrl: true, companyName: true, merchantTin: true, districtCode: true });
 
+/** A plugin that takes payments; `ownReceipts`: its manifest says `taxReceipts: 'own'`. */
+export const EbarimtPlugin = z.object({
+  plugin: z.string(),
+  title: z.string(),
+  ownReceipts: z.boolean(),
+});
+
+export type EbarimtPlugin = z.infer<typeof EbarimtPlugin>;
+
 const int = () => z.int();
 
 export const EbarimtReceipt = createSelectSchema(ebarimtReceipts, {
@@ -162,9 +171,11 @@ const InvoiceRef = z.object({ invoiceId: Id });
 
 /**
  * eBarimt, Mongolia's tax receipts, as an integration (Settings ›
- * Integrations). When it is active, every paid invoice of the plugins it
- * names gets a receipt from the merchant's PosAPI, built from the invoice's
- * lines and its `taxBuyer`. A refund returns the receipt, or replaces it with
+ * Integrations, `integrations.manage`). When it is active, every paid
+ * invoice of the plugins it names gets a receipt from the merchant's
+ * PosAPI, built from the invoice's lines and its `taxBuyer`. A line is taxed
+ * by the organisation's rule for its product, else by the line's `tax`,
+ * else with VAT. A refund returns the receipt, or replaces it with
  * one for what is left. Receipts are sent in the background; a failed one is
  * kept with its error and sent again by `sync`.
  */
@@ -176,12 +187,20 @@ export const ebarimtContract = {
       summary: 'The organisation’s eBarimt settings; null when it is not set up',
     })
     .output(EbarimtSettings.nullable()),
+  plugins: base
+    .route({
+      method: 'GET',
+      path: '/ebarimt/plugins',
+      summary:
+        'The installed plugins that take payments, to pick in the settings; `ownReceipts`: it sends its own, so it can’t be picked',
+    })
+    .output(listOf(EbarimtPlugin)),
   saveSettings: base
     .route({
       method: 'PUT',
       path: '/ebarimt/settings',
       summary:
-        'Set up eBarimt or change its settings. 400 INVALID_URL for a PosAPI address core may not call',
+        'Set up eBarimt or change its settings. 400 INVALID_URL for a PosAPI address core may not call, INVALID_INPUT for a plugin that sends its own receipts',
     })
     .input(EbarimtSettingsInput)
     .output(EbarimtSettings),

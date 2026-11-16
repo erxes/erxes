@@ -13,8 +13,8 @@ import { InvoiceStatus, PaymentGatewayKind } from './values';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { Currency } from './money';
 import { DedupeKey } from './platform';
-import { PluginName } from './plugins';
 import { TaxBuyer } from './ebarimt';
+import { InvoiceLine, InvoiceLineInput } from './invoiceLines';
 import { GatewayConfig } from './paymentGateways';
 
 export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, createdAt: isoDate })
@@ -30,40 +30,6 @@ export type PaymentGateway = z.infer<typeof PaymentGateway>;
 export const InvoiceMetadata = z
   .record(z.string(), z.unknown())
   .refine((value) => JSON.stringify(value).length <= 8192, 'at most 8 KB of JSON');
-
-/**
- * What an invoice is for. `plugin`: whose line it is when one invoice pays
- * for several plugins' records (an order and its delivery); that plugin
- * hears the invoice's events too.
- */
-export const InvoiceLine = z.object({
-  productId: Id.nullable(),
-  name: z.string(),
-  quantity: z.number(),
-  /** In the smallest unit, like `amount`. */
-  unitPrice: z.int(),
-  /** quantity × unit price, rounded to the smallest unit. */
-  amount: z.int(),
-  plugin: z.string().nullable(),
-});
-
-export type InvoiceLine = z.infer<typeof InvoiceLine>;
-
-export const InvoiceLineInput = z.object({
-  productId: Id.optional(),
-  /** Defaults to the product's name. */
-  name: z.string().trim().min(1).max(200).optional(),
-  /** Up to 3 decimals (1.5 kg). */
-  quantity: z
-    .number()
-    .positive()
-    .max(1_000_000)
-    .refine((value) => Number.isInteger(value * 1000), 'at most 3 decimals'),
-  unitPrice: z.int().min(0).max(1_000_000_000_00),
-  plugin: PluginName.optional(),
-});
-
-export type InvoiceLineInput = z.infer<typeof InvoiceLineInput>;
 
 const int = () => z.int();
 

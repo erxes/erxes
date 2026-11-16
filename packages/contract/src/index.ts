@@ -109,6 +109,8 @@ export * from './paymentGateways';
 
 export * from './payments';
 
+export * from './invoiceLines';
+
 export * from './ebarimt';
 
 export * from './pluginJobs';

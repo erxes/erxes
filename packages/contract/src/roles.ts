@@ -69,6 +69,11 @@ export const CORE_PERMISSIONS = [
     label: "See and revoke everyone's API keys",
   },
   {
+    action: 'integrations.manage',
+    group: 'Integrations',
+    label: 'Set up, turn on or off and remove integrations (eBarimt)',
+  },
+  {
     action: 'payments.manage',
     group: 'Payments',
     label: 'Connect payment gateways and see invoices',

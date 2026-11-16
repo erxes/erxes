@@ -46,13 +46,19 @@ const PluginChoice = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
   const id = useId();
-  const plugins = useQuery(orpc.payments.pluginSettings.queryOptions());
+  const plugins = useQuery(orpc.ebarimt.plugins.queryOptions());
   const rows = plugins.data?.data ?? [];
+  const own = rows.filter((row) => row.ownReceipts);
 
   return (
     <div className="space-y-2">
       <Label>{t('plugins', 'Issue receipts for invoices of')}</Label>
-      {!rows.length && (
+      {plugins.isError && (
+        <p className="text-xs text-destructive">
+          {t('plugins-failed', 'Could not load the plugins that take payments.')}
+        </p>
+      )}
+      {plugins.isSuccess && !rows.length && (
         <p className="text-xs text-muted-foreground">
           {t('no-plugins', 'No installed plugin takes payments yet.')}
         </p>
@@ -62,6 +68,7 @@ const PluginChoice = ({
           <span key={row.plugin} className="flex items-center gap-2 text-sm">
             <Checkbox
               id={`${id}-${row.plugin}`}
+              disabled={row.ownReceipts}
               checked={value.includes(row.plugin)}
               onCheckedChange={(on) =>
                 onChange(on ? [...value, row.plugin] : value.filter((name) => name !== row.plugin))
@@ -71,6 +78,15 @@ const PluginChoice = ({
           </span>
         ))}
       </div>
+      {own.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {t('own-receipts', {
+            defaultValue:
+              '{{plugins}} send their own eBarimt receipts, so core issues none for them.',
+            plugins: own.map((row) => row.title).join(', '),
+          })}
+        </p>
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
 } from '@erxes/core-db';
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { type ProductInfo } from './build';
+import { ownReceiptPlugins } from './plugins';
 
 export type ReceiptRow = typeof ebarimtReceipts.$inferSelect;
 
@@ -114,6 +115,9 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
   const settings = await settingsOf(tx);
 
   if (!invoice || !issuesFor(settings, invoice)) return null;
+
+  // Picked before the plugin said it sends its own: the plugin's receipt stands.
+  if ((await ownReceiptPlugins(tx, [invoice.source])).size) return null;
 
   const ids = [...new Set(invoice.lines.flatMap((line) => line.productId ?? []))];
 

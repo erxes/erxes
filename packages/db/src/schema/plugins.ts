@@ -4,6 +4,7 @@ import {
   type DefaultGrantRole,
   type PLUGIN_FIELD_TYPES,
   PLUGIN_STATUSES,
+  type TAX_RECEIPT_ISSUERS,
 } from '../enums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
@@ -33,6 +34,8 @@ export interface StoredPluginManifest {
   description?: string;
   /** Made for these countries (ISO 3166); none: everywhere. */
   countries?: string[];
+  /** `own`: it issues its invoices' tax receipts itself, so core's eBarimt never does. */
+  taxReceipts?: (typeof TAX_RECEIPT_ISSUERS)[number];
   ui?: { remote: string; entry: string };
   /** `docs`: its OpenAPI documents' paths under `url`, one per audience, shown in the API reference. */
   api?: {

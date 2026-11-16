@@ -1646,6 +1646,16 @@
         }
       }
     },
+    "plugins": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/plugins"
+        }
+      }
+    },
     "saveSettings": {
       "~orpc": {
         "errorMap": {},

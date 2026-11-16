@@ -104,10 +104,32 @@ interface Item {
   cityTax: number;
 }
 
+/** PosAPI's tax type for each of an invoice line's tax categories. */
+const TAX_TYPE_OF = {
+  standard: 'VAT_ABLE',
+  zero: 'VAT_ZERO',
+  exempt: 'VAT_FREE',
+  outside: 'NOT_SEND',
+} as const satisfies Record<NonNullable<InvoiceLine['tax']>['category'], TaxType>;
+
+/**
+ * How the line is taxed: the organisation's rule for its product or
+ * category first (the merchant's own setting), then what the plugin said
+ * on the line, else VAT.
+ */
+const taxOf = (input: BuildInput, line: InvoiceLine, product: ProductInfo | null) => {
+  const rule = ruleFor(input.settings.rules, line.productId, product?.categoryPath ?? []);
+
+  if (rule) return { taxType: rule.taxType, taxCode: rule.taxCode };
+
+  if (line.tax) return { taxType: TAX_TYPE_OF[line.tax.category], taxCode: line.tax.code ?? null };
+
+  return { taxType: 'VAT_ABLE' as const, taxCode: null };
+};
+
 const itemOf = (input: BuildInput, line: InvoiceLine): Item => {
   const product = (line.productId && input.products.get(line.productId)) || null;
-  const rule = ruleFor(input.settings.rules, line.productId, product?.categoryPath ?? []);
-  const taxType = rule?.taxType ?? 'VAT_ABLE';
+  const { taxType, taxCode } = taxOf(input, line, product);
   const taxed = taxType === 'VAT_ABLE';
   const vatPercent = taxed ? input.settings.vatPercent : 0;
   const cityTaxPercent = taxed ? input.settings.cityTaxPercent : 0;
@@ -118,14 +140,14 @@ const itemOf = (input: BuildInput, line: InvoiceLine): Item => {
     line,
     product,
     taxType,
-    taxCode: rule?.taxCode ?? null,
+    taxCode,
     vat: Math.round((line.amount * vatPercent) / whole),
     cityTax: Math.round((line.amount * cityTaxPercent) / whole),
   };
 };
 
 const posItem = ({ line, product, taxCode, vat, cityTax }: Item, settings: Settings) => {
-  const barcode = product?.barcode ?? '';
+  const barcode = product?.barcode || line.barcode || '';
 
   return {
     name: product?.code ? `${product.code} - ${line.name}` : line.name,

@@ -95,7 +95,7 @@ export const EbarimtRules = ({
       <p className="text-xs text-muted-foreground">
         {t(
           'rules-help',
-          'Products in these categories (and those under them) are taxed this way; the rest carry VAT.',
+          'Products in these categories (and those under them) are taxed this way. Other lines carry VAT, unless their plugin marks them otherwise.',
         )}
       </p>
       {rules.length > 0 && (

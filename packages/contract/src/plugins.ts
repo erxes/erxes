@@ -1,4 +1,9 @@
-import { AUTOMATION_SUBJECTS, CONTENT_TYPES, PLUGIN_SCOPES } from '@erxes/core-db/enums';
+import {
+  AUTOMATION_SUBJECTS,
+  CONTENT_TYPES,
+  PLUGIN_SCOPES,
+  TAX_RECEIPT_ISSUERS,
+} from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -65,6 +70,12 @@ export const PluginManifest = z.object({
    * anyone may still install it.
    */
   countries: z.array(Country).max(250).optional(),
+  /**
+   * Who issues tax receipts for its invoices: core's integration (eBarimt,
+   * the default), or `own` when the plugin sends them itself. An `own`
+   * plugin can't be picked in core's eBarimt settings, so no invoice gets two.
+   */
+  taxReceipts: z.enum(TAX_RECEIPT_ISSUERS).optional(),
   /** Module Federation remote: container name and `remoteEntry.js` address. */
   ui: z
     .object({

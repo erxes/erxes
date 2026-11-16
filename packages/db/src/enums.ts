@@ -355,6 +355,19 @@ export const INVOICE_STATUSES = [
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
+/**
+ * How a sales tax (VAT, GST) treats an invoice line, whatever the country:
+ * taxed at the standard rate, zero-rated, exempt, or outside its scope (not
+ * reported). A tax receipt integration maps these onto its own types.
+ */
+export const TAX_CATEGORIES = ['standard', 'zero', 'exempt', 'outside'] as const;
+
+/**
+ * Who issues the tax receipts for a plugin's invoices: core's integration
+ * (eBarimt), or the plugin itself (`own`: sales has its own eBarimt module).
+ */
+export const TAX_RECEIPT_ISSUERS = ['core', 'own'] as const;
+
 // ─── eBarimt (Mongolia's tax receipts) ──────────────────────────────────────
 
 /** Whether paid invoices get receipts: `active`, or `disabled` with the settings kept. */

@@ -5,6 +5,7 @@ import {
   PAYMENT_GATEWAY_STATUSES,
   REFUND_METHODS,
   REFUND_STATUSES,
+  type TAX_CATEGORIES,
 } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
@@ -34,6 +35,13 @@ export interface InvoiceLine {
   amount: number;
   /** The plugin the line belongs to, when one invoice pays for several (an order and its delivery). */
   plugin: string | null;
+  /** The item's barcode, for lines without a core product (a product's own barcode wins). */
+  barcode?: string;
+  /**
+   * How sales tax treats the line, for lines the organisation's tax rules
+   * don't cover; `code` is the tax office's code for an exempt or zero-rated item.
+   */
+  tax?: { category: (typeof TAX_CATEGORIES)[number]; code?: string };
 }
 
 /**
