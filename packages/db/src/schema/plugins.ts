@@ -1,4 +1,4 @@
-import { type AUTOMATION_SUBJECTS, PLUGIN_STATUSES } from '../enums';
+import { type AUTOMATION_SUBJECTS, type PLUGIN_FIELD_TYPES, PLUGIN_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 import { orgIdColumn, pgTable } from '../table';
@@ -46,6 +46,15 @@ export interface StoredPluginManifest {
     retry?: { attempts: number; delay: number; maxDelay: number };
   }[];
   timelines?: { type: string; label: string; permission?: string }[];
+  /** Fields it keeps on customers or companies: core stores them as custom fields, the plugin their values. */
+  fields?: {
+    code: string;
+    contentType: ContentType;
+    label: string;
+    type: (typeof PLUGIN_FIELD_TYPES)[number];
+    options?: string[];
+    description?: string;
+  }[];
   activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
   actions?: {
     type: string;

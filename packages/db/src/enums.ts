@@ -72,10 +72,20 @@ export const FILTER_FIELD_TYPES = [
   'tags',
 ] as const;
 
-/** Where a list filter comes from, for grouping in the picker. */
-export const FILTER_FIELD_GROUPS = ['fields', 'lead', 'custom', 'company', 'activity'] as const;
+/** Where a list filter comes from, for grouping in the picker; `plugin`: a plugin's fields, under its name. */
+export const FILTER_FIELD_GROUPS = [
+  'fields',
+  'lead',
+  'custom',
+  'company',
+  'activity',
+  'plugin',
+] as const;
 
 // ─── Custom fields and conditions ───────────────────────────────────────────
+
+/** Types of the fields a plugin declares in its manifest (it writes their values). */
+export const PLUGIN_FIELD_TYPES = ['number', 'date', 'text', 'select', 'multiselect'] as const;
 
 export const FIELD_TYPES = [
   'text',
@@ -146,6 +156,31 @@ export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
 export const ORGANIZATION_STATUSES = ['active', 'suspended', 'inactive'] as const;
 export const PLUGIN_TIERS = ['free', 'plus', 'pro'] as const;
 export const PLUGIN_STATUSES = ['active', 'disabled'] as const;
+
+/**
+ * What a plugin may do in core, granted per organisation when it is
+ * installed. A plugin only ever gets the scopes it asked for in its manifest.
+ */
+export const PLUGIN_SCOPES = [
+  'activities:write',
+  'customers:read',
+  'customers:write',
+  'audit:write',
+  'emails:write',
+  'events:read',
+  'events:write',
+  'fields:write',
+  'files:read',
+  'files:write',
+  'live:write',
+  'notifications:write',
+  'payments:read',
+  'payments:write',
+  'products:read',
+  'products:write',
+  'users:read',
+  'views:read',
+] as const;
 
 /** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */
 export const ENTITLEMENT_STATUSES = ['active', 'past_due', 'canceling'] as const;
