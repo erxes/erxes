@@ -1126,20 +1126,15 @@
     "tab": {
       "overview": "Overview",
       "settings": "Settings",
-      "activity": "Activity",
-      "connections": "Connections"
+      "activity": "Activity"
+    },
+    "name": {
+      "ebarimt": "eBarimt",
+      "payment-gateways": "Payment gateways"
     },
     "catalog": {
-      "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI."
-    },
-    "gateway": {
-      "takes": "Takes and refunds",
-      "how": "How it works",
-      "how-invoices": "Plugins bill through it: the payer pays on its page or app, and core marks the invoice paid.",
-      "how-credentials": "Credentials are checked with the gateway when you connect, and stored encrypted.",
-      "how-payments": "Which plugins use which gateway is set on",
-      "payments-link": "Payments",
-      "none": "Not connected yet. Connect your merchant account to take payments."
+      "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI.",
+      "payment-gateways": "QPay, Stripe, PayPal and more: connected on Settings › Payments."
     },
     "ebarimt": {
       "remove-title": "Remove eBarimt",

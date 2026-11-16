@@ -22,12 +22,13 @@ import {
   INTEGRATION_CATEGORIES,
   INTEGRATIONS,
   type IntegrationCategory,
+  integrationPath,
   servesCountry,
 } from './catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
-  useIntegrationSummary,
+  useIntegrationText,
 } from './IntegrationStatusBadge';
 import { type IntegrationStatus, useIntegrationStatus } from './useIntegrationStatus';
 
@@ -50,18 +51,18 @@ const IntegrationTile = ({
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
   const categoryLabel = useCategoryLabel();
-  const summaryOf = useIntegrationSummary();
+  const { name, summary } = useIntegrationText()(integration);
 
   return (
     <li>
       <Link
-        to={paths.settings.integration(integration.key)}
+        to={integrationPath(integration)}
         className="flex h-full flex-col gap-3 rounded-lg border p-4 transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <span className="flex items-start gap-3">
           <IntegrationMark integration={integration} />
           <span className="min-w-0 flex-1">
-            <span className="block font-medium">{integration.name}</span>
+            <span className="block font-medium">{name}</span>
             <span className="block text-xs text-muted-foreground">
               {categoryLabel(integration.category)}
             </span>
@@ -69,7 +70,7 @@ const IntegrationTile = ({
           {/* Only what is connected carries a state; the rest are simply available. */}
           <IntegrationStatusBadge status={status?.state === 'not-set-up' ? null : status} />
         </span>
-        <span className="line-clamp-2 text-sm text-muted-foreground">{summaryOf(integration)}</span>
+        <span className="line-clamp-2 text-sm text-muted-foreground">{summary}</span>
         {foreign && (
           <span className="mt-auto text-xs text-muted-foreground">
             {t('made-for', 'Made for {{countries}}', {
@@ -167,17 +168,24 @@ const useSections = (search: string, category: IntegrationCategory | null) => {
   const { country } = useSession().organization;
   const { statusOf, error, refetch } = useIntegrationStatus();
   const categoryLabel = useCategoryLabel();
-  const summaryOf = useIntegrationSummary();
+  const textOf = useIntegrationText();
   const canPayments = useCan()('payments.manage');
   const needle = search.trim().toLocaleLowerCase();
 
+  const matches = (integration: Integration) => {
+    const { name, summary } = textOf(integration);
+
+    return [name, summary, categoryLabel(integration.category)].some((text) =>
+      text.toLocaleLowerCase().includes(needle),
+    );
+  };
+
+  // Gateways are managed on Settings › Payments: only those who may open it see the tile.
   const shown = INTEGRATIONS.filter(
     (integration) =>
-      (integration.kind !== 'gateway' || canPayments) &&
+      (integration.kind !== 'gateways' || canPayments) &&
       (!category || integration.category === category) &&
-      [integration.name, summaryOf(integration), categoryLabel(integration.category)].some((text) =>
-        text.toLocaleLowerCase().includes(needle),
-      ),
+      matches(integration),
   );
 
   const isSetUp = (integration: Integration) =>

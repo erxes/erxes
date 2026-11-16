@@ -12,13 +12,7 @@ import {
 } from './gatewayCatalog';
 
 /** What the gateway takes and refunds, under its name. */
-export const GatewayFacts = ({
-  kind,
-  currency,
-}: {
-  kind: PaymentGatewayKind;
-  currency: string;
-}) => {
+const GatewayFacts = ({ kind, currency }: { kind: PaymentGatewayKind; currency: string }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const { currencies, refunds } = PAYMENT_GATEWAYS[kind];
   const takes = gatewayTakes(kind, currency);

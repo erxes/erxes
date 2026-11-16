@@ -1,6 +1,5 @@
 import { Badge, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { GATEWAY_PAYS } from '../payments/gatewayCatalog';
 import type { Integration } from './catalog';
 import type { IntegrationStatus } from './useIntegrationStatus';
 
@@ -27,14 +26,14 @@ export const IntegrationStatusBadge = ({ status }: { status: IntegrationStatus |
   return <Badge variant={VARIANT[status.state]}>{label}</Badge>;
 };
 
-/** The integration's one line: what it does, or how a gateway's payers pay. */
-export const useIntegrationSummary = () => {
-  const { t } = useTranslation('settings');
+/** The integration's name and one line, in the member's language. */
+export const useIntegrationText = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
 
-  return (integration: Integration) =>
-    integration.kind === 'gateway'
-      ? t(`payments.pays-${GATEWAY_PAYS[integration.gateway]}`)
-      : t(`integrations.catalog.${integration.key}`, integration.summary);
+  return (integration: Integration) => ({
+    name: t(`name.${integration.key}`, integration.name),
+    summary: t(`catalog.${integration.key}`, integration.summary),
+  });
 };
 
 /** The integration's mark in a square, as tiles and its page show it. */

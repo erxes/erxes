@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
-import type { Integration } from './catalog';
+import { type Integration, integrationPath } from './catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
-  useIntegrationSummary,
+  useIntegrationText,
 } from './IntegrationStatusBadge';
 import { useIntegrationStatus } from './useIntegrationStatus';
 
@@ -37,17 +37,17 @@ const IntegrationHeader = ({
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
   const status = useIntegrationStatus().statusOf(integration);
-  const summaryOf = useIntegrationSummary();
+  const { name, summary } = useIntegrationText()(integration);
 
   return (
     <header className="flex flex-wrap items-start gap-4">
       <IntegrationMark integration={integration} size="lg" />
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-semibold">{integration.name}</h1>
+          <h1 className="text-xl font-semibold">{name}</h1>
           <IntegrationStatusBadge status={status} />
         </div>
-        <p className="text-sm text-muted-foreground">{summaryOf(integration)}</p>
+        <p className="text-sm text-muted-foreground">{summary}</p>
         <p className="text-xs text-muted-foreground">
           {integration.countries.length
             ? t('made-for', 'Made for {{countries}}', {
@@ -79,6 +79,7 @@ export const IntegrationLayout = ({
   onTab: (tab: string) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+  const { name } = useIntegrationText()(integration);
   const current = tabs.find((item) => item.value === tab) ?? tabs[0];
 
   return (
@@ -92,7 +93,7 @@ export const IntegrationLayout = ({
                 to: paths.settings.integrations,
                 icon: IconPlugConnected,
               },
-              { label: integration.name, to: paths.settings.integration(integration.key) },
+              { label: name, to: integrationPath(integration) },
             ]}
           />
         </PageHeader.Start>

@@ -20,14 +20,17 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
   ).toBeVisible();
   await expectAccessibleInBothThemes(page);
 
-  // Search and categories narrow the catalog.
+  // Search and categories narrow the catalog; gateways are connected on Settings › Payments.
+  const gateways = page.getByRole('link', { name: /Payment gateways/ });
+
   await page.getByRole('searchbox', { name: 'Search integrations…' }).fill('qpay');
-  await expect(page.getByRole('link', { name: /QPay/ })).toBeVisible();
+  await expect(gateways).toBeVisible();
   await expect(tile).toBeHidden();
+  await expect(gateways).toHaveAttribute('href', '/settings/payments');
   await page.getByRole('searchbox', { name: 'Search integrations…' }).fill('');
   await page.getByRole('button', { name: 'Tax receipts' }).click();
   await expect(tile).toBeVisible();
-  await expect(page.getByRole('link', { name: /QPay/ })).toBeHidden();
+  await expect(gateways).toBeHidden();
 
   await tile.click();
   await expect(page.getByRole('heading', { name: 'eBarimt', level: 1 })).toBeVisible();

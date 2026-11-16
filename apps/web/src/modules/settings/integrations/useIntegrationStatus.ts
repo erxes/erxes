@@ -51,11 +51,11 @@ export const useIntegrationStatus = () => {
 
     if (!gateways.data) return null;
 
-    const own = gateways.data.data.filter((gateway) => gateway.kind === integration.gateway);
+    const all = gateways.data.data;
 
-    if (!own.length) return { state: 'not-set-up' };
+    if (!all.length) return { state: 'not-set-up' };
 
-    const on = own.filter((gateway) => gateway.status === 'active').length;
+    const on = all.filter((gateway) => gateway.status === 'active').length;
 
     return on ? { state: 'connected', count: on } : { state: 'off' };
   };
