@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
-import { config } from '#/config.ts';
 import { createApp } from '#/server.ts';
 
 let base = '';
@@ -46,17 +45,18 @@ describe('server', () => {
     expect(response.status).toBe(401);
   });
 
-  it('lets web call it from the browser', async () => {
+  it('lets web call it from any organisation address', async () => {
     const response = await fetch(`${base}/api/rpc/items/list`, {
       method: 'OPTIONS',
       headers: {
-        origin: config.coreUiOrigin,
+        origin: 'https://acme.app.erxes.io',
         'access-control-request-method': 'POST',
         'access-control-request-headers': 'authorization,content-type',
       },
     });
 
-    expect(response.headers.get('access-control-allow-origin')).toBe(config.coreUiOrigin);
+    expect(response.headers.get('access-control-allow-origin')).toBe('https://acme.app.erxes.io');
+    expect(response.headers.get('access-control-allow-credentials')).toBeNull();
     expect(response.headers.get('access-control-allow-headers')).toContain('authorization');
   });
 });

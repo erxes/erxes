@@ -31,8 +31,11 @@ export const createApp = () => {
 
   app.disable('x-powered-by');
   app.use(pinoHttp({ logger }));
-  // The plugin UI runs inside web and calls this API from web's origin.
-  app.use(cors({ origin: config.coreUiOrigin, maxAge: 600 }));
+  // The plugin UI calls this API from web, at whatever address the organisation
+  // uses (acme.app.erxes.io, its own domain). Any origin may: access is the
+  // Bearer session token core issues, never a cookie, so CORS guards nothing here.
+  // Routes for websites (an API key, customer tokens) set their own CORS.
+  app.use(['/api/rpc', '/ui'], cors({ origin: true, credentials: false, maxAge: 600 }));
 
   app.get('/health', (_req, res) => {
     res.json({ ok: true });
