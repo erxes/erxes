@@ -5,6 +5,7 @@ import { config } from '~/config';
 import { memberOf } from '~/http/auth';
 import { fail } from '~/http/errors';
 import { hashPassword } from '~/lib/crypto';
+import { subdomainFromHost } from '~/modules/auth/auth.service';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
 
 const hasOrganization = async (client: Db) => {
@@ -28,18 +29,23 @@ export const setupRequired = async (client: Db) =>
 
 /**
  * First run: creates the organisation and its owner. Only while the database
- * has no organisation; a lock makes two simultaneous requests safe.
+ * has no organisation; a lock makes two simultaneous requests safe. With no
+ * subdomain given, it is the one sign-in reads from the address setup ran at
+ * (`office.example.com` → `office`), else one made from the name.
  */
-export const runSetup = async (input: {
-  organizationName: string;
-  subdomain?: string;
-  country?: string;
-  currency?: string;
-  firstName: string;
-  lastName?: string;
-  email: string;
-  password: string;
-}) => {
+export const runSetup = async (
+  input: {
+    organizationName: string;
+    subdomain?: string;
+    country?: string;
+    currency?: string;
+    firstName: string;
+    lastName?: string;
+    email: string;
+    password: string;
+  },
+  host?: string,
+) => {
   if (!config.setup.enabled) {
     throw fail('SETUP_DISABLED', 'Organisations are created by the erxes SaaS service here');
   }
@@ -56,7 +62,8 @@ export const runSetup = async (input: {
 
     const created = await insertOrganization(tx, {
       name: input.organizationName,
-      subdomain: input.subdomain || subdomainFromName(input.organizationName),
+      subdomain:
+        input.subdomain || subdomainFromHost(host) || subdomainFromName(input.organizationName),
       country: input.country,
       currency: input.currency,
       owner: {
