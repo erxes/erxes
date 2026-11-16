@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
-import {
-  RelationWidgetSideTabs,
-  useRelationWidget,
-  useRelationWidgetTabs,
-} from 'ui-modules';
+import { useRelationWidget, useRelationWidgetTabs } from 'ui-modules';
 
 const DEAL_CONTENT_TYPE = 'sales:deal';
 
-export const DealSideWidgets = ({
+const DEAL_SCOPED_WIDGETS = new Set(['payment.invoices']);
+
+export const useDealRelationTabs = ({
   dealId,
   customerId,
   companyId,
@@ -26,21 +24,15 @@ export const DealSideWidgets = ({
     companyId: companyId ?? undefined,
   });
 
-  const dealTabs = useMemo(() => {
+  return useMemo(() => {
     const dealModules = new Set(
       relationWidgetsModules
         .filter((module) => module.contentTypes?.includes(DEAL_CONTENT_TYPE))
         .map((module) => `${module.pluginName}.${module.name}`),
     );
 
-    return relationTabs.filter((tab) => dealModules.has(tab.value));
+    return relationTabs.filter(
+      (tab) => dealModules.has(tab.value) || DEAL_SCOPED_WIDGETS.has(tab.value),
+    );
   }, [relationWidgetsModules, relationTabs]);
-
-  return (
-    <RelationWidgetSideTabs
-      customerId={customerId}
-      companyId={companyId}
-      extraTabs={dealTabs}
-    />
-  );
 };

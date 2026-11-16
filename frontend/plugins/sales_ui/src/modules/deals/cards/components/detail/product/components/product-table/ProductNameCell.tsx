@@ -3,8 +3,7 @@ import { Badge, RecordTableInlineCell, cn } from 'erxes-ui';
 
 import { Cell } from '@tanstack/table-core';
 
-import { useAtomValue } from 'jotai';
-import { productRowActionsAtom } from '../../productTableAtom';
+import { useProductRowActions } from '@/deals/cards/components/detail/product/productListHandlers';
 
 const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
 
@@ -34,7 +33,7 @@ export const ProductNameCell = ({
   hasDuplicateProduct: boolean;
 }) => {
   const product = cell.row.original.product;
-  const actions = useAtomValue(productRowActionsAtom);
+  const actions = useProductRowActions();
 
   return (
     <RecordTableInlineCell

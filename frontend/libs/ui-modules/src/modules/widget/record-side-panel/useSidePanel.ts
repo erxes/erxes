@@ -54,6 +54,8 @@ export interface IOpenRecordOptions {
   stack?: boolean;
   // Takes the open record's place, Back unchanged: a draft once saved.
   replace?: boolean;
+  // Opens the record on this tab instead of its default one.
+  tab?: string;
 }
 
 /**
@@ -250,7 +252,12 @@ export const useSidePanel = () => {
     }
     if (!options?.stack && !options?.replace)
       setSession((session) => session + 1);
-    navigate(nextPath, nextHistory, Boolean(options?.replace), '');
+    navigate(
+      nextPath,
+      nextHistory,
+      Boolean(options?.replace),
+      options?.tab ?? '',
+    );
   };
 
   /** Opens an entity route and starts a fresh session for a repeated top-level draft. */

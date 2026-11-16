@@ -3,16 +3,18 @@ import {
   useStagesRemove,
   useStagesSortItems,
 } from '@/deals/stage/hooks/useStages';
-import {
-  dealCreateDefaultValuesState,
-  dealCreateSheetState,
-} from '@/deals/states/dealCreateSheetState';
 import { IconArrowLeft, IconDots, IconPlus } from '@tabler/icons-react';
-import { Button, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
+import {
+  Button,
+  DropdownMenu,
+  Skeleton,
+  useConfirm,
+  useQueryState,
+} from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
 
 import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
 import { BoardDealColumn } from '@/deals/types/boards';
-import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ItemProductProbabilities } from './ItemProductProbabilities';
@@ -221,12 +223,12 @@ export const DealsBoardColumnHeader = ({
 };
 
 const DealCreateSheetTrigger = ({ stageId }: { stageId: string }) => {
-  const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
-  const setDefaultValues = useSetAtom(dealCreateDefaultValuesState);
+  const { openNewRecord } = useSidePanel();
+  const [boardId] = useQueryState<string>('boardId');
+  const [pipelineId] = useQueryState<string>('pipelineId');
 
   const handleClick = () => {
-    setDefaultValues({ stageId });
-    setOpenCreateDeal(true);
+    openNewRecord('sales:deal', { boardId, pipelineId, stageId });
   };
 
   return (
