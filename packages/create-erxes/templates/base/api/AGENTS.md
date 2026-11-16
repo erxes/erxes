@@ -29,6 +29,17 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   `@erxes/plugin-sdk`, so it exists only if the change commits. Core POSTs it
   to `/api/jobs/<name>`, which `src/server.ts` checks with `verifyCoreJob`, and
   retries until it answers 2xx. A job may run twice: key its effect by `jobId`.
+- A fact the plugin computes about a customer or company (total spent, last
+  order) is a field in the manifest's `fields` (`code`, `contentType`, `label`,
+  `type`: number, date, text, select or multiselect). Core shows it read-only
+  and members filter and save views by it. Write values with
+  `core.forOrg(orgId).fields.setPluginValues({ contentType, values })` (scope
+  `fields:write`, up to 500, `value: null` clears) after the change commits; it
+  adds nothing to the timeline and sends no event.
+- A segment (a price list's audience, a campaign's) is a shared view members
+  build in core. Store its id; `views.list({ recordType })` lists the shared
+  ones and `views.matches({ viewId, recordIds })` says which records it
+  matches now (scope `views:read`, up to 500 ids).
 - Tests: `vite-plus/test`, run with `call(procedure, input, { context: { member } })`.
   `src/test/setup.ts` gives each file its own database, owned by a role without
   BYPASSRLS, so row-level security is real in tests.

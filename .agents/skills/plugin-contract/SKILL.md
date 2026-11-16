@@ -23,6 +23,15 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
      plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
      `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`);
+   - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
+     the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
+     become read-only custom fields of each organisation that has the plugin, with `plugin` set
+     (`syncPluginFields`). The plugin writes their values quietly with `fields.setPluginValues`
+     (scope `fields:write`), and members filter, sort and save views by them; a plugin's
+     filter fields come with `group: 'plugin'` and its title in `groupLabel`. With `views:read`
+     a plugin lists the shared views (`views.list`) and asks which records one matches now
+     (`views.matches`). The field shape, the codes `PLUGIN_FIELD` and `VIEW_NOT_SHARED`, and
+     "a personal view never matches" are the contract;
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
@@ -46,7 +55,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      web or outside it; its props (`TListFilterProps`, `TListFilterField`) and
      `useListFilterParams()`'s address keys (`advanced`, `searchValue`) are the contract, and its
      `member` and `tags` fields read through the `members` and `tags` query options the plugin
-     passes. A plugin list keeps saved views by giving `ViewBar` and `ListFilter` its record type
+     passes; a field's `groupLabel` lists it under that heading. A plugin list keeps saved views by giving `ViewBar` and `ListFilter` its record type
      (`recordType="sales:deal"`): web provides the tabs and the save through `ListViewsProvider`,
      core stores the view (`views.recordType` takes `<plugin>:<record>`), and the plugin's API
      applies its filter. The prop, the address key `view` and that type's shape are the contract.
