@@ -29,13 +29,11 @@ const Chip = ({
   onOpen: () => void;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('views', { keyPrefix: 'filter' });
-
   return (
     <div className="flex h-7 items-stretch gap-px rounded bg-muted text-sm font-medium shadow-xs">
       <Filter.BarName>{name}</Filter.BarName>
       <Filter.BarButton onClick={onOpen}>{children}</Filter.BarButton>
-      <Filter.BarClose aria-label={t('remove', 'Remove filter')} onClick={onRemove} />
+      <Filter.BarClose onClick={onRemove} />
     </div>
   );
 };
