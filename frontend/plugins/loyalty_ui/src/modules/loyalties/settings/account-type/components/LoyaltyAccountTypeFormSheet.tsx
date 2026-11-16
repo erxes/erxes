@@ -43,7 +43,7 @@ export const LoyaltyAccountTypeFormSheet = ({
   onCreated?: (accountTypeId: string) => void;
 }) => {
   const { t } = useTranslation('loyalty');
-  const { form, onSubmit, isEdit, loading, cashbackPercent } =
+  const { form, onSubmit, isEdit, loading, cashbackPercent, pointValue } =
     useLoyaltyAccountTypeForm({
       accountType,
       open,
@@ -94,6 +94,7 @@ export const LoyaltyAccountTypeFormSheet = ({
                 <LoyaltyAccountTypePointsSection
                   control={control}
                   cashbackPercent={cashbackPercent}
+                  pointValue={pointValue}
                 />
               )}
               {active === 'tiers' && (

@@ -3,14 +3,14 @@ import { gql } from '~/gql';
 // Asked of loyalty, which owns the spending rules.
 export const SALES_DEAL_POINT_LIMIT = gql(`
   query SalesDealPointLimit(
-    $campaignId: String!
+    $accountTypeId: String!
     $ownerType: String!
     $ownerId: String!
     $totalAmount: Float
     $targetId: String
   ) {
     loyaltyScoreSpendLimit(
-      campaignId: $campaignId
+      accountTypeId: $accountTypeId
       ownerType: $ownerType
       ownerId: $ownerId
       totalAmount: $totalAmount

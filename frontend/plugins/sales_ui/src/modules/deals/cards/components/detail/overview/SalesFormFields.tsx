@@ -13,7 +13,7 @@ import {
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
 import { Editor, isDefined, Separator } from 'erxes-ui';
-import { useCallback, useRef, useState } from 'react';
+import { ReactNode, useCallback, useRef, useState } from 'react';
 
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
@@ -61,7 +61,33 @@ const areBrokerSelectionsEqual = (
   right: BrokerSelection,
 ) => left.id === right.id && left.type === right.type;
 
-export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
+// One labelled group of field chips in the panel layout.
+const FieldGroup = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) => (
+  <div className="flex flex-col items-start gap-2">
+    <span className="text-xs font-medium text-muted-foreground">{label}</span>
+    {children}
+  </div>
+);
+
+type TSalesFormFieldsProps = {
+  deal: IDealDetail;
+  // The deal's fields, its work (checklists, files, description), or both.
+  parts?: 'all' | 'fields' | 'work';
+  // Fields as wrapping rows (bar) or grouped one under another (panel).
+  layout?: 'bar' | 'panel';
+};
+
+export const SalesFormFields = ({
+  deal,
+  parts = 'all',
+  layout = 'bar',
+}: TSalesFormFieldsProps) => {
   const { editDeals } = useDealsContext();
   const [newChecklistId, setNewChecklistId] = useState<string>();
   const descriptionRef = useRef<string | undefined>(undefined);
@@ -142,140 +168,203 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
       ),
   });
 
-  return (
+  const stageField = <SelectDealStage deal={deal} />;
+  const startDateField = (
+    <DateSelectDeal
+      value={startDate}
+      id={_id}
+      type="startDate"
+      variant="input"
+      placeholder={t('start-date')}
+      label={t('start-date')}
+    />
+  );
+  const closeDateField = (
+    <DateSelectDeal
+      value={closeDate}
+      id={_id}
+      type="closeDate"
+      variant="input"
+      placeholder={t('close-date')}
+      label={t('close-date')}
+    />
+  );
+  const assigneesField = (
+    <DealAssigneeChip
+      value={optimisticAssignedUsers.value}
+      onValueChange={(value) =>
+        optimisticAssignedUsers.setValue(normalizeMultiValue(value))
+      }
+      placeholder={t('assigned-to')}
+    />
+  );
+  const priorityField = (
+    <SelectDealPriority dealId={_id} value={priority || ''} variant="detail" />
+  );
+  const brokerFields = (
     <>
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <SelectDealStage deal={deal} />
-          <DateSelectDeal
-            value={startDate}
-            id={_id}
-            type="startDate"
-            variant="input"
-            placeholder={t('start-date')}
-            label={t('start-date')}
-          />
-          <DateSelectDeal
-            value={closeDate}
-            id={_id}
-            type="closeDate"
-            variant="input"
-            placeholder={t('close-date')}
-            label={t('close-date')}
-          />
-          <DealAssigneeChip
-            value={optimisticAssignedUsers.value}
-            onValueChange={(value) =>
-              optimisticAssignedUsers.setValue(normalizeMultiValue(value))
-            }
-            placeholder={t('assigned-to')}
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <SelectDealPriority
-            dealId={_id}
-            value={priority || ''}
-            variant="detail"
-          />
-          {optimisticBroker.value.type === 'customer' && (
-            <DealCustomerChip
-              value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
-              onValueChange={(value) =>
-                optimisticBroker.setValue({
-                  ...optimisticBroker.value,
-                  id: normalizeSingleValue(value),
-                })
-              }
-            />
-          )}
-          {optimisticBroker.value.type === 'company' && (
-            <DealCompanyChip
-              value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
-              onValueChange={(value) =>
-                optimisticBroker.setValue({
-                  ...optimisticBroker.value,
-                  id: normalizeSingleValue(value),
-                })
-              }
-            />
-          )}
-          {optimisticBroker.value.type === 'user' && (
-            <DealAssigneeChip
-              mode="single"
-              label={t('user')}
-              value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
-              onValueChange={(value) =>
-                optimisticBroker.setValue({
-                  ...optimisticBroker.value,
-                  id: normalizeSingleValue(value),
-                })
-              }
-            />
-          )}
-          <DealBrokerTypeChip
-            value={optimisticBroker.value.type || '_none'}
-            options={[
-              { value: '_none', label: t('none') },
-              { value: 'customer', label: t('customer') },
-              { value: 'company', label: t('company') },
-              { value: 'user', label: t('user') },
-            ]}
-            onValueChange={(value) =>
-              optimisticBroker.setValue({
-                id: '',
-                type: normalizeBrokerType(value),
-              })
-            }
-          />
-          <DealBranchesChip
-            value={optimisticBranches.value}
-            onValueChange={(value) =>
-              optimisticBranches.setValue(normalizeMultiValue(value))
-            }
-          />
-          <DealDepartmentsChip
-            value={optimisticDepartments.value}
-            onValueChange={(value) =>
-              optimisticDepartments.setValue(normalizeMultiValue(value))
-            }
-          />
-          <SelectLabels.FilterBar
-            filterKey=""
-            mode="multiple"
-            variant="detail"
-            targetId={_id}
-            initialValue={
-              labels?.filter(isDefined).map((label) => label._id || '') || []
-            }
-          />
-          <DealTagsChip
-            value={optimisticTags.value}
-            showSelectedTagsOutside={false}
-            onValueChange={(value) =>
-              optimisticTags.setValue(normalizeMultiValue(value))
-            }
-          />
-          <DealContactsField
-            dealId={_id}
-            kind="customer"
-            value={deal.customers?.[0]?._id}
-            label={t('customers', 'Customers')}
-          />
-          <DealContactsField
-            dealId={_id}
-            kind="company"
-            value={deal.companies?.[0]?._id}
-            label={t('companies', 'Companies')}
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <ChecklistOverview onCreated={setNewChecklistId} />
-          <AttachmentUploader />
-        </div>
+      {optimisticBroker.value.type === 'customer' && (
+        <DealCustomerChip
+          value={optimisticBroker.value.id}
+          placeholder={t('select-broker', 'Select broker')}
+          onValueChange={(value) =>
+            optimisticBroker.setValue({
+              ...optimisticBroker.value,
+              id: normalizeSingleValue(value),
+            })
+          }
+        />
+      )}
+      {optimisticBroker.value.type === 'company' && (
+        <DealCompanyChip
+          value={optimisticBroker.value.id}
+          placeholder={t('select-broker', 'Select broker')}
+          onValueChange={(value) =>
+            optimisticBroker.setValue({
+              ...optimisticBroker.value,
+              id: normalizeSingleValue(value),
+            })
+          }
+        />
+      )}
+      {optimisticBroker.value.type === 'user' && (
+        <DealAssigneeChip
+          mode="single"
+          label={t('user')}
+          value={optimisticBroker.value.id}
+          placeholder={t('select-broker', 'Select broker')}
+          onValueChange={(value) =>
+            optimisticBroker.setValue({
+              ...optimisticBroker.value,
+              id: normalizeSingleValue(value),
+            })
+          }
+        />
+      )}
+      <DealBrokerTypeChip
+        value={optimisticBroker.value.type || '_none'}
+        options={[
+          { value: '_none', label: t('none') },
+          { value: 'customer', label: t('customer') },
+          { value: 'company', label: t('company') },
+          { value: 'user', label: t('user') },
+        ]}
+        onValueChange={(value) =>
+          optimisticBroker.setValue({
+            id: '',
+            type: normalizeBrokerType(value),
+          })
+        }
+      />
+    </>
+  );
+  const branchesField = (
+    <DealBranchesChip
+      value={optimisticBranches.value}
+      onValueChange={(value) =>
+        optimisticBranches.setValue(normalizeMultiValue(value))
+      }
+    />
+  );
+  const departmentsField = (
+    <DealDepartmentsChip
+      value={optimisticDepartments.value}
+      onValueChange={(value) =>
+        optimisticDepartments.setValue(normalizeMultiValue(value))
+      }
+    />
+  );
+  const labelsField = (
+    <SelectLabels.FilterBar
+      filterKey=""
+      mode="multiple"
+      variant="detail"
+      targetId={_id}
+      initialValue={
+        labels?.filter(isDefined).map((label) => label._id || '') || []
+      }
+    />
+  );
+  const tagsField = (
+    <DealTagsChip
+      value={optimisticTags.value}
+      showSelectedTagsOutside={false}
+      onValueChange={(value) =>
+        optimisticTags.setValue(normalizeMultiValue(value))
+      }
+    />
+  );
+  const customerField = (
+    <DealContactsField
+      dealId={_id}
+      kind="customer"
+      value={deal.customers?.[0]?._id}
+      label={t('customers', 'Customers')}
+    />
+  );
+  const companyField = (
+    <DealContactsField
+      dealId={_id}
+      kind="company"
+      value={deal.companies?.[0]?._id}
+      label={t('companies', 'Companies')}
+    />
+  );
+
+  const fields =
+    layout === 'panel' ? (
+      <div className="flex flex-col gap-4">
+        <FieldGroup label={t('stage')}>{stageField}</FieldGroup>
+        <FieldGroup label={t('deal-group-people')}>
+          {customerField}
+          {companyField}
+          {assigneesField}
+          {brokerFields}
+        </FieldGroup>
+        <FieldGroup label={t('deal-group-dates')}>
+          {startDateField}
+          {closeDateField}
+        </FieldGroup>
+        <FieldGroup label={t('deal-group-classification')}>
+          {priorityField}
+          {labelsField}
+          {tagsField}
+        </FieldGroup>
+        <FieldGroup label={t('deal-group-organization')}>
+          {branchesField}
+          {departmentsField}
+        </FieldGroup>
       </div>
+    ) : (
+      <>
+        <div className="flex flex-wrap items-center gap-2">
+          {stageField}
+          {startDateField}
+          {closeDateField}
+          {assigneesField}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {priorityField}
+          {brokerFields}
+          {branchesField}
+          {departmentsField}
+          {labelsField}
+          {tagsField}
+          {customerField}
+          {companyField}
+        </div>
+      </>
+    );
+
+  const workActions = (
+    <div className="flex flex-wrap items-center gap-2">
+      <ChecklistOverview onCreated={setNewChecklistId} />
+      <AttachmentUploader />
+    </div>
+  );
+
+  const work = (
+    <>
       <Attachments />
       <Separator className="mt-4" />
       <Checklists
@@ -303,6 +392,29 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
           className="min-h-full h-auto shadow-none"
         />
       </div>
+    </>
+  );
+
+  if (parts === 'fields') {
+    return fields;
+  }
+
+  if (parts === 'work') {
+    return (
+      <>
+        {workActions}
+        {work}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-2">
+        {fields}
+        {workActions}
+      </div>
+      {work}
     </>
   );
 };

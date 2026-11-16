@@ -33,6 +33,18 @@ export const types = `
     segmentId: String
   }
 
+  type LoyaltySpendRules {
+    minBalance: Float
+    maxShare: Float
+    step: Float
+  }
+
+  input LoyaltySpendRulesInput {
+    minBalance: Float
+    maxShare: Float
+    step: Float
+  }
+
   type LoyaltyAccountTypeExpiry {
     mode: String!
     months: Int
@@ -54,6 +66,7 @@ export const types = `
     pendingDays: Int
     currencyRatio: Float
     pointValue: Float
+    spendRules: LoyaltySpendRules
     earnEligibility: LoyaltyEarnEligibility
     fieldId: String
     tierFieldId: String
@@ -150,8 +163,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  loyaltyAccountTypeAdd(name: String!, ownerType: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float, earnEligibility: LoyaltyEarnEligibilityInput): LoyaltyAccountType
-  loyaltyAccountTypeEdit(_id: String!, name: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float, earnEligibility: LoyaltyEarnEligibilityInput): LoyaltyAccountType
+  loyaltyAccountTypeAdd(name: String!, ownerType: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float, spendRules: LoyaltySpendRulesInput, earnEligibility: LoyaltyEarnEligibilityInput): LoyaltyAccountType
+  loyaltyAccountTypeEdit(_id: String!, name: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float, spendRules: LoyaltySpendRulesInput, earnEligibility: LoyaltyEarnEligibilityInput): LoyaltyAccountType
   loyaltyAccountTypeArchive(_id: String!): LoyaltyAccountType
   loyaltyAccountTypeUnarchive(_id: String!): LoyaltyAccountType
   loyaltyAccountTypesAdoptCampaignFields: LoyaltyAccountTypeAdoptionResult

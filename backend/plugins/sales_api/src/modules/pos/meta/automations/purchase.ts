@@ -1,9 +1,13 @@
 import { IModels } from '~/connectionResolvers';
 import { IPosOrder } from '~/modules/pos/@types/orders';
+import {
+  pointsPaidAmount,
+  stampWalletPaidAmounts,
+} from '~/modules/sales/utils/walletPayments';
 
 /**
- * What was paid with money rather than points: the POS marks its point
- * payment types with a score campaign.
+ * What was paid with money rather than points: lines paid from a loyalty
+ * wallet carry it (older orders take it from the POS's wallet rows).
  */
 export const posOrderPaidAmount = async (
   models: IModels,
@@ -15,14 +19,9 @@ export const posOrderPaidAmount = async (
         { paymentTypes: 1 },
       ).lean()
     : null;
-  const pointPaymentTypes = new Set(
-    (pos?.paymentTypes || [])
-      .filter(({ scoreCampaignId }) => !!scoreCampaignId)
-      .map(({ type }) => type),
+  const pointsPaid = pointsPaidAmount(
+    stampWalletPaidAmounts(order.paidAmounts, pos?.paymentTypes) || [],
   );
-  const pointsPaid = (order.paidAmounts || [])
-    .filter(({ type }) => pointPaymentTypes.has(type))
-    .reduce((sum, { amount }) => sum + (Number(amount) || 0), 0);
 
   return Math.max(0, (Number(order.totalAmount) || 0) - pointsPaid);
 };

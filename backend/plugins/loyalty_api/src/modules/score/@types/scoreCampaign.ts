@@ -3,23 +3,12 @@ import { Document } from 'mongoose';
 import { ICommonCampaignDocument } from '~/utils';
 import { IEarnTable, TScoreSkip } from '@/score/@types/earnTable';
 
-// Limits on paying with points, checked by loyalty for every channel.
-export interface ISpendRules {
-  minBalance?: number;
-  // Highest share of the order, in percent, that points may pay.
-  maxShare?: number;
-  // Points are spent only in multiples of this.
-  step?: number;
-}
-
-
 export interface IScoreCampaign {
   title: string;
   description: string;
   order?: number;
-  // Earning: a table of rows. Spending: rules on paying with points.
+  // Earning only; spending is the wallet's (`spendRules` on the account type).
   add?: { table?: IEarnTable };
-  subtract?: { rules?: ISpendRules };
   createdUserId: string;
   // Derived from the account type; never accepted from clients.
   ownerType?: string;

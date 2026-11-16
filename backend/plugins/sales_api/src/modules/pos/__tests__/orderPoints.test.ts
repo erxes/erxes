@@ -8,7 +8,7 @@ const buildModels = (earnScoreCampaignId?: string, earnTier?: unknown) =>
       findOne: () => ({
         lean: async () => ({
           token: 'pos-token',
-          paymentTypes: [{ type: 'points', scoreCampaignId: 'c1' }],
+          paymentTypes: [{ type: 'points', accountTypeId: 'w1' }],
           earnScoreCampaignId,
           earnTier,
         }),

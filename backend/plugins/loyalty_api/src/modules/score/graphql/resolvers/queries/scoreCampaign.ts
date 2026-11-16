@@ -177,7 +177,7 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
   async loyaltyScoreSpendLimit(
     _root: undefined,
     args: {
-      campaignId: string;
+      accountTypeId: string;
       ownerType: string;
       ownerId: string;
       totalAmount?: number;

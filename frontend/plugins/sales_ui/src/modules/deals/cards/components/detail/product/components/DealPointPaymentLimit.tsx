@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useDealPointLimit } from '../hooks/payment/useDealPointLimit';
 
 /**
- * Under a payment type that pays with points: who pays, how much they may,
+ * Under a payment type that pays from a loyalty wallet: who pays, how much they may,
  * or why they cannot. The limit goes back up so the row can enforce it.
  */
 export const DealPointPaymentLimit = ({
@@ -21,19 +21,28 @@ export const DealPointPaymentLimit = ({
   onLimit: (type: string, maxAmount: number, unavailable: boolean) => void;
 }) => {
   const { t } = useTranslation('sales');
-  const { limit, loading, error } = useDealPointLimit({
-    campaignId: paymentType.scoreCampaignId,
+  const { enabled, limit, loading, error } = useDealPointLimit({
+    accountTypeId: paymentType.accountTypeId,
     customerId,
     dealId,
     totalAmount,
   });
 
-  const unavailable = !customerId || loading || !!error || !!limit?.blocked;
+  const unavailable =
+    !enabled || !customerId || loading || !!error || !!limit?.blocked;
   const maxAmount = limit?.maxAmount ?? 0;
 
   useEffect(() => {
     onLimit(paymentType.type, maxAmount, unavailable);
   }, [maxAmount, onLimit, paymentType.type, unavailable]);
+
+  if (!enabled) {
+    return (
+      <span className="text-xs text-muted-foreground">
+        {t('points-loyalty-disabled')}
+      </span>
+    );
+  }
 
   if (!customerId) {
     return (

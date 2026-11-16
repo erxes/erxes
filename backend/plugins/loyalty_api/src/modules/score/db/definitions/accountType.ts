@@ -58,6 +58,20 @@ const loyaltyEarnEligibilitySchema = new Schema(
   { _id: false },
 );
 
+const loyaltySpendRulesSchema = new Schema(
+  {
+    minBalance: { type: Number, min: 0, label: 'Balance needed to spend' },
+    maxShare: {
+      type: Number,
+      min: 0,
+      max: 100,
+      label: 'Largest share of an order, %',
+    },
+    step: { type: Number, min: 0, label: 'Points spent in multiples of' },
+  },
+  { _id: false },
+);
+
 export const loyaltyAccountTypeSchema = new Schema(
   {
     _id: mongooseStringRandomId,
@@ -91,6 +105,7 @@ export const loyaltyAccountTypeSchema = new Schema(
       default: 1,
       label: 'Money a point pays',
     },
+    spendRules: { type: loyaltySpendRulesSchema, label: 'Spending rules' },
     earnEligibility: {
       type: loyaltyEarnEligibilitySchema,
       label: 'Who may earn',

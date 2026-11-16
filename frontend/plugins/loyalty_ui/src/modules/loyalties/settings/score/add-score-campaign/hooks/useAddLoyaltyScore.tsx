@@ -1,4 +1,3 @@
-import { toSubtractInput } from '../../utils/spendRulesForm';
 import { toAddInput } from '../../utils/earnTableForm';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
@@ -27,7 +26,6 @@ export interface AddScoreCampaignVariables {
     discountCheck?: boolean;
   };
   add?: ReturnType<typeof toAddInput>;
-  subtract?: ReturnType<typeof toSubtractInput>;
   accountTypeId?: string;
   status?: string;
 }

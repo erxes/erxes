@@ -11,6 +11,7 @@ import {
   TEarnRulePreview,
   TEarnRulesPreviewInput,
 } from '@/score/@types/purchase';
+import { ILoyaltyAccountTypeDocument } from '@/score/@types/accountType';
 import { IScoreLogDocument } from '@/score/@types/scoreLog';
 import { SCORE_ACTION, SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
 import { scoreCampaignSchema } from '@/score/db/definitions/scoreCampaign';
@@ -53,13 +54,18 @@ import {
 import {
   checkSpendRules,
   maxSpendMoney,
-  normalizeSpendRules,
   TSpendBlock,
 } from '@/score/services/spendRules';
 
 type TSpendLimitInput = Pick<
   ISpendInput,
-  'ownerType' | 'ownerId' | 'campaignId' | 'totalAmount' | 'targetId'
+  'ownerType' | 'ownerId' | 'accountTypeId' | 'totalAmount' | 'targetId'
+>;
+
+// The wallet a payment with points comes from.
+type TSpendWallet = Pick<
+  ILoyaltyAccountTypeDocument,
+  '_id' | 'fieldId' | 'pointValue' | 'spendRules'
 >;
 
 /** What an order may pay with points, for the paying screen to show. */
@@ -93,6 +99,7 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   checkSpend(input: ISpendInput): Promise<boolean>;
   spendLimit(input: TSpendLimitInput): Promise<TSpendLimit>;
   spend(input: ISpendInput): Promise<IScoreLogDocument | null>;
+  walletOfCampaign(campaignId: string): Promise<string>;
   earn(
     input: IEarnInput,
     onSkip?: (skips: TScoreSkip[]) => void,
@@ -143,9 +150,6 @@ const withNormalizedModes = (doc: IScoreCampaign): IScoreCampaign => ({
           ),
         },
       }
-    : {}),
-  ...(doc.subtract
-    ? { subtract: { rules: normalizeSpendRules(doc.subtract.rules) } }
     : {}),
 });
 
@@ -205,14 +209,14 @@ const earnedOnTarget = async ({
   );
 };
 
-// Points a payment with points costs under the campaign's spending rules,
+// Points a payment with points costs under the wallet's spending rules,
 // as a negative change. `alreadySpent` is what this order took before, so a
 // recalculated order is checked against the balance it started from; what
 // the order itself earned is not spendable on it.
 const spendByRules = async ({
   models,
   subdomain,
-  campaign,
+  wallet,
   pointsPaymentAmount,
   totalAmount,
   owner,
@@ -223,7 +227,7 @@ const spendByRules = async ({
 }: {
   models: IModels;
   subdomain: string;
-  campaign: IScoreCampaignDocument;
+  wallet: TSpendWallet;
   pointsPaymentAmount: number;
   totalAmount: number;
   owner: ScoreOwner;
@@ -232,19 +236,13 @@ const spendByRules = async ({
   alreadySpent: number;
   targetId?: string;
 }) => {
-  const [accountType, balance, earnedHere] = await Promise.all([
-    campaign.accountTypeId
-      ? models.LoyaltyAccountTypes.findOne(
-          { _id: campaign.accountTypeId },
-          { pointValue: 1 },
-        ).lean()
-      : Promise.resolve(null),
+  const [balance, earnedHere] = await Promise.all([
     getOwnerBalance({
       models,
       subdomain,
       ownerType,
       ownerId,
-      fieldId: campaign.fieldId,
+      fieldId: wallet.fieldId,
       owner,
     }),
     earnedOnTarget({
@@ -252,15 +250,15 @@ const spendByRules = async ({
       targetId,
       ownerType,
       ownerId,
-      accountTypeId: campaign.accountTypeId,
+      accountTypeId: wallet._id,
     }),
   ]);
 
   return -checkSpendRules({
-    rules: campaign.subtract?.rules || {},
+    rules: wallet.spendRules || {},
     paidMoney: Number(pointsPaymentAmount) || 0,
     orderTotal: Number(totalAmount) || 0,
-    pointValue: Number(accountType?.pointValue) || 1,
+    pointValue: Number(wallet.pointValue) || 1,
     balance: Math.max(0, balance + alreadySpent - earnedHere),
   });
 };
@@ -270,14 +268,15 @@ const findActiveScoreLog = async ({
   targetId,
   ownerId,
   ownerType,
-  campaignId,
+  key,
   action,
 }: {
   models: IModels;
   targetId?: string;
   ownerId: string;
   ownerType: string;
-  campaignId: string;
+  // Earnings stand per campaign, payments with points per wallet.
+  key: { campaignId: string } | { accountTypeId: string };
   action: 'add' | 'subtract';
 }) => {
   if (!targetId) {
@@ -288,7 +287,7 @@ const findActiveScoreLog = async ({
     targetId,
     ownerId,
     ownerType,
-    campaignId,
+    ...key,
     action,
   }).sort({ createdAt: -1 });
 
@@ -297,7 +296,6 @@ const findActiveScoreLog = async ({
       targetId,
       ownerId,
       ownerType,
-      campaignId,
       action: { $in: ['refund', 'return'] },
       sourceScoreLogId: scoreLog._id,
     });
@@ -358,6 +356,58 @@ export const loadScoreCampaignClass = (
 
     return { campaign, owner };
   };
+
+  // The wallet a payment with points comes from, and the owner paying.
+  const loadWalletOwner = async ({
+    ownerType,
+    ownerId,
+    accountTypeId,
+  }: {
+    ownerType: string;
+    ownerId: string;
+    accountTypeId: string;
+  }) => {
+    if (!ownerType || !ownerId) {
+      throw new Error('You must provide a owner');
+    }
+
+    const [owner, wallet] = await Promise.all([
+      getLoyaltyOwner(subdomain, { ownerType, ownerId }),
+      models.LoyaltyAccountTypes.findOne(
+        { _id: accountTypeId },
+        { fieldId: 1, pointValue: 1, spendRules: 1, ownerType: 1 },
+      ).lean(),
+    ]);
+
+    if (!owner) {
+      throw new Error('Owner not found');
+    }
+
+    if (!wallet) {
+      throw new Error('Loyalty wallet not found');
+    }
+
+    if (wallet.ownerType !== ownerType) {
+      throw new Error('Owner type is not the same as the wallet owner type');
+    }
+
+    return { wallet: wallet as TSpendWallet, owner };
+  };
+
+  const findActiveSpend = (
+    input: Pick<
+      ISpendInput,
+      'targetId' | 'ownerType' | 'ownerId' | 'accountTypeId'
+    >,
+  ) =>
+    findActiveScoreLog({
+      models,
+      targetId: input.targetId,
+      ownerId: input.ownerId,
+      ownerType: input.ownerType,
+      key: { accountTypeId: input.accountTypeId },
+      action: 'subtract',
+    });
 
   // The items a campaign's own product restrictions let count.
   const buildPurchaseProductScope = async (
@@ -430,8 +480,8 @@ export const loadScoreCampaignClass = (
    * reversed and replaced when the purchase is recalculated, taken back
    * when it comes to nothing.
    */
-  const writeCampaignChange = async ({
-    campaign,
+  const writeStandingChange = async ({
+    source,
     owner,
     input,
     action,
@@ -439,7 +489,8 @@ export const loadScoreCampaignClass = (
     breakdown,
     activeScoreLog,
   }: {
-    campaign: IScoreCampaignDocument;
+    // A campaign's earning, or a payment from a wallet (no campaign).
+    source: { campaignId?: string; fieldId?: string };
     owner: ScoreOwner;
     input: ILoyaltyScoreSource & { ownerType: string; ownerId: string };
     action: 'add' | 'subtract';
@@ -464,7 +515,10 @@ export const loadScoreCampaignClass = (
           sourceScoreLogId: activeScoreLog._id,
           netTargetAddsForSubtract: false,
           createdBy: input.actorId,
-          description: 'Purchase no longer earns from this campaign',
+          description:
+            action === SCORE_ACTION.ADD
+              ? 'Purchase no longer earns from this campaign'
+              : 'Purchase no longer pays with points',
         },
       });
 
@@ -479,8 +533,8 @@ export const loadScoreCampaignClass = (
           owner,
           ownerId,
           ownerType,
-          campaignId: campaign._id,
-          fieldId: campaign.fieldId,
+          campaignId: source.campaignId,
+          fieldId: source.fieldId,
           serviceName: input.serviceName,
           targetId,
           targetType: input.targetType,
@@ -517,7 +571,7 @@ export const loadScoreCampaignClass = (
       ownerType,
       ownerId,
       owner,
-      fieldId: campaign.fieldId,
+      fieldId: source.fieldId,
       change: difference,
       absolute: false,
       logId: replacementId,
@@ -534,7 +588,7 @@ export const loadScoreCampaignClass = (
     const entry = {
       ownerType,
       ownerId,
-      campaignId: campaign._id,
+      campaignId: source.campaignId,
       accountTypeId: balance.accountType?._id || activeScoreLog.accountTypeId,
       accountId: balance.accountId || activeScoreLog.accountId,
       serviceName: activeScoreLog.serviceName,
@@ -710,20 +764,13 @@ export const loadScoreCampaignClass = (
     }
 
     public static async checkSpend(input: ISpendInput) {
-      const { campaign, owner } = await loadCampaignOwner(input);
-      const activeScoreLog = await findActiveScoreLog({
-        models,
-        targetId: input.targetId,
-        ownerId: input.ownerId,
-        ownerType: input.ownerType,
-        campaignId: campaign._id,
-        action: 'subtract',
-      });
+      const { wallet, owner } = await loadWalletOwner(input);
+      const activeScoreLog = await findActiveSpend(input);
 
       await spendByRules({
         models,
         subdomain,
-        campaign,
+        wallet,
         pointsPaymentAmount: input.pointsPaymentAmount,
         totalAmount: input.totalAmount,
         owner,
@@ -743,47 +790,32 @@ export const loadScoreCampaignClass = (
      * as available, so an order being edited can keep it.
      */
     public static async spendLimit(input: TSpendLimitInput) {
-      const { campaign, owner } = await loadCampaignOwner(input);
-      const [activeScoreLog, accountType, balance, account] = await Promise.all(
-        [
-          findActiveScoreLog({
-            models,
-            targetId: input.targetId,
-            ownerId: input.ownerId,
-            ownerType: input.ownerType,
-            campaignId: campaign._id,
-            action: 'subtract',
-          }),
-          campaign.accountTypeId
-            ? models.LoyaltyAccountTypes.findOne(
-                { _id: campaign.accountTypeId },
-                { pointValue: 1 },
-              ).lean()
-            : Promise.resolve(null),
-          getOwnerBalance({
-            models,
-            subdomain,
-            ownerType: input.ownerType,
-            ownerId: input.ownerId,
-            fieldId: campaign.fieldId,
-            owner,
-          }),
-          models.LoyaltyAccounts.findOne(
-            { ownerType: input.ownerType, ownerId: input.ownerId },
-            { status: 1 },
-          ).lean(),
-        ],
-      );
+      const { wallet, owner } = await loadWalletOwner(input);
+      const [activeScoreLog, balance, account, earnedHere] = await Promise.all([
+        findActiveSpend(input),
+        getOwnerBalance({
+          models,
+          subdomain,
+          ownerType: input.ownerType,
+          ownerId: input.ownerId,
+          fieldId: wallet.fieldId,
+          owner,
+        }),
+        models.LoyaltyAccounts.findOne(
+          { ownerType: input.ownerType, ownerId: input.ownerId },
+          { status: 1 },
+        ).lean(),
+        earnedOnTarget({
+          models,
+          targetId: input.targetId,
+          ownerType: input.ownerType,
+          ownerId: input.ownerId,
+          accountTypeId: wallet._id,
+        }),
+      ]);
 
-      const earnedHere = await earnedOnTarget({
-        models,
-        targetId: input.targetId,
-        ownerType: input.ownerType,
-        ownerId: input.ownerId,
-        accountTypeId: campaign.accountTypeId,
-      });
-      const rules = campaign.subtract?.rules || {};
-      const pointValue = Number(accountType?.pointValue) || 1;
+      const rules = wallet.spendRules || {};
+      const pointValue = Number(wallet.pointValue) || 1;
       const available = Math.max(
         0,
         balance +
@@ -817,23 +849,16 @@ export const loadScoreCampaignClass = (
     }
 
     /**
-     * Records what a purchase paid with points. The amount is the whole of
+     * Records what a purchase paid from a wallet. The amount is the whole of
      * it, so sending it again after an edit moves only the difference.
      */
     public static async spend(input: ISpendInput) {
-      const { campaign, owner } = await loadCampaignOwner(input);
-      const activeScoreLog = await findActiveScoreLog({
-        models,
-        targetId: input.targetId,
-        ownerId: input.ownerId,
-        ownerType: input.ownerType,
-        campaignId: campaign._id,
-        action: 'subtract',
-      });
+      const { wallet, owner } = await loadWalletOwner(input);
+      const activeScoreLog = await findActiveSpend(input);
       const changeScore = await spendByRules({
         models,
         subdomain,
-        campaign,
+        wallet,
         pointsPaymentAmount: input.pointsPaymentAmount,
         totalAmount: input.totalAmount,
         owner,
@@ -845,14 +870,37 @@ export const loadScoreCampaignClass = (
         targetId: input.targetId,
       });
 
-      return writeCampaignChange({
-        campaign,
+      return writeStandingChange({
+        source: { fieldId: wallet.fieldId },
         owner,
         input,
         action: 'subtract',
         changeScore,
         activeScoreLog,
       });
+    }
+
+    /**
+     * Older selling channels name the campaign they pay through; its wallet
+     * is the one paid from.
+     */
+    public static async walletOfCampaign(campaignId: string) {
+      const campaign = await models.ScoreCampaigns.findOne(
+        { _id: campaignId },
+        { accountTypeId: 1, title: 1 },
+      ).lean();
+
+      if (!campaign) {
+        throw new Error('Campaign not found');
+      }
+
+      if (!campaign.accountTypeId) {
+        throw new Error(
+          `Score campaign "${campaign.title}" has no wallet; give it one to pay with its points`,
+        );
+      }
+
+      return campaign.accountTypeId;
     }
 
     /**
@@ -990,7 +1038,7 @@ export const loadScoreCampaignClass = (
         targetId: input.targetId,
         ownerId: input.ownerId,
         ownerType: input.ownerType,
-        campaignId: campaign._id,
+        key: { campaignId: campaign._id },
         action: 'add',
       });
       const { earned, skips } = await evaluatePurchase(
@@ -1028,8 +1076,8 @@ export const loadScoreCampaignClass = (
         return null;
       }
 
-      return writeCampaignChange({
-        campaign,
+      return writeStandingChange({
+        source: { campaignId: campaign._id, fieldId: campaign.fieldId },
         owner,
         input,
         action: 'add',

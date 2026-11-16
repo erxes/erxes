@@ -13,6 +13,7 @@ import {
   ILoyaltyAccountTypeExpiry,
   ILoyaltyEarnEligibility,
   ILoyaltyAccountTypeReset,
+  ILoyaltySpendRules,
   TLoyaltyFrozenBlocks,
   TLoyaltyOwnerType,
 } from '../types';
@@ -26,6 +27,7 @@ type TLoyaltyAccountTypeSettings = {
   pendingDays: number;
   currencyRatio: number;
   pointValue: number;
+  spendRules: ILoyaltySpendRules;
   earnEligibility: ILoyaltyEarnEligibility;
 };
 

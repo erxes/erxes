@@ -7,6 +7,8 @@ export interface IPaidAmount {
   type: string;
   amount: number;
   info?: any;
+  // The loyalty wallet this line paid from; set by the server only.
+  accountTypeId?: string;
 }
 
 export interface IMobileAmount {

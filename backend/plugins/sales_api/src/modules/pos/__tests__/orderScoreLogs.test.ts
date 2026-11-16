@@ -18,7 +18,7 @@ describe('POS orders link the loyalty entries they cause', () => {
   const models = {
     Pos: {
       findOne: () =>
-        lean({ paymentTypes: [{ type: 'points', scoreCampaignId: 'c1' }] }),
+        lean({ paymentTypes: [{ type: 'points', accountTypeId: 'w1' }] }),
     },
     PosOrders: { addScoreLogs },
   } as never;

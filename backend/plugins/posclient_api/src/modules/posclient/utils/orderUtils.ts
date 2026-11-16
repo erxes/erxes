@@ -740,75 +740,89 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
   }
 };
 
-export const checkScoreAviableSubtractScoreCampaign = async (
-  subdomain: string,
-  models: IModels,
-  order: IOrderDocument,
-  paidAmounts?: IPaidAmount[],
-) => {
-  if (!paidAmounts?.length) {
-    return;
-  }
+type TPaymentRow = {
+  type?: string;
+  title?: string;
+  accountTypeId?: string;
+  scoreCampaignId?: string;
+};
 
-  const config = await models.Configs.findOne({
-    paymentTypes: {
-      $elemMatch: {
-        type: { $in: paidAmounts.map(({ type }) => type) },
-        scoreCampaignId: { $exists: true },
-      },
-    },
-    token: order.posToken,
+/**
+ * Payment lines with the wallet each one pays from, taken from the POS's
+ * wallet rows. Whatever a client sent is replaced.
+ */
+export const stampWalletPaidAmounts = (
+  paidAmounts: IPaidAmount[] | undefined,
+  paymentTypes: TPaymentRow[] = [],
+) =>
+  (paidAmounts || []).map((sent) => {
+    const line: IPaidAmount = { ...sent };
+    const accountTypeId = paymentTypes.find(
+      (row) => row.type === line.type && row.accountTypeId,
+    )?.accountTypeId;
+
+    delete line.accountTypeId;
+
+    return accountTypeId ? { ...line, accountTypeId } : line;
   });
 
-  if (!config) {
-    return;
+/**
+ * Asks loyalty, before a payment is taken, whether each wallet paid from
+ * allows it. A POS config synced before wallets names a score campaign;
+ * loyalty pays from that campaign's wallet.
+ */
+export const checkPointPayments = async (
+  subdomain: string,
+  order: IOrderDocument,
+  paidAmounts: IPaidAmount[],
+  paymentTypes: TPaymentRow[] = [],
+) => {
+  const sums = new Map<
+    string,
+    { key: { accountTypeId: string } | { campaignId: string }; title?: string; amount: number }
+  >();
+
+  for (const line of paidAmounts) {
+    const row = paymentTypes.find(({ type }) => type === line.type);
+    const accountTypeId = line.accountTypeId || row?.accountTypeId;
+    const key = accountTypeId
+      ? { accountTypeId }
+      : row?.scoreCampaignId
+      ? { campaignId: row.scoreCampaignId }
+      : null;
+
+    if (!key) {
+      continue;
+    }
+
+    const id = Object.values(key)[0];
+    const sum = sums.get(id) || { key, title: row?.title, amount: 0 };
+
+    sum.amount += Number(line.amount) || 0;
+    sums.set(id, sum);
   }
 
-  const { paymentTypes = [] } = config;
-
-  for (const { type } of paidAmounts || []) {
-    const paymentType = paymentTypes.find(
-      (paymentType) =>
-        paymentType.type === type && !!paymentType.scoreCampaignId,
-    );
-
-    if (paymentType) {
-      const { scoreCampaignId, title } = paymentType || {};
-
-      if (!scoreCampaignId) {
-        continue;
-      }
-
-      const pointsPaymentAmount = paidAmounts
-        .filter((paidAmount) => paidAmount.type === type)
-        .reduce((sum, { amount }) => sum + (Number(amount) || 0), 0);
-
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'loyalty',
-        module: 'score',
-        action: 'checkSpend',
-        input: {
-          ownerType: order.customerType || 'customer',
-          ownerId: order.customerId,
-          campaignId: scoreCampaignId,
-          targetId: order._id,
-          targetType: 'sales:pos.orders',
-          serviceName: 'pos',
-          pointsPaymentAmount,
-          totalAmount: Number(order.totalAmount) || 0,
-        },
-        // Swallowed, a refusal would let the order pay with points it lacks.
-        throwOnError: true,
-      }).catch((error) => {
-        if (error.message === 'There has no enough score to subtract') {
-          throw new Error(
-            `There has no enough score to subtract using ${title}`,
-          );
-        }
-        throw new Error(error.message);
-      });
-    }
+  for (const { key, title, amount } of sums.values()) {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'score',
+      action: 'checkSpend',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: order.customerId,
+        ...key,
+        targetId: order._id,
+        targetType: 'sales:pos.orders',
+        serviceName: 'pos',
+        pointsPaymentAmount: amount,
+        totalAmount: Number(order.totalAmount) || 0,
+      },
+      // Swallowed, a refusal would let the order pay with points it lacks.
+      throwOnError: true,
+    }).catch((error) => {
+      throw new Error(title ? `${title}: ${error.message}` : error.message);
+    });
   }
 };
 

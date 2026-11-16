@@ -27,7 +27,12 @@ const SECTION_HAS_ERROR: Record<
       errors.earnEligibility
     ),
   points: (errors) =>
-    !!(errors.currencyRatio || errors.pointValue || errors.pendingDays),
+    !!(
+      errors.currencyRatio ||
+      errors.pointValue ||
+      errors.spendRules ||
+      errors.pendingDays
+    ),
   tiers: (errors) => !!errors.tiers,
   expiry: (errors) => !!(errors.expiry || errors.reset),
 };

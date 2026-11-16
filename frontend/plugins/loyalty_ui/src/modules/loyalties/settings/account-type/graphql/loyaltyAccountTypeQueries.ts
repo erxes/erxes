@@ -23,6 +23,11 @@ export const LOYALTY_ACCOUNT_TYPE_FIELDS = gql`
     pendingDays
     currencyRatio
     pointValue
+    spendRules {
+      minBalance
+      maxShare
+      step
+    }
     earnEligibility {
       who
       segmentId

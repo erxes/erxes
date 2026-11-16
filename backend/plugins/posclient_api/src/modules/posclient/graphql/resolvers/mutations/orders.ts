@@ -13,7 +13,8 @@ import {
   checkCouponCode,
   checkOrderAmount,
   checkOrderStatus,
-  checkScoreAviableSubtractScoreCampaign,
+  checkPointPayments,
+  stampWalletPaidAmounts,
   cleanOrderItems,
   generateOrderNumber,
   getTotalAmount,
@@ -1085,15 +1086,20 @@ const orderMutations: Record<string, Resolver> = {
 
     checkOrderStatus(order);
     checkOrderAmount(order, amount);
-    await checkScoreAviableSubtractScoreCampaign(
-      subdomain,
-      models,
-      order,
+    const walletPaidAmounts = stampWalletPaidAmounts(
       paidAmounts,
+      config.paymentTypes,
+    );
+
+    await checkPointPayments(
+      subdomain,
+      order,
+      walletPaidAmounts,
+      config.paymentTypes,
     );
     await checkCouponCode({ subdomain, order });
 
-    const modifier = buildAddPaymentModifier(cashAmount, paidAmounts);
+    const modifier = buildAddPaymentModifier(cashAmount, walletPaidAmounts);
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
@@ -1154,15 +1160,20 @@ const orderMutations: Record<string, Resolver> = {
 
     checkOrderStatus(order);
     checkOrderAmount(order, amount);
-    await checkScoreAviableSubtractScoreCampaign(
-      subdomain,
-      models,
-      order,
+    const walletPaidAmounts = stampWalletPaidAmounts(
       paidAmounts,
+      config.paymentTypes,
+    );
+
+    await checkPointPayments(
+      subdomain,
+      order,
+      walletPaidAmounts,
+      config.paymentTypes,
     );
     await checkCouponCode({ subdomain, order });
 
-    const modifier = buildAddPaymentModifier(cashAmount, paidAmounts);
+    const modifier = buildAddPaymentModifier(cashAmount, walletPaidAmounts);
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 

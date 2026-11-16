@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { LoyaltyAccountTypeFormSheet } from '../../../account-type/components/LoyaltyAccountTypeFormSheet';
 import { SelectLoyaltyAccountType } from '../../../account-type/components/SelectLoyaltyAccountType';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
-import { ScoreCampaignActionTabs } from './ScoreCampaignActionTabs';
+import { EarnTableEditor } from './earn-table/EarnTableEditor';
 
 export const ScoreCampaignGeneralSection = ({
   form,
@@ -106,7 +106,7 @@ export const ScoreCampaignGeneralSection = ({
           )}
         />
       </div>
-      <ScoreCampaignActionTabs form={form} />
+      <EarnTableEditor form={form} />
     </div>
   );
 };

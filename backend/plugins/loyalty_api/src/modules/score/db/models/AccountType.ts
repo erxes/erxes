@@ -25,6 +25,7 @@ import { customAlphabet } from 'nanoid';
 import { getLotExpiry } from '@/score/services/lotPolicy';
 import { syncPeriodSchedule } from '@/score/services/periodSchedule';
 import { earnEligibilityIssue } from '@/score/services/earnEligibility';
+import { normalizeSpendRules } from '@/score/services/spendRules';
 import { IModels } from '~/connectionResolvers';
 
 const generateTierKey = customAlphabet(
@@ -42,6 +43,7 @@ type TAccountTypeUpdate = Pick<
   | 'pendingDays'
   | 'currencyRatio'
   | 'pointValue'
+  | 'spendRules'
   | 'earnEligibility'
 >;
 
@@ -282,6 +284,7 @@ export const loadLoyaltyAccountTypeClass = (
           undefined,
           'Money a point pays',
         ),
+        spendRules: normalizeSpendRules(doc.spendRules),
         createdUserId: user?._id,
       });
 
@@ -323,6 +326,7 @@ export const loadLoyaltyAccountTypeClass = (
         pendingDays,
         currencyRatio,
         pointValue,
+        spendRules,
         earnEligibility,
       }: TAccountTypeUpdate,
     ) {
@@ -363,6 +367,9 @@ export const loadLoyaltyAccountTypeClass = (
               prev.pointValue,
               'Money a point pays',
             ),
+            ...(spendRules
+              ? { spendRules: normalizeSpendRules(spendRules) }
+              : {}),
             ...(frozenBlocks ? { frozenBlocks } : {}),
             ...(earnEligibility
               ? {

@@ -9,7 +9,7 @@ export type PayInfo = {
   hasPopup: boolean;
   validQr: boolean;
   scoreOwnerId?: string;
-  scoreCampaignId?: string;
+  accountTypeId?: string;
 };
 
 /** Keeps configured payment types visible while a save returns partial data. */
@@ -28,13 +28,13 @@ export const updatePayInfoForScore = (
   unavailable: boolean,
   requiresQr: boolean,
   scoreOwnerId: string,
-  scoreCampaignId: string,
+  accountTypeId: string,
 ): Record<string, PayInfo> => {
   const current = previous[type];
   const validQr = Boolean(
     current?.validQr &&
       current.scoreOwnerId === scoreOwnerId &&
-      current.scoreCampaignId === scoreCampaignId,
+      current.accountTypeId === accountTypeId,
   );
   const maxVal = unavailable || (requiresQr && !validQr) ? 0 : limit;
 
@@ -45,7 +45,7 @@ export const updatePayInfoForScore = (
     maxVal,
     validQr,
     scoreOwnerId,
-    scoreCampaignId,
+    accountTypeId,
   };
 
   if (
@@ -55,7 +55,7 @@ export const updatePayInfoForScore = (
     current.maxVal === next.maxVal &&
     current.validQr === next.validQr &&
     current.scoreOwnerId === next.scoreOwnerId &&
-    current.scoreCampaignId === next.scoreCampaignId
+    current.accountTypeId === next.accountTypeId
   ) {
     return previous;
   }

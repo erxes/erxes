@@ -20,7 +20,6 @@ export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
         description
         order
         add
-        subtract
         createdAt
         createdUserId
         status

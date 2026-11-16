@@ -166,6 +166,7 @@ export const paymentTypesSchema = z.array(
         if (typeof value === 'string') return value;
         return JSON.stringify(value);
       }),
+      accountTypeId: optionalString.transform((value) => value ?? undefined),
       scoreCampaignId: optionalString.transform((value) => value ?? undefined),
     })
     .passthrough(),

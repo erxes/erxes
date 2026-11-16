@@ -7,7 +7,6 @@ export const UPDATE_SCORE_CAMPAIGN = gql`
     $description: String
     $order: Int
     $add: JSON
-    $subtract: JSON
     $createdAt: Date
     $createdUserId: String
     $status: String
@@ -21,7 +20,6 @@ export const UPDATE_SCORE_CAMPAIGN = gql`
       description: $description
       order: $order
       add: $add
-      subtract: $subtract
       createdAt: $createdAt
       createdUserId: $createdUserId
       status: $status
@@ -34,7 +32,6 @@ export const UPDATE_SCORE_CAMPAIGN = gql`
       description
       order
       add
-      subtract
       createdAt
       createdUserId
       status

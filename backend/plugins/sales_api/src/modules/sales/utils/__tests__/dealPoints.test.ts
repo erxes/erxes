@@ -12,7 +12,7 @@ const STAGES = {
   lost: { _id: 'lost', pipelineId: 'p1', probability: 'Lost' },
 };
 
-const POINTS_PAYMENT = { type: 'points', scoreCampaignId: 'c1' };
+const POINTS_PAYMENT = { type: 'points', accountTypeId: 'w1' };
 
 const EVERY_BOARD: TLoyaltyRule = {
   _id: 'rule-board',
@@ -149,7 +149,7 @@ describe('planDealPoints — earning follows where the deal stands', () => {
     expect(result).toMatchObject({
       kind: 'sync',
       earns: [{ campaignId: 'c1', totalAmount: 80_000, paidAmount: 50_000 }],
-      spends: [{ campaignId: 'c1', pointsPaymentAmount: 30_000 }],
+      spends: [{ accountTypeId: 'w1', pointsPaymentAmount: 30_000 }],
     });
   });
 

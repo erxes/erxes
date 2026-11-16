@@ -13,7 +13,14 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
+export const SalesItemDetailHeader = ({
+  deal,
+  // A layout without the left section menu has nothing to collapse.
+  showSidebarToggle = true,
+}: {
+  deal: IDealDetail;
+  showSidebarToggle?: boolean;
+}) => {
   const { editDeals } = useDealsContext();
   const { t } = useTranslation('sales');
   const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();
@@ -57,22 +64,24 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
 
   return (
     <Sheet.Header className="gap-2 flex-row flex-wrap sm:flex-nowrap items-center space-y-0 pr-0 h-auto py-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label={
-          isSidebarOpen
-            ? t('collapse-sidebar', 'Collapse sidebar')
-            : t('expand-sidebar', 'Expand sidebar')
-        }
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        {isSidebarOpen ? (
-          <IconLayoutSidebarLeftCollapse />
-        ) : (
-          <IconLayoutSidebarLeftExpand />
-        )}
-      </Button>
+      {showSidebarToggle && (
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={
+            isSidebarOpen
+              ? t('collapse-sidebar', 'Collapse sidebar')
+              : t('expand-sidebar', 'Expand sidebar')
+          }
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          {isSidebarOpen ? (
+            <IconLayoutSidebarLeftCollapse />
+          ) : (
+            <IconLayoutSidebarLeftExpand />
+          )}
+        </Button>
+      )}
       <div className="flex flex-col flex-1 min-w-0">
         <Sheet.Title>
           <Input

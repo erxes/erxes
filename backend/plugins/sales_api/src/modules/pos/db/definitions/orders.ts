@@ -51,6 +51,8 @@ const paidAmountSchema = new Schema({
   type: { type: String },
   amount: { type: Number },
   info: { type: Object },
+  // The loyalty wallet this line paid from.
+  accountTypeId: { type: String },
 });
 
 const mobileAmountSchema = new Schema({

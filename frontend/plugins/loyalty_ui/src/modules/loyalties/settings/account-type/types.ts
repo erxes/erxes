@@ -35,6 +35,13 @@ export interface ILoyaltyEarnEligibility {
   segmentId?: string | null;
 }
 
+// Limits on paying with the wallet's points; absent means no limit.
+export interface ILoyaltySpendRules {
+  minBalance?: number | null;
+  maxShare?: number | null;
+  step?: number | null;
+}
+
 export interface ILoyaltyAccountType {
   _id: string;
   name: string;
@@ -46,6 +53,7 @@ export interface ILoyaltyAccountType {
   pendingDays?: number | null;
   currencyRatio?: number | null;
   pointValue?: number | null;
+  spendRules?: ILoyaltySpendRules | null;
   earnEligibility?: ILoyaltyEarnEligibility | null;
   fieldId?: string;
   status: TLoyaltyAccountTypeStatus;

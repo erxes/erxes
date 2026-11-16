@@ -15,6 +15,7 @@ import {
   assertBoardIsActive,
   assertPipelineIsActive,
 } from '../../utils/archiveGuard';
+import { normalizeWalletRows } from '~/modules/sales/utils/walletPayments';
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
   getPipeline(_id: string): Promise<IPipelineDocument>;
@@ -59,10 +60,13 @@ export const loadPipelineClass = (
   };
 
   const normalizePaymentTypes = (paymentTypes?: any[]) =>
-    paymentTypes?.map(({ scoreCampaign, ...paymentType }) => ({
-      ...paymentType,
-      config: normalizePaymentConfig(paymentType.config),
-    }));
+    paymentTypes &&
+    normalizeWalletRows(
+      paymentTypes.map(({ scoreCampaign, ...paymentType }) => ({
+        ...paymentType,
+        config: normalizePaymentConfig(paymentType.config),
+      })),
+    );
 
   class Pipeline {
     /** Get pipeline */

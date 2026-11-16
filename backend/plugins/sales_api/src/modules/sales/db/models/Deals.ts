@@ -16,6 +16,7 @@ import {
 import { normalizeProductDiscountInfos } from '../../utils/discountInfos';
 import { normalizeProductCurrencies } from '../../utils/productCurrency';
 import { normalizeProductUomInfo } from '../../utils/productUom';
+import { stampWalletPayments } from '../../utils/walletPayments';
 import { dealSchema } from '../definitions/deals';
 import {
   generateDealUpdateActivityLogs,
@@ -46,6 +47,21 @@ export const loadDealClass = (
   subdomain: string,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
+  // The payment rows of the pipeline a stage belongs to.
+  const stagePaymentTypes = async (stageId?: string) => {
+    const stage = stageId
+      ? await models.Stages.findOne({ _id: stageId }, { pipelineId: 1 }).lean()
+      : null;
+    const pipeline = stage
+      ? await models.Pipelines.findOne(
+          { _id: stage.pipelineId },
+          { paymentTypes: 1 },
+        ).lean()
+      : null;
+
+    return pipeline?.paymentTypes;
+  };
+
   class Deal {
     /** Get single deal */
     public static async getDeal(_id: string) {
@@ -57,6 +73,14 @@ export const loadDealClass = (
     /** Create deal */
     public static async createDeal(doc: IDeal) {
       await assertDealBoardIsActive(models, doc.stageId);
+
+      if (doc.paymentsData) {
+        doc.paymentsData = stampWalletPayments(
+          doc.paymentsData,
+          await stagePaymentTypes(doc.stageId),
+        );
+      }
+
       // Calculate totals
       if (doc.productsData) {
         doc.productsData = normalizeProductDiscountInfos(
@@ -92,6 +116,14 @@ export const loadDealClass = (
         allowRestore: true,
       });
       const prevDealObj = prevDeal.toObject();
+
+      if (doc.paymentsData) {
+        doc.paymentsData = stampWalletPayments(
+          doc.paymentsData,
+          await stagePaymentTypes(doc.stageId || prevDeal.stageId),
+          prevDealObj.paymentsData,
+        );
+      }
 
       // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);

@@ -90,6 +90,7 @@ export const posPaymentTypesSchema = z.array(
       title: text,
       icon: text,
       config: z.unknown(),
+      accountTypeId: text,
       scoreCampaignId: text,
     })
     .passthrough()

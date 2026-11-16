@@ -6,6 +6,7 @@ import { IPos, IPosDocument } from '../../@types/pos';
 import { posSchema, posSlotSchema, productGroupSchema } from '../definitions/pos';
 import { validateCustomerCreateConfig } from '../../customerCreateConfig';
 import { validateEarnTier } from '../../orderPoints';
+import { normalizeWalletRows } from '~/modules/sales/utils/walletPayments';
 
 export interface IPosModel extends Model<IPosDocument> {
   getPosList(query: any): Promise<IPosDocument>;
@@ -52,6 +53,9 @@ export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventL
       try {
         const pos = await models.Pos.create({
           ...doc,
+          ...(doc.paymentTypes
+            ? { paymentTypes: normalizeWalletRows(doc.paymentTypes) }
+            : {}),
           onServer: true,
           userId: user._id,
           createdAt: new Date(),
@@ -78,7 +82,15 @@ export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventL
 
       await models.Pos.updateOne(
         { _id },
-        { $set: { ...doc, onServer: true } },
+        {
+          $set: {
+            ...doc,
+            ...(doc.paymentTypes
+              ? { paymentTypes: normalizeWalletRows(doc.paymentTypes) }
+              : {}),
+            onServer: true,
+          },
+        },
         { runValidators: true }
       );
 

@@ -61,7 +61,8 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
 
     const validPaymentTypes = (posDetail.paymentTypes ?? [])
       .filter((payment) => !!payment._id)
-      .map(({ _id, type, title, icon, config, scoreCampaignId }) => {
+      .map(
+        ({ _id, type, title, icon, config, accountTypeId, scoreCampaignId }) => {
         let configText: string | undefined;
         if (typeof config === 'string') configText = config;
         else if (config != null) configText = JSON.stringify(config);
@@ -71,9 +72,11 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
           title: title ?? '',
           icon: icon ?? '',
           config: configText,
+          accountTypeId: accountTypeId ?? undefined,
           scoreCampaignId: scoreCampaignId ?? undefined,
         };
-      });
+        },
+      );
 
     reset({
       paymentIds: (posDetail.paymentIds ?? []).filter(isDefined),
@@ -116,7 +119,15 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
             _id: posId,
             paymentIds: data.paymentIds,
             paymentTypes: data.paymentTypes.map(
-              ({ _id, type, title, icon, config, scoreCampaignId }) => {
+              ({
+                _id,
+                type,
+                title,
+                icon,
+                config,
+                accountTypeId,
+                scoreCampaignId,
+              }) => {
                 const original = posDetail?.paymentTypes.find(
                   (payment) => payment._id === _id,
                 );
@@ -126,6 +137,10 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
                   title: restorePosPaymentText(title, original?.title),
                   icon: restorePosPaymentText(icon, original?.icon),
                   config: restorePosPaymentConfig(config, original?.config),
+                  accountTypeId: restorePosPaymentText(
+                    accountTypeId,
+                    original?.accountTypeId,
+                  ),
                   scoreCampaignId: restorePosPaymentText(
                     scoreCampaignId,
                     original?.scoreCampaignId,

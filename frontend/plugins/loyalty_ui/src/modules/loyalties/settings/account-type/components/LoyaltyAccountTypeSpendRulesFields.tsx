@@ -1,8 +1,7 @@
 import { Form, Input } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
+import { Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { LoyaltyScoreFormValues } from '../../constants/formSchema';
-import { useSpendRulesEditor } from '../hooks/useSpendRulesEditor';
+import { TLoyaltyAccountTypeFormValues } from '../hooks/useLoyaltyAccountTypeForm';
 
 const RULE_FIELDS = [
   {
@@ -14,27 +13,28 @@ const RULE_FIELDS = [
   { name: 'step', labelKey: 'spend-step', suffixKey: 'earn-points-suffix' },
 ] as const;
 
-export const SpendRulesEditor = ({
-  form,
+// `control` is passed in: the plugin's react-hook-form copy cannot read the
+// context erxes-ui's Form provides.
+export const LoyaltyAccountTypeSpendRulesFields = ({
+  control,
+  pointValue = 1,
 }: {
-  form: UseFormReturn<LoyaltyScoreFormValues>;
+  control: Control<TLoyaltyAccountTypeFormValues>;
+  pointValue?: number;
 }) => {
   const { t } = useTranslation('loyalty');
-  const { pointValue } = useSpendRulesEditor(form);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 border-t pt-4">
       <p className="text-xs text-muted-foreground">
-        {t('spend-rules-hint', {
-          value: Number(pointValue).toLocaleString(),
-        })}
+        {t('spend-rules-hint', { value: pointValue.toLocaleString() })}
       </p>
       <div className="grid grid-cols-3 gap-4">
         {RULE_FIELDS.map((rule) => (
           <Form.Field
             key={rule.name}
-            control={form.control}
-            name={`subtract.rules.${rule.name}`}
+            control={control}
+            name={`spendRules.${rule.name}`}
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>{t(rule.labelKey)}</Form.Label>

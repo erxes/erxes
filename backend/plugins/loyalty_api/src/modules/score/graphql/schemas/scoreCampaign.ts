@@ -7,7 +7,6 @@ export const types = `
     description:String,
     order: Int,
     add:JSON,
-    subtract:JSON,
     createdAt:Date,
     createdUserId:String,
     status:String,
@@ -57,7 +56,7 @@ export const queries = `
   scoreCampaignServices: JSON
   scoreCampaignEarnPreview(accountTypeId: String, table: JSON!, amount: Float!): [ScoreCampaignEarnPreview]
   checkOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
-  loyaltyScoreSpendLimit(campaignId: String!, ownerType: String!, ownerId: String!, totalAmount: Float, targetId: String): LoyaltyScoreSpendLimit
+  loyaltyScoreSpendLimit(accountTypeId: String!, ownerType: String!, ownerId: String!, totalAmount: Float, targetId: String): LoyaltyScoreSpendLimit
   cpCheckOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
 `;
 
@@ -66,7 +65,6 @@ const mutationParams = `
   description:String,
   order: Int,
   add:JSON,
-  subtract:JSON,
   createdAt:Date,
   createdUserId:String,
   status:String,

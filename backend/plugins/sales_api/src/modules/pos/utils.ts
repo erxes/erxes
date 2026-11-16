@@ -9,6 +9,11 @@ import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
 import { planOrderPoints } from './orderPoints';
+import {
+  stampWalletPaidAmounts,
+  walletAmounts,
+  walletsByType,
+} from '~/modules/sales/utils/walletPayments';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { IDeal } from '~/modules/sales/@types';
 import { setDealContacts } from '~/modules/sales/utils';
@@ -145,8 +150,8 @@ const writtenIds = (write: TLoyaltyWrite | null | undefined) =>
     : [write?.scoreLogId || write?._id];
 
 /**
- * Tells loyalty what this order paid with points. Every point payment type of
- * the POS is sent, so one taken off the order is recorded as nothing spent.
+ * Tells loyalty what this order paid from each wallet. Every wallet of the
+ * POS is sent, so one taken off the order is recorded as nothing spent.
  */
 export const spendOrderPoints = async (
   subdomain: string,
@@ -163,14 +168,16 @@ export const spendOrderPoints = async (
     { paymentTypes: 1 },
   ).lean();
 
-  for (const paymentType of pos?.paymentTypes || []) {
-    if (!paymentType.scoreCampaignId) {
-      continue;
-    }
+  const paid = walletAmounts(
+    stampWalletPaidAmounts(order.paidAmounts, pos?.paymentTypes) || [],
+  );
+  const accountTypeIds = new Set([
+    ...walletsByType(pos?.paymentTypes).values(),
+    ...paid.keys(),
+  ]);
 
-    const pointsPaymentAmount = (order.paidAmounts || [])
-      .filter(({ type }) => type === paymentType.type)
-      .reduce((sum, { amount }) => sum + (Number(amount) || 0), 0);
+  for (const accountTypeId of accountTypeIds) {
+    const pointsPaymentAmount = paid.get(accountTypeId) || 0;
 
     const spent: TLoyaltyWrite | null = await sendTRPCMessage({
       subdomain,
@@ -181,7 +188,7 @@ export const spendOrderPoints = async (
       input: {
         ownerType: order.customerType || 'customer',
         ownerId: order.customerId,
-        campaignId: paymentType.scoreCampaignId,
+        accountTypeId,
         targetId: order._id,
         targetType: POS_ORDER_TARGET_TYPE,
         serviceName: 'pos',
@@ -774,6 +781,7 @@ export const syncOrderFromClient = async ({
 
   const { oldOrder, newOrder } = await models.PosOrders.createOrUpdate({
     ...order,
+    paidAmounts: stampWalletPaidAmounts(order.paidAmounts, pos.paymentTypes),
     posToken,
     posId: pos._id,
     items,

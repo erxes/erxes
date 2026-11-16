@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-15`
 
 ## Scope
 
@@ -229,7 +229,7 @@
   a POS's `earnScoreCampaignId` and `earnTier` wallet via `usePosDetail`). Save
   validates and saves only the changed forms, switches to the tab holding
   an error, and closes once both are saved.
-- With loyalty on, a deal's Products tab shows one voucher line
+- With loyalty on, a deal's Products section shows one voucher line
   (`modules/deals/loyaltyVouchers`: `DealVoucherRow`, `DealVoucherDialog`,
   `useDealVouchers`) for the first customer: the chosen voucher and coupon as
   removable chips, one usable voucher applied in a click, and a dialog listing
@@ -246,9 +246,14 @@
   (`EarnScoreCampaignsField`, `Pos.earnScoreCampaignId`): one campaign only,
   since two would both earn on the same order; chosen with loyalty's picker
   (`RecordPickerWidget`, New/Edit included), clearable, with warnings when
-  inactive. Payment types'
-  score campaign field (`OtherPaymentsField`, POS and deal product config) is
-  the same picker. A chosen campaign that an active POS-order automation (this POS or
+  inactive. Paying with
+  points (`OtherPaymentsField`, POS and pipeline product config) is its own
+  "Pay with points" section (`LoyaltyPaymentsSection`, logic in
+  `usePaymentRows`): a switch and the customer wallets customers may pay from
+  (`SalesLoyaltyPaymentWallets`); each wallet is a `paymentTypes` row with
+  `accountTypeId` and key `loyalty_<accountTypeId>`, hidden from the money
+  rows below and needing no icon. The deal's payment block names a wallet
+  row by its title and asks `loyaltyScoreSpendLimit(accountTypeId)`. A chosen campaign that an active POS-order automation (this POS or
   any) also gives points in is flagged (`usePosEarnAutomations`). Below it,
   with loyalty enabled, one wallet's tier set by the paid amount
   (`PosEarnTierField`, `Pos.earnTier` JSON `{accountTypeId, bands,
@@ -285,7 +290,28 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   saved for the first time.
 - The deal sheet header's icon-only buttons carry an `aria-label`: Close, and
   Collapse or Expand sidebar, with the `sales` keys `close`, `collapse-sidebar`
-  and `expand-sidebar`.
+  and `expand-sidebar`. The sidebar toggle shows only with
+  `showSidebarToggle` (default on); the deal sheet passes it off because it
+  has no left section menu.
+- The deal sheet (`SalesItemDetail`) is one scroll with no tabs: Products
+  (`DealVoucherRow` + `ProductsList` in a fixed-height section, its expand view
+  being the full view), Payments (`ProductsPayment`), the deal's work
+  (`SalesFormFields parts="work"` inside `AttachmentProvider`: checklist and
+  attachment actions, attachments, checklists, description) and
+  `SalesNoteAndComment`; beside it (from `lg`, below it on narrower screens) a
+  fields column: `SalesFormFields parts="fields" layout="panel"` (chips
+  grouped as stage, people, dates, classification, organization; keys
+  `deal-group-*`), `DealPipelineProperties` and `DataExtensionRecordSection`;
+  then `DealSideWidgets` on the rail. The sheet is always full width.
+  `?tab=activity` (the activity preview's view-more) swaps the scroll for
+  `DealActivityTab` with a Back button; other `tab` values show the scroll.
+  `Overview`, `Products` and `SalesItemSidebar` are no longer rendered by the
+  sheet and are kept as they are.
+- The rail's tabs come only from what is present: the deal's customer and
+  company (when set) and relation widgets that list `sales:deal` in their
+  `contentTypes` (accounting `transactions`, mongolian `ebarimt`). Those are
+  remote plugins: when one is disabled its tab is simply absent, and the sheet
+  never queries them itself.
 - Deal detail chips (priority, assignee, dates, labels, tags, branch,
   department, broker) render as a field group: a muted label segment, then the
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
@@ -316,9 +342,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `variant="menu"`) with watch/unwatch, duplicate, print (shared
   `PrintDocument` sheet), archive/unarchive, and remove for archived deals.
   These actions appear only there, not in the detail overview body.
-- Deal detail overview lays fields out in three rows: stage, start date, close
-  date, assignee and priority; then labels, tags, branch, department and
-  broker; then checklist and attachment upload.
+- `SalesFormFields` defaults (`parts="all"`, `layout="bar"`) lay fields out in
+  rows: stage, start date, close date, assignee; then priority, broker,
+  branch, department, labels, tags, customers and companies; then checklist
+  and attachment upload, followed by the work part.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
@@ -394,7 +421,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                                                               |
 | Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                                                              |
 | Export buttons      | `src/modules/deals/actionBar/components/DealsExport.tsx`, `src/pages/OrdersPage.tsx`                 | Start `sales:sales.deals` and `sales:pos.posOrders` exports with the page filters                                          |
-| Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                                                                |
+| Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | One-scroll deal sheet: products, payments, work, activity; fields column; side rail                                        |
 | Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save                                           |
 | Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata                                           |
 | Dashboard widgets   | `frontend/plugins/sales_ui/src/widgets/dashboard`                                                    | `./dashboardWidget` remote: loyalty points tiles, their config form and states                                             |
@@ -845,7 +872,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   saved ratio. Switching units alone preserves totals; changing catalog ratios
   must not change a saved ratio. Duplicate a row and replace its product to
   verify info preservation and reset, respectively.
-- Deal product smoke scenario: open a deal's Products tab, toggle expanded view,
+- A deal's wallet payment row asks loyalty for its limit only while the
+  loyalty plugin is loaded (`useDealPointLimit` → `useLoyaltyEnabled`);
+  without it the row stays locked and says `points-loyalty-disabled`.
+- Deal product smoke scenario: open a deal's Products section, toggle expanded view,
   filter products, edit a row, add products, save, close the expanded view, and
   verify the inline table shows the same state.
 - POS settings smoke scenario: open POS permission tab, toggle cashier

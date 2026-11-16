@@ -43,7 +43,8 @@ export interface IEarnInput extends ILoyaltyScoreSource {
 export interface ISpendInput extends ILoyaltyScoreSource {
   ownerType: string;
   ownerId: string;
-  campaignId: string;
+  // The wallet paid from.
+  accountTypeId: string;
   // Money paid with points on this purchase; the whole amount, not a delta.
   pointsPaymentAmount: number;
   totalAmount: number;

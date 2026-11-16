@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-14`
+- **Last synchronized:** `2026-11-15`
 
 ## Scope
 
@@ -205,8 +205,19 @@
 - Sales record references provide deal display names, links, labels, product
   amount helpers, and `excludeLoyaltyAmount`.
 - `excludeLoyaltyAmount` returns the deal total amount minus payments made
-  through pipeline payment types that have a `scoreCampaignId`
-  (`dealPaidAmount`).
+  from loyalty wallets (`dealPaidAmount`).
+- Paying with points is a payment row with `accountTypeId` (a loyalty wallet)
+  in a pipeline's or POS's `paymentTypes`; it stays in that list because
+  accounting, ebarimt and the POS client read payments by row `type`. A new
+  wallet row's key is `loyalty_<accountTypeId>` (`normalizeWalletRows`, also
+  one row per wallet); rows moved from score campaigns keep their old key.
+  Every payment line carries the wallet it paid from, set by the server only
+  (`utils/walletPayments.ts`): deal `paymentsData.<type>.accountTypeId`
+  (stamped in `Deals.createDeal` / `updateDeal` from the line already on the
+  deal, else the pipeline row) and POS `paidAmounts[].accountTypeId` (as the
+  POS client stamped it, else the order's earlier line, else the POS row).
+  Spending is summed per wallet from the lines, so moving a deal or editing
+  rows never changes which wallet a past payment came from.
 - Deal and POS order triggers give loyalty's Adjust score action a purchase
   through `actionInputs`: deals map `totalAmount` → `unUsedTotalAmount`
   (ticked products), `paidAmount` → `paidAmount`, `items` → `purchaseItems`;
@@ -301,7 +312,7 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   that puts a deal into a stage must do the same.
   Removing deals refunds them (`Deals.removeDeals`). All loyalty calls throw;
   with loyalty disabled they do nothing. POS order sync calls `score.spend`
-  (`spendOrderPoints`, its own sync step and `throwOnError`, also after
+  once per wallet of the POS or of the order's lines (`spendOrderPoints`, its own sync step and `throwOnError`, also after
   `posOrderChangePayments`), `score.earn` for
   the POS's one `earnScoreCampaignId` once paid (`planOrderPoints` /
   `earnOrderPoints`), `score.applyPurchaseTier` for the POS's one `earnTier`
@@ -731,8 +742,11 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - Deal monetary state is stored in `productsData`, `totalAmount`,
   `unUsedTotalAmount`, `bothTotalAmount`, `mobileAmount`, `mobileAmounts`, and
   `paymentsData`.
-- Pipeline payment type configuration may attach `scoreCampaignId` to payment
-  types used by loyalty-related references.
+- Pipeline and POS payment rows may carry `accountTypeId` (a loyalty wallet);
+  `scoreCampaignId` survives only on rows whose campaign had no wallet when
+  `backend/saas-migrations/sales/commands/migrateLoyaltyPayments.ts` ran
+  (it moves rows to wallets, keeps their `type`, and stamps existing deal and
+  POS order lines; reads loyalty's `score_campaigns.accountTypeId`).
 - Loyalty rules live in `sales_loyalty_rules` (points) and
   `sales_loyalty_tier_rules` (tier by amount); a POS keeps its own
   `earnScoreCampaignId` and `earnTier`.

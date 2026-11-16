@@ -24,6 +24,7 @@ export const loyaltyAccountTypeMutations = {
       pendingDays,
       currencyRatio,
       pointValue,
+      spendRules,
       earnEligibility,
     }: { _id: string } & Pick<
       ILoyaltyAccountType,
@@ -35,6 +36,7 @@ export const loyaltyAccountTypeMutations = {
       | 'pendingDays'
       | 'currencyRatio'
       | 'pointValue'
+      | 'spendRules'
       | 'earnEligibility'
     >,
     { models, checkPermission }: IContext,
@@ -50,6 +52,7 @@ export const loyaltyAccountTypeMutations = {
       pendingDays,
       currencyRatio,
       pointValue,
+      spendRules,
       earnEligibility,
     });
   },

@@ -2,21 +2,13 @@
 
 import { Button, Form, Input, Select } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { nanoid } from 'nanoid';
 import { useTranslation } from 'react-i18next';
-import {
-  Control,
-  FieldArray,
-  FieldArrayPath,
-  FieldValues,
-  Path,
-  useFieldArray,
-} from 'react-hook-form';
+import { Control, FieldValues, Path } from 'react-hook-form';
 import PaymentIcon, {
   paymentIconOptions,
 } from 'ui-modules/modules/payments/components/PaymentIcon';
-import { RecordPickerWidget } from 'ui-modules';
-import { SCORE_CAMPAIGN_CONTENT_TYPE } from '@/deals/loyaltyRules/constants';
+import { usePaymentRows } from '../hooks/usePaymentRows';
+import { LoyaltyPaymentsSection } from './LoyaltyPaymentsSection';
 
 type OtherPaymentsFieldProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>;
@@ -26,27 +18,15 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
   control,
 }: OtherPaymentsFieldProps<TFieldValues>) => {
   const { t } = useTranslation('sales');
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'paymentTypes' as FieldArrayPath<TFieldValues>,
-  });
-
-  const handleAddPayment = () => {
-    append({
-      _id: nanoid(),
-      type: '',
-      title: '',
-      icon: '',
-      config: '',
-      scoreCampaignId: '',
-    } as FieldArray<TFieldValues, FieldArrayPath<TFieldValues>>);
-  };
+  const { moneyRows, addMoneyRow, removeRow, loyalty } =
+    usePaymentRows(control);
 
   const fieldPath = (index: number, key: string) =>
     `paymentTypes.${index}.${key}` as Path<TFieldValues>;
 
   return (
     <div className="py-3">
+      <LoyaltyPaymentsSection loyalty={loyalty} />
       <div className="flex flex-col gap-2 items-start self-stretch mb-4">
         <h2 className="self-stretch text-[#4F46E5] text-sm font-medium leading-tight">
           {t('other-payment')}
@@ -62,9 +42,9 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
         </p>
       </div>
 
-      {fields.map((field, index) => (
+      {moneyRows.map(({ row, index }) => (
         <div
-          key={field.id}
+          key={row.id}
           className="flex gap-4 justify-between items-start px-4 mb-4 w-full"
         >
           <div className="flex-1">
@@ -179,33 +159,11 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
               )}
             />
           </div>
-          <div className="flex-1">
-            <Form.Field
-              control={control}
-              name={fieldPath(index, 'scoreCampaignId')}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-xs text-gray-600">
-                    {t('score-campaign')}
-                  </Form.Label>
-                  <Form.Control>
-                    <RecordPickerWidget
-                      contentType={SCORE_CAMPAIGN_CONTENT_TYPE}
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                      placeholder={t('score-campaigns')}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
           <Button
             variant="ghost"
             className="mt-6 px-2 h-8 shrink-0 text-destructive"
             type="button"
-            onClick={() => remove(index)}
+            onClick={() => removeRow(index)}
           >
             <IconTrash size={16} />
           </Button>
@@ -216,7 +174,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
         <Button
           variant="default"
           className="flex gap-2 items-center mb-6"
-          onClick={handleAddPayment}
+          onClick={addMoneyRow}
           type="button"
         >
           <IconPlus size={16} />

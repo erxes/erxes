@@ -8,6 +8,20 @@ import {
   useLoyaltyAccountTypeEdit,
 } from './useLoyaltyAccountTypeMutations';
 
+// Empty means no limit.
+const optionalLimit = (max?: number) =>
+  z.preprocess(
+    (value) =>
+      value === '' || value === null || value === undefined ? undefined : value,
+    (max === undefined
+      ? z.coerce.number().min(0, 'Must be zero or more')
+      : z.coerce
+          .number()
+          .min(0, 'Must be zero or more')
+          .max(max, `At most ${max}%`)
+    ).optional(),
+  );
+
 export const loyaltyAccountTypeFormSchema = z
   .object({
     name: z.string().trim().min(1, 'Name is required'),
@@ -49,6 +63,11 @@ export const loyaltyAccountTypeFormSchema = z
     pendingDays: z.coerce.number().int().min(0, 'Must be zero or more'),
     currencyRatio: z.coerce.number().positive('Must be more than zero'),
     pointValue: z.coerce.number().positive('Must be more than zero'),
+    spendRules: z.object({
+      minBalance: optionalLimit(),
+      maxShare: optionalLimit(100),
+      step: optionalLimit(),
+    }),
     earnEligibility: z.object({
       who: z.enum(['all', 'clientPortal', 'segment']),
       segmentId: z.string().optional(),
@@ -102,6 +121,7 @@ const DEFAULT_VALUES: TLoyaltyAccountTypeFormValues = {
   pendingDays: 0,
   currencyRatio: 1,
   pointValue: 1,
+  spendRules: {},
   earnEligibility: { who: 'all' },
 };
 
@@ -123,6 +143,11 @@ const toFormValues = (
   pendingDays: accountType.pendingDays ?? 0,
   currencyRatio: accountType.currencyRatio ?? 1,
   pointValue: accountType.pointValue ?? 1,
+  spendRules: {
+    minBalance: accountType.spendRules?.minBalance ?? undefined,
+    maxShare: accountType.spendRules?.maxShare ?? undefined,
+    step: accountType.spendRules?.step ?? undefined,
+  },
   earnEligibility: {
     who: accountType.earnEligibility?.who || 'all',
     segmentId: accountType.earnEligibility?.segmentId || undefined,
@@ -200,6 +225,7 @@ export const useLoyaltyAccountTypeForm = ({
     form,
     onSubmit,
     cashbackPercent,
+    pointValue: Number(pointValue) || 1,
     isEdit: !!accountType,
     loading: adding || editing,
   };

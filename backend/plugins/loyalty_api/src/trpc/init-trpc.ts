@@ -221,11 +221,14 @@ const scoreCampaignInput = z.object({
 });
 
 // Loyalty's spending contract: the selling side says what a purchase paid
-// with points; loyalty checks it against the campaign's rules and records it.
+// from a wallet; loyalty checks it against the wallet's rules and records it.
 const spendInput = z.object({
   ownerType: z.string(),
   ownerId: z.string(),
-  campaignId: z.string(),
+  accountTypeId: z.string().optional(),
+  // Older POS clients name the campaign instead; its wallet is paid from.
+  // Removed once every POS client sends accountTypeId (see AGENTS.md).
+  campaignId: z.string().optional(),
   targetId: z.string(),
   // The record paid for, e.g. `sales:pos.orders`.
   targetType: z.string(),
@@ -235,6 +238,22 @@ const spendInput = z.object({
   totalAmount: z.number().min(0),
   actorId: z.string().optional(),
 });
+
+const toWalletSpend = async (
+  models: IModels,
+  { campaignId, accountTypeId, ...input }: z.infer<typeof spendInput>,
+) => {
+  if (!accountTypeId && !campaignId) {
+    throw new Error('Name the wallet paid from');
+  }
+
+  return {
+    ...input,
+    accountTypeId:
+      accountTypeId ||
+      (await models.ScoreCampaigns.walletOfCampaign(campaignId as string)),
+  };
+};
 
 const purchaseInput = z.object({
   totalAmount: z.number().min(0),
@@ -548,11 +567,15 @@ export const appRouter = t.router({
     checkSpend: t.procedure
       .input(spendInput)
       .query(async ({ ctx, input }) =>
-        ctx.models.ScoreCampaigns.checkSpend(input),
+        ctx.models.ScoreCampaigns.checkSpend(
+          await toWalletSpend(ctx.models, input),
+        ),
       ),
 
     spend: t.procedure.input(spendInput).mutation(async ({ ctx, input }) => {
-      const log = await ctx.models.ScoreCampaigns.spend(input);
+      const log = await ctx.models.ScoreCampaigns.spend(
+        await toWalletSpend(ctx.models, input),
+      );
 
       return log
         ? {

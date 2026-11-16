@@ -7,11 +7,6 @@ const addSchema = new Schema(
   { _id: false },
 );
 
-const subtractSchema = new Schema(
-  { rules: { type: Schema.Types.Mixed, label: 'Spending rules' } },
-  { _id: false },
-);
-
 export const scoreCampaignSchema = schemaWrapper(
   new Schema(
     {
@@ -19,7 +14,6 @@ export const scoreCampaignSchema = schemaWrapper(
       description: { type: String, label: 'Campaign Description' },
       order: { type: Number, label: 'Sort Order', index: true },
       add: { type: addSchema, label: 'Earning' },
-      subtract: { type: subtractSchema, label: 'Spending' },
       createdAt: { type: Date, label: 'Created At', default: new Date() },
       createdUserId: { type: String, label: 'Created User Id' },
       ownerType: { type: String, label: 'Owner Type' },

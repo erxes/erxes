@@ -26,6 +26,7 @@ export interface IPaidAmount {
   type: string;
   amount: number;
   info?: any;
+  accountTypeId?: string;
 }
 
 export interface IMobileAmount {

@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { spendOrderPoints } from '~/modules/pos/utils';
+import { stampWalletPaidAmounts } from '~/modules/sales/utils/walletPayments';
 
 const orderMutations = {
   async posOrderChangePayments(
@@ -39,9 +40,23 @@ const orderMutations = {
       throw new Error('not balanced');
     }
 
+    const pos = await models.Pos.findOne(
+      { token: order.posToken },
+      { paymentTypes: 1 },
+    ).lean();
+
     await models.PosOrders.updateOrder(
       { _id },
-      { ...order, cashAmount, mobileAmount, paidAmounts },
+      {
+        ...order,
+        cashAmount,
+        mobileAmount,
+        paidAmounts: stampWalletPaidAmounts(
+          paidAmounts,
+          pos?.paymentTypes,
+          order.paidAmounts,
+        ),
+      },
     );
     const updated = await models.PosOrders.findOne({ _id }).lean();
 

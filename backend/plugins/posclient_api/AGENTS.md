@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-15`
 
 ## Scope
 
@@ -137,8 +137,13 @@
 - Synced `isShowRemainder`, `isCheckRemainder`, and `checkExcludeCategoryIds`
   from sales POS configuration.
 - Loyalty `score.checkSpend` validates point payment amounts against the order
-  total and the owner's balance before payment completion. It is called with
-  `throwOnError`, so a refusal stops the payment instead of being swallowed.
+  total and the owner's balance before payment completion, once per wallet
+  (`checkPointPayments`). It is called with `throwOnError`, so a refusal stops
+  the payment instead of being swallowed. Payment lines get the wallet of the
+  config's row (`stampWalletPaidAmounts`, `paidAmounts[].accountTypeId`; what
+  a client sent is replaced). A config synced before wallets names a
+  `scoreCampaignId` instead; it is sent as `campaignId` and loyalty pays from
+  that campaign's wallet.
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, `permissionConfig`, and `customerCreateConfig`.
 - Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
 - Core tRPC `fields.find`, `customers.findActiveCustomers`, and

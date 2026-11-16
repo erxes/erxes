@@ -1,36 +1,54 @@
 'use client';
 
-import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconArrowLeft,
+  IconCloudExclamation,
+} from '@tabler/icons-react';
 import {
   Button,
   Empty,
   FocusSheet,
+  isDefined,
   ScrollArea,
+  Separator,
   Sheet,
-  Tabs,
-  useFocusSheet,
   useQueryState,
 } from 'erxes-ui';
+import { DataExtensionRecordSection } from 'ui-modules';
 import { DealActivityTab } from './DealActivityTab';
 
-import { Overview } from '@/deals/cards/components/detail/overview/Overview';
-import { Products } from '@/deals/cards/components/detail/product/components/Products';
+import { AttachmentProvider } from '@/deals/cards/components/detail/overview/attachments/AttachmentContext';
+import { SalesNoteAndComment } from '@/deals/cards/components/detail/overview/NoteAndComment';
+import { SalesFormFields } from '@/deals/cards/components/detail/overview/SalesFormFields';
+import { ProductsPayment } from '@/deals/cards/components/detail/product/components/ProductPayment';
+import { ProductsList } from '@/deals/cards/components/detail/product/components/product-list/ProductsList';
 import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItemDetailHeader';
+import { DealSideWidgets } from '@/deals/cards/components/detail/DealSideWidgets';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealsProvider } from '@/deals/context/DealContext';
+import { DealVoucherRow } from '@/deals/loyaltyVouchers/components/DealVoucherRow';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { DealPipelineProperties } from './DealPipelineProperties';
-import { DealSideWidgets } from '@/deals/cards/components/detail/DealSideWidgets';
-import { SalesItemSidebar } from './SalesItemSidebar';
 
+/**
+ * The deal in one scroll: what it sells and how it is paid first, then its
+ * work and history; its fields in a column beside it, and the side rail
+ * (contacts and the enabled plugins' widgets) at the edge.
+ */
 const SalesItemDetailView = () => {
-  const { isSidebarOpen } = useFocusSheet();
+  const { t } = useTranslation('sales');
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { deal, loading, error, refetch } = useDealDetail();
+  const initialAttachments = useMemo(
+    () => deal?.attachments?.filter(isDefined) ?? [],
+    [deal?.attachments],
+  );
+  const pipelineId = deal?.pipelineId || deal?.pipeline?._id || '';
 
   return (
     <FocusSheet.View
@@ -39,56 +57,92 @@ const SalesItemDetailView = () => {
       notFound={!deal}
       notFoundState={<SalesItemDetailEmptyState />}
       errorState={<SalesItemDetailErrorState />}
-      className={!isSidebarOpen ? 'lg:w-[calc(100vw-1rem)] sm:max-w-none' : ''}
+      className="lg:w-[calc(100vw-(--spacing(4)))]"
     >
       {deal && (
         <>
-          <SalesItemDetailHeader deal={deal} />
+          <SalesItemDetailHeader deal={deal} showSidebarToggle={false} />
           <FocusSheet.Content>
-            <FocusSheet.SideBar>
-              <SalesItemSidebar />
-            </FocusSheet.SideBar>
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 min-h-0">
-                <Tabs
-                  value={selectedTab ?? 'overview'}
-                  onValueChange={setSelectedTab}
-                  className="h-full"
-                >
-                  <Tabs.Content value="overview" className="h-full">
-                    <ScrollArea className="h-full">
-                      <Overview key={deal._id} deal={deal} />
-                    </ScrollArea>
-                  </Tabs.Content>
-                  <Tabs.Content value="properties" className="h-full">
-                    <ScrollArea className="h-full">
-                      <div className="w-full xl:max-w-6xl mx-auto p-6">
-                        <DealPipelineProperties
-                          key={`${deal?._id || ''}-${JSON.stringify(
-                            deal?.propertiesData || {},
-                          )}`}
-                          pipelineId={deal?.pipelineId || ''}
-                          propertiesData={deal?.propertiesData || {}}
-                          mutateHook={useDealCustomFieldEdit}
-                          id={deal?._id || ''}
+            {selectedTab === 'activity' ? (
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="w-full xl:max-w-6xl mx-auto px-6 pt-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedTab(null)}
+                  >
+                    <IconArrowLeft />
+                    {t('back')}
+                  </Button>
+                </div>
+                <div className="min-h-0 flex-1">
+                  <DealActivityTab dealId={deal._id} />
+                </div>
+              </div>
+            ) : (
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="grid lg:grid-cols-[minmax(0,1fr)_22rem]">
+                  <div className="flex min-w-0 flex-col gap-6 p-6">
+                    <section
+                      className="flex h-[30rem] flex-col gap-2"
+                      aria-label={t('products')}
+                    >
+                      <h3 className="text-sm font-medium">{t('products')}</h3>
+                      <DealVoucherRow deal={deal} />
+                      <div className="min-h-0 flex-1">
+                        <ProductsList
+                          products={deal.products}
+                          productsData={deal.productsData}
+                          dealId={deal._id}
+                          pipelineId={pipelineId}
+                          refetch={refetch}
+                          tickUsed={deal.stage?.defaultTick ?? true}
                         />
                       </div>
-                    </ScrollArea>
-                  </Tabs.Content>
-                  <Tabs.Content value="activity" className="h-full">
-                    <DealActivityTab dealId={deal?._id || ''} />
-                  </Tabs.Content>
-                  <Tabs.Content
-                    value="products"
-                    className="h-full overflow-y-auto p-6"
-                  >
-                    <div className="h-full min-h-[32rem]">
-                      <Products deal={deal} refetch={refetch} />
-                    </div>
-                  </Tabs.Content>
-                </Tabs>
-              </div>
-            </div>
+                    </section>
+                    <section
+                      className="flex flex-col gap-2"
+                      aria-label={t('payments')}
+                    >
+                      <h3 className="text-sm font-medium">{t('payments')}</h3>
+                      <ProductsPayment deal={deal} />
+                    </section>
+                    <AttachmentProvider
+                      key={deal._id}
+                      dealId={deal._id}
+                      initialAttachments={initialAttachments}
+                    >
+                      <div className="flex flex-col gap-3">
+                        <SalesFormFields deal={deal} parts="work" />
+                      </div>
+                    </AttachmentProvider>
+                    <Separator />
+                    <SalesNoteAndComment dealId={deal._id} />
+                  </div>
+                  <aside className="flex min-w-0 flex-col gap-6 border-t p-6 lg:border-l lg:border-t-0 lg:p-4">
+                    <SalesFormFields
+                      key={deal._id}
+                      deal={deal}
+                      parts="fields"
+                      layout="panel"
+                    />
+                    <DealPipelineProperties
+                      key={`${deal._id}-${JSON.stringify(
+                        deal.propertiesData || {},
+                      )}`}
+                      pipelineId={pipelineId}
+                      propertiesData={deal.propertiesData || {}}
+                      mutateHook={useDealCustomFieldEdit}
+                      id={deal._id}
+                    />
+                    <DataExtensionRecordSection
+                      recordType="sales:deal"
+                      recordId={deal._id}
+                    />
+                  </aside>
+                </div>
+              </ScrollArea>
+            )}
             <DealSideWidgets
               dealId={deal._id}
               customerId={deal.customers?.[0]?._id}

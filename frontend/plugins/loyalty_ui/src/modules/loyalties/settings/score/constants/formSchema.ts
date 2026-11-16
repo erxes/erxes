@@ -54,33 +54,16 @@ export const loyaltyScoreFormSchema = z
       })
       .optional(),
     add: z.object({ table: earnTableFormSchema }),
-    subtract: z.object({
-      rules: z.object({
-        minBalance: z.string().optional(),
-        maxShare: z.string().optional(),
-        step: z.string().optional(),
-      }),
-    }),
     accountTypeId: z.string().optional(),
     // A campaign from before account types still writes the default score.
     legacyDefaultScore: z.boolean().optional(),
   })
-  .superRefine(({ accountTypeId, legacyDefaultScore, add, subtract }, ctx) => {
+  .superRefine(({ accountTypeId, legacyDefaultScore, add }, ctx) => {
     if (!accountTypeId && !legacyDefaultScore) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Wallet is required',
         path: ['accountTypeId'],
-      });
-    }
-
-    const maxShare = subtract?.rules?.maxShare;
-
-    if (maxShare && Number(maxShare) > 100) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'At most 100%',
-        path: ['subtract', 'rules', 'maxShare'],
       });
     }
 

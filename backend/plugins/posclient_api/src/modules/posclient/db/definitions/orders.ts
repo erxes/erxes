@@ -23,6 +23,7 @@ const paidAmountSchema = new Schema({
     label: 'Paid amount',
   }),
   info: field({ type: Object }),
+  accountTypeId: field({ type: String, optional: true }),
 });
 
 const mobileAmountSchema = new Schema({

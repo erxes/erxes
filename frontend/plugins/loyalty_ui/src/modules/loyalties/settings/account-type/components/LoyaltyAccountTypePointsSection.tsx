@@ -2,15 +2,18 @@ import { Form, Input } from 'erxes-ui';
 import { Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TLoyaltyAccountTypeFormValues } from '../hooks/useLoyaltyAccountTypeForm';
+import { LoyaltyAccountTypeSpendRulesFields } from './LoyaltyAccountTypeSpendRulesFields';
 
 // `control` is passed in: the plugin's react-hook-form copy cannot read the
 // context erxes-ui's Form provides.
 export const LoyaltyAccountTypePointsSection = ({
   control,
   cashbackPercent,
+  pointValue,
 }: {
   control: Control<TLoyaltyAccountTypeFormValues>;
   cashbackPercent?: number;
+  pointValue?: number;
 }) => {
   const { t } = useTranslation('loyalty');
 
@@ -75,6 +78,10 @@ export const LoyaltyAccountTypePointsSection = ({
             <Form.Message />
           </Form.Item>
         )}
+      />
+      <LoyaltyAccountTypeSpendRulesFields
+        control={control}
+        pointValue={pointValue}
       />
     </div>
   );

@@ -1,4 +1,3 @@
-import { defaultSubtract, toSubtractInput } from '../../utils/spendRulesForm';
 import { ScoreCampaignFormLayout } from './ScoreCampaignFormLayout';
 import { defaultEarnTable, toAddInput } from '../../utils/earnTableForm';
 import { useForm } from 'react-hook-form';
@@ -42,7 +41,6 @@ export function AddLoyaltyScoreForm({
         discountCheck: false,
       },
       add: { table: defaultEarnTable() },
-      subtract: defaultSubtract(),
       accountTypeId: '',
     },
   });
@@ -65,7 +63,6 @@ export function AddLoyaltyScoreForm({
         discountCheck: data.additionalConfig?.discountCheck ?? false,
       },
       add: toAddInput(data.add),
-      subtract: toSubtractInput(data.subtract),
       accountTypeId: data.accountTypeId || '',
     };
 

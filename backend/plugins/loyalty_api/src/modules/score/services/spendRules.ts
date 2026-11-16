@@ -1,4 +1,4 @@
-import { ISpendRules } from '@/score/@types/scoreCampaign';
+import { ISpendRules } from '@/score/@types/accountType';
 import { fixScoreNumber } from '@/score/services/scoreLedger';
 
 const optionalNumber = (value: unknown) => {

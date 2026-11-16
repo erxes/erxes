@@ -15,11 +15,16 @@ import {
   TLoyaltyTierRule,
   TResolvedLoyaltyRules,
 } from './loyaltyRules';
+import {
+  stampWalletPayments,
+  TWalletPaymentRow,
+  walletAmounts,
+} from './walletPayments';
 
 // The record loyalty ties these points to.
 const DEAL_TARGET_TYPE = 'sales:sales.deals';
 
-type TDealSpend = { campaignId: string; pointsPaymentAmount: number };
+type TDealSpend = { accountTypeId: string; pointsPaymentAmount: number };
 
 type TDealEarn = {
   campaignId: string;
@@ -63,15 +68,22 @@ const dealName = (deal: IDeal, dealId: string) => {
   return name || (number ? `#${number}` : dealId);
 };
 
-const pointPaymentCampaigns = (pipeline?: { paymentTypes?: any[] } | null) =>
-  new Map<string, string>(
-    (pipeline?.paymentTypes || [])
-      .filter(({ scoreCampaignId }) => !!scoreCampaignId)
-      .map(({ type, scoreCampaignId }) => [type, scoreCampaignId]),
+// Money a deal pays from each wallet; lines not saved yet take their wallet
+// the way the deal model will stamp it.
+const dealWalletAmounts = (
+  deal: IDeal | undefined,
+  paymentTypes?: TWalletPaymentRow[] | null,
+  previous?: IDeal,
+) =>
+  walletAmounts(
+    Object.values(
+      stampWalletPayments(
+        deal?.paymentsData,
+        paymentTypes,
+        previous?.paymentsData,
+      ) || {},
+    ),
   );
-
-const amountOf = (deal: IDeal | undefined, type: string) =>
-  Number(deal?.paymentsData?.[type]?.amount) || 0;
 
 const loadStagePlace = async (models: IModels, stageId?: string) => {
   const stage = stageId
@@ -156,15 +168,19 @@ export const planDealPoints = async ({
   }
 
   // Leaving a refunding stage takes again what the deal pays with points.
-  const spends = [...pointPaymentCampaigns(here.pipeline)]
-    .map(([type, campaignId]) => ({
-      campaignId,
-      pointsPaymentAmount: amountOf(current, type),
-      before: leftRefund ? 0 : amountOf(previous, type),
+  const paidNow = dealWalletAmounts(current, here.pipeline?.paymentTypes, previous);
+  const paidBefore = leftRefund
+    ? new Map<string, number>()
+    : walletAmounts(Object.values(previous?.paymentsData || {}));
+  const spends = [...new Set([...paidNow.keys(), ...paidBefore.keys()])]
+    .map((accountTypeId) => ({
+      accountTypeId,
+      pointsPaymentAmount: paidNow.get(accountTypeId) || 0,
+      before: paidBefore.get(accountTypeId) || 0,
     }))
     .filter(({ pointsPaymentAmount, before }) => pointsPaymentAmount !== before)
-    .map(({ campaignId, pointsPaymentAmount }) => ({
-      campaignId,
+    .map(({ accountTypeId, pointsPaymentAmount }) => ({
+      accountTypeId,
       pointsPaymentAmount,
     }));
 
@@ -242,10 +258,11 @@ export const withoutPointPayments = async (
   const pipeline = stage
     ? await models.Pipelines.findOne({ _id: stage.pipelineId }).lean()
     : null;
-  const pointTypes = pointPaymentCampaigns(pipeline);
 
   return Object.fromEntries(
-    Object.entries(paymentsData).filter(([type]) => !pointTypes.has(type)),
+    Object.entries(
+      stampWalletPayments(paymentsData, pipeline?.paymentTypes) || {},
+    ).filter(([, line]) => !line?.accountTypeId),
   );
 };
 
@@ -269,10 +286,10 @@ const spendInputs = (
   plan: Extract<TDealPointsPlan, { kind: 'sync' }>,
   actorId?: string,
 ) =>
-  plan.spends.map(({ campaignId, pointsPaymentAmount }) => ({
+  plan.spends.map(({ accountTypeId, pointsPaymentAmount }) => ({
     ownerType: 'customer',
     ownerId: plan.customerId as string,
-    campaignId,
+    accountTypeId,
     targetId: dealId,
     targetType: DEAL_TARGET_TYPE,
     serviceName: 'sales',

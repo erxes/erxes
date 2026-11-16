@@ -25,8 +25,7 @@ const SECTION_HAS_ERROR: Record<
       errors.order ||
       errors.description ||
       errors.accountTypeId ||
-      errors.add ||
-      errors.subtract
+      errors.add
     ),
   products: (errors) =>
     !!(

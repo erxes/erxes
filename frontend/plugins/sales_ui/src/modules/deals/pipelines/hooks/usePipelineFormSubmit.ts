@@ -74,6 +74,7 @@ const removeEmptyPaymentTypes = (paymentTypes: TPipelineForm['paymentTypes']) =>
       paymentType.title,
       paymentType.icon,
       paymentType.config,
+      paymentType.accountTypeId,
       paymentType.scoreCampaignId,
     ].some((value) => value?.trim()),
   );

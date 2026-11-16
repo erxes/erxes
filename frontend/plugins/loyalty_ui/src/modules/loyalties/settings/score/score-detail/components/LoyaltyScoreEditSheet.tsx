@@ -1,4 +1,3 @@
-import { fromSubtractInput } from '../../utils/spendRulesForm';
 import { fromAddInput } from '../../utils/earnTableForm';
 import {
   Sheet,
@@ -51,7 +50,6 @@ export const LoyaltyScoreEditSheet = () => {
         discountCheck: false,
       },
       add: fromAddInput(),
-      subtract: fromSubtractInput(),
       accountTypeId: '',
     },
   });
@@ -79,7 +77,6 @@ export const LoyaltyScoreEditSheet = () => {
           discountCheck: additionalConfig.discountCheck ?? false,
         },
         add: fromAddInput(scoreDetail.add),
-        subtract: fromSubtractInput(scoreDetail.subtract),
         accountTypeId: scoreDetail.accountTypeId || '',
         legacyDefaultScore: !scoreDetail.accountTypeId,
       });

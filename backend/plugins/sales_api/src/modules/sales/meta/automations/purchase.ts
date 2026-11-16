@@ -1,5 +1,9 @@
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '../../@types';
+import {
+  pointsPaidAmount,
+  stampWalletPayments,
+} from '../../utils/walletPayments';
 
 // The loyalty action that reads a deal as a purchase.
 export const LOYALTY_ADJUST_SCORE_ACTION = 'loyalty:score.score.create';
@@ -9,8 +13,8 @@ export const LOYALTY_SET_TIER_ACTION = 'loyalty:score.tier.create';
 const isScoreProduct = (product: { tickUsed?: boolean }) => !!product.tickUsed;
 
 /**
- * What was paid with money rather than points: the pipeline marks its point
- * payment types with a score campaign.
+ * What was paid with money rather than points: lines paid from a loyalty
+ * wallet carry it (unsaved lines take it from the pipeline's wallet rows).
  */
 export const dealPaidAmount = async (
   models: IModels,
@@ -26,11 +30,6 @@ export const dealPaidAmount = async (
     ? await models.Pipelines.findOne({ _id: stage.pipelineId }).lean()
     : null;
 
-  const pointPaymentTypes = new Set(
-    (pipeline?.paymentTypes || [])
-      .filter(({ scoreCampaignId }) => !!scoreCampaignId)
-      .map(({ type }) => type),
-  );
   const storedTotal = Number(deal.totalAmount);
   const totalAmount =
     deal.totalAmount === undefined || !Number.isFinite(storedTotal)
@@ -38,9 +37,11 @@ export const dealPaidAmount = async (
           .filter(isScoreProduct)
           .reduce((sum, product) => sum + (Number(product.amount) || 0), 0)
       : storedTotal;
-  const pointsPaid = Object.entries(deal.paymentsData || {})
-    .filter(([type]) => pointPaymentTypes.has(type))
-    .reduce((sum, [, payment]) => sum + (Number(payment?.amount) || 0), 0);
+  const pointsPaid = pointsPaidAmount(
+    Object.values(
+      stampWalletPayments(deal.paymentsData, pipeline?.paymentTypes) || {},
+    ),
+  );
 
   return Math.max(0, totalAmount - pointsPaid);
 };

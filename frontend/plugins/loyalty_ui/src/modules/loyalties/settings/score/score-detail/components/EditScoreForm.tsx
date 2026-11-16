@@ -1,4 +1,3 @@
-import { toSubtractInput } from '../../utils/spendRulesForm';
 import { ScoreCampaignFormLayout } from '../../add-score-campaign/components/ScoreCampaignFormLayout';
 import { toAddInput } from '../../utils/earnTableForm';
 import { ApolloError, useMutation } from '@apollo/client';
@@ -59,7 +58,6 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
             discountCheck: data.additionalConfig?.discountCheck ?? false,
           },
           add: toAddInput(data.add),
-          subtract: toSubtractInput(data.subtract),
           accountTypeId: data.accountTypeId || '',
         },
         onCompleted: () => {

@@ -44,15 +44,26 @@ export const createPipelineFormSchema = (
           .min(1, messages.paymentTypeRequired)
           .regex(PAYMENT_TYPE_PATTERN, messages.paymentTypeInvalid),
         title: z.string().trim().min(1, messages.paymentTitleRequired),
-        icon: z.string().trim().min(1, messages.paymentIconRequired),
+        // Wallet rows show the wallet, not an icon.
+        icon: z.string().trim(),
         config: z.string().optional(),
+        accountTypeId: z.string().optional(),
+        // Not moved to a wallet yet (its campaign has none); kept as it is.
         scoreCampaignId: z.string().trim().optional(),
       }),
     )
     .superRefine((paymentTypes, context) => {
       const existingTypes = new Set<string>();
 
-      paymentTypes.forEach(({ type }, index) => {
+      paymentTypes.forEach(({ type, icon, accountTypeId }, index) => {
+        if (!accountTypeId && !icon) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: messages.paymentIconRequired,
+            path: [index, 'icon'],
+          });
+        }
+
         if (existingTypes.has(type)) {
           context.addIssue({
             code: z.ZodIssueCode.custom,

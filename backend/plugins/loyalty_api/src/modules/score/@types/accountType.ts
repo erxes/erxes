@@ -49,6 +49,15 @@ export interface ILoyaltyAccountTypeResetState
   lastBoundary?: Date;
 }
 
+// Limits on paying with this wallet's points, checked for every channel.
+export interface ISpendRules {
+  minBalance?: number;
+  // Highest share of the order, in percent, that points may pay.
+  maxShare?: number;
+  // Points are spent only in multiples of this.
+  step?: number;
+}
+
 // Who may earn into the wallet: everyone, customers with a client portal
 // account, or members of a segment.
 export type TLoyaltyEarnEligibility = {
@@ -69,6 +78,7 @@ export interface ILoyaltyAccountType {
   currencyRatio?: number;
   // Spending: 1 point pays pointValue of money.
   pointValue?: number;
+  spendRules?: ISpendRules;
   earnEligibility?: TLoyaltyEarnEligibility;
 }
 

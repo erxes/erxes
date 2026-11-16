@@ -354,7 +354,7 @@ export const ProductsPayment = ({
           unavailable,
           requiresQr,
           pointsCustomer?._id || '',
-          paymentType?.scoreCampaignId || '',
+          paymentType?.accountTypeId || '',
         ),
       );
     },
@@ -670,7 +670,7 @@ export const ProductsPayment = ({
               validQr: false,
             };
             const showQrUnlockInput = isQr && !payInfo.validQr;
-            const paysWithPoints = !!paymentType.scoreCampaignId;
+            const paysWithPoints = !!paymentType.accountTypeId;
             // Locked until loyalty says how much the customer may pay.
             const pointsLocked =
               paysWithPoints && payInfo.unavailable !== false;
@@ -681,7 +681,7 @@ export const ProductsPayment = ({
               >
                 <div className="flex items-center gap-2">
                   <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {paymentType.type}
+                    {paysWithPoints ? paymentType.title : paymentType.type}
                     {isQr &&
                       (payInfo.validQr ? (
                         <IconKey size={14} className="text-success" />
