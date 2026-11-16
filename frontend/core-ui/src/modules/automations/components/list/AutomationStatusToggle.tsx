@@ -60,6 +60,33 @@ export const AutomationStatusBadge = ({
   </Badge>
 );
 
+/** The status as a coloured dot and a word, for dense lists. */
+export const AutomationStatusDot = ({
+  status,
+  loading,
+}: {
+  status: string;
+  loading?: boolean;
+}) => {
+  const { t } = useTranslation('automations');
+  const isActive = status === 'active';
+
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm">
+      <span
+        className={cn(
+          'size-1.5 shrink-0 rounded-full',
+          isActive ? 'bg-success' : 'bg-muted-foreground/50',
+        )}
+      />
+      <span className={cn(!isActive && 'text-muted-foreground')}>
+        {t(isActive ? 'active' : 'draft')}
+      </span>
+      {loading && <Spinner size="sm" containerClassName="flex-none" />}
+    </span>
+  );
+};
+
 export const AutomationStatusToggle = ({
   name,
   status,

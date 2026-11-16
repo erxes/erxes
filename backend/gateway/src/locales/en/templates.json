@@ -62,7 +62,6 @@
   "group-solution": "Solutions",
   "group-automation": "Automations",
   "group-segment": "Segments",
-  "plugin-all": "All apps",
   "segment-count_one": "{{count}} segment",
   "segment-count_other": "{{count}} segments",
   "no-templates-filtered": "No templates here",
@@ -78,5 +77,14 @@
   "reinstall-confirm_other": "This template is already installed {{count}} times and its {{automations}} automation(s) are still here. Install another copy anyway?",
   "reinstall-confirm-segment_one": "This template is already installed. Installing again creates the same segments a second time. Continue?",
   "reinstall-confirm-segment_other": "This template is already installed {{count}} times. Installing again creates the same segments once more. Continue?",
-  "install-again": "Install again"
+  "install-again": "Install again",
+  "hero-title": "Start from something that already works",
+  "hero-subtitle_one": "{{count}} ready-made template for {{apps}}. Answer a few questions and it's live.",
+  "hero-subtitle_other": "{{count}} ready-made templates for {{apps}}. Answer a few questions and it's live.",
+  "hero-search-placeholder": "Search templates, like \"deal won\" or \"birthday\"",
+  "hero-search-clear": "Clear search",
+  "group-solution-description": "AI employees that run a whole job",
+  "group-automation-description": "One flow for one moment",
+  "group-segment-description": "Ready-made groups of customers",
+  "section-see-all": "See all {{count}}"
 }

@@ -107,6 +107,20 @@ const types = `
     activeCount: Int
   }
 
+  type AutomationVersion {
+    _id: String!
+    automationId: String!
+    version: Int!
+    triggers: [JSON]
+    actions: [JSON]
+    workflows: [JSON]
+    changedNodeIds: [String]
+    note: String
+    createdBy: String
+    createdUser: User
+    createdAt: Date
+  }
+
   type AutomationsListResponse {
     list: [Automation],
     totalCount: Float,
@@ -132,6 +146,7 @@ const types = `
     status: String
     description: String
     actions: [JSON]
+    actionVersions: [Int]
     failedActionId: String
     failedActionType: String
     errorCode: String

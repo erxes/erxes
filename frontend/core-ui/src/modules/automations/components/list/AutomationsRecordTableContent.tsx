@@ -1,7 +1,10 @@
 import { AutomationExecutionCountsLoader } from '@/automations/components/list/AutomationExecutionCountCell';
+import { AutomationListRow } from '@/automations/components/list/AutomationListRow';
 import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
+import { AutomationFolderChildrenLoader } from '@/automations/components/list/folders/AutomationFolderChildrenLoader';
+import { useAutomationListTableOptions } from '@/automations/hooks/useAutomationListRows';
 import {
-  IAutomation,
+  TAutomationListRow,
   TAutomationRecordTableColumnDefData,
 } from '@/automations/types';
 import { EnumCursorDirection, RecordTable } from 'erxes-ui';
@@ -9,7 +12,10 @@ import { ColumnDef } from '@tanstack/table-core';
 
 type AutomationsRecordTableContentProps = {
   columns: ColumnDef<TAutomationRecordTableColumnDefData>[];
-  list: IAutomation[];
+  rows: TAutomationListRow[];
+  automationIds: string[];
+  openFolderIds: string[];
+  listLength: number;
   loading: boolean;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
@@ -18,27 +24,34 @@ type AutomationsRecordTableContentProps = {
 
 export const AutomationsRecordTableContent = ({
   columns,
-  list,
+  rows,
+  automationIds,
+  openFolderIds,
+  listLength,
   loading,
   hasPreviousPage,
   hasNextPage,
   handleFetchMore,
 }: AutomationsRecordTableContentProps) => {
+  const tableOptions = useAutomationListTableOptions(rows, columns);
+
   return (
     <>
-      <AutomationExecutionCountsLoader
-        automationIds={list.map(({ _id }) => _id)}
-      />
+      <AutomationExecutionCountsLoader automationIds={automationIds} />
+      {openFolderIds.map((folderId) => (
+        <AutomationFolderChildrenLoader key={folderId} folderId={folderId} />
+      ))}
       <RecordTable.Provider
         columns={columns}
-        data={list}
+        data={rows}
         stickyColumns={['more', 'checkbox', 'name']}
         className="m-3"
+        tableOptions={tableOptions}
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
-          dataLength={list.length}
+          dataLength={listLength}
           sessionKey="automations_cursor"
         >
           <RecordTable>
@@ -48,7 +61,7 @@ export const AutomationsRecordTableContent = ({
                 handleFetchMore={handleFetchMore}
               />
               {loading && <RecordTable.RowSkeleton rows={40} />}
-              <RecordTable.RowList />
+              <RecordTable.RowList Row={AutomationListRow} />
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}
               />

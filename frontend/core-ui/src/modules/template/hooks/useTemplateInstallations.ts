@@ -48,7 +48,7 @@ export const useRemoveTemplateInstallation = () => {
       remove({ variables: { _id: installation._id } })
         .then(() => {
           toast({ variant: 'success', title: t('removed') });
-          navigate('/templates?tab=installed');
+          navigate('/templates/installed');
         })
         .catch((error: Error) =>
           toast({

@@ -21,6 +21,10 @@ import {
 
 export type TAutomationEdit = IAutomation & { acknowledgeDuplicate?: boolean };
 
+// A rename, a status switch or a folder move is not a new version of the flow
+const changesFlow = (changes: Partial<IAutomation>) =>
+  !!(changes.triggers || changes.actions || changes.workflows);
+
 export interface IAutomationModel extends Model<IAutomationDocument> {
   getAutomation(_id: string): Promise<IAutomationDocument>;
   createAutomation(
@@ -80,6 +84,12 @@ export const loadClass = (
         action: 'create',
         docId: created._id,
         currentDocument: created.toObject(),
+      });
+
+      await models.AutomationVersions.recordVersion({
+        automation: created.toObject(),
+        userId,
+        note: 'created',
       });
 
       await requestScheduleReconcile(subdomain);
@@ -182,6 +192,14 @@ export const loadClass = (
         currentDocument: updated.toObject(),
       });
 
+      if (changesFlow(changes)) {
+        await models.AutomationVersions.recordVersion({
+          automation: updated.toObject(),
+          userId,
+          note: 'edited',
+        });
+      }
+
       await requestScheduleReconcile(subdomain);
 
       // Coming back from a pause: the delays that came due meanwhile are held
@@ -232,6 +250,7 @@ export const loadClass = (
       sendDbEventLog({ action: 'deleteMany', docIds: _ids });
 
       await models.AutomationExecutions.removeExecutions(_ids);
+      await models.AutomationVersions.removeVersions(_ids);
 
       await models.Segments.deleteMany({
         _id: { $in: segmentIds.filter(Boolean) },
@@ -310,6 +329,12 @@ export const loadClass = (
         action: 'create',
         docId: copy._id,
         currentDocument: copy.toObject(),
+      });
+
+      await models.AutomationVersions.recordVersion({
+        automation: copy.toObject(),
+        userId,
+        note: 'duplicated',
       });
 
       await requestScheduleReconcile(subdomain);

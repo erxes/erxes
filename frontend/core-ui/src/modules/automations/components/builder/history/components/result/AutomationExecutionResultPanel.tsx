@@ -16,8 +16,7 @@ export const AutomationExecutionResultPanel = () => {
   const {
     action,
     actionStatus,
-    createdAtLabel,
-    durationLabel,
+    metaLabel,
     executionStatus,
     isWorkflowAction,
     label,
@@ -36,9 +35,7 @@ export const AutomationExecutionResultPanel = () => {
             <HistoryFlowStatusBadge status={actionStatus} />
             <span className="truncate text-sm font-medium">{label}</span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {createdAtLabel} · {durationLabel}
-          </p>
+          <p className="text-xs text-muted-foreground">{metaLabel}</p>
         </div>
         <Button
           variant="ghost"
