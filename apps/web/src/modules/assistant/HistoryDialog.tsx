@@ -1,14 +1,29 @@
 import type { AssistantThread } from '@erxes/core-contract';
-import { IconLoader2, IconPin, IconSearch } from '@tabler/icons-react';
+import { IconHistory, IconLoader2, IconMessage, IconPin } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Button, Dialog, InputGroup, ScrollArea, useFormat } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { isToday, isYesterday, subDays } from 'date-fns';
+import { Command, Spinner, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { type CursorParams, forwardPaging } from '~/lib/cursorList';
 
 const PAGE = 50;
+
+type Period = 'pinned' | 'today' | 'yesterday' | 'week' | 'older';
+
+const PERIODS: Period[] = ['pinned', 'today', 'yesterday', 'week', 'older'];
+
+const periodOf = (thread: AssistantThread): Period => {
+  const updated = new Date(thread.updatedAt);
+
+  if (thread.pinned) return 'pinned';
+
+  if (isToday(updated)) return 'today';
+
+  if (isYesterday(updated)) return 'yesterday';
+
+  return updated > subDays(new Date(), 7) ? 'week' : 'older';
+};
 
 const useThreadPages = () =>
   useInfiniteQuery(
@@ -18,74 +33,71 @@ const useThreadPages = () =>
     }),
   );
 
-const ThreadRow = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () => void }) => {
+const ThreadItem = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () => void }) => {
   const { t } = useTranslation('assistant');
   const format = useFormat();
   const title = thread.title ?? t('untitled', 'Untitled conversation');
+  const Icon = thread.pinned ? IconPin : IconMessage;
 
   return (
-    <li>
-      <button
-        type="button"
-        aria-label={title}
-        onClick={onOpen}
-        className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm outline-none hover:bg-accent focus-visible:shadow-focus"
-      >
-        {thread.pinned && (
-          <IconPin aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
-        )}
-        <span className="min-w-0 flex-1 truncate">{title}</span>
-        {thread.running && <IconLoader2 aria-hidden className="size-3.5 animate-spin" />}
-        <time dateTime={thread.updatedAt} className="shrink-0 text-xs text-muted-foreground">
-          {format.date(thread.updatedAt, 'MMM d')}
-        </time>
-      </button>
-    </li>
+    <Command.Item value={`${title} ${thread.id}`} onSelect={onOpen}>
+      <Icon aria-hidden className="text-muted-foreground" />
+      <span className="min-w-0 flex-1 truncate">{title}</span>
+      {thread.running && <IconLoader2 aria-hidden className="animate-spin" />}
+      <time dateTime={thread.updatedAt} className="shrink-0 text-xs text-muted-foreground">
+        {format.date(thread.updatedAt, 'MMM d')}
+      </time>
+    </Command.Item>
   );
 };
 
-const HistoryList = ({ search, onOpen }: { search: string; onOpen: (id: string) => void }) => {
+const HistoryList = ({ onOpen }: { onOpen: (id: string) => void }) => {
   const { t } = useTranslation('assistant');
   const query = useThreadPages();
-  const needle = search.trim().toLowerCase();
+  const threads = query.data?.pages.flatMap((page) => page.data) ?? [];
+
+  const headings: Record<Period, string> = {
+    pinned: t('history-group.pinned', 'Pinned'),
+    today: t('history-group.today', 'Today'),
+    yesterday: t('history-group.yesterday', 'Yesterday'),
+    week: t('history-group.week', 'Last 7 days'),
+    older: t('history-group.older', 'Older'),
+  };
+
+  if (query.isPending) return <Spinner size="sm" className="my-6" />;
 
   return (
-    <QueryState query={query}>
-      {(data) => {
-        const threads = data.pages
-          .flatMap((page) => page.data)
-          .filter((thread) => !needle || (thread.title ?? '').toLowerCase().includes(needle))
-          .toSorted((a, b) => Number(b.pinned) - Number(a.pinned));
+    <>
+      <Command.Empty>
+        {threads.length
+          ? t('no-match', 'No conversation matches.')
+          : t('no-history', 'No conversations yet.')}
+      </Command.Empty>
+      {PERIODS.map((period) => {
+        const group = threads.filter((thread) => periodOf(thread) === period);
 
-        return (
-          <>
-            {threads.length === 0 ? (
-              <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-                {needle
-                  ? t('no-match', 'No conversation matches.')
-                  : t('no-history', 'No conversations yet.')}
-              </p>
-            ) : (
-              <ul className="flex flex-col">
-                {threads.map((thread) => (
-                  <ThreadRow key={thread.id} thread={thread} onOpen={() => onOpen(thread.id)} />
-                ))}
-              </ul>
-            )}
-            {query.hasNextPage && (
-              <Button
-                variant="ghost"
-                className="mt-1 w-full"
-                disabled={query.isFetchingNextPage}
-                onClick={() => void query.fetchNextPage()}
-              >
-                {t('load-more', 'Show older conversations')}
-              </Button>
-            )}
-          </>
-        );
-      }}
-    </QueryState>
+        return group.length ? (
+          <Command.Group key={period} heading={headings[period]}>
+            {group.map((thread) => (
+              <ThreadItem key={thread.id} thread={thread} onOpen={() => onOpen(thread.id)} />
+            ))}
+          </Command.Group>
+        ) : null;
+      })}
+      {query.hasNextPage && (
+        <Command.Group>
+          <Command.Item
+            forceMount
+            value="load-more"
+            disabled={query.isFetchingNextPage}
+            onSelect={() => void query.fetchNextPage()}
+          >
+            <IconHistory aria-hidden className="text-muted-foreground" />
+            {t('load-more', 'Show older conversations')}
+          </Command.Item>
+        </Command.Group>
+      )}
+    </>
   );
 };
 
@@ -99,36 +111,20 @@ export const HistoryDialog = ({
   onOpen: (threadId: string) => void;
 }) => {
   const { t } = useTranslation('assistant');
-  const [search, setSearch] = useState('');
-  const input = useRef<HTMLInputElement>(null);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="sm:max-w-md" initialFocus={input}>
-        <Dialog.HeaderCombined
-          title={t('history', 'Conversations')}
-          description={t(
-            'history-description',
-            'Closing a tab keeps its conversation here. Pinned ones come first.',
-          )}
-        />
-        <InputGroup>
-          <InputGroup.Addon>
-            <IconSearch className="size-4" />
-          </InputGroup.Addon>
-          <InputGroup.Input
-            ref={input}
-            type="search"
-            aria-label={t('search-history', 'Search conversations')}
-            placeholder={t('search-history', 'Search conversations')}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </InputGroup>
-        <ScrollArea className="max-h-96">
-          {open && <HistoryList search={search} onOpen={onOpen} />}
-        </ScrollArea>
-      </Dialog.Content>
-    </Dialog>
+    <Command.Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t('history', 'Conversations')}
+      description={t(
+        'history-description',
+        'Find a conversation by its title. Pinned ones come first.',
+      )}
+      className="sm:max-w-lg"
+    >
+      <Command.Input placeholder={t('search-history', 'Search conversations')} />
+      <Command.List className="max-h-96">{open && <HistoryList onOpen={onOpen} />}</Command.List>
+    </Command.Dialog>
   );
 };

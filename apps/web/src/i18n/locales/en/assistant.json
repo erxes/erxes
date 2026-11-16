@@ -60,7 +60,7 @@
   },
   "untitled": "Untitled conversation",
   "history": "Conversations",
-  "history-description": "Closing a tab keeps its conversation here. Pinned ones come first.",
+  "history-description": "Find a conversation by its title. Pinned ones come first.",
   "search-history": "Search conversations",
   "no-match": "No conversation matches.",
   "no-history": "No conversations yet.",
@@ -268,5 +268,12 @@
   },
   "search": {
     "ask": "Ask the assistant: “{{question}}”"
+  },
+  "history-group": {
+    "pinned": "Pinned",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "week": "Last 7 days",
+    "older": "Older"
   }
 }
