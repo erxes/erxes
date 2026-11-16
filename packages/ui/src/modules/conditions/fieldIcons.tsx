@@ -1,4 +1,5 @@
 import {
+  IconBuilding,
   IconCalendar,
   IconHash,
   IconLetterCase,
@@ -7,6 +8,7 @@ import {
   IconTags,
   IconToggleLeft,
   IconUser,
+  IconUserCircle,
 } from '@tabler/icons-react';
 import type { TConditionField } from './conditions';
 
@@ -18,6 +20,8 @@ const FIELD_ICONS: Partial<Record<string, typeof IconHash>> = {
   select: IconSelector,
   member: IconUser,
   tags: IconTags,
+  customer: IconUserCircle,
+  company: IconBuilding,
   list: IconList,
 };
 

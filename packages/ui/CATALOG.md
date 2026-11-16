@@ -61,6 +61,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `companyTitle(company)` A company's name, else its email or phone.
 - `<ContactLink contentType contentId contacts placeholder>` A customer or company as a chip: its avatar and name.
 - `type ContactQueries { customer, company }` Where customers and companies come from, as TanStack query options.
+- `type ContactSearch { search, ids }` What a contact search asks for: matches, or the contacts with these ids.
+- `type ContactSearchQueries { customers, companies }` Where a filter's `customer` and `company` fields search contacts.
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
 - `customerTitle(customer)` A customer's name, else its email or phone.
 - `<PanelDescriptionEditor value scope readonly isHTML onSave>` A record's description as a full-size tab.
@@ -117,7 +119,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TagsQuery` TanStack query options for the tags of one record type.
 - `type TConditionField { path, label, type, options, group, … }` A field conditions can use: a record's, or an earlier step's output.
 - `type TConditionGroup { match, rules }` Rules (or nested groups) that must all, or any, hold.
-- `type TConditionLookups { members, tags }` Where `member` and `tags` values pick from.
+- `type TConditionLookups { members, tags, contacts }` Where `member`, `tags`, `customer` and `company` values pick from.
 - `type TConditionRule { path, op, value }` One rule of a condition: a `path`, an operator and maybe a value.
 - `<TextField placeholder value scope onSave onValueChange>` A text value in a table cell or panel row that edits in a popover.
 - `useMemberOptions(members, enabled, picked)` The active team members as picker options.

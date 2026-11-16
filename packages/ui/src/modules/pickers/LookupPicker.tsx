@@ -3,6 +3,13 @@ import { useMemo, useState } from 'react';
 import { Combobox } from '../../components/combobox';
 import { Popover } from '../../components/popover';
 import { EntityPicker } from './EntityPicker';
+import {
+  type CompanyContact,
+  companyTitle,
+  type ContactSearchQueries,
+  type CustomerContact,
+  customerTitle,
+} from '../records/contacts';
 import { type Member, type MemberQueries, memberName } from './members';
 
 /** A tag as the pickers show one: core's `Tag` has these fields and more. */
@@ -72,6 +79,50 @@ export const useMemberOptions = (
   );
 
   return { ...team, options: [...team.options, ...others.options] };
+};
+
+const customerOption = (customer: CustomerContact) => ({
+  value: customer.id,
+  label: customerTitle(customer) || customer.id,
+});
+
+const companyOption = (company: CompanyContact) => ({
+  value: company.id,
+  label: companyTitle(company) || company.id,
+});
+
+/**
+ * Customers or companies matching `search` as picker options, the `picked` ones first so their
+ * names show whatever is searched; none without `contacts` or a `type`.
+ */
+export const useContactOptions = (
+  contacts: ContactSearchQueries | undefined,
+  type: 'customer' | 'company' | null,
+  picked: readonly string[] = [],
+  search = '',
+): LookupOptions => {
+  const ids = [...new Set(picked)].toSorted((a, b) => a.localeCompare(b));
+  const input = { search: search.trim() || undefined };
+  const customers = type === 'customer' ? contacts?.customers : undefined;
+  const companies = type === 'company' ? contacts?.companies : undefined;
+  const byIds = ids.length > 0;
+
+  const lookups = [
+    useLookup(customers && byIds ? customers({ ids }) : undefined, byIds, customerOption),
+    useLookup(companies && byIds ? companies({ ids }) : undefined, byIds, companyOption),
+    useLookup(customers?.(input), true, customerOption),
+    useLookup(companies?.(input), true, companyOption),
+  ];
+
+  const options = new Map(
+    lookups.flatMap((lookup) => lookup.options).map((row) => [row.value, row] as const),
+  );
+
+  return {
+    options: [...options.values()],
+    loading: lookups.some((lookup) => lookup.loading),
+    error: lookups.find((lookup) => lookup.error)?.error ?? null,
+  };
 };
 
 /** A record type's tags as picker options; none without `tags`. */

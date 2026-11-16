@@ -2,6 +2,7 @@ import type { ElementType } from 'react';
 import { z } from 'zod';
 import type { TagsQuery } from '../pickers/LookupPicker';
 import type { MemberQueries } from '../pickers/members';
+import type { ContactSearchQueries } from '../records/contacts';
 
 /*
  * Core's condition language, which automations and list filters share: rules `<path> <op>
@@ -112,14 +113,18 @@ export type TConditionField = {
 };
 
 /**
- * Where `member` and `tags` values pick from. In erxes: `memberQueries` from
- * `@erxes/core-contract/client`, and web's tags query for the record type. Without one, the
- * picker has nothing to offer.
+ * Where `member`, `tags`, `customer` and `company` values pick from. In erxes: `memberQueries`
+ * and `contactSearchQueries` from `@erxes/core-contract/client`, and web's tags query for the
+ * record type. Without one, the picker has nothing to offer.
  */
 export type TConditionLookups = {
   members?: MemberQueries;
   tags?: TagsQuery;
+  contacts?: ContactSearchQueries;
 };
+
+/** Field types whose values are ids picked from a lookup, not typed. */
+export const LOOKUP_TYPES = new Set<string>(['member', 'tags', 'customer', 'company']);
 
 export const NO_VALUE = new Set<string>(['exists', 'not_exists']);
 

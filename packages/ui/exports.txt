@@ -21,6 +21,8 @@ type CalendarProps
 type ChartConfig
 type CompanyContact
 type ContactQueries
+type ContactSearch
+type ContactSearchQueries
 type CustomerContact
 type FileStorageAdapter
 type IUIConfig

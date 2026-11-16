@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDebouncedCallback } from 'use-debounce';
 import { Combobox } from '../../components/combobox';
 import { Command } from '../../components/command';
 import { amountStep, fromAmountInput, toAmountInput } from '../../lib/money';
@@ -7,6 +9,7 @@ import { EntityPicker } from '../pickers/EntityPicker';
 import {
   isRule,
   LIST_VALUE,
+  LOOKUP_TYPES,
   NO_VALUE,
   RELATIVE,
   type TConditionField,
@@ -33,8 +36,10 @@ type RuleEditorProps = Omit<ValueEditorProps, 'rule'> & { rule: TConditionRule }
 /** Options (a choice, members, tags) by their labels: "is any of" picks several, others one. */
 const OptionsEditor = ({ rule, field, lookups, onChange, onDone }: RuleEditorProps) => {
   const picked = valuesOf(rule);
-  const { options, loading, error } = useFieldOptions(field, lookups, picked);
+  const [search, setSearch] = useState('');
+  const { options, loading, error, searched } = useFieldOptions(field, lookups, picked, search);
   const multiple = LIST_VALUE.has(rule.op);
+  const onSearchChange = useDebouncedCallback(setSearch, 250);
 
   return (
     <EntityPicker
@@ -49,6 +54,7 @@ const OptionsEditor = ({ rule, field, lookups, onChange, onDone }: RuleEditorPro
       }}
       loading={loading}
       error={error}
+      onSearchChange={searched ? onSearchChange : undefined}
       searchPlaceholder={field?.label}
     />
   );
@@ -201,7 +207,7 @@ export const isTypedValue = (rule: TFilterRule, field: TConditionField | undefin
 
   const type = field?.type;
 
-  if (type === 'date' || type === 'boolean' || type === 'member' || type === 'tags') return false;
+  if (type === 'date' || type === 'boolean' || LOOKUP_TYPES.has(type ?? '')) return false;
 
   return !field?.options?.length;
 };
@@ -231,7 +237,7 @@ export const ValueEditor = (props: ValueEditorProps) => {
 
   if (type === 'boolean') return <BooleanEditor {...ruleProps} />;
 
-  if (type === 'member' || type === 'tags' || field?.options?.length) {
+  if (LOOKUP_TYPES.has(type ?? '') || field?.options?.length) {
     return <OptionsEditor {...ruleProps} />;
   }
 

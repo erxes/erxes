@@ -26,9 +26,19 @@ export type TListFilterField = {
   label: string;
   /**
    * How it compares: contains (text), ranges (number), relative dates, yes/no, a pick from
-   * `options`, a team member (from `members`), a tag (from `tags`).
+   * `options`, a team member (from `members`), a tag (from `tags`), a customer or company
+   * (searched in `contacts`). The rule's value is the picked ids.
    */
-  type: 'text' | 'number' | 'date' | 'boolean' | 'select' | 'member' | 'tags';
+  type:
+    | 'text'
+    | 'number'
+    | 'date'
+    | 'boolean'
+    | 'select'
+    | 'member'
+    | 'tags'
+    | 'customer'
+    | 'company';
   /** A `select`'s choices. */
   options?: { value: string; label: string }[];
   /** Instead of the type's icon. */
@@ -70,9 +80,9 @@ export type TListFilterProps = TConditionLookups & {
  * "Where / And / Or" rows. Each chip is one condition whose field, operator and value open in
  * place. The conditions and search live in the address (shared links and reloads keep them);
  * `useListFilterParams()` reads them for the list's query. `member` fields pick
- * from `members` and `tags` fields from `tags`: in erxes `memberQueries` from
- * `@erxes/core-contract/client` and the tags query of the record type; outside erxes, the
- * plugin's own.
+ * from `members`, `tags` fields from `tags`, `customer` and `company` fields from `contacts`: in
+ * erxes `memberQueries` and `contactSearchQueries` from `@erxes/core-contract/client` and the
+ * tags query of the record type; outside erxes, the plugin's own.
  */
 export const ListFilter = ({ recordType, ...props }: TListFilterProps) => {
   const [barRef] = useAutoAnimate({ duration: 150 });

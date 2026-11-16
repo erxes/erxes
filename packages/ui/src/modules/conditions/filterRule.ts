@@ -85,6 +85,8 @@ export const operatorsFor = (type: string | undefined): readonly TFilterOperator
     case 'select':
     case 'member':
     case 'tags':
+    case 'customer':
+    case 'company':
       return ['in', 'not_in', 'exists', 'not_exists'];
 
     case 'list':

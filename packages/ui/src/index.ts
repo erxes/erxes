@@ -274,6 +274,8 @@ export {
   type CompanyContact,
   companyTitle,
   type ContactQueries,
+  type ContactSearch,
+  type ContactSearchQueries,
   type CustomerContact,
   customerTitle,
   type TContactContentType,

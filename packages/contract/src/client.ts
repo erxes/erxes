@@ -57,6 +57,23 @@ export const contactQueries = {
   company: (id: string) => orpc.companies.get.queryOptions({ input: { id }, staleTime: 60_000 }),
 };
 
+/**
+ * Where erxes-ui's list filter searches customers and companies for `customer` and `company`
+ * fields: `<ListFilter contacts={contactSearchQueries} … />`. A rule's picked contacts load by id.
+ */
+export const contactSearchQueries = {
+  customers: ({ search, ids }: { search?: string; ids?: string[] }) =>
+    orpc.customers.list.queryOptions({
+      input: { limit: ids ? 100 : 20, search, ids: ids?.join(',') },
+      staleTime: 60_000,
+    }),
+  companies: ({ search, ids }: { search?: string; ids?: string[] }) =>
+    orpc.companies.list.queryOptions({
+      input: { limit: ids ? 100 : 20, search, ids: ids?.join(',') },
+      staleTime: 60_000,
+    }),
+};
+
 /** Any error core answers with: one per code in `ERRORS`, with that code's `data`. */
 type ApiError = ORPCErrorFromErrorMap<typeof ERRORS>;
 
