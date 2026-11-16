@@ -7,6 +7,7 @@ import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
 import { oneRow, setOrders } from '~/lib/rows';
 import {
+  assertMemberField,
   type FieldRow,
   type FieldType,
   fieldsOfGroup,
@@ -194,6 +195,11 @@ export const updateField = async (client: Db, id: string, input: FieldChanges) =
   await lockRows(client, 'core_fields', [id]);
 
   const field = await findField(client, id);
+  const { isVisible: _isVisible, ...definition } = input;
+
+  // Members may hide a plugin's field; what it is stays the plugin's.
+  if (Object.values(definition).some((value) => value !== undefined)) assertMemberField(field);
+
   const typed = await typeChange(client, field, input);
   const { code, description, icon, ...rest } = input;
 
@@ -222,8 +228,20 @@ export const updateField = async (client: Db, id: string, input: FieldChanges) =
 export const reorderFields = (client: Db, orders: { id: string; order: number }[]) =>
   setOrders(client, fields, orders);
 
+/** Fields of `ids` a plugin owns refuse members' changes. */
+const assertMemberFields = async (client: Db, ids: string[]) => {
+  const [owned] = await client
+    .select()
+    .from(fields)
+    .where(and(inArray(fields.id, ids), isNotNull(fields.plugin)))
+    .limit(1);
+
+  if (owned) assertMemberField(owned);
+};
+
 export const archiveFields = async (client: Db, ids: string[]) => {
   await lockRows(client, 'core_fields', ids);
+  await assertMemberFields(client, ids);
 
   await client
     .update(fields)
@@ -234,7 +252,7 @@ export const archiveFields = async (client: Db, ids: string[]) => {
 };
 
 export const restoreField = async (client: Db, id: string) => {
-  await findField(client, id);
+  assertMemberField(await findField(client, id));
 
   const row = oneRow(
     await client
@@ -257,6 +275,8 @@ export const removeUnusedFields = async (client: Db, ids: string[]) => {
     throw notFound('Field');
   }
 
+  rows.forEach(assertMemberField);
+
   if ((await usageOf(client, rows)) > 0) {
     throw inUse(rows.length === 1 ? 'this field' : 'these fields');
   }
@@ -270,7 +290,7 @@ export const removeUnusedFields = async (client: Db, ids: string[]) => {
 export const removeField = async (client: Db, id: string) => {
   await lockRows(client, 'core_fields', [id]);
 
-  await findField(client, id);
+  assertMemberField(await findField(client, id));
   // Its values go with it (foreign key).
   await client.delete(fields).where(eq(fields.id, id));
 

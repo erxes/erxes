@@ -8,7 +8,7 @@ import {
 import { and, eq, inArray } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import type { FieldRow } from './fieldRows';
+import { assertMemberField, type FieldRow } from './fieldRows';
 
 const invalid = (field: FieldRow, message: string) =>
   fail('INVALID_FIELD_VALUE', `${field.label}: ${message}`, { fieldId: field.id });
@@ -34,7 +34,7 @@ const checkText = (field: FieldRow, value: CustomValue) => {
 };
 
 /** A value checked against its field: type, format and options. */
-const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
+export const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
   switch (field.type) {
     case 'text':
     case 'textarea':
@@ -89,7 +89,8 @@ const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
   }
 };
 
-const isEmpty = (value: CustomValue) => value === '' || (Array.isArray(value) && !value.length);
+export const isEmpty = (value: CustomValue) =>
+  value === '' || (Array.isArray(value) && !value.length);
 
 /**
  * Applies a custom field patch to a record's values: each key must be a field
@@ -125,6 +126,8 @@ export const applyCustomFields = async (
     if (!definition) {
       throw fail('INVALID_FIELD', `Unknown ${contentType} field`, { fieldId: id });
     }
+
+    assertMemberField(definition.field);
 
     if (value === null || isEmpty(value)) {
       delete next[id];

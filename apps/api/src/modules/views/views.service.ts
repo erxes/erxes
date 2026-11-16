@@ -7,6 +7,7 @@ import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { filterFields } from './filterFields';
+import { listSharedViews } from './pluginViews';
 import { compileRecordFilter } from './recordFilter';
 
 /** One of core's lists, whose filter core compiles; any other is a plugin's (`sales:deal`). */
@@ -51,8 +52,10 @@ const withEditable = () => {
   };
 };
 
-/** The member's own views and the team's shared ones, shared first, then by name. */
+/** The member's own views and the team's shared ones, shared first, then by name; a plugin's: the shared ones. */
 export const listViews = async (client: Db, recordType: ViewListType) => {
+  if (caller().type === 'plugin') return listSharedViews(client, recordType);
+
   assertSees(recordType);
 
   const rows = await wholeList((limit) =>
@@ -184,12 +187,15 @@ export const listFilterFields = async (client: Db, recordType: ViewRecordType) =
   assertSees(recordType);
 
   return {
-    data: (await filterFields(client, recordType)).map(({ path, label, type, options, group }) => ({
-      path,
-      label,
-      type,
-      options,
-      group,
-    })),
+    data: (await filterFields(client, recordType)).map(
+      ({ path, label, type, options, group, groupLabel }) => ({
+        path,
+        label,
+        type,
+        options,
+        group,
+        groupLabel,
+      }),
+    ),
   };
 };

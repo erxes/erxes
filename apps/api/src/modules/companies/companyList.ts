@@ -1,5 +1,5 @@
 import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
-import type { CursorQuery } from '@erxes/core-contract';
+import type { ConditionGroup, CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, customers, type Db } from '@erxes/core-db';
 import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
@@ -18,7 +18,8 @@ interface CompanyQuery {
   tagIds?: string[];
   customerId?: string;
   ids?: string[];
-  filter?: string;
+  /** The list's filter as JSON, or a saved view's. */
+  filter?: string | ConditionGroup | null;
 }
 
 /** Companies the customer is linked to. */

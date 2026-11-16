@@ -107,6 +107,7 @@ export const CompanyFields = createUpdateSchema(companies, {
   })
   .extend({
     tagIds: z.array(Id).max(50).optional(),
+    /** Sets the given custom fields; `null` clears one. Others stay. A plugin's field: 403 PLUGIN_FIELD. */
     customFields: CustomFieldsPatch.optional(),
   });
 
@@ -135,6 +136,7 @@ const {
   INVALID_TYPE,
   MASS_DELETE_STOPPED,
   NOT_A_LEAD,
+  PLUGIN_FIELD,
   TAG_LIMIT,
 } = ERRORS;
 
@@ -149,6 +151,7 @@ const base = oc.errors({
   INVALID_TYPE,
   MASS_DELETE_STOPPED,
   NOT_A_LEAD,
+  PLUGIN_FIELD,
   TAG_LIMIT,
 });
 

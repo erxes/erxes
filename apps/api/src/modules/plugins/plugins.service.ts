@@ -18,6 +18,7 @@ import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
+import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { schedulePluginJobs } from './pluginJobs';
 
 type PluginRow = typeof plugins.$inferSelect;
@@ -116,6 +117,9 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
   const rows = await tx.select().from(plugins).where(eq(plugins.status, 'active'));
 
   await installAll(tx, [orgId], rows);
+  await withOrg(orgId, (scoped) =>
+    inOrder(rows, (row) => syncPluginFields(scoped, row.name, row.manifest?.fields)),
+  );
 };
 
 const invalidClient = () => fail('INVALID_CLIENT', 'Unknown plugin or wrong client secret');
@@ -252,6 +256,8 @@ export const registerManifest = async (manifest: PluginManifest) => {
       .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
       .where(eq(plugins.name, plugin));
     await schedulePluginJobs(tx, plugin, manifest.jobs);
+    // Every organisation that has it gets the manifest's fields.
+    await syncPluginFields(tx, plugin, manifest.fields);
   });
 
   return { ok: true as const };

@@ -115,6 +115,10 @@ export const ERRORS = {
   INVALID_FIELD_VALUE: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_GROUP: { status: 400, data: z.object({ groupId: z.string() }).optional() },
   FIELD_IN_USE: { status: 409, data: z.object({ fieldId: z.string() }).optional() },
+  // A field a plugin declared: only that plugin changes it or writes its values.
+  PLUGIN_FIELD: { status: 403, data: z.object({ fieldId: z.string(), plugin: z.string() }) },
+  // `views.matches` on a member's own view: only views shared with the team decide for plugins.
+  VIEW_NOT_SHARED: { status: 403 },
 
   // Products.
   INVALID_CATEGORY: { status: 400 },

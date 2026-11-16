@@ -7,6 +7,7 @@ import { can } from '~/http/access';
 import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '~/modules/views/filterValues';
@@ -94,6 +95,8 @@ export const installPlugin = async (name: string) => {
         installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
       },
     });
+
+  await syncPluginFields(tx, name, row.manifest?.fields);
 
   await recordAudit(tx, {
     action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',

@@ -29,6 +29,19 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
+ * then write their values. Members see them read-only and filter by them; no timeline entry or event.
+ *
+ *   fields: [{ code: 'total_spent', contentType: 'customer', label: 'Total spent', type: 'number' }],
+ *   await core.forOrg(orgId).fields.setPluginValues({
+ *     contentType: 'customer', values: [{ recordId: customerId, code: 'total_spent', value: 150000 }],
+ *   });                                   // → { written, skipped }; up to 500, value null clears
+ *
+ * Segments (scope `views:read`): a shared view members built in core is the audience.
+ *
+ *   const { data } = await core.forOrg(orgId).views.list({ recordType: 'customer' });  // shared only
+ *   const { recordIds } = await core.forOrg(orgId).views.matches({ viewId, recordIds: [customerId] });
+ *
  * Customers (a shop, tracking, booking): core signs them in; the plugin never builds sign-up or
  * sign-in. Declare `customerApp: { origins: ['https://{subdomain}.shop.example.com'] }` in the
  * manifest. The app's own form makes two calls to core: `POST /core/v1/customer-auth/code`

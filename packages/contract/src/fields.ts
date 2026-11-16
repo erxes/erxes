@@ -1,6 +1,7 @@
 import { fieldGroups, fields } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
+import { pluginFieldsContract } from './pluginFields';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { type FieldType, OPTION_FIELD_TYPES } from './values';
@@ -15,29 +16,36 @@ export const Field = createSelectSchema(fields, {
   order: int,
   archivedAt: isoDate,
   createdAt: isoDate,
-}).pick({
-  id: true,
-  contentType: true,
-  /** The group it is listed in; `null` for fields made before groups. */
-  groupId: true,
-  label: true,
-  /** A stable key for integrations. */
-  code: true,
-  description: true,
-  /** A Tabler icon name. */
-  icon: true,
-  type: true,
-  /** Format text values must have. */
-  validation: true,
-  /** Choices for select / multiselect / radio / check. */
-  options: true,
-  /** Shown in record tables and the record panel. */
-  isVisible: true,
-  order: true,
-  /** Set while it (or its group) is archived: hidden, values kept. */
-  archivedAt: true,
-  createdAt: true,
-});
+})
+  .pick({
+    id: true,
+    contentType: true,
+    /** The group it is listed in; `null` for fields made before groups. */
+    groupId: true,
+    label: true,
+    /** A stable key for integrations. */
+    code: true,
+    description: true,
+    /** A Tabler icon name. */
+    icon: true,
+    type: true,
+    /** Format text values must have. */
+    validation: true,
+    /** Choices for select / multiselect / radio / check. */
+    options: true,
+    /** Shown in record tables and the record panel. */
+    isVisible: true,
+    order: true,
+    /** The plugin that declared it and writes its values (members only read it); null: a member's. */
+    plugin: true,
+    /** Set while it (or its group) is archived: hidden, values kept. */
+    archivedAt: true,
+    createdAt: true,
+  })
+  .extend({
+    /** The plugin's title from its manifest, to list its fields under; null for members' fields. */
+    pluginTitle: z.string().nullable(),
+  });
 
 export type Field = z.infer<typeof Field>;
 
@@ -130,10 +138,10 @@ const changes = (value: Record<string, unknown>) => Object.keys(value).some((key
 const needsOptions = (value: { type?: FieldType; options?: string[] }) =>
   !value.type || !OPTION_FIELD_TYPES.includes(value.type) || (value.options?.length ?? 0) > 0;
 
-const { FIELD_IN_USE, INVALID_FIELD_GROUP } = ERRORS;
+const { FIELD_IN_USE, INVALID_FIELD_GROUP, PLUGIN_FIELD } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
-const base = oc.errors({ ...COMMON_ERRORS, FIELD_IN_USE, INVALID_FIELD_GROUP });
+const base = oc.errors({ ...COMMON_ERRORS, FIELD_IN_USE, INVALID_FIELD_GROUP, PLUGIN_FIELD });
 
 export const fieldsContract = {
   list: base
@@ -184,7 +192,7 @@ export const fieldsContract = {
       method: 'PATCH',
       path: '/fields/{id}',
       summary:
-        'Change a field. The type changes only within types sharing a stored value while records hold values (409 FIELD_IN_USE)',
+        "Change a field. The type changes only within types sharing a stored value while records hold values (409 FIELD_IN_USE). A plugin's field takes only `isVisible` (403 PLUGIN_FIELD)",
     })
     .input(
       FieldFields.omit({ contentType: true })
@@ -204,7 +212,8 @@ export const fieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/archive',
-      summary: 'Archive fields: hidden everywhere, values kept (owners and admins)',
+      summary:
+        "Archive fields: hidden everywhere, values kept (owners and admins). 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
     .output(Ok),
@@ -212,7 +221,8 @@ export const fieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/{id}/restore',
-      summary: 'Restore an archived field (owners and admins)',
+      summary:
+        "Restore an archived field (owners and admins). 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ id: Id }))
     .output(Field),
@@ -221,7 +231,7 @@ export const fieldsContract = {
       method: 'POST',
       path: '/fields/remove',
       summary:
-        'Delete fields no record holds a value of (owners and admins). 409 FIELD_IN_USE otherwise',
+        "Delete fields no record holds a value of (owners and admins). 409 FIELD_IN_USE otherwise, 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
     .output(Ok),
@@ -229,10 +239,12 @@ export const fieldsContract = {
     .route({
       method: 'DELETE',
       path: '/fields/{id}',
-      summary: 'Delete a custom field and its values (owners and admins)',
+      summary:
+        "Delete a custom field and its values (owners and admins). 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ id: Id }))
     .output(Ok),
+  ...pluginFieldsContract,
 };
 
 export const fieldGroupsContract = {

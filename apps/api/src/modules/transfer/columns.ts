@@ -120,7 +120,13 @@ export const transferColumns = async (
   const builtIn = isCompany ? COMPANY_COLUMNS : customerColumns(recordType);
 
   const custom = await client
-    .select({ id: fields.id, label: fields.label, type: fields.type, code: fields.code })
+    .select({
+      id: fields.id,
+      label: fields.label,
+      type: fields.type,
+      code: fields.code,
+      plugin: fields.plugin,
+    })
     .from(fields)
     .where(eq(fields.contentType, isCompany ? 'company' : 'customer'));
 
@@ -131,7 +137,9 @@ export const transferColumns = async (
         group: 'custom',
         default: false,
         fieldType: field.type,
-        aliases: field.code ? [field.code.toLowerCase()] : [],
+        // A plugin's fields export; their values are the plugin's to write.
+        importable: !field.plugin,
+        aliases: field.code && !field.plugin ? [field.code.toLowerCase()] : [],
       }),
     ),
     ...relationColumns(isCompany),

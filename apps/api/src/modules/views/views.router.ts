@@ -6,6 +6,7 @@ import {
   removeView,
   updateView,
 } from '~/modules/views/views.service';
+import { viewMatches } from '~/modules/views/pluginViews';
 import { scoped } from '~/orpc';
 
 export const viewsRouter = {
@@ -16,4 +17,5 @@ export const viewsRouter = {
   ),
   remove: scoped.views.remove.handler(({ input }) => removeView(db(), input.id)),
   fields: scoped.views.fields.handler(({ input }) => listFilterFields(db(), input.recordType)),
+  matches: scoped.views.matches.handler(({ input }) => viewMatches(db(), input)),
 };

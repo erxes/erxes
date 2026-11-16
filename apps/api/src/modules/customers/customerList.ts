@@ -1,4 +1,4 @@
-import type { CursorQuery } from '@erxes/core-contract';
+import type { ConditionGroup, CursorQuery } from '@erxes/core-contract';
 import { customerCompanies, customers, type Db } from '@erxes/core-db';
 import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
@@ -16,7 +16,8 @@ interface CustomerQuery {
   companyId?: string;
   leadStageId?: string;
   ids?: string[];
-  filter?: string;
+  /** The list's filter as JSON, or a saved view's. */
+  filter?: string | ConditionGroup | null;
 }
 
 /** Customers linked to the company. */

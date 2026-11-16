@@ -102,6 +102,8 @@ export * from './pluginJobs';
 
 export * from './plugins';
 
+export * from './pluginFields';
+
 export * from './products';
 
 export * from './roles';

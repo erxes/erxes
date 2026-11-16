@@ -1,4 +1,4 @@
-import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { AUTOMATION_SUBJECTS, CONTENT_TYPES, PLUGIN_SCOPES } from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -9,6 +9,7 @@ import { Id, isoDate, listOf } from './common';
 import { ActionField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
+import { PluginFields } from './pluginFields';
 import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
 
@@ -19,28 +20,7 @@ export const PluginName = z
   .regex(/^[a-z][a-z0-9_]{0,39}$/, 'lower case letters, digits and _ (starting with a letter)')
   .refine((name) => name !== 'core', 'reserved');
 
-/**
- * What a plugin may do in core, granted per organisation when it is
- * installed. A plugin only ever gets the scopes it asked for in its manifest.
- */
-export const PLUGIN_SCOPES = [
-  'activities:write',
-  'customers:read',
-  'customers:write',
-  'audit:write',
-  'emails:write',
-  'events:read',
-  'events:write',
-  'files:read',
-  'files:write',
-  'live:write',
-  'notifications:write',
-  'payments:read',
-  'payments:write',
-  'products:read',
-  'products:write',
-  'users:read',
-] as const;
+export { PLUGIN_SCOPES };
 
 export const PluginScope = z.enum(PLUGIN_SCOPES);
 
@@ -214,6 +194,8 @@ export const PluginManifest = z.object({
   subscriptions: z.array(EventPattern).max(100).optional(),
   /** Background work at its API (`PluginJobs`): core POSTs each job to `<api.url>/jobs/<name>`. */
   jobs: PluginJobs.optional(),
+  /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
+  fields: PluginFields.optional(),
   /**
    * Events it publishes: triggers for automations. `subject`: what its events
    * are about (published with `subject`), so automations started by it can
