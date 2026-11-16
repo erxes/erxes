@@ -6,7 +6,7 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { Id, isoDate, listOf } from './common';
-import { ActionField } from './automationRuns';
+import { ActionFields } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginFields } from './pluginFields';
@@ -137,6 +137,9 @@ export const PluginManifest = z.object({
    * Actions automations can run (`hr.leave.create`): core POSTs
    * `{ input, context }` to `<api.url>/automations/actions/<type>` with a
    * core token and an `Idempotency-Key`; the JSON answer is the step's output.
+   * A `plugin_record` field's choices come from
+   * `GET <api.url>/automations/records/<recordType>?parent=<its dependsOn value>`,
+   * called with the member's session token, answering `[{ value, label }]`.
    */
   actions: z
     .array(
@@ -145,7 +148,7 @@ export const PluginManifest = z.object({
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         subject: z.enum(AUTOMATION_SUBJECTS).optional(),
-        fields: z.array(ActionField).max(50).default([]),
+        fields: ActionFields.default([]),
       }),
     )
     .max(200)
