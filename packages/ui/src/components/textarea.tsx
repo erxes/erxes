@@ -2,11 +2,12 @@ import React from 'react';
 
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { useFieldControl } from './field-control';
 import { fieldTextVariants } from './input';
 import { cn } from 'erxes-ui/lib/utils';
 
 const textareaVariants = cva(
-  'flex min-h-15 w-full rounded bg-transparent px-3 py-1.5 text-sm shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50',
+  'flex min-h-15 w-full rounded bg-transparent px-3 py-1.5 text-sm shadow-xs transition placeholder:text-accent-foreground focus-visible:outline-hidden focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:shadow-destructive aria-invalid:focus-visible:shadow-focus-destructive',
   {
     variants: {
       variant: {
@@ -33,8 +34,11 @@ export const Textarea = ({
   truncate,
   ...props
 }: React.ComponentProps<'textarea'> & VariantProps<typeof textareaVariants>) => {
+  const field = useFieldControl();
+
   return (
     <textarea
+      {...field}
       className={cn(textareaVariants({ variant, text, truncate }), className)}
       ref={ref}
       {...props}

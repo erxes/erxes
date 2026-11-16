@@ -43,7 +43,10 @@ afterEach(() => {
 /** What a command bar beside the list reads: the picked ids. */
 const Picked = () => createElement('output', null, RecordList.useSelection().ids.join(','));
 
-const list = ({ listId = 'tasks', ...props }: { grouped?: boolean; listId?: string } = {}) =>
+const list = ({
+  listId = 'tasks',
+  ...props
+}: { grouped?: boolean; selectable?: boolean; listId?: string } = {}) =>
   createElement(
     RecordList.Provider,
     { listId },
@@ -182,5 +185,16 @@ describe('RecordList', () => {
     expect(container.querySelector('button[aria-expanded]')).toBeNull();
     expect(container.querySelectorAll('ul')).toHaveLength(1);
     expect(rowNames(container)).toHaveLength(5);
+  });
+
+  it('shows no checkboxes when not selectable', async () => {
+    const container = await render(list({ selectable: false }));
+
+    expect(container.querySelector('[role="checkbox"], input[type="checkbox"]')).toBeNull();
+    expect(container.querySelector('[aria-label^="Select"]')).toBeNull();
+    expect(rowNames(container)).toHaveLength(5);
+    // Groups still fold.
+    await fold(container, 'Todo');
+    expect(rowNames(container)).toHaveLength(3);
   });
 });

@@ -1,17 +1,11 @@
 import type { FileSettings } from '@erxes/core-contract';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Button,
-  Input,
-  Label,
-  MultipleSelector,
-  type MultiSelectOption,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
-import { useId, useState } from 'react';
+import { Form, Input, MultipleSelector, type MultiSelectOption, useToast } from 'erxes-ui';
+import type { TFunction } from 'i18next';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 
 /** Common choices; any MIME type, `type/*` or `.ext` can be typed in. */
@@ -36,9 +30,49 @@ const optionOf = (value: string): MultiSelectOption =>
 
 const VALID_TYPE = /^(\.[a-z0-9]{1,15}|[a-z0-9][a-z0-9.+-]*\/(\*|[a-z0-9][a-z0-9.+-]*))$/;
 
+const typeOf = (option: MultiSelectOption) => option.value.trim().toLowerCase();
+
 export const fileSettingsQuery = () => orpc.files.settings.queryOptions({ staleTime: 60_000 });
 
-const useSaveLimits = (onSaved: () => void) => {
+type Translate = TFunction<'settings', 'file-upload'>;
+
+/** A whole number of MB up to the server's limit, and types that are MIME types or extensions. */
+const limitsSchema = (t: Translate, limitMb: number) =>
+  z.object({
+    maxSizeMb: z
+      .string()
+      .regex(/^\d+$/, t('size-invalid', 'Enter a whole number of MB'))
+      .refine((text) => Number(text) >= 1, t('size-invalid', 'Enter a whole number of MB'))
+      .refine(
+        (text) => Number(text) <= limitMb,
+        t('size-over-limit', {
+          limit: limitMb,
+          defaultValue: `This server accepts up to ${limitMb} MB`,
+        }),
+      ),
+    types: z.array(z.object({ value: z.string(), label: z.string() })).superRefine((types, ctx) => {
+      const bad = types.find((option) => !VALID_TYPE.test(typeOf(option)));
+
+      if (bad) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('type-invalid', {
+            value: bad.value,
+            defaultValue: `"${bad.value}" is not a MIME type, type/* or .ext`,
+          }),
+        });
+      }
+    }),
+  });
+
+type LimitsValues = z.infer<ReturnType<typeof limitsSchema>>;
+
+const valuesOf = (settings: FileSettings): LimitsValues => ({
+  maxSizeMb: String(settings.maxSizeMb),
+  types: settings.allowedTypes.map(optionOf),
+});
+
+const useSaveLimits = (onSaved: (settings: FileSettings) => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
   const client = useQueryClient();
   const { toast } = useToast();
@@ -47,7 +81,7 @@ const useSaveLimits = (onSaved: () => void) => {
     orpc.files.updateSettings.mutationOptions({
       onSuccess: (next) => {
         client.setQueryData(fileSettingsQuery().queryKey, next);
-        onSaved();
+        onSaved(next);
         toast({ title: t('saved', 'Upload settings saved') });
       },
       onError: (error) =>
@@ -60,134 +94,88 @@ const useSaveLimits = (onSaved: () => void) => {
   );
 };
 
-const useSizeError = (maxSizeMb: string, limitMb: number) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
-  const size = Number(maxSizeMb);
-
-  if (!Number.isInteger(size) || size < 1) return t('size-invalid', 'Enter a whole number of MB');
-
-  return size > limitMb
-    ? t('size-over-limit', {
-        limit: limitMb,
-        defaultValue: `This server accepts up to ${limitMb} MB`,
-      })
-    : null;
-};
-
-/** The accepted types: chosen or typed; an invalid one is named under them. */
-const TypesField = ({
-  types,
-  disabled,
-  badType,
-  onChange,
-}: {
-  types: MultiSelectOption[];
-  disabled: boolean;
-  badType?: MultiSelectOption;
-  onChange: (types: MultiSelectOption[]) => void;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
-  const id = useId();
-
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{t('allowed-types', 'Allowed file types')}</Label>
-      <MultipleSelector
-        id={id}
-        value={types}
-        onChange={onChange}
-        options={TYPE_OPTIONS}
-        creatable
-        disabled={disabled}
-        placeholder={t(
-          'allowed-types-placeholder',
-          'Any type: choose or type image/*, application/pdf, .docx …',
-        )}
-        hidePlaceholderWhenSelected
-        emptyIndicator={
-          <p className="py-2 text-center text-sm text-muted-foreground">
-            {t('type-hint', 'Type a MIME type or .ext')}
-          </p>
-        }
-      />
-      <p className={badType ? 'text-sm text-destructive' : 'text-xs text-muted-foreground'}>
-        {badType
-          ? t('type-invalid', {
-              value: badType.value,
-              defaultValue: `"${badType.value}" is not a MIME type, type/* or .ext`,
-            })
-          : t(
-              'types-help',
-              'Leave empty to accept any type. Programs (.exe, .bat, .msi …) are never accepted.',
-            )}
-      </p>
-    </div>
-  );
-};
-
-/** Upload limits: largest file and which types are accepted. */
+/** Upload limits: largest file and which types are accepted, saved by the bar under them. */
 export const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
-  const sizeId = useId();
-  // Unsaved edits; the rest shows the saved settings.
-  const [draft, setDraft] = useState<{ maxSizeMb?: string; types?: MultiSelectOption[] }>({});
-  const maxSizeMb = draft.maxSizeMb ?? String(settings.maxSizeMb);
-  const types = draft.types ?? settings.allowedTypes.map(optionOf);
-  const save = useSaveLimits(() => setDraft({}));
-  const sizeError = useSizeError(maxSizeMb, settings.limitMb);
-  const badType = types.find((option) => !VALID_TYPE.test(option.value.trim().toLowerCase()));
+
+  const form = useForm<LimitsValues>({
+    resolver: zodResolver(limitsSchema(t, settings.limitMb)),
+    defaultValues: valuesOf(settings),
+  });
+
+  const save = useSaveLimits((next) => form.reset(valuesOf(next)));
+
+  const submit = form.handleSubmit((values) =>
+    save.mutate({ maxSizeMb: Number(values.maxSizeMb), allowedTypes: values.types.map(typeOf) }),
+  );
 
   return (
-    <section className="space-y-5 rounded-lg border bg-background p-5">
-      <div>
-        <h2 className="text-base font-semibold">{t('limits', 'Upload limits')}</h2>
-        <p className="text-sm text-muted-foreground">
-          {t(
+    <Form {...form}>
+      <form className="flex flex-col gap-4" noValidate onSubmit={(event) => void submit(event)}>
+        <Form.Section
+          title={t('limits', 'Upload limits')}
+          description={t(
             'limits-description',
             'Apply to every upload in this organisation: team members, plugins and forms.',
           )}
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor={sizeId}>{t('max-size', 'Largest file (MB)')}</Label>
-        <Input
-          id={sizeId}
-          type="number"
-          min={1}
-          max={settings.limitMb}
-          className="w-40"
-          value={maxSizeMb}
-          disabled={!canEdit}
-          onChange={(event) => setDraft({ ...draft, maxSizeMb: event.target.value })}
-        />
-        <p className={sizeError ? 'text-sm text-destructive' : 'text-xs text-muted-foreground'}>
-          {sizeError ??
-            t('server-limit', {
-              limit: settings.limitMb,
-              defaultValue: `This server allows up to ${settings.limitMb} MB.`,
-            })}
-        </p>
-      </div>
-      <TypesField
-        types={types}
-        disabled={!canEdit}
-        badType={badType}
-        onChange={(next) => setDraft({ ...draft, types: next })}
-      />
-      {canEdit && (
-        <Button
-          disabled={Boolean(sizeError) || Boolean(badType) || save.isPending}
-          onClick={() =>
-            save.mutate({
-              maxSizeMb: Number(maxSizeMb),
-              allowedTypes: types.map((option) => option.value.trim().toLowerCase()),
-            })
-          }
         >
-          {save.isPending ? <Spinner size="sm" /> : <IconDeviceFloppy />}
-          {t('save', 'Save')}
-        </Button>
-      )}
-    </section>
+          <Form.Field
+            control={form.control}
+            name="maxSizeMb"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label required>{t('max-size', 'Largest file (MB)')}</Form.Label>
+                <Form.Control>
+                  <Input {...field} inputMode="numeric" className="w-40" disabled={!canEdit} />
+                </Form.Control>
+                <Form.Description>
+                  {t('server-limit', {
+                    limit: settings.limitMb,
+                    defaultValue: `This server allows up to ${settings.limitMb} MB.`,
+                  })}
+                </Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="types"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('allowed-types', 'Allowed file types')}</Form.Label>
+                <Form.Control>
+                  <MultipleSelector
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={TYPE_OPTIONS}
+                    creatable
+                    disabled={!canEdit}
+                    placeholder={t(
+                      'allowed-types-placeholder',
+                      'Any type: choose or type image/*, application/pdf, .docx …',
+                    )}
+                    hidePlaceholderWhenSelected
+                    emptyIndicator={
+                      <p className="py-2 text-center text-sm text-muted-foreground">
+                        {t('type-hint', 'Type a MIME type or .ext')}
+                      </p>
+                    }
+                  />
+                </Form.Control>
+                <Form.Description>
+                  {t(
+                    'types-help',
+                    'Leave empty to accept any type. Programs (.exe, .bat, .msi …) are never accepted.',
+                  )}
+                </Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </Form.Section>
+        {canEdit && <Form.SaveBar saving={save.isPending} />}
+      </form>
+    </Form>
   );
 };

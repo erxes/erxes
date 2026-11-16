@@ -38,22 +38,34 @@ const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean).map((ind
   value: industry,
 }));
 
-const companySchema = z.object({
-  // Core names every company.
-  primaryName: z.string().trim().min(1, 'Company name is required'),
-  code: z.string().optional(),
-  ownerId: z.string().optional(),
-  primaryEmail: z.email('Invalid email').optional().or(z.literal('')),
-  primaryPhone: z.string().optional(),
-  website: z.string().optional(),
-  industry: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
-  businessType: z.string().optional(),
-  size: z.string().optional(),
-  description: contactDescription.optional(),
-  avatarUrl: z.string().nullable().optional(),
-});
+type Translate = (key: string, defaultValue: string) => string;
 
-type TCompanyForm = z.infer<typeof companySchema>;
+const companySchema = (t: Translate) =>
+  z.object({
+    // Core names every company.
+    primaryName: z
+      .string()
+      .trim()
+      .min(1, t('form.company-name-required', 'Enter the company name')),
+    code: z.string().optional(),
+    ownerId: z.string().optional(),
+    primaryEmail: z
+      .email(t('form.email-invalid', 'Enter an email like name@example.com'))
+      .optional()
+      .or(z.literal('')),
+    primaryPhone: z.string().optional(),
+    website: z.string().optional(),
+    industry: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+    businessType: z.string().optional(),
+    size: z
+      .string()
+      .regex(/^\d*$/, t('form.size-invalid', 'Enter a whole number of people'))
+      .optional(),
+    description: contactDescription.optional(),
+    avatarUrl: z.string().nullable().optional(),
+  });
+
+type TCompanyForm = z.infer<ReturnType<typeof companySchema>>;
 
 type TCompanyTextField = 'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website';
 
@@ -63,6 +75,13 @@ const TEXT_FIELD_ICONS: Record<TCompanyTextField, Icon> = {
   primaryEmail: IconMail,
   primaryPhone: IconPhone,
   website: IconWorld,
+};
+
+// The keyboard each field gets on a phone, and the browser's checks.
+const TEXT_FIELD_TYPES: Partial<Record<TCompanyTextField, 'email' | 'tel' | 'url'>> = {
+  primaryEmail: 'email',
+  primaryPhone: 'tel',
+  website: 'url',
 };
 
 const orNull = (value?: string) => value?.trim() || null;
@@ -86,7 +105,13 @@ const TextRow = ({
       required={required}
       error={formState.errors[name]?.message}
     >
-      <Input {...register(name)} placeholder={label} variant="bordered" text="sm" />
+      <Input
+        {...register(name)}
+        type={TEXT_FIELD_TYPES[name]}
+        placeholder={label}
+        variant="bordered"
+        text="sm"
+      />
     </PanelFormRow>
   );
 };
@@ -94,7 +119,7 @@ const TextRow = ({
 /** Industries, business type and size. */
 const BusinessRows = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { control, register } = useFormContext<TCompanyForm>();
+  const { control, register, formState } = useFormContext<TCompanyForm>();
 
   return (
     <>
@@ -134,12 +159,15 @@ const BusinessRows = () => {
           )}
         />
       </PanelFormRow>
-      <PanelFormRow icon={IconUsers} label={t('field.size', 'Size')}>
+      <PanelFormRow
+        icon={IconUsers}
+        label={t('field.size', 'Size')}
+        error={formState.errors.size?.message}
+      >
         <Input
           {...register('size')}
-          type="number"
-          placeholder={t('field.size', 'Size')}
-          min={0}
+          inputMode="numeric"
+          placeholder={t('field.size-placeholder', 'Employees')}
           variant="bordered"
           text="sm"
         />
@@ -200,17 +228,23 @@ const useCompanySave = (form: UseFormReturn<TCompanyForm>, customerIds: string[]
  */
 export const CompanyPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
+  const { t: contactT } = useTranslation('contact');
   const [customerIds, setCustomerIds] = useState<string[]>([]);
 
   const form = useForm<TCompanyForm>({
-    resolver: zodResolver(companySchema),
+    resolver: zodResolver(companySchema(contactT)),
     defaultValues: { primaryName: '', code: '', industry: [] },
   });
 
   const { save, saving } = useCompanySave(form, customerIds);
 
   return (
-    <NewContactForm form={form} onSave={save} saving={saving} saveLabel={t('add._', 'Add company')}>
+    <NewContactForm
+      form={form}
+      onSave={save}
+      saving={saving}
+      saveLabel={t('add.create', 'Create company')}
+    >
       <ContactAvatarRow label={t('field.picture', 'Picture')} />
       <TextRow name="primaryName" label={t('field.primaryName', 'Name')} required />
       <TextRow name="code" label={t('field.code', 'Code')} />

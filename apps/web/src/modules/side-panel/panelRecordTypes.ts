@@ -1,7 +1,8 @@
-import type { ComponentType } from 'react';
+import { type ComponentType, useCallback } from 'react';
 import { getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
 import { PluginRecordNew, PluginRecordView } from '~/modules/plugins/PluginRecordView';
-import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
+import { findPluginRecordType, usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
+import { usePlugins } from '~/modules/plugins/usePlugins';
 import { ProductPanel } from '~/modules/products/panel/ProductPanel';
 import { ProductPanelNew } from '~/modules/products/panel/ProductPanelNew';
 import { paths } from '~/lib/paths';
@@ -65,19 +66,36 @@ export const usePanelRecordType = (
     return { type: PANEL_RECORD_TYPES[contentType], loading: false };
   }
 
-  if (!entry) return { type: undefined, loading };
+  return { type: entry && pluginPanelType(entry), loading: entry ? false : loading };
+};
 
-  return {
-    type: {
-      label: entry.type.title,
-      View: PluginRecordView,
-      New: entry.type.New ? PluginRecordNew : undefined,
-      // A plugin's own page goes back to the plugin's first page.
-      listPath: () => entry.base,
-      pagePath: entry.type.detailPath,
+const pluginPanelType = (
+  entry: NonNullable<ReturnType<typeof findPluginRecordType>>,
+): IPanelRecordType => ({
+  label: entry.type.title,
+  View: PluginRecordView,
+  New: entry.type.New ? PluginRecordNew : undefined,
+  // A plugin's own page goes back to the plugin's first page.
+  listPath: () => entry.base,
+  pagePath: entry.type.detailPath,
+});
+
+/** The own page of a record of any type, for going from one record's page to another's. */
+export const useRecordPagePathOf = () => {
+  const { plugins } = usePlugins();
+
+  return useCallback(
+    (record: TRelationEntity, pathname: string) => {
+      const entry = findPluginRecordType(plugins, record.contentType);
+
+      const type = isPanelContentType(record.contentType)
+        ? PANEL_RECORD_TYPES[record.contentType]
+        : entry && pluginPanelType(entry);
+
+      return recordPagePath(type, record, pathname);
     },
-    loading: false,
-  };
+    [plugins],
+  );
 };
 
 /** A saved record's own page, where the panel's expand button leads. */

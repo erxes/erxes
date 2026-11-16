@@ -1,7 +1,7 @@
 import { type CursorQuery, LIST_MAX, type PageInfo } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
 import type { SQL } from 'drizzle-orm';
-import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { fail } from '~/http/errors';
 
@@ -85,9 +85,14 @@ export const keysetPage = async <Row extends { id: string }>(
   const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
 
   // One after another: inside a request `client` is its transaction, a single connection.
+  // The lists' indexes are `(org_id, created_at DESC, id DESC)`, which Drizzle writes NULLS LAST:
+  // the order spells that out (or its reverse) so Postgres reads the page from the index instead
+  // of sorting every row of the organisation.
   const rows = await fetch(
     cursor ? and(where, position(pageSide)) : where,
-    forward ? [desc(createdAt), desc(id)] : [asc(createdAt), asc(id)],
+    forward
+      ? [sql`${createdAt} desc nulls last`, sql`${id} desc nulls last`]
+      : [sql`${createdAt} asc nulls first`, sql`${id} asc nulls first`],
     query.limit + 1,
   );
 

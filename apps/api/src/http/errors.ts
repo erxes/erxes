@@ -11,7 +11,8 @@ type DataOf<C extends ErrorCode> = (typeof ERRORS)[C] extends { data: infer S ex
 /**
  * An error the API answers with: one of the contract's codes (`ERRORS` in
  * `@erxes/core-contract`), with the status and the `data` it declares. The
- * only place an `ORPCError` is made. A procedure that declares the code
+ * only place core makes an `ORPCError`, besides the filter compiler it shares
+ * with plugins (`invalidFilter` in `@erxes/plugin-sdk/filter`). A procedure that declares the code
  * answers with it as a defined error, typed for the client.
  */
 export const fail = <C extends ErrorCode>(

@@ -48,6 +48,7 @@ export const ACCESS = {
   'activities.update': { plugin: 'activities:write' },
   'activities.remove': { plugin: 'activities:write' },
   'activities.create': { plugin: 'activities:write' },
+  'activities.importNote': { plugin: 'activities:write' },
 
   'assistant.connections': needs('assistant.chat'),
   'assistant.saveConnection': needs('assistant.chat'),
@@ -105,11 +106,13 @@ export const ACCESS = {
   'transfer.exports': needs('contacts.export'),
   'transfer.createExport': needs('contacts.export'),
   // Views check per list: contacts.view for contact lists; every member sees products.
-  'views.list': MEMBER,
+  // Plugins see shared views only, and test records against them (segments).
+  'views.list': { member: 'any', plugin: 'views:read' },
   'views.create': MEMBER,
   'views.update': MEMBER,
   'views.remove': MEMBER,
   'views.fields': MEMBER,
+  'views.matches': { plugin: 'views:read' },
   'saas.plan': MEMBER,
   'saas.pluginPlan': { plugin: 'installed' },
   'auth.onboarded': MEMBER,
@@ -190,6 +193,8 @@ export const ACCESS = {
   'fields.restore': needs('properties.manage'),
   'fields.removeUnused': needs('properties.manage'),
   'fields.remove': needs('properties.manage'),
+  // A plugin writes its own fields' values (the manifest's `fields`).
+  'fields.setPluginValues': { plugin: 'fields:write' },
 
   'files.createUpload': { member: 'any', plugin: 'files:write' },
   'files.complete': { member: 'any', plugin: 'files:write' },

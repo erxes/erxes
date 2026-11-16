@@ -18,8 +18,6 @@ const Env = z.object({
   UI_ENTRY_URL: z.url().optional(),
   /** The built UI to serve at `/ui` (the image sets it). */
   UI_DIR: z.string().optional(),
-  /** web's origin, which calls this API from the browser. Defaults to CORE_URL's origin. */
-  CORE_UI_URL: z.url().optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   VERSION: z.string().default('0.1.0'),
   /** Traces go to this OTLP collector; the SDK reads the other OTEL_* variables itself. */
@@ -36,7 +34,6 @@ export const config = {
   publicUrl: env.PUBLIC_URL.replace(/\/+$/, ''),
   uiEntryUrl: env.UI_ENTRY_URL ?? `${env.PUBLIC_URL.replace(/\/+$/, '')}/ui/remoteEntry.js`,
   uiDir: env.UI_DIR,
-  coreUiOrigin: new URL(env.CORE_UI_URL ?? env.CORE_URL).origin,
   logLevel: env.LOG_LEVEL,
   version: env.VERSION,
   tracing: Boolean(env.OTEL_EXPORTER_OTLP_ENDPOINT),

@@ -66,6 +66,8 @@ export const NewContactForm = <T extends FieldValues>({
     <Form {...form}>
       <form
         className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
+        // The rows show the schema's errors in the form's words, not the browser's bubbles.
+        noValidate
         onSubmit={(event) => void form.handleSubmit(onSave)(event)}
       >
         <PanelFormLayout

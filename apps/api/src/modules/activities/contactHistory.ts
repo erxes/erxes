@@ -56,9 +56,17 @@ export const contactsUpdated = async (
     return changes ? [{ before, after, changes }] : [];
   });
 
+  // A conversion or reopening has its own timeline entry (`<type>.lead`), so its state
+  // change isn't told twice; the audit log and the event keep it.
+  const shown = changed.flatMap(({ after, changes }) => {
+    const { state: _state, ...rest } = changes;
+
+    return Object.keys(rest).length ? [{ after, changes: rest }] : [];
+  });
+
   await recordActivity(
     tx,
-    changed.map(({ after, changes }) => ({
+    shown.map(({ after, changes }) => ({
       targetType: type,
       targetId: after.id,
       type: `${type}.updated`,

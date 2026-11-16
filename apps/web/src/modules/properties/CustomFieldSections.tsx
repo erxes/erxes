@@ -35,7 +35,8 @@ const EmptyProperties = ({ contentType }: { contentType: FieldContentType }) => 
 
 /**
  * A record's custom field values: one collapsible card per field group, in
- * group order, each value edited in place. `onSave` gets the changed field.
+ * group order, each value edited in place, then one per plugin with the values
+ * it keeps (read-only). `onSave` gets the changed field.
  */
 export const CustomFieldSections = ({
   contentType,
@@ -63,14 +64,14 @@ export const CustomFieldSections = ({
 
   return (
     <div className="flex flex-col gap-2">
-      {sections.map(({ group, fields }) => (
-        <Collapsible key={group?.id ?? 'ungrouped'} defaultOpen>
+      {sections.map(({ group, plugin, title, fields }) => (
+        <Collapsible key={group?.id ?? plugin ?? 'ungrouped'} defaultOpen>
           <div className="flex flex-col rounded-xl bg-foreground/5 p-1 pt-0">
             <div className="flex h-7 shrink-0 items-center justify-between pr-1">
               <Collapsible.Trigger render={<Button variant="ghost" size="xs" />}>
                 <Collapsible.TriggerIcon className="size-3" />
                 <span className="font-mono uppercase">
-                  {group?.name ?? t('properties', 'Properties')}
+                  {title ?? t('properties', 'Properties')}
                 </span>
               </Collapsible.Trigger>
             </div>

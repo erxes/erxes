@@ -1,12 +1,13 @@
 import {
   FILTER_FIELD_GROUPS,
   FILTER_FIELD_TYPES,
+  PLUGIN_VIEW_TYPE,
   SORT_DIRECTIONS,
   VIEW_RECORD_TYPES,
 } from '@erxes/core-db/enums';
 import { views } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
-import { COMMON_ERRORS } from './errors';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
@@ -16,6 +17,16 @@ import { Id, isoDate, listOf } from './common';
 export const ViewRecordType = z.enum(VIEW_RECORD_TYPES);
 
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
+
+/** A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`). Its API applies the filter. */
+export const PluginViewType = z
+  .templateLiteral([z.string(), ':', z.string()])
+  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
+
+/** Any list views can belong to: one of core's, or a plugin's. */
+export const ViewListType = z.union([ViewRecordType, PluginViewType]);
+
+export type ViewListType = z.infer<typeof ViewListType>;
 
 /**
  * A filter on a list: the condition language automations use, on the
@@ -33,6 +44,8 @@ export const FilterField = z.object({
   options: z.array(z.string()).optional(),
   /** Where it comes from, for grouping in the picker. */
   group: z.enum(FILTER_FIELD_GROUPS),
+  /** The heading to list it under instead of the group's own: a plugin's title (`plugin`). */
+  groupLabel: z.string().optional(),
 });
 
 export type FilterField = z.infer<typeof FilterField>;
@@ -44,6 +57,7 @@ export const ViewSort = z.object({
 
 export const View = createSelectSchema(views, {
   id: Id,
+  recordType: () => ViewListType,
   filter: () => ConditionGroup,
   columns: () => z.array(z.string()),
   sort: () => ViewSort,
@@ -80,8 +94,13 @@ const ViewFields = createUpdateSchema(views, {
   sort: () => ViewSort,
 }).pick({ name: true, filter: true, search: true, columns: true, sort: true, shared: true });
 
-/** Views answer with the common errors only. */
-const base = oc.errors(COMMON_ERRORS);
+/** The most record ids one `views.matches` call checks. */
+export const VIEW_MATCHES_MAX = 500;
+
+const { INVALID_TYPE, VIEW_NOT_SHARED } = ERRORS;
+
+/** What these procedures answer with besides the common errors. */
+const base = oc.errors({ ...COMMON_ERRORS, INVALID_TYPE, VIEW_NOT_SHARED });
 
 /** Saved lists (views) and what lists can be filtered by. */
 export const viewsContract = {
@@ -89,9 +108,10 @@ export const viewsContract = {
     .route({
       method: 'GET',
       path: '/views',
-      summary: "Views of a list: the member's own and the team's shared ones",
+      summary:
+        "Views of a list (core's, or a plugin's `<plugin>:<record>`): the member's own and the team's shared ones. A plugin (`views:read`) gets the shared ones",
     })
-    .input(z.object({ recordType: ViewRecordType }))
+    .input(z.object({ recordType: ViewListType }))
     .output(listOf(View)),
   create: base
     .route({
@@ -99,9 +119,9 @@ export const viewsContract = {
       path: '/views',
       successStatus: 201,
       summary:
-        'Save a view (sharing it with the team needs contacts.edit; for products, products.manage)',
+        "Save a view (sharing it with the team needs contacts.edit; for products, products.manage; a plugin's list, none)",
     })
-    .input(ViewFields.required({ name: true }).extend({ recordType: ViewRecordType }))
+    .input(ViewFields.required({ name: true }).extend({ recordType: ViewListType }))
     .output(View),
   update: base
     .route({
@@ -124,4 +144,13 @@ export const viewsContract = {
     })
     .input(z.object({ recordType: ViewRecordType }))
     .output(listOf(FilterField)),
+  matches: base
+    .route({
+      method: 'POST',
+      path: '/views/{viewId}/matches',
+      summary:
+        "Which of the given records a shared view's filter and search match now (plugins with `views:read`; a segment for prices, audiences). Customer, lead, company and company lead views; up to 500 ids, others' and unknown ones never match. 403 VIEW_NOT_SHARED for a member's own view, 400 INVALID_TYPE for another list's",
+    })
+    .input(z.object({ viewId: Id, recordIds: z.array(Id).min(1).max(VIEW_MATCHES_MAX) }))
+    .output(z.object({ recordIds: z.array(Id) })),
 };

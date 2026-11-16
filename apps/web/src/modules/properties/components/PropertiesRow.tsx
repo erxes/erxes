@@ -22,9 +22,9 @@ export const PropertiesRow = ({
       {...props}
       original={original}
       data-state={isSelected ? 'selected' : undefined}
-      className={cn('cursor-pointer', className)}
+      className={cn(field && !field.plugin && 'cursor-pointer', className)}
       onClick={() => {
-        if (field) void navigate(propertyEditPath(field));
+        if (field && !field.plugin) void navigate(propertyEditPath(field));
       }}
     />
   );

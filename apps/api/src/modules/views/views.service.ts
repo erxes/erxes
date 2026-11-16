@@ -1,5 +1,5 @@
 import { type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
-import type { ConditionGroup, ViewRecordType } from '@erxes/core-contract';
+import type { ConditionGroup, ViewListType, ViewRecordType } from '@erxes/core-contract';
 import { caller, type Db, newId, views } from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -7,19 +7,30 @@ import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { filterFields } from './filterFields';
+import { listSharedViews } from './pluginViews';
 import { compileRecordFilter } from './recordFilter';
 
-/** What a list's views need: to see the list, and to share a view or change a shared one. */
-const permissionsOf = (recordType: ViewRecordType) =>
+/** One of core's lists, whose filter core compiles; any other is a plugin's (`sales:deal`). */
+const isCoreList = (recordType: ViewListType): recordType is ViewRecordType =>
+  (VIEW_RECORD_TYPES as readonly string[]).includes(recordType);
+
+/**
+ * What a list's views need: to see the list, and to share a view or change a shared one. A
+ * plugin's list needs neither: the plugin's own API decides what its list shows.
+ */
+const corePermissions = (recordType: ViewRecordType) =>
   recordType === 'product'
     ? { see: null, share: 'products.manage' }
     : { see: 'contacts.view', share: 'contacts.edit' };
+
+const permissionsOf = (recordType: ViewListType) =>
+  isCoreList(recordType) ? corePermissions(recordType) : { see: null, share: null };
 
 const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
   fail('NOT_ALLOWED', message, { permission });
 
 /** The member may see the list the views are of. */
-const assertSees = (recordType: ViewRecordType) => {
+const assertSees = (recordType: ViewListType) => {
   const { see } = permissionsOf(recordType);
 
   if (see && !callerCan(see)) throw notAllowed(see);
@@ -28,19 +39,23 @@ const assertSees = (recordType: ViewRecordType) => {
 /** Views with whether the member may change them: the creator; a shared one also members who may share. */
 const withEditable = () => {
   const mayShare = sql.join(
-    VIEW_RECORD_TYPES.map((type) => sql`when ${type} then ${callerCan(permissionsOf(type).share)}`),
+    VIEW_RECORD_TYPES.map(
+      (type) => sql`when ${type} then ${callerCan(corePermissions(type).share)}`,
+    ),
     sql` `,
   );
 
   return {
     ...getTableColumns(views),
     editable: sql<boolean>`(${views.createdBy} = ${caller('user').userId}
-      or (${views.shared} and case ${views.recordType} ${mayShare} else false end))`,
+      or (${views.shared} and case ${views.recordType} ${mayShare} else true end))`,
   };
 };
 
-/** The member's own views and the team's shared ones, shared first, then by name. */
-export const listViews = async (client: Db, recordType: ViewRecordType) => {
+/** The member's own views and the team's shared ones, shared first, then by name; a plugin's: the shared ones. */
+export const listViews = async (client: Db, recordType: ViewListType) => {
+  if (caller().type === 'plugin') return listSharedViews(client, recordType);
+
   assertSees(recordType);
 
   const rows = await wholeList((limit) =>
@@ -70,22 +85,31 @@ interface ViewInput {
 }
 
 /** Sharing a view needs the list's share permission. */
-const assertShareable = (recordType: ViewRecordType, shared: boolean | undefined) => {
+const assertShareable = (recordType: ViewListType, shared: boolean | undefined) => {
   const { share } = permissionsOf(recordType);
 
-  if (shared && !callerCan(share)) {
+  if (shared && share && !callerCan(share)) {
     throw notAllowed(share, `Sharing a view with the team needs ${share}`);
   }
 };
 
-/** Saves a view after checking its filter compiles (fields exist, operators fit). */
+/** Checks a core list's filter compiles (fields exist, operators fit); a plugin checks its own. */
+const assertFilter = async (
+  client: Db,
+  recordType: ViewListType,
+  filter: ConditionGroup | null,
+) => {
+  if (isCoreList(recordType)) await compileRecordFilter(client, recordType, filter);
+};
+
+/** Saves a view after checking its filter. */
 export const createView = async (
   client: Db,
-  input: ViewInput & { recordType: ViewRecordType; name: string },
+  input: ViewInput & { recordType: ViewListType; name: string },
 ) => {
   assertSees(input.recordType);
   assertShareable(input.recordType, input.shared);
-  await compileRecordFilter(client, input.recordType, input.filter ?? null);
+  await assertFilter(client, input.recordType, input.filter ?? null);
 
   const row = oneRow(
     await client
@@ -131,7 +155,7 @@ export const updateView = async (client: Db, id: string, { search, ...input }: V
 
   assertShareable(row.recordType, input.shared);
 
-  if (input.filter !== undefined) await compileRecordFilter(client, row.recordType, input.filter);
+  if (input.filter !== undefined) await assertFilter(client, row.recordType, input.filter);
 
   const next = oneRow(
     await client
@@ -163,12 +187,15 @@ export const listFilterFields = async (client: Db, recordType: ViewRecordType) =
   assertSees(recordType);
 
   return {
-    data: (await filterFields(client, recordType)).map(({ path, label, type, options, group }) => ({
-      path,
-      label,
-      type,
-      options,
-      group,
-    })),
+    data: (await filterFields(client, recordType)).map(
+      ({ path, label, type, options, group, groupLabel }) => ({
+        path,
+        label,
+        type,
+        options,
+        group,
+        groupLabel,
+      }),
+    ),
   };
 };

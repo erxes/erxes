@@ -7,9 +7,10 @@ import {
   fields,
   leadStages,
 } from '@erxes/core-db';
-import { asc, eq, ne, sql } from 'drizzle-orm';
+import { and, asc, eq, ne, sql } from 'drizzle-orm';
+import { fieldShown, pluginTitle } from '~/modules/fields/fieldRows';
 import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
-import { textArray } from './filterValues';
+import { textArray } from '@erxes/plugin-sdk/filter';
 import { productFields } from './productFilterFields';
 
 const STORAGE: Record<string, CustomSpec['storage']> = {
@@ -160,14 +161,19 @@ const customFields = async (client: Db, recordType: ViewRecordType) => {
       label: fields.label,
       type: fields.type,
       options: fields.options,
+      plugin: fields.plugin,
+      pluginTitle,
     })
     .from(fields)
     .where(
-      recordType === 'product'
-        ? eq(fields.contentType, 'product')
-        : isCompany
-          ? eq(fields.contentType, 'company')
-          : ne(fields.contentType, 'product'),
+      and(
+        recordType === 'product'
+          ? eq(fields.contentType, 'product')
+          : isCompany
+            ? eq(fields.contentType, 'company')
+            : ne(fields.contentType, 'product'),
+        fieldShown,
+      ),
     )
     .orderBy(asc(fields.order));
 
@@ -177,7 +183,12 @@ const customFields = async (client: Db, recordType: ViewRecordType) => {
     return {
       path: ofCompany ? `subject.company.customFields.${row.id}` : `subject.customFields.${row.id}`,
       label: ofCompany ? `Company ${row.label}` : row.label,
-      group: ofCompany ? 'company' : 'custom',
+      // A plugin's fields list under its title (`Sales`: Total spent, Last order).
+      ...(ofCompany
+        ? { group: 'company' as const }
+        : row.plugin
+          ? { group: 'plugin' as const, groupLabel: row.pluginTitle ?? row.plugin }
+          : { group: 'custom' as const }),
       type: FILTER_TYPE[row.type] ?? 'text',
       options: row.options.length ? row.options : undefined,
       expr: sql`null`,

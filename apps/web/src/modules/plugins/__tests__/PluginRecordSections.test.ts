@@ -104,6 +104,22 @@ describe('plugin sections on a customer', () => {
     expect(container.textContent).toContain('orders exploded');
   });
 
+  it('names a section in the member’s language, from the text the plugin added', async () => {
+    const { i18n, i18nReady } = await import('~/i18n');
+
+    await i18nReady;
+    // What a plugin's `./config` adds: its words, the English as the key.
+    i18n.addResourceBundle('mn', 'Sales', { Deals: 'Хэлцэл' });
+    await act(async () => i18n.changeLanguage('mn'));
+
+    try {
+      // A word the plugin left out stays in English.
+      expect(headings(await renderSections('core:customer'))).toEqual(['Хэлцэл', 'Orders']);
+    } finally {
+      await act(async () => i18n.changeLanguage('en'));
+    }
+  });
+
   it('shows a company only the sections for companies', async () => {
     const container = await renderSections('core:company');
 

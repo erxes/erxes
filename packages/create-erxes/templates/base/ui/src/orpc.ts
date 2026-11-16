@@ -28,5 +28,9 @@ const link = new RPCLink({
 /** The API, typed from api/src/router.ts: `await client.items.list({})`. */
 const client: Client = createORPCClient(link);
 
-/** TanStack Query options per procedure: `useQuery(orpc.items.list.queryOptions({ input }))`. */
-export const orpc = createTanstackQueryUtils(client);
+/**
+ * TanStack Query options per procedure: `useQuery(orpc.items.list.queryOptions({ input }))`.
+ * Keys start with the plugin name: plugins share web's query cache, so another plugin's `me`
+ * or `list` never answers this one's.
+ */
+export const orpc = createTanstackQueryUtils(client, { path: [PLUGIN] });

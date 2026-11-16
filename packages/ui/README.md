@@ -41,7 +41,7 @@ Only what something uses:
   `PanelField`, `PanelFormRow`, `PanelFormLayout`, `PanelLabel`, the description field and
   editor, and `usePanelExpanded`. The panel itself (header, tabs, resize) is web's.
 - a list's bar in `src/modules/list`: `ViewBar`, `DisplayMenu` with `useListDisplay`, and
-  `ListFilter` with `useListFilterParams`. `ListFilter` draws core's filter bar itself, with or
+  `ListFilter` with `useListFilterParams` and its empty state `ListFilterEmpty`. `ListFilter` draws core's filter bar itself, with or
   without web: its `member` fields pick from `members` (`memberQueries` from
   `@erxes/core-contract/client`) and its `tags` fields from `tags` (a tags query of the record
   type); a plugin outside erxes passes its own. Web's lists and the automation builder use the

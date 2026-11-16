@@ -2,7 +2,8 @@ import React from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/utils';
+import { findFirstField } from '../hooks/use-focus-first-field';
+import { cn, mergeRefs } from '../lib/utils';
 import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -33,22 +34,33 @@ const dialogContentVariants = cva(
   },
 );
 
-/** The backdrop dims the page and the viewport centers the popup; a press on either closes the dialog. */
+/**
+ * The backdrop dims the page and the viewport centers the popup; a press on either closes the dialog.
+ * It opens with the cursor in its first field, when it has one.
+ */
 const DialogContent = ({
+  ref,
   className,
   variant,
+  initialFocus,
   ...props
-}: DialogPrimitive.Popup.Props & VariantProps<typeof dialogContentVariants>) => (
-  <DialogPrimitive.Portal>
-    <DialogBackdrop />
-    <DialogPrimitive.Viewport className="fixed inset-0 z-50 grid place-items-center">
-      <DialogPrimitive.Popup
-        className={cn(dialogContentVariants({ variant }), className)}
-        {...props}
-      />
-    </DialogPrimitive.Viewport>
-  </DialogPrimitive.Portal>
-);
+}: DialogPrimitive.Popup.Props & VariantProps<typeof dialogContentVariants>) => {
+  const popupRef = React.useRef<HTMLDivElement>(null);
+
+  return (
+    <DialogPrimitive.Portal>
+      <DialogBackdrop />
+      <DialogPrimitive.Viewport className="fixed inset-0 z-50 grid place-items-center">
+        <DialogPrimitive.Popup
+          ref={mergeRefs(popupRef, ref)}
+          initialFocus={initialFocus ?? (() => findFirstField(popupRef.current) ?? true)}
+          className={cn(dialogContentVariants({ variant }), className)}
+          {...props}
+        />
+      </DialogPrimitive.Viewport>
+    </DialogPrimitive.Portal>
+  );
+};
 
 const DialogCombinedHeader = ({
   title,

@@ -1,11 +1,14 @@
+import type { ElementType } from 'react';
 import { z } from 'zod';
 import type { TagsQuery } from '../pickers/LookupPicker';
 import type { MemberQueries } from '../pickers/members';
+import type { ContactSearchQueries } from '../records/contacts';
 
 /*
  * Core's condition language, which automations and list filters share: rules `<path> <op>
  * <value>` in groups that must all, or any, hold. erxes-ui knows nothing of core, so it
  * declares the shape here; core's `ConditionGroup` (`@erxes/core-contract`) is the same type.
+ * How the editors edit rules is in `filterRule.ts`.
  */
 
 export const CONDITION_OPERATORS = [
@@ -86,79 +89,42 @@ export const RelativeAmount = z.object({
 
 export type RelativeAmount = z.infer<typeof RelativeAmount>;
 
+/** A choice of a `select` field: what the rule holds, and what the picker shows. */
+export type TFieldOption = { value: string; label: string };
+
 /**
- * A field conditions can use: a record's, or an earlier step's output. `group`: where it comes
- * from, for grouping in the picker (a list's advanced filter).
+ * A field conditions can use: a record's, or an earlier step's output. The picker lists fields
+ * under their `group`'s heading: `groupLabel` when the field brings one (a plugin's name), else
+ * the group's own name.
  */
 export type TConditionField = {
   path: string;
   label: string;
   type: string;
-  options?: string[];
+  /** A `select`'s choices. */
+  options?: TFieldOption[];
   group?: string;
+  /** The heading of the field's group, instead of the group's own name. */
+  groupLabel?: string;
+  /** Instead of the type's icon. */
+  icon?: ElementType;
   /** A money amount, stored in this currency's smallest unit and typed in its major unit. */
   currency?: string;
 };
 
 /**
- * Where `member` and `tags` values pick from. In erxes: `memberQueries` from
- * `@erxes/core-contract/client`, and web's tags query for the record type. Without one, the
- * picker has nothing to offer.
+ * Where `member`, `tags`, `customer` and `company` values pick from. In erxes: `memberQueries`
+ * and `contactSearchQueries` from `@erxes/core-contract/client`, and web's tags query for the
+ * record type. Without one, the picker has nothing to offer.
  */
 export type TConditionLookups = {
   members?: MemberQueries;
   tags?: TagsQuery;
+  contacts?: ContactSearchQueries;
 };
 
-export const OPERATOR_LABELS: Record<TConditionOperator, string> = {
-  eq: 'is',
-  neq: 'is not',
-  gt: 'is greater than',
-  gte: 'is at least',
-  lt: 'is less than',
-  lte: 'is at most',
-  contains: 'contains',
-  not_contains: "doesn't contain",
-  starts_with: 'starts with',
-  in: 'is one of',
-  not_in: 'is none of',
-  exists: 'is set',
-  not_exists: 'is empty',
-  within_last: 'in the last',
-  more_than_ago: 'more than … ago',
-  within_next: 'in the next',
-  anniversary_within: 'anniversary in the next',
-};
-
-/** Operators that make sense for a field's type. */
-export const operatorsFor = (type: string | undefined) => {
-  if (type === 'date') {
-    return [
-      'within_last',
-      'more_than_ago',
-      'within_next',
-      'anniversary_within',
-      'eq',
-      'gt',
-      'lt',
-      'exists',
-      'not_exists',
-    ] as const;
-  }
-
-  if (type === 'number')
-    return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'not_exists'] as const;
-
-  if (type === 'tags' || type === 'list')
-    return ['contains', 'not_contains', 'exists', 'not_exists'] as const;
-
-  if (type === 'boolean') return ['eq', 'neq'] as const;
-
-  if (type === 'select' || type === 'member')
-    return ['eq', 'neq', 'in', 'not_in', 'exists', 'not_exists'] as const;
-
-  return CONDITION_OPERATORS;
-};
+/** Field types whose values are ids picked from a lookup, not typed. */
+export const LOOKUP_TYPES = new Set<string>(['member', 'tags', 'customer', 'company']);
 
 export const NO_VALUE = new Set<string>(['exists', 'not_exists']);
 
@@ -174,10 +140,3 @@ export const LIST_VALUE = new Set<string>(['in', 'not_in']);
 /** Whether a condition entry is a rule rather than a nested group. */
 export const isRule = (rule: TConditionRule | TConditionGroup): rule is TConditionRule =>
   !('match' in rule);
-
-/** A relative date takes `{ amount, unit }`; switching to or from one resets the value. */
-export const withOperator = (rule: TConditionRule, op: TConditionOperator): TConditionRule => {
-  if (RELATIVE.has(op) === RELATIVE.has(rule.op)) return { ...rule, op };
-
-  return { ...rule, op, value: RELATIVE.has(op) ? { amount: 30, unit: 'days' } : undefined };
-};

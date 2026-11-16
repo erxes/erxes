@@ -1,9 +1,12 @@
+import type { AutomationFieldPath } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import type { TConditionField } from 'erxes-ui';
 import { orpc } from '@erxes/core-contract/client';
 
-/** A field conditions and placeholders can use: a record's (from the API) or an earlier step's output. */
-export type FieldInfo = TConditionField;
+/**
+ * A field conditions and placeholders can use: a record's (from the API) or an earlier step's
+ * output, with `group` for where it comes from.
+ */
+export type FieldInfo = AutomationFieldPath & { group?: string; currency?: string };
 
 /**
  * Fields conditions and placeholders can use (built-in and custom), for a

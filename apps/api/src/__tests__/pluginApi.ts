@@ -1,23 +1,34 @@
-import { type PluginJobDelivery } from '@erxes/core-contract';
-import { verifyCoreEvent, verifyCoreJob } from '@erxes/plugin-sdk';
+import { type PluginJobDelivery, type RecordAccessCheck } from '@erxes/core-contract';
+import { verifyCoreAccessCheck, verifyCoreEvent, verifyCoreJob } from '@erxes/plugin-sdk';
 import { once } from 'node:events';
 import { createServer, type IncomingHttpHeaders } from 'node:http';
 
 /**
  * A plugin's API that verifies each delivery like a plugin would and records
- * it: events at `/events`, jobs at `/jobs/<name>`. A job answers with the
- * next status in `jobAnswers`, then 204.
+ * it: events at `/events`, jobs at `/jobs/<name>`, record access checks at
+ * `/timelines/access`. A job answers with the next status in `jobAnswers`,
+ * then 204; a check allows the records in `readable`.
  */
 export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   const received: { type: string; payload: Record<string, unknown> }[] = [];
   const jobs: (PluginJobDelivery & { path: string; idempotencyKey: unknown })[] = [];
   const jobRequests: { authorization: string | undefined; raw: string }[] = [];
   const jobAnswers: number[] = [];
+  const accessChecks: RecordAccessCheck[] = [];
+  const readable = new Set<string>();
   const rejected: string[] = [];
 
-  /** The status the plugin answers with. */
+  /** The status the plugin answers with, and its body. */
   const receive = async (path: string, headers: IncomingHttpHeaders, raw: string) => {
     try {
+      if (path === '/timelines/access') {
+        const check = await verifyCoreAccessCheck(headers.authorization, raw, { coreUrl, plugin });
+
+        accessChecks.push(check);
+
+        return { status: 200, body: JSON.stringify({ allowed: readable.has(check.id) }) };
+      }
+
       if (path.startsWith('/jobs/')) {
         jobRequests.push({ authorization: headers.authorization, raw });
 
@@ -25,18 +36,18 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
 
         jobs.push({ ...job, path, idempotencyKey: headers['idempotency-key'] });
 
-        return jobAnswers.shift() ?? 204;
+        return { status: jobAnswers.shift() ?? 204 };
       }
 
       const event = await verifyCoreEvent(headers.authorization, raw, { coreUrl, plugin });
 
       received.push({ type: event.type, payload: event.data.payload });
 
-      return 204;
+      return { status: 204 };
     } catch (error) {
       rejected.push(String(error));
 
-      return 401;
+      return { status: 401 };
     }
   };
 
@@ -47,7 +58,9 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
       raw += chunk.toString();
     });
     req.on('end', () => {
-      void receive(req.url ?? '', req.headers, raw).then((status) => res.writeHead(status).end());
+      void receive(req.url ?? '', req.headers, raw).then(({ status, body }) =>
+        res.writeHead(status).end(body),
+      );
     });
   }).listen(0);
 
@@ -63,6 +76,8 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
     jobs,
     jobRequests,
     jobAnswers,
+    accessChecks,
+    readable,
     rejected,
     close: () => {
       server.closeAllConnections();

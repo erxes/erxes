@@ -4,6 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 import { useCellLabel } from 'erxes-ui/modules/record-table/components/RecordTableCell';
 import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { useFieldState } from './field-control';
 
 // Base UI shows the selected item's label from the root's `items`, and its items mount only
 // while the popup is open. So Content also renders its children once out of sight, where each
@@ -50,13 +51,13 @@ const SelectGroup = (props: SelectPrimitive.Group.Props) =>
   use(CollectingContext) ? props.children : <SelectPrimitive.Group {...props} />;
 
 const selectTriggerVariants = cva(
-  'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1',
+  'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus aria-invalid:shadow-destructive aria-invalid:focus:shadow-focus-destructive data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1',
   {
     variants: {
       variant: {
         default: '',
-        // A 1px border instead of the drop shadow, for dense forms.
-        bordered: 'border border-input font-normal shadow-none',
+        // A 1px border instead of the drop shadow, for dense forms; red while it has an error.
+        bordered: 'border border-input font-normal shadow-none aria-invalid:border-destructive',
         // No border or corners: a cell in a grid that draws its own lines.
         flush: 'rounded-none shadow-none',
       },
@@ -71,17 +72,23 @@ const SelectTrigger = ({
   variant,
   id,
   ...props
-}: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>) => (
-  // In a table cell or a side panel field, named by the column or the label first.
-  <SelectPrimitive.Trigger
-    {...useCellLabel(id)}
-    className={cn(selectTriggerVariants({ variant }), className)}
-    {...props}
-  >
-    {children}
-    <IconChevronDown aria-hidden className="w-4 h-4 opacity-50" />
-  </SelectPrimitive.Trigger>
-);
+}: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>) => {
+  // The form row's label names it through the cell label below; this is its error and state.
+  const field = useFieldState();
+
+  return (
+    // In a table cell or a side panel field, named by the column or the label first.
+    <SelectPrimitive.Trigger
+      {...field}
+      {...useCellLabel(id)}
+      className={cn(selectTriggerVariants({ variant }), className)}
+      {...props}
+    >
+      {children}
+      <IconChevronDown aria-hidden className="w-4 h-4 opacity-50" />
+    </SelectPrimitive.Trigger>
+  );
+};
 
 const SelectContent = ({
   className,

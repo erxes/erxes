@@ -18,6 +18,8 @@ export const FieldLocation = z.object({
   id: z.string(),
   contentType: FieldContentType,
   groupId: z.string().nullable(),
+  /** A plugin's field has no edit page. */
+  plugin: z.string().nullable(),
 });
 
 /** The edit page of a field. */
@@ -84,7 +86,8 @@ const PropertiesMoreColumnCell = ({ field }: { field: Field }) => {
   const setArchiveTarget = useSetAtom(archiveTargetState);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
 
-  if (!manager) {
+  // A plugin's field is the plugin's to change.
+  if (!manager || field.plugin) {
     return null;
   }
 
@@ -147,12 +150,14 @@ export const propertiesColumns = (
     id: 'checkbox',
     accessorKey: 'checkbox',
     header: () => <PropertiesHeaderCheckboxCell ids={fieldIds} label={t('select-all-fields')} />,
-    cell: ({ row }) => (
-      <PropertiesCheckboxCell
-        id={row.original.id}
-        label={t('select-field', { name: row.original.label })}
-      />
-    ),
+    // Selected fields archive or delete together; a plugin's do neither.
+    cell: ({ row }) =>
+      row.original.plugin ? null : (
+        <PropertiesCheckboxCell
+          id={row.original.id}
+          label={t('select-field', { name: row.original.label })}
+        />
+      ),
     size: 33,
   },
   {

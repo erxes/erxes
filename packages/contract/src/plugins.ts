@@ -1,4 +1,4 @@
-import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { AUTOMATION_SUBJECTS, CONTENT_TYPES, PLUGIN_SCOPES } from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -6,12 +6,14 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { httpUrl, Id, isoDate, listOf } from './common';
-import { ActionField } from './automationRuns';
+import { ActionFields } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginAssistant } from './pluginAssistant';
+import { PluginFields } from './pluginFields';
 import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
+import { PluginTimeline } from './timelines';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
 export const PluginName = z
@@ -20,28 +22,7 @@ export const PluginName = z
   .regex(/^[a-z][a-z0-9_]{0,39}$/, 'lower case letters, digits and _ (starting with a letter)')
   .refine((name) => name !== 'core', 'reserved');
 
-/**
- * What a plugin may do in core, granted per organisation when it is
- * installed. A plugin only ever gets the scopes it asked for in its manifest.
- */
-export const PLUGIN_SCOPES = [
-  'activities:write',
-  'customers:read',
-  'customers:write',
-  'audit:write',
-  'emails:write',
-  'events:read',
-  'events:write',
-  'files:read',
-  'files:write',
-  'live:write',
-  'notifications:write',
-  'payments:read',
-  'payments:write',
-  'products:read',
-  'products:write',
-  'users:read',
-] as const;
+export { PLUGIN_SCOPES };
 
 export const PluginScope = z.enum(PLUGIN_SCOPES);
 
@@ -153,6 +134,9 @@ export const PluginManifest = z.object({
    * Actions automations can run (`hr.leave.create`): core POSTs
    * `{ input, context }` to `<api.url>/automations/actions/<type>` with a
    * core token and an `Idempotency-Key`; the JSON answer is the step's output.
+   * A `plugin_record` field's choices come from
+   * `GET <api.url>/automations/records/<recordType>?parent=<its dependsOn value>`,
+   * called with the member's session token, answering `[{ value, label }]`.
    */
   actions: z
     .array(
@@ -161,23 +145,13 @@ export const PluginManifest = z.object({
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         subject: z.enum(AUTOMATION_SUBJECTS).optional(),
-        fields: z.array(ActionField).max(50).default([]),
+        fields: ActionFields.default([]),
       }),
     )
     .max(200)
     .optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
-  timelines: z
-    .array(
-      z.object({
-        type: z.string().regex(/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/),
-        label: z.string().trim().min(1).max(100),
-        /** A permission action of the plugin (`hr.employee.view`); none: every member. */
-        permission: z.string().optional(),
-      }),
-    )
-    .max(50)
-    .optional(),
+  timelines: z.array(PluginTimeline).max(50).optional(),
   /**
    * How its timeline entries look: a label, a colour and an icon per type —
    * one of IconBeach, IconBriefcase, IconCalendarEvent, IconCash,
@@ -210,6 +184,8 @@ export const PluginManifest = z.object({
   subscriptions: z.array(EventPattern).max(100).optional(),
   /** Background work at its API (`PluginJobs`): core POSTs each job to `<api.url>/jobs/<name>`. */
   jobs: PluginJobs.optional(),
+  /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
+  fields: PluginFields.optional(),
   /**
    * Events it publishes: triggers for automations. `subject`: what its events
    * are about (published with `subject`), so automations started by it can

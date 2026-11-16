@@ -3,51 +3,43 @@ import type { TContactContentType } from '../modules/records/contacts';
 import type { RecordRef } from '../modules/records/openRecord';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-/**
- * A property input's own settings, stored with the custom field.
- * Each input defines its keys.
- */
-export type TPropertyInputMeta = Record<string, unknown>;
-
-/**
- * Props of a plugin's activity row component in `widgets.activityRows`.
- * The shape comes from erxes 3.x; web doesn't read `widgets` from a plugin's config.
- */
-export type TActivityRowProps = {
-  activity: {
-    _id: string;
-    activityType: string;
-    sourcePlugin?: string;
-    createdAt: string | Date;
-    /** The plugin's own payload for the row. */
-    metadata?: Record<string, unknown>;
-  };
-};
-
-/**
- * Props of a custom property input in `widgets.propertyInputs`.
- * It edits the field's value as text and its own settings as `meta`. The shape comes from
- * erxes 3.x; web doesn't read `widgets` from a plugin's config.
- */
-export type TPropertyInputProps = {
-  value: string;
-  onValueChange: (value: string) => void;
-  meta?: TPropertyInputMeta;
-  onMetaChange: (meta: TPropertyInputMeta) => void;
-  disabled?: boolean;
-};
+/** Every schematic the widget catalog can draw for a dashboard widget. */
+export const DASHBOARD_WIDGET_PREVIEWS = [
+  'bar',
+  'line',
+  'area',
+  'pie',
+  'table',
+  'list',
+  'kpi',
+  'heatmap',
+  'progress',
+] as const;
 
 /** The schematic a dashboard widget shows in the widget catalog. */
-export type TDashboardWidgetPreview =
-  | 'bar'
-  | 'line'
-  | 'area'
-  | 'pie'
-  | 'table'
-  | 'list'
-  | 'kpi'
-  | 'heatmap'
-  | 'progress';
+export type TDashboardWidgetPreview = (typeof DASHBOARD_WIDGET_PREVIEWS)[number];
+
+/**
+ * A plugin's tile for core's home dashboard.
+ * It shows in the widget catalog, under the plugin's name, to members who may use the plugin.
+ * A member places it at most once.
+ */
+export type TDashboardWidget = {
+  /** Unique within the plugin, e.g. `open-tickets`: a saved tile names it. */
+  name: string;
+  title: string;
+  description?: string;
+  icon: React.ElementType;
+  /** The schematic the catalog draws; the icon when left out. */
+  preview?: TDashboardWidgetPreview;
+  /** Grid units on a 12-column grid when placed; 6 × 6 when left out. */
+  size?: { w: number; h: number };
+  /**
+   * The tile's body, under core's header with the title; it scrolls when taller than the tile.
+   * A `lazy` one loads when the tile first shows.
+   */
+  component: React.ComponentType;
+};
 
 /** What a record section is given: the customer or company it shows on. */
 export type TRecordSectionProps = {
@@ -156,24 +148,44 @@ export type TRelationTab = {
 };
 
 /**
+ * A plugin's settings page, linked from core's settings sidebar.
+ * The page is a route of the plugin's own, under its `path`, e.g. `/frontline/settings/tags`.
+ */
+export type TPluginSettingsPage = {
+  /** The page's address, under the plugin's `path`. */
+  path: string;
+  label: string;
+  icon?: React.ElementType;
+};
+
+/**
  * A plugin UI's `CONFIG`, exported from its `./config` remote.
- * web reads `name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`
- * and `relationTabs`; its first module renders under `/<path>/*`. The other fields come from
- * erxes 3.x and web ignores them.
+ * web reads `name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
+ * `relationTabs`, `settings`, `dashboardWidgets` and `floatingWidget`; its first module renders
+ * under `/<path>/*`. The other fields come from erxes 3.x and web ignores them.
  */
 export type IUIConfig = {
   name: string;
   path: string;
   icon?: React.ElementType;
+  /** The plugin's settings pages, in core's settings sidebar for members who may use the plugin. */
+  settings?: TPluginSettingsPage[];
   /** Sections on core's customer and company detail, shown to members who may use the plugin. */
   recordSections?: TRecordSection[];
   /** The plugin's records core's side panel opens, for members who may use the plugin. */
   recordTypes?: TPanelRecordType[];
   /** Tabs on other records' panels listing the plugin's records of their contacts. */
   relationTabs?: TRelationTab[];
+  /** Tiles in core's home dashboard catalog, for members who may use the plugin. */
+  dashboardWidgets?: TDashboardWidget[];
+  /**
+   * One component web mounts once beside the app shell, on every page, for members who may use
+   * the plugin, and keeps mounted across navigation (a softphone). It sits in the bottom-right
+   * corner above the page.
+   */
+  floatingWidget?: React.ComponentType;
   i18n?: boolean;
   i18nNamespace?: string;
-  hasFloatingWidget?: boolean;
   /**
    * erxes platform versions this plugin is built for, as a semver range
    * (e.g. `'~3.2'`, `'>=3.2.25 <3.4'`). Core warns, and still loads the
@@ -195,94 +207,12 @@ export type IUIConfig = {
      */
     subGroup?: () => React.ReactNode;
   };
-
-  widgets?: {
-    relationWidgets?: {
-      name: string;
-      icon?: React.ElementType;
-      label?: string;
-      // Host record types the widget shows on, e.g. `core:customer`;
-      // every host when omitted.
-      contentTypes?: string[];
-    }[];
-    // Sections a plugin adds to another plugin's settings page, e.g. what a
-    // POS or a pipeline sends to loyalty.
-    relationSettingsWidgets?: {
-      name: string;
-      icon?: React.ElementType;
-      label?: string;
-    }[];
-    // Fields a plugin offers for picking its own records inside another
-    // plugin's form, with whatever creating one there takes.
-    recordPickerWidgets?: {
-      name: string;
-      contentType: string;
-    }[];
-    // Record types the plugin draws in the app's side panel (its
-    // `./recordPanel` remote, given `IRecordPanelProps`), e.g.
-    // `operation:task`; core keeps the panel's relations and activity.
-    recordPanels?: {
-      contentType: string;
-      // `false` when the type has no custom properties: no Properties tab.
-      properties?: boolean;
-      draftTitle?: boolean;
-      tabs?: {
-        value: string;
-        label: string;
-        labelKey?: string;
-        icon?: Icon;
-        after?: 'detail' | 'properties' | 'activity';
-      }[];
-      // The record's own page, built from its URL-encoded id and the page the
-      // panel is open on; the panel's expand button leads there. Without one,
-      // the panel has no expand button.
-      detailPath?: (recordId: string, pathname: string) => string;
-    }[];
-    // Sections a plugin adds to a customer's or company's overview (its
-    // `./contactWidget` remote, given ui-modules' `IContactWidgetProps`):
-    // one per module, e.g. `tasks`, listing that contact's records.
-    contactWidgets?: {
-      name: string;
-      label?: string;
-      icon?: React.ElementType;
-    }[];
-    customerDetailWidgets?: {
-      name: string;
-    }[];
-    // Tiles a plugin offers for the home dashboard (its `./dashboardWidget`
-    // remote, given ui-modules' `IDashboardWidgetProps`): one per module.
-    // Sizes are grid units on a 12-column grid.
-    dashboardWidgets?: {
-      name: string;
-      // Keys in the plugin's translation namespace, shown as is when missing.
-      label: string;
-      description?: string;
-      icon?: React.ElementType;
-      defaultSize: { w: number; h: number };
-      minSize?: { w: number; h: number };
-      maxSize?: { w: number; h: number };
-      // Ask for the widget's settings (`mode: 'config'`) before placing it.
-      configurable?: boolean;
-      // At most one tile of it on a dashboard.
-      singleton?: boolean;
-      // The schematic core draws for it in the widget catalog.
-      preview?: TDashboardWidgetPreview;
-    }[];
-    formWidgets?: {
-      name: string;
-      contentType: string;
-      icon?: React.ElementType;
-    }[];
-    propertyInputs?: Record<string, React.ComponentType<TPropertyInputProps>>;
-    activityRows?: Record<string, React.ComponentType<TActivityRowProps>>;
-  };
   modules?: {
     name: string;
     icon?: React.ElementType;
     path: string;
     hasAutomation?: boolean;
     hasRelationWidget?: boolean;
-    hasFloatingWidget?: boolean;
     hasSegmentConfigWidget?: boolean;
   }[];
 };

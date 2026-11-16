@@ -29,6 +29,19 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
+ * then write their values. Members see them read-only and filter by them; no timeline entry or event.
+ *
+ *   fields: [{ code: 'total_spent', contentType: 'customer', label: 'Total spent', type: 'number' }],
+ *   await core.forOrg(orgId).fields.setPluginValues({
+ *     contentType: 'customer', values: [{ recordId: customerId, code: 'total_spent', value: 150000 }],
+ *   });                                   // → { written, skipped }; up to 500, value null clears
+ *
+ * Segments (scope `views:read`): a shared view members built in core is the audience.
+ *
+ *   const { data } = await core.forOrg(orgId).views.list({ recordType: 'customer' });  // shared only
+ *   const { recordIds } = await core.forOrg(orgId).views.matches({ viewId, recordIds: [customerId] });
+ *
  * Customers (a shop, tracking, booking): core signs them in; the plugin never builds sign-up or
  * sign-in. Declare `customerApp: { origins: ['https://{subdomain}.shop.example.com'] }` in the
  * manifest. The app's own form makes two calls to core: `POST /core/v1/customer-auth/code`
@@ -64,6 +77,21 @@
  *     await JOBS[job.name](job);         // { jobId, orgId, name, attempt, payload }; may repeat
  *     res.sendStatus(204);
  *   });
+ *
+ * A timeline whose records not every member may read declares `recordAccess: true`; core asks the
+ * plugin before a member reads or notes on one, and anything but `{ allowed: true }` within 5 s is no:
+ *
+ *   timelines: [{ type: 'frontline.ticket', label: 'Ticket', recordAccess: true }],
+ *   app.post('/api/timelines/access', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const check = await verifyCoreAccessCheck(req.headers.authorization, req.body, { coreUrl, plugin: 'frontline' });
+ *     res.json({ allowed: await canRead(check.orgId, check.userId, check.id) });   // check.type too
+ *   });
+ *
+ * List filters (erxes-ui's `ListFilter`): `@erxes/plugin-sdk/filter` compiles the bar's condition
+ * group to SQL on a map of paths to columns, with core's operators and its 400 `INVALID_FILTER`:
+ *
+ *   const FIELDS = { 'subject.name': { type: 'text', expr: tickets.name } } satisfies FilterFields;
+ *   .where(compileFilter(FIELDS, input.filter, { me: member.userId }))   // filter: FilterParam
  *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can

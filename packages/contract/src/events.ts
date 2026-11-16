@@ -5,7 +5,7 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
-import { ActivityTarget } from './activities';
+import { ActivityTarget } from './timelines';
 import { AppLink, DedupeKey, EntityType, EventType } from './platform';
 
 /** What a published event asks core to notify (as `POST /notifications`). */

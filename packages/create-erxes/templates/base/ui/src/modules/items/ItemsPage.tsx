@@ -97,7 +97,7 @@ const columns: RecordTableColumnDef<Item>[] = [
 
 /**
  * The item list, newest first, under core's list bar: its one view, then the filter (`F`) on
- * the fields below, whose rules the API applies (`api/src/modules/items/itemFilter.ts`). Each
+ * the fields below, whose rules the API applies (`FILTER_FIELDS` in `api/src/modules/items/items.ts`). Each
  * item opens in core's side panel; Add opens a new one there.
  */
 export const ItemsPage = () => {
@@ -125,9 +125,10 @@ export const ItemsPage = () => {
           </Button>
         </PageHeader.End>
       </PageHeader>
-      <ViewBar allLabel={t('all-items', 'All items')}>
+      <ViewBar recordType={ITEM_TYPE} allLabel={t('all-items', 'All items')}>
         <ListFilter
           id="__id__-items"
+          recordType={ITEM_TYPE}
           fields={fields}
           members={memberQueries}
           totalCount={isPending ? undefined : list.length}

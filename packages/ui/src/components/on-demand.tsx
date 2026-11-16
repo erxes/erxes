@@ -1,4 +1,12 @@
-import { lazy, Suspense, use, type ComponentProps } from 'react';
+import {
+  lazy,
+  Suspense,
+  use,
+  type ComponentProps,
+  type ComponentType,
+  type LazyExoticComponent,
+} from 'react';
+import type { IMaskInput } from 'react-imask';
 import { cn } from 'erxes-ui/lib/utils';
 import type * as ResizableModule from './resizable';
 import type * as SliderModule from './slider';
@@ -6,8 +14,33 @@ import type { SliderProps } from './slider';
 
 // erxes-ui is one shared chunk that every route loads. Components here are fetched the first
 // time one renders, because the library behind each serves only that component: Base UI's
-// Combobox (37 kB minified) for the multi-select, its Slider (17 kB) for the slider, and
-// react-resizable-panels for Resizable.
+// Combobox (37 kB minified) for the multi-select, its Slider (17 kB) for the slider,
+// react-resizable-panels for Resizable, and imask for masked inputs.
+
+type MaskInputProps = ComponentProps<typeof IMaskInput>;
+
+const LoadedMaskInput: LazyExoticComponent<ComponentType<MaskInputProps>> = lazy(async () => ({
+  default: (await import('react-imask')).IMaskInput,
+}));
+
+/**
+ * imask's input (numbers with separators, hex colours). Until its code loads, a read-only input
+ * with the same value and classes holds its place.
+ */
+export const MaskInput = (props: MaskInputProps) => (
+  <Suspense
+    fallback={
+      <input
+        readOnly
+        aria-label={props['aria-label']}
+        className={props.className}
+        value={props.value ?? ''}
+      />
+    }
+  >
+    <LoadedMaskInput {...props} />
+  </Suspense>
+);
 
 const Selector = lazy(async () => ({ default: (await import('./multiselect')).MultipleSelector }));
 

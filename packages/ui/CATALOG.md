@@ -32,9 +32,11 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 - `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board or grouped list.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
-- `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, which `ListFilter` is built from.
-- `<ListFilter {...TListFilterProps}>` A list's filter bar, with a field menu, search and conditions as chips.
+- `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, for a page without saved views.
+- `<ListFilter recordType>` A list's filter: a view bar button, and a chip row while it filters.
+- `<ListFilterEmpty records fallback>` A list's empty state while `ListFilter` filters it, with Clear filters.
 - `listFilterQuery` The URL params holding a list's filter, as nuqs parsers.
+- `<ListViewsProvider views>` Gives every list with a `recordType` saved views, as core's lists have.
 - `RecordList.{Provider, Skeleton, useSelection}` Rows grouped under headers that fold away, such as tasks by status.
 - `type RecordListGroup { id, label, icon, rows, action }` A run of rows under one header, such as the tasks in one status.
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
@@ -43,10 +45,15 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
 - `type TListFilterField { path, label, type, options, icon, … }` A field a list can filter by, for `ListFilter`'s `fields`.
 - `type TListFilterProps` The props of `ListFilter`: its `id`, `fields`, lookups and record count.
+- `type TListViews { Tabs, Changes }` The host's saved views for a list.
+- `type TPluginListType` A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`).
+- `type TRecordTableSort { by, direction }` The order a list's rows come in: by a column, either way.
+- `type TViewTabsProps { recordType, allLabel }` The props of the host's saved-view tabs: the list and its "All …" label.
 - `useFilterContext()` Controls of the enclosing `Filter`: open or close it and switch views.
 - `useListDisplay(list, displays)` The display a list shows, as picked in its Display menu.
 - `useListFilterParams()` `ListFilter`'s conditions and search, as params for the list's query.
-- `<ViewBar allLabel tabs>` A list's one bar under its page header: views left, filter right.
+- `useListViews()` The host's saved views, for `ViewBar` and `ListFilter`.
+- `<ViewBar allLabel recordType tabs>` A list's one bar under its page header: views left, filter right.
 
 ## Records
 
@@ -54,6 +61,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `companyTitle(company)` A company's name, else its email or phone.
 - `<ContactLink contentType contentId contacts placeholder>` A customer or company as a chip: its avatar and name.
 - `type ContactQueries { customer, company }` Where customers and companies come from, as TanStack query options.
+- `type ContactSearch { search, ids }` What a contact search asks for: matches, or the contacts with these ids.
+- `type ContactSearchQueries { customers, companies }` Where a filter's `customer` and `company` fields search contacts.
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
 - `customerTitle(customer)` A customer's name, else its email or phone.
 - `<PanelDescriptionEditor value scope readonly isHTML onSave>` A record's description as a full-size tab.
@@ -65,8 +74,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelFormRow label icon required error hint>` One field of a form in the side panel, laid out like `PanelField`.
 - `<PanelLabel tooltip>` A side panel label cut at two lines, with the full text on hover.
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
-- `<RecordOpenerProvider open openNew>` The host app's way to open records, which `useOpenRecord` calls.
+- `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
+- `type RecordPanelControls { record, tab, setTab, close, dismiss, … }` What a record shown in core's panel, or on its own page, can do to it.
+- `RecordPanelProvider` Web gives each record it shows its controls.
 - `type RecordRef { contentType, contentId }` A record the host can open, by `contentType` and `contentId`.
 - `RecordTimeline` Core's timeline of notes, calls and events for a plugin's record.
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
@@ -75,6 +86,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TContactContentType` The customer or company types `ContactLink` shows.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
+- `useRecordPanel()` The record a slot is in, and what the slot can do to it.
 
 ## Fields and pickers
 
@@ -107,7 +119,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TagsQuery` TanStack query options for the tags of one record type.
 - `type TConditionField { path, label, type, options, group, … }` A field conditions can use: a record's, or an earlier step's output.
 - `type TConditionGroup { match, rules }` Rules (or nested groups) that must all, or any, hold.
-- `type TConditionLookups { members, tags }` Where `member` and `tags` values pick from.
+- `type TConditionLookups { members, tags, contacts }` Where `member`, `tags`, `customer` and `company` values pick from.
 - `type TConditionRule { path, op, value }` One rule of a condition: a `path`, an operator and maybe a value.
 - `<TextField placeholder value scope onSave onValueChange>` A text value in a table cell or panel row that edits in a popover.
 - `useMemberOptions(members, enabled, picked)` The active team members as picker options.
@@ -185,14 +197,16 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `ToggleGroup.{Item}` A row of toggle buttons where one or several stay pressed.
 - `Tooltip.{Provider, Trigger, Content}` A short label that shows on hover or focus of its trigger.
 - `Upload` An image upload: a preview tile, an upload button and a remove button.
+- `useFieldControl()` A form row's label, error and state for its control.
 
 ## Plugin runtime
 
 - `addPluginStyles(plugin, css)` Adds a plugin UI's compiled Tailwind to the page, minus what web has.
+- `DASHBOARD_WIDGET_PREVIEWS` Every schematic the widget catalog can draw for a dashboard widget.
 - `type FileStorageAdapter { upload, remove }` Where erxes-ui's upload hooks and components send files.
 - `getPluginAssetsUrl(pluginName, url)` A file's URL in a plugin UI's deployed `assets` folder.
 - `getPluginRuntime()` The host's plugin runtime, or null outside erxes.
-- `type IUIConfig { name, path, icon, recordSections, recordTypes, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
+- `type IUIConfig { name, path, icon, settings, recordSections, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
 - `pluginFetch(plugin, path, init)` `fetch` against a plugin's API as the signed-in member.
 - `pluginJson(plugin, path, schema, init)` JSON in, JSON out, checked against `schema`.
 - `type PluginLiveMessage` A message on core's live stream: a plugin's changed topics, or resync.
@@ -200,11 +214,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type PluginSession { token, expiresAt, apiUrl }` A member's short-lived token for one plugin's API, and its address.
 - `setFileStorage(next)` Sets where uploads go; web calls it at startup and plugins don't.
 - `setPluginRuntime(next)` Sets the plugin runtime; web calls it at startup and plugins don't.
-- `type TActivityRowProps { activity }` Props of a plugin's activity row component in `widgets.activityRows`.
+- `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
-- `type TPropertyInputMeta` A property input's own settings, stored with the custom field.
-- `type TPropertyInputProps { value, onValueChange, meta, onMetaChange, disabled }` Props of a custom property input in `widgets.propertyInputs`.
+- `type TPluginSettingsPage { path, label, icon }` A plugin's settings page, linked from core's settings sidebar.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.
 - `type TRecordDraftProps { defaults, onCreated, onCancel }` Props of a plugin record type's `New` slot, the draft form.
 - `type TRecordSection { contentType, title, icon, component }` A plugin's section on a customer's or company's detail in core's panel.
@@ -240,6 +253,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `toast({ title, description, variant, action })` Shows a toast: `toast({ title, description, variant: 'success' })`.
 - `toIsoDay(date)` A local day as stored and typed, `yyyy-MM-dd`, in every language.
 - `useConfirm()` `confirm` shows a confirmation dialog in its own root.
+- `useFocusFirstField(ref)` Puts the cursor in the first field under `ref` when the form opens.
 - `useFormat()` Date, number and money formatters in the UI's language, for components.
 - `useItemKeys(length)` Stable React keys for an editable list whose items have no id.
 - `useMediaQuery(query)` Whether a CSS media query matches now, right from the first render.

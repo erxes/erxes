@@ -16,6 +16,7 @@ export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 
         state === 'lead',
       )}
       tableId={state === 'lead' ? 'company_leads_record_table' : 'companies_record_table'}
+      recordType={state === 'lead' ? 'company_lead' : 'company'}
     >
       <CompaniesCommandBar rows={cursor.list} />
     </CursorRecordTable>

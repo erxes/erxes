@@ -127,6 +127,13 @@ describe('leads: stages, moves, conversion, history and the report', { timeout: 
         .map((entry) => String(entry.data.event))
         .toSorted((a, b) => a.localeCompare(b)),
     ).toEqual(['converted', 'reopened', 'stage']);
+    // Told once: no field change repeats the state.
+    expect(
+      timeline.data.filter(
+        (entry) =>
+          entry.type === 'customer.updated' && JSON.stringify(entry.data).includes('state'),
+      ),
+    ).toEqual([]);
   });
 
   it('reports the funnel, sources and reasons', async () => {

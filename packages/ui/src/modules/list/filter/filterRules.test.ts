@@ -1,26 +1,31 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { TConditionRule } from '../../conditions/conditions';
-import type { TListFilterField } from '../ListFilter';
-import { anyOf, groupOf, partsOf, presetOf, targetOf, valuesOf, withPart } from './filterRules';
+import {
+  between,
+  completeOf,
+  isFilterRule,
+  ruleCount,
+  ruleFor,
+  withOperator,
+} from '../../conditions/filterRule';
+import { valuesOf } from '../../conditions/filterText';
+import { chipsOf, groupOf, withPart } from './filterRules';
 
-const kind: TListFilterField = { path: 'subject.kind', label: 'Type', type: 'select' };
-const price: TListFilterField = { path: 'subject.price', label: 'Price', type: 'number' };
 const goods: TConditionRule = { path: 'subject.kind', op: 'in', value: ['goods'] };
 const cheap: TConditionRule = { path: 'subject.price', op: 'lt', value: 1000 };
 
-describe('filter menu rules', () => {
-  it('shows an "any" group of several rules as one part, and keeps the rest as they are', () => {
-    const any = { match: 'any' as const, rules: [goods, cheap] };
+describe('filter chips', () => {
+  it('shows rules that all must hold as chips, and "or" or nested groups as the advanced filter', () => {
+    const range = between('subject.price', 10, 20);
 
-    expect(partsOf(null)).toEqual([]);
-    expect(partsOf({ match: 'all', rules: [goods, cheap] })).toEqual([goods, cheap]);
-    expect(partsOf({ match: 'any', rules: [goods] })).toEqual([goods]);
-    expect(partsOf(any)).toEqual([any]);
-    // Adding to an "any" group asks for it and the new rule.
-    expect(groupOf(withPart(partsOf(any), null, cheap))).toEqual({
-      match: 'all',
-      rules: [any, cheap],
-    });
+    expect(chipsOf(null)).toEqual([]);
+    expect(chipsOf({ match: 'all', rules: [goods, range] })).toEqual([goods, range]);
+    expect(chipsOf({ match: 'any', rules: [goods] })).toEqual([goods]);
+    expect(chipsOf({ match: 'any', rules: [goods, cheap] })).toBeNull();
+    expect(chipsOf({ match: 'all', rules: [goods, { match: 'any', rules: [cheap] }] })).toBeNull();
+    expect(
+      ruleCount({ match: 'any', rules: [goods, { match: 'all', rules: [cheap, range] }] }),
+    ).toBe(3);
   });
 
   it('adds, replaces and removes parts, never holding the same one twice', () => {
@@ -35,31 +40,55 @@ describe('filter menu rules', () => {
     expect(withPart([goods, cheap, { ...cheap, value: 5 }], 2, cheap)).toEqual([goods, cheap]);
     expect(groupOf([])).toBeNull();
   });
+});
 
-  it('changes the one rule of a choice field, but adds number rules (a range is two)', () => {
-    expect(targetOf([cheap, goods], kind, null)).toBe(1);
-    expect(targetOf([cheap], kind, null)).toBeNull();
-    expect(targetOf([cheap], price, null)).toBeNull();
-    // A chip opened on a part edits that part.
-    expect(targetOf([cheap, goods], price, 0)).toBe(0);
-  });
-
-  it('reads and builds "is any of"', () => {
-    expect(valuesOf(goods)).toEqual(['goods']);
-    expect(valuesOf({ path: 'subject.kind', op: 'eq', value: 'service' })).toEqual(['service']);
-    expect(anyOf('subject.kind', ['goods', 'service'])).toEqual({
+describe('rules being written', () => {
+  it('starts a field on its type’s first operator', () => {
+    expect(ruleFor({ path: 'subject.kind', type: 'select' })).toEqual({
       path: 'subject.kind',
       op: 'in',
-      value: ['goods', 'service'],
+      value: undefined,
     });
-    expect(anyOf('subject.kind', [])).toBeNull();
+    expect(ruleFor({ path: 'subject.createdAt', type: 'date' })).toEqual({
+      path: 'subject.createdAt',
+      op: 'within_last',
+      value: { amount: 30, unit: 'days' },
+    });
   });
 
-  it('knows a date preset from its rule', () => {
-    const week = { path: 'subject.createdAt', op: 'within_last' as const };
+  it('keeps the value across operators that read it the same way', () => {
+    expect(withOperator(cheap, 'gt')).toEqual({ ...cheap, op: 'gt' });
+    expect(withOperator(goods, 'not_in')).toEqual({ ...goods, op: 'not_in' });
+    expect(withOperator(cheap, 'exists')).toEqual({ path: 'subject.price', op: 'exists' });
+    const range = withOperator(cheap, 'between');
 
-    expect(presetOf({ ...week, value: { amount: 7, unit: 'days' } })?.key).toBe('past-week');
-    expect(presetOf({ ...week, value: { amount: 8, unit: 'days' } })).toBeUndefined();
-    expect(presetOf({ path: 'subject.createdAt', op: 'not_exists' })?.key).toBe('empty');
+    expect(range).toEqual(between('subject.price', 1000, undefined));
+    expect(isFilterRule(range)).toBe(true);
+    expect(withOperator(range, 'lte')).toEqual({ path: 'subject.price', op: 'lte', value: 1000 });
+  });
+
+  it('drops unfinished rules, empty groups and a "between" missing an end', () => {
+    expect(
+      completeOf({
+        match: 'all',
+        rules: [
+          goods,
+          { path: 'subject.kind', op: 'in', value: [] },
+          { match: 'any', rules: [] },
+          between('subject.price', 10, undefined),
+        ],
+      }),
+    ).toEqual({ match: 'all', rules: [goods, { path: 'subject.price', op: 'gte', value: 10 }] });
+    expect(
+      completeOf({ match: 'all', rules: [{ path: 'subject.name', op: 'contains' }] }),
+    ).toBeNull();
+  });
+
+  it('reads the values a rule picks', () => {
+    expect(valuesOf(goods)).toEqual(['goods']);
+    expect(valuesOf({ path: 'subject.kind', op: 'eq', value: 'service' })).toEqual(['service']);
+    expect(
+      valuesOf({ path: 'subject.createdAt', op: 'within_last', value: { amount: 1 } }),
+    ).toEqual([]);
   });
 });

@@ -1,26 +1,40 @@
 import { paths } from '~/lib/paths';
 import { currencyOfCountry, type Organization } from '@erxes/core-contract';
-import { IconDeviceFloppy, IconSettings } from '@tabler/icons-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconSettings } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Button,
-  Input,
-  Label,
-  PageContainer,
-  PageHeader,
-  ScrollArea,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
-import { useId, useState } from 'react';
+import { Form, Input, PageContainer, PageHeader, ScrollArea, useToast } from 'erxes-ui';
+import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { CountrySelect, CurrencySelect } from '~/components/RegionSelect';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 
+type Translate = (key: string, defaultValue: string) => string;
+
+const organizationSchema = (t: Translate) =>
+  z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, t('name-required', 'Enter a name'))
+      .max(100, t('name-too-long', 'Use at most 100 characters')),
+    country: z.string(),
+    currency: z.string(),
+  });
+
+type OrganizationValues = z.infer<ReturnType<typeof organizationSchema>>;
+
+const valuesOf = (organization: Organization): OrganizationValues => ({
+  name: organization.name,
+  country: organization.country ?? '',
+  currency: organization.currency,
+});
+
 /** Saves the organisation and gives the whole app its new name, country and currency. */
-const useSaveOrganization = (onSaved: () => void) => {
+const useSaveOrganization = (onSaved: (organization: Organization) => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'general' });
   const client = useQueryClient();
   const { toast } = useToast();
@@ -32,7 +46,7 @@ const useSaveOrganization = (onSaved: () => void) => {
           session ? { ...session, organization } : session,
         );
         void client.invalidateQueries({ queryKey: orpc.organizations.key() });
-        onSaved();
+        onSaved(organization);
         toast({ title: t('saved', 'Organisation saved') });
       },
       onError: (error) =>
@@ -45,53 +59,52 @@ const useSaveOrganization = (onSaved: () => void) => {
   );
 };
 
-type Draft = Partial<Pick<Organization, 'name' | 'country' | 'currency'>>;
-
 /** Country and currency; a new country brings its currency, which stays editable. */
-const RegionFields = ({
-  country,
-  currency,
-  disabled,
-  onChange,
-}: {
-  country: string;
-  currency: string;
-  disabled: boolean;
-  onChange: (region: { country?: string; currency: string }) => void;
-}) => {
+const RegionFields = ({ disabled }: { disabled: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'general' });
-  const id = useId();
+  const { control, getValues, setValue } = useFormContext<OrganizationValues>();
 
   return (
-    <div className="space-y-2">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor={`${id}-country`}>{t('country', 'Country')}</Label>
-          <CountrySelect
-            id={`${id}-country`}
-            value={country}
-            disabled={disabled}
-            onChange={(next) =>
-              onChange({ country: next, currency: currencyOfCountry(next) ?? currency })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor={`${id}-currency`}>{t('currency', 'Currency')}</Label>
-          <CurrencySelect
-            id={`${id}-currency`}
-            value={currency}
-            disabled={disabled}
-            onChange={(next) => onChange({ currency: next })}
-          />
-        </div>
-      </div>
-      <p className="text-xs text-muted-foreground">
-        {t(
-          'currency-help',
-          'New products and invoices take this currency. Products and invoices keep the currency they were made in.',
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <Form.Field
+        control={control}
+        name="country"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('country', 'Country')}</Form.Label>
+            <Form.Control>
+              <CountrySelect
+                value={field.value}
+                disabled={disabled}
+                onChange={(next) => {
+                  field.onChange(next);
+                  setValue('currency', currencyOfCountry(next) ?? getValues('currency'), {
+                    shouldDirty: true,
+                  });
+                }}
+              />
+            </Form.Control>
+          </Form.Item>
         )}
-      </p>
+      />
+      <Form.Field
+        control={control}
+        name="currency"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('currency', 'Currency')}</Form.Label>
+            <Form.Control>
+              <CurrencySelect value={field.value} disabled={disabled} onChange={field.onChange} />
+            </Form.Control>
+            <Form.Description>
+              {t(
+                'currency-help',
+                'New products and invoices take this currency. Products and invoices keep the currency they were made in.',
+              )}
+            </Form.Description>
+          </Form.Item>
+        )}
+      />
     </div>
   );
 };
@@ -105,53 +118,50 @@ const OrganizationForm = ({
   canEdit: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'general' });
-  const id = useId();
-  // Unsaved edits; the rest shows the saved organisation.
-  const [draft, setDraft] = useState<Draft>({});
-  const save = useSaveOrganization(() => setDraft({}));
-  const name = draft.name ?? organization.name;
-  const country = draft.country ?? organization.country ?? '';
-  const currency = draft.currency ?? organization.currency;
 
-  const changes = {
-    name: name.trim() === organization.name ? undefined : name.trim(),
-    country: country && country !== organization.country ? country : undefined,
-    currency: currency === organization.currency ? undefined : currency,
-  };
+  const form = useForm<OrganizationValues>({
+    resolver: zodResolver(organizationSchema(t)),
+    defaultValues: valuesOf(organization),
+  });
 
-  const changed = Object.values(changes).some((value) => value !== undefined);
+  const save = useSaveOrganization((saved) => form.reset(valuesOf(saved)));
+
+  const submit = form.handleSubmit((values) =>
+    save.mutate({
+      name: values.name,
+      country: values.country || undefined,
+      currency: values.currency,
+    }),
+  );
 
   return (
-    <section className="space-y-5 rounded-lg border bg-background p-5">
-      <div className="space-y-2">
-        <Label htmlFor={`${id}-name`}>{t('name', 'Organisation name')}</Label>
-        <Input
-          id={`${id}-name`}
-          value={name}
-          maxLength={100}
-          disabled={!canEdit}
-          onChange={(event) => setDraft({ ...draft, name: event.target.value })}
-        />
-        {!name.trim() && (
-          <p className="text-sm text-destructive">{t('name-required', 'Enter a name')}</p>
-        )}
-      </div>
-      <RegionFields
-        country={country}
-        currency={currency}
-        disabled={!canEdit}
-        onChange={(region) => setDraft({ ...draft, ...region })}
-      />
-      {canEdit && (
-        <Button
-          disabled={!changed || !name.trim() || save.isPending}
-          onClick={() => save.mutate(changes)}
+    <Form {...form}>
+      <form className="flex flex-col gap-4" noValidate onSubmit={(event) => void submit(event)}>
+        <Form.Section
+          title={t('organization', 'Organisation')}
+          description={t(
+            'organization-description',
+            'Its name, and the country and currency new records start from.',
+          )}
         >
-          {save.isPending ? <Spinner size="sm" /> : <IconDeviceFloppy />}
-          {t('save', 'Save')}
-        </Button>
-      )}
-    </section>
+          <Form.Field
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label required>{t('name', 'Organisation name')}</Form.Label>
+                <Form.Control>
+                  <Input {...field} maxLength={100} disabled={!canEdit} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <RegionFields disabled={!canEdit} />
+        </Form.Section>
+        {canEdit && <Form.SaveBar saving={save.isPending} />}
+      </form>
+    </Form>
   );
 };
 
@@ -173,7 +183,7 @@ export const GeneralSettingsPage = () => {
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-6">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-6">
           {!canEdit && (
             <p className="rounded-md border bg-muted px-3 py-2 text-sm text-muted-foreground">
               {t('read-only', 'Only owners and admins can change these settings.')}

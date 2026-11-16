@@ -16,8 +16,11 @@ if (!adminUrl) {
 const ROLE = '__id___test';
 const database = `__id___test_${randomBytes(4).toString('hex')}`;
 
-// Core's tenant functions, which plugin migrations call.
-const CORE_FUNCTIONS = readFileSync(new URL('./core-functions.sql', import.meta.url), 'utf8');
+// Core's tenant functions, which plugin migrations call, and the functions the plugin's code
+// calls with the core tables they write: a test reads its events back from core_events.
+const CORE_FUNCTIONS = ['./core-functions.sql', './core-calls.sql']
+  .map((file) => readFileSync(new URL(file, import.meta.url), 'utf8'))
+  .join('\n');
 
 const urlOf = (name: string, role?: string) => {
   const url = new URL(adminUrl);

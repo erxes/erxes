@@ -1,4 +1,10 @@
-import type { TPanelRecordType, TRecordSection, TRelationTab } from 'erxes-ui';
+import type {
+  TDashboardWidget,
+  TPanelRecordType,
+  TPluginSettingsPage,
+  TRecordSection,
+  TRelationTab,
+} from 'erxes-ui';
 import type { ComponentType } from 'react';
 
 /** What a plugin UI exposes as `./config` (`CONFIG`). */
@@ -9,6 +15,8 @@ interface PluginConfig {
   modules?: { name: string; path: string; icon?: ComponentType<{ className?: string }> }[];
   /** Hides the plugin from people it is not for (e.g. HR: linked employees). */
   checkAccess?: () => Promise<boolean>;
+  /** Mounted once beside the app shell on every page, kept across navigation (a softphone). */
+  floatingWidget?: ComponentType;
 }
 
 export interface LoadedPluginConfig extends PluginConfig {
@@ -18,6 +26,10 @@ export interface LoadedPluginConfig extends PluginConfig {
   recordTypes: TPanelRecordType[];
   /** The well-formed ones of the plugin's tabs on other records' panels. */
   relationTabs: TRelationTab[];
+  /** The well-formed ones of the plugin's settings pages, linked from core's settings sidebar. */
+  settings: TPluginSettingsPage[];
+  /** The well-formed ones of the plugin's tiles for the home dashboard. */
+  dashboardWidgets: TDashboardWidget[];
 }
 
 export interface LoadedPlugin {

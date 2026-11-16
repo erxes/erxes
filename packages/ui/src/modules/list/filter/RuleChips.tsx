@@ -1,173 +1,170 @@
-import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
-import type { ReactNode } from 'react';
+import { IconAdjustmentsHorizontal, IconX } from '@tabler/icons-react';
+import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFormat } from '../../../lib/format';
-import { useMoney } from '../../../lib/money';
-import { oneOf, textOf } from '../../../lib/text';
+import { Button } from '../../../components/button';
+import { useItemKeys } from '../../../hooks/use-item-keys';
+import { NO_VALUE } from '../../conditions/conditions';
 import {
-  isRule,
-  OPERATOR_LABELS,
-  RelativeAmount,
-  type TConditionGroup,
-  type TConditionRule,
-} from '../../conditions/conditions';
-import { Filter } from '../../filter/components/Filter';
-import type { TListFilterField } from '../ListFilter';
-import { FIELD_ICONS } from './fieldIcons';
-import { NUMBER_OPS, NUMBER_SYMBOLS, presetOf, valuesOf } from './filterRules';
-import { useFieldOptions, useListFilter } from './listFilterContext';
+  isFilled,
+  opOf,
+  pathOf,
+  ruleCount,
+  type TFilterRule,
+  withField,
+  withOperator,
+} from '../../conditions/filterRule';
+import { FieldIcon } from '../../conditions/fieldIcons';
+import { useRuleText } from '../../conditions/filterText';
+import { FieldPart, OperatorPart, ValuePart } from '../../conditions/RuleParts';
+import { useFieldAt, useListFilter } from './listFilterContext';
 
-/** A filter bar chip: what it filters, the condition (opens it), remove. */
-const Chip = ({
-  name,
+/** A chip: joined segments on a muted ground, the last one a remove button. */
+export const Chip = ({
   children,
-  onOpen,
+  removeLabel,
   onRemove,
 }: {
-  name: ReactNode;
   children: ReactNode;
-  onOpen: () => void;
+  removeLabel: string;
   onRemove: () => void;
-}) => {
+}) => (
+  <div className="flex h-7 max-w-full min-w-0 items-stretch gap-px overflow-hidden rounded bg-muted text-sm shadow-xs">
+    {children}
+    <Button variant="segment" size="icon" aria-label={removeLabel} onClick={onRemove}>
+      <IconX />
+    </Button>
+  </div>
+);
+
+/** A segment of a chip that opens its editor. */
+const Segment = ({ className, ...props }: Omit<ComponentProps<typeof Button>, 'variant'>) => (
+  <Button variant="segment" className={className ?? 'max-w-60 min-w-0 gap-1.5 px-2'} {...props} />
+);
+
+type Part = 'field' | 'op' | 'value';
+
+/**
+ * A condition as a chip: its field, operator and value, each opening its editor in place, and
+ * remove. A change that leaves the rule unfinished (an operator that needs another value) waits
+ * on the chip until the value is picked; closing it unfinished keeps the rule as it was.
+ */
+const RuleChip = ({ rule, index }: { rule: TFilterRule; index: number }) => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
+  const { fields, lookups, setPart } = useListFilter();
+  const [draft, setDraft] = useState<TFilterRule | null>(null);
+  const [open, setOpen] = useState<Part | null>(null);
+  const shown = draft ?? rule;
+  const field = useFieldAt(pathOf(shown));
+  const text = useRuleText(shown, field, lookups);
 
-  return (
-    <div className="flex h-7 items-stretch gap-px rounded bg-muted text-sm font-medium shadow-xs">
-      <Filter.BarName>{name}</Filter.BarName>
-      <Filter.BarButton onClick={onOpen}>{children}</Filter.BarButton>
-      <Filter.BarClose aria-label={t('remove', 'Remove filter')} onClick={onRemove} />
-    </div>
-  );
-};
+  /** A finished rule applies; an unfinished one waits here, with its value open. */
+  const change = (next: TFilterRule) => {
+    if (isFilled(next)) {
+      setDraft(null);
+      setPart(index, next);
+    } else {
+      setDraft(next);
+      setOpen('value');
+    }
+  };
 
-/** Unknown paths (a removed property) read as text. */
-const textField = (path: string): TListFilterField => ({ path, label: path, type: 'text' });
+  const toggle = (part: Part) => (next: boolean) => {
+    setOpen(next ? part : null);
 
-/** English for the `views` namespace's `filter.unit.<unit>`, by plural form. */
-const UNIT_LABELS = {
-  days: { defaultValue_one: '{{count}} day', defaultValue_other: '{{count}} days' },
-  weeks: { defaultValue_one: '{{count}} week', defaultValue_other: '{{count}} weeks' },
-  months: { defaultValue_one: '{{count}} month', defaultValue_other: '{{count}} months' },
-};
+    if (!next) setDraft(null);
+  };
 
-/** A rule as words: the operator and the value. */
-const useRuleText = (rule: TConditionRule, field: TListFilterField) => {
-  const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const { t: opT } = useTranslation('automations');
-  const { options } = useFieldOptions(field);
-  const money = useMoney();
-  const fmt = useFormat();
-  const op = opT(`op.${rule.op}`, OPERATOR_LABELS[rule.op]);
-
-  const labelOf = (value: string) =>
-    options.find((option) => option.value === value)?.label ?? value;
-
-  const preset = field.type === 'date' ? presetOf(rule) : undefined;
-  const span = RelativeAmount.safeParse(rule.value);
-  const numberOp = field.type === 'number' ? oneOf(NUMBER_OPS, rule.op) : undefined;
-  const is = t('is', 'is');
-
-  if (preset) return { op: '', value: t(`date.${preset.key}`, preset.label) };
-
-  if (rule.op === 'exists' || rule.op === 'not_exists') return { op, value: '' };
-
-  if (span.success) {
-    const { amount, unit } = span.data;
-
-    return { op, value: t(`unit.${unit}`, { count: amount, ...UNIT_LABELS[unit] }) };
-  }
-
-  if (field.type === 'boolean') {
-    return { op: is, value: textOf(rule.value) === 'true' ? t('yes', 'Yes') : t('no', 'No') };
-  }
-
-  if (numberOp) {
-    const n = Number(rule.value);
-
-    return {
-      op: NUMBER_SYMBOLS[numberOp],
-      value: field.currency ? money(n, field.currency) : fmt.number(n),
-    };
-  }
-
-  // Text is quoted; a choice (a tag a list contains) reads as its label.
-  if (rule.op === 'contains' && field.type === 'text') {
-    return { op, value: `“${textOf(rule.value)}”` };
-  }
-
-  const values = valuesOf(rule).map(labelOf);
-
-  if (rule.op === 'in' || rule.op === 'eq') {
-    return { op: values.length > 1 ? t('is-any-of', 'is any of') : is, value: values.join(', ') };
-  }
-
-  return { op, value: values.join(', ') };
-};
-
-const RuleChip = ({ rule, index }: { rule: TConditionRule; index: number }) => {
-  const { fields, edit, setPart } = useListFilter();
-  const field = fields.find((one) => one.path === rule.path) ?? textField(rule.path);
-  const text = useRuleText(rule, field);
-  const Icon = field.icon ?? FIELD_ICONS[field.type];
+  const pick = (next: TFilterRule) => {
+    setOpen(null);
+    change(next);
+  };
 
   return (
     <Chip
-      name={
-        <>
-          <Icon />
-          {field.label}
-        </>
-      }
-      onOpen={() => edit(index)}
+      removeLabel={t('remove-named', { name: field.label, defaultValue: 'Remove {{name}} filter' })}
       onRemove={() => setPart(index, null)}
     >
-      {text.op && <span className="font-normal text-muted-foreground">{text.op}</span>}
-      <span className="truncate">{text.value}</span>
+      <FieldPart
+        fields={fields}
+        field={field}
+        open={open === 'field'}
+        onOpenChange={toggle('field')}
+        onSelect={(next) => pick(withField(shown, field, next))}
+        button={
+          <Segment className="max-w-48 min-w-0 gap-1.5 rounded-l px-2 font-medium">
+            <FieldIcon field={field} className="text-muted-foreground" />
+            <span className="truncate">{field.label}</span>
+          </Segment>
+        }
+      />
+      <OperatorPart
+        rule={shown}
+        field={field}
+        open={open === 'op'}
+        onOpenChange={toggle('op')}
+        onSelect={(op) => pick(withOperator(shown, op))}
+        button={<Segment className="shrink-0 px-2 text-muted-foreground">{text.op}</Segment>}
+      />
+      {!NO_VALUE.has(opOf(shown)) && (
+        <ValuePart
+          rule={shown}
+          field={field}
+          lookups={lookups}
+          onChange={change}
+          open={open === 'value'}
+          onOpenChange={toggle('value')}
+          button={
+            <Segment
+              aria-label={t('value-of', {
+                name: field.label,
+                value: text.value,
+                defaultValue: '{{name}}: {{value}}',
+              })}
+            >
+              <span className="truncate font-medium">{text.value}</span>
+            </Segment>
+          }
+        />
+      )}
     </Chip>
   );
 };
 
-/** A group from the advanced filter: how many conditions; it opens the advanced filter. */
-const GroupChip = ({ group, index }: { group: TConditionGroup; index: number }) => {
+/** A filter with "or" or nested groups: one chip, which opens the advanced filter. */
+const AdvancedChip = () => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const { openAdvanced, setPart } = useListFilter();
-  const count = group.rules.length;
+  const { advanced, setAdvanced, setAdvancedOpen } = useListFilter();
+  const count = advanced ? ruleCount(advanced) : 0;
 
   return (
     <Chip
-      name={
-        <>
-          <IconAdjustmentsHorizontal />
-          {t('advanced', 'Advanced filter')}
-        </>
-      }
-      onOpen={openAdvanced}
-      onRemove={() => setPart(index, null)}
+      removeLabel={t('remove-advanced', 'Remove the advanced filter')}
+      onRemove={() => setAdvanced(null)}
     >
-      {group.match === 'any'
-        ? t('any-of', {
-            count,
-            defaultValue_one: 'any of {{count}} condition',
-            defaultValue_other: 'any of {{count}} conditions',
-          })
-        : t('conditions', {
-            count,
-            defaultValue_one: '{{count}} condition',
-            defaultValue_other: '{{count}} conditions',
-          })}
+      <Segment
+        className="min-w-0 gap-1.5 rounded-l px-2 font-medium"
+        onClick={() => setAdvancedOpen(true)}
+      >
+        <IconAdjustmentsHorizontal className="text-muted-foreground" />
+        {t('advanced-chip', {
+          count,
+          defaultValue_one: 'Advanced · {{count}} rule',
+          defaultValue_other: 'Advanced · {{count}} rules',
+        })}
+      </Segment>
     </Chip>
   );
 };
 
-/** Each part of the list's filter as a chip (parts are distinct, so a part is its own key). */
+/**
+ * The list's conditions as chips, one per rule (keyed by place, so an open editor stays open as
+ * its rule changes), or the advanced filter's chip.
+ */
 export const RuleChips = () => {
-  const { parts } = useListFilter();
+  const { chips } = useListFilter();
+  const keys = useItemKeys(chips?.length ?? 0);
 
-  return parts.map((part, index) =>
-    isRule(part) ? (
-      <RuleChip key={JSON.stringify(part)} rule={part} index={index} />
-    ) : (
-      <GroupChip key={JSON.stringify(part)} group={part} index={index} />
-    ),
-  );
+  if (!chips) return <AdvancedChip />;
+
+  return chips.map((rule, index) => <RuleChip key={keys.keyAt(index)} rule={rule} index={index} />);
 };

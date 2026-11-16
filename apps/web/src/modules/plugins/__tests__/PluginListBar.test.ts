@@ -115,7 +115,7 @@ describe('a plugin list’s bar', () => {
     await vi.waitFor(() =>
       expect(
         mongolian.querySelector('button[aria-keyshortcuts="F"]')?.getAttribute('aria-label'),
-      ).toBe('Шүүлтүүр'),
+      ).toBe('Шүүлтүүр 1'),
     );
     expect(mongolian.textContent).toContain('3 бүртгэл');
   });

@@ -6,6 +6,9 @@ import { adminDb, useTestDatabase } from './db';
 
 const custom = (fieldId: string) => `subject.customFields.${fieldId}`;
 
+/** The day `ago` days before today, as a date rule takes it. */
+const day = (ago: number) => new Date(Date.now() - ago * 86_400_000).toISOString().slice(0, 10);
+
 describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
   useTestDatabase();
 
@@ -32,6 +35,17 @@ describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
     expect(
       await found(rule('subject.createdAt', 'within_last', { amount: 1, unit: 'weeks' })),
     ).toEqual(['Bat', 'Saraa']);
+    // A day on a timestamp: Dorj came 40 days ago, Bat and Saraa today.
+    expect(await found(rule('subject.createdAt', 'lt', day(20)))).toEqual(['Dorj']);
+    expect(await found(rule('subject.createdAt', 'gt', day(20)))).toEqual(['Bat', 'Saraa']);
+    expect(await found(rule('subject.createdAt', 'eq', day(40)))).toEqual(['Dorj']);
+    expect(await found(rule('subject.createdAt', 'lte', day(40)))).toEqual(['Dorj']);
+    expect(await found(rule('subject.createdAt', 'gte', day(40)))).toEqual([
+      'Bat',
+      'Dorj',
+      'Saraa',
+    ]);
+    expect(await found(rule('subject.createdAt', 'neq', day(40)))).toEqual(['Bat', 'Saraa']);
     expect(await found(rule('subject.birthDate', 'anniversary_within', { amount: 7 }))).toEqual([
       'Bat',
     ]);

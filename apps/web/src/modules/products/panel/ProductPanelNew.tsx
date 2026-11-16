@@ -193,7 +193,12 @@ const PriceRow = () => {
           name="currency"
           render={({ field }) => (
             <div className="w-24 flex-none">
-              <CurrencySelect value={field.value} onChange={field.onChange} />
+              <CurrencySelect
+                value={field.value}
+                onChange={field.onChange}
+                variant="bordered"
+                short
+              />
             </div>
           )}
         />

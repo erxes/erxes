@@ -18,6 +18,7 @@ import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { accessOf, type EntitlementRow, NOT_IN_PLAN } from './access';
 import { askPlatform, type PlatformEntitlements } from './platform';
 
@@ -102,6 +103,8 @@ const reconcilePlugins = async (tx: Db, row: EntitlementRow, now = new Date()) =
         })),
       )
       .onConflictDoNothing();
+
+  await inOrder(toInstall, (plugin) => syncPluginFields(tx, plugin.name, plugin.manifest?.fields));
 
   await setStatus(tx, named('resumed'), { status: 'active', statusReason: null });
   await setStatus(tx, named('removed'), { status: 'disabled', statusReason: NOT_IN_PLAN });

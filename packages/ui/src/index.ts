@@ -55,6 +55,8 @@ export { DropdownMenu } from './components/dropdown-menu';
 
 export { Empty } from './components/empty';
 
+export { useFieldControl } from './components/field-control';
+
 export { Form } from './components/form';
 
 export { HoverCard } from './components/hover-card';
@@ -122,6 +124,8 @@ export { useItemKeys } from './hooks/use-item-keys';
 export { useMediaQuery } from './hooks/use-media-query';
 
 export { usePageHotkey } from './hooks/use-page-hotkey';
+
+export { useFocusFirstField } from './hooks/use-focus-first-field';
 
 export { toast, useToast } from './hooks/use-toast';
 
@@ -212,7 +216,10 @@ export type { RecordListGroup } from './modules/record-list/RecordListRoot';
 
 export { RecordTable } from './modules/record-table/components/RecordTable';
 
-export type { RecordTableColumnDef } from './modules/record-table/components/RecordTableProvider';
+export type {
+  RecordTableColumnDef,
+  TRecordTableSort,
+} from './modules/record-table/components/RecordTableProvider';
 
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
@@ -222,6 +229,7 @@ export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/D
 
 export {
   ListFilter,
+  ListFilterEmpty,
   type TListFilterField,
   type TListFilterProps,
   useListFilterParams,
@@ -239,7 +247,14 @@ export {
 
 export { ConditionsEditor } from './modules/conditions/LazyConditionsEditor';
 
-export { ViewBar } from './modules/list/ViewBar';
+export {
+  ListViewsProvider,
+  type TListViews,
+  type TPluginListType,
+  type TViewTabsProps,
+  useListViews,
+  ViewBar,
+} from './modules/list/ViewBar';
 
 export { PanelDescriptionEditor } from './modules/record-panel/PanelDescriptionEditor';
 
@@ -261,6 +276,8 @@ export {
   type CompanyContact,
   companyTitle,
   type ContactQueries,
+  type ContactSearch,
+  type ContactSearchQueries,
   type CustomerContact,
   customerTitle,
   type TContactContentType,
@@ -269,9 +286,12 @@ export {
 export {
   RecordOpenerProvider,
   RecordPage,
+  type RecordPanelControls,
+  RecordPanelProvider,
   type RecordRef,
   setRecordPage,
   useOpenRecord,
+  useRecordPanel,
 } from './modules/records/openRecord';
 
 export { ThemeOption, themeState } from './state/themeState';
@@ -279,12 +299,12 @@ export { ThemeOption, themeState } from './state/themeState';
 export { SexCode } from './types/SexCode';
 
 export {
+  DASHBOARD_WIDGET_PREVIEWS,
   type IUIConfig,
-  type TActivityRowProps,
+  type TDashboardWidget,
   type TDashboardWidgetPreview,
-  type TPropertyInputMeta,
   type TPanelRecordType,
-  type TPropertyInputProps,
+  type TPluginSettingsPage,
   type TRecordContacts,
   type TRecordDraftProps,
   type TRecordSection,

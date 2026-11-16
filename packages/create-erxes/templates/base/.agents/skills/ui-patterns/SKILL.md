@@ -50,7 +50,7 @@ what erxes-ui already has, and the screen each kind of page copies.
 ## Filter
 
 erxes-ui's `ListFilter` is core's own filter bar; `ui/src/modules/items/ItemsPage.tsx`
-gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
+gives it its fields, and `FILTER_FIELDS` in `api/src/modules/items/items.ts` applies them.
 
 - Give it every field the list can be narrowed by: `{ path: 'subject.<column>',
   label, type, options?, icon? }`, type `text`, `number`, `date`, `boolean`,
@@ -59,8 +59,9 @@ gives it its fields, and `api/src/modules/items/itemFilter.ts` applies them.
 - The conditions (core's `ConditionGroup`, rules on those paths; a `member`
   rule's `me` is the member asking) and the search live in the address.
   `useListFilterParams()` gives them to the list's query as `filter` (JSON) and
-  `search`; the API parses `filter` with `ConditionGroup` from
-  `@erxes/core-contract` and refuses a path it has no column for.
+  `search`; the API parses `filter` with `FilterParam` and compiles it with
+  `compileFilter` from `@erxes/plugin-sdk/filter`, which refuses a path it has
+  no column for.
 - Never: a search box, toggle buttons ("Mine", "Archived"), status tabs, a
   ToggleGroup for table and board, or a row of pickers above the table. Each of
   those is a field in the menu or the Display menu.

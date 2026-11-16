@@ -1,4 +1,11 @@
-import { type FieldContentType, type Db, fieldGroups, fields } from '@erxes/core-db';
+import {
+  type FieldContentType,
+  type Db,
+  fieldGroups,
+  fields,
+  pluginInstallations,
+  plugins,
+} from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, isNotNull, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -15,6 +22,21 @@ const OPTION_TYPES: readonly FieldType[] = ['select', 'multiselect', 'radio', 'c
 
 export const hasOptions = (type: FieldType) => OPTION_TYPES.includes(type);
 
+/** The title in the manifest of the plugin a field belongs to; null for members' fields. */
+export const pluginTitle = sql<
+  string | null
+>`(select ${plugins.manifest} ->> 'title' from ${plugins} where ${plugins.name} = ${fields.plugin})`;
+
+/**
+ * Members' fields, and a plugin's while it is installed here and may write their values: a field
+ * the plugin can't fill (not approved, or uninstalled) would only ever show empty.
+ */
+export const fieldShown = sql<boolean>`(${fields.plugin} is null or exists (
+  select 1 from ${pluginInstallations}
+  where ${pluginInstallations.plugin} = ${fields.plugin}
+    and ${pluginInstallations.status} = 'active'
+    and 'fields:write' = any(${pluginInstallations.grantedScopes})))`;
+
 /** Fields as the API answers them: a field archives with its group. */
 export const selectFields = (client: Db) =>
   client
@@ -24,9 +46,20 @@ export const selectFields = (client: Db) =>
         sql<Date | null>`coalesce(${fields.archivedAt}, ${fieldGroups.archivedAt})`.mapWith(
           fields.archivedAt,
         ),
+      pluginTitle,
     })
     .from(fields)
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId));
+
+/** A plugin's field: only that plugin changes it or writes its values (403 `PLUGIN_FIELD`). */
+export const assertMemberField = (field: Pick<FieldRow, 'id' | 'label' | 'plugin'>) => {
+  if (field.plugin)
+    throw fail(
+      'PLUGIN_FIELD',
+      `${field.label} belongs to the ${field.plugin} plugin, which keeps its values`,
+      { fieldId: field.id, plugin: field.plugin },
+    );
+};
 
 export const fieldById = async (client: Db, id: string) =>
   oneRow(await selectFields(client).where(eq(fields.id, id)).limit(1));

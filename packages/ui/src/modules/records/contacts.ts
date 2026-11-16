@@ -31,6 +31,23 @@ export interface ContactQueries {
   company: (id: string) => ContactQuery<CompanyContact>;
 }
 
+type ContactRows<T> = UseQueryOptions<{ data: T[] }, Error, { data: T[] }>;
+
+/** What a contact search asks for: matches, or the contacts with these ids. */
+export interface ContactSearch {
+  search?: string;
+  ids?: string[];
+}
+
+/**
+ * Where a filter's `customer` and `company` fields search contacts.
+ * TanStack query options; in erxes, `contactSearchQueries` from `@erxes/core-contract/client`.
+ */
+export interface ContactSearchQueries {
+  customers: (input: ContactSearch) => ContactRows<CustomerContact>;
+  companies: (input: ContactSearch) => ContactRows<CompanyContact>;
+}
+
 /** The customer or company types `ContactLink` shows. */
 export type TContactContentType = 'core:customer' | 'core:company';
 

@@ -37,33 +37,42 @@ const CUSTOMER_SEX_OPTIONS = [
   { label: 'Not applicable', value: '9' },
 ];
 
-const customerSchema = z
-  .object({
-    firstName: z.string(),
-    middleName: z.string(),
-    lastName: z.string(),
-    primaryEmail: z.union([z.literal(''), z.email('Invalid email format')]),
-    primaryPhone: z.string(),
-    ownerId: z.string(),
-    code: z.string(),
-    position: z.string(),
-    sex: CustomerSex.nullable(),
-    birthDate: z.date().nullable(),
-    description: contactDescription,
-    avatarUrl: z.string().nullable(),
-  })
-  .refine(
-    (values) =>
-      Boolean(
-        values.firstName.trim() ||
-        values.lastName.trim() ||
-        values.primaryEmail ||
-        values.primaryPhone.trim(),
-      ),
-    { path: ['firstName'], error: 'Fill in a name, an e-mail or a phone' },
-  );
+type Translate = (key: string, defaultValue: string) => string;
 
-type TCustomerForm = z.infer<typeof customerSchema>;
+const customerSchema = (t: Translate) =>
+  z
+    .object({
+      firstName: z.string(),
+      middleName: z.string(),
+      lastName: z.string(),
+      primaryEmail: z.union([
+        z.literal(''),
+        z.email(t('form.email-invalid', 'Enter an email like name@example.com')),
+      ]),
+      primaryPhone: z.string(),
+      ownerId: z.string(),
+      code: z.string(),
+      position: z.string(),
+      sex: CustomerSex.nullable(),
+      birthDate: z.date().nullable(),
+      description: contactDescription,
+      avatarUrl: z.string().nullable(),
+    })
+    .refine(
+      (values) =>
+        Boolean(
+          values.firstName.trim() ||
+          values.lastName.trim() ||
+          values.primaryEmail ||
+          values.primaryPhone.trim(),
+        ),
+      {
+        path: ['firstName'],
+        error: t('form.name-or-contact', 'Fill in a name, an email or a phone'),
+      },
+    );
+
+type TCustomerForm = z.infer<ReturnType<typeof customerSchema>>;
 
 type TTextCode =
   | 'firstName'
@@ -84,6 +93,12 @@ const TEXT_FIELD_ICONS: Record<TTextCode, Icon> = {
   position: IconBriefcase,
 };
 
+// The keyboard and the browser's checks each field gets; the contact's, not the member's, so no autofill.
+const TEXT_FIELD_TYPES: Partial<Record<TTextCode, 'email' | 'tel'>> = {
+  primaryEmail: 'email',
+  primaryPhone: 'tel',
+};
+
 const orNull = (value: string) => value.trim() || null;
 
 /** A registered text input with its field label and validation error. */
@@ -96,7 +111,13 @@ const TextRow = ({ code, label }: { code: TTextCode; label: string }) => {
       label={label}
       error={formState.errors[code]?.message}
     >
-      <Input {...register(code)} placeholder={label} variant="bordered" text="sm" />
+      <Input
+        {...register(code)}
+        type={TEXT_FIELD_TYPES[code]}
+        placeholder={label}
+        variant="bordered"
+        text="sm"
+      />
     </PanelFormRow>
   );
 };
@@ -214,10 +235,11 @@ const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[
 export const CustomerPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  const { t: contactT } = useTranslation('contact');
   const [companyIds, setCompanyIds] = useState<string[]>([]);
 
   const form = useForm<TCustomerForm>({
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(customerSchema(contactT)),
     defaultValues: {
       firstName: '',
       middleName: '',

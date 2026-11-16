@@ -9,13 +9,19 @@ import { usePlugins } from './usePlugins';
 export const usePluginRecordType = (contentType: string) => {
   const { plugins, loading } = usePlugins();
 
+  return { entry: findPluginRecordType(plugins, contentType), loading };
+};
+
+/** The record type of `contentType` among `plugins`, as `usePluginRecordType` reads it. */
+export const findPluginRecordType = (
+  plugins: ReturnType<typeof usePlugins>['plugins'],
+  contentType: string,
+) => {
   for (const { config } of plugins) {
     const type = config.recordTypes.find((entry) => entry.contentType === contentType);
 
-    if (type) {
-      return { entry: { plugin: config.name, base: pluginBasePath(config.path), type }, loading };
-    }
+    if (type) return { plugin: config.name, base: pluginBasePath(config.path), type };
   }
 
-  return { entry: undefined, loading };
+  return undefined;
 };

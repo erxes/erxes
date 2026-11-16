@@ -46,8 +46,23 @@ export type RecordTableColumnDef<TData extends RowData> = ColumnDef<RecordTableF
 /** Rows are typed `RowData` here: every table shares this context, whatever its data. */
 export type RecordTableInstance = Table<RecordTableFeatures, RowData>;
 
+/** The order a list's rows come in: by a column, either way. The page sorts (usually its query). */
+export interface TRecordTableSort {
+  by: string;
+  direction: 'asc' | 'desc';
+}
+
+interface IRecordTableSorting {
+  sort: TRecordTableSort | null;
+  /** The columns a click on their header sorts by. */
+  columns: readonly string[];
+  onChange: (sort: TRecordTableSort | null) => void;
+}
+
 interface IRecordTableContext {
   table: RecordTableInstance;
+  /** Null: the table doesn't sort from its headers. */
+  sorting: IRecordTableSorting | null;
   columnSelectorOpen: boolean;
   setColumnSelectorOpen: (open: boolean) => void;
   /** The id of a column's header cell, unique per table: cells are named by their column. */
@@ -91,6 +106,14 @@ export interface RecordTableProviderProps<TData extends RowData>
   data: TData[];
   stickyColumns?: string[];
   tableId?: string;
+  /**
+   * Sorting by a click on a column's header: off, then ascending, then descending, then off.
+   * `sortable` lists the columns that sort; the page orders the rows by `sort` (its query does)
+   * and keeps it, e.g. in the URL. Without `onSortChange` no header sorts.
+   */
+  sort?: TRecordTableSort | null;
+  sortable?: readonly string[];
+  onSortChange?: (sort: TRecordTableSort | null) => void;
 }
 
 export const RecordTableProvider = <TData extends RowData>({
@@ -99,6 +122,9 @@ export const RecordTableProvider = <TData extends RowData>({
   data,
   stickyColumns,
   tableId,
+  sort = null,
+  sortable,
+  onSortChange,
   ...containerProps
 }: RecordTableProviderProps<TData>) => {
   const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
@@ -129,14 +155,20 @@ export const RecordTableProvider = <TData extends RowData>({
   const shared = table as unknown as RecordTableInstance;
   const headPrefix = useId();
 
+  const sorting = useMemo<IRecordTableSorting | null>(
+    () => (onSortChange ? { sort, columns: sortable ?? [], onChange: onSortChange } : null),
+    [sort, sortable, onSortChange],
+  );
+
   const context = useMemo<IRecordTableContext>(
     () => ({
       table: shared,
+      sorting,
       columnSelectorOpen,
       setColumnSelectorOpen,
       headId: (columnId) => `${headPrefix}-head-${columnId}`,
     }),
-    [shared, columnSelectorOpen, headPrefix],
+    [shared, sorting, columnSelectorOpen, headPrefix],
   );
 
   return (

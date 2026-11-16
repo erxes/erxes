@@ -110,6 +110,8 @@ export * from './plugins';
 
 export * from './pluginAssistant';
 
+export * from './pluginFields';
+
 export * from './products';
 
 export * from './records';
@@ -119,6 +121,8 @@ export * from './roles';
 export * from './saas';
 
 export * from './tags';
+
+export * from './timelines';
 
 export * from './trash';
 

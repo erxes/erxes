@@ -32,7 +32,7 @@ interface Delivery {
   path: string;
   orgId: string;
   /** The token's subject is `<kind>:<id>` and its claims carry `<kind>: <id>`; the id is the `Idempotency-Key`. */
-  kind: 'event' | 'job';
+  kind: 'event' | 'job' | 'access';
   id: string;
   body: string;
   typ: string;
@@ -43,7 +43,7 @@ interface Delivery {
 /**
  * POSTs `body` to the plugin's API with a 5-minute core token: `aud` the
  * plugin, `sha` the body's digest, so the body can't be swapped under the
- * token. Anything but 2xx throws, so the job retries.
+ * token. Anything but 2xx throws, so the job retries. Resolves with the answer's body.
  */
 export const deliverToPlugin = async (delivery: Delivery) => {
   const token = await signJwt(
@@ -73,4 +73,6 @@ export const deliverToPlugin = async (delivery: Delivery) => {
       `${delivery.plugin} answered ${response.status}: ${response.body.slice(0, 300)}`,
     );
   }
+
+  return response.body;
 };

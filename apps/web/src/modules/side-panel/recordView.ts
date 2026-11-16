@@ -25,6 +25,8 @@ export interface ISidePanelNavigator {
   tab: string;
   setTab: (tab: string) => void;
   openRecord: (entity: TRelationEntity, options?: IOpenRecordOptions) => void;
+  /** Shows another record in this one's place: its own page. */
+  replaceRecord: (entity: TRelationEntity) => void;
   back: () => void;
   canGoBack: boolean;
   close: () => void;

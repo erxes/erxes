@@ -1,9 +1,8 @@
 import { Input } from 'erxes-ui/components/input';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
-import { CellColumnHead } from 'erxes-ui/modules/record-table/components/RecordTableCell';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 
 type TextFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
   placeholder?: string;
@@ -35,7 +34,6 @@ export const TextField = ({
   // The draft while the editor is open; opening it starts from the saved value.
   const [editingValue, setEditingValue] = useState(value);
   const shown = isOpen ? editingValue : value;
-  const labelled = use(CellColumnHead) !== undefined;
 
   /** Saves a changed text value and closes the inline editor. */
   const handleAction = (e?: React.SubmitEvent) => {
@@ -82,10 +80,8 @@ export const TextField = ({
         {shown ? (
           <TextOverflowTooltip value={shown} />
         ) : (
-          // Under a column head or a panel label the placeholder repeats it, so only the eye reads it.
-          <span aria-hidden={labelled} className="truncate">
-            {placeholder}
-          </span>
+          // Part of the name after the label ("Position Empty"), as the eye reads it.
+          <span className="truncate">{placeholder}</span>
         )}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content render={<form onSubmit={handleAction} />}>

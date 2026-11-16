@@ -7,9 +7,11 @@ import { can } from '~/http/access';
 import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
-import { textArray } from '~/modules/views/filterValues';
+import { textArray } from '@erxes/plugin-sdk/filter';
+import { queueInstallJobs } from './pluginJobs';
 import { requestedScopes } from './plugins.service';
 
 /** Plugin UI tokens: a member's session for one plugin's API. */
@@ -76,24 +78,30 @@ export const installPlugin = async (name: string) => {
     .where(eq(pluginInstallations.plugin, name))
     .limit(1);
 
-  await tx
-    .insert(pluginInstallations)
-    .values({
-      plugin: name,
-      grantedScopes: scopes,
-      installedBy: userId,
-    })
-    .onConflictDoUpdate({
-      target: [pluginInstallations.orgId, pluginInstallations.plugin],
-      set: {
-        status: 'active',
-        statusReason: null,
+  const installed = oneRow(
+    await tx
+      .insert(pluginInstallations)
+      .values({
+        plugin: name,
         grantedScopes: scopes,
         installedBy: userId,
-        updatedAt: sql`now()`,
-        installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
-      },
-    });
+      })
+      .onConflictDoUpdate({
+        target: [pluginInstallations.orgId, pluginInstallations.plugin],
+        set: {
+          status: 'active',
+          statusReason: null,
+          grantedScopes: scopes,
+          installedBy: userId,
+          updatedAt: sql`now()`,
+          installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
+        },
+      })
+      .returning({ orgId: pluginInstallations.orgId, updatedAt: pluginInstallations.updatedAt }),
+  );
+
+  await syncPluginFields(tx, name, row.manifest?.fields);
+  await queueInstallJobs(tx, installed.orgId, name, row.manifest?.jobs, installed.updatedAt);
 
   await recordAudit(tx, {
     action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',

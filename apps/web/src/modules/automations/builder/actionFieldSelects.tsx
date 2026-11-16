@@ -1,8 +1,17 @@
-import type { ActionField } from '@erxes/core-contract';
+import type { ActionField, ActionInfo } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
-import { LookupPicker, Select, textOf, useMemberOptions, useTagOptions } from 'erxes-ui';
+import { skipToken, useQuery } from '@tanstack/react-query';
+import {
+  LookupPicker,
+  pluginJson,
+  Select,
+  textOf,
+  useMemberOptions,
+  useTagOptions,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { z } from 'zod';
 import { paths } from '~/lib/paths';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
@@ -10,6 +19,8 @@ import { tagsQuery } from '~/modules/tags/useTags';
 import type { FieldInfo } from './useAutomationFields';
 
 export type ActionInputProps = {
+  /** The action the input belongs to: its plugin and its other inputs. */
+  action: ActionInfo;
   field: ActionField;
   value: unknown;
   /** The step's other inputs (a value follows the custom field chosen in another). */
@@ -109,6 +120,56 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
         ))}
       </Select.Content>
     </Select>
+  );
+};
+
+const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
+
+/**
+ * One of the plugin's own records, listed by its API with the member's session.
+ * With `dependsOn`, the records under that input's value, once it has one.
+ */
+export const PluginRecordSelect = ({
+  action,
+  field,
+  value,
+  onChange,
+  disabled = false,
+  input,
+}: ActionInputProps) => {
+  const { t } = useTranslation('automations');
+  const { recordType, dependsOn } = field;
+  const parent = dependsOn === undefined ? '' : textOf(input[dependsOn]);
+  const waiting = dependsOn !== undefined && !parent;
+  const query = new URLSearchParams(parent ? { parent } : {});
+
+  const records = useQuery({
+    queryKey: ['plugin-records', action.source, recordType, parent],
+    queryFn:
+      recordType && !waiting
+        ? () =>
+            pluginJson(action.source, `/automations/records/${recordType}?${query}`, PluginRecords)
+        : skipToken,
+  });
+
+  const parentLabel = action.fields.find((other) => other.key === dependsOn)?.label;
+
+  return (
+    <LookupPicker
+      lookup={{
+        options: records.data ?? [],
+        loading: !waiting && records.isPending,
+        error: records.error,
+      }}
+      value={asList(value)}
+      onValueChange={(ids) => onChange(ids[0])}
+      disabled={disabled || waiting}
+      placeholder={
+        waiting
+          ? t('choose-parent-first', 'Choose {{field}} first', { field: parentLabel })
+          : t('choose', 'Choose…')
+      }
+    />
   );
 };
 

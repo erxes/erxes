@@ -14,6 +14,11 @@ const PluginJob = z.object({
   /** A cron schedule in UTC (`0 3 * * *`): one job per organisation each time it comes due. */
   cron: z.string().trim().min(1).max(100).optional(),
   /**
+   * Also runs once for an organisation when it installs the plugin or approves the scopes a newer
+   * version asks for: a backfill of what the plugin could not do before.
+   */
+  onInstall: z.boolean().optional(),
+  /**
    * Attempts in all; the first retry waits `delay` seconds, each next one
    * about twice as long, up to `maxDelay`. Default: 8 attempts, 30 s, 6 hours.
    */

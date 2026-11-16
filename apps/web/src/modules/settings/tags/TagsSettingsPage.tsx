@@ -12,6 +12,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { FormSheet } from '~/components/FormSheet';
 import { messageOf } from '@erxes/core-contract/client';
@@ -22,16 +23,18 @@ import { ContentTypeSwitch, useContentTypeParam } from '../ContentTypeSwitch';
 import { ColorSwatches, tagColumns } from './tagColumns';
 
 const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [open, setOpen] = useState(false);
-  const create = useTagCreate();
 
   const form = useForm<{ name: string; colorCode: string }>({
     defaultValues: { name: '', colorCode: TAG_COLORS[0] },
   });
 
+  const create = useTagCreate({ onTaken: (message) => form.setError('name', { message }) });
+
   const submit = form.handleSubmit(({ name, colorCode }) => {
     if (!name.trim()) {
-      form.setError('name', { message: 'Enter a name' });
+      form.setError('name', { message: t('tag-name-required', 'Enter a name') });
 
       return;
     }
@@ -48,13 +51,17 @@ const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
         }}
       >
         <IconPlus />
-        Add tag
+        {t('add-tag', 'Add tag')}
       </Button>
       <FormSheet
         open={open}
         onOpenChange={setOpen}
-        title={`Add ${type} tag`}
-        submitLabel="Create"
+        title={
+          type === 'company'
+            ? t('add-company-tag', 'Add company tag')
+            : t('add-customer-tag', 'Add customer tag')
+        }
+        submitLabel={t('create', 'Create tag')}
         submitting={create.isPending}
         onSubmit={(event) => void submit(event)}
       >
@@ -64,9 +71,12 @@ const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
             name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Name</Form.Label>
+                <Form.Label required>{t('name', 'Name')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} />
+                  <Input
+                    {...field}
+                    placeholder={t('name-placeholder', 'Such as VIP or Wholesale')}
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -77,7 +87,7 @@ const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
             name="colorCode"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Color</Form.Label>
+                <Form.Label>{t('color', 'Color')}</Form.Label>
                 <ColorSwatches value={field.value} onChange={field.onChange} />
               </Form.Item>
             )}
@@ -90,6 +100,7 @@ const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
 
 /** Settings › Tags: the tags for customers and for companies. */
 export const TagsSettingsPage = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [type] = useContentTypeParam();
   const { tags, loading, error } = useTags(type);
   const manager = useCan()('tags.delete');
@@ -98,7 +109,9 @@ export const TagsSettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: 'Tags', to: paths.contacts.tags, icon: IconTags }]} />
+          <AppBreadcrumb
+            items={[{ label: t('_', 'Tags'), to: paths.contacts.tags, icon: IconTags }]}
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <AddTag type={type} count={tags.length} />
@@ -106,7 +119,9 @@ export const TagsSettingsPage = () => {
       </PageHeader>
       <PageSubHeader className="items-center">
         <ContentTypeSwitch />
-        <span className="text-sm font-medium text-muted-foreground">{tags.length} tags</span>
+        <span className="text-sm font-medium text-muted-foreground">
+          {t('count', '{{count}} tags', { count: tags.length })}
+        </span>
       </PageSubHeader>
       <RecordTable.Provider
         key={`${type}-${manager}`}
@@ -132,7 +147,7 @@ export const TagsSettingsPage = () => {
             !loading &&
             !tags.length && (
               <Empty>
-                <Empty.Description>No {type} tags yet.</Empty.Description>
+                <Empty.Description>{t('no-tags-yet', 'No tags yet')}</Empty.Description>
               </Empty>
             )
           )}

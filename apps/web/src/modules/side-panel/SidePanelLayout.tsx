@@ -1,14 +1,24 @@
 import { parseAsBoolean, useQueryState } from 'nuqs';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { type ComponentType, useLayoutEffect } from 'react';
+import {
+  type ComponentType,
+  type PropsWithChildren,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { PanelRecordOpener } from './PanelRecordOpener';
 import { recordPagePath, usePanelRecordType } from './panelRecordTypes';
-import { Spinner } from 'erxes-ui';
+import { type RecordPanelControls, RecordPanelProvider, Spinner } from 'erxes-ui';
 import { RecordSidePanel } from './RecordSidePanel';
 import { SidePanelEmpty } from './SidePanelEmpty';
-import type { IRecordViewProps } from './recordView';
+import {
+  type IRecordViewProps,
+  SidePanelNavigatorContext,
+  SidePanelRecordPathContext,
+} from './recordView';
 import { SidePanelRecordStack } from './SidePanelRecordStack';
 import { NEW_RECORD_ID, SIDE_PANEL_ROOT_PATH } from './sidePanelPaths';
 import { sidePanelWidthState, useSidePanel } from './useSidePanel';
@@ -52,6 +62,38 @@ const SidePanelNotFound = ({ onBack, onClose }: Omit<IRecordViewProps, 'record'>
 };
 
 /**
+ * What the record's slots may do to it (erxes-ui's `useRecordPanel`): its tab, and closing,
+ * dismissing or replacing it, in the panel or on its own page.
+ */
+const RecordPanelScope = ({
+  record,
+  onClose,
+  children,
+}: PropsWithChildren<Pick<IRecordViewProps, 'record' | 'onClose'>>) => {
+  const entryPath = useContext(SidePanelRecordPathContext);
+  const { tab, setTab, close, dismissPath, replaceRecord } = useSidePanel();
+  const navigator = useContext(SidePanelNavigatorContext);
+
+  const controls = useMemo<RecordPanelControls>(
+    () => ({
+      record,
+      tab,
+      setTab,
+      close: onClose ?? close,
+      dismiss: () => {
+        if (navigator) navigator.close();
+        else if (entryPath) dismissPath(entryPath);
+        else close();
+      },
+      replace: (next) => (navigator ? navigator.replaceRecord(next) : replaceRecord(record, next)),
+    }),
+    [record, tab, setTab, onClose, close, navigator, entryPath, dismissPath, replaceRecord],
+  );
+
+  return <RecordPanelProvider value={controls}>{children}</RecordPanelProvider>;
+};
+
+/**
  * A record as the side panel shows it, or its draft: core's, or a plugin's. A record's own
  * page draws it too, expanded (`RecordPage`).
  */
@@ -78,7 +120,9 @@ export const SidePanelRecord = (props: IRecordViewProps) => {
       {isNew && type.New ? (
         <SidePanelDraft {...props} label={type.label} New={type.New} />
       ) : (
-        <type.View {...props} />
+        <RecordPanelScope record={props.record} onClose={props.onClose}>
+          <type.View {...props} />
+        </RecordPanelScope>
       )}
     </PanelRecordOpener>
   );

@@ -432,8 +432,22 @@
     {
       "idx": 61,
       "version": "7",
-      "when": 1794792114518,
-      "tag": "0061_assistant",
+      "when": 1794800623976,
+      "tag": "0061_plugin_views",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1794811579127,
+      "tag": "0062_plugin_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1794821139594,
+      "tag": "0063_assistant",
       "breakpoints": true
     }
   ]

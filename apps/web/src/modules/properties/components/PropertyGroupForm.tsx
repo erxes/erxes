@@ -24,7 +24,7 @@ const GroupFields = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('group-name', 'Group Name')}</Form.Label>
+            <Form.Label required>{t('group-name', 'Group name')}</Form.Label>
             <Form.Control>
               <Input
                 {...field}
@@ -50,6 +50,9 @@ const GroupFields = ({
                 placeholder={t('enter-group-code', 'Enter group code')}
               />
             </Form.Control>
+            <Form.Description>
+              {t('code-hint', 'Leave empty to make one from the name.')}
+            </Form.Description>
             <Form.Message />
           </Form.Item>
         )}
@@ -103,6 +106,7 @@ export const PropertyGroupForm = ({
           void form.handleSubmit(onSubmit)(event);
         }}
         className="flex h-full w-full flex-col gap-0"
+        noValidate
       >
         <Sheet.Header>
           <Sheet.Title>
@@ -121,11 +125,11 @@ export const PropertyGroupForm = ({
           </div>
         </Sheet.Content>
         <Sheet.Footer>
-          <Button type="button" variant="ghost" onClick={onCancel}>
+          <Button type="button" variant="ghost" onClick={onCancel} disabled={loading}>
             {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? <Spinner /> : isEdit ? <IconPencil /> : <IconPlus />}
+            {loading ? <Spinner size="sm" /> : isEdit ? <IconPencil /> : <IconPlus />}
             {isEdit ? t('update', 'Update') : t('create', 'Create')}
           </Button>
         </Sheet.Footer>

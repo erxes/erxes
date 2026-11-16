@@ -1,130 +1,68 @@
 import { paths } from '~/lib/paths';
 import type { Session } from '@erxes/core-contract';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Input, Label, Spinner } from 'erxes-ui';
-import { type SubmitEvent, type ReactNode, useId, useState } from 'react';
+import { Button, Spinner } from 'erxes-ui';
+import { type SubmitEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseAsString, useQueryState } from 'nuqs';
-import { Link, useNavigate } from 'react-router-dom';
-import { messageOf, orpc } from '@erxes/core-contract/client';
+import { useNavigate } from 'react-router-dom';
+import { orpc } from '@erxes/core-contract/client';
 import { useSignedIn } from '~/modules/auth/session';
-import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
-
-const Shell = ({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  children: ReactNode;
-}) => (
-  <div className="z-10 flex min-h-screen w-full">
-    <AuthBanner />
-    <AuthenticationLayout>
-      <div className="flex flex-col items-center gap-3">
-        <div className="text-xl font-semibold leading-none">{title}</div>
-        {subtitle && <div className="text-center text-muted-foreground">{subtitle}</div>}
-      </div>
-      {children}
-    </AuthenticationLayout>
-  </div>
-);
+import { AuthField, AuthForm, AuthShell, BackToSignIn, ErrorLine } from './components/AuthParts';
 
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-const BackToSignIn = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'auth' });
-
-  return (
-    <Link to={paths.home} className="text-center text-sm text-muted-foreground hover:underline">
-      {t('back-to-sign-in', 'Back to sign in')}
-    </Link>
-  );
-};
-
-const ErrorLine = ({ error }: { error: Error | null }) =>
-  error ? (
-    <p role="alert" className="text-sm text-destructive">
-      {messageOf(error)}
-    </p>
-  ) : null;
-
-/** A labelled input. */
-const Field = ({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  autoComplete,
-  children,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  autoComplete?: string;
-  /** A hint or problem under the input. */
-  children?: ReactNode;
-}) => {
-  const id = useId();
-
-  return (
-    <div className="grid gap-2">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        type={type}
-        autoComplete={autoComplete}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-      {children}
-    </div>
-  );
-};
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** "Forgot password?": always says the same, whether or not the email has an account. */
 export const ForgotPasswordPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
   const request = useMutation(orpc.auth.requestPasswordReset.mutationOptions());
+  const invalid = !EMAIL.test(email.trim());
 
   const submit = (event: SubmitEvent) => {
     event.preventDefault();
-    request.mutate({ email });
+    setSubmitted(true);
+
+    if (!invalid) request.mutate({ email: email.trim() });
   };
 
   return (
-    <Shell
+    <AuthShell
       title={t('forgot-title', 'Reset your password')}
       subtitle={t('forgot-subtitle', "We'll email you a link to choose a new one.")}
     >
       {request.isSuccess ? (
-        <p className="text-center text-sm">
+        <output className="block text-center text-sm">
           {t(
             'forgot-sent',
             'If {{email}} has an account, a link is on its way. It works for 30 minutes.',
             { email },
           )}
-        </p>
+        </output>
       ) : (
-        <form onSubmit={submit} className="grid w-full gap-4" noValidate>
-          <Field
+        <AuthForm onSubmit={submit} className="grid w-full gap-4">
+          <AuthField
             label={t('email', 'Email')}
             type="email"
             autoComplete="username"
             value={email}
             onChange={setEmail}
+            error={
+              submitted && invalid && t('email-invalid', 'Enter your email, like name@example.com')
+            }
           />
           <ErrorLine error={request.error} />
-          <Button type="submit" className="h-8" disabled={request.isPending || !email}>
-            {request.isPending ? <Spinner /> : t('forgot-send', 'Email me a link')}
+          <Button type="submit" className="h-8" disabled={request.isPending}>
+            {request.isPending && <Spinner size="sm" />}
+            {t('forgot-send', 'Email me a link')}
           </Button>
-        </form>
+        </AuthForm>
       )}
       <BackToSignIn />
-    </Shell>
+    </AuthShell>
   );
 };
 
@@ -149,8 +87,18 @@ const NameFields = ({
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      <Field label={t('first-name', 'First name')} value={firstName} onChange={onFirstName} />
-      <Field label={t('last-name', 'Last name')} value={lastName} onChange={onLastName} />
+      <AuthField
+        label={t('first-name', 'First name')}
+        autoComplete="given-name"
+        value={firstName}
+        onChange={onFirstName}
+      />
+      <AuthField
+        label={t('last-name', 'Last name')}
+        autoComplete="family-name"
+        value={lastName}
+        onChange={onLastName}
+      />
     </div>
   );
 };
@@ -174,16 +122,31 @@ const NewPasswordForm = ({
   const [repeat, setRepeat] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const weak = password.length > 0 && !PASSWORD_RULE.test(password);
-  const mismatch = repeat.length > 0 && repeat !== password;
+  // Problems show once the button was pressed; before that the rule is a hint.
+  const [submitted, setSubmitted] = useState(false);
+  const weak = !PASSWORD_RULE.test(password);
+  const mismatch = repeat !== password;
 
   const submit = (event: SubmitEvent) => {
     event.preventDefault();
-    onSubmit({ password, firstName: firstName || undefined, lastName: lastName || undefined });
+    setSubmitted(true);
+
+    if (weak || mismatch) return;
+
+    onSubmit({
+      password,
+      firstName: firstName.trim() || undefined,
+      lastName: lastName.trim() || undefined,
+    });
   };
 
+  const rule = t(
+    'password-rule',
+    'At least 8 characters, with a lower-case and an upper-case letter and a digit.',
+  );
+
   return (
-    <form onSubmit={submit} className="grid w-full gap-4" noValidate>
+    <AuthForm onSubmit={submit} className="grid w-full gap-4">
       {withName && (
         <NameFields
           firstName={firstName}
@@ -192,42 +155,31 @@ const NewPasswordForm = ({
           onLastName={setLastName}
         />
       )}
-      <Field
+      <AuthField
         label={t('new-password', 'New password')}
         type="password"
         autoComplete="new-password"
         value={password}
         onChange={setPassword}
-      >
-        <p className={weak ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}>
-          {t(
-            'password-rule',
-            'At least 8 characters, with a lower-case and an upper-case letter and a digit.',
-          )}
-        </p>
-      </Field>
-      <Field
+        hint={rule}
+        error={submitted && weak && rule}
+      />
+      <AuthField
         label={t('repeat-password', 'Repeat it')}
         type="password"
         autoComplete="new-password"
         value={repeat}
         onChange={setRepeat}
-      >
-        {mismatch && (
-          <p className="text-xs text-destructive">
-            {t('password-mismatch', "The passwords don't match")}
-          </p>
-        )}
-      </Field>
+        error={
+          submitted && !weak && mismatch && t('password-mismatch', "The passwords don't match")
+        }
+      />
       <ErrorLine error={error} />
-      <Button
-        type="submit"
-        className="h-8"
-        disabled={pending || weak || mismatch || !password || password !== repeat}
-      >
-        {pending ? <Spinner /> : submitLabel}
+      <Button type="submit" className="h-8" disabled={pending}>
+        {pending && <Spinner size="sm" />}
+        {submitLabel}
       </Button>
-    </form>
+    </AuthForm>
   );
 };
 
@@ -250,7 +202,7 @@ export const ResetPasswordPage = () => {
   const reset = useMutation(orpc.auth.resetPassword.mutationOptions({ onSuccess: enterApp }));
 
   return (
-    <Shell
+    <AuthShell
       title={t('reset-title', 'Choose a new password')}
       subtitle={t('reset-subtitle', 'Other devices are signed out when you save it.')}
     >
@@ -260,7 +212,8 @@ export const ResetPasswordPage = () => {
         error={reset.error}
         onSubmit={({ password }) => reset.mutate({ token, password })}
       />
-    </Shell>
+      <BackToSignIn />
+    </AuthShell>
   );
 };
 
@@ -282,19 +235,22 @@ export const AcceptInvitationPage = () => {
 
   if (info.isError) {
     return (
-      <Shell
+      <AuthShell
         title={t('invite-invalid', 'This invitation link has expired')}
-        subtitle={messageOf(info.error)}
+        subtitle={t(
+          'invite-invalid-description',
+          'It was used, replaced or is too old. Ask whoever invited you to send a new one.',
+        )}
       >
         <BackToSignIn />
-      </Shell>
+      </AuthShell>
     );
   }
 
   const { organization, inviter, email } = info.data;
 
   return (
-    <Shell
+    <AuthShell
       title={t('invite-title', 'Join {{organization}}', { organization })}
       subtitle={
         inviter ? t('invite-subtitle', '{{inviter}} invited {{email}}.', { inviter, email }) : email
@@ -307,6 +263,6 @@ export const AcceptInvitationPage = () => {
         error={accept.error}
         onSubmit={(values) => accept.mutate({ token, ...values })}
       />
-    </Shell>
+    </AuthShell>
   );
 };

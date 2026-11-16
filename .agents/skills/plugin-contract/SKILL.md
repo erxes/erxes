@@ -19,24 +19,57 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `timelines`) and `entityId`, and the customer or company in `subjectType` and `subjectId`;
      one event can reach both (`timelineConsumer` in
      `apps/api/src/modules/events/coreConsumers.ts`). Another plugin's or an undeclared type is
-     ignored. `activities.create` is for entries that are not events;
+     ignored. `activities.create` is for entries that are not events, and `activities.importNote`
+     brings an old note in with its author and date, once per `dedupeKey`. A timeline with
+     `recordAccess: true` asks the plugin before a member reads or notes on a record: core POSTs
+     `{ orgId, userId, type, id }` to `/timelines/access` (checked by `verifyCoreAccessCheck`),
+     and anything but `{ "allowed": true }` within 5 s is a 403;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
      plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
-     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`);
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`).
+     An action field `{ type: 'plugin_record', recordType, dependsOn? }` (`ActionField` in
+     `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
+     `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
+     member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
+     that depend on it. The route, the query key `parent` and the answer's shape are the contract;
+   - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
+     the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
+     become read-only custom fields of each organisation that has the plugin, with `plugin` set
+     (`syncPluginFields`). The plugin writes their values quietly with `fields.setPluginValues`
+     (scope `fields:write`), and members filter, sort and save views by them while the
+     plugin is installed there with `fields:write` (`fieldShown`); a job with `onInstall`
+     runs once when an organisation installs the plugin or approves its scopes; a plugin's
+     filter fields come with `group: 'plugin'` and its title in `groupLabel`. With `views:read`
+     a plugin lists the shared views (`views.list`) and asks which records one matches now
+     (`views.matches`). The field shape, the codes `PLUGIN_FIELD` and `VIEW_NOT_SHARED`, and
+     "a personal view never matches" are the contract;
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
-     `relationTabs`), and its first module renders under `/<path>/*`. `recordSections` are drawn
-     in core's customer and company panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`).
+     `relationTabs`, `settings`, `dashboardWidgets`, `floatingWidget`), and its first module
+     renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are links
+     to the plugin's own settings pages, a group per plugin at the end of core's settings sidebar
+     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `dashboardWidgets`
+     (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
+     draws as the tile's body under its title) join core's home dashboard catalog under the
+     plugin's name; a placed tile is saved as `<name>:<widget name>`
+     (`apps/web/src/modules/home/dashboard/widgets/homeWidgets.tsx`), so renaming one drops it
+     from members' dashboards. `floatingWidget` is one component web mounts once beside the app
+     shell, on every page, and keeps across navigation, inside the providers pages get and its own
+     crash boundary (`apps/web/src/modules/plugins/PluginFloatingWidgets.tsx`), in the
+     bottom-right corner above the page. `recordSections` are drawn in core's customer and
+     company panel (`apps/web/src/modules/plugins/PluginRecordSections.tsx`).
      For `recordTypes` (`<name>:<thing>`) core draws the side panel and the plugin fills slots:
      `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the
      expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
      relation tabs and `activity` for core's timeline
      (`apps/web/src/modules/plugins/PluginRecordView.tsx`). `relationTabs` show on core's
      customers and companies, and on the record types with `contacts` that their `hosts` name
-     (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates all three when it
+     (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
-     entry. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     entry. Core shows the config's words (the app's name, `title`s and `label`s) through
+     `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the
+     plugin's `name` and the key is the English text, which shows when no translation is there. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
      through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own; erxes-ui's
      `RecordTimeline` and `RecordPage` render what web registers at startup
@@ -44,8 +77,14 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      web or outside it; its props (`TListFilterProps`, `TListFilterField`) and
      `useListFilterParams()`'s address keys (`advanced`, `searchValue`) are the contract, and its
      `member` and `tags` fields read through the `members` and `tags` query options the plugin
-     passes. A plugin list's saved views are not part of the contract:
-     `views.recordType` is core's lists only.
+     passes; a field's `groupLabel` lists it under that heading. A plugin list keeps saved views by giving `ViewBar` and `ListFilter` its record type
+     (`recordType="sales:deal"`): web provides the tabs and the save through `ListViewsProvider`,
+     core stores the view (`views.recordType` takes `<plugin>:<record>`), and the plugin's API
+     applies its filter. The prop, the address key `view` and that type's shape are the contract.
+     The API compiles the filter with `compileFilter` from `@erxes/plugin-sdk/filter`, the
+     compiler core's own lists use (`apps/api/src/modules/views/recordFilter.ts` adds core's
+     custom fields, tags and lookups on top). A field type or operator it accepts is the contract,
+     and so is its 400 `INVALID_FILTER`.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands
      plugin code its context or store: `nuqs` (web's `NuqsAdapter`) and `react-hook-form`

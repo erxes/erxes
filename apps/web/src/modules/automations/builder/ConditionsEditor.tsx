@@ -27,7 +27,11 @@ export const ConditionsEditor = ({
   return (
     <Conditions
       {...props}
-      fields={extraFields.length ? [...own, ...extraFields] : own}
+      customPath
+      fields={[...own, ...extraFields].map(({ options, ...field }) => ({
+        ...field,
+        options: options?.map((value) => ({ value, label: value })),
+      }))}
       members={memberQueries}
       tags={subject ? tagsQuery(subject) : undefined}
     />

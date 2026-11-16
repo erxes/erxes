@@ -19,6 +19,7 @@ import {
   restoreField,
   updateField,
 } from '~/modules/fields/fields.service';
+import { setPluginValues } from '~/modules/fields/pluginFields';
 import { scoped, audited, recordOf } from '~/orpc';
 
 export const fieldsRouter = {
@@ -60,6 +61,10 @@ export const fieldsRouter = {
       (tx) => removeField(tx, input.id),
       () => recordOf('field', 'deleted', input.id),
     ),
+  ),
+  // Not audited: computed values a plugin rewrites on every change (setPluginValues says why).
+  setPluginValues: scoped.fields.setPluginValues.handler(({ input }) =>
+    setPluginValues(db(), input),
   ),
 };
 

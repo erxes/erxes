@@ -26,6 +26,8 @@ interface RecordListProps<TRow> {
   renderRow: (row: TRow) => ReactNode;
   /** False: one list with no headers, such as rows sorted by date. */
   grouped?: boolean;
+  /** False: rows without checkboxes, for a list with no bulk actions. */
+  selectable?: boolean;
   className?: string;
 }
 
@@ -45,49 +47,66 @@ const GroupHeader = ({
   panelId,
   collapsed,
   onCollapse,
+  selectable,
 }: {
   group: RecordListGroup<unknown>;
   ids: string[];
   panelId: string;
   collapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
-}) => {
+  selectable: boolean;
+}) => (
+  <div className="group/list-row sticky top-0 z-10 flex h-9 items-center gap-1 border-b bg-muted px-2 text-xs font-medium">
+    {selectable && <GroupCheckbox label={group.label} ids={ids} />}
+    <Button
+      variant="ghost"
+      size="sm"
+      aria-expanded={!collapsed}
+      // A folded group's rows aren't rendered, so there is no panel to point at.
+      aria-controls={collapsed ? undefined : panelId}
+      onClick={() => onCollapse(!collapsed)}
+    >
+      {collapsed ? <IconChevronRight aria-hidden /> : <IconChevronDown aria-hidden />}
+      {group.icon}
+      {group.label}
+      <span className="text-muted-foreground tabular-nums">{ids.length}</span>
+    </Button>
+    {group.action && <span className="ml-auto flex items-center">{group.action}</span>}
+  </div>
+);
+
+/** Picks or drops every row of a group. */
+const GroupCheckbox = ({ label, ids }: { label: string; ids: string[] }) => {
   const { selection } = useRecordListContext();
   const hover = useHover();
   const picked = useSelectionState((current) => ids.filter((id) => current.has(id)).length);
 
   return (
-    <div className="group/list-row sticky top-0 z-10 flex h-9 items-center gap-1 border-b bg-muted px-2 text-xs font-medium">
-      <span
-        className={cn(
-          'flex h-9 w-8 shrink-0 items-center justify-center',
-          hover && !picked && revealed,
-        )}
-      >
-        <Checkbox
-          checked={picked > 0 && picked === ids.length}
-          indeterminate={picked > 0 && picked < ids.length}
-          aria-label={`Select all in ${group.label}`}
-          onCheckedChange={() => selection.toggleAll(ids)}
-        />
-      </span>
-      <Button
-        variant="ghost"
-        size="sm"
-        aria-expanded={!collapsed}
-        // A folded group's rows aren't rendered, so there is no panel to point at.
-        aria-controls={collapsed ? undefined : panelId}
-        onClick={() => onCollapse(!collapsed)}
-      >
-        {collapsed ? <IconChevronRight aria-hidden /> : <IconChevronDown aria-hidden />}
-        {group.icon}
-        {group.label}
-        <span className="text-muted-foreground tabular-nums">{ids.length}</span>
-      </Button>
-      {group.action && <span className="ml-auto flex items-center">{group.action}</span>}
-    </div>
+    <span
+      className={cn(
+        'flex h-9 w-8 shrink-0 items-center justify-center',
+        hover && !picked && revealed,
+      )}
+    >
+      <Checkbox
+        checked={picked > 0 && picked === ids.length}
+        indeterminate={picked > 0 && picked < ids.length}
+        aria-label={`Select all in ${label}`}
+        onCheckedChange={() => selection.toggleAll(ids)}
+      />
+    </span>
   );
 };
+
+const rowClass =
+  'group/list-row flex h-11 items-center gap-1 border-b px-2 text-sm hover:bg-muted data-selected:bg-primary/10';
+
+/** A row with no checkbox, in a list without selection. */
+const PlainRow = ({ id, children }: { id: string; children: ReactNode }) => (
+  <li data-record-row={id} className={rowClass}>
+    {children}
+  </li>
+);
 
 const Row = ({
   id,
@@ -106,11 +125,7 @@ const Row = ({
   const selecting = useSelectionState((current) => current.size > 0);
 
   return (
-    <li
-      data-record-row={id}
-      data-selected={checked || undefined}
-      className="group/list-row flex h-11 items-center gap-1 border-b px-2 text-sm hover:bg-muted data-selected:bg-primary/10"
-    >
+    <li data-record-row={id} data-selected={checked || undefined} className={rowClass}>
       <span
         className={cn(
           'flex h-11 w-8 shrink-0 items-center justify-center',
@@ -148,6 +163,7 @@ export const RecordListRoot = <TRow,>({
   rowLabel,
   renderRow,
   grouped = true,
+  selectable = true,
   className,
 }: RecordListProps<TRow>) => {
   const { listId } = useRecordListContext();
@@ -157,11 +173,17 @@ export const RecordListRoot = <TRow,>({
   const order = groups.filter((group) => !folded(group)).flatMap((group) => group.rows.map(rowId));
 
   const rows = (list: TRow[]) =>
-    list.map((row) => (
-      <Row key={rowId(row)} id={rowId(row)} label={rowLabel(row)} order={order}>
-        {renderRow(row)}
-      </Row>
-    ));
+    list.map((row) =>
+      selectable ? (
+        <Row key={rowId(row)} id={rowId(row)} label={rowLabel(row)} order={order}>
+          {renderRow(row)}
+        </Row>
+      ) : (
+        <PlainRow key={rowId(row)} id={rowId(row)}>
+          {renderRow(row)}
+        </PlainRow>
+      ),
+    );
 
   if (!grouped) {
     return (
@@ -183,6 +205,7 @@ export const RecordListRoot = <TRow,>({
               ids={group.rows.map(rowId)}
               panelId={panelId}
               collapsed={folded(group)}
+              selectable={selectable}
               onCollapse={(fold) =>
                 setCollapsed((current) =>
                   fold ? [...current, group.id] : current.filter((id) => id !== group.id),

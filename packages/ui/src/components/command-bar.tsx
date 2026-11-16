@@ -3,6 +3,7 @@ import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { cn } from '../lib/utils';
 import { Button, buttonVariants } from './button';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 type CommandBarProps = React.PropsWithChildren<{
   open?: boolean;
@@ -53,6 +54,8 @@ const Value = ({
 }: React.ComponentProps<'div'> & {
   onClose?: () => void;
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center -space-x-px">
       <div
@@ -72,6 +75,7 @@ const Value = ({
           variant="outline"
           className="shadow-none border-dashed border rounded-l-none"
           size="icon"
+          aria-label={t('close', 'Close')}
           onClick={onClose}
         >
           <IconX />

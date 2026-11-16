@@ -19,8 +19,9 @@ const useArchivedProperties = (contentType: FieldContentType) => {
       ...group,
       fieldCount: fields.filter((field) => field.groupId === group.id).length,
     })),
-    // Fields inside an archived group come back with it, so they list there.
-    fields: fields.filter((field) => !archivedGroupIds.has(field.groupId ?? '')),
+    // Fields inside an archived group come back with it, so they list there; a plugin's come
+    // back when its manifest names them again.
+    fields: fields.filter((field) => !field.plugin && !archivedGroupIds.has(field.groupId ?? '')),
   };
 };
 

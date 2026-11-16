@@ -73,7 +73,7 @@ export const FileUploadSettingsPage = () => {
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-6">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-6">
           <QueryState query={settings} className="py-12">
             {(data) => (
               <>

@@ -20,6 +20,16 @@
         }
       }
     },
+    "importNote": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/activities/notes/import"
+        }
+      }
+    },
     "react": {
       "~orpc": {
         "errorMap": {},
@@ -1343,6 +1353,16 @@
           "path": "/fields/{id}"
         }
       }
+    },
+    "setPluginValues": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/fields/plugin-values"
+        }
+      }
     }
   },
   "files": {
@@ -2341,6 +2361,16 @@
         "route": {
           "method": "GET",
           "path": "/views/fields"
+        }
+      }
+    },
+    "matches": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/views/{viewId}/matches"
         }
       }
     }

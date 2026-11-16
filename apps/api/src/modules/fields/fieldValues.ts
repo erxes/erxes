@@ -57,7 +57,7 @@ export const customFieldsColumn = (type: FieldContentType, recordId: PgColumn | 
 type Row = typeof customerFieldValues.$inferInsert;
 
 /** The stored rows of one value of a field. */
-const rowsOf = (
+export const rowsOf = (
   base: Pick<Row, 'recordId' | 'fieldId'>,
   fieldType: string,
   value: CustomValue,

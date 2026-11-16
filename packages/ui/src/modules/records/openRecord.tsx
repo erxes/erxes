@@ -18,6 +18,8 @@ type OpenNewRecord = (contentType: string, defaults?: Record<string, unknown>) =
 interface RecordOpener {
   open: OpenRecord;
   openNew: OpenNewRecord;
+  current: RecordRef | null;
+  dismiss: OpenRecord;
 }
 
 const RecordOpenerContext = createContext<RecordOpener | null>(null);
@@ -33,9 +35,19 @@ const ignore = () => undefined;
 export const RecordOpenerProvider = ({
   open,
   openNew = ignore,
+  current = null,
+  dismiss = ignore,
   children,
-}: PropsWithChildren<{ open: OpenRecord; openNew?: OpenNewRecord }>) => {
-  const opener = useMemo(() => ({ open, openNew }), [open, openNew]);
+}: PropsWithChildren<{
+  open: OpenRecord;
+  openNew?: OpenNewRecord;
+  current?: RecordRef | null;
+  dismiss?: OpenRecord;
+}>) => {
+  const opener = useMemo(
+    () => ({ open, openNew, current, dismiss }),
+    [open, openNew, current, dismiss],
+  );
 
   return <RecordOpenerContext value={opener}>{children}</RecordOpenerContext>;
 };
@@ -47,6 +59,10 @@ export const RecordOpenerProvider = ({
  * `openNew('sales:deal', { stageId })` opens a draft that becomes the record on Save. Any
  * type core or an installed plugin registers opens (`IUIConfig.recordTypes`). `canOpen` is
  * false outside erxes (a plugin page rendered on its own), where both do nothing.
+ *
+ * `current` is the record the panel shows now (null when it shows none or a draft), for a list
+ * that marks it or steps to the next (j/k). `dismiss(record)` takes a record out of the panel,
+ * shown or behind Back, e.g. one the list just deleted. Inside a record, `useRecordPanel`.
  */
 export const useOpenRecord = () => {
   const opener = use(RecordOpenerContext);
@@ -54,9 +70,42 @@ export const useOpenRecord = () => {
   return {
     open: opener?.open ?? ignore,
     openNew: opener?.openNew ?? ignore,
+    current: opener?.current ?? null,
+    dismiss: opener?.dismiss ?? ignore,
     canOpen: opener !== null,
   };
 };
+
+/**
+ * What a record shown in core's panel, or on its own page, can do to it. Core's own tabs are
+ * `detail` and `activity`; a type's `tabs` use their `value`.
+ */
+export interface RecordPanelControls {
+  record: RecordRef;
+  /** The tab shown; empty is the record's default. */
+  tab: string;
+  /** Shows a tab: an Actions menu item whose form opens on Detail picks `detail` first. */
+  setTab: (tab: string) => void;
+  /** Closes the panel; on a record's own page, goes back to its list. */
+  close: () => void;
+  /** Takes this record out, e.g. after deleting it: back to the record under it, else closed. */
+  dismiss: () => void;
+  /** Puts another record in this one's place, Back unchanged: a request accepted as a task. */
+  replace: (next: RecordRef) => void;
+}
+
+const RecordPanelContext = createContext<RecordPanelControls | null>(null);
+
+/** Web gives each record it shows its controls. */
+export const RecordPanelProvider = RecordPanelContext;
+
+/**
+ * The record a slot is in, and what the slot can do to it.
+ * Any slot (`Title`, `Actions`, `Detail`, a tab, a relation tab): `const panel = useRecordPanel()`, then `panel?.dismiss()` after a delete,
+ * `panel?.replace({ contentType: 'tasks:task', contentId })`, `panel?.setTab('detail')`.
+ * Null outside a record (a plugin page on its own).
+ */
+export const useRecordPanel = () => use(RecordPanelContext);
 
 const page = hostComponent<RecordRef>();
 

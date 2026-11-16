@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Form, Input, Spinner, useToast } from 'erxes-ui';
-import { useForm, useFormContext, useWatch } from 'react-hook-form';
+import type { TFunction } from 'i18next';
+import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useQueryState } from 'nuqs';
 import { z } from 'zod';
@@ -8,33 +9,40 @@ import { messageOf } from '@erxes/core-contract/client';
 import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useTeamMemberSetPassword } from '../useTeamMembers';
 
+type T = TFunction<'settings', 'team-member'>;
+
 /** The API checks the same rules. */
-const USER_RESET_PASSWORD_SCHEMA = z
-  .object({
-    newPassword: z
-      .string()
-      .refine((val) => /.{8,}/.test(val), {
-        error: 'At least 8 characters',
-      })
-      .refine((val) => /[0-9]/.test(val), {
-        error: 'At least 1 number',
-      })
-      .refine((val) => /[a-z]/.test(val), {
-        error: 'At least 1 lowercase letter',
-      })
-      .refine((val) => /[A-Z]/.test(val), {
-        error: 'At least 1 uppercase letter',
-      }),
-    repeatPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.repeatPassword, {
-    path: ['repeatPassword'],
-    error: 'Passwords must match',
-  });
+const resetPasswordSchema = (t: T) =>
+  z
+    .object({
+      newPassword: z
+        .string()
+        .refine((val) => /.{8,}/.test(val), { error: t('password-min', 'At least 8 characters') })
+        .refine((val) => /[0-9]/.test(val), { error: t('password-number', 'Add a number') })
+        .refine((val) => /[a-z]/.test(val), {
+          error: t('password-lowercase', 'Add a lowercase letter'),
+        })
+        .refine((val) => /[A-Z]/.test(val), {
+          error: t('password-uppercase', 'Add an uppercase letter'),
+        }),
+      repeatPassword: z.string(),
+    })
+    .refine((data) => data.newPassword === data.repeatPassword, {
+      path: ['repeatPassword'],
+      error: t('password-mismatch', 'The passwords do not match'),
+    });
 
-type TResetPasswordForm = z.infer<typeof USER_RESET_PASSWORD_SCHEMA>;
+type TResetPasswordForm = z.infer<ReturnType<typeof resetPasswordSchema>>;
 
-const PasswordField = ({ name, label }: { name: keyof TResetPasswordForm; label: string }) => {
+const PasswordField = ({
+  name,
+  label,
+  hint,
+}: {
+  name: keyof TResetPasswordForm;
+  label: string;
+  hint?: string;
+}) => {
   const { control } = useFormContext<TResetPasswordForm>();
 
   return (
@@ -43,10 +51,11 @@ const PasswordField = ({ name, label }: { name: keyof TResetPasswordForm; label:
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{label}</Form.Label>
+          <Form.Label required>{label}</Form.Label>
           <Form.Control>
-            <Input type="password" {...field} placeholder={label} autoComplete="new-password" />
+            <Input type="password" {...field} autoComplete="new-password" />
           </Form.Control>
+          {hint && <Form.Description>{hint}</Form.Description>}
           <Form.Message />
         </Form.Item>
       )}
@@ -62,19 +71,17 @@ export const ResetPasswordDialog = () => {
   const setPassword = useTeamMemberSetPassword();
 
   const form = useForm<TResetPasswordForm>({
-    mode: 'onBlur',
+    mode: 'onTouched',
     defaultValues: { newPassword: '', repeatPassword: '' },
-    resolver: zodResolver(USER_RESET_PASSWORD_SCHEMA),
+    resolver: zodResolver(resetPasswordSchema(t)),
   });
 
-  const { control, handleSubmit, reset } = form;
+  const { handleSubmit, reset } = form;
 
-  const [newPassword, repeatPassword] = useWatch({
-    control,
-    name: ['newPassword', 'repeatPassword'],
-  });
-
-  const close = () => void setUserId(null);
+  const close = () => {
+    reset();
+    void setUserId(null);
+  };
 
   const onSubmit = (data: TResetPasswordForm) => {
     if (!userId) return;
@@ -85,7 +92,6 @@ export const ResetPasswordDialog = () => {
         onError: (error) => toast({ title: messageOf(error), variant: 'destructive' }),
         onSuccess: () => {
           toast({ title: t('password-changed'), variant: 'success' });
-          reset();
           close();
         },
       },
@@ -100,24 +106,31 @@ export const ResetPasswordDialog = () => {
           description={t('set-new-password')}
         />
         <Form {...form}>
-          <form onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
-            <fieldset className="flex flex-col gap-3 mb-3">
-              <PasswordField name="newPassword" label={t('new-password')} />
-              <PasswordField name="repeatPassword" label={t('retype-password')} />
-            </fieldset>
-            <div className="flex justify-end">
+          <form
+            onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+            className="flex flex-col gap-4"
+            noValidate
+          >
+            <PasswordField
+              name="newPassword"
+              label={t('new-password')}
+              hint={t('password-hint', '8 or more characters, with A–Z, a–z and 0–9')}
+            />
+            <PasswordField name="repeatPassword" label={t('retype-password')} />
+            <Dialog.Footer>
               <Button
-                type="submit"
-                disabled={
-                  setPassword.isPending ||
-                  newPassword.trim() === '' ||
-                  repeatPassword.trim() === '' ||
-                  newPassword !== repeatPassword
-                }
+                type="button"
+                variant="outline"
+                onClick={close}
+                disabled={setPassword.isPending}
               >
-                {setPassword.isPending ? <Spinner /> : t('save')}
+                {t('cancel', 'Cancel')}
               </Button>
-            </div>
+              <Button type="submit" disabled={setPassword.isPending}>
+                {setPassword.isPending && <Spinner size="sm" />}
+                {t('save')}
+              </Button>
+            </Dialog.Footer>
           </form>
         </Form>
       </Dialog.Content>

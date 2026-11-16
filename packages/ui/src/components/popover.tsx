@@ -2,6 +2,7 @@ import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { useRef } from 'react';
 import { cn, mergeRefs } from 'erxes-ui/lib/utils';
+import { FieldControlContext } from './field-control';
 
 export type PopoverProps = PopoverPrimitive.Root.Props;
 
@@ -58,27 +59,30 @@ const PopoverContent = ({
 
   return (
     <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Positioner
-        className="isolate z-50"
-        side={side}
-        sideOffset={sideOffset}
-        align={align}
-        alignOffset={alignOffset}
-        collisionPadding={collisionPadding}
-        anchor={anchor}
-      >
-        <PopoverPrimitive.Popup
-          ref={mergeRefs(popupRef, ref)}
-          initialFocus={initialFocus ?? focusCommand}
-          className={cn(
-            popoverContentVariants({ variant }),
-            !disableTransition &&
-              'data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-            className,
-          )}
-          {...props}
-        />
-      </PopoverPrimitive.Positioner>
+      {/* A search box in the popup belongs to the picker, not to the form row around it. */}
+      <FieldControlContext value={null}>
+        <PopoverPrimitive.Positioner
+          className="isolate z-50"
+          side={side}
+          sideOffset={sideOffset}
+          align={align}
+          alignOffset={alignOffset}
+          collisionPadding={collisionPadding}
+          anchor={anchor}
+        >
+          <PopoverPrimitive.Popup
+            ref={mergeRefs(popupRef, ref)}
+            initialFocus={initialFocus ?? focusCommand}
+            className={cn(
+              popoverContentVariants({ variant }),
+              !disableTransition &&
+                'data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+              className,
+            )}
+            {...props}
+          />
+        </PopoverPrimitive.Positioner>
+      </FieldControlContext>
     </PopoverPrimitive.Portal>
   );
 };

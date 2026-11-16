@@ -80,14 +80,25 @@ const CategoryForm = ({ target, onDone }: { target: CategoryDialogTarget; onDone
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-4">
       <div className="space-y-1.5">
-        <Label htmlFor={`${id}-name`}>{t('fields.name', 'Name')}</Label>
+        <Label htmlFor={`${id}-name`}>
+          {t('fields.name', 'Name')}
+          <span aria-hidden="true" className="text-destructive">
+            {' *'}
+          </span>
+        </Label>
         <Input
           id={`${id}-name`}
           value={name}
           onChange={(event) => setName(event.target.value)}
+          aria-required
           aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? `${id}-name-error` : undefined}
         />
-        {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+        {errors.name && (
+          <p id={`${id}-name-error`} className="text-sm text-destructive">
+            {errors.name}
+          </p>
+        )}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor={`${id}-parent`}>{t('category.parent', 'Under')}</Label>
@@ -98,7 +109,11 @@ const CategoryForm = ({ target, onDone }: { target: CategoryDialogTarget; onDone
           noneLabel={t('category.top-level', 'Top level')}
           exclude={editing ? categoryWithDescendants(categories, editing.id) : undefined}
         />
-        {errors.parent && <p className="text-sm text-destructive">{errors.parent}</p>}
+        {errors.parent && (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.parent}
+          </p>
+        )}
       </div>
       <Dialog.Footer>
         <Button type="button" variant="outline" onClick={onDone} disabled={saving}>

@@ -1,15 +1,18 @@
 import type { Icon as TablerIcon } from '@tabler/icons-react';
-import type {
-  TContactContentType,
-  TPanelRecordType,
-  TRecordContacts,
-  TRecordDraftProps,
-  TRecordSection,
-  TRecordSectionProps,
-  TRecordSlotProps,
-  TRecordTab,
-  TRelationTab,
-  TRelationTabProps,
+import {
+  DASHBOARD_WIDGET_PREVIEWS,
+  type TContactContentType,
+  type TDashboardWidget,
+  type TPanelRecordType,
+  type TPluginSettingsPage,
+  type TRecordContacts,
+  type TRecordDraftProps,
+  type TRecordSection,
+  type TRecordSectionProps,
+  type TRecordSlotProps,
+  type TRecordTab,
+  type TRelationTab,
+  type TRelationTabProps,
 } from 'erxes-ui';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ComponentType, ElementType } from 'react';
@@ -41,7 +44,23 @@ const Config = z.object({
   recordSections: z.unknown().optional(),
   recordTypes: z.unknown().optional(),
   relationTabs: z.unknown().optional(),
+  settings: z.unknown().optional(),
+  dashboardWidgets: z.unknown().optional(),
+  floatingWidget: z.unknown().optional(),
 });
+
+const FloatingWidget = component().optional();
+
+/** A settings page is one of the plugin's own, under its `path`. */
+const settingsPageSchema = (path: string) => {
+  const base = pluginBasePath(path);
+
+  return z.object({
+    path: z.string().startsWith(`${base}/`, `is not under ${base}/`),
+    label: z.string().min(1),
+    icon: z.custom<ElementType>(isComponent).optional(),
+  }) satisfies z.ZodType<TPluginSettingsPage>;
+};
 
 const RecordSection = z.object({
   contentType: z.custom<TContactContentType>(
@@ -69,6 +88,16 @@ const RelationTab = z.object({
   hosts: z.array(z.string().min(1)).optional(),
   component: component<TRelationTabProps>(),
 }) satisfies z.ZodType<TRelationTab>;
+
+const DashboardWidget = z.object({
+  name: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  icon: z.custom<ElementType>(isComponent),
+  preview: z.enum(DASHBOARD_WIDGET_PREVIEWS).optional(),
+  size: z.object({ w: z.int().positive(), h: z.int().positive() }).optional(),
+  component: component<object>(),
+}) satisfies z.ZodType<TDashboardWidget>;
 
 /** The address a `detailPath` gives a sample id, if it gives one. */
 const samplePath = (detailPath: (id: string) => unknown) => {
@@ -142,15 +171,27 @@ const validEntries = <T>(
 };
 
 /**
- * A plugin's `CONFIG`, with only its well-formed sections, record types and relation tabs;
- * null when it has no name or path.
+ * A plugin's `CONFIG`, with only its well-formed sections, record types, relation tabs and
+ * settings pages, dashboard widgets and floating widget; null when it has no name or path.
  */
 export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginConfig | null => {
   const config = Config.safeParse(value);
 
   if (!config.success) return null;
 
-  const { recordSections, recordTypes, relationTabs, ...rest } = config.data;
+  const {
+    recordSections,
+    recordTypes,
+    relationTabs,
+    settings,
+    dashboardWidgets,
+    floatingWidget,
+    ...rest
+  } = config.data;
+
+  const widget = FloatingWidget.safeParse(floatingWidget);
+
+  if (!widget.success) console.error(`[plugins] ${remote}: floatingWidget is not a component`);
 
   const sections: TRecordSection[] = validEntries(
     remote,
@@ -169,5 +210,8 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
       recordTypeSchema(rest.name, rest.path),
     ),
     relationTabs: validEntries(remote, 'relationTabs', relationTabs, RelationTab),
+    settings: validEntries(remote, 'settings', settings, settingsPageSchema(rest.path)),
+    dashboardWidgets: validEntries(remote, 'dashboardWidgets', dashboardWidgets, DashboardWidget),
+    floatingWidget: widget.success ? widget.data : undefined,
   };
 };
