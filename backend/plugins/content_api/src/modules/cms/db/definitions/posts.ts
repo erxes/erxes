@@ -75,6 +75,8 @@ postSchema.index(
 
 postSchema.index({ webId: 1 });
 
+postSchema.index({ clientPortalId: 1, status: 1, categoryIds: 1, _id: 1 });
+
 export const postCategorySchema = new Schema<IPostCategoryDocument>(
   {
     _id: mongooseStringRandomId,
