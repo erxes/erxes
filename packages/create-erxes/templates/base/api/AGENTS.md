@@ -22,7 +22,9 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   a flat payload, `entityType` (a type in the manifest's `timelines`) and
   `entityId`. It appears on the record's Activity tab, and on the customer's or
   company's too when it names `subjectType` and `subjectId`. A retried event
-  adds nothing. `activities.create` is for entries that are not events.
+  adds nothing. `activities.create` is for entries that are not events. Tests
+  run on core's own `core_publish_event` (`src/test/core-calls.sql`): assert an
+  event by reading `core_events` in `withOrg`, and an audit entry in `core_audit_logs`.
 - Background work is a job in `src/jobs.ts`, which the manifest declares
   (`jobs`, with an optional `cron` in UTC and `retry`). Queue one inside the
   change that needs it, `enqueueJob(context.tx, { orgId, name, payload })` from

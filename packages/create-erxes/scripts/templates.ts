@@ -40,6 +40,28 @@ const DOCTOR_IGNORE = /\n(?: {2}\/\/[^\n]*\n)* {2}"ignore": \{[\s\S]*?\n {2}\},?
 /** Core's tenant functions plugin migrations call; the last migration to define one wins. */
 const TENANT_FUNCTIONS = ['core_tenant_visible', 'core_enable_tenant_rls'];
 
+/** Core's functions a plugin's code calls in its own transactions. */
+const PLUGIN_FUNCTIONS = ['core_publish_event', 'core_record_audit', 'core_live_signal'];
+
+/** The core tables those functions write, which a plugin's tests read back. */
+const CORE_TABLES = ['core_events', 'core_audit_logs'];
+
+/**
+ * A test database has no core plugin registry, so `core_enter_org()` keeps core's
+ * organisation check and skips its check that the plugin is installed.
+ */
+const ENTER_ORG = `CREATE OR REPLACE FUNCTION core_enter_org(p_org_id text, p_plugin text) RETURNS void
+LANGUAGE plpgsql AS $$
+DECLARE
+  v_current text := nullif(current_setting('app.org_id', true), '');
+BEGIN
+  IF v_current IS NULL THEN
+    PERFORM set_config('app.org_id', p_org_id, true);
+  ELSIF v_current <> p_org_id THEN
+    RAISE EXCEPTION 'this transaction works for organisation %, not %', v_current, p_org_id;
+  END IF;
+END $$;`;
+
 const qualitySection = async () => {
   const section = QUALITY.exec(await readFile(join(repo, 'AGENTS.md'), 'utf8'))?.[0];
 
@@ -56,19 +78,72 @@ const doctorConfig = async () => {
   return config.replace(DOCTOR_PROJECTS, '"projects": ["ui"]').replace(DOCTOR_IGNORE, '');
 };
 
-const tenantFunctions = async () => {
-  const dir = join(repo, 'packages/db/drizzle');
-  const files = (await readdir(dir)).filter((file) => file.endsWith('.sql')).toSorted();
-  const sources = await Promise.all(files.map((file) => readFile(join(dir, file), 'utf8')));
+const MIGRATIONS = join(repo, 'packages/db/drizzle');
 
-  return TENANT_FUNCTIONS.map((name) => {
+/** Core's migrations, oldest first. */
+const migrations = async () => {
+  const files = (await readdir(MIGRATIONS)).filter((file) => file.endsWith('.sql')).toSorted();
+
+  return Promise.all(files.map((file) => readFile(join(MIGRATIONS, file), 'utf8')));
+};
+
+const coreFunctions = (sources: string[], names: string[]) =>
+  names.map((name) => {
     const pattern = new RegExp(`CREATE OR REPLACE FUNCTION ${name}\\([\\s\\S]*?\\$\\$;`, 'g');
     const definition = sources.flatMap((source) => source.match(pattern) ?? []).at(-1);
 
-    if (!definition) throw new Error(`No migration in ${dir} defines ${name}`);
+    if (!definition) throw new Error(`No migration in ${MIGRATIONS} defines ${name}`);
 
     return definition;
   });
+
+/**
+ * A core table as its migrations build it, in order: the table, its column changes and its
+ * indexes, without the foreign keys to core's other tables. Row level security as in core.
+ */
+const coreTable = (sources: string[], table: string) => {
+  const pattern = new RegExp(
+    [
+      `CREATE TABLE "${table}" \\([\\s\\S]*?\\n\\);`,
+      `ALTER TABLE "${table}" (?:ADD|DROP|ALTER) COLUMN [^;]*;`,
+      `CREATE (?:UNIQUE )?INDEX "[^"]+" ON "${table}" [^;]*;`,
+    ].join('|'),
+    'g',
+  );
+
+  const statements = sources.flatMap((source) => source.match(pattern) ?? []);
+
+  if (!statements[0]?.startsWith('CREATE TABLE'))
+    throw new Error(`No migration in ${MIGRATIONS} creates ${table}`);
+
+  return [
+    ...statements,
+    `SELECT core_enable_tenant_rls('${table}');`,
+    `GRANT SELECT, INSERT ON ${table} TO PUBLIC;`,
+  ].join('\n');
+};
+
+/** What a plugin's throwaway databases get from core, by file in `api/src/test/`. */
+const testSql = async () => {
+  const sources = await migrations();
+
+  return {
+    'core-functions.sql': [
+      "-- Core's tenant functions, which plugin migrations call, as erxes",
+      '-- packages/db/drizzle defines them. Tests and tools/check-rls.sh install them',
+      '-- in their throwaway databases.',
+      ...coreFunctions(sources, TENANT_FUNCTIONS),
+    ],
+    'core-calls.sql': [
+      "-- Core's functions a plugin calls in its own transactions (core_publish_event,",
+      '-- core_record_audit, core_live_signal), as erxes packages/db/drizzle defines',
+      '-- them, and the core tables they write. Tests install them, so a procedure that',
+      '-- publishes runs, and a test reads its events back from core_events.',
+      ...coreFunctions(sources, PLUGIN_FUNCTIONS),
+      ENTER_ORG,
+      ...CORE_TABLES.map((table) => coreTable(sources, table)),
+    ],
+  };
 };
 
 export const writeTemplates = async () => {
@@ -96,14 +171,6 @@ export const writeTemplates = async () => {
     await writeFile(path, text);
   }
 
-  await writeFile(
-    join(out, 'base/api/src/test/core-functions.sql'),
-    [
-      "-- Core's tenant functions, which plugin migrations call, as erxes",
-      '-- packages/db/drizzle defines them. Tests and tools/check-rls.sh install them',
-      '-- in their throwaway databases.',
-      ...(await tenantFunctions()),
-      '',
-    ].join('\n'),
-  );
+  for (const [file, lines] of Object.entries(await testSql()))
+    await writeFile(join(out, 'base/api/src/test', file), [...lines, ''].join('\n'));
 };
