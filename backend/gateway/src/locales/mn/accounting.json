@@ -1471,5 +1471,6 @@
   "Invalid transaction date.": "Гүйлгээний огноо буруу байна.",
   "No closing details to create transactions.": "Гүйлгээ үүсгэх тооцоолсон хаалтын мөр алга байна.",
   "Closing adjustment calculated successfully": "Хаалтын тохируулга амжилттай тооцоологдлоо",
-  "Closing transactions created successfully": "Хаалтын гүйлгээ амжилттай үүслээ"
+  "Closing transactions created successfully": "Хаалтын гүйлгээ амжилттай үүслээ",
+  "No temporary account transaction found before this closing date.": "Энэ хаалтын огнооноос өмнө түр дансны гүйлгээ олдсонгүй."
 }

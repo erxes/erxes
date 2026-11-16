@@ -6,19 +6,25 @@ import { ADJUST_DEBT_RATE_QUERY } from '@/adjustments/debt/graphql/adjustDebtRat
 
 const mockUrl = { search: '' };
 
+type MockCursorPage = { list: unknown[]; pageInfo: unknown };
+
 jest.mock(
   'erxes-ui',
   () => {
-    const cursor = jest.requireActual(
-      '../../../../../../../../libs/erxes-ui/src/modules/record-table/utils/cursorUtils',
-    );
-    const types = jest.requireActual(
-      '../../../../../../../../libs/erxes-ui/src/modules/record-table/types/RecordTableCursorTypes',
-    );
+    const mergeCursorData = ({
+      fetchMoreResult,
+      prevResult,
+    }: {
+      fetchMoreResult: MockCursorPage;
+      prevResult: MockCursorPage;
+    }) => ({
+      ...fetchMoreResult,
+      list: [...prevResult.list, ...fetchMoreResult.list],
+    });
     const read = (key: string) => new URLSearchParams(mockUrl.search).get(key);
     return {
-      EnumCursorDirection: types.EnumCursorDirection,
-      mergeCursorData: cursor.mergeCursorData,
+      EnumCursorDirection: { FORWARD: 'forward', BACKWARD: 'backward' },
+      mergeCursorData,
       useMultiQueryState: (keys: string[]) => [
         Object.fromEntries(keys.map((key) => [key, read(key)])),
       ],
@@ -135,16 +141,28 @@ describe('debt rate adjustment list', () => {
             endCursor: 'debt-2',
           }),
         },
+        {
+          request: {
+            query: ADJUST_DEBT_RATE_QUERY,
+            variables: { ...filtered, cursor: 'debt-2' },
+          },
+          result: page(['debt-3'], { hasNextPage: false, endCursor: 'debt-3' }),
+        },
       ],
     );
 
     await waitFor(() => expect(result.current.adjustDebtRates).toHaveLength(2));
 
-    act(() => result.current.handleFetchMore());
+    await act(async () => {
+      result.current.handleFetchMore();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
 
-    expect(result.current.loading).toBe(false);
+    expect(result.current.adjustDebtRates.map(({ _id }) => _id)).toEqual([
+      'debt-1',
+      'debt-2',
+    ]);
     expect(result.current.error).toBeUndefined();
-    expect(result.current.adjustDebtRates).toHaveLength(2);
   });
 
   it('shows the server error and an empty list when the filtered request fails', async () => {

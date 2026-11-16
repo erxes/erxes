@@ -11,11 +11,8 @@ const mockUrl = { search: '' };
 jest.mock(
   'erxes-ui',
   () => {
-    const types = jest.requireActual(
-      '../../../../../../../../libs/erxes-ui/src/modules/record-table/types/RecordTableCursorTypes',
-    );
     return {
-      EnumCursorDirection: types.EnumCursorDirection,
+      EnumCursorDirection: { FORWARD: 'forward', BACKWARD: 'backward' },
       useQueryState: (key: string) => [
         new URLSearchParams(mockUrl.search).get(key),
       ],

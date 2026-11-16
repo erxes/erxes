@@ -1471,5 +1471,6 @@
   "Invalid transaction date.": "Invalid transaction date.",
   "No closing details to create transactions.": "There are no calculated closing rows to create transactions from.",
   "Closing adjustment calculated successfully": "Closing adjustment calculated successfully",
-  "Closing transactions created successfully": "Closing transactions created successfully"
+  "Closing transactions created successfully": "Closing transactions created successfully",
+  "No temporary account transaction found before this closing date.": "No temporary account transaction found before this closing date."
 }

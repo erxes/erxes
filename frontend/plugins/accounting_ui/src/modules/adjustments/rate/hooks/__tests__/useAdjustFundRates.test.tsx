@@ -6,18 +6,24 @@ import { ADJUST_FUND_RATE_QUERY } from '@/adjustments/rate/graphql/adjustFundRat
 
 const mockUrl = { search: '' };
 
+type MockCursorPage = { list: unknown[]; pageInfo: unknown };
+
 jest.mock(
   'erxes-ui',
   () => {
-    const cursor = jest.requireActual(
-      '../../../../../../../../libs/erxes-ui/src/modules/record-table/utils/cursorUtils',
-    );
-    const types = jest.requireActual(
-      '../../../../../../../../libs/erxes-ui/src/modules/record-table/types/RecordTableCursorTypes',
-    );
+    const mergeCursorData = ({
+      fetchMoreResult,
+      prevResult,
+    }: {
+      fetchMoreResult: MockCursorPage;
+      prevResult: MockCursorPage;
+    }) => ({
+      ...fetchMoreResult,
+      list: [...prevResult.list, ...fetchMoreResult.list],
+    });
     return {
-      EnumCursorDirection: types.EnumCursorDirection,
-      mergeCursorData: cursor.mergeCursorData,
+      EnumCursorDirection: { FORWARD: 'forward', BACKWARD: 'backward' },
+      mergeCursorData,
       useQueryState: (key: string) => [
         new URLSearchParams(mockUrl.search).get(key),
       ],
