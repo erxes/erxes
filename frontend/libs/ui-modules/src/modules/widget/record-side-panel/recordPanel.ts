@@ -1,11 +1,13 @@
 /**
  * What the side panel asks a plugin's `./recordPanel` remote to draw for one
- * of its records: the header title and actions, or the Detail, Properties or
+ * of its records: the header title and actions, the summary strip above the
+ * tabs (when its config sets `summary`), or the Detail, Properties or
  * Activity tab.
  */
 export type TRecordPanelView =
   | 'title'
   | 'actions'
+  | 'summary'
   | 'detail'
   | 'properties'
   | 'activity'

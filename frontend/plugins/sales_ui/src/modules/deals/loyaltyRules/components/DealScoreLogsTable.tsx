@@ -8,7 +8,7 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useSidePanel } from 'ui-modules';
+import { useOpenDealPanel } from '@/deals/hooks/useOpenDealPanel';
 import { useLoyaltyDrill } from '@/loyalty-points/drill';
 import {
   Cell,
@@ -24,12 +24,12 @@ import {
 
 const DealNameCell = ({ row }: { row: TDealScoreLogRow }) => {
   const { t } = useTranslation('sales');
-  const { openRecord } = useSidePanel();
+  const openDealPanel = useOpenDealPanel();
   const drill = useLoyaltyDrill();
 
   const open = () => {
     drill?.close();
-    openRecord({ contentType: 'sales:deal', contentId: row.dealId });
+    openDealPanel(row.dealId);
   };
 
   return (

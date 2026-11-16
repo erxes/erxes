@@ -1,3 +1,4 @@
+import { evictContactDealLists } from '@/deals/utils/dealCache';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import type {
   DealsRemoveMutation,
@@ -27,15 +28,7 @@ export function useDealsRemove(
     awaitRefetchQueries: true,
     update: (cache, result, context) => {
       if (result.data?.dealsRemove) {
-        cache.modify({
-          id: 'ROOT_QUERY',
-          fields: {
-            deals: (existing, { DELETE, storeFieldName }) =>
-              /"(customerId|companyId)":/.test(storeFieldName)
-                ? DELETE
-                : existing,
-          },
-        });
+        evictContactDealLists(cache);
       }
       options?.update?.(cache, result, context);
     },

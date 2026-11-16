@@ -1,13 +1,6 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 import { useAtomValue } from 'jotai';
-import {
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { currentUserState } from 'ui-modules';
 
@@ -16,6 +9,8 @@ import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { Dialog, ScrollArea } from 'erxes-ui';
 import { useDealProductActions } from '../../hooks/useDealProductActions';
+import { useLocalProductEdits } from '../../hooks/useLocalProductEdits';
+import { useNarrowContainer } from '../../hooks/useNarrowContainer';
 import { useProductCalculations } from '../../hooks/useProductCalculations';
 import {
   useSaveDealProducts,
@@ -26,7 +21,6 @@ import { ProductListHandlersContext } from '@/deals/cards/components/detail/prod
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
-import { getProductsDataPatches } from '@/deals/cards/components/detail/product/utils/productsDataPatches';
 import { ProductsRecordTable } from '../product-table/ProductRecordTable';
 import { ProductEditSheet } from '../ProductEditSheet';
 import { ProductFooter } from '../ProductFooter';
@@ -52,51 +46,23 @@ export const ProductsList = ({
   compact?: boolean;
 }) => {
   const { t } = useTranslation('sales');
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isNarrow, setIsNarrow] = useState(compact);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!compact || !container) return undefined;
-    const observer = new ResizeObserver(([entry]) =>
-      setIsNarrow(entry.contentRect.width < COMPACT_MAX_WIDTH),
-    );
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [compact]);
+  const { ref: containerRef, isNarrow } = useNarrowContainer(
+    compact,
+    COMPACT_MAX_WIDTH,
+  );
 
   const currentUser = useAtomValue(currentUserState);
   const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
-  const [localProductsData, setLocalProductsData] =
-    useState<DealProductData[]>(productsData);
-  const pendingProductPatchesRef = useRef<
-    Record<string, Partial<DealProductData>>
-  >({});
-  const savedPatchesRef = useRef<Record<string, Partial<DealProductData>>>({});
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const editRevisionRef = useRef(0);
-  const savedRevisionRef = useRef<number | null>(null);
-  const editLocalProductsData = useCallback(
-    (update: SetStateAction<DealProductData[]>) => {
-      editRevisionRef.current += 1;
-      setHasUnsavedChanges(true);
-      setLocalProductsData((prev) => {
-        const next = typeof update === 'function' ? update(prev) : update;
-
-        Object.entries(getProductsDataPatches(next, prev)).forEach(
-          ([id, patch]) => {
-            pendingProductPatchesRef.current[id] = {
-              ...pendingProductPatchesRef.current[id],
-              ...patch,
-            };
-          },
-        );
-
-        return next;
-      });
-    },
-    [],
-  );
+  const {
+    localProductsData,
+    setLocalProductsData,
+    editLocalProductsData,
+    addPendingPatches,
+    pendingProductPatchesRef,
+    hasUnsavedChanges,
+    beginSave,
+    completeSave,
+  } = useLocalProductEdits(productsData);
   const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
   );
@@ -119,20 +85,7 @@ export const ProductsList = ({
     calculatePerProductAmount,
   } = useProductCalculations(localProductsData);
   const { editDeals, loading: saving } = useDealsEdit(
-    {
-      onCompleted: () => {
-        Object.entries(savedPatchesRef.current).forEach(([id, patch]) => {
-          if (pendingProductPatchesRef.current[id] === patch) {
-            delete pendingProductPatchesRef.current[id];
-          }
-        });
-        savedPatchesRef.current = {};
-
-        if (editRevisionRef.current === savedRevisionRef.current) {
-          setHasUnsavedChanges(false);
-        }
-      },
-    },
+    { onCompleted: completeSave },
     { toastOptions: DEAL_TOAST_OPTIONS },
   );
   const [showAdvancedView, setShowAdvancedView] = useState(false);
@@ -252,13 +205,14 @@ export const ProductsList = ({
                 options.syncProductId),
         );
 
-        affectedProductData.forEach((productData) => {
-          const rowId = String(productData._id);
-          pendingProductPatchesRef.current[rowId] = {
-            ...pendingProductPatchesRef.current[rowId],
-            ...patch,
-          };
-        });
+        addPendingPatches(
+          Object.fromEntries(
+            affectedProductData.map((productData) => [
+              String(productData._id),
+              patch,
+            ]),
+          ),
+        );
 
         const affectedIds = new Set(
           affectedProductData.map((productData) => productData._id),
@@ -273,7 +227,7 @@ export const ProductsList = ({
         return updated;
       });
     },
-    [updateTotal],
+    [updateTotal, setLocalProductsData, addPendingPatches],
   );
 
   useSyncLocalProductsData({
@@ -303,13 +257,6 @@ export const ProductsList = ({
   );
 
   const cardsLayout = compact && isNarrow && !showExpandedView;
-  const [expandedProductIds, setExpandedProductIds] = useState<string[]>([]);
-  const toggleExpandedProduct = (productDataId: string) =>
-    setExpandedProductIds((ids) =>
-      ids.includes(productDataId)
-        ? ids.filter((id) => id !== productDataId)
-        : [...ids, productDataId],
-    );
 
   const productsHeader = (
     <ProductsListHeader
@@ -338,9 +285,6 @@ export const ProductsList = ({
       showTaxView={showTaxView}
       hasProductFilters={hasProductFilters}
       layout={cardsLayout ? 'cards' : 'table'}
-      expandedIds={expandedProductIds}
-      onToggleExpanded={toggleExpandedProduct}
-      onExpandedChange={setExpandedProductIds}
     />
   );
 
@@ -376,8 +320,7 @@ export const ProductsList = ({
         updateTotal={updateTotal}
         onAddProducts={addProducts}
         onSave={() => {
-          savedRevisionRef.current = editRevisionRef.current;
-          savedPatchesRef.current = { ...pendingProductPatchesRef.current };
+          beginSave();
           handleSave();
         }}
         saving={saving}

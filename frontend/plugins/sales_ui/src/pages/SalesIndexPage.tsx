@@ -14,6 +14,7 @@ import { IconSandbox, IconSettings } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
+import { useCloseSidePanelOnPipelineChange } from '~/widgets/record-panel/useCloseSidePanelOnPipelineChange';
 import { useOpenRecordPanelFromQuery } from '~/widgets/record-panel/useOpenRecordPanelFromQuery';
 
 export const SalesIndexPage = () => {
@@ -22,6 +23,7 @@ export const SalesIndexPage = () => {
   useOpenRecordPanelFromQuery('salesItemId', 'sales:deal');
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
+  useCloseSidePanelOnPipelineChange(boardId, pipelineId);
   const boardSearchParams = new URLSearchParams();
   const settingsSearchParams = new URLSearchParams();
 

@@ -4,6 +4,7 @@ import {
   IconLink,
   IconHierarchy2,
   IconId,
+  IconListCheck,
   IconPackage,
   IconSandbox,
 } from '@tabler/icons-react';
@@ -12,7 +13,6 @@ import {
   Button,
   PageContainer,
   Separator,
-  Spinner,
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
@@ -26,27 +26,27 @@ import {
   SidePanelNavigatorContext,
   useSidePanel,
 } from 'ui-modules';
+import { DealPanelSummary } from '~/widgets/record-panel/DealPanelStage';
 import { DealActivityTab } from '@/deals/cards/components/detail/DealActivityTab';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealIdProvider } from '@/deals/context/DealIdContext';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
 import { DealPanelRelations } from '~/widgets/record-panel/DealPanelRelations';
 import {
+  DealPageChecklists,
   DealPageDescription,
   DealPageFields,
-} from '~/widgets/record-panel/DealPanelDetail';
+} from '~/widgets/record-panel/DealPageSections';
 import {
   DealPanelProductsTab,
   DealPanelProperties,
 } from '~/widgets/record-panel/RecordPanel';
-import {
-  DealPanelError,
-  DealPanelNotFound,
-} from '~/widgets/record-panel/DealPanelStates';
+import { DealPanelLoader } from '~/widgets/record-panel/DealPanelStates';
 
 const DETAIL_TAB = 'detail';
 const PRODUCTS_TAB = 'products';
 const DESCRIPTION_TAB = 'description';
+const CHECKLIST_TAB = 'checklist';
 const PROPERTIES_TAB = 'properties';
 const ACTIVITY_TAB = 'activity';
 const RELATIONS_TAB = 'relations';
@@ -111,7 +111,7 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
       key={dealId}
       value={tab ?? PRODUCTS_TAB}
       onValueChange={setTab}
-      visibleCount={6}
+      visibleCount={7}
       overviewTab={DETAIL_TAB}
       expandedDefaultTab={PRODUCTS_TAB}
       overviewHeader={
@@ -140,6 +140,12 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
           content: <DealPageDescription dealId={dealId} />,
         },
         {
+          value: CHECKLIST_TAB,
+          label: tSales('checklist'),
+          icon: IconListCheck,
+          content: <DealPageChecklists dealId={dealId} />,
+        },
+        {
           value: RELATIONS_TAB,
           label: t('relations'),
           icon: IconLink,
@@ -162,25 +168,16 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
   );
 };
 
-const DealPageBody = ({ dealId }: { dealId: string }) => {
-  const { deal, loading, error } = useDealDetail({
-    variables: { _id: dealId },
-  });
-
-  if (loading && !deal) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (error && !deal) {
-    return <DealPanelError error={error} />;
-  }
-
-  if (!deal) {
-    return <DealPanelNotFound />;
-  }
-
-  return <DealPageTabs dealId={dealId} />;
-};
+const DealPageBody = ({ dealId }: { dealId: string }) => (
+  <DealPanelLoader dealId={dealId} live>
+    {() => (
+      <>
+        <DealPanelSummary dealId={dealId} />
+        <DealPageTabs dealId={dealId} />
+      </>
+    )}
+  </DealPanelLoader>
+);
 
 const DealPageNavigator = ({
   dealId,
@@ -212,8 +209,9 @@ const DealPageNavigator = ({
       back: backToBoard,
       canGoBack: false,
       close: backToBoard,
+      listPath: boardPath,
     }),
-    [record, tab, setTab, openRecord, backToBoard],
+    [record, tab, setTab, openRecord, backToBoard, boardPath],
   );
 
   return (

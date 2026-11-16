@@ -1,25 +1,29 @@
-import { useQuery } from '@apollo/client';
-import { Button, Spinner } from 'erxes-ui';
 import { IconCaretLeftRight, IconPlus } from '@tabler/icons-react';
+import { Button, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   getHostContacts,
   IRelationWidgetProps,
   RelationWidgetEmptyState,
   RelationWidgetList,
-  useSidePanel,
 } from 'ui-modules';
-
+import { useContactDeals } from '~/widgets/contact/useContactDeals';
+import { useDealConnectionAccess } from '~/widgets/contact/useDealConnectionAccess';
 import { DealWidget } from './DealWidget';
-import { SALES_CONTACT_DEALS } from '~/widgets/contact/contactDeals';
-import { useTranslation } from 'react-i18next';
 
-// The most deals listed for one customer or company.
-const CONTACT_RECORDS_LIMIT = 50;
+const getConnectionContact = ({
+  customerId,
+  companyId,
+}: {
+  customerId?: string;
+  companyId?: string;
+}) => {
+  if (customerId)
+    return { contentType: 'core:customer', contentId: customerId };
+  if (companyId) return { contentType: 'core:company', contentId: companyId };
+  return null;
+};
 
-/**
- * The deals of the host's customer and company, found by the contact on the
- * deals themselves; "+" creates one for them (dealsAdd saves the contact).
- */
 export const Deal = ({
   contentId,
   contentType,
@@ -37,39 +41,19 @@ export const Deal = ({
     customerIds,
     companyIds,
   });
-  const customerDeals = useQuery(SALES_CONTACT_DEALS, {
-    variables: {
-      customerId: contacts.customerId,
-      limit: CONTACT_RECORDS_LIMIT,
-    },
-    skip: !contacts.customerId,
+  const { dealsById, loading } = useContactDeals({
+    ...contacts,
+    excludeId: contentId,
   });
-  const companyDeals = useQuery(SALES_CONTACT_DEALS, {
-    variables: {
-      companyId: contacts.companyId,
-      limit: CONTACT_RECORDS_LIMIT,
-    },
-    skip: !contacts.companyId,
-  });
-  const { openNewRecord } = useSidePanel();
+  const { canAdd, addDeal } = useDealConnectionAccess();
 
-  if (customerDeals.loading || companyDeals.loading) {
+  const handleAdd = () => addDeal(getConnectionContact(contacts), contacts);
+
+  if (loading) {
     return <Spinner containerClassName="py-20" />;
   }
 
-  // The host itself is not listed among its contacts' deals.
-  const dealIds = [
-    ...new Set(
-      [
-        ...(customerDeals.data?.deals?.list || []),
-        ...(companyDeals.data?.deals?.list || []),
-      ].flatMap((deal) => (deal && deal._id !== contentId ? [deal._id] : [])),
-    ),
-  ];
-
-  const handleDealOpen = () => {
-    openNewRecord('sales:deal', contacts, { stack: true });
-  };
+  const dealIds = [...dealsById.keys()];
 
   if (dealIds.length === 0) {
     return (
@@ -77,10 +61,12 @@ export const Deal = ({
         icon={IconCaretLeftRight}
         message={t('no-deals-to-display')}
       >
-        <Button variant="secondary" onClick={handleDealOpen}>
-          <IconPlus />
-          {t('add-a-deal')}
-        </Button>
+        {canAdd && (
+          <Button variant="secondary" onClick={handleAdd}>
+            <IconPlus />
+            {t('add-a-deal')}
+          </Button>
+        )}
       </RelationWidgetEmptyState>
     );
   }
@@ -89,9 +75,15 @@ export const Deal = ({
     <RelationWidgetList
       label={t('deals')}
       actions={
-        <Button variant="secondary" onClick={handleDealOpen}>
-          <IconPlus />
-        </Button>
+        canAdd && (
+          <Button
+            variant="secondary"
+            onClick={handleAdd}
+            aria-label={t('add-a-deal')}
+          >
+            <IconPlus />
+          </Button>
+        )
       }
     >
       {dealIds.map((dealId) => (

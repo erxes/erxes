@@ -10,7 +10,7 @@ export type TRecordPanelPluginTab = NonNullable<
 /**
  * The plugin that draws `contentType` records in the side panel (its config
  * lists the type under `widgets.recordPanels`), if the user may use it, and
- * whether those records have a Properties tab.
+ * whether those records have a Properties tab or a summary strip.
  */
 export const useRecordPanelPlugin = (
   contentType: string,
@@ -19,6 +19,7 @@ export const useRecordPanelPlugin = (
   i18nNamespace: string | null;
   hasProperties: boolean;
   hasDraftTitle: boolean;
+  hasSummary: boolean;
   tabs: TRecordPanelPluginTab[];
   detailPath: ((recordId: string, pathname: string) => string) | null;
 } => {
@@ -45,6 +46,7 @@ export const useRecordPanelPlugin = (
         i18nNamespace: null,
         hasProperties: false,
         hasDraftTitle: false,
+        hasSummary: false,
         tabs: [],
         detailPath: null,
       };
@@ -55,6 +57,7 @@ export const useRecordPanelPlugin = (
       i18nNamespace: plugin.i18nNamespace ?? plugin.name,
       hasProperties: panel?.properties !== false,
       hasDraftTitle: panel?.draftTitle === true,
+      hasSummary: panel?.summary === true,
       tabs: panel?.tabs ?? [],
       detailPath: panel?.detailPath ?? null,
     };

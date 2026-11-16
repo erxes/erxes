@@ -1,3 +1,4 @@
+import { evictContactDealLists } from '@/deals/utils/dealCache';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { ContactsRelationField } from 'ui-modules';
 
@@ -28,17 +29,7 @@ export const DealContactsField = ({
       onValueChange={(id) =>
         editDeals({
           variables: { _id: dealId, [field]: id },
-          // Contacts' deal lists change with them.
-          update: (cache) =>
-            cache.modify({
-              id: 'ROOT_QUERY',
-              fields: {
-                deals: (existing, { DELETE, storeFieldName }) =>
-                  /"(customerId|companyId)":/.test(storeFieldName)
-                    ? DELETE
-                    : existing,
-              },
-            }),
+          update: (cache) => evictContactDealLists(cache),
         })
       }
     />

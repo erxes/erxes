@@ -1,15 +1,11 @@
 import { useDealRelationTabs } from '@/deals/cards/hooks/useDealRelationTabs';
-import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { dealRelationsFoldedAtom } from '@/deals/states/dealRelationsState';
 import { IconChevronRight, IconLink } from '@tabler/icons-react';
-import { Button, cn, Empty, ScrollArea, Spinner } from 'erxes-ui';
+import { Button, cn, Empty, ScrollArea } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import type { IRelationWidgetTab } from 'ui-modules';
-import {
-  DealPanelError,
-  DealPanelNotFound,
-} from '~/widgets/record-panel/DealPanelStates';
+import { DealPanelLoader } from '~/widgets/record-panel/DealPanelStates';
 
 const DealRelationSection = ({ tab }: { tab: IRelationWidgetTab }) => {
   const [foldedMap, setFoldedMap] = useAtom(dealRelationsFoldedAtom);
@@ -88,31 +84,16 @@ const DealRelationSections = ({
   );
 };
 
-export const DealPanelRelations = ({ dealId }: { dealId: string }) => {
-  const { deal, loading, error } = useDealDetail(
-    { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
-    { subscribe: false },
-  );
-
-  if (loading && !deal) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (error && !deal) {
-    return <DealPanelError error={error} />;
-  }
-
-  if (!deal) {
-    return <DealPanelNotFound />;
-  }
-
-  return (
-    <div className="flex flex-1 min-h-0 flex-col">
-      <DealRelationSections
-        dealId={deal._id}
-        customerId={deal.customers?.[0]?._id}
-        companyId={deal.companies?.[0]?._id}
-      />
-    </div>
-  );
-};
+export const DealPanelRelations = ({ dealId }: { dealId: string }) => (
+  <DealPanelLoader dealId={dealId}>
+    {(deal) => (
+      <div className="flex flex-1 min-h-0 flex-col">
+        <DealRelationSections
+          dealId={deal._id}
+          customerId={deal.customers?.[0]?._id}
+          companyId={deal.companies?.[0]?._id}
+        />
+      </div>
+    )}
+  </DealPanelLoader>
+);

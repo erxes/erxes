@@ -60,9 +60,6 @@ export const ProductsRecordTable = ({
   showTaxView,
   hasProductFilters,
   layout = 'table',
-  expandedIds = [],
-  onToggleExpanded = () => undefined,
-  onExpandedChange = () => undefined,
 }: {
   products: DealProductData[];
   refetch: () => void;
@@ -70,9 +67,6 @@ export const ProductsRecordTable = ({
   showTaxView: boolean;
   hasProductFilters: boolean;
   layout?: 'table' | 'cards';
-  expandedIds?: string[];
-  onToggleExpanded?: (productDataId: string) => void;
-  onExpandedChange?: (productDataIds: string[]) => void;
 }) => {
   const { t } = useTranslation('sales');
 
@@ -130,13 +124,7 @@ export const ProductsRecordTable = ({
       </Empty>
     );
   } else if (layout === 'cards') {
-    productsContent = (
-      <ProductCardList
-        expandedIds={expandedIds}
-        onToggleExpanded={onToggleExpanded}
-        onExpandedChange={onExpandedChange}
-      />
-    );
+    productsContent = <ProductCardList />;
   } else {
     productsContent = (
       <div className="min-h-0 flex-1 overflow-auto">

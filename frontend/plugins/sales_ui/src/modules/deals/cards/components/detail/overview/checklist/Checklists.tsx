@@ -2,6 +2,7 @@ import { ChecklistItem } from './ChecklistItem';
 import { Empty, Separator, Spinner } from 'erxes-ui';
 import { IconListCheck } from '@tabler/icons-react';
 import { useChecklists } from '@/deals/cards/hooks/useChecklists';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const Checklists = ({
@@ -10,12 +11,15 @@ export const Checklists = ({
   newChecklistId,
   compact,
   bare,
+  empty = null,
 }: Readonly<{
   stageId?: string;
   dealId?: string;
   newChecklistId?: string;
   compact?: boolean;
   bare?: boolean;
+  // Shown when the deal has no checklists; nothing by default.
+  empty?: ReactNode;
 }>) => {
   const { t } = useTranslation('sales');
   const { checklists, loading, error } = useChecklists({
@@ -50,7 +54,7 @@ export const Checklists = ({
   }
 
   if (!checklists || checklists.length === 0) {
-    return null;
+    return empty;
   }
 
   const items = checklists.map((checklist) => (

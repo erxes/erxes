@@ -1,41 +1,25 @@
-import { useQuery } from '@apollo/client';
+import { useOpenDealPanel } from '@/deals/hooks/useOpenDealPanel';
 import { IconSandbox } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import {
-  ContactWidgetRow,
-  ContactWidgetSection,
-  IContactWidgetProps,
-  useSidePanel,
-} from 'ui-modules';
-import { SALES_CONTACT_DEALS } from './contactDeals';
+import { ContactWidgetSection, IContactWidgetProps } from 'ui-modules';
+import { DealContactRow } from './DealContactRow';
+import { useContactDeals } from './useContactDeals';
+import { useDealConnectionAccess } from './useDealConnectionAccess';
 
-// The most deals listed for one contact.
-const CONTACT_RECORDS_LIMIT = 50;
-
-/**
- * A customer's or company's deals, found by the contact on the deals
- * themselves; "+" creates one for them (dealsAdd saves the contact on it).
- */
 export const DealsContactSection = ({
   contentType,
   contentId,
 }: Omit<IContactWidgetProps, 'module'>) => {
   const { t } = useTranslation('sales');
   const isCompany = contentType === 'core:company';
-  const contacts = isCompany
+  const { dealsById, loading } = useContactDeals(
+    isCompany ? { companyId: contentId } : { customerId: contentId },
+  );
+  const { canAdd, addDeal } = useDealConnectionAccess();
+  const defaults = isCompany
     ? { companyId: contentId }
     : { customerId: contentId };
-  const { data, loading } = useQuery(SALES_CONTACT_DEALS, {
-    variables: {
-      ...contacts,
-      limit: CONTACT_RECORDS_LIMIT,
-    },
-  });
-  const { openRecord, openNewRecord } = useSidePanel();
-  const deals = (data?.deals?.list || []).flatMap((deal) =>
-    deal ? [deal] : [],
-  );
-  const dealsById = new Map(deals.map((deal) => [deal._id, deal]));
+  const openDealPanel = useOpenDealPanel();
 
   return (
     <ContactWidgetSection
@@ -43,22 +27,18 @@ export const DealsContactSection = ({
       label={t('deals', 'Deals')}
       ids={[...dealsById.keys()]}
       loading={loading}
-      createLabel={t('add-a-deal', 'Add a deal')}
-      onCreate={() => openNewRecord('sales:deal', contacts, { stack: true })}
+      createLabel={t('connect-deal', 'Connect deal')}
+      onCreate={
+        canAdd ? () => addDeal({ contentType, contentId }, defaults) : undefined
+      }
       renderItem={(dealId) => {
         const deal = dealsById.get(dealId);
 
         return (
           deal && (
-            <ContactWidgetRow
-              title={deal.name || t('untitled', 'Untitled')}
-              meta={deal.stage?.name}
-              onClick={() =>
-                openRecord(
-                  { contentType: 'sales:deal', contentId: deal._id },
-                  { stack: true },
-                )
-              }
+            <DealContactRow
+              deal={deal}
+              onClick={() => openDealPanel(deal._id, { stack: true })}
             />
           )
         );

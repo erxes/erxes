@@ -5,29 +5,18 @@ import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { DealLoyaltyPointsBadge } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
+import { useOpenDealPanel } from '@/deals/hooks/useOpenDealPanel';
 import { IDeal } from '@/deals/types/deals';
-import { dealProductsSchema, isRecord } from '@/deals/utils/dealJson';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
 import { CopyText, isDefined, Separator, useQueryState } from 'erxes-ui';
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  CardDetailBadges,
-  formatFieldValue,
-  hasFieldValue,
-  useFields,
-  type CardDetailBadgeItem,
-  useSidePanel,
-} from 'ui-modules';
-import {
   SelectCompanyFilterBar,
   SelectCustomerFilterBar,
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
-import {
-  DealCardProducts,
-  DealCardRelationDetails,
-} from './DealsBoardCardDetails';
+import { DealsBoardCardInfo } from './DealsBoardCardInfo';
 
 interface DealsBoardCardProps {
   deal: IDeal;
@@ -41,207 +30,10 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   return Array.isArray(value) ? value : [value];
 };
 
-const normalizeCustomProperty = (
-  property: unknown,
-  index: number,
-): CardDetailBadgeItem | null => {
-  if (typeof property !== 'object' || property === null) {
-    return null;
-  }
-
-  const name = Reflect.get(property, 'name');
-
-  if (typeof name !== 'string' || !name.trim()) {
-    return null;
-  }
-
-  const id = Reflect.get(property, '_id');
-  const colorCode = Reflect.get(property, 'colorCode');
-
-  return {
-    _id: typeof id === 'string' ? id : `custom-property-${index}`,
-    name: name.trim(),
-    colorCode: typeof colorCode === 'string' ? colorCode : undefined,
-  };
-};
-
-const CardDetails = ({ deal }: { deal: IDeal }) => {
-  const { t } = useTranslation('sales');
-  const {
-    branches,
-    companies,
-    customers,
-    departments,
-    tags,
-    customProperties,
-  } = deal;
-  const propertiesData = isRecord(deal.propertiesData)
-    ? deal.propertiesData
-    : {};
-  const parsedProducts = dealProductsSchema.safeParse(deal.productsData ?? []);
-  const productsData = parsedProducts.success ? parsedProducts.data : [];
-  const { fields: dealFields } = useFields({ contentType: 'sales:deal' });
-
-  const cardPropertyItems = (dealFields || [])
-    .filter(
-      (field) =>
-        field.isVisibleInCard && hasFieldValue(propertiesData[field._id]),
-    )
-    .map((field) => ({
-      _id: field._id,
-      name: `${field.name}: ${formatFieldValue(
-        field,
-        propertiesData[field._id],
-      )}`,
-    }));
-
-  const productMap = new Map(
-    deal.products?.filter(isDefined).map((product) => [product._id, product]),
-  );
-
-  const filterProducts = (tickUsed: boolean) => {
-    return (
-      productsData
-        .filter((p) => p.tickUsed === tickUsed)
-        .map((p) => {
-          const product = productMap.get(p.productId || '');
-          if (!product) return null;
-
-          return {
-            _id: p._id,
-            name: product.name || t('unknown-product'),
-            quantity: p.quantity || 0,
-            unitPrice: p.unitPrice || 0,
-            amount:
-              typeof p.amount === 'number'
-                ? p.amount
-                : (p.unitPrice || 0) * (p.quantity || 0),
-            currency: p.currency ?? undefined,
-          };
-        })
-        .filter((p): p is NonNullable<typeof p> => Boolean(p)) || []
-    );
-  };
-
-  const dealProducts = filterProducts(true);
-  const excludedProducts = filterProducts(false);
-  const hasProducts = dealProducts.length > 0 || excludedProducts.length > 0;
-  const customerItems = (customers || [])
-    .filter(isDefined)
-    .filter((item) => item._id !== null)
-    .map((customer) => ({
-      _id: customer._id || '',
-      name:
-        [customer.firstName, customer.middleName, customer.lastName]
-          .filter(Boolean)
-          .join(' ') ||
-        customer.primaryEmail ||
-        customer.primaryPhone ||
-        t('unknown'),
-    }));
-  const companyItems = (companies || [])
-    .filter(isDefined)
-    .filter((item) => item._id !== null)
-    .map((company) => ({
-      _id: company._id || '',
-      name:
-        company.primaryName ||
-        company.primaryEmail ||
-        company.primaryPhone ||
-        t('unknown'),
-    }));
-  const departmentItems = (departments || [])
-    .filter(isDefined)
-    .filter((item) => item._id !== null)
-    .map((department) => ({
-      _id: department._id || '',
-      name: department.title || t('unknown'),
-    }));
-  const branchItems = (branches || [])
-    .filter(isDefined)
-    .filter((item) => item._id !== null)
-    .map((branch) => ({
-      _id: branch._id || '',
-      name: branch.title || t('unknown'),
-    }));
-  const customPropertyItems = Array.isArray(customProperties)
-    ? customProperties
-        .map((property, index) => normalizeCustomProperty(property, index))
-        .filter((item): item is CardDetailBadgeItem => Boolean(item))
-    : [];
-
-  if (
-    parsedProducts.success &&
-    !hasProducts &&
-    !branches?.length &&
-    !companies?.length &&
-    !customers?.length &&
-    !departments?.length &&
-    !tags?.length &&
-    !customPropertyItems.length &&
-    !cardPropertyItems.length
-  ) {
-    return null;
-  }
-
-  return (
-    <div className="flex flex-col gap-1 p-3 pt-0">
-      {!parsedProducts.success && (
-        <span role="alert" className="text-destructive">
-          {t('invalid-product-data', 'Unable to read product data')}
-        </span>
-      )}
-      <DealCardProducts
-        items={dealProducts}
-        label={t('products')}
-        totalLabel={t('total')}
-      />
-      <DealCardProducts
-        items={excludedProducts}
-        label={t('exclude-products')}
-        totalLabel={t('total')}
-        muted
-      />
-      <DealCardRelationDetails items={customerItems} type="customer" />
-      <DealCardRelationDetails items={companyItems} type="company" />
-      <DealCardRelationDetails items={departmentItems} type="department" />
-      <DealCardRelationDetails items={branchItems} type="branch" />
-      {Boolean(
-        tags?.length || customPropertyItems.length || cardPropertyItems.length,
-      ) && (
-        <div className="mt-1 flex flex-col gap-1">
-          <CardDetailBadges
-            items={
-              tags?.filter(isDefined).map((tag) => ({
-                ...tag,
-                _id: tag._id ?? undefined,
-                name: tag.name ?? '',
-                colorCode: tag.colorCode ?? undefined,
-              })) || []
-            }
-            color="#FF6600"
-            maxVisibleItems={5}
-          />
-          <CardDetailBadges
-            items={customPropertyItems}
-            color="#FF9900"
-            maxVisibleItems={5}
-          />
-          <CardDetailBadges
-            items={cardPropertyItems}
-            color="#0EA5E9"
-            maxVisibleItems={5}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
 export const DealsBoardCard = memo(function DealsBoardCard({
   deal,
 }: DealsBoardCardProps) {
-  const { openRecord } = useSidePanel();
+  const openDealPanel = useOpenDealPanel();
   const [searchParams] = useQueryState<string>('archivedOnly');
   const { editDeals } = useDealsEdit();
   const [currentCustomers, setCurrentCustomers] = useState(
@@ -277,7 +69,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     tagIds,
   } = deal;
   const onCardClick = () => {
-    openRecord({ contentType: 'sales:deal', contentId: _id });
+    openDealPanel(_id);
   };
   const archivedOnly = searchParams === 'true';
   const isArchived = status === 'archived';
@@ -396,7 +188,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           />
         </div>
       </div>
-      <CardDetails deal={deal} />
+      <DealsBoardCardInfo deal={deal} />
       <Separator />
       <ItemFooter
         number={number}

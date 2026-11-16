@@ -3,24 +3,17 @@ import { AttachmentUploader } from '@/deals/cards/components/detail/overview/att
 import { Attachments } from '@/deals/cards/components/detail/overview/attachments/Attachments';
 import { ChecklistOverview } from '@/deals/cards/components/detail/overview/checklist/ChecklistOverview';
 import { Checklists } from '@/deals/cards/components/detail/overview/checklist/Checklists';
-import { useDealDetail, useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { useDealAttachments } from '@/deals/cards/hooks/useDealAttachments';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { DealContactsField } from '@/deals/components/deal-selects/DealContactsField';
-import { useDealBroker } from '@/deals/components/deal-selects/hooks/useDealBroker';
-import {
-  areIdListsEqual,
-  rejectOnMutationError,
-  useOptimisticField,
-} from '@/deals/components/deal-selects/hooks/useOptimisticField';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { DealsProvider } from '@/deals/context/DealContext';
 import { DealIdProvider } from '@/deals/context/DealIdContext';
 import { IDealDetail } from '@/deals/types/deals';
 import {
   IconAlignLeft,
-  IconBriefcase,
-  IconBuilding,
   IconBuildingSkyscraper,
   IconCalendar,
   IconCalendarDue,
@@ -29,7 +22,6 @@ import {
   IconLabel,
   IconPlus,
   IconUser,
-  IconUsers,
 } from '@tabler/icons-react';
 import {
   cn,
@@ -37,10 +29,9 @@ import {
   isDefined,
   RecordTableInlineCell,
   ScrollArea,
-  Spinner,
   TextField,
 } from 'erxes-ui';
-import { type ReactNode, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PANEL_TEXT_FIELD_CLASS_NAME,
@@ -48,122 +39,32 @@ import {
   PanelField,
   TagsSelect,
 } from 'ui-modules';
+import { DealDetailSection } from '~/widgets/record-panel/DealDetailSection';
+import { DealPanelBroker } from '~/widgets/record-panel/DealPanelBroker';
 import {
   DealPanelBranchesCell,
-  DealPanelCompanyCell,
-  DealPanelCustomerCell,
   DealPanelDepartmentsCell,
   DealPanelMemberCell,
-  DealPanelOptionCell,
 } from '~/widgets/record-panel/DealPanelCells';
-import { DealDetailSection } from '~/widgets/record-panel/DealDetailSection';
 import { DealPanelStage } from '~/widgets/record-panel/DealPanelStage';
+import { DealPanelLoader } from '~/widgets/record-panel/DealPanelStates';
 import {
-  DealPanelError,
-  DealPanelNotFound,
-} from '~/widgets/record-panel/DealPanelStates';
+  toList,
+  useDealListField,
+} from '~/widgets/record-panel/useDealListField';
 
-const SCOPE = 'side-panel-deal';
-
-const toList = (value: string | string[]) =>
-  Array.isArray(value) ? value : [value];
-
-const toSingle = (value: string | string[]) =>
-  Array.isArray(value) ? value[0] || '' : value;
-
-const useListField = (
-  deal: IDealDetail,
-  key: 'assignedUserIds' | 'tagIds' | 'branchIds' | 'departmentIds',
-) => {
-  const { editDeals } = useDealsEdit();
-
-  return useOptimisticField({
-    value: deal[key]?.filter(isDefined) || [],
-    resetKey: deal._id,
-    isEqual: areIdListsEqual,
-    onCommit: (value) =>
-      rejectOnMutationError(
-        editDeals({ variables: { _id: deal._id, [key]: value } }),
-      ),
-  });
-};
-
-const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
-  const { t } = useTranslation('sales');
-  const { editDeals } = useDealsEdit();
-  const broker = useDealBroker({
-    deal,
-    onCommit: (value) =>
-      rejectOnMutationError(
-        editDeals({
-          variables: {
-            _id: deal._id,
-            brokerType: value.type || null,
-            brokerId: value.id || null,
-          },
-        }),
-      ),
-  });
-  const setBrokerId = (value: string | string[]) =>
-    broker.setId(toSingle(value));
-  const placeholder = t('select-broker');
-
-  return (
-    <>
-      <PanelField icon={IconBriefcase} label={t('broker')}>
-        <DealPanelOptionCell
-          value={broker.type || '_none'}
-          options={[
-            { value: '_none', label: t('none') },
-            { value: 'customer', label: t('customer') },
-            { value: 'company', label: t('company') },
-            { value: 'user', label: t('user') },
-          ]}
-          onValueChange={broker.setType}
-        />
-      </PanelField>
-      {broker.type === 'customer' && (
-        <PanelField icon={IconUsers} label={t('customer')}>
-          <DealPanelCustomerCell
-            value={broker.id}
-            placeholder={placeholder}
-            onValueChange={setBrokerId}
-          />
-        </PanelField>
-      )}
-      {broker.type === 'company' && (
-        <PanelField icon={IconBuilding} label={t('company')}>
-          <DealPanelCompanyCell
-            value={broker.id}
-            placeholder={placeholder}
-            onValueChange={setBrokerId}
-          />
-        </PanelField>
-      )}
-      {broker.type === 'user' && (
-        <PanelField icon={IconUser} label={t('user')}>
-          <DealPanelMemberCell
-            mode="single"
-            value={broker.id}
-            placeholder={placeholder}
-            onValueChange={setBrokerId}
-          />
-        </PanelField>
-      )}
-    </>
-  );
-};
+export const DEAL_PANEL_SCOPE = 'side-panel-deal';
 
 const DealPanelTags = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
-  const tags = useListField(deal, 'tagIds');
+  const tags = useDealListField(deal, 'tagIds');
 
   return (
     <DealDetailSection title={t('tags')}>
       <TagsSelect.Provider
         type="sales:deal"
         mode="multiple"
-        scope={`${SCOPE}.tags`}
+        scope={`${DEAL_PANEL_SCOPE}.tags`}
         value={tags.value}
         onValueChange={(value) => tags.setValue(toList(value))}
       >
@@ -190,13 +91,13 @@ const DealPanelTags = ({ deal }: { deal: IDealDetail }) => {
   );
 };
 
-const DealFields = ({ deal }: { deal: IDealDetail }) => {
+export const DealFields = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
   const { editDeals } = useDealsEdit();
   const { _id } = deal;
-  const assignees = useListField(deal, 'assignedUserIds');
-  const branches = useListField(deal, 'branchIds');
-  const departments = useListField(deal, 'departmentIds');
+  const assignees = useDealListField(deal, 'assignedUserIds');
+  const branches = useDealListField(deal, 'branchIds');
+  const departments = useDealListField(deal, 'departmentIds');
 
   return (
     <div className="flex min-w-0 flex-col">
@@ -220,7 +121,7 @@ const DealFields = ({ deal }: { deal: IDealDetail }) => {
       <DealDetailSection title={t('general')} nested>
         <PanelField icon={IconAlignLeft} label={t('name')}>
           <TextField
-            scope={`${SCOPE}.name`}
+            scope={`${DEAL_PANEL_SCOPE}.name`}
             value={deal.name || ''}
             placeholder={t('deal-name')}
             data-panel-inline=""
@@ -325,9 +226,6 @@ const DealFields = ({ deal }: { deal: IDealDetail }) => {
   );
 };
 
-const useDealAttachments = (deal: IDealDetail) =>
-  useMemo(() => deal.attachments?.filter(isDefined) ?? [], [deal.attachments]);
-
 const DealPanelOverview = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
   const { editDeals } = useDealsEdit();
@@ -358,7 +256,7 @@ const DealPanelOverview = ({ deal }: { deal: IDealDetail }) => {
               key={_id}
               label={t('description')}
               value={deal.description || ''}
-              scope={`${SCOPE}.description`}
+              scope={`${DEAL_PANEL_SCOPE}.description`}
               onSave={(description) =>
                 editDeals({ variables: { _id, description } })
               }
@@ -370,140 +268,14 @@ const DealPanelOverview = ({ deal }: { deal: IDealDetail }) => {
   );
 };
 
-export const DealPanelDetail = ({ dealId }: { dealId: string }) => {
-  const { deal, loading, error } = useDealDetail(
-    { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
-    { subscribe: false },
-  );
-
-  if (loading && !deal) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (error && !deal) {
-    return <DealPanelError error={error} />;
-  }
-
-  if (!deal) {
-    return <DealPanelNotFound />;
-  }
-
-  return (
-    <DealIdProvider value={dealId}>
-      <DealsProvider>
-        <DealPanelOverview deal={deal} />
-      </DealsProvider>
-    </DealIdProvider>
-  );
-};
-
-const DealPageScroll = ({
-  dealId,
-  className,
-  children,
-}: {
-  dealId: string;
-  className: string;
-  children: (deal: IDealDetail) => ReactNode;
-}) => {
-  const { deal, loading, error } = useDealDetail(
-    { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
-    { subscribe: false },
-  );
-
-  if (loading && !deal) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (error && !deal) {
-    return <DealPanelError error={error} />;
-  }
-
-  if (!deal) {
-    return <DealPanelNotFound />;
-  }
-
-  return (
-    <DealIdProvider value={dealId}>
-      <DealsProvider>
-        <ScrollArea
-          className="flex-1 min-h-0"
-          viewportClassName="[&>div]:block!"
-        >
-          <div className={className}>{children(deal)}</div>
-        </ScrollArea>
-      </DealsProvider>
-    </DealIdProvider>
-  );
-};
-
-const DealDescription = ({ deal }: { deal: IDealDetail }) => {
-  const { t } = useTranslation('sales');
-  const { editDeals } = useDealsEdit();
-  const initialAttachments = useDealAttachments(deal);
-
-  return (
-    <AttachmentProvider
-      dealId={deal._id}
-      initialAttachments={initialAttachments}
-    >
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <AttachmentUploader />
-        </div>
-        <Attachments />
-        <PanelDescriptionField
-          key={deal._id}
-          label={t('description')}
-          value={deal.description || ''}
-          scope={`${SCOPE}.page-description`}
-          onSave={(description) =>
-            editDeals({ variables: { _id: deal._id, description } })
-          }
-        />
-      </div>
-    </AttachmentProvider>
-  );
-};
-
-const DealPageChecklists = ({ deal }: { deal: IDealDetail }) => {
-  const { t } = useTranslation('sales');
-  const [newChecklistId, setNewChecklistId] = useState<string>();
-
-  return (
-    <DealDetailSection
-      title={t('checklists')}
-      action={
-        <ChecklistOverview label={t('add')} onCreated={setNewChecklistId} />
-      }
-    >
-      <Checklists
-        dealId={deal._id}
-        stageId={deal.stageId ?? undefined}
-        newChecklistId={newChecklistId}
-        compact
-        bare
-      />
-    </DealDetailSection>
-  );
-};
-
-export const DealPageFields = ({ dealId }: { dealId: string }) => (
-  <DealPageScroll dealId={dealId} className="flex flex-col p-3">
+export const DealPanelDetail = ({ dealId }: { dealId: string }) => (
+  <DealPanelLoader dealId={dealId}>
     {(deal) => (
-      <>
-        <DealFields deal={deal} />
-        <DealPageChecklists deal={deal} />
-      </>
+      <DealIdProvider value={dealId}>
+        <DealsProvider>
+          <DealPanelOverview deal={deal} />
+        </DealsProvider>
+      </DealIdProvider>
     )}
-  </DealPageScroll>
-);
-
-export const DealPageDescription = ({ dealId }: { dealId: string }) => (
-  <DealPageScroll
-    dealId={dealId}
-    className="w-full max-w-5xl mx-auto px-4 py-6"
-  >
-    {(deal) => <DealDescription deal={deal} />}
-  </DealPageScroll>
+  </DealPanelLoader>
 );

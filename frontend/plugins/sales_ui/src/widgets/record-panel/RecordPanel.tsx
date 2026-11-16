@@ -10,17 +10,18 @@ import {
   POS_ORDER_CONTENT_TYPE,
 } from '@/pos/constants/posPanel';
 import { usePosOrderQuery } from '@/pos/orders/detail/hooks/usePosOrderQuery';
-import { ScrollArea, Skeleton, Spinner } from 'erxes-ui';
+import { ScrollArea, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import type { IRecordPanelProps } from 'ui-modules';
+import { NEW_RECORD_ID, type IRecordPanelProps } from 'ui-modules';
+import { DealConnectionPanel } from '~/widgets/contact/DealConnectionPanel';
+import { DEAL_CONNECTION_CONTENT_TYPE } from '~/widgets/contact/dealContactConnection';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
 import { DealPanelDetail } from '~/widgets/record-panel/DealPanelDetail';
 import { DealPanelNew } from '~/widgets/record-panel/DealPanelNew';
 import { DealPanelRelations } from '~/widgets/record-panel/DealPanelRelations';
-import {
-  DealPanelError,
-  DealPanelNotFound,
-} from '~/widgets/record-panel/DealPanelStates';
+import { DealPanelSummary } from '~/widgets/record-panel/DealPanelStage';
+import { useDealPanelTabMemory } from '~/widgets/record-panel/useDealPanelTabMemory';
+import { DealPanelLoader } from '~/widgets/record-panel/DealPanelStates';
 import {
   PosCoverPanelActions,
   PosCoverPanelDetail,
@@ -58,38 +59,23 @@ export const DealPanelTitle = ({
   return deal?.name || t('untitled');
 };
 
-export const DealPanelProperties = ({ dealId }: { dealId: string }) => {
-  const { deal, loading, error } = useDealDetail(
-    { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
-    { subscribe: false },
-  );
-
-  if (loading && !deal) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (error && !deal) {
-    return <DealPanelError error={error} />;
-  }
-
-  if (!deal) {
-    return <DealPanelNotFound />;
-  }
-
-  return (
-    <ScrollArea className="flex-1 min-h-0">
-      <div className="p-3">
-        <DealPipelineProperties
-          key={`${deal._id}-${JSON.stringify(deal.propertiesData || {})}`}
-          id={deal._id}
-          pipelineId={deal.pipelineId || ''}
-          propertiesData={deal.propertiesData || {}}
-          mutateHook={useDealCustomFieldEdit}
-        />
-      </div>
-    </ScrollArea>
-  );
-};
+export const DealPanelProperties = ({ dealId }: { dealId: string }) => (
+  <DealPanelLoader dealId={dealId}>
+    {(deal) => (
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="p-3">
+          <DealPipelineProperties
+            key={`${deal._id}-${JSON.stringify(deal.propertiesData || {})}`}
+            id={deal._id}
+            pipelineId={deal.pipelineId || ''}
+            propertiesData={deal.propertiesData || {}}
+            mutateHook={useDealCustomFieldEdit}
+          />
+        </div>
+      </ScrollArea>
+    )}
+  </DealPanelLoader>
+);
 
 export const DealPanelProductsTab = ({
   dealId,
@@ -97,31 +83,22 @@ export const DealPanelProductsTab = ({
 }: {
   dealId: string;
   compact?: boolean;
-}) => {
-  const { deal, loading, error, refetch } = useDealDetail(
-    { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
-    { subscribe: false },
-  );
+}) => (
+  <DealPanelLoader dealId={dealId}>
+    {(deal, refetch) => (
+      <DealsProvider>
+        <div className="flex flex-1 min-h-0 flex-col p-3">
+          <Products deal={deal} refetch={refetch} compact={compact} />
+        </div>
+      </DealsProvider>
+    )}
+  </DealPanelLoader>
+);
 
-  if (loading && !deal) {
-    return <Spinner containerClassName="py-12" />;
-  }
+const DealPanelHeaderTitle = ({ dealId }: { dealId: string }) => {
+  useDealPanelTabMemory();
 
-  if (error && !deal) {
-    return <DealPanelError error={error} />;
-  }
-
-  if (!deal) {
-    return <DealPanelNotFound />;
-  }
-
-  return (
-    <DealsProvider>
-      <div className="flex flex-1 min-h-0 flex-col p-3">
-        <Products deal={deal} refetch={refetch} compact={compact} />
-      </div>
-    </DealsProvider>
-  );
+  return <DealPanelTitle dealId={dealId} />;
 };
 
 const DealPanelView = ({
@@ -142,11 +119,19 @@ const DealPanelView = ({
   }
 
   if (view === 'title') {
-    return <DealPanelTitle dealId={dealId} />;
+    return dealId === NEW_RECORD_ID ? (
+      <DealPanelTitle dealId={dealId} />
+    ) : (
+      <DealPanelHeaderTitle dealId={dealId} />
+    );
   }
 
   if (view === 'actions') {
     return <DealPanelActions dealId={dealId} />;
+  }
+
+  if (view === 'summary') {
+    return <DealPanelSummary dealId={dealId} />;
   }
 
   if (view === 'properties') {
@@ -162,6 +147,12 @@ const DealPanelView = ({
   }
 
   return null;
+};
+
+const DealConnectionTitle = () => {
+  const { t } = useTranslation('sales');
+
+  return t('connect-deal', 'Connect deal');
 };
 
 export const PosOrderPanelTitle = ({ orderId }: { orderId: string }) => {
@@ -228,6 +219,11 @@ export const RecordPanel = ({
   view,
   tab,
 }: IRecordPanelProps) => {
+  if (contentType === DEAL_CONNECTION_CONTENT_TYPE) {
+    if (view === 'title') return <DealConnectionTitle />;
+    return view === 'new' ? <DealConnectionPanel /> : null;
+  }
+
   if (contentType === POS_ORDER_CONTENT_TYPE) {
     return renderPosOrderView(contentId, view, tab);
   }

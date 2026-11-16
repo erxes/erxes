@@ -1,167 +1,165 @@
 import type { DealProductData } from '@/deals/utils/dealJson';
-import { Cell, flexRender, Header, Row } from '@tanstack/react-table';
-import { Button, RecordTable } from 'erxes-ui';
-import {
-  IconChevronRight,
-  IconChevronsDown,
-  IconChevronsUp,
-} from '@tabler/icons-react';
+import { flexRender, Row } from '@tanstack/react-table';
+import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { Button, cn, formatAmount, Input, RecordTable } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ProductTypeIcon } from '@/deals/cards/components/detail/product/components/product-table/ProductTypeIcon';
+import { useProductRowActions } from '@/deals/cards/components/detail/product/productListHandlers';
+import { calculateProductValues } from '@/deals/cards/components/detail/product/hooks/useProductCalculations';
+import { useUpdateProductRecord } from '@/deals/cards/components/detail/product/hooks/useProductRecord';
+import { handDiscountAmount } from '@/deals/cards/components/detail/product/utils/discountInfos';
+import {
+  getProductUomInfo,
+  normalizeProductUom,
+} from '@/deals/cards/components/detail/product/utils/productUom';
 
-const HEAD_COLUMN_IDS = new Set(['checkbox', 'type', 'name', 'more', 'amount']);
+// Type icon with name, quantity stepper, amount, row menu.
+const ROW_GRID =
+  'grid grid-cols-[minmax(0,1fr)_auto_minmax(4.5rem,auto)_auto] items-center gap-x-3';
 
-type THeaders = Map<string, Header<DealProductData, unknown>>;
+const formatPercent = (value: number) =>
+  Number.isInteger(value) ? String(value) : value.toFixed(1);
 
-const renderCell = (cell?: Cell<DealProductData, unknown>) =>
-  cell ? flexRender(cell.column.columnDef.cell, cell.getContext()) : null;
-
-const renderHeader = (header?: Header<DealProductData, unknown>) =>
-  header
-    ? flexRender(header.column.columnDef.header, header.getContext())
-    : null;
-
-const ProductCardField = ({
-  cell,
-  headers,
-}: {
-  cell: Cell<DealProductData, unknown>;
-  headers: THeaders;
-}) => (
-  <div className="grid grid-cols-[7rem_minmax(0,1fr)] items-center min-h-8">
-    <div className="min-w-0 truncate text-muted-foreground [&_svg]:size-4! [&_svg]:shrink-0 [&>div]:gap-1.5">
-      {renderHeader(headers.get(cell.column.id))}
-    </div>
-    <div className="min-w-0 h-8 [&_.px-2]:px-0! [&_button:not([role=checkbox])]:px-0! [&_button:not([role=checkbox])]:border-0! [&_button:not([role=checkbox])]:shadow-none!">
-      {renderCell(cell)}
-    </div>
-  </div>
-);
-
-const ProductCard = ({
-  row,
-  headers,
-  open,
-  onToggle,
-}: {
-  row: Row<DealProductData>;
-  headers: THeaders;
-  open: boolean;
-  onToggle: () => void;
-}) => {
+/** − quantity +: steps or takes a typed quantity in the row's own UOM. */
+const ProductQuantityStepper = ({ product }: { product: DealProductData }) => {
   const { t } = useTranslation('sales');
-  const cells = row.getVisibleCells();
-  const find = (id: string) => cells.find((cell) => cell.column.id === id);
-  const amount = find('amount');
-  const quantity = row.original.uomInfo?.quantity ?? row.original.quantity;
+  const { updateRecord } = useUpdateProductRecord();
+  const info = getProductUomInfo(product);
+  const quantity = Number(info.quantity) || 0;
+  const [draft, setDraft] = useState<string | null>(null);
+
+  const save = (next: number) => {
+    setDraft(null);
+    if (!Number.isFinite(next) || next < 0 || next === quantity) return;
+
+    const normalized = normalizeProductUom({
+      ...product,
+      uomInfo: { ...info, quantity: next },
+    });
+    if (!Number.isFinite(normalized.quantity)) return;
+
+    updateRecord(product, {
+      uomInfo: normalized.uomInfo,
+      unitPrice: normalized.unitPrice,
+      quantity: normalized.quantity,
+      ...calculateProductValues('quantity', normalized),
+    });
+  };
 
   return (
-    <div className="@container rounded-lg border bg-background">
-      <div className="flex h-9 items-center gap-2 px-2">
-        <div className="w-4 shrink-0 [&>*]:p-0!">
-          {renderCell(find('checkbox'))}
-        </div>
-        <div className="flex w-4 shrink-0 justify-center">
-          <ProductTypeIcon type={row.original.product?.type || ''} compact />
-        </div>
-        <div className="min-w-0 flex-1 [&>*]:px-0!">
-          {renderCell(find('name'))}
-        </div>
-        <span className="shrink-0 text-muted-foreground tabular-nums">
-          ×{quantity ?? 0}
-        </span>
-        <div className="w-7 shrink-0">{renderCell(find('more'))}</div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-5 shrink-0 text-muted-foreground"
-          aria-label={t('show-details')}
-          aria-expanded={open}
-          onClick={onToggle}
-        >
-          <IconChevronRight
-            className={open ? 'size-3.5 rotate-90' : 'size-3.5'}
-          />
-        </Button>
-      </div>
-      {open && (
-        <div className="grid grid-cols-1 gap-x-3 border-t px-2 py-1 @lg:grid-cols-2">
-          {cells
-            .filter((cell) => !HEAD_COLUMN_IDS.has(cell.column.id))
-            .map((cell) => (
-              <ProductCardField key={cell.id} cell={cell} headers={headers} />
-            ))}
-        </div>
-      )}
-      {amount && (
-        <div className="flex h-9 items-center justify-between gap-2 border-t px-2">
-          <div className="min-w-0 truncate text-muted-foreground">
-            {renderHeader(headers.get('amount'))}
-          </div>
-          <div className="min-w-0 font-semibold">{renderCell(amount)}</div>
-        </div>
-      )}
+    <div className="flex h-7 items-center rounded-md border bg-background">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-6 shrink-0 rounded-r-none text-muted-foreground"
+        aria-label={t('decrease', 'Decrease')}
+        disabled={quantity <= 1}
+        onClick={() => save(quantity - 1)}
+      >
+        <IconMinus className="size-3" />
+      </Button>
+      <Input
+        inputMode="decimal"
+        aria-label={t('quantity')}
+        className="h-6 w-8 rounded-none border-0 px-0 text-center text-xs tabular-nums shadow-none focus-visible:ring-0"
+        value={draft ?? String(quantity)}
+        onChange={(event) => setDraft(event.currentTarget.value)}
+        onBlur={() => draft !== null && save(Number(draft.replace(/,/g, '')))}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') event.currentTarget.blur();
+          if (event.key === 'Escape') setDraft(null);
+        }}
+      />
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-6 shrink-0 rounded-l-none text-muted-foreground"
+        aria-label={t('increase', 'Increase')}
+        onClick={() => save(quantity + 1)}
+      >
+        <IconPlus className="size-3" />
+      </Button>
     </div>
   );
 };
 
-export const ProductCardList = ({
-  expandedIds,
-  onToggleExpanded,
-  onExpandedChange,
-}: {
-  expandedIds: string[];
-  onToggleExpanded: (productDataId: string) => void;
-  onExpandedChange: (productDataIds: string[]) => void;
-}) => {
+const ProductRow = ({ row }: { row: Row<DealProductData> }) => {
   const { t } = useTranslation('sales');
-  const { table } = RecordTable.useRecordTable();
-  const rowIds = table.getRowModel().rows.map((row) => row.original._id);
-  const allExpanded =
-    rowIds.length > 0 && rowIds.every((id) => expandedIds.includes(id));
-  const headers: THeaders = new Map(
-    table.getFlatHeaders().map((header) => [header.column.id, header] as const),
-  );
-  const selectAll = headers.get('checkbox');
+  const actions = useProductRowActions();
+  const product = row.original;
+  const info = getProductUomInfo(product);
+  const discountPercent = Number(product.discountPercent) || 0;
+  const handDiscount = handDiscountAmount(product);
+  const amount =
+    (Number(product.quantity) || 0) *
+      (Number(product.unitPrice ?? product.product?.unitPrice) || 0) -
+    (Number(product.discount) || 0);
+  const moreCell = row
+    .getVisibleCells()
+    .find((cell) => cell.column.id === 'more');
 
   return (
-    <div className="flex flex-col gap-2 text-xs [&_*]:text-xs!">
-      {selectAll && (
-        <div className="flex h-9 items-center gap-2 rounded-lg border bg-background px-2">
-          <div className="w-4 shrink-0 [&>*]:p-0!">
-            {renderHeader(selectAll)}
-          </div>
-          <div className="flex w-4 shrink-0 justify-center [&_button]:size-6 [&_button]:p-0">
-            {renderHeader(headers.get('more'))}
-          </div>
-          <div className="min-w-0 flex-1 [&>*]:px-0!">
-            {renderHeader(headers.get('name'))}
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-5 shrink-0 text-muted-foreground"
-            aria-label={allExpanded ? t('collapse-all') : t('expand-all')}
-            title={allExpanded ? t('collapse-all') : t('expand-all')}
-            aria-expanded={allExpanded}
-            onClick={() => onExpandedChange(allExpanded ? [] : rowIds)}
-          >
-            {allExpanded ? (
-              <IconChevronsUp className="size-3.5" />
-            ) : (
-              <IconChevronsDown className="size-3.5" />
-            )}
-          </Button>
+    <div className={cn(ROW_GRID, 'px-3 py-2.5')}>
+      <div className="flex min-w-0 items-center gap-1">
+        <div className="flex w-4 shrink-0 justify-center">
+          <ProductTypeIcon type={product.product?.type || ''} compact />
         </div>
-      )}
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              type="button"
+              className="min-w-0 truncate text-left text-sm font-medium hover:underline"
+              title={product.product?.name || undefined}
+              onClick={() => actions?.onEdit(product)}
+            >
+              {product.product?.name || t('untitled')}
+            </button>
+            {discountPercent > 0 && (
+              <span className="shrink-0 rounded-full bg-green-500/15 px-1.5 py-0.5 text-xs font-medium tabular-nums text-green-600 dark:text-green-400">
+                −{formatPercent(Math.round(discountPercent * 10) / 10)}%
+              </span>
+            )}
+          </div>
+          <div className="truncate text-xs tabular-nums text-muted-foreground">
+            {info.quantity} × {formatAmount(Number(info.unitPrice) || 0)}
+            {handDiscount > 0 &&
+              ` · ${t('discount')} −${formatAmount(handDiscount)}`}
+          </div>
+        </div>
+      </div>
+      <ProductQuantityStepper product={product} />
+      <span className="text-right text-sm font-semibold tabular-nums">
+        {amount.toLocaleString()}
+      </span>
+      <div className="w-7">
+        {moreCell &&
+          flexRender(moreCell.column.columnDef.cell, moreCell.getContext())}
+      </div>
+    </div>
+  );
+};
+
+/** The panel's product list: one row per product with an inline quantity stepper. */
+export const ProductCardList = () => {
+  const { t } = useTranslation('sales');
+  const { table } = RecordTable.useRecordTable();
+
+  return (
+    <div className="divide-y overflow-hidden rounded-xl border bg-background">
+      <div
+        className={cn(
+          ROW_GRID,
+          'px-3 py-2 text-xs font-medium text-muted-foreground',
+        )}
+      >
+        <span>{t('product-service')}</span>
+        <span className="text-center">{t('quantity')}</span>
+        <span className="text-right">{t('amount')}</span>
+        <span className="w-7" />
+      </div>
       {table.getRowModel().rows.map((row) => (
-        <ProductCard
-          key={row.id}
-          row={row}
-          headers={headers}
-          open={expandedIds.includes(row.original._id)}
-          onToggle={() => onToggleExpanded(row.original._id)}
-        />
+        <ProductRow key={row.id} row={row} />
       ))}
     </div>
   );

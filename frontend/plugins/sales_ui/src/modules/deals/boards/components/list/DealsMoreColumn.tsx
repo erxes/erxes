@@ -1,6 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
-import { useSidePanel } from 'ui-modules';
+import { useOpenDealPanel } from '@/deals/hooks/useOpenDealPanel';
 import {
   IconArchive,
   IconArrowBack,
@@ -20,7 +20,7 @@ export const DealsMoreColumnCell = ({
 }) => {
   const { _id, status } = cell.row.original;
   const { t } = useTranslation('sales');
-  const { openRecord } = useSidePanel();
+  const openDealPanel = useOpenDealPanel();
   const { editDeals } = useDealsEdit();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +33,7 @@ export const DealsMoreColumnCell = ({
   };
 
   const onEdit = () => {
-    openRecord({ contentType: 'sales:deal', contentId: _id });
+    openDealPanel(_id);
   };
 
   const onCopy = () => {

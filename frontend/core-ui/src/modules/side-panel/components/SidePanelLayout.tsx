@@ -366,6 +366,7 @@ const SidePanelSavedRecord = ({
     pluginName,
     i18nNamespace,
     hasProperties,
+    hasSummary,
     tabs: pluginTabs,
   } = useRecordPanelPlugin(record.contentType);
   const panelPluginName = coreViews ? null : pluginName;
@@ -575,6 +576,18 @@ const SidePanelSavedRecord = ({
         />
       )}
       <RecordSidePanel.Layout
+        profile={
+          panelPluginName &&
+          hasSummary && (
+            <PluginRecordPanel
+              pluginName={panelPluginName}
+              contentType={record.contentType}
+              contentId={record.contentId}
+              view="summary"
+              quiet
+            />
+          )
+        }
         tabs={tabs}
         value={tab}
         onValueChange={setTab}

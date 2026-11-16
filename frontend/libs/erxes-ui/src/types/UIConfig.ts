@@ -195,6 +195,9 @@ export type IUIConfig = {
       // `false` when the type has no custom properties: no Properties tab.
       properties?: boolean;
       draftTitle?: boolean;
+      // `true` when the remote draws a `summary` view: a strip between the
+      // panel header and its tabs (e.g. a deal's stage progress).
+      summary?: boolean;
       tabs?: {
         value: string;
         label: string;

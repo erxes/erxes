@@ -23,6 +23,7 @@ import {
   getPosOrderDetailPath,
 } from '@/pos/constants/posPanel';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { DEAL_CONNECTION_CONTENT_TYPE } from '~/widgets/contact/dealContactConnection';
 
 const DealStagePropertyInput = lazy(() =>
   import('@/deals/components/deal-selects/DealStagePropertyInput').then(
@@ -145,8 +146,14 @@ export const CONFIG: IUIConfig = {
     ],
     recordPanels: [
       {
+        contentType: DEAL_CONNECTION_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+      },
+      {
         contentType: 'sales:deal',
         detailPath: (dealId: string) => `/sales/deals/${dealId}`,
+        summary: true,
         tabs: [
           {
             value: 'products',

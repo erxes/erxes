@@ -1,5 +1,8 @@
+import { useDealDetail } from '@/deals/cards/hooks/useDeals';
+import { IDealDetail } from '@/deals/types/deals';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
-import { Empty } from 'erxes-ui';
+import { Empty, Spinner } from 'erxes-ui';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const DealPanelError = ({ error }: { error: Error }) => {
@@ -32,4 +35,38 @@ export const DealPanelNotFound = () => {
       </Empty.Header>
     </Empty>
   );
+};
+
+type TDealRefetch = ReturnType<typeof useDealDetail>['refetch'];
+
+export const DealPanelLoader = ({
+  dealId,
+  live = false,
+  children,
+}: {
+  dealId: string;
+  live?: boolean;
+  children: (deal: IDealDetail, refetch: TDealRefetch) => ReactNode;
+}) => {
+  const { deal, loading, error, refetch } = useDealDetail(
+    {
+      variables: { _id: dealId },
+      ...(live ? {} : { fetchPolicy: 'cache-first' }),
+    },
+    { subscribe: live },
+  );
+
+  if (loading && !deal) {
+    return <Spinner containerClassName="py-12" />;
+  }
+
+  if (error && !deal) {
+    return <DealPanelError error={error} />;
+  }
+
+  if (!deal) {
+    return <DealPanelNotFound />;
+  }
+
+  return children(deal, refetch);
 };

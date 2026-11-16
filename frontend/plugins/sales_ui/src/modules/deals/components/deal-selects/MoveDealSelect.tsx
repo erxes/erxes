@@ -1,15 +1,15 @@
 import { RecordTableInlineCell } from 'erxes-ui';
-import { useSidePanel } from 'ui-modules';
+import { useOpenDealPanel } from '@/deals/hooks/useOpenDealPanel';
 
 import { IDeal } from '@/deals/types/deals';
 import { useTranslation } from 'react-i18next';
 
 export const NameCell = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
-  const { openRecord } = useSidePanel();
+  const openDealPanel = useOpenDealPanel();
 
   const handleClick = () => {
-    openRecord({ contentType: 'sales:deal', contentId: deal._id });
+    openDealPanel(deal._id);
   };
 
   return (
@@ -28,10 +28,10 @@ export const NameCell = ({ deal }: { deal: IDeal }) => {
 
 export const NumberCell = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
-  const { openRecord } = useSidePanel();
+  const openDealPanel = useOpenDealPanel();
 
   const handleClick = () => {
-    openRecord({ contentType: 'sales:deal', contentId: deal._id });
+    openDealPanel(deal._id);
   };
 
   return (
