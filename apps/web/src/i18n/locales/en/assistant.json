@@ -275,5 +275,6 @@
     "yesterday": "Yesterday",
     "week": "Last 7 days",
     "older": "Older"
-  }
+  },
+  "latest": "Latest"
 }

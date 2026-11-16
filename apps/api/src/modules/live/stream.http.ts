@@ -97,6 +97,8 @@ const signalBatcher = (actor: Listener, send: Send) => {
       if (signal.u !== actor.userId) return;
 
       assistant = true;
+    } else if (signal.k === 'assistant-stop') {
+      return;
     } else {
       timelines.set(`${signal.t}:${signal.i}`, { targetType: signal.t, targetId: signal.i });
     }

@@ -1,7 +1,7 @@
-import { IconLoader2, IconRefresh } from '@tabler/icons-react';
+import { IconArrowDown, IconLoader2, IconRefresh } from '@tabler/icons-react';
 import type { UIMessage } from 'ai';
 import { Button, IconTip, Spinner } from 'erxes-ui';
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApprovalCard } from './ApprovalCard';
 import { AssistantAvatar } from './AssistantAvatar';
@@ -121,11 +121,28 @@ export const WorkingRow = ({ label, avatar = false }: { label: string; avatar?: 
   </p>
 );
 
+const LatestButton = ({ onClick }: { onClick: () => void }) => {
+  const { t } = useTranslation('assistant');
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className="absolute bottom-3 left-1/2 -translate-x-1/2"
+      onClick={onClick}
+    >
+      <IconArrowDown className="size-3.5" />
+      {t('latest', 'Latest')}
+    </Button>
+  );
+};
+
 const useFollowBottom = (asked: string | undefined) => {
   const scroller = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLOListElement>(null);
   const pinned = useRef(true);
   const top = useRef(0);
+  const [away, setAway] = useState(false);
 
   useEffect(() => {
     const element = scroller.current;
@@ -160,9 +177,15 @@ const useFollowBottom = (asked: string | undefined) => {
     else if (gap < 48) pinned.current = true;
 
     top.current = element.scrollTop;
+    setAway(gap > 240);
   };
 
-  return { scroller, list, onScroll };
+  const toLatest = () => {
+    pinned.current = true;
+    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' });
+  };
+
+  return { scroller, list, onScroll, away, toLatest };
 };
 
 export const Transcript = ({
@@ -176,34 +199,37 @@ export const Transcript = ({
 }) => {
   const lastAssistant = messages.findLastIndex((message) => message.role === 'assistant');
   const lastUser = messages.findLastIndex((message) => message.role === 'user');
-  const { scroller, list, onScroll } = useFollowBottom(messages[lastUser]?.id);
+  const { scroller, list, onScroll, away, toLatest } = useFollowBottom(messages[lastUser]?.id);
 
   return (
-    <div ref={scroller} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
-      <ol ref={list} className="flex flex-col gap-5 px-4 py-4">
-        {messages.map((message, index) => (
-          <li key={message.id}>
-            {message.role === 'user' ? (
-              <UserMessage
-                message={message}
-                onEdit={
-                  index === lastUser && actions.canEdit
-                    ? (text) => actions.onEdit(message, text)
-                    : null
-                }
-              />
-            ) : (
-              <AssistantMessage
-                message={message}
-                last={index === lastAssistant}
-                current={index === messages.length - 1}
-                actions={actions}
-              />
-            )}
-          </li>
-        ))}
-        {footer && <li>{footer}</li>}
-      </ol>
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <div ref={scroller} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
+        <ol ref={list} className="flex flex-col gap-5 px-4 py-4">
+          {messages.map((message, index) => (
+            <li key={message.id}>
+              {message.role === 'user' ? (
+                <UserMessage
+                  message={message}
+                  onEdit={
+                    index === lastUser && actions.canEdit
+                      ? (text) => actions.onEdit(message, text)
+                      : null
+                  }
+                />
+              ) : (
+                <AssistantMessage
+                  message={message}
+                  last={index === lastAssistant}
+                  current={index === messages.length - 1}
+                  actions={actions}
+                />
+              )}
+            </li>
+          ))}
+          {footer && <li>{footer}</li>}
+        </ol>
+      </div>
+      {away && <LatestButton onClick={toLatest} />}
     </div>
   );
 };

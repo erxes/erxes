@@ -63,7 +63,7 @@ export interface Run {
 const temperatureFor = (provider: AssistantProvider) =>
   provider === 'kimi' ? {} : { temperature: TEMPERATURE };
 
-export const streamTurn = async (run: Run) => {
+export const streamTurn = async (run: Run, abortSignal: AbortSignal) => {
   const { provider, apiKey, tools, scope, request } = run;
   const model = request.model ?? DEFAULT_MODELS[provider];
   const level = request.thinkingLevel ?? 'off';
@@ -80,6 +80,7 @@ export const streamTurn = async (run: Run) => {
     activeTools: offeredTools(scope, tools),
     toolApproval: { callApi: (input) => approvalFor(scope, input) },
     stopWhen: stepCountIs(MAX_STEPS),
+    abortSignal,
     maxOutputTokens: outputTokens(provider, model, level, MAX_OUTPUT_TOKENS),
     providerOptions: thinkingProviderOptions(provider, model, level),
     ...temperatureFor(provider),

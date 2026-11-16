@@ -1,5 +1,5 @@
 import { useChat } from '@ai-sdk/react';
-import { matchQuery, useQueryClient } from '@tanstack/react-query';
+import { matchQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AssistantMentions } from '@erxes/core-contract';
 import { getToolName, isDataUIPart, isToolUIPart, type UIMessage } from 'ai';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -119,6 +119,7 @@ export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: bo
   const busy = isBusy(chat.status);
   const pending = pendingAction(chat.messages.at(-1));
   const runningElsewhere = !busy && thread.data?.running === true;
+  const stopThread = useMutation(orpc.assistant.stopThread.mutationOptions());
 
   useEffect(() => {
     session.chooseModel(model.run);
@@ -148,6 +149,11 @@ export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: bo
     runningElsewhere,
     block,
     send,
+    stop: () => {
+      void chat.stop();
+
+      if (session.threadId) stopThread.mutate({ id: session.threadId });
+    },
     reload: () => {
       chat.clearError();
       void client.invalidateQueries({ queryKey: orpc.assistant.key() });

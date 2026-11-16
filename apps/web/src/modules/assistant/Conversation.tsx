@@ -125,7 +125,7 @@ export const Conversation = ({
         page={context.page}
         onHidePage={context.hide}
         onSend={view.send}
-        onStop={() => void chat.stop()}
+        onStop={view.stop}
       />
     </div>
   );

@@ -11,6 +11,7 @@ export const ASSISTANT_ACCESS = {
   'assistant.threads': needs('assistant.chat'),
   'assistant.thread': needs('assistant.chat'),
   'assistant.updateThread': needs('assistant.chat'),
+  'assistant.stopThread': needs('assistant.chat'),
   'assistant.removeThread': needs('assistant.chat'),
   'assistant.reference': needs('assistant.chat'),
   'assistant.record': needs('assistant.chat'),

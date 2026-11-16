@@ -222,6 +222,16 @@
         }
       }
     },
+    "stopThread": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/assistant/threads/{id}/stop"
+        }
+      }
+    },
     "removeThread": {
       "~orpc": {
         "errorMap": {},

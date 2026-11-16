@@ -10,6 +10,7 @@ import { attachmentsOf, readContents } from './attachments';
 import { installedPlugins } from './plugins';
 import { getSettings } from './settings.service';
 import { readTurnContext } from './turnContext';
+import { trackTurn } from './runningTurns';
 import { beginTurn, saveReply, setTitle } from './turns.service';
 
 const chatMember = () => {
@@ -98,7 +99,13 @@ const titleThread = async (req: Request, orgId: string, run: Run) => {
 };
 
 const answer = async (req: Request, res: Response, orgId: string, run: Run, titled: boolean) => {
-  const turn = await streamTurn(run);
+  const tracked = trackTurn(run.threadId);
+
+  const turn = await streamTurn(run, tracked.signal).catch((error: unknown) => {
+    tracked.end();
+    throw error;
+  });
+
   const [toClient, toServer] = turn.stream.tee();
 
   const saved = drain(toServer)
@@ -108,7 +115,8 @@ const answer = async (req: Request, res: Response, orgId: string, run: Run, titl
     .then(() => withOrg(orgId, (tx) => saveReply(tx, run.threadId, turn.reply())))
     .catch((error: unknown) => {
       req.log.error({ err: error, threadId: run.threadId }, 'assistant: could not save the reply');
-    });
+    })
+    .finally(tracked.end);
 
   const done = titled ? saved : saved.then(() => titleThread(req, orgId, run));
 

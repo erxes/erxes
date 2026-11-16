@@ -11,7 +11,8 @@ import { listModels, verifyModel } from './models.service';
 import { readRecord, UNAVAILABLE } from './records';
 import { findReference } from './references.service';
 import { getSettings, updateSettings } from './settings.service';
-import { getThread, listThreads, removeThread, updateThread } from './threads.service';
+import { getThread, listThreads, removeThread, stopThread, updateThread } from './threads.service';
+import { stopTurn } from './runningTurns';
 
 export const assistantRouter = {
   connections: scoped.assistant.connections.handler(() => listConnections(db())),
@@ -33,6 +34,13 @@ export const assistantRouter = {
   updateThread: scoped.assistant.updateThread.handler(({ input: { id, ...changes } }) =>
     updateThread(db(), id, changes),
   ),
+  stopThread: scoped.assistant.stopThread.handler(async ({ input }) => {
+    const result = await stopThread(db(), input.id);
+
+    if (result.stopped) stopTurn(input.id);
+
+    return result;
+  }),
   removeThread: scoped.assistant.removeThread.handler(({ input }) => removeThread(db(), input.id)),
   reference: scoped.assistant.reference.handler(async ({ input }) => {
     const found = await findReference(db(), input.handle);

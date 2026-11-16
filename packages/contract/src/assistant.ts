@@ -210,6 +210,14 @@ export const assistantContract = {
         ),
     )
     .output(AssistantThread),
+  stopThread: base
+    .route({
+      method: 'POST',
+      path: '/assistant/threads/{id}/stop',
+      summary: 'Stop the reply being written in a conversation; what it wrote so far stays',
+    })
+    .input(z.object({ id: Id }))
+    .output(z.object({ stopped: z.boolean() })),
   removeThread: base
     .route({ method: 'DELETE', path: '/assistant/threads/{id}', summary: 'Delete a conversation' })
     .input(z.object({ id: Id }))

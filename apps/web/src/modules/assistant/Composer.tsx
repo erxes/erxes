@@ -49,7 +49,7 @@ const SendButton = ({
   const { t } = useTranslation('assistant');
 
   return busy ? (
-    <IconTip label={t('composer.stop', 'Stop')}>
+    <IconTip label={t('composer.stop', 'Stop')} hotkey="Esc">
       <Button
         type="button"
         size="icon"
@@ -143,6 +143,20 @@ const useFileDrop = (add: (files: File[]) => void, enabled: boolean) => {
   };
 };
 
+const composerKey = (
+  event: React.KeyboardEvent<HTMLTextAreaElement>,
+  stop: (() => void) | null,
+  send: () => void,
+) => {
+  if (event.key === 'Escape' && stop) {
+    event.preventDefault();
+    stop();
+  } else if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+    event.preventDefault();
+    send();
+  }
+};
+
 export const Composer = ({
   open,
   model,
@@ -207,12 +221,7 @@ export const Composer = ({
         }}
         onBlur={() => setTimeout(mentions.close, 150)}
         onKeyDown={(event) => {
-          if (mentions.onKeyDown(event)) return;
-
-          if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-            event.preventDefault();
-            draft.send();
-          }
+          if (!mentions.onKeyDown(event)) composerKey(event, busy ? onStop : null, draft.send);
         }}
       />
       <div className="flex min-w-0 items-center gap-1">

@@ -81,6 +81,19 @@ export const updateThread = async (
   return present(row);
 };
 
+/** Stops the thread's running turn, on whichever API server runs it; what it wrote stays. */
+export const stopThread = async (client: Db, id: string) => {
+  const row = await findThread(client, id);
+
+  if (!isRunning(row)) return { stopped: false };
+
+  const signal = JSON.stringify({ o: row.orgId, k: 'assistant-stop', t: row.id });
+
+  await client.execute(sql`select pg_notify('core_live', ${signal})`);
+
+  return { stopped: true };
+};
+
 export const removeThread = async (client: Db, id: string) => {
   const removed = await client
     .delete(assistantThreads)
