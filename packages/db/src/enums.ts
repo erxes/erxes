@@ -32,6 +32,12 @@ export const LEAD_STAGE_KINDS = ['open', 'qualified', 'disqualified'] as const;
 
 export const LEAD_EVENTS = ['created', 'stage', 'converted', 'reopened'] as const;
 
+/**
+ * The organisation's structure: where a member works (branch) and what they do (department).
+ * Two independent trees in one table; a unit's parent is always of its own kind.
+ */
+export const ORG_UNIT_KINDS = ['branch', 'department'] as const;
+
 export const PRODUCT_KINDS = ['goods', 'service'] as const;
 export const PRODUCT_STATUSES = ['active', 'archived'] as const;
 
@@ -191,6 +197,8 @@ export const PLUGIN_SCOPES = [
   'payments:write',
   'products:read',
   'products:write',
+  'units:read',
+  'units:write',
   'users:read',
   'views:read',
 ] as const;
