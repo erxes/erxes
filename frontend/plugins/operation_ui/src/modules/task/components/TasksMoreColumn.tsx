@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { RowMoreButton } from '@/operation/components/RowMoreButton';
 import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask } from '@/task/types';
 import { IconEdit } from '@tabler/icons-react';
@@ -12,7 +13,7 @@ export const TasksMoreColumnCell = ({
 }) => {
   const { t } = useTranslation('operation');
   const [, setActiveTask] = useTaskDetailSheet();
-  const { _id } = cell.row.original;
+  const { _id, name } = cell.row.original;
 
   const handleEdit = (taskId: string) => {
     setActiveTask(taskId);
@@ -21,7 +22,7 @@ export const TasksMoreColumnCell = ({
   return (
     <Popover>
       <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
+        <RowMoreButton name={name} />
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>

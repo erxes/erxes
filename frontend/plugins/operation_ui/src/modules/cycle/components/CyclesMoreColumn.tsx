@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { RowMoreButton } from '@/operation/components/RowMoreButton';
 import { IconEdit } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
@@ -12,7 +13,7 @@ export const CyclesMoreColumnCell = ({
 }) => {
   const { t } = useTranslation('operation');
   const navigate = useNavigate();
-  const { _id, teamId } = cell.row.original;
+  const { _id, name, teamId } = cell.row.original;
 
   const handleEdit = (cycleId: string) => {
     navigate(`/operation/team/${teamId}/cycles/${cycleId}`);
@@ -21,7 +22,7 @@ export const CyclesMoreColumnCell = ({
   return (
     <Popover>
       <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
+        <RowMoreButton name={name} />
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>

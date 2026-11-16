@@ -89,6 +89,7 @@
   "delete": "Delete",
   "selected": "{{count}} selected",
   "actions": "Actions",
+  "actions-for": "Actions for {{name}}",
   "back-to-options": "Back to options",
   "custom-date": "Custom date",
   "set-target-date": "Set Target Date",

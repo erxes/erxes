@@ -13,6 +13,7 @@ import {
   Badge,
 } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
+import { RowMoreButton } from '@/operation/components/RowMoreButton';
 import { useParams, useNavigate } from 'react-router-dom';
 import { templatesQuery } from '../graphql/queries';
 import { templateRemoveMutation } from '../graphql/mutations';
@@ -45,7 +46,7 @@ const TemplateRowActions = ({
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
+          <RowMoreButton name={template.name} />
         </Popover.Trigger>
         <Popover.Content className="w-[200px] p-0">
           <Command shouldFilter={false}>

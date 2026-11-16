@@ -89,6 +89,7 @@
   "delete": "Устгах",
   "selected": "{{count}} сонгогдсон",
   "actions": "Үйлдлүүд",
+  "actions-for": "Үйлдлүүд: {{name}}",
   "back-to-options": "Сонголт руу буцах",
   "custom-date": "Хүссэн огноо",
   "set-target-date": "Зорилтот огноо тохируулах",
