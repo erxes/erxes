@@ -484,6 +484,13 @@
       "when": 1794844461503,
       "tag": "0068_ebarimt",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1794847932451,
+      "tag": "0069_invoice_tax_receipt",
+      "breakpoints": true
     }
   ]
 }

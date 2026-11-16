@@ -118,6 +118,8 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     lines: true,
     /** Who its tax receipt is for (eBarimt); null: a person. */
     taxBuyer: true,
+    /** Whether it gets a tax receipt (eBarimt) once paid. */
+    taxReceipt: true,
     /** What the gateway says was paid, and how much of it was given back. */
     paidAmount: true,
     refundedAmount: true,
@@ -275,6 +277,8 @@ export const paymentsContract = {
         lines: z.array(InvoiceLineInput).max(100).optional(),
         /** Who the tax receipt is for, where the organisation issues them (eBarimt). */
         taxBuyer: TaxBuyer.optional(),
+        /** False: no tax receipt for it, as for an order that needs none. */
+        taxReceipt: z.boolean().default(true),
       }),
     )
     .output(Invoice),

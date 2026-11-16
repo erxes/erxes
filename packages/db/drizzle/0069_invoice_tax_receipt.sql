@@ -1,0 +1,1 @@
+ALTER TABLE "core_payment_invoices" ADD COLUMN "tax_receipt" boolean DEFAULT true NOT NULL;

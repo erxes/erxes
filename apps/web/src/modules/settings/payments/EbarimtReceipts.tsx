@@ -89,7 +89,12 @@ export const EbarimtReceipts = ({ invoice }: { invoice: Invoice }) => {
   );
 
   return (
-    <QueryState query={receipts} isEmpty={({ data }) => !data.length} empty={null} loading={null}>
+    <QueryState
+      query={receipts}
+      isEmpty={({ data }) => !data.length && invoice.taxReceipt}
+      empty={null}
+      loading={null}
+    >
       {({ data }) => (
         <div className="space-y-2">
           <h3 className="flex items-center gap-2 text-sm font-medium">
@@ -101,6 +106,11 @@ export const EbarimtReceipts = ({ invoice }: { invoice: Invoice }) => {
               </span>
             )}
           </h3>
+          {!invoice.taxReceipt && (
+            <p className="text-sm text-muted-foreground">
+              {t('no-receipt', 'This invoice gets no eBarimt receipt.')}
+            </p>
+          )}
           <ul className="divide-y rounded-lg border text-sm">
             {data.map((receipt) => (
               <ReceiptRow key={receipt.id} receipt={receipt} currency={invoice.currency} />

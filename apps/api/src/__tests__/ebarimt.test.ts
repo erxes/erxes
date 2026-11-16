@@ -237,6 +237,48 @@ describe('ebarimt', { timeout: 240_000 }, () => {
     expect((await t.other().ebarimt.receipts({})).data).toEqual([]);
   });
 
+  it('issues none for an order that needs none, and returns one when it is turned off', async () => {
+    const order = (referenceId: string, taxReceipt?: boolean) =>
+      t.hr().payments.createInvoice({
+        amount: 8_000,
+        currency: 'MNT',
+        description: 'Order',
+        referenceType: 'order',
+        referenceId,
+        taxReceipt,
+      });
+
+    const none = await order('no-receipt', false);
+    const later = await order('turned-off');
+
+    expect(none.taxReceipt).toBe(false);
+    expect(later.taxReceipt).toBe(true);
+    await t.owner().payments.payTestInvoice({ id: none.id });
+    await t.owner().payments.payTestInvoice({ id: later.id });
+    await settle();
+    expect(await receiptsOf(none.id)).toEqual([]);
+
+    const [issued] = await receiptsOf(later.id);
+
+    expect(issued).toMatchObject({ kind: 'put', status: 'success' });
+
+    const deletes = fake.deletes.length;
+
+    await t.hr().ebarimt.setBuyer({ invoiceId: later.id, taxReceipt: false });
+    await settle();
+    expect(await receiptsOf(later.id)).toMatchObject([
+      { kind: 'return', status: 'success', previousId: issued?.id },
+      { id: issued?.id },
+    ]);
+    expect(fake.deletes).toHaveLength(deletes + 1);
+    expect((await t.hr().payments.getInvoice({ id: later.id })).taxReceipt).toBe(false);
+
+    // Turned back on: a new receipt.
+    await t.hr().ebarimt.setBuyer({ invoiceId: none.id, taxReceipt: true });
+    await settle();
+    expect(await receiptsOf(none.id)).toMatchObject([{ kind: 'put', status: 'success' }]);
+  });
+
   it('keeps a refused receipt with its error and sends it again on request', async () => {
     const paid = async (referenceId: string, currency = 'MNT') => {
       const invoice = await t.hr().payments.createInvoice({

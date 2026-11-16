@@ -9,6 +9,7 @@ import {
 import { sql } from 'drizzle-orm';
 import {
   bigint,
+  boolean,
   check,
   foreignKey,
   index,
@@ -104,6 +105,8 @@ export const paymentInvoices = pgTable(
     metadata: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     lines: jsonb().$type<InvoiceLine[]>().default([]).notNull(),
     taxBuyer: jsonb().$type<TaxBuyer>(),
+    /** Send an eBarimt receipt once it is paid; false: this order needs none. */
+    taxReceipt: boolean().default(true).notNull(),
     /** What the gateway says was paid, and its payment id (for refunds). */
     paidAmount: bigint({ mode: 'number' }),
     gatewayPaymentId: text(),

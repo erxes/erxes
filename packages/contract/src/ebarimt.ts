@@ -237,9 +237,9 @@ export const ebarimtContract = {
       method: 'PUT',
       path: '/ebarimt/invoices/{invoiceId}/buyer',
       summary:
-        'Change who the invoice’s receipt is for; an issued one is replaced. 404 COMPANY_NOT_FOUND, 503 TAX_OFFICE_UNAVAILABLE, 409 EBARIMT_NOT_SET_UP',
+        'Change who the invoice’s receipt is for (an issued one is replaced), or whether it gets one (`taxReceipt: false` returns an issued one). 404 COMPANY_NOT_FOUND, 503 TAX_OFFICE_UNAVAILABLE, 409 EBARIMT_NOT_SET_UP',
     })
-    .input(InvoiceRef.extend({ taxBuyer: TaxBuyer }))
+    .input(InvoiceRef.extend({ taxBuyer: TaxBuyer.optional(), taxReceipt: z.boolean().optional() }))
     .output(z.object({ ok: z.literal(true) })),
   findCompany: base
     .route({

@@ -890,6 +890,7 @@
       "queued": "Sending the receipt again",
       "send-failed": "Could not send",
       "send-again": "Send again",
+      "no-receipt": "This invoice gets no eBarimt receipt.",
       "returned": "Return",
       "issued": "Receipt",
       "bill": "Bill {{billId}} · lottery {{lottery}}",

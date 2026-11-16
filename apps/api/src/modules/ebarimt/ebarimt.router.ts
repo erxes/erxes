@@ -18,8 +18,6 @@ export const ebarimtRouter = {
   ),
   receipts: scoped.ebarimt.receipts.handler(({ input }) => listReceipts(db(), input)),
   sync: scoped.ebarimt.sync.handler(({ input }) => requestSync(db(), input.invoiceId)),
-  setBuyer: unscoped.ebarimt.setBuyer.handler(({ input }) =>
-    setBuyer(input.invoiceId, input.taxBuyer),
-  ),
+  setBuyer: unscoped.ebarimt.setBuyer.handler(({ input }) => setBuyer(input)),
   findCompany: unscoped.ebarimt.findCompany.handler(({ input }) => findCompany(input.no)),
 };

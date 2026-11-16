@@ -55,7 +55,8 @@ const sameBuyer = (receipt: ReceiptRow, buyer: Buyer) =>
 /** What the invoice's receipt should become; null: it is right as it is. Calls out (the tax office). */
 const planFor = async (read: NonNullable<Awaited<ReturnType<typeof readForSync>>>) => {
   const { invoice, settings, active } = read;
-  const kept = keptAmount(invoice);
+  // An invoice that gets no receipt keeps nothing to issue one for: an issued one is returned.
+  const kept = invoice.taxReceipt ? keptAmount(invoice) : 0;
 
   if (kept <= 0) return active ? ({ kind: 'return', previous: active } satisfies Plan) : null;
 

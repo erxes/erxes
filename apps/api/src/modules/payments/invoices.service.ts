@@ -52,6 +52,7 @@ interface InvoiceInput {
   metadata?: Record<string, unknown>;
   lines?: InvoiceLineInput[];
   taxBuyer?: TaxBuyer;
+  taxReceipt?: boolean;
 }
 
 /** What creating an invoice needs before asking the gateway, or the invoice its dedupe key already made. */
@@ -110,6 +111,7 @@ export const createInvoice = async (input: InvoiceInput) => {
         metadata: input.metadata ?? {},
         lines,
         taxBuyer: input.taxBuyer ?? null,
+        taxReceipt: input.taxReceipt ?? true,
       })
       .onConflictDoNothing()
       .returning();

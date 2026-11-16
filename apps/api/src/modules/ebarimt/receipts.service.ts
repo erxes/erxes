@@ -101,30 +101,38 @@ export const requestSync = async (client: Db, invoiceId: string) => {
 };
 
 /**
- * Changes who the invoice's receipt is for, then syncs it (an issued one is
- * replaced). A company number is checked with the tax office first, so a
- * wrong one fails here. Calls out: outside any scope.
+ * Changes who the invoice's receipt is for, or whether it gets one, then syncs
+ * it: an issued receipt is replaced, or returned when it gets none. A company
+ * number is checked with the tax office first, so a wrong one fails here.
+ * Calls out: outside any scope.
  */
-export const setBuyer = async (invoiceId: string, taxBuyer: TaxBuyer) => {
+export const setBuyer = async ({
+  invoiceId,
+  ...change
+}: {
+  invoiceId: string;
+  taxBuyer?: TaxBuyer;
+  taxReceipt?: boolean;
+}) => {
   const orgId = requestOrgId();
 
   await withOrg(orgId, (tx) => invoiceToSync(tx, invoiceId));
 
-  if (taxBuyer.companyNo) await findCompany(taxBuyer.companyNo);
+  if (change.taxBuyer?.companyNo) await findCompany(change.taxBuyer.companyNo);
 
   return withOrg(orgId, async (tx) => {
     const invoice = await invoiceToSync(tx, invoiceId);
 
     await tx
       .update(paymentInvoices)
-      .set({ taxBuyer, updatedAt: sql`now()` })
+      .set({ ...change, updatedAt: sql`now()` })
       .where(eq(paymentInvoices.id, invoice.id));
     await recordAudit(tx, {
       action: 'ebarimt.buyer_changed',
       targetType: 'payment_invoice',
       targetId: invoice.id,
       targetLabel: invoice.description,
-      metadata: { ...taxBuyer },
+      metadata: change,
     });
     await queueReceiptSync(tx, invoice);
 
