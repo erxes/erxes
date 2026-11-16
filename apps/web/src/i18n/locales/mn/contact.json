@@ -19,7 +19,9 @@
       "birth-date": "Төрсөн огноо",
       "middle-name": "Дунд нэр",
       "pronoun": "Хүйс",
-      "picture": "Зураг"
+      "picture": "Зураг",
+      "create": "Харилцагч үүсгэх",
+      "create-lead": "Боломжит харилцагч үүсгэх"
     },
     "detail": {
       "add-tags": "Таг нэмэх",
@@ -61,7 +63,13 @@
     "selected": "{{selectedCount}} сонгосон",
     "position": "Албан тушаал",
     "department": "Хэлтэс",
-    "company": "Компани"
+    "company": "Компани",
+    "birth-date": "Төрсөн огноо",
+    "pronoun": "Хүйс",
+    "form": {
+      "email-invalid": "Имэйлийг name@example.com хэлбэрээр оруулна уу",
+      "name-or-contact": "Нэр, имэйл эсвэл утасны аль нэгийг бөглөнө үү"
+    }
   },
   "company": {
     "name": "Нэр",
@@ -80,10 +88,12 @@
       "businessType": "Бизнесийн төрөл",
       "size": "Хэмжээ",
       "description": "Тайлбар",
-      "picture": "Зураг"
+      "picture": "Зураг",
+      "size-placeholder": "Ажилтны тоо"
     },
     "add": {
-      "_": "Компани нэмэх"
+      "_": "Компани нэмэх",
+      "create": "Байгууллага үүсгэх"
     },
     "saved": "Компанийн мэдээлэл амжилттай шинэчлэгдлээ.",
     "error": "Шинэчлэлт амжилтгүй боллоо",
@@ -98,7 +108,13 @@
     "action-delete": "Устгах",
     "action-merge": "Нийлүүлэх",
     "confirm-delete-selected": "Сонгосон {{count}} компанийг устгахдаа итгэлтэй байна уу?",
-    "merge-tooltip": "Зөвхөн 2 компанийг нийлүүлэх боломжтой"
+    "merge-tooltip": "Зөвхөн 2 компанийг нийлүүлэх боломжтой",
+    "customer": "Харилцагч",
+    "form": {
+      "company-name-required": "Байгууллагын нэрийг оруулна уу",
+      "email-invalid": "Имэйлийг name@example.com хэлбэрээр оруулна уу",
+      "size-invalid": "Хүний тоог бүхэл тоогоор оруулна уу"
+    }
   },
   "lead": {
     "add": {

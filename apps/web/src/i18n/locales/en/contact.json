@@ -19,7 +19,9 @@
       "birth-date": "Birth date",
       "middle-name": "Middle name",
       "pronoun": "Pronoun",
-      "picture": "Picture"
+      "picture": "Picture",
+      "create": "Create customer",
+      "create-lead": "Create lead"
     },
     "detail": {
       "add-tags": "Add tags",
@@ -61,7 +63,13 @@
     "selected": "{{selectedCount}} selected",
     "position": "Position",
     "department": "Department",
-    "company": "Company"
+    "company": "Company",
+    "birth-date": "Birth date",
+    "pronoun": "Pronoun",
+    "form": {
+      "email-invalid": "Enter an email like name@example.com",
+      "name-or-contact": "Fill in a name, an email or a phone"
+    }
   },
   "company": {
     "name": "Name",
@@ -77,13 +85,15 @@
       "phone": "Phone",
       "website": "Website",
       "industry": "Industries",
-      "businessType": "Business Type",
+      "businessType": "Business type",
       "size": "Size",
       "description": "Description",
-      "picture": "Picture"
+      "picture": "Picture",
+      "size-placeholder": "Employees"
     },
     "add": {
-      "_": "Add Company"
+      "_": "Add Company",
+      "create": "Create company"
     },
     "saved": "Company details updated successfully.",
     "error": "Update Failed",
@@ -98,7 +108,13 @@
     "action-delete": "Delete",
     "action-merge": "Merge",
     "confirm-delete-selected": "Are you sure you want to delete the {{count}} selected companies?",
-    "merge-tooltip": "You can only merge 2 companies"
+    "merge-tooltip": "You can only merge 2 companies",
+    "customer": "Customer",
+    "form": {
+      "company-name-required": "Enter the company name",
+      "email-invalid": "Enter an email like name@example.com",
+      "size-invalid": "Enter a whole number of people"
+    }
   },
   "lead": {
     "add": {
