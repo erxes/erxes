@@ -239,9 +239,13 @@ export const verifyCustomerToken = async (
   return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
 };
 
-const sha256 = async (text: string) => {
+/** A body's SHA-256, base64url: text as UTF-8, or its bytes as they came. */
+const sha256 = async (body: string | Uint8Array<ArrayBuffer>) => {
   const digest = new Uint8Array(
-    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)),
+    await crypto.subtle.digest(
+      'SHA-256',
+      typeof body === 'string' ? new TextEncoder().encode(body) : body,
+    ),
   );
 
   return btoa(String.fromCharCode(...digest))
@@ -293,12 +297,13 @@ const PublicClaims = z.object({ sha: z.string(), public: z.string(), org: z.stri
 /**
  * Verifies a call core forwarded to `<api.url>/public/<path>` (one of the manifest's
  * `publicPaths`) and returns its organisation: the token is core's, for this plugin, at most a
- * minute old, and signs this exact body (pass the raw body text; '' without one). Throws if
- * not. The caller is anyone on the internet: check what they send (a webhook's signature).
+ * minute old, and signs this exact body (its raw text, or its bytes from `express.raw` for one
+ * that isn't text; '' without one). Throws if not. The caller is anyone on the internet: check
+ * what they send (a webhook's signature).
  */
 export const verifyPublicCall = async (
   authorization: string | undefined | null,
-  rawBody: string,
+  rawBody: string | Uint8Array<ArrayBuffer>,
   options: VerifyOptions,
 ): Promise<PublicCall> => {
   const token = bearerOf(authorization);

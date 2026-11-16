@@ -65,6 +65,8 @@ export interface OutboundResponse {
   ms: number;
 }
 
+const BODILESS = new Set(['GET', 'HEAD']);
+
 export interface OutboundRequest {
   method: string;
   /** Empty for none. */
@@ -104,9 +106,11 @@ export const requestOutbound = async (raw: string, request: OutboundRequest) => 
       url,
       {
         method,
-        headers: body.length
-          ? { ...headers, 'Content-Length': String(Buffer.byteLength(body)) }
-          : headers,
+        // A GET or HEAD without a body sends no length; anything else says its length, 0 too.
+        headers:
+          body.length || !BODILESS.has(method)
+            ? { ...headers, 'Content-Length': String(Buffer.byteLength(body)) }
+            : headers,
         lookup: safeLookup,
         timeout: timeoutMs,
       },

@@ -118,8 +118,7 @@ export const createApp = (log: Logger = logger): Express => {
   app.get('/gateway/pl\\:core/core-login', limit.token, saasLogin);
 
   // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
-  app.use('/core/v1/plugins/:name/public', limit.pluginPublic);
-  app.use('/core/v1', pluginPublicRouter);
+  app.use('/core/v1', pluginPublicRouter(limit.pluginPublic));
 
   app.use(express.json({ limit: '1mb' }));
 

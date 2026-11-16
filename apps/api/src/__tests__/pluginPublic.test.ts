@@ -41,12 +41,17 @@ describe('plugin public routes', () => {
         'x-github-event': 'issues',
         authorization: 'Bearer from-the-sender',
         cookie: 'erxes_session=member',
+        'x-real-ip': '203.0.113.9',
       },
       body,
     });
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ orgId: t.ids.org });
+    // Served from core's address beside the member's session: no script, sniffing or caching.
+    expect(response.headers.get('content-security-policy')).toBe("default-src 'none'; sandbox");
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+    expect(response.headers.get('cache-control')).toBe('no-store');
 
     const call = api.publicCalls.at(-1);
 
@@ -60,6 +65,22 @@ describe('plugin public routes', () => {
     // Core's token replaces the sender's, and a member's cookie never reaches the plugin.
     expect(call?.headers.authorization).not.toContain('from-the-sender');
     expect(call?.headers.cookie).toBeUndefined();
+    // A client address the caller made up doesn't reach it; core says where the call came from.
+    expect(call?.headers['x-real-ip']).toBeUndefined();
+    expect(call?.headers['x-forwarded-for']).toBeTruthy();
+  });
+
+  it('passes a body that isn’t text on byte for byte', async () => {
+    const bytes = new Uint8Array([0xff, 0xfe, 0x00, 0x80]);
+
+    const response = await fetch(publicUrl('/github/webhook'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/octet-stream' },
+      body: bytes,
+    });
+
+    expect(response.status).toBe(200);
+    expect(api.publicCalls.at(-1)?.headers['content-length']).toBe('4');
   });
 
   it('passes a compressed body on as the text it holds', async () => {
@@ -91,6 +112,7 @@ describe('plugin public routes', () => {
   it.each([
     ['a path the manifest doesn’t list', '/github/other'],
     ['a path that climbs out of a listed one', '/github/webhook/%2E%2E/%2E%2E/events'],
+    ['a segment that hides a slash', '/github/webhook/..%2F..%2Fevents'],
   ])('answers 404 for %s', async (_case, path) => {
     const calls = api.publicCalls.length;
     const response = await fetch(publicUrl(path), { method: 'POST', body: '{}' });

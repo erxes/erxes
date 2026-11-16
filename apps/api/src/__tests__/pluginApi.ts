@@ -43,11 +43,15 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
     method: string,
     path: string,
     headers: IncomingHttpHeaders,
-    raw: string,
+    bytes: Buffer,
   ): Promise<Answer> => {
-    const call = await verifyPublicCall(headers.authorization, raw, { coreUrl, plugin });
+    // Bytes, as `express.raw` gives them: a body that isn't text verifies too.
+    const call = await verifyPublicCall(headers.authorization, new Uint8Array(bytes), {
+      coreUrl,
+      plugin,
+    });
 
-    publicCalls.push({ ...call, method, path, headers, raw });
+    publicCalls.push({ ...call, method, path, headers, raw: bytes.toString() });
 
     if (path.startsWith('/public/github/setup'))
       return {
@@ -67,10 +71,12 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
     method: string,
     path: string,
     headers: IncomingHttpHeaders,
-    raw: string,
+    bytes: Buffer,
   ): Promise<Answer> => {
+    const raw = bytes.toString();
+
     try {
-      if (path.startsWith('/public/')) return await receivePublic(method, path, headers, raw);
+      if (path.startsWith('/public/')) return await receivePublic(method, path, headers, bytes);
 
       if (path === '/timelines/access') {
         const check = await verifyCoreAccessCheck(headers.authorization, raw, { coreUrl, plugin });
@@ -103,13 +109,13 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   };
 
   const server = createServer((req, res) => {
-    let raw = '';
+    const chunks: Buffer[] = [];
 
     req.on('data', (chunk: Buffer) => {
-      raw += chunk.toString();
+      chunks.push(chunk);
     });
     req.on('end', () => {
-      void receive(req.method ?? 'GET', req.url ?? '', req.headers, raw).then(
+      void receive(req.method ?? 'GET', req.url ?? '', req.headers, Buffer.concat(chunks)).then(
         ({ status, headers, body }) => res.writeHead(status, headers).end(body),
       );
     });
