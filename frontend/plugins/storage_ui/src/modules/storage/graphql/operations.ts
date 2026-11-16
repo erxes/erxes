@@ -11,7 +11,7 @@ export const STORAGE_ITEMS_QUERY = gql`
 
 export const STORAGE_RFID_SCAN_QUERY = gql`
   query storageRfidScan {
-    storageRfidScan { itemId sku name systemPacks scannedPacks openUnits sampleEpc98 }
+    storageRfidScan { itemId sku name systemPacks scannedPacks openUnits sampleEpc }
   }
 `;
 
@@ -27,8 +27,8 @@ export const STORAGE_WORK_ORDERS_QUERY = gql`
 export const STORAGE_TOOL_ASSETS_QUERY = gql`
   query storageToolAssets {
     storageToolAssets {
-      _id assetCode name serialNo cost finLifeYears taxLifeYears monthsUsed status
-      custodianName pendingCustodian workOrderCode repairExpense
+      _id assetCode name serialNo cost finLifeYears taxLifeYears inServiceDate monthsUsed status
+      custodianName pendingCustodian pendingToWarehouse workOrderCode repairExpense
     }
   }
 `;
@@ -41,14 +41,14 @@ export const STORAGE_VAT_DATA_QUERY = gql`
 `;
 
 export const STORAGE_BREAK_SEALED_BOX = gql`
-  mutation storageBreakSealedBox($itemId: String!) {
-    storageBreakSealedBox(itemId: $itemId) { _id sealedPacks openUnits }
+  mutation storageBreakSealedBox($itemId: String!, $epcId: String, $requestKey: String) {
+    storageBreakSealedBox(itemId: $itemId, epcId: $epcId, requestKey: $requestKey) { _id sealedPacks openUnits }
   }
 `;
 
 export const STORAGE_ISSUE_STOCK = gql`
-  mutation storageIssueStock($itemId: String!, $qty: Int!, $workOrderCode: String, $taxCode: String, $directDrop: Boolean, $autoConvert: Boolean) {
-    storageIssueStock(itemId: $itemId, qty: $qty, workOrderCode: $workOrderCode, taxCode: $taxCode, directDrop: $directDrop, autoConvert: $autoConvert) {
+  mutation storageIssueStock($itemId: String!, $qty: Float!, $workOrderCode: String, $taxCode: String, $directDrop: Boolean, $autoConvert: Boolean, $requestKey: String) {
+    storageIssueStock(itemId: $itemId, qty: $qty, workOrderCode: $workOrderCode, taxCode: $taxCode, directDrop: $directDrop, autoConvert: $autoConvert, requestKey: $requestKey) {
       docNo
       item { _id name nickname sku avgCost sealedPacks openUnits }
     }
@@ -56,11 +56,11 @@ export const STORAGE_ISSUE_STOCK = gql`
 `;
 
 export const STORAGE_WORK_ORDER_CLOSE = gql`
-  mutation storageWorkOrderClosePercent($workOrderId: String!, $percent: Float!) { storageWorkOrderClosePercent(workOrderId: $workOrderId, percent: $percent) { _id } }
+  mutation storageWorkOrderClosePercent($workOrderId: String!, $percent: Float!, $requestKey: String) { storageWorkOrderClosePercent(workOrderId: $workOrderId, percent: $percent, requestKey: $requestKey) { _id } }
 `;
 
 export const STORAGE_WORK_ORDER_REOPEN = gql`
-  mutation storageWorkOrderReopenLine($workOrderId: String!, $costLineId: String!) { storageWorkOrderReopenLine(workOrderId: $workOrderId, costLineId: $costLineId) { _id } }
+  mutation storageWorkOrderReopenLine($workOrderId: String!, $costLineId: String!, $requestKey: String) { storageWorkOrderReopenLine(workOrderId: $workOrderId, costLineId: $costLineId, requestKey: $requestKey) { _id } }
 `;
 
 export const STORAGE_TOOL_ACCEPT = gql`

@@ -34,7 +34,7 @@ export const storageItemSchema = new Schema<IStorageItem>(
     openUnits: { type: Number, default: 0, min: 0 },
     pendingPrUsers: { type: [String], default: [] },
   },
-  { timestamps: true }
+  { timestamps: true, optimisticConcurrency: true }
 );
 
 export interface IRfidTag {
@@ -43,18 +43,21 @@ export interface IRfidTag {
   unitsInPack: number;
   tagCost: number;
   zoneStatus: 'SEALED' | 'OPENED' | 'ISSUED';
+  movementId?: string;
 }
 
 export const rfidTagSchema = new Schema<IRfidTag>(
   {
-    epcId: { type: String, required: true, unique: true, maxlength: 98 },
+    epcId: { type: String, required: true, unique: true, match: /^[0-9A-F]{24}$/ },
     itemId: { type: String, required: true, index: true },
     unitsInPack: { type: Number, required: true },
     tagCost: { type: Number, default: 175 },
     zoneStatus: { type: String, enum: ['SEALED', 'OPENED', 'ISSUED'], default: 'SEALED' },
+    movementId: { type: String, index: true },
   },
   { timestamps: true }
 );
+rfidTagSchema.index({ itemId: 1, zoneStatus: 1, createdAt: 1 });
 
 export interface ITechCard {
   name: string;
@@ -122,7 +125,7 @@ export const workOrderSchema = new Schema<IWorkOrder>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true, optimisticConcurrency: true }
 );
 
 export interface IToolAsset {
@@ -132,12 +135,14 @@ export interface IToolAsset {
   cost: number;
   finLifeYears: number;
   taxLifeYears: number;
-  monthsUsed: number;
+  inServiceDate?: Date | null;
   status: 'IN_WAREHOUSE' | 'PENDING_HANDOVER' | 'IN_USE' | 'IN_REPAIR' | 'WRITTEN_OFF';
   custodianName: string;
   pendingCustodian?: string | null;
+  pendingToWarehouse: boolean;
   workOrderCode?: string | null;
   repairExpense: number;
+  movementId?: string;
 }
 
 export const toolAssetSchema = new Schema<IToolAsset>(
@@ -148,14 +153,16 @@ export const toolAssetSchema = new Schema<IToolAsset>(
     cost: { type: Number, required: true },
     finLifeYears: { type: Number, default: 5 },
     taxLifeYears: { type: Number, default: 10 },
-    monthsUsed: { type: Number, default: 0 },
+    inServiceDate: { type: Date, default: null },
     status: { type: String, enum: ['IN_WAREHOUSE', 'PENDING_HANDOVER', 'IN_USE', 'IN_REPAIR', 'WRITTEN_OFF'], default: 'IN_WAREHOUSE' },
     custodianName: { type: String, required: true },
     pendingCustodian: { type: String, default: null },
+    pendingToWarehouse: { type: Boolean, default: false },
     workOrderCode: { type: String, default: null },
     repairExpense: { type: Number, default: 0 },
+    movementId: { type: String, index: true },
   },
-  { timestamps: true }
+  { timestamps: true, optimisticConcurrency: true }
 );
 
 export interface IVatPayable {
@@ -180,6 +187,8 @@ export const vatPayableSchema = new Schema<IVatPayable>(
   },
   { timestamps: true }
 );
+vatPayableSchema.index({ status: 1, vendorTin: 1, vatAmount: 1 });
+vatPayableSchema.index({ matchedGroupId: 1 });
 
 export interface IEBarimtReceipt {
   receiptNo: string;
@@ -203,21 +212,51 @@ export const eBarimtReceiptSchema = new Schema<IEBarimtReceipt>(
   },
   { timestamps: true }
 );
+eBarimtReceiptSchema.index({ status: 1, vendorTin: 1, createdAt: 1 });
 
 export interface IPeriodClose {
   closedUntil: Date;
   closedBy: string;
-  status: 'CLOSED' | 'REOPENED';
+  status: 'CLOSING' | 'CLOSED' | 'REOPENED' | 'ABORTED';
+  reopenedBy?: string;
 }
 
 export const periodCloseSchema = new Schema<IPeriodClose>(
   {
     closedUntil: { type: Date, required: true },
     closedBy: { type: String, required: true },
-    status: { type: String, enum: ['CLOSED', 'REOPENED'], default: 'CLOSED' },
+    status: { type: String, enum: ['CLOSING', 'CLOSED', 'REOPENED', 'ABORTED'], default: 'CLOSING' },
+    reopenedBy: { type: String },
   },
   { timestamps: true }
 );
+periodCloseSchema.index({ status: 1, closedUntil: -1 });
+
+export type StockMovementType = 'RECEIVE' | 'ISSUE' | 'BREAK_BOX' | 'TOOL_REPAIR' | 'WO_CLOSE' | 'WO_REOPEN';
+
+export interface IStockMovement {
+  requestKey: string;
+  type: StockMovementType;
+  txDate: Date;
+  status: 'PENDING' | 'POSTED' | 'FAILED';
+  userId?: string;
+  result?: Record<string, unknown> | null;
+  error?: string | null;
+}
+
+export const stockMovementSchema = new Schema<IStockMovement>(
+  {
+    requestKey: { type: String, required: true, unique: true },
+    type: { type: String, required: true },
+    txDate: { type: Date, required: true },
+    status: { type: String, enum: ['PENDING', 'POSTED', 'FAILED'], default: 'PENDING' },
+    userId: { type: String },
+    result: { type: Schema.Types.Mixed, default: null },
+    error: { type: String, default: null },
+  },
+  { timestamps: true }
+);
+stockMovementSchema.index({ status: 1, txDate: 1 });
 
 export interface IModels {
   StorageItems: Model<IStorageItem>;
@@ -228,6 +267,7 @@ export interface IModels {
   VatPayables: Model<IVatPayable>;
   EBarimtReceipts: Model<IEBarimtReceipt>;
   PeriodCloses: Model<IPeriodClose>;
+  StockMovements: Model<IStockMovement>;
 }
 
 export const loadClasses = (db: Connection): IModels => ({
@@ -239,4 +279,5 @@ export const loadClasses = (db: Connection): IModels => ({
   VatPayables: db.model<IVatPayable>('storage_vat_payables', vatPayableSchema),
   EBarimtReceipts: db.model<IEBarimtReceipt>('storage_ebarimt_receipts', eBarimtReceiptSchema),
   PeriodCloses: db.model<IPeriodClose>('storage_period_closes', periodCloseSchema),
+  StockMovements: db.model<IStockMovement>('storage_stock_movements', stockMovementSchema),
 });

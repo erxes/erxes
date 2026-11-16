@@ -28,7 +28,7 @@ export const typeDefs = async () => gql`
     packSize: Int!
     avgCost: Float!
     sealedPacks: Int!
-    openUnits: Int!
+    openUnits: Float!
   }
 
   type StorageRfidScanRow {
@@ -37,8 +37,8 @@ export const typeDefs = async () => gql`
     name: String!
     systemPacks: Int!
     scannedPacks: Int!
-    openUnits: Int!
-    sampleEpc98: String
+    openUnits: Float!
+    sampleEpc: String
   }
 
   type StorageWorkOrderCostLine {
@@ -72,10 +72,12 @@ export const typeDefs = async () => gql`
     cost: Float!
     finLifeYears: Int!
     taxLifeYears: Int!
+    inServiceDate: Date
     monthsUsed: Int!
     status: String!
     custodianName: String!
     pendingCustodian: String
+    pendingToWarehouse: Boolean
     workOrderCode: String
     repairExpense: Float!
   }
@@ -112,6 +114,15 @@ export const typeDefs = async () => gql`
     notifiedUsers: [String!]!
   }
 
+  type StoragePeriodClose {
+    _id: String!
+    closedUntil: Date!
+    closedBy: String!
+    status: String!
+    reopenedBy: String
+    createdAt: Date
+  }
+
   extend type Query {
     storageItems(company: String): [StorageItem!]!
     storageRfidScan: [StorageRfidScanRow!]!
@@ -119,20 +130,24 @@ export const typeDefs = async () => gql`
     storageToolAssets: [StorageToolAsset!]!
     storageVatPayables: [StorageVatPayable!]!
     storageEBarimtReceipts: [StorageEBarimtReceipt!]!
+    storagePeriodCloses: [StoragePeriodClose!]!
   }
 
+  # requestKey: client-generated unique key (e.g. a UUID per button press).
+  # Retrying with the same key returns the original result instead of applying the change twice.
   extend type Mutation {
     storageItemCreate(sku: String!, name: String!, nickname: String, itemType: String!, useRfid: Boolean!, packSize: Int!, avgCost: Float!, costCenter: StorageCostCenterInput!): StorageItem!
-    storageReceiveStock(itemId: String!, sealedPacks: Int!, openUnits: Int!): StorageReceiveResult!
-    storageBreakSealedBox(itemId: String!): StorageItem!
-    storageIssueStock(itemId: String!, qty: Int!, workOrderCode: String, taxCode: String, directDrop: Boolean, autoConvert: Boolean): StorageIssueResult!
-    storageWorkOrderClosePercent(workOrderId: String!, percent: Float!): StorageWorkOrder!
-    storageWorkOrderReopenLine(workOrderId: String!, costLineId: String!): StorageWorkOrder!
-    storageToolInitiateHandover(toolId: String!, toCustodian: String!, workOrderCode: String): StorageToolAsset!
+    storageReceiveStock(itemId: String!, sealedPacks: Int!, openUnits: Float!, txDate: Date, requestKey: String): StorageReceiveResult!
+    storageBreakSealedBox(itemId: String!, epcId: String, txDate: Date, requestKey: String): StorageItem!
+    storageIssueStock(itemId: String!, qty: Float!, workOrderCode: String, taxCode: String, directDrop: Boolean, autoConvert: Boolean, txDate: Date, requestKey: String): StorageIssueResult!
+    storageWorkOrderClosePercent(workOrderId: String!, percent: Float!, requestKey: String): StorageWorkOrder!
+    storageWorkOrderReopenLine(workOrderId: String!, costLineId: String!, requestKey: String): StorageWorkOrder!
+    storageToolInitiateHandover(toolId: String!, toCustodian: String, toWarehouse: Boolean, workOrderCode: String): StorageToolAsset!
     storageToolAcceptHandover(toolId: String!): StorageToolAsset!
-    storageToolSendToRepair(toolId: String!, fee: Float!): StorageToolAsset!
+    storageToolSendToRepair(toolId: String!, fee: Float!, txDate: Date, requestKey: String): StorageToolAsset!
     storageVatAutoReconcile: Int!
     storageVatManualReconcile(payableIds: [String!]!, receiptId: String!): String!
-    storagePeriodClose(closedUntil: Date!): Boolean!
+    storagePeriodClose(closedUntil: Date!): StoragePeriodClose!
+    storagePeriodReopen(closeId: String!): StoragePeriodClose!
   }
 `;

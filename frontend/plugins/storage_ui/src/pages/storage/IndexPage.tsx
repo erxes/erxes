@@ -20,6 +20,20 @@ import {
 
 const fmt = (n: number) => `${new Intl.NumberFormat('mn-MN').format(Math.round(n || 0))}₮`;
 
+/** One key per user action, so a retried request is applied only once. */
+const newRequestKey = () =>
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+interface IPackingLine {
+  sku: string;
+  name: string;
+  nickname?: string;
+  unitCost: number;
+  qty: number;
+}
+
 function chunkForDotMatrix<T>(rows: T[], rowsPerPage = 13): T[][] {
   const pages: T[][] = [];
   for (let i = 0; i < rows.length; i += rowsPerPage) {
@@ -32,7 +46,11 @@ export const IndexPage: React.FC = () => {
   const [company, setCompany] = useState<string>('');
   const [printMode, setPrintMode] = useState<'NAME' | 'NICKNAME'>('NICKNAME');
   const [printerType, setPrinterType] = useState<'A4' | 'DOT_MATRIX_13'>('DOT_MATRIX_13');
-  const [packingLines, setPackingLines] = useState<any[]>([]);
+  const [packingLines, setPackingLines] = useState<IPackingLine[]>([]);
+  const [issueWo, setIssueWo] = useState<string>('');
+  const [issueQty, setIssueQty] = useState<number>(1);
+  const [woPercent, setWoPercent] = useState<Record<string, number>>({});
+  const [error, setError] = useState<string>('');
   const [selectedPayables, setSelectedPayables] = useState<string[]>([]);
   const [selectedReceipt, setSelectedReceipt] = useState<string>('');
 
@@ -46,9 +64,12 @@ export const IndexPage: React.FC = () => {
   const { data: toolsData, refetch: refetchTools } = useQuery(STORAGE_TOOL_ASSETS_QUERY);
   const { data: vatData, refetch: refetchVat } = useQuery(STORAGE_VAT_DATA_QUERY);
 
-  const [breakBox] = useMutation(STORAGE_BREAK_SEALED_BOX, { onCompleted: () => refetchItems() });
+  const onError = (e: Error) => setError(e.message);
+
+  const [breakBox] = useMutation(STORAGE_BREAK_SEALED_BOX, { onCompleted: () => refetchItems(), onError });
   const [issueStock] = useMutation(STORAGE_ISSUE_STOCK, {
-    onCompleted: (res) => {
+    onError,
+    onCompleted: (res, options) => {
       refetchItems();
       refetchWo();
       refetchTools();
@@ -57,18 +78,20 @@ export const IndexPage: React.FC = () => {
         ...prev,
         {
           sku: it.sku,
-          displayName: printMode === 'NICKNAME' ? it.nickname || it.name : it.name,
+          name: it.name,
+          nickname: it.nickname,
           unitCost: it.avgCost,
-          qty: 1,
+          qty: Number(options?.variables?.qty) || 1,
         },
       ]);
     },
   });
-  const [closeWo] = useMutation(STORAGE_WORK_ORDER_CLOSE, { onCompleted: () => refetchWo() });
-  const [reopenWoLine] = useMutation(STORAGE_WORK_ORDER_REOPEN, { onCompleted: () => refetchWo() });
-  const [acceptTool] = useMutation(STORAGE_TOOL_ACCEPT, { onCompleted: () => refetchTools() });
-  const [autoReconcileVat] = useMutation(STORAGE_VAT_AUTO_RECONCILE, { onCompleted: () => refetchVat() });
+  const [closeWo] = useMutation(STORAGE_WORK_ORDER_CLOSE, { onCompleted: () => refetchWo(), onError });
+  const [reopenWoLine] = useMutation(STORAGE_WORK_ORDER_REOPEN, { onCompleted: () => refetchWo(), onError });
+  const [acceptTool] = useMutation(STORAGE_TOOL_ACCEPT, { onCompleted: () => refetchTools(), onError });
+  const [autoReconcileVat] = useMutation(STORAGE_VAT_AUTO_RECONCILE, { onCompleted: () => refetchVat(), onError });
   const [manualReconcileVat] = useMutation(STORAGE_VAT_MANUAL_RECONCILE, {
+    onError,
     onCompleted: () => {
       setSelectedPayables([]);
       setSelectedReceipt('');
@@ -82,6 +105,11 @@ export const IndexPage: React.FC = () => {
   const payables = vatData?.storageVatPayables || [];
   const receipts = vatData?.storageEBarimtReceipts || [];
   const printPages = printerType === 'DOT_MATRIX_13' ? chunkForDotMatrix(packingLines, 13) : [packingLines];
+  const activeWorkOrders = workOrders.filter((wo: any) => wo.status === 'ACTIVE');
+  const receiptTin = receipts.find((r: any) => r._id === selectedReceipt)?.vendorTin;
+  const selectedPayableTins = payables.filter((p: any) => selectedPayables.includes(p._id)).map((p: any) => p.vendorTin);
+  const tinMismatch = Boolean(receiptTin) && selectedPayableTins.some((tin: string) => tin !== receiptTin);
+  const displayName = (ln: IPackingLine) => (printMode === 'NICKNAME' ? ln.nickname || ln.name : ln.name);
 
   return (
     <div className="flex flex-col h-full">
@@ -101,6 +129,12 @@ export const IndexPage: React.FC = () => {
         </PageHeader.End>
       </PageHeader>
       <div className="flex-auto overflow-auto p-6">
+        {error && (
+          <div className="mb-4 flex justify-between items-center rounded border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <span>{error}</span>
+            <Button size="sm" variant="ghost" onClick={() => setError('')}>✕</Button>
+          </div>
+        )}
         <Tabs defaultValue="warehouse">
           <Tabs.List>
             <Tabs.Trigger value="warehouse">Агуулах (RFID vs Задгай) & Принтер</Tabs.Trigger>
@@ -121,6 +155,24 @@ export const IndexPage: React.FC = () => {
                 <span>Принтер:</span>
                 <Button size="sm" variant={printerType === 'DOT_MATRIX_13' ? 'default' : 'outline'} onClick={() => setPrinterType('DOT_MATRIX_13')}>Цэгэн принтер (13 мөр/хуудас)</Button>
                 <Button size="sm" variant={printerType === 'A4' ? 'default' : 'outline'} onClick={() => setPrinterType('A4')}>А4 (Хязгааргүй)</Button>
+              </div>
+              <div className="flex gap-2 items-center text-sm w-full">
+                <span>Зарлагын төсөл:</span>
+                <select className="border rounded px-2 py-1 text-sm" value={issueWo} onChange={(e) => setIssueWo(e.target.value)}>
+                  <option value="">— Ажлын захиалга сонгох —</option>
+                  {activeWorkOrders.map((wo: any) => (
+                    <option key={wo._id} value={wo.code}>#{wo.code} {wo.name}</option>
+                  ))}
+                </select>
+                <span>Тоо:</span>
+                <input
+                  type="number"
+                  min={0}
+                  step="any"
+                  className="border rounded px-2 py-1 text-sm w-24"
+                  value={issueQty}
+                  onChange={(e) => setIssueQty(Number(e.target.value))}
+                />
               </div>
             </div>
 
@@ -147,8 +199,14 @@ export const IndexPage: React.FC = () => {
                     <Table.Cell>{it.openUnits} ш</Table.Cell>
                     <Table.Cell>{fmt(it.avgCost)}</Table.Cell>
                     <Table.Cell className="flex gap-1">
-                      <Button size="sm" variant="outline" disabled={it.sealedPacks < 1} onClick={() => breakBox({ variables: { itemId: it._id } })}>1 хайрцаг задлах</Button>
-                      <Button size="sm" onClick={() => issueStock({ variables: { itemId: it._id, qty: 1, workOrderCode: '26024', autoConvert: true } })}>Зарлагадах</Button>
+                      <Button size="sm" variant="outline" disabled={it.sealedPacks < 1} onClick={() => breakBox({ variables: { itemId: it._id, requestKey: newRequestKey() } })}>1 хайрцаг задлах</Button>
+                      <Button
+                        size="sm"
+                        disabled={!issueWo || !(issueQty > 0)}
+                        onClick={() => issueStock({ variables: { itemId: it._id, qty: issueQty, workOrderCode: issueWo, autoConvert: true, requestKey: newRequestKey() } })}
+                      >
+                        Зарлагадах
+                      </Button>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -166,7 +224,7 @@ export const IndexPage: React.FC = () => {
                     <div className="font-semibold mb-1">Хуудас {idx + 1} / {printPages.length}</div>
                     {pg.map((ln, i) => (
                       <div key={i} className="flex justify-between py-0.5 border-b last:border-0">
-                        <span>{ln.sku} — {ln.displayName}</span>
+                        <span>{ln.sku} — {displayName(ln)}</span>
                         <span>{ln.qty} ш × {fmt(ln.unitCost)}</span>
                       </div>
                     ))}
@@ -183,7 +241,7 @@ export const IndexPage: React.FC = () => {
                 <Table.Header>
                   <Table.Row>
                     <Table.Head>Бараа</Table.Head>
-                    <Table.Head>EPC-98 ID</Table.Head>
+                    <Table.Head>EPC (96-bit)</Table.Head>
                     <Table.Head>Системд</Table.Head>
                     <Table.Head>Антен уншсан</Table.Head>
                     <Table.Head>Задгай бүс</Table.Head>
@@ -193,7 +251,7 @@ export const IndexPage: React.FC = () => {
                   {rfidData.storageRfidScan.map((r: any) => (
                     <Table.Row key={r.itemId}>
                       <Table.Cell>{r.name}</Table.Cell>
-                      <Table.Cell className="font-mono text-xs">{r.sampleEpc98 || '-'}</Table.Cell>
+                      <Table.Cell className="font-mono text-xs">{r.sampleEpc || '-'}</Table.Cell>
                       <Table.Cell>{r.systemPacks}</Table.Cell>
                       <Table.Cell className="font-bold">{r.scannedPacks}</Table.Cell>
                       <Table.Cell>{r.openUnits} ш</Table.Cell>
@@ -212,7 +270,24 @@ export const IndexPage: React.FC = () => {
                     <Badge>#{wo.code}</Badge> <span className="font-bold ml-2">{wo.name}</span>
                     <div className="text-xs text-muted-foreground">{wo.clientName}</div>
                   </div>
-                  <Button size="sm" onClick={() => closeWo({ variables: { workOrderId: wo._id, percent: 30 } })}>Үлдэгдлийн 30% ББӨ рүү хаах</Button>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      className="border rounded px-2 py-1 text-sm w-20"
+                      value={woPercent[wo._id] ?? ''}
+                      placeholder="%"
+                      onChange={(e) => setWoPercent((prev) => ({ ...prev, [wo._id]: Number(e.target.value) }))}
+                    />
+                    <Button
+                      size="sm"
+                      disabled={woPercent[wo._id] === undefined}
+                      onClick={() => closeWo({ variables: { workOrderId: wo._id, percent: woPercent[wo._id], requestKey: newRequestKey() } })}
+                    >
+                      Гүйцэтгэлийн %-аар ББӨ рүү хаах
+                    </Button>
+                  </div>
                 </div>
                 <Table>
                   <Table.Header>
@@ -233,7 +308,7 @@ export const IndexPage: React.FC = () => {
                         <Table.Cell className="font-semibold">{fmt(ln.closedAmount)}</Table.Cell>
                         <Table.Cell>
                           {ln.closedAmount > 0 && (
-                            <Button size="sm" variant="outline" onClick={() => reopenWoLine({ variables: { workOrderId: wo._id, costLineId: ln._id } })}>Буцааж нээх</Button>
+                            <Button size="sm" variant="outline" onClick={() => reopenWoLine({ variables: { workOrderId: wo._id, costLineId: ln._id, requestKey: newRequestKey() } })}>Буцааж нээх</Button>
                           )}
                         </Table.Cell>
                       </Table.Row>
@@ -289,12 +364,15 @@ export const IndexPage: React.FC = () => {
               <Button onClick={() => autoReconcileVat()}>Автомат тулгалт хийх (TIN + Дүн)</Button>
               <Button
                 variant="outline"
-                disabled={selectedPayables.length === 0 || !selectedReceipt}
+                disabled={selectedPayables.length === 0 || !selectedReceipt || tinMismatch}
                 onClick={() => manualReconcileVat({ variables: { payableIds: selectedPayables, receiptId: selectedReceipt } })}
               >
                 Сонгосон баримтуудыг гараар тулгах
               </Button>
             </div>
+            {tinMismatch && (
+              <div className="text-xs text-destructive">Сонгосон өглөгүүдийн ТТД e-Barimt-ын ТТД ({receiptTin})-тэй таарахгүй байна.</div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="border rounded-lg p-3">
                 <h4 className="font-semibold mb-2 text-sm">Өглөгийн бүртгэл (Хэрэгжээгүй НӨАТ)</h4>
