@@ -1,3 +1,4 @@
+import { PROJECT_CONNECTION_CONTENT_TYPE } from './widgets/contact/projectContactConnection';
 import {
   IconChartArcs,
   IconChartAreaLine,
@@ -163,6 +164,11 @@ export const CONFIG: IUIConfig = {
       { contentType: 'operation:triage', properties: false },
       {
         contentType: TASK_CONNECTION_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+      },
+      {
+        contentType: PROJECT_CONNECTION_CONTENT_TYPE,
         properties: false,
         draftTitle: true,
       },
