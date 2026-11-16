@@ -33,6 +33,7 @@ import {
   currentUserState,
   FieldsInDetail,
   IRecordSidePanelTab,
+  RecordPageMinimize,
   RecordSidePanel,
   usePermissionCheck,
   useSidePanel,
@@ -245,6 +246,7 @@ export const MemberDetail = ({
                 availability={userDetail.availability}
               />
               <MemberPanelActions user={userDetail} />
+              {expanded && <RecordPageMinimize />}
             </div>
           )
         }

@@ -36,6 +36,12 @@
 - Marks invoices paid from either a gateway callback or the
   `invoicesCheck`/`cpInvoicesCheck` GraphQL mutations; each of those sites
   enqueues the host-plugin `callback` job inline.
+- Accepts Golomt's server-to-server push at `/notification/golomt`
+  (`apis/golomt/api.ts` `notificationHandler`). The payload is never trusted:
+  the transaction is confirmed with Golomt's inquiry API, then the invoice goes
+  through `checkInvoiceAndClaim` + `notifyPaidInvoice` like `invoicesCheck`, so
+  a push racing the widget or redirect callback cannot notify twice. A
+  `contentType` whose plugin is not enabled is logged, not silently dropped.
 - Filters `invoices` / `cpInvoices` / `invoicesTotalCount` by `kind` with an indexed match on the
   invoice's `paymentKinds` field (`buildKindQuery` in `graphql/resolvers/queries/invoices.ts`).
 - Keeps `Invoice.paymentKinds` (distinct `paymentKind` of the invoice's own transactions) in sync

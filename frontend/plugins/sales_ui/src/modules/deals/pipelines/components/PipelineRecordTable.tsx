@@ -15,19 +15,19 @@ import {
   Combobox,
   Command,
   Input,
-  PageSubHeader,
   Popover,
   RecordTable,
   RecordTableInlineCell,
   RecordTableTree,
   RelativeDateDisplay,
+  toast,
   useConfirm,
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import type { ChangeEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
@@ -42,6 +42,8 @@ import {
 } from '@/deals/boards/hooks/usePipelines';
 import { PipelineCommandBar } from '@/deals/pipelines/components/PipelineCommandBar';
 import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
+import { PipelinesSubHeader } from '@/deals/pipelines/components/PipelinesSubHeader';
+import { PIPELINE_STATUS_QUERY_KEY } from '@/deals/pipelines/components/PipelineStatusFilter';
 import { IPipeline } from '@/deals/types/pipelines';
 
 export const PipelineMoreColumnCell = ({
@@ -272,8 +274,8 @@ export const pipelinesColumns: (
         status === 'active'
           ? 'success'
           : status === 'archived'
-          ? 'warning'
-          : 'default';
+            ? 'warning'
+            : 'default';
 
       return (
         <RecordTableInlineCell>
@@ -314,15 +316,58 @@ export const pipelinesColumns: (
   },
 ];
 
+const PipelineTable = ({
+  loading,
+  hasMore,
+  onFetchMore,
+}: Readonly<{
+  loading: boolean;
+  hasMore: boolean;
+  onFetchMore: () => void;
+}>) => (
+  <RecordTable.Scroll>
+    <RecordTable>
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.RowList Row={RecordTableTree.Row} />
+        {loading && <RecordTable.RowSkeleton rows={30} />}
+        {hasMore && (
+          <RecordTable.RowSkeleton rows={1} handleInView={onFetchMore} />
+        )}
+      </RecordTable.Body>
+    </RecordTable>
+  </RecordTable.Scroll>
+);
+
+const showFetchMoreError = (fetchError: unknown) => {
+  toast({
+    title:
+      fetchError instanceof Error ? fetchError.message : String(fetchError),
+    variant: 'destructive',
+  });
+};
+
 export const PipelineRecordTable = () => {
   const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
     contentType: string;
     searchValue: string;
     activeBoardId: string;
-  }>(['contentType', 'searchValue', 'activeBoardId']);
+    pipelineStatus: string;
+    createdBy: string;
+  }>([
+    'contentType',
+    'searchValue',
+    'activeBoardId',
+    PIPELINE_STATUS_QUERY_KEY,
+    'createdBy',
+  ]);
 
-  const { boards, loading: boardsLoading, error: boardsError } = useBoards({
+  const {
+    boards,
+    loading: boardsLoading,
+    error: boardsError,
+  } = useBoards({
     variables: { includeArchived: true },
   });
   const hasSelectedBoard = boards?.some(
@@ -337,6 +382,40 @@ export const PipelineRecordTable = () => {
         isAll: true,
       },
     });
+
+  const search = queries.searchValue?.trim().toLowerCase();
+  const statusFilter = queries.pipelineStatus;
+  const createdBy = queries.createdBy;
+  const isFiltered = Boolean(search || statusFilter || createdBy);
+  const visiblePipelines = (pipelines || []).filter(
+    (pipeline) =>
+      (!search || pipeline.name?.toLowerCase().includes(search)) &&
+      (!statusFilter || (pipeline.status ?? 'active') === statusFilter) &&
+      (!createdBy || pipeline.userId === createdBy),
+  );
+
+  const requestedCursor = useRef<string | null | undefined>();
+  const [failedCursor, setFailedCursor] = useState<string | null>();
+  const loadingRemainingPages =
+    isFiltered &&
+    Boolean(pageInfo?.hasNextPage) &&
+    failedCursor !== pageInfo?.endCursor;
+
+  useEffect(() => {
+    if (!loadingRemainingPages || loading) return;
+    if (requestedCursor.current === pageInfo?.endCursor) return;
+    const cursor = pageInfo?.endCursor;
+    requestedCursor.current = cursor;
+    handleFetchMore()?.catch((fetchError: unknown) => {
+      requestedCursor.current = undefined;
+      setFailedCursor(cursor);
+      showFetchMoreError(fetchError);
+    });
+  }, [loadingRemainingPages, loading, pageInfo?.endCursor, handleFetchMore]);
+
+  const handleInViewFetchMore = () => {
+    handleFetchMore()?.catch(showFetchMoreError);
+  };
 
   if (!boardsLoading && !boardsError && boards && !hasSelectedBoard) {
     return <BoardEmptyState isSettings hasBoards={boards.length > 0} />;
@@ -355,34 +434,27 @@ export const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>
-        {t('pipelines-with-count', { count: totalCount })}
-      </PageSubHeader>
+      <PipelinesSubHeader
+        count={isFiltered ? visiblePipelines.length : totalCount || 0}
+        loading={boardsLoading || loading || loadingRemainingPages}
+      />
       <RecordTable.Provider
         columns={pipelinesColumns(t)}
-        data={pipelines || []}
+        data={visiblePipelines}
         className="m-3"
         stickyColumns={['more', 'checkbox', 'name']}
       >
         <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>
-          <RecordTable.Scroll>
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList Row={RecordTableTree.Row} />
-                {(boardsLoading || loading) && (
-                  <RecordTable.RowSkeleton rows={30} />
-                )}
-                {!loading && pageInfo?.hasNextPage && (
-                  <RecordTable.RowSkeleton
-                    rows={1}
-                    handleInView={handleFetchMore}
-                  />
-                )}
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.Scroll>
+          <PipelineTable
+            loading={boardsLoading || loading}
+            hasMore={
+              !loading &&
+              Boolean(pageInfo?.hasNextPage) &&
+              !loadingRemainingPages
+            }
+            onFetchMore={handleInViewFetchMore}
+          />
         </RecordTableTree>
       </RecordTable.Provider>
     </>

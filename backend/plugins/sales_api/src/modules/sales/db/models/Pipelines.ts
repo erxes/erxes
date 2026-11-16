@@ -41,7 +41,7 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
     checked?: boolean,
     userId?: string,
   ): Promise<object>;
-  archivePipeline(_id: string, userId?: string): Promise<object>;
+  archivePipeline(_id: string): Promise<object>;
 }
 
 export const loadPipelineClass = (
@@ -95,7 +95,10 @@ export const loadPipelineClass = (
         doc.lastNum = await generateLastNum(models, doc);
       }
 
-      const pipeline = await models.Pipelines.create({ ...doc, userId });
+      const pipeline = await models.Pipelines.create({
+        ...doc,
+        userId: userId ?? doc.userId,
+      });
 
       if (stages) {
         await createOrUpdatePipelineStages(models, stages, pipeline._id);
@@ -189,7 +192,7 @@ export const loadPipelineClass = (
     }
 
     /** Archive / unarchive pipeline */
-    public static async archivePipeline(_id: string, userId?: string) {
+    public static async archivePipeline(_id: string) {
       const pipeline = await models.Pipelines.getPipeline(_id);
 
       const status =
@@ -201,7 +204,7 @@ export const loadPipelineClass = (
         await assertBoardIsActive(models, pipeline.boardId);
       }
 
-      await models.Pipelines.updateOne({ _id }, { $set: { status, userId } });
+      await models.Pipelines.updateOne({ _id }, { $set: { status } });
 
       sendDbEventLog?.({
         action: 'update',

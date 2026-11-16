@@ -6,12 +6,12 @@ import { BaseAPI } from '~/apis/base';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { IGolomtInvoice } from '~/apis/types';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import {
   graphqlPubsub,
   isEnabled,
   random,
   sendWorkerMessage,
-  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
 
@@ -77,17 +77,41 @@ export const notificationHandler = async (
   if (status !== PAYMENT_STATUS.PAID) {
     // Push says success but the inquiry API doesn't confirm it yet.
     // Don't acknowledge, so Golomt can retry if it supports it.
-    // The pending-invoice cron (#10341) re-checks it either way.
+    // The per-invoice re-check (invoiceRecheck worker) re-checks it either way.
     return res
       .status(503)
       .json({ status: 'retry', message: 'payment not confirmed yet' });
   }
 
-  await models.Transactions.updateOne(
+  // Only the request that actually moves the transaction to paid sends the
+  // transaction callback, so a retried push (or a redirect callback racing
+  // it) does not repeat it.
+  const { modifiedCount } = await models.Transactions.updateOne(
     { _id: transaction._id, status: PAYMENT_STATUS.PENDING },
     { $set: { status: PAYMENT_STATUS.PAID, updatedAt: new Date() } },
   );
 
+  // Claim the invoice before telling the owning plugin about the transaction,
+  // in the same order as the redirect callback, so a consumer reading the
+  // invoice while handling the callback already sees it paid.
+  // checkInvoiceAndClaim moves the invoice to paid atomically: exactly one
+  // caller gets claimed=true and notifies. notifyPaidInvoice dedupes the plugin
+  // job by invoice id, retries the external callback through its queue, and
+  // leaves notifyPending set for the invoice re-check worker if anything fails.
+  let claim: { status: string; claimed: boolean } | undefined;
+  let claimError: unknown;
+
+  try {
+    claim = await models.Invoices.checkInvoiceAndClaim(
+      transaction.invoiceId,
+      subdomain,
+    );
+  } catch (e) {
+    claimError = e;
+  }
+
+  // Always tell subscribers, even if another path marked it paid first; the
+  // event is idempotent and keeps an open widget from showing pending.
   graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
     transactionUpdated: {
       _id: transaction._id,
@@ -97,112 +121,96 @@ export const notificationHandler = async (
     },
   });
 
-  // If the invoice was already paid (widget or redirect callback got there
-  // first), it was already notified; don't notify again.
-  const before = await models.Invoices.getInvoice(
-    { _id: transaction.invoiceId },
-    true,
-  );
-  const wasPaid = before.status === PAYMENT_STATUS.PAID;
-
-  const result = await models.Invoices.checkInvoice(
-    transaction.invoiceId,
-    subdomain,
-  );
-
-  const invoice = await models.Invoices.getInvoice(
-    { _id: transaction.invoiceId },
-    true,
-  );
-
-  if (invoice.contentType) {
-    const [pluginName, moduleName, collectionType] = splitType(
-      invoice.contentType,
-    );
-
-    if (await isEnabled(pluginName)) {
-      try {
-        await sendWorkerMessage({
-          subdomain,
-          pluginName,
-          queueName: 'payments',
-          jobName: 'transactionCallback',
-          data: {
-            ...transaction.toObject(),
-            status: PAYMENT_STATUS.PAID,
-            moduleName,
-            collectionType,
-            apiResponse: 'success',
-          },
-          defaultValue: null,
-        });
-      } catch (e) {
-        console.error('[golomt notification] transactionCallback failed', e);
-      }
-    }
+  // Sent even if the claim failed: the transaction is paid either way, and
+  // this request is the only one that will ever see modifiedCount > 0, so
+  // skipping it here would lose the callback for good.
+  if (modifiedCount) {
+    await sendTransactionCallback(subdomain, models, transaction);
   }
 
-  if (result === PAYMENT_STATUS.PAID && !wasPaid) {
-    graphqlPubsub.publish(`invoiceUpdated:${invoice._id}`, {
-      invoiceUpdated: { _id: invoice._id, status: PAYMENT_STATUS.PAID },
-    });
+  if (claimError) {
+    // The invoice stays unclaimed; a redelivered push or the invoice re-check
+    // worker claims it and sends the paid notification. The transaction
+    // callback is not repeated then, since the transaction is already paid.
+    console.error(
+      `[golomt notification] failed to claim invoice ${transaction.invoiceId}`,
+      claimError,
+    );
+    return res
+      .status(503)
+      .json({ status: 'retry', message: 'invoice not updated yet' });
+  }
 
-    // same notification as the invoicesCheck mutation
-    if (invoice.contentType) {
-      const [pluginName, moduleName, collectionType] = splitType(
-        invoice.contentType,
+  if (claim?.status === PAYMENT_STATUS.PAID && claim.claimed) {
+    try {
+      await notifyPaidInvoice(models, subdomain, transaction.invoiceId);
+    } catch (e) {
+      // the payment itself is confirmed; the invoice re-check worker retries
+      // the notification (notifyPending stays set)
+      console.error(
+        `[golomt notification] failed to queue paid notifications for invoice ${transaction.invoiceId}`,
+        e,
       );
-
-      try {
-        await sendWorkerQueue(pluginName, 'payments').add(
-          'callback',
-          {
-            subdomain,
-            data: {
-              ...invoice,
-              status: PAYMENT_STATUS.PAID,
-              moduleName,
-              collectionType,
-              apiResponse: 'success',
-            },
-          },
-          { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-        );
-      } catch (e) {
-        console.error(
-          `[golomt notification] failed to queue callback for invoice ${invoice._id}`,
-          e,
-        );
-      }
-    }
-
-    if (invoice.callback) {
-      try {
-        const callbackRes = await fetch(invoice.callback, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            _id: invoice._id,
-            amount: invoice.amount,
-            status: PAYMENT_STATUS.PAID,
-          }),
-        });
-
-        if (!callbackRes.ok) {
-          console.error(
-            `[golomt notification] callback for invoice ${invoice._id} returned HTTP ${callbackRes.status}`,
-          );
-        }
-      } catch (e) {
-        console.error(
-          `[golomt notification] callback for invoice ${invoice._id} failed`,
-          e,
-        );
-      }
     }
   }
 
   return res.status(200).json({ status: 'ok' });
+};
+
+/**
+ * Tells the plugin that owns the invoice that this transaction was paid.
+ * An invoice whose contentType names a plugin that isn't enabled (e.g. the
+ * 2.x "pos:orders") has no one to receive its callbacks; say so in the log
+ * instead of dropping it silently.
+ */
+const sendTransactionCallback = async (
+  subdomain: string,
+  models: IModels,
+  transaction: ITransactionDocument,
+) => {
+  // Optional post-commit step: nothing in here may throw, or the caller would
+  // skip the paid notification that actually settles the order.
+  try {
+    const invoice = await models.Invoices.getInvoice(
+      { _id: transaction.invoiceId },
+      true,
+    );
+
+    if (!invoice.contentType) {
+      return;
+    }
+
+    const [pluginName, moduleName, collectionType] = splitType(
+      invoice.contentType,
+    );
+
+    if (!(await isEnabled(pluginName))) {
+      console.warn(
+        `[golomt notification] invoice ${invoice._id} has contentType "${invoice.contentType}" but plugin "${pluginName}" is not enabled; its payment callbacks have no consumer`,
+      );
+      return;
+    }
+
+    await sendWorkerMessage({
+      subdomain,
+      pluginName,
+      queueName: 'payments',
+      jobName: 'transactionCallback',
+      data: {
+        ...transaction.toObject(),
+        status: PAYMENT_STATUS.PAID,
+        moduleName,
+        collectionType,
+        apiResponse: 'success',
+      },
+      defaultValue: null,
+    });
+  } catch (e) {
+    console.error(
+      `[golomt notification] transactionCallback for transaction ${transaction._id} failed`,
+      e,
+    );
+  }
 };
 
 export const golomtCallbackHandler = async (models: IModels, data: any) => {
@@ -216,23 +224,19 @@ export const golomtCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Payment config type is mismatched');
   }
 
-  try {
-    const api = new GolomtAPI(payment.config);
-    const status = await api.checkInvoice(transaction);
+  const api = new GolomtAPI(payment.config);
+  const status = await api.checkInvoice(transaction);
 
-    if (status !== PAYMENT_STATUS.PAID) {
-      return transaction;
-    }
-
-    transaction.status = status;
-    transaction.updatedAt = new Date();
-
-    await transaction.save();
-
+  if (status !== PAYMENT_STATUS.PAID) {
     return transaction;
-  } catch (e) {
-    throw new Error(e.message);
   }
+
+  transaction.status = status;
+  transaction.updatedAt = new Date();
+
+  await transaction.save();
+
+  return transaction;
 };
 
 export interface IGolomtParams {
@@ -289,7 +293,7 @@ export class GolomtAPI extends BaseAPI {
       return { success: true, message: 'Authorized' };
     } catch (e) {
       console.error('error', e);
-      throw new Error(e.message);
+      throw e;
     }
   }
 
@@ -339,25 +343,22 @@ export class GolomtAPI extends BaseAPI {
       transactionId,
       checksum: hmac256(this.key, transactionId + transactionId),
     };
-    try {
-      const response = await this.request({
-        path: PAYMENTS.golomt.actions.invoiceCheck,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + this.token,
-        },
-        data,
-      }).then((r) => r.json());
 
-      if (response.status && response.status === 'SENT') {
-        return PAYMENT_STATUS.PAID;
-      }
+    const response = await this.request({
+      path: PAYMENTS.golomt.actions.invoiceCheck,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + this.token,
+      },
+      data,
+    }).then((r) => r.json());
 
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
+    if (response.status && response.status === 'SENT') {
+      return PAYMENT_STATUS.PAID;
     }
+
+    return PAYMENT_STATUS.PENDING;
   }
 
   async checkInvoice(transaction: any) {
