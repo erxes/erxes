@@ -107,6 +107,7 @@
     "plugins": "Plugins",
     "roles": "Roles",
     "webhooks": "Webhooks",
+    "api-reference": "API reference",
     "payments": "Payments",
     "recycle-bin": "Recycle bin",
     "plan": "Plan",

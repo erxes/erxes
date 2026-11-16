@@ -1,5 +1,6 @@
 import { paths, propertyPaths } from '~/lib/paths';
 import {
+  IconSourceCode,
   IconBellCog,
   IconCash,
   IconChevronLeft,
@@ -56,11 +57,25 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
     ...(can('payments.manage')
       ? [{ name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash }]
       : []),
-    ...(can('webhooks.manage')
-      ? [{ name: t('webhooks', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook }]
-      : []),
     ...(can('audit.view')
       ? [{ name: t('audit-log', 'Audit log'), to: paths.settings.auditLog, icon: IconShieldCheck }]
+      : []),
+  ];
+};
+
+/** The settings "Developer" group: the API reference, then what sends events out. */
+const useSettingsDeveloperPaths = (): SettingsPath[] => {
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const can = useCan();
+
+  return [
+    {
+      name: t('api-reference', 'API reference'),
+      to: paths.settings.apiReference,
+      icon: IconSourceCode,
+    },
+    ...(can('webhooks.manage')
+      ? [{ name: t('webhooks', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook }]
       : []),
     ...(can('events.view')
       ? [
@@ -78,7 +93,9 @@ function SettingsNavigationGroup({
   name,
   children,
 }: Readonly<{ name: string; children: ReactNode }>) {
-  if (Children.count(children) === 0) return null;
+  // toArray drops empty nodes, which Children.count counts: a plugin without settings
+  // pages or properties passes `[[], undefined]` and gets no group.
+  if (Children.toArray(children).length === 0) return null;
 
   return (
     <Sidebar.Group variant="compact">
@@ -181,6 +198,7 @@ function PluginSettingsGroups() {
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
+  const developer = useSettingsDeveloperPaths();
   const account = useSettingsAccountPaths();
 
   return (
@@ -194,6 +212,11 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name={t('workspace')}>
           {workspace.map((item) => (
+            <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
+          ))}
+        </SettingsNavigationGroup>
+        <SettingsNavigationGroup name={t('developer', 'Developer')}>
+          {developer.map((item) => (
             <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>

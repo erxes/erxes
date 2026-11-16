@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
@@ -19,6 +20,12 @@ import { SettingsLayout } from './SettingsLayout';
 import { StructurePage } from './structure/StructurePage';
 import { TeamMemberSettingsRoutes } from './team-members/TeamMemberSettingsRoutes';
 
+// Fetched on first visit: few members open it, so it stays out of settings' chunk.
+const ApiReferencePage = lazyNamed(
+  () => import('./developer/ApiReferencePage'),
+  'ApiReferencePage',
+);
+
 /** Everything under `/settings/*` (mount as `<Route path="settings/*" element={<SettingsRoutes />} />`). */
 export const SettingsRoutes = () => (
   <Routes>
@@ -29,6 +36,7 @@ export const SettingsRoutes = () => (
       <Route path="file-upload" element={<FileUploadSettingsPage />} />
       <Route path="audit-log" element={<AuditLogPage />} />
       <Route path="event-delivery" element={<EventDeliveryPage />} />
+      <Route path="api-reference" element={<ApiReferencePage />} />
       <Route path="plugins" element={<PluginsSettingsPage />} />
       <Route path="roles" element={<RolesSettingsPage />} />
       <Route path="structure" element={<StructurePage />} />

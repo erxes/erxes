@@ -72,6 +72,7 @@ export const paths = {
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',
+    apiReference: '/settings/api-reference',
     profile: '/settings/profile',
     security: '/settings/security',
     notifications: '/settings/notifications',

@@ -423,6 +423,11 @@
     "no-system-logs-found": "Одоо системийн бүртгэл олдсонгүй",
     "system-logs-description": "Таны хайлтад тохирсон зүйл олдсонгүй. Шүүлтүүрийг орлуулж, хайлтын тэмдэгтийг өөрчилж үзнэ үү."
   },
+  "api-reference": {
+    "title": "API лавлах",
+    "member": "Ажилтны API",
+    "customer": "Харилцагчийн API"
+  },
   "structure": {
     "removed-successfully": "Амжилттай устгагдлаа!",
     "position-code-updated": "{{code}} албан тушаал амжилттай шинэчлэгдлээ.",

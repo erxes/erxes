@@ -5,6 +5,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Logger, SerializedRequest } from 'pino';
 import { pinoHttp } from 'pino-http';
 import { logger } from '~/logger';
+import { apiReference } from '~/http/apiReference';
 import { authenticate } from '~/http/auth';
 import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
@@ -149,6 +150,9 @@ export const createApp = (log: Logger = logger): Express => {
   });
 
   app.get('/core/v1/openapi.json', openApiDocument);
+  // The references Settings › Developer shows: what members, or customers, can call.
+  app.get('/core/v1/openapi/member.json', apiReference('member'));
+  app.get('/core/v1/openapi/customer.json', apiReference('customer'));
 
   // Core's public signing keys: plugins verify plugin tokens and auditors
   // verify audit checkpoints with them.

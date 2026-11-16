@@ -12,11 +12,17 @@ const subscribe = (onChange: () => void) => {
   return () => query.removeEventListener('change', onChange);
 };
 
-/** Applies the chosen theme (light, dark or the system's) to <html>. */
-export const ThemeEffect = () => {
+/** The theme the page shows: the member's choice, or the system's when they chose `system`. */
+export const useAppliedTheme = () => {
   const theme = useAtomValue(themeState);
   const systemDark = useSyncExternalStore(subscribe, () => window.matchMedia(DARK_QUERY).matches);
-  const value = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
+
+  return theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
+};
+
+/** Applies the chosen theme (light, dark or the system's) to <html>. */
+export const ThemeEffect = () => {
+  const value = useAppliedTheme();
 
   useEffect(() => {
     const html = document.documentElement;

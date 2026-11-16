@@ -433,6 +433,11 @@
     "no-system-logs-found": "No results found yet",
     "system-logs-description": "We couldn't find anything matching your search. Try adjusting your filters or search query."
   },
+  "api-reference": {
+    "title": "API reference",
+    "member": "Team member API",
+    "customer": "Customer API"
+  },
   "structure": {
     "removed-successfully": "Removed successfully!",
     "position-code-updated": "Position {{code}} updated successfully.",

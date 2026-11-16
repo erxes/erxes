@@ -6,10 +6,18 @@ import { pluginReact } from '@rsbuild/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
 // Plugin UIs declare the same list with `import: false`, so the host provides every one.
 import { SHARED } from 'erxes-ui/federation';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pluginBundleBudget } from './bundleBudget';
 
 const ui = resolve(import.meta.dirname, '../../packages/ui/src');
+
+// Scalar's prebuilt browser build, served as is under /static/scalar (Settings › API reference):
+// bundled, its Vue graph would share chunks with ours and move kilobytes into every route.
+const scalar = resolve(
+  dirname(fileURLToPath(import.meta.resolve('@scalar/api-reference'))),
+  'browser',
+);
 
 // The dev server's port and API address come from the shell.
 const { WEB_PORT, CORE_API_URL } = process.env;
@@ -53,6 +61,15 @@ export default defineConfig({
       'erxes-ui$': `${ui}/index.ts`,
       'erxes-ui': ui,
     },
+  },
+  output: {
+    copy: [
+      {
+        from: '{standalone.esm.js,chunks/*.js}',
+        context: scalar,
+        to: 'static/scalar/',
+      },
+    ],
   },
   html: {
     title: 'erxes',
