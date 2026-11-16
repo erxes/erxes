@@ -36,9 +36,11 @@ export const ProjectDetailPage = () => {
 
   if (!projectId) return null;
 
-  const listPath = teamId
-    ? `/operation/team/${teamId}/projects`
-    : '/operation/projects';
+  // Collapse onto the team list only while the project still belongs to it.
+  const listPath =
+    teamId && project?.teamIds?.includes(teamId)
+      ? `/operation/team/${teamId}/projects`
+      : '/operation/projects';
   const panelSearch = createSearchParams({
     panel: getSidePanelRecordPath({
       contentType: PROJECT_CONTENT_TYPE,
