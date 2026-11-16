@@ -16,6 +16,12 @@ export const AUTOMATION_SUBJECTS = [...CONTENT_TYPES, 'any'] as const;
 /** Records custom fields attach to: contacts, and the shared product catalog. */
 export const FIELD_CONTENT_TYPES = [...CONTENT_TYPES, 'product'] as const;
 
+/**
+ * A plugin's own record type custom fields are defined for, `<plugin>.<type>`
+ * (`operation.task`). Core keeps the definitions; the plugin keeps the values.
+ */
+export const PLUGIN_RECORD_TYPE = String.raw`^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$`;
+
 export const CUSTOMER_STATES = ['lead', 'customer'] as const;
 
 /** ISO/IEC 5218: not known, male, female, not applicable. */

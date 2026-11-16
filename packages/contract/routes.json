@@ -1363,6 +1363,16 @@
           "path": "/fields/plugin-values"
         }
       }
+    },
+    "check": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/fields/check"
+        }
+      }
     }
   },
   "files": {

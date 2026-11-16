@@ -1,6 +1,7 @@
-import { FIELD_CONTENT_TYPES, FIELD_TYPES, FIELD_VALIDATIONS } from '../enums';
+import { FIELD_CONTENT_TYPES, FIELD_TYPES, FIELD_VALIDATIONS, PLUGIN_RECORD_TYPE } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   boolean,
   check,
   foreignKey,
@@ -11,9 +12,13 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
-import { createdAt, updatedAt } from './common';
+import { createdAt, type PropertyContentType, updatedAt } from './common';
 import { organizations } from './organizations';
 import { plugins } from './plugins';
+
+/** One of core's records (`FIELD_CONTENT_TYPES`) or a plugin's, `<plugin>.<type>`. */
+const propertyContentType = (column: AnyPgColumn) =>
+  sql`${inList(column, FIELD_CONTENT_TYPES)} OR ${column} ~ ${sql.raw(`'${PLUGIN_RECORD_TYPE}'`)}`;
 
 /**
  * Groups that properties of a record type are organised in (old erxes field
@@ -24,7 +29,7 @@ export const fieldGroups = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    contentType: text({ enum: FIELD_CONTENT_TYPES }).notNull(),
+    contentType: text().$type<PropertyContentType>().notNull(),
     name: text().notNull(),
     code: text().notNull(),
     description: text(),
@@ -45,20 +50,21 @@ export const fieldGroups = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_field_groups_org_id_fkey',
     }).onDelete('cascade'),
-    check('core_field_groups_content_type_check', inList(table.contentType, FIELD_CONTENT_TYPES)),
+    check('core_field_groups_content_type_check', propertyContentType(table.contentType)),
   ],
 );
 
 /**
- * Custom fields ("properties") an organisation adds to customers, companies
- * or products. Values live in core_<type>_field_values.
+ * Custom fields ("properties") an organisation adds to customers, companies,
+ * products or a plugin's record type. Core's records keep values in
+ * core_<type>_field_values; a plugin keeps its records' values itself.
  */
 export const fields = pgTable(
   'fields',
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    contentType: text({ enum: FIELD_CONTENT_TYPES }).notNull(),
+    contentType: text().$type<PropertyContentType>().notNull(),
     /** The group it is listed in; fields made before groups have none. */
     groupId: text(),
     label: text().notNull(),
@@ -122,7 +128,7 @@ export const fields = pgTable(
       foreignColumns: [fieldGroups.id],
       name: 'core_fields_group_id_fkey',
     }).onDelete('set null'),
-    check('core_fields_content_type_check', inList(table.contentType, FIELD_CONTENT_TYPES)),
+    check('core_fields_content_type_check', propertyContentType(table.contentType)),
     check('core_fields_type_check', inList(table.type, FIELD_TYPES)),
     check(
       'core_fields_validation_check',

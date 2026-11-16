@@ -90,6 +90,8 @@ export type {
   ContentType,
   CustomerLoginKind,
   FieldContentType,
+  PluginRecordType,
+  PropertyContentType,
   CustomValue,
   OrganizationSettings,
 } from './schema';

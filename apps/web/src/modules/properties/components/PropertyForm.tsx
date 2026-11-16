@@ -1,4 +1,4 @@
-import type { FieldContentType, FieldGroup, FieldType, FieldUsage } from '@erxes/core-contract';
+import type { PropertyContentType, FieldGroup, FieldType, FieldUsage } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,7 +21,7 @@ const PropertyFormGroupField = ({
   contentType,
 }: {
   form: PropertyFormApi;
-  contentType: FieldContentType;
+  contentType: PropertyContentType;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const client = useQueryClient();
@@ -228,7 +228,7 @@ export const PropertyForm = ({
   defaultValues: IPropertyForm;
   isEdit?: boolean;
   onCancel: () => void;
-  contentType: FieldContentType;
+  contentType: PropertyContentType;
   fieldId?: string;
   usage?: FieldUsage;
   usageLoading?: boolean;

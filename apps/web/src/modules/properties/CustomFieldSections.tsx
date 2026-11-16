@@ -1,4 +1,4 @@
-import type { CustomValue, FieldContentType } from '@erxes/core-contract';
+import type { CustomValue, PropertyContentType } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
 import { Button, Collapsible, Empty, Spinner, buttonVariants, PanelField } from 'erxes-ui';
 import type { ReactNode } from 'react';
@@ -10,7 +10,7 @@ import { CustomFieldCell } from './CustomFieldCell';
 import { FIELD_TYPES_OBJECT } from './fieldTypes';
 import { useFields } from './useFields';
 
-const EmptyProperties = ({ contentType }: { contentType: FieldContentType }) => {
+const EmptyProperties = ({ contentType }: { contentType: PropertyContentType }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
   return (
@@ -45,7 +45,7 @@ export const CustomFieldSections = ({
   onSave,
   empty = <EmptyProperties contentType={contentType} />,
 }: {
-  contentType: FieldContentType;
+  contentType: PropertyContentType;
   /** Hotkey scope prefix, unique to the record on screen. */
   scope: string;
   values: Record<string, CustomValue> | undefined;

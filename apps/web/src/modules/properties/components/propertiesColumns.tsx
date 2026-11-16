@@ -1,4 +1,4 @@
-import { type Field, FieldContentType } from '@erxes/core-contract';
+import { type Field, PropertyContentType } from '@erxes/core-contract';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import type { RecordTableColumnDef } from 'erxes-ui';
 import { Checkbox, DropdownMenu, RecordTable, RecordTableInlineCell, Switch } from 'erxes-ui';
@@ -16,7 +16,7 @@ import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 /** What a field's edit page path needs; a row parses this, not the whole field. */
 export const FieldLocation = z.object({
   id: z.string(),
-  contentType: FieldContentType,
+  contentType: PropertyContentType,
   groupId: z.string().nullable(),
   /** A plugin's field has no edit page. */
   plugin: z.string().nullable(),

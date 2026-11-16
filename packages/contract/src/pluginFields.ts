@@ -1,7 +1,7 @@
 import { CONTENT_TYPES, PLUGIN_FIELD_TYPES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { Id } from './common';
+import { CustomFields, CustomFieldsPatch, Id, PluginRecordType } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 
 /** The most fields one plugin declares on core records. */
@@ -86,4 +86,20 @@ export const pluginFieldsContract = {
         skipped: z.array(Id),
       }),
     ),
+  check: base
+    .route({
+      method: 'POST',
+      path: '/fields/check',
+      summary:
+        "Apply a patch to a record's custom field values, for a plugin that keeps them (its own `<plugin>.<type>`): the values to save, checked and trimmed; null or empty clears one. Core stores nothing. 400 INVALID_FIELD for a field not of that type or archived, INVALID_FIELD_VALUE for a value that doesn't fit; 403 NOT_ALLOWED for another plugin's type",
+    })
+    .input(
+      z.object({
+        contentType: PluginRecordType,
+        /** The record's values as the plugin keeps them now. */
+        current: CustomFields,
+        patch: CustomFieldsPatch,
+      }),
+    )
+    .output(z.object({ values: CustomFields })),
 };

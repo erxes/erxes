@@ -1,4 +1,4 @@
-import type { FieldContentType } from '@erxes/core-contract';
+import type { PropertyContentType } from '@erxes/core-contract';
 import { ScrollArea } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { PropertiesSidebar } from './PropertiesSidebar';
@@ -8,7 +8,7 @@ export const PropertiesLayout = ({
   header,
   children,
 }: {
-  types: readonly FieldContentType[];
+  types: readonly PropertyContentType[];
   header: ReactNode;
   children: ReactNode;
 }) => (

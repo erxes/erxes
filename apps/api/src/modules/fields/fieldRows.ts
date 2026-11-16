@@ -1,5 +1,6 @@
+import { isCoreFieldType } from '@erxes/core-contract';
 import {
-  type FieldContentType,
+  type PropertyContentType,
   type Db,
   fieldGroups,
   fields,
@@ -10,6 +11,7 @@ import { and, eq, getTableColumns, inArray, isNotNull, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { oneRow } from '~/lib/rows';
+import { installedPlugin } from '~/modules/plugins/installedPlugin';
 import { valuesTable } from './fieldValues';
 
 export type FieldRow = typeof fields.$inferSelect;
@@ -80,12 +82,30 @@ export const findGroup = async (client: Db, id: string) => {
 export const fieldsOfGroup = (client: Db, groupId: string) =>
   client.select().from(fields).where(eq(fields.groupId, groupId));
 
-/** Each content type's values table, with the ids of `rows` of that type. */
+/**
+ * Each core content type's values table, with the ids of `rows` of that type. Fields of a
+ * plugin's record type have none: the plugin keeps their values, so core counts none of them.
+ */
 const byValuesTable = (rows: Pick<FieldRow, 'id' | 'contentType'>[]) =>
-  unique(rows.map((row) => row.contentType)).map((contentType) => ({
-    values: valuesTable(contentType),
-    ids: rows.filter((row) => row.contentType === contentType).map((row) => row.id),
-  }));
+  unique(rows.map((row) => row.contentType))
+    .filter(isCoreFieldType)
+    .map((contentType) => ({
+      values: valuesTable(contentType),
+      ids: rows.filter((row) => row.contentType === contentType).map((row) => row.id),
+    }));
+
+/**
+ * Fields and groups go on core's records, or on a record type of a plugin this organisation has
+ * installed and running (400 `PLUGIN_NOT_INSTALLED`).
+ */
+export const assertPropertyType = async (client: Db, contentType: PropertyContentType) => {
+  if (isCoreFieldType(contentType)) return;
+
+  const [plugin] = contentType.split('.');
+
+  if (!(await installedPlugin(client, plugin ?? '')))
+    throw fail('PLUGIN_NOT_INSTALLED', `No installed plugin keeps ${contentType} records`);
+};
 
 /** Records holding a value of any of `rows` (one query across content types). */
 export const usageOf = async (client: Db, rows: Pick<FieldRow, 'id' | 'contentType'>[]) => {
@@ -143,7 +163,7 @@ export const optionCounts = async (client: Db, rows: FieldRow[]) => {
 export const nextOrder = async (
   client: Db,
   table: typeof fields | typeof fieldGroups,
-  contentType: FieldContentType,
+  contentType: PropertyContentType,
 ) => {
   const [last] = await client
     .select({ order: sql<number>`coalesce(max(${table.order}), -1)` })

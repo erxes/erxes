@@ -1,10 +1,11 @@
-import { paths } from '~/lib/paths';
+import { paths, propertyPaths } from '~/lib/paths';
 import {
   IconBellCog,
   IconCash,
   IconChevronLeft,
   IconCloudUpload,
   IconApps,
+  IconHierarchy2,
   IconLock,
   IconMoodSmile,
   IconPlugConnected,
@@ -26,6 +27,7 @@ import { Children, type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCan } from '~/modules/auth/session';
+import { pluginPropertyTypes } from '~/modules/plugins/pluginProperties';
 import { pluginName, usePluginText } from '~/modules/plugins/pluginText';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { usePlan } from '~/modules/saas/usePlan';
@@ -183,21 +185,35 @@ const useSettingsAssistantPaths = (): SettingsPath[] => {
  * The pages are the plugin's own routes, so opening one leaves settings for the plugin.
  */
 function PluginSettingsGroups() {
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { plugins } = usePlugins();
   const text = usePluginText();
+  const propertyTypes = pluginPropertyTypes(plugins);
 
-  return plugins.map(({ remote, config }) => (
-    <SettingsNavigationGroup key={remote} name={pluginName(text, config.name)}>
-      {config.settings.map((page) => (
-        <NavigationMenuLinkItem
-          key={page.path}
-          to={page.path}
-          name={text(config.name, page.label)}
-          icon={page.icon ?? config.icon ?? IconApps}
-        />
-      ))}
-    </SettingsNavigationGroup>
-  ));
+  return plugins.map(({ remote, config }) => {
+    // Core draws the properties of the plugin's record types: one entry, on its first type.
+    const properties = propertyTypes.find((entry) => entry.plugin === config.name);
+
+    return (
+      <SettingsNavigationGroup key={remote} name={pluginName(text, config.name)}>
+        {config.settings.map((page) => (
+          <NavigationMenuLinkItem
+            key={page.path}
+            to={page.path}
+            name={text(config.name, page.label)}
+            icon={page.icon ?? config.icon ?? IconApps}
+          />
+        ))}
+        {properties && (
+          <NavigationMenuLinkItem
+            to={propertyPaths(properties.type).list}
+            name={t('properties', 'Properties')}
+            icon={IconHierarchy2}
+          />
+        )}
+      </SettingsNavigationGroup>
+    );
+  });
 }
 
 /** Exit, the member's own account first, then the workspace settings, the assistant's, then the plugins'. */

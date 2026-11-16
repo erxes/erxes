@@ -63,7 +63,12 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the
      expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
      relation tabs and `activity` for core's timeline
-     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). `relationTabs` show on core's
+     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). A type's `properties`
+     (`TRecordProperties`: `type` as `<name>.<thing>`, `values(id)` query options, `save(id, patch)`)
+     give it custom fields: core keeps their definitions (`fields.*` and `fieldGroups.*` take
+     `<plugin>.<type>` while that plugin is installed, else 400 `PLUGIN_NOT_INSTALLED`), draws a
+     Properties tab and a Properties entry in the plugin's settings group, and the plugin keeps
+     the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on core's
      customers and companies, and on the record types with `contacts` that their `hosts` name
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed

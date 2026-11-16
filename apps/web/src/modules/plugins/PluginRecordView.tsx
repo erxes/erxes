@@ -1,4 +1,4 @@
-import { IconHistory, IconId } from '@tabler/icons-react';
+import { IconHierarchy2, IconHistory, IconId } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
   Spinner,
@@ -17,11 +17,14 @@ import type { IRecordViewProps } from '~/modules/side-panel/recordView';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
 import { useSidePanel, useSidePanelDraft } from '~/modules/side-panel/useSidePanel';
 import { PluginBoundary } from './PluginBoundary';
+import { propertiesOf } from './pluginProperties';
+import { PluginRecordProperties } from './PluginRecordProperties';
 import { usePluginRelationTabs } from './PluginRelationTabs';
 import { usePluginText } from './pluginText';
 import { usePluginRecordType } from './usePluginRecordType';
 
 const DETAIL_TAB = 'detail';
+const PROPERTIES_TAB = 'properties';
 const ACTIVITY_TAB = 'activity';
 
 /** One of the plugin's slots, kept apart if it crashes; the rest of the panel stays. */
@@ -53,8 +56,9 @@ const useRecordContacts = (type: TPanelRecordType, contentId: string) => {
 };
 
 /**
- * Detail, the type's own tabs, every allowed plugin's relation tabs, then Activity: the order
- * a customer's tabs have. A type's tab `after: 'activity'` goes last.
+ * Detail, the type's own tabs, Properties (when it has `properties`), every allowed plugin's
+ * relation tabs, then Activity: the order a customer's tabs have. A type's tab
+ * `after: 'activity'` goes last.
  */
 const useRecordTabs = (
   plugin: string,
@@ -66,6 +70,7 @@ const useRecordTabs = (
   const relationTabs = usePluginRelationTabs({ ...record, contacts });
   const text = usePluginText();
   const own = type.tabs ?? [];
+  const properties = propertiesOf(plugin, type);
 
   const ownTab = (tab: TRecordTab): IRecordSidePanelTab => ({
     value: tab.value,
@@ -90,6 +95,16 @@ const useRecordTabs = (
       ),
     },
     ...own.filter((tab) => tab.after !== 'activity').map(ownTab),
+    ...(properties
+      ? [
+          {
+            value: PROPERTIES_TAB,
+            label: t('properties', 'Properties'),
+            icon: IconHierarchy2,
+            content: <PluginRecordProperties type={properties} contentId={record.contentId} />,
+          },
+        ]
+      : []),
     ...relationTabs,
     ...(type.activity
       ? [

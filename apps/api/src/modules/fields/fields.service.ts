@@ -1,5 +1,12 @@
 import { FIELD_TYPE_FAMILIES } from '@erxes/core-contract';
-import { caller, type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
+import {
+  caller,
+  type PropertyContentType,
+  type Db,
+  fieldGroups,
+  fields,
+  newId,
+} from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail, notFound } from '~/http/errors';
@@ -8,6 +15,7 @@ import { lockRows } from '~/lib/locks';
 import { oneRow, setOrders } from '~/lib/rows';
 import {
   assertMemberField,
+  assertPropertyType,
   type FieldRow,
   type FieldType,
   fieldsOfGroup,
@@ -42,7 +50,7 @@ const findField = async (client: Db, id: string) => {
 /** A group a field of `contentType` may be put in: same organisation and type, not archived. */
 const checkGroup = async (
   client: Db,
-  contentType: FieldContentType,
+  contentType: PropertyContentType,
   groupId: string | null | undefined,
 ) => {
   if (!groupId) {
@@ -62,14 +70,30 @@ const checkGroup = async (
   }
 };
 
+/**
+ * Plugins read product fields (with `products:read`) to show product values, and their own
+ * record types' fields, whose values they keep; contacts' fields stay members'.
+ */
+const assertPluginReads = (contentType: PropertyContentType) => {
+  const who = caller();
+
+  if (who.type !== 'plugin' || contentType.startsWith(`${who.plugin}.`)) return;
+
+  if (contentType !== 'product')
+    throw fail('NOT_ALLOWED', 'Plugins read product fields and their own record types only');
+
+  if (!who.scopes.includes('products:read'))
+    throw fail(
+      'SCOPE_REQUIRED',
+      "This needs the products:read scope, which this installation hasn't granted",
+    );
+};
+
 export const listFields = async (
   client: Db,
-  input: { contentType: FieldContentType; groupId?: string; archived?: boolean },
+  input: { contentType: PropertyContentType; groupId?: string; archived?: boolean },
 ) => {
-  // Plugins read product fields (with products:read) to show product values; contacts' fields stay members'.
-  if (caller().type === 'plugin' && input.contentType !== 'product') {
-    throw fail('NOT_ALLOWED', 'Plugins read product fields only');
-  }
+  assertPluginReads(input.contentType);
 
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
@@ -115,7 +139,7 @@ export const fieldUsage = async (client: Db, input: { ids?: string[]; groupId?: 
 export const createField = async (
   client: Db,
   input: {
-    contentType: FieldContentType;
+    contentType: PropertyContentType;
     label: string;
     type: FieldType;
     options?: string[];
@@ -127,6 +151,7 @@ export const createField = async (
     isVisible?: boolean;
   },
 ) => {
+  await assertPropertyType(client, input.contentType);
   await checkGroup(client, input.contentType, input.groupId);
 
   const order = await nextOrder(client, fields, input.contentType);
@@ -288,12 +313,15 @@ export const removeUnusedFields = async (client: Db, ids: string[]) => {
   return { ok: true as const };
 };
 
-/** Deletes the field and its values on every record. */
+/**
+ * Deletes the field and its values on every record. A field of a plugin's record type has no
+ * values here (the plugin keeps them), so only its definition goes.
+ */
 export const removeField = async (client: Db, id: string) => {
   await lockRows(client, 'core_fields', [id]);
 
   assertMemberField(await findField(client, id));
-  // Its values go with it (foreign key).
+  // Core records' values go with it (foreign key).
   await client.delete(fields).where(eq(fields.id, id));
 
   return { ok: true as const };

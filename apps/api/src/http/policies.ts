@@ -183,8 +183,8 @@ export const ACCESS = {
   'fieldGroups.restore': needs('properties.manage'),
   'fieldGroups.remove': needs('properties.manage'),
 
-  // Plugins read product fields only (the service refuses the rest).
-  'fields.list': { member: 'any', plugin: 'products:read' },
+  // Plugins read product fields (with products:read) and their own record types' (the service checks).
+  'fields.list': { member: 'any', plugin: 'installed' },
   'fields.usage': MEMBER,
   'fields.create': needs('properties.manage'),
   'fields.update': needs('properties.manage'),
@@ -195,6 +195,8 @@ export const ACCESS = {
   'fields.remove': needs('properties.manage'),
   // A plugin writes its own fields' values (the manifest's `fields`).
   'fields.setPluginValues': { plugin: 'fields:write' },
+  // A plugin checks values of its own record types' fields, which it keeps (the service checks the type).
+  'fields.check': { plugin: 'installed' },
 
   'files.createUpload': { member: 'any', plugin: 'files:write' },
   'files.complete': { member: 'any', plugin: 'files:write' },

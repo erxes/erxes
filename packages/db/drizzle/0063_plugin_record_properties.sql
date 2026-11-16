@@ -1,0 +1,4 @@
+ALTER TABLE "core_field_groups" DROP CONSTRAINT "core_field_groups_content_type_check";--> statement-breakpoint
+ALTER TABLE "core_fields" DROP CONSTRAINT "core_fields_content_type_check";--> statement-breakpoint
+ALTER TABLE "core_field_groups" ADD CONSTRAINT "core_field_groups_content_type_check" CHECK ("core_field_groups"."content_type" IN ('customer', 'company', 'product') OR "core_field_groups"."content_type" ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$');--> statement-breakpoint
+ALTER TABLE "core_fields" ADD CONSTRAINT "core_fields_content_type_check" CHECK ("core_fields"."content_type" IN ('customer', 'company', 'product') OR "core_fields"."content_type" ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$');

@@ -1,10 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
-import { AssistantAppearancePage } from './assistant/AssistantAppearancePage';
-import { AssistantApprovalsPage } from './assistant/AssistantApprovalsPage';
-import { AssistantCodeModePage } from './assistant/AssistantCodeModePage';
-import { AssistantKeysPage } from './assistant/AssistantKeysPage';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
@@ -20,6 +17,31 @@ import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 import { SecuritySettingsPage } from './profile/SecuritySettingsPage';
 import { SettingsLayout } from './SettingsLayout';
 import { TeamMemberSettingsRoutes } from './team-members/TeamMemberSettingsRoutes';
+
+const PluginPropertiesSettings = lazyNamed(
+  () => import('./properties/PluginPropertiesSettings'),
+  'PluginPropertiesSettings',
+);
+
+const AssistantKeysPage = lazyNamed(
+  () => import('./assistant/AssistantKeysPage'),
+  'AssistantKeysPage',
+);
+
+const AssistantApprovalsPage = lazyNamed(
+  () => import('./assistant/AssistantApprovalsPage'),
+  'AssistantApprovalsPage',
+);
+
+const AssistantCodeModePage = lazyNamed(
+  () => import('./assistant/AssistantCodeModePage'),
+  'AssistantCodeModePage',
+);
+
+const AssistantAppearancePage = lazyNamed(
+  () => import('./assistant/AssistantAppearancePage'),
+  'AssistantAppearancePage',
+);
 
 /** Everything under `/settings/*` (mount as `<Route path="settings/*" element={<SettingsRoutes />} />`). */
 export const SettingsRoutes = () => (
@@ -44,6 +66,7 @@ export const SettingsRoutes = () => (
       <Route path="assistant-approvals" element={<AssistantApprovalsPage />} />
       <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
       <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
+      <Route path="properties/*" element={<PluginPropertiesSettings />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

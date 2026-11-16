@@ -1,4 +1,4 @@
-import type { FieldContentType } from '@erxes/core-contract';
+import type { PropertyContentType } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -139,7 +139,7 @@ export const usePropertyRestore = () => {
 };
 
 /** Saves a new order (optimistically): `orders` are the moved items' new positions. */
-export const useReorder = (kind: 'fields' | 'groups', contentType: FieldContentType) => {
+export const useReorder = (kind: 'fields' | 'groups', contentType: PropertyContentType) => {
   const client = useQueryClient();
   const refresh = usePropertiesRefresh();
   const { onError } = useFeedback();

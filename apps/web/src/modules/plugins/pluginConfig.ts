@@ -7,6 +7,7 @@ import {
   type TPluginSettingsPage,
   type TRecordContacts,
   type TRecordDraftProps,
+  type TRecordProperties,
   type TRecordSection,
   type TRecordSectionProps,
   type TRecordSlotProps,
@@ -14,6 +15,7 @@ import {
   type TRelationTab,
   type TRelationTabProps,
 } from 'erxes-ui';
+import { PluginRecordType } from '@erxes/core-contract';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ComponentType, ElementType } from 'react';
 import { z } from 'zod';
@@ -141,6 +143,16 @@ const recordTypeSchema = (name: string, path: string) => {
       )
       .optional(),
     activity: z.string().min(1).optional(),
+    properties: z
+      .object({
+        type: PluginRecordType.refine(
+          (type) => type.startsWith(`${name.toLowerCase()}.`),
+          `does not start with "${name}."`,
+        ),
+        values: z.custom<TRecordProperties['values']>(isFunction),
+        save: z.custom<TRecordProperties['save']>(isFunction),
+      })
+      .optional(),
   }) satisfies z.ZodType<TPanelRecordType>;
 };
 

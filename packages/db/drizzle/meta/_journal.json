@@ -446,8 +446,15 @@
     {
       "idx": 63,
       "version": "7",
-      "when": 1794821139594,
-      "tag": "0063_assistant",
+      "when": 1794820622877,
+      "tag": "0063_plugin_record_properties",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1794822116307,
+      "tag": "0064_assistant",
       "breakpoints": true
     }
   ]

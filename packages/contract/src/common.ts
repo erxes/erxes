@@ -102,6 +102,26 @@ export const FieldContentType = z.enum(FIELD_CONTENT_TYPES);
 
 export type FieldContentType = z.infer<typeof FieldContentType>;
 
+/** A name part of a plugin record type: lower case letters, digits and `_`. */
+const recordTypePart = z.string().regex(/^[a-z][a-z0-9_]*$/);
+
+/**
+ * A plugin's own record type, `<plugin>.<type>` (`operation.task`): core keeps
+ * its custom field definitions, the plugin keeps the values.
+ */
+export const PluginRecordType = z.templateLiteral([recordTypePart, '.', recordTypePart]);
+
+export type PluginRecordType = z.infer<typeof PluginRecordType>;
+
+/** What custom fields are defined for: one of core's records, or a plugin's record type. */
+export const PropertyContentType = z.union([FieldContentType, PluginRecordType]);
+
+export type PropertyContentType = z.infer<typeof PropertyContentType>;
+
+/** One of core's records, whose custom field values core keeps (in `core_<type>_field_values`). */
+export const isCoreFieldType = (type: PropertyContentType): type is FieldContentType =>
+  FieldContentType.safeParse(type).success;
+
 /** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
 export const CustomValue = z.union([
   z.string().max(5000),
