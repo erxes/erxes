@@ -54,8 +54,9 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   Save. Dialogs are for confirmations, not forms.
 - Text uses `t(key, 'English default')` from `react-i18next`. Core shows the config's words (the
   app's name, tab labels, section titles) in the member's language by looking them up in the
-  plugin's namespace, its `name`, with the English as the key. Add them from `config.tsx` with
-  `getI18n().addResourceBundle('mn', name, { Deals: 'Хэлцэл' }, true, true)`.
+  plugin's namespace, its `name`, with the English as the key. Add them from `src/config.tsx`
+  with react-i18next's getI18n and i18next's addResourceBundle, so they are there before core
+  draws them.
 - Development: `pnpm dev:ui` serves `http://localhost:__uiPort__/remoteEntry.js`;
   web loads it from the manifest's `UI_ENTRY_URL` or from its own
   `PUBLIC_PLUGINS=__id___ui@http://localhost:__uiPort__/remoteEntry.js`.
