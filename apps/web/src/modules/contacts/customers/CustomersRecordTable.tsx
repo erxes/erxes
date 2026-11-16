@@ -14,6 +14,7 @@ export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
       columns={useCustomersColumns(state)}
       stickyColumns={stickyWithStage(['more', 'checkbox', 'avatar', 'name'], state === 'lead')}
       tableId={state === 'lead' ? 'leads_record_table' : 'customers_record_table'}
+      recordType={state}
     >
       <CustomersCommandBar rows={cursor.list} />
     </CursorRecordTable>

@@ -3,6 +3,7 @@ import {
   type InfiniteData,
   type QueryClient,
   type QueryKey,
+  keepPreviousData,
   type UseInfiniteQueryOptions,
   useInfiniteQuery,
 } from '@tanstack/react-query';
@@ -84,6 +85,8 @@ export const useCursorList = <T extends { id: string }>({
   });
 
   let { start } = opened;
+  // New filters on the same list keep its rows until theirs arrive; another list starts blank.
+  const sameList = opened.sessionKey === sessionKey;
 
   // Other filters (or another list) start from the top.
   if (opened.sessionKey !== sessionKey || opened.filtersKey !== filtersKey) {
@@ -100,8 +103,8 @@ export const useCursorList = <T extends { id: string }>({
 
   const forward = forwardPaging(limit);
 
-  const query = useInfiniteQuery(
-    options({
+  const query = useInfiniteQuery({
+    ...options({
       initialPageParam: start
         ? { limit, cursor: start, direction: 'forward', cursorMode: 'inclusive' }
         : forward.initialPageParam,
@@ -116,7 +119,8 @@ export const useCursorList = <T extends { id: string }>({
             }
           : undefined,
     }),
-  );
+    placeholderData: sameList ? keepPreviousData : undefined,
+  });
 
   const pages = query.data?.pages ?? [];
 

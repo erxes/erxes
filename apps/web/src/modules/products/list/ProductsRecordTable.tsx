@@ -57,6 +57,7 @@ export const ProductsRecordTable = () => {
       columns={useProductsColumns()}
       stickyColumns={['more', 'image', 'name']}
       tableId="products_record_table"
+      recordType="product"
       empty={filtered ? <EmptyList /> : <NoProducts />}
     />
   );
