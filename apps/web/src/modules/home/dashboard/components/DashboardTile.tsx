@@ -1,7 +1,8 @@
 import { IconGripVertical, IconX } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
-import type { PointerEvent } from 'react';
+import { Button, Spinner } from 'erxes-ui';
+import { type PointerEvent, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DashboardWidgetCard } from '../../components/DashboardWidgetCard';
 import { useDashboard } from '../context/DashboardProvider';
 import { useDashboardWidgetText } from '../hooks/useDashboardWidgetText';
 import type {
@@ -78,11 +79,30 @@ export const DashboardTile = ({
   handlers?: TDashboardTileHandlers;
 }) => {
   const { Component } = widget;
+  const getText = useDashboardWidgetText();
+
+  // A plugin's widget may be lazy.
+  const content = (
+    <Suspense
+      fallback={
+        <div className="flex h-full items-center justify-center">
+          <Spinner size="sm" />
+        </div>
+      }
+    >
+      <Component />
+    </Suspense>
+  );
 
   return (
     <div className="relative h-full">
       <DashboardTileErrorBoundary>
-        <Component />
+        {/* Core frames a plugin's widget, so every tile has the same header */}
+        {widget.plugin ? (
+          <DashboardWidgetCard title={getText(widget).label}>{content}</DashboardWidgetCard>
+        ) : (
+          content
+        )}
       </DashboardTileErrorBoundary>
       {handlers && <DashboardTileEditOverlay item={item} widget={widget} handlers={handlers} />}
     </div>

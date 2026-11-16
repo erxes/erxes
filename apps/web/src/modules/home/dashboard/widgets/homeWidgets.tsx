@@ -6,6 +6,7 @@ import {
   IconLayoutGrid,
   IconUsers,
 } from '@tabler/icons-react';
+import type { TDashboardWidget } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { HomeApps } from '../../components/HomeApps';
 import { HomeContactsOverview } from '../../components/HomeContactsOverview';
@@ -112,6 +113,31 @@ export const DASHBOARD_WIDGETS: TDashboardWidgetDefinition[] = [
   ...LEAD_REPORT_WIDGETS,
 ];
 
-export const DASHBOARD_WIDGETS_BY_TYPE = new Map(
-  DASHBOARD_WIDGETS.map((widget) => [widget.type, widget]),
-);
+const PLUGIN_WIDGET_SIZE = { w: 6, h: 6 };
+
+/** A plugin's `dashboardWidgets` entry as a catalog widget, grouped under the plugin. */
+export const pluginDashboardWidget = (
+  plugin: string,
+  {
+    name,
+    title,
+    description,
+    icon,
+    preview,
+    size = PLUGIN_WIDGET_SIZE,
+    component,
+  }: TDashboardWidget,
+): TDashboardWidgetDefinition => ({
+  type: `${plugin}:${name}`,
+  plugin,
+  group: `plugin:${plugin}`,
+  ns: plugin,
+  labelKey: title,
+  descriptionKey: description,
+  icon,
+  preview,
+  singleton: true,
+  defaultSize: size,
+  minSize: { w: Math.min(size.w, 3), h: Math.min(size.h, 3) },
+  Component: component,
+});

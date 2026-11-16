@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePluginText } from '~/modules/plugins/pluginText';
 import { HOME_NS } from '../../i18n';
 import { useDashboard } from '../context/DashboardProvider';
 import type { TDashboardWidgetDefinition } from '../types/dashboardTypes';
@@ -26,6 +27,7 @@ export const useDashboardCatalog = () => {
   const { t } = useTranslation();
   const { widgets, items } = useDashboard();
   const getText = useDashboardWidgetText();
+  const pluginText = usePluginText();
   const [search, setSearch] = useState('');
 
   const groups = useMemo(() => {
@@ -50,16 +52,20 @@ export const useDashboardCatalog = () => {
       byGroup.set(widget.group, entries);
     }
 
-    return [...byGroup.entries()].map(([group, entries]) => {
+    const groupLabel = (group: string, plugin?: string) => {
+      if (plugin) return pluginText(plugin, capitalize(plugin));
+
       const key = GROUP_KEYS[group];
 
-      return {
-        group,
-        label: key ? t(key[1], { ns: key[0] }) : capitalize(group),
-        entries,
-      };
-    });
-  }, [widgets.available, items, search, getText, t]);
+      return key ? t(key[1], { ns: key[0] }) : capitalize(group);
+    };
+
+    return [...byGroup.entries()].map(([group, entries]) => ({
+      group,
+      label: groupLabel(group, entries[0]?.widget.plugin),
+      entries,
+    }));
+  }, [widgets.available, items, search, getText, pluginText, t]);
 
   return { search, setSearch, groups };
 };

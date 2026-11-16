@@ -289,13 +289,12 @@ export { ThemeOption, themeState } from './state/themeState';
 export { SexCode } from './types/SexCode';
 
 export {
+  DASHBOARD_WIDGET_PREVIEWS,
   type IUIConfig,
-  type TActivityRowProps,
+  type TDashboardWidget,
   type TDashboardWidgetPreview,
-  type TPropertyInputMeta,
   type TPanelRecordType,
   type TPluginSettingsPage,
-  type TPropertyInputProps,
   type TRecordContacts,
   type TRecordDraftProps,
   type TRecordSection,

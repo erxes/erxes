@@ -15,6 +15,8 @@ export type TDashboardItem = {
 
 export type TDashboardWidgetDefinition = {
   type: string;
+  // A plugin's widget: its label and description are the plugin's English text, not keys.
+  plugin?: string;
   // Translation keys in `ns`.
   ns: string;
   labelKey: string;
