@@ -282,7 +282,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
-  saved for the first time.
+  saved for the first time. That legacy path renders `FieldsInDetail` with
+  `bare`, so the property groups show without the outer card.
+- The add-deal form's configure-properties action opens
+  `/sales/settings/properties/sales:deal`, the sales settings scope.
 - The deal sheet header's icon-only buttons carry an `aria-label`: Close, and
   Collapse or Expand sidebar, with the `sales` keys `close`, `collapse-sidebar`
   and `expand-sidebar`.
