@@ -1,6 +1,7 @@
 import {
   customerCompanies,
   customerLogins,
+  customerNotifications,
   customers,
   customerSessions,
   db,
@@ -43,11 +44,26 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await copyTags(tx, 'customer', otherIds, keepId);
 
   // They sign in as the kept customer from now on, and stay signed in.
-  const ofOthers = (table: typeof customerLogins | typeof customerSessions) =>
-    inArray(table.customerId, otherIds);
+  const ofOthers = (
+    table: typeof customerLogins | typeof customerSessions | typeof customerNotifications,
+  ) => inArray(table.customerId, otherIds);
 
   await tx.update(customerLogins).set({ customerId: keepId }).where(ofOthers(customerLogins));
   await tx.update(customerSessions).set({ customerId: keepId }).where(ofOthers(customerSessions));
+  // Their inboxes too; a retry key both had keeps the kept customer's copy.
+  await tx.execute(sql`
+    DELETE FROM ${customerNotifications} other
+    USING ${customerNotifications} kept
+    WHERE other.customer_id IN (${sql.join(
+      otherIds.map((id) => sql`${id}`),
+      sql`, `,
+    )})
+      AND kept.customer_id = ${keepId} AND kept.dedupe_key = other.dedupe_key
+  `);
+  await tx
+    .update(customerNotifications)
+    .set({ customerId: keepId })
+    .where(ofOthers(customerNotifications));
 };
 
 /** The kept customer's columns after the merge. */

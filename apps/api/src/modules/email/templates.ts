@@ -39,6 +39,17 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string(),
     }),
   }),
+  /** A plugin's notification to a customer; the link opens the plugin's customer app. */
+  z.object({
+    to: z.string(),
+    template: z.literal('customer_notification'),
+    data: z.object({
+      organization: z.string(),
+      title: z.string(),
+      body: z.string().nullable(),
+      link: z.string().nullable(),
+    }),
+  }),
   /** A customer's one-time sign-in code. */
   z.object({
     to: z.string(),
@@ -62,6 +73,33 @@ interface EmailContent {
   lines: string[];
   button: z.infer<typeof Button> | null;
 }
+
+/** A notification by email: to a team member (about erxes) or to a customer (from the organisation). */
+const noticeOf = (
+  email: Extract<EmailPayload, { template: 'notification' | 'customer_notification' }>,
+): EmailContent => {
+  const { data } = email;
+  const body = data.body ? [data.body] : [];
+
+  if (email.template === 'customer_notification') {
+    return {
+      subject: data.title,
+      heading: data.title,
+      lines: [...body, `From ${data.organization}.`],
+      button: email.data.link ? { label: 'Open', link: email.data.link } : null,
+    };
+  }
+
+  return {
+    subject: data.title,
+    heading: data.title,
+    lines: [
+      ...body,
+      `${data.organization} on erxes · change what you get by email in Settings › Notifications.`,
+    ],
+    button: { label: 'Open in erxes', link: email.data.link },
+  };
+};
 
 const contentOf = (email: EmailPayload): EmailContent => {
   switch (email.template) {
@@ -107,19 +145,9 @@ const contentOf = (email: EmailPayload): EmailContent => {
       };
     }
 
-    case 'notification': {
-      const { data } = email;
-
-      return {
-        subject: data.title,
-        heading: data.title,
-        lines: [
-          ...(data.body ? [data.body] : []),
-          `${data.organization} on erxes · change what you get by email in Settings › Notifications.`,
-        ],
-        button: { label: 'Open in erxes', link: data.link },
-      };
-    }
+    case 'notification':
+    case 'customer_notification':
+      return noticeOf(email);
 
     case 'sign_in_code': {
       const { data } = email;

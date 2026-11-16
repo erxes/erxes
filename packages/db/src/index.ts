@@ -35,6 +35,7 @@ export {
   customerCompanies,
   customerCodes,
   customerLogins,
+  customerNotifications,
   customerSessions,
   customers,
   customerTags,

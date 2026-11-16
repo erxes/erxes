@@ -9,6 +9,7 @@ import { tickAutomations } from '~/modules/automations/triggers';
 import { pruneEvents } from '~/modules/events/events.service';
 import { pruneUploads, purgeDeletedFiles } from '~/modules/files/files.service';
 import { storage } from '~/modules/files/storage';
+import { pruneCustomerNotifications } from '~/modules/customerNotifications/customerNotifications.service';
 import { pruneNotifications } from '~/modules/notifications/inbox.service';
 import { refreshAllEntitlements } from '~/modules/saas/entitlements';
 import { defineSchedule } from '~/modules/jobs/jobs';
@@ -37,9 +38,13 @@ const cleanup = async () => {
     pruneAudit(tx, config.retention.auditDays),
   );
 
-  const read = await withSystem('cleanup: notifications', (tx) =>
-    pruneNotifications(tx, config.retention.readNotificationDays),
-  );
+  const read =
+    (await withSystem('cleanup: notifications', (tx) =>
+      pruneNotifications(tx, config.retention.readNotificationDays),
+    )) +
+    (await withSystem('cleanup: customer notifications', (tx) =>
+      pruneCustomerNotifications(tx, config.retention.readNotificationDays),
+    ));
 
   await withSystem('cleanup: webhook deliveries', (tx) =>
     pruneDeliveries(tx, config.retention.eventDays),

@@ -997,6 +997,48 @@
       }
     }
   },
+  "customerNotifications": {
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer-notifications"
+        }
+      }
+    },
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customer/notifications"
+        }
+      }
+    },
+    "unreadCount": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customer/notifications/unread-count"
+        }
+      }
+    },
+    "markRead": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer/notifications/read"
+        }
+      }
+    }
+  },
   "emails": {
     "send": {
       "~orpc": {

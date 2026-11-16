@@ -124,6 +124,11 @@ export const ACCESS = {
   'customerAccount.revokeSession': CUSTOMER,
   'customerAccount.signOutEverywhere': CUSTOMER,
 
+  'customerNotifications.create': { plugin: 'notifications:write' },
+  'customerNotifications.list': CUSTOMER,
+  'customerNotifications.unreadCount': CUSTOMER,
+  'customerNotifications.markRead': CUSTOMER,
+
   'companies.list': { member: 'contacts.view', plugin: 'customers:read' },
   'companies.get': { member: 'contacts.view', plugin: 'customers:read' },
   'companies.create': { member: 'contacts.create', plugin: 'customers:write' },

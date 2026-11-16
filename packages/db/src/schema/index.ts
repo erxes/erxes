@@ -50,6 +50,8 @@ export * from './products';
 
 export * from './customerAuth';
 
+export * from './customerNotifications';
+
 export * from './rateLimits';
 
 export * from './orgUnits';

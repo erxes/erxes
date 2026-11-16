@@ -169,6 +169,9 @@ export const NOTIFICATION_DELIVERIES = ['email', 'inbox', 'off'] as const;
 /** How a customer signs in: a code sent to an email address or a phone. */
 export const CUSTOMER_LOGIN_KINDS = ['email', 'phone'] as const;
 
+/** Where a customer notification also goes besides the customer's inbox. */
+export const CUSTOMER_NOTIFICATION_CHANNELS = ['email', 'sms'] as const;
+
 /** What a sign-in code is for: signing in (or up), or adding a login to a signed-in customer. */
 export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
 

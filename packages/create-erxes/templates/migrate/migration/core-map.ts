@@ -54,7 +54,10 @@ export const WHOLE_MODULES: Record<string, Equivalent> = {
   clientPortals: CLIENT_PORTAL,
   clientPortalUsers: CLIENT_PORTAL,
   cpUsers: CLIENT_PORTAL,
-  cpNotifications: CLIENT_PORTAL,
+  cpNotifications: sdk(
+    'customerNotifications.create',
+    'scope notifications:write; customerIds or everyone who signs in, channels email/sms; customers read them at /customer/notifications (decision 45)',
+  ),
 };
 
 /** Starting automations for a record: they start from the events a plugin publishes. */

@@ -33,6 +33,9 @@ export const smsJob = defineJob({
   },
 });
 
-/** Queues a text message in the caller's transaction; the `sms.send` job delivers it. */
-export const sendSms = (client: Db, orgId: string, message: SmsPayload) =>
-  smsJob.enqueue(client, { orgId, payload: message });
+/** Queues text messages in the caller's transaction; the `sms.send` job delivers each. */
+export const sendSms = (client: Db, orgId: string, message: SmsPayload | SmsPayload[]) =>
+  smsJob.enqueueAll(
+    client,
+    (Array.isArray(message) ? message : [message]).map((payload) => ({ orgId, payload })),
+  );

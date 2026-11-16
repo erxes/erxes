@@ -505,6 +505,13 @@
       "when": 1794852581883,
       "tag": "0071_integrations_manage",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1794853825615,
+      "tag": "0072_customer_notifications",
+      "breakpoints": true
     }
   ]
 }
