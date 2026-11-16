@@ -88,6 +88,43 @@ describe('assistant chat (POST /core/v1/assistant/chat)', () => {
     );
   });
 
+  it('stops a reply on request and keeps what it wrote so far', async () => {
+    const words = Array.from({ length: 40 }, (_, index) => `word${index}`).join(' ');
+
+    model.script(() => ({ text: words, delayMs: 50 }));
+
+    const first = await postChat(
+      t.url('/core/v1/assistant/chat'),
+      await t.token(),
+      { message: userMessage('Write a long list'), model: 'kimi-k3' },
+      { stopAfter: (chunk) => chunk.type === 'text-delta' },
+    );
+
+    const threadId = threadIdOf(first.chunks);
+
+    await expect(t.owner().assistant.stopThread({ id: threadId })).resolves.toEqual({
+      stopped: true,
+    });
+
+    await vi.waitFor(
+      async () => {
+        const thread = await t.owner().assistant.thread({ id: threadId });
+        const part = thread.messages[1]?.parts.find((item) => item.type === 'text');
+        const text = String(part?.text);
+
+        expect(thread.running).toBe(false);
+        expect(text).toMatch(/^word0/);
+        expect(words.startsWith(text)).toBe(true);
+        expect(text.length).toBeLessThan(words.length);
+      },
+      { timeout: 5000, interval: 100 },
+    );
+
+    await expect(t.owner().assistant.stopThread({ id: threadId })).resolves.toEqual({
+      stopped: false,
+    });
+  });
+
   it('continues an existing thread and refuses other members on it', async () => {
     model.script(() => ({ text: 'First answer' }));
 
