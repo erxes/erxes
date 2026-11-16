@@ -11,15 +11,13 @@ export const CreateResponse = () => {
     keyPrefix: 'modules.response-template',
   });
   const { id: channelId } = useSettingsParams();
-  const { openRecord, record } = useSidePanel();
+  const { openNewRecord, record } = useSidePanel();
   /** Opens a response template draft scoped to the current channel. */
   const onOpen = () => {
     if (channelId)
-      openRecord(
-        {
-          contentType: RESPONSE_TEMPLATE_CONTENT_TYPE,
-          contentId: `new~${channelId}`,
-        },
+      openNewRecord(
+        RESPONSE_TEMPLATE_CONTENT_TYPE,
+        { channelId },
         { stack: Boolean(record) },
       );
   };

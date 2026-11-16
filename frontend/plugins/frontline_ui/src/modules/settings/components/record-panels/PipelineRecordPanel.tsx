@@ -1,116 +1,24 @@
 import { CreatePipelinePanelForm } from '@/pipelines/components/CreatePipeline';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import {
-  getPipelineRecordId,
+  getPipelinePath,
   parsePipelineRecordId,
-  PIPELINE_TABS,
-  type TPipelineTabSegment,
 } from '@/pipelines/constants/pipelineTabs';
 import { PIPELINE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 import { SettingsPanelContext } from '@/settings/contexts/SettingsPanelContext';
 import { SettingsPanelForm } from '@/settings/components/SettingsPanelForm';
-import { Button, Empty, ScrollArea, Skeleton, Spinner, Tabs } from 'erxes-ui';
-import { lazy, Suspense, useMemo, type ReactNode } from 'react';
+import { Button, Empty, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
 import {
   ActivityLogs,
+  SIDE_PANEL_HISTORY_QUERY_KEY,
+  SIDE_PANEL_QUERY_KEY,
   type IRecordPanelProps,
   useSidePanel,
   useSidePanelDraft,
 } from 'ui-modules';
-
-const PipelineDetailPage = lazy(() =>
-  import('~/pages/PipelineDetailPage').then((module) => ({
-    default: module.PipelineDetailPage,
-  })),
-);
-const PipelinePermissionsPage = lazy(() =>
-  import('~/pages/PipelinePermissionsPage').then((module) => ({
-    default: module.PipelinePermissionsPage,
-  })),
-);
-const PipelinePropertiesPage = lazy(() =>
-  import('~/pages/PipelinePropertiesPage').then((module) => ({
-    default: module.PipelinePropertiesPage,
-  })),
-);
-const PipelineMailPage = lazy(() =>
-  import('~/pages/PipelineMailPage').then((module) => ({
-    default: module.PipelineMailPage,
-  })),
-);
-const PipelineSlaPage = lazy(() =>
-  import('~/pages/PipelineSlaPage').then((module) => ({
-    default: module.PipelineSlaPage,
-  })),
-);
-const PipelineConfigsPage = lazy(() =>
-  import('~/pages/PipelineConfigsPage').then((module) => ({
-    default: module.PipelineConfigsPage,
-  })),
-);
-const TicketStatusesPage = lazy(() =>
-  import('~/pages/TicketStatusesPage').then((module) => ({
-    default: module.TicketStatusesPage,
-  })),
-);
-
-/** Renders pipeline settings tabs and replaces the panel's selected section. */
-const PipelineSettingsSections = ({
-  pipelineId,
-  segment,
-}: {
-  pipelineId: string;
-  segment: TPipelineTabSegment;
-}) => {
-  const { t } = useTranslation('frontline');
-  const { openRecord } = useSidePanel();
-  const sections: Record<TPipelineTabSegment, ReactNode> = {
-    '': <PipelineDetailPage />,
-    statuses: <TicketStatusesPage />,
-    configs: <PipelineConfigsPage />,
-    permissions: <PipelinePermissionsPage />,
-    properties: <PipelinePropertiesPage />,
-    mail: <PipelineMailPage />,
-    sla: <PipelineSlaPage />,
-  };
-  const value = segment || 'general';
-  return (
-    <Tabs
-      className="flex min-h-0 flex-1 flex-col"
-      value={value}
-      onValueChange={(next) =>
-        openRecord(
-          {
-            contentType: PIPELINE_CONTENT_TYPE,
-            contentId: getPipelineRecordId(
-              pipelineId,
-              PIPELINE_TABS.find((tab) => tab.segment === next)?.segment ?? '',
-            ),
-          },
-          { replace: true },
-        )
-      }
-    >
-      <Tabs.List className="h-auto w-full shrink-0 flex-wrap justify-start gap-1 border-b p-2">
-        {PIPELINE_TABS.map((tab) => (
-          <Tabs.Trigger key={tab.labelKey} value={tab.segment || 'general'}>
-            {t(tab.labelKey, tab.defaultLabel ?? tab.labelKey)}
-          </Tabs.Trigger>
-        ))}
-      </Tabs.List>
-      <Tabs.Content
-        value={value}
-        className="m-0 min-h-0 flex-1 overflow-y-auto p-4"
-      >
-        <Suspense fallback={<Spinner containerClassName="py-12" />}>
-          {sections[segment]}
-        </Suspense>
-      </Tabs.Content>
-    </Tabs>
-  );
-};
 
 /** Prompts users to select a channel before creating a pipeline. */
 const PipelineChannelRequired = () => {
@@ -179,6 +87,8 @@ const getPipelinePanelChannelId = (
 /** Resolves pipeline scope and renders its requested settings panel view. */
 export const PipelineRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
   const { t } = useTranslation('frontline');
+  const location = useLocation();
+  const { record } = useSidePanel();
   const parsed = parsePipelineRecordId(contentId);
   const { id: routeChannelId } = useParams<{ id: string }>();
   const draft = useSidePanelDraft<{ channelId: string }>(PIPELINE_CONTENT_TYPE);
@@ -191,7 +101,7 @@ export const PipelineRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
   );
   const panelScope = useMemo(
     () => ({
-      channelId: parsed.isNew ? channelId : (pipeline?.channelId ?? undefined),
+      channelId: parsed.isNew ? channelId : pipeline?.channelId ?? undefined,
       pipelineId: parsed.isNew ? undefined : pipeline?._id,
     }),
     [parsed.isNew, channelId, pipeline?.channelId, pipeline?._id],
@@ -235,14 +145,29 @@ export const PipelineRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
       </ScrollArea>
     );
   }
+  if (
+    record?.contentType !== PIPELINE_CONTENT_TYPE ||
+    record.contentId !== contentId
+  )
+    return null;
+  if (!pipeline.channelId) return <PipelineChannelRequired />;
+  const params = new URLSearchParams(location.search);
+  params.delete(SIDE_PANEL_QUERY_KEY);
+  params.delete(SIDE_PANEL_HISTORY_QUERY_KEY);
+  params.delete('panelExpanded');
   return (
-    <SettingsPanelContext.Provider key={pipeline._id} value={panelScope}>
-      <SettingsPanelForm>
-        <PipelineSettingsSections
-          pipelineId={pipeline._id}
-          segment={parsed.segment}
-        />
-      </SettingsPanelForm>
-    </SettingsPanelContext.Provider>
+    <Navigate
+      to={{
+        pathname: getPipelinePath(
+          pipeline.channelId,
+          pipeline._id,
+          parsed.segment,
+        ),
+        search: params.toString(),
+        hash: location.hash,
+      }}
+      replace
+      state={location.state}
+    />
   );
 };

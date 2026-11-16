@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -108,7 +108,7 @@
   (automation, another user, via `ticketChanged`) into the editor unless it is
   focused or holds an unsaved edit, and marks that change so the debounced
   save does not write it back. Our own saves are recognised by the sent value.
-- Ticket SLA: pipeline settings tab `sla` (`pages/PipelineSlaPage.tsx`,
+- Ticket SLA: pipeline settings section `sla` (`pages/PipelineSlaPage.tsx`,
   `pipelines/components/sla/PipelineSlaPolicy.tsx`, form in
   `pipelines/hooks/usePipelineSlaForm.ts`) edits `slaPolicy` through
   `updatePipeline`; ticket detail shows `TicketSlaStatus` (due, met, warned,
@@ -133,10 +133,35 @@
 - Help Center creation/editing uses the shared record panel, retaining General,
   Appearance, Embed and Domain behavior with scoped in-memory drafts, confirmed
   create continuation and full-config conflict confirmation.
-- Channel/member editors, pipeline settings sections, ticket status and
-  messenger ticket configuration editors, response templates and form
-  submissions open in the shared record panel. Form fields use a local panel
-  that retains the form-builder provider.
+- Personal and team channel detail pages render the icon, name and description
+  fields inline through `UpdateChannelForm`, with the existing Update action,
+  validation, mutation feedback and scoped draft protections.
+  The channel list's name and row Edit actions open the selected channel's
+  full detail page at `/frontline/settings/channels/:id`.
+- Saved pipeline settings render on their full-page routes through
+  `PipelineLayoutPage` and the vertical `PipelineSidebar`: General, Ticket
+  statuses, Configuration, Permissions, Properties, Mail settings and SLA.
+  Pipeline list name/Edit actions, ticket navigation settings links and the
+  new-ticket Edit form link open those pages. Pipeline creation keeps its
+  scoped draft panel and opens the saved page after a successful request.
+- Channel creation and record editors, member editors, pipeline creation,
+  ticket status and messenger ticket configuration editors, response templates
+  and form submissions open in the shared record panel. Form fields use a
+  local panel that retains the form-builder provider.
+  New settings records have no Detail/Activity tabs or fullscreen controls.
+  Saved settings records inherit the host's expand and minimize controls.
+  Channel, pipeline, response template, ticket status and ticket configuration
+  creation use the public `useSidePanel().openNewRecord` contract. Channel,
+  pipeline and status-type scope travels in captured draft defaults, never in
+  a synthetic record ID. Legacy `new~...` settings links normalize through
+  `SettingsRecordPanel` to that same draft contract while preserving scope.
+  Fullscreen headers omit the close button; minimizing restores the docked
+  close button without remounting the editor. Form Cancel actions remain usable.
+  Local form-field and response-export panel headers follow the same rule.
+  Expansion fills the app page while retaining navigation and drafts, with
+  record fields on the left and tabbed content on the right. Expanded channel
+  headers retain the Channels and channel-detail breadcrumbs. Channel edit
+  panels pad and scroll their fields above the pinned action footer.
 
 - Integration creation and editing open `frontline:integration` records through
   the shared side panel. The panel supplies title, actions, Detail and Activity
@@ -148,6 +173,17 @@
   values only after a user edit; its wizard step survives Edit → Add → Edit. Discord
   tokens stay in memory. Messenger keeps its existing preview storage contract
   while preserving each record and create context in separate memory snapshots.
+  Expanded saved-record headers show the Channels and owning-channel
+  breadcrumbs before the integration title, or Personal channel when opened
+  from that settings page.
+  Saved records take their header's channel from loaded integration data.
+- Erxes Messenger creation and editing render in a full-width shared `Sheet`.
+  The six-step editor and live preview stay visible together in resizable
+  columns, initially 40% and 60%. Loading waits for the current draft to be
+  hydrated; Save, Cancel and Close retain the integration record navigation
+  and request-ownership behavior.
+  Retained Messenger records render their modal only while their source panel
+  path is active, so a hidden stack entry cannot cover another record.
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
   new-ticket form (`TicketCreateFormHeader`/`Footer`, chips via
@@ -945,10 +981,12 @@ owns the setup form and connection actions.
   (`src/pages/TicketDetailPage.tsx`, lazy-loaded in `FrontlineMain`) is laid
   out like operation's task page through the public
   `RecordSidePanel expanded expandedMode="page" expandable={false}`: a
-  `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`, then `TicketPageFields`
+  `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`,
+  then `TicketPageFields`
   beside Description, Properties and Activity tabs, the name edited above the
   fields with `TicketPanelName`. Deleting the ticket from the page replaces it
-  with `/frontline/tickets`; a missing ticket shows the panel's empty state. The
+  with `/frontline/tickets`; a missing ticket shows the panel's empty state.
+  The fullscreen ticket page uses its list breadcrumb and has no close button. The
   `./recordPanel` federation expose (`src/widgets/record-panel/RecordPanel.tsx`)
   provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
@@ -1014,14 +1052,19 @@ pipelineIds?, pageIds? } }` (`frontlineDashboardConfig.ts`); view mode turns
   `widgets.recordPanels` and the named `RecordPanel` export at `./recordPanel`.
   `src/widgets/record-panel/RecordPanel.tsx` lazy-loads the settings dispatcher
   in `src/modules/settings/components/record-panels/SettingsRecordPanel.tsx`.
-- Settings draft IDs encode scope with `~`: pipeline `new~channelId`, response
-  `new~channelId`, ticket config `new~channelId~pipelineId`, and status
-  `new~pipelineId~statusType` (an integer category from 1 through 6). Saved pipeline
-  IDs optionally append their section (`pipelineId~properties`, for example).
-  Loaded data takes precedence over encoded scope, draft defaults and route
-  params. `SettingsPanelContext` never borrows a missing scope value from the
-  host route. Pipeline and response legacy-link adapters replace the history
-  entry and preserve unrelated query values, including repeated filters.
+- Settings creation uses literal `new` record IDs and the public draft defaults
+  contract. Legacy `new~channelId`, `new~channelId~pipelineId` and
+  `new~pipelineId~statusType` links normalize only while their title's record is
+  active, preserving channel, pipeline and validated status type (1 through 6).
+  Normalize each legacy source once while router navigation commits. Saved
+  pipeline IDs optionally append their section (`pipelineId~properties`, for
+  example). Loaded data takes precedence over legacy encoded scope, draft
+  defaults and route params. `SettingsPanelContext` never borrows a missing scope value from the
+  host route. Saved pipeline panel Detail links replace their history entry
+  with the corresponding full-page section, resolving the owning channel from
+  loaded data and clearing panel navigation query values. Unrelated query
+  values, including repeated filters, survive. Response legacy-link adapters
+  replace the history entry and preserve unrelated query values.
 
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
@@ -1486,9 +1529,14 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   against its current record; an earlier deletion must not close a newer panel.
 - Settings scope hooks run before title, actions, loading and empty-state
   returns, and record panels memoize their channel/pipeline context values.
-- Encoded settings draft IDs retain the host's Activity tab because the host
-  recognizes only literal `new` as its tab-free draft view. Draft Activity
-  renders a return action rather than an existing-record activity query.
+- Pipeline settings pages retain the loaded pipeline's channel/pipeline scope
+  for every section. General and Mail keep their existing scoped drafts and
+  save ownership when sections are revisited. A legacy saved pipeline panel
+  redirects only while that exact record is active; successful creation
+  navigates only while its originating draft remains active.
+- All settings create entry points, including empty-state actions, use
+  `openNewRecord`. Scope-specific form cache keys stay unchanged so drafts and
+  pending save guards survive reopening through canonical or legacy links.
 - Pipeline Properties keeps the existing wide `Sheet.View` layout editor and
   public `PropertyAddSheet`. `SettingsLocalPanel` uses `RecordSidePanel` for
   nested field editors; its Escape handler defers to open dialogs, menus and
@@ -3379,13 +3427,40 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and the portalled colour picker must retain their normal behavior. Explicit
   Save persists settings. Activity uses the public platform list and its
   loading/empty behavior, including its existing query-error limitation.
+- Settings layout smoke: Personal Channel and a team channel show editable
+  icon/name/description fields and an Update button on the page. Open Messenger
+  Add and Edit; the six-step editor and live preview are visible together,
+  the divider resizes them, and Save, Cancel and Close dismiss the correct
+  integration editor while preserving the existing draft and error behavior.
+- Channel Edit smoke: open a channel from both its list name and row Edit;
+  both load the selected channel's full detail page with its Update form,
+  member and resource links, and integration cards.
+- Panel header smoke: open a channel or integration create panel and confirm
+  Close is available without fullscreen controls, including when a stale URL
+  has `panelExpanded=true`. Complete creation and open the saved record;
+  fullscreen controls must now be available. Expand a channel record and verify
+  the Channels and channel-detail breadcrumbs alongside minimize, with no
+  close button. Repeat
+  for saved integration records, including Telegram. Minimize and
+  verify Close returns while unsaved values remain. Channel fields have padding
+  in docked and expanded views; their footer stays visible while fields scroll.
+  The fullscreen ticket page keeps its list breadcrumb and omits Close.
+  Expanded integration headers retain channel navigation for saved records;
+  minimizing returns to the compact integration title and keeps provider input.
+- Pipeline layout smoke: open a pipeline by its list name and Edit action;
+  verify the page's vertical sidebar opens all seven sections, including SLA.
+  Repeat from the tickets sidebar settings link, new-ticket Edit form link,
+  saved pipeline panel links and successful creation. Revisit General and Mail
+  after editing without saving and confirm their drafts return. Finish a slow
+  create after opening another record; that newer record must remain active.
 - Settings smoke: open channels, pipeline sections, statuses, response
   templates, ticket configs and submissions from lists and legacy links.
   Verify selected-record scope, loading/error states, save/cancel and deletion
   after switching records. Check channel/response/config/pipeline/status/member
-  draft restoration after an Activity switch, dirty field replacement confirmation
-  and nested Escape. Start response creation on a slow connection, switch to
-  Activity and back, and confirm Create remains blocked until that request settles.
+  draft restoration after visiting another record and saved-editor Activity,
+  dirty field replacement confirmation and nested Escape. Start response
+  creation on a slow connection, visit another record and return, and confirm
+  Create remains blocked until that request settles.
   Save channel A, open channel B before A finishes and confirm B stays open;
   input typed after an edit submission must survive its completion. Completed
   creates must clear submitted values even after reopening or typing during save.

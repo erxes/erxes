@@ -1,6 +1,3 @@
-import { getSidePanelRecordPath } from 'ui-modules';
-import { PIPELINE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
-
 export const PIPELINE_TAB_SEGMENTS = {
   general: '',
   statuses: 'statuses',
@@ -70,15 +67,11 @@ export const parsePipelineRecordId = (
   };
 };
 
-/** Builds the channel settings URL that opens a pipeline panel section. */
 export const getPipelinePath = (
   channelId: string,
   pipelineId: string,
   segment: TPipelineTabSegment,
-) => {
-  const panel = getSidePanelRecordPath({
-    contentType: PIPELINE_CONTENT_TYPE,
-    contentId: getPipelineRecordId(pipelineId, segment),
-  });
-  return `/frontline/settings/channels/${channelId}/pipelines?${new URLSearchParams({ panel })}`;
-};
+): string =>
+  `/frontline/settings/channels/${channelId}/pipelines/${pipelineId}${
+    segment ? `/${segment}` : ''
+  }`;

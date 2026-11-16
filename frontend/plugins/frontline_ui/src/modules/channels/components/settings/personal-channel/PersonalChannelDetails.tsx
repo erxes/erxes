@@ -1,4 +1,4 @@
-import { ChannelEditButton } from '@/channels/components/settings/channel-details/ChannelEditButton';
+import { UpdateChannelForm } from '@/channels/components/settings/channel-details/UpdateChannelForm';
 import { useGetPersonalChannel } from '@/channels/hooks/useGetPersonalChannel';
 import { IntegrationList } from '@/integrations/components/IntegrationList';
 import { Skeleton } from 'erxes-ui';
@@ -46,7 +46,7 @@ export const PersonalChannelDetails = () => {
 
       <div className="mt-4 w-full border border-muted-foreground/15 rounded-md shrink-0">
         <section className="w-full p-4">
-          <ChannelEditButton channelId={channel._id} />
+          <UpdateChannelForm channel={channel} />
         </section>
       </div>
 

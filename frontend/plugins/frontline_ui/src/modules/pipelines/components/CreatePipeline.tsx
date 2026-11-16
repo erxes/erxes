@@ -21,8 +21,12 @@ import { useSidePanel } from 'ui-modules';
 import { PIPELINE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { SettingsPanelFooter } from '@/settings/components/SettingsPanelForm';
-import { getPipelineDraftId } from '@/pipelines/constants/pipelineTabs';
-import { useEffect } from 'react';
+import {
+  getPipelineDraftId,
+  getPipelinePath,
+} from '@/pipelines/constants/pipelineTabs';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /** Creates a pipeline within the selected channel's settings panel. */
 export const CreatePipelinePanelForm = ({
@@ -32,7 +36,12 @@ export const CreatePipelinePanelForm = ({
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { toast } = useToast();
-  const { close, openRecord } = useSidePanel();
+  const { close, path } = useSidePanel();
+  const navigate = useNavigate();
+  const activePath = useRef(path);
+  useEffect(() => {
+    activePath.current = path;
+  }, [path]);
   const { addPipeline, loading } = usePipelineAdd();
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -71,7 +80,6 @@ export const CreatePipelinePanelForm = ({
     close();
   };
 
-  /** Saves the pipeline and replaces its draft panel with the saved record. */
   const submit = (data: TCreatePipelineForm) => {
     const saveId = beginSave();
     if (saveId === undefined) return undefined;
@@ -83,15 +91,15 @@ export const CreatePipelinePanelForm = ({
         toast({ title: t('success', 'Success!') });
         completeDraft(() => values);
         markSaved(values);
-        if (!isActive()) return;
+        if (!isActive() || activePath.current !== path) return;
         if (!createPipeline) {
           close();
           return;
         }
-        openRecord(
-          { contentType: PIPELINE_CONTENT_TYPE, contentId: createPipeline._id },
-          { replace: true },
-        );
+        close();
+        navigate(getPipelinePath(channelId, createPipeline._id, ''), {
+          replace: true,
+        });
       },
       onError: (error) => {
         completeDraft((latest) => latest);
@@ -129,14 +137,11 @@ export const CreatePipelinePanelForm = ({
 export const CreatePipeline = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { id: channelId } = useSettingsParams();
-  const { openRecord } = useSidePanel();
+  const { openNewRecord } = useSidePanel();
   /** Opens a pipeline draft scoped to the current settings channel. */
   const open = () => {
     if (!channelId) return;
-    openRecord({
-      contentType: PIPELINE_CONTENT_TYPE,
-      contentId: getPipelineDraftId(channelId),
-    });
+    openNewRecord(PIPELINE_CONTENT_TYPE, { channelId });
   };
   useScopedHotkeys('c', open, PipelineHotkeyScope.PipelineSettingsPage);
 

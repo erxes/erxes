@@ -15,7 +15,7 @@ import { UniqueIdentifier } from '@dnd-kit/core';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
-import { RecordSidePanel } from 'ui-modules';
+import { RecordSidePanel, usePanelExpanded } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { useFormFieldConversion } from '../hooks/useFormFieldConversion';
@@ -90,6 +90,7 @@ export const FormFieldDetail = ({
   handleClose: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  const expanded = usePanelExpanded();
   const conversionText = useFormConversionTranslation();
   const {
     handleChangeField,
@@ -687,7 +688,10 @@ export const FormFieldDetail = ({
 
   return (
     <div className="flex flex-col gap-0 size-full">
-      <RecordSidePanel.Header title={draft?.label} onClose={handleClose} />
+      <RecordSidePanel.Header
+        title={draft?.label}
+        onClose={expanded ? undefined : handleClose}
+      />
       <div className="grow min-h-0 overflow-y-hidden flex flex-col">
         <ScrollArea className="h-full">{fieldControls}</ScrollArea>
       </div>

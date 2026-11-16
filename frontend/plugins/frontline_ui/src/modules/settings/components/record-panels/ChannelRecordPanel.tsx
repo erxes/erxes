@@ -1,12 +1,20 @@
 import { ChannelCreateForm } from '@/channels/components/settings/channels-list/ChannelCreateForm';
+import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
 import { UpdateChannelForm } from '@/channels/components/settings/channel-details/UpdateChannelForm';
 import { useGetChannel } from '@/channels/hooks/useGetChannel';
 import { useChannelPanelHotkeys } from '@/channels/hooks/useChannelPanelHotkeys';
 import { IChannelDetail } from '@/channels/types';
 import { SettingsPanelForm } from '@/settings/components/SettingsPanelForm';
-import { Empty, Skeleton, Spinner } from 'erxes-ui';
+import { IconCircles } from '@tabler/icons-react';
+import { Button, Empty, Separator, Skeleton, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { ActivityLogs, type IRecordPanelProps, useSidePanel } from 'ui-modules';
+import { Link } from 'react-router-dom';
+import {
+  ActivityLogs,
+  type IRecordPanelProps,
+  usePanelExpanded,
+  useSidePanel,
+} from 'ui-modules';
 
 /** Wraps channel creation or editing with panel layout and hotkeys. */
 const ChannelPanelForm = ({ channel }: { channel?: IChannelDetail }) => {
@@ -38,8 +46,25 @@ const ChannelPanelTitle = ({
   isNew: boolean;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
+  const expanded = usePanelExpanded();
   if (loading && !channel) return <Skeleton className="h-4 w-32" />;
-  if (channel) return channel.name;
+  if (channel) {
+    if (!expanded) return channel.name;
+    return (
+      <div className="flex min-w-0 items-center gap-1">
+        <Button variant="ghost" asChild className="shrink-0">
+          <Link to="/frontline/settings/channels">
+            <IconCircles />
+            {t('channels', 'Channels')}
+          </Link>
+        </Button>
+        <Separator.Inline />
+        <div className="min-w-0 truncate">
+          <ChannelDetailBreadcrumb channelId={channel._id} />
+        </div>
+      </div>
+    );
+  }
   return isNew
     ? t('create-channel', 'Create channel')
     : t('not-found', 'Not found');

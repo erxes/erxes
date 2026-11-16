@@ -9,6 +9,7 @@ import {
   ExportFieldSelection,
   RecordSidePanel,
   useExport,
+  usePanelExpanded,
 } from 'ui-modules';
 
 const FORM_SUBMISSION_ENTITY_TYPE = 'frontline:formSubmission.formSubmission';
@@ -20,25 +21,24 @@ type DownloadResponsesActionProps = {
 };
 
 const DownloadResponsesSheet = ({
-  open,
   onOpenChange,
   entityDisplayName,
   onStartExport,
 }: {
-  open: boolean;
   onOpenChange: (open: boolean) => void;
   entityDisplayName: string;
   onStartExport: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  const expanded = usePanelExpanded();
 
   return (
-    <SettingsLocalPanel open={open} onOpenChange={onOpenChange}>
+    <>
       <RecordSidePanel.Header
         title={t('download-responses', {
           defaultValue: 'Download responses',
         })}
-        onClose={() => onOpenChange(false)}
+        onClose={expanded ? undefined : () => onOpenChange(false)}
       />
       <div className="min-h-0 flex-1 p-5 overflow-y-auto">
         <ActiveExports
@@ -47,7 +47,7 @@ const DownloadResponsesSheet = ({
           onStartExport={onStartExport}
         />
       </div>
-    </SettingsLocalPanel>
+    </>
   );
 };
 
@@ -88,12 +88,13 @@ export const DownloadResponsesAction = ({
   return (
     <>
       {children(action)}
-      <DownloadResponsesSheet
-        open={progressOpen}
-        onOpenChange={setProgressOpen}
-        entityDisplayName={entityDisplayName}
-        onStartExport={() => setFieldSelectionOpen(true)}
-      />
+      <SettingsLocalPanel open={progressOpen} onOpenChange={setProgressOpen}>
+        <DownloadResponsesSheet
+          onOpenChange={setProgressOpen}
+          entityDisplayName={entityDisplayName}
+          onStartExport={() => setFieldSelectionOpen(true)}
+        />
+      </SettingsLocalPanel>
       <ExportFieldSelection
         entityType={FORM_SUBMISSION_ENTITY_TYPE}
         open={fieldSelectionOpen}

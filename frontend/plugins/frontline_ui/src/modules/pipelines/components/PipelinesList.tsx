@@ -26,15 +26,17 @@ import { ChannelResourceType } from '@/channels/types';
 import { IPipeline } from '@/pipelines/types';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import {
-  getPipelineDraftId,
+  getPipelinePath,
   parsePipelineRecordId,
 } from '@/pipelines/constants/pipelineTabs';
 import { PIPELINE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import { useSidePanel } from 'ui-modules';
 import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 type PipelineCellProps = {
   cell: Cell<IPipeline, unknown>;
@@ -42,13 +44,15 @@ type PipelineCellProps = {
 
 /** Opens the selected pipeline from its name cell. */
 const PipelineNameCell = ({ cell }: PipelineCellProps) => {
-  const { openRecord } = useSidePanel();
-  const { _id } = cell.row.original;
+  const navigate = useNavigate();
+  const { _id, channelId } = cell.row.original;
+  const { id: routeChannelId } = useSettingsParams();
+  const owningChannelId = channelId || routeChannelId;
 
   return (
     <RecordTableInlineCell
       onClick={() =>
-        openRecord({ contentType: PIPELINE_CONTENT_TYPE, contentId: _id })
+        owningChannelId && navigate(getPipelinePath(owningChannelId, _id, ''))
       }
     >
       <span className="flex items-center gap-2 font-medium">
@@ -95,8 +99,10 @@ const PipelineDeleteItem = ({
 const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const panel = useSidePanel();
-  const { openRecord } = panel;
+  const navigate = useNavigate();
   const { _id, channelId } = cell.row.original;
+  const { id: routeChannelId } = useSettingsParams();
+  const owningChannelId = channelId || routeChannelId;
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const { confirm } = useConfirm();
@@ -139,10 +145,8 @@ const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
           value="edit"
           onSelect={() => {
             setMenuOpen(false);
-            openRecord({
-              contentType: PIPELINE_CONTENT_TYPE,
-              contentId: _id,
-            });
+            if (owningChannelId)
+              navigate(getPipelinePath(owningChannelId, _id, ''));
           }}
         >
           <IconEdit />
@@ -250,7 +254,7 @@ const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
 export const PipelinesList = ({ channelId }: { channelId: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const columns = usePipelineColumns();
-  const { openRecord } = useSidePanel();
+  const { openNewRecord } = useSidePanel();
   const { pipelines, loading } = useGetPipelines({
     variables: {
       filter: { channelId },
@@ -274,12 +278,7 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
         </Empty.Header>
         <Empty.Content>
           <Button
-            onClick={() =>
-              openRecord({
-                contentType: PIPELINE_CONTENT_TYPE,
-                contentId: getPipelineDraftId(channelId),
-              })
-            }
+            onClick={() => openNewRecord(PIPELINE_CONTENT_TYPE, { channelId })}
             type="button"
           >
             <IconPlus />

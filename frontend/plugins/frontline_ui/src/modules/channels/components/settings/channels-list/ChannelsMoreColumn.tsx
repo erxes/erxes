@@ -10,9 +10,8 @@ import {
   Spinner,
   useConfirm,
 } from 'erxes-ui';
-import { useSidePanel } from 'ui-modules';
-import { CHANNEL_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 export const ChannelsMoreColumnCell = ({
   cell,
@@ -21,12 +20,12 @@ export const ChannelsMoreColumnCell = ({
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { _id } = cell.row.original;
-  const { openRecord } = useSidePanel();
+  const navigate = useNavigate();
   const { removeChannel, loading } = useChannelRemove();
   const { confirm } = useConfirm();
 
   const handleEdit = () => {
-    openRecord({ contentType: CHANNEL_CONTENT_TYPE, contentId: _id });
+    navigate(`/frontline/settings/channels/${_id}`);
   };
 
   const handleDelete = () => {

@@ -4,19 +4,29 @@ import {
 } from '@/integrations/components/IntegrationPanelForm';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { IntegrationActionsMenu } from '@/integrations/components/IntegrationMoreColumn';
-import { IconDotsVertical } from '@tabler/icons-react';
-import { Button, Empty, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
+import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
+import { PersonalChannelBreadcrumb } from '@/channels/components/settings/personal-channel/PersonalChannelBreadcrumb';
+import { IconCircles, IconDotsVertical } from '@tabler/icons-react';
+import {
+  Button,
+  Empty,
+  ScrollArea,
+  Separator,
+  Skeleton,
+  Spinner,
+} from 'erxes-ui';
 import { lazy, Suspense, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { IntegrationDraftContext } from '@/integrations/hooks/useIntegrationDraft';
-import { matchPath, useLocation } from 'react-router-dom';
+import { Link, matchPath, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
   type IRecordPanelProps,
   useSidePanelDraft,
   useSidePanel,
+  usePanelExpanded,
 } from 'ui-modules';
 import { removedIntegrationIdsAtom } from '@/integrations/states/integrationRemoveStates';
 
@@ -30,16 +40,48 @@ const IntegrationPanelTitle = ({
   loading,
   integration,
   fallback,
+  channelId,
 }: {
   loading: boolean;
   integration?: { name?: string | null } | null;
   fallback: string;
-}) =>
-  loading && !integration ? (
-    <Skeleton className="h-4 w-32" />
-  ) : (
-    integration?.name || fallback
+  channelId?: string;
+}) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
+  const { pathname } = useLocation();
+  const expanded = usePanelExpanded();
+  const title =
+    loading && !integration ? (
+      <Skeleton className="h-4 w-32" />
+    ) : (
+      integration?.name || fallback
+    );
+
+  if (!expanded || !channelId) return title;
+
+  return (
+    <div className="flex min-w-0 items-center gap-1">
+      {pathname.startsWith('/frontline/settings/personal-channel') ? (
+        <PersonalChannelBreadcrumb />
+      ) : (
+        <>
+          <Button variant="ghost" asChild className="shrink-0">
+            <Link to="/frontline/settings/channels">
+              <IconCircles />
+              {t('channels', 'Channels')}
+            </Link>
+          </Button>
+          <Separator.Inline />
+          <div className="min-w-0 truncate">
+            <ChannelDetailBreadcrumb channelId={channelId} />
+          </div>
+        </>
+      )}
+      <Separator.Inline />
+      <div className="min-w-0 truncate">{title}</div>
+    </div>
   );
+};
 
 /** Renders integration title, actions, activity, or the provider form by view. */
 export const IntegrationRecordPanel = ({
@@ -82,6 +124,7 @@ export const IntegrationRecordPanel = ({
         loading={loading}
         integration={integrationDetail}
         fallback={t('integration', 'Integration')}
+        channelId={integrationDetail?.channelId ?? undefined}
       />
     );
   if (view === 'actions')
