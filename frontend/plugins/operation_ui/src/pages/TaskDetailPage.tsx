@@ -21,7 +21,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader, RecordSidePanel } from 'ui-modules';
+import { PageHeader, RecordPageMinimize, RecordSidePanel } from 'ui-modules';
 import { TaskPanelActions } from '~/widgets/record-panel/TaskPanelActions';
 import {
   TaskPanelActivity,
@@ -35,6 +35,7 @@ import {
 const FIELDS_TAB = 'fields';
 const DESCRIPTION_TAB = 'description';
 const ACTIVITY_TAB = 'activity';
+const TASK_CONTENT_TYPE = 'operation:task';
 
 /** Links back to the tasks of the project the page was opened from. */
 const TaskProjectCrumb = ({ link }: { link: string }) => {
@@ -82,6 +83,24 @@ const TaskPageBreadcrumb = () => {
         <TaskDetailBreadCrump />
       </Breadcrumb.List>
     </Breadcrumb>
+  );
+};
+
+const TaskPageMinimize = ({ taskId }: { taskId: string }) => {
+  const { teamId, projectId } = useParams<{
+    teamId?: string;
+    projectId?: string;
+  }>();
+  const teamPath = teamId ? `/team/${teamId}` : '';
+  const listPath = projectId
+    ? `/operation${teamPath}/projects/${projectId}/tasks`
+    : `/operation${teamPath}/tasks`;
+
+  return (
+    <RecordPageMinimize
+      record={{ contentType: TASK_CONTENT_TYPE, contentId: taskId }}
+      listPath={listPath}
+    />
   );
 };
 
@@ -162,6 +181,7 @@ export const TaskDetailPage = () => {
           </PageHeader.Start>
           <PageHeader.End>
             <TaskPanelActions taskId={taskId} />
+            <TaskPageMinimize taskId={taskId} />
           </PageHeader.End>
         </PageHeader>
         {renderBody()}

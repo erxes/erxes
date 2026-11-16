@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-16`
 
 ## Scope
 
@@ -948,7 +948,11 @@ owns the setup form and connection actions.
   `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`, then `TicketPageFields`
   beside Description, Properties and Activity tabs, the name edited above the
   fields with `TicketPanelName`. Deleting the ticket from the page replaces it
-  with `/frontline/tickets`; a missing ticket shows the panel's empty state. The
+  with `/frontline/tickets`; a missing ticket shows the panel's empty state.
+  Once the ticket loads, ui-modules `RecordPageMinimize` (given the
+  `frontline:ticket` record and `/frontline/tickets` as props, since the page
+  has no navigator) follows the actions and returns to that list with the
+  ticket open in the side panel. The
   `./recordPanel` federation expose (`src/widgets/record-panel/RecordPanel.tsx`)
   provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through

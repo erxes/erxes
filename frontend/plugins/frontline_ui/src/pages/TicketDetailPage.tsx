@@ -27,7 +27,12 @@ import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { currentUserState, PageHeader, RecordSidePanel } from 'ui-modules';
+import {
+  currentUserState,
+  PageHeader,
+  RecordPageMinimize,
+  RecordSidePanel,
+} from 'ui-modules';
 import {
   TicketPageDescription,
   TicketPageFields,
@@ -39,6 +44,7 @@ const DESCRIPTION_TAB = 'description';
 const PROPERTIES_TAB = 'properties';
 const ACTIVITY_TAB = 'activity';
 const TICKETS_PATH = '/frontline/tickets';
+const TICKET_CONTENT_TYPE = 'frontline:ticket';
 
 export const TicketDetailPage = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
@@ -184,6 +190,13 @@ export const TicketDetailPage = () => {
           {ticket && (
             <PageHeader.End>
               <TicketDetailActions ticket={ticket} />
+              <RecordPageMinimize
+                record={{
+                  contentType: TICKET_CONTENT_TYPE,
+                  contentId: ticketId,
+                }}
+                listPath={TICKETS_PATH}
+              />
             </PageHeader.End>
           )}
         </PageHeader>

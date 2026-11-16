@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-16`
 
 ## Scope
 
@@ -58,7 +58,9 @@
   Builder projects open `/content/records/:recordType/:recordId`. That record
   page (`pages/cms/RecordDetailPage.tsx`) has a breadcrumb header with the
   record actions, a resizable Detail column (`ContentRecordColumn`) and the
-  Activity tab.
+  Activity tab. Its `SidePanelNavigatorContext` carries the record's list as
+  `listPath`, so ui-modules `RecordPageMinimize` after the header actions
+  returns there with the record open in the side panel.
 - CMS tables show row skeletons only while empty and use thin scrollbars
   (`CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME`). Every table's `more` column is
   33px wide.

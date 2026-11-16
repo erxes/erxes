@@ -13,6 +13,7 @@ import {
   IRecordSidePanelTab,
   ISidePanelNavigator,
   PageHeader,
+  RecordPageMinimize,
   RecordSidePanel,
   SidePanelNavigatorContext,
   useSidePanel,
@@ -139,6 +140,7 @@ export const RecordDetailPage = () => {
       back: backToList,
       canGoBack: false,
       close: backToList,
+      listPath,
     };
   }, [record, tab, setTab, openRecord, navigate, listPath]);
 
@@ -191,6 +193,7 @@ export const RecordDetailPage = () => {
             </PageHeader.Start>
             <PageHeader.End>
               <RecordPanel {...viewProps} view="actions" />
+              <RecordPageMinimize />
             </PageHeader.End>
           </PageHeader>
           <div className="flex min-h-0 flex-1">
