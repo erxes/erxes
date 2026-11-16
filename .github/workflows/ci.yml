@@ -1,8 +1,8 @@
 # erxes core: static checks, tests on Postgres, builds, TLA+ model checks, container
 # images with a vulnerability scan, a smoke test of the whole stack and the daily
 # flows in Chromium on it, and the packed shared packages checked outside the
-# workspace. The five run side by side; images go to GHCR on pushes to postgre only
-# after all of them pass.
+# workspace. The five run side by side; images go to GHCR and Docker Hub on pushes
+# to postgre only after all of them pass.
 # Require the `Check` job in branch protection.
 name: CI
 
@@ -266,7 +266,7 @@ jobs:
 
   push:
     # Rebuilt from the images job's layer cache, so these are the images that were scanned and smoke tested.
-    name: Push images to GHCR
+    name: Push images to GHCR and Docker Hub
     needs: check
     if: github.event_name == 'push' && github.ref == 'refs/heads/postgre'
     runs-on: ubuntu-latest
@@ -282,12 +282,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Image names
         id: names
         run: |
           owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
           {
             echo "registry=ghcr.io/$owner"
+            echo "hub=docker.io/erxes"
             echo "sha=sha-${GITHUB_SHA::12}"
           } >> "$GITHUB_OUTPUT"
       - name: Push both images
@@ -295,11 +300,15 @@ jobs:
         with:
           source: .
           push: true
-          # A target's first `tags=` replaces docker-bake.hcl's tag, the second adds one.
+          # A target's first `tags=` replaces docker-bake.hcl's tag, the others add one.
           set: |
             api.cache-from=type=gha,scope=api
             web.cache-from=type=gha,scope=web
             api.tags=${{ steps.names.outputs.registry }}/erxes-api:${{ steps.names.outputs.sha }}
             api.tags=${{ steps.names.outputs.registry }}/erxes-api:postgre
+            api.tags=${{ steps.names.outputs.hub }}/erxes-api:${{ steps.names.outputs.sha }}
+            api.tags=${{ steps.names.outputs.hub }}/erxes-api:postgre
             web.tags=${{ steps.names.outputs.registry }}/erxes-web:${{ steps.names.outputs.sha }}
             web.tags=${{ steps.names.outputs.registry }}/erxes-web:postgre
+            web.tags=${{ steps.names.outputs.hub }}/erxes-web:${{ steps.names.outputs.sha }}
+            web.tags=${{ steps.names.outputs.hub }}/erxes-web:postgre
