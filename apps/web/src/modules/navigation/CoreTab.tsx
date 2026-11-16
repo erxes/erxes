@@ -49,7 +49,7 @@ export const CoreTab = () => {
           onMove={move}
         />
         <div className="flex shrink-0 items-center gap-0.5">
-          <GlobalSearch apps={[...apps, SETTINGS_APP]}appLabel={appLabel} onOpenApp={open} />
+          <GlobalSearch apps={[...apps, SETTINGS_APP]} appLabel={appLabel} onOpenApp={open} />
           <NotificationsBell />
           <CoreTabTooltip label={settingsLabel}>
             <Button
