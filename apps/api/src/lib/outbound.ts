@@ -1,5 +1,5 @@
 import { lookup as dnsLookup } from 'node:dns';
-import { request as httpRequest } from 'node:http';
+import { type IncomingHttpHeaders, request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { isIP, type LookupFunction } from 'node:net';
 import { openScope } from '@erxes/core-db';
@@ -65,33 +65,52 @@ export interface OutboundResponse {
   ms: number;
 }
 
+const BODILESS = new Set(['GET', 'HEAD']);
+
+export interface OutboundRequest {
+  method: string;
+  /** Empty for none. */
+  body: Buffer | string;
+  headers: Record<string, string>;
+  timeoutMs?: number;
+  /** The body read at most; the rest is dropped. */
+  maxBytes?: number;
+}
+
+export interface OutboundAnswer {
+  status: number;
+  headers: IncomingHttpHeaders;
+  body: Buffer;
+  ms: number;
+}
+
 /**
- * POSTs `body`; resolves with any HTTP answer, rejects on network errors and
- * timeouts. Never inside a tenant scope: a slow remote would hold its
+ * Sends one request; resolves with any HTTP answer, its body cut at `maxBytes`, rejects on
+ * network errors and timeouts. Never inside a tenant scope: a slow remote would hold its
  * transaction and row locks open. Read in a short scope, call out after it.
  */
-export const postOutbound = async (
-  raw: string,
-  body: string,
-  headers: Record<string, string>,
-  timeoutMs = 10_000,
-) => {
+export const requestOutbound = async (raw: string, request: OutboundRequest) => {
   if (openScope()) {
     throw new Error(
-      'postOutbound was called inside a database transaction; call out after it ends',
+      'An outbound call was made inside a database transaction; call out after it ends',
     );
   }
 
+  const { method, body, headers, timeoutMs = 10_000, maxBytes = 2048 } = request;
   const url = assertOutboundUrl(raw);
   const started = Date.now();
   const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
 
-  return new Promise<OutboundResponse>((resolve, reject) => {
+  return new Promise<OutboundAnswer>((resolve, reject) => {
     const req = send(
       url,
       {
-        method: 'POST',
-        headers: { ...headers, 'Content-Length': String(Buffer.byteLength(body)) },
+        method,
+        // A GET or HEAD without a body sends no length; anything else says its length, 0 too.
+        headers:
+          body.length || !BODILESS.has(method)
+            ? { ...headers, 'Content-Length': String(Buffer.byteLength(body)) }
+            : headers,
         lookup: safeLookup,
         timeout: timeoutMs,
       },
@@ -100,13 +119,14 @@ export const postOutbound = async (
         let size = 0;
 
         res.on('data', (chunk: Buffer) => {
-          if (size < 2048) chunks.push(chunk);
+          if (size < maxBytes) chunks.push(chunk);
           size += chunk.length;
         });
         res.on('end', () =>
           resolve({
             status: res.statusCode ?? 0,
-            body: Buffer.concat(chunks).toString('utf8').slice(0, 2048),
+            headers: res.headers,
+            body: Buffer.concat(chunks).subarray(0, maxBytes),
             ms: Date.now() - started,
           }),
         );
@@ -120,4 +140,20 @@ export const postOutbound = async (
     req.on('error', reject);
     req.end(body);
   });
+};
+
+/** POSTs `body` and reads the first 2 KB of the answer, as `requestOutbound`. */
+export const postOutbound = async (
+  raw: string,
+  body: string,
+  headers: Record<string, string>,
+  timeoutMs = 10_000,
+): Promise<OutboundResponse> => {
+  const answer = await requestOutbound(raw, { method: 'POST', body, headers, timeoutMs });
+
+  return {
+    status: answer.status,
+    body: answer.body.toString('utf8').slice(0, 2048),
+    ms: answer.ms,
+  };
 };

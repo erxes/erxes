@@ -1,12 +1,25 @@
 import { type PluginJobDelivery, type RecordAccessCheck } from '@erxes/core-contract';
-import { verifyCoreAccessCheck, verifyCoreEvent, verifyCoreJob } from '@erxes/plugin-sdk';
+import {
+  type PublicCall,
+  verifyCoreAccessCheck,
+  verifyCoreEvent,
+  verifyCoreJob,
+  verifyPublicCall,
+} from '@erxes/plugin-sdk';
 import { once } from 'node:events';
 import { createServer, type IncomingHttpHeaders } from 'node:http';
+
+/** What the plugin answers: a status, its headers and its body. */
+interface Answer {
+  status: number;
+  headers?: Record<string, string>;
+  body?: string;
+}
 
 /**
  * A plugin's API that verifies each delivery like a plugin would and records
  * it: events at `/events`, jobs at `/jobs/<name>`, record access checks at
- * `/timelines/access`. A job answers with the next status in `jobAnswers`,
+ * `/timelines/access`, public calls at `/public/*`. A job answers with the next status in `jobAnswers`,
  * then 204; a check allows the records in `readable`.
  */
 export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
@@ -18,9 +31,53 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   const readable = new Set<string>();
   const rejected: string[] = [];
 
-  /** The status the plugin answers with, and its body. */
-  const receive = async (path: string, headers: IncomingHttpHeaders, raw: string) => {
+  const publicCalls: (PublicCall & {
+    method: string;
+    path: string;
+    headers: IncomingHttpHeaders;
+    raw: string;
+  })[] = [];
+
+  /** A public call: the setup page redirects (and tries to set a cookie), others say what came. */
+  const receivePublic = async (
+    method: string,
+    path: string,
+    headers: IncomingHttpHeaders,
+    bytes: Buffer,
+  ): Promise<Answer> => {
+    // Bytes, as `express.raw` gives them: a body that isn't text verifies too.
+    const call = await verifyPublicCall(headers.authorization, new Uint8Array(bytes), {
+      coreUrl,
+      plugin,
+    });
+
+    publicCalls.push({ ...call, method, path, headers, raw: bytes.toString() });
+
+    if (path.startsWith('/public/github/setup'))
+      return {
+        status: 302,
+        headers: { location: '/hr/settings/github', 'set-cookie': 'plugin=1' },
+      };
+
+    return {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ orgId: call.orgId }),
+    };
+  };
+
+  /** The status the plugin answers with, its headers and its body. */
+  const receive = async (
+    method: string,
+    path: string,
+    headers: IncomingHttpHeaders,
+    bytes: Buffer,
+  ): Promise<Answer> => {
+    const raw = bytes.toString();
+
     try {
+      if (path.startsWith('/public/')) return await receivePublic(method, path, headers, bytes);
+
       if (path === '/timelines/access') {
         const check = await verifyCoreAccessCheck(headers.authorization, raw, { coreUrl, plugin });
 
@@ -52,14 +109,14 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   };
 
   const server = createServer((req, res) => {
-    let raw = '';
+    const chunks: Buffer[] = [];
 
     req.on('data', (chunk: Buffer) => {
-      raw += chunk.toString();
+      chunks.push(chunk);
     });
     req.on('end', () => {
-      void receive(req.url ?? '', req.headers, raw).then(({ status, body }) =>
-        res.writeHead(status).end(body),
+      void receive(req.method ?? 'GET', req.url ?? '', req.headers, Buffer.concat(chunks)).then(
+        ({ status, headers, body }) => res.writeHead(status, headers).end(body),
       );
     });
   }).listen(0);
@@ -79,6 +136,7 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
     accessChecks,
     readable,
     rejected,
+    publicCalls,
     close: () => {
       server.closeAllConnections();
 

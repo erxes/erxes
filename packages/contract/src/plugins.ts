@@ -102,6 +102,16 @@ export const PluginManifest = z.object({
    * Apps without an origin (mobile) are limited by rate instead.
    */
   customerApp: z.object({ origins: z.array(AppOrigin).min(1).max(20) }).optional(),
+  /**
+   * Routes for callers outside erxes that can't sign in (a GitHub webhook, an app install's
+   * redirect). Core serves `/core/v1/plugins/<name>/public/<orgId>/<path>` and forwards a call
+   * whose path is one of these, or under one, to `<api.url>/public/<path>`, with a token naming
+   * the organisation (`verifyPublicCall`). `/github/webhook`.
+   */
+  publicPaths: z
+    .array(z.string().regex(/^(\/[a-z0-9][a-z0-9_.-]*)+$/, 'a path like /github/webhook'))
+    .max(20)
+    .optional(),
   scopes: z.array(PluginScope).max(PLUGIN_SCOPES.length).default([]),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z
