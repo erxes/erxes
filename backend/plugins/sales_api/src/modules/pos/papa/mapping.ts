@@ -146,8 +146,17 @@ export const orderToDelivery = (
   code: order.code,
   pincode: order.pincode,
   price: order.amount ?? order.cargo?.user_price,
-  isPaid: order.is_paid,
-  unpaidAmount: order.unpaid_amount,
+  // Papa's `is_paid` means "can be paid now", not "paid" (Papa confirmed);
+  // an order is paid once it is COMPLETED or nothing is left unpaid.
+  isPaid:
+    order.parcel_order_status === 'COMPLETED' ||
+    (order.unpaid_amount !== undefined &&
+      order.unpaid_amount !== null &&
+      Number(order.unpaid_amount) === 0),
+  unpaidAmount:
+    order.unpaid_amount === undefined || order.unpaid_amount === null
+      ? undefined
+      : Number(order.unpaid_amount),
   cargoId: order.cargo?.id,
   cargoStatus: order.cargo?.cargo_status,
   shippingId: order.cargo?.shipping_id ?? null,

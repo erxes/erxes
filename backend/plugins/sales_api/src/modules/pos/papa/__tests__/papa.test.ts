@@ -137,6 +137,31 @@ describe('Papa mapping', () => {
     });
   });
 
+  it('reads payment from unpaid_amount, not Papa is_paid', () => {
+    const now = new Date();
+    const unpaid = orderToDelivery(
+      {
+        id: 'p1',
+        parcel_order_status: 'END',
+        is_paid: true,
+        unpaid_amount: 10000,
+      },
+      now,
+    );
+    const paid = orderToDelivery(
+      {
+        id: 'p1',
+        parcel_order_status: 'COMPLETED',
+        is_paid: true,
+        unpaid_amount: 0,
+      },
+      now,
+    );
+
+    expect(unpaid).toMatchObject({ isPaid: false, unpaidAmount: 10000 });
+    expect(paid).toMatchObject({ isPaid: true, unpaidAmount: 0 });
+  });
+
   it('builds the gateway callback URL', () => {
     expect(
       buildCallbackUrl(
@@ -318,6 +343,42 @@ describe('PapaClient', () => {
     );
 
     await expect(client.quote(quoteInput)).rejects.toThrow('pickup address');
+  });
+
+  it('reads the wallet and pays an order from it or outside Papa', async () => {
+    const calls: TCall[] = [];
+    const client = new PapaClient(
+      credentials,
+      new MemoryStore(),
+      fakeFetch((call) => {
+        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
+        if (call.url.endsWith('/wallet/fiat')) {
+          return ok({ code: 'AC1', balance: '990000.00', hold: '0.00' });
+        }
+        return ok({ id: 'invoice1' });
+      }, calls),
+    );
+
+    const wallet = await client.getWallet('partner1');
+    await client.payFromWallet('p1', 's1');
+    await client.markPaidOutside('p1');
+    const body = (path: string) =>
+      calls.find((call) => call.url.endsWith(path))?.body;
+
+    expect(wallet.balance).toBe('990000.00');
+    expect(body('/wallet/fiat')).toEqual({ partner_id: 'partner1' });
+    expect(body('/invoice/create/wallet')).toEqual({
+      staff_id: 's1',
+      object_id: 'p1',
+      object_type: 'PARCEL_ORDER',
+      is_tip: false,
+      tip_amount: null,
+    });
+    expect(body('/parcel_order/cash_payment')).toEqual({
+      id: 'p1',
+      is_tip: false,
+      tip_amount: null,
+    });
   });
 
   it('creates with the quote in cargo.dynamic_price_id', async () => {

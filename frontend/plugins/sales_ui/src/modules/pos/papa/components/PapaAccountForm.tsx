@@ -12,6 +12,7 @@ import {
   SALES_PAPA_CONFIG_SAVE,
   SALES_PAPA_REFERENCES,
 } from '../graphql/papaDocuments';
+import { PapaWalletBalance } from './PapaWalletBalance';
 
 const PAPA_DEV_API_URL = 'https://dev-api.papa.mn/api/v4';
 
@@ -233,6 +234,7 @@ export const PapaAccountForm = () => {
             </div>
           </div>
         )}
+        {config?.staffId && <PapaWalletBalance />}
         <div className="flex flex-wrap items-center justify-between gap-2">
           {config?.callbackRegisteredAt ? (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">

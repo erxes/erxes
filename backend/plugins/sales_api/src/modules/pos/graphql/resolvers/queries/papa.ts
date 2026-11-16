@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import {
   getPapaPhotoProof,
   getPapaReferences,
+  getPapaWallet,
   listPapaAddresses,
   toConfigView,
 } from '../../../papa/service';
@@ -31,6 +32,13 @@ export const papaQueries = {
     await checkPermission('posRead');
 
     return listPapaAddresses(models);
+  },
+
+  // Read on the POS settings card and on an order's Delivery tab.
+  async salesPapaWallet(_root, _args, { models, checkPermission }: IContext) {
+    await checkPermission('posOrderPapaManage');
+
+    return getPapaWallet(models);
   },
 
   async posOrderPapaPhotoProof(

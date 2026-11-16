@@ -7,9 +7,11 @@ import {
   SALES_POS_ORDER_PAPA_CANCEL,
   SALES_POS_ORDER_PAPA_DELIVERY,
   SALES_POS_ORDER_PAPA_MARK_DELIVERED,
+  SALES_POS_ORDER_PAPA_PAY,
   SALES_POS_ORDER_PAPA_QUOTE,
   SALES_POS_ORDER_PAPA_REFRESH,
   SALES_POS_ORDER_PAPA_SEND,
+  SALES_PAPA_WALLET,
 } from '../graphql/papaDocuments';
 import { PAPA_ACTIVE_STATUSES, parsePapaDelivery } from '../utils/papaJson';
 
@@ -77,6 +79,13 @@ export const usePapaDelivery = (orderId: string) => {
     SALES_POS_ORDER_PAPA_APPROVE_PHOTO,
     refetchOptions,
   );
+  const [payMutation, payState] = useMutation(SALES_POS_ORDER_PAPA_PAY, {
+    ...refetchOptions,
+    refetchQueries: [
+      ...refetchOptions.refetchQueries,
+      { query: SALES_PAPA_WALLET },
+    ],
+  });
 
   const run = async (
     action: () => Promise<unknown>,
@@ -107,7 +116,8 @@ export const usePapaDelivery = (orderId: string) => {
       refreshState.loading ||
       cancelState.loading ||
       approveState.loading ||
-      deliveredState.loading,
+      deliveredState.loading ||
+      payState.loading,
     quote: (variables: {
       toLocationId: string;
       toAddress: string;
@@ -142,6 +152,14 @@ export const usePapaDelivery = (orderId: string) => {
       run(
         () => deliveredMutation({ variables: { id: orderId } }),
         t('papa-marked-delivered', 'Delivery marked as delivered'),
+      ),
+    // DTS settles its own delivery fee with Papa; the customer is not involved.
+    payFee: (method: 'wallet' | 'outside') =>
+      run(
+        () => payMutation({ variables: { id: orderId, method } }),
+        method === 'wallet'
+          ? t('papa-fee-paid-wallet', 'Papa fee paid from the wallet')
+          : t('papa-fee-paid-outside', 'Papa fee recorded as paid outside Papa'),
       ),
     approvePhoto: () =>
       run(

@@ -15,6 +15,7 @@ import {
   IPapaDynamicCreateInput,
   IPapaDynamicOrder,
   IPapaEnvelope,
+  IPapaInvoice,
   IPapaParcelOrder,
   IPapaPoint,
   IPapaQuote,
@@ -22,6 +23,7 @@ import {
   IPapaReferences,
   IPapaShipping,
   IPapaToken,
+  IPapaWallet,
 } from './types';
 
 /** Minimal key-value store the client needs for token caching (Redis). */
@@ -264,6 +266,30 @@ export class PapaClient {
 
   public getShipping(id: string) {
     return this.call<IPapaShipping>('/shipping/get', { id });
+  }
+
+  public getWallet(partnerId: string) {
+    return this.call<IPapaWallet>('/wallet/fiat', { partner_id: partnerId });
+  }
+
+  /** Pays an order's unpaid fee from the business wallet. */
+  public payFromWallet(orderId: string, staffId: string) {
+    return this.call<IPapaInvoice>('/invoice/create/wallet', {
+      staff_id: staffId,
+      object_id: orderId,
+      object_type: 'PARCEL_ORDER',
+      is_tip: false,
+      tip_amount: null,
+    });
+  }
+
+  /** Records an order's fee as paid outside Papa (cash or bank transfer). */
+  public markPaidOutside(orderId: string) {
+    return this.call<IPapaParcelOrder>('/parcel_order/cash_payment', {
+      id: orderId,
+      is_tip: false,
+      tip_amount: null,
+    });
   }
 
   public getApproveImage(shippingId: string) {

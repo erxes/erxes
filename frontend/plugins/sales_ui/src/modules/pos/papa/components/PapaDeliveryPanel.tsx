@@ -8,9 +8,11 @@ import {
   IconKey,
   IconMapPin,
   IconPhoto,
+  IconReceipt,
   IconRefresh,
   IconTruckDelivery,
   IconUser,
+  IconWallet,
   IconX,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
@@ -30,6 +32,7 @@ import {
 } from '../utils/papaJson';
 import { PapaDeliveryQuoteForm } from './PapaDeliveryQuoteForm';
 import { PapaDeliverySendForm } from './PapaDeliverySendForm';
+import { PapaWalletBalance } from './PapaWalletBalance';
 
 const formatAmount = (value: unknown) =>
   value != null && value !== '' ? `${Number(value).toLocaleString()}₮` : '-';
@@ -146,6 +149,26 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
     !!delivery?.papaOrderId && PAPA_CANCELLABLE_STATUSES.includes(status ?? '');
 
   const canMarkDelivered = status === 'START' && !!delivery?.cargoId;
+  // Papa takes its fee from DTS's wallet when a delivery ends; an END
+  // delivery still unpaid means the wallet was short at that moment.
+  const showFee = status === 'END' || status === 'COMPLETED';
+  const feeUnpaid = status === 'END' && !delivery?.isPaid;
+
+  const onPayFromWallet = () =>
+    confirm({
+      message: t(
+        'papa-fee-wallet-confirm',
+        'Pay Papa’s delivery fee for this order from your Papa wallet now?',
+      ),
+    }).then(() => papa.payFee('wallet'));
+
+  const onPaidOutside = () =>
+    confirm({
+      message: t(
+        'papa-fee-outside-confirm',
+        'Record Papa’s delivery fee for this order as already paid outside Papa (cash or bank transfer)? Papa will mark the order paid without taking money from the wallet.',
+      ),
+    }).then(() => papa.payFee('outside'));
 
   const onMarkDelivered = () =>
     confirm({
@@ -216,6 +239,21 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
               {delivery.duration ? ` · ${delivery.duration} min` : ''}
             </PosPanelText>
           </PanelField>
+          {showFee && (
+            <PanelField
+              icon={IconReceipt}
+              label={t('papa-fee-status', 'Papa fee')}
+              cell={false}
+            >
+              <PosPanelText>
+                {feeUnpaid
+                  ? `${t('papa-fee-unpaid', 'Unpaid')} · ${formatAmount(
+                      delivery.unpaidAmount ?? delivery.price,
+                    )}`
+                  : t('papa-fee-paid', 'Paid')}
+              </PosPanelText>
+            </PanelField>
+          )}
           <PanelField icon={IconMapPin} label={t('address')} cell={false}>
             <PosPanelText>{delivery.toAddress || '-'}</PosPanelText>
           </PanelField>
@@ -328,6 +366,7 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
           <h4 className="text-sm font-medium">
             {t('papa-step-send', 'Send to Papa')}
           </h4>
+          <PapaWalletBalance amount={delivery?.price} />
           <PapaDeliverySendForm
             defaults={defaults}
             busy={busy}
@@ -357,6 +396,34 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
             busy={busy}
             onSubmit={(values) => papa.quote(values)}
           />
+        </section>
+      )}
+
+      {feeUnpaid && (
+        <section className="space-y-2">
+          <h4 className="text-sm font-medium">
+            {t('papa-fee-unpaid-title', 'Papa fee is unpaid')}
+          </h4>
+          <p className="text-xs text-muted-foreground">
+            {t(
+              'papa-fee-unpaid-help',
+              'Papa could not take the delivery fee from your Papa wallet when this delivery ended. Top up the wallet in the Papa Business app or business.papa.mn, then pay it here.',
+            )}
+          </p>
+          <PapaWalletBalance amount={delivery?.unpaidAmount ?? delivery?.price} />
+          <Button disabled={busy} onClick={onPayFromWallet} className="w-full">
+            <IconWallet />
+            {t('papa-fee-pay-wallet', 'Pay Papa fee from wallet')}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={busy}
+            onClick={onPaidOutside}
+            className="w-full"
+          >
+            <IconCash />
+            {t('papa-fee-paid-outside-action', 'Paid outside Papa (cash or transfer)')}
+          </Button>
         </section>
       )}
 

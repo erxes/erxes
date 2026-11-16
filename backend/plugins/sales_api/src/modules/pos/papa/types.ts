@@ -28,8 +28,27 @@ export interface IPapaStaff {
 export interface IPapaClientInfo {
   id?: string;
   staff_id?: string | null;
+  owner_id?: string | null;
   owner_type?: string;
   callback_url?: string | null;
+}
+
+/** The business's money account (`/wallet/fiat`); amounts arrive as strings. */
+export interface IPapaWallet {
+  id?: string;
+  code?: string;
+  balance?: string | number;
+  hold?: string | number;
+  allow_negative?: boolean;
+  account_status?: string;
+}
+
+export interface IPapaInvoice {
+  id?: string;
+  code?: string;
+  amount?: string | number;
+  paid_amount?: string | number;
+  invoice_status?: string;
 }
 
 export interface IPapaAddress {

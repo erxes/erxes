@@ -14,6 +14,7 @@ export const queries = `
   salesPapaConfig: SalesPapaConfig
   salesPapaReferences: JSON
   salesPapaAddresses: JSON
+  salesPapaWallet: JSON
   posOrderPapaPhotoProof(_id: String!): JSON
 `;
 
@@ -26,4 +27,5 @@ export const mutations = `
   posOrderPapaCancel(_id: String!): JSON
   posOrderPapaApprovePhoto(_id: String!): JSON
   posOrderPapaMarkDelivered(_id: String!): JSON
+  posOrderPapaPay(_id: String!, method: String!): JSON
 `;

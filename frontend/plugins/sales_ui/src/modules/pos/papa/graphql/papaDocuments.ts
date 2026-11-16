@@ -150,3 +150,15 @@ export const SALES_POS_ORDER_PAPA_MARK_DELIVERED = gql(`
     posOrderPapaMarkDelivered(_id: $id)
   }
 `);
+
+export const SALES_PAPA_WALLET = gql(`
+  query salesPapaWallet {
+    salesPapaWallet
+  }
+`);
+
+export const SALES_POS_ORDER_PAPA_PAY = gql(`
+  mutation salesPosOrderPapaPay($id: String!, $method: String!) {
+    posOrderPapaPay(_id: $id, method: $method)
+  }
+`);

@@ -6,6 +6,8 @@ import {
   markPapaDelivered,
   IPapaQuoteArgs,
   IPapaSendArgs,
+  payPapaDelivery,
+  TPapaPaymentMethod,
   quotePapaDelivery,
   refreshPapaDelivery,
   savePapaConfig,
@@ -131,5 +133,15 @@ export const papaMutations = {
     await checkPermission('posOrderPapaManage');
 
     return markPapaDelivered(models, requireId(_id));
+  },
+
+  async posOrderPapaPay(
+    _root,
+    { _id, method }: { _id: string; method: TPapaPaymentMethod },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('posOrderPapaManage');
+
+    return payPapaDelivery(models, requireId(_id), method);
   },
 };

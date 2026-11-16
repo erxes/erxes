@@ -184,6 +184,41 @@ export const parsePapaDelivery = (value: unknown): TPapaDelivery | null => {
   return parsed.success ? parsed.data : null;
 };
 
+// `salesPapaWallet`: the business wallet Papa takes delivery fees from.
+export const papaWalletSchema = z
+  .object({
+    code: text,
+    balance: z.number(),
+    hold: z.number(),
+    available: z.number(),
+    allowNegative: z.boolean().nullish(),
+    status: text,
+  })
+  .passthrough();
+
+export type TPapaWallet = z.infer<typeof papaWalletSchema>;
+
+export const parsePapaWallet = (value: unknown): TPapaWallet | null => {
+  const parsed = papaWalletSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+};
+
+/** Papa takes the fee from the wallet when a delivery ends; can it cover this one? */
+export const isPapaWalletShort = (
+  wallet: TPapaWallet | null,
+  amount: unknown,
+) => {
+  const needed = Number(amount);
+
+  return (
+    !!wallet &&
+    !wallet.allowNegative &&
+    Number.isFinite(needed) &&
+    needed > 0 &&
+    wallet.available < needed
+  );
+};
+
 export const parsePosPapaConfig = (value: unknown): TPosPapaConfig => {
   const parsed = posPapaConfigSchema.safeParse(value ?? {});
   return parsed.success ? parsed.data : {};

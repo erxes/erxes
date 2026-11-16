@@ -605,6 +605,96 @@ export const markPapaDelivered = async (models: IModels, orderId: string) => {
   return refreshPapaDelivery(models, orderId);
 };
 
+const toAmount = (value: unknown) => {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : 0;
+};
+
+/**
+ * The business wallet Papa takes delivery fees from when a delivery ends.
+ * `available` is what a new fee can use (Papa holds part of the balance for
+ * deliveries in progress).
+ */
+export const getPapaWallet = async (models: IModels) => {
+  const config = await models.PapaConfigs.getConfigOrThrow();
+  const client = createPapaClient(config);
+  const partnerId = (await client.getClientInfo())?.owner_id;
+
+  if (!partnerId) {
+    throw new Error('Papa did not return the business id for this account');
+  }
+
+  const wallet = await client.getWallet(partnerId);
+  const balance = toAmount(wallet?.balance);
+  const hold = toAmount(wallet?.hold);
+
+  return {
+    code: wallet?.code ?? null,
+    balance,
+    hold,
+    available: balance - hold,
+    allowNegative: !!wallet?.allow_negative,
+    status: wallet?.account_status ?? null,
+  };
+};
+
+export const PAPA_PAYMENT_METHODS = ['wallet', 'outside'] as const;
+export type TPapaPaymentMethod = (typeof PAPA_PAYMENT_METHODS)[number];
+
+/**
+ * Pays a delivered order Papa could not take from the wallet: again from the
+ * wallet (after a top-up) or recorded as paid outside Papa (cash, transfer).
+ */
+export const payPapaDelivery = async (
+  models: IModels,
+  orderId: string,
+  method: TPapaPaymentMethod,
+) => {
+  if (!PAPA_PAYMENT_METHODS.includes(method)) {
+    throw new Error('Unknown Papa payment method');
+  }
+
+  const order = await models.PosOrders.getOrder(orderId);
+  const current = order.papaDelivery;
+
+  if (!current?.papaOrderId) {
+    throw new Error('This order has not been sent to Papa');
+  }
+
+  if (current.isPaid || current.status === PAPA_ORDER_STATUS.COMPLETED) {
+    throw new Error('This delivery is already paid');
+  }
+
+  if (current.status !== PAPA_ORDER_STATUS.END) {
+    throw new Error('Only a delivered order can be paid');
+  }
+
+  const config = await models.PapaConfigs.getConfigOrThrow();
+  const client = createPapaClient(config);
+
+  if (method === 'outside') {
+    await client.markPaidOutside(current.papaOrderId);
+  } else {
+    if (!config.staffId) {
+      throw new Error('Save the Papa credentials again to load the staff id');
+    }
+
+    try {
+      await client.payFromWallet(current.papaOrderId, config.staffId);
+    } catch (error) {
+      if (error instanceof Error && /үлдэгдэл/i.test(error.message)) {
+        throw new Error(
+          `${error.message}. The Papa wallet balance is too low: top it up in the Papa Business app or business.papa.mn`,
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  return refreshPapaDelivery(models, orderId);
+};
+
 /** Approves the driver's photo proof, which ends the delivery. */
 export const approvePapaPhotoProof = async (
   models: IModels,
