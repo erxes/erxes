@@ -21,6 +21,11 @@ export const triageSchema = new Schema(
     companyId: { type: String, label: 'Company', default: null, index: true },
     // Task tags (tag type `operation:task`); carried to the task it becomes.
     tagIds: { type: [String], label: 'Tag IDs' },
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
   },
   {
     timestamps: true,

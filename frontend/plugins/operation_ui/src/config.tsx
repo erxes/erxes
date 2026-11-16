@@ -157,7 +157,7 @@ export const CONFIG: IUIConfig = {
 
     recordPanels: [
       { contentType: 'operation:task', detailPath: getTaskDetailPath },
-      { contentType: 'operation:triage', properties: false },
+      { contentType: 'operation:triage' },
       {
         contentType: TASK_CONNECTION_CONTENT_TYPE,
         properties: false,
