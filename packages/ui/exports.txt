@@ -47,6 +47,7 @@ type TListFilterProps
 type TListViews
 type TPanelRecordType
 type TPluginListType
+type TPluginSettingsPage
 type TPropertyInputMeta
 type TPropertyInputProps
 type TRecordContacts

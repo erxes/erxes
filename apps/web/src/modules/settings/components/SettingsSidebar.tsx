@@ -22,6 +22,8 @@ import { Children, type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCan } from '~/modules/auth/session';
+import { pluginName, usePluginText } from '~/modules/plugins/pluginText';
+import { usePlugins } from '~/modules/plugins/usePlugins';
 import { usePlan } from '~/modules/saas/usePlan';
 
 interface SettingsPath {
@@ -136,7 +138,29 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
   ];
 };
 
-/** Exit, the member's own account first, then the workspace settings. */
+/**
+ * The settings pages of the plugins the member may use, a group per plugin under its name.
+ * The pages are the plugin's own routes, so opening one leaves settings for the plugin.
+ */
+function PluginSettingsGroups() {
+  const { plugins } = usePlugins();
+  const text = usePluginText();
+
+  return plugins.map(({ remote, config }) => (
+    <SettingsNavigationGroup key={remote} name={pluginName(text, config.name)}>
+      {config.settings.map((page) => (
+        <NavigationMenuLinkItem
+          key={page.path}
+          to={page.path}
+          name={text(config.name, page.label)}
+          icon={page.icon ?? config.icon ?? IconApps}
+        />
+      ))}
+    </SettingsNavigationGroup>
+  ));
+}
+
+/** Exit, the member's own account first, then the workspace settings, then the plugins'. */
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
@@ -156,6 +180,7 @@ export function SettingsSidebar() {
             <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>
+        <PluginSettingsGroups />
       </Sidebar.Content>
     </>
   );

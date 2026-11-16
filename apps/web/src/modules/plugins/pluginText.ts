@@ -11,3 +11,7 @@ export const usePluginText = () => {
   return (plugin: string, text: string): string =>
     t(text, { ns: plugin, defaultValue: text, nsSeparator: false, keySeparator: false });
 };
+
+/** The plugin's name as an app's: its translation, else its `name` capitalised. */
+export const pluginName = (text: ReturnType<typeof usePluginText>, name: string) =>
+  text(name, name.charAt(0).toUpperCase() + name.slice(1));

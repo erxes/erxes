@@ -2,6 +2,7 @@ import type { Icon as TablerIcon } from '@tabler/icons-react';
 import type {
   TContactContentType,
   TPanelRecordType,
+  TPluginSettingsPage,
   TRecordContacts,
   TRecordDraftProps,
   TRecordSection,
@@ -41,7 +42,19 @@ const Config = z.object({
   recordSections: z.unknown().optional(),
   recordTypes: z.unknown().optional(),
   relationTabs: z.unknown().optional(),
+  settings: z.unknown().optional(),
 });
+
+/** A settings page is one of the plugin's own, under its `path`. */
+const settingsPageSchema = (path: string) => {
+  const base = pluginBasePath(path);
+
+  return z.object({
+    path: z.string().startsWith(`${base}/`, `is not under ${base}/`),
+    label: z.string().min(1),
+    icon: z.custom<ElementType>(isComponent).optional(),
+  }) satisfies z.ZodType<TPluginSettingsPage>;
+};
 
 const RecordSection = z.object({
   contentType: z.custom<TContactContentType>(
@@ -142,7 +155,8 @@ const validEntries = <T>(
 };
 
 /**
- * A plugin's `CONFIG`, with only its well-formed sections, record types and relation tabs;
+ * A plugin's `CONFIG`, with only its well-formed sections, record types, relation tabs and
+ * settings pages;
  * null when it has no name or path.
  */
 export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginConfig | null => {
@@ -150,7 +164,7 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
 
   if (!config.success) return null;
 
-  const { recordSections, recordTypes, relationTabs, ...rest } = config.data;
+  const { recordSections, recordTypes, relationTabs, settings, ...rest } = config.data;
 
   const sections: TRecordSection[] = validEntries(
     remote,
@@ -169,5 +183,6 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
       recordTypeSchema(rest.name, rest.path),
     ),
     relationTabs: validEntries(remote, 'relationTabs', relationTabs, RelationTab),
+    settings: validEntries(remote, 'settings', settings, settingsPageSchema(rest.path)),
   };
 };

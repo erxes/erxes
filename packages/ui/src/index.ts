@@ -294,6 +294,7 @@ export {
   type TDashboardWidgetPreview,
   type TPropertyInputMeta,
   type TPanelRecordType,
+  type TPluginSettingsPage,
   type TPropertyInputProps,
   type TRecordContacts,
   type TRecordDraftProps,
