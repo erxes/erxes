@@ -1,9 +1,9 @@
 import { useChat } from '@ai-sdk/react';
 import { matchQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AssistantMentions } from '@erxes/core-contract';
+import { AssistantMentions, type AssistantPage } from '@erxes/core-contract';
 import { getToolName, isDataUIPart, isToolUIPart, type UIMessage } from 'ai';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { orpc } from '@erxes/core-contract/client';
 import {
   type AssistantTab,
@@ -68,21 +68,6 @@ const useRefreshAfterChanges = (status: Status, last: UIMessage | undefined) => 
   }, [status, last, client]);
 };
 
-/** Sends a question asked from the top bar search, once, in a blank chat. */
-export const useAskedElsewhere = (blank: boolean, send: (text: string) => void) => {
-  const ask = useAtomValue(assistantAskState);
-  const takeAsk = useSetAtom(takeAskAction);
-  const sendAsked = useEffectEvent(send);
-
-  useEffect(() => {
-    if (!ask || !blank) return;
-
-    const asked = takeAsk();
-
-    if (asked) sendAsked(asked);
-  }, [ask, blank, takeAsk]);
-};
-
 const partsOf = ({
   text,
   mentions,
@@ -110,7 +95,30 @@ const editedParts = (message: UIMessage, text: string): UIMessage['parts'] => [
   }),
 ];
 
-export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: boolean) => {
+/** Sends a question asked from the top bar search, once, in a blank chat. */
+const useAskedElsewhere = (session: ChatSession, blank: boolean, page: AssistantPage | null) => {
+  const ask = useAtomValue(assistantAskState);
+  const takeAsk = useSetAtom(takeAskAction);
+
+  useEffect(() => {
+    if (!ask || !blank) return;
+
+    const text = takeAsk();
+
+    if (text) {
+      const parts = partsOf({ text, mentions: [], page, files: [], selections: [] });
+
+      void session.chat.sendMessage({ parts });
+    }
+  }, [ask, blank, page, session, takeAsk]);
+};
+
+export const useConversation = (
+  tab: AssistantTab,
+  tabs: AssistantTabs,
+  open: boolean,
+  page: AssistantPage | null,
+) => {
   const client = useQueryClient();
   const model = useModelRun();
   const [session] = useState(() => sessionFor(tab, tabs.setThreadId));
@@ -127,6 +135,7 @@ export const useConversation = (tab: AssistantTab, tabs: AssistantTabs, open: bo
 
   useUnreadWhenClosed(chat.status, open);
   useRefreshAfterChanges(chat.status, chat.messages.at(-1));
+  useAskedElsewhere(session, tab.threadId === null && loaded && chat.messages.length === 0, page);
 
   const sendParts = (parts: UIMessage['parts']) => {
     chat.clearError();

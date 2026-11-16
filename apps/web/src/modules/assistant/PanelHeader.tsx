@@ -21,7 +21,11 @@ const Tab = ({
 }) => {
   const { t } = useTranslation('assistant');
   const thread = useThread(tab.threadId).data;
-  const title = thread?.title ?? t('new-chat', 'New chat');
+
+  const unnamed =
+    tab.threadId === null ? t('new-chat', 'New chat') : t('untitled', 'Untitled conversation');
+
+  const title = thread?.title ?? unnamed;
   const button = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {

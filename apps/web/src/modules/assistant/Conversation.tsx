@@ -1,32 +1,46 @@
-import { Button, Spinner } from 'erxes-ui';
+import { IconAlertTriangle } from '@tabler/icons-react';
+import { Alert, Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { isApiError } from '@erxes/core-contract/client';
 import type { AssistantTab } from './assistantState';
-import { AssistantAvatar } from './AssistantAvatar';
 import { chatErrorOf, needsKey } from './chatError';
 import { Composer } from './Composer';
 import { EmptyState, KeyNotice } from './EmptyState';
 import { usePageContext } from './PageContextChip';
 import { Transcript, WorkingRow } from './Transcript';
 import type { AssistantTabs } from './useAssistantTabs';
-import { useAskedElsewhere, useConversation } from './useConversation';
+import { useConversation } from './useConversation';
 
-const ChatFailure = ({ error, onReload }: { error: Error; onReload: () => void }) => {
+const ChatFailure = ({
+  error,
+  onRetry,
+  onReload,
+}: {
+  error: Error;
+  onRetry: () => void;
+  onReload: () => void;
+}) => {
   const { t } = useTranslation('assistant');
   const failure = chatErrorOf(error);
 
   if (needsKey(failure)) return <KeyNotice />;
 
   return (
-    <div role="alert" className="flex flex-col items-start gap-2 rounded-lg border p-3 text-sm">
-      <p className="flex items-start gap-2 text-destructive-text">
-        <AssistantAvatar size={20} state="exclaim" animated={false} />
-        {failure.message}
-      </p>
-      <Button variant="outline" size="sm" onClick={onReload}>
-        {t('reload', 'Reload conversation')}
-      </Button>
-    </div>
+    <Alert variant="destructive">
+      <IconAlertTriangle />
+      <Alert.Title>{t('failed', 'The reply stopped')}</Alert.Title>
+      <Alert.Description>
+        <p>{failure.message}</p>
+        <div className="mt-1 flex gap-2">
+          <Button size="sm" onClick={onRetry}>
+            {t('retry', 'Try again')}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onReload}>
+            {t('reload', 'Reload conversation')}
+          </Button>
+        </div>
+      </Alert.Description>
+    </Alert>
   );
 };
 
@@ -47,6 +61,32 @@ const Centered = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+const TranscriptFooter = ({ view }: { view: ReturnType<typeof useConversation> }) => {
+  const { t } = useTranslation('assistant');
+  const { chat } = view;
+
+  return (
+    <>
+      {chat.status === 'submitted' && (
+        <WorkingRow
+          label={t('working', 'Working on it…')}
+          avatar={chat.messages.at(-1)?.role !== 'assistant'}
+        />
+      )}
+      {view.runningElsewhere && (
+        <WorkingRow label={t('running-elsewhere', 'Writing a reply… it appears here when done.')} />
+      )}
+      {chat.error && (
+        <ChatFailure
+          error={chat.error}
+          onRetry={view.actions.onRegenerate}
+          onReload={view.reload}
+        />
+      )}
+    </>
+  );
+};
+
 export const Conversation = ({
   tab,
   tabs,
@@ -57,13 +97,9 @@ export const Conversation = ({
   open: boolean;
 }) => {
   const { t } = useTranslation('assistant');
-  const view = useConversation(tab, tabs, open);
   const context = usePageContext();
+  const view = useConversation(tab, tabs, open, context.page);
   const { chat, model } = view;
-
-  useAskedElsewhere(tab.threadId === null && view.loaded && chat.messages.length === 0, (text) =>
-    view.send({ text, mentions: [], page: context.page, files: [], selections: [] }),
-  );
 
   if (isApiError(view.thread.error, 'NOT_FOUND')) {
     return (
@@ -84,20 +120,7 @@ export const Conversation = ({
     );
   }
 
-  const footer = (
-    <>
-      {chat.status === 'submitted' && (
-        <WorkingRow
-          label={t('working', 'Working on it…')}
-          avatar={chat.messages.at(-1)?.role !== 'assistant'}
-        />
-      )}
-      {view.runningElsewhere && (
-        <WorkingRow label={t('running-elsewhere', 'Writing a reply… it appears here when done.')} />
-      )}
-      {chat.error && <ChatFailure error={chat.error} onReload={view.reload} />}
-    </>
-  );
+  const footer = <TranscriptFooter view={view} />;
 
   return (
     <div
@@ -109,6 +132,7 @@ export const Conversation = ({
       {chat.messages.length === 0 && !chat.error ? (
         <EmptyState
           noKey={model.noKey}
+          record={context.page?.record?.type ?? null}
           onPick={(text) =>
             view.send({ text, mentions: [], page: context.page, files: [], selections: [] })
           }

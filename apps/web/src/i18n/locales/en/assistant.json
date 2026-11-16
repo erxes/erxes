@@ -38,6 +38,8 @@
     "remove": "Don't send this page"
   },
   "reload": "Reload conversation",
+  "retry": "Try again",
+  "failed": "The reply stopped",
   "needs-approval": "The assistant needs your approval",
   "needs-answer": "The assistant needs your answer",
   "gone": "This conversation was deleted.",
@@ -50,13 +52,22 @@
     "title": "How can I help?",
     "description": "Ask about your workspace, or ask for a change.",
     "suggestions": "Suggestions",
-    "avatar": "Assistant"
+    "avatar": "Assistant",
+    "tip-mention": "mention a record",
+    "tip-ask": "ask from anywhere"
   },
   "suggestion": {
     "new-customers": "Which customers were added this week?",
     "top-companies": "List our five most recent companies",
     "tag": "Which tags do we use for customers?",
-    "team": "Who is on our team?"
+    "team": "Who is on our team?",
+    "customer-summary": "Summarize this customer",
+    "customer-tags": "Which tags does this customer have?",
+    "company-summary": "Summarize this company",
+    "company-tags": "Which tags does this company have?",
+    "member-summary": "Summarize this team member",
+    "product-summary": "Summarize this product",
+    "automation-explain": "Explain what this automation does"
   },
   "untitled": "Untitled conversation",
   "history": "Conversations",
