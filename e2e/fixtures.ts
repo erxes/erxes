@@ -77,11 +77,17 @@ export const expectAccessible = async (page: Page) => {
 
 /** `expectAccessible` in the light theme, then the dark one, for specs that run in one project. */
 export const expectAccessibleInBothThemes = async (page: Page) => {
-  await page.emulateMedia({ colorScheme: 'light' });
+  // The app follows the scheme in an effect: check once <html> shows the theme.
+  const showTheme = async (theme: 'light' | 'dark') => {
+    await page.emulateMedia({ colorScheme: theme });
+    await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`, 'u'));
+  };
+
+  await showTheme('light');
   await expectAccessible(page);
-  await page.emulateMedia({ colorScheme: 'dark' });
+  await showTheme('dark');
   await expectAccessible(page);
-  await page.emulateMedia({ colorScheme: 'light' });
+  await showTheme('light');
 };
 
 export const test = base.extend<{ api: ReturnType<typeof coreClient> }>({
