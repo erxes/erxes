@@ -48,6 +48,7 @@ export const ACCESS = {
   'activities.update': { plugin: 'activities:write' },
   'activities.remove': { plugin: 'activities:write' },
   'activities.create': { plugin: 'activities:write' },
+  'activities.importNote': { plugin: 'activities:write' },
 
   'audit.list': needs('audit.view'),
   'audit.record': { plugin: 'audit:write' },

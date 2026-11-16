@@ -20,6 +20,16 @@
         }
       }
     },
+    "importNote": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/activities/notes/import"
+        }
+      }
+    },
     "react": {
       "~orpc": {
         "errorMap": {},

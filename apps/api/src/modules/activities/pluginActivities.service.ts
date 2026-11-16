@@ -1,6 +1,7 @@
 import type { ActivityInput } from '@erxes/core-contract';
-import { activities, caller, companies, customers, type Db, newId } from '@erxes/core-db';
+import { activities, caller, companies, customers, type Db, newId, notes } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
+import type { PgInsertValue } from 'drizzle-orm/pg-core';
 import { notFound } from '~/http/errors';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
@@ -43,6 +44,32 @@ const notifyTargetOwner = async (client: Db, input: ActivityInput, activityId: s
   });
 };
 
+/** A plugin's entry, once per dedupe key: its id, and whether this call made it. */
+const insertOnce = async (
+  client: Db,
+  entry: PgInsertValue<typeof activities> & { source: string; dedupeKey: string | null },
+) => {
+  const [inserted] = await client
+    .insert(activities)
+    .values(entry)
+    .onConflictDoNothing()
+    .returning({ id: activities.id });
+
+  if (inserted) return { id: inserted.id, created: true };
+
+  const existing = oneRow(
+    await client
+      .select({ id: activities.id })
+      .from(activities)
+      .where(
+        and(eq(activities.source, entry.source), eq(activities.dedupeKey, entry.dedupeKey ?? '')),
+      )
+      .limit(1),
+  );
+
+  return { id: existing.id, created: false };
+};
+
 /**
  * A plugin adds an entry to a customer's or company's timeline. With a
  * `dedupeKey`, a retry returns the entry made the first time (`created: false`).
@@ -54,42 +81,64 @@ export const createPluginActivity = async (client: Db, input: ActivityInput) => 
   await assertTimelineAccess(client, input.targetType, input.targetId);
   await assertMembers(client, [input.actorUserId]);
 
-  const [inserted] = await client
-    .insert(activities)
-    .values({
-      id: newId(),
-      targetType: input.targetType,
-      targetId: input.targetId,
-      source: plugin,
-      type: input.type,
-      summary: input.summary,
-      data: input.data ?? {},
-      entityType: input.entityType ?? null,
-      entityId: input.entityId ?? null,
-      link: input.link ?? null,
-      actorType: input.actorUserId ? 'user' : 'plugin',
-      actorId: input.actorUserId ?? plugin,
-      dedupeKey: input.dedupeKey ?? null,
-      occurredAt: input.occurredAt ? new Date(input.occurredAt) : sql`now()`,
-    })
-    .onConflictDoNothing()
-    .returning({ id: activities.id });
+  const entry = await insertOnce(client, {
+    id: newId(),
+    targetType: input.targetType,
+    targetId: input.targetId,
+    source: plugin,
+    type: input.type,
+    summary: input.summary,
+    data: input.data ?? {},
+    entityType: input.entityType ?? null,
+    entityId: input.entityId ?? null,
+    link: input.link ?? null,
+    actorType: input.actorUserId ? 'user' : 'plugin',
+    actorId: input.actorUserId ?? plugin,
+    dedupeKey: input.dedupeKey ?? null,
+    occurredAt: input.occurredAt ? new Date(input.occurredAt) : sql`now()`,
+  });
 
-  if (inserted) {
-    await notifyTargetOwner(client, input, inserted.id);
+  if (entry.created) await notifyTargetOwner(client, input, entry.id);
 
-    return { activity: await entryById(client, inserted.id), created: true };
-  }
+  return { activity: await entryById(client, entry.id), created: entry.created };
+};
 
-  const existing = oneRow(
-    await client
-      .select({ id: activities.id })
-      .from(activities)
-      .where(and(eq(activities.source, plugin), eq(activities.dedupeKey, input.dedupeKey ?? '')))
-      .limit(1),
-  );
+/**
+ * A note from old erxes on a timeline the plugin may write to, as its author wrote it then:
+ * a member's note like `addNote` makes, without notifying anyone. A retried `dedupeKey`
+ * returns the note made the first time.
+ */
+export const importPluginNote = async (
+  client: Db,
+  input: {
+    targetType: string;
+    targetId: string;
+    body: string;
+    authorId: string;
+    createdAt: string;
+    dedupeKey: string;
+  },
+) => {
+  const { plugin } = caller('plugin');
 
-  return { activity: await entryById(client, existing.id), created: false };
+  await assertTimelineAccess(client, input.targetType, input.targetId);
+  await assertMembers(client, [input.authorId]);
+
+  const entry = await insertOnce(client, {
+    id: newId(),
+    targetType: input.targetType,
+    targetId: input.targetId,
+    source: plugin,
+    type: `${input.targetType}.note`,
+    actorType: 'user',
+    actorId: input.authorId,
+    dedupeKey: input.dedupeKey,
+    occurredAt: new Date(input.createdAt),
+  });
+
+  if (entry.created) await client.insert(notes).values({ id: entry.id, body: input.body });
+
+  return { activity: await entryById(client, entry.id), created: entry.created };
 };
 
 /** A plugin's own entry, by id or by `key:<dedupeKey>`. */

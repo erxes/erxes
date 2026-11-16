@@ -12,6 +12,7 @@ import { EventType } from './platform';
 import { PluginFields } from './pluginFields';
 import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
+import { PluginTimeline } from './timelines';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
 export const PluginName = z
@@ -151,17 +152,7 @@ export const PluginManifest = z.object({
     .max(200)
     .optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
-  timelines: z
-    .array(
-      z.object({
-        type: z.string().regex(/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/),
-        label: z.string().trim().min(1).max(100),
-        /** A permission action of the plugin (`hr.employee.view`); none: every member. */
-        permission: z.string().optional(),
-      }),
-    )
-    .max(50)
-    .optional(),
+  timelines: z.array(PluginTimeline).max(50).optional(),
   /**
    * How its timeline entries look: a label, a colour and an icon per type —
    * one of IconBeach, IconBriefcase, IconCalendarEvent, IconCash,
