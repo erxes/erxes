@@ -540,6 +540,13 @@
       "when": 1794858175926,
       "tag": "0076_recorded_payments",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1794858939016,
+      "tag": "0077_favorites",
+      "breakpoints": true
     }
   ]
 }

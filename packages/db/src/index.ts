@@ -55,6 +55,7 @@ export {
   paymentGateways,
   paymentInvoices,
   entitlements,
+  favorites,
   views,
   imports,
   importRows,

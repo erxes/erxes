@@ -20,6 +20,7 @@ import { usersRouter } from '~/modules/users/users.router';
 import { transferRouter } from '~/modules/transfer/transfer.router';
 import { leadsRouter } from '~/modules/leads/leads.router';
 import { viewsRouter } from '~/modules/views/views.router';
+import { favoritesRouter } from '~/modules/favorites/favorites.router';
 import { customersRouter } from '~/modules/customers/customers.router';
 import {
   customerAccountRouter,
@@ -58,6 +59,7 @@ export const coreRouter = unscoped.router({
   transfer: transferRouter,
   leads: leadsRouter,
   views: viewsRouter,
+  favorites: favoritesRouter,
   customers: customersRouter,
   customerAccount: customerAccountRouter,
   customerAuth: customerAuthRouter,

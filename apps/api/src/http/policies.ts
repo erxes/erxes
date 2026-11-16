@@ -97,6 +97,11 @@ export const ACCESS = {
   'transfer.createExport': needs('contacts.export'),
   // Views check per list: contacts.view for contact lists; every member sees products.
   // Plugins see shared views only, and test records against them (segments).
+  'favorites.list': MEMBER,
+  'favorites.add': MEMBER,
+  'favorites.rename': MEMBER,
+  'favorites.remove': MEMBER,
+  'favorites.reorder': MEMBER,
   'views.list': { member: 'any', plugin: 'views:read' },
   'views.create': MEMBER,
   'views.update': MEMBER,

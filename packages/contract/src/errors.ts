@@ -117,6 +117,8 @@ export const ERRORS = {
   LEAD_STAGE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
   INVALID_TAG: { status: 400 },
   TAG_LIMIT: { status: 409 },
+  /** A member keeps at most FAVORITES_MAX favorites. */
+  FAVORITE_LIMIT: { status: 409 },
   // Branches and departments: at most LIST_MAX per organisation, read whole.
   UNIT_LIMIT: { status: 409 },
   /** Units still have the type: move them to another first. */

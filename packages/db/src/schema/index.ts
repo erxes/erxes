@@ -59,3 +59,5 @@ export * from './orgUnits';
 export * from './apiKeys';
 
 export * from './ebarimt';
+
+export * from './favorites';

@@ -537,6 +537,17 @@
     "keep-editing": "Keep editing",
     "cancel": "Cancel"
   },
+  "favorites": {
+    "add": "Add to favorites",
+    "added": "Added to favorites",
+    "done": "Done",
+    "edit": "Edit favorite",
+    "failed": "Favorites not saved",
+    "name": "Name",
+    "remove": "Remove",
+    "remove-named": "Remove {{name}} from favorites",
+    "title": "Favorites"
+  },
   "search": {
     "apps": "Apps",
     "description": "Search records and apps",

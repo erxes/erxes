@@ -863,6 +863,58 @@
       }
     }
   },
+  "favorites": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/favorites"
+        }
+      }
+    },
+    "add": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/favorites"
+        }
+      }
+    },
+    "rename": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/favorites/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/favorites/{id}"
+        }
+      }
+    },
+    "reorder": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/favorites/order"
+        }
+      }
+    }
+  },
   "customerAccount": {
     "me": {
       "~orpc": {

@@ -1,9 +1,13 @@
 import { IconGridDots } from '@tabler/icons-react';
 import { Button, Popover } from 'erxes-ui';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { lazyNamed } from '~/lib/lazyNamed';
 import type { NavApp } from './apps';
 import { CoreTabTooltip } from './CoreTabTooltip';
+
+// Loaded when the switcher first opens: the top bar is in every page's shell.
+const FavoritesList = lazyNamed(() => import('~/modules/favorites/FavoritesList'), 'FavoritesList');
 
 const AppGroup = ({
   label,
@@ -44,7 +48,7 @@ const AppGroup = ({
     </section>
   ) : null;
 
-/** The grid button: every app and plugin, grouped. */
+/** The grid button: the member's favorites, then every app and plugin, grouped. */
 export const CoreTabAppSwitcher = ({
   apps,
   activeId,
@@ -86,6 +90,9 @@ export const CoreTabAppSwitcher = ({
         variant="compact"
         className="w-80"
       >
+        <Suspense fallback={null}>
+          <FavoritesList onOpen={() => setOpen(false)} />
+        </Suspense>
         <AppGroup
           label={t('plugins', 'Plugins')}
           apps={apps.filter((app) => app.kind === 'plugin')}
