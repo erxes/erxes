@@ -1,6 +1,6 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconLayoutList } from '@tabler/icons-react';
-import { type ComponentType, createContext, type ReactNode, Suspense, use } from 'react';
+import { type ComponentType, createContext, type ReactNode, Suspense, use, useState } from 'react';
 import { TabButton } from '../../components/tabs';
 
 /** A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`). */
@@ -22,6 +22,13 @@ const ListViewsContext = createContext<TListViews | null>(null);
 
 /** The host's saved views, for `ViewBar` and `ListFilter`. Null outside erxes. */
 export const useListViews = () => use(ListViewsContext);
+
+const FilterRowContext = createContext<HTMLElement | null>(null);
+
+const FilterRowSlot = FilterRowContext.Provider;
+
+/** Where `ListFilter` puts its row of chips: under the `ViewBar` it sits in; null outside one. */
+export const useFilterRowSlot = () => use(FilterRowContext);
 
 /**
  * Gives every list with a `recordType` saved views, as core's lists have.
@@ -59,6 +66,7 @@ export const ViewBar = ({
 }) => {
   const [tabsRef] = useAutoAnimate({ duration: 150 });
   const host = useListViews();
+  const [slot, setSlot] = useState<HTMLDivElement | null>(null);
 
   const all = (
     <TabButton type="button" aria-current="page" active>
@@ -75,15 +83,19 @@ export const ViewBar = ({
   );
 
   return (
-    <div className="flex h-10 shrink-0 items-center gap-3 border-b bg-background pr-3">
-      {/* The padding keeps focus rings inside the scrolling box. */}
-      <div
-        ref={tabsRef}
-        className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto p-1 hide-scroll"
-      >
-        {tabs ?? saved ?? all}
+    <FilterRowSlot value={slot}>
+      <div className="flex h-10 shrink-0 items-center gap-3 border-b bg-background pr-3">
+        {/* The padding keeps focus rings inside the scrolling box. */}
+        <div
+          ref={tabsRef}
+          className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto p-1 hide-scroll"
+        >
+          {tabs ?? saved ?? all}
+        </div>
+        <div className="flex min-w-0 max-w-13/20 shrink-0 items-center justify-end">{children}</div>
       </div>
-      <div className="flex min-w-0 max-w-13/20 shrink-0 items-center justify-end">{children}</div>
-    </div>
+      {/* The filter's row of chips, while the list is filtered. */}
+      <div ref={setSlot} className="contents" />
+    </FilterRowSlot>
   );
 };

@@ -1,276 +1,211 @@
-import { IconBraces, IconPlus, IconX } from '@tabler/icons-react';
+import { IconBraces, IconPlus } from '@tabler/icons-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/button';
+import { Popover } from '../../components/popover';
 import { Select } from '../../components/select';
 import { useItemKeys } from '../../hooks/use-item-keys';
-import { oneOf } from '../../lib/text';
-import { cn } from '../../lib/utils';
 import {
-  CONDITION_OPERATORS,
   isRule,
   NO_VALUE,
-  OPERATOR_LABELS,
-  operatorsFor,
   type TConditionField,
   type TConditionGroup,
   type TConditionLookups,
   type TConditionRule,
-  withOperator,
 } from './conditions';
-import { ConditionValueInput } from './ConditionValueInput';
-import { PathPicker } from './PathPicker';
+import { isFilterRule, ruleFor, type TFilterRule } from './filterRule';
+import { FieldPicker } from './FieldPicker';
+import { RemoveButton, type RowShared, RuleRow } from './RuleRow';
 
-/** Field and operator side by side, remove at the end; the value takes its own full line. */
-const RuleRow = ({
-  rule,
-  fields,
+/** "Where" first; the second row picks "and" or "or" for the group; the rest repeat it. */
+const Conjunction = ({
+  index,
+  group,
   disabled,
-  lookups,
   onChange,
-  onRemove,
 }: {
-  rule: TConditionRule;
-  fields: TConditionField[];
+  index: number;
+  group: TConditionGroup;
   disabled?: boolean;
-  lookups: TConditionLookups;
-  onChange: (next: TConditionRule) => void;
-  onRemove: () => void;
+  onChange: (next: TConditionGroup) => void;
 }) => {
-  const { t } = useTranslation('automations');
-  const field = fields.find((one) => one.path === rule.path);
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+  const word = group.match === 'all' ? t('and', 'And') : t('or', 'Or');
+
+  if (index === 0) {
+    return <span className="px-2 text-sm text-muted-foreground">{t('where', 'Where')}</span>;
+  }
+
+  if (index > 1 || disabled) {
+    return <span className="px-2 text-sm text-muted-foreground">{word}</span>;
+  }
 
   return (
-    <div className="grid grid-cols-condition items-center gap-2">
-      <PathPicker
-        value={rule.path}
-        fields={fields}
-        disabled={disabled}
-        // A value means something only for its field's type: an owner's member id is no tag.
-        onChange={(path) =>
-          onChange(
-            fields.find((one) => one.path === path)?.type === field?.type
-              ? { ...rule, path }
-              : { ...rule, path, value: undefined },
-          )
-        }
-      />
-      <Select
-        value={rule.op}
-        onValueChange={(next) => {
-          const op = oneOf(CONDITION_OPERATORS, next);
-
-          if (op) onChange(withOperator(rule, op));
-        }}
-        disabled={disabled}
-      >
-        <Select.Trigger className="h-8 w-full min-w-0" aria-label={t('operator', 'Operator')}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          {operatorsFor(field?.type).map((op) => (
-            <Select.Item key={op} value={op}>
-              {t(`op.${op}`, OPERATOR_LABELS[op])}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-      <Button
-        size="icon"
-        variant="ghost"
-        tone="muted"
-        className="size-8"
-        disabled={disabled}
-        onClick={onRemove}
-        aria-label={t('remove', 'Remove')}
-      >
-        <IconX className="size-4" />
-      </Button>
-      {!NO_VALUE.has(rule.op) && (
-        <div className="col-span-2 flex min-w-0">
-          <ConditionValueInput
-            rule={rule}
-            field={field}
-            disabled={disabled}
-            {...lookups}
-            onChange={(value) => onChange({ ...rule, value })}
-          />
-        </div>
-      )}
-    </div>
+    <Select
+      value={group.match}
+      onValueChange={(match) => onChange({ ...group, match: match === 'any' ? 'any' : 'all' })}
+    >
+      <Select.Trigger className="h-8 w-full" aria-label={t('conjunction', 'And or or')}>
+        <Select.Value>{word}</Select.Value>
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value="all">{t('and', 'And')}</Select.Item>
+        <Select.Item value="any">{t('or', 'Or')}</Select.Item>
+      </Select.Content>
+    </Select>
   );
 };
 
-const MatchSelect = ({
-  group,
-  onChange,
-  onRemove,
+/** "Add filter rule" opens the field picker; "Add filter group", while groups may still nest. */
+const AddButtons = ({
+  fields,
   disabled,
-}: {
-  group: TConditionGroup;
-  onChange: (next: TConditionGroup) => void;
-  onRemove?: () => void;
-  disabled?: boolean;
+  customPath,
+  canGroup,
+  onAdd,
+}: Omit<RowShared, 'lookups'> & {
+  canGroup: boolean;
+  onAdd: (node: TFilterRule | TConditionGroup) => void;
 }) => {
-  const { t } = useTranslation('automations');
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span>{t('match-prefix', 'Match')}</span>
-      <Select
-        value={group.match}
-        onValueChange={(match) => onChange({ ...group, match: match === 'any' ? 'any' : 'all' })}
-        disabled={disabled}
-      >
-        <Select.Trigger className="h-8 w-24" aria-label={t('match-prefix', 'Match')}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="all">{t('match-all', 'all')}</Select.Item>
-          <Select.Item value="any">{t('match-any', 'any')}</Select.Item>
-        </Select.Content>
-      </Select>
-      <span>{t('match-suffix', 'of these')}</span>
-      {onRemove && (
+    <div className="flex gap-1">
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger
+          render={<Button size="sm" variant="ghost" tone="muted" disabled={disabled} />}
+        >
+          <IconPlus />
+          {t('add-rule', 'Add filter rule')}
+        </Popover.Trigger>
+        <Popover.Content variant="flush" align="start" className="w-72">
+          <FieldPicker
+            fields={fields}
+            customPath={customPath}
+            onSelect={(field) => {
+              setOpen(false);
+              onAdd(ruleFor(field));
+            }}
+          />
+        </Popover.Content>
+      </Popover>
+      {canGroup && (
         <Button
           size="sm"
           variant="ghost"
-          className="ml-auto"
+          tone="muted"
           disabled={disabled}
-          onClick={onRemove}
+          onClick={() => onAdd({ match: 'all', rules: [] })}
         >
-          <IconX />
-        </Button>
-      )}
-    </div>
-  );
-};
-
-const AddButtons = ({
-  newRule,
-  newGroup,
-  disabled,
-  onAdd,
-}: {
-  newRule: TConditionRule;
-  /** Null at the deepest level. */
-  newGroup: TConditionGroup | null;
-  disabled?: boolean;
-  onAdd: (rule: TConditionRule | TConditionGroup) => void;
-}) => {
-  const { t } = useTranslation('automations');
-
-  return (
-    <div className="flex gap-2">
-      <Button size="sm" variant="outline" disabled={disabled} onClick={() => onAdd(newRule)}>
-        <IconPlus />
-        {t('add-condition', 'Add condition')}
-      </Button>
-      {newGroup && (
-        <Button size="sm" variant="ghost" disabled={disabled} onClick={() => onAdd(newGroup)}>
           <IconBraces />
-          {t('add-group', 'Add group')}
+          {t('add-group', 'Add filter group')}
         </Button>
       )}
     </div>
   );
 };
 
-/** One group: "all"/"any" of its rules and nested groups (up to three levels). */
+/** One group: its rows and nested groups (three levels in all), then the add buttons. */
 const GroupEditor = ({
   group,
   onChange,
-  onRemove,
-  fields,
-  disabled,
   depth,
-  lookups,
-}: {
+  ...shared
+}: RowShared & {
   group: TConditionGroup;
   onChange: (next: TConditionGroup) => void;
-  onRemove?: () => void;
-  fields: TConditionField[];
-  disabled?: boolean;
   depth: number;
-  lookups: TConditionLookups;
 }) => {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const keys = useItemKeys(group.rules.length);
+  const [fresh, setFresh] = useState<number | null>(null);
 
-  const update = (index: number, rule: TConditionRule | TConditionGroup) =>
-    onChange({ ...group, rules: group.rules.map((item, at) => (at === index ? rule : item)) });
+  const update = (index: number, node: TConditionRule | TConditionGroup) =>
+    onChange({ ...group, rules: group.rules.map((item, at) => (at === index ? node : item)) });
 
   const remove = (index: number) => {
     keys.removed(index);
     onChange({ ...group, rules: group.rules.filter((_, at) => at !== index) });
   };
 
-  const add = (rule: TConditionRule | TConditionGroup) => {
-    keys.added();
-    onChange({ ...group, rules: [...group.rules, rule] });
-  };
+  const lead = (index: number) => (
+    <Conjunction index={index} group={group} disabled={shared.disabled} onChange={onChange} />
+  );
 
   return (
-    <div className={cn('space-y-2', depth > 0 && 'rounded-md border border-dashed p-2')}>
-      <MatchSelect group={group} onChange={onChange} onRemove={onRemove} disabled={disabled} />
-      {group.rules.map((rule, index) =>
-        isRule(rule) ? (
+    <div className="flex flex-col gap-1.5">
+      {group.rules.map((node, index) =>
+        isFilterRule(node) ? (
           <RuleRow
             key={keys.keyAt(index)}
-            rule={rule}
-            fields={fields}
-            disabled={disabled}
-            lookups={lookups}
+            {...shared}
+            rule={node}
+            lead={lead(index)}
+            fresh={fresh === index}
             onChange={(next) => update(index, next)}
             onRemove={() => remove(index)}
           />
         ) : (
-          <GroupEditor
-            key={keys.keyAt(index)}
-            group={rule}
-            fields={fields}
-            disabled={disabled}
-            lookups={lookups}
-            depth={depth + 1}
-            onChange={(next) => update(index, next)}
-            onRemove={() => remove(index)}
-          />
+          <div key={keys.keyAt(index)} className="grid grid-cols-condition items-start gap-1.5">
+            {lead(index)}
+            <div className="col-span-3 rounded-md border bg-muted/40 p-2">
+              <GroupEditor
+                {...shared}
+                group={node}
+                depth={depth + 1}
+                onChange={(next) => update(index, next)}
+              />
+            </div>
+            <RemoveButton
+              label={t('remove-group', 'Remove group')}
+              disabled={shared.disabled}
+              onRemove={() => remove(index)}
+            />
+          </div>
         ),
       )}
       <AddButtons
-        newRule={{ path: fields[3]?.path ?? 'subject.primaryEmail', op: 'exists' }}
-        newGroup={depth < 2 ? { match: group.match === 'all' ? 'any' : 'all', rules: [] } : null}
-        disabled={disabled}
-        onAdd={add}
+        fields={shared.fields}
+        disabled={shared.disabled}
+        customPath={shared.customPath}
+        canGroup={depth < 2}
+        onAdd={(node) => {
+          keys.added();
+          setFresh(isRule(node) && !NO_VALUE.has(node.op) ? group.rules.length : null);
+          onChange({ ...group, rules: [...group.rules, node] });
+        }}
       />
     </div>
   );
 };
 
 /**
- * Conditions: rows "<field> <operator> <value>", all or any, with nested groups, on `fields`
- * (grouped in the picker when they have a `group`); `members` and `tags` feed their pickers.
+ * Conditions as rows "Where <field> <operator> <value>", joined by "and" or "or", with nested
+ * groups, on `fields`; `members` and `tags` feed their pickers. Fields and values pick from the
+ * same menus as a list's filter chips. With `customPath`, a typed path is a field too.
  */
 export const ConditionsEditor = ({
   value,
   onChange,
   disabled,
   fields,
+  customPath,
   ...lookups
 }: TConditionLookups & {
   value: TConditionGroup | undefined;
   onChange: (next: TConditionGroup | undefined) => void;
   disabled?: boolean;
   fields: TConditionField[];
-}) => {
-  const group: TConditionGroup = value ?? { match: 'all', rules: [] };
-
-  return (
-    <GroupEditor
-      group={group}
-      fields={fields}
-      disabled={disabled}
-      lookups={lookups}
-      depth={0}
-      onChange={(next) => onChange(next.rules.length ? next : undefined)}
-    />
-  );
-};
+  customPath?: boolean;
+}) => (
+  <GroupEditor
+    group={value ?? { match: 'all', rules: [] }}
+    fields={fields}
+    lookups={lookups}
+    disabled={disabled}
+    customPath={customPath}
+    depth={0}
+    onChange={(next) => onChange(next.rules.length ? next : undefined)}
+  />
+);

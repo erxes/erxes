@@ -32,8 +32,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 - `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board or grouped list.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
-- `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, which `ListFilter` is built from.
-- `<ListFilter recordType>` A list's filter bar, with a field menu, search and conditions as chips.
+- `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, for a page without saved views.
+- `<ListFilter recordType>` A list's filter: a view bar button, and a chip row while it filters.
+- `<ListFilterEmpty records fallback>` A list's empty state while `ListFilter` filters it, with Clear filters.
 - `listFilterQuery` The URL params holding a list's filter, as nuqs parsers.
 - `<ListViewsProvider views>` Gives every list with a `recordType` saved views, as core's lists have.
 - `RecordList.{Provider, Skeleton, useSelection}` Rows grouped under headers that fold away, such as tasks by status.

@@ -197,7 +197,9 @@ describe('action inputs', () => {
     const context = {
       actions: [move, setField],
       events: [],
-      fields: [{ path: 'subject.customFields.f1', label: 'Plan (custom)', type: 'select' }],
+      fields: [
+        { path: 'subject.customFields.f1', label: 'Plan (custom)', type: 'select' as const },
+      ],
       stages: [{ id: 's1', name: 'Qualified' }],
     };
 

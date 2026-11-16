@@ -224,6 +224,7 @@ export { DisplayMenu, type TListDisplay, useListDisplay } from './modules/list/D
 
 export {
   ListFilter,
+  ListFilterEmpty,
   type TListFilterField,
   type TListFilterProps,
   useListFilterParams,

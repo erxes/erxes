@@ -1,7 +1,10 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { IconFilterOff } from '@tabler/icons-react';
 import { type ElementType, lazy, type ReactNode, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button } from '../../components/button';
+import { Empty } from '../../components/empty';
 import type { TConditionLookups } from '../conditions/conditions';
-import { Filter } from '../filter/components/Filter';
 import { useListConditions } from './filter/listFilterQuery';
 import { type TPluginListType, useListViews } from './ViewBar';
 
@@ -62,10 +65,11 @@ export type TListFilterProps = TConditionLookups & {
 };
 
 /**
- * A list's filter bar, with a field menu, search and conditions as chips.
- * The menu of `fields` opens on `F` and holds search and the advanced filter. The conditions
- * and search live in the address (shared links and reloads keep them); `useListFilterParams()`
- * reads them for the list's query. `member` fields pick
+ * A list's filter: a view bar button, and a chip row while it filters.
+ * The field picker opens on `F` and holds search and the advanced filter, a popover of
+ * "Where / And / Or" rows. Each chip is one condition whose field, operator and value open in
+ * place. The conditions and search live in the address (shared links and reloads keep them);
+ * `useListFilterParams()` reads them for the list's query. `member` fields pick
  * from `members` and `tags` fields from `tags`: in erxes `memberQueries` from
  * `@erxes/core-contract/client` and the tags query of the record type; outside erxes, the
  * plugin's own.
@@ -76,13 +80,11 @@ export const ListFilter = ({ recordType, ...props }: TListFilterProps) => {
   const status = props.status ?? (recordType && host && <host.Changes recordType={recordType} />);
 
   return (
-    <Filter id={`${props.id}-list-filter`}>
-      <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end">
-        <Suspense>
-          <ListFilterBar {...props} status={status} />
-        </Suspense>
-      </Filter.Bar>
-    </Filter>
+    <div ref={barRef} className="flex min-w-0 flex-1 items-center justify-end gap-1">
+      <Suspense>
+        <ListFilterBar {...props} status={status} />
+      </Suspense>
+    </div>
   );
 };
 
@@ -95,4 +97,47 @@ export const useListFilterParams = () => {
   const { advanced, search } = useListConditions();
 
   return { filter: advanced ? JSON.stringify(advanced) : undefined, search: search || undefined };
+};
+
+/**
+ * A list's empty state while `ListFilter` filters it, with Clear filters.
+ * "No customers match these filters" and a button that clears them; `fallback`, the list's own
+ * empty state, when it isn't filtered.
+ * `records` names them ("customers"); "records" by default.
+ */
+export const ListFilterEmpty = ({
+  records,
+  fallback = null,
+}: {
+  records?: string;
+  fallback?: ReactNode;
+}) => {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+  const { active, clear } = useListConditions();
+
+  if (!active) return fallback;
+
+  return (
+    <Empty className="pointer-events-none absolute inset-x-0 top-2/5">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconFilterOff />
+        </Empty.Media>
+        <Empty.Title>
+          {t('no-records', {
+            records: records ?? t('records', 'records'),
+            defaultValue: 'No {{records}} match these filters',
+          })}
+        </Empty.Title>
+        <Empty.Description>
+          {t('no-records-hint', 'Change a condition or clear them to see every record.')}
+        </Empty.Description>
+      </Empty.Header>
+      <Empty.Content className="pointer-events-auto">
+        <Button variant="outline" onClick={clear}>
+          {t('clear-filters', 'Clear filters')}
+        </Button>
+      </Empty.Content>
+    </Empty>
+  );
 };

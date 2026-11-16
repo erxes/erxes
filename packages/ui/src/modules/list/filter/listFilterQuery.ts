@@ -18,10 +18,16 @@ export const useListConditions = () => {
     history: 'replace',
   });
 
+  const filter = advanced?.rules.length ? advanced : null;
+
   return {
-    advanced: advanced?.rules.length ? advanced : null,
+    advanced: filter,
     search: searchValue,
+    /** Whether the list is filtered or searched. */
+    active: filter !== null || Boolean(searchValue),
     setAdvanced: (next: TConditionGroup | null) =>
       void setQueries({ advanced: next?.rules.length ? next : null }),
+    setSearch: (next: string | null) => void setQueries({ searchValue: next || null }),
+    clear: () => void setQueries({ advanced: null, searchValue: null }),
   };
 };
