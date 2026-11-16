@@ -58,11 +58,15 @@ const Tips = () => {
   return (
     <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
       <span className="inline-flex items-center gap-1">
-        <Kbd>@</Kbd>
+        <span className="text-foreground">
+          <Kbd variant="foreground">@</Kbd>
+        </span>
         {t('empty.tip-mention', 'mention a record')}
       </span>
       <span className="hidden items-center gap-1 md:inline-flex">
-        <Kbd>Ctrl/⌘ K</Kbd>
+        <span className="text-foreground">
+          <Kbd variant="foreground">Ctrl/⌘ K</Kbd>
+        </span>
         {t('empty.tip-ask', 'ask from anywhere')}
       </span>
     </p>
