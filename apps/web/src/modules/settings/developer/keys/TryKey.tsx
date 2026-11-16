@@ -2,11 +2,10 @@ import { API_KEY_AREA_INFO, API_KEY_AREAS, type ApiKey } from '@erxes/core-contr
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconCircleCheck, IconCircleX } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Badge, Button, Combobox, Command, Input, Label, Popover, cn } from 'erxes-ui';
+import { Badge, Button, Combobox, Command, Form, Input, Label, Popover, cn } from 'erxes-ui';
 import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ContactSelect } from '~/modules/contacts/components/ContactPicker';
-import { Section } from './keyParts';
 
 type Call = {
   procedure: string;
@@ -137,9 +136,9 @@ export const TryKey = ({ apiKey }: { apiKey: ApiKey }) => {
   const check = useMutation(orpc.apiKeys.try.mutationOptions());
 
   return (
-    <Section
+    <Form.Section
       title={t('title', 'Try this key')}
-      hint={t('hint', 'Check a call before you use the key. Nothing is called or changed.')}
+      description={t('hint', 'Check a call before you use the key. Nothing is called or changed.')}
     >
       <div className="grid gap-3 md:grid-cols-4">
         <div className="min-w-0 space-y-1.5 md:col-span-2">
@@ -195,7 +194,7 @@ export const TryKey = ({ apiKey }: { apiKey: ApiKey }) => {
       </Button>
       {check.error && <p className="text-sm text-destructive">{messageOf(check.error)}</p>}
       {check.data && <TryResult result={check.data} />}
-    </Section>
+    </Form.Section>
   );
 };
 

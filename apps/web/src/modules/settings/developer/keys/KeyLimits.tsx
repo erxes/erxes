@@ -1,17 +1,22 @@
 import { API_KEY_LIFETIMES } from '@erxes/core-contract';
-import { ChoiceboxGroup, Label, MultipleSelector, Select, Textarea, useFormat } from 'erxes-ui';
+import {
+  ChoiceboxGroup,
+  Form,
+  Label,
+  LookupPicker,
+  Select,
+  StringArrayInput,
+  useFormat,
+} from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type ContactScope, isLimited, type Lifetime } from './keyDraft';
-import { type DraftProps, Section } from './keyParts';
+import type { DraftProps } from './keyParts';
 import { useKeyLookups } from './useKeyLookups';
 
 const NEVER = 'never';
 const KEEP = 'keep';
 const SCOPES = ['all', 'own', 'units'] as const satisfies readonly ContactScope[];
-
-const picked = (ids: string[], options: { value: string; label: string }[]) =>
-  options.filter((option) => ids.includes(option.value));
 
 const lifetimeOf = (value: string): Lifetime =>
   API_KEY_LIFETIMES.find((days) => String(days) === value) ?? null;
@@ -19,8 +24,6 @@ const lifetimeOf = (value: string): Lifetime =>
 /** Which contacts a regular key sees: all, the maker's, a branch's or department's; with tags. */
 const ContactLimits = ({ draft, onChange }: DraftProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys.form' });
-  const unitsId = useId();
-  const tagsId = useId();
   const { units, tags } = useKeyLookups();
 
   const labels: Record<ContactScope, string> = {
@@ -49,25 +52,25 @@ const ContactLimits = ({ draft, onChange }: DraftProps) => {
           ))}
         </ChoiceboxGroup>
         {draft.scope === 'units' && (
-          <MultipleSelector
-            id={unitsId}
-            value={picked(draft.unitIds, units)}
-            onChange={(chosen) => onChange({ ...draft, unitIds: chosen.map((unit) => unit.value) })}
-            options={units}
+          <LookupPicker
+            multiple
+            className="w-full"
+            lookup={units}
+            value={draft.unitIds}
+            onValueChange={(unitIds) => onChange({ ...draft, unitIds })}
             placeholder={t('units-placeholder', 'Choose branches or departments')}
-            hidePlaceholderWhenSelected
           />
         )}
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor={tagsId}>{t('tags', 'Only with these tags')}</Label>
-        <MultipleSelector
-          id={tagsId}
-          value={picked(draft.tagIds, tags)}
-          onChange={(chosen) => onChange({ ...draft, tagIds: chosen.map((tag) => tag.value) })}
-          options={tags}
+        <Label>{t('tags', 'Only with these tags')}</Label>
+        <LookupPicker
+          multiple
+          className="w-full"
+          lookup={tags}
+          value={draft.tagIds}
+          onValueChange={(tagIds) => onChange({ ...draft, tagIds })}
           placeholder={t('tags-placeholder', 'Any tag')}
-          hidePlaceholderWhenSelected
         />
       </div>
       {isLimited(draft) && (
@@ -135,27 +138,26 @@ export const LimitsSection = ({ draft, onChange, saved }: DraftProps & { saved: 
   const ipsId = useId();
 
   return (
-    <Section
+    <Form.Section
       title={t('limits-title', 'Limits')}
-      hint={t('limits-hint', 'Optional. Leave them as they are for no extra limits.')}
+      description={t('limits-hint', 'Optional. Leave them as they are for no extra limits.')}
     >
       {draft.kind === 'regular' && draft.areas.contacts && (
         <ContactLimits draft={draft} onChange={onChange} />
       )}
       <div className="space-y-1.5">
         <Label htmlFor={ipsId}>{t('ips', 'Only from these addresses')}</Label>
-        <Textarea
+        <StringArrayInput
           id={ipsId}
-          rows={2}
           value={draft.ips}
-          onChange={(event) => onChange({ ...draft, ips: event.target.value })}
-          placeholder={t(
-            'ips-placeholder',
-            'Any address. Or one per line: 203.0.113.7 or 10.0.0.0/8',
-          )}
+          onValueChange={(ips) => onChange({ ...draft, ips })}
+          placeholder={t('ips-placeholder', 'Add an address, like 203.0.113.7 or 10.0.0.0/8')}
         />
+        <p className="text-xs text-accent-foreground">
+          {t('ips-hint', 'Leave empty for any address. Press Enter after each one.')}
+        </p>
       </div>
       <Expiry draft={draft} onChange={onChange} saved={saved} />
-    </Section>
+    </Form.Section>
   );
 };

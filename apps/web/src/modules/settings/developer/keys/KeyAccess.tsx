@@ -1,5 +1,5 @@
 import { API_KEY_AREA_INFO, type ApiKeyAccess, type ApiKeyArea } from '@erxes/core-contract';
-import { ChoiceboxGroup, Select } from 'erxes-ui';
+import { ChoiceboxGroup, Form, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCan, useSession } from '~/modules/auth/session';
 import {
@@ -11,7 +11,7 @@ import {
   type Preset,
   presetAreas,
 } from './keyDraft';
-import { Choice, type DraftProps, Section } from './keyParts';
+import { Choice, type DraftProps } from './keyParts';
 
 const OFF = 'off';
 
@@ -78,7 +78,7 @@ export const KindSection = ({ draft, onChange }: DraftProps) => {
     });
 
   return (
-    <Section title={t('kind-title', 'What is it for?')}>
+    <Form.Section title={t('kind-title', 'What is it for?')}>
       <ChoiceboxGroup
         direction="row"
         value={draft.kind}
@@ -105,7 +105,7 @@ export const KindSection = ({ draft, onChange }: DraftProps) => {
           />
         </ChoiceboxGroup.Item>
       </ChoiceboxGroup>
-    </Section>
+    </Form.Section>
   );
 };
 
@@ -122,7 +122,7 @@ export const AccessSection = ({ draft, onChange }: DraftProps) => {
     });
 
   return (
-    <Section title={t('access-title', 'What can it do?')}>
+    <Form.Section title={t('access-title', 'What can it do?')}>
       <ChoiceboxGroup
         direction="row"
         value={draft.preset}
@@ -170,6 +170,6 @@ export const AccessSection = ({ draft, onChange }: DraftProps) => {
           ))}
         </div>
       )}
-    </Section>
+    </Form.Section>
   );
 };

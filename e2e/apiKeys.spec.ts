@@ -6,6 +6,7 @@ test('an owner makes a read-only key and tries it', async ({ page }) => {
   await page.goto('/settings/api-keys/new');
   await page.getByRole('textbox', { name: 'Name' }).fill(name);
   await page.getByRole('textbox', { name: 'Only from these addresses' }).fill('203.0.113.7');
+  await page.keyboard.press('Enter');
 
   const sentence = page.getByTestId('key-sentence');
 

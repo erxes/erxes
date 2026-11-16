@@ -26,6 +26,23 @@ export const useKeyLookups = () => {
 
     const names = new Map([...units, ...tags].map((option) => [option.value, option.label]));
 
-    return { units, tags, nameOf: (id: string) => names.get(id) ?? id };
-  }, [branches.data, departments.data, customerTags.tags, companyTags.tags]);
+    return {
+      units: {
+        options: units,
+        loading: branches.isLoading || departments.isLoading,
+        error: branches.error ?? departments.error,
+      },
+      tags: { options: tags, loading: false, error: null },
+      nameOf: (id: string) => names.get(id) ?? id,
+    };
+  }, [
+    branches.data,
+    branches.isLoading,
+    branches.error,
+    departments.data,
+    departments.isLoading,
+    departments.error,
+    customerTags.tags,
+    companyTags.tags,
+  ]);
 };

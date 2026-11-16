@@ -12,7 +12,7 @@ import { ShownOnce } from '~/components/ShownOnce';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { KeyForm } from './KeyForm';
-import { type KeyDraft, draftOf, ipList, keyRules, newDraft, opensAny } from './keyDraft';
+import { type KeyDraft, draftOf, keyRules, newDraft, opensAny } from './keyDraft';
 import { TryKey } from './TryKey';
 import { useKeyLookups } from './useKeyLookups';
 import { useKeySentence } from './useKeySentence';
@@ -31,7 +31,7 @@ const useDraftSentence = (draft: KeyDraft, saved?: ApiKey) => {
     scope: draft.scope,
     unitNames: draft.scope === 'units' ? draft.unitIds.map(nameOf) : [],
     tagNames: draft.tagIds.map(nameOf),
-    ips: ipList(draft.ips),
+    ips: draft.ips,
     until:
       draft.lifetime === 'keep'
         ? (saved?.expiresAt ?? null)

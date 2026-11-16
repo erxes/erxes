@@ -27,7 +27,7 @@ export interface KeyDraft {
   scope: ContactScope;
   unitIds: string[];
   tagIds: string[];
-  ips: string;
+  ips: string[];
   /** `keep`: an existing key keeps its expiry. */
   lifetime: Lifetime | 'keep';
 }
@@ -75,7 +75,7 @@ export const newDraft = (can: (action: string) => boolean): KeyDraft => ({
   scope: 'all',
   unitIds: [],
   tagIds: [],
-  ips: '',
+  ips: [],
   lifetime: 90,
 });
 
@@ -102,7 +102,7 @@ export const draftOf = (key: ApiKey, can: (action: string) => boolean): KeyDraft
     scope: key.ownRecords ? 'own' : key.unitIds.length ? 'units' : 'all',
     unitIds: key.unitIds,
     tagIds: key.tagIds,
-    ips: key.allowedIps.join('\n'),
+    ips: key.allowedIps,
     lifetime: 'keep',
   };
 
@@ -128,12 +128,6 @@ export const fitLimits = (draft: KeyDraft): KeyDraft => {
   return { ...draft, areas };
 };
 
-export const ipList = (ips: string) =>
-  ips
-    .split(/[\s,]+/)
-    .map((ip) => ip.trim())
-    .filter(Boolean);
-
 /** The rules the API takes. */
 export const keyRules = (draft: KeyDraft) => {
   const regular = draft.kind === 'regular';
@@ -152,7 +146,7 @@ export const keyRules = (draft: KeyDraft) => {
     ownRecords: regular && draft.scope === 'own',
     unitIds: regular && draft.scope === 'units' ? draft.unitIds : [],
     tagIds: regular ? draft.tagIds : [],
-    allowedIps: ipList(draft.ips),
+    allowedIps: draft.ips,
   };
 };
 
