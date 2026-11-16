@@ -116,7 +116,6 @@ export const storepayDriver = (
 
   return {
     kind: 'storepay',
-    refunds: 'full',
     async verify() {
       client.cache.forget();
       await client.cache.token();

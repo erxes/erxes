@@ -1,6 +1,6 @@
 import { paymentInvoices, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import { Router } from 'express';
+import { type Request, Router } from 'express';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
 import { safeEqual } from '~/lib/crypto';
@@ -9,23 +9,13 @@ import { callbackSignature, refresh } from './invoiceState';
 /** Where the invoice's caller wants the payer back (`returnUrl` on create). */
 const ReturnTo = z.object({ returnUrl: z.url({ protocol: /^https?$/ }).optional() });
 
-/**
- * `GET|POST /core/v1/payments/callback/:id?sig=…`: the gateway says something
- * happened. The signature proves the address is ours; the status is then
- * asked of the gateway itself — the callback alone never marks anything paid.
- *
- * With `&return=1` it is where card pages (Golomt, TDB, HiPay, Stripe,
- * PayPal) send the payer: after the check, on to the invoice's `returnUrl`.
- * A failed check doesn't keep the payer here; the background check catches up.
- */
-export const paymentCallbackRouter = Router();
+const Params = z.object({ id: z.string(), sig: z.string() });
 
-paymentCallbackRouter.all('/payments/callback/:id', async (req, res) => {
-  const { id } = req.params;
-  const given = typeof req.query.sig === 'string' ? req.query.sig : '';
+/** The organisation of the invoice the signed address names. */
+const ownerOf = async (req: Request) => {
+  const { id, sig } = Params.parse(req.params);
 
-  if (!safeEqual(given, callbackSignature(id)))
-    throw fail('INVALID_SIGNATURE', 'Invalid signature');
+  if (!safeEqual(sig, callbackSignature(id))) throw fail('INVALID_SIGNATURE', 'Invalid signature');
 
   const [owner] = await withSystem('payment callback lookup', (tx) =>
     tx
@@ -35,16 +25,34 @@ paymentCallbackRouter.all('/payments/callback/:id', async (req, res) => {
       .limit(1),
   );
 
-  if (req.query.return !== '1') {
-    if (owner) await refresh(owner.orgId, id);
+  return { id, orgId: owner?.orgId ?? null };
+};
 
-    res.status(200).json({ ok: true });
+/**
+ * `GET|POST /core/v1/payments/callback/:id/:sig`: the gateway says something
+ * happened. The signature proves the address is ours; the status is then
+ * asked of the gateway itself — the callback alone never marks anything paid.
+ *
+ * `…/return` is where card pages (Golomt, TDB, HiPay, Stripe, PayPal) send
+ * the payer: after the check, on to the invoice's `returnUrl`. A failed
+ * check doesn't keep the payer here; the background check catches up.
+ */
+export const paymentCallbackRouter = Router();
 
-    return;
-  }
+paymentCallbackRouter.all('/payments/callback/:id/:sig', async (req, res) => {
+  const { id, orgId } = await ownerOf(req);
 
-  const checked = owner
-    ? await refresh(owner.orgId, id).catch((error: unknown) => {
+  if (orgId) await refresh(orgId, id);
+
+  res.status(200).json({ ok: true });
+});
+
+// Some card pages post the payer back (a form), others send them with a GET.
+paymentCallbackRouter.all('/payments/callback/:id/:sig/return', async (req, res) => {
+  const { id, orgId } = await ownerOf(req);
+
+  const checked = orgId
+    ? await refresh(orgId, id).catch((error: unknown) => {
         req.log.warn(
           { invoice: id, err: error },
           'could not check the invoice the payer is back from',

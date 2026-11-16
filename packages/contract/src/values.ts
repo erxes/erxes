@@ -11,7 +11,6 @@ import {
   LIVE_MODES,
   NOTIFICATION_DELIVERIES,
   ORG_UNIT_KINDS,
-  PAYMENT_GATEWAY_KINDS,
   PRODUCT_KINDS,
 } from '@erxes/core-db/enums';
 import { z } from 'zod';
@@ -139,69 +138,7 @@ export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
 /** Who changed what in core (owners and admins). */
 export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
-// ─── Payments ───────────────────────────────────────────────────────────────
-
-/**
- * The gateways core can connect, and where each works: the currencies it
- * takes and the countries it serves (empty: any). The drivers are in
- * `@erxes/payment-gateways`.
- */
-const MONGOLIAN = { currencies: ['MNT'], countries: ['MN'] };
-
-export const PAYMENT_GATEWAYS = {
-  qpay: MONGOLIAN,
-  socialpay: MONGOLIAN,
-  monpay: MONGOLIAN,
-  storepay: MONGOLIAN,
-  pocket: MONGOLIAN,
-  toki: MONGOLIAN,
-  golomt: MONGOLIAN,
-  tdb: MONGOLIAN,
-  hipay: MONGOLIAN,
-  stripe: { currencies: [], countries: [] },
-  // developer.paypal.com/api/rest/reference/currency-codes
-  paypal: {
-    currencies: [
-      'AUD',
-      'BRL',
-      'CAD',
-      'CHF',
-      'CNY',
-      'CZK',
-      'DKK',
-      'EUR',
-      'GBP',
-      'HKD',
-      'HUF',
-      'ILS',
-      'JPY',
-      'MXN',
-      'MYR',
-      'NOK',
-      'NZD',
-      'PHP',
-      'PLN',
-      'SEK',
-      'SGD',
-      'THB',
-      'TWD',
-      'USD',
-    ],
-    countries: [],
-  },
-  test: { currencies: [], countries: [] },
-} as const satisfies Record<string, { currencies: string[]; countries: string[] }>;
-
-export const PaymentGatewayKind = z.enum(PAYMENT_GATEWAY_KINDS);
-
-export type PaymentGatewayKind = z.infer<typeof PaymentGatewayKind>;
-
-/** Does this kind of gateway take this currency? */
-export const gatewayTakes = (kind: PaymentGatewayKind, currency: string) => {
-  const { currencies } = PAYMENT_GATEWAYS[kind];
-
-  return currencies.length === 0 || currencies.some((code) => code === currency);
-};
+// ─── Payments (gateways: `./paymentGateways`) ───────────────────────────────
 
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 

@@ -118,7 +118,6 @@ describe('Mongolian gateway drivers', () => {
       loanId: 77,
       reason: 'Returned',
     });
-    expect(driver.refunds).toBe('full');
   });
 
   it('Pocket signs in with client credentials and checks the invoice by id', async () => {

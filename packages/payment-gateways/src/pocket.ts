@@ -52,7 +52,6 @@ export const pocketDriver = (config: PocketConfig, options: DriverOptions = {}):
 
   return {
     kind: 'pocket',
-    refunds: 'none',
     async verify() {
       if (!Number.isInteger(terminalId) || terminalId <= 0)
         throw new GatewayError('The Pocket terminal id is a positive number', 400);

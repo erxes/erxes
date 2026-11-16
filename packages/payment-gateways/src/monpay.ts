@@ -31,7 +31,6 @@ export const monpayDriver = (config: MonPayConfig, options: DriverOptions = {}):
 
   return {
     kind: 'monpay',
-    refunds: 'none',
     async verify() {
       // No sign-in endpoint: a check of an unknown QR answers 401 for wrong credentials.
       await check(probeId());

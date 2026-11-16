@@ -10,7 +10,8 @@ import { stripeDriver } from './stripe';
 import { tdbDriver } from './tdb';
 import { testDriver } from './test';
 import { tokiDriver } from './toki';
-import type { DriverOptions, GatewayConfig, GatewayDriver, GatewayKind } from './types';
+import { wechatpayDriver } from './wechatpay';
+import type { DriverOptions, GatewayConfig, GatewayDriver } from './types';
 
 export * from './types';
 
@@ -48,23 +49,9 @@ export const createGateway = (
       return stripeDriver(config, options);
     case 'paypal':
       return paypalDriver(config, options);
+    case 'wechatpay':
+      return wechatpayDriver(config, options);
     case 'test':
       return testDriver();
   }
-};
-
-/** What refunds each gateway can make itself (without credentials at hand). */
-export const GATEWAY_REFUNDS: Record<GatewayKind, GatewayDriver['refunds']> = {
-  qpay: 'full',
-  socialpay: 'none',
-  monpay: 'none',
-  storepay: 'full',
-  pocket: 'none',
-  toki: 'none',
-  golomt: 'none',
-  tdb: 'none',
-  hipay: 'full',
-  stripe: 'partial',
-  paypal: 'partial',
-  test: 'partial',
 };

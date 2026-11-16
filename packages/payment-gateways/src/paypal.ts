@@ -168,7 +168,6 @@ export const paypalDriver = (config: PayPalConfig, options: DriverOptions = {}):
 
   return {
     kind: 'paypal',
-    refunds: 'partial',
     async verify() {
       client.cache.forget();
       await client.cache.token();

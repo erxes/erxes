@@ -6,7 +6,6 @@ import { type GatewayDriver, GatewayError } from './types';
  */
 export const testDriver = (): GatewayDriver => ({
   kind: 'test',
-  refunds: 'partial',
   async verify() {},
   async createInvoice(input) {
     return {

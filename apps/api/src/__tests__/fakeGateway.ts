@@ -59,6 +59,6 @@ export const tugrugInvoice: CreateInvoiceInput = {
   amount: 150_000,
   currency: 'MNT',
   description: 'Order #1',
-  callbackUrl: 'https://erxes.test/cb?sig=s',
-  returnUrl: 'https://erxes.test/cb?sig=s&return=1',
+  callbackUrl: 'https://erxes.test/cb/inv1/s',
+  returnUrl: 'https://erxes.test/cb/inv1/s/return',
 };

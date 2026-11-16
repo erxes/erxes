@@ -338,6 +338,7 @@ export const PAYMENT_GATEWAY_KINDS = [
   'hipay',
   'stripe',
   'paypal',
+  'wechatpay',
   'test',
 ] as const;
 

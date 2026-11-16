@@ -87,6 +87,19 @@ export interface PayPalConfig {
   sandbox: boolean;
 }
 
+/** WeChat Pay cross-border (APIv3, direct merchant): Native QR orders. */
+export interface WeChatPayConfig {
+  kind: 'wechatpay';
+  appId: string;
+  mchId: string;
+  /** The serial number of the merchant's API certificate. */
+  serialNo: string;
+  /** The merchant's API private key (PKCS#8 PEM, apiclient_key.pem). */
+  privateKey: string;
+  /** The merchant's 4-digit category code (MCC). */
+  merchantCategoryCode: string;
+}
+
 /** Development and tests: nothing leaves the server. */
 export interface TestConfig {
   kind: 'test';
@@ -104,6 +117,7 @@ export type GatewayConfig =
   | HiPayConfig
   | StripeConfig
   | PayPalConfig
+  | WeChatPayConfig
   | TestConfig;
 
 export type GatewayKind = GatewayConfig['kind'];
@@ -167,8 +181,6 @@ export interface RefundInput {
 /** What any payment gateway does for core. */
 export interface GatewayDriver {
   readonly kind: GatewayKind;
-  /** What refunds the gateway can make itself: any amount, only the whole payment, or none. */
-  readonly refunds: 'partial' | 'full' | 'none';
   /** Checks the credentials (on connecting). */
   verify(): Promise<void>;
   createInvoice(input: CreateInvoiceInput): Promise<CreatedInvoice>;

@@ -60,7 +60,6 @@ export const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): Gat
 
   return {
     kind: 'toki',
-    refunds: 'none',
     async verify() {
       cache.forget();
       await cache.token();

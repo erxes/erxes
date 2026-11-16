@@ -9,13 +9,13 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { InvoiceStatus, PaymentGatewayKind } from './values';
+import { InvoiceStatus } from './values';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { TaxBuyer } from './ebarimt';
 import { InvoiceLine, InvoiceLineInput } from './invoiceLines';
-import { GatewayConfig } from './paymentGateways';
+import { GatewayConfig, PaymentGatewayKind } from './paymentGateways';
 
 export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, createdAt: isoDate })
   .pick({ id: true, kind: true, name: true, status: true, createdAt: true })

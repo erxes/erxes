@@ -24,6 +24,7 @@ const SECRET_FIELDS = [
   'accountId',
   'appPassword',
   'secretKey',
+  'privateKey',
 ];
 
 /**

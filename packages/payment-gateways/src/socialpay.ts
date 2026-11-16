@@ -86,7 +86,6 @@ export const socialpayDriver = (
 
   return {
     kind: 'socialpay',
-    refunds: 'none',
     async verify() {
       // SocialPay has no sign-in: a ₮1 invoice proves the terminal and key, then goes.
       const invoice = probeId();

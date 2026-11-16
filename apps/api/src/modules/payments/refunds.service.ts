@@ -1,3 +1,4 @@
+import { PAYMENT_GATEWAYS } from '@erxes/core-contract';
 import {
   actorOf,
   caller,
@@ -77,7 +78,7 @@ const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow, input: RefundInp
 
   if (input.manual) return { amount, full: amount === left, paymentId: null };
 
-  const { refunds } = driverOf(gateway);
+  const { refunds } = PAYMENT_GATEWAYS[gateway.kind];
 
   if (refunds === 'none')
     throw fail(

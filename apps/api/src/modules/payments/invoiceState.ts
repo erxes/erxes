@@ -1,6 +1,5 @@
-import type { Invoice } from '@erxes/core-contract';
+import { type Invoice, PAYMENT_GATEWAYS } from '@erxes/core-contract';
 import { type Db, paymentGateways, paymentInvoices, runAs, system, withOrg } from '@erxes/core-db';
-import { GATEWAY_REFUNDS } from '@erxes/payment-gateways';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { notFound } from '~/http/errors';
@@ -19,10 +18,8 @@ export type InvoiceRow = typeof paymentInvoices.$inferSelect;
 const payment = paymentInvoices.payment;
 
 /** How each gateway kind refunds, as SQL over the joined gateway. */
-const refundKind = sql<
-  (typeof GATEWAY_REFUNDS)[keyof typeof GATEWAY_REFUNDS]
->`case ${paymentGateways.kind} ${sql.join(
-  Object.entries(GATEWAY_REFUNDS).map(([kind, refunds]) => sql`when ${kind} then ${refunds}`),
+const refundKind = sql<Invoice['refundable']['gateway']>`case ${paymentGateways.kind} ${sql.join(
+  Object.entries(PAYMENT_GATEWAYS).map(([kind, { refunds }]) => sql`when ${kind} then ${refunds}`),
   sql` `,
 )} else 'none' end`;
 
@@ -195,11 +192,18 @@ export const paymentCheckJob = defineJob({
   },
 });
 
-/** Checks pending invoices with the gateway every 30 s at first, then every 2 minutes, until they expire. */
+/**
+ * How long until check `round`: most payers pay within a minute of seeing the
+ * QR, so every 5 s for the first minute, every 15 s for the next four, then
+ * every minute until the invoice expires.
+ */
+const checkDelay = (round: number) => (round < 12 ? 5_000 : round < 28 ? 15_000 : 60_000);
+
+/** Checks a pending invoice with the gateway (`checkDelay`), so a lost callback still settles it. */
 export const queueCheck = (client: Db, invoice: InvoiceRow, round: number) =>
   paymentCheckJob.enqueue(client, {
     orgId: invoice.orgId,
     payload: { invoiceId: invoice.id, round },
-    runAt: new Date(Date.now() + (round < 20 ? 30_000 : 120_000)),
+    runAt: new Date(Date.now() + checkDelay(round)),
     dedupeKey: `${invoice.id}:${round}`,
   });

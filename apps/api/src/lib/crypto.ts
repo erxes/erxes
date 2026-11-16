@@ -22,6 +22,7 @@ export {
   type KeyObject,
   randomInt,
   randomUUID,
+  verify,
 } from 'node:crypto';
 
 type TextEncoding = 'hex' | 'base64url';

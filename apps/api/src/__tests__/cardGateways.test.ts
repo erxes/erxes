@@ -11,8 +11,8 @@ const dollars = {
   amount: 1500,
   currency: 'USD',
   description: 'Order #2',
-  callbackUrl: 'https://erxes.test/cb?sig=s',
-  returnUrl: 'https://erxes.test/cb?sig=s&return=1',
+  callbackUrl: 'https://erxes.test/cb/inv2/s',
+  returnUrl: 'https://erxes.test/cb/inv2/s/return',
 };
 
 const stripeReplies: [string, unknown][] = [
@@ -164,10 +164,10 @@ describe('card gateways through core', { timeout: 120_000 }, () => {
     });
 
     const callback = t.url(
-      `/core/v1/payments/callback/${invoice.id}?sig=${callbackSignature(invoice.id)}`,
+      `/core/v1/payments/callback/${invoice.id}/${callbackSignature(invoice.id)}`,
     );
 
-    const back = await fetch(`${callback}&return=1`, { redirect: 'manual' });
+    const back = await fetch(`${callback}/return`, { redirect: 'manual' });
 
     expect(back.status).toBe(303);
     expect(back.headers.get('location')).toBe('https://shop.acme.mn/orders/o3');

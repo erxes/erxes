@@ -42,7 +42,7 @@ describe('payments under concurrent calls', { timeout: 120_000 }, () => {
       .set({ payment: sql`${paymentInvoices.payment} || '{"testPaid": true}'::jsonb` })
       .where(eq(paymentInvoices.id, id));
 
-    const callback = t.url(`/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`);
+    const callback = t.url(`/core/v1/payments/callback/${id}/${callbackSignature(id)}`);
 
     await Promise.all([
       ...Array.from({ length: 3 }, () => fetch(callback, { method: 'POST' })),

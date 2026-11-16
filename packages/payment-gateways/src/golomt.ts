@@ -65,7 +65,6 @@ export const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}):
 
   return {
     kind: 'golomt',
-    refunds: 'none',
     async verify() {
       // No sign-in endpoint: a ₮1 invoice proves the token and key; unpaid, it lapses.
       await invoice(probeId(), 100, `${BASE}/`);

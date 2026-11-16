@@ -63,7 +63,7 @@ describe('QPay driver', () => {
         currency: 'MNT',
         description: 'Order #1',
         callbackUrl: 'https://x/cb',
-        returnUrl: 'https://x/cb&return=1',
+        returnUrl: 'https://x/cb/return',
       });
 
       expect(calls[0]).toMatchObject({
@@ -98,7 +98,6 @@ describe('QPay driver', () => {
       await driver.refund({ paymentId: 'p-9', amount: 150_000, note: 'Out of stock' }, {});
       expect(calls.at(-1)?.url).toBe('https://merchant-sandbox.qpay.mn/v2/payment/refund/p-9');
       expect(JSON.parse(calls.at(-1)?.body ?? '{}')).toEqual({ note: 'Out of stock' });
-      expect(driver.refunds).toBe('full');
     } finally {
       vi.unstubAllGlobals();
     }

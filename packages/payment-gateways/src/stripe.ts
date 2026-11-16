@@ -33,7 +33,6 @@ export const stripeDriver = (config: StripeConfig, options: DriverOptions = {}):
 
   return {
     kind: 'stripe',
-    refunds: 'partial',
     async verify() {
       await call('/balance');
     },

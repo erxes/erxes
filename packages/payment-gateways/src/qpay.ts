@@ -155,7 +155,6 @@ export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): Gat
 
   return {
     kind: 'qpay',
-    refunds: 'full',
     async verify() {
       cache.forget();
       await cache.token();

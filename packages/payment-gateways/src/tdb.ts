@@ -54,7 +54,6 @@ export const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): Gatew
 
   return {
     kind: 'tdb',
-    refunds: 'none',
     async verify() {
       // No sign-in endpoint: wrong credentials answer 401 even for an unknown order.
       await detail('0', '0').catch((error: unknown) => {

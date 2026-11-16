@@ -117,7 +117,6 @@ export const hipayDriver = (config: HiPayConfig, options: DriverOptions = {}): G
 
   return {
     kind: 'hipay',
-    refunds: 'full',
     async verify() {
       // No sign-in endpoint: wrong credentials answer 401 even for an unknown checkout.
       await client.status('0').catch((error: unknown) => {

@@ -81,7 +81,8 @@ const prepareInvoice = (orgId: string, input: InvoiceInput) =>
     const currency = input.currency ?? (await getOrganization(tx)).currency;
     const gateway = await resolveGateway(tx, currency, input.gatewayId);
     const id = newId();
-    const path = `/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`;
+    // Signed in the path: some gateways (WeChat Pay) take no query in a callback address.
+    const path = `/core/v1/payments/callback/${id}/${callbackSignature(id)}`;
 
     return { gateway, id, lines, currency, callbackUrl: await appLink(tx, path) };
   });
@@ -105,7 +106,7 @@ export const createInvoice = async (input: InvoiceInput) => {
     currency,
     description: input.description,
     callbackUrl,
-    returnUrl: `${callbackUrl}&return=1`,
+    returnUrl: `${callbackUrl}/return`,
     payerPhone: input.payerPhone,
     payerEmail: input.payerEmail,
   });

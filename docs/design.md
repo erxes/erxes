@@ -61,7 +61,7 @@
    merge, detail panel, first-run setup. Next: find-or-create for plugins,
    consent, activity timeline (with events).
 5. SaaS sync: create/update `core_organizations` from the SaaS side.
-6. Files, notifications — **done**; payments (QPay, SocialPay, MonPay, StorePay, Pocket, Toki, Golomt, TDB, HiPay, Stripe, PayPal) — **done**.
+6. Files, notifications — **done**; payments (QPay, SocialPay, MonPay, StorePay, Pocket, Toki, Golomt, TDB, HiPay; global: Stripe, PayPal, WeChat Pay) — **done**.
 7. Activity timeline (notes, filters, rollup), audit log (plugins, hash chain,
    export) and the event stream — **done**; next: webhooks from the stream,
    plugin keys → registry OAuth clients, then the automation engine on events.
