@@ -21,8 +21,14 @@ export interface PluginOpenApiOptions {
   version: string;
   description?: string;
   /**
-   * Where the REST routes are served under the manifest's `api.url` (`/v1`, for an
-   * `OpenAPIHandler` with prefix `<api path>/v1`): every path in the document starts with it.
+   * The address the document's paths start from, which "try it" calls: the manifest's
+   * `api.url` (`${publicUrl}/api`) for routes under it, or the plugin's public URL for routes
+   * outside it (a website's `/public/v1`, customers' `/customer`).
+   */
+  server: string;
+  /**
+   * Where the REST routes are mounted under `server` (`/v1`, for an `OpenAPIHandler` with
+   * prefix `<api path>/v1`): every path in the document starts with it.
    */
   prefix: `/${string}`;
 }
@@ -100,17 +106,20 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
  * Each audience signs in its own way (`securityOf`), and the document says how.
  *
  *   const rest = new OpenAPIHandler(router);   // mounted at `<api path>/v1`, like the RPC handler
- *   const doc = pluginOpenApi(router, { plugin: 'sales', audience: 'member', title, version, prefix: '/v1' });
+ *   const doc = pluginOpenApi(router, {
+ *     plugin: 'sales', audience: 'member', title, version, server: `${publicUrl}/api`, prefix: '/v1',
+ *   });
  *   app.get('/api/openapi/member.json', async (_req, res) => res.json(await doc));
  */
 export const pluginOpenApi = async (
   router: Documented,
-  { plugin, audience, title, version, description, prefix }: PluginOpenApiOptions,
+  { plugin, audience, title, version, description, server, prefix }: PluginOpenApiOptions,
 ): Promise<OpenAPI.Document> => {
   const doc = await new OpenAPIGenerator({
     schemaConverters: [new ZodToJsonSchemaConverter()],
   }).generate(router, {
     info: { title, version, description },
+    servers: [{ url: server }],
     ...securityOf(plugin, audience),
   });
 

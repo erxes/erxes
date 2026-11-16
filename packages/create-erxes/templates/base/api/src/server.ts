@@ -30,6 +30,7 @@ const memberDoc = pluginOpenApi(router, {
   title: manifest.title,
   version: manifest.version,
   description: manifest.description,
+  server: `${config.publicUrl}/api`,
   prefix: '/v1',
 });
 

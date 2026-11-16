@@ -48,7 +48,9 @@ export type ReferenceSource =
 /** Where the document is and where its calls go: core's own origin, or the plugin's API. */
 const locate = (source: ReferenceSource) =>
   'plugin' in source
-    ? { url: `${source.apiUrl}${source.path}`, server: source.apiUrl }
+    ? // A plugin's document names its own server (`pluginOpenApi`'s `server`): routes for a
+      // website or customers may sit outside `api.url`.
+      { url: `${source.apiUrl}${source.path}`, server: null }
     : {
         url: `${CORE_API_PREFIX}/openapi/${source.audience}.json`,
         server: window.location.origin,
@@ -59,12 +61,12 @@ type ScalarConfig = Parameters<ReturnType<CreateApiReference>['updateConfigurati
 /** A plugin reference fills in the member's session token, so "try it" calls as them. */
 const configFor = (
   url: string,
-  server: string,
+  server: string | null,
   theme: 'light' | 'dark',
   token?: string,
 ): ScalarConfig => ({
   url,
-  servers: [{ url: server }],
+  servers: server ? [{ url: server }] : undefined,
   layout: 'modern',
   forceDarkModeState: theme,
   hideDarkModeToggle: true,

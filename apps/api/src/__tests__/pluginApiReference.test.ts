@@ -26,7 +26,14 @@ const DOCS = [
 ] as const;
 
 const document = (audience: PluginApiAudience) =>
-  pluginOpenApi(contract, { plugin: 'hr', audience, title: 'HR', version: '2.0.0', prefix: '/v1' });
+  pluginOpenApi(contract, {
+    plugin: 'hr',
+    audience,
+    title: 'HR',
+    version: '2.0.0',
+    server: 'https://hr.example.com/api',
+    prefix: '/v1',
+  });
 
 describe('plugin API reference', () => {
   useTestDatabase();
@@ -79,6 +86,7 @@ describe('plugin API reference', () => {
   it('documents member routes with the session token a script gets from core', async () => {
     const doc = await document('member');
 
+    expect(doc.servers).toEqual([{ url: 'https://hr.example.com/api' }]);
     expect(Object.keys(doc.paths ?? {})).toEqual(['/v1/greetings/create']);
     expect(doc.security).toEqual([{ [PLUGIN_SESSION_SCHEME]: [] }]);
     expect(JSON.stringify(doc.components?.securitySchemes)).toContain(
