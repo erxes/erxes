@@ -58,3 +58,16 @@ export const GET_PACKAGE_DETAIL = gql`
   }
   ${PACKAGE_FRAGMENT}
 `;
+
+// The package's chosen products, for their names and unit prices. `products`
+// returns every one of `ids`; `productsMain` refuses a page over 100.
+export const GET_PACKAGE_CHOSEN_PRODUCTS = gql`
+  query productPackageChosenProducts($ids: [String]) {
+    products(ids: $ids) {
+      _id
+      name
+      code
+      unitPrice
+    }
+  }
+`;

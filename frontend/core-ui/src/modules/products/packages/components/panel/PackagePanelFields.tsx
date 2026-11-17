@@ -24,6 +24,7 @@ import {
 } from '@/products/product-detail/components/panel/ProductPanelCells';
 import { TPackagePatch } from '../../hooks/usePackagePanelSave';
 import { IPackage, PACKAGE_STATUS_OPTIONS } from '../../types/Package';
+import { PackagePanelMedia } from './PackagePanelMedia';
 
 const SCOPE = 'side-panel-package';
 
@@ -183,9 +184,7 @@ export const PackagePanelFields = ({
                 !total && 'text-accent-foreground',
               )}
             >
-              {total
-                ? formatAmount(total)
-                : t('total-from-products', 'Choose products')}
+              {total ? formatAmount(total) : '—'}
             </span>
           </PanelField>
           <PanelField icon={IconPercentage} label={t('percent')}>
@@ -219,6 +218,7 @@ export const PackagePanelFields = ({
           </PanelField>
           <FieldError message={errors?.price} />
         </ContactDetailSection>
+        <PackagePanelMedia pkg={pkg} save={save} />
       </div>
     </ScrollArea>
   );

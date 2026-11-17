@@ -2,6 +2,7 @@ import {
   Badge,
   Button,
   Collapsible,
+  cn,
   IconComponent,
   Spinner,
   Table,
@@ -86,23 +87,26 @@ export const VariantFieldPicker = ({
                 {field.name}
               </div>
             </div>
-            <div className="flex flex-wrap flex-auto gap-1">
+            {/* A long value shortens rather than pushing out the remove. */}
+            <div className="flex min-w-0 flex-auto flex-wrap gap-1">
               {options.map((option) => {
                 const isOn = selected.includes(option.value);
                 return (
                   <Badge
                     key={option.value}
                     variant={isOn ? 'default' : 'secondary'}
-                    className={
+                    title={option.label}
+                    className={cn(
+                      'max-w-full',
                       disabled
                         ? 'pointer-events-none opacity-60'
-                        : 'cursor-pointer'
-                    }
+                        : 'cursor-pointer',
+                    )}
                     onClick={() =>
                       !disabled && handleToggleFieldValue(fieldId, option.value)
                     }
                   >
-                    {option.label}
+                    <span className="truncate">{option.label}</span>
                   </Badge>
                 );
               })}

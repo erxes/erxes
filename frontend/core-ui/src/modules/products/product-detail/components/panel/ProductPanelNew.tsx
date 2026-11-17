@@ -285,7 +285,8 @@ export const ProductPanelNew = ({
                 className="flex-1 min-h-0"
                 viewportClassName="[&>div]:block!"
               >
-                <div className="p-3" inert={sending || undefined}>
+                {/* React 18 drops `inert={true}`; only a string is written. */}
+                <div className="p-3" {...(sending ? { inert: '' } : {})}>
                   <DraftPropertiesContext.Provider value={setProperties}>
                     <FieldsInDetail
                       bare

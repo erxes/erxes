@@ -1,9 +1,4 @@
-import {
-  IconId,
-  IconListCheck,
-  IconPackage,
-  IconPhoto,
-} from '@tabler/icons-react';
+import { IconId, IconListCheck, IconPackage } from '@tabler/icons-react';
 import { Button, Empty, Spinner } from 'erxes-ui';
 import { type ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +22,6 @@ import { IPackage, IPackageProduct } from '../../types/Package';
 import { toPackageProductsInput } from '../../utils/packagePricing';
 import { PackagePanelActions } from './PackagePanelActions';
 import { PackagePanelFields } from './PackagePanelFields';
-import { PackagePanelMedia } from './PackagePanelMedia';
 import { PackagePanelNew } from './PackagePanelNew';
 import { PackagePanelProducts } from './PackagePanelProducts';
 
@@ -81,9 +75,9 @@ const PackageEmptyState = ({
 
 /**
  * A package in the app's side panel
- * (`?panel=/detail/core:productPackage/<id>`): its fields, cover image and
- * products as tabs, each change saved as it is made. Expanded, it is the
- * package's own page. A new package (`NEW_RECORD_ID`) is drawn the same way
+ * (`?panel=/detail/core:productPackage/<id>`): its fields and cover image,
+ * and its products, as tabs; each change is saved as it is made. Expanded,
+ * it is the package's own page. A new package (`NEW_RECORD_ID`) is drawn the same way
  * as a draft. Without `productsUpdate` it is shown read-only.
  */
 export const PackageRecordPanel = ({
@@ -198,12 +192,6 @@ export const PackageRecordPanel = ({
           save={saveField}
         />,
       ),
-    },
-    {
-      value: 'media',
-      label: t('media', 'Media'),
-      icon: IconPhoto,
-      content: editable(<PackagePanelMedia pkg={pkg} save={saveField} />),
     },
     {
       value: 'products',

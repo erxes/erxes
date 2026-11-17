@@ -1,6 +1,12 @@
-import { IconId, IconListCheck, IconPhoto } from '@tabler/icons-react';
+import { IconId, IconListCheck } from '@tabler/icons-react';
 import { Button, Spinner, toast } from 'erxes-ui';
-import { type ReactNode, useCallback, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   type IRecordSidePanelTab,
@@ -15,13 +21,13 @@ import { PACKAGE_CONTENT_TYPE } from '../../constants/packageContentType';
 import { PACKAGE_FORM_SCHEMA } from '../../constants/packageSchema';
 import { TPackagePatch } from '../../hooks/usePackagePanelSave';
 import { useAddPackage } from '../../hooks/usePackageMutations';
+import { usePackageProductsTotal } from '../../hooks/usePackageChosenProducts';
 import { IPackage, IPackageProduct } from '../../types/Package';
 import {
   priceFromPercent,
   withCoupledPricing,
 } from '../../utils/packagePricing';
 import { PackagePanelFields } from './PackagePanelFields';
-import { PackagePanelMedia } from './PackagePanelMedia';
 import { PackagePanelProducts } from './PackagePanelProducts';
 
 const EMPTY_DRAFT: IPackage = {
@@ -45,7 +51,7 @@ export const PackagePanelNew = ({
   const showCreated = useCreatedPanelRecord(PACKAGE_CONTENT_TYPE);
   const { addPackage, loading } = useAddPackage();
   const [draft, setDraft] = useState(EMPTY_DRAFT);
-  // The checked products' total, as the product list prices them.
+  // The chosen products' total at their unit prices.
   const [total, setTotal] = useState<number | null>(null);
   const [tab, setTab] = useState('detail');
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
@@ -80,6 +86,20 @@ export const PackagePanelNew = ({
       percent: latest.current.percent,
     });
   };
+
+  // Priced here, not in the Products tab, so Details shows the total and
+  // the price follows it before that tab is opened. Products that could not
+  // be loaded leave the total and price as they were.
+  const {
+    total: productsTotal,
+    loading: pricing,
+    error: pricingError,
+  } = usePackageProductsTotal(draft.products ?? []);
+  const changeTotalRef = useRef(changeTotal);
+  changeTotalRef.current = changeTotal;
+  useEffect(() => {
+    if (!pricing && !pricingError) changeTotalRef.current(productsTotal);
+  }, [pricing, pricingError, productsTotal]);
 
   const cancel = () => (canGoBack ? back() : close());
 
@@ -164,12 +184,6 @@ export const PackagePanelNew = ({
       content: held(<PackagePanelFields {...props} />),
     },
     {
-      value: 'media',
-      label: t('media', 'Media'),
-      icon: IconPhoto,
-      content: held(<PackagePanelMedia {...props} />),
-    },
-    {
       value: 'products',
       label: t('products-count', { count: draft.products?.length ?? 0 }),
       icon: IconListCheck,
@@ -178,7 +192,6 @@ export const PackagePanelNew = ({
           value={draft.products || []}
           error={errors.products}
           onChange={(products: IPackageProduct[]) => save({ products })}
-          onTotalChange={changeTotal}
         />,
       ),
     },

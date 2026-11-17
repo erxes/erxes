@@ -1,10 +1,5 @@
-import {
-  IconForms,
-  IconId,
-  IconListCheck,
-  IconPhoto,
-} from '@tabler/icons-react';
-import { Button, Form, Spinner, toast } from 'erxes-ui';
+import { IconId, IconListCheck, IconPhoto } from '@tabler/icons-react';
+import { Button, Form, ScrollArea, Spinner, toast } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import type { FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -85,16 +80,21 @@ const SimilarityPanelTabs = ({
       content: editable(<SimilarityPanelMedia />),
     },
     {
-      value: 'properties',
-      label: t('property-fields'),
-      icon: IconForms,
-      content: editable(<SimilarityPanelProperties disabled={locked} />),
-    },
-    {
+      // The fields that make the variants sit above the rows they make.
       value: 'products',
       label: t('products-count', { count: includedCount }),
       icon: IconListCheck,
-      content: editable(<SimilarityPanelProducts disabled={locked} />),
+      content: editable(
+        <ScrollArea
+          className="flex-1 min-h-0"
+          viewportClassName="[&>div]:block!"
+        >
+          <div className="flex min-w-0 flex-col gap-5 p-3">
+            <SimilarityPanelProperties disabled={locked} />
+            <SimilarityPanelProducts disabled={locked} />
+          </div>
+        </ScrollArea>,
+      ),
     },
   ];
   const value = tabs.some((item) => item.value === tab) ? tab : DETAIL_TAB;
@@ -137,7 +137,7 @@ const SimilarityPanelTabs = ({
 
 /**
  * A similarity group's form as side panel tabs: the shared product info,
- * its images, the variant fields and the products generated from them.
+ * its images, and the variant fields with the products generated from them.
  * Nothing is saved until Save, which generates the group's products.
  */
 export const SimilarityPanelForm = ({

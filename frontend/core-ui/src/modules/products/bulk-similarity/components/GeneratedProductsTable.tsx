@@ -235,6 +235,7 @@ const EmptyPanel = ({
 
 const DEFAULT_COLUMN_WIDTH = 144;
 const MIN_COLUMN_WIDTH = 64;
+const CHECKBOX_COLUMN_WIDTH = 40;
 
 const useColumnWidths = (defaults: Record<string, number>) => {
   const [widths, setWidths] = useState<Record<string, number>>(defaults);
@@ -329,6 +330,11 @@ export const GeneratedProductsTable = ({
     [fieldIds],
   );
   const { widthOf, startResize } = useColumnWidths(columnDefaults);
+  // The include checkbox column (`w-10`) and every sized column.
+  const tableWidth = Object.keys(columnDefaults).reduce(
+    (sum, id) => sum + widthOf(id),
+    CHECKBOX_COLUMN_WIDTH,
+  );
   const {
     rows,
     duplicateCodes,
@@ -372,7 +378,9 @@ export const GeneratedProductsTable = ({
 
   return (
     <div className="border rounded-lg max-h-[28rem] overflow-auto">
-      <Table className="w-auto min-w-full">
+      {/* A fixed table keeps its column widths only when it has a width; it
+          then scrolls in a narrow panel instead of squeezing the columns. */}
+      <Table className="min-w-full" style={{ width: tableWidth }}>
         <Table.Header className="top-0 z-10 sticky bg-sidebar">
           <Table.Row>
             <Table.Head className="px-3 w-10">

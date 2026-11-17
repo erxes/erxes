@@ -63,7 +63,9 @@ rules live in `backend/core-api/src/modules/products`; shared pieces
 - A disabled `fieldset` does not stop content-editable text, so each such
   cell is locked itself: rich-text `Editor`s get `readonly`,
   `GeneratedProductsTable` gets `disabled` for its name and code cells, and
-  a read-only product's Properties content is `inert`.
+  the Properties content of a read-only product, or of a draft while Create
+  sends, is `inert`. Pass it as `{ inert: '' }`: React 18 drops
+  `inert={true}` without writing the attribute.
 - Create hides the panel's back and close buttons while busy, and stops
   before `productsAdd` if the panel unmounted while the draft settled or its
   files were linked.
@@ -78,6 +80,17 @@ rules live in `backend/core-api/src/modules/products`; shared pieces
   or discount change sets the other (`utils/packagePricing.ts`); a price of
   0 is a 100% discount. The list's status cell uses
   `productPackagesChangeStatus` with `_ids`.
+- A similarity group's tabs are Details, Media and Products; Products holds
+  the variant fields above the rows they generate. A package's tabs are
+  Details (fields, pricing and cover image) and Products. A draft's total is priced in
+  `PackagePanelNew` (`usePackageProductsTotal`), so Details shows it before
+  the Products tab is opened.
+- A package's products are added through the shared `SelectProduct` search
+  and listed alone with quantity and line total (`PackageProductPicker`).
+  Their names and unit prices come from `productPackageChosenProducts`,
+  which reads `products(ids:)`: it returns every id, where `productsMain`
+  refuses a page over 100. A failed load shows Retry in place of the lines,
+  and a draft keeps its total and price until the products load.
 - A similarity group is never saved per field: Save regenerates its
   products. Cells write to the form; after Save, or Discard, the form is
   re-keyed so it and its editors read the saved group.

@@ -61,7 +61,11 @@ const PRODUCT = {
   similarity: null,
 };
 
-type TProduct = typeof PRODUCT;
+// The empty lists take whatever a test puts in them.
+type TProduct = Omit<typeof PRODUCT, 'conditionCodes' | 'videos'> & {
+  conditionCodes: string[];
+  videos: Record<string, unknown>[];
+};
 
 const cacheWithProduct = () => {
   const cache = new InMemoryCache();

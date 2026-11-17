@@ -1,4 +1,3 @@
-import { ScrollArea } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,7 +12,8 @@ import { TPackagePanelProps } from './PackagePanelFields';
 const toAttachment = (url?: string): ProductAttachmentItem | null =>
   url ? { name: url, url, type: '', size: 0 } : null;
 
-// The Media tab: the cover image, saved as it is uploaded or removed.
+// The cover image, on Details below the pricing; saved as it is uploaded or
+// removed.
 export const PackagePanelMedia = ({
   pkg,
   save,
@@ -25,12 +25,10 @@ export const PackagePanelMedia = ({
   );
 
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-      <ContactDetailSection title={t('cover-image')}>
-        <div className="h-48 w-full max-w-md">
-          <ProductPrimaryImageUpload value={cover} onChange={setCover} />
-        </div>
-      </ContactDetailSection>
-    </ScrollArea>
+    <ContactDetailSection title={t('cover-image')} nested>
+      <div className="h-40 w-full max-w-md px-1">
+        <ProductPrimaryImageUpload value={cover} onChange={setCover} />
+      </div>
+    </ContactDetailSection>
   );
 };
