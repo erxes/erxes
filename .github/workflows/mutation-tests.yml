@@ -8,7 +8,7 @@ on:
     paths:
       ['apps/*/src/**', 'packages/*/src/**', 'tools/mutation/**', '.github/workflows/mutation*.yml']
   push:
-    branches: [postgre, mutation-testing]
+    branches: [postgre]
 
 concurrency:
   group: mutation-${{ github.ref }}
@@ -26,7 +26,7 @@ jobs:
       pull-requests: write
     with:
       shards: 12
-      issue-branch: mutation-testing
+      issue-branch: postgre
       timeout-minutes: 300
       # Left out, and why:
       # - tests and their helpers: they are what is being judged.
