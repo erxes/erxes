@@ -3,7 +3,7 @@ import { dirname, relative } from 'node:path';
 import {
   createIssue,
   ensureLabel,
-  lastAuthor,
+  lastAuthors,
   openIssues,
   updateIssue,
   comment,
@@ -38,34 +38,40 @@ const code = (value: string) => {
   return safe.includes('`') ? `\`\` ${safe} \`\`` : `\`${safe || ' '}\``;
 };
 
-const authors = new Map<string, string>();
+/** A change the tests ran over and did not fail on, or only timed out on. */
+const missed = (mutant: Mutant) => mutant.status === 'Survived' || mutant.status === 'Timeout';
 
-const authorOf = async (testFile: string) => {
-  if (!authors.has(testFile))
-    authors.set(testFile, await lastAuthor(testFile, ref).catch(() => ''));
+type Authors = Map<string, string>;
 
-  return authors.get(testFile) ?? '';
+const authorsOf = async (mutants: Mutant[]): Promise<Authors> => {
+  const testFiles = new Set(
+    mutants.filter(missed).flatMap((mutant) => mutant.testFiles.slice(0, 1)),
+  );
+
+  return lastAuthors([...testFiles], ref).catch((error: unknown) => {
+    process.stdout.write(`::warning::Could not look up who changed the tests: ${String(error)}\n`);
+
+    return new Map();
+  });
 };
 
-const rows = async (survivors: Mutant[], area: string) => {
+const rows = (misses: Mutant[], area: string, authors: Authors) => {
   const lines = [
     '| Line | Change no test caught | Tests that ran over it | Test last changed by |',
+    '|---|---|---|---|',
   ];
 
-  lines.push('|---|---|---|---|');
-
-  for (const mutant of survivors.slice(0, MAX_ROWS)) {
+  for (const mutant of misses.slice(0, MAX_ROWS)) {
     const where = `[${relative(area, mutant.file)}:${mutant.line}](${server}/${repository}/blob/${ref}/${mutant.file}#L${mutant.line})`;
+    const change = `${code(mutant.original)} → ${code(mutant.replacement)}${mutant.status === 'Timeout' ? ' (the tests only timed out)' : ''}`;
     const tests = mutant.testFiles.slice(0, 2).map((file) => code(file.split('/').at(-1) ?? file));
-    const author = mutant.testFiles[0] ? await authorOf(mutant.testFiles[0]) : '';
+    const author = authors.get(mutant.testFiles[0] ?? '') ?? '';
 
-    lines.push(
-      `| ${where} | ${code(mutant.original)} → ${code(mutant.replacement)} | ${tests.join(', ')} | ${author ? code(author) : ''} |`,
-    );
+    lines.push(`| ${where} | ${change} | ${tests.join(', ')} | ${author ? code(author) : ''} |`);
   }
 
-  if (survivors.length > MAX_ROWS)
-    lines.push('', `And ${survivors.length - MAX_ROWS} more in the [HTML report](${runUrl}).`);
+  if (misses.length > MAX_ROWS)
+    lines.push('', `And ${misses.length - MAX_ROWS} more in the [HTML report](${runUrl}).`);
 
   return lines.join('\n');
 };
@@ -88,20 +94,46 @@ const untested = (mutants: Mutant[]) => {
     : '';
 };
 
-const issueBody = async (area: string, mutants: Mutant[]) => {
-  const survivors = mutants.filter((mutant) => mutant.status === 'Survived');
-
-  return [
+const issueBody = (area: string, mutants: Mutant[], authors: Authors) =>
+  [
     'Tests run over this code and still pass when it changes, so they do not check what it does. Each row is one change no test caught. Make a test fail for it; the next run closes this issue.',
     '',
     scoreLine(mutants),
     '',
-    await rows(survivors, area),
+    rows(mutants.filter(missed), area, authors),
     '',
     untested(mutants),
     '',
     `<!-- ${AREA_MARKER} ${area} -->`,
   ].join('\n');
+
+/** A body without the run link and the commit in its line links, which change every run. */
+const unpinned = (body: string) =>
+  body.replaceAll(/\/actions\/runs\/\d+/g, '').replaceAll(/\/blob\/[0-9a-f]{40}\//g, '/blob/');
+
+const closing = (inArea: Mutant[] | undefined) => {
+  const run = `[run](${runUrl})`;
+
+  if (!inArea)
+    return {
+      reason: 'not_planned',
+      text: `This code is no longer mutation tested: moved, removed or left out (${run}).`,
+    };
+
+  const { killed, noCoverage } = tally(inArea);
+
+  if (!killed)
+    return {
+      reason: 'not_planned',
+      text: `No test runs this code any more, so none can be judged: ${noCoverage} changes sit in untested code (${run}).`,
+    };
+
+  const untestedNote = noCoverage ? ` ${noCoverage} more sit in code no test runs.` : '';
+
+  return {
+    reason: 'completed',
+    text: `Every change the tests run over is caught now (${ref.slice(0, 12)}, ${run}).${untestedNote}`,
+  };
 };
 
 const byArea = (mutants: Mutant[]) => {
@@ -117,14 +149,23 @@ const areaOf = (body: string) => new RegExp(String.raw`${AREA_MARKER} (\S+)`).ex
 const fileIssues = async (mutants: Mutant[]) => {
   await ensureLabel(LABEL, 'Tests that pass whatever the code does (mutation testing)');
 
-  const open = new Map((await openIssues(LABEL)).map((issue) => [areaOf(issue.body), issue]));
+  const open = new Map(
+    (await openIssues(LABEL)).flatMap((issue) => {
+      const area = areaOf(issue.body);
+
+      return area ? [[area, issue] as const] : [];
+    }),
+  );
+
+  const areas = new Map(byArea(mutants));
+  const authors = await authorsOf(mutants);
   const counts = { opened: 0, updated: 0, closed: 0 };
 
-  for (const [area, inArea] of byArea(mutants)) {
-    if (!inArea.some((mutant) => mutant.status === 'Survived')) continue;
+  for (const [area, inArea] of areas) {
+    if (!inArea.some(missed)) continue;
 
     const title = `False tests in ${area}`;
-    const body = await issueBody(area, inArea);
+    const body = issueBody(area, inArea, authors);
     const existing = open.get(area);
 
     open.delete(area);
@@ -132,27 +173,17 @@ const fileIssues = async (mutants: Mutant[]) => {
     if (!existing) {
       await createIssue(title, body, LABEL);
       counts.opened += 1;
-    } else if (existing.body !== body) {
+    } else if (existing.title !== title || unpinned(existing.body) !== unpinned(body)) {
       await updateIssue(existing.number, { title, body });
       counts.updated += 1;
     }
   }
 
-  const tested = new Set(mutants.map((mutant) => mutant.area));
-
   for (const [area, issue] of open) {
-    const caught = tested.has(area);
+    const { reason, text } = closing(areas.get(area));
 
-    await comment(
-      issue.number,
-      caught
-        ? `Every change in this code is caught by a test now (${ref.slice(0, 12)}, [run](${runUrl})).`
-        : `This code is no longer mutation tested: moved, removed or left out ([run](${runUrl})).`,
-    );
-    await updateIssue(issue.number, {
-      state: 'closed',
-      state_reason: caught ? 'completed' : 'not_planned',
-    });
+    await comment(issue.number, text);
+    await updateIssue(issue.number, { state: 'closed', state_reason: reason });
     counts.closed += 1;
   }
 
@@ -160,7 +191,7 @@ const fileIssues = async (mutants: Mutant[]) => {
 };
 
 const prComment = async (mutants: Mutant[]) => {
-  const survivors = mutants.filter((mutant) => mutant.status === 'Survived');
+  const misses = mutants.filter(missed);
 
   const body = [
     PR_MARKER,
@@ -168,8 +199,8 @@ const prComment = async (mutants: Mutant[]) => {
     '',
     scoreLine(mutants),
     '',
-    survivors.length
-      ? `${survivors.length} changes passed every test that ran over them:\n\n${await rows(survivors, '.')}`
+    misses.length
+      ? `${misses.length} changes passed every test that ran over them:\n\n${rows(misses, '.', await authorsOf(mutants))}`
       : 'Every change tested here made a test fail.',
     '',
     untested(mutants),

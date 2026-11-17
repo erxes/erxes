@@ -82,6 +82,8 @@ jobs:
       contents: read
     strategy:
       fail-fast: false
+      # The org shares 20 job slots across all its repos; this leaves the rest to everyone's CI.
+      max-parallel: 4
       matrix:
         include: ${{ fromJSON(needs.plan.outputs.matrix) }}
     services:
@@ -173,8 +175,9 @@ jobs:
           ISSUES: ${{ env.MODE == 'full' && github.ref_name == (inputs.issue-branch || github.event.repository.default_branch) }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      # Saved even when a shard or the issue update failed: the next run redoes only what is missing.
       - uses: actions/cache/save@v6
-        if: env.MODE == 'full' && needs.mutate.result == 'success'
+        if: ${{ !cancelled() && env.MODE == 'full' && hashFiles(env.MERGED_OUT) != '' }}
         with:
           path: ${{ env.MERGED_OUT }}
           key: mutation-${{ github.sha }}

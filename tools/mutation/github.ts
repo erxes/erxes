@@ -89,15 +89,67 @@ export const upsertComment = async (number: number, marker: string, body: string
   else await comment(number, body);
 };
 
-/** The login of whoever last changed `path`, or '' when GitHub doesn't know one. */
-export const lastAuthor = async (path: string, ref: string) => {
-  const data = await request(
-    'GET',
-    `/commits?path=${encodeURIComponent(path)}&sha=${encodeURIComponent(ref)}&per_page=1`,
-  );
+const dig = (value: unknown, keys: (string | number)[]) => {
+  let node = value;
 
-  const [latest] = Array.isArray(data) ? data.filter(isJson) : [];
-  const author = latest?.author;
+  for (const key of keys) {
+    if (Array.isArray(node)) node = node[Number(key)];
+    else if (isJson(node)) node = node[String(key)];
+    else return undefined;
+  }
 
-  return isJson(author) && typeof author.login === 'string' ? author.login : '';
+  return node;
+};
+
+const graphql = async (query: string, variables: Json) => {
+  const response = await fetch(process.env.GITHUB_GRAPHQL_URL ?? `${api}/graphql`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  if (!response.ok) throw new Error(`GitHub GraphQL: ${response.status} ${await response.text()}`);
+
+  const data: unknown = await response.json();
+  const errors = dig(data, ['errors']);
+
+  if (Array.isArray(errors) && errors.length)
+    throw new Error(`GitHub GraphQL: ${JSON.stringify(errors).slice(0, 500)}`);
+
+  return data;
+};
+
+const BATCH = 50;
+
+/** The login of whoever last changed each path at `ref` ('' when GitHub knows none), 50 a request. */
+export const lastAuthors = async (paths: string[], ref: string) => {
+  const authors = new Map<string, string>();
+  const [owner = '', name = ''] = repo.split('/');
+
+  for (let start = 0; start < paths.length; start += BATCH) {
+    const batch = paths.slice(start, start + BATCH);
+    const params = batch.map((_, index) => `$p${index}: String!`).join(', ');
+
+    const fields = batch
+      .map(
+        (_, index) =>
+          `f${index}: history(first: 1, path: $p${index}) { nodes { author { user { login } } } }`,
+      )
+      .join(' ');
+
+    const data = await graphql(
+      `query($owner: String!, $name: String!, $ref: String!, ${params}) { repository(owner: $owner, name: $name) { object(expression: $ref) { ... on Commit { ${fields} } } } }`,
+      { owner, name, ref, ...Object.fromEntries(batch.map((path, index) => [`p${index}`, path])) },
+    );
+
+    const commit = dig(data, ['data', 'repository', 'object']);
+
+    for (const [index, path] of batch.entries()) {
+      const login = dig(commit, [`f${index}`, 'nodes', 0, 'author', 'user', 'login']);
+
+      authors.set(path, typeof login === 'string' ? login : '');
+    }
+  }
+
+  return authors;
 };
