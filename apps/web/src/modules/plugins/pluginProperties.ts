@@ -4,7 +4,7 @@ import type { LoadedPlugin } from './types';
 
 /** A plugin record type with custom fields, as core's settings and panel list them. */
 export interface PluginPropertyType {
-  /** The plugin's `name`, for its words and its settings group. */
+  /** The plugin's `name`, for its words and its settings link. */
   plugin: string;
   /** The record type its fields are defined on, `<plugin>.<type>`. */
   type: PluginRecordType;
