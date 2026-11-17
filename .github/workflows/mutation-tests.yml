@@ -1,0 +1,48 @@
+# Whether core's tests catch changes to the code they run over (mutation.yml says how). It reports
+# and opens `false-test` issues; it is not part of the required Check. Branch runs go on every push
+# to postgre: scheduled and manual runs only start from the default branch.
+name: Mutation tests
+
+on:
+  pull_request:
+    paths:
+      ['apps/*/src/**', 'packages/*/src/**', 'tools/mutation/**', '.github/workflows/mutation*.yml']
+  push:
+    branches: [postgre, mutation-testing]
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  mutation:
+    uses: ./.github/workflows/mutation.yml
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    with:
+      shards: 8
+      timeout-minutes: 300
+      # Left out, and why:
+      # - tests and their helpers: they are what is being judged.
+      # - .tsx: screens are checked by the daily flows in Chromium, which Stryker can't rerun per change.
+      # - packages/db schema and migrations, the contract, cn-tables: declarations and generated code,
+      #   which pnpm check:generated and the typed client guard; their mutants are only names and strings.
+      # - plugin-sdk: its tests run against the packed tarballs (CI's packages job), outside Vitest.
+      # - API start-up and scripts: no test starts the process.
+      mutate: |
+        apps/api/src/**/*.ts
+        apps/web/src/**/*.ts
+        packages/{create-erxes,db,lint,payment-gateways,ui}/src/**/*.ts
+        !**/*.test.ts
+        !**/*.d.ts
+        !**/__tests__/**
+        !packages/db/src/schema/**
+        !packages/db/src/migrate.ts
+        !packages/ui/src/lib/cn-tables.ts
+        !apps/api/src/main.ts
+        !apps/api/src/instrumentation.ts
