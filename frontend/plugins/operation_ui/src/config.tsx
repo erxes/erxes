@@ -1,3 +1,4 @@
+import { PROJECT_CONNECTION_CONTENT_TYPE } from './widgets/contact/projectContactConnection';
 import {
   IconChartArcs,
   IconChartAreaLine,
@@ -13,6 +14,8 @@ import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
 import { getTaskDetailPath } from '@/task/utils/getTaskDetailPath';
+import { getProjectDetailPath } from '@/project/utils/getProjectDetailPath';
+import { PROJECT_CONTENT_TYPE } from '@/project/constants/contentType';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 import { TASK_CONNECTION_CONTENT_TYPE } from '~/widgets/contact/taskContactConnection';
 import { OPERATION_DASHBOARD_MODULES } from '~/widgets/dashboard/dashboardModules';
@@ -157,9 +160,15 @@ export const CONFIG: IUIConfig = {
 
     recordPanels: [
       { contentType: 'operation:task', detailPath: getTaskDetailPath },
+      { contentType: PROJECT_CONTENT_TYPE, detailPath: getProjectDetailPath },
       { contentType: 'operation:triage', properties: false },
       {
         contentType: TASK_CONNECTION_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+      },
+      {
+        contentType: PROJECT_CONNECTION_CONTENT_TYPE,
         properties: false,
         draftTitle: true,
       },
