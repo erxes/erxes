@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
+import { emailSettingsContract } from './emailSettings';
 import { COMMON_ERRORS } from './errors';
 
 const Address = z.string().trim().check(z.email()).max(254);
@@ -34,4 +35,5 @@ export const emailsContract = {
     })
     .input(EmailMessage)
     .output(z.object({ queued: z.int() })),
+  ...emailSettingsContract,
 };

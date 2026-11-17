@@ -2,9 +2,10 @@ import type { EbarimtSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, Input, Label, Spinner, useToast } from 'erxes-ui';
-import { type ReactNode, useId, useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type DraftRule, draftRule, EbarimtRules } from './EbarimtRules';
+import { FormSection } from './FormSection';
 
 const BUSINESS_FIELDS = [
   { key: 'companyName', label: 'Company name', placeholder: '' },
@@ -278,22 +279,3 @@ export const EbarimtForm = ({
     </div>
   );
 };
-
-/** A settings group: what it is on the left, its fields on the right. */
-const FormSection = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: ReactNode;
-}) => (
-  <section className="grid gap-4 border-b pb-6 md:grid-cols-3">
-    <div className="space-y-1">
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-xs text-muted-foreground">{description}</p>
-    </div>
-    <div className="space-y-3 md:col-span-2">{children}</div>
-  </section>
-);

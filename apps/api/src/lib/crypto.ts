@@ -43,6 +43,10 @@ export const sha256 = (value: string | Buffer, encoding: TextEncoding = 'hex') =
 export const hmacSha256 = (key: string | Buffer, value: string, encoding: TextEncoding) =>
   createHmac('sha256', key).update(value).digest(encoding);
 
+/** HMAC-SHA256 as bytes, to chain into the next key (AWS signing keys). */
+export const hmacSha256Bytes = (key: string | Buffer, value: string) =>
+  createHmac('sha256', key).update(value).digest();
+
 /** A 32-byte key derived from `secret` (HKDF-SHA256, no salt), one per `info`. */
 export const deriveKey = (secret: string, info: string) =>
   Buffer.from(hkdfSync('sha256', secret, Buffer.alloc(0), info, 32));
