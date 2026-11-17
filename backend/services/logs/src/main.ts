@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import {

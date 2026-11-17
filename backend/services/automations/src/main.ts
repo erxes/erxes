@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
