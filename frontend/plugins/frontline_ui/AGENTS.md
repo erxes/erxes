@@ -592,7 +592,9 @@
   (`/personal-channel/general`, the index redirects there) with the inline
   name/icon/description form and no Danger zone, and the Connected/Available
   integration catalogue a team channel offers, opening at
-  `/personal-channel/details/:id/:integrationType`. There are no Members,
+  `/personal-channel/details/:id/:integrationType`; an `:id` other than the
+  user's personal channel redirects to the same path for their own channel.
+  There are no Members,
   Pipelines, Forms, Surveys or Response templates sections. Opening it is what
   provisions the channel — there is no create button anywhere for personal
   channels.
@@ -768,7 +770,12 @@
   `Suspense`. `/:id` renders Members and marks it active. Full-page flows —
   form and survey create/detail, form submissions, response detail and the
   pipeline redirect — stay outside the layout. The rail's integration data is
-  `ChannelIntegrationsPeek` grouped by `groupIntegrationKinds`; the catalogue
+  `ChannelIntegrationsPeek` grouped by `groupIntegrationKinds`. The peek reads
+  `CHANNEL_INTEGRATIONS_PEEK_LIMIT` (100, the API's page maximum) through its
+  `$limit` variable; when the channel holds more, the rail footer says the
+  counts cover only the first page instead of showing them as complete. Do not
+  switch the rail to `integrationsTotalCount.byKind`: it skips the private
+  integration visibility filter the `integrations` list applies. The catalogue
   is `useIntegrationEntries` (Call Pro only when enabled), shared with
   `IntegrationList`. Member counts come from `GetChannelMembers` (active
   members only, `isActiveChannelMember`), so adding or removing a member
@@ -784,6 +791,16 @@
   (typed `delete` confirmation, error toast, then back to the channel list).
   The `frontline:channel` record panel still edits an existing channel with
   the same fields for direct `?panel=` links.
+- The inline General form's Discard resets the form to the saved values,
+  which also removes its draft (`usePanelFormDraft`'s watcher deletes a draft
+  that matches the defaults), so a discarded edit never returns on remount;
+  `shared/hooks/__tests__/usePanelFormDraft.spec.tsx` covers this.
+- Every string the channel workspace, General section, channel forms and
+  Integrations config render has a key in both
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (`modules.channels.*`,
+  and `modules.integrations.*` for `config-*` and `providers`). Add new copy to
+  both files with the same placeholders; the inline `t(key, default)` fallback
+  is English only.
 - `ChannelForm` is the one set of channel fields, shared by the create panel,
   `UpdateChannelForm` (`withMembers={false}`) and the ticket channel select's
   inline create. Create shows a one-line intro, autofocuses the name, offers

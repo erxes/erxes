@@ -11,7 +11,7 @@ import { useGetPersonalChannel } from '@/channels/hooks/useGetPersonalChannel';
 import { IconAlertTriangle, IconLock } from '@tabler/icons-react';
 import { Badge, Button, Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useParams } from 'react-router-dom';
 
 const PersonalChannelUnavailable = ({
   message,
@@ -55,6 +55,10 @@ const PrivateBadge = () => {
 
 export const PersonalChannelLayout = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
+  const { id, integrationType } = useParams<{
+    id: string;
+    integrationType: string;
+  }>();
   const { channel, loading, error, refetch } = useGetPersonalChannel();
 
   if (loading && !channel) return <ChannelWorkspaceSkeleton />;
@@ -69,13 +73,28 @@ export const PersonalChannelLayout = () => {
     );
   }
 
+  const paths = getPersonalChannelWorkspacePaths(channel._id);
+
+  if (id && id !== channel._id) {
+    return (
+      <Navigate
+        to={
+          integrationType
+            ? `/${paths.integrations}/${integrationType}`
+            : `/${paths.sections}`
+        }
+        replace
+      />
+    );
+  }
+
   return (
     <ChannelWorkspaceFrame
       nav={
         <ChannelWorkspaceNav
           channel={channel}
           sections={PERSONAL_CHANNEL_SECTIONS}
-          paths={getPersonalChannelWorkspacePaths(channel._id)}
+          paths={paths}
           badge={<PrivateBadge />}
         />
       }

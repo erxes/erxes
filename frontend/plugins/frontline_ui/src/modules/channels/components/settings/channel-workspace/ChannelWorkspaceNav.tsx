@@ -49,11 +49,13 @@ const ChannelIntegrationSummary = ({
   total,
   loading,
   failed,
+  partialCount,
 }: {
   connected: number;
   total: number;
   loading: boolean;
   failed: boolean;
+  partialCount: number;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
 
@@ -75,11 +77,21 @@ const ChannelIntegrationSummary = ({
             connected > 0 ? 'bg-success' : 'bg-muted-foreground/40',
           )}
         />
-        {t('integrations-connected-count', {
-          defaultValue: '{{connected}} of {{total}} connected',
-          connected,
-          total,
-        })}
+        <span className="truncate">
+          {t('integrations-connected-count', {
+            defaultValue: '{{connected}} of {{total}} connected',
+            connected,
+            total,
+          })}
+        </span>
+        {partialCount > 0 && (
+          <span className="ml-auto shrink-0 text-warning">
+            {t('integrations-partial', {
+              defaultValue: 'First {{count}} only',
+              count: partialCount,
+            })}
+          </span>
+        )}
       </>
     );
   };
@@ -107,7 +119,7 @@ export const ChannelWorkspaceNav = ({
   badge?: ReactNode;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
-  const { connected, available, totalKinds, loading, error } =
+  const { connected, available, totalKinds, partialCount, loading, error } =
     useChannelIntegrationKinds(channel._id);
 
   return (
@@ -119,6 +131,7 @@ export const ChannelWorkspaceNav = ({
           total={totalKinds}
           loading={loading}
           failed={Boolean(error)}
+          partialCount={partialCount}
         />
       }
     >

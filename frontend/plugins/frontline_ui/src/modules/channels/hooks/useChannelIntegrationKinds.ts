@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 
 export const useChannelIntegrationKinds = (channelId: string) => {
   const entries = useIntegrationEntries();
-  const { integrations, loading, error, needsAttention } =
+  const { integrations, totalCount, loading, error, needsAttention } =
     useChannelIntegrationsPeek(channelId);
 
   const { connected, available } = useMemo(
@@ -17,6 +17,7 @@ export const useChannelIntegrationKinds = (channelId: string) => {
     connected,
     available,
     totalKinds: entries.length,
+    partialCount: totalCount > integrations.length ? integrations.length : 0,
     loading,
     error,
   };
