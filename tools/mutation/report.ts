@@ -9,7 +9,14 @@ import {
   comment,
   upsertComment,
 } from './github.ts';
-import { mergeReports, type Mutant, mutantsOf, tally } from './results.ts';
+import {
+  mergeReports,
+  type Mutant,
+  mutantsOf,
+  plannedFiles,
+  tally,
+  withoutUnsure,
+} from './results.ts';
 
 const env = (name: string) => process.env[name] ?? '';
 
@@ -66,7 +73,11 @@ const rows = async (survivors: Mutant[], area: string) => {
 const scoreLine = (mutants: Mutant[]) => {
   const { killed, survived, timeout, score } = tally(mutants);
 
-  return `**Score: ${score ?? '–'}%** (${killed} of ${killed + survived + timeout} changes caught) · [run and HTML report](${runUrl})`;
+  const timeouts = timeout
+    ? `; ${timeout} that only made the tests time out count as not caught`
+    : '';
+
+  return `**Score: ${score ?? '–'}%** (${killed} of ${killed + survived + timeout} changes caught${timeouts}) · [run and HTML report](${runUrl})`;
 };
 
 const untested = (mutants: Mutant[]) => {
@@ -127,12 +138,21 @@ const fileIssues = async (mutants: Mutant[]) => {
     }
   }
 
-  for (const issue of open.values()) {
+  const tested = new Set(mutants.map((mutant) => mutant.area));
+
+  for (const [area, issue] of open) {
+    const caught = tested.has(area);
+
     await comment(
       issue.number,
-      `Every change in this code is caught by a test now (${ref.slice(0, 12)}, [run](${runUrl})).`,
+      caught
+        ? `Every change in this code is caught by a test now (${ref.slice(0, 12)}, [run](${runUrl})).`
+        : `This code is no longer mutation tested: moved, removed or left out ([run](${runUrl})).`,
     );
-    await updateIssue(issue.number, { state: 'closed', state_reason: 'completed' });
+    await updateIssue(issue.number, {
+      state: 'closed',
+      state_reason: caught ? 'completed' : 'not_planned',
+    });
     counts.closed += 1;
   }
 
@@ -187,12 +207,13 @@ const summary = (mutants: Mutant[]) => {
   ].join('\n');
 };
 
-const { merged, reports } = mergeReports(env('REPORTS_DIR'));
+const plan = plannedFiles(env('PLAN'));
+const { merged, reports } = mergeReports(env('REPORTS_DIR'), plan);
 const out = env('MERGED_OUT');
 
 if (out) {
   mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, JSON.stringify(merged));
+  writeFileSync(out, JSON.stringify(withoutUnsure(merged)));
 }
 
 const mutants = mutantsOf(merged);
@@ -212,13 +233,14 @@ if (setupBroke)
     `${brokenSetup.length} changes failed only because the test setup broke; the results can't be trusted.`,
   );
 
-const expected: unknown = env('EXPECTED_REPORTS') ? JSON.parse(env('EXPECTED_REPORTS')) : [];
-const complete = Array.isArray(expected) && expected.length > 0 && expected.length === reports;
+const complete = env('MUTATE_RESULT') === 'success' && plan.size > 0 && reports === plan.size;
 
 if (env('MODE') === 'pr') await prComment(mutants);
-else if (env('MODE') === 'full' && !complete) {
+else if (env('ISSUES') !== 'true') {
+  process.stdout.write("Only the issue branch's runs keep the issues.\n");
+} else if (!complete) {
   process.stdout.write('::warning::A shard did not finish, so the issues stay as they were.\n');
-} else if (env('MODE') === 'full') {
+} else {
   const counts = await fileIssues(mutants);
 
   process.stdout.write(

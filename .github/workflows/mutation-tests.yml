@@ -26,6 +26,7 @@ jobs:
       pull-requests: write
     with:
       shards: 12
+      issue-branch: mutation-testing
       timeout-minutes: 300
       # Left out, and why:
       # - tests and their helpers: they are what is being judged.

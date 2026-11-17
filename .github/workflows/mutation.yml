@@ -21,6 +21,10 @@ on:
       timeout-minutes:
         type: number
         default: 180
+      issue-branch:
+        description: The one branch whose runs open and close issues; the default branch if empty.
+        type: string
+        default: ''
 
 env:
   VP_GIT_HOOKS: '0'
@@ -135,7 +139,7 @@ jobs:
   report:
     name: Report
     needs: [plan, mutate]
-    if: always() && needs.plan.result == 'success' && needs.plan.outputs.count != '0'
+    if: ${{ !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.count != '0' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -164,7 +168,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           REPORTS_DIR: ${{ runner.temp }}/reports
-          EXPECTED_REPORTS: ${{ needs.mutate.result == 'success' && needs.plan.outputs.matrix || '' }}
+          PLAN: ${{ needs.plan.outputs.matrix }}
+          MUTATE_RESULT: ${{ needs.mutate.result }}
+          ISSUES: ${{ env.MODE == 'full' && github.ref_name == (inputs.issue-branch || github.event.repository.default_branch) }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/cache/save@v6

@@ -31,8 +31,7 @@ const insideThrow = (path: NodePath) => {
   for (let parent = path.parentPath; parent; parent = parent.parentPath) {
     if (parent.node.type === 'ThrowStatement') return true;
 
-    if (parent.node.type.endsWith('Function') || parent.node.type === 'FunctionExpression')
-      return false;
+    if (/Function|Method/.test(parent.node.type)) return false;
   }
 
   return false;

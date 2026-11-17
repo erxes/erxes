@@ -49,33 +49,61 @@ export type Mutant = {
   testFiles: string[];
 };
 
-/** The shard reports (mutation.json) under `dir`, merged into one Stryker report. */
-export const mergeReports = (dir: string) => {
-  const reports = readdirSync(dir, { recursive: true, encoding: 'utf8' })
-    .filter((path) => path.endsWith('mutation.json') && statSync(join(dir, path)).isFile())
-    .map((path): Json => json(JSON.parse(readFileSync(join(dir, path), 'utf8'))));
+/** Each shard's files, from plan.ts's matrix: `[{ shard, files: 'a.ts,b.ts' }]`. */
+export const plannedFiles = (matrix: string) => {
+  const parsed: unknown = matrix ? JSON.parse(matrix) : [];
 
-  if (!reports.length) throw new Error(`No mutation.json under ${dir}: did every shard fail?`);
+  return new Map(
+    list(parsed).map((entry) => [
+      count(json(entry).shard),
+      new Set(text(json(entry).files).split(',').filter(Boolean)),
+    ]),
+  );
+};
 
-  const shards = reports.map(withStableTestIds);
-  const testFiles = new Map<string, Map<string, Json>>();
+/**
+ * The shard reports (`mutation-<shard>/mutation.json` under `dir`) merged into one Stryker
+ * report. In incremental mode each shard also carries the last run's results for every other file,
+ * so a file is taken only from the shard that mutated it.
+ */
+export const mergeReports = (dir: string, plan: Map<number, Set<string>>) => {
+  const paths = readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter(
+    (path) => path.endsWith('mutation.json') && statSync(join(dir, path)).isFile(),
+  );
+
+  if (!paths.length) throw new Error(`No mutation.json under ${dir}: did every shard fail?`);
+
+  const reports = paths.map((path) => ({
+    shard: Number(/mutation-(\d+)/.exec(path)?.[1] ?? 0),
+    report: json(JSON.parse(readFileSync(join(dir, path), 'utf8'))),
+  }));
+
+  const shards = reports.map(({ shard, report }) => ({
+    ...withStableTestIds(report),
+    planned: plan.get(shard) ?? new Set<string>(),
+  }));
+
+  const testFiles = new Map<string, Json>();
 
   for (const shard of shards)
-    for (const [path, tests] of shard.testFiles)
-      for (const test of tests)
-        testFiles.set(
-          path,
-          (testFiles.get(path) ?? new Map<string, Json>()).set(text(test.id), test),
-        );
+    for (const [path, entry] of shard.testFiles) {
+      const tests = new Map(
+        list(json(testFiles.get(path)).tests).map((t) => [text(json(t).id), t]),
+      );
+
+      for (const test of list(entry.tests)) tests.set(text(json(test).id), test);
+
+      testFiles.set(path, { ...entry, ...testFiles.get(path), tests: [...tests.values()] });
+    }
 
   return {
     reports: reports.length,
     merged: {
-      ...reports[0],
-      files: Object.fromEntries(shards.flatMap((shard) => shard.files)),
-      testFiles: Object.fromEntries(
-        [...testFiles].map(([path, tests]) => [path, { tests: [...tests.values()] }]),
+      ...reports[0]?.report,
+      files: Object.fromEntries(
+        shards.flatMap((shard) => shard.files.filter(([path]) => shard.planned.has(path))),
       ),
+      testFiles: Object.fromEntries(testFiles),
     },
   };
 };
@@ -97,7 +125,7 @@ const withStableTestIds = (report: Json) => {
       return { ...test, id };
     });
 
-    return [path, tests] as const;
+    return [path, { ...json(entry), tests }] as const;
   });
 
   const remap = (ids: unknown) =>
@@ -189,6 +217,24 @@ const BROKEN_SETUP =
   /ECONNREFUSED|ECONNRESET|too many clients|terminating connection|Connection terminated|database "[^"]+" does not exist|Hook timed out|hookTimeout|getaddrinfo/i;
 
 const unsure = (mutant: Mutant) => mutant.status === 'Killed' && BROKEN_SETUP.test(mutant.reason);
+
+/** The report to keep for the next run, without unsure kills, so those mutants run again. */
+export const withoutUnsure = (report: Json) => ({
+  ...report,
+  files: Object.fromEntries(
+    Object.entries(json(report.files)).map(([path, entry]) => [
+      path,
+      {
+        ...json(entry),
+        mutants: list(json(entry).mutants).filter((raw) => {
+          const mutant = json(raw);
+
+          return !(mutant.status === 'Killed' && BROKEN_SETUP.test(text(mutant.statusReason)));
+        }),
+      },
+    ]),
+  ),
+});
 
 export const tally = (mutants: Mutant[]) => {
   const of = (status: Status) => mutants.filter((mutant) => mutant.status === status).length;
