@@ -2,7 +2,8 @@
 # (erxes/erxes .github/workflows/mutation.yml). Pull requests get a comment; the branch runs open
 # one `false-test` issue per folder and close it once every change is caught. It never blocks.
 # Twice a week, so the last results stay cached: GitHub drops a cache nobody read for 7 days.
-# 18:17 UTC is 02:17 in Ulaanbaatar, when the org's shared job slots are free.
+# 18:17 UTC is 02:17 in Ulaanbaatar, when the org's shared job slots are free. Give each plugin
+# its own hour and minute between 17:00 and 21:59 UTC, so they don't all start at once.
 name: Mutation tests
 
 on:

@@ -125,10 +125,12 @@ jobs:
           path: .scratch/mutation/previous.json
           key: mutation-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: mutation-
+      # When no test imports these files, Stryker stops after the dry run and writes no report.
       - name: Stryker
         run: |
           pnpm exec stryker run .erxes-mutation/tools/mutation/stryker.json \
             --mutate "$MUTATE_FILES" --appendPlugins "$PWD/.erxes-mutation/tools/mutation/ignorers.ts"
+          test -f .scratch/mutation/mutation.json || touch .scratch/mutation/untested
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -136,6 +138,7 @@ jobs:
           path: |
             .scratch/mutation/mutation.json
             .scratch/mutation/mutation.html
+            .scratch/mutation/untested
           retention-days: 14
           if-no-files-found: ignore
 

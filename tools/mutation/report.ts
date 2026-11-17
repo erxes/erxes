@@ -194,20 +194,36 @@ const fileIssues = async (mutants: Mutant[]) => {
   return counts;
 };
 
-const prComment = async (mutants: Mutant[]) => {
+const verdict = async (mutants: Mutant[]) => {
   const misses = mutants.filter(missed);
+
+  if (misses.length)
+    return `${misses.length} changes passed every test that ran over them:\n\n${rows(misses, '.', await authorsOf(mutants))}`;
+
+  return tally(mutants).killed
+    ? 'Every change tested here made a test fail.'
+    : 'No test runs this code, so no test can be judged here.';
+};
+
+const notImported = (files: string[]) =>
+  files.length
+    ? `No test imports ${files.length} of the changed files: ${files.slice(0, 10).map(code).join(', ')}${files.length > 10 ? ' …' : ''}`
+    : '';
+
+const prComment = async (mutants: Mutant[], untestedFiles: string[]) => {
+  const tested = tally(mutants).score !== null;
 
   const body = [
     PR_MARKER,
     '### Do the tests catch changes to the code this pull request touches?',
     '',
-    scoreLine(mutants),
+    tested ? scoreLine(mutants) : '',
     '',
-    misses.length
-      ? `${misses.length} changes passed every test that ran over them:\n\n${rows(misses, '.', await authorsOf(mutants))}`
-      : 'Every change tested here made a test fail.',
+    await verdict(mutants),
     '',
     untested(mutants),
+    '',
+    notImported(untestedFiles),
     '',
     'This check reports; it does not block the merge.',
   ].join('\n');
@@ -245,7 +261,12 @@ const summary = (mutants: Mutant[]) => {
 const plan = plannedFiles(env('PLAN'));
 const out = env('MERGED_OUT');
 const previous: unknown = out && existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')) : null;
-const { merged, reports } = mergeReports(env('REPORTS_DIR'), plan, previous);
+
+const {
+  merged,
+  reports,
+  untested: untestedFiles,
+} = mergeReports(env('REPORTS_DIR'), plan, previous);
 
 if (out) {
   mkdirSync(dirname(out), { recursive: true });
@@ -271,7 +292,9 @@ if (setupBroke)
 
 const complete = env('MUTATE_RESULT') === 'success' && plan.size > 0 && reports === plan.size;
 
-if (env('MODE') === 'pr') await prComment(mutants);
+if (untestedFiles.length) process.stdout.write(`${notImported(untestedFiles)}\n`);
+
+if (env('MODE') === 'pr') await prComment(mutants, untestedFiles);
 else if (env('ISSUES') !== 'true') {
   process.stdout.write("Only the issue branch's runs keep the issues.\n");
 } else if (!complete) {

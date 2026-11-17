@@ -61,25 +61,36 @@ export const plannedFiles = (matrix: string) => {
   );
 };
 
+const shardOf = (path: string) => Number(/mutation-(\d+)/.exec(path)?.[1] ?? 0);
+
 /**
  * The shard reports (`mutation-<shard>/mutation.json` under `dir`) merged into one Stryker
  * report. In incremental mode each shard also carries the last run's results for every other file,
  * so a file is taken only from the shard that mutated it. A shard that sent no report keeps its
- * files' results from `previous`, the last run's merged report.
+ * files' results from `previous`, the last run's merged report. A shard whose files no test
+ * imports sends an `untested` mark instead; those files come back in `untested`.
  */
 export const mergeReports = (dir: string, plan: Map<number, Set<string>>, previous: unknown) => {
-  const paths = readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter(
-    (path) => path.endsWith('mutation.json') && statSync(join(dir, path)).isFile(),
+  const found = readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter((path) =>
+    statSync(join(dir, path)).isFile(),
   );
 
-  if (!paths.length) throw new Error(`No mutation.json under ${dir}: did every shard fail?`);
+  const paths = found.filter((path) => path.endsWith('mutation.json'));
+  const untestedShards = new Set(found.filter((path) => path.endsWith('untested')).map(shardOf));
+
+  if (!paths.length && !untestedShards.size)
+    throw new Error(`No mutation.json under ${dir}: did every shard fail?`);
 
   const reports = paths.map((path) => ({
-    shard: Number(/mutation-(\d+)/.exec(path)?.[1] ?? 0),
+    shard: shardOf(path),
     report: json(JSON.parse(readFileSync(join(dir, path), 'utf8'))),
   }));
 
-  const reported = new Set(reports.map(({ shard }) => shard));
+  const reported = new Set([...reports.map(({ shard }) => shard), ...untestedShards]);
+
+  const untested = [...plan].flatMap(([shard, files]) =>
+    untestedShards.has(shard) ? [...files] : [],
+  );
 
   const unreported = new Set(
     [...plan].flatMap(([shard, files]) => (reported.has(shard) ? [] : [...files])),
@@ -107,9 +118,10 @@ export const mergeReports = (dir: string, plan: Map<number, Set<string>>, previo
     }
 
   return {
-    reports: reports.length,
+    reports: reported.size,
+    untested,
     merged: {
-      ...reports[0]?.report,
+      ...(reports[0]?.report ?? json(previous)),
       files: Object.fromEntries(
         shards.flatMap((shard) => shard.files.filter(([path]) => shard.planned.has(path))),
       ),

@@ -3,6 +3,7 @@
   "plugins": ["@stryker-mutator/vitest-runner"],
   "testRunner": "vitest",
   "vitest": { "related": true },
+  "allowEmpty": true,
   "coverageAnalysis": "perTest",
   "ignoreStatic": true,
   "ignorers": ["erxes-logging", "erxes-error-messages"],
