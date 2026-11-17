@@ -542,7 +542,7 @@
       "plugin-actions": "Actions",
       "access-text": "Start from a preset, then change any area below. \"Choose\" picks single API calls.",
       "tab-access": "Access",
-      "tab-try": "Try this key"
+      "tab-try": "Check access"
     },
     "sentence": {
       "area": {
@@ -573,12 +573,8 @@
       "chosen-count": "in {{area}} only {{count}} chosen calls"
     },
     "try": {
-      "title": "Try this key",
-      "hint": "Check a call before you use the key. Nothing is called or changed.",
-      "call": "Call",
-      "pick": "Choose a call, like \"list customers\"",
+      "hint": "See what this key can and can't do before you hand it out. Nothing is called or changed.",
       "search": "Search calls",
-      "no-match": "No call matches",
       "area": {
         "contacts": "Contacts",
         "products": "Products",
@@ -592,16 +588,25 @@
         "settings": "Settings"
       },
       "lookup": "Lists every key reads",
-      "never": "No key can call this",
-      "record": "On a contact (optional)",
-      "ip": "From address (optional)",
-      "ip-placeholder": "Any address",
-      "check": "Check",
-      "allowed": "Allowed",
-      "refused": "Refused",
-      "record-none": "Any contact",
-      "maker-role": "Its maker's role",
-      "decided-by": "Decided by: {{setting}}"
+      "record": "On a customer",
+      "ip": "Calling from",
+      "ip-placeholder": "Any address, or type one like 203.0.113.7",
+      "record-none": "Any customer",
+      "allowed-of": "{{count}} of {{total}} allowed",
+      "why-read-only": "{{area}} is read only",
+      "why-off": "{{area}} is off",
+      "why-call": "Not one of its chosen calls",
+      "why-kind": "Not for this kind of key",
+      "why-rows": "Outside its contact limits",
+      "why-ip": "Not from this address",
+      "why-expired": "The key has expired",
+      "why-maker": "Its maker's role doesn't allow it",
+      "why-never": "No key can make this call",
+      "headline": "{{name}} can make {{count}} of {{total}} API calls",
+      "checking": "Checking {{name}}…",
+      "what-if": "Check a situation",
+      "what-if-hint": "Would it still work from another address, or on one customer?",
+      "refused-group": "{{count}} refused: {{why}}"
     },
     "used-on": "Last used {{date}}"
   },

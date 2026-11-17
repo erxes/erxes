@@ -166,15 +166,14 @@ export const apiKeysContract = {
       method: 'POST',
       path: '/api-keys/{id}/try',
       summary:
-        'Would the key be allowed this call (from this address, on this contact)? Says which rule decided',
+        'Would the key be allowed each call it can be given (from this address, on this contact)? Says which rule decided each; nothing is called',
     })
     .input(
       z.object({
         id: Id,
-        procedure: z.string().min(1).max(100),
         recordId: Id.optional(),
         ip: z.union([z.ipv4(), z.ipv6()]).optional(),
       }),
     )
-    .output(KeyDecision),
+    .output(listOf(KeyDecision.extend({ procedure: z.string() }))),
 };

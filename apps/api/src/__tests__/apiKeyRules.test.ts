@@ -1,7 +1,7 @@
 import { apiKeys, auditLogs, roles, users } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { READ_CONTACTS, SETUP } from './apiKeySupport';
+import { READ_CONTACTS, SETUP, tryCall } from './apiKeySupport';
 import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
@@ -154,18 +154,10 @@ describe('API key rules', () => {
     ).rejects.toMatchObject({ code: 'KEY_NOT_ALLOWED', data: { rule: 'rows' } });
 
     expect(
-      await t.owner().apiKeys.try({
-        id: apiKey.id,
-        procedure: 'customers.get',
-        recordId: ids.southCustomer,
-      }),
+      await tryCall(t.owner(), { id: apiKey.id, recordId: ids.southCustomer }, 'customers.get'),
     ).toMatchObject({ allowed: false, rule: 'rows' });
     expect(
-      await t.owner().apiKeys.try({
-        id: apiKey.id,
-        procedure: 'customers.get',
-        recordId: ids.northCustomer,
-      }),
+      await tryCall(t.owner(), { id: apiKey.id, recordId: ids.northCustomer }, 'customers.get'),
     ).toMatchObject({ allowed: true, rule: 'area:contacts:write' });
   });
 

@@ -30,7 +30,7 @@ import type { DraftProps } from './keyParts';
 import { type KeyCallChoice, useKeyCalls } from './useKeyCalls';
 import { type KeyPlugin, useKeyPlugins } from './useKeyPlugins';
 
-const AREA_ICONS: Record<ApiKeyArea, Icon> = {
+export const AREA_ICONS: Record<ApiKeyArea, Icon> = {
   contacts: IconUsers,
   products: IconPackage,
   payments: IconCreditCard,

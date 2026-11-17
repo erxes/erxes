@@ -26,21 +26,17 @@ test('an owner makes a read-only key and tries it', async ({ page }) => {
   await shown.getByRole('button', { name: 'Close' }).click();
 
   await expect(page.getByRole('radio', { name: /^Read only/ })).toBeChecked();
-  await page.getByRole('tab', { name: 'Try this key' }).click();
+  await page.getByRole('tab', { name: 'Check access' }).click();
+  await expect(page.getByTestId('check-headline')).toContainText(`${name} can make`);
+  await page.getByRole('textbox', { name: 'Search calls' }).fill('customers.list');
 
-  await page.getByRole('button', { name: /Choose a call/ }).click();
-  await page.keyboard.type('customers newest');
-  await page.getByRole('option', { name: /Customers of the organisation/ }).click();
+  const list = page.getByTestId('call-customers.list');
 
-  const result = page.getByTestId('try-result');
+  await expect(list).toHaveAttribute('data-allowed', 'true');
 
-  await page.getByRole('button', { name: 'Check' }).click();
-  await expect(result).toContainText('Allowed');
-
-  await page.getByRole('textbox', { name: 'From address (optional)' }).fill('10.0.0.5');
-  await page.getByRole('button', { name: 'Check' }).click();
-  await expect(result).toContainText('Refused');
-  await expect(result).toContainText('Decided by: Only from these addresses');
+  await page.getByRole('textbox', { name: 'Calling from' }).fill('10.0.0.5');
+  await expect(list).toHaveAttribute('data-allowed', 'false');
+  await expect(page.getByTestId('area-contacts')).toContainText('Not from this address');
   await expectAccessible(page);
 
   await page.goto('/settings/api-keys');
@@ -58,16 +54,11 @@ test('a read-only key is refused a write', async ({ page }) => {
     .getByRole('button', { name: 'Close' })
     .click();
 
-  await page.getByRole('tab', { name: 'Try this key' }).click();
-  await page.getByRole('button', { name: /Choose a call/ }).click();
-  await page.keyboard.type('create customer');
-  await page.getByRole('option', { name: /^Create a customer/ }).click();
-  await page.getByRole('button', { name: 'Check' }).click();
+  await page.getByRole('tab', { name: 'Check access' }).click();
+  await page.getByRole('textbox', { name: 'Search calls' }).fill('customers.create');
 
-  const result = page.getByTestId('try-result');
-
-  await expect(result).toContainText('Refused');
-  await expect(result).toContainText('Decided by: Contacts');
+  await expect(page.getByTestId('call-customers.create')).toHaveAttribute('data-allowed', 'false');
+  await expect(page.getByTestId('area-contacts')).toContainText('Contacts is read only');
 });
 
 test('a key given one call makes only that one', async ({ page }) => {
@@ -97,14 +88,12 @@ test('a key given one call makes only that one', async ({ page }) => {
     'true',
   );
 
-  await page.getByRole('tab', { name: 'Try this key' }).click();
-  await page.getByRole('button', { name: /Choose a call/ }).click();
-  await page.keyboard.type('customers newest');
-  await page.getByRole('option', { name: /Customers of the organisation/ }).click();
-  await page.getByRole('button', { name: 'Check' }).click();
+  await page.getByRole('tab', { name: 'Check access' }).click();
 
-  const result = page.getByTestId('try-result');
+  const checked = page.getByTestId('area-contacts');
 
-  await expect(result).toContainText('Refused');
-  await expect(result).toContainText('Decided by: Customers of the organisation, newest first');
+  await expect(checked).toContainText('1 of');
+  await expect(page.getByTestId('call-customers.create')).toHaveAttribute('data-allowed', 'true');
+  await expect(checked).toContainText('refused: Not one of its chosen calls');
+  await expectAccessible(page);
 });

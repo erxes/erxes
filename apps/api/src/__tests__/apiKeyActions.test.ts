@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { READ_CONTACTS, SETUP } from './apiKeySupport';
+import { READ_CONTACTS, SETUP, tryCall } from './apiKeySupport';
 import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
@@ -46,9 +46,13 @@ describe('API keys with chosen calls', () => {
       data: { rule: 'call:customers.remove' },
     });
 
-    expect(await owner.apiKeys.try({ id: apiKey.id, procedure: 'customers.remove' })).toMatchObject(
-      { allowed: false, rule: 'call:customers.remove' },
-    );
+    expect(await tryCall(owner, { id: apiKey.id }, 'customers.remove')).toMatchObject({
+      allowed: false,
+      rule: 'call:customers.remove',
+    });
+    expect(await tryCall(owner, { id: apiKey.id }, 'customers.create')).toMatchObject({
+      allowed: true,
+    });
   });
 
   it('lists and edits customers with a key that may not delete them', async () => {
