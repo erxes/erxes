@@ -25,11 +25,14 @@ import {
 import { ArticleDrawer } from '@/knowledgebase/articles/components/ArticleDrawer';
 import { ArticleMediaSlot } from '@/knowledgebase/articles/components/ArticleMediaSlot';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
+import { useArticleTopicId } from '@/knowledgebase/articles/hooks/useArticleTopicId';
 import {
   ARTICLE_CONTENT_TAB,
   ARTICLE_MEDIA_TAB,
+  KB_RECORD_CONTENT_TYPES,
   KNOWLEDGE_BASE_PATH,
 } from '@/knowledgebase/constants';
+import { KbRecordActions } from '@/knowledgebase/shared/components/KbRecordActions';
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
 
 const DETAIL_TAB = 'detail';
@@ -44,9 +47,10 @@ export const ArticleDetailPage = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useQueryState<string>('tab');
   const { article, loading, error } = useArticleDetail(articleId);
-  const { topic } = useTopicDetail(article?.topicId ?? undefined);
+  const { topicId, loading: placementLoading } = useArticleTopicId(article);
+  const { topic } = useTopicDetail(topicId || undefined);
 
-  if (loading && !article) {
+  if ((loading && !article) || (placementLoading && !topicId)) {
     return <Spinner containerClassName="py-12" />;
   }
 
@@ -74,13 +78,26 @@ export const ArticleDetailPage = () => {
   const knowledgeBaseLabel = t('knowledge-base', 'Knowledge Base');
   const articlesLabel = t('articles', 'Articles');
   const topicLabel = topic?.title || t('unnamed-topic', 'Unnamed topic');
-  const articlesPath = article.topicId
-    ? `${KNOWLEDGE_BASE_PATH}/${article.topicId}/articles`
+  const articlesPath = topicId
+    ? `${KNOWLEDGE_BASE_PATH}/${topicId}/articles`
     : KNOWLEDGE_BASE_PATH;
+  const articleTitle =
+    article.title || t('kb-untitled-article', 'Untitled article');
 
   return (
     <PageContainer>
-      <RecordSidePanel expanded expandedMode="page" expandable={false}>
+      <RecordSidePanel
+        expanded
+        expandedMode="page"
+        expandable={false}
+        minimizeTo={{
+          record: {
+            contentType: KB_RECORD_CONTENT_TYPES.article,
+            contentId: article._id,
+          },
+          listPath: articlesPath,
+        }}
+      >
         <PageHeader>
           <PageHeader.Start className="flex-auto min-w-0">
             <Breadcrumb className="min-w-0">
@@ -93,7 +110,7 @@ export const ArticleDetailPage = () => {
                     </Link>
                   </Button>
                 </Breadcrumb.Item>
-                {article.topicId && (
+                {topicId && (
                   <>
                     <Breadcrumb.Separator />
                     <Breadcrumb.Item className="shrink-0">
@@ -112,8 +129,7 @@ export const ArticleDetailPage = () => {
                 <Breadcrumb.Separator />
                 <Breadcrumb.Item className="min-w-0">
                   <Breadcrumb.Page className="block min-w-0 max-w-md truncate px-2 text-sm">
-                    {article.title ||
-                      t('kb-untitled-article', 'Untitled article')}
+                    {articleTitle}
                   </Breadcrumb.Page>
                 </Breadcrumb.Item>
               </Breadcrumb.List>
@@ -128,6 +144,16 @@ export const ArticleDetailPage = () => {
               icon="IconBook"
             />
           </PageHeader.Start>
+          <PageHeader.End>
+            <KbRecordActions
+              kind="article"
+              id={article._id}
+              title={article.title}
+              topicId={topicId}
+              article={article}
+              onRemoved={() => navigate(articlesPath, { replace: true })}
+            />
+          </PageHeader.End>
         </PageHeader>
         <RecordSidePanel.Tabs
           key={article._id}
@@ -136,6 +162,11 @@ export const ArticleDetailPage = () => {
           visibleCount={3}
           overviewTab={DETAIL_TAB}
           expandedDefaultTab={ARTICLE_CONTENT_TAB}
+          overviewHeader={
+            <div className="min-w-0 flex-1 truncate text-sm font-medium">
+              {articleTitle}
+            </div>
+          }
           tabs={[
             {
               value: DETAIL_TAB,
@@ -145,7 +176,7 @@ export const ArticleDetailPage = () => {
                 <ArticleDrawer
                   articleId={article._id}
                   article={article}
-                  topicId={article.topicId || ''}
+                  topicId={topicId}
                   categoryId={article.categoryId || ''}
                   closeOnSave={false}
                   mediaTab

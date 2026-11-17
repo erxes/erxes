@@ -74,7 +74,15 @@ const KbFormSectionRoot = ({
   const panel = useContext(KbFormPanelContext);
 
   return panel ? (
-    <section aria-label={title}>{children}</section>
+    <section
+      aria-label={title}
+      className="min-w-0 border-t pt-1 first:border-t-0 first:pt-0 [&:first-child>h3]:sr-only"
+    >
+      <h3 className="flex h-9 items-center px-1 text-xs font-medium text-muted-foreground">
+        <span className="min-w-0 truncate">{title}</span>
+      </h3>
+      {children}
+    </section>
   ) : (
     <InfoCard title={title}>{children}</InfoCard>
   );

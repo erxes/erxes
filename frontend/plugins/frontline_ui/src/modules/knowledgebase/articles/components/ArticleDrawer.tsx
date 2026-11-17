@@ -228,7 +228,7 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
   const selectedTopicId = form.watch('topicId');
 
   return (
-    <KbFormSection title={t('content-label', 'Content')}>
+    <KbFormSection title={t('general', 'General')}>
       <KbFormSection.Content>
         <KbTextField
           control={form.control}
@@ -596,7 +596,7 @@ const ArticleFormFields = ({
   );
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       <ArticleContentFields form={form} t={t} />
       <ArticlePublishingFields form={form} t={t} />
       {contentSlot ? (

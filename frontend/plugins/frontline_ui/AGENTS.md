@@ -148,7 +148,13 @@
   topic's article list). Saving there keeps the user on the article, Cancel
   discards unsaved edits in place, and deleting the article returns to its
   topic's article list. The page breadcrumb links Knowledge Base, the topic
-  and Articles, and ends with the article title.
+  and Articles, and ends with the article title. Its header end holds the same
+  `KbRecordActions` menu as the panel (Duplicate, Delete) followed by the
+  public minimize button (`RecordSidePanel` `minimizeTo`), which returns to
+  the topic's article list with the article open in the side panel. The
+  article's topic is resolved by `useArticleTopicId` (its own `topicId`, else
+  its category's first topic) for the panel, page breadcrumb, minimize target
+  and duplication alike.
 - Help Center creation/editing uses the shared record panel, retaining General,
   Appearance, Embed and Domain behavior with scoped in-memory drafts, confirmed
   create continuation and full-config conflict confirmation.
@@ -1098,6 +1104,8 @@ pipelineIds?, pageIds? } }` (`frontlineDashboardConfig.ts`); view mode turns
   the topic-less article route. Activity has an explicit
   supported empty state because the available Frontline history API is
   ticket-specific. `KnowledgeBaseDetailLink` consumes legacy `editId` links.
+  The actions view renders `shared/components/KbRecordActions`, which the
+  article page reuses; its `onRemoved` lets a page leave a deleted record.
 - `CONFIG.widgets.recordPanels` also registers `frontline:helpcenter`, with
   `properties: false` and `draftTitle: true`. `./recordPanel` exposes the named
   `RecordPanel` at `src/widgets/record-panel/RecordPanel.tsx`; it lazy-loads
@@ -2937,7 +2945,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `TopicDrawer`, `CategoryDrawer` and `ArticleDrawer` are panel form bodies.
   `KbFormSheet` renders a real form around the public `PanelFormLayout`; fields
   use `KbFormSection` and `KbFormItem`, with the layout supplying scrolling and
-  Save/Cancel controls. Only an explicitly typed submit button saves: implicit
+  Save/Cancel controls. In a panel each `KbFormSection` after the first draws a
+  divider and a small muted heading (article: Publishing, Content, Media;
+  category: Placement; topic: Appearance); the first section — the record's
+  own identity fields (article General, category General, topic General) —
+  keeps its heading screen-reader only. Outside a panel sections stay
+  `InfoCard`s. Only an explicitly typed submit button saves: implicit
   buttons inside selectors must not submit the containing form. Single-line
   `KbTextField` inputs prevent implicit Enter submission before the browser can activate an
   untyped chip removal button. Textarea newlines, IME composition and combobox
@@ -3482,6 +3495,10 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open or play, external media stays covered until revealed, and no upload or
   removal control appears. Repeat while permission queries load or fail, then
   confirm an assigned user can edit a private pipeline when its status allows.
+- Knowledge base full-screen smoke: expand an article from a topic's list —
+  the header shows the actions menu and minimize; minimize lands on that
+  topic's articles with the article in the side panel; Delete from the page
+  returns to the list; Duplicate keeps the user on the article.
 - Knowledge base panel smoke: open article/category/topic drafts, edit fields,
   visit Activity or another record, then return and confirm edits remain.
   Switch create placement, use Back/Forward, change a background filter and
