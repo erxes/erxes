@@ -1,115 +1,116 @@
-import { UseFormReturn } from 'react-hook-form';
 import { TChannelForm } from '@/channels/types';
 import { Form, IconPicker, Input, Textarea } from 'erxes-ui';
-import { PanelFormRow, SelectMember } from 'ui-modules';
-import type { ReactNode } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-
-/** Arranges a channel field for either panel or inline form layouts. */
-const ChannelFormItem = ({
-  panel,
-  label,
-  children,
-  className,
-}: {
-  panel: boolean;
-  label: ReactNode;
-  children: ReactNode;
-  className?: string;
-}) => (
-  <Form.Item className={className}>
-    {panel ? (
-      <PanelFormRow label={<Form.Label>{label}</Form.Label>}>
-        {children}
-      </PanelFormRow>
-    ) : (
-      <>
-        <Form.Label>{label}</Form.Label>
-        {children}
-      </>
-    )}
-  </Form.Item>
-);
+import { SelectMember } from 'ui-modules';
 
 export const ChannelForm = ({
   form,
-  panel = false,
+  withMembers = true,
+  disabled = false,
+  autoFocus = false,
 }: {
   form: UseFormReturn<TChannelForm>;
-  panel?: boolean;
+  withMembers?: boolean;
+  disabled?: boolean;
+  autoFocus?: boolean;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className={panel ? 'flex flex-col gap-3' : 'w-full flex gap-2'}>
-        <Form.Field
-          control={form.control}
-          name="icon"
-          render={({ field }) => (
-            <ChannelFormItem panel={panel} label={t('icon', 'Icon')}>
-              <Form.Description className="sr-only">
-                {t('icon', 'Icon')}
-              </Form.Description>
+    <div className="flex flex-col gap-4">
+      <Form.Field
+        control={form.control}
+        name="name"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('name', 'Name')}</Form.Label>
+            <div className="flex items-center gap-2">
+              <Form.Field
+                control={form.control}
+                name="icon"
+                render={({ field: iconField }) => (
+                  <IconPicker
+                    key={iconField.value ?? 'none'}
+                    value={iconField.value ?? undefined}
+                    onValueChange={iconField.onChange}
+                    disabled={disabled}
+                    variant="outline"
+                    aria-label={t('choose-icon', 'Choose icon')}
+                    className="size-7 shrink-0 justify-center px-0"
+                  />
+                )}
+              />
               <Form.Control>
-                <IconPicker
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                  className="w-min"
+                <Input
+                  {...field}
+                  disabled={disabled}
+                  autoFocus={autoFocus}
+                  autoComplete="off"
+                  placeholder={t(
+                    'channel-name-placeholder',
+                    'e.g. Customer support',
+                  )}
                 />
               </Form.Control>
-              <Form.Message />
-            </ChannelFormItem>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <ChannelFormItem
-              panel={panel}
-              label={t('name', 'Name')}
-              className="flex-auto"
-            >
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
-              <Form.Message />
-            </ChannelFormItem>
-          )}
-        />
-      </div>
-
+            </div>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
       <Form.Field
         control={form.control}
         name="description"
         render={({ field }) => (
-          <ChannelFormItem
-            panel={panel}
-            label={t('description', 'Description')}
-          >
+          <Form.Item>
+            <Form.Label>
+              {t('description', 'Description')}
+              <span className="ml-1 font-normal text-muted-foreground">
+                {t('optional', '(optional)')}
+              </span>
+            </Form.Label>
             <Form.Control>
-              <Textarea {...field} />
+              <Textarea
+                {...field}
+                value={field.value ?? ''}
+                disabled={disabled}
+                rows={3}
+                className="resize-none"
+                placeholder={t(
+                  'channel-description-placeholder',
+                  'What conversations and tickets belong here?',
+                )}
+              />
             </Form.Control>
             <Form.Message />
-          </ChannelFormItem>
+          </Form.Item>
         )}
       />
-      <Form.Field
-        control={form.control}
-        name="memberIds"
-        render={({ field }) => (
-          <ChannelFormItem panel={panel} label={t('members-title', 'Members')}>
-            <Form.Control>
+      {withMembers && (
+        <Form.Field
+          control={form.control}
+          name="memberIds"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('members-title', 'Members')}</Form.Label>
               <SelectMember.FormItem
                 mode="multiple"
                 value={field.value}
                 onValueChange={field.onChange}
+                disabled={disabled}
+                placeholder={t('add-teammates', 'Add teammates')}
               />
-            </Form.Control>
-            <Form.Message />
-          </ChannelFormItem>
-        )}
-      />
+              <Form.Description>
+                {t(
+                  'channel-members-hint',
+                  'You join as the channel admin. You can add more people later.',
+                )}
+              </Form.Description>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      )}
     </div>
   );
 };

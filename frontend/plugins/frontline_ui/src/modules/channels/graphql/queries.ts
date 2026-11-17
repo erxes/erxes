@@ -37,6 +37,7 @@ const GET_CHANNEL = gql(`
       _id
       icon
       name
+      scope
       pipelineCount
       description
       createdAt

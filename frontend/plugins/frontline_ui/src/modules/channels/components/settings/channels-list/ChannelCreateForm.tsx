@@ -96,13 +96,19 @@ export const ChannelCreateForm = () => {
         className="flex flex-1 min-h-0 flex-col"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="flex-1 min-h-0 overflow-y-auto p-3">
-          <ChannelForm form={form} panel />
+        <div className="flex-1 min-h-0 overflow-y-auto p-4">
+          <p className="mb-4 text-sm text-muted-foreground">
+            {t(
+              'create-channel-intro',
+              'A channel groups a team with its inboxes, ticket pipelines, forms and replies.',
+            )}
+          </p>
+          <ChannelForm form={form} autoFocus />
         </div>
         <SettingsPanelFooter
           onCancel={cancel}
           cancelLabel={t('cancel', 'Cancel')}
-          submitLabel={t('create', 'Create')}
+          submitLabel={t('create-channel', 'Create channel')}
           loading={loading || saving}
         />
       </form>
