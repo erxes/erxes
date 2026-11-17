@@ -97,9 +97,7 @@ export const BoardRoot = ({
 
     cards.drop(true);
 
-    if (event.activatorEvent instanceof KeyboardEvent && move.columnId !== move.fromColumnId) {
-      cards.refocus(move.id, move.columnId);
-    }
+    if (event.activatorEvent instanceof KeyboardEvent) cards.refocus(move.id, move.columnId);
 
     onMove(move);
   };

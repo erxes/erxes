@@ -24,8 +24,8 @@ export class BoardCards {
   visible = () => this.#board?.getBoundingClientRect();
 
   /**
-   * After a keyboard drop into another column the card takes the focus back when it shows
-   * there, unless the member does anything else first.
+   * After a keyboard drop the card takes the focus back if it loses it on moving to its new
+   * spot, unless the member does anything else first.
    */
   refocus = (id: string, columnId: string) => {
     this.#refocus = { id, columnId };
@@ -46,13 +46,15 @@ export class BoardCards {
     this.#refocus = null;
   };
 
-  /** Whether `button`, the card's in `columnId`, should take the focus now; it takes it once. */
+  /** Whether `button`, the card's in `columnId`, lost the focus it should take back now. */
   takesFocus = (id: string, columnId: string, button: HTMLElement | null) => {
-    if (this.#refocus?.id !== id || this.#refocus.columnId !== columnId || !button) return false;
+    const asked = this.#refocus?.id === id && this.#refocus.columnId === columnId;
+
+    if (!asked || !button || document.activeElement === button) return false;
 
     this.forgetFocus();
 
-    return document.activeElement !== button;
+    return true;
   };
 
   columnOf = (id: string) => this.#cards.get(id)?.columnId;
