@@ -144,5 +144,18 @@
       "company_lead": "company leads",
       "product": "products"
     }
+  },
+  "board": {
+    "drop-here": "Drop to move here",
+    "instructions": "Press Enter to open the card. Press Space to pick it up, the arrow keys to move it, Space again to drop it, or Escape to cancel.",
+    "picked": "Picked up {{card}}.",
+    "above": "above {{card}} in {{column}}",
+    "in": "in {{column}}",
+    "over": "{{card}} is {{place}}.",
+    "nowhere": "{{card}} is where it was.",
+    "dropped": "Dropped {{card}} {{place}}.",
+    "dropped-nowhere": "Dropped {{card}} where it was.",
+    "cancelled": "Put {{card}} back where it was.",
+    "draggable": "movable card"
   }
 }

@@ -12,7 +12,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 | ------------------------ | ------------------------------------------------------------------- | --------------------------------------------------------------- |
 | List                     | `PageHeader`, `ViewBar`, `ListFilter`, `RecordTable`                | `ui/src/modules/items/ItemsPage.tsx`                            |
 | Grouped list (by status) | `RecordList`, `DisplayMenu`, `useListDisplay`                       | none in core yet                                                |
-| Board                    | `DisplayMenu`, `useListDisplay`                                     | `apps/web/src/modules/leads/LeadsBoard.tsx`                     |
+| Board                    | `Board`, `DisplayMenu`, `useListDisplay`                            | `apps/web/src/modules/leads/LeadsBoard.tsx`                     |
 | Cards or chart           | `DisplayMenu`, `useListDisplay`, `TListDisplayOption`               | none in core yet                                                |
 | Record detail            | `PanelSection`, `PanelField`, `RecordTableInlineCell`, `RecordPage` | `ui/src/modules/items/ItemPanel.tsx`                            |
 | Create/edit form         | `PanelFormLayout`, `PanelFormRow`                                   | `ui/src/modules/items/ItemPanel.tsx`                            |
@@ -32,6 +32,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Lists
 
+- `Board.{Column, Card, Skeleton}` Cards in columns, such as leads by stage, to drag to another column.
+- `type BoardMove` A dropped card: its old and new column, and the card it now sits above.
 - `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board, list or its own.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
 - `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, for a page without saved views.

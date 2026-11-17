@@ -106,7 +106,6 @@ export const en = {
   },
   board: {
     'add-here': 'Add a lead here',
-    'drop-here': 'Drop to move here',
     empty: 'No leads',
     'days-in-stage': 'Days in this stage',
     owner: 'Owner: {{name}}',
