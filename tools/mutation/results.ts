@@ -57,16 +57,65 @@ export const mergeReports = (dir: string) => {
 
   if (!reports.length) throw new Error(`No mutation.json under ${dir}: did every shard fail?`);
 
+  const shards = reports.map(withStableTestIds);
+  const testFiles = new Map<string, Map<string, Json>>();
+
+  for (const shard of shards)
+    for (const [path, tests] of shard.testFiles)
+      for (const test of tests)
+        testFiles.set(
+          path,
+          (testFiles.get(path) ?? new Map<string, Json>()).set(text(test.id), test),
+        );
+
   return {
     reports: reports.length,
     merged: {
       ...reports[0],
-      files: Object.fromEntries(reports.flatMap((report) => Object.entries(json(report.files)))),
+      files: Object.fromEntries(shards.flatMap((shard) => shard.files)),
       testFiles: Object.fromEntries(
-        reports.flatMap((report) => Object.entries(json(report.testFiles))),
+        [...testFiles].map(([path, tests]) => [path, { tests: [...tests.values()] }]),
       ),
     },
   };
+};
+
+/**
+ * Stryker numbers a run's tests from 0, so two shards' ids collide. This names each test by its
+ * file and full name instead, the same in every shard, and rewrites the mutants to match.
+ */
+const withStableTestIds = (report: Json) => {
+  const stable = new Map<string, string>();
+
+  const testFiles = Object.entries(json(report.testFiles)).map(([path, entry]) => {
+    const tests = list(json(entry).tests).map((raw) => {
+      const test = json(raw);
+      const id = `${path}#${text(test.name)}`;
+
+      stable.set(text(test.id), id);
+
+      return { ...test, id };
+    });
+
+    return [path, tests] as const;
+  });
+
+  const remap = (ids: unknown) =>
+    Array.isArray(ids) ? ids.map((id) => stable.get(text(id)) ?? text(id)) : undefined;
+
+  const files = Object.entries(json(report.files)).map(([path, entry]) => {
+    const file = json(entry);
+
+    const mutants = list(file.mutants).map((raw) => {
+      const mutant = json(raw);
+
+      return { ...mutant, coveredBy: remap(mutant.coveredBy), killedBy: remap(mutant.killedBy) };
+    });
+
+    return [path, { ...file, mutants }] as const;
+  });
+
+  return { testFiles, files };
 };
 
 const snippet = (source: string[], start: Json, end: Json) => {
