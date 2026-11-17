@@ -6,8 +6,10 @@ import {
   IconProgressCheck,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, useQueryState } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useOpenDealPanel } from '@/deals/hooks/useOpenDealPanel';
+import { useLoyaltyDrill } from '@/loyalty-points/drill';
 import {
   Cell,
   OpenableCell,
@@ -22,14 +24,20 @@ import {
 
 const DealNameCell = ({ row }: { row: TDealScoreLogRow }) => {
   const { t } = useTranslation('sales');
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const openDealPanel = useOpenDealPanel();
+  const drill = useLoyaltyDrill();
+
+  const open = () => {
+    drill?.close();
+    openDealPanel(row.dealId);
+  };
 
   return (
     <OpenableCell
       label={row.dealName || row.dealId}
       title={t('loyalty-log-open-deal', 'Open deal')}
     >
-      <button type="button" onClick={() => setSalesItemId(row.dealId)}>
+      <button type="button" onClick={open}>
         <IconExternalLink size={14} />
       </button>
     </OpenableCell>

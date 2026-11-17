@@ -43,7 +43,7 @@ const FrontlineSettings = () => {
     <Suspense fallback={<div />}>
       <Routes>
         <Route
-          path={FrontlinePaths.IntegrationConfig}
+          path={`${FrontlinePaths.IntegrationConfig}/*`}
           element={<IntegrationsConfigRoute />}
         />
         <Route
@@ -51,7 +51,7 @@ const FrontlineSettings = () => {
           element={<ChannelsSettings />}
         />
         <Route
-          path={FrontlinePaths.PersonalChannel}
+          path={`${FrontlinePaths.PersonalChannel}/*`}
           element={
             <PageContainer>
               <SettingsHeader breadcrumbs={<PersonalChannelBreadcrumb />} />

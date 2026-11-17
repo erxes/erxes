@@ -1,36 +1,58 @@
 import {
   AutomationsHotKeyScope,
+  TAutomationListRow,
   TAutomationRecordTableColumnDefData,
 } from '@/automations/types';
-import {
-  IconCopy,
-  IconEdit,
-  IconPointerBolt,
-  IconShare,
-  IconTrash,
-} from '@tabler/icons-react';
+import { AutomationFolderRowCell } from '@/automations/components/list/folders/AutomationFolderRowCell';
+import { isAutomationListRow } from '@/automations/hooks/useAutomationListRows';
+import { IconCopy, IconEdit, IconLock, IconTrash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { flexRender } from '@tanstack/react-table';
 import {
-  Badge,
+  Avatar,
+  Button,
+  cn,
+  DropdownMenu,
+  IconComponent,
   Input,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  DropdownMenu,
-  Button,
 } from 'erxes-ui';
-import { ApprovalLockedBadge, TagsSelect } from 'ui-modules';
+import { TagsSelect } from 'ui-modules';
 import { AutomationExecutionCountCell } from '@/automations/components/list/AutomationExecutionCountCell';
 import { AutomationRecentRunsStrip } from '@/automations/components/list/AutomationRecentRunsStrip';
-import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
+import {
+  useAutomationTriggerCell,
+  useAutomationUpdatedCell,
+} from '@/automations/hooks/useAutomationListCells';
 import { useAutomationNameCell } from '@/automations/hooks/useAutomationNameCell';
 import { useAutomationActions } from '@/automations/hooks/useAutomationActions';
 import { useTranslation } from 'react-i18next';
 
 const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
+
+type TAutomationColumn = ColumnDef<TAutomationRecordTableColumnDefData>;
+
+/**
+ * Folder headings and footers share the table's rows and columns, so each
+ * column draws them too; the table's data is wider than the column type.
+ */
+const withFolderRows = (column: TAutomationColumn): TAutomationColumn => ({
+  ...column,
+  cell: (context) => {
+    const row = context.row.original as TAutomationListRow;
+
+    if (isAutomationListRow(row)) {
+      return flexRender(column.cell, context);
+    }
+
+    return <AutomationFolderRowCell columnId={column.id || ''} row={row} />;
+  },
+});
 
 const AutomationMoreCell = ({
   automation,
@@ -86,6 +108,31 @@ const AutomationMoreCell = ({
   );
 };
 
+const NAME_ANCHOR_CLASS =
+  'min-w-0 border-0 bg-transparent px-0 font-medium text-foreground shadow-none hover:bg-transparent hover:underline';
+
+const AutomationNameDisplay = ({
+  name,
+  isPrivate,
+  onOpen,
+}: {
+  name: string;
+  isPrivate: boolean;
+  onOpen: () => void;
+}) => (
+  <div className="flex min-w-0 items-center gap-1.5">
+    {isPrivate && (
+      <IconLock className="size-3.5 shrink-0 text-muted-foreground" />
+    )}
+    <RecordTableInlineCell.Anchor
+      className={NAME_ANCHOR_CLASS}
+      onClick={onOpen}
+    >
+      <span className="truncate">{name}</span>
+    </RecordTableInlineCell.Anchor>
+  </div>
+);
+
 const AutomationNameCell = ({
   automation,
 }: {
@@ -93,6 +140,8 @@ const AutomationNameCell = ({
 }) => {
   const {
     automationId,
+    isNested,
+    isPrivate,
     currentName,
     editingName,
     setEditingName,
@@ -100,12 +149,19 @@ const AutomationNameCell = ({
     rename,
     openAutomation,
   } = useAutomationNameCell(automation);
+  const display = (
+    <AutomationNameDisplay
+      name={currentName}
+      isPrivate={isPrivate}
+      onOpen={openAutomation}
+    />
+  );
 
   if (!canWrite) {
     return (
-      <RecordTableInlineCell.Anchor onClick={openAutomation}>
-        <span className="truncate">{currentName}</span>
-      </RecordTableInlineCell.Anchor>
+      <RecordTableInlineCell className={cn(isNested && 'pl-9')}>
+        {display}
+      </RecordTableInlineCell>
     );
   }
 
@@ -115,10 +171,8 @@ const AutomationNameCell = ({
       onEnter={rename}
       dependencies={[automationId, canWrite, currentName, editingName]}
     >
-      <RecordTableInlineCell.Trigger>
-        <RecordTableInlineCell.Anchor onClick={openAutomation}>
-          <span className="truncate">{currentName}</span>
-        </RecordTableInlineCell.Anchor>
+      <RecordTableInlineCell.Trigger className={cn(isNested && 'pl-9')}>
+        {display}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Input
@@ -130,107 +184,125 @@ const AutomationNameCell = ({
   );
 };
 
+const AutomationTriggerCell = ({
+  automation,
+}: {
+  automation: TAutomationRecordTableColumnDefData;
+}) => {
+  const { icon, label, hasTrigger, extraTriggersLabel, stepsLabel } =
+    useAutomationTriggerCell(automation);
+
+  return (
+    <RecordTableInlineCell className="gap-2">
+      <IconComponent
+        name={icon}
+        className="size-4 shrink-0 text-muted-foreground"
+      />
+      <span className={cn('truncate', !hasTrigger && 'text-muted-foreground')}>
+        {label}
+      </span>
+      {extraTriggersLabel && (
+        <span className="shrink-0 text-xs text-muted-foreground">
+          {extraTriggersLabel}
+        </span>
+      )}
+      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+        {stepsLabel}
+      </span>
+    </RecordTableInlineCell>
+  );
+};
+
+const AutomationUpdatedCell = ({
+  automation,
+}: {
+  automation: TAutomationRecordTableColumnDefData;
+}) => {
+  const { updatedAt, userName, avatarSrc, initial } =
+    useAutomationUpdatedCell(automation);
+
+  return (
+    <RecordTableInlineCell className="gap-2">
+      {updatedAt && (
+        <RelativeDateDisplay value={updatedAt} asChild>
+          <span className="truncate text-muted-foreground">
+            <RelativeDateDisplay.Value value={updatedAt} />
+          </span>
+        </RelativeDateDisplay>
+      )}
+      {userName && (
+        <Avatar className="ml-auto size-5 shrink-0" title={userName}>
+          <Avatar.Image src={avatarSrc} alt={userName} />
+          <Avatar.Fallback className="text-[10px]">{initial}</Avatar.Fallback>
+        </Avatar>
+      )}
+    </RecordTableInlineCell>
+  );
+};
+
 export const getAutomationColumns: (
   t: (key: string) => string,
-) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
-  {
-    id: 'more',
-    cell: ({ cell }) => <AutomationMoreCell automation={cell.row.original} />,
-    size: 33,
-    maxSize: 33,
-    minSize: 33,
-  },
-  checkBoxColumn,
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => <AutomationNameCell automation={cell.row.original} />,
-    minSize: 150,
-  },
-  {
-    id: 'visibility',
-    header: () => <RecordTable.InlineHead label={t('visibility')} />,
-    cell: ({ cell }) => {
-      const lockState = cell.row.original.approvalLockState;
-
-      return (
+) => TAutomationColumn[] = (t) => {
+  const columns: TAutomationColumn[] = [
+    {
+      id: 'more',
+      cell: ({ cell }) => <AutomationMoreCell automation={cell.row.original} />,
+      size: 33,
+      maxSize: 33,
+      minSize: 33,
+    },
+    checkBoxColumn,
+    {
+      id: 'name',
+      accessorKey: 'name',
+      header: () => <RecordTable.InlineHead label={t('name')} />,
+      cell: ({ cell }) => <AutomationNameCell automation={cell.row.original} />,
+      size: 320,
+      minSize: 200,
+    },
+    {
+      id: 'trigger',
+      header: () => <RecordTable.InlineHead label={t('list-trigger')} />,
+      cell: ({ cell }) => (
+        <AutomationTriggerCell automation={cell.row.original} />
+      ),
+      size: 240,
+    },
+    {
+      id: 'status',
+      accessorKey: 'status',
+      header: () => <RecordTable.InlineHead label={t('status')} />,
+      cell: ({ cell }) => <AutomationRecordTableStatusInlineCell cell={cell} />,
+      size: 100,
+    },
+    {
+      id: 'recentRuns',
+      header: () => <RecordTable.InlineHead label={t('history-last-runs')} />,
+      cell: ({ cell }) => (
         <RecordTableInlineCell>
-          {lockState?.locked ? (
-            <ApprovalLockedBadge state={lockState} />
-          ) : (
-            <Badge variant="secondary">{t('public')}</Badge>
-          )}
+          <AutomationRecentRunsStrip automationId={cell.row.original._id} />
         </RecordTableInlineCell>
-      );
+      ),
+      size: 180,
     },
-    size: 120,
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} />,
-    cell: ({ cell }) => {
-      return <AutomationRecordTableStatusInlineCell cell={cell} />;
+    {
+      id: 'executionCount',
+      header: () => <RecordTable.InlineHead label={t('runs')} />,
+      cell: ({ cell }) => (
+        <AutomationExecutionCountCell id={cell.row.original._id} />
+      ),
+      size: 80,
     },
-    size: 80,
-  },
-
-  {
-    id: 'triggers',
-    accessorKey: 'triggers',
-    header: () => <RecordTable.InlineHead label={t('triggers')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <IconPointerBolt size={12} />
-        {(cell.row.original.triggers || []).length}
-      </RecordTableInlineCell>
-    ),
-    size: 80,
-  },
-  {
-    id: 'actions',
-    accessorKey: 'actions',
-    header: () => <RecordTable.InlineHead label={t('actions')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <IconShare size={12} />
-        {(cell.row.original.actions || []).length}
-      </RecordTableInlineCell>
-    ),
-    size: 80,
-  },
-  {
-    id: 'executionCount',
-    header: () => <RecordTable.InlineHead label={t('runs')} />,
-    cell: ({ cell }) => (
-      <AutomationExecutionCountCell id={cell.row.original._id} />
-    ),
-    size: 100,
-  },
-  {
-    id: 'recentRuns',
-    header: () => <RecordTable.InlineHead label={t('history-last-runs')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <AutomationRecentRunsStrip automationId={cell.row.original._id} />
-      </RecordTableInlineCell>
-    ),
-    size: 180,
-  },
-  {
-    id: 'tagIds',
-    accessorKey: 'tagIds',
-    header: () => <RecordTable.InlineHead label={t('tags')} />,
-    cell: ({ cell }) => {
-      const tagIds = cell.getValue() as string[];
-
-      return (
+    {
+      id: 'tagIds',
+      accessorKey: 'tagIds',
+      header: () => <RecordTable.InlineHead label={t('tags')} />,
+      cell: ({ cell }) => (
         <TagsSelect.InlineCell
           scope={AutomationsHotKeyScope.AutomationsTableInlinePopover}
           type="core:automation"
           mode="multiple"
-          value={tagIds}
+          value={cell.row.original.tagIds || []}
           targetIds={[cell.row.original._id]}
           options={(newSelectedTagIds) => ({
             update: (cache) => {
@@ -239,54 +311,24 @@ export const getAutomationColumns: (
                   __typename: 'Automation',
                   _id: cell.row.original._id,
                 }),
-                fields: {
-                  tagIds: () => newSelectedTagIds,
-                },
+                fields: { tagIds: () => newSelectedTagIds },
               });
             },
           })}
         />
-      );
+      ),
+      size: 180,
     },
-  },
-  {
-    id: 'updatedUser',
-    accessorKey: 'updatedUser',
-    header: () => <RecordTable.InlineHead label={t('updated-user')} />,
-    cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
-  },
-  {
-    id: 'createdUser',
-    accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead label={t('created-user')} />,
-    cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
-  },
-  {
-    id: 'updatedAt',
-    accessorKey: 'updatedAt',
-    header: () => <RecordTable.InlineHead label={t('last-updated-at')} />,
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
+    {
+      id: 'updatedAt',
+      accessorKey: 'updatedAt',
+      header: () => <RecordTable.InlineHead label={t('list-updated')} />,
+      cell: ({ cell }) => (
+        <AutomationUpdatedCell automation={cell.row.original} />
+      ),
+      size: 170,
     },
-  },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label={t('created-at')} />,
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
-  },
-];
+  ];
+
+  return columns.map(withFolderRows);
+};

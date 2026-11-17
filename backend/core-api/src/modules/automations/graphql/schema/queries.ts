@@ -50,6 +50,8 @@ const listParams = `
 const queries = `
   automationsMain(${listParams}): AutomationsListResponse
   automationFolders: [AutomationFolder]
+  automationVersions(automationId: String!, nodeId: String): [AutomationVersion]
+  automationVersionDetail(_id: String!): AutomationVersion
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   cpAutomationDetail(_id: String!): Automation

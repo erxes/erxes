@@ -29,6 +29,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+import { RecordPageMinimizeContext } from 'ui-modules/modules/widget/record-side-panel/recordView';
 
 export type { IRecordSidePanelTab } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanelTypes';
 
@@ -248,6 +249,7 @@ const RecordSidePanelRoot = ({
   expandedMode = 'viewport',
   onExpandedChange,
   expandable = true,
+  minimizeTo,
   children,
 }: RecordSidePanelRootProps) => {
   const [internalExpanded, setInternalExpanded] = useState(false);
@@ -297,38 +299,56 @@ const RecordSidePanelRoot = ({
   );
   const upperBound = Math.max(SIDE_PANEL_WIDTH.min, maxWidth);
   const panelWidth = clampWidth(width, upperBound);
+  const minimizeContentType = minimizeTo?.record.contentType;
+  const minimizeContentId = minimizeTo?.record.contentId;
+  const minimizeListPath = minimizeTo?.listPath;
+  const minimizeTarget = useMemo(
+    () =>
+      minimizeContentType && minimizeContentId && minimizeListPath
+        ? {
+            record: {
+              contentType: minimizeContentType,
+              contentId: minimizeContentId,
+            },
+            listPath: minimizeListPath,
+          }
+        : null,
+    [minimizeContentType, minimizeContentId, minimizeListPath],
+  );
   return (
-    <PanelExpansionContext.Provider value={expansion}>
-      <aside
-        ref={panelRef}
-        data-record-side-panel
-        data-expanded={expanded || undefined}
-        onAnimationEnd={(event) => {
-          if (event.target === event.currentTarget) setEntering(false);
-        }}
-        style={{ width: expanded ? '100%' : panelWidth }}
-        className={cn(
-          '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
-          expanded &&
-            (expandedMode === 'page'
-              ? 'relative h-full min-w-0 flex-1 border-l-0'
-              : 'fixed inset-0 z-40 h-svh border-l-0'),
-          // Animate entry only: duration-200 must never ease drag width changes.
-          showEntryMotion &&
-            'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
-          className,
-        )}
-      >
-        {onWidthChange && !expanded && (
-          <RecordSidePanelResizeHandle
-            width={panelWidth}
-            maxWidth={upperBound}
-            onWidthChange={onWidthChange}
-          />
-        )}
-        {children}
-      </aside>
-    </PanelExpansionContext.Provider>
+    <RecordPageMinimizeContext.Provider value={minimizeTarget}>
+      <PanelExpansionContext.Provider value={expansion}>
+        <aside
+          ref={panelRef}
+          data-record-side-panel
+          data-expanded={expanded || undefined}
+          onAnimationEnd={(event) => {
+            if (event.target === event.currentTarget) setEntering(false);
+          }}
+          style={{ width: expanded ? '100%' : panelWidth }}
+          className={cn(
+            '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
+            expanded &&
+              (expandedMode === 'page'
+                ? 'relative h-full min-w-0 flex-1 border-l-0'
+                : 'fixed inset-0 z-40 h-svh border-l-0'),
+            // Animate entry only: duration-200 must never ease drag width changes.
+            showEntryMotion &&
+              'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
+            className,
+          )}
+        >
+          {onWidthChange && !expanded && (
+            <RecordSidePanelResizeHandle
+              width={panelWidth}
+              maxWidth={upperBound}
+              onWidthChange={onWidthChange}
+            />
+          )}
+          {children}
+        </aside>
+      </PanelExpansionContext.Provider>
+    </RecordPageMinimizeContext.Provider>
   );
 };
 

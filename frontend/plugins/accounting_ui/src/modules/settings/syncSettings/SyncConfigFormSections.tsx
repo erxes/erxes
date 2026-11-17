@@ -1,4 +1,4 @@
-import { Button, Form, Input, Spinner } from 'erxes-ui';
+import { Button, Form, Input, Spinner, toast } from 'erxes-ui';
 import {
   Control,
   FieldPath,
@@ -89,6 +89,16 @@ export const usePipelineReset = <T extends IUsePipelineResetForm>(
   }, [pipelineId, form]);
 
   return { boardId, pipelineId };
+};
+
+export const useSyncConfigInvalidToast = () => {
+  const { t } = useTranslation('accounting');
+
+  return () =>
+    toast({
+      title: t('required-information-is-missing'),
+      variant: 'destructive',
+    });
 };
 
 export const normalizeRuleIds = (value?: string | string[]) => {
@@ -225,7 +235,11 @@ export const SyncConfigGeneralFields = <
         control={control}
         name={'title' as FieldPath<TFieldValues>}
         render={({ field, fieldState }) => (
-          <PanelFormRow label={t('title')} error={fieldState.error?.message}>
+          <PanelFormRow
+            label={t('title')}
+            required
+            error={fieldState.error?.message}
+          >
             <Input
               {...field}
               value={field.value ?? ''}
@@ -314,7 +328,11 @@ export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
         control={form.control}
         name={'stageId' as FieldPath<T>}
         render={({ field, fieldState }) => (
-          <PanelFormRow label={t('stage')} error={fieldState.error?.message}>
+          <PanelFormRow
+            label={t('stage')}
+            required
+            error={fieldState.error?.message}
+          >
             <SelectStage.FormItem
               mode="single"
               value={field.value}
@@ -346,8 +364,12 @@ export const SyncConfigAccountsSection = <
           key={name}
           control={control}
           name={name as FieldPath<TFieldValues>}
-          render={({ field }) => (
-            <PanelFormRow label={t(label)}>
+          render={({ field, fieldState }) => (
+            <PanelFormRow
+              label={t(label)}
+              required
+              error={fieldState.error?.message}
+            >
               <SelectAccount.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
@@ -496,10 +518,14 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
         <Form.Field
           control={control}
           name={rowIdName}
-          render={({ field }) => {
+          render={({ field, fieldState }) => {
             const SelectComponent = selectComponent;
             return (
-              <PanelFormRow label={t(rowLabel)}>
+              <PanelFormRow
+                label={t(rowLabel)}
+                required
+                error={fieldState.error?.message}
+              >
                 <SelectComponent
                   value={field.value || ''}
                   onValueChange={field.onChange}

@@ -6,7 +6,7 @@ import {
   KbFormSection,
 } from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPaperclip, IconX } from '@tabler/icons-react';
+import { IconAlignLeft, IconPaperclip, IconX } from '@tabler/icons-react';
 import {
   Button,
   Editor,
@@ -16,14 +16,28 @@ import {
   readImage,
   Select,
   Switch,
+  Textarea,
+  Tooltip,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { createPortal } from 'react-dom';
 import { useForm, type UseFormReturn } from 'react-hook-form';
+import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
 import { useSaveArticle } from '@/knowledgebase/articles/hooks/useArticleMutations';
-import { ARTICLE_STATUSES, REACTIONS } from '@/knowledgebase/constants';
+import {
+  articleMediaSlotsState,
+  getArticleSlotKey,
+} from '@/knowledgebase/articles/states/articleMediaSlotsState';
+import {
+  ARTICLE_CONTENT_TAB,
+  ARTICLE_MEDIA_TAB,
+  ARTICLE_STATUSES,
+  REACTIONS,
+} from '@/knowledgebase/constants';
 import { KbImageUpload } from '@/knowledgebase/shared/components/TopicAppearanceFields';
 import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
@@ -193,11 +207,27 @@ type TArticleMediaFieldsProps = TArticleFieldsProps & {
   invalidateUpdates: (field: string) => void;
 };
 
+const TruncatedRequiredLabel = ({ label }: { label: string }) => (
+  <Tooltip.Provider delayDuration={100}>
+    <Tooltip>
+      <Tooltip.Trigger asChild>
+        <span className="flex w-full min-w-0 items-center" title={label}>
+          <span className="min-w-0 max-w-[4.75rem] flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+            {label}
+          </span>
+          <span className="ml-0.5 shrink-0 text-destructive">*</span>
+        </span>
+      </Tooltip.Trigger>
+      <Tooltip.Content>{label}</Tooltip.Content>
+    </Tooltip>
+  </Tooltip.Provider>
+);
+
 const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
   const selectedTopicId = form.watch('topicId');
 
   return (
-    <KbFormSection title={t('content-label', 'Content')}>
+    <KbFormSection title={t('general', 'General')}>
       <KbFormSection.Content>
         <KbTextField
           control={form.control}
@@ -213,11 +243,15 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
             name="topicId"
             render={({ field }) => (
               <KbFormItem
-                required
-                label={t('knowledge-base', 'Knowledge Base')}
+                label={
+                  <TruncatedRequiredLabel
+                    label={t('knowledge-base', 'Knowledge Base')}
+                  />
+                }
               >
                 <Form.Control>
                   <SelectKbTopic
+                    variant="table"
                     value={field.value}
                     onValueChange={(nextTopicId) => {
                       if (nextTopicId === field.value) return;
@@ -239,6 +273,7 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
               <KbFormItem required label={t('kb-category', 'Category')}>
                 <Form.Control>
                   <SelectKbCategory
+                    variant="table"
                     topicId={selectedTopicId}
                     value={field.value}
                     onValueChange={field.onChange}
@@ -249,37 +284,73 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
             )}
           />
         </div>
-
-        <KbTextField
-          control={form.control}
-          name="summary"
-          label={t('kb-summary', 'Summary')}
-          placeholder={t('kb-enter-article-summary', 'Enter article summary')}
-          multiline
-        />
-
-        <Form.Field
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <KbFormItem wide required label={t('content-label', 'Content')}>
-              <Form.Control>
-                <Editor
-                  initialContent={field.value}
-                  onChange={field.onChange}
-                  scope="KnowledgeBaseArticleContent"
-                  isHTML
-                  className="h-auto min-h-40"
-                />
-              </Form.Control>
-              <Form.Message />
-            </KbFormItem>
-          )}
-        />
       </KbFormSection.Content>
     </KbFormSection>
   );
 };
+
+const ArticleBodyFields = ({ form, t }: TArticleFieldsProps) => (
+  <KbFormSection title={t('content-label', 'Content')}>
+    <KbFormSection.Content>
+      <Form.Field
+        control={form.control}
+        name="summary"
+        render={({ field }) => (
+          <KbFormItem
+            wide
+            label={
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <IconAlignLeft className="size-3.5 shrink-0" aria-hidden />
+                {t('kb-summary', 'Summary')}
+              </span>
+            }
+          >
+            <Form.Control>
+              <Textarea
+                {...field}
+                value={field.value ?? ''}
+                placeholder={t(
+                  'kb-enter-article-summary',
+                  'Enter article summary',
+                )}
+                className="min-h-20 rounded-sm shadow-none hover:bg-accent focus-visible:bg-background focus-visible:shadow-focus"
+              />
+            </Form.Control>
+            <Form.Message />
+          </KbFormItem>
+        )}
+      />
+
+      <Form.Field
+        control={form.control}
+        name="content"
+        render={({ field }) => (
+          <KbFormItem
+            wide
+            required
+            label={
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <IconAlignLeft className="size-3.5 shrink-0" aria-hidden />
+                {t('content-label', 'Content')}
+              </span>
+            }
+          >
+            <Form.Control>
+              <Editor
+                initialContent={field.value}
+                onChange={field.onChange}
+                scope="KnowledgeBaseArticleContent"
+                isHTML
+                className="h-auto min-h-40 rounded-sm shadow-none hover:bg-accent focus-within:bg-background focus-within:shadow-focus"
+              />
+            </Form.Control>
+            <Form.Message />
+          </KbFormItem>
+        )}
+      />
+    </KbFormSection.Content>
+  </KbFormSection>
+);
 
 const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
   const status = form.watch('status');
@@ -294,7 +365,7 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
             <KbFormItem label={t('status', 'Status')}>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
-                  <Select.Trigger className="w-full">
+                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
                     <Select.Value />
                   </Select.Trigger>
                 </Form.Control>
@@ -355,7 +426,9 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
             <KbFormItem label={t('kb-reaction-choices', 'Reaction Choices')}>
               <Form.Control>
                 <MultipleSelector
+                  className="shadow-none"
                   options={REACTIONS}
+                  hidePlaceholderWhenSelected
                   value={(field.value ?? []).map((choice) => ({
                     value: choice,
                     label:
@@ -364,6 +437,11 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
                   }))}
                   onChange={(value) =>
                     field.onChange(value.map((item) => item.value))
+                  }
+                  inputProps={
+                    field.value?.length
+                      ? { className: 'w-20 min-w-16' }
+                      : undefined
                   }
                 />
               </Form.Control>
@@ -498,35 +576,59 @@ const ArticleFormFields = ({
   captureUpdate,
   invalidateUpdates,
   disabled,
-}: TArticleMediaFieldsProps) => (
-  <div className="flex flex-col gap-3">
-    <ArticleContentFields form={form} t={t} />
-    <div className="grid gap-4">
+  mediaTab,
+  contentTab,
+  contentSlot,
+}: TArticleMediaFieldsProps & {
+  mediaTab: boolean;
+  contentTab: boolean;
+  contentSlot?: HTMLElement;
+}) => {
+  const mediaFields = (
+    <ArticleMediaFields
+      form={form}
+      t={t}
+      captureUpdate={captureUpdate}
+      invalidateUpdates={invalidateUpdates}
+      disabled={disabled}
+    />
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      <ArticleContentFields form={form} t={t} />
       <ArticlePublishingFields form={form} t={t} />
-      <ArticleMediaFields
-        form={form}
-        t={t}
-        captureUpdate={captureUpdate}
-        invalidateUpdates={invalidateUpdates}
-        disabled={disabled}
-      />
+      {contentSlot ? (
+        createPortal(<ArticleBodyFields form={form} t={t} />, contentSlot)
+      ) : (
+        !contentTab && <ArticleBodyFields form={form} t={t} />
+      )}
+      {!mediaTab && mediaFields}
     </div>
-  </div>
-);
+  );
+};
 
 export const ArticleDrawer = ({
   articleId,
   article: loadedArticle,
   topicId,
   categoryId,
+  closeOnSave = true,
+  mediaTab = false,
+  contentTab = false,
   onClose,
+  onCancel = onClose,
   onSaved,
 }: {
   articleId?: string | null;
   article?: IArticleDetail;
   topicId: string;
   categoryId: string;
+  closeOnSave?: boolean;
+  mediaTab?: boolean;
+  contentTab?: boolean;
   onClose: () => void;
+  onCancel?: () => void;
   onSaved?: () => void;
 }) => {
   const { t } = useTranslation('frontline', {
@@ -537,6 +639,15 @@ export const ArticleDrawer = ({
   );
   const article = loadedArticle ?? fetchedArticle;
   const { saveArticle, loading } = useSaveArticle();
+  const mediaSlots = useAtomValue(articleMediaSlotsState);
+  const mediaSlot =
+    mediaTab && articleId
+      ? mediaSlots[getArticleSlotKey(articleId, ARTICLE_MEDIA_TAB)]
+      : undefined;
+  const contentSlot =
+    contentTab && articleId
+      ? mediaSlots[getArticleSlotKey(articleId, ARTICLE_CONTENT_TAB)]
+      : undefined;
 
   const form = useForm<TArticleForm>({
     resolver: zodResolver(articleSchema),
@@ -591,7 +702,7 @@ export const ArticleDrawer = ({
 
   const cancel = () => {
     clearDraft();
-    onClose();
+    onCancel();
   };
 
   const submit = form.handleSubmit(async (values) => {
@@ -613,30 +724,48 @@ export const ArticleDrawer = ({
 
     if (!markSaved(values, submittedValues)) return;
     onSaved?.();
-    if (isActive()) onClose();
+    if (closeOnSave && isActive()) onClose();
   });
 
+  const formSheetProps = {
+    onClose: cancel,
+    submitLabel: isEditing
+      ? t('kb-save-changes', 'Save Changes')
+      : t('kb-create-article', 'Create Article'),
+    loading: loading || saving,
+    uploading,
+    onSubmit: submit,
+  };
+
   return (
-    <KbFormSheet
-      onClose={cancel}
-      submitLabel={
-        isEditing
-          ? t('kb-save-changes', 'Save Changes')
-          : t('kb-create-article', 'Create Article')
-      }
-      loading={loading || saving}
-      uploading={uploading}
-      onSubmit={submit}
-    >
-      <Form {...form}>
-        <ArticleFormFields
-          form={form}
-          t={t}
-          captureUpdate={captureUpdate}
-          invalidateUpdates={invalidateUpdates}
-          disabled={loading || saving}
-        />
-      </Form>
-    </KbFormSheet>
+    <Form {...form}>
+      <>
+        <KbFormSheet {...formSheetProps}>
+          <ArticleFormFields
+            form={form}
+            t={t}
+            captureUpdate={captureUpdate}
+            invalidateUpdates={invalidateUpdates}
+            disabled={loading || saving}
+            mediaTab={mediaTab}
+            contentTab={contentTab}
+            contentSlot={contentSlot}
+          />
+        </KbFormSheet>
+        {mediaSlot &&
+          createPortal(
+            <KbFormSheet {...formSheetProps}>
+              <ArticleMediaFields
+                form={form}
+                t={t}
+                captureUpdate={captureUpdate}
+                invalidateUpdates={invalidateUpdates}
+                disabled={loading || saving}
+              />
+            </KbFormSheet>,
+            mediaSlot,
+          )}
+      </>
+    </Form>
   );
 };

@@ -14,7 +14,8 @@ export const useUpdateTriage = () => {
   ) => {
     return updateTriageMutation({
       ...options,
-      onError: (error) => {
+      onError: (error, clientOptions) => {
+        options?.onError?.(error, clientOptions);
         toast({
           title: t('error'),
           description: error.message,

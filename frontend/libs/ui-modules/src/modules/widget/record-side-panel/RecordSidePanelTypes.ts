@@ -1,5 +1,6 @@
 import type { Icon } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
+import type { IRecordPageMinimizeTarget } from 'ui-modules/modules/widget/record-side-panel/recordView';
 export interface IRecordSidePanelTab {
   value: string;
   label: string;
@@ -37,6 +38,8 @@ export type RecordSidePanelRootProps = {
   expandedMode?: 'viewport' | 'page';
   onExpandedChange?: (expanded: boolean) => void;
   expandable?: boolean;
+  // A record page without a navigator: where its header's minimize returns.
+  minimizeTo?: IRecordPageMinimizeTarget;
   children: ReactNode;
 };
 

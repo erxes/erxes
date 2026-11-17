@@ -11,11 +11,9 @@ import { compactList } from '@/shared/utils/cursorList';
 import {
   Alert,
   Button,
-  Collapsible,
   Combobox,
   Command,
   Form,
-  getPluginAssetsUrl,
   Popover,
   Skeleton,
   Spinner,
@@ -27,10 +25,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
 import { SecretInput } from '@/integrations/components/SecretInput';
-import { INTEGRATIONS } from '@/integrations/constants/integrations';
-import { IntegrationType } from '@/types/Integration';
 import {
   IMailCloudflareConnection,
   IMailProvisionStep,
@@ -153,34 +148,6 @@ const MailDomainCombobox = ({
         </Command>
       </Combobox.Content>
     </Popover>
-  );
-};
-
-export const MailConfigUpdateCollapse = () => {
-  const { t } = useTranslation('frontline');
-
-  return (
-    <Collapsible className="w-full bg-muted rounded-lg">
-      <Collapsible.Trigger asChild>
-        <Button
-          variant="secondary"
-          className="w-full h-auto flex justify-start group bg-transparent hover:bg-transparent gap-3 px-3 font-semibold text-left whitespace-normal"
-        >
-          <Collapsible.TriggerIcon className="text-accent-foreground shrink-0" />
-          <IntegrationLogo
-            img={getPluginAssetsUrl(
-              'frontline',
-              INTEGRATIONS[IntegrationType.MAIL].img,
-            )}
-            name={INTEGRATIONS[IntegrationType.MAIL].name}
-          />
-          {t('mail-cloudflare-config-title')}
-        </Button>
-      </Collapsible.Trigger>
-      <Collapsible.Content className="shadow-xs rounded-lg p-3 bg-background">
-        <MailConfigUpdate />
-      </Collapsible.Content>
-    </Collapsible>
   );
 };
 
