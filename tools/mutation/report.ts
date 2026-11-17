@@ -1,5 +1,5 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, relative } from 'node:path';
+import { dirname } from 'node:path';
 import {
   createIssue,
   ensureLabel,
@@ -10,38 +10,33 @@ import {
   upsertComment,
 } from './github.ts';
 import {
+  type Authors,
+  byArea,
+  env,
+  missed,
+  notImported,
+  ref,
+  rows,
+  runUrl,
+  scoreLine,
+  summary,
+  untested,
+  weakTestsSection,
+} from './markdown.ts';
+import {
   mergeReports,
   type Mutant,
   mutantsOf,
   plannedFiles,
   tally,
+  type Test,
+  testsOf,
   withoutUnsure,
 } from './results.ts';
-
-const env = (name: string) => process.env[name] ?? '';
 
 const LABEL = 'false-test';
 const AREA_MARKER = 'erxes-mutation-area:';
 const PR_MARKER = '<!-- erxes-mutation-pr -->';
-const MAX_ROWS = 40;
-
-const server = env('GITHUB_SERVER_URL') || 'https://github.com';
-const repository = env('GITHUB_REPOSITORY');
-const ref = env('HEAD_SHA') || env('GITHUB_SHA');
-const runUrl = `${server}/${repository}/actions/runs/${env('GITHUB_RUN_ID')}`;
-
-const code = (value: string) => {
-  const flat = value.replaceAll(/\s+/g, ' ').trim();
-  const short = flat.length > 70 ? `${flat.slice(0, 69)}…` : flat;
-  const safe = short.replaceAll('|', '\\|');
-
-  return safe.includes('`') ? `\`\` ${safe} \`\`` : `\`${safe || ' '}\``;
-};
-
-/** A change the tests ran over and did not fail on, or only timed out on. */
-const missed = (mutant: Mutant) => mutant.status === 'Survived' || mutant.status === 'Timeout';
-
-type Authors = Map<string, string>;
 
 const authorsOf = async (mutants: Mutant[]): Promise<Authors> => {
   const testFiles = new Set(
@@ -55,50 +50,15 @@ const authorsOf = async (mutants: Mutant[]): Promise<Authors> => {
   });
 };
 
-const rows = (misses: Mutant[], area: string, authors: Authors) => {
-  const lines = [
-    '| Line | Change no test caught | Tests that ran over it | Test last changed by |',
-    '|---|---|---|---|',
-  ];
-
-  for (const mutant of misses.slice(0, MAX_ROWS)) {
-    const where = `[${relative(area, mutant.file)}:${mutant.line}](${server}/${repository}/blob/${ref}/${mutant.file}#L${mutant.line})`;
-    const change = `${code(mutant.original)} → ${code(mutant.replacement)}${mutant.status === 'Timeout' ? ' (the tests only timed out)' : ''}`;
-    const tests = mutant.testFiles.slice(0, 2).map((file) => code(file.split('/').at(-1) ?? file));
-    const author = authors.get(mutant.testFiles[0] ?? '') ?? '';
-
-    lines.push(`| ${where} | ${change} | ${tests.join(', ')} | ${author ? code(author) : ''} |`);
-  }
-
-  if (misses.length > MAX_ROWS)
-    lines.push('', `And ${misses.length - MAX_ROWS} more in the [HTML report](${runUrl}).`);
-
-  return lines.join('\n');
-};
-
-const scoreLine = (mutants: Mutant[]) => {
-  const { killed, survived, timeout, score } = tally(mutants);
-
-  const timeouts = timeout
-    ? `; ${timeout} that only made the tests time out count as not caught`
-    : '';
-
-  return `**Score: ${score ?? '–'}%** (${killed} of ${killed + survived + timeout} changes caught${timeouts}) · [run and HTML report](${runUrl})`;
-};
-
-const untested = (mutants: Mutant[]) => {
-  const { noCoverage } = tally(mutants);
-
-  return noCoverage
-    ? `${noCoverage} more changes sit in code no test runs at all: missing tests, not false ones. The HTML report lists them.`
-    : '';
-};
-
-const issueBody = (area: string, mutants: Mutant[], authors: Authors) =>
+const issueBody = (area: string, mutants: Mutant[], authors: Authors, tests: Map<string, Test>) =>
   [
     'Tests run over this code and still pass when it changes, so they do not check what it does. Each row is one change no test caught. Make a test fail for it; the next run closes this issue.',
     '',
     scoreLine(mutants),
+    '',
+    weakTestsSection(mutants, tests),
+    '',
+    '#### Changes no test caught',
     '',
     rows(mutants.filter(missed), area, authors),
     '',
@@ -136,17 +96,9 @@ const closing = (inArea: Mutant[] | undefined) => {
   };
 };
 
-const byArea = (mutants: Mutant[]) => {
-  const areas = new Map<string, Mutant[]>();
-
-  for (const mutant of mutants) areas.set(mutant.area, [...(areas.get(mutant.area) ?? []), mutant]);
-
-  return [...areas.entries()].toSorted(([a], [b]) => a.localeCompare(b));
-};
-
 const areaOf = (body: string) => new RegExp(String.raw`${AREA_MARKER} (\S+)`).exec(body)?.[1] ?? '';
 
-const fileIssues = async (mutants: Mutant[]) => {
+const fileIssues = async (mutants: Mutant[], tests: Map<string, Test>) => {
   await ensureLabel(LABEL, 'Tests that pass whatever the code does (mutation testing)');
 
   const open = new Map(
@@ -165,7 +117,7 @@ const fileIssues = async (mutants: Mutant[]) => {
     if (!inArea.some(missed)) continue;
 
     const title = `False tests in ${area}`;
-    const body = issueBody(area, inArea, authors);
+    const body = issueBody(area, inArea, authors, tests);
     const existing = open.get(area);
 
     open.delete(area);
@@ -198,19 +150,14 @@ const verdict = async (mutants: Mutant[]) => {
   const misses = mutants.filter(missed);
 
   if (misses.length)
-    return `${misses.length} changes passed every test that ran over them:\n\n${rows(misses, '.', await authorsOf(mutants))}`;
+    return `#### Changes no test caught\n\n${misses.length} changes passed every test that ran over them:\n\n${rows(misses, '.', await authorsOf(mutants))}`;
 
   return tally(mutants).killed
     ? 'Every change tested here made a test fail.'
     : 'No test runs this code, so no test can be judged here.';
 };
 
-const notImported = (files: string[]) =>
-  files.length
-    ? `No test imports ${files.length} of the changed files: ${files.slice(0, 10).map(code).join(', ')}${files.length > 10 ? ' …' : ''}`
-    : '';
-
-const prComment = async (mutants: Mutant[], untestedFiles: string[]) => {
+const prComment = async (mutants: Mutant[], untestedFiles: string[], tests: Map<string, Test>) => {
   const tested = tally(mutants).score !== null;
 
   const body = [
@@ -218,6 +165,8 @@ const prComment = async (mutants: Mutant[], untestedFiles: string[]) => {
     '### Do the tests catch changes to the code this pull request touches?',
     '',
     tested ? scoreLine(mutants) : `[Run and HTML report](${runUrl})`,
+    '',
+    weakTestsSection(mutants, tests),
     '',
     await verdict(mutants),
     '',
@@ -231,31 +180,6 @@ const prComment = async (mutants: Mutant[], untestedFiles: string[]) => {
   await upsertComment(Number(env('PR_NUMBER')), PR_MARKER, body).catch((error: unknown) => {
     process.stdout.write(`::warning::Could not comment on the pull request: ${String(error)}\n`);
   });
-};
-
-const summary = (mutants: Mutant[]) => {
-  const lines = [
-    '| Area | Score | Caught | Not caught | Timed out | No test runs it |',
-    '|---|---|---|---|---|---|',
-  ];
-
-  for (const [area, inArea] of byArea(mutants)) {
-    const t = tally(inArea);
-
-    lines.push(
-      `| ${area} | ${t.score ?? '–'}% | ${t.killed} | ${t.survived} | ${t.timeout} | ${t.noCoverage} |`,
-    );
-  }
-
-  const all = tally(mutants);
-
-  return [
-    '## Mutation testing',
-    '',
-    `Score ${all.score ?? '–'}%: ${all.killed} caught, ${all.survived} not caught, ${all.timeout} timed out, ${all.noCoverage} in untested code, ${all.ignored} ignored, ${all.errors} errors, ${all.brokenSetup.length} unsure (the setup broke).`,
-    '',
-    ...lines,
-  ].join('\n');
 };
 
 const plan = plannedFiles(env('PLAN'));
@@ -274,6 +198,7 @@ if (out) {
 }
 
 const mutants = mutantsOf(merged);
+const tests = testsOf(merged);
 const { brokenSetup, setupBroke } = tally(mutants);
 
 if (env('GITHUB_STEP_SUMMARY')) appendFileSync(env('GITHUB_STEP_SUMMARY'), `${summary(mutants)}\n`);
@@ -298,7 +223,7 @@ const complete =
 
 if (untestedFiles.length) process.stdout.write(`${notImported(untestedFiles)}\n`);
 
-if (env('MODE') === 'pr') await prComment(mutants, untestedFiles);
+if (env('MODE') === 'pr') await prComment(mutants, untestedFiles, tests);
 else if (env('ISSUES') !== 'true') {
   process.stdout.write("Only the issue branch's runs keep the issues.\n");
 } else if (!complete) {
@@ -306,7 +231,7 @@ else if (env('ISSUES') !== 'true') {
     '::warning::A shard did not finish, or no test ran at all, so the issues stay as they were.\n',
   );
 } else {
-  const counts = await fileIssues(mutants);
+  const counts = await fileIssues(mutants, tests);
 
   process.stdout.write(
     `Issues: ${counts.opened} opened, ${counts.updated} updated, ${counts.closed} closed\n`,
