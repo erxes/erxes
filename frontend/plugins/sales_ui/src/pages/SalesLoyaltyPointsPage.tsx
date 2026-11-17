@@ -13,7 +13,7 @@ import {
   LoyaltyDrillProvider,
   LoyaltyDrillSheet,
 } from '@/loyalty-points/drill';
-import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
+import { useOpenRecordPanelFromQuery } from '~/widgets/record-panel/useOpenRecordPanelFromQuery';
 import { DealLoyaltyFilter } from '@/deals/loyaltyRules/components/DealLoyaltyFilter';
 import { DealLoyaltyInsights } from '@/deals/loyaltyRules/components/DealLoyaltyInsights';
 import { DealScoreLogsTable } from '@/deals/loyaltyRules/components/DealScoreLogsTable';
@@ -21,6 +21,7 @@ import { DealScoreLogsTable } from '@/deals/loyaltyRules/components/DealScoreLog
 /** Point movements of every deal the user may see, across pipelines. */
 export const SalesLoyaltyPointsPage = () => {
   const { t } = useTranslation('sales');
+  useOpenRecordPanelFromQuery('salesItemId', 'sales:deal');
 
   return (
     <LoyaltyDrillProvider>
@@ -61,7 +62,6 @@ export const SalesLoyaltyPointsPage = () => {
             <LoyaltyDrillSheet>
               <DealScoreLogsTable scope="all" />
             </LoyaltyDrillSheet>
-            <SalesItemDetail />
           </PageContainer>
         </div>
       </div>

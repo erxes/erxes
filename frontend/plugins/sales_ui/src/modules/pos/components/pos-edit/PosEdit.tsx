@@ -2,7 +2,6 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PageContainer } from 'erxes-ui';
 import { SettingsHeader } from 'ui-modules';
-import { PosEditSidebar } from '@/pos/components/pos-edit/Sidebar';
 import { MainContent } from '@/pos/components/pos-edit/MainContent';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
@@ -38,7 +37,6 @@ export const PosEdit = ({ id, breadcrumbs, actions }: PosEditProps) => {
 
   return (
     <PageContainer className="flex-row">
-      <PosEditSidebar activeTab={activeTab} posId={id} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <SettingsHeader breadcrumbs={breadcrumbs}>
           <div className="ml-auto flex shrink-0 items-center gap-2">

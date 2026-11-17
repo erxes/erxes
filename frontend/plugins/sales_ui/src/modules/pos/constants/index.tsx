@@ -1,22 +1,11 @@
 import {
-  Icon,
-  IconBolt,
   IconBrandMastercard,
   IconBrandVisa,
   IconBuilding,
   IconCashBanknote,
   IconCreditCard,
-  IconDeviceDesktop,
   IconFile,
-  IconInfoCircle,
-  IconLayoutGrid,
-  IconPackage,
-  IconPalette,
   IconPhone,
-  IconRefresh,
-  IconShieldLock,
-  IconTruckDelivery,
-  IconUserPlus,
 } from '@tabler/icons-react';
 
 export type AllowedPosType =
@@ -59,51 +48,18 @@ export const options = [
 // Tabs other plugins add (`relationSettingsWidgets`) are keyed under this.
 export const POS_RELATION_TAB_PREFIX = 'relation.';
 
-export interface PosEditStep {
-  value: string;
-  title: string;
-  icon: Icon;
-}
-
-export interface PosEditStepGroup {
-  title: string;
-  steps: PosEditStep[];
-}
-
-export const POS_EDIT_STEP_GROUPS: PosEditStepGroup[] = [
-  {
-    title: 'general',
-    steps: [
-      {
-        value: 'properties',
-        title: 'general-information',
-        icon: IconInfoCircle,
-      },
-      { value: 'permission', title: 'permission', icon: IconShieldLock },
-      { value: 'customer', title: 'customer-registration', icon: IconUserPlus },
-    ],
-  },
-  {
-    title: 'sales',
-    steps: [
-      { value: 'product', title: 'product-and-service', icon: IconPackage },
-      { value: 'payments', title: 'payments', icon: IconCreditCard },
-      { value: 'delivery', title: 'delivery', icon: IconTruckDelivery },
-      { value: 'sync', title: 'sync-card', icon: IconRefresh },
-    ],
-  },
-  {
-    title: 'display',
-    steps: [
-      { value: 'slots', title: 'slots', icon: IconLayoutGrid },
-      { value: 'appearance', title: 'brand-color-and-logo', icon: IconPalette },
-      { value: 'screen', title: 'screen', icon: IconDeviceDesktop },
-    ],
-  },
-  {
-    title: 'plugins',
-    steps: [{ value: 'automations', title: 'pos-automations', icon: IconBolt }],
-  },
+export const getSteps = () => [
+  { value: 'properties', title: 'general-information' },
+  { value: 'permission', title: 'permission' },
+  { value: 'customer', title: 'customer-registration' },
+  { value: 'product', title: 'product-and-service' },
+  { value: 'payments', title: 'payments' },
+  { value: 'delivery', title: 'delivery' },
+  { value: 'sync', title: 'sync-card' },
+  { value: 'slots', title: 'slots' },
+  { value: 'appearance', title: 'brand-color-and-logo' },
+  { value: 'screen', title: 'screen' },
+  { value: 'automations', title: 'pos-automations' },
 ];
 
 interface PaymentIconProps {

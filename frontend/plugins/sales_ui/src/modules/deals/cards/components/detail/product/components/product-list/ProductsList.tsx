@@ -1,23 +1,23 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { currentUserState } from 'ui-modules';
 
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { Dialog } from 'erxes-ui';
+import { Dialog, ScrollArea } from 'erxes-ui';
 import { useDealProductActions } from '../../hooks/useDealProductActions';
+import { useLocalProductEdits } from '../../hooks/useLocalProductEdits';
+import { useNarrowContainer } from '../../hooks/useNarrowContainer';
 import { useProductCalculations } from '../../hooks/useProductCalculations';
 import {
   useSaveDealProducts,
   useSyncLocalProductsData,
   useVatPercent,
 } from '../../hooks/useProductsListState';
-import {
-  onLocalChangeAtom,
-  productRowActionsAtom,
-} from '../../productTableAtom';
+import { ProductListHandlersContext } from '@/deals/cards/components/detail/product/productListHandlers';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
@@ -26,6 +26,8 @@ import { ProductEditSheet } from '../ProductEditSheet';
 import { ProductFooter } from '../ProductFooter';
 import { ProductsListHeader } from './ProductsListHeader';
 
+const COMPACT_MAX_WIDTH = 768;
+
 export const ProductsList = ({
   products,
   productsData,
@@ -33,6 +35,7 @@ export const ProductsList = ({
   pipelineId,
   refetch,
   tickUsed,
+  compact = false,
 }: {
   products: DealProduct[];
   productsData: DealProductData[];
@@ -40,14 +43,26 @@ export const ProductsList = ({
   pipelineId?: string;
   refetch: () => void;
   tickUsed: boolean;
+  compact?: boolean;
 }) => {
+  const { t } = useTranslation('sales');
+  const { ref: containerRef, isNarrow } = useNarrowContainer(
+    compact,
+    COMPACT_MAX_WIDTH,
+  );
+
   const currentUser = useAtomValue(currentUserState);
   const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
-  const [localProductsData, setLocalProductsData] =
-    useState<DealProductData[]>(productsData);
-  const pendingProductPatchesRef = useRef<
-    Record<string, Partial<DealProductData>>
-  >({});
+  const {
+    localProductsData,
+    setLocalProductsData,
+    editLocalProductsData,
+    addPendingPatches,
+    pendingProductPatchesRef,
+    hasUnsavedChanges,
+    beginSave,
+    completeSave,
+  } = useLocalProductEdits(productsData);
   const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
   );
@@ -57,8 +72,6 @@ export const ProductsList = ({
       return acc;
     }, {}),
   );
-  const setOnLocalChange = useSetAtom(onLocalChangeAtom);
-  const setProductRowActions = useSetAtom(productRowActionsAtom);
 
   const [filters, setFilters] = useState<ProductFilterState>({});
 
@@ -71,9 +84,10 @@ export const ProductsList = ({
     updateTotal,
     calculatePerProductAmount,
   } = useProductCalculations(localProductsData);
-  const { editDeals } = useDealsEdit(undefined, {
-    toastOptions: DEAL_TOAST_OPTIONS,
-  });
+  const { editDeals, loading: saving } = useDealsEdit(
+    { onCompleted: completeSave },
+    { toastOptions: DEAL_TOAST_OPTIONS },
+  );
   const [showAdvancedView, setShowAdvancedView] = useState(false);
   const [showTaxView, setShowTaxView] = useState(false);
   const [showExpandedView, setShowExpandedView] = useState(false);
@@ -158,7 +172,7 @@ export const ProductsList = ({
     applyVat,
   } = useVatPercent({
     localProductsData,
-    setLocalProductsData,
+    setLocalProductsData: editLocalProductsData,
     updateTotal,
     calculatePerProductAmount,
   });
@@ -191,12 +205,14 @@ export const ProductsList = ({
                 options.syncProductId),
         );
 
-        affectedProductData.forEach((productData) => {
-          pendingProductPatchesRef.current[String(productData._id)] = {
-            ...pendingProductPatchesRef.current[String(productData._id)],
-            ...patch,
-          };
-        });
+        addPendingPatches(
+          Object.fromEntries(
+            affectedProductData.map((productData) => [
+              String(productData._id),
+              patch,
+            ]),
+          ),
+        );
 
         const affectedIds = new Set(
           affectedProductData.map((productData) => productData._id),
@@ -211,7 +227,7 @@ export const ProductsList = ({
         return updated;
       });
     },
-    [updateTotal],
+    [updateTotal, setLocalProductsData, addPendingPatches],
   );
 
   useSyncLocalProductsData({
@@ -224,56 +240,70 @@ export const ProductsList = ({
     sortByStableProductOrder,
   });
 
-  useEffect(() => {
-    setOnLocalChange(() => updateLocalProduct);
-    return () => setOnLocalChange(null);
-  }, [setOnLocalChange, updateLocalProduct]);
-
-  useEffect(() => {
-    setProductRowActions({
-      onEdit: openProductEditSheet,
-      onDuplicate: duplicateProduct,
-      onDelete: deleteProduct,
-    });
-    return () => setProductRowActions(null);
-  }, [
-    setProductRowActions,
-    openProductEditSheet,
-    duplicateProduct,
-    deleteProduct,
-  ]);
+  const listHandlers = useMemo(
+    () => ({
+      onLocalChange: updateLocalProduct,
+      rowActions: {
+        onEdit: openProductEditSheet,
+        onDuplicate: duplicateProduct,
+        onDelete: deleteProduct,
+      },
+    }),
+    [updateLocalProduct, openProductEditSheet, duplicateProduct, deleteProduct],
+  );
 
   const hasProductFilters = Object.values(filters).some((value) =>
     Array.isArray(value) ? value.length > 0 : Boolean(value),
   );
 
+  const cardsLayout = compact && isNarrow && !showExpandedView;
+
+  const productsHeader = (
+    <ProductsListHeader
+      filters={filters}
+      onFiltersChange={setFilters}
+      vatPercent={vatPercent}
+      vatPercentDraft={vatPercentDraft}
+      onVatPercentChange={onVatPercentChange}
+      onVatPercentBlur={onVatPercentBlur}
+      onApplyVat={applyVat}
+      showAdvancedView={showAdvancedView}
+      onShowAdvancedViewChange={setShowAdvancedView}
+      showTaxView={showTaxView}
+      onShowTaxViewChange={setShowTaxView}
+      showExpandedView={showExpandedView}
+      onShowExpandedViewChange={setShowExpandedView}
+      compact={cardsLayout}
+    />
+  );
+
+  const productsTable = (
+    <ProductsRecordTable
+      products={productRecords}
+      refetch={refetch}
+      showAdvancedView={showAdvancedView}
+      showTaxView={showTaxView}
+      hasProductFilters={hasProductFilters}
+      layout={cardsLayout ? 'cards' : 'table'}
+    />
+  );
+
   const productWorkspace = (
     <>
-      <ProductsListHeader
-        filters={filters}
-        onFiltersChange={setFilters}
-        vatPercent={vatPercent}
-        vatPercentDraft={vatPercentDraft}
-        onVatPercentChange={onVatPercentChange}
-        onVatPercentBlur={onVatPercentBlur}
-        onApplyVat={applyVat}
-        showAdvancedView={showAdvancedView}
-        onShowAdvancedViewChange={setShowAdvancedView}
-        showTaxView={showTaxView}
-        onShowTaxViewChange={setShowTaxView}
-        showExpandedView={showExpandedView}
-        onShowExpandedViewChange={setShowExpandedView}
-      />
-
-      <div className="min-h-0 flex-1 py-4">
-        <ProductsRecordTable
-          products={productRecords}
-          refetch={refetch}
-          showAdvancedView={showAdvancedView}
-          showTaxView={showTaxView}
-          hasProductFilters={hasProductFilters}
-        />
-      </div>
+      {cardsLayout ? (
+        <ScrollArea
+          className="min-h-0 flex-1"
+          viewportClassName="[&>div]:block!"
+        >
+          {productsHeader}
+          <div className="py-4">{productsTable}</div>
+        </ScrollArea>
+      ) : (
+        <>
+          {productsHeader}
+          <div className="min-h-0 flex-1 py-4">{productsTable}</div>
+        </>
+      )}
 
       <ProductFooter
         productsCount={localProductsData.length}
@@ -286,41 +316,48 @@ export const ProductsList = ({
         showTaxView={showTaxView}
         productsData={localProductsData}
         pipelineId={pipelineId}
-        onChangeProductsData={setLocalProductsData}
+        onChangeProductsData={editLocalProductsData}
         updateTotal={updateTotal}
         onAddProducts={addProducts}
-        onSave={handleSave}
+        onSave={() => {
+          beginSave();
+          handleSave();
+        }}
+        saving={saving}
+        hasUnsavedChanges={hasUnsavedChanges}
       />
     </>
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      {showExpandedView ? (
-        <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
-          <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
-            <Dialog.Header className="sr-only">
-              <Dialog.Title>Products</Dialog.Title>
-              <Dialog.Description>
-                Expanded product management view
-              </Dialog.Description>
-            </Dialog.Header>
-            {productWorkspace}
-          </Dialog.Content>
-        </Dialog>
-      ) : (
-        productWorkspace
-      )}
+    <ProductListHandlersContext.Provider value={listHandlers}>
+      <div ref={containerRef} className="flex h-full min-h-0 flex-col">
+        {showExpandedView ? (
+          <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
+            <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
+              <Dialog.Header className="sr-only">
+                <Dialog.Title>{t('products')}</Dialog.Title>
+                <Dialog.Description>
+                  {t('expanded-product-management-view')}
+                </Dialog.Description>
+              </Dialog.Header>
+              {productWorkspace}
+            </Dialog.Content>
+          </Dialog>
+        ) : (
+          productWorkspace
+        )}
 
-      <ProductEditSheet
-        productData={editingProduct}
-        open={Boolean(editingProduct)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingProduct(null);
-          }
-        }}
-      />
-    </div>
+        <ProductEditSheet
+          productData={editingProduct}
+          open={Boolean(editingProduct)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingProduct(null);
+            }
+          }}
+        />
+      </div>
+    </ProductListHandlersContext.Provider>
   );
 };

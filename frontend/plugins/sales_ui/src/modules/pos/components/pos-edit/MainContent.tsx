@@ -10,7 +10,7 @@ import { Properties } from '@/pos/components/properties';
 import { ScreenConfig } from '@/pos/components/screenConfig';
 import { Slots } from '@/pos/components/slots';
 import { SyncCard } from '@/pos/components/syncCard';
-import { POS_EDIT_STEP_GROUPS, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
+import { getSteps, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
 import { IPos } from '@/pos/types/pos';
 import { cn, Spinner } from 'erxes-ui';
 import React from 'react';
@@ -34,9 +34,7 @@ const FULL_HEIGHT_TABS = new Set(['slots']);
 const WIDE_TABS = new Set(['product']);
 
 const POS_EDIT_STEP_TITLES = new Map(
-  POS_EDIT_STEP_GROUPS.flatMap((group) =>
-    group.steps.map((step) => [step.value, step.title] as const),
-  ),
+  getSteps().map((step) => [step.value, step.title] as const),
 );
 
 export const MainContent: React.FC<MainContentProps> = ({

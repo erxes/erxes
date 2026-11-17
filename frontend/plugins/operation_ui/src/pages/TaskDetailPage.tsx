@@ -50,6 +50,15 @@ const TaskProjectCrumb = ({ link }: { link: string }) => {
   );
 };
 
+/** The task list the page was opened from: a project's tasks, else the team's or My Tasks. */
+const getTaskListPath = (teamId?: string, projectId?: string) => {
+  const teamPath = teamId ? `/team/${teamId}` : '';
+
+  return projectId
+    ? `/operation${teamPath}/projects/${projectId}/tasks`
+    : `/operation${teamPath}/tasks`;
+};
+
 /** Leads back through the team, project or My Tasks the task was opened from. */
 const TaskPageBreadcrumb = () => {
   const { teamId, projectId } = useParams<{
@@ -88,7 +97,11 @@ const TaskPageBreadcrumb = () => {
 /** A task on its own page, laid out like a contact's: fields beside tabs. */
 export const TaskDetailPage = () => {
   const { t } = useTranslation('operation');
-  const { taskId } = useParams<{ taskId: string }>();
+  const { taskId, teamId, projectId } = useParams<{
+    taskId: string;
+    teamId?: string;
+    projectId?: string;
+  }>();
   const { task, loading } = useGetTask(taskId);
   const [tab, setTab] = useQueryState<string>('tab');
 
@@ -155,7 +168,15 @@ export const TaskDetailPage = () => {
 
   return (
     <PageContainer>
-      <RecordSidePanel expanded expandedMode="page" expandable={false}>
+      <RecordSidePanel
+        expanded
+        expandedMode="page"
+        expandable={false}
+        minimizeTo={{
+          record: { contentType: 'operation:task', contentId: taskId },
+          listPath: getTaskListPath(teamId, projectId),
+        }}
+      >
         <PageHeader>
           <PageHeader.Start>
             <TaskPageBreadcrumb />
