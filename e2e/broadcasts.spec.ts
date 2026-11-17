@@ -39,9 +39,8 @@ test('a member writes an email broadcast, sends it to a filter and reads its num
   // Sending saves what is typed first.
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(`News ${suffix}`);
   await page.getByRole('textbox', { name: 'Subject' }).fill('Hello {{ firstName | friend }}');
-  await page
-    .getByRole('textbox', { name: 'Message (Markdown)' })
-    .fill('Hi **{{ firstName }}**, read [the news](https://example.com).');
+  // The block editor (a textbox too) turns `{` into a field picker; plain words are enough here.
+  await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Hi, read the news.');
   await expect(page.getByText('Unsaved changes')).toBeVisible();
   await expectAccessible(page);
 
