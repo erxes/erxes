@@ -209,6 +209,10 @@ export type IUIConfig = {
       // panel is open on; the panel's expand button leads there. Without one,
       // the panel has no expand button.
       detailPath?: (recordId: string, pathname: string) => string;
+      draftPath?: (
+        defaults: Record<string, unknown>,
+        pathname: string,
+      ) => string | null;
     }[];
     // Sections a plugin adds to a customer's or company's overview (its
     // `./contactWidget` remote, given ui-modules' `IContactWidgetProps`):

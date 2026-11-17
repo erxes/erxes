@@ -156,7 +156,8 @@ export const LayoutEditor = ({
         className={cn(
           aside
             ? 'flex min-h-0 p-0'
-            : 'flex flex-col gap-2 overflow-y-auto p-5',
+            : 'flex flex-col gap-2 overflow-y-auto overflow-x-hidden p-5',
+          layout === 'record' && 'min-h-0 flex-1',
         )}
       >
         <ChipRenderContext.Provider value={renderChip}>
