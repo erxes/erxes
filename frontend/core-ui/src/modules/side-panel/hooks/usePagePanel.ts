@@ -1,4 +1,6 @@
 import { createPortal } from 'react-dom';
+import { useQueryState } from 'erxes-ui';
+import { useLocation } from 'react-router-dom';
 import {
   type ReactNode,
   type ReactPortal,
@@ -42,13 +44,14 @@ export interface PagePanelOptions {
   requiredPermission?: string;
 }
 export interface PagePanelNavigation {
-  onClose: () => void;
+  onClose?: () => void;
   onBack?: () => void;
   expanded: boolean;
   onExpand?: () => void;
 }
 
 export interface PagePanelEntry extends PagePanelNavigation {
+  onClose: () => void;
   headerProps: PagePanelNavigation;
   path: string;
   name: string;
@@ -79,11 +82,13 @@ export const usePagePanel = ({
   maxWidth,
   defaultWidth,
   onExpand,
-  expandable = Boolean(onExpand),
+  expandable = true,
   page = false,
   requiredPermission,
 }: PagePanelOptions): PagePanelEntry => {
   const panel = useSidePanel();
+  const { pathname } = useLocation();
+  const [expanded, setExpanded] = useQueryState<boolean>('panelExpanded');
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const permissionsLoaded = !requiredPermission || isLoaded;
   const allowed =
@@ -151,6 +156,8 @@ export const usePagePanel = ({
     path,
     stack: Boolean(parent && !parent.page) || inRecord,
     onExpand,
+    expanded,
+    setExpanded,
   });
   useLayoutEffect(() => {
     actions.current = {
@@ -161,10 +168,21 @@ export const usePagePanel = ({
       path,
       stack: Boolean(parent && !parent.page) || inRecord,
       onExpand,
+      expanded,
+      setExpanded,
     };
   });
   const canExpand = !page && expandable && Boolean(onExpand);
-  const expand = useCallback(() => actions.current.onExpand?.(), []);
+  const expandInPlace =
+    !page &&
+    expandable &&
+    !onExpand &&
+    pathname.split('/').includes('settings');
+  const expand = useCallback(() => {
+    const current = actions.current;
+    if (current.onExpand) current.onExpand();
+    else current.setExpanded(current.expanded ? null : true);
+  }, []);
 
   useEffect(() => {
     if (page) return;
@@ -217,7 +235,7 @@ export const usePagePanel = ({
       },
       maxWidth,
       defaultWidth,
-      expandable: canExpand,
+      expandable: canExpand || expandInPlace,
       onExpand: canExpand ? expand : undefined,
     };
     setEntries((entries) => ({ ...entries, [path]: entry }));
@@ -235,6 +253,7 @@ export const usePagePanel = ({
     maxWidth,
     defaultWidth,
     canExpand,
+    expandInPlace,
     expand,
     page,
     isCurrent,
@@ -248,14 +267,17 @@ export const usePagePanel = ({
   const onOpen = useCallback(() => actions.current.changeOpen(true), []);
   const targets = useAtomValue(modulePanelTargetsState);
   const contextValue = useMemo(() => {
+    const isExpanded =
+      page || (expandInPlace && panel.path === path && Boolean(expanded));
     const headerProps: PagePanelNavigation = {
-      onClose,
+      onClose: isExpanded ? undefined : onClose,
       onBack: !page && panel.canGoBack ? panel.back : undefined,
-      expanded: page,
-      onExpand: canExpand ? expand : undefined,
+      expanded: isExpanded,
+      onExpand: canExpand || expandInPlace ? expand : undefined,
     };
     return {
       ...headerProps,
+      onClose,
       headerProps,
       path,
       name: qualifiedName,
@@ -280,6 +302,9 @@ export const usePagePanel = ({
     panel.back,
     targets,
     canExpand,
+    expandInPlace,
+    expanded,
+    panel.path,
     expand,
     page,
   ]);

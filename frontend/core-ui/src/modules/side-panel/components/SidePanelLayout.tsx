@@ -9,6 +9,8 @@ import {
 } from '@/contacts/utils/contactDetailPath';
 import { IconLayoutSidebarRight, IconVariable } from '@tabler/icons-react';
 import {
+  appLayoutPageOverlayState,
+  appLayoutPageTargetState,
   Avatar,
   Empty,
   readImage,
@@ -16,8 +18,17 @@ import {
   Skeleton,
   useQueryState,
 } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
-import { lazy, Suspense, useState, useRef, useEffect, ReactNode } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import {
+  lazy,
+  Suspense,
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  ReactNode,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
@@ -313,12 +324,13 @@ const SidePanelEmpty = ({
   const { t } = useTranslation('common', {
     keyPrefix: 'side-panel',
   });
+  const expanded = usePanelExpanded();
   return (
     <>
       <RecordSidePanel.Header
         title={t('title', 'Side panel')}
         onBack={onBack}
-        onClose={onClose}
+        onClose={expanded ? undefined : onClose}
       />
       <div className="flex flex-1 items-center justify-center p-6">
         <Empty>
@@ -572,7 +584,7 @@ const SidePanelSavedRecord = ({
             )
           }
           onBack={onBack}
-          onClose={onClose}
+          onClose={expanded ? undefined : onClose}
         />
       )}
       <RecordSidePanel.Layout
@@ -731,16 +743,27 @@ export const SidePanelLayout = () => {
     useSidePanel();
   const onBack = canGoBack ? back : undefined;
   const [width, setWidth] = useAtom(sidePanelWidthState);
-  const [expanded, setExpanded] = useQueryState<boolean>('panelExpanded');
+  const [panelExpanded, setExpanded] = useQueryState<boolean>('panelExpanded');
+  const expandedPath = useRef(path);
+  const expanded = panelExpanded && expandedPath.current === path;
   const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
+  const pageTarget = useAtomValue(appLayoutPageTargetState);
+  const setPageOverlay = useSetAtom(appLayoutPageOverlayState);
+  const dockRef = useRef<HTMLDivElement>(null);
+  const [panelContainer] = useState(() => {
+    const element = document.createElement('div');
+    element.className = 'contents';
+    return element;
+  });
   const moduleEntries = useAtomValue(modulePanelEntriesState);
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { detailPath } = useRecordPanelPlugin(record?.contentType ?? '');
+  const isNewRecord = record?.contentId.split('~')[0] === NEW_RECORD_ID;
   // Records with detail routes expand into their own pages.
   const getRecordPage = () => {
-    if (!record || record.contentId === NEW_RECORD_ID) return null;
+    if (!record || isNewRecord) return null;
     if (isContactContentType(record.contentType)) {
       return getContactDetailPath(
         record.contentType,
@@ -758,15 +781,55 @@ export const SidePanelLayout = () => {
       : null;
   };
   const recordPage = getRecordPage();
-  const coreDraft =
-    record?.contentType.startsWith('core:') &&
-    record.contentId === NEW_RECORD_ID;
+  const expandInPlace =
+    !isNewRecord &&
+    !recordPage &&
+    pathname.split('/').includes('settings') &&
+    Boolean(record || (moduleEntry?.expandable && !moduleEntry.onExpand));
   const expandable =
-    !coreDraft &&
+    !isNewRecord &&
     Boolean(
       recordPage ||
+        expandInPlace ||
         (moduleEntry?.expandable && moduleEntry.onExpand),
     );
+  const panelVisible =
+    open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded);
+  const expandedInPage = Boolean(
+    panelVisible && expandInPlace && expanded && pageTarget,
+  );
+
+  useLayoutEffect(() => {
+    if (!panelExpanded) {
+      expandedPath.current = path;
+    } else if (expandedPath.current !== path) {
+      setExpanded(null, { replace: true });
+    }
+  }, [panelExpanded, path, setExpanded]);
+
+  useLayoutEffect(() => {
+    const target = expandedInPage ? pageTarget : dockRef.current;
+    if (target && panelContainer.parentElement !== target) {
+      const focused = document.activeElement;
+      const restoreFocus =
+        focused instanceof HTMLElement && panelContainer.contains(focused);
+      target.appendChild(panelContainer);
+      if (restoreFocus) {
+        queueMicrotask(() => {
+          if (focused.isConnected) focused.focus({ preventScroll: true });
+        });
+      }
+    }
+    setPageOverlay(expandedInPage);
+  }, [expandedInPage, pageTarget, panelContainer, setPageOverlay]);
+
+  useLayoutEffect(
+    () => () => {
+      panelContainer.remove();
+      setPageOverlay(false);
+    },
+    [panelContainer, setPageOverlay],
+  );
 
   useEffect(() => {
     if (open && expanded && moduleEntry?.onExpand) {
@@ -819,38 +882,44 @@ export const SidePanelLayout = () => {
       {/* Links saved while records still expanded in place. */}
       {recordPage && expanded && <Navigate to={recordPage} replace />}
       {/* `/chat` is handed to the global sidebar; never render it here. */}
-      {open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded) && (
-        <RecordSidePanel
-          key="record"
-          expanded={false}
-          expandable={expandable}
-          onExpandedChange={() => {
-            if (recordPage) {
-              navigate(recordPage);
-            } else {
-              moduleEntry?.onExpand?.();
+      <div ref={dockRef} className="contents" />
+      {panelVisible &&
+        createPortal(
+          <RecordSidePanel
+            key="record"
+            expanded={Boolean(expandInPlace && expanded)}
+            expandedMode={expandedInPage ? 'page' : 'viewport'}
+            expandable={expandable}
+            onExpandedChange={(nextExpanded) => {
+              if (recordPage) {
+                navigate(recordPage);
+              } else if (moduleEntry?.onExpand) {
+                moduleEntry?.onExpand?.();
+              } else if (expandInPlace) {
+                setExpanded(nextExpanded ? true : null);
+              }
+            }}
+            width={
+              moduleEntry && path
+                ? moduleWidths[path] ??
+                  Math.max(width, moduleEntry.defaultWidth || 0)
+                : width
             }
-          }}
-          width={
-            moduleEntry && path
-              ? moduleWidths[path] ??
-                Math.max(width, moduleEntry.defaultWidth || 0)
-              : width
-          }
-          maxWidth={moduleEntry?.maxWidth}
-          onWidthChange={
-            moduleEntry && path
-              ? (nextWidth) =>
-                  setModuleWidths((previous) => ({
-                    ...previous,
-                    [path]: nextWidth,
-                  }))
-              : setWidth
-          }
-        >
-          {renderRoute()}
-        </RecordSidePanel>
-      )}
+            maxWidth={moduleEntry?.maxWidth}
+            onWidthChange={
+              moduleEntry && path
+                ? (nextWidth) =>
+                    setModuleWidths((previous) => ({
+                      ...previous,
+                      [path]: nextWidth,
+                    }))
+                : setWidth
+            }
+          >
+            {renderRoute()}
+          </RecordSidePanel>,
+          panelContainer,
+        )}
     </>
   );
 };
