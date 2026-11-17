@@ -1,17 +1,10 @@
 import { IconPlugConnected, IconSearch } from '@tabler/icons-react';
 import { messageOf } from '@erxes/core-contract/client';
-import {
-  Button,
-  Empty,
-  InputGroup,
-  PageContainer,
-  PageHeader,
-  ScrollArea,
-  ToggleGroup,
-} from 'erxes-ui';
+import { Button, InputGroup, PageContainer, PageHeader, ScrollArea, ToggleGroup } from 'erxes-ui';
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NoMatches } from '~/components/NoMatches';
 import { Link, Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
@@ -244,17 +237,10 @@ const Catalog = () => {
         </div>
       )}
       {sections.shown.length === 0 ? (
-        <Empty>
-          <Empty.Header>
-            <Empty.Media variant="icon">
-              <IconSearch />
-            </Empty.Media>
-            <Empty.Title>{t('no-match', 'No integrations match')}</Empty.Title>
-            <Empty.Description>
-              {t('no-match-description', 'Try another word or category.')}
-            </Empty.Description>
-          </Empty.Header>
-        </Empty>
+        <NoMatches
+          title={t('no-match', 'No integrations match')}
+          description={t('no-match-description', 'Try another word or category.')}
+        />
       ) : (
         <>
           <Section
