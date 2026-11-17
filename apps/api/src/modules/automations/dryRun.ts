@@ -2,11 +2,13 @@ import type { AutomationDefinition, AutomationStep, DryRunStep } from '@erxes/co
 import type { ContentType, Db } from '@erxes/core-db';
 import { notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
-import { evaluateGroup } from './conditions';
+import { type ConditionChecker, conditionChecker, type SubjectRef } from './conditionCheck';
 import { type Cursor, enterArm, nextCursor, splitPath, stepAt } from './cursor';
 import { automationCatalog } from './definitions';
+import { armConditions } from './steps';
 import { subjectOf } from './subjects';
 import { render } from './templates';
+import { dateConditions } from './conditions';
 
 /** The most steps a dry run follows (a loop guard). */
 const MAX_DRY_STEPS = 200;
@@ -64,12 +66,17 @@ const probeWait = (step: AutomationStep, dry: DryRun) => {
     : `Would wait for ${step.event} up to ${step.amount} ${step.unit}; assumed it doesn't`;
 };
 
-/** Which arm a branch, switch or split takes, or null for other steps. */
-const probeArm = (step: AutomationStep, cursor: Cursor, dry: DryRun): Probe | null => {
+/** Which arm a branch, switch or split takes (`arms`: whether each of its conditions holds), or null for other steps. */
+const probeArm = (
+  step: AutomationStep,
+  cursor: Cursor,
+  dry: DryRun,
+  arms: boolean[],
+): Probe | null => {
   const { steps } = dry.definition;
 
   if (step.type === 'branch') {
-    const matched = evaluateGroup(step.conditions, dry.context);
+    const matched = arms[0] === true;
 
     return {
       outcome: matched
@@ -81,7 +88,7 @@ const probeArm = (step: AutomationStep, cursor: Cursor, dry: DryRun): Probe | nu
   }
 
   if (step.type === 'switch') {
-    const chosen = step.cases.findIndex((item) => evaluateGroup(item.conditions, dry.context));
+    const chosen = arms.findIndex(Boolean);
     const match = step.cases[chosen];
 
     return {
@@ -104,7 +111,7 @@ const probeArm = (step: AutomationStep, cursor: Cursor, dry: DryRun): Probe | nu
   return null;
 };
 
-const probeStep = (step: AutomationStep, cursor: Cursor, dry: DryRun): Probe => {
+const probeStep = (step: AutomationStep, cursor: Cursor, dry: DryRun, arms: boolean[]): Probe => {
   const next = nextCursor(dry.definition.steps, cursor);
 
   if (step.type === 'action') return { ...probeAction(step, dry), next };
@@ -118,29 +125,38 @@ const probeStep = (step: AutomationStep, cursor: Cursor, dry: DryRun): Probe => 
       output: step.type === 'wait_for' ? { matched: dry.assumeEventHappens } : null,
     };
 
-  return probeArm(step, cursor, dry) ?? { outcome: 'Stops here', next: null };
+  return probeArm(step, cursor, dry, arms) ?? { outcome: 'Stops here', next: null };
 };
 
+/** The trigger's own conditions; a date trigger's rules on the event's date read the record's. */
 const triggerConditions = (trigger: AutomationDefinition['trigger']) => {
-  if (trigger.kind === 'event' || trigger.kind === 'date') return trigger.conditions;
+  if (trigger.kind === 'event') return trigger.conditions;
+
+  if (trigger.kind === 'date') return dateConditions(trigger);
 
   return trigger.audience?.conditions;
 };
 
-/** Follows the steps from the first, recording what each would do. */
-const trace = (dry: DryRun) => {
+/**
+ * Follows the steps from the first, recording what each would do. Before each step the goal and
+ * the step's conditions are checked as a run checks them.
+ */
+const trace = async (dry: DryRun, checker: ConditionChecker, subject: SubjectRef | null) => {
   const { definition } = dry;
   const lines: DryRunStep[] = [];
-
   const outputs: Record<string, { output: unknown }> = {};
-  let cursor: Cursor | null = [0];
 
-  for (let count = 0; cursor && count < MAX_DRY_STEPS; count += 1) {
-    const step = stepAt(definition.steps, cursor);
+  const follow = async (cursor: Cursor | null, count: number): Promise<void> => {
+    const step = cursor && count < MAX_DRY_STEPS ? stepAt(definition.steps, cursor) : null;
 
-    if (!step) break;
+    if (!cursor || !step) return;
 
-    if (definition.goal && evaluateGroup(definition.goal, dry.context)) {
+    const [goalMet, ...arms] = await checker.check(subject, [
+      { group: definition.goal, context: dry.context },
+      ...armConditions(step).map((group) => ({ group, context: dry.context })),
+    ]);
+
+    if (definition.goal && goalMet) {
       lines.push({
         stepId: step.id,
         type: 'goal',
@@ -148,10 +164,11 @@ const trace = (dry: DryRun) => {
         input: null,
         problem: null,
       });
-      break;
+
+      return;
     }
 
-    const probe = probeStep(step, cursor, dry);
+    const probe = probeStep(step, cursor, dry, arms);
 
     outputs[step.id] = { output: probe.output ?? null };
     dry.context = { ...dry.context, steps: { ...outputs } };
@@ -162,8 +179,11 @@ const trace = (dry: DryRun) => {
       input: probe.input ?? null,
       problem: probe.problem ?? null,
     });
-    cursor = probe.next;
-  }
+
+    await follow(probe.next, count + 1);
+  };
+
+  await follow([0], 0);
 
   return lines;
 };
@@ -214,12 +234,18 @@ export const testAutomation = async (
     assumeEventHappens: input.assumeEventHappens,
   };
 
-  const goalMetAtStart = Boolean(definition.goal && evaluateGroup(definition.goal, context));
-  const steps = trace(dry);
+  // As the member testing: their "me", the relations they may see.
+  const checker = conditionChecker(client);
+  const ref = subjectType && subjectId ? { type: subjectType, id: subjectId } : null;
+
+  const [triggerMatches = false, goalMet = false] = await checker.check(ref, [
+    { group: triggerConditions(trigger), context },
+    { group: definition.goal, context },
+  ]);
 
   return {
-    triggerMatches: evaluateGroup(triggerConditions(trigger), dry.context),
-    goalMetAtStart,
-    trace: steps,
+    triggerMatches,
+    goalMetAtStart: Boolean(definition.goal && goalMet),
+    trace: await trace(dry, checker, ref),
   };
 };

@@ -31,7 +31,7 @@ import { not, type SQL, sql } from 'drizzle-orm';
 import { valuesTable } from '~/modules/fields/fieldValues';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import type { CustomSpec, FieldSpec } from './fieldSpec';
-import { filterFields, isCompanyList } from './filterFields';
+import { filterFields, isCompanyList, type SubjectType, subjectFilterFields } from './filterFields';
 import { compileRelated, type RelationViews, relationViews } from './relationFilter';
 
 const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
@@ -225,3 +225,40 @@ export const compileRecordFilter = async (
 
   return compileGroup(group, (rule) => compileRule(rule, compiling));
 };
+
+/**
+ * Conditions on one customer's or company's fields as SQL on its table, the way its lists
+ * compile them, for automations. The fields (and "me", the member who runs them) are read once,
+ * so one compiler serves a job's every check. A rule on anything else (the event, earlier steps,
+ * a field the record doesn't have) is decided by `outside` and goes in as `true` or `false`.
+ */
+export const subjectCompiler = async (client: Db, subject: SubjectType) => {
+  const specs = new Map(
+    (await subjectFilterFields(client, subject)).map((spec) => [spec.path, spec]),
+  );
+
+  const context = { me: callerUserId() };
+
+  return {
+    fields: specs,
+    /** Undefined when the group has no rules (it holds for every record). */
+    compile: async (group: ConditionGroup, outside: (rule: ConditionRule) => boolean) => {
+      const compiling = {
+        specs,
+        recordType: subject,
+        context,
+        views: await relationViews(client, specs, group),
+      };
+
+      return compileGroup(group, (rule) =>
+        specs.has(rule.path)
+          ? compileRule(rule, compiling)
+          : outside(rule)
+            ? sql`true`
+            : sql`false`,
+      );
+    },
+  };
+};
+
+export type SubjectCompiler = Awaited<ReturnType<typeof subjectCompiler>>;

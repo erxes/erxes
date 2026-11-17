@@ -240,3 +240,27 @@ export const filterFields = async (
     ...(await relationFields(client, isCompany ? 'company' : 'customer')),
   ];
 };
+
+/** The records automations run on. */
+export type SubjectType = 'customer' | 'company';
+
+/**
+ * Every field of one customer or company, whichever list shows it: a person has the customers
+ * list's fields (its state) and the leads list's (its stage), a company the companies list's.
+ * Automations' conditions and placeholders read these.
+ */
+export const subjectFilterFields = async (
+  client: Db,
+  subject: SubjectType,
+): Promise<FieldSpec[]> => {
+  if (subject === 'company') return filterFields(client, 'company');
+
+  return [
+    ...customerFields('customer'),
+    ...lifecycleFields('lead', await stageNamesOf(client)),
+    ...commonFields(customers),
+    ...CUSTOMER_RELATED,
+    ...(await customFields(client, 'customer')),
+    ...(await relationFields(client, 'customer')),
+  ];
+};

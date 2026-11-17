@@ -23,7 +23,12 @@ const DataPicker = ({
   onPick: (path: string) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const record = fields.filter((field) => field.path.startsWith('subject.'));
+
+  // Only what the record itself holds: not a measure of related records, nor its company's.
+  const record = fields.filter(
+    (field) => field.path.startsWith('subject.') && !field.conditionsOnly,
+  );
+
   const trigger = fields.filter((field) => field.path.startsWith('event.payload.'));
   const steps = fields.filter((field) => field.path.startsWith('steps.'));
   const RecordIcon = subject === 'company' ? IconBuilding : IconUser;
@@ -67,7 +72,7 @@ const DataPicker = ({
                 onSelect={() => onPick(field.path)}
               >
                 <RecordIcon className="text-muted-foreground" />
-                <span className="truncate">{field.label.replace(/ \(custom\)$/, '')}</span>
+                <span className="truncate">{field.label}</span>
                 {field.path.startsWith('subject.customFields.') && (
                   <span className="ml-auto shrink-0 text-3xs text-muted-foreground">
                     {t('custom', 'Custom')}

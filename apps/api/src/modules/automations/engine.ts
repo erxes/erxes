@@ -12,7 +12,7 @@ import { defineJob } from '~/modules/jobs/jobs';
 import { coreAction } from './actions/catalog';
 import type { CallContext } from './actions/context';
 import { pluginForAction, runPluginAction } from './actions/plugin';
-import { evaluateGroup } from './conditions';
+import { automationChecker } from './conditionCheck';
 import { type Cursor, nextCursor, sameCursor, stepAt } from './cursor';
 import {
   ADVANCE_QUEUE,
@@ -28,7 +28,7 @@ import {
   subjectRefOf,
 } from './runs';
 import { subjectOf } from './subjects';
-import { renderInput, runStep } from './steps';
+import { armConditions, renderInput, runStep } from './steps';
 
 /** A run that loops through steps (branches can't, but be safe) stops after this many. */
 const MAX_STEPS_PER_RUN = 500;
@@ -191,14 +191,23 @@ export const advanceJob = defineJob({
     const subject = await subjectOf(tx, run.subjectType, run.subjectId);
     const context = { ...run.context, subject };
 
-    if (goal && evaluateGroup(goal, context)) {
+    const ref =
+      run.subjectType && run.subjectId ? { type: run.subjectType, id: run.subjectId } : null;
+
+    // The goal and the step's own conditions, in one check.
+    const [goalMet, ...arms] = await automationChecker(tx, automation).check(ref, [
+      { group: goal, context },
+      ...armConditions(step).map((group) => ({ group, context })),
+    ]);
+
+    if (goal && goalMet) {
       await finishRun(tx, run.id, 'succeeded', { goal: true, context });
 
       return;
     }
 
     const startedAt = new Date();
-    const outcome = await runStep({ tx, run, automation, steps, context }, step);
+    const outcome = await runStep({ tx, run, automation, steps, context, arms }, step);
 
     if (outcome.kind === 'call') {
       // Keyed by this job: its retries queue one call, a later retry of the run a new one.

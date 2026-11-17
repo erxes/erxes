@@ -1,6 +1,8 @@
 import {
   ACTION_FIELD_TYPES,
+  AUTOMATION_FIELD_GROUPS,
   AUTOMATION_FIELD_TYPES,
+  AUTOMATION_PATH_TYPES,
   AUTOMATION_SUBJECTS,
   RUN_STATUSES,
 } from '@erxes/core-db/enums';
@@ -8,8 +10,14 @@ import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
+import { FilterField } from './views';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
+
+/** A kind of a plugin's own records (`pipeline`, `stage`) its API lists for the builder's pickers. */
+const RecordType = z
+  .string()
+  .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -');
 
 /**
  * A value later steps can use: one an event carries (`{{event.payload.<key>}}`) or an
@@ -22,9 +30,29 @@ export const DataField = z.object({
     .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}$/, 'letters, digits and _, starting with a letter'),
   label: z.string().trim().min(1).max(100),
   type: z.enum(AUTOMATION_FIELD_TYPES),
+  /**
+   * The value is the id of one of the plugin's records (`stage`): conditions pick it from
+   * `GET <api.url>/automations/records/<recordType>` (no `parent`: all of them), as a
+   * `plugin_record` input does, instead of typing an id.
+   */
+  recordType: RecordType.optional(),
 });
 
 export type DataField = z.infer<typeof DataField>;
+
+/**
+ * A path conditions and placeholders can read, with how its values compare: the event's, or the
+ * record's as its lists filter it (`FilterField`: choices, relations and money included), so a
+ * condition means the same in an automation as in a saved view.
+ */
+export const AutomationFieldPath = FilterField.extend({
+  type: z.enum(AUTOMATION_PATH_TYPES),
+  group: z.enum(AUTOMATION_FIELD_GROUPS).optional(),
+  /** Placeholders can't insert it: a measure of related records, the linked company's fields. */
+  conditionsOnly: z.boolean().optional(),
+});
+
+export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
 
 /**
  * One input of an action. Besides plain values: `custom_field` (one of the
@@ -47,10 +75,7 @@ export const ActionField = z
      * A `plugin_record` input's records (`pipeline`): web lists them from
      * `GET <api.url>/automations/records/<recordType>`, which answers `[{ value, label }]`.
      */
-    recordType: z
-      .string()
-      .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -')
-      .optional(),
+    recordType: RecordType.optional(),
     /**
      * The key of another input of the action: the records follow its value
      * (`?parent=<value>`), and changing it clears this one.

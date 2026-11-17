@@ -100,6 +100,12 @@ export const FILTER_FIELD_GROUPS = [
   'plugin',
 ] as const;
 
+/** What automations' conditions read: a list filter's fields, and the event's. */
+export const AUTOMATION_FIELD_GROUPS = [...FILTER_FIELD_GROUPS, 'event'] as const;
+
+/** How an automation path's values compare: a list filter's types, and `list` (several values) of event data and step outputs. */
+export const AUTOMATION_PATH_TYPES = [...FILTER_FIELD_TYPES, 'list'] as const;
+
 /** How a field of a plugin's relation (`relations` in its manifest) compares: its view column's kind. */
 export const RELATION_FIELD_TYPES = [
   'text',

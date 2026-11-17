@@ -1,10 +1,11 @@
-import type { AutomationTrigger } from '@erxes/core-contract';
+import type { AutomationTrigger, DataField } from '@erxes/core-contract';
 import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
+import { eventDataFields } from './flowChecks';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
 import { AudienceEditor, Field } from './triggerFields';
 
@@ -42,6 +43,7 @@ type EventInfo = {
   description?: string | null;
   source: string;
   subject: 'customer' | 'company' | null;
+  fields?: DataField[];
 };
 
 const KindPicker = ({
@@ -102,6 +104,7 @@ const EventTriggerSettings = ({
   disabled?: boolean;
 }) => {
   const { t } = useTranslation('automations');
+  const started = events.find((event) => event.type === trigger.event);
 
   return (
     <>
@@ -123,7 +126,8 @@ const EventTriggerSettings = ({
         }
       >
         <ConditionsEditor
-          subject={events.find((event) => event.type === trigger.event)?.subject ?? null}
+          subject={started?.subject ?? null}
+          extraFields={eventDataFields(started)}
           value={trigger.conditions}
           disabled={disabled}
           onChange={(conditions) => onChange({ ...trigger, conditions })}
