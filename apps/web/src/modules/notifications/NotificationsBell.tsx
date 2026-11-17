@@ -98,14 +98,15 @@ const InboxOption = ({
 }: {
   icon: Inbox['icon'];
   label: string;
-  unread: number;
+  /** The menu's count; the trigger leaves it out. */
+  unread?: number;
 }) => (
   <span className="flex w-full min-w-0 items-center gap-2">
     <Icon className="size-4 shrink-0 text-muted-foreground" />
     <span className="truncate">{label}</span>
-    {unread > 0 && (
+    {Boolean(unread) && (
       <span className="ml-auto shrink-0 pl-3 text-xs text-muted-foreground tabular-nums">
-        {unread > 99 ? '99+' : unread}
+        {unread && unread > 99 ? '99+' : unread}
       </span>
     )}
   </span>
@@ -139,7 +140,6 @@ const InboxPicker = ({
           <InboxOption
             icon={picked?.icon ?? IconInbox}
             label={picked?.label ?? t('all-inboxes', 'All inboxes')}
-            unread={0}
           />
         </Select.Value>
       </Select.Trigger>
@@ -170,9 +170,11 @@ export const NotificationsBell = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications' });
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<NotificationTab>('all');
-  const [source, setSource] = useState<string | undefined>();
+  const [picked, setSource] = useState<string | undefined>();
   const { count, bySource } = useUnreadCounts();
   const inboxes = useInboxes();
+  // An inbox that left the list (its plugin removed, its last notification gone) is all of them.
+  const source = inboxes.some((inbox) => inbox.source === picked) ? picked : undefined;
   const list = useNotificationList({ source, unread: tab === 'unread', enabled: open });
   const unreadHere = source ? (bySource[source] ?? 0) : count;
 
