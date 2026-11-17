@@ -11,6 +11,7 @@ export enum FrontlinePaths {
   ChannelsCatchAll = '/channels/*',
   ChannelDetails = '/:id',
   ChannelMembers = '/:id/members',
+  ChannelGeneral = '/:id/general',
   ChannelIntegrations = 'details/:id/:integrationType',
   FbAuth = '/fb-auth',
   ChannelPipelines = '/:id/pipelines',

@@ -13,6 +13,7 @@ export const useIntegrationAdd = () => {
       'IntegrationDetail',
       'IntegrationsGetUsedTypes',
       'IntegrationsGetUsedTypesByChannel',
+      'ChannelIntegrationsPeek',
       'DiscordConnectedServers',
       'DiscordTakenChannels',
     ],

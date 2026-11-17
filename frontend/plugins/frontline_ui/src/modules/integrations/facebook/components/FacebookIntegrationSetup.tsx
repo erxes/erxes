@@ -80,7 +80,11 @@ export const FacebookIntegrationSetup = () => {
           pageIds: [pageId],
         },
       },
-      refetchQueries: ['Integrations', 'FacebookGetIntegrations'],
+      refetchQueries: [
+        'Integrations',
+        'FacebookGetIntegrations',
+        'ChannelIntegrationsPeek',
+      ],
       awaitRefetchQueries: true,
     });
 
