@@ -25,17 +25,13 @@ startPlugin({
       modules: [
         {
           name: 'storage',
-          description: 'Ухаалаг Агуулах, RFID, Төсөл, Бүтээц ба НӨАТ тулгалт',
+          description: 'RFID агуулах: бүс, ялтас, тооллого, хөдөлгөөн',
           scopes: [{ name: 'all', description: 'All records' }],
           actions: [
-          { title: 'Агуулахын үлдэгдэл харах', name: 'showStorageItems', description: 'Агуулахын үлдэгдэл харах' },
-          { title: 'Орлого, зарлага, RFID задлах', name: 'manageStorageItems', description: 'Орлого, зарлага, RFID задлах' },
-          { title: 'Ажлын захиалга харах', name: 'showStorageWorkOrders', description: 'Ажлын захиалга харах' },
-          { title: 'Ажлын захиалга хаах / нээх', name: 'manageStorageWorkOrders', description: 'Ажлын захиалга хаах / нээх' },
-          { title: 'Бүтээц / багаж харах', name: 'showStorageTools', description: 'Бүтээц / багаж харах' },
-          { title: 'Багаж шилжүүлэх / баталгаажуулах', name: 'manageStorageTools', description: 'Багаж шилжүүлэх / баталгаажуулах' },
-          { title: 'НӨАТ тулгалт хийх', name: 'manageStorageVat', description: 'НӨАТ тулгалт хийх' },
-          { title: 'Сарын өртгийн хаалт хийх', name: 'manageStoragePeriodClose', description: 'Сарын өртгийн хаалт хийх' },
+            { title: 'RFID агуулах харах', name: 'showStorage', description: 'RFID агуулах харах' },
+            { title: 'RFID ялтас бүртгэх, тоолох', name: 'manageStorageTags', description: 'RFID ялтас бүртгэх, тоолох' },
+            { title: 'Хайрцаг задлах, хөдөлгөөн илгээх', name: 'manageStorageMovements', description: 'Хайрцаг задлах, хөдөлгөөн илгээх' },
+            { title: 'Агуулахын бүс тохируулах', name: 'manageStorageZones', description: 'Агуулахын бүс тохируулах' },
           ],
         },
       ],

@@ -1,283 +1,145 @@
+import { EventDispatcherReturn, ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { Connection, Model, Schema } from 'mongoose';
+import {
+  IRfidTag,
+  IScanSession,
+  IStorageMovement,
+  IStorageZone,
+  IZoneLocation,
+} from '../../@types/storage';
 
-export interface IStorageItem {
-  sku: string;
-  barcode?: string;
-  name: string;
-  nickname?: string;
-  itemType: 'INVENTORY' | 'TOOL_ASSET' | 'FIXED_ASSET';
-  costCenter: { company: string; branch: string; department: string };
-  useRfid: boolean;
-  packSize: number;
-  avgCost: number;
-  sealedPacks: number;
-  openUnits: number;
-  pendingPrUsers: string[];
-}
-
-export const storageItemSchema = new Schema<IStorageItem>(
+const zoneLocationSchema = new Schema<IZoneLocation>(
   {
-    sku: { type: String, required: true, unique: true, index: true },
-    barcode: { type: String },
-    name: { type: String, required: true },
-    nickname: { type: String },
-    itemType: { type: String, enum: ['INVENTORY', 'TOOL_ASSET', 'FIXED_ASSET'], default: 'INVENTORY' },
-    costCenter: {
-      company: { type: String, required: true },
-      branch: { type: String, required: true },
-      department: { type: String, required: true },
-    },
-    useRfid: { type: Boolean, default: false },
-    packSize: { type: Number, default: 1, min: 1 },
-    avgCost: { type: Number, default: 0, min: 0 },
-    sealedPacks: { type: Number, default: 0, min: 0 },
-    openUnits: { type: Number, default: 0, min: 0 },
-    pendingPrUsers: { type: [String], default: [] },
+    accountId: { type: String, required: true },
+    branchId: { type: String, required: true },
+    departmentId: { type: String, required: true },
   },
-  { timestamps: true, optimisticConcurrency: true }
+  { _id: false },
 );
 
-export interface IRfidTag {
-  epcId: string;
-  itemId: string;
-  unitsInPack: number;
-  tagCost: number;
-  zoneStatus: 'SEALED' | 'OPENED' | 'ISSUED';
-  movementId?: string;
-}
+const zoneSchema = new Schema<IStorageZone>(
+  {
+    name: { type: String, required: true, unique: true },
+    sealed: { type: zoneLocationSchema, required: true },
+    open: { type: zoneLocationSchema, required: true },
+  },
+  { timestamps: true },
+);
 
-export const rfidTagSchema = new Schema<IRfidTag>(
+const rfidTagSchema = new Schema<IRfidTag>(
   {
     epcId: { type: String, required: true, unique: true, match: /^[0-9A-F]{24}$/ },
-    itemId: { type: String, required: true, index: true },
-    unitsInPack: { type: Number, required: true },
-    tagCost: { type: Number, default: 175 },
-    zoneStatus: { type: String, enum: ['SEALED', 'OPENED', 'ISSUED'], default: 'SEALED' },
+    productId: { type: String, required: true },
+    unitsInPack: { type: Number, required: true, min: 1 },
+    zoneId: { type: String, required: true },
+    status: { type: String, enum: ['SEALED', 'OPENED'], default: 'SEALED' },
+    batchId: { type: String, index: true },
     movementId: { type: String, index: true },
+    createdBy: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-rfidTagSchema.index({ itemId: 1, zoneStatus: 1, createdAt: 1 });
+rfidTagSchema.index({ zoneId: 1, status: 1, productId: 1 });
 
-export interface ITechCard {
-  name: string;
-  kitItemId: string;
-  components: { itemId: string; qty: number }[];
-}
-
-export const techCardSchema = new Schema<ITechCard>(
-  {
-    name: { type: String, required: true },
-    kitItemId: { type: String, required: true, index: true },
-    components: [{ itemId: { type: String, required: true }, qty: { type: Number, required: true, min: 1 } }],
-  },
-  { timestamps: true }
-);
-
-export interface IWorkOrderCostLine {
-  _id?: string;
-  date: Date;
-  category: 'MATERIAL' | 'LABOR' | 'OVERHEAD';
-  taxCode: string;
-  itemId?: string;
-  description: string;
-  qty: number;
-  unitCost: number;
-  totalAmount: number;
-  closedAmount: number;
-  directDrop: boolean;
-}
-
-export interface IWorkOrder {
-  code: string;
-  name: string;
-  clientName: string;
-  contractNo?: string;
-  costCenter: { company: string; branch: string; department: string };
-  status: 'ACTIVE' | 'CLOSED';
-  costLines: IWorkOrderCostLine[];
-}
-
-export const workOrderSchema = new Schema<IWorkOrder>(
-  {
-    code: { type: String, required: true, unique: true, index: true },
-    name: { type: String, required: true },
-    clientName: { type: String, required: true },
-    contractNo: { type: String },
-    costCenter: {
-      company: { type: String, required: true },
-      branch: { type: String, required: true },
-      department: { type: String, required: true },
-    },
-    status: { type: String, enum: ['ACTIVE', 'CLOSED'], default: 'ACTIVE' },
-    costLines: [
-      {
-        date: { type: Date, default: Date.now },
-        category: { type: String, enum: ['MATERIAL', 'LABOR', 'OVERHEAD'], required: true },
-        taxCode: { type: String, required: true },
-        itemId: { type: String },
-        description: { type: String, required: true },
-        qty: { type: Number, default: 1 },
-        unitCost: { type: Number, default: 0 },
-        totalAmount: { type: Number, required: true },
-        closedAmount: { type: Number, default: 0 },
-        directDrop: { type: Boolean, default: false },
-      },
-    ],
-  },
-  { timestamps: true, optimisticConcurrency: true }
-);
-
-export interface IToolAsset {
-  assetCode: string;
-  name: string;
-  serialNo: string;
-  cost: number;
-  finLifeYears: number;
-  taxLifeYears: number;
-  inServiceDate?: Date | null;
-  status: 'IN_WAREHOUSE' | 'PENDING_HANDOVER' | 'IN_USE' | 'IN_REPAIR' | 'WRITTEN_OFF';
-  custodianName: string;
-  pendingCustodian?: string | null;
-  pendingToWarehouse: boolean;
-  workOrderCode?: string | null;
-  repairExpense: number;
-  movementId?: string;
-}
-
-export const toolAssetSchema = new Schema<IToolAsset>(
-  {
-    assetCode: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
-    serialNo: { type: String, required: true },
-    cost: { type: Number, required: true },
-    finLifeYears: { type: Number, default: 5 },
-    taxLifeYears: { type: Number, default: 10 },
-    inServiceDate: { type: Date, default: null },
-    status: { type: String, enum: ['IN_WAREHOUSE', 'PENDING_HANDOVER', 'IN_USE', 'IN_REPAIR', 'WRITTEN_OFF'], default: 'IN_WAREHOUSE' },
-    custodianName: { type: String, required: true },
-    pendingCustodian: { type: String, default: null },
-    pendingToWarehouse: { type: Boolean, default: false },
-    workOrderCode: { type: String, default: null },
-    repairExpense: { type: Number, default: 0 },
-    movementId: { type: String, index: true },
-  },
-  { timestamps: true, optimisticConcurrency: true }
-);
-
-export interface IVatPayable {
-  vendorTin: string;
-  vendorName: string;
-  amount: number;
-  vatAmount: number;
-  isPaid: boolean;
-  status: 'UNMATCHED' | 'MATCHED';
-  matchedGroupId?: string | null;
-}
-
-export const vatPayableSchema = new Schema<IVatPayable>(
-  {
-    vendorTin: { type: String, required: true, index: true },
-    vendorName: { type: String, required: true },
-    amount: { type: Number, required: true },
-    vatAmount: { type: Number, required: true },
-    isPaid: { type: Boolean, default: false },
-    status: { type: String, enum: ['UNMATCHED', 'MATCHED'], default: 'UNMATCHED' },
-    matchedGroupId: { type: String, default: null },
-  },
-  { timestamps: true }
-);
-vatPayableSchema.index({ status: 1, vendorTin: 1, vatAmount: 1 });
-vatPayableSchema.index({ matchedGroupId: 1 });
-
-export interface IEBarimtReceipt {
-  receiptNo: string;
-  vendorTin: string;
-  vendorName: string;
-  amount: number;
-  vatAmount: number;
-  status: 'UNMATCHED' | 'MATCHED';
-  matchedGroupId?: string | null;
-}
-
-export const eBarimtReceiptSchema = new Schema<IEBarimtReceipt>(
-  {
-    receiptNo: { type: String, required: true, unique: true },
-    vendorTin: { type: String, required: true, index: true },
-    vendorName: { type: String, required: true },
-    amount: { type: Number, required: true },
-    vatAmount: { type: Number, required: true },
-    status: { type: String, enum: ['UNMATCHED', 'MATCHED'], default: 'UNMATCHED' },
-    matchedGroupId: { type: String, default: null },
-  },
-  { timestamps: true }
-);
-eBarimtReceiptSchema.index({ status: 1, vendorTin: 1, createdAt: 1 });
-
-export interface IPeriodClose {
-  closedUntil: Date;
-  closedBy: string;
-  status: 'CLOSING' | 'CLOSED' | 'REOPENED' | 'ABORTED';
-  reopenedBy?: string;
-}
-
-export const periodCloseSchema = new Schema<IPeriodClose>(
-  {
-    closedUntil: { type: Date, required: true },
-    closedBy: { type: String, required: true },
-    status: { type: String, enum: ['CLOSING', 'CLOSED', 'REOPENED', 'ABORTED'], default: 'CLOSING' },
-    reopenedBy: { type: String },
-  },
-  { timestamps: true }
-);
-periodCloseSchema.index({ status: 1, closedUntil: -1 });
-
-export type StockMovementType = 'RECEIVE' | 'ISSUE' | 'BREAK_BOX' | 'TOOL_REPAIR' | 'WO_CLOSE' | 'WO_REOPEN';
-
-export interface IStockMovement {
-  requestKey: string;
-  type: StockMovementType;
-  txDate: Date;
-  status: 'PENDING' | 'POSTED' | 'FAILED';
-  userId?: string;
-  result?: Record<string, unknown> | null;
-  error?: string | null;
-}
-
-export const stockMovementSchema = new Schema<IStockMovement>(
+const movementSchema = new Schema<IStorageMovement>(
   {
     requestKey: { type: String, required: true, unique: true },
-    type: { type: String, required: true },
-    txDate: { type: Date, required: true },
-    status: { type: String, enum: ['PENDING', 'POSTED', 'FAILED'], default: 'PENDING' },
+    type: { type: String, enum: ['BREAK_BOX'], required: true },
+    number: { type: String, required: true },
+    date: { type: Date, required: true },
+    zoneId: { type: String, required: true },
+    source: { type: zoneLocationSchema, required: true },
+    destination: { type: zoneLocationSchema, required: true },
+    items: [
+      {
+        _id: false,
+        productId: { type: String, required: true },
+        quantity: { type: Number, required: true, min: 0 },
+        epcIds: { type: [String], default: [] },
+      },
+    ],
     userId: { type: String },
-    result: { type: Schema.Types.Mixed, default: null },
-    error: { type: String, default: null },
+    accountingStatus: { type: String, enum: ['pending', 'success', 'error'], default: 'pending' },
+    accountingResponse: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-stockMovementSchema.index({ status: 1, txDate: 1 });
+movementSchema.index({ createdAt: -1 });
+movementSchema.index({ accountingStatus: 1, createdAt: -1 });
 
-export interface IModels {
-  StorageItems: Model<IStorageItem>;
-  RfidTags: Model<IRfidTag>;
-  TechCards: Model<ITechCard>;
-  WorkOrders: Model<IWorkOrder>;
-  ToolAssets: Model<IToolAsset>;
-  VatPayables: Model<IVatPayable>;
-  EBarimtReceipts: Model<IEBarimtReceipt>;
-  PeriodCloses: Model<IPeriodClose>;
-  StockMovements: Model<IStockMovement>;
+const scanSessionSchema = new Schema<IScanSession>(
+  {
+    zoneId: { type: String, required: true },
+    scannedCount: { type: Number, required: true },
+    matchedCount: { type: Number, required: true },
+    missingCount: { type: Number, required: true },
+    unknownCount: { type: Number, required: true },
+    openedCount: { type: Number, required: true },
+    otherZoneCount: { type: Number, required: true },
+    missingEpcIds: { type: [String], default: [] },
+    unknownEpcIds: { type: [String], default: [] },
+    openedEpcIds: { type: [String], default: [] },
+    otherZoneEpcIds: { type: [String], default: [] },
+    products: [
+      {
+        _id: false,
+        productId: { type: String, required: true },
+        expectedPacks: { type: Number, required: true },
+        scannedPacks: { type: Number, required: true },
+      },
+    ],
+    userId: { type: String },
+  },
+  { timestamps: true },
+);
+scanSessionSchema.index({ zoneId: 1, createdAt: -1 });
+
+export interface IMovementModel extends Model<IStorageMovement> {
+  /** Tells other plugins (accounting afterProcess) that a movement was created. */
+  publishCreated(movementId: string): Promise<void>;
 }
 
-export const loadClasses = (db: Connection): IModels => ({
-  StorageItems: db.model<IStorageItem>('storage_items', storageItemSchema),
-  RfidTags: db.model<IRfidTag>('storage_rfid_tags', rfidTagSchema),
-  TechCards: db.model<ITechCard>('storage_tech_cards', techCardSchema),
-  WorkOrders: db.model<IWorkOrder>('storage_work_orders', workOrderSchema),
-  ToolAssets: db.model<IToolAsset>('storage_tool_assets', toolAssetSchema),
-  VatPayables: db.model<IVatPayable>('storage_vat_payables', vatPayableSchema),
-  EBarimtReceipts: db.model<IEBarimtReceipt>('storage_ebarimt_receipts', eBarimtReceiptSchema),
-  PeriodCloses: db.model<IPeriodClose>('storage_period_closes', periodCloseSchema),
-  StockMovements: db.model<IStockMovement>('storage_stock_movements', stockMovementSchema),
-});
+const loadMovementClass = ({ sendDbEventLog }: EventDispatcherReturn) => {
+  class MovementClass {
+    public static async publishCreated(this: IMovementModel, movementId: string) {
+      const movement = await this.findById(movementId).lean();
+      if (!movement) return;
+
+      sendDbEventLog({
+        action: 'create',
+        docId: String(movement._id),
+        currentDocument: { ...movement, _id: String(movement._id) },
+      });
+    }
+  }
+
+  // Clone so each tenant's model keeps its own dispatcher.
+  const schema = movementSchema.clone();
+  schema.loadClass(MovementClass);
+  return schema;
+};
+
+export interface IModels {
+  Zones: Model<IStorageZone>;
+  RfidTags: Model<IRfidTag>;
+  Movements: IMovementModel;
+  ScanSessions: Model<IScanSession>;
+}
+
+export const loadClasses = (
+  db: Connection,
+  _subdomain: string,
+  eventHandlers: ScopedEventHandlers,
+): IModels => {
+  const storageEventHandlers = eventHandlers('storage');
+
+  return {
+    Zones: db.model<IStorageZone>('storage_zones', zoneSchema),
+    RfidTags: db.model<IRfidTag>('storage_rfid_tags', rfidTagSchema),
+    Movements: db.model<IStorageMovement, IMovementModel>(
+      'storage_movements',
+      loadMovementClass(storageEventHandlers('storage', 'movements')),
+    ),
+    ScanSessions: db.model<IScanSession>('storage_scan_sessions', scanSessionSchema),
+  };
+};

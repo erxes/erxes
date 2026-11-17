@@ -1,184 +1,112 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
-import { IModels, IStorageItem, IToolAsset } from '../../modules/storage/db/models/Storage';
-import { closePeriod, reopenPeriod } from '../../modules/storage/services/movementService';
-import {
-  breakSealedBox,
-  IBreakBoxParams,
-  IIssueParams,
-  IReceiveParams,
-  issueStock,
-  receiveStock,
-} from '../../modules/storage/services/stockService';
-import {
-  acceptHandover,
-  initiateHandover,
-  monthsInService,
-  sendToRepair,
-} from '../../modules/storage/services/toolService';
-import {
-  assertNonNegativeNumber,
-  assertPositiveInt,
-  LIMITS,
-} from '../../modules/storage/services/validation';
-import { autoReconcileVat, manualReconcileVat } from '../../modules/storage/services/vatService';
-import { closeWorkOrderPercent, reopenWorkOrderLine } from '../../modules/storage/services/workOrderService';
+import { IZoneLocation } from '../../modules/storage/@types/storage';
+import { IModels } from '../../modules/storage/db/models/Storage';
+import { breakBoxes, IBreakBoxesInput, retryAccounting } from '../../modules/storage/services/movementService';
+import { submitScan, zoneSummary } from '../../modules/storage/services/scanService';
+import { IRegisterTagsInput, registerTags, removeTags } from '../../modules/storage/services/tagService';
+import { pageOf } from '../../modules/storage/services/validation';
+import { IZoneInput, removeZone, saveZone } from '../../modules/storage/services/zoneService';
 
 interface IContext extends IMainContext {
   models: IModels;
 }
 
-interface IItemCreateArgs {
-  sku: string;
-  name: string;
-  nickname?: string | null;
-  itemType: IStorageItem['itemType'];
-  useRfid: boolean;
-  packSize: number;
-  avgCost: number;
-  costCenter: IStorageItem['costCenter'];
+interface IPageArgs {
+  page?: number;
+  perPage?: number;
 }
 
 const userIdOf = (ctx: IContext) => (ctx.user?._id ? String(ctx.user._id) : undefined);
 
-const loadItem = async (ctx: IContext, itemId: string) => {
-  const item = await ctx.models.StorageItems.findById(itemId).lean();
-  if (!item) throw new Error('Бараа олдсонгүй.');
-  return item;
-};
+/** Federation references: the gateway resolves these from core. */
+const productRef = ({ productId }: { productId?: string }) =>
+  productId ? { __typename: 'Product', _id: productId } : null;
+
+const withProduct = { product: productRef };
+
+const definedOnly = (filter: Record<string, string | undefined>) =>
+  Object.fromEntries(Object.entries(filter).filter(([, value]) => Boolean(value)));
 
 export const resolvers = {
   ...apolloCustomScalars,
 
-  StorageToolAsset: {
-    monthsUsed: (tool: IToolAsset) => monthsInService(tool),
+  StorageZoneLocation: {
+    branch: ({ branchId }: IZoneLocation) => ({ __typename: 'Branch', _id: branchId }),
+    department: ({ departmentId }: IZoneLocation) => ({ __typename: 'Department', _id: departmentId }),
   },
+  StorageRfidTag: withProduct,
+  StorageRfidSummaryRow: withProduct,
+  StorageMovementItem: withProduct,
+  StorageScanProductRow: withProduct,
 
   Query: {
-    storageItems: async (_: unknown, args: { company?: string }, ctx: IContext) => {
-      await ctx.checkPermission('showStorageItems');
-      const filter = args.company ? { 'costCenter.company': args.company } : {};
-      return ctx.models.StorageItems.find(filter).lean();
+    storageZones: async (_: unknown, __: unknown, ctx: IContext) => {
+      await ctx.checkPermission('showStorage');
+      return ctx.models.Zones.find().sort({ name: 1 }).lean();
     },
-    storageRfidScan: async (_: unknown, __: unknown, ctx: IContext) => {
-      await ctx.checkPermission('showStorageItems');
-      const items = await ctx.models.StorageItems.find({ useRfid: true }).lean();
-      const counts = await ctx.models.RfidTags.aggregate<{ _id: string; count: number; sampleEpc: string }>([
-        { $match: { itemId: { $in: items.map((it) => String(it._id)) }, zoneStatus: 'SEALED' } },
-        { $group: { _id: '$itemId', count: { $sum: 1 }, sampleEpc: { $first: '$epcId' } } },
+    storageRfidTags: async (
+      _: unknown,
+      args: IPageArgs & { zoneId?: string; productId?: string; status?: string },
+      ctx: IContext,
+    ) => {
+      await ctx.checkPermission('showStorage');
+      const filter = definedOnly({ zoneId: args.zoneId, productId: args.productId, status: args.status });
+      const { limit, skip } = pageOf(args.page, args.perPage);
+      const [list, totalCount] = await Promise.all([
+        ctx.models.RfidTags.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+        ctx.models.RfidTags.countDocuments(filter),
       ]);
-      const byItem = new Map(counts.map((c) => [c._id, c]));
-      return items.map((it) => {
-        const c = byItem.get(String(it._id));
-        return {
-          itemId: String(it._id),
-          sku: it.sku,
-          name: it.name,
-          systemPacks: it.sealedPacks,
-          scannedPacks: c?.count || 0,
-          openUnits: it.openUnits,
-          sampleEpc: c?.sampleEpc || null,
-        };
-      });
+      return { list, totalCount };
     },
-    storageWorkOrders: async (_: unknown, __: unknown, ctx: IContext) => {
-      await ctx.checkPermission('showStorageWorkOrders');
-      return ctx.models.WorkOrders.find().sort({ createdAt: -1 }).lean();
+    storageRfidSummary: async (_: unknown, args: { zoneId: string }, ctx: IContext) => {
+      await ctx.checkPermission('showStorage');
+      return zoneSummary(ctx.models, args.zoneId);
     },
-    storageToolAssets: async (_: unknown, __: unknown, ctx: IContext) => {
-      await ctx.checkPermission('showStorageTools');
-      return ctx.models.ToolAssets.find().sort({ createdAt: -1 }).lean();
+    storageMovements: async (_: unknown, args: IPageArgs & { accountingStatus?: string }, ctx: IContext) => {
+      await ctx.checkPermission('showStorage');
+      const { limit, skip } = pageOf(args.page, args.perPage);
+      return ctx.models.Movements.find(definedOnly({ accountingStatus: args.accountingStatus }))
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
     },
-    storageVatPayables: async (_: unknown, __: unknown, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageVat');
-      return ctx.models.VatPayables.find().lean();
-    },
-    storageEBarimtReceipts: async (_: unknown, __: unknown, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageVat');
-      return ctx.models.EBarimtReceipts.find().lean();
-    },
-    storagePeriodCloses: async (_: unknown, __: unknown, ctx: IContext) => {
-      await ctx.checkPermission('manageStoragePeriodClose');
-      return ctx.models.PeriodCloses.find().sort({ createdAt: -1 }).limit(50).lean();
+    storageScanSessions: async (_: unknown, args: { zoneId: string; limit?: number }, ctx: IContext) => {
+      await ctx.checkPermission('showStorage');
+      const { limit } = pageOf(1, args.limit || 10);
+      return ctx.models.ScanSessions.find({ zoneId: args.zoneId }).sort({ createdAt: -1 }).limit(limit).lean();
     },
   },
 
   Mutation: {
-    storageItemCreate: async (_: unknown, args: IItemCreateArgs, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageItems');
-      assertPositiveInt(args.packSize, 'Хайрцагны багтаамж', LIMITS.MAX_OPEN_UNITS);
-      assertNonNegativeNumber(args.avgCost, 'Дундаж өртөг');
-      return ctx.models.StorageItems.create(args);
+    storageZoneSave: async (_: unknown, args: IZoneInput, ctx: IContext) => {
+      await ctx.checkPermission('manageStorageZones');
+      return saveZone(ctx.models, args);
     },
-    storageReceiveStock: async (_: unknown, args: IReceiveParams, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageItems');
-      const result = await receiveStock(ctx.models, args, userIdOf(ctx));
-      return { item: await loadItem(ctx, result.itemId), notifiedUsers: result.notifiedUsers };
+    storageZoneRemove: async (_: unknown, args: { _id: string }, ctx: IContext) => {
+      await ctx.checkPermission('manageStorageZones');
+      return removeZone(ctx.models, args._id);
     },
-    storageBreakSealedBox: async (_: unknown, args: IBreakBoxParams, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageItems');
-      const result = await breakSealedBox(ctx.models, args, userIdOf(ctx));
-      return loadItem(ctx, result.itemId);
+    storageRfidTagsRegister: async (_: unknown, args: IRegisterTagsInput, ctx: IContext) => {
+      await ctx.checkPermission('manageStorageTags');
+      return registerTags(ctx.models, args, userIdOf(ctx));
     },
-    storageIssueStock: async (_: unknown, args: IIssueParams, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageItems');
-      const result = await issueStock(ctx.models, args, userIdOf(ctx));
-      return { item: await loadItem(ctx, result.itemId), docNo: result.docNo };
+    storageRfidTagsRemove: async (_: unknown, args: { epcIds: string[] }, ctx: IContext) => {
+      await ctx.checkPermission('manageStorageTags');
+      return removeTags(ctx.models, args.epcIds);
     },
-    storageWorkOrderClosePercent: async (
-      _: unknown,
-      args: { workOrderId: string; percent: number; requestKey?: string },
-      ctx: IContext,
-    ) => {
-      await ctx.checkPermission('manageStorageWorkOrders');
-      const result = await closeWorkOrderPercent(ctx.models, args, userIdOf(ctx));
-      return ctx.models.WorkOrders.findById(result.workOrderId).lean();
+    storageBreakBoxes: async (_: unknown, args: IBreakBoxesInput, ctx: IContext) => {
+      await ctx.checkPermission('manageStorageMovements');
+      return breakBoxes(ctx.models, args, userIdOf(ctx));
     },
-    storageWorkOrderReopenLine: async (
-      _: unknown,
-      args: { workOrderId: string; costLineId: string; requestKey?: string },
-      ctx: IContext,
-    ) => {
-      await ctx.checkPermission('manageStorageWorkOrders');
-      const result = await reopenWorkOrderLine(ctx.models, args, userIdOf(ctx));
-      return ctx.models.WorkOrders.findById(result.workOrderId).lean();
+    storageRfidScanSubmit: async (_: unknown, args: { zoneId: string; epcIds: string[] }, ctx: IContext) => {
+      await ctx.checkPermission('manageStorageTags');
+      return submitScan(ctx.models, args, userIdOf(ctx));
     },
-    storageToolInitiateHandover: async (
-      _: unknown,
-      args: { toolId: string; toCustodian?: string; toWarehouse?: boolean; workOrderCode?: string },
-      ctx: IContext,
-    ) => {
-      await ctx.checkPermission('manageStorageTools');
-      return initiateHandover(ctx.models, args);
-    },
-    storageToolAcceptHandover: async (_: unknown, args: { toolId: string }, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageTools');
-      return acceptHandover(ctx.models, args.toolId);
-    },
-    storageToolSendToRepair: async (
-      _: unknown,
-      args: { toolId: string; fee: number; txDate?: Date; requestKey?: string },
-      ctx: IContext,
-    ) => {
-      await ctx.checkPermission('manageStorageTools');
-      const result = await sendToRepair(ctx.models, args, userIdOf(ctx));
-      return ctx.models.ToolAssets.findById(result.toolId).lean();
-    },
-    storageVatAutoReconcile: async (_: unknown, __: unknown, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageVat');
-      return autoReconcileVat(ctx.models);
-    },
-    storageVatManualReconcile: async (_: unknown, args: { payableIds: string[]; receiptId: string }, ctx: IContext) => {
-      await ctx.checkPermission('manageStorageVat');
-      return manualReconcileVat(ctx.models, args.payableIds, args.receiptId);
-    },
-    storagePeriodClose: async (_: unknown, args: { closedUntil: Date }, ctx: IContext) => {
-      await ctx.checkPermission('manageStoragePeriodClose');
-      return closePeriod(ctx.models, args.closedUntil, userIdOf(ctx) || 'system');
-    },
-    storagePeriodReopen: async (_: unknown, args: { closeId: string }, ctx: IContext) => {
-      await ctx.checkPermission('manageStoragePeriodClose');
-      return reopenPeriod(ctx.models, args.closeId, userIdOf(ctx) || 'system');
+    storageMovementRetryAccounting: async (_: unknown, args: { _id: string }, ctx: IContext) => {
+      await ctx.checkPermission('manageStorageMovements');
+      return retryAccounting(ctx.models, args._id);
     },
   },
 };

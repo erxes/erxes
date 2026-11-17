@@ -1,74 +1,99 @@
 import { gql } from '@apollo/client';
 
-export const STORAGE_ITEMS_QUERY = gql`
-  query storageItems($company: String) {
-    storageItems(company: $company) {
-      _id sku barcode name nickname itemType useRfid packSize avgCost sealedPacks openUnits
-      costCenter { company branch department }
+const LOCATION_FIELDS = `
+  accountId
+  branchId
+  departmentId
+  branch { _id title code }
+  department { _id title code }
+`;
+
+const SCAN_FIELDS = `
+  _id scannedCount matchedCount missingCount unknownCount openedCount otherZoneCount
+  missingEpcIds unknownEpcIds openedEpcIds otherZoneEpcIds
+  products { productId product { _id name code } expectedPacks scannedPacks }
+  createdAt
+`;
+
+export const STORAGE_ZONES_QUERY = gql`
+  query storageZones {
+    storageZones { _id name sealed { ${LOCATION_FIELDS} } open { ${LOCATION_FIELDS} } }
+  }
+`;
+
+export const STORAGE_RFID_SUMMARY_QUERY = gql`
+  query storageRfidSummary($zoneId: String!) {
+    storageRfidSummary(zoneId: $zoneId) {
+      productId product { _id name code } sealedPacks sealedUnits openedPacks
     }
   }
 `;
 
-export const STORAGE_RFID_SCAN_QUERY = gql`
-  query storageRfidScan {
-    storageRfidScan { itemId sku name systemPacks scannedPacks openUnits sampleEpc }
-  }
-`;
-
-export const STORAGE_WORK_ORDERS_QUERY = gql`
-  query storageWorkOrders {
-    storageWorkOrders {
-      _id code name clientName contractNo status
-      costLines { _id date category taxCode description qty unitCost totalAmount closedAmount directDrop }
+export const STORAGE_RFID_TAGS_QUERY = gql`
+  query storageRfidTags($zoneId: String, $productId: String, $status: String, $page: Int, $perPage: Int) {
+    storageRfidTags(zoneId: $zoneId, productId: $productId, status: $status, page: $page, perPage: $perPage) {
+      totalCount
+      list { _id epcId productId product { _id name code } unitsInPack status createdAt }
     }
   }
 `;
 
-export const STORAGE_TOOL_ASSETS_QUERY = gql`
-  query storageToolAssets {
-    storageToolAssets {
-      _id assetCode name serialNo cost finLifeYears taxLifeYears inServiceDate monthsUsed status
-      custodianName pendingCustodian pendingToWarehouse workOrderCode repairExpense
+export const STORAGE_MOVEMENTS_QUERY = gql`
+  query storageMovements($accountingStatus: String, $page: Int, $perPage: Int) {
+    storageMovements(accountingStatus: $accountingStatus, page: $page, perPage: $perPage) {
+      _id number date accountingStatus accountingResponse
+      items { productId product { _id name code } quantity epcIds }
     }
   }
 `;
 
-export const STORAGE_VAT_DATA_QUERY = gql`
-  query storageVatData {
-    storageVatPayables { _id vendorTin vendorName amount vatAmount isPaid status matchedGroupId }
-    storageEBarimtReceipts { _id receiptNo vendorTin vendorName amount vatAmount status matchedGroupId }
+export const STORAGE_SCAN_SESSIONS_QUERY = gql`
+  query storageScanSessions($zoneId: String!, $limit: Int) {
+    storageScanSessions(zoneId: $zoneId, limit: $limit) { ${SCAN_FIELDS} }
   }
 `;
 
-export const STORAGE_BREAK_SEALED_BOX = gql`
-  mutation storageBreakSealedBox($itemId: String!, $epcId: String, $requestKey: String) {
-    storageBreakSealedBox(itemId: $itemId, epcId: $epcId, requestKey: $requestKey) { _id sealedPacks openUnits }
+/** Served by accounting_api through the gateway; used to pick inventory accounts for a zone. */
+export const INVENTORY_ACCOUNTS_QUERY = gql`
+  query storageInventoryAccounts {
+    accounts(journals: ["inventory"], perPage: 200) { _id code name }
   }
 `;
 
-export const STORAGE_ISSUE_STOCK = gql`
-  mutation storageIssueStock($itemId: String!, $qty: Float!, $workOrderCode: String, $taxCode: String, $directDrop: Boolean, $autoConvert: Boolean, $requestKey: String) {
-    storageIssueStock(itemId: $itemId, qty: $qty, workOrderCode: $workOrderCode, taxCode: $taxCode, directDrop: $directDrop, autoConvert: $autoConvert, requestKey: $requestKey) {
-      docNo
-      item { _id name nickname sku avgCost sealedPacks openUnits }
+export const STORAGE_ZONE_SAVE = gql`
+  mutation storageZoneSave($_id: String, $name: String!, $sealed: StorageZoneLocationInput!, $open: StorageZoneLocationInput!) {
+    storageZoneSave(_id: $_id, name: $name, sealed: $sealed, open: $open) { _id }
+  }
+`;
+
+export const STORAGE_ZONE_REMOVE = gql`
+  mutation storageZoneRemove($_id: String!) {
+    storageZoneRemove(_id: $_id)
+  }
+`;
+
+export const STORAGE_RFID_TAGS_REGISTER = gql`
+  mutation storageRfidTagsRegister($productId: String!, $zoneId: String!, $unitsInPack: Int!, $count: Int, $epcIds: [String!]) {
+    storageRfidTagsRegister(productId: $productId, zoneId: $zoneId, unitsInPack: $unitsInPack, count: $count, epcIds: $epcIds) {
+      batchId count epcIds
     }
   }
 `;
 
-export const STORAGE_WORK_ORDER_CLOSE = gql`
-  mutation storageWorkOrderClosePercent($workOrderId: String!, $percent: Float!, $requestKey: String) { storageWorkOrderClosePercent(workOrderId: $workOrderId, percent: $percent, requestKey: $requestKey) { _id } }
+export const STORAGE_BREAK_BOXES = gql`
+  mutation storageBreakBoxes($epcIds: [String!]!, $requestKey: String) {
+    storageBreakBoxes(epcIds: $epcIds, requestKey: $requestKey) { _id number accountingStatus }
+  }
 `;
 
-export const STORAGE_WORK_ORDER_REOPEN = gql`
-  mutation storageWorkOrderReopenLine($workOrderId: String!, $costLineId: String!, $requestKey: String) { storageWorkOrderReopenLine(workOrderId: $workOrderId, costLineId: $costLineId, requestKey: $requestKey) { _id } }
+export const STORAGE_RFID_SCAN_SUBMIT = gql`
+  mutation storageRfidScanSubmit($zoneId: String!, $epcIds: [String!]!) {
+    storageRfidScanSubmit(zoneId: $zoneId, epcIds: $epcIds) { ${SCAN_FIELDS} }
+  }
 `;
 
-export const STORAGE_TOOL_ACCEPT = gql`
-  mutation storageToolAcceptHandover($toolId: String!) { storageToolAcceptHandover(toolId: $toolId) { _id status custodianName pendingCustodian } }
-`;
-
-export const STORAGE_VAT_AUTO_RECONCILE = gql`mutation storageVatAutoReconcile { storageVatAutoReconcile }`;
-
-export const STORAGE_VAT_MANUAL_RECONCILE = gql`
-  mutation storageVatManualReconcile($payableIds: [String!]!, $receiptId: String!) { storageVatManualReconcile(payableIds: $payableIds, receiptId: $receiptId) }
+export const STORAGE_MOVEMENT_RETRY = gql`
+  mutation storageMovementRetryAccounting($_id: String!) {
+    storageMovementRetryAccounting(_id: $_id) { _id accountingStatus }
+  }
 `;

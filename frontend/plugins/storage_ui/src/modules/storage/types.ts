@@ -1,131 +1,109 @@
-export interface IStorageCostCenter {
-  company: string;
-  branch: string;
-  department: string;
+export interface IProductRef {
+  _id: string;
+  name?: string | null;
+  code?: string | null;
 }
 
-export interface IStorageItem {
+export interface IStructureRef {
   _id: string;
-  sku: string;
-  barcode?: string | null;
+  title?: string | null;
+  code?: string | null;
+}
+
+export interface IZoneLocation {
+  accountId: string;
+  branchId: string;
+  departmentId: string;
+  branch?: IStructureRef | null;
+  department?: IStructureRef | null;
+}
+
+export type ZoneLocationInput = Pick<IZoneLocation, 'accountId' | 'branchId' | 'departmentId'>;
+
+export interface IStorageZone {
+  _id: string;
   name: string;
-  nickname?: string | null;
-  itemType: string;
-  useRfid: boolean;
-  packSize: number;
-  avgCost: number;
+  sealed: IZoneLocation;
+  open: IZoneLocation;
+}
+
+export interface IRfidTag {
+  _id: string;
+  epcId: string;
+  productId: string;
+  product?: IProductRef | null;
+  unitsInPack: number;
+  status: 'SEALED' | 'OPENED';
+  createdAt?: string | null;
+}
+
+export interface IRfidSummaryRow {
+  productId: string;
+  product?: IProductRef | null;
   sealedPacks: number;
-  openUnits: number;
-  costCenter: IStorageCostCenter;
+  sealedUnits: number;
+  openedPacks: number;
 }
 
-export interface IStorageRfidScanRow {
-  itemId: string;
-  sku: string;
-  name: string;
-  systemPacks: number;
-  scannedPacks: number;
-  openUnits: number;
-  sampleEpc?: string | null;
-}
-
-export interface IStorageCostLine {
+export interface IStorageMovement {
   _id: string;
+  number: string;
   date: string;
-  category: string;
-  taxCode: string;
-  description: string;
-  qty: number;
-  unitCost: number;
-  totalAmount: number;
-  closedAmount: number;
-  directDrop: boolean;
+  items: { productId: string; product?: IProductRef | null; quantity: number; epcIds: string[] }[];
+  accountingStatus: 'pending' | 'success' | 'error';
+  accountingResponse?: string | null;
 }
 
-export interface IStorageWorkOrder {
+export interface IScanSession {
+  _id: string;
+  scannedCount: number;
+  matchedCount: number;
+  missingCount: number;
+  unknownCount: number;
+  openedCount: number;
+  otherZoneCount: number;
+  missingEpcIds: string[];
+  unknownEpcIds: string[];
+  openedEpcIds: string[];
+  otherZoneEpcIds: string[];
+  products: { productId: string; product?: IProductRef | null; expectedPacks: number; scannedPacks: number }[];
+  createdAt?: string | null;
+}
+
+export interface IAccountOption {
   _id: string;
   code: string;
   name: string;
-  clientName: string;
-  contractNo: string;
-  status: string;
-  costLines: IStorageCostLine[];
 }
 
-export interface IStorageToolAsset {
-  _id: string;
-  assetCode: string;
-  name: string;
-  serialNo: string;
-  cost: number;
-  finLifeYears: number;
-  taxLifeYears: number;
-  inServiceDate?: string | null;
-  monthsUsed: number;
-  status: string;
-  custodianName: string;
-  pendingCustodian?: string | null;
-  pendingToWarehouse?: boolean | null;
-  workOrderCode?: string | null;
-  repairExpense: number;
+export interface IZonesQueryResult {
+  storageZones: IStorageZone[];
 }
 
-export interface IStorageVatPayable {
-  _id: string;
-  vendorTin: string;
-  vendorName: string;
-  amount: number;
-  vatAmount: number;
-  isPaid: boolean;
-  status: string;
-  matchedGroupId?: string | null;
+export interface ITagsQueryResult {
+  storageRfidTags: { list: IRfidTag[]; totalCount: number };
 }
 
-export interface IStorageEBarimtReceipt {
-  _id: string;
-  receiptNo: string;
-  vendorTin: string;
-  vendorName: string;
-  amount: number;
-  vatAmount: number;
-  status: string;
-  matchedGroupId?: string | null;
+export interface ISummaryQueryResult {
+  storageRfidSummary: IRfidSummaryRow[];
 }
 
-export interface IStorageItemsQueryResult {
-  storageItems: IStorageItem[];
+export interface IMovementsQueryResult {
+  storageMovements: IStorageMovement[];
 }
 
-export interface IStorageRfidScanQueryResult {
-  storageRfidScan: IStorageRfidScanRow[];
+export interface IScanSessionsQueryResult {
+  storageScanSessions: IScanSession[];
 }
 
-export interface IStorageWorkOrdersQueryResult {
-  storageWorkOrders: IStorageWorkOrder[];
+export interface IScanSubmitResult {
+  storageRfidScanSubmit: IScanSession;
 }
 
-export interface IStorageToolAssetsQueryResult {
-  storageToolAssets: IStorageToolAsset[];
+export interface IRegisterResult {
+  storageRfidTagsRegister: { batchId: string; count: number; epcIds: string[] };
 }
 
-export interface IStorageVatDataQueryResult {
-  storageVatPayables: IStorageVatPayable[];
-  storageEBarimtReceipts: IStorageEBarimtReceipt[];
-}
-
-export interface IStorageIssueStockResult {
-  storageIssueStock: {
-    docNo: string;
-    item: Pick<IStorageItem, '_id' | 'name' | 'nickname' | 'sku' | 'avgCost' | 'sealedPacks' | 'openUnits'>;
-  };
-}
-
-export interface IStorageIssueStockVariables {
-  itemId: string;
-  qty: number;
-  workOrderCode?: string;
-  taxCode?: string;
-  directDrop?: boolean;
-  autoConvert?: boolean;
-  requestKey?: string;
+export interface IAccountsQueryResult {
+  accounts: IAccountOption[];
 }

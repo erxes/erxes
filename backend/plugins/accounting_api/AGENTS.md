@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-14`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -153,6 +153,7 @@
 
 - Core branch, department, customer, company, product, and organization data through `sendTRPCMessage`, GraphQL, HTTP, or shared platform contracts.
 - Shared backend utilities, cursor pagination helpers, pubsub, and service startup APIs from `erxes-api-shared`.
+- Created `storage:storage.movements` documents through `meta/afterProcess.ts`: `afterProcessHandlers/storageMovementToTrs.ts` books each as one `invMove` transaction (source and destination account, branch and department come from the movement) and reports the result to the storage plugin's tRPC `movements.setAccountingResult`.
 
 ## Data and State
 

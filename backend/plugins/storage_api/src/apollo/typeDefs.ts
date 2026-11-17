@@ -4,150 +4,134 @@ import { apolloCommonTypes } from 'erxes-api-shared/utils';
 export const typeDefs = async () => gql`
   ${apolloCommonTypes}
 
-  type StorageCostCenter {
-    company: String!
-    branch: String!
-    department: String!
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
   }
 
-  input StorageCostCenterInput {
-    company: String!
-    branch: String!
-    department: String!
+  extend type Branch @key(fields: "_id") {
+    _id: String @external
   }
 
-  type StorageItem {
+  extend type Department @key(fields: "_id") {
+    _id: String @external
+  }
+
+  type StorageZoneLocation {
+    accountId: String!
+    branchId: String!
+    departmentId: String!
+    branch: Branch
+    department: Department
+  }
+
+  type StorageZone {
     _id: String!
-    sku: String!
-    barcode: String
     name: String!
-    nickname: String
-    itemType: String!
-    costCenter: StorageCostCenter!
-    useRfid: Boolean!
-    packSize: Int!
-    avgCost: Float!
-    sealedPacks: Int!
-    openUnits: Float!
+    sealed: StorageZoneLocation!
+    open: StorageZoneLocation!
   }
 
-  type StorageRfidScanRow {
-    itemId: String!
-    sku: String!
-    name: String!
-    systemPacks: Int!
-    scannedPacks: Int!
-    openUnits: Float!
-    sampleEpc: String
-  }
-
-  type StorageWorkOrderCostLine {
+  type StorageRfidTag {
     _id: String!
-    date: Date
-    category: String!
-    taxCode: String!
-    description: String!
-    qty: Float!
-    unitCost: Float!
-    totalAmount: Float!
-    closedAmount: Float!
-    directDrop: Boolean!
-  }
-
-  type StorageWorkOrder {
-    _id: String!
-    code: String!
-    name: String!
-    clientName: String!
-    contractNo: String
+    epcId: String!
+    productId: String!
+    product: Product
+    unitsInPack: Int!
+    zoneId: String!
     status: String!
-    costLines: [StorageWorkOrderCostLine!]!
-  }
-
-  type StorageToolAsset {
-    _id: String!
-    assetCode: String!
-    name: String!
-    serialNo: String!
-    cost: Float!
-    finLifeYears: Int!
-    taxLifeYears: Int!
-    inServiceDate: Date
-    monthsUsed: Int!
-    status: String!
-    custodianName: String!
-    pendingCustodian: String
-    pendingToWarehouse: Boolean
-    workOrderCode: String
-    repairExpense: Float!
-  }
-
-  type StorageVatPayable {
-    _id: String!
-    vendorTin: String!
-    vendorName: String!
-    amount: Float!
-    vatAmount: Float!
-    isPaid: Boolean!
-    status: String!
-    matchedGroupId: String
-  }
-
-  type StorageEBarimtReceipt {
-    _id: String!
-    receiptNo: String!
-    vendorTin: String!
-    vendorName: String!
-    amount: Float!
-    vatAmount: Float!
-    status: String!
-    matchedGroupId: String
-  }
-
-  type StorageIssueResult {
-    item: StorageItem!
-    docNo: String!
-  }
-
-  type StorageReceiveResult {
-    item: StorageItem!
-    notifiedUsers: [String!]!
-  }
-
-  type StoragePeriodClose {
-    _id: String!
-    closedUntil: Date!
-    closedBy: String!
-    status: String!
-    reopenedBy: String
+    movementId: String
     createdAt: Date
   }
 
-  extend type Query {
-    storageItems(company: String): [StorageItem!]!
-    storageRfidScan: [StorageRfidScanRow!]!
-    storageWorkOrders: [StorageWorkOrder!]!
-    storageToolAssets: [StorageToolAsset!]!
-    storageVatPayables: [StorageVatPayable!]!
-    storageEBarimtReceipts: [StorageEBarimtReceipt!]!
-    storagePeriodCloses: [StoragePeriodClose!]!
+  type StorageRfidTagList {
+    list: [StorageRfidTag!]!
+    totalCount: Int!
   }
 
-  # requestKey: client-generated unique key (e.g. a UUID per button press).
-  # Retrying with the same key returns the original result instead of applying the change twice.
+  type StorageRfidSummaryRow {
+    productId: String!
+    product: Product
+    sealedPacks: Int!
+    sealedUnits: Float!
+    openedPacks: Int!
+  }
+
+  type StorageRfidRegisterResult {
+    batchId: String!
+    count: Int!
+    epcIds: [String!]!
+  }
+
+  type StorageMovementItem {
+    productId: String!
+    product: Product
+    quantity: Float!
+    epcIds: [String!]!
+  }
+
+  type StorageMovement {
+    _id: String!
+    type: String!
+    number: String!
+    date: Date!
+    zoneId: String!
+    source: StorageZoneLocation!
+    destination: StorageZoneLocation!
+    items: [StorageMovementItem!]!
+    userId: String
+    accountingStatus: String!
+    accountingResponse: String
+    createdAt: Date
+  }
+
+  type StorageScanProductRow {
+    productId: String!
+    product: Product
+    expectedPacks: Int!
+    scannedPacks: Int!
+  }
+
+  type StorageScanSession {
+    _id: String!
+    zoneId: String!
+    scannedCount: Int!
+    matchedCount: Int!
+    missingCount: Int!
+    unknownCount: Int!
+    openedCount: Int!
+    otherZoneCount: Int!
+    missingEpcIds: [String!]!
+    unknownEpcIds: [String!]!
+    openedEpcIds: [String!]!
+    otherZoneEpcIds: [String!]!
+    products: [StorageScanProductRow!]!
+    userId: String
+    createdAt: Date
+  }
+
+  input StorageZoneLocationInput {
+    accountId: String!
+    branchId: String!
+    departmentId: String!
+  }
+
+  extend type Query {
+    storageZones: [StorageZone!]!
+    storageRfidTags(zoneId: String, productId: String, status: String, page: Int, perPage: Int): StorageRfidTagList!
+    storageRfidSummary(zoneId: String!): [StorageRfidSummaryRow!]!
+    storageMovements(accountingStatus: String, page: Int, perPage: Int): [StorageMovement!]!
+    storageScanSessions(zoneId: String!, limit: Int): [StorageScanSession!]!
+  }
+
+  # requestKey: client-generated unique key (a UUID per user action).
+  # Retrying with the same key returns the first movement instead of creating another.
   extend type Mutation {
-    storageItemCreate(sku: String!, name: String!, nickname: String, itemType: String!, useRfid: Boolean!, packSize: Int!, avgCost: Float!, costCenter: StorageCostCenterInput!): StorageItem!
-    storageReceiveStock(itemId: String!, sealedPacks: Int!, openUnits: Float!, txDate: Date, requestKey: String): StorageReceiveResult!
-    storageBreakSealedBox(itemId: String!, epcId: String, txDate: Date, requestKey: String): StorageItem!
-    storageIssueStock(itemId: String!, qty: Float!, workOrderCode: String, taxCode: String, directDrop: Boolean, autoConvert: Boolean, txDate: Date, requestKey: String): StorageIssueResult!
-    storageWorkOrderClosePercent(workOrderId: String!, percent: Float!, requestKey: String): StorageWorkOrder!
-    storageWorkOrderReopenLine(workOrderId: String!, costLineId: String!, requestKey: String): StorageWorkOrder!
-    storageToolInitiateHandover(toolId: String!, toCustodian: String, toWarehouse: Boolean, workOrderCode: String): StorageToolAsset!
-    storageToolAcceptHandover(toolId: String!): StorageToolAsset!
-    storageToolSendToRepair(toolId: String!, fee: Float!, txDate: Date, requestKey: String): StorageToolAsset!
-    storageVatAutoReconcile: Int!
-    storageVatManualReconcile(payableIds: [String!]!, receiptId: String!): String!
-    storagePeriodClose(closedUntil: Date!): StoragePeriodClose!
-    storagePeriodReopen(closeId: String!): StoragePeriodClose!
+    storageZoneSave(_id: String, name: String!, sealed: StorageZoneLocationInput!, open: StorageZoneLocationInput!): StorageZone!
+    storageZoneRemove(_id: String!): String!
+    storageRfidTagsRegister(productId: String!, zoneId: String!, unitsInPack: Int!, count: Int, epcIds: [String!]): StorageRfidRegisterResult!
+    storageRfidTagsRemove(epcIds: [String!]!): Int!
+    storageBreakBoxes(epcIds: [String!]!, requestKey: String): StorageMovement!
+    storageRfidScanSubmit(zoneId: String!, epcIds: [String!]!): StorageScanSession!
+    storageMovementRetryAccounting(_id: String!): StorageMovement!
   }
 `;

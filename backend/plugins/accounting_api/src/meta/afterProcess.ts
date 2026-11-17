@@ -10,6 +10,11 @@ import { dealToReturnTrs } from './afterProcessHandlers/dealToReturnTrs';
 import { orderToTrs } from './afterProcessHandlers/orderToTrs';
 import { orderToReturnTrs } from './afterProcessHandlers/orderToReturnTrs';
 import {
+  STORAGE_MOVEMENT_CONTENT_TYPE,
+  storageMovementToTrs,
+  TStorageMovement,
+} from './afterProcessHandlers/storageMovementToTrs';
+import {
   handleCoreMergeMutation,
   mergeMutationNames,
 } from './afterProcessHandlers/coreMerge';
@@ -42,6 +47,10 @@ const allRules: IAfterProcessRule[] = [
     when: {
       fieldsWith: ['status'],
     },
+  },
+  {
+    type: 'createdDocument',
+    contentTypes: [STORAGE_MOVEMENT_CONTENT_TYPE],
   },
   {
     type: 'afterMutation',
@@ -115,6 +124,45 @@ const setOrderAccountingResponse = async ({
         selector: { _id: orderId },
         modifier: { accountingResponse: message },
       },
+    });
+  } catch (e) {
+    logAfterProcessError(e);
+  }
+};
+
+/**
+ * Books a movement created by the storage plugin and reports the result back,
+ * so the warehouse screen shows whether accounting accepted it.
+ */
+const syncStorageMovement = async ({
+  subdomain,
+  models,
+  userId,
+  movement,
+}: {
+  subdomain: string;
+  models: Awaited<ReturnType<typeof generateModels>>;
+  userId?: string;
+  movement: TStorageMovement;
+}) => {
+  let status: 'success' | 'error' = 'success';
+  let message = 'success';
+
+  try {
+    await storageMovementToTrs({ models, userId, movement });
+  } catch (e) {
+    status = 'error';
+    message = getErrorMessage(e);
+  }
+
+  try {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'storage',
+      method: 'mutation',
+      module: 'movements',
+      action: 'setAccountingResult',
+      input: { movementId: movement._id, status, message },
     });
   } catch (e) {
     logAfterProcessError(e);
@@ -311,6 +359,16 @@ export const afterProcess: AfterProcessConfigs = {
 
       const { collectionName, userId, contentType, docId, currentDocument } =
         data;
+
+      if (contentType === STORAGE_MOVEMENT_CONTENT_TYPE && currentDocument) {
+        await syncStorageMovement({
+          subdomain,
+          models,
+          userId,
+          movement: currentDocument,
+        });
+        return;
+      }
 
       if (
         contentType === 'sales:sales.deals' &&

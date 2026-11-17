@@ -1,161 +1,132 @@
-import { IModels, StockMovementType } from '../db/models/Storage';
-import { isDuplicateKeyError, newRequestKey, parseTxDate, StorageInputError } from './validation';
+import { AccountingStatus, IRfidTag, IStorageMovement, IStorageMovementItem } from '../@types/storage';
+import { IModels } from '../db/models/Storage';
+import { isDuplicateKeyError, LIMITS, newId, normalizeEpcIds, StorageInputError } from './validation';
+import { requireZone } from './zoneService';
 
-export interface IMovementContext {
-  movementId: string;
-  txDate: Date;
-}
-
-interface IRunMovementParams<TStored> {
-  type: StockMovementType;
+export interface IBreakBoxesInput {
+  epcIds: string[];
+  /** Client-generated key; a retry with the same key returns the first movement. */
   requestKey?: string | null;
-  txDate?: Date | string | null;
-  userId?: string;
-  /** Applies the change. Must undo its own partial writes before throwing. */
-  apply: (ctx: IMovementContext) => Promise<TStored>;
 }
 
-/** Statuses that block postings dated on or before `closedUntil`. */
-const BLOCKING_CLOSE_STATUSES = ['CLOSING', 'CLOSED'];
+type TagSnapshot = Pick<IRfidTag, 'epcId' | 'productId' | 'unitsInPack' | 'zoneId' | 'status'>;
 
-/**
- * Runs a stock/cost mutation through the movement ledger.
- *
- * - Idempotency: `requestKey` is unique, so a retried request with the same key
- *   returns the stored result instead of applying the change twice.
- * - Period close coordination (two-phase): the movement is first written as
- *   PENDING, then the closed-period check runs. `closePeriod` does the reverse
- *   (writes CLOSING, then looks for PENDING movements). Whichever writes second
- *   sees the other, so a close and a posting can never both succeed.
- *
- * Returns the stored result; callers turn it into the GraphQL payload.
- */
-export const runMovement = async <TStored extends Record<string, unknown>>(
-  models: IModels,
-  params: IRunMovementParams<TStored>,
-): Promise<TStored> => {
-  const txDate = parseTxDate(params.txDate);
-  const requestKey = params.requestKey || newRequestKey();
+/** Groups tags into one movement line per product. */
+export const itemsFromTags = (tags: TagSnapshot[]): IStorageMovementItem[] => {
+  const byProduct = new Map<string, IStorageMovementItem>();
 
-  const movement = await claimMovement(models, {
-    requestKey,
-    type: params.type,
-    txDate,
-    userId: params.userId,
+  tags.forEach((tag) => {
+    const item = byProduct.get(tag.productId) || { productId: tag.productId, quantity: 0, epcIds: [] };
+    item.quantity += tag.unitsInPack;
+    item.epcIds.push(tag.epcId);
+    byProduct.set(tag.productId, item);
   });
 
-  if (movement.replay) {
-    return movement.replay as TStored;
+  return [...byProduct.values()];
+};
+
+const assertBreakable = (tags: TagSnapshot[], epcIds: string[]) => {
+  const found = new Set(tags.map((t) => t.epcId));
+  const missing = epcIds.filter((e) => !found.has(e));
+  if (missing.length) throw new StorageInputError(`Бүртгэлгүй EPC: ${missing.slice(0, 5).join(', ')}`);
+
+  const opened = tags.filter((t) => t.status !== 'SEALED');
+  if (opened.length) {
+    throw new StorageInputError(`Аль хэдийн задарсан: ${opened.slice(0, 5).map((t) => t.epcId).join(', ')}`);
   }
 
-  const movementId = movement.id;
+  if (new Set(tags.map((t) => t.zoneId)).size > 1) {
+    throw new StorageInputError('Нэг удаад зөвхөн нэг бүсийн хайрцгуудыг задална.');
+  }
+};
 
+/**
+ * Moves sealed packs to the open area of their zone.
+ *
+ * Storage only flips the tags and records the movement. The stock and cost
+ * side is booked by accounting_api, which receives the created movement
+ * through afterProcess and writes an inventory-move transaction.
+ */
+export const breakBoxes = async (models: IModels, input: IBreakBoxesInput, userId?: string) => {
+  const epcIds = normalizeEpcIds(input.epcIds, LIMITS.MAX_BREAK_BOXES);
+  const requestKey = input.requestKey || newId();
+
+  const replay = await models.Movements.findOne({ requestKey }).lean();
+  if (replay) return replay;
+
+  const tags = await models.RfidTags.find({ epcId: { $in: epcIds } }).lean();
+  assertBreakable(tags, epcIds);
+
+  const zone = await requireZone(models, tags[0].zoneId);
+  const movementId = await createMovement(models, {
+    requestKey,
+    zoneId: String(zone._id),
+    source: zone.sealed,
+    destination: zone.open,
+    items: itemsFromTags(tags),
+    userId,
+  });
+
+  if (!movementId) {
+    // Another request with the same key won the race.
+    return models.Movements.findOne({ requestKey }).lean();
+  }
+
+  const claimed = await models.RfidTags.updateMany(
+    { epcId: { $in: epcIds }, status: 'SEALED' },
+    { $set: { status: 'OPENED', movementId } },
+  );
+
+  if (claimed.modifiedCount !== epcIds.length) {
+    await models.RfidTags.updateMany({ movementId, status: 'OPENED' }, { $set: { status: 'SEALED' }, $unset: { movementId: 1 } });
+    await models.Movements.deleteOne({ _id: movementId });
+    throw new StorageInputError('Зарим хайрцаг зэрэг задлагдсан байна. Дахин оролдоно уу.');
+  }
+
+  await models.Movements.publishCreated(movementId);
+  return models.Movements.findById(movementId).lean();
+};
+
+const createMovement = async (
+  models: IModels,
+  doc: Pick<IStorageMovement, 'requestKey' | 'zoneId' | 'source' | 'destination' | 'items' | 'userId'>,
+): Promise<string | null> => {
   try {
-    await assertPeriodOpen(models, txDate);
-    const result = await params.apply({ movementId, txDate });
-    await models.StockMovements.updateOne(
-      { _id: movementId },
-      { $set: { status: 'POSTED', result } },
-    );
-    return result;
+    const created = await models.Movements.create({
+      ...doc,
+      type: 'BREAK_BOX',
+      number: `RFID-${Date.now().toString(36).toUpperCase()}-${doc.requestKey.slice(0, 4).toUpperCase()}`,
+      date: new Date(),
+      accountingStatus: 'pending',
+    });
+    return String(created._id);
   } catch (e) {
-    await models.StockMovements.updateOne(
-      { _id: movementId },
-      { $set: { status: 'FAILED', error: (e as Error).message } },
-    );
+    if (isDuplicateKeyError(e)) return null;
     throw e;
   }
 };
 
-const claimMovement = async (
-  models: IModels,
-  doc: { requestKey: string; type: StockMovementType; txDate: Date; userId?: string },
-): Promise<{ id: string; replay?: unknown }> => {
-  try {
-    const created = await models.StockMovements.create({ ...doc, status: 'PENDING' });
-    return { id: String(created._id) };
-  } catch (e) {
-    if (!isDuplicateKeyError(e)) throw e;
-  }
-
-  const existing = await models.StockMovements.findOne({ requestKey: doc.requestKey }).lean();
-
-  if (!existing) {
-    throw new StorageInputError('Гүйлгээний түлхүүрийг шалгаж чадсангүй. Дахин оролдоно уу.');
-  }
-
-  if (existing.type !== doc.type) {
-    throw new StorageInputError('Энэ requestKey өөр төрлийн гүйлгээнд ашиглагдсан байна.');
-  }
-
-  if (existing.status === 'POSTED') {
-    return { id: String(existing._id), replay: existing.result };
-  }
-
-  if (existing.status === 'PENDING') {
-    throw new StorageInputError('Энэ гүйлгээ боловсруулагдаж байна. Түр хүлээгээд дахин шалгана уу.');
-  }
-
-  // FAILED: allow the same key to be retried, but only by one caller at a time.
-  const retried = await models.StockMovements.findOneAndUpdate(
-    { _id: existing._id, status: 'FAILED' },
-    { $set: { status: 'PENDING', txDate: doc.txDate, error: null } },
-    { new: true },
-  );
-
-  if (!retried) {
-    throw new StorageInputError('Энэ гүйлгээ боловсруулагдаж байна. Түр хүлээгээд дахин шалгана уу.');
-  }
-
-  return { id: String(retried._id) };
-};
-
-export const assertPeriodOpen = async (models: IModels, txDate: Date) => {
-  const blocking = await models.PeriodCloses.findOne({
-    status: { $in: BLOCKING_CLOSE_STATUSES },
-    closedUntil: { $gte: txDate },
-  }).lean();
-
-  if (blocking) {
-    throw new StorageInputError(
-      `Тухайн огноо (${txDate.toISOString().slice(0, 10)}) нь хаалт хийгдсэн хугацаанд байна. Эхлээд хаалтыг нээнэ үү.`,
-    );
-  }
-};
-
-export const closePeriod = async (models: IModels, closedUntilInput: Date | string, userId: string) => {
-  const closedUntil = parseTxDate(closedUntilInput);
-
-  // Phase 1: announce the close. New postings dated <= closedUntil now fail their check.
-  const close = await models.PeriodCloses.create({ closedUntil, closedBy: userId, status: 'CLOSING' });
-
-  // Phase 2: refuse to close while postings that passed their check are still in flight.
-  const inFlight = await models.StockMovements.countDocuments({
-    status: 'PENDING',
-    txDate: { $lte: closedUntil },
-  });
-
-  if (inFlight > 0) {
-    await models.PeriodCloses.updateOne({ _id: close._id }, { $set: { status: 'ABORTED' } });
-    throw new StorageInputError(
-      `Хаалт хийх хугацаанд ${inFlight} гүйлгээ боловсруулагдаж байна. Түр хүлээгээд дахин оролдоно уу.`,
-    );
-  }
-
-  await models.PeriodCloses.updateOne({ _id: close._id }, { $set: { status: 'CLOSED' } });
-  return models.PeriodCloses.findById(close._id).lean();
-};
-
-export const reopenPeriod = async (models: IModels, closeId: string, userId: string) => {
-  const reopened = await models.PeriodCloses.findOneAndUpdate(
-    { _id: closeId, status: 'CLOSED' },
-    { $set: { status: 'REOPENED', reopenedBy: userId } },
+/** Re-sends a movement to accounting, for example after its config was fixed. */
+export const retryAccounting = async (models: IModels, movementId: string) => {
+  const movement = await models.Movements.findOneAndUpdate(
+    { _id: movementId, accountingStatus: { $ne: 'success' } },
+    { $set: { accountingStatus: 'pending' }, $unset: { accountingResponse: 1 } },
     { new: true },
   ).lean();
 
-  if (!reopened) {
-    throw new StorageInputError('Нээх боломжтой хаалт олдсонгүй.');
-  }
+  if (!movement) throw new StorageInputError('Дахин илгээх боломжтой хөдөлгөөн олдсонгүй.');
 
-  return reopened;
+  await models.Movements.publishCreated(movementId);
+  return movement;
+};
+
+/** Called by accounting_api (tRPC) once it has booked, or failed to book, the movement. */
+export const setAccountingResult = async (
+  models: IModels,
+  params: { movementId: string; status: AccountingStatus; message?: string },
+) => {
+  await models.Movements.updateOne(
+    { _id: params.movementId },
+    { $set: { accountingStatus: params.status, accountingResponse: (params.message || '').slice(0, 1000) } },
+  );
 };
