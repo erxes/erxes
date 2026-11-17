@@ -1,4 +1,4 @@
-import { PROJECT_CONNECTION_CONTENT_TYPE } from './widgets/contact/projectContactConnection';
+import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
 import {
   IconChartArcs,
   IconChartAreaLine,
@@ -12,13 +12,13 @@ import {
 } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
-import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
-import { getTaskDetailPath } from '@/task/utils/getTaskDetailPath';
-import { getProjectDetailPath } from '@/project/utils/getProjectDetailPath';
+import { OPERATION_DASHBOARD_MODULES } from '~/widgets/dashboard/dashboardModules';
+import { PROJECT_CONNECTION_CONTENT_TYPE } from './widgets/contact/projectContactConnection';
 import { PROJECT_CONTENT_TYPE } from '@/project/constants/contentType';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 import { TASK_CONNECTION_CONTENT_TYPE } from '~/widgets/contact/taskContactConnection';
-import { OPERATION_DASHBOARD_MODULES } from '~/widgets/dashboard/dashboardModules';
+import { getProjectDetailPath } from '@/project/utils/getProjectDetailPath';
+import { getTaskDetailPath } from '@/task/utils/getTaskDetailPath';
 
 const TaskStatusPropertyInput = lazy(() =>
   import('@/task/components/task-selects/TaskStatusPropertyInput').then(

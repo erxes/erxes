@@ -16,7 +16,7 @@ import { TaskDetailPage } from '~/pages/TaskDetailPage';
 import { CyclesPage } from '~/pages/CyclesPage';
 import { CycleDetailPage } from '~/pages/CycleDetailPage';
 import { TasksLayout } from '@/task/components/TasksLayout';
-import { TriagePage } from '~/pages/TriagePage';
+import { TriageDetailRedirect, TriagePage } from '~/pages/TriagePage';
 
 const OperationMain = () => {
   return (
@@ -50,7 +50,7 @@ const OperationMain = () => {
             <Route index element={<Navigate to="tasks" replace />} />
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="triage" element={<TriagePage />} />
-            <Route path="triage/:triageId" element={<TriagePage />} />
+            <Route path="triage/:triageId" element={<TriageDetailRedirect />} />
             <Route path="tasks" element={<TasksPage />} />
             <Route path="cycles" element={<CyclesPage />} />
             <Route path="cycles/:cycleId" element={<CycleDetailPage />} />

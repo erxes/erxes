@@ -15,6 +15,7 @@ import { TaskPanelDetail } from './TaskPanelDetail';
 import { TRIAGE_CONTENT_TYPE } from '@/triage/constants';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
+import { useTriageCustomFieldEdit } from '@/triage/hooks/useTriageCustomFieldEdit';
 import { TriagePanelActions } from './TriagePanelActions';
 import { TriagePanelDetail } from './TriagePanelDetail';
 import { TaskPanelNew } from './TaskPanelNew';
@@ -96,6 +97,23 @@ const TriagePanelTitle = ({ triageId }: { triageId: string }) => {
   );
 };
 
+const TriagePanelProperties = ({ triageId }: { triageId: string }) => {
+  const { triage } = useGetTriage(triageId);
+
+  return (
+    <ScrollArea className="flex-1 min-h-0">
+      <PropertiesSidePanel
+        contentType={TASK_CONTENT_TYPE}
+        contentId={triageId}
+        propertiesData={
+          isRecord(triage?.propertiesData) ? triage.propertiesData : undefined
+        }
+        mutateHook={useTriageCustomFieldEdit}
+      />
+    </ScrollArea>
+  );
+};
+
 const TriagePanelActivity = ({ triageId }: { triageId: string }) => {
   const { triage } = useGetTriage(triageId);
 
@@ -111,7 +129,7 @@ const TriagePanelActivity = ({ triageId }: { triageId: string }) => {
   );
 };
 
-// A triage, until it is accepted as a task (it has no properties).
+// A triage, until it is accepted as a task.
 const TriagePanel = ({
   triageId,
   view,
@@ -136,7 +154,7 @@ const TriagePanel = ({
   }
 
   if (view === 'properties') {
-    return null;
+    return <TriagePanelProperties triageId={triageId} />;
   }
 
   return <TriagePanelDetail triageId={triageId} />;
