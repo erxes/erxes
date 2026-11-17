@@ -111,7 +111,7 @@ export const boardKeyboard =
         .filter(({ id }) => id !== String(active))
         .map(({ rect }) => middle(rect).y);
 
-      const next = down ? middles.find((y) => y > now) : middles.findLast((y) => y < now);
+      const next = down ? middles.find((y) => y > now) : middles.findLast((y) => y <= now);
       const step = collisionRect.height + CARD_GAP;
       const to = next === undefined ? now + (down ? step : -step) : next + (down ? 1 : -1);
 

@@ -51,7 +51,7 @@ export const BoardCard = ({
   );
 
   useLayoutEffect(() => {
-    if (cards.takesFocus(id, button.current)) button.current?.focus();
+    if (cards.takesFocus(id, columnId, button.current)) button.current?.focus();
   });
 
   return (

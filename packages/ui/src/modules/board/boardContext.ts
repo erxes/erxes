@@ -12,7 +12,7 @@ export class BoardCards {
   #columns = new Map<string, string>();
   #moved = false;
   #board: HTMLElement | null = null;
-  #refocus: string | null = null;
+  #refocus: { id: string; columnId: string } | null = null;
 
   get = (id: string) => this.#cards.get(id);
 
@@ -23,18 +23,36 @@ export class BoardCards {
   /** The board's visible box: columns scrolled out of it take no drop. */
   visible = () => this.#board?.getBoundingClientRect();
 
-  /** After a keyboard drop the card takes the focus back once it shows in its new place. */
-  refocus = (id: string | null) => {
-    this.#refocus = id;
+  /**
+   * After a keyboard drop into another column the card takes the focus back when it shows
+   * there, unless the member does anything else first.
+   */
+  refocus = (id: string, columnId: string) => {
+    this.#refocus = { id, columnId };
+
+    const listening = new AbortController();
+
+    const forget = () => {
+      this.forgetFocus();
+      listening.abort();
+    };
+
+    for (const event of ['focusin', 'pointerdown', 'keydown', 'wheel']) {
+      addEventListener(event, forget, { capture: true, signal: listening.signal });
+    }
   };
 
-  /** Whether `button`, the card's, should take the focus now; it takes it once. */
-  takesFocus = (id: string, button: HTMLElement | null) => {
-    if (this.#refocus !== id || !button || document.activeElement === button) return false;
-
+  forgetFocus = () => {
     this.#refocus = null;
+  };
 
-    return true;
+  /** Whether `button`, the card's in `columnId`, should take the focus now; it takes it once. */
+  takesFocus = (id: string, columnId: string, button: HTMLElement | null) => {
+    if (this.#refocus?.id !== id || this.#refocus.columnId !== columnId || !button) return false;
+
+    this.forgetFocus();
+
+    return document.activeElement !== button;
   };
 
   columnOf = (id: string) => this.#cards.get(id)?.columnId;

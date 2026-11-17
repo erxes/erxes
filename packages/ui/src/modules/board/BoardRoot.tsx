@@ -84,7 +84,7 @@ export const BoardRoot = ({
 
   const onDragStart = ({ active }: DragStartEvent) => {
     cards.drop(false);
-    cards.refocus(null);
+    cards.forgetFocus();
     setDragging(cards.get(String(active.id)) ?? null);
   };
 
@@ -96,7 +96,11 @@ export const BoardRoot = ({
     if (!move) return;
 
     cards.drop(true);
-    cards.refocus(event.activatorEvent instanceof KeyboardEvent ? move.id : null);
+
+    if (event.activatorEvent instanceof KeyboardEvent && move.columnId !== move.fromColumnId) {
+      cards.refocus(move.id, move.columnId);
+    }
+
     onMove(move);
   };
 
