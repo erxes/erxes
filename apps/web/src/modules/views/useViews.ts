@@ -87,6 +87,7 @@ export const useViewState = (recordType: ViewListType) => {
     views,
     error: viewsList.error,
     retry: () => void viewsList.refetch(),
+    retrying: viewsList.isFetching,
     current,
     changed,
     filtered,

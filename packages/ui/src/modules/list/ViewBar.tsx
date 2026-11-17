@@ -44,7 +44,8 @@ type TIsKeyTail<S extends string> = S extends ''
 
 type TIsKey<S extends string> = S extends `${TLetter}${infer Rest}` ? TIsKeyTail<Rest> : false;
 
-type TListTypeRule = '<plugin>:<record>: lower case letters, digits and _, known as written';
+type TListTypeRule =
+  '<plugin>:<record>: lower case letters, digits and _, each starting with a letter, known as written';
 
 /**
  * `T` when core can keep views of it, else the rule it breaks.
@@ -104,7 +105,7 @@ export const ListViewsProvider = ({
  * that list show as tabs, as on core's lists; without it the list has one view, "All …"
  * (`allLabel`).
  */
-export const ViewBar = <const T extends string = never>({
+export const ViewBar = <const T extends string = string>({
   allLabel,
   recordType,
   tabs,

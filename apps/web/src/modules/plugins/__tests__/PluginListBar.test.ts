@@ -5,7 +5,6 @@ import { IconLayoutGrid, IconSitemap } from '@tabler/icons-react';
 import {
   DisplayMenu,
   ListFilter,
-  type TCheckedListType,
   type TListFilterField,
   useListDisplay,
   useListFilterParams,
@@ -13,12 +12,12 @@ import {
 } from 'erxes-ui';
 import { createStore, Provider } from 'jotai';
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
-import { act, createElement, type ReactNode } from 'react';
+import { act, createElement, type ReactNode, Suspense } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeAll, describe, expect, expectTypeOf, it, vi } from 'vite-plus/test';
 import { I18nextProvider } from 'react-i18next';
 import { i18n, i18nReady } from '~/i18n';
-import { PluginViewTabs } from '~/modules/views/PluginListViews';
+import { LIST_VIEWS } from '~/modules/views/listViews';
 
 let root: Root | undefined;
 
@@ -94,29 +93,40 @@ describe('a plugin list’s bar', () => {
   });
 
   it('does not compile a record type core can’t store, so a plugin can’t ship one', () => {
+    type ViewBarType<T extends string> = Parameters<typeof ViewBar<T>>[0]['recordType'];
+
+    type ListFilterType<T extends string> = Parameters<typeof ListFilter<T>>[0]['recordType'];
+
     type Books = `accounting:transaction_${'cash' | 'sale_return'}`;
 
     type Hyphened = `accounting:transaction_${'cash' | 'sale-return'}`;
 
-    expectTypeOf<'sales:deal'>().toExtend<TCheckedListType<'sales:deal'>>();
-    expectTypeOf<Books>().toExtend<TCheckedListType<Books>>();
-    expectTypeOf<Hyphened>().not.toExtend<TCheckedListType<Hyphened>>();
-    expectTypeOf<'Sales:deal'>().not.toExtend<TCheckedListType<'Sales:deal'>>();
-    expectTypeOf<`sales:${string}`>().not.toExtend<TCheckedListType<`sales:${string}`>>();
+    expectTypeOf<'sales:deal'>().toExtend<ViewBarType<'sales:deal'>>();
+    expectTypeOf<Books>().toExtend<ViewBarType<Books>>();
+    expectTypeOf<Books>().toExtend<ListFilterType<Books>>();
+    expectTypeOf<Hyphened>().not.toExtend<ViewBarType<Hyphened>>();
+    expectTypeOf<Hyphened>().not.toExtend<ListFilterType<Hyphened>>();
+    expectTypeOf<'Sales:deal'>().not.toExtend<ViewBarType<'Sales:deal'>>();
+    expectTypeOf<`sales:${string}`>().not.toExtend<ViewBarType<`sales:${string}`>>();
   });
 
   it('keeps a list with a record type core can’t store working: "All …" alone, the cause in the console', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
+    // The tabs web gives every plugin list, as a plugin built before the type check reaches them.
     const container = await render(
-      createElement(PluginViewTabs, {
-        recordType: 'accounting:transaction_sale-return',
-        allLabel: 'Sale return',
-      }),
+      createElement(
+        Suspense,
+        null,
+        createElement(LIST_VIEWS.Tabs, {
+          recordType: 'accounting:transaction_sale-return',
+          allLabel: 'Sale return',
+        }),
+      ),
     );
 
-    expect(container.textContent).toBe('Sale return');
+    await vi.waitFor(() => expect(container.textContent).toBe('Sale return'));
     expect(container.querySelector('[aria-current="page"]')).not.toBeNull();
     expect(fetch).not.toHaveBeenCalled();
     expect(error).toHaveBeenCalledWith(

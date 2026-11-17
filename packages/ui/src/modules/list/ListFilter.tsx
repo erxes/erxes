@@ -59,7 +59,7 @@ export type TListFilterField = {
 };
 
 /** The props of `ListFilter`: its `id`, `fields`, lookups and record count. */
-export type TListFilterProps<T extends string = never> = TConditionLookups & {
+export type TListFilterProps<T extends string = string> = TConditionLookups & {
   /** Unique per list, e.g. `sales-deals`: its menu's hotkey scope. */
   id: string;
   fields: TListFilterField[];
@@ -92,7 +92,7 @@ export type TListFilterProps<T extends string = never> = TConditionLookups & {
  * `productSearchQueries` from `@erxes/core-contract/client` and the
  * tags query of the record type; outside erxes, the plugin's own.
  */
-export const ListFilter = <const T extends string = never>({
+export const ListFilter = <const T extends string = string>({
   recordType,
   ...props
 }: TListFilterProps<T>) => {

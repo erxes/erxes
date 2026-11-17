@@ -190,11 +190,18 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
 };
 
 /** Saved views that didn't load: the list still works, and a click tries again. */
-const ViewsFailed = ({ onRetry }: { onRetry: () => void }) => {
+const ViewsFailed = ({ onRetry, retrying }: { onRetry: () => void; retrying: boolean }) => {
   const { t } = useTranslation('views');
 
   return (
-    <Button variant="ghost" size="sm" tone="muted" className="shrink-0" onClick={onRetry}>
+    <Button
+      variant="ghost"
+      size="sm"
+      tone="muted"
+      className="shrink-0"
+      disabled={retrying}
+      onClick={onRetry}
+    >
       <IconAlertTriangle className="text-warning" />
       {t('load-failed')}
     </Button>
@@ -257,7 +264,7 @@ export const ViewTabs = ({
   allLabel: string;
 }) => {
   const { t } = useTranslation('views');
-  const { views, error, retry, current, changed, query } = useViewState(recordType);
+  const { views, error, retry, retrying, current, changed, query } = useViewState(recordType);
   // The open view stays visible even when it is past the first few.
   const visible = views.slice(0, VISIBLE);
 
@@ -280,7 +287,7 @@ export const ViewTabs = ({
         {allLabel}
         {!current && changed && <EditedDot />}
       </TabButton>
-      {error && <ViewsFailed onRetry={retry} />}
+      {error && <ViewsFailed onRetry={retry} retrying={retrying} />}
       {shown.map((view) => (
         <TabButton
           key={view.id}
