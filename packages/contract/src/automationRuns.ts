@@ -217,3 +217,21 @@ export const RunStep = createSelectSchema(automationRunSteps, {
 });
 
 export type RunStep = z.infer<typeof RunStep>;
+
+/** One step of a dry run: what it would do, and what would stop it. */
+export const DryRunStep = z.object({
+  stepId: z.string(),
+  type: z.string(),
+  outcome: z.string(),
+  input: z.unknown().nullable(),
+  problem: z.string().nullable(),
+});
+
+export type DryRunStep = z.infer<typeof DryRunStep>;
+
+/** A dry run: whether the trigger matches, and what each step would do. */
+export const DryRun = z.object({
+  triggerMatches: z.boolean(),
+  goalMetAtStart: z.boolean(),
+  trace: z.array(DryRunStep),
+});

@@ -1,34 +1,7 @@
-import type { CorePermission, coreContract, PluginScope } from '@erxes/core-contract';
+import { ASSISTANT_ACCESS } from './assistantPolicies';
+import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
-
-type Contract = typeof coreContract;
-
-/** Every procedure of the core API: `customers.list`, `plugins.token`, … */
-export type ProcedurePath = {
-  [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}`;
-}[keyof Contract];
-
-/** Which members: any signed-in member, or those whose role has this permission. */
-type MemberRule = 'any' | CorePermission;
-
-/**
- * Who may call a procedure. Nothing is allowed unless written here:
- * `member` for signed-in team members (a permission their role must hold),
- * `plugin` for plugin tokens with that scope (`manifest`: the plugin's own
- * deployment-wide token, no organisation; `installed`: any token for an
- * organisation that has it, no scope needed), `customer` for a signed-in
- * customer on `/customer/*` (`authenticate` lets nobody else in there).
- * Services may check more (a member's own note, an owner's account).
- */
-export type Policy =
-  | { public: true }
-  | { customer: true }
-  | { member?: MemberRule; plugin?: PluginScope | 'manifest' | 'installed' };
-
-const MEMBER = { member: 'any' } as const;
-const PUBLIC = { public: true } as const;
-const needs = <P extends CorePermission>(permission: P) => ({ member: permission }) as const;
 
 /**
  * The access map: one entry per procedure, checked before the procedure runs
@@ -53,6 +26,7 @@ export const ACCESS = {
   'activities.create': { plugin: 'activities:write' },
   'activities.importNote': { plugin: 'activities:write' },
 
+  ...ASSISTANT_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
   'apiKeys.list': MEMBER,
   'apiKeys.create': needs('api_keys.create'),
@@ -283,6 +257,7 @@ export const ACCESS = {
   'automations.get': needs('automations.view'),
   'automations.create': needs('automations.manage'),
   'automations.update': needs('automations.manage'),
+  'automations.check': needs('automations.view'),
   'automations.activate': needs('automations.manage'),
   'automations.pause': needs('automations.manage'),
   'automations.remove': needs('automations.manage'),

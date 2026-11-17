@@ -2,7 +2,8 @@ import type { OpenAPI } from '@orpc/openapi';
 import type { RequestHandler } from 'express';
 import { coreOpenApi, dropUnreferenced } from '~/rpc';
 import { SESSION_COOKIE } from './cookies';
-import { ACCESS, type Policy } from './policies';
+import { ACCESS } from './policies';
+import type { Policy } from './policyRules';
 
 /**
  * Who a reference is for: team members (the session cookie or a member token) or

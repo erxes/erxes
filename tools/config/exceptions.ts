@@ -56,8 +56,8 @@ export const exceptions = [
     rules: { 'typescript/no-unsafe-type-assertion': 'off' },
   },
   {
-    // The one file that writes the value lists out.
-    files: ['packages/db/src/enums.ts'],
+    // The files that write the value lists out.
+    files: ['packages/db/src/enums.ts', 'packages/db/src/assistantEnums.ts'],
     rules: { 'core/no-inline-enum': 'off' },
   },
   {

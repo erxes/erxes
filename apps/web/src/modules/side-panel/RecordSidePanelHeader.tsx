@@ -4,15 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Button, cn, PanelExpansionContext, usePageHotkey } from 'erxes-ui';
 import type { RecordSidePanelHeaderProps } from './recordSidePanelTypes';
 
-/** Whether the button sits in the topmost panel, shown. */
+/** Whether the button is the last expand button shown, the topmost panel's. */
 const isActivePanel = (button: HTMLButtonElement | null) => {
-  const panels = document.querySelectorAll('[data-record-side-panel]');
-
-  return (
-    !!button &&
-    !button.closest('[hidden], [inert]') &&
-    button.closest('[data-record-side-panel]') === panels[panels.length - 1]
+  const shown = [...document.querySelectorAll('[data-panel-expand]')].filter(
+    (expand) => !expand.closest('[hidden], [inert]'),
   );
+
+  return !!button && shown.at(-1) === button;
 };
 
 /** Ctrl/⌘ + Shift + Enter expands the topmost panel unless an editor or dialog owns the key. */
@@ -72,6 +70,7 @@ export const RecordSidePanelHeader = ({
       {expand && (
         <Button
           ref={expandButtonRef}
+          data-panel-expand
           variant="ghost"
           size="icon"
           className="size-7"

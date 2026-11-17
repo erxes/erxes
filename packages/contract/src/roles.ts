@@ -84,6 +84,12 @@ export const CORE_PERMISSIONS = [
     group: 'Products',
     label: 'Add, edit and archive products and categories',
   },
+  { action: 'assistant.chat', group: 'Assistant', label: 'Chat with the assistant' },
+  {
+    action: 'assistant.manage',
+    group: 'Assistant',
+    label: 'Choose when the assistant asks before acting',
+  },
   {
     action: 'broadcasts.view',
     group: 'Broadcasts',

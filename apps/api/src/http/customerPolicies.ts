@@ -1,5 +1,4 @@
-const PUBLIC = { public: true } as const;
-const CUSTOMER = { customer: true } as const;
+import { CUSTOMER, PUBLIC } from './policyRules';
 
 /** The customer side of the access map: their sign-in, account and notifications. */
 export const CUSTOMER_ACCESS = {

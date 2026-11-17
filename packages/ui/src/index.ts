@@ -121,6 +121,8 @@ export { useConfirm } from './hooks/use-confirm';
 
 export { useItemKeys } from './hooks/use-item-keys';
 
+export { useMediaQuery } from './hooks/use-media-query';
+
 export { usePageHotkey } from './hooks/use-page-hotkey';
 
 export { useFocusFirstField } from './hooks/use-focus-first-field';
@@ -294,6 +296,8 @@ export {
 } from './modules/records/ContactPicker';
 
 export { MEMBER_CONTENT_TYPE, MemberLink } from './modules/records/MemberLink';
+
+export { RecordChip } from './modules/records/RecordChip';
 
 export {
   type CompanyContact,

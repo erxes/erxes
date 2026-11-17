@@ -40,6 +40,11 @@ export const useLiveUpdates = () => {
       if (message.event === 'resync') {
         void client.invalidateQueries({ queryKey: orpc.activities.key() });
       }
+
+      if (message.event === 'assistant' || message.event === 'resync') {
+        void client.invalidateQueries({ queryKey: orpc.assistant.threads.key() });
+        void client.invalidateQueries({ queryKey: orpc.assistant.thread.key() });
+      }
     });
 
     return () => {

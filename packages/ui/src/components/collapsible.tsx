@@ -5,7 +5,10 @@ import { IconCaretDownFilled } from '@tabler/icons-react';
 
 const TriggerIcon = ({ className, ...props }: React.ComponentProps<typeof IconCaretDownFilled>) => (
   <IconCaretDownFilled
-    className={cn('transition-transform duration-100 group-data-closed:-rotate-90', className)}
+    className={cn(
+      '-rotate-90 transition-transform duration-100 in-data-panel-open:rotate-0',
+      className,
+    )}
     {...props}
   />
 );

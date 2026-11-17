@@ -10,10 +10,11 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
-import { Id, isoDate, listOf } from './common';
+import { httpUrl, Id, isoDate, listOf } from './common';
 import { ActionFields, DataField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
+import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
@@ -36,12 +37,7 @@ export const LiveTopic = z
   .trim()
   .regex(/^[a-z0-9][a-z0-9._:-]{0,99}$/, 'lower case letters, digits and . _ : -');
 
-const HttpsUrl = z
-  .string()
-  .trim()
-  .check(z.url())
-  .max(500)
-  .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
+const HttpsUrl = httpUrl(500);
 
 /**
  * A web origin a customer app runs at: `https://host[:port]`, where
@@ -249,6 +245,7 @@ export const PluginManifest = z.object({
     )
     .max(500)
     .optional(),
+  assistant: PluginAssistant.optional(),
 });
 
 export type PluginManifest = z.infer<typeof PluginManifest>;
@@ -304,6 +301,7 @@ export const TokenResponse = z.object({
  * plugin reading another's (`pluginReadsContract`), and live signals to plugin UIs.
  */
 const {
+  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -318,6 +316,7 @@ const {
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
+  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -351,7 +350,7 @@ export const pluginsContract = {
       method: 'PUT',
       path: '/plugins/manifest',
       summary:
-        "The calling plugin declares its UI, API, scopes, permissions, events and jobs. 400 INVALID_SCHEDULE when a job's cron doesn't parse",
+        "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills and operations. 400 INVALID_SCHEDULE when a job's cron doesn't parse, 400 API_REQUIRED when it declares assistant operations without api",
     })
     .input(PluginManifest)
     .output(

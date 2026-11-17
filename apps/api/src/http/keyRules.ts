@@ -11,7 +11,8 @@ import {
 } from '@erxes/core-contract';
 import type { KeyRules } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
-import { ACCESS, type ProcedurePath } from './policies';
+import { ACCESS } from './policies';
+import type { ProcedurePath } from './policyRules';
 
 type Group = keyof typeof coreContract;
 
@@ -23,6 +24,7 @@ type GroupRule = ApiKeyArea | { lookup: true; writes: ApiKeyArea } | null;
 
 const GROUP_RULES: Record<Group, GroupRule> = {
   activities: 'contacts',
+  assistant: null,
   apiKeys: 'keys',
   automations: 'automations',
   // Entries name customers, and streams send the log out.

@@ -1,6 +1,4 @@
-import type { CorePermission } from '@erxes/core-contract';
-
-const needs = <P extends CorePermission>(permission: P) => ({ member: permission }) as const;
+import { needs } from './policyRules';
 
 /**
  * Payments and eBarimt in the access map (`./policies`): members set them up

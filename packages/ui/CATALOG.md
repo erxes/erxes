@@ -86,6 +86,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type ProductChoice { id, name, code }` A product as a picker shows it.
 - `type ProductSearchQueries { search, byIds }` Where a filter's `product` fields search products and load picked ones.
 - `productTitle(product)` A product's name, with its code when it has one: "iPhone 15 · IP15".
+- `<RecordChip record name avatarUrl loading failed>` A record as a chip: its avatar and name.
 - `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
 - `type RecordPageProps { listPath }` A `RecordPage`'s record, and the list it goes back to.
@@ -275,6 +276,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useFocusFirstField(ref)` Puts the cursor in the first field under `ref` when the form opens.
 - `useFormat()` Date, number and money formatters in the UI's language, for components.
 - `useItemKeys(length)` Stable React keys for an editable list whose items have no id.
+- `useMediaQuery(query)` Whether a CSS media query matches now, right from the first render.
 - `useMoney()` `formatMoney` in the UI's language.
 - `usePageHotkey(keys, action, { when, useKey })` A page shortcut, skipped while typing or while a dialog or menu is open.
 - `usePreviousHotkeyScope()` Sets a hotkey scope and remembers the old one to go back to.

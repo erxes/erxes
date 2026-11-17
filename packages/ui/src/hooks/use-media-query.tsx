@@ -3,7 +3,7 @@ import { useCallback, useSyncExternalStore } from 'react';
 const canMatchMedia = (): boolean =>
   typeof window !== 'undefined' && typeof window.matchMedia === 'function';
 
-// Read synchronously so the first render already matches the viewport.
+/** Whether a CSS media query matches now, right from the first render. */
 export function useMediaQuery(query: string): boolean {
   const subscribe = useCallback(
     (onChange: () => void) => {

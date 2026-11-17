@@ -97,6 +97,8 @@ export interface OutboundRequest {
   timeoutMs?: number;
   /** The body read at most; the rest is dropped. */
   maxBytes?: number;
+  /** `fail` rejects an answer longer than `maxBytes` instead of cutting it. */
+  overflow?: 'cut' | 'fail';
 }
 
 export interface OutboundAnswer {
@@ -118,7 +120,7 @@ export const requestOutbound = async (raw: string, request: OutboundRequest) => 
     );
   }
 
-  const { method, body, headers, timeoutMs = 10_000, maxBytes = 2048 } = request;
+  const { method, body, headers, timeoutMs = 10_000, maxBytes = 2048, overflow = 'cut' } = request;
   const url = assertOutboundUrl(raw);
   const started = Date.now();
   const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
@@ -143,6 +145,10 @@ export const requestOutbound = async (raw: string, request: OutboundRequest) => 
         res.on('data', (chunk: Buffer) => {
           if (size < maxBytes) chunks.push(chunk);
           size += chunk.length;
+
+          if (size > maxBytes && overflow === 'fail') {
+            res.destroy(new OutboundError(`the answer is over ${maxBytes} bytes`));
+          }
         });
         res.on('end', () =>
           resolve({
@@ -179,3 +185,29 @@ export const postOutbound = async (
     ms: answer.ms,
   };
 };
+
+const headersOf = (incoming: IncomingHttpHeaders) => {
+  const headers = new Headers();
+
+  for (const [name, value] of Object.entries(incoming)) {
+    for (const item of [value ?? []].flat()) headers.append(name, item);
+  }
+
+  return headers;
+};
+
+export const outboundFetch =
+  (options: { timeoutMs: number; maxBytes: number }) => async (request: Request) => {
+    const answer = await requestOutbound(request.url, {
+      method: request.method,
+      body: await request.text(),
+      headers: Object.fromEntries(request.headers),
+      ...options,
+      overflow: 'fail',
+    });
+
+    return new Response(answer.status === 204 ? null : new Uint8Array(answer.body), {
+      status: answer.status,
+      headers: headersOf(answer.headers),
+    });
+  };

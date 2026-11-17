@@ -56,6 +56,10 @@ export const uploadFile = async (
   return orpc.files.complete.call({ id: pending.id });
 };
 
+/** A core file's stable address, for links and `<img src>` (it redirects to the stored bytes). */
+export const fileDownloadUrl = (id: string) =>
+  `${CORE_API_PREFIX}/files/${encodeURIComponent(id)}/download`;
+
 const FILE_URL = new RegExp(`^${CORE_API_PREFIX}/files/([^/?#]+)/download`);
 
 /** The file id in a stored address (`/core/v1/files/<id>/download`). */

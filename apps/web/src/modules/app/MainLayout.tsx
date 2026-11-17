@@ -3,6 +3,7 @@ import { type PropsWithChildren, Suspense } from 'react';
 import { PageOutlet } from '~/components/CrashBoundary';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { useLiveUpdates } from '~/lib/live';
+import { AssistantHost } from '~/modules/assistant/AssistantHost';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
@@ -55,6 +56,7 @@ export const MainLayout = () => {
             </PageProviders>
           </main>
           <SidePanelLayout />
+          <AssistantHost />
         </div>
       </div>
       <PageProviders>

@@ -119,6 +119,7 @@ describe('LiveClient (one stream per browser)', () => {
 
     source.emit('hello', { mode: 'live' });
     source.emit('timeline', { targets: [{ targetType: 'customer', targetId: 'c1' }] });
+    source.emit('assistant');
     await tick();
 
     expect(leader.getMode()).toBe('live');
@@ -126,6 +127,7 @@ describe('LiveClient (one stream per browser)', () => {
     expect(seen).toEqual([
       { event: 'resync' },
       { event: 'timeline', data: { targets: [{ targetType: 'customer', targetId: 'c1' }] } },
+      { event: 'assistant' },
     ]);
 
     leader.stop();

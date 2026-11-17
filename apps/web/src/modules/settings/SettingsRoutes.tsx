@@ -9,7 +9,6 @@ import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
 import { GeneralSettingsPage } from './general/GeneralSettingsPage';
 import { NotificationSettingsPage } from './notifications/NotificationSettingsPage';
 import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
-import { PluginPropertiesSettings } from './properties/PluginPropertiesSettings';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
 import { PlanPage } from './plan/PlanPage';
@@ -18,6 +17,31 @@ import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 import { SecuritySettingsPage } from './profile/SecuritySettingsPage';
 import { SettingsLayout } from './SettingsLayout';
 import { TeamMemberSettingsRoutes } from './team-members/TeamMemberSettingsRoutes';
+
+const PluginPropertiesSettings = lazyNamed(
+  () => import('./properties/PluginPropertiesSettings'),
+  'PluginPropertiesSettings',
+);
+
+const AssistantKeysPage = lazyNamed(
+  () => import('./assistant/AssistantKeysPage'),
+  'AssistantKeysPage',
+);
+
+const AssistantApprovalsPage = lazyNamed(
+  () => import('./assistant/AssistantApprovalsPage'),
+  'AssistantApprovalsPage',
+);
+
+const AssistantCodeModePage = lazyNamed(
+  () => import('./assistant/AssistantCodeModePage'),
+  'AssistantCodeModePage',
+);
+
+const AssistantAppearancePage = lazyNamed(
+  () => import('./assistant/AssistantAppearancePage'),
+  'AssistantAppearancePage',
+);
 
 // Fetched on first visit: few members open these, so they stay out of settings' chunk.
 const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
@@ -80,6 +104,10 @@ export const SettingsRoutes = () => (
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />
+      <Route path="assistant" element={<AssistantKeysPage />} />
+      <Route path="assistant-approvals" element={<AssistantApprovalsPage />} />
+      <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
+      <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
       <Route path="properties/*" element={<PluginPropertiesSettings />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>

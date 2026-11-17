@@ -1,0 +1,106 @@
+// @vitest-environment happy-dom
+import type { UIMessage } from 'ai';
+import { act, createElement } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { I18nextProvider } from 'react-i18next';
+import { afterEach, beforeAll, describe, expect, it } from 'vite-plus/test';
+import { i18n, i18nReady } from '~/i18n';
+import { StepsGroup } from '../Steps';
+import { transcriptRows } from '../transcriptRows';
+
+type Part = UIMessage['parts'][number];
+
+let root: Root | null = null;
+
+beforeAll(async () => {
+  Reflect.set(globalThis, 'IS_REACT_ACT_ENVIRONMENT', true);
+  await i18nReady;
+  await i18n.loadNamespaces('assistant');
+});
+
+afterEach(() => {
+  act(() => root?.unmount());
+  root = null;
+  document.body.innerHTML = '';
+});
+
+const search = (id: string, query: string): Part => ({
+  type: 'tool-searchApi',
+  toolCallId: id,
+  state: 'output-available',
+  input: { query },
+  output: { procedures: [] },
+});
+
+const call = (id: string, title: string) => ({
+  type: 'tool-callApi' as const,
+  toolCallId: id,
+  state: 'output-available' as const,
+  input: { procedure: 'customers.update', input: { id: 'c1' }, title },
+  output: { ok: true, result: {} },
+});
+
+const approved = (id: string, title: string): Part => ({
+  ...call(id, title),
+  approval: { id: `a-${id}`, approved: true },
+});
+
+const render = (parts: Part[], live = false) => {
+  const row = transcriptRows(parts).find((item) => item.kind === 'steps');
+
+  if (row?.kind !== 'steps') throw new Error('no steps row');
+
+  const container = document.createElement('div');
+
+  document.body.append(container);
+  root = createRoot(container);
+  const steps = createElement(StepsGroup, { steps: row.steps, live });
+
+  act(() => root?.render(createElement(I18nextProvider, { i18n }, steps)));
+
+  const button = (name: string) => {
+    const found = [...container.querySelectorAll('button')].find((item) =>
+      item.textContent?.includes(name),
+    );
+
+    if (!found) throw new Error(`no button ${name}`);
+
+    return found;
+  };
+
+  return { container, open: (name: string) => act(() => button(name).click()) };
+};
+
+describe('the steps a reply took', () => {
+  it('reads as plain actions: lookups folded into one row, changes by what they did', () => {
+    const view = render([
+      search('s1', 'customers.update tags.list'),
+      search('s2', '+customers.update'),
+      search('s3', 'tags list search'),
+      call('c1', 'Find the VIP tag'),
+      approved('c2', 'Tag Anna Keller VIP'),
+    ]);
+
+    view.open('5 steps');
+
+    const text = view.container.textContent;
+
+    expect(text).toContain('Looked up how to do it');
+    expect(text).toContain('3 searches');
+    expect(text).toContain('Find the VIP tag');
+    expect(text).toContain('Tag Anna Keller VIP');
+    expect(text).toContain('Approved');
+    expect(text).not.toContain('+customers.update');
+
+    view.open('Looked up how to do it');
+
+    expect(view.container.textContent).toContain('+customers.update');
+  });
+
+  it('says it is still working between steps instead of counting them', () => {
+    const view = render([search('s1', 'deals'), call('c1', 'List open deals')], true);
+
+    expect(view.container.textContent).toContain('Working on it…');
+    expect(view.container.textContent).not.toContain('2 steps');
+  });
+});

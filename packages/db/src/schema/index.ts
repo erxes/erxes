@@ -54,6 +54,8 @@ export * from './customerNotifications';
 
 export * from './rateLimits';
 
+export * from './assistant';
+
 export * from './orgUnits';
 
 export * from './apiKeys';

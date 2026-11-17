@@ -15,6 +15,7 @@ import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '~/lib/paths';
+import { AskAssistantGroup } from '~/modules/assistant/AskAssistantGroup';
 import { useFavorites } from '~/modules/favorites/useFavorites';
 import type { NavApp } from '~/modules/navigation/apps';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
@@ -213,6 +214,7 @@ export const SearchResults = ({ text, apps, appLabel, onOpenApp, onDone }: Searc
       {plugins.map((source) => (
         <PluginGroup key={`${source.plugin}${source.path}`} source={source} onDone={onDone} />
       ))}
+      <AskAssistantGroup text={text} onDone={onDone} />
       {loading && <Spinner size="sm" className="my-3" />}
       {!loading && q && found + matchingApps.length + matchingFavorites.length === 0 && (
         <Command.Empty>{t('none', 'Nothing matches “{{q}}”', { q })}</Command.Empty>

@@ -1,7 +1,6 @@
 import { paths, propertyPaths } from '~/lib/paths';
 import {
   IconSourceCode,
-  IconKey,
   IconBellCog,
   IconCash,
   IconChevronLeft,
@@ -10,10 +9,14 @@ import {
   IconArrowUpRight,
   IconHierarchy2,
   IconLock,
+  IconMoodSmile,
   IconPlugConnected,
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
+  IconShieldQuestion,
+  IconCode,
+  IconKey,
   IconTrash,
   IconCreditCard,
   IconUserCircle,
@@ -172,6 +175,42 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
   ];
 };
 
+const useSettingsAssistantPaths = (): SettingsPath[] => {
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const can = useCan();
+
+  return [
+    ...(can('assistant.chat')
+      ? [
+          {
+            name: t('assistant-keys', 'Provider keys'),
+            to: paths.settings.assistant,
+            icon: IconKey,
+          },
+          {
+            name: t('assistant-appearance', 'Appearance'),
+            to: paths.settings.assistantAppearance,
+            icon: IconMoodSmile,
+          },
+        ]
+      : []),
+    ...(can('assistant.manage')
+      ? [
+          {
+            name: t('assistant-approvals', 'Approvals'),
+            to: paths.settings.assistantApprovals,
+            icon: IconShieldQuestion,
+          },
+          {
+            name: t('assistant-code-mode', 'Code mode'),
+            to: paths.settings.assistantCodeMode,
+            icon: IconCode,
+          },
+        ]
+      : []),
+  ];
+};
+
 /**
  * One link per plugin the member may use that has settings: to its first settings page, which
  * the plugin draws in its own layout, else to the properties of its first record type.
@@ -207,12 +246,13 @@ function PluginSettingsLinks() {
   );
 }
 
-/** Exit, the member's own account first, then the workspace settings, then links to the plugins'. */
+/** Exit, the member's own account first, then the workspace settings, the assistant's, then links to the plugins'. */
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
   const developer = useSettingsDeveloperPaths();
   const account = useSettingsAccountPaths();
+  const assistant = useSettingsAssistantPaths();
 
   return (
     <>
@@ -230,6 +270,11 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name={t('developer', 'Developer')}>
           {developer.map((item) => (
+            <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
+          ))}
+        </SettingsNavigationGroup>
+        <SettingsNavigationGroup name={t('assistant', 'Assistant')}>
+          {assistant.map((item) => (
             <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>

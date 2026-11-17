@@ -31,6 +31,7 @@ const liveMessage = z.discriminatedUnion('event', [
   z.object({ event: z.literal('inbox') }),
   z.object({ event: z.literal('timeline'), data: timeline }),
   z.object({ event: z.literal('plugin'), data: plugin }),
+  z.object({ event: z.literal('assistant') }),
   z.object({ event: z.literal('resync') }),
 ]);
 
@@ -218,6 +219,7 @@ export class LiveClient {
 
       if (data) this.deliver({ event: 'plugin', data }, true);
     });
+    source.addEventListener('assistant', () => this.deliver({ event: 'assistant' }, true));
     source.addEventListener('resync', () => this.deliver({ event: 'resync' }, true));
     source.addEventListener('bye', () => {
       // The session ended; the app's own 401 handling takes it from here.

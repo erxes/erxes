@@ -95,7 +95,7 @@ export const PropertiesArchivedSection = ({
   }
 
   return (
-    <Collapsible className="group">
+    <Collapsible>
       <div className="flex items-center gap-1">
         <span className="size-7 shrink-0" />
         <Collapsible.Trigger

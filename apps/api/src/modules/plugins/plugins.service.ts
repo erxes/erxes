@@ -348,6 +348,10 @@ export const registerManifest = async (manifest: PluginManifest) => {
     'Event types',
   );
 
+  if (manifest.assistant?.operations.length && !manifest.api) {
+    throw fail('API_REQUIRED', 'Assistant operations are called at api.url: add api');
+  }
+
   ownRelations(plugin, manifest);
   othersReads(plugin, manifest);
 

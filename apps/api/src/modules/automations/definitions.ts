@@ -291,7 +291,7 @@ const conditionProblems = async (
  * customer when the event isn't about one, delays without a length, repeated
  * step ids.
  */
-export const checkDefinition = async (client: Db, definition: AutomationDefinition) => {
+export const definitionProblems = async (client: Db, definition: AutomationDefinition) => {
   const catalog = await automationCatalog(client);
   const subject = subjectOfTrigger(definition, catalog.triggers);
   const problems = await triggerProblems(client, definition, catalog);
@@ -305,6 +305,11 @@ export const checkDefinition = async (client: Db, definition: AutomationDefiniti
   problems.push(...templateProblems(definition));
   problems.push(...(await conditionProblems(client, definition, subject)));
 
+  return problems;
+};
+
+export const checkDefinition = async (client: Db, definition: AutomationDefinition) => {
+  const problems = await definitionProblems(client, definition);
   const [first] = problems;
 
   if (first) throw fail('INVALID_AUTOMATION', first, { problems });

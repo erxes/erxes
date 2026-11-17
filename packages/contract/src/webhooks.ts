@@ -4,7 +4,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
+import { CursorQuery, cursorPageOf, httpUrl, Id, isoDate, listOf } from './common';
 import {
   type CoreEventType,
   EventTypeInfo,
@@ -191,12 +191,7 @@ export const EventPattern = z
     'an event type, a prefix ending in .*, or *',
   );
 
-const WebhookUrl = z
-  .string()
-  .trim()
-  .check(z.url())
-  .max(2000)
-  .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
+const WebhookUrl = httpUrl(2000);
 
 const int = () => z.int();
 

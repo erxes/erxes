@@ -107,7 +107,7 @@ const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps)
   );
 
   return (
-    <Collapsible className="group" open={open} onOpenChange={setToggled}>
+    <Collapsible open={open} onOpenChange={setToggled}>
       <div className="relative flex items-center gap-1">
         {handle ?? <span className="size-7 shrink-0" />}
         <Collapsible.Trigger

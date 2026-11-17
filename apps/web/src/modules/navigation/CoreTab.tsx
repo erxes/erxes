@@ -2,6 +2,7 @@ import { paths } from '~/lib/paths';
 import { IconSettings } from '@tabler/icons-react';
 import { Button, cn, Tooltip, buttonVariants } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { AssistantButton } from '~/modules/assistant/AssistantButton';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { FavoriteStar } from '~/modules/favorites/FavoriteStar';
 import { NotificationsBell } from '~/modules/notifications/NotificationsBell';
@@ -52,6 +53,7 @@ export const CoreTab = () => {
         <div className="flex shrink-0 items-center gap-0.5">
           <FavoriteStar appLabel={routeApp && appLabel(routeApp)} />
           <GlobalSearch apps={[...apps, SETTINGS_APP]} appLabel={appLabel} onOpenApp={open} />
+          <AssistantButton />
           <NotificationsBell />
           <CoreTabTooltip label={settingsLabel}>
             <Button

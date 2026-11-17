@@ -137,6 +137,15 @@ export interface StoredPluginManifest {
     }[];
     outputs?: StoredDataField[];
   }[];
+  assistant?: {
+    skills: { name: string; description: string; instructions: string }[];
+    operations: {
+      name: string;
+      summary: string;
+      changes: boolean;
+      input?: Record<string, unknown>;
+    }[];
+  };
 }
 
 /**

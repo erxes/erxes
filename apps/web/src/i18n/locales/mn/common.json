@@ -48,6 +48,8 @@
     "plugin-settings-title": "{{name}} тохиргоо",
     "resize-sidebar": "Хажуугийн самбарын өргөнийг өөрчлөх",
     "assistant": "Туслах",
+    "assistant-shortcut": "Туслах (Ctrl+J)",
+    "assistant-unread": "Шинэ хариулт",
     "back": "Буцах",
     "open-app": "Апп нээх",
     "apps": {
@@ -125,6 +127,11 @@
     "lead-stages": "Үе шатууд",
     "settings": "Тохиргоо",
     "contacts-settings": "Харилцагчийн тохиргоо",
+    "assistant": "Туслах",
+    "assistant-keys": "Түлхүүрүүд",
+    "assistant-approvals": "Зөвшөөрөл",
+    "assistant-code-mode": "Код горим",
+    "assistant-appearance": "Төрх",
     "integrations": "Холболтууд"
   },
   "auth": {

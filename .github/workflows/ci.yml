@@ -164,7 +164,7 @@ jobs:
             echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
           } > deploy/.env
           compose=(docker compose -f deploy/docker-compose.yml --env-file deploy/.env)
-          "${compose[@]}" up -d > "$RUNNER_TEMP/flows-up.log" 2>&1 &
+          "${compose[@]}" -f e2e/docker-compose.e2e.yml up -d > "$RUNNER_TEMP/flows-up.log" 2>&1 &
           flows=$!
           UI_PORT=8081 APP_URL=http://localhost:8081 "${compose[@]}" -p erxes-smoke up -d > "$RUNNER_TEMP/smoke-up.log" 2>&1 &
           smoke=$!

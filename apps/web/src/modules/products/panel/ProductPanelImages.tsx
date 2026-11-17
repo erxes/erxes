@@ -3,8 +3,7 @@ import { IconPackage, IconPhotoPlus, IconStar, IconX } from '@tabler/icons-react
 import { Badge, Button, cn, Spinner, useToast } from 'erxes-ui';
 import { type ChangeEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { uploadErrorMessage, uploadFile } from '~/lib/files';
-import { fileUrl } from '../productImages';
+import { fileDownloadUrl, uploadErrorMessage, uploadFile } from '~/lib/files';
 import { useCanManageProducts } from '../useProducts';
 import { useProductEdit } from './useProductEdit';
 
@@ -14,7 +13,7 @@ export const ProductAvatar = ({ product, className }: { product: Product; classN
 
   return main ? (
     <img
-      src={fileUrl(main)}
+      src={fileDownloadUrl(main)}
       alt=""
       className={cn('size-7 flex-none rounded object-cover', className)}
     />
@@ -47,7 +46,7 @@ const Thumbnail = ({
 
   return (
     <div className="group relative size-20 overflow-hidden rounded-md border bg-muted">
-      <img src={fileUrl(id)} alt="" className="size-full object-cover" />
+      <img src={fileDownloadUrl(id)} alt="" className="size-full object-cover" />
       {main && (
         <Badge variant="secondary" size="sm" className="absolute bottom-1 left-1 h-5">
           {t('images.main', 'Main')}

@@ -11,7 +11,11 @@ import {
   restoreVersion,
   updateAutomation,
 } from '~/modules/automations/automations.service';
-import { automationCatalog, automationFields } from '~/modules/automations/definitions';
+import {
+  automationCatalog,
+  automationFields,
+  definitionProblems,
+} from '~/modules/automations/definitions';
 import { testAutomation } from '~/modules/automations/dryRun';
 import {
   automationStats,
@@ -31,6 +35,9 @@ export const automationsRouter = {
   update: scoped.automations.update.handler(({ input: { id, ...changes } }) =>
     updateAutomation(db(), id, changes),
   ),
+  check: scoped.automations.check.handler(async ({ input }) => ({
+    problems: await definitionProblems(db(), input.definition),
+  })),
   activate: scoped.automations.activate.handler(({ input }) => activateAutomation(db(), input.id)),
   pause: scoped.automations.pause.handler(({ input }) => pauseAutomation(db(), input.id)),
   remove: scoped.automations.remove.handler(({ input }) => removeAutomation(db(), input.id)),

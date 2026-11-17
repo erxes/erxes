@@ -157,6 +157,7 @@ value PhoneInput
 value Popover
 value PopoverScoped
 value RadioGroup
+value RecordChip
 value RecordList
 value RecordOpenerProvider
 value RecordPage
@@ -241,6 +242,7 @@ value useListDisplay
 value useListFilterParams
 value useListViews
 value useLiveSignal
+value useMediaQuery
 value useMemberOptions
 value useMembersById
 value useMoney
