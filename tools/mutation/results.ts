@@ -54,7 +54,10 @@ export type Mutant = {
   status: Status;
   reason: string;
   testFiles: string[];
+  tests: string[];
 };
+
+export type Test = { id: string; file: string; name: string; line: number; source: string[] };
 
 /** Each shard's files, from plan.ts's matrix: `[{ shard, files: 'a.ts,b.ts' }]`. */
 export const plannedFiles = (matrix: string) => {
@@ -202,12 +205,25 @@ const areaOf = (file: string) => {
   return parts.slice(0, Math.min(src + 2, parts.length - 1)).join('/');
 };
 
-/** Every mutant in a merged report, with the test files that ran over it. */
-export const mutantsOf = (report: Json) => {
-  const fileOfTest = new Map<string, string>();
+/** Every test in a merged report by id, with where it starts and its file's source. */
+export const testsOf = (report: Json) =>
+  new Map(
+    Object.entries(json(report.testFiles)).flatMap(([file, entry]) => {
+      const source = text(json(entry).source).split('\n');
 
-  for (const [path, entry] of Object.entries(json(report.testFiles)))
-    for (const test of list(json(entry).tests)) fileOfTest.set(text(json(test).id), path);
+      return list(json(entry).tests).map((raw): [string, Test] => {
+        const test = json(raw);
+        const id = text(test.id);
+        const line = count(json(json(test.location).start).line);
+
+        return [id, { id, file, name: text(test.name), line, source }];
+      });
+    }),
+  );
+
+/** Every mutant in a merged report, with the tests and test files that ran over it. */
+export const mutantsOf = (report: Json) => {
+  const tests = testsOf(report);
 
   return Object.entries(json(report.files)).flatMap(([file, entry]) => {
     const source = text(json(entry).source).split('\n');
@@ -216,7 +232,8 @@ export const mutantsOf = (report: Json) => {
       const mutant = json(raw);
       const status = text(mutant.status);
       const { start, end } = json(mutant.location);
-      const tests = list(mutant.coveredBy).map((id) => fileOfTest.get(text(id)) ?? '');
+      const covering = list(mutant.coveredBy).map((id) => text(id));
+      const files = covering.map((id) => tests.get(id)?.file ?? '');
 
       if (!isStatus(status)) return [];
 
@@ -230,7 +247,8 @@ export const mutantsOf = (report: Json) => {
           replacement: text(mutant.replacement),
           status,
           reason: text(mutant.statusReason),
-          testFiles: [...new Set(tests.filter(Boolean))].toSorted((a, b) => a.localeCompare(b)),
+          testFiles: [...new Set(files.filter(Boolean))].toSorted((a, b) => a.localeCompare(b)),
+          tests: covering,
         },
       ];
     });
@@ -245,7 +263,8 @@ export const mutantsOf = (report: Json) => {
 const BROKEN_SETUP =
   /ECONNREFUSED|ECONNRESET|too many clients|terminating connection|Connection terminated|database "[^"]+" does not exist|Hook timed out|hookTimeout|getaddrinfo/i;
 
-const unsure = (mutant: Mutant) => mutant.status === 'Killed' && BROKEN_SETUP.test(mutant.reason);
+export const unsure = (mutant: Mutant) =>
+  mutant.status === 'Killed' && BROKEN_SETUP.test(mutant.reason);
 
 /** The report to keep for the next run, without unsure kills, so those mutants run again. */
 export const withoutUnsure = (report: Json) => ({
