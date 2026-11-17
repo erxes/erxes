@@ -1,4 +1,5 @@
 import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginateList } from '@/cms/utils/pagination';
 import { IContext, IModels } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
 
@@ -150,18 +151,20 @@ export class BaseQueryResolver {
     args: BaseQueryArgs,
     fieldMappings: Record<string, string>,
     translationType = 'post',
-  ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
+    { withTotalCount = true }: { withTotalCount?: boolean } = {},
+  ): Promise<{ list: T[]; totalCount: number | null; pageInfo: any }> {
     const params = { ...args };
     if (args.sortField && !args.orderBy) {
       const sortOrder: SortOrder = args.sortDirection === 'asc' ? 1 : -1;
       params.orderBy = { [args.sortField]: sortOrder };
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<any>({
-      model,
-      params,
-      query,
-    });
+    const { list, totalCount, pageInfo } = withTotalCount
+      ? await cursorPaginate<any>({ model, params, query })
+      : {
+          ...(await cursorPaginateList<any>({ model, params, query })),
+          totalCount: null,
+        };
 
     if (!args.language) {
       return { list, totalCount, pageInfo };

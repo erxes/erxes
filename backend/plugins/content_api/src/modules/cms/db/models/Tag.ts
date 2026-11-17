@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { IPostTag, IPostTagDocument } from '@/cms/@types/posts';
 import { postTagSchema } from '@/cms/db/definitions/posts';
 import { IModels } from '~/connectionResolvers';
+import { ensureCmsSlugIndexes } from '@/cms/db/ensureSlugIndexes';
 import {
   createSlug,
   generateUniqueSlug,
@@ -20,6 +21,7 @@ export interface IPostTagModel extends Model<IPostTagDocument> {
 export const loadPostTagClass = (models: IModels) => {
   class PostTags {
     public static createTag = async (data: IPostTag) => {
+      await ensureCmsSlugIndexes(models);
       const baseSlug = createSlug(data.slug || data.name);
 
       // Generate unique slug
@@ -52,6 +54,7 @@ export const loadPostTagClass = (models: IModels) => {
     };
 
     public static updateTag = async (id: string, data: IPostTag) => {
+      await ensureCmsSlugIndexes(models);
       if (data.name) {
         const baseSlug = createSlug(data.name);
         // Generate unique slug excluding current document
