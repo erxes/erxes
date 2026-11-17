@@ -15,6 +15,8 @@ export const ERRORS = {
   // Who may call (http/access.ts) and the organisation's standing.
   UNAUTHORIZED: { status: 401 },
   NOT_ALLOWED: { status: 403, data: z.object({ permission: z.string() }).optional() },
+  // An API key's rules refuse the call; `rule` names the one that decided.
+  KEY_NOT_ALLOWED: { status: 403, data: z.object({ rule: z.string() }) },
   PLUGIN_ONLY: { status: 403 },
   MEMBERS_ONLY: { status: 403 },
   ORG_REQUIRED: { status: 403 },
@@ -218,6 +220,7 @@ export type ErrorCode = keyof typeof ERRORS;
 const {
   UNAUTHORIZED,
   NOT_ALLOWED,
+  KEY_NOT_ALLOWED,
   PLUGIN_ONLY,
   MEMBERS_ONLY,
   ORG_REQUIRED,
@@ -240,6 +243,7 @@ const {
 export const COMMON_ERRORS = {
   UNAUTHORIZED,
   NOT_ALLOWED,
+  KEY_NOT_ALLOWED,
   PLUGIN_ONLY,
   MEMBERS_ONLY,
   ORG_REQUIRED,

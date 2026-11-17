@@ -1,10 +1,11 @@
 import type { CorePermission, coreContract, PluginScope } from '@erxes/core-contract';
+import { CUSTOMER_ACCESS } from './customerPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
 
 type Contract = typeof coreContract;
 
 /** Every procedure of the core API: `customers.list`, `plugins.token`, … */
-type ProcedurePath = {
+export type ProcedurePath = {
   [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}`;
 }[keyof Contract];
 
@@ -27,7 +28,6 @@ export type Policy =
 
 const MEMBER = { member: 'any' } as const;
 const PUBLIC = { public: true } as const;
-const CUSTOMER = { customer: true } as const;
 const needs = <P extends CorePermission>(permission: P) => ({ member: permission }) as const;
 
 /**
@@ -56,7 +56,10 @@ export const ACCESS = {
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
   'apiKeys.list': MEMBER,
   'apiKeys.create': needs('api_keys.create'),
+  'apiKeys.update': needs('api_keys.create'),
   'apiKeys.remove': MEMBER,
+  'apiKeys.calls': MEMBER,
+  'apiKeys.try': MEMBER,
 
   'audit.list': needs('audit.view'),
   'audit.record': { plugin: 'audit:write' },
@@ -115,25 +118,7 @@ export const ACCESS = {
   'auth.changePassword': MEMBER,
   'auth.signIns': MEMBER,
 
-  'customerAuth.sendCode': PUBLIC,
-  'customerAuth.signIn': PUBLIC,
-  'customerAuth.refresh': PUBLIC,
-  'customerAuth.signOut': PUBLIC,
-
-  'customerAccount.me': CUSTOMER,
-  'customerAccount.update': CUSTOMER,
-  'customerAccount.logins': CUSTOMER,
-  'customerAccount.addLogin': CUSTOMER,
-  'customerAccount.confirmLogin': CUSTOMER,
-  'customerAccount.removeLogin': CUSTOMER,
-  'customerAccount.sessions': CUSTOMER,
-  'customerAccount.revokeSession': CUSTOMER,
-  'customerAccount.signOutEverywhere': CUSTOMER,
-
-  'customerNotifications.create': { plugin: 'notifications:write' },
-  'customerNotifications.list': CUSTOMER,
-  'customerNotifications.unreadCount': CUSTOMER,
-  'customerNotifications.markRead': CUSTOMER,
+  ...CUSTOMER_ACCESS,
 
   'companies.list': { member: 'contacts.view', plugin: 'customers:read' },
   'companies.get': { member: 'contacts.view', plugin: 'customers:read' },

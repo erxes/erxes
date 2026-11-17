@@ -2,14 +2,17 @@ import { useState, type ClipboardEvent, type KeyboardEvent } from 'react';
 import { Badge } from './badge';
 
 /**
- * A list of short strings as removable badges. Enter or a comma adds the typed text,
+ * A list of short strings as removable badges. Enter, a comma or leaving the field adds the typed text,
  * Backspace in the empty input removes the last one, and pasted lines add one each.
  */
 export function StringArrayInput({
+  id,
   value,
   onValueChange,
   placeholder = 'Add a tag',
 }: {
+  /** The text input's id, for a `<Label htmlFor>`. */
+  id?: string;
   value: string[];
   onValueChange: (value: string[]) => void;
   placeholder?: string;
@@ -55,11 +58,13 @@ export function StringArrayInput({
         </Badge>
       ))}
       <input
+        id={id}
         value={draft}
         placeholder={placeholder}
         onChange={(event) => setDraft(event.target.value)}
         onKeyDown={onKeyDown}
         onPaste={onPaste}
+        onBlur={() => add([draft])}
         className="h-7 min-w-20 flex-1 bg-transparent px-2 text-sm outline-hidden placeholder:text-accent-foreground"
       />
     </div>

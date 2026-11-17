@@ -1,6 +1,28 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { ActorType } from './schema';
+import type { ActorType, ApiKeyActions, ApiKeyAreas, ApiKeyPlugins } from './schema';
 import type { Transaction } from './types';
+
+/**
+ * Which contacts a caller sees and writes, on top of its organisation: those owned by one of
+ * `owners`, those with one of `tags`; null for no limit. Row level security applies it
+ * (`app.key_owners`, `app.key_tags`, drizzle/0080_api_key_rules.sql), so every query obeys it.
+ */
+export interface RowLimits {
+  owners: readonly string[] | null;
+  tags: readonly string[] | null;
+}
+
+/** A regular or management API key: the areas it opens (`apps/api/src/http/keyRules.ts`). */
+export interface KeyRules {
+  id: string;
+  kind: 'regular' | 'management';
+  areas: ApiKeyAreas;
+  /** The plugins whose APIs it may call (`plugins.session`). */
+  plugins: ApiKeyPlugins;
+  /** Where it uses only some actions, by area or plugin name. */
+  actions: ApiKeyActions;
+  rows: RowLimits;
+}
 
 /**
  * Who is calling: a team member, a plugin, a signed-in customer, or core
@@ -15,6 +37,8 @@ export type Caller =
       permissions: readonly string[];
       /** Set when the member called with one of their API keys, not a session. */
       apiKeyId?: string;
+      /** Set for a regular or management key: what it may do, besides `permissions`. */
+      key?: KeyRules;
     }
   | { type: 'plugin'; plugin: string; scopes: readonly string[] }
   | { type: 'customer'; customerId: string; sessionId: string; clientId: string }

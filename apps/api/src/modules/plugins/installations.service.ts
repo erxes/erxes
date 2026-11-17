@@ -3,8 +3,9 @@ import { caller, type Db, db, pluginInstallations, plugins, requestOrgId } from 
 import { and, eq, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
-import { can } from '~/http/access';
+import { can, refuseKeyCall } from '~/http/access';
 import { fail } from '~/http/errors';
+import { decidePluginKey } from '~/http/keyRules';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
@@ -150,11 +151,19 @@ export const uninstallPlugin = async (name: string) => {
 /**
  * A member's 5-minute token for one plugin's API: the plugin verifies it with
  * core's public keys (JWKS), never sees core's session cookie, and can't use
- * it anywhere else (`aud` is the plugin).
+ * it anywhere else (`aud` is the plugin). An API key gets one for a plugin it opens, with
+ * its maker's actions there at most; a read-only key's token says `read_only`, so the
+ * plugin refuses changes (`canChange()`).
  */
 export const pluginSession = async (name: string) => {
   const me = caller('user');
   const orgId = requestOrgId();
+
+  if (me.key) {
+    const decision = decidePluginKey(me.key, name);
+
+    if (!decision.allowed) throw await refuseKeyCall(me.key.id, 'plugins.session', decision);
+  }
 
   const plugin = await installedPlugin(db(), name);
 
@@ -162,9 +171,11 @@ export const pluginSession = async (name: string) => {
 
   // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
   const plan = await entitlementsOf(orgId);
-  const access = accessOf(plan, name);
+  const planAccess = accessOf(plan, name);
 
-  if (access === 'off') throw fail('NOT_IN_PLAN', `${name} is not in your plan`);
+  if (planAccess === 'off') throw fail('NOT_IN_PLAN', `${name} is not in your plan`);
+
+  const access = me.key?.plugins[name] === 'read' ? 'read_only' : planAccess;
 
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
   const permissions = (plugin.manifest?.permissions ?? [])

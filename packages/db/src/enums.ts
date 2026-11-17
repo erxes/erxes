@@ -190,6 +190,30 @@ export type DefaultGrantRole = (typeof DEFAULT_GRANT_ROLES)[number];
 
 export const AUTH_TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
 
+/**
+ * What an API key is: `member` acts as its maker with their role now (keys made before
+ * rules); `regular` works with data, `management` with organisation setup, each limited by
+ * its rules.
+ */
+export const API_KEY_KINDS = ['member', 'regular', 'management'] as const;
+
+/** The areas a regular key works with: data. */
+export const API_KEY_DATA_AREAS = [
+  'contacts',
+  'products',
+  'payments',
+  'files',
+  'automations',
+] as const;
+
+/** The areas a management key works with: organisation setup. */
+export const API_KEY_SETUP_AREAS = ['team', 'keys', 'plugins', 'webhooks', 'settings'] as const;
+
+export const API_KEY_AREAS = [...API_KEY_DATA_AREAS, ...API_KEY_SETUP_AREAS] as const;
+
+/** What a key may do in an area. */
+export const API_KEY_ACCESS = ['read', 'write'] as const;
+
 /** The languages core's emails and example data come in. */
 export const LANGUAGES = ['en', 'mn'] as const;
 

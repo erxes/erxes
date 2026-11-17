@@ -582,6 +582,13 @@
       "when": 1794876996798,
       "tag": "0082_email_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1794904039146,
+      "tag": "0083_api_key_rules",
+      "breakpoints": true
     }
   ]
 }

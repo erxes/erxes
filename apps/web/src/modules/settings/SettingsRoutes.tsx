@@ -28,6 +28,7 @@ const ApiReferencePage = lazyNamed(
 );
 
 const ApiKeysPage = lazyNamed(() => import('./developer/ApiKeysPage'), 'ApiKeysPage');
+const KeyEditorPage = lazyNamed(() => import('./developer/keys/KeyEditorPage'), 'KeyEditorPage');
 
 const PaymentsSettingsPage = lazyNamed(
   () => import('./payments/PaymentsSettingsPage'),
@@ -65,6 +66,8 @@ export const SettingsRoutes = () => (
       <Route path="event-delivery" element={<EventDeliveryPage />} />
       <Route path="api-reference/:api?/:audience?" element={<ApiReferencePage />} />
       <Route path="api-keys" element={<ApiKeysPage />} />
+      <Route path="api-keys/new" element={<KeyEditorPage />} />
+      <Route path="api-keys/:id" element={<KeyEditorPage />} />
       <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />
       <Route path="structure" element={<StructurePage />} />

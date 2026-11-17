@@ -1,8 +1,10 @@
 import { coreContract, CORE_API_PREFIX, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
-import { caller, type Caller, scopedOrgId } from '@erxes/core-db';
+import { caller, type Caller, type KeyRules, scopedOrgId, withOrgDetached } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
+import { recordAudit } from '~/modules/audit/audit.service';
 import { fail } from './errors';
-import { ACCESS, type Policy } from './policies';
+import { decideKey, type KeyDecision } from './keyRules';
+import { ACCESS, type Policy, type ProcedurePath } from './policies';
 
 const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
 
@@ -14,7 +16,10 @@ type Member = Extract<Caller, { type: 'user' }>;
  * checks a procedure's permission (`ACCESS`); services call this only for
  * rules that depend on the record (an author's own note, a shared view).
  */
-export const can = (member: Pick<Member, 'role' | 'permissions'>, action: string) => {
+export const can = (member: Pick<Member, 'role' | 'permissions' | 'key'>, action: string) => {
+  // A key's permissions are spelled out (keyCaller): no role, no `*`.
+  if (member.key) return member.permissions.includes(action);
+
   if (member.role === 'owner') return true;
 
   if (OWNER_ONLY.has(action)) return false;
@@ -73,8 +78,77 @@ const checkPlugin = (policy: Policy, scopes: readonly string[]) => {
   }
 };
 
+/**
+ * Records a key's refused call with the rule that decided, in a transaction of its own so
+ * the refusal's rollback keeps it.
+ */
+export const recordKeyDenial = (keyId: string, path: string | null, decision: KeyDecision) => {
+  const orgId = scopedOrgId();
+
+  if (!orgId) return Promise.resolve();
+
+  return withOrgDetached(orgId, (tx) =>
+    recordAudit(tx, {
+      action: 'api_key.denied',
+      targetType: 'api_key',
+      targetId: keyId,
+      metadata: { procedure: path, rule: decision.rule, reason: decision.reason },
+    }),
+  );
+};
+
+/**
+ * May a regular or management key call the procedure? Its rules first (`decideKey`), then
+ * the member policy with the permissions the key holds. Pure: the middleware and "Try this
+ * key" both ask it.
+ */
+export const decideKeyCall = (
+  member: Pick<Member, 'role' | 'permissions'> & { key: KeyRules },
+  path: string,
+): KeyDecision => {
+  const decision = decideKey(member.key, path);
+
+  if (!decision.allowed) return decision;
+
+  const policy = POLICIES.get(path);
+
+  if (!policy || !('member' in policy) || !policy.member) {
+    return { allowed: false, rule: 'never', reason: 'API keys cannot call this' };
+  }
+
+  if (policy.member !== 'any' && !can(member, policy.member)) {
+    return {
+      allowed: false,
+      rule: `permission:${policy.member}`,
+      reason: `It needs ${policy.member}, which the maker's role no longer has`,
+    };
+  }
+
+  return decision;
+};
+
+/** Refuses a key's call with the rule that decided, and records it. */
+export const refuseKeyCall = async (keyId: string, path: string, decision: KeyDecision) => {
+  await recordKeyDenial(keyId, path, decision);
+
+  return fail('KEY_NOT_ALLOWED', decision.reason, { rule: decision.rule });
+};
+
+const checkKey = async (member: Member, key: KeyRules, path: string) => {
+  const decision = decideKeyCall({ ...member, key }, path);
+
+  if (!decision.allowed) throw await refuseKeyCall(key.id, path, decision);
+};
+
+/** An HTTP route outside oRPC that serves what `path` serves: a key meets the same rules. */
+export const enforceKeyAccess = async (path: ProcedurePath) => {
+  const who = caller();
+
+  if (who.type === 'user' && who.key) await checkKey(who, who.key, path);
+};
+
 /** Checks the request's caller against the procedure's policy (oRPC middleware, every call). */
-export const enforceAccess = (path: string) => {
+export const enforceAccess = async (path: string) => {
   const policy = POLICIES.get(path);
 
   if (!policy) {
@@ -96,7 +170,7 @@ export const enforceAccess = (path: string) => {
     case 'customer':
       throw fail('NOT_ALLOWED', 'Customers cannot do this');
     case 'user':
-      return checkMember(policy, who);
+      return who.key ? checkKey(who, who.key, path) : checkMember(policy, who);
     case 'plugin':
       return checkPlugin(policy, who.scopes);
     case 'system':

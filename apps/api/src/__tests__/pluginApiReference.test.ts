@@ -10,6 +10,7 @@ import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
 import { oc } from '@orpc/contract';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
+import { memberKey } from './apiKeySupport';
 import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
@@ -119,8 +120,8 @@ describe('plugin API reference', () => {
     });
   });
 
-  it('gives a script with an API key a session token the plugin accepts as that member', async () => {
-    const { key } = await t.owner().apiKeys.create({ name: 'HR sync', lifetimeDays: 30 });
+  it('gives a script with a key made before rules a session token the plugin accepts as that member', async () => {
+    const { key } = await memberKey(t.ids.org, t.ids.owner);
     const session = await t.client(key).plugins.session({ name: 'hr' });
 
     expect(session.apiUrl).toBe('https://hr.example.com/api');

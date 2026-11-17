@@ -1,4 +1,5 @@
 import { ERRORS, type ErrorCode } from '@erxes/core-contract';
+import { caller } from '@erxes/core-db';
 import { ORPCError, type ValidationError } from '@orpc/server';
 import type { NextFunction, Request, Response } from 'express';
 import { DatabaseError } from 'pg';
@@ -124,6 +125,16 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
  */
 export const fromDatabase = (error: unknown) => {
   const pg = databaseError(error);
+
+  // Row level security refused a key's new row: its contact limits (core_api_key_rows).
+  const who = caller();
+
+  if (pg?.code === '42501' && who.type === 'user' && who.key) {
+    return fail('KEY_NOT_ALLOWED', "This key can't write a contact outside its limits", {
+      rule: 'rows',
+    });
+  }
+
   const known = pg?.constraint ? CONSTRAINTS[pg.constraint] : undefined;
 
   if (!known) return error;
