@@ -1,3 +1,5 @@
+import { setTimeout as sleep } from 'node:timers/promises';
+
 const api = process.env.GITHUB_API_URL ?? 'https://api.github.com';
 const repo = process.env.GITHUB_REPOSITORY ?? '';
 const token = process.env.GITHUB_TOKEN ?? '';
@@ -23,6 +25,9 @@ const request = async (method: string, path: string, body?: Json) => {
     throw new Error(`GitHub ${method} ${path}: ${response.status} ${await response.text()}`);
 
   const data: unknown = response.status === 204 ? null : await response.json();
+
+  // GitHub asks for a second between writes, or it starts refusing them.
+  if (method !== 'GET') await sleep(1000);
 
   return data;
 };

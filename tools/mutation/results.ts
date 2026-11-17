@@ -79,6 +79,23 @@ const snippet = (source: string[], start: Json, end: Json) => {
   return first.slice(count(start.column) - 1, count(end.column) - 1);
 };
 
+/**
+ * The feature a file belongs to, which gets one issue: `…/modules/<name>`, or else the folder
+ * under `src` (`apps/api/src/lib`), or `src` itself for a file directly in it.
+ */
+const areaOf = (file: string) => {
+  const parts = file.split('/');
+  const modules = parts.indexOf('modules');
+
+  if (modules >= 0 && modules + 2 < parts.length) return parts.slice(0, modules + 2).join('/');
+
+  const src = parts.indexOf('src');
+
+  if (src < 0) return dirname(file);
+
+  return parts.slice(0, Math.min(src + 2, parts.length - 1)).join('/');
+};
+
 /** Every mutant in a merged report, with the test files that ran over it. */
 export const mutantsOf = (report: Json) => {
   const fileOfTest = new Map<string, string>();
@@ -100,7 +117,7 @@ export const mutantsOf = (report: Json) => {
       return [
         {
           file,
-          area: dirname(file),
+          area: areaOf(file),
           line: count(json(start).line),
           mutator: text(mutant.mutatorName),
           original: snippet(source, json(start), json(end)),
@@ -115,15 +132,19 @@ export const mutantsOf = (report: Json) => {
 };
 
 /**
- * A kill that came from the test setup breaking (the database gone, a hook timing out),
- * not from an assertion: such a mutant was never really tested.
+ * A kill that came with the test setup breaking (a connection dropped, a hook timing out), not a
+ * failed assertion. Changed code can end that way too, so such a mutant counts as neither caught
+ * nor missed; many of them mean the setup itself broke.
  */
 const BROKEN_SETUP =
   /ECONNREFUSED|ECONNRESET|too many clients|terminating connection|Connection terminated|database "[^"]+" does not exist|Hook timed out|hookTimeout|getaddrinfo/i;
 
+const unsure = (mutant: Mutant) => mutant.status === 'Killed' && BROKEN_SETUP.test(mutant.reason);
+
 export const tally = (mutants: Mutant[]) => {
   const of = (status: Status) => mutants.filter((mutant) => mutant.status === status).length;
-  const killed = of('Killed');
+  const brokenSetup = mutants.filter(unsure);
+  const killed = of('Killed') - brokenSetup.length;
   const survived = of('Survived');
   const timeout = of('Timeout');
   const tested = killed + survived + timeout;
@@ -135,9 +156,8 @@ export const tally = (mutants: Mutant[]) => {
     noCoverage: of('NoCoverage'),
     errors: of('RuntimeError') + of('CompileError'),
     ignored: of('Ignored'),
-    brokenSetup: mutants.filter(
-      (mutant) => mutant.status === 'Killed' && BROKEN_SETUP.test(mutant.reason),
-    ),
+    brokenSetup,
+    setupBroke: brokenSetup.length > Math.max(5, killed / 200),
     score: tested ? Math.floor((killed / tested) * 1000) / 10 : null,
   };
 };

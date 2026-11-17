@@ -1,13 +1,14 @@
 # Whether the tests catch changes to the code they run over, with core's shared mutation testing
-# (erxes/erxes .github/workflows/mutation.yml). Pull requests get a comment; the weekly run opens
-# one `false-test` issue per folder and closes it once every change is caught. It never blocks.
+# (erxes/erxes .github/workflows/mutation.yml). Pull requests get a comment; the branch runs open
+# one `false-test` issue per folder and close it once every change is caught. It never blocks.
+# Twice a week, so the last results stay cached: GitHub drops a cache nobody read for 7 days.
 name: Mutation tests
 
 on:
   pull_request:
     paths: ['api/src/**', 'ui/src/**']
   schedule:
-    - cron: '17 3 * * 1'
+    - cron: '17 3 * * 1,4'
   workflow_dispatch:
 
 concurrency:

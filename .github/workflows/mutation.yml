@@ -17,10 +17,10 @@ on:
       shards:
         description: Runners a branch run splits the files across (a pull request uses one).
         type: number
-        default: 2
+        default: 4
       timeout-minutes:
         type: number
-        default: 120
+        default: 180
 
 env:
   VP_GIT_HOOKS: '0'

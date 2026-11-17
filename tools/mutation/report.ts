@@ -181,7 +181,7 @@ const summary = (mutants: Mutant[]) => {
   return [
     '## Mutation testing',
     '',
-    `Score ${all.score ?? '–'}%: ${all.killed} caught, ${all.survived} not caught, ${all.timeout} timed out, ${all.noCoverage} in untested code, ${all.ignored} ignored, ${all.errors} errors.`,
+    `Score ${all.score ?? '–'}%: ${all.killed} caught, ${all.survived} not caught, ${all.timeout} timed out, ${all.noCoverage} in untested code, ${all.ignored} ignored, ${all.errors} errors, ${all.brokenSetup.length} unsure (the setup broke).`,
     '',
     ...lines,
   ].join('\n');
@@ -196,22 +196,21 @@ if (out) {
 }
 
 const mutants = mutantsOf(merged);
-const { brokenSetup } = tally(mutants);
+const { brokenSetup, setupBroke } = tally(mutants);
 
 if (env('GITHUB_STEP_SUMMARY')) appendFileSync(env('GITHUB_STEP_SUMMARY'), `${summary(mutants)}\n`);
 
 process.stdout.write(`${summary(mutants)}\n`);
 
-if (brokenSetup.length) {
-  for (const mutant of brokenSetup.slice(0, 20))
-    process.stdout.write(
-      `::error file=${mutant.file},line=${mutant.line}::Killed by a broken test setup, not an assertion: ${mutant.reason.slice(0, 200)}\n`,
-    );
-
-  throw new Error(
-    `${brokenSetup.length} mutants were "killed" by a broken setup; the results can't be trusted.`,
+for (const mutant of brokenSetup.slice(0, 20))
+  process.stdout.write(
+    `::warning file=${mutant.file},line=${mutant.line}::A test failed with its setup, not an assertion, so this change counts as neither caught nor missed: ${mutant.reason.slice(0, 200)}\n`,
   );
-}
+
+if (setupBroke)
+  throw new Error(
+    `${brokenSetup.length} changes failed only because the test setup broke; the results can't be trusted.`,
+  );
 
 const expected: unknown = env('EXPECTED_REPORTS') ? JSON.parse(env('EXPECTED_REPORTS')) : [];
 const complete = Array.isArray(expected) && expected.length > 0 && expected.length === reports;
