@@ -5,20 +5,27 @@ type Node = {
   object?: Node;
   property?: Node;
   callee?: Node;
+  expression?: Node;
 };
 
 type NodePath = { node: Node; parentPath: NodePath | null };
 
 const LEVELS = new Set(['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'log', 'child']);
 
-const isLogger = (node: Node | undefined) =>
-  node?.type === 'Identifier' && /^(log|logger|console)$|Logger$|Log$/.test(node.name ?? '');
+const LOGGER = /^(log|logger|console)$|Logger$|Log$/;
 
-const isLogCall = ({ node }: NodePath) =>
-  node.type === 'CallExpression' &&
+const isLogger = (node: Node | undefined): boolean =>
+  (node?.type === 'Identifier' && LOGGER.test(node.name ?? '')) ||
+  (node?.type === 'MemberExpression' && isLogger(node.property));
+
+const isLogCallNode = (node: Node | undefined) =>
+  node?.type === 'CallExpression' &&
   node.callee?.type === 'MemberExpression' &&
   isLogger(node.callee.object) &&
   LEVELS.has(node.callee.property?.name ?? '');
+
+const isLogCall = ({ node }: NodePath) =>
+  isLogCallNode(node) || (node.type === 'ExpressionStatement' && isLogCallNode(node.expression));
 
 const insideThrow = (path: NodePath) => {
   for (let parent = path.parentPath; parent; parent = parent.parentPath) {

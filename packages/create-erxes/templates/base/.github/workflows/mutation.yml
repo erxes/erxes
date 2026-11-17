@@ -1,0 +1,42 @@
+# Whether the tests catch changes to the code they run over, with core's shared mutation testing
+# (erxes/erxes .github/workflows/mutation.yml). Pull requests get a comment; the weekly run opens
+# one `false-test` issue per folder and closes it once every change is caught. It never blocks.
+name: Mutation tests
+
+on:
+  pull_request:
+    paths: ['api/src/**', 'ui/src/**']
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  mutation:
+    uses: erxes/erxes/.github/workflows/mutation.yml@postgre
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    with:
+      # Left out: tests and their helpers, table declarations and migrations, start-up code no test
+      # runs, and .tsx screens, which only a browser checks.
+      mutate: |
+        api/src/**/*.ts
+        ui/src/**/*.ts
+        !**/*.test.ts
+        !**/*.d.ts
+        !**/__tests__/**
+        !api/src/test/**
+        !api/src/db/schema.ts
+        !api/src/db/schema/**
+        !api/src/db/migrate.ts
+        !api/src/migrate.ts
+        !api/src/main.ts
+        !api/src/telemetry.ts

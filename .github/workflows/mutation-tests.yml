@@ -34,6 +34,7 @@ jobs:
       #   which pnpm check:generated and the typed client guard; their mutants are only names and strings.
       # - plugin-sdk: its tests run against the packed tarballs (CI's packages job), outside Vitest.
       # - API start-up and scripts: no test starts the process.
+      # - packages/lint's vendored ESLint Stylistic rule: copied as a whole, not ours to change.
       mutate: |
         apps/api/src/**/*.ts
         apps/web/src/**/*.ts
@@ -44,5 +45,6 @@ jobs:
         !packages/db/src/schema/**
         !packages/db/src/migrate.ts
         !packages/ui/src/lib/cn-tables.ts
+        !packages/lint/src/anti-slop/vendor/**
         !apps/api/src/main.ts
         !apps/api/src/instrumentation.ts
