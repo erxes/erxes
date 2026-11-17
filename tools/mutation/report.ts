@@ -217,7 +217,7 @@ const prComment = async (mutants: Mutant[], untestedFiles: string[]) => {
     PR_MARKER,
     '### Do the tests catch changes to the code this pull request touches?',
     '',
-    tested ? scoreLine(mutants) : '',
+    tested ? scoreLine(mutants) : `[Run and HTML report](${runUrl})`,
     '',
     await verdict(mutants),
     '',
@@ -290,7 +290,11 @@ if (setupBroke)
     `${brokenSetup.length} changes failed only because the test setup broke; the results can't be trusted.`,
   );
 
-const complete = env('MUTATE_RESULT') === 'success' && plan.size > 0 && reports === plan.size;
+const complete =
+  env('MUTATE_RESULT') === 'success' &&
+  plan.size > 0 &&
+  reports === plan.size &&
+  mutants.length > 0;
 
 if (untestedFiles.length) process.stdout.write(`${notImported(untestedFiles)}\n`);
 
@@ -298,7 +302,9 @@ if (env('MODE') === 'pr') await prComment(mutants, untestedFiles);
 else if (env('ISSUES') !== 'true') {
   process.stdout.write("Only the issue branch's runs keep the issues.\n");
 } else if (!complete) {
-  process.stdout.write('::warning::A shard did not finish, so the issues stay as they were.\n');
+  process.stdout.write(
+    '::warning::A shard did not finish, or no test ran at all, so the issues stay as they were.\n',
+  );
 } else {
   const counts = await fileIssues(mutants);
 
