@@ -21,15 +21,44 @@ import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
+import { useDealIdOverride } from '@/deals/context/DealIdContext';
+import { useSidePanel } from 'ui-modules';
+import { leaveDeletedDealPanel } from '@/deals/utils/leaveDeletedDealPanel';
 
 export const useDealDetail = (
   options?: QueryHookOptions<DealDetailQuery, DealDetailQueryVariables>,
+  { subscribe = true }: { subscribe?: boolean } = {},
 ) => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
 
+  const overrideId = useDealIdOverride();
+  const {
+    record: panelRecord,
+    back: backPanel,
+    canGoBack,
+    close: closePanel,
+  } = useSidePanel();
+  const panelRecordId = panelRecord?.contentId;
+  const panelStateRef = useRef({
+    backPanel,
+    canGoBack,
+    closePanel,
+    panelRecordId,
+    setSalesItemId,
+  });
+
+  useEffect(() => {
+    panelStateRef.current = {
+      backPanel,
+      canGoBack,
+      closePanel,
+      panelRecordId,
+      setSalesItemId,
+    };
+  }, [backPanel, canGoBack, closePanel, panelRecordId, setSalesItemId]);
   const passedId = options?.variables?._id;
-  const finalId = passedId || salesItemId || activeDealId;
+  const finalId = passedId || overrideId || salesItemId || activeDealId;
 
   const { data, loading, error, subscribeToMore, refetch } = useQuery(
     GET_DEAL_DETAIL,
@@ -42,7 +71,7 @@ export const useDealDetail = (
   );
 
   useEffect(() => {
-    if (!finalId || options?.skip) return;
+    if (!finalId || options?.skip || !subscribe) return;
 
     const subscriptionOptions: SubscribeToMoreOptions<
       DealDetailQuery,
@@ -62,10 +91,30 @@ export const useDealDetail = (
     };
 
     return subscribeToMore(subscriptionOptions);
-  }, [finalId, options?.skip, refetch, subscribeToMore]);
+  }, [finalId, options?.skip, refetch, subscribe, subscribeToMore]);
 
   useEffect(() => {
-    if (!finalId || options?.skip) return;
+    if (!finalId || options?.skip || !subscribe) return;
+
+    const leaveDeletedDeal = () => {
+      const panel = panelStateRef.current;
+
+      if (activeDealId === finalId) {
+        setActiveDealId(null);
+      }
+
+      if (salesItemId === finalId) {
+        panel.setSalesItemId(null);
+      }
+
+      if (overrideId !== finalId || panel.panelRecordId !== finalId) {
+        return;
+      }
+
+      leaveDeletedDealPanel(finalId, () =>
+        panel.canGoBack ? panel.backPanel() : panel.closePanel(),
+      );
+    };
 
     const subscriptionOptions: SubscribeToMoreOptions<
       DealDetailQuery,
@@ -78,14 +127,7 @@ export const useDealDetail = (
         const dealChange = subscriptionData?.data?.salesDealChanged;
 
         if (dealChange?.action === 'delete') {
-          if (activeDealId === finalId) {
-            setActiveDealId(null);
-          }
-
-          if (salesItemId === finalId) {
-            setSalesItemId(null);
-          }
-
+          leaveDeletedDeal();
           return prev;
         }
 
@@ -145,10 +187,11 @@ export const useDealDetail = (
     activeDealId,
     finalId,
     options?.skip,
+    overrideId,
     refetch,
     salesItemId,
     setActiveDealId,
-    setSalesItemId,
+    subscribe,
     subscribeToMore,
   ]);
 

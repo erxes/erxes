@@ -1,31 +1,8 @@
+import { useScheduleConfigForm } from '@/automations/components/builder/nodes/triggers/schedules/hooks/useScheduleConfigForm';
 import { AutomationTriggerSidebarCoreFormProps } from '@/automations/types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Input, toast } from 'erxes-ui';
-import { useImperativeHandle } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Form, Input } from 'erxes-ui';
+import { FormProvider } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-
-const cronExpressionPattern = /^(\S+\s+){4,6}\S+$/;
-
-const createScheduleConfigSchema = (
-  cronRequired: string,
-  cronFormat: string,
-  timezoneRequired: string,
-) =>
-  z.object({
-    cron: z
-      .string()
-      .trim()
-      .min(1, cronRequired)
-      .regex(cronExpressionPattern, cronFormat),
-    timezone: z.string().trim().min(1, timezoneRequired),
-  });
-
-interface ScheduleConfig {
-  cron: string;
-  timezone: string;
-}
 
 export const ScheduleConfigForm = ({
   formRef,
@@ -33,30 +10,7 @@ export const ScheduleConfigForm = ({
   activeNode,
 }: AutomationTriggerSidebarCoreFormProps) => {
   const { t } = useTranslation('automations');
-  const form = useForm<ScheduleConfig>({
-    resolver: zodResolver(
-      createScheduleConfigSchema(
-        t('schedule-cron-required'),
-        t('schedule-cron-format-error'),
-        t('schedule-timezone-required'),
-      ),
-    ),
-    defaultValues: {
-      cron: activeNode?.config?.cron || '0 9 * * *',
-      timezone: activeNode?.config?.timezone || 'UTC',
-    },
-  });
-
-  useImperativeHandle(formRef, () => ({
-    submit: () =>
-      form.handleSubmit(handleSave, () => {
-        toast({
-          title: t('schedule-validation-title'),
-          description: t('schedule-validation-description'),
-          variant: 'destructive',
-        });
-      })(),
-  }));
+  const form = useScheduleConfigForm({ formRef, handleSave, activeNode });
 
   return (
     <FormProvider {...form}>

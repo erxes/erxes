@@ -13,6 +13,11 @@ const fixNum = (value: number, precision = 2) =>
 export const productBaseAmount = (product: DealProductData) =>
   finiteNumber(product.unitPrice) * finiteNumber(product.quantity);
 
+export const handDiscountAmount = (product: ProductDataWithDiscountInfos) =>
+  (product.discountInfos || [])
+    .filter((info) => info.type === HAND_TYPE)
+    .reduce((sum, info) => sum + finiteNumber(info.amount), 0);
+
 export const nonHandDiscountAmount = (product: ProductDataWithDiscountInfos) =>
   (product.discountInfos || [])
     .filter((info) => info.type !== HAND_TYPE)

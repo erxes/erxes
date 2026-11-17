@@ -6,7 +6,7 @@ import {
   SelectTree,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useSelectSegments } from '../hooks/useSelectSegments';
+import { useSelectSegment } from '../hooks/useSelectSegment';
 import { ISegment } from '../types';
 
 const SelectBranchBadge = ({
@@ -61,12 +61,6 @@ export const SelectSegment = ({
   contentType?: string;
   unnamedLabel?: string;
 }) => {
-  const selectedIds = Array.isArray(selected)
-    ? selected
-    : selected
-      ? [selected]
-      : [];
-  const isMultiple = mode === 'multiple';
   const {
     segments,
     loading,
@@ -75,57 +69,44 @@ export const SelectSegment = ({
     selectedSegment,
     setSearch,
     search,
-  } = useSelectSegments({
-    selected: selectedIds[0],
+    triggerKind,
+    firstSelectedName,
+    moreSelectedCount,
+    isChecked,
+    nameOf,
+    handleSelect,
+  } = useSelectSegment({
+    selected,
+    onSelect,
+    mode,
     exclude,
     focusOnMount,
     contentType,
+    unnamedLabel,
   });
-
-  const selectedSegments = isMultiple
-    ? selectedIds
-        .map((id) => segments.find((segment: ISegment) => segment._id === id))
-        .filter(Boolean)
-    : [];
-
-  const handleSelect = (segmentId: string | null) => {
-    if (!isMultiple) {
-      onSelect(segmentId);
-      return;
-    }
-
-    if (!segmentId) {
-      onSelect([]);
-      return;
-    }
-
-    onSelect(
-      selectedIds.includes(segmentId)
-        ? selectedIds.filter((id) => id !== segmentId)
-        : [...selectedIds, segmentId],
-    );
-  };
 
   return (
     <Popover>
       <Combobox.Trigger>
-        {isMultiple && selectedSegments.length ? (
+        {triggerKind === 'multiple' && (
           <div className="flex items-center gap-1 flex-auto overflow-hidden">
             <TextOverflowTooltip
-              value={selectedSegments[0]?.name || unnamedLabel}
+              value={firstSelectedName}
               className="flex-auto"
             />
-            {selectedSegments.length > 1 && (
-              <Badge variant="secondary">+{selectedSegments.length - 1}</Badge>
+            {moreSelectedCount > 0 && (
+              <Badge variant="secondary">+{moreSelectedCount}</Badge>
             )}
           </div>
-        ) : selectedSegment ? (
+        )}
+        {triggerKind === 'single' && (
           <SelectBranchBadge
             segment={selectedSegment}
-            totalCount={segments?.length || 0}
+            totalCount={segments.length}
             unnamedLabel={unnamedLabel}
           />
-        ) : (
+        )}
+        {triggerKind === 'empty' && (
           <Combobox.Value placeholder="Select a segment" />
         )}
       </Combobox.Trigger>
@@ -157,18 +138,16 @@ export const SelectSegment = ({
                   _id={segment._id}
                   order={segment._id}
                   hasChildren={false}
-                  name={segment.name || unnamedLabel}
+                  name={nameOf(segment)}
                   value={segment._id}
                   onSelect={handleSelect}
                   selected={false}
                   disabled={disabled}
                 >
                   <div className="flex items-center gap-2 flex-auto overflow-hidden justify-start">
-                    {selectedIds.includes(segment._id) && (
-                      <Combobox.Check checked />
-                    )}
+                    {isChecked(segment._id) && <Combobox.Check checked />}
                     <TextOverflowTooltip
-                      value={segment.name || unnamedLabel}
+                      value={nameOf(segment)}
                       className="flex-auto"
                     />
                   </div>

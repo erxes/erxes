@@ -35,7 +35,17 @@ export interface ISidePanelNavigator {
   back: () => void;
   canGoBack: boolean;
   close: () => void;
+  listPath?: string;
 }
 
 export const SidePanelNavigatorContext =
   createContext<ISidePanelNavigator | null>(null);
+
+/** Where a record's own page minimizes to: its list, with the record open in the side panel. */
+export interface IRecordPageMinimizeTarget {
+  record: TRelationEntity;
+  listPath: string;
+}
+
+export const RecordPageMinimizeContext =
+  createContext<IRecordPageMinimizeTarget | null>(null);

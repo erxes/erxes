@@ -1,6 +1,7 @@
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { AutomationCoreActionSidebarContent } from '@/automations/components/builder/sidebar/components/content/action/AutomationCoreActionSidebarContent';
 import { useAutomationActionContentSidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationActionContentSidebar';
+import { useNodeFormKey } from '@/automations/components/builder/sidebar/hooks/useNodeFormKey';
 import { AutomationErrorState } from '@/automations/components/common/AutomationErrorState';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { Card, Spinner, toast } from 'erxes-ui';
@@ -25,6 +26,7 @@ export const AutomationActionContentSidebar = () => {
     targetType,
     previousActions,
   } = useAutomationActionContentSidebar();
+  const formKey = useNodeFormKey(currentAction?.id);
 
   if (!currentAction || currentIndex === -1) {
     return <Card.Content>{t('sidebar-something-went-wrong')}</Card.Content>;
@@ -59,7 +61,7 @@ export const AutomationActionContentSidebar = () => {
                   )}
                 >
                   <RenderPluginsComponentWrapper
-                    key={currentAction.id}
+                    key={formKey}
                     pluginName={pluginName}
                     moduleName={moduleName}
                     props={{
@@ -88,7 +90,7 @@ export const AutomationActionContentSidebar = () => {
       <div className="flex h-full min-h-0 flex-col">
         <div className="min-h-0 flex-1 overflow-hidden">
           <AutomationCoreActionSidebarContent
-            key={currentAction.id}
+            key={formKey}
             currentIndex={currentIndex}
             currentAction={currentAction}
             onSaveActionConfig={onSaveActionConfig}

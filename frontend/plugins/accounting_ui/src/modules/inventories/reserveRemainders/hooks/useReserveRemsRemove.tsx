@@ -30,7 +30,7 @@ export const useReserveRemsRemove = () => {
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['accountingReserveRems'],
+      refetchQueries: ['accountingReserveRems', 'accountingReserveRemDetail'],
     });
   };
 

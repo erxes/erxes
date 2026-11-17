@@ -71,7 +71,10 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
             />
           </PanelField>
           <PanelField icon={IconUsersGroup} label={t('team')} cell={false}>
-            <TeamInline teamId={teamId} className="h-7 px-2 font-normal" />
+            <TeamInline
+              teamId={teamId}
+              className="h-7 gap-2 px-2 text-xs font-normal"
+            />
           </PanelField>
           <PanelField icon={IconTags} label={t('tags')} cell={false}>
             <TagsSelect.Provider

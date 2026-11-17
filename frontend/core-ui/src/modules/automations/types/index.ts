@@ -125,6 +125,16 @@ export interface IAutomationDoc {
   approvalLockState?: ApprovalLockState;
   duplicatedFrom?: string;
   duplicatedFromName?: string;
+  folderId?: string;
+}
+export interface IAutomationFolder {
+  _id: string;
+  name: string;
+  icon?: string;
+  installationId?: string;
+  createdAt?: string;
+  automationCount: number;
+  activeCount: number;
 }
 export interface IAutomationNote {
   id: string;
@@ -194,6 +204,7 @@ export enum AutomationBuilderTabsType {
 export enum AutomationSecondaryPanel {
   Variables = 'variables',
   ErrorPolicy = 'errorPolicy',
+  History = 'history',
 }
 export enum AutomationHistoryViewMode {
   Panel = 'panel',
@@ -350,4 +361,61 @@ export interface ConnectionInfo {
 export type TAutomationRecordTableColumnDefData = {
   order: string;
   hasChildren: boolean;
+  /** Set on a row listed under an open folder. */
+  parentFolderId?: string;
 } & IAutomation;
+
+/** A folder heading in the list; its automations follow it once opened. */
+export type TAutomationFolderListRow = {
+  _id: string;
+  kind: 'folder';
+  folder: IAutomationFolder;
+  expanded: boolean;
+  loading: boolean;
+};
+
+/** The last row of an open folder: more than were loaded, or none at all. */
+export type TAutomationFolderFooterListRow = {
+  _id: string;
+  kind: 'folderFooter';
+  folderId: string;
+  hiddenCount: number;
+};
+
+export type TAutomationListRow =
+  | TAutomationRecordTableColumnDefData
+  | TAutomationFolderListRow
+  | TAutomationFolderFooterListRow;
+
+export type TAutomationVersionNote = 'created' | 'edited' | 'duplicated';
+
+/** A saved version as listed, without the flow itself. */
+export type TAutomationVersion = {
+  _id: string;
+  automationId: string;
+  version: number;
+  changedNodeIds: string[];
+  note?: TAutomationVersionNote;
+  createdAt?: string;
+  createdUser?: TAutomationUser;
+};
+
+/** A node as kept in a version: whatever the flow had, keyed by id. */
+export type TAutomationVersionNode = {
+  id: string;
+  type?: string;
+  label?: string;
+  icon?: string;
+  nextActionId?: string;
+  actionId?: string;
+  config?: Record<string, unknown>;
+};
+
+export type TAutomationVersionDetail = {
+  _id: string;
+  automationId: string;
+  version: number;
+  triggers: TAutomationVersionNode[];
+  actions: TAutomationVersionNode[];
+  workflows: TAutomationVersionNode[];
+};

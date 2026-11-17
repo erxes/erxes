@@ -4,6 +4,7 @@ import { isSegmentMembershipTrigger } from '@/automations/utils/automationBuilde
 import { AutomationTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
 import { Separator } from 'erxes-ui';
 import React from 'react';
+import { useNodeFormKey } from '@/automations/components/builder/sidebar/hooks/useNodeFormKey';
 import { AutomationDefaultTriggerHeader } from './AutomationDefaultTriggerHeader';
 import { AutomationTriggerEveryTime } from './AutomationTriggerEveryTime';
 import { SegmentMembershipTriggerContent } from './SegmentMembershipTriggerContent';
@@ -11,12 +12,13 @@ import { SegmentMembershipTriggerContent } from './SegmentMembershipTriggerConte
 export const AutomationTriggerContentSidebar =
   React.memo<AutomationTriggerContentProps>(({ activeNode }) => {
     const containerClasses = 'h-full flex flex-col';
+    const formKey = useNodeFormKey(activeNode?.id);
 
     if (isSegmentMembershipTrigger(activeNode?.config)) {
       return (
         <div className={containerClasses}>
           <SegmentMembershipTriggerContent
-            key={activeNode?.id}
+            key={formKey}
             activeNode={activeNode}
           />
         </div>
@@ -27,7 +29,7 @@ export const AutomationTriggerContentSidebar =
       return (
         <div className={containerClasses}>
           <AutomationTriggerEveryTime activeNode={activeNode} />
-          <CustomTriggerContent key={activeNode?.id} activeNode={activeNode} />
+          <CustomTriggerContent key={formKey} activeNode={activeNode} />
         </div>
       );
     }
@@ -37,7 +39,7 @@ export const AutomationTriggerContentSidebar =
         <AutomationDefaultTriggerHeader activeNode={activeNode} />
         <Separator />
         <div className="flex-1 w-auto overflow-auto">
-          <DefaultTriggerContent key={activeNode?.id} activeNode={activeNode} />
+          <DefaultTriggerContent key={formKey} activeNode={activeNode} />
         </div>
       </div>
     );

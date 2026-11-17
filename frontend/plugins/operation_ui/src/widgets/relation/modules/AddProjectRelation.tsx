@@ -1,50 +1,43 @@
-import { AddProjectForm } from '@/project/components/add-project/AddProjectForm';
+import { useCreateProjectRecord } from '@/project/hooks/useCreateProjectRecord';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
-import { useState } from 'react';
+import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { PROJECT_CONNECTION_CONTENT_TYPE } from '../../contact/projectContactConnection';
 
 export const AddProjectRelation = ({
-  onSelect,
-  label,
+  showLabel = false,
   contacts,
 }: {
-  onSelect?: (projectId: string) => void;
-  label?: string;
-  // Saved on the new project by createProject itself.
+  showLabel?: boolean;
   contacts?: { customerId?: string; companyId?: string };
 }) => {
-  const [open, setOpen] = useState(false);
-
-  const onClose = () => setOpen(false);
+  const { t } = useTranslation('operation');
+  const { openProjectDraft } = useCreateProjectRecord();
+  const { openNewRecord } = useSidePanel();
+  const canConnect = Boolean(contacts?.customerId || contacts?.companyId);
+  const label = canConnect
+    ? t('connect-project', 'Connect project')
+    : t('add-project', 'Add project');
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        {label ? (
-          <Button onClick={(e) => e.stopPropagation()}>
-            <IconPlus className="size-4" />
-            {label}
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <IconPlus className="size-4" />
-          </Button>
-        )}
-      </Sheet.Trigger>
-      <Sheet.View
-        className="sm:max-w-3xl w-full p-0"
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
-        <AddProjectForm
-          onClose={onClose}
-          onComplete={onSelect}
-          contacts={contacts}
-        />
-      </Sheet.View>
-    </Sheet>
+    <Button
+      size={showLabel ? 'default' : 'sm'}
+      variant={showLabel ? 'default' : 'ghost'}
+      aria-label={label}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (canConnect) {
+          openNewRecord(PROJECT_CONNECTION_CONTENT_TYPE, contacts, {
+            stack: true,
+          });
+        } else {
+          openProjectDraft(contacts, { stack: true });
+        }
+      }}
+    >
+      <IconPlus className="size-4" />
+      {showLabel && label}
+    </Button>
   );
 };

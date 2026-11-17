@@ -1,42 +1,8 @@
-import { useBroadcastFollowableSegment } from '@/broadcast/hooks/useBroadcastFollowableSegment';
-import { IBroadcastFormData } from '@/broadcast/hooks/useBroadcastForm';
+import { useBroadcastScheduleField } from '@/broadcast/hooks/useBroadcastScheduleFields';
 import { IconCalendarClock, IconX } from '@tabler/icons-react';
-import dayjs from 'dayjs';
 import { Button, cn, Popover } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  BroadcastScheduleFields,
-  emptySchedule,
-} from '../common/BroadcastScheduleFields';
-import {
-  BROADCAST_EVERY_OPTIONS,
-  isAfterSegmentForm,
-  isRecurringForm,
-  isScheduleReady,
-  TBroadcastScheduleForm,
-} from '../../utils/scheduleForm';
-
-const summary = (
-  schedule: TBroadcastScheduleForm,
-  t: (key: string) => string,
-) => {
-  if (isAfterSegmentForm(schedule)) {
-    return t('schedule.every.afterSegment');
-  }
-
-  if (!isRecurringForm(schedule)) {
-    return dayjs(schedule.at).format('MMM D, HH:mm');
-  }
-
-  const labelKey = BROADCAST_EVERY_OPTIONS.find(
-    (option) => option.value === schedule.every,
-  )?.labelKey;
-
-  return `${labelKey ? t(labelKey) : ''} · ${dayjs(schedule.at).format(
-    'HH:mm',
-  )}`;
-};
+import { BroadcastScheduleFields } from '../common/BroadcastScheduleFields';
 
 /**
  * When this campaign goes out, chosen while it is being written.
@@ -48,27 +14,20 @@ const summary = (
  */
 export const BroadcastScheduleField = () => {
   const { t } = useTranslation('broadcasts');
-  const form = useFormContext<IBroadcastFormData>();
-
-  const value = form.watch('schedule') as TBroadcastScheduleForm | undefined;
-  const ready = isScheduleReady(value);
-  const { canFollowSegment } = useBroadcastFollowableSegment(
-    form.watch('targetType'),
-    form.watch('targetIds'),
-  );
-
-  const set = (next?: TBroadcastScheduleForm) =>
-    form.setValue('schedule', next, { shouldDirty: true });
+  const {
+    fieldsValue,
+    ready,
+    hasSchedule,
+    label,
+    canFollowSegment,
+    set,
+    clear,
+    onOpenChange,
+  } = useBroadcastScheduleField();
 
   return (
     <div className="flex items-center gap-1">
-      <Popover
-        onOpenChange={(open) => {
-          if (open && !value) {
-            set(emptySchedule());
-          }
-        }}
-      >
+      <Popover onOpenChange={onOpenChange}>
         <Popover.Trigger asChild>
           {/* Outlined so it reads as something to press rather than as more
               of the title, and filled once set so the campaign says at a
@@ -81,26 +40,26 @@ export const BroadcastScheduleField = () => {
             <IconCalendarClock
               className={cn('size-4', !ready && 'text-muted-foreground')}
             />
-            {ready && value ? summary(value, t) : t('schedule.send-later')}
+            {label}
           </Button>
         </Popover.Trigger>
         <Popover.Content align="end" className="w-auto p-3">
           <BroadcastScheduleFields
-            value={value ?? emptySchedule()}
+            value={fieldsValue}
             onChange={set}
             canFollowSegment={canFollowSegment}
           />
         </Popover.Content>
       </Popover>
 
-      {!!value && (
+      {hasSchedule && (
         <Button
           variant="ghost"
           size="icon"
           aria-label={t('schedule.send-without-waiting')}
           className="size-6 text-muted-foreground"
           title={t('schedule.send-without-waiting')}
-          onClick={() => set(undefined)}
+          onClick={clear}
         >
           <IconX className="size-4" />
         </Button>

@@ -29,6 +29,8 @@ export type TInstalledPart = {
   type: string;
   _id: string;
   refs?: Record<string, string>;
+  // A segment no journey reads: the template's own deliverable, listed
+  listed?: boolean;
 };
 
 export interface ITemplateInstallationDocument
@@ -103,6 +105,16 @@ export const loadTemplateInstallationClass = (
       }
 
       await models.Automations.removeAutomations(automationIds);
+
+      // Kept while something someone moved in still sits there
+      const folders = await models.AutomationFolders.find(
+        { installationId: _id },
+        { _id: 1 },
+      ).lean();
+
+      for (const folder of folders) {
+        await models.AutomationFolders.removeIfEmpty(folder._id);
+      }
 
       const partsApi = createTemplatePartsApi(models, subdomain);
       // Installed before parts were recorded: their parts are AI agents

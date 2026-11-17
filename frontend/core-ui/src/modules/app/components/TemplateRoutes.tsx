@@ -7,6 +7,12 @@ const TemplatesIndexPage = lazy(() =>
   })),
 );
 
+const TemplatesInstalledPage = lazy(() =>
+  import('~/pages/templates/TemplatesInstalledPage').then((module) => ({
+    default: module.TemplatesInstalledPage,
+  })),
+);
+
 const TemplateInstallationPage = lazy(() =>
   import('~/pages/templates/TemplateInstallationPage').then((module) => ({
     default: module.TemplateInstallationPage,
@@ -23,6 +29,7 @@ export const TemplateRoutes = () => (
   <Suspense fallback={<></>}>
     <Routes>
       <Route index element={<TemplatesIndexPage />} />
+      <Route path="installed" element={<TemplatesInstalledPage />} />
       <Route path="installations/:id" element={<TemplateInstallationPage />} />
       <Route path=":pluginName/:id" element={<TemplateInstallPage />} />
     </Routes>

@@ -1,4 +1,4 @@
-import { useEmailDocumentPlaceholder } from '@/automations/components/common/EmailDocumentPlaceholderPicker';
+import { useEmailDocumentPlaceholder } from '@/automations/hooks/useEmailDocumentPlaceholder';
 import { EmailContentEditor } from '@/emailTemplates/components/EmailContentEditor';
 import { EmailContentPreview } from '@/emailTemplates/components/EmailContentPreview';
 import { EmailTemplatesBreadcrumb } from '@/emailTemplates/components/EmailTemplatesBreadcrumb';

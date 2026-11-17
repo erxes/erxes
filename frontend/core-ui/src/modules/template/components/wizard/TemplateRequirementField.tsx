@@ -5,6 +5,8 @@ import {
 } from '@/automations/components/builder/template/CoreTemplateRequirement';
 import { TTemplateRequirement } from '@/template/types';
 import { AiAgentRequirement } from '@/template/components/wizard/AiAgentRequirement';
+import { useTemplateWizardContext } from '@/template/context/TemplateWizardContext';
+import { templateRequirementSourceNodes } from '@/template/utils/templateRequirementVariables';
 import { splitAutomationNodeType } from 'ui-modules';
 
 type TProps = {
@@ -28,6 +30,7 @@ export const TemplateRequirementField = ({
   onLabel,
 }: TProps) => {
   const { kind, input } = requirement;
+  const { template } = useTemplateWizardContext();
 
   if (kind === 'automations:aiAgent') {
     return (
@@ -41,6 +44,11 @@ export const TemplateRequirementField = ({
         kind={kind}
         value={value}
         input={input}
+        defaultValue={requirement.defaultAnswer}
+        variableSourceNodes={templateRequirementSourceNodes(
+          template,
+          requirement,
+        )}
         onChange={onChange}
       />
     );

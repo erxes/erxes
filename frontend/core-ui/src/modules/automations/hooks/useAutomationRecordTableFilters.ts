@@ -11,6 +11,7 @@ export const useAutomationRecordTableFilters = () => {
     tagIds,
     actionTypes,
     triggerTypes,
+    folderId,
   } = useNonNullMultiQueryState<{
     searchValue?: string;
     status?: string;
@@ -21,6 +22,7 @@ export const useAutomationRecordTableFilters = () => {
     tagIds?: string[];
     actionTypes?: string[];
     triggerTypes?: string[];
+    folderId?: string;
   }>([
     'searchValue',
     'status',
@@ -31,6 +33,7 @@ export const useAutomationRecordTableFilters = () => {
     'tagIds',
     'actionTypes',
     'triggerTypes',
+    'folderId',
   ]);
 
   const filters: any = {};
@@ -66,5 +69,14 @@ export const useAutomationRecordTableFilters = () => {
   if (triggerTypes?.length) {
     filters.triggerTypes = triggerTypes;
   }
+
+  // Inside a folder: only its automations. At the top, a filter or search
+  // looks through every folder; otherwise only what no folder holds shows.
+  if (folderId) {
+    filters.folderId = folderId;
+  } else if (!Object.keys(filters).length) {
+    filters.withoutFolder = true;
+  }
+
   return filters;
 };

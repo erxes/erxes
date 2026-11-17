@@ -3,9 +3,8 @@ import { TAutomationVariableSourceNode } from '@/automations/components/builder/
 import { EMAIL_LINK_URL_PLACEHOLDER } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailLinkUtils';
 import { IconVariable } from '@tabler/icons-react';
 import { Button, Input, Popover } from 'erxes-ui';
-import { useState } from 'react';
+import { useSendEmailLinkFields } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailLinkFields';
 import { useTranslation } from 'react-i18next';
-import { TAutomationVariableDragPayload } from 'ui-modules';
 
 export const SendEmailLinkFields = ({
   textValue,
@@ -24,41 +23,37 @@ export const SendEmailLinkFields = ({
   variableSourceNodes?: TAutomationVariableSourceNode[];
 }) => {
   const { t } = useTranslation('automations');
-  const [isVariableOpen, setIsVariableOpen] = useState(false);
-
-  const handleInsertVariable = (payload: TAutomationVariableDragPayload) => {
-    onUrlChange(`${urlValue}${payload.token}`);
-
-    if (!textValue.trim()) {
-      onTextChange(payload.label);
-    }
-
-    setIsVariableOpen(false);
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      onSubmit();
-    }
-  };
+  const {
+    isVariableOpen,
+    setIsVariableOpen,
+    handleInsertVariable,
+    handleKeyDown,
+    handleTextChange,
+    handleUrlChange,
+  } = useSendEmailLinkFields({
+    textValue,
+    urlValue,
+    onTextChange,
+    onUrlChange,
+    onSubmit,
+  });
 
   return (
     <div className="flex flex-col gap-2">
       <Input
         value={textValue}
         placeholder={t('link-text')}
-        onChange={(event) => onTextChange(event.currentTarget.value)}
+        onChange={handleTextChange}
         onKeyDown={handleKeyDown}
       />
       <div className="flex items-center gap-1">
         <Input
           value={urlValue}
           placeholder={EMAIL_LINK_URL_PLACEHOLDER}
-          onChange={(event) => onUrlChange(event.currentTarget.value)}
+          onChange={handleUrlChange}
           onKeyDown={handleKeyDown}
         />
-        {variableSourceNodes ? (
+        {variableSourceNodes && (
           <Popover open={isVariableOpen} onOpenChange={setIsVariableOpen}>
             <Popover.Trigger asChild>
               <Button
@@ -83,7 +78,7 @@ export const SendEmailLinkFields = ({
               </div>
             </Popover.Content>
           </Popover>
-        ) : null}
+        )}
       </div>
     </div>
   );

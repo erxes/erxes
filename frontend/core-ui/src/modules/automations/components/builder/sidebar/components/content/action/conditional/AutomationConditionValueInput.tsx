@@ -1,7 +1,5 @@
-import {
-  ManagePropertyCustomInput,
-  useManagePropertyCustomInput,
-} from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyCustomInput';
+import { ManagePropertyCustomInput } from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyCustomInput';
+import { useManagePropertyCustomInput } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyCustomInput';
 import { TConditionProperty } from '@/automations/components/builder/sidebar/components/content/action/conditional/conditionProperties';
 import { Input, Select, TPropertyInputMeta } from 'erxes-ui';
 import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';

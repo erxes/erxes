@@ -5,6 +5,7 @@ import {
   materializeTemplate,
 } from './materialize';
 import { TTemplate } from './types';
+import { templateGroupOf, templatePartKeysUsedByJourneys } from './group';
 import {
   getUnansweredTemplateRequirements,
   validateTemplate,
@@ -578,5 +579,70 @@ describe('plugin parts', () => {
         parts: [{ key: 'desk', type: 'pipeline', defaults: {} }],
       }),
     ).toEqual(['Part "desk" type "pipeline" names no owning plugin']);
+  });
+});
+
+describe('templateGroupOf', () => {
+  const segmentTemplate: TTemplate = {
+    id: 'new-customers',
+    version: 1,
+    name: 'New customers',
+    requirements: [],
+    parts: [
+      {
+        key: 'segment',
+        type: 'core:segments.segment',
+        defaults: { name: 'New customers' },
+      },
+    ],
+    journeys: [],
+  };
+
+  it('Reads the group from what the template builds', () => {
+    expect(templateGroupOf(segmentTemplate)).toBe('segment');
+    expect(
+      templateGroupOf({ journeys: template.journeys.slice(0, 1) }),
+    ).toBe('automation');
+    expect(
+      templateGroupOf({
+        journeys: [
+          ...template.journeys,
+          { ...template.journeys[0], key: 'second' },
+        ],
+      }),
+    ).toBe('solution');
+  });
+
+  it('Lets a template without journeys create only segments', () => {
+    expect(validateTemplate(segmentTemplate)).toEqual([]);
+    expect(
+      validateTemplate({
+        ...segmentTemplate,
+        parts: [{ key: 'agent', type: 'automations:aiAgent', defaults: {} }],
+      }),
+    ).toContain(
+      'Part "agent": a template without journeys creates only segments',
+    );
+  });
+
+  it('Names the parts a journey reads', () => {
+    expect(
+      templatePartKeysUsedByJourneys({
+        journeys: [
+          {
+            key: 'chat',
+            name: 'Chat',
+            trigger: { type: 'x' },
+            flow: [
+              {
+                order: 1,
+                type: 'if',
+                config: { contentId: '{{ parts.audience }}' },
+              },
+            ],
+          },
+        ],
+      }),
+    ).toEqual(new Set(['audience']));
   });
 });

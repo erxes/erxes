@@ -6,6 +6,9 @@ export type TTemplateRequirement = {
   dependsOn?: string;
   input?: { multiline?: boolean; placeholder?: string };
   defaultAnswer?: unknown;
+  // Which journey this fills into, so its trigger's variables can be offered
+  // while answering (a 'part' fill has none)
+  fills?: { journey?: string }[];
 };
 
 export type TTemplatePreviewNode = { label: string; icon?: string };
@@ -24,6 +27,9 @@ export type TTemplateJourney = {
   };
 };
 
+// Read from what the template builds: no journeys, one, or several
+export type TTemplateGroup = 'segment' | 'automation' | 'solution';
+
 export type TTemplate = {
   id: string;
   pluginName: string;
@@ -31,6 +37,7 @@ export type TTemplate = {
   name: string;
   description?: string;
   icon?: string;
+  group: TTemplateGroup;
   requirements: TTemplateRequirement[];
   parts: {
     key: string;

@@ -4,6 +4,7 @@ import {
   type TTemplate,
   type TTemplateAnswers,
 } from './types';
+import { TEMPLATE_SEGMENT_PART } from './group';
 
 const PART_REFERENCE =
   /\{\{\s*parts\.([A-Za-z0-9_-]+)(?:\.[A-Za-z0-9_-]+)?\s*\}\}/g;
@@ -193,6 +194,21 @@ export const validateTemplate = (template: TTemplate) => {
   for (const key of answerKeys) {
     if (!textKeys.includes(key)) {
       errors.push(`"{{ answers.${key} }}" names no text requirement`);
+    }
+  }
+
+  // Without journeys the segments it creates are what it delivers
+  if (!template.journeys.length) {
+    if (!template.parts.length) {
+      errors.push('A template without journeys must create a segment');
+    }
+
+    for (const { key, type } of template.parts) {
+      if (type !== TEMPLATE_SEGMENT_PART) {
+        errors.push(
+          `Part "${key}": a template without journeys creates only segments`,
+        );
+      }
     }
   }
 

@@ -6,24 +6,26 @@ import { AutomationsRecordTableContent } from '@/automations/components/list/Aut
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationsCardList } from '@/automations/components/list/AutomationsCardList';
-import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
-import { IconAffiliate, IconSettings } from '@tabler/icons-react';
+import { AutomationFolderCards } from '@/automations/components/list/folders/AutomationFolderCards';
+import { AutomationFolderEmptyState } from '@/automations/components/list/folders/AutomationFolderEmptyState';
+import { useAutomationFolderView } from '@/automations/hooks/useAutomationFolderView';
+import { useAutomationsListLayout } from '@/automations/hooks/useAutomationsListLayout';
+import { AutomationCreateDialog } from '@/automations/components/list/AutomationCreateDialog';
+import { AutomationCreateMenu } from '@/automations/components/list/AutomationCreateMenu';
+import { useAutomationListRows } from '@/automations/hooks/useAutomationListRows';
+import { useAutomationCreateDialog } from '@/automations/hooks/useAutomationCreateDialog';
+import { IconAffiliate, IconFolder } from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
   Separator,
   Spinner,
-  Kbd,
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
-import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
-import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
-import { Link, useNavigate } from 'react-router-dom';
 import {
-  Can,
   PageHeader,
   createFavoriteBreadcrumb,
   usePermissionCheck,
@@ -44,9 +46,18 @@ export const AutomationsRecordTable = () => {
 
   const { t } = useTranslation('automations');
   const { layout } = useAutomationsListLayout();
+  const { folderId, folder, folders, showFolders, openFolder } =
+    useAutomationFolderView();
   const columns = useMemo(() => getAutomationColumns(t), [t]);
+  // Folders are rows of the table; the card view keeps them as cards above
+  const isTable = layout !== 'grid';
+  const { rows, automationIds, openFolderIds } = useAutomationListRows({
+    list,
+    folders,
+    showFolders: isTable && showFolders && !error,
+  });
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('automations'));
-  const navigate = useNavigate();
+  const createDialog = useAutomationCreateDialog();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canCreateAutomation =
     isLoaded && hasActionPermission('automationsCreate');
@@ -55,10 +66,10 @@ export const AutomationsRecordTable = () => {
     `c`,
     () => {
       if (!canCreateAutomation) return;
-      navigate('/automations/create');
+      createDialog.openDialog();
     },
     AutomationsHotKeyScope.AutomationsPage,
-    [canCreateAutomation, navigate],
+    [canCreateAutomation, createDialog.openDialog],
   );
   if (loading) {
     return <Spinner />;
@@ -71,11 +82,22 @@ export const AutomationsRecordTable = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost">
+                <Button variant="ghost" onClick={() => openFolder(null)}>
                   <IconAffiliate />
                   {t('automations')}
                 </Button>
               </Breadcrumb.Item>
+              {folderId && (
+                <>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <Button variant="ghost">
+                      <IconFolder />
+                      {folder?.name || t('folder')}
+                    </Button>
+                  </Breadcrumb.Item>
+                </>
+              )}
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
@@ -85,34 +107,28 @@ export const AutomationsRecordTable = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link
-              to={AutomationSettingsPath.Index}
-              onClick={() => setAutomationSettingsReturnPath('/automations')}
-            >
-              <IconSettings />
-              {t('go-to-settings')}
-            </Link>
-          </Button>
-          <Can action="automationsCreate">
-            <Button asChild>
-              <Link to={'/automations/create'}>
-                {t('create')}
-                <Kbd>C</Kbd>
-              </Link>
-            </Button>
-          </Can>
+          <AutomationCreateMenu onCreateAutomation={createDialog.openDialog} />
         </PageHeader.End>
       </PageHeader>
+      <AutomationCreateDialog state={createDialog} />
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />
+      {!isTable && showFolders && !error && (
+        <AutomationFolderCards folders={folders} onOpen={openFolder} />
+      )}
       {error ? (
         <AutomationErrorEmptyState
           title={t('automations-load-error')}
           error={error}
           onRetry={() => refetch()}
         />
-      ) : list.length === 0 ? (
-        <AutomationsRecordTableEmptyState />
+      ) : rows.length === 0 ? (
+        folderId || (showFolders && folders.length) ? (
+          <AutomationFolderEmptyState inFolder={!!folderId} />
+        ) : (
+          <AutomationsRecordTableEmptyState
+            onCreate={createDialog.openDialog}
+          />
+        )
       ) : layout === 'grid' ? (
         <AutomationsCardList
           list={list}
@@ -123,7 +139,10 @@ export const AutomationsRecordTable = () => {
       ) : (
         <AutomationsRecordTableContent
           columns={columns}
-          list={list}
+          rows={rows}
+          automationIds={automationIds}
+          openFolderIds={openFolderIds}
+          listLength={list.length}
           loading={loading}
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}

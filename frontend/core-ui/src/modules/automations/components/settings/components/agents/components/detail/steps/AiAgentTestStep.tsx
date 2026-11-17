@@ -1,5 +1,4 @@
-import { useAiAgentDetailContext } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
-import { TAiAgentHealthCheckStatus } from '@/automations/components/settings/components/agents/hooks/useAiAgentHealth';
+import { useAiAgentTestStep } from '@/automations/components/settings/components/agents/hooks/useAiAgentTestStep';
 import { IconLoader2 } from '@tabler/icons-react';
 import {
   Alert,
@@ -10,30 +9,16 @@ import {
   Skeleton,
 } from 'erxes-ui';
 
-const HEALTH_LABELS: Record<string, string> = {
-  schema: 'Schema',
-  credentials: 'Credentials',
-  files: 'Context files',
-  endpoint: 'Endpoint',
-  model: 'Model access',
-};
-
-const CHECK_VARIANTS: Record<
-  TAiAgentHealthCheckStatus,
-  'success' | 'warning' | 'destructive' | 'secondary'
-> = {
-  ok: 'success',
-  warning: 'warning',
-  error: 'destructive',
-  skipped: 'secondary',
-};
-
-const isValidDate = (value?: string) =>
-  !!value && !Number.isNaN(new Date(value).getTime());
-
 export const AiAgentTestStep = () => {
-  const { isEditing, health: healthState } = useAiAgentDetailContext();
-  const { health, loading, refetch } = healthState;
+  const {
+    isEditing,
+    health,
+    loading,
+    runCheck,
+    hasCheckedAt,
+    showSkeleton,
+    checks,
+  } = useAiAgentTestStep();
 
   if (!isEditing) {
     return (
@@ -59,7 +44,7 @@ export const AiAgentTestStep = () => {
           {health && (
             <p className="text-xs text-muted-foreground">
               Last checked{' '}
-              {isValidDate(health.checkedAt) ? (
+              {hasCheckedAt ? (
                 <RelativeDateDisplay.Value value={health.checkedAt} />
               ) : (
                 'just now'
@@ -67,17 +52,13 @@ export const AiAgentTestStep = () => {
             </p>
           )}
         </div>
-        <Button
-          variant="secondary"
-          onClick={() => void refetch()}
-          disabled={loading}
-        >
+        <Button variant="secondary" onClick={runCheck} disabled={loading}>
           {loading && <IconLoader2 className="size-4 animate-spin" />}
           {loading ? 'Checking…' : 'Run check'}
         </Button>
       </Card>
 
-      {loading && !health && (
+      {showSkeleton && (
         <Card className="space-y-3 p-4">
           <Skeleton className="h-5 w-40" />
           <Skeleton className="h-4 w-full" />
@@ -88,15 +69,13 @@ export const AiAgentTestStep = () => {
       {health && (
         <>
           <Card className="grid gap-3 p-4 md:grid-cols-2">
-            {Object.entries(health.checks || {}).map(([key, status]) => (
+            {checks.map(({ key, label, status, variant }) => (
               <div
                 key={key}
                 className="flex items-center justify-between rounded-md border bg-muted/20 px-3 py-2"
               >
-                <span className="text-sm font-medium">
-                  {HEALTH_LABELS[key] || key}
-                </span>
-                <Badge variant={CHECK_VARIANTS[status]}>{status}</Badge>
+                <span className="text-sm font-medium">{label}</span>
+                <Badge variant={variant}>{status}</Badge>
               </div>
             ))}
           </Card>

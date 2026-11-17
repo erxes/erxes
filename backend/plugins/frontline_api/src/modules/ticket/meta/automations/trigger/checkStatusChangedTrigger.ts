@@ -4,8 +4,9 @@ export const TICKET_STATUS_CHANGED_RELATION = 'statusChanged';
 
 export type TTicketStatusChangedTriggerConfig = {
   pipelineId?: string;
-  // Empty means any status of the pipeline.
-  toStatusIds?: string[];
+  // Empty means any status of the pipeline. A single filled-in status (a
+  // template requirement answers with one id, not an array) is accepted too.
+  toStatusIds?: string | string[];
 };
 
 type TEventUpdateDescription = {
@@ -22,7 +23,12 @@ export const isTicketStatusChanged = ({
   config?: TTicketStatusChangedTriggerConfig;
   eventUpdateDescription?: TEventUpdateDescription;
 }) => {
-  const { pipelineId, toStatusIds = [] } = config || {};
+  const { pipelineId, toStatusIds: configuredStatusIds } = config || {};
+  const toStatusIds = Array.isArray(configuredStatusIds)
+    ? configuredStatusIds
+    : configuredStatusIds
+      ? [configuredStatusIds]
+      : [];
   const change = eventUpdateDescription?.updated?.statusId;
 
   if (!change || change.prev === change.current) {

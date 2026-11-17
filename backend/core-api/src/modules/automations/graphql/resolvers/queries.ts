@@ -56,6 +56,9 @@ export interface IListArgs extends ICursorPaginateParams {
   updatedAtTo: Date;
   actionTypes: string[];
   triggerSegmentId?: string;
+  folderId?: string;
+  // The top of the list: automations no folder holds
+  withoutFolder?: boolean;
 }
 
 export interface IStatsParams {

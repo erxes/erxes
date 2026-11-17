@@ -6,14 +6,14 @@ import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTa
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
 import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
 import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
-import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
+import { useOpenRecordPanelFromQuery } from '~/widgets/record-panel/useOpenRecordPanelFromQuery';
 import { useResolvePosItemOrderId } from '@/pos/pos-items/hooks/useResolvePosItemOrderId';
 
 export const PosItemsPage = () => {
   const { posId } = useParams();
   const resolvePosItemOrderId = useResolvePosItemOrderId();
 
-  useOpenPosPanelFromQuery(
+  useOpenRecordPanelFromQuery(
     'pos_order_id',
     POS_ORDER_CONTENT_TYPE,
     resolvePosItemOrderId,

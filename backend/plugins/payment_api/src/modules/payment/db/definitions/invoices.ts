@@ -33,7 +33,7 @@ export const invoiceSchema = schemaWrapper(
     callback: { type: String },
     warningText: { type: String },
     // set together with the paid status; cleared once paid notifications
-    // are queued. The pending-invoice cron retries invoices still flagged.
+    // are queued. The invoice re-check worker retries invoices still flagged.
     notifyPending: { type: Boolean },
   }),
 );

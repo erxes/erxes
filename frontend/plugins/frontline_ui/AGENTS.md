@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-13`
+- **Last synchronized:** `2026-11-16`
 
 ## Scope
 
@@ -95,8 +95,7 @@
 ## Current Capabilities
 
 - Inbox automation remote entry routes `frontline:inbox.handoffs.create` to
-  `HandoffActionForm` (assignees via user placeholders, pause minutes, blank =
-  30) and `HandoffActionConfig`; other inbox actions keep the Messenger message
+  `HandoffActionForm` (assignees via user placeholders, pause minutes, blank = 30) and `HandoffActionConfig`; other inbox actions keep the Messenger message
   form. New copy uses `t(key, default)` because frontline strings live in the
   gateway locales.
 
@@ -964,7 +963,11 @@ owns the setup form and connection actions.
   (`src/pages/TicketDetailPage.tsx`, lazy-loaded in `FrontlineMain`) is laid
   out like operation's task page through the public
   `RecordSidePanel expanded expandedMode="page" expandable={false}`: a
-  `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`, then `TicketPageFields`
+  `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`
+  (`PageHeader.End` is always rendered; `RecordSidePanel`'s `minimizeTo`
+  `{ frontline:ticket, /frontline/tickets }` makes it end with the shared
+  minimize button, back to the tickets list with the ticket in the side
+  panel), then `TicketPageFields`
   beside Description, Properties and Activity tabs, the name edited above the
   fields with `TicketPanelName`. Deleting the ticket from the page replaces it
   with `/frontline/tickets`; a missing ticket shows the panel's empty state. The
@@ -1150,8 +1153,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `deals`) — the relation widgets rendered with the conversation's
   `customerId`, so they list and create that customer's tickets and deals —
   shown only when the conversation has a customer and the plugin is enabled;
-  and the conversation Properties tab. No other relation widgets are rendered
-  beside a conversation.
+  and the conversation Properties tab, which renders `FieldsInDetail` with
+  `bare` (property groups only, no outer card). No other relation widgets are
+  rendered beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
