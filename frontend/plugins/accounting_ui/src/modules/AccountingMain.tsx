@@ -93,6 +93,24 @@ const AccountingGenJournalReport = lazy(() =>
   })),
 );
 
+const AccountingTunableReportPrint = lazy(() =>
+  import('~/pages/TunableReportPrintPage').then((module) => ({
+    default: module.TunableReportPrintPage,
+  })),
+);
+
+const AccountingTunableReports = lazy(() =>
+  import('~/pages/TunableReportsPage').then((module) => ({
+    default: module.TunableReportsPage,
+  })),
+);
+
+const AccountingTunableReportDetail = lazy(() =>
+  import('~/pages/TunableReportDetailPage').then((module) => ({
+    default: module.TunableReportDetailPage,
+  })),
+);
+
 const InventoryRemainders = lazy(() =>
   import('~/pages/inventories/RemaindersPage').then((module) => ({
     default: module.RemaindersPage,
@@ -211,7 +229,23 @@ const PluginAccounting = () => {
             path="/journal-reports"
             element={<AccountingJournalReports />}
           />
+          <Route
+            path="/tunable-reports/new"
+            element={<AccountingTunableReportDetail mode="new" />}
+          />
+          <Route
+            path="/tunable-reports/:id/edit"
+            element={<AccountingTunableReportDetail mode="edit" />}
+          />
+          <Route
+            path="/tunable-reports/:id"
+            element={<AccountingTunableReportDetail mode="show" />}
+          />
           <Route path="/check-sync/*" element={<AccountingCheckSync />} />
+          <Route
+            path="/tunable-reports"
+            element={<AccountingTunableReports />}
+          />
           <Route
             path="/gen-journal-report"
             element={<AccountingGenJournalReport />}
@@ -266,6 +300,14 @@ const AccountingAppRoutes = PluginAccounting;
 /** The plugin owns its settings too: `/accounting/settings/*` has its own sidebar. */
 const AccountingEntry = () => (
   <Routes>
+    <Route
+      path="tunable-reports/:id/print"
+      element={
+        <Suspense fallback={<Spinner />}>
+          <AccountingTunableReportPrint />
+        </Suspense>
+      }
+    />
     <Route
       path="settings/*"
       element={
