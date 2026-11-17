@@ -16,6 +16,7 @@ import {
   IconPhoto,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   createFavoriteBreadcrumb,
@@ -46,6 +47,7 @@ export const ArticleDetailPage = () => {
   const { articleId = '' } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useQueryState<string>('tab');
+  const [formKey, setFormKey] = useState(0);
   const { article, loading, error } = useArticleDetail(articleId);
   const { topicId, loading: placementLoading } = useArticleTopicId(article);
   const { topic } = useTopicDetail(topicId || undefined);
@@ -174,6 +176,7 @@ export const ArticleDetailPage = () => {
               icon: IconId,
               content: (
                 <ArticleDrawer
+                  key={`${article._id}:${formKey}`}
                   articleId={article._id}
                   article={article}
                   topicId={topicId}
@@ -181,6 +184,7 @@ export const ArticleDetailPage = () => {
                   closeOnSave={false}
                   mediaTab
                   contentTab
+                  onCancel={() => setFormKey((key) => key + 1)}
                   onClose={() => navigate(articlesPath, { replace: true })}
                 />
               ),
