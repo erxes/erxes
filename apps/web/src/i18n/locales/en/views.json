@@ -44,6 +44,8 @@
     "loading": "Loading fields…",
     "no-match": "No field matches",
     "field-or-path": "Field or path…",
+    "search-in": "Search {{app}}…",
+    "all-fields": "All fields",
     "clear": "Clear",
     "clear-all": "Clear all",
     "done": "Done",
@@ -91,7 +93,8 @@
       "lead": "Lead",
       "company": "Company",
       "activity": "Activity",
-      "custom": "Properties"
+      "custom": "Properties",
+      "apps": "Apps"
     },
     "op": {
       "eq": "is",
