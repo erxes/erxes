@@ -225,6 +225,8 @@ transactionSchema.index({
   number: 1,
   ptrId: 1,
 });
+transactionSchema.index({ 'relAccounts.customDt': 1, side: 1, date: 1 });
+transactionSchema.index({ 'relAccounts.customCt': 1, side: 1, date: 1 });
 transactionSchema.index({ 'details.accountId': 1, date: 1, journal: 1 });
 transactionSchema.index({ 'details.productId': 1, date: 1, journal: 1 });
 transactionSchema.index({

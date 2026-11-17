@@ -94,14 +94,23 @@ export const Choice = ({
   onChange,
   options,
   label,
+  inline = false,
 }: {
+  inline?: boolean;
   value?: string;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   label: string;
 }) => (
   <Select value={value || '__inherit'} onValueChange={onChange}>
-    <Select.Trigger aria-label={label}>
+    <Select.Trigger
+      aria-label={label}
+      className={
+        inline
+          ? 'h-cell w-full rounded-none border-0 bg-transparent px-2 shadow-none'
+          : undefined
+      }
+    >
       <Select.Value placeholder={label} />
     </Select.Trigger>
     <Select.Content>
@@ -119,7 +128,9 @@ export const ChoiceSetting = ({
   label,
   options,
   onChange,
+  inline = false,
 }: {
+  inline?: boolean;
   onChange?: (value: string) => void;
   form: ReportForm;
   name: ReportPath;
@@ -130,9 +141,12 @@ export const ChoiceSetting = ({
     control={form.control}
     name={name}
     render={({ field }) => (
-      <Form.Item>
-        <Form.Label>{label}</Form.Label>
+      <Form.Item className={inline ? 'space-y-0' : undefined}>
+        <Form.Label className={inline ? 'sr-only' : undefined}>
+          {label}
+        </Form.Label>
         <Choice
+          inline={inline}
           label={label}
           value={typeof field.value === 'string' ? field.value : undefined}
           onChange={(value) => {

@@ -42,7 +42,7 @@ test('period inheritance respects explicit false and formula overrides', () => {
       section.rows[0],
       section.columns[0],
     ),
-  ).toEqual({ getDate: 'first', isPre: false });
+  ).toEqual({ getDate: 'last', isPre: true });
   section.formulas[0].getDate = 'last';
   section.formulas[0].isPre = true;
   expect(
@@ -67,6 +67,8 @@ test('supports independent section columns and explicit source cells', () => {
   const second = definition('b');
   second.sections[0].formulaType = 'cell';
   second.sections[0].formulas[0].columnId = 'c';
+  report.sections[0].formulaType = 'cell';
+  report.sections[0].formulas[0].columnId = 'c';
   report.sections[0].formulas[0] = {
     ...report.sections[0].formulas[0],
     kind: 'from_row',
@@ -116,4 +118,30 @@ test('permits an empty section but requires columns before formulas are configur
     ratioRule: 'divide',
   });
   expect(() => validateReportDefinitions([report])).toThrow('Add a column');
+});
+
+test('formula comparison false overrides previous column and row settings', () => {
+  const section = definition().sections[0];
+  section.rows[0].isPre = true;
+  section.formulas[0].isPre = false;
+  expect(
+    resolveReportPeriod(
+      section.formulas[0],
+      section.rows[0],
+      section.columns[0],
+    ),
+  ).toEqual({ getDate: 'last', isPre: false });
+});
+
+test('references require matching row/cell scopes even with an explicit column', () => {
+  const a = definition('a');
+  const b = definition('b');
+  b.sections[0].formulaType = 'cell';
+  b.sections[0].formulas[0].columnId = 'c';
+  a.sections[0].formulas[0] = {
+    ...a.sections[0].formulas[0],
+    kind: 'from_row',
+    source: { reportId: 'b', sectionId: 's', rowId: 'r', columnId: 'c' },
+  };
+  expect(() => validateReportDefinitions([a, b])).toThrow('same formula scope');
 });

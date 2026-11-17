@@ -1,4 +1,5 @@
 import { Mongoose, Schema } from 'mongoose';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import {
   reportInputSchema,
@@ -6,6 +7,8 @@ import {
   IReportDefinition,
 } from '../../../@types/report';
 import { loadReportClass, IReportModel } from '../Reports';
+
+const reportUser = { _id: 'member' } as IUserDocument;
 
 jest.mock('erxes-api-shared/utils', () => {
   let sequence = 0;
@@ -163,13 +166,16 @@ test('generate loads a tenant report with validated run settings and does not pe
   const read = jest.spyOn(Reports, 'getReport').mockResolvedValue(existing);
   const create = jest.spyOn(Reports, 'create');
   const update = jest.spyOn(Reports, 'findOneAndUpdate');
-  const result = await Reports.generateReport({
-    _id: 'saved',
-    fromDate: '2026-01-01',
-    toDate: '2026-12-31',
-    amountUnit: 'thousands',
-    decimals: 0,
-  });
+  const result = await Reports.generateReport(
+    {
+      _id: 'saved',
+      fromDate: '2026-01-01',
+      toDate: '2026-12-31',
+      amountUnit: 'thousands',
+      decimals: 0,
+    },
+    reportUser,
+  );
   expect(read).toHaveBeenCalledWith('saved');
   expect(result).toEqual({
     report: existing,
@@ -177,7 +183,7 @@ test('generate loads a tenant report with validated run settings and does not pe
     toDate: '2026-12-31',
     amountUnit: 'thousands',
     decimals: 0,
-    cells: [],
+    cells: [{ sectionId: 's', rowId: 'r', columnId: 'c', value: null }],
   });
   expect(create).not.toHaveBeenCalled();
   expect(update).not.toHaveBeenCalled();
@@ -192,12 +198,15 @@ test.each([
     const { Reports } = setup();
     const read = jest.spyOn(Reports, 'getReport');
     await expect(
-      Reports.generateReport({
-        _id: 'saved',
-        fromDate: '2026-01-01',
-        toDate: '2026-12-31',
-        ...invalid,
-      }),
+      Reports.generateReport(
+        {
+          _id: 'saved',
+          fromDate: '2026-01-01',
+          toDate: '2026-12-31',
+          ...invalid,
+        },
+        reportUser,
+      ),
     ).rejects.toThrow();
     expect(read).not.toHaveBeenCalled();
   },

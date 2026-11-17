@@ -8,7 +8,10 @@ const getAccountIdsOnTr = async (
   models: IModels,
   transactions: ITransactionDocument[],
 ) => {
-  const accountsById: { [_id: string]: any } = {};
+  const accountsById: Record<
+    string,
+    Pick<IAccountDocument, '_id' | 'code' | 'isOutBalance'>
+  > = {};
   const accountIds = transactions.reduce(
     (ids: string[], tr: ITransactionDocument) =>
       ids.concat((tr.details || []).map((d) => d.accountId)),
@@ -28,7 +31,7 @@ const getAccountIdsOnTr = async (
 const getPtrStatus = async (
   models: IModels,
   transactions: ITransactionDocument[],
-  accounts: IAccountDocument[],
+  accounts: Pick<IAccountDocument, 'isOutBalance'>[],
 ) => {
   let balance = 0;
   for (const tr of transactions) {
@@ -50,7 +53,7 @@ const getPtrStatus = async (
 const getRelAccounts = (
   trDoc: ITransaction,
   transactions: ITransaction[],
-  accountsById: { [_id: string]: string },
+  accountsById: Record<string, Pick<IAccountDocument, 'code'>>,
 ) => {
   const dtAccountCodes: string[] = [];
   const ctAccountCodes: string[] = [];
@@ -87,17 +90,31 @@ const getRelAccounts = (
   };
 };
 
-const normalizeRelAccountCodes = (codes?: string[]) => {
-  if (!Array.isArray(codes)) {
-    return;
-  }
+const normalizeRelAccountCodes = (codes: unknown): string[] | undefined => {
+  if (!Array.isArray(codes)) return;
+  const normalized = [
+    ...new Set(
+      codes
+        .filter((code): code is string => typeof code === 'string')
+        .map((code) => code.trim())
+        .filter(Boolean),
+    ),
+  ];
+  return normalized.length ? normalized : undefined;
+};
 
-  const cleanCodes = codes
-    .filter((code): code is string => typeof code === 'string')
-    .map((code) => code.trim())
-    .filter(Boolean);
-
-  return cleanCodes.length ? cleanCodes : undefined;
+// A copy of the computed defaults still inherits; only differing codes are overrides.
+export const getRelAccountOverride = (
+  codes: unknown,
+  defaults?: string[],
+): string[] | undefined => {
+  const custom = normalizeRelAccountCodes(codes);
+  const base = normalizeRelAccountCodes(defaults) || [];
+  return custom &&
+    (custom.length !== base.length ||
+      custom.some((code) => !base.includes(code)))
+    ? custom
+    : undefined;
 };
 
 export const setPtrStatus = async (
@@ -115,8 +132,11 @@ export const setPtrStatus = async (
     ptrId: { $in: ptrIds },
   }).lean();
 
-  const trsByPtrId = {};
-  const relAccountsByTrId = {};
+  const trsByPtrId: Record<string, ITransactionDocument[]> = {};
+  const relAccountsByTrId: Record<
+    string,
+    ReturnType<typeof getRelAccounts>
+  > = {};
   const { accounts, accountsById } = await getAccountIdsOnTr(
     models,
     transactions,
@@ -127,7 +147,15 @@ export const setPtrStatus = async (
   const bulkOps: {
     updateOne: {
       filter: { _id: string };
-      update: any;
+      update: {
+        $set: {
+          'relAccounts.dt': string[];
+          'relAccounts.ct': string[];
+          'relAccounts.customDt': string[];
+          'relAccounts.customCt': string[];
+          ptrStatus: string;
+        };
+      };
     };
   }[] = [];
 
@@ -149,33 +177,24 @@ export const setPtrStatus = async (
     const status = await getPtrStatus(models, trs, accounts);
 
     for (const tr of trs) {
-      const customDt = normalizeRelAccountCodes(tr.relAccounts?.customDt);
-      const customCt = normalizeRelAccountCodes(tr.relAccounts?.customCt);
-      const update: any = {
+      const defaults = relAccountsByTrId[tr._id];
+      const customDt = getRelAccountOverride(
+        tr.relAccounts?.customDt,
+        tr.relAccounts?.dt,
+      );
+      const customCt = getRelAccountOverride(
+        tr.relAccounts?.customCt,
+        tr.relAccounts?.ct,
+      );
+      const update = {
         $set: {
-          'relAccounts.dt': relAccountsByTrId[tr._id]?.dt,
-          'relAccounts.ct': relAccountsByTrId[tr._id]?.ct,
+          'relAccounts.dt': defaults.dt,
+          'relAccounts.ct': defaults.ct,
+          'relAccounts.customDt': customDt ?? defaults.dt,
+          'relAccounts.customCt': customCt ?? defaults.ct,
           ptrStatus: status,
         },
       };
-
-      if (customDt) {
-        update.$set['relAccounts.customDt'] = customDt;
-      } else {
-        update.$unset = {
-          ...update.$unset,
-          'relAccounts.customDt': '',
-        };
-      }
-
-      if (customCt) {
-        update.$set['relAccounts.customCt'] = customCt;
-      } else {
-        update.$unset = {
-          ...update.$unset,
-          'relAccounts.customCt': '',
-        };
-      }
 
       bulkOps.push({
         updateOne: {

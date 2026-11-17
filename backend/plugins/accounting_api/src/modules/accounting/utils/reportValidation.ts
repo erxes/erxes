@@ -1,18 +1,14 @@
-import {
-  IReportDefinition,
-  IReportFormula,
-  IReportSection,
-  IReportReference,
-} from '../@types/report';
+import { validateReportPercent } from './tunableReports/percent';
+import { IReportDefinition, IReportSection } from '../@types/report';
 
-export const resolveReportPeriod = (
-  formula: IReportFormula,
-  row: IReportSection['rows'][number],
-  column: IReportSection['columns'][number],
-) => ({
-  getDate: formula.getDate ?? row.getDate ?? column.getDate,
-  isPre: formula.isPre ?? row.isPre ?? column.isPre ?? false,
-});
+import {
+  getReportCellFormulas,
+  reportCellKey,
+  resolveReportPeriod,
+  resolveReportSource,
+} from './tunableReports/cells';
+export { resolveReportPeriod } from './tunableReports/cells';
+
 const requireUniqueIds = (items: { _id: string }[], label: string): void => {
   if (new Set(items.map((item) => item._id)).size !== items.length)
     throw new Error(`${label}: duplicate ids`);
@@ -46,64 +42,19 @@ export const validateReportDefinitions = (
       }
     }
   }
-  const findSource = (
-    report: IReportDefinition,
-    section: IReportSection,
-    column: Column,
-    source: IReportReference,
-  ) => {
-    const sourceReport = reportMap.get(source.reportId || report._id);
-    const sourceSection = sourceReport?.sections.find(
-      (item) => item._id === (source.sectionId || section._id),
-    );
-    const sourceRow = sourceSection?.rows.find(
-      (item) => item._id === source.rowId,
-    );
-    const sameSection =
-      sourceReport?._id === report._id && sourceSection?._id === section._id;
-    const sourceColumn = source.columnId
-      ? sourceSection?.columns.find((item) => item._id === source.columnId)
-      : sameSection
-      ? column
-      : sourceSection?.formulaType === 'row'
-      ? column
-      : undefined;
-    if (!sourceReport || !sourceSection || !sourceRow || !sourceColumn)
-      throw new Error(
-        'Formula references a missing report, section, row or column; select a source column for cell-based sections',
-      );
-    if (sourceRow.kind === 'title' || sourceRow.kind === 'date')
-      throw new Error('Formula source must be a numeric row');
-    return {
-      report: sourceReport,
-      section: sourceSection,
-      row: sourceRow,
-      column: sourceColumn,
-    };
-  };
   const buildNode = (
     report: IReportDefinition,
     section: IReportSection,
     row: Row,
     column: Column,
   ): string => {
-    const node = JSON.stringify([
-      report._id,
-      section._id,
-      row._id,
-      column._id,
-      column.getDate,
-      column.isPre,
-    ]);
+    const node = reportCellKey({ report, section, row, column });
     if (graph.has(node)) return node;
     const edges: string[] = [];
     graph.set(node, edges);
-    const formulas = section.formulas.filter(
-      (formula) =>
-        formula.rowId === row._id &&
-        (section.formulaType === 'row' || formula.columnId === column._id),
-    );
+    const formulas = getReportCellFormulas(section, row._id, column._id);
     for (const formula of formulas) {
+      validateReportPercent(formula.percent);
       if (row.kind === 'title' || row.kind === 'date')
         throw new Error('Title and date rows cannot have formulas');
       const period = resolveReportPeriod(formula, row, column);
@@ -128,7 +79,11 @@ export const validateReportDefinitions = (
           : [];
       for (const source of references) {
         if (!source) continue;
-        const resolved = findSource(report, section, column, source);
+        const resolved = resolveReportSource(
+          { report, section, column },
+          source,
+          reportMap.get(source.reportId || report._id),
+        );
         edges.push(
           buildNode(
             resolved.report,

@@ -15,10 +15,11 @@ export const reportQueries = {
   async accountingTunableReportGenerate(
     _root: unknown,
     params: IReportGenerateParams,
-    { models, checkPermission }: IContext,
+    { models, checkPermission, user }: IContext,
   ) {
     await checkPermission('readTunableReports');
-    return models.Reports.generateReport(params);
+    await checkPermission('accountsRead');
+    return models.Reports.generateReport(params, user);
   },
   async accountingTunableReportDetail(
     _root: unknown,

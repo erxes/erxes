@@ -86,3 +86,44 @@ test('validates effective dates and source operands before saving', () => {
   source.sections[0].columns[0].getDate = 'last';
   expect(reportFormSchema.safeParse(source).success).toBe(true);
 });
+
+test('column date takes precedence over row; formula date overrides the column', () => {
+  const report = newReport('Report');
+  report.sections[0] = reportSectionInputSchema.parse({
+    _id: 's',
+    columns: [{ _id: 'c', name: 'Movement', getDate: 'between' }],
+    rows: [{ _id: 'r', getDate: 'last' }],
+    formulas: [{ _id: 'f', rowId: 'r', kind: 'balance' }],
+  });
+  expect(reportFormSchema.safeParse(report).success).toBe(false);
+  report.sections[0].formulas[0].getDate = 'first';
+  expect(reportFormSchema.safeParse(report).success).toBe(true);
+});
+
+test.each([
+  '100',
+  '-20.5',
+  'if(value>100:[20])10',
+  'if(value<=0:0,value>100:20)10',
+])('accepts supported percentage syntax: %s', (percent) => {
+  const section = reportSectionInputSchema.safeParse({
+    _id: 's',
+    columns: [],
+    rows: [],
+    formulas: [{ _id: 'f', rowId: 'r', kind: 'balance', percent }],
+  });
+  expect(section.success).toBe(true);
+});
+test.each(['NaN', 'value * 10', 'if(value>100:[20)10'])(
+  'rejects invalid percentage text before saving: %s',
+  (percent) => {
+    expect(
+      reportSectionInputSchema.safeParse({
+        _id: 's',
+        columns: [],
+        rows: [],
+        formulas: [{ _id: 'f', rowId: 'r', kind: 'balance', percent }],
+      }).success,
+    ).toBe(false);
+  },
+);

@@ -78,6 +78,7 @@ export const ReportEditor = ({
     navigate('/accounting/tunable-reports');
   };
   const removeSection = async (index: number) => {
+    if (form.getValues('sections').length <= 1) return;
     const item = form.getValues(`sections.${index}`);
     if (
       form
@@ -103,7 +104,12 @@ export const ReportEditor = ({
     } catch {
       return;
     }
-    sections.remove(index);
+    const remaining = form.getValues('sections');
+    const currentIndex = remaining.findIndex(
+      (section) => section._id === item._id,
+    );
+    if (remaining.length > 1 && currentIndex >= 0)
+      sections.remove(currentIndex);
   };
   return (
     <Form {...form}>

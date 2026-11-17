@@ -1,4 +1,6 @@
 import { Model } from 'mongoose';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { generateTunableReport } from '../../utils/tunableReports';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -23,7 +25,10 @@ export interface IReportModel extends Model<IReportDocument> {
     params: IReportListParams,
   ): Promise<{ list: IReportDocument[]; totalCount: number }>;
   getReport(_id: string): Promise<IReportDocument>;
-  generateReport(params: IReportGenerateParams): Promise<IReportGenerated>;
+  generateReport(
+    params: IReportGenerateParams,
+    user: IUserDocument,
+  ): Promise<IReportGenerated>;
   saveReport(
     input: unknown,
     userId: string,
@@ -67,11 +72,12 @@ export const loadReportClass = (
     }
     static async generateReport(
       params: IReportGenerateParams,
+      user: IUserDocument,
     ): Promise<IReportGenerated> {
       const { _id, ...settings } = reportGenerateInputSchema.parse(params);
       const report = await models.Reports.getReport(_id);
-      // Evaluation belongs to this read-only boundary; definitions never store results.
-      return { report, ...settings, cells: [] };
+      const cells = await generateTunableReport(models, report, settings, user);
+      return { report, ...settings, cells };
     }
     static async saveReport(
       input: unknown,

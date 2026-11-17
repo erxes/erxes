@@ -6,7 +6,7 @@ import {
   within,
   waitFor,
 } from '@testing-library/react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { SectionEditor } from '../SectionEditor';
 import { newReport } from '../values';
 import { ReportValues, reportSectionInputSchema } from '../schema';
@@ -112,6 +112,7 @@ jest.mock('erxes-ui', () => {
         View: plain,
         Header: plain,
         Content: plain,
+        Description: plain,
         Footer: plain,
         Title: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
         Close: () => null,
@@ -309,3 +310,38 @@ test.each(['row', 'cell'] as const)(
     ).toBe('r:c1');
   },
 );
+
+const RemovableSections = () => {
+  const initial = newReport('Demo');
+  initial.sections.push({ ...initial.sections[0], _id: 'second' });
+  const form = useForm<ReportValues>({ defaultValues: initial });
+  const sections = useFieldArray({ control: form.control, name: 'sections' });
+  return (
+    <>
+      {sections.fields.map((section, index) => (
+        <SectionEditor
+          key={section._id}
+          form={form}
+          index={index}
+          onRemove={
+            sections.fields.length > 1
+              ? () => sections.remove(index)
+              : undefined
+          }
+        />
+      ))}
+    </>
+  );
+};
+
+test('section headers expose removal until only the final section remains', () => {
+  render(<RemovableSections />);
+  expect(
+    screen.getAllByRole('button', { name: 'remove · section' }),
+  ).toHaveLength(2);
+  fireEvent.click(
+    screen.getAllByRole('button', { name: 'remove · section' })[0],
+  );
+  expect(screen.getAllByRole('table')).toHaveLength(1);
+  expect(screen.queryByRole('button', { name: 'remove · section' })).toBeNull();
+});

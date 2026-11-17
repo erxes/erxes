@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
 const id = z.string().trim().min(1);
+const numericPercent = '-?\\d+(?:\\.\\d+)?';
+const percentageRule = new RegExp(
+  `^(?:${numericPercent}|if\\(\\w+\\s*(?:>=|<=|!=|>|<|=)\\s*${numericPercent}\\s*:\\s*(?:${numericPercent}|\\[${numericPercent}\\])(?:\\s*,\\s*\\w+\\s*(?:>=|<=|!=|>|<|=)\\s*${numericPercent}\\s*:\\s*(?:${numericPercent}|\\[${numericPercent}\\]))*\\)\\s*${numericPercent})$`,
+);
 const period = {
   getDate: z.enum(['first', 'last', 'between']).optional(),
   isPre: z.boolean().optional(),
@@ -24,7 +28,11 @@ export const reportFormulaInputSchema = z.object({
   columnId: id.optional(),
   kind: z.enum(['balance', 'transaction', 'from_row', 'ratio']),
   plusOrMinus: z.boolean().default(true),
-  percent: z.string().trim().min(1).default('100'),
+  percent: z
+    .string()
+    .trim()
+    .regex(percentageRule, 'Enter a numeric percentage or valid if rule')
+    .default('100'),
   debitAccountId: id.optional(),
   creditAccountId: id.optional(),
   debitAccountCategoryId: id.optional(),
@@ -113,7 +121,7 @@ export const reportFormSchema = reportDefinitionSchema.superRefine(
           issue('ratioSource', 'Select a ratio source');
         if (!row) return;
         columns.forEach((column) => {
-          const date = formula.getDate ?? row.getDate ?? column.getDate;
+          const date = formula.getDate ?? column.getDate ?? row.getDate;
           if (!date)
             issue('getDate', 'Select a date on the formula, row or column');
           if (formula.kind === 'balance' && date === 'between')

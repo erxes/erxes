@@ -44,9 +44,7 @@ export const ReportPreview = ({
       >
         <div className="space-y-2 text-center">
           {organizationName && <p>{organizationName}</p>}
-          <h1 className="text-xl font-semibold">
-            {values.name}
-          </h1>
+          <h1 className="text-xl font-semibold">{values.name}</h1>
         </div>
         {values.header && (
           <ReportHtml
@@ -131,12 +129,12 @@ export const ReportPreview = ({
                               );
                               const date =
                                 formula?.getDate ??
-                                row.getDate ??
-                                column.getDate;
+                                column.getDate ??
+                                row.getDate;
                               const previous =
                                 formula?.isPre ??
-                                row.isPre ??
                                 column.isPre ??
+                                row.isPre ??
                                 false;
                               const value = cellValues.get(
                                 JSON.stringify([
