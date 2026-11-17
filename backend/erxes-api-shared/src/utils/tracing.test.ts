@@ -42,7 +42,6 @@ describe('tracing', () => {
         expect(tracing.sentryTracingOptions()).toEqual({});
 
         tracing.startTracing();
-        tracing.warnTracingWithoutDsn();
 
         expect(registeredProvider()).toBe('NoopTracerProvider');
         expect(propagation.fields()).toEqual([]);
@@ -101,17 +100,6 @@ describe('tracing', () => {
       expect(spies.warn.mock.calls[0][0]).toContain('OTEL_SERVICE_NAME');
     });
 
-    test('warns once that tracing needs SENTRY_DSN', () => {
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://127.0.0.1:4318';
-      const tracing = loadTracing();
-
-      tracing.warnTracingWithoutDsn();
-      tracing.warnTracingWithoutDsn();
-
-      expect(spies.warn).toHaveBeenCalledTimes(1);
-      expect(spies.warn.mock.calls[0][0]).toContain('SENTRY_DSN');
-      expect(registeredProvider()).toBe('NoopTracerProvider');
-    });
   });
 
   describe('sampling', () => {

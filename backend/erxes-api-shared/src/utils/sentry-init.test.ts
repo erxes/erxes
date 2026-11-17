@@ -47,17 +47,28 @@ describe('initErxesSentry', () => {
     expect(spies.log).not.toHaveBeenCalled();
   });
 
-  test('without SENTRY_DSN an OTLP endpoint only warns, once', () => {
+  test('without SENTRY_DSN an OTLP endpoint starts Sentry tracing-only: no events are built', () => {
     process.env.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://127.0.0.1:4318';
+    process.env.OTEL_SERVICE_NAME = 'sales';
     const { initErxesSentry, Sentry } = load();
 
     initErxesSentry();
-    initErxesSentry();
 
-    expect(Sentry.init).not.toHaveBeenCalled();
-    expect(registeredProvider()).toBe('NoopTracerProvider');
-    expect(spies.warn).toHaveBeenCalledTimes(1);
-    expect(spies.warn.mock.calls[0][0]).toContain('SENTRY_DSN');
+    expect(Sentry.init).toHaveBeenCalledTimes(1);
+    const options = Sentry.init.mock.calls[0][0];
+    expect(options).toMatchObject({
+      dsn: 'http://tracingonly@127.0.0.1/1',
+      skipOpenTelemetrySetup: true,
+      propagateTraceparent: true,
+      tracesSampleRate: 0,
+      sendDefaultPii: false,
+      sendClientReports: false,
+    });
+    expect(options.beforeSend({ message: 'boom' })).toBeNull();
+    expect(options.beforeSendTransaction({ type: 'transaction' })).toBeNull();
+
+    expect(registeredProvider()).toBe('BasicTracerProvider');
+    expect(spies.warn).not.toHaveBeenCalled();
   });
 
   test('without an OTLP endpoint Sentry keeps its own OpenTelemetry setup', () => {

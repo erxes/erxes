@@ -12,7 +12,8 @@
  *   OTEL_SERVICE_NAME            service name on the spans (default 'erxes-plugin')
  *   OTEL_TRACES_SAMPLER_ARG      share of new traces to keep, 0..1 (default 0.1); requests
  *                                that arrive with a traceparent follow the caller's decision
- *   SENTRY_DSN                   required: without it Sentry loads no instrumentation
+ *   SENTRY_DSN                   optional: without it Sentry runs tracing-only (sentry-init.ts),
+ *                                loading its instrumentations but sending no events
  */
 import { context, propagation, trace } from '@opentelemetry/api';
 import { W3CTraceContextPropagator } from '@opentelemetry/core';
@@ -34,7 +35,6 @@ const REQUEST_HEADER_PREFIX = 'http.request.header.';
 
 let started = false;
 let provider: BasicTracerProvider | undefined;
-let warnedNoDsn = false;
 
 export const isTracingRequested = (): boolean =>
   Boolean((process.env.OTEL_EXPORTER_OTLP_ENDPOINT || '').trim());
@@ -71,19 +71,6 @@ export const sentryTracingOptions = (): {
 
   // Sentry's propagator reads only sentry-trace/baggage; the provider below owns propagation.
   return { skipOpenTelemetrySetup: true, propagateTraceparent: true };
-};
-
-/** Tracing needs Sentry's instrumentations, which load only when Sentry has a DSN. */
-export const warnTracingWithoutDsn = (): void => {
-  if (warnedNoDsn || !isTracingRequested()) {
-    return;
-  }
-
-  warnedNoDsn = true;
-
-  console.warn(
-    '[tracing] OTEL_EXPORTER_OTLP_ENDPOINT is set but SENTRY_DSN is not; tracing is off',
-  );
 };
 
 /**

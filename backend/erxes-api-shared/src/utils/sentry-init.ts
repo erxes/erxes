@@ -7,9 +7,9 @@
 
 import * as Sentry from '@sentry/node';
 import {
+  isTracingRequested,
   sentryTracingOptions,
   startTracing,
-  warnTracingWithoutDsn,
 } from './tracing';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -112,6 +112,30 @@ function getSentryRelease() {
 }
 
 /**
+ * Sentry loads the http, express, graphql, mongo, mongoose and redis instrumentations only when it
+ * has a DSN. With an OTLP endpoint but no SENTRY_DSN it still starts, for tracing alone: a
+ * placeholder DSN, a transport that sends nothing and no events built.
+ */
+const TRACING_ONLY_DSN = 'http://tracingonly@127.0.0.1/1';
+
+const initTracingOnly = (serverName?: string) => {
+  Sentry.init({
+    dsn: TRACING_ONLY_DSN,
+    ...sentryTracingOptions(),
+    serverName: serverName || process.env.SENTRY_SERVER_NAME,
+    tracesSampleRate: 0,
+    sendDefaultPii: false,
+    sendClientReports: false,
+    transport: (options) =>
+      Sentry.createTransport(options, () => Promise.resolve({})),
+    beforeSend: () => null,
+    beforeSendTransaction: () => null,
+  });
+
+  startTracing();
+};
+
+/**
  * Initialize Sentry with the standard erxes configuration.
  *
  * @param beforeSend - Optional beforeSend hook (e.g. sentryExpectedErrorFilter)
@@ -138,7 +162,9 @@ export function initErxesSentry(
 
   const dsn = process.env.SENTRY_DSN;
   if (!dsn) {
-    warnTracingWithoutDsn();
+    if (isTracingRequested()) {
+      initTracingOnly(serverName);
+    }
     return;
   }
 
