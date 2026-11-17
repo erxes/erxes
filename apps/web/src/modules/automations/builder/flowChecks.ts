@@ -1,4 +1,5 @@
 import type { ActionField, ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
+import type { StartingEvent } from './BuilderContext';
 import { armsOf } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -86,7 +87,7 @@ export const stepOutputFields = (
     events: { type: string; label: string }[];
     actions: ActionInfo[];
     /** The trigger event's own values, as its plugin declares them. */
-    trigger?: { label: string; source?: string; fields: DataField[] };
+    trigger?: StartingEvent;
   },
 ): FieldInfo[] => {
   const out: FieldInfo[] = eventDataFields(context.trigger);

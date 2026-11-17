@@ -123,7 +123,9 @@ const ActionSettings = ({
   const { t } = useTranslation('automations');
   const { step, subject, disabled, onChange } = props;
   const action = actions.find((item) => item.type === step.action);
-  const { fields: recordFields } = useAutomationFields(subject);
+  const { hasSubject } = useContext(BuilderContext);
+  const { fields } = useAutomationFields(subject);
+  const recordFields = hasSubject ? fields : [];
 
   return (
     <>
@@ -164,6 +166,7 @@ const StepBody = ({
 }: SettingsProps<AutomationStep['type']> & { actions: ActionInfo[]; outputs: FieldInfo[] }) => {
   const { t } = useTranslation('automations');
   const { step, subject, disabled, onChange } = props;
+  const { hasSubject } = useContext(BuilderContext);
 
   switch (step.type) {
     case 'action':
@@ -177,7 +180,7 @@ const StepBody = ({
         <div className="space-y-1.5">
           <FieldLabel>{t('branch-if', 'Take the Yes path when')}</FieldLabel>
           <ConditionsEditor
-            subject={subject}
+            subject={hasSubject ? subject : null}
             extraFields={outputs}
             value={step.conditions}
             disabled={disabled}

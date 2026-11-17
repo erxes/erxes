@@ -35,21 +35,8 @@ export const automationCatalog = async (client: Db) => {
   const triggers = await eventTypeCatalog(client);
   const installed = await installedPlugins(client);
 
-  // A plugin event's payload values, as its manifest names them; core's events carry their record.
-  const fieldsOf = (source: string, type: string) =>
-    installed
-      .find((plugin) => plugin.name === source)
-      ?.manifest?.events?.find((event) => event.type === type)?.fields ?? [];
-
   return {
-    triggers: triggers.map((item) => ({
-      type: item.type,
-      label: item.label,
-      description: item.description ?? null,
-      source: item.source,
-      subject: item.subject,
-      fields: fieldsOf(item.source, item.type),
-    })),
+    triggers,
     actions: actionCatalog(installed),
   };
 };

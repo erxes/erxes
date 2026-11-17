@@ -33,7 +33,8 @@ export const DataField = z.object({
   /**
    * The value is the id of one of the plugin's records (`stage`): conditions pick it from
    * `GET <api.url>/automations/records/<recordType>` (no `parent`: all of them), as a
-   * `plugin_record` input does, instead of typing an id.
+   * `plugin_record` input does, instead of typing an id, and that input's picker offers it
+   * ("Task created: Task").
    */
   recordType: RecordType.optional(),
 });
@@ -73,9 +74,12 @@ export const ActionField = z
     sameTypeAs: z.string().optional(),
     /**
      * A `plugin_record` input's records (`pipeline`): web lists them from
-     * `GET <api.url>/automations/records/<recordType>`, which answers `[{ value, label }]`.
+     * `GET <api.url>/automations/records/<recordType>`, which answers `[{ value, label }]`,
+     * and offers the run's values of that `recordType` (the trigger's task, a created deal).
      */
     recordType: RecordType.optional(),
+    /** A `plugin_record` input that takes several records: its value is a list of ids. */
+    multiple: z.boolean().optional(),
     /**
      * The key of another input of the action: the records follow its value
      * (`?parent=<value>`), and changing it clears this one.
@@ -85,6 +89,10 @@ export const ActionField = z
   .refine((field) => (field.type === 'plugin_record') === (field.recordType !== undefined), {
     message: 'a plugin_record input names its recordType, and no other input does',
     path: ['recordType'],
+  })
+  .refine((field) => field.multiple === undefined || field.type === 'plugin_record', {
+    message: 'only a plugin_record input takes several records',
+    path: ['multiple'],
   })
   .refine((field) => field.dependsOn === undefined || field.type === 'plugin_record', {
     message: 'only a plugin_record input depends on another',
@@ -122,6 +130,13 @@ export const ActionFields = z
           (field.dependsOn !== field.key && fields.some((other) => other.key === field.dependsOn)),
       ),
     'dependsOn names another input of the same action',
+  )
+  .refine(
+    (fields) =>
+      fields.every(
+        (field) => !fields.some((other) => other.key === field.dependsOn && other.multiple),
+      ),
+    'dependsOn names an input of one record, not a multiple one',
   )
   .refine(
     (fields) => !dependsInCircle(fields),

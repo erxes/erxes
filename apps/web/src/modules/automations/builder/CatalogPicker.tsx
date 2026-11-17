@@ -16,8 +16,9 @@ import {
 /*
  * Picking an event or an action out of what core and every installed plugin offer, in two
  * steps as Zapier and HubSpot do: first what it is about (a core area such as Customers, or
- * a plugin), then the event or action in it, each with a line on what it does. Recently
- * used come first; search looks across everything (or within the open category).
+ * a plugin), then the event or action in it, each with a line on what it does. It always
+ * opens at the categories: the chosen one leads the recently used, checked, and its category
+ * is marked. Search looks across everything (or within the open category).
  */
 
 type PickerProps = {
@@ -29,6 +30,18 @@ type PickerProps = {
   disabled?: boolean;
   placeholder?: string;
 };
+
+/** The chosen item, then the recently used others. */
+const currentThenRecent = (
+  items: CatalogItem[],
+  selected: CatalogItem | undefined,
+  recent: string[],
+) => [
+  ...(selected ? [selected] : []),
+  ...recent.flatMap(
+    (type) => items.find((item) => item.type === type && item.type !== selected?.type) ?? [],
+  ),
+];
 
 /** The button showing the chosen item and its area. */
 const PickerTrigger = ({
@@ -140,8 +153,7 @@ export const CatalogPicker = ({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        // Reopening shows the chosen one's category, as you left it.
-        openCategory(next && selected ? groupOf(selected).key : null);
+        openCategory(null);
       }}
     >
       <PickerTrigger
@@ -180,7 +192,7 @@ export const CatalogPicker = ({
             searching={searching}
             value={value}
             selected={selected}
-            recentItems={recent.flatMap((type) => items.find((item) => item.type === type) ?? [])}
+            recentItems={currentThenRecent(items, selected, recent)}
             onChoose={choose}
             onOpen={openCategory}
           />

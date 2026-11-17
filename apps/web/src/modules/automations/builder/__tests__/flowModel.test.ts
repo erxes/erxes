@@ -125,6 +125,7 @@ describe('flow model', () => {
         actions,
         trigger: {
           label: 'Deal created',
+          source: 'sales',
           fields: [{ key: 'dealId', label: 'Deal', type: 'text' }],
         },
       }).map((field) => field.path),
