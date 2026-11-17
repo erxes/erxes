@@ -63,7 +63,7 @@ const template = 'packages/create-erxes/templates/base/';
 const pages = [
   ['List', 'PageHeader, ViewBar, ListFilter, RecordTable', 'ui/src/modules/items/ItemsPage.tsx'],
   ['Grouped list (by status)', 'RecordList, DisplayMenu, useListDisplay', ''],
-  ['Board', 'DisplayMenu, useListDisplay', `${core}leads/LeadsBoard.tsx`],
+  ['Board', 'Board, DisplayMenu, useListDisplay', `${core}leads/LeadsBoard.tsx`],
   ['Cards or chart', 'DisplayMenu, useListDisplay, TListDisplayOption', ''],
   [
     'Record detail',
@@ -89,7 +89,16 @@ for (const [, components = '', screen = ''] of pages) {
 // Where each export is listed, by the folder under packages/ui/src it lives in. First match wins.
 const sections = [
   ['Page', ['modules/layout/', 'modules/navigation-menu/']],
-  ['Lists', ['modules/list/', 'modules/record-list/', 'modules/record-table/', 'modules/filter/']],
+  [
+    'Lists',
+    [
+      'modules/list/',
+      'modules/board/',
+      'modules/record-list/',
+      'modules/record-table/',
+      'modules/filter/',
+    ],
+  ],
   ['Records', ['modules/record-panel/', 'modules/records/', 'utils/record-timeline']],
   [
     'Fields and pickers',

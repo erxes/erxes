@@ -4,7 +4,6 @@ import { fromDatabase } from '~/http/errors';
 import { withRunCause } from '~/lib/causation';
 import { coreAction } from './actions/catalog';
 import type { ActionContext } from './actions/context';
-import { evaluateGroup } from './conditions';
 import { type Cursor, enterArm, nextCursor, splitPath } from './cursor';
 import { automationMember, type RunContext, type RunRow, subjectRefOf } from './runs';
 import { render } from './templates';
@@ -21,7 +20,18 @@ export interface StepState {
   automation: typeof automations.$inferSelect;
   steps: AutomationStep[];
   context: RunContext;
+  /** Whether each of the step's `armConditions` holds, checked before the step. */
+  arms: boolean[];
 }
+
+/** The conditions a step picks its arm by: a branch's, each of a switch's cases'. */
+export const armConditions = (step: AutomationStep) => {
+  if (step.type === 'branch') return [step.conditions];
+
+  if (step.type === 'switch') return step.cases.map((item) => item.conditions);
+
+  return [];
+};
 
 const SECONDS = { minutes: 60, hours: 3600, days: 86_400 } as const;
 
@@ -91,7 +101,7 @@ const runLocalAction = async (
 
 /** What the step at the run's cursor does: move on, wait, or call out. */
 export const runStep = async (state: StepState, step: AutomationStep): Promise<StepOutcome> => {
-  const { run, steps, context } = state;
+  const { run, steps, context, arms } = state;
   const cursor = run.cursor;
 
   switch (step.type) {
@@ -99,13 +109,13 @@ export const runStep = async (state: StepState, step: AutomationStep): Promise<S
       return done(null, null);
 
     case 'branch': {
-      const matched = evaluateGroup(step.conditions, context);
+      const matched = arms[0] === true;
 
       return done({ matched }, enterArm(steps, cursor, matched ? 'then' : 'else'));
     }
 
     case 'switch': {
-      const chosen = step.cases.findIndex((item) => evaluateGroup(item.conditions, context));
+      const chosen = arms.findIndex(Boolean);
       const label = step.cases[chosen]?.label ?? null;
 
       if (chosen < 0)

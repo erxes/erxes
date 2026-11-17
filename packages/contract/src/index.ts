@@ -134,6 +134,8 @@ export * from './invoiceLines';
 
 export * from './ebarimt';
 
+export * from './emailSettings';
+
 export * from './pluginJobs';
 
 export * from './plugins';

@@ -1,4 +1,5 @@
 import { lookup as dnsLookup } from 'node:dns';
+import { lookup as dnsLookupAll } from 'node:dns/promises';
 import { type IncomingHttpHeaders, request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { isIP, type LookupFunction } from 'node:net';
@@ -41,6 +42,24 @@ export const assertOutboundUrl = (raw: string) => {
   }
 
   return url;
+};
+
+/**
+ * The address to connect to for a host members type in, for services that
+ * aren't HTTP (an SMTP server): refused when it is, or resolves to, a private
+ * one. Connect to what it returns, so DNS can't change it in between.
+ */
+export const publicAddressOf = async (host: string) => {
+  const addresses = isIP(host) ? [{ address: host }] : await dnsLookupAll(host, { all: true });
+  const [first] = addresses;
+
+  if (!config.outbound.allowPrivate && addresses.some((entry) => isPrivateAddress(entry.address))) {
+    throw new OutboundError(`${host} is a private address`);
+  }
+
+  if (!first) throw new OutboundError(`${host} has no address`);
+
+  return first.address;
 };
 
 /** Resolves like `dns.lookup`, refusing hosts with a private address (checked where it connects). */

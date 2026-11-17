@@ -275,5 +275,18 @@
   "on-a-date": "On a date",
   "days-after-run": "Days after it runs",
   "choose-date": "Choose a date",
-  "days-later": "days later"
+  "days-later": "days later",
+  "records-failed": "The app’s choices didn’t load: {{message}}",
+  "start-from-view": "Start from a saved view",
+  "view-list": {
+    "customer": "Customers",
+    "lead": "Leads",
+    "company": "Companies",
+    "company_lead": "Company leads"
+  },
+  "replace-with-view": "Replace these conditions with “{{name}}”?",
+  "replace": "Replace",
+  "copied-from-view": "Copied from “{{name}}”. Changing the view later doesn’t change this.",
+  "copied-from-view-search": "Copied from “{{name}}”. Its search “{{search}}” isn’t copied: add a condition for it. Changing the view later doesn’t change this.",
+  "views-failed": "Saved views didn’t load: {{message}}"
 }

@@ -1,6 +1,8 @@
 import {
   ACTION_FIELD_TYPES,
+  AUTOMATION_FIELD_GROUPS,
   AUTOMATION_FIELD_TYPES,
+  AUTOMATION_PATH_TYPES,
   AUTOMATION_SUBJECTS,
   RUN_STATUSES,
 } from '@erxes/core-db/enums';
@@ -8,18 +10,20 @@ import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
+import { FilterField } from './views';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
+
+/** A kind of a plugin's own records (`pipeline`, `stage`) its API lists for the builder's pickers. */
+const RecordType = z
+  .string()
+  .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -');
 
 /**
  * A value later steps can use: one an event carries (`{{event.payload.<key>}}`) or an
  * action answers (`{{steps.<step id>.output.<key>}}`). The builder lists them in
  * "Insert data" and in conditions, by `label`.
  */
-const RecordType = z
-  .string()
-  .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -');
-
 export const DataField = z.object({
   key: z
     .string()
@@ -27,13 +31,29 @@ export const DataField = z.object({
   label: z.string().trim().min(1).max(100),
   type: z.enum(AUTOMATION_FIELD_TYPES),
   /**
-   * The value is the id of one of the plugin's records of this type (a `plugin_record`
-   * input's `recordType`): the builder offers it in that input's picker ("Task created: Task").
+   * The value is the id of one of the plugin's records (`stage`): conditions pick it from
+   * `GET <api.url>/automations/records/<recordType>` (no `parent`: all of them), as a
+   * `plugin_record` input does, instead of typing an id, and that input's picker offers it
+   * ("Task created: Task").
    */
   recordType: RecordType.optional(),
 });
 
 export type DataField = z.infer<typeof DataField>;
+
+/**
+ * A path conditions and placeholders can read, with how its values compare: the event's, or the
+ * record's as its lists filter it (`FilterField`: choices, relations and money included), so a
+ * condition means the same in an automation as in a saved view.
+ */
+export const AutomationFieldPath = FilterField.extend({
+  type: z.enum(AUTOMATION_PATH_TYPES),
+  group: z.enum(AUTOMATION_FIELD_GROUPS).optional(),
+  /** Placeholders can't insert it: a measure of related records, the linked company's fields. */
+  conditionsOnly: z.boolean().optional(),
+});
+
+export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
 
 /**
  * One input of an action. Besides plain values: `custom_field` (one of the

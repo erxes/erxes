@@ -1,4 +1,4 @@
-import { AUTOMATION_FIELD_TYPES, CONTENT_TYPES } from '@erxes/core-db/enums';
+import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -6,7 +6,14 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
-import { ActionInfo, AutomationRun, DataField, RunStatus, RunStep } from './automationRuns';
+import {
+  ActionInfo,
+  AutomationFieldPath,
+  AutomationRun,
+  DataField,
+  RunStatus,
+  RunStep,
+} from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const Automation = createSelectSchema(automations, {
@@ -37,16 +44,6 @@ export const Automation = createSelectSchema(automations, {
   });
 
 export type Automation = z.infer<typeof Automation>;
-
-/** A path conditions and placeholders can read, with how its values compare. */
-export const AutomationFieldPath = z.object({
-  path: z.string(),
-  label: z.string(),
-  type: z.enum(AUTOMATION_FIELD_TYPES),
-  options: z.array(z.string()).optional(),
-});
-
-export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
 
 /** One step of a dry run: what it would do, and what would stop it. */
 export const DryRunStep = z.object({

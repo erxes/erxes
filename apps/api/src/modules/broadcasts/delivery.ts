@@ -62,15 +62,18 @@ const sendCopy = async (claimed: Claimed, row: Claimed['rows'][number]): Promise
     if (broadcast.channel === 'sms') {
       await deliverSms({ to: row.address, text: copy.text });
     } else {
-      await deliverEmail({
-        to: row.address,
-        subject: copy.subject ?? '',
-        html: copy.html ?? '',
-        text: copy.text,
-        headers: copy.headers,
-        fromName: broadcast.fromName ?? undefined,
-        replyTo: broadcast.replyTo ?? undefined,
-      });
+      await deliverEmail(
+        {
+          to: row.address,
+          subject: copy.subject ?? '',
+          html: copy.html ?? '',
+          text: copy.text,
+          headers: copy.headers,
+          fromName: broadcast.fromName ?? undefined,
+          replyTo: broadcast.replyTo ?? undefined,
+        },
+        broadcast.orgId,
+      );
     }
 
     return { status: 'sent' };

@@ -138,7 +138,7 @@ const runRecordOptions = (
     .filter((item) => recordType && item.recordType === recordType && item.source === source)
     .map((item) => ({
       value: `{{${item.path}}}`,
-      label: item.from ? `${item.from}: ${item.label}` : item.label,
+      label: item.groupLabel ? `${item.groupLabel}: ${item.label}` : item.label,
     }));
 
 /**

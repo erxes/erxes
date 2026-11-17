@@ -1,4 +1,4 @@
-import type { ActionField, ActionInfo, AutomationStep } from '@erxes/core-contract';
+import type { ActionField, ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
 import type { StartingEvent } from './BuilderContext';
 import { armsOf } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
@@ -59,6 +59,23 @@ export const countSteps = (steps: AutomationStep[]): number =>
   );
 
 /**
+ * An event's own values as fields (`event.payload.<key>`), under the event's name. One that holds
+ * a plugin's record id (`recordType`) is picked from that plugin's records.
+ */
+export const eventDataFields = (
+  event: { label: string; source?: string; fields?: DataField[] } | undefined,
+): FieldInfo[] =>
+  (event?.fields ?? []).map((field) => ({
+    path: `event.payload.${field.key}`,
+    label: field.label,
+    type: field.type,
+    group: 'event',
+    groupLabel: event?.label,
+    recordType: field.recordType,
+    source: event?.source,
+  }));
+
+/**
  * What the steps before `id` can use besides the record: the trigger event's values
  * ("Deal" of "Deal created") and earlier steps' outputs ("Create a deal: Deal",
  * "Customer updated within the wait").
@@ -73,16 +90,7 @@ export const stepOutputFields = (
     trigger?: StartingEvent;
   },
 ): FieldInfo[] => {
-  const { trigger } = context;
-
-  const out: FieldInfo[] = (trigger?.fields ?? []).map((field) => ({
-    path: `event.payload.${field.key}`,
-    label: field.label,
-    type: field.type,
-    from: trigger?.label,
-    source: trigger?.source,
-    recordType: field.recordType,
-  }));
+  const out: FieldInfo[] = eventDataFields(context.trigger);
 
   const walk = (list: AutomationStep[]): boolean => {
     for (const step of list) {
@@ -97,8 +105,9 @@ export const stepOutputFields = (
             path: `steps.${step.id}.output.${output.key}`,
             label: `${title}: ${output.label}`,
             type: output.type,
-            source: action?.source,
-            recordType: output.recordType,
+            ...(output.recordType && action
+              ? { recordType: output.recordType, source: action.source }
+              : {}),
           });
         }
       }

@@ -568,6 +568,20 @@
       "when": 1794865178901,
       "tag": "0080_field_filterable",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1794875989085,
+      "tag": "0081_audit_changes_shape",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1794876996798,
+      "tag": "0082_email_settings",
+      "breakpoints": true
     }
   ]
 }

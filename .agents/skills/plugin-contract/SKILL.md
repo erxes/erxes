@@ -32,11 +32,14 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
      member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
      that depend on it. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
-     `type`, `recordType?`, which also lists the value in that type's record pickers) name what
-     its answer or payload holds, under the event's `record` ("The order"); `registerManifest`
-     answers `warnings` for what is missing. The builder offers them in "Insert data" as
+     `type`, `recordType?`) name what its answer or payload holds, under the event's `record`
+     ("The order"); `registerManifest` answers `warnings` for what is missing. The builder offers
+     them in "Insert data" as
      `{{steps.<step id>.output.<key>}}` and `{{event.payload.<key>}}`, so renaming a key breaks
-     saved automations. The route, the query key `parent` and the answer's shape are the contract.
+     saved automations. A field with `recordType` holds one of the plugin's record ids: conditions
+     pick it from `GET <api.url>/automations/records/<recordType>` without `parent`, so that
+     route answers every record of the type then ("Pipeline · Stage"), and that type's record
+     pickers offer it. The route, the query key `parent` and the answer's shape are the contract.
      The manifest's `pluginReads` (`PluginRead`: `plugin`, `permissions`, `reason`, in
      `packages/contract/src/pluginReads.ts`) lets a plugin read another plugin's API for an
      organisation: the owner approves it like a scope (stored in the installation's granted scopes
@@ -76,8 +79,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
      `relationTabs`, `settings`, `dashboardWidgets`, `floatingWidget`), and its first module
-     renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are links
-     to the plugin's own settings pages, a group per plugin at the end of core's settings sidebar
+     renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are the
+     plugin's own settings pages, drawn in its layout; core's settings sidebar links each plugin
+     once, to its first page, else to its Properties, in "Plugin settings"
      (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `dashboardWidgets`
      (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
      draws as the tile's body under its title) join core's home dashboard catalog under the
@@ -96,7 +100,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      (`TRecordProperties`: `type` as `<name>.<thing>`, `values(id)` query options, `save(id, patch)`)
      give it custom fields: core keeps their definitions (`fields.*` and `fieldGroups.*` take
      `<plugin>.<type>` while that plugin is installed, else 400 `PLUGIN_NOT_INSTALLED`), draws a
-     Properties tab and a Properties entry in the plugin's settings group, and the plugin keeps
+     Properties tab and their settings page at `/settings/properties/<plugin>.<type>`, which a
+     plugin with settings pages links from its own settings, and the plugin keeps
      the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on core's
      customers and companies, and on the record types with `contacts` that their `hosts` name
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it

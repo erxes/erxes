@@ -1,27 +1,11 @@
 import type { LeadRecordType } from '@erxes/core-contract';
-import {
-  closestCorners,
-  defaultDropAnimationSideEffects,
-  DndContext,
-  type DragEndEvent,
-  DragOverlay,
-  type DragStartEvent,
-  type DropAnimation,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { useQueryClient } from '@tanstack/react-query';
-import { cn, Skeleton } from 'erxes-ui';
+import { Board, type BoardMove } from 'erxes-ui';
 import { useState } from 'react';
 import { messageOf } from '@erxes/core-contract/client';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { DisqualifyDialog } from './DisqualifyDialog';
-import { CARD, CardBody } from './LeadCard';
 import { StageColumn } from './StageColumn';
-import { type BoardLead, findCachedLead, useBoardMove } from './useBoardMove';
+import { useBoardMove } from './useBoardMove';
 import { useLeadStages } from './useLeads';
 
 /**
@@ -31,49 +15,20 @@ import { useLeadStages } from './useLeads';
  * the columns reload; only the two columns a move touches reload.
  */
 
-const COLUMN_SKELETONS = ['first', 'second', 'third', 'fourth'];
-
-/** The dragged copy glides into the card's new place. */
-const DROP_ANIMATION: DropAnimation = {
-  duration: 200,
-  easing: 'cubic-bezier(0.2, 0, 0, 1)',
-  sideEffects: defaultDropAnimationSideEffects({
-    styles: { active: { opacity: '0.4' } },
-  }),
-};
-
-const useBoardSensors = () =>
-  useSensors(
-    // A click opens the lead; only a real drag moves it.
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
-    useSensor(KeyboardSensor),
-  );
-
 /** The lead lists' Display choice (table or board), one for people and companies. */
 export const LEADS_DISPLAY = 'leads';
 
 export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
   const { stages, loading, error } = useLeadStages();
-  const client = useQueryClient();
   const move = useBoardMove(recordType);
   const { openNewRecord } = useSidePanel();
-  const sensors = useBoardSensors();
-  const [dragging, setDragging] = useState<BoardLead | null>(null);
   const [disqualify, setDisqualify] = useState<{ id: string; stageId: string } | null>(null);
 
-  const onDragStart = ({ active }: DragStartEvent) =>
-    setDragging(findCachedLead(client, recordType, String(active.id)) ?? null);
+  const onMove = ({ id, columnId }: BoardMove) => {
+    const stage = stages.find((item) => item.id === columnId);
 
-  const onDragEnd = ({ over }: DragEndEvent) => {
-    setDragging(null);
-
-    const stage = stages.find((item) => item.id === over?.id);
-
-    if (!dragging || !stage || stage.id === dragging.leadStageId) return;
-
-    if (stage.kind === 'disqualified') setDisqualify({ id: dragging.id, stageId: stage.id });
-    else move.mutate({ recordType, ids: [dragging.id], stageId: stage.id });
+    if (stage?.kind === 'disqualified') setDisqualify({ id, stageId: stage.id });
+    else if (stage) move.mutate({ recordType, ids: [id], stageId: stage.id });
   };
 
   const add = (stageId: string) =>
@@ -84,49 +39,21 @@ export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
 
   if (error) return <p className="p-6 text-sm text-destructive">{messageOf(error)}</p>;
 
-  if (loading) {
-    return (
-      <div className="flex min-h-0 flex-1 gap-3 p-3">
-        {COLUMN_SKELETONS.map((key) => (
-          <Skeleton key={key} radius="xl" className="h-full w-72 shrink-0" />
-        ))}
-      </div>
-    );
-  }
+  if (loading) return <Board.Skeleton />;
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      onDragCancel={() => setDragging(null)}
-    >
-      <div
-        className={cn(
-          'flex min-h-0 flex-1 gap-3 overflow-x-auto p-3',
-          dragging && 'cursor-grabbing',
-        )}
-      >
+    <>
+      <Board onMove={onMove}>
         {stages.map((stage) => (
           <StageColumn key={stage.id} recordType={recordType} stage={stage} onAdd={add} />
         ))}
-      </div>
-      <DragOverlay dropAnimation={DROP_ANIMATION}>
-        {dragging && (
-          <div
-            className={cn(CARD, 'w-68 rotate-2 cursor-grabbing shadow-lg ring-1 ring-primary/20')}
-          >
-            <CardBody lead={dragging} />
-          </div>
-        )}
-      </DragOverlay>
+      </Board>
       <DisqualifyDialog
         recordType={recordType}
         ids={disqualify ? [disqualify.id] : []}
         stageId={disqualify?.stageId ?? null}
         onClose={() => setDisqualify(null)}
       />
-    </DndContext>
+    </>
   );
 };

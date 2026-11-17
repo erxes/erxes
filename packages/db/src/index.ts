@@ -69,6 +69,7 @@ export {
   paymentRefunds,
   ebarimtSettings,
   ebarimtReceipts,
+  emailSettings,
   pluginInstallations,
   productCategories,
   products,

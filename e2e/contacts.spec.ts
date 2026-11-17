@@ -2,6 +2,9 @@ import { DESCRIPTION_MAX } from '@erxes/core-contract';
 import { expect, expectAccessible, test, unique } from './fixtures';
 
 test('a member creates a contact, edits it and adds a note', async ({ page, api }) => {
+  // A long flow with axe at each step: near the default 30s on a busy runner.
+  test.setTimeout(60_000);
+
   const name = `Ada ${unique()}`;
 
   // A row with two tags: axe checks the tag cell's spoken name still holds the text it shows.

@@ -200,10 +200,9 @@ const NotificationTitle = ({
         {title(notification)}
       </button>
       {notification.readAt === null && (
-        <span
-          className="mt-1.5 size-2 shrink-0 rounded-full bg-primary"
-          aria-label={t('unread', 'Unread')}
-        />
+        <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary">
+          <span className="sr-only">{t('unread', 'Unread')}</span>
+        </span>
       )}
     </div>
   );

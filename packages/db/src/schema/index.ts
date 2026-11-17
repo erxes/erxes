@@ -62,4 +62,6 @@ export * from './broadcasts';
 
 export * from './ebarimt';
 
+export * from './email';
+
 export * from './favorites';

@@ -111,12 +111,7 @@ describe('flow model', () => {
     const outputs = stepOutputFields(flow, 'b', { events, actions });
 
     expect(outputs).toEqual([
-      {
-        path: 'steps.a.output.ownerId',
-        label: 'Assign an owner: New owner',
-        type: 'member',
-        source: 'core',
-      },
+      { path: 'steps.a.output.ownerId', label: 'Assign an owner: New owner', type: 'member' },
       {
         path: 'steps.w.output.matched',
         label: 'Customer updated within the wait',
