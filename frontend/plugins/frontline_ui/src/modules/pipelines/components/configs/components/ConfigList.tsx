@@ -86,7 +86,7 @@ const ConfigMenu = ({ configId }: { configId: string }) => {
 export const ConfigList = () => {
   const { t } = useTranslation('frontline');
   const { id: channelId, pipelineId } = useSettingsParams();
-  const { openRecord, openNewRecord, record } = useSidePanel();
+  const { openRecord, record } = useSidePanel();
   const { ticketConfig, loading } = useGetTicketConfigByPipelineId();
 
   const formFields = ticketConfig?.formFields;
@@ -119,9 +119,11 @@ export const ConfigList = () => {
         <Empty.Content>
           <Button
             onClick={() =>
-              openNewRecord(
-                TICKET_CONFIG_CONTENT_TYPE,
-                { channelId, pipelineId },
+              openRecord(
+                {
+                  contentType: TICKET_CONFIG_CONTENT_TYPE,
+                  contentId: `new~${channelId}~${pipelineId}`,
+                },
                 { stack: Boolean(record) },
               )
             }

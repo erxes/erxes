@@ -18,7 +18,7 @@ import {
   editingStatusState,
 } from '@/settings/states/StatusStates';
 import { useSetAtom } from 'jotai';
-import { NEW_RECORD_ID, useSidePanel, useSidePanelDraft } from 'ui-modules';
+import { useSidePanel } from 'ui-modules';
 import { z } from 'zod';
 
 type TStatusForm = z.infer<typeof TICKET_STATUS_FORM_SCHEMA>;
@@ -190,42 +190,27 @@ export const StatusSheet = ({
   statusType: number;
 }) => {
   const { pipelineId } = useSettingsParams();
-  const { openRecord, openNewRecord, record } = useSidePanel();
-  const draft = useSidePanelDraft<{ pipelineId: string; statusType: number }>(
-    TICKET_STATUS_CONTENT_TYPE,
-  );
+  const { openRecord, record } = useSidePanel();
   const setAdding = useSetAtom(addingStatusState);
   const setEditing = useSetAtom(editingStatusState);
   useEffect(() => {
     if (!open || !pipelineId) return;
-    const contentId = editingStatus?._id ?? NEW_RECORD_ID;
+    const contentId = editingStatus?._id ?? `new~${pipelineId}~${statusType}`;
     setAdding(null);
     setEditing(null);
     if (
       record?.contentType === TICKET_STATUS_CONTENT_TYPE &&
-      record.contentId === contentId &&
-      (editingStatus ||
-        (draft.pipelineId === pipelineId && draft.statusType === statusType))
+      record.contentId === contentId
     )
       return;
-    if (editingStatus)
-      openRecord(
-        { contentType: TICKET_STATUS_CONTENT_TYPE, contentId },
-        { stack: Boolean(record) },
-      );
-    else
-      openNewRecord(
-        TICKET_STATUS_CONTENT_TYPE,
-        { pipelineId, statusType },
-        { stack: Boolean(record) },
-      );
+    openRecord(
+      { contentType: TICKET_STATUS_CONTENT_TYPE, contentId },
+      { stack: Boolean(record) },
+    );
   }, [
     editingStatus,
     open,
     openRecord,
-    openNewRecord,
-    draft.pipelineId,
-    draft.statusType,
     pipelineId,
     record,
     setAdding,

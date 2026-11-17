@@ -26,6 +26,7 @@ import { ChannelResourceType } from '@/channels/types';
 import { IPipeline } from '@/pipelines/types';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import {
+  getPipelineDraftId,
   getPipelinePath,
   parsePipelineRecordId,
 } from '@/pipelines/constants/pipelineTabs';
@@ -254,7 +255,7 @@ const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
 export const PipelinesList = ({ channelId }: { channelId: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const columns = usePipelineColumns();
-  const { openNewRecord } = useSidePanel();
+  const { openRecord } = useSidePanel();
   const { pipelines, loading } = useGetPipelines({
     variables: {
       filter: { channelId },
@@ -278,7 +279,12 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
         </Empty.Header>
         <Empty.Content>
           <Button
-            onClick={() => openNewRecord(PIPELINE_CONTENT_TYPE, { channelId })}
+            onClick={() =>
+              openRecord({
+                contentType: PIPELINE_CONTENT_TYPE,
+                contentId: getPipelineDraftId(channelId),
+              })
+            }
             type="button"
           >
             <IconPlus />

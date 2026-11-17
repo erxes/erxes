@@ -9,8 +9,6 @@ import {
 } from '@/contacts/utils/contactDetailPath';
 import { IconLayoutSidebarRight, IconVariable } from '@tabler/icons-react';
 import {
-  appLayoutPageOverlayState,
-  appLayoutPageTargetState,
   Avatar,
   Empty,
   readImage,
@@ -18,17 +16,8 @@ import {
   Skeleton,
   useQueryState,
 } from 'erxes-ui';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import {
-  lazy,
-  Suspense,
-  useState,
-  useRef,
-  useEffect,
-  useLayoutEffect,
-  ReactNode,
-} from 'react';
-import { createPortal } from 'react-dom';
+import { useAtom, useAtomValue } from 'jotai';
+import { lazy, Suspense, useState, useRef, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
@@ -324,13 +313,12 @@ const SidePanelEmpty = ({
   const { t } = useTranslation('common', {
     keyPrefix: 'side-panel',
   });
-  const expanded = usePanelExpanded();
   return (
     <>
       <RecordSidePanel.Header
         title={t('title', 'Side panel')}
         onBack={onBack}
-        onClose={expanded ? undefined : onClose}
+        onClose={onClose}
       />
       <div className="flex flex-1 items-center justify-center p-6">
         <Empty>
@@ -584,7 +572,7 @@ const SidePanelSavedRecord = ({
             )
           }
           onBack={onBack}
-          onClose={expanded ? undefined : onClose}
+          onClose={onClose}
         />
       )}
       <RecordSidePanel.Layout
@@ -745,14 +733,6 @@ export const SidePanelLayout = () => {
   const [width, setWidth] = useAtom(sidePanelWidthState);
   const [expanded, setExpanded] = useQueryState<boolean>('panelExpanded');
   const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
-  const pageTarget = useAtomValue(appLayoutPageTargetState);
-  const setPageOverlay = useSetAtom(appLayoutPageOverlayState);
-  const dockRef = useRef<HTMLDivElement>(null);
-  const [panelContainer] = useState(() => {
-    const element = document.createElement('div');
-    element.className = 'contents';
-    return element;
-  });
   const moduleEntries = useAtomValue(modulePanelEntriesState);
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const { pathname } = useLocation();
@@ -778,48 +758,15 @@ export const SidePanelLayout = () => {
       : null;
   };
   const recordPage = getRecordPage();
-  const isNewRecord = record?.contentId === NEW_RECORD_ID;
-  const expandInPlace =
-    !isNewRecord &&
-    !recordPage &&
-    pathname.split('/').includes('settings') &&
-    Boolean(record || (moduleEntry?.expandable && !moduleEntry.onExpand));
+  const coreDraft =
+    record?.contentType.startsWith('core:') &&
+    record.contentId === NEW_RECORD_ID;
   const expandable =
-    !isNewRecord &&
+    !coreDraft &&
     Boolean(
       recordPage ||
-        expandInPlace ||
         (moduleEntry?.expandable && moduleEntry.onExpand),
     );
-  const panelVisible =
-    open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded);
-  const expandedInPage = Boolean(
-    panelVisible && expandInPlace && expanded && pageTarget,
-  );
-
-  useLayoutEffect(() => {
-    const target = expandedInPage ? pageTarget : dockRef.current;
-    if (target && panelContainer.parentElement !== target) {
-      const focused = document.activeElement;
-      const restoreFocus =
-        focused instanceof HTMLElement && panelContainer.contains(focused);
-      target.appendChild(panelContainer);
-      if (restoreFocus) {
-        queueMicrotask(() => {
-          if (focused.isConnected) focused.focus({ preventScroll: true });
-        });
-      }
-    }
-    setPageOverlay(expandedInPage);
-  }, [expandedInPage, pageTarget, panelContainer, setPageOverlay]);
-
-  useLayoutEffect(
-    () => () => {
-      panelContainer.remove();
-      setPageOverlay(false);
-    },
-    [panelContainer, setPageOverlay],
-  );
 
   useEffect(() => {
     if (open && expanded && moduleEntry?.onExpand) {
@@ -872,44 +819,38 @@ export const SidePanelLayout = () => {
       {/* Links saved while records still expanded in place. */}
       {recordPage && expanded && <Navigate to={recordPage} replace />}
       {/* `/chat` is handed to the global sidebar; never render it here. */}
-      <div ref={dockRef} className="contents" />
-      {panelVisible &&
-        createPortal(
-          <RecordSidePanel
-            key="record"
-            expanded={Boolean(expandInPlace && expanded)}
-            expandedMode={expandedInPage ? 'page' : 'viewport'}
-            expandable={expandable}
-            onExpandedChange={(nextExpanded) => {
-              if (recordPage) {
-                navigate(recordPage);
-              } else if (moduleEntry?.onExpand) {
-                moduleEntry?.onExpand?.();
-              } else if (expandInPlace) {
-                setExpanded(nextExpanded ? true : null);
-              }
-            }}
-            width={
-              moduleEntry && path
-                ? moduleWidths[path] ??
-                  Math.max(width, moduleEntry.defaultWidth || 0)
-                : width
+      {open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded) && (
+        <RecordSidePanel
+          key="record"
+          expanded={false}
+          expandable={expandable}
+          onExpandedChange={() => {
+            if (recordPage) {
+              navigate(recordPage);
+            } else {
+              moduleEntry?.onExpand?.();
             }
-            maxWidth={moduleEntry?.maxWidth}
-            onWidthChange={
-              moduleEntry && path
-                ? (nextWidth) =>
-                    setModuleWidths((previous) => ({
-                      ...previous,
-                      [path]: nextWidth,
-                    }))
-                : setWidth
-            }
-          >
-            {renderRoute()}
-          </RecordSidePanel>,
-          panelContainer,
-        )}
+          }}
+          width={
+            moduleEntry && path
+              ? moduleWidths[path] ??
+                Math.max(width, moduleEntry.defaultWidth || 0)
+              : width
+          }
+          maxWidth={moduleEntry?.maxWidth}
+          onWidthChange={
+            moduleEntry && path
+              ? (nextWidth) =>
+                  setModuleWidths((previous) => ({
+                    ...previous,
+                    [path]: nextWidth,
+                  }))
+              : setWidth
+          }
+        >
+          {renderRoute()}
+        </RecordSidePanel>
+      )}
     </>
   );
 };

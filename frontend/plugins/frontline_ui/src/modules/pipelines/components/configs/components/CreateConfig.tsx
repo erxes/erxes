@@ -180,15 +180,17 @@ export const TicketConfigEditor = ({
 export const CreateConfig = () => {
   const [open, setOpen] = useAtom(configCreateModalAtom);
   const { id: channelId, pipelineId } = useSettingsParams();
-  const { openNewRecord, record } = useSidePanel();
+  const { openRecord, record } = useSidePanel();
   useEffect(() => {
     if (!open || !channelId || !pipelineId) return;
     setOpen(false);
-    openNewRecord(
-      TICKET_CONFIG_CONTENT_TYPE,
-      { channelId, pipelineId },
+    openRecord(
+      {
+        contentType: TICKET_CONFIG_CONTENT_TYPE,
+        contentId: `new~${channelId}~${pipelineId}`,
+      },
       { stack: Boolean(record) },
     );
-  }, [channelId, open, openNewRecord, pipelineId, record, setOpen]);
+  }, [channelId, open, openRecord, pipelineId, record, setOpen]);
   return null;
 };

@@ -17,7 +17,6 @@ import {
   type IRecordViewProps,
   RecordSidePanel,
   PanelField,
-  usePanelExpanded,
 } from 'ui-modules';
 import { CORE_APPROVAL_REQUEST_PANEL } from '@/settings/approval/graphql/approvalRequestPanel';
 import { ApprovalContentTarget } from '@/approval/components/ApprovalContentTarget';
@@ -57,7 +56,6 @@ export const ApprovalRequestRecordPanel = ({
   onClose,
 }: IRecordViewProps) => {
   const { t } = useTranslation('approval');
-  const expanded = usePanelExpanded();
   const client = useApolloClient();
   const { data, loading, error, refetch } = useQuery<{
     approvalRequestDetail: ApprovalRequest | null;
@@ -67,7 +65,7 @@ export const ApprovalRequestRecordPanel = ({
     <RecordSidePanel.Header
       title={t('request-details')}
       onBack={onBack}
-      onClose={expanded ? undefined : onClose}
+      onClose={onClose}
     />
   );
   if (loading && !request)

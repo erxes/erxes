@@ -137,11 +137,14 @@ export const CreatePipelinePanelForm = ({
 export const CreatePipeline = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { id: channelId } = useSettingsParams();
-  const { openNewRecord } = useSidePanel();
+  const { openRecord } = useSidePanel();
   /** Opens a pipeline draft scoped to the current settings channel. */
   const open = () => {
     if (!channelId) return;
-    openNewRecord(PIPELINE_CONTENT_TYPE, { channelId });
+    openRecord({
+      contentType: PIPELINE_CONTENT_TYPE,
+      contentId: getPipelineDraftId(channelId),
+    });
   };
   useScopedHotkeys('c', open, PipelineHotkeyScope.PipelineSettingsPage);
 

@@ -148,20 +148,18 @@
   ticket status and messenger ticket configuration editors, response templates
   and form submissions open in the shared record panel. Form fields use a
   local panel that retains the form-builder provider.
-  New settings records have no Detail/Activity tabs or fullscreen controls.
-  Saved settings records inherit the host's expand and minimize controls.
-  Channel, pipeline, response template, ticket status and ticket configuration
-  creation use the public `useSidePanel().openNewRecord` contract. Channel,
-  pipeline and status-type scope travels in captured draft defaults, never in
-  a synthetic record ID. Legacy `new~...` settings links normalize through
-  `SettingsRecordPanel` to that same draft contract while preserving scope.
-  Fullscreen headers omit the close button; minimizing restores the docked
-  close button without remounting the editor. Form Cancel actions remain usable.
+  Channel creation uses the public `useSidePanel().openNewRecord` contract.
+  Pipeline, response template, ticket status and ticket configuration drafts
+  use scoped `new~...` record IDs through `openRecord`, preserving their
+  channel, pipeline and status type after a reload. These drafts retain the
+  host's Activity tab with an action returning to their create form.
+  Settings headers consume the public `usePanelExpanded` state to hide Close
+  and render channel breadcrumbs in expanded views. Expansion availability,
+  page placement and editor mounting belong to the host; this plugin does not
+  enable host expansion by itself. Form Cancel actions remain usable.
   Local form-field and response-export panel headers follow the same rule.
-  Expansion fills the app page while retaining navigation and drafts, with
-  record fields on the left and tabbed content on the right. Expanded channel
-  headers retain the Channels and channel-detail breadcrumbs. Channel edit
-  panels pad and scroll their fields above the pinned action footer.
+  Channel edit panels pad and scroll their fields above the pinned action
+  footer in docked and expanded views.
 
 - Integration creation and editing open `frontline:integration` records through
   the shared side panel. The panel supplies title, actions, Detail and Activity
@@ -1057,13 +1055,12 @@ pipelineIds?, pageIds? } }` (`frontlineDashboardConfig.ts`); view mode turns
   `widgets.recordPanels` and the named `RecordPanel` export at `./recordPanel`.
   `src/widgets/record-panel/RecordPanel.tsx` lazy-loads the settings dispatcher
   in `src/modules/settings/components/record-panels/SettingsRecordPanel.tsx`.
-- Settings creation uses literal `new` record IDs and the public draft defaults
-  contract. Legacy `new~channelId`, `new~channelId~pipelineId` and
-  `new~pipelineId~statusType` links normalize only while their title's record is
-  active, preserving channel, pipeline and validated status type (1 through 6).
-  Normalize each legacy source once while router navigation commits. Saved
-  pipeline IDs optionally append their section (`pipelineId~properties`, for
-  example). Loaded data takes precedence over legacy encoded scope, draft
+- Settings draft IDs encode scope with `~`: pipeline and response
+  `new~channelId`, ticket config `new~channelId~pipelineId`, and status
+  `new~pipelineId~statusType` (an integer category from 1 through 6).
+  Keep that scope in the record URL; converting these IDs to literal `new`
+  loses defaults on reload. Saved pipeline IDs optionally append their section
+  (`pipelineId~properties`, for example). Loaded data takes precedence over encoded scope, draft
   defaults and route params. `SettingsPanelContext` never borrows a missing scope value from the
   host route. Saved pipeline panel Detail links replace their history entry
   with the corresponding full-page section, resolving the owning channel from
@@ -1539,9 +1536,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   save ownership when sections are revisited. A legacy saved pipeline panel
   redirects only while that exact record is active; successful creation
   navigates only while its originating draft remains active.
-- All settings create entry points, including empty-state actions, use
-  `openNewRecord`. Scope-specific form cache keys stay unchanged so drafts and
-  pending save guards survive reopening through canonical or legacy links.
+- Pipeline, response, configuration and status create entry points, including
+  empty-state actions, retain encoded channel/pipeline/status-type scope.
+  Scope-specific form cache keys stay
+  unchanged so drafts and pending save guards survive reopening through
+  canonical or legacy links.
 - Pipeline Properties keeps the existing wide `Sheet.View` layout editor and
   public `PropertyAddSheet`. `SettingsLocalPanel` uses `RecordSidePanel` for
   nested field editors; its Escape handler defers to open dialogs, menus and
@@ -3442,8 +3441,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
   member and resource links, and integration cards.
 - Panel header smoke: open a channel or integration create panel and confirm
   Close is available without fullscreen controls, including when a stale URL
-  has `panelExpanded=true`. Complete creation and open the saved record;
-  fullscreen controls must now be available. Expand a channel record and verify
+  has `panelExpanded=true`. Complete creation and open the saved record.
+  With host expansion support available, expand a channel record and verify
   the Channels and channel-detail breadcrumbs alongside minimize, with no
   close button. Repeat
   for saved integration records, including Telegram. Minimize and
@@ -3458,6 +3457,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   saved pipeline panel links and successful creation. Revisit General and Mail
   after editing without saving and confirm their drafts return. Finish a slow
   create after opening another record; that newer record must remain active.
+  Reload pipeline, response, configuration and each status-group create link;
+  the selected channel, pipeline and status group must remain unchanged.
+  Open old `?panel=` and `new~...` links and verify the same form and scope.
 - Settings smoke: open channels, pipeline sections, statuses, response
   templates, ticket configs and submissions from lists and legacy links.
   Verify selected-record scope, loading/error states, save/cancel and deletion
