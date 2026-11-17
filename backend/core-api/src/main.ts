@@ -13,12 +13,15 @@ import {
   applyTrustProxy,
   closeMongooose,
   createTRPCContext,
+  errorLogger,
   flushTelemetry,
   getSubdomain,
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
   MAX_HEADER_BYTES,
+  requestLogger,
+  setLoggerService,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
@@ -49,6 +52,7 @@ Sentry.getGlobalScope().setTags({
   plugin: PLUGIN_NAME,
   service: PLUGIN_NAME,
 });
+setLoggerService(PLUGIN_NAME);
 
 dotenv.config();
 
@@ -83,6 +87,8 @@ app.use(
 );
 
 app.use(cookieParser());
+// request id (x-erxes-request-id, kept from the gateway) + one log line per failed, slow or aborted request
+app.use(requestLogger());
 
 const corsOptions = {
   credentials: true,
@@ -190,6 +196,8 @@ httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
 
   Sentry.setupExpressErrorHandler(app);
+  // after Sentry: unhandled errors become one JSON line instead of a plain stack trace
+  app.use(errorLogger());
 
   await joinErxesGateway({
     name: PLUGIN_NAME,

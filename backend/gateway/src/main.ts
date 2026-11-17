@@ -40,6 +40,7 @@ import {
   redis,
   requestLogger,
   setActivePlugins,
+  setLoggerService,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
@@ -93,6 +94,7 @@ Sentry.getGlobalScope().setTags({
   plugin: 'gateway',
   service: 'gateway',
 });
+setLoggerService('gateway');
 
 const app = express();
 applyTrustProxy(app);
