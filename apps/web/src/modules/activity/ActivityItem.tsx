@@ -117,12 +117,15 @@ const EventItem = ({
   actor,
   onRelated,
   rail,
+  own,
 }: {
   activity: Activity;
   lookups: Lookups;
   actor: string;
   onRelated: ReactNode;
   rail: ReactNode;
+  /** The entry is about the record whose timeline this is: Open would open it again. */
+  own: boolean;
 }) => {
   const catalog = useActivityTypes();
   const plugin = activity.source !== 'core';
@@ -157,10 +160,10 @@ const EventItem = ({
           <When iso={activity.occurredAt} className="ml-2" />
         </p>
         {changes && <ChangeList changes={changes} lookups={lookups} className="mt-1.5" />}
-        {(plugin || activity.link) && (
+        {(plugin || (activity.link && !own)) && (
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             {plugin && <PluginMeta activity={activity} actor={actor} label={look?.label} />}
-            {activity.link && <OpenLink activity={activity} link={activity.link} />}
+            {activity.link && !own && <OpenLink activity={activity} link={activity.link} />}
           </div>
         )}
         {Object.keys(activity.reactions).length > 0 && (
@@ -285,6 +288,7 @@ export const ActivityItem = ({
       actor={actor}
       onRelated={onRelated}
       rail={rail}
+      own={activity.entityType === pageTarget.type && activity.entityId === pageTarget.id}
     />
   );
 };

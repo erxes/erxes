@@ -1,14 +1,17 @@
 import { IconHierarchy2, IconHistory, IconId } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
+  Breadcrumb,
+  buttonVariants,
   Spinner,
   type TPanelRecordType,
   type TRecordSlotProps,
   type TRecordTab,
   usePanelExpanded,
 } from 'erxes-ui';
-import { type ComponentType, Suspense } from 'react';
+import { type ComponentType, type ElementType, type ReactNode, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { SharedTimeline } from '~/modules/activity/SharedTimeline';
 import { ContactDetailScroll } from '~/modules/side-panel/details/ContactDetailFields';
 import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
@@ -20,7 +23,7 @@ import { PluginBoundary } from './PluginBoundary';
 import { propertiesOf } from './pluginProperties';
 import { PluginRecordProperties } from './PluginRecordProperties';
 import { usePluginRelationTabs } from './PluginRelationTabs';
-import { usePluginText } from './pluginText';
+import { pluginName, usePluginText } from './pluginText';
 import { usePluginRecordType } from './usePluginRecordType';
 
 const DETAIL_TAB = 'detail';
@@ -120,14 +123,75 @@ const useRecordTabs = (
   ];
 };
 
+/** A record type's list: its own page's address without the record, else the plugin's first page. */
+const listPathOf = (type: TPanelRecordType, contentId: string, base: string) => {
+  const page = type.detailPath(contentId);
+  const suffix = `/${encodeURIComponent(contentId)}`;
+
+  return page.endsWith(suffix) ? page.slice(0, -suffix.length) || base : base;
+};
+
+/** A plugin record's page: the plugin › its type's list › the record's name, as a customer's. */
+const PluginRecordBreadcrumb = ({
+  plugin,
+  base,
+  icon: PluginIcon,
+  type,
+  contentId,
+  title,
+}: {
+  plugin: string;
+  base: string;
+  icon?: ElementType;
+  type: TPanelRecordType;
+  contentId: string;
+  title: ReactNode;
+}) => {
+  const text = usePluginText();
+  const list = listPathOf(type, contentId, base);
+
+  return (
+    <Breadcrumb>
+      <Breadcrumb.List>
+        <Breadcrumb.Item>
+          <Link to={base} className={buttonVariants({ variant: 'ghost' })}>
+            {PluginIcon && <PluginIcon aria-hidden="true" />}
+            {pluginName(text, plugin)}
+          </Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Separator />
+        <Breadcrumb.Item>
+          <Link to={list} className={buttonVariants({ variant: 'ghost' })}>
+            <type.icon aria-hidden="true" />
+            {text(plugin, type.title)}
+          </Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Separator />
+        <Breadcrumb.Item>
+          <Breadcrumb.Page variant="text" className="block max-w-64">
+            {title}
+          </Breadcrumb.Page>
+        </Breadcrumb.Item>
+      </Breadcrumb.List>
+    </Breadcrumb>
+  );
+};
+
 /** A loaded plugin record: core's header and tabs around the plugin's slots. */
 const PluginRecordPanel = ({
   plugin,
+  base,
+  icon,
   type,
   record,
   onBack,
   onClose,
-}: IRecordViewProps & { plugin: string; type: TPanelRecordType }) => {
+}: IRecordViewProps & {
+  plugin: string;
+  base: string;
+  icon?: ElementType;
+  type: TPanelRecordType;
+}) => {
   const expanded = usePanelExpanded();
   const { tab: selected, setTab } = useSidePanel();
   const tabs = useRecordTabs(plugin, type, record);
@@ -140,10 +204,14 @@ const PluginRecordPanel = ({
       {expanded ? (
         <RecordPageHeader
           breadcrumb={
-            <span className="flex min-w-0 items-center gap-2 text-sm font-medium">
-              <type.icon className="size-4 flex-none" aria-hidden="true" />
-              {title}
-            </span>
+            <PluginRecordBreadcrumb
+              plugin={plugin}
+              base={base}
+              icon={icon}
+              type={type}
+              contentId={record.contentId}
+              title={title}
+            />
           }
           actions={actions}
         />
@@ -177,7 +245,15 @@ export const PluginRecordView = (props: IRecordViewProps) => {
 
   if (!entry) return null;
 
-  return <PluginRecordPanel {...props} plugin={entry.plugin} type={entry.type} />;
+  return (
+    <PluginRecordPanel
+      {...props}
+      plugin={entry.plugin}
+      base={entry.base}
+      icon={entry.icon}
+      type={entry.type}
+    />
+  );
 };
 
 /** A plugin record's draft under core's "New …" header: Save puts the record in its place. */
