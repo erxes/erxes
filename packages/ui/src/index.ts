@@ -199,14 +199,25 @@ export {
   type Tag,
   type TagsQuery,
   useMemberOptions,
+  useProductOptions,
   useTagOptions,
 } from './modules/pickers/LookupPicker';
+
+export {
+  type ProductChoice,
+  type ProductSearchQueries,
+  productTitle,
+} from './modules/records/products';
 
 export { NumberField } from './modules/record-field/components/NumberField';
 
 export { TextField } from './modules/record-field/components/TextField';
 
 export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneInput';
+
+export { Board } from './modules/board/Board';
+
+export type { BoardMove } from './modules/board/BoardRoot';
 
 export { RecordList } from './modules/record-list/RecordList';
 

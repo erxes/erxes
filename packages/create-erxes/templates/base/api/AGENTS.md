@@ -52,7 +52,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
 - A fact the plugin computes about a customer or company (total spent, last
   order) is a field in the manifest's `fields` (`code`, `contentType`, `label`,
   `type`: number, date, text, select or multiselect). Core shows it read-only
-  and members filter and save views by it. Write values with
+  and members filter and save views by it; `filterable: false` keeps it a
+  column and sort key only, when a relation filters by the same records. Write values with
   `core.forOrg(orgId).fields.setPluginValues({ contentType, values })` (scope
   `fields:write`, up to 500, `value: null` clears) after the change commits; it
   adds nothing to the timeline and sends no event. Members see the fields only
@@ -62,7 +63,9 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
 - Records that belong to customers or companies (deals, orders, tickets) are a
   relation in the manifest's `relations` (`key`, `contentType`, `label`,
   `view`, `permission?`, `fields`: `key`, `label`, `type` text, number, date,
-  boolean, select or member, `options`, `array`, `money`). Members then filter
+  boolean, select, member or product, `options`, `array`, `money`, and
+  `measures`: which of `sum`, `avg`, `min`, `max` the filter lists for a
+  number or date field, all when absent). Members then filter
   contacts by them, live, with no values to sync: "Deals: count ≥ 3 where
   Stage is Won", "Deals: Amount (total) > 1,000,000", "Deals: Closed (latest)
   more than 60 days ago". Keep a view `<plugin>_*` in a migration, owned by the

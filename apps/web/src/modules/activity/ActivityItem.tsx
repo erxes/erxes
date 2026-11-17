@@ -31,11 +31,12 @@ import {
   IconUsers,
   type Icon,
 } from '@tabler/icons-react';
-import { Badge, cn, Skeleton } from 'erxes-ui';
+import { Badge, cn, Skeleton, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChangeList, type Lookups } from '~/components/ChangeList';
 import { actorLabel, pluginLabel } from '~/lib/members';
+import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import type { ReactNode } from 'react';
 import { readChanges, verbOf } from './activityData';
 import { LinkedRecord, Sentence, SentenceLine } from './ActivitySentence';
@@ -116,14 +117,16 @@ const EventItem = ({
   actor,
   onRelated,
   rail,
+  own,
 }: {
   activity: Activity;
   lookups: Lookups;
   actor: string;
   onRelated: ReactNode;
   rail: ReactNode;
+  /** The entry is about the record whose timeline this is: Open would open it again. */
+  own: boolean;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const catalog = useActivityTypes();
   const plugin = activity.source !== 'core';
   const look = plugin ? catalog.data?.types.find((item) => item.type === activity.type) : undefined;
@@ -157,14 +160,10 @@ const EventItem = ({
           <When iso={activity.occurredAt} className="ml-2" />
         </p>
         {changes && <ChangeList changes={changes} lookups={lookups} className="mt-1.5" />}
-        {(plugin || activity.link) && (
+        {(plugin || (activity.link && !own)) && (
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             {plugin && <PluginMeta activity={activity} actor={actor} label={look?.label} />}
-            {activity.link && (
-              <Link to={activity.link} className="text-primary-text hover:underline">
-                {t('open', 'Open')}
-              </Link>
-            )}
+            {activity.link && !own && <OpenLink activity={activity} link={activity.link} />}
           </div>
         )}
         {Object.keys(activity.reactions).length > 0 && (
@@ -174,6 +173,48 @@ const EventItem = ({
         )}
       </div>
     </li>
+  );
+};
+
+/** The record an entry is about, as the side panel names it: `sales.deal` → `sales:deal`. */
+const entityRecord = ({ entityType, entityId }: Activity) => {
+  if (!entityType || !entityId) return null;
+
+  const core = entityType === 'customer' || entityType === 'company';
+
+  return {
+    core,
+    contentType: core ? `core:${entityType}` : entityType.replace('.', ':'),
+    contentId: entityId,
+  };
+};
+
+/**
+ * "Open": the record the entry is about, in the side panel beside the timeline; its link's page
+ * when the panel can't show that record.
+ */
+const OpenLink = ({ activity, link }: { activity: Activity; link: string }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'activity' });
+  const record = entityRecord(activity);
+  const { entry } = usePluginRecordType(record?.contentType ?? '');
+  const { open, canOpen } = useOpenRecord();
+
+  if (record && (record.core || entry) && canOpen) {
+    return (
+      <button
+        type="button"
+        className="text-primary-text hover:underline"
+        onClick={() => open({ contentType: record.contentType, contentId: record.contentId })}
+      >
+        {t('open', 'Open')}
+      </button>
+    );
+  }
+
+  return (
+    <Link to={link} className="text-primary-text hover:underline">
+      {t('open', 'Open')}
+    </Link>
   );
 };
 
@@ -247,6 +288,7 @@ export const ActivityItem = ({
       actor={actor}
       onRelated={onRelated}
       rail={rail}
+      own={activity.entityType === pageTarget.type && activity.entityId === pageTarget.id}
     />
   );
 };

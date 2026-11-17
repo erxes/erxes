@@ -93,6 +93,7 @@ const useListFilterState = ({
   members,
   tags,
   contacts,
+  products,
   totalCount,
   totalCapped,
   loading,
@@ -101,7 +102,12 @@ const useListFilterState = ({
   const { advanced, setAdvanced } = useListConditions();
   const [adding, setAdding] = useState<AddFrom | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const lookups = useMemo(() => ({ members, tags, contacts }), [members, tags, contacts]);
+
+  const lookups = useMemo(
+    () => ({ members, tags, contacts, products }),
+    [members, tags, contacts, products],
+  );
+
   const parts = useMemo(() => partsOf(advanced), [advanced]);
 
   return {

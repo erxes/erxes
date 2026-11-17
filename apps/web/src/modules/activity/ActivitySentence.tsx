@@ -1,16 +1,13 @@
-import { paths } from '~/lib/paths';
 import type { Activity, ActivityTarget } from '@erxes/core-contract';
-import { companyTitle, customerTitle, Skeleton } from 'erxes-ui';
+import { companyTitle, customerTitle, Skeleton, useOpenRecord } from 'erxes-ui';
 import type { ReactElement } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import type { Lookups } from '~/components/ChangeList';
 import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { useStageName } from '~/modules/leads/i18n';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
-import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import {
   readCompanyLink,
   readCustomerLink,
@@ -37,6 +34,7 @@ const CoreRecord = ({
   const customer = useCustomer(type === 'customer' ? id : null);
   const company = useCompany(type === 'company' ? id : null);
   const query = type === 'customer' ? customer : company;
+  const { open } = useOpenRecord();
   let name: string | null = null;
 
   if (customer.data) name = customerTitle(customer.data);
@@ -61,16 +59,17 @@ const CoreRecord = ({
   }
 
   return (
-    <Link
+    <button
+      type="button"
       className="font-medium hover:underline"
-      to={type === 'customer' ? paths.contacts.customer(id) : paths.contacts.company(id)}
+      onClick={() => open({ contentType: `core:${type}`, contentId: id })}
     >
       {name || id}
-    </Link>
+    </button>
   );
 };
 
-/** A linked customer or company by name, opening its page; deleted ones say so. */
+/** A linked customer or company by name, opening it in the side panel; deleted ones say so. */
 export const LinkedRecord = ({
   type,
   id,
@@ -92,7 +91,7 @@ export const LinkedRecord = ({
 const PluginRecord = ({ type, id }: { type: string; id: string }) => {
   const contentType = type.replace('.', ':');
   const { entry } = usePluginRecordType(contentType);
-  const { openRecord } = useSidePanel();
+  const { open } = useOpenRecord();
 
   if (!entry) {
     return (
@@ -106,7 +105,7 @@ const PluginRecord = ({ type, id }: { type: string; id: string }) => {
     <button
       type="button"
       className="font-medium hover:underline"
-      onClick={() => openRecord({ contentType, contentId: id })}
+      onClick={() => open({ contentType, contentId: id })}
     >
       {entry.type.title}
     </button>

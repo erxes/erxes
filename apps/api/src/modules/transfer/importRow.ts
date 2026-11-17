@@ -4,6 +4,7 @@ import { ZodError } from 'zod';
 import { ORPCError } from '@orpc/server';
 import { fromDatabase } from '~/http/errors';
 import { normalizeEmail } from '~/lib/contacts';
+import { editorBlocks } from '~/lib/editorText';
 import { inOrder } from '~/lib/sequence';
 import { createCompany, updateCompany } from '~/modules/companies/companies.service';
 import {
@@ -43,6 +44,7 @@ const readCell = (input: Record<string, unknown>, refs: Refs, key: string, raw: 
 
     if (rest.length) input.lastName ??= rest.join(' ');
   } else if (key === 'emails' || key === 'phones' || key === 'names') input[key] = splitList(raw);
+  else if (key === 'description') input.description = editorBlocks(raw);
   else if (key === 'birthDate') input.birthDate = parseDate(raw);
   else if (key === 'size') input.size = Math.round(parseNumber(raw));
   else if (key === 'state') {

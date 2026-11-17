@@ -1,5 +1,6 @@
 import type { CorePermission, coreContract, PluginScope } from '@erxes/core-contract';
 import { CUSTOMER_ACCESS } from './customerPolicies';
+import { PAYMENT_ACCESS } from './paymentPolicies';
 
 type Contract = typeof coreContract;
 
@@ -153,6 +154,10 @@ export const ACCESS = {
   'customers.unlinkCompany': needs('contacts.edit'),
 
   'emails.send': { plugin: 'emails:write' },
+  'emails.settings': needs('integrations.manage'),
+  'emails.saveSettings': needs('integrations.manage'),
+  'emails.removeSettings': needs('integrations.manage'),
+  'emails.sendTest': needs('integrations.manage'),
 
   'events.publish': { plugin: 'events:write' },
   'events.list': needs('events.view'),
@@ -293,29 +298,7 @@ export const ACCESS = {
   'automations.retryRun': needs('automations.manage'),
   'automations.cancelRun': needs('automations.manage'),
 
-  'payments.gateways': needs('payments.manage'),
-  'payments.addGateway': needs('payments.manage'),
-  'payments.updateGateway': needs('payments.manage'),
-  'payments.removeGateway': needs('payments.manage'),
-  'payments.createInvoice': { member: 'payments.manage', plugin: 'payments:write' },
-  'payments.recordPayment': { member: 'payments.manage', plugin: 'payments:write' },
-  'payments.getInvoice': { member: 'payments.manage', plugin: 'payments:read' },
-  'payments.cancelInvoice': { member: 'payments.manage', plugin: 'payments:write' },
-  'payments.invoices': needs('payments.manage'),
-  'payments.refund': { member: 'payments.refund', plugin: 'payments:write' },
-  'payments.refunds': { member: 'payments.manage', plugin: 'payments:read' },
-  'payments.pluginSettings': needs('payments.manage'),
-  'payments.updatePluginSettings': needs('payments.manage'),
-  'payments.payTestInvoice': needs('payments.manage'),
-  'ebarimt.settings': needs('integrations.manage'),
-  'ebarimt.plugins': needs('integrations.manage'),
-  'ebarimt.saveSettings': needs('integrations.manage'),
-  'ebarimt.removeSettings': needs('integrations.manage'),
-  'ebarimt.testConnection': needs('integrations.manage'),
-  'ebarimt.receipts': { member: 'payments.manage', plugin: 'payments:read' },
-  'ebarimt.sync': { member: 'payments.manage', plugin: 'payments:write' },
-  'ebarimt.setBuyer': { member: 'payments.manage', plugin: 'payments:write' },
-  'ebarimt.findCompany': { member: 'any', plugin: 'payments:read' },
+  ...PAYMENT_ACCESS,
 
   'products.list': { member: 'any', plugin: 'products:read' },
   'products.get': { member: 'any', plugin: 'products:read' },

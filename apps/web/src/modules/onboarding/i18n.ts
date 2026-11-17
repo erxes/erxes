@@ -23,6 +23,14 @@ const en = {
   'setup-final': 'Putting on the finishing touches',
   'setup-retry': 'Try again',
   'setup-skip': 'Continue — the examples will appear in a moment',
+  'password-title': 'Set your password',
+  'password-description':
+    'You came in from erxes.io. With a password you can also sign in at {{host}}.',
+  'password-hint': '8 or more characters, with A–Z, a–z and 0–9',
+  'password-rule':
+    'At least 8 characters with a lower-case letter, an upper-case letter and a digit',
+  'password-mismatch': 'The passwords differ',
+  'password-failed': 'Could not set the password',
 };
 
 const mn: typeof en = {
@@ -45,6 +53,13 @@ const mn: typeof en = {
   'setup-final': 'Эцсийн бэлтгэл',
   'setup-retry': 'Дахин оролдох',
   'setup-skip': 'Үргэлжлүүлэх — жишээнүүд удахгүй гарч ирнэ',
+  'password-title': 'Нууц үгээ тохируулах',
+  'password-description':
+    'Та erxes.io-оос нэвтэрч орлоо. Нууц үгтэй бол {{host}} хаягаар шууд нэвтэрч болно.',
+  'password-hint': '8 ба түүнээс дээш тэмдэгт, A–Z, a–z, 0–9 агуулсан',
+  'password-rule': 'Дор хаяж 8 тэмдэгт, нэг жижиг үсэг, нэг том үсэг, нэг тоо оруулна уу',
+  'password-mismatch': 'Нууц үг таарахгүй байна',
+  'password-failed': 'Нууц үгийг тохируулж чадсангүй',
 };
 
 i18n.addResourceBundle('en', ONBOARDING_NS, en, true, false);

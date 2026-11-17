@@ -1,29 +1,32 @@
-import type { Db } from '@erxes/core-db';
-import { type SQL, sql } from 'drizzle-orm';
+import { companies, customers, type Db } from '@erxes/core-db';
+import { getTableName, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
+import { tagIdsColumn } from '~/modules/tags/tagLinks';
+import type { SubjectType } from '~/modules/views/filterFields';
+
+export type { SubjectType };
 
 /** Records enrolled from an audience a page (one job) at a time. */
 export const SUBJECT_PAGE = 500;
 
-const TABLES = {
-  customer: { table: 'core_customers', tags: 'core_customer_tags', key: 'customer_id' },
-  company: { table: 'core_companies', tags: 'core_company_tags', key: 'company_id' },
-} as const;
+/**
+ * Each record type's table. Queries name the tables themselves (no alias), so a condition the
+ * list filter compiles (`"core_customers"."id" = …`) applies as it is.
+ */
+export const SUBJECT_TABLES = { customer: customers, company: companies } as const;
 
-export type SubjectType = keyof typeof TABLES;
-
-const isSubjectType = (type: string | null): type is SubjectType =>
+export const isSubjectType = (type: string | null | undefined): type is SubjectType =>
   type === 'customer' || type === 'company';
 
 const Row = z.looseObject({ id: z.string() });
 
 const camelCase = (key: string) => key.replace(/_([a-z])/g, (_match, c: string) => c.toUpperCase());
 
-/** A record as templates and conditions read it: any of its columns by path. */
+/** A record as templates read it: any of its columns by path. */
 export type Subject = Record<string, unknown> & { id: string; type: SubjectType };
 
-/** A row as templates and conditions read it: camelCase, dates as ISO strings, no internals. */
+/** A row as templates read it: camelCase, dates as ISO strings, no internals. */
 const toSubject = (row: z.infer<typeof Row>, type: SubjectType): Subject => ({
   ...Object.fromEntries(
     Object.entries(row)
@@ -38,35 +41,37 @@ const toSubject = (row: z.infer<typeof Row>, type: SubjectType): Subject => ({
 });
 
 /**
- * Records of a type as conditions see them (`subject.*`, with `tagIds` and
- * `customFields`), in id order: `after` continues from a page's last id.
+ * Records of a type as templates see them (`subject.*`, with `tagIds` and `customFields`), in
+ * id order: `where` is a condition on the type's table, `after` continues from a page's last id.
  */
 export const loadSubjects = async (
   tx: Db,
   type: SubjectType,
-  where: SQL = sql`true`,
+  where: SQL | undefined,
   page: { after?: string; limit?: number } = {},
 ) => {
-  const { table, tags, key } = TABLES[type];
+  const table = SUBJECT_TABLES[type];
+  const name = sql.identifier(getTableName(table));
 
   const result = await tx.execute(sql`
-    select r.*,
-      coalesce((select array_agg(t.tag_id) from ${sql.identifier(tags)} t where t.org_id = r.org_id and t.${sql.identifier(key)} = r.id), '{}') as tag_ids,
-      ${customFieldsColumn(type, sql`r.id`)} as custom_fields
-    from ${sql.identifier(table)} r
-    where ${where} ${page.after ? sql`and r.id > ${page.after}` : sql``}
-    order by r.id
+    select ${name}.*, ${tagIdsColumn(type, table.id).sql} as tag_ids,
+      ${customFieldsColumn(type, table.id)} as custom_fields
+    from ${table}
+    where ${where ?? sql`true`} ${page.after ? sql`and ${table.id} > ${page.after}` : sql``}
+    order by ${table.id}
     limit ${page.limit ?? SUBJECT_PAGE}
   `);
 
   return result.rows.map((row) => toSubject(Row.parse(row), type));
 };
 
-/** The record a run is about, as templates and conditions read it. */
+/** The record a run is about, as templates read it. */
 export const subjectOf = async (tx: Db, type: string | null, id: string | null) => {
   if (!isSubjectType(type) || !id) return null;
 
-  const [subject] = await loadSubjects(tx, type, sql`r.id = ${id}`, { limit: 1 });
+  const [subject] = await loadSubjects(tx, type, sql`${SUBJECT_TABLES[type].id} = ${id}`, {
+    limit: 1,
+  });
 
   return subject ?? null;
 };

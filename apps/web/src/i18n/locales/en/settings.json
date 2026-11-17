@@ -55,7 +55,8 @@
     "failed": "Failed",
     "sign-ins": "Recent sign-ins",
     "sign-ins-description": "If you don’t recognise one, change your password.",
-    "no-sign-ins": "No sign-ins recorded yet."
+    "no-sign-ins": "No sign-ins recorded yet.",
+    "password-first": "You sign in from erxes.io. Set a password to sign in here too."
   },
   "team-member": {
     "_": "Team Member",
@@ -440,19 +441,26 @@
     "title": "API keys",
     "intro": "Keys let other systems use erxes. A regular key works with data, a management key sets up the organisation. A key never does more than the person who made it.",
     "add": "Create key",
-    "made-by": "Made by {{name}}",
-    "unused": "Never used",
+    "unused": "Never",
+    "name": "Name",
+    "kind": {
+      "management": "Management",
+      "regular": "Regular",
+      "member": "Old key"
+    },
+    "access": "What it can do",
+    "expires": "Expires",
+    "expired": "Expired",
+    "never": "Never",
+    "member": "Member",
+    "created": "Created",
+    "last-used": "Last used",
     "revoke": "Revoke",
     "revoke-confirm": "Revoke {{name}}? Whatever uses it stops working at once.",
     "revoke-failed": "Could not revoke the key",
     "empty": "No API keys yet",
     "empty-description": "Scripts and other systems call the API with a key.",
     "old-key": "Made before rules: can do everything {{name}} can.",
-    "kind": {
-      "management": "Management",
-      "regular": "Regular",
-      "member": "Old key"
-    },
     "form": {
       "new": "New key",
       "missing": "This key is gone.",
@@ -608,7 +616,8 @@
       "what-if-hint": "Would it still work from another address, or on one customer?",
       "refused-group": "{{count}} refused: {{why}}"
     },
-    "used-on": "Last used {{date}}"
+    "used-on": "Last used {{date}}",
+    "kind-head": "Kind"
   },
   "api-reference": {
     "title": "API reference",
@@ -984,7 +993,32 @@
     "admin-everything": "Admins can do everything except owner-only actions — including whatever plugins add later.",
     "sets": "Ready-made sets",
     "set-count_one": "{{count}} permission",
-    "set-count_other": "{{count}} permissions"
+    "set-count_other": "{{count}} permissions",
+    "name": "Name",
+    "delete": "Delete",
+    "delete-confirm": "Delete the role “{{name}}”?",
+    "delete-in-use_one": "Give its {{count}} member another role before deleting it",
+    "delete-in-use_other": "Give its {{count}} members another role before deleting it",
+    "discard": "Discard",
+    "unsaved_one": "{{count}} unsaved change",
+    "unsaved_other": "{{count}} unsaved changes",
+    "leave-confirm": "Discard your unsaved changes?",
+    "summary": "{{granted}} of {{total}} permissions",
+    "summary-everything": "Every permission",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members",
+    "fixed": "Fixed",
+    "core": "Core",
+    "search": "Search permissions or plugins…",
+    "filter": "Show",
+    "filter-all": "All",
+    "filter-granted": "Granted",
+    "filter-not-granted": "Not granted",
+    "expand-all": "Expand all",
+    "collapse-all": "Collapse all",
+    "select-all-in": "All of {{name}}",
+    "no-match": "No permissions match",
+    "no-match-description": "Try another word or show all."
   },
   "general": {
     "title": "General",
@@ -1263,7 +1297,8 @@
     "all": "All",
     "category": {
       "payments": "Payments",
-      "tax": "Tax receipts"
+      "tax": "Tax receipts",
+      "email": "Email"
     },
     "section": {
       "connected": "Connected",
@@ -1283,11 +1318,13 @@
     },
     "name": {
       "ebarimt": "eBarimt",
-      "payment-gateways": "Payment gateways"
+      "payment-gateways": "Payment gateways",
+      "email": "Email sending"
     },
     "catalog": {
       "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI.",
-      "payment-gateways": "QPay, Stripe, PayPal and more: connected on Settings › Payments."
+      "payment-gateways": "QPay, Stripe, PayPal and more: connected on Settings › Payments.",
+      "email": "Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES."
     },
     "ebarimt": {
       "remove-title": "Remove eBarimt",
@@ -1356,6 +1393,63 @@
         "VAT_ZERO": "0% VAT",
         "NOT_SEND": "Left off the receipt"
       }
+    },
+    "email": {
+      "set-up-short": "Set up",
+      "saved": "Email settings saved",
+      "save-failed": "Could not save",
+      "save": "Save changes",
+      "set-up": "Set up email sending",
+      "field": {
+        "provider": "Send through",
+        "fromName": "From name",
+        "fromEmail": "From address",
+        "smtp": {
+          "smtpHost": "Server",
+          "smtpPort": "Port",
+          "username": "User name",
+          "secret": "Password",
+          "smtpSecure": "TLS from the start (port 465)"
+        },
+        "sendgrid": {
+          "secret": "API key"
+        },
+        "ses": {
+          "region": "AWS region",
+          "username": "Access key id",
+          "secret": "Secret access key"
+        }
+      },
+      "provider": {
+        "smtp": "SMTP server",
+        "sendgrid": "SendGrid",
+        "ses": "Amazon SES"
+      },
+      "section": {
+        "sender": "Sender",
+        "sender-description": "Who your emails come from.",
+        "connection": "Connection",
+        "connection-description": "Your own SMTP server, or a SendGrid or Amazon SES account that may send from the address above."
+      },
+      "secret-kept": {
+        "smtp": "Leave the password empty to keep the saved one.",
+        "sendgrid": "Leave the API key empty to keep the saved one.",
+        "ses": "Leave the secret access key empty to keep the saved one."
+      },
+      "test": "Send test email",
+      "test-sent": "Test email sent to you",
+      "test-failed": "The test email was not sent",
+      "remove-title": "Stop sending from your address",
+      "remove-description": "Emails go out from erxes’s address again.",
+      "remove": "Remove",
+      "sending-as": "Sending as",
+      "server": "Server",
+      "set-up-hint": "Emails go out from erxes’s address. Set up your own server or account to send from yours.",
+      "how": "How it works",
+      "how-all": "Invitations, password resets, notifications, automations and broadcasts all use it.",
+      "how-from": "A broadcast’s own sender name replaces the from name; the address stays.",
+      "how-verify": "SendGrid and Amazon SES only send from addresses or domains you verified with them.",
+      "how-none": "Without it, emails go out from erxes’s address."
     }
   }
 }

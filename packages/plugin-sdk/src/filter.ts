@@ -31,7 +31,7 @@ export const invalidFilter = (message: string) =>
 
 /** One field a list can be filtered by, as `ListFilter`'s field `type` says it compares. */
 export interface FilterColumn {
-  /** `member`, `customer` and `company` hold ids of those records; "me" is a member. */
+  /** `member`, `customer`, `company` and `product` hold ids of those records; "me" is a member. */
   type: FilterField['type'];
   /** The value as SQL: a column, or an expression over the list's table. */
   expr: Column | SQL;
@@ -250,9 +250,9 @@ const memberId = (value: unknown, { me }: FilterContext) => {
   return me;
 };
 
-const ID_TYPES = new Set<FilterColumn['type']>(['member', 'customer', 'company']);
+const ID_TYPES = new Set<FilterColumn['type']>(['member', 'customer', 'company', 'product']);
 
-/** The fields whose values are record ids: a member's, customer's or company's. */
+/** The fields whose values are record ids: a member's, customer's, company's or product's. */
 const isId = (field: FilterColumn) => ID_TYPES.has(field.type);
 
 /** A rule's value as an id of `field`'s records; only a member field reads "me". */

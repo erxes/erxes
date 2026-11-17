@@ -1,26 +1,12 @@
 import type { PermissionInfo, Role } from '@erxes/core-contract';
 import { IconLock, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Checkbox, cn, Input, Textarea, useToast } from 'erxes-ui';
+import { Button, Input, Textarea, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { PermissionSets } from './PermissionSets';
-
-const groupsOf = (catalog: PermissionInfo[]) => {
-  const groups = new Map<string, PermissionInfo[]>();
-
-  for (const permission of catalog) {
-    const key =
-      permission.source === 'core'
-        ? permission.group
-        : `${permission.group} · ${permission.source}`;
-
-    groups.set(key, [...(groups.get(key) ?? []), permission]);
-  }
-
-  return [...groups.entries()];
-};
+import { PermissionBrowser } from './PermissionBrowser';
+import { countGranted } from './permissionSections';
 
 /** Unsaved edits; anything not edited shows the role as saved. */
 type Draft = { name?: string; description?: string; granted?: Set<string> };
@@ -58,63 +44,7 @@ const useRoleMutations = (role: Role, onSaved: () => void) => {
 
   const remove = useMutation(orpc.roles.remove.mutationOptions({ onSuccess: refresh, onError }));
 
-  return { save, remove, removeRole: () => remove.mutate({ key: role.key }) };
-};
-
-const PermissionList = ({
-  catalog,
-  granted,
-  editable,
-  onToggle,
-}: {
-  catalog: PermissionInfo[];
-  granted: Set<string>;
-  editable: boolean;
-  onToggle: (action: string, on: boolean) => void;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'roles' });
-
-  return (
-    <div className="space-y-5">
-      {groupsOf(catalog).map(([group, permissions]) => (
-        <section key={group}>
-          <h3 className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            {group}
-          </h3>
-          <ul className="space-y-1.5">
-            {permissions.map((permission) => (
-              <li key={permission.action}>
-                <label
-                  className={cn(
-                    'flex items-start gap-3 text-sm',
-                    editable && !permission.ownerOnly && 'cursor-pointer',
-                  )}
-                >
-                  <Checkbox
-                    className="mt-0.5"
-                    checked={granted.has(permission.action)}
-                    disabled={!editable || permission.ownerOnly}
-                    onCheckedChange={(on) => onToggle(permission.action, on)}
-                  />
-                  <span className="flex-1">
-                    {permission.label}
-                    {permission.ownerOnly && (
-                      <Badge variant="secondary" className="ml-2">
-                        {t('owner-only', 'Owner only')}
-                      </Badge>
-                    )}
-                    <span className="ml-2 font-mono text-xs text-muted-foreground">
-                      {permission.action}
-                    </span>
-                  </span>
-                </label>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
-    </div>
-  );
+  return { save, removeRole: () => remove.mutate({ key: role.key }) };
 };
 
 const RoleTitle = ({ role }: { role: Role }) => (
@@ -177,33 +107,62 @@ const RoleNameFields = ({
   );
 };
 
-const RoleActions = ({
-  canRemove,
-  removing,
+const DeleteRole = ({ role, onRemove }: { role: Role; onRemove: () => void }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'roles' });
+  const { confirm } = useConfirm();
+
+  const inUse = role.members > 0;
+
+  const label = inUse
+    ? t('delete-in-use', 'Give its {{count}} members another role before deleting it', {
+        count: role.members,
+      })
+    : t('delete', 'Delete');
+
+  return (
+    <Button
+      variant="ghost"
+      tone="muted"
+      size="icon"
+      disabled={inUse}
+      aria-label={label}
+      title={label}
+      onClick={() =>
+        void confirm({
+          message: t('delete-confirm', 'Delete the role “{{name}}”?', { name: role.name }),
+          options: { okLabel: t('delete', 'Delete'), variants: { ok: 'destructive' } },
+        }).then(onRemove)
+      }
+    >
+      <IconTrash />
+    </Button>
+  );
+};
+
+/** Pinned under the list while the role has unsaved edits. */
+const SaveBar = ({
+  changes,
+  saving,
   canSave,
-  onRemove,
+  onDiscard,
   onSave,
 }: {
-  canRemove: boolean;
-  removing: boolean;
+  changes: number;
+  saving: boolean;
   canSave: boolean;
-  onRemove: () => void;
+  onDiscard: () => void;
   onSave: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
 
   return (
-    <div className="flex gap-2">
-      {canRemove && (
-        <Button
-          variant="ghost"
-          disabled={removing}
-          aria-label={t('delete', 'Delete')}
-          onClick={onRemove}
-        >
-          <IconTrash />
-        </Button>
-      )}
+    <div className="sticky bottom-0 z-10 -mx-6 -mb-6 flex items-center gap-3 border-t bg-background/95 px-6 py-3 backdrop-blur">
+      <span className="flex-1 text-sm text-muted-foreground">
+        {t('unsaved', '{{count}} unsaved changes', { count: changes })}
+      </span>
+      <Button variant="ghost" disabled={saving} onClick={onDiscard}>
+        {t('discard', 'Discard')}
+      </Button>
       <Button disabled={!canSave} onClick={onSave}>
         {t('save', 'Save')}
       </Button>
@@ -211,52 +170,71 @@ const RoleActions = ({
   );
 };
 
-/** The plugins' ready-made sets, then every permission by area. */
-const RolePermissions = ({
+/** How many permissions and fields differ from the saved role. */
+const changesOf = (role: Role, name: string, description: string, granted: Set<string>) => {
+  const saved = new Set(role.permissions);
+
+  const toggled =
+    [...granted].filter((action) => !saved.has(action)).length +
+    role.permissions.filter((action) => !granted.has(action)).length;
+
+  return toggled + Number(name !== role.name) + Number((description || null) !== role.description);
+};
+
+const RoleSummary = ({
+  role,
   catalog,
   granted,
-  editable,
-  onChange,
+  everything,
 }: {
+  role: Role;
   catalog: PermissionInfo[];
   granted: Set<string>;
-  editable: boolean;
-  onChange: (actions: string[], on: boolean) => void;
-}) => (
-  <div className="space-y-5">
-    <PermissionSets granted={granted} editable={editable} onChange={onChange} />
-    <PermissionList
-      catalog={catalog}
-      granted={granted}
-      editable={editable}
-      onToggle={(action, on) => onChange([action], on)}
-    />
-  </div>
-);
+  everything: boolean;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'roles' });
+  const actions = catalog.map((permission) => permission.action);
 
-/** One role: name, description and its permissions, as a checklist by area. */
+  return (
+    <p className="text-xs text-muted-foreground">
+      {everything
+        ? t('summary-everything', 'Every permission')
+        : t('summary', '{{granted}} of {{total}} permissions', {
+            granted: countGranted(actions, granted),
+            total: actions.length,
+          })}
+      {' · '}
+      {t('members', '{{count}} members', { count: role.members })}
+    </p>
+  );
+};
+
+/** One role: name, description and its permissions, by source and area. */
 export const RoleEditor = ({
   role,
   catalog,
   canManage,
+  onDirtyChange,
 }: {
   role: Role;
   catalog: PermissionInfo[];
   canManage: boolean;
+  onDirtyChange: (dirty: boolean) => void;
 }) => {
-  const [draft, setDraft] = useState<Draft>({});
-  const { save, remove, removeRole } = useRoleMutations(role, () => setDraft({}));
+  const [draft, setDraftState] = useState<Draft>({});
   const name = draft.name ?? role.name;
   const description = draft.description ?? role.description ?? '';
   const granted = draft.granted ?? new Set(role.permissions);
   const everything = role.permissions.includes('*') || role.key === 'owner';
   const editable = canManage && role.editable;
+  const changes = changesOf(role, name, description, granted);
 
-  const dirty =
-    name !== role.name ||
-    (description || null) !== role.description ||
-    granted.size !== role.permissions.length ||
-    role.permissions.some((action) => !granted.has(action));
+  const setDraft = (next: Draft) => {
+    setDraftState(next);
+    onDirtyChange(Object.keys(next).length > 0);
+  };
+
+  const { save, removeRole } = useRoleMutations(role, () => setDraft({}));
 
   const toggle = (actions: string[], on: boolean) => {
     const next = new Set(granted);
@@ -270,7 +248,7 @@ export const RoleEditor = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 pb-6">
       <div className="flex items-start gap-3">
         <div className="flex-1 space-y-2">
           {editable ? (
@@ -282,33 +260,36 @@ export const RoleEditor = ({
           ) : (
             <RoleTitle role={role} />
           )}
+          <RoleSummary role={role} catalog={catalog} granted={granted} everything={everything} />
         </div>
-        {editable && (
-          <RoleActions
-            canRemove={!role.builtin}
-            removing={remove.isPending}
-            canSave={dirty && !save.isPending && Boolean(name.trim())}
-            onRemove={removeRole}
-            onSave={() =>
-              save.mutate({
-                key: role.key,
-                name,
-                description: description || null,
-                permissions: [...granted],
-              })
-            }
-          />
-        )}
+        {editable && !role.builtin && <DeleteRole role={role} onRemove={removeRole} />}
       </div>
 
       {everything ? (
         <EverythingNote owner={role.key === 'owner'} />
       ) : (
-        <RolePermissions
+        <PermissionBrowser
           catalog={catalog}
           granted={granted}
           editable={editable}
           onChange={toggle}
+        />
+      )}
+
+      {editable && changes > 0 && (
+        <SaveBar
+          changes={changes}
+          saving={save.isPending}
+          canSave={!save.isPending && Boolean(name.trim())}
+          onDiscard={() => setDraft({})}
+          onSave={() =>
+            save.mutate({
+              key: role.key,
+              name,
+              description: description || null,
+              permissions: [...granted],
+            })
+          }
         />
       )}
     </div>

@@ -3,7 +3,7 @@ import { usePlugins } from './usePlugins';
 
 /**
  * The plugin record type of `contentType` (`sales:deal`), from the installed plugins the member
- * may use, with the plugin's name (for its crash message) and where its pages mount.
+ * may use, with the plugin's name (for its crash message), icon and where its pages mount.
  * `loading` while the plugins load.
  */
 export const usePluginRecordType = (contentType: string) => {
@@ -20,7 +20,9 @@ export const findPluginRecordType = (
   for (const { config } of plugins) {
     const type = config.recordTypes.find((entry) => entry.contentType === contentType);
 
-    if (type) return { plugin: config.name, base: pluginBasePath(config.path), type };
+    if (type) {
+      return { plugin: config.name, base: pluginBasePath(config.path), icon: config.icon, type };
+    }
   }
 
   return undefined;

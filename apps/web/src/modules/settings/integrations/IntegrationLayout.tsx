@@ -124,3 +124,14 @@ export const OverviewSection = ({ title, children }: { title: string; children: 
     {children}
   </section>
 );
+
+/** The overview's "How it works", its lines already translated. */
+export const HowItWorks = ({ title, lines }: { title: string; lines: string[] }) => (
+  <OverviewSection title={title}>
+    <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+      {lines.map((line) => (
+        <li key={line}>{line}</li>
+      ))}
+    </ul>
+  </OverviewSection>
+);

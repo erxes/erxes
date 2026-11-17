@@ -32,9 +32,11 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
      member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
      that depend on it. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
-     `type`) name what its answer or payload holds; the builder offers them in "Insert data" as
+     `type`, `recordType?`) name what its answer or payload holds; the builder offers them in "Insert data" as
      `{{steps.<step id>.output.<key>}}` and `{{event.payload.<key>}}`, so renaming a key breaks
-     saved automations. The route, the query key `parent` and the answer's shape are the contract.
+     saved automations. A field with `recordType` holds one of the plugin's record ids: conditions
+     pick it from `GET <api.url>/automations/records/<recordType>` without `parent`, so that
+     route answers every record of the type then ("Pipeline · Stage"). The route, the query key `parent` and the answer's shape are the contract.
      The manifest's `pluginReads` (`PluginRead`: `plugin`, `permissions`, `reason`, in
      `packages/contract/src/pluginReads.ts`) lets a plugin read another plugin's API for an
      organisation: the owner approves it like a scope (stored in the installation's granted scopes
@@ -53,7 +55,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set
      (`syncPluginFields`). The plugin writes their values quietly with `fields.setPluginValues`
-     (scope `fields:write`), and members filter, sort and save views by them while the
+     (scope `fields:write`), and members filter (unless `filterable: false`), sort and save
+     views by them while the
      plugin is installed there with `fields:write` (`fieldShown`); a job with `onInstall`
      runs once when an organisation installs the plugin or approves its scopes; a plugin's
      filter fields come with `group: 'plugin'` and its title in `groupLabel`. With `views:read`
@@ -64,16 +67,18 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      the manifest's `relations` name a view `<plugin>_*` its role owns and grants to
      `erxes_core_reader`, with `record_id` and a column per field. Contact lists get
      `subject.related.<plugin>.<key>.count` and, per number field, `sum`/`avg`/`min`/`max`
-     (`min`/`max` per date field) as filter fields with `relation`, and a rule on one may carry
-     `where` on `subject.<field>`. No related rows count 0 and total 0, so "fewer than 3" includes
+     (`min`/`max` per date field), or the field's own `measures`, as filter fields with
+     `relation`, and a rule on one may carry `where` on `subject.<field>`; a `product` field holds
+     core product ids and picks products. No related rows count 0 and total 0, so "fewer than 3" includes
      them. Core reads only a view the plugin's role owns and has granted; otherwise the rule is
      `INVALID_FILTER`. The path shape, the view's columns and the measures are the contract;
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
      `relationTabs`, `settings`, `dashboardWidgets`, `floatingWidget`), and its first module
-     renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are links
-     to the plugin's own settings pages, a group per plugin at the end of core's settings sidebar
+     renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are the
+     plugin's own settings pages, drawn in its layout; core's settings sidebar links each plugin
+     once, to its first page, else to its Properties, in "Plugin settings"
      (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `dashboardWidgets`
      (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
      draws as the tile's body under its title) join core's home dashboard catalog under the
@@ -92,7 +97,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      (`TRecordProperties`: `type` as `<name>.<thing>`, `values(id)` query options, `save(id, patch)`)
      give it custom fields: core keeps their definitions (`fields.*` and `fieldGroups.*` take
      `<plugin>.<type>` while that plugin is installed, else 400 `PLUGIN_NOT_INSTALLED`), draws a
-     Properties tab and a Properties entry in the plugin's settings group, and the plugin keeps
+     Properties tab and their settings page at `/settings/properties/<plugin>.<type>`, which a
+     plugin with settings pages links from its own settings, and the plugin keeps
      the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on core's
      customers and companies, and on the record types with `contacts` that their `hosts` name
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it

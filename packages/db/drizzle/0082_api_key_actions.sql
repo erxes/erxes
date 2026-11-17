@@ -1,1 +1,0 @@
-ALTER TABLE "core_api_keys" ADD COLUMN "actions" jsonb DEFAULT '{}'::jsonb NOT NULL;

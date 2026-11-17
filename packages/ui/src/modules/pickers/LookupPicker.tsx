@@ -10,6 +10,7 @@ import {
   type CustomerContact,
   customerTitle,
 } from '../records/contacts';
+import { type ProductChoice, type ProductSearchQueries, productTitle } from '../records/products';
 import { type Member, type MemberQueries, memberName } from './members';
 
 /** A tag as the pickers show one: core's `Tag` has these fields and more. */
@@ -91,6 +92,19 @@ const companyOption = (company: CompanyContact) => ({
   label: companyTitle(company) || company.id,
 });
 
+/** Several lookups' options as one list, each id once (the first lookup's label wins). */
+const mergedLookups = (lookups: LookupOptions[]): LookupOptions => {
+  const options = new Map(
+    lookups.flatMap((lookup) => lookup.options).map((row) => [row.value, row] as const),
+  );
+
+  return {
+    options: [...options.values()],
+    loading: lookups.some((lookup) => lookup.loading),
+    error: lookups.find((lookup) => lookup.error)?.error ?? null,
+  };
+};
+
 /**
  * Customers or companies matching `search` as picker options, the `picked` ones first so their
  * names show whatever is searched; none without `contacts` or a `type`.
@@ -114,15 +128,33 @@ export const useContactOptions = (
     useLookup(companies?.(input), true, companyOption),
   ];
 
-  const options = new Map(
-    lookups.flatMap((lookup) => lookup.options).map((row) => [row.value, row] as const),
-  );
+  return mergedLookups(lookups);
+};
 
-  return {
-    options: [...options.values()],
-    loading: lookups.some((lookup) => lookup.loading),
-    error: lookups.find((lookup) => lookup.error)?.error ?? null,
-  };
+const productOption = (product: ProductChoice) => ({
+  value: product.id,
+  label: productTitle(product),
+});
+
+/**
+ * Products matching `search` as picker options, the `picked` ones first.
+ * Picked ones come first so their names show whatever is searched; none without `products`.
+ */
+export const useProductOptions = (
+  products: ProductSearchQueries | undefined,
+  enabled: boolean,
+  picked: readonly string[] = [],
+  search = '',
+): LookupOptions => {
+  const ids = [...new Set(picked)].toSorted((a, b) => a.localeCompare(b));
+  const on = enabled ? products : undefined;
+
+  const lookups = [
+    useLookup(on && ids.length ? on.byIds(ids) : undefined, ids.length > 0, productOption),
+    useLookup(on?.search(search.trim() || undefined), true, productOption),
+  ];
+
+  return mergedLookups(lookups);
 };
 
 /** A record type's tags as picker options; none without `tags`. */

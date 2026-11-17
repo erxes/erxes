@@ -18,8 +18,8 @@ test('a member links a contact to a company', async ({ page, api }) => {
     )
     .toEqual([company.id]);
 
-  // The company lists the person too.
+  // The company lists the person too, and its timeline's link entry names them.
   await page.goto(`/contacts/companies/${company.id}`);
-  await expect(page.getByRole('button', { name: `Charles ${suffix}` })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Charles ${suffix}` })).toHaveCount(2);
   await expectAccessible(page);
 });

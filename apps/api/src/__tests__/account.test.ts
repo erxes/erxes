@@ -45,6 +45,30 @@ describe('own account', () => {
     expect((await t.member().auth.signIns({})).data).toHaveLength(0);
   });
 
+  it('lets a member without a password set their first one, with no current one', async () => {
+    await adminDb().update(users).set({ passwordHash: null }).where(eq(users.id, t.ids.owner));
+
+    expect((await t.owner().auth.me({})).hasPassword).toBe(false);
+    await expect(t.owner().auth.changePassword({ newPassword: 'weak' })).rejects.toMatchObject({
+      status: 400,
+    });
+    await t.owner().auth.changePassword({ newPassword: 'Owner-pass-123' });
+
+    const signIn = (password: string) =>
+      t.client().auth.signIn({ email: 'owner@acme.mn', password, subdomain: 'acme' });
+
+    await signIn('Owner-pass-123');
+    expect((await t.owner().auth.me({})).hasPassword).toBe(true);
+
+    // Once there is one, changing it needs it.
+    await expect(
+      t.owner().auth.changePassword({ newPassword: 'Other-pass-456' }),
+    ).rejects.toMatchObject({
+      code: 'WRONG_PASSWORD',
+    });
+    await expect(signIn('Other-pass-456')).rejects.toMatchObject({ status: 401 });
+  });
+
   it('lets a member edit their own profile, not their role', async () => {
     const saved = await t.member().users.update({
       id: t.ids.member,

@@ -16,6 +16,7 @@ shared nuqs
 shared react-hook-form
 type AvatarProps
 type BadgeProps
+type BoardMove
 type ButtonProps
 type CalendarProps
 type ChartConfig
@@ -32,6 +33,8 @@ type MultiSelectOption
 type PluginLiveMessage
 type PluginRuntime
 type PluginSession
+type ProductChoice
+type ProductSearchQueries
 type RecordListGroup
 type RecordPageProps
 type RecordPanelControls
@@ -77,6 +80,7 @@ value AppLayoutFooterLink
 value Avatar
 value BackgroundGradientAnimation
 value Badge
+value Board
 value Breadcrumb
 value Button
 value Calendar
@@ -213,6 +217,7 @@ value memberName
 value oneOf
 value pluginFetch
 value pluginJson
+value productTitle
 value readImage
 value setFileStorage
 value setPluginRuntime
@@ -242,6 +247,7 @@ value useOpenRecord
 value usePageHotkey
 value usePanelExpanded
 value usePreviousHotkeyScope
+value useProductOptions
 value useRecordPanel
 value useScopedHotkeys
 value useTagOptions

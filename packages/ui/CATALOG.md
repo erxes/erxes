@@ -12,7 +12,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 | ------------------------ | ------------------------------------------------------------------- | --------------------------------------------------------------- |
 | List                     | `PageHeader`, `ViewBar`, `ListFilter`, `RecordTable`                | `ui/src/modules/items/ItemsPage.tsx`                            |
 | Grouped list (by status) | `RecordList`, `DisplayMenu`, `useListDisplay`                       | none in core yet                                                |
-| Board                    | `DisplayMenu`, `useListDisplay`                                     | `apps/web/src/modules/leads/LeadsBoard.tsx`                     |
+| Board                    | `Board`, `DisplayMenu`, `useListDisplay`                            | `apps/web/src/modules/leads/LeadsBoard.tsx`                     |
 | Cards or chart           | `DisplayMenu`, `useListDisplay`, `TListDisplayOption`               | none in core yet                                                |
 | Record detail            | `PanelSection`, `PanelField`, `RecordTableInlineCell`, `RecordPage` | `ui/src/modules/items/ItemPanel.tsx`                            |
 | Create/edit form         | `PanelFormLayout`, `PanelFormRow`                                   | `ui/src/modules/items/ItemPanel.tsx`                            |
@@ -32,6 +32,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Lists
 
+- `Board.{Column, Card, Skeleton}` Cards in columns, such as leads by stage, to drag to another column.
+- `type BoardMove` A dropped card: its old and new column, and the card it now sits above.
 - `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board, list or its own.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
 - `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, for a page without saved views.
@@ -80,6 +82,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelFormRow label icon required error hint>` One field of a form in the side panel, laid out like `PanelField`.
 - `<PanelLabel tooltip>` A side panel label cut at two lines, with the full text on hover.
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
+- `type ProductChoice { id, name, code }` A product as a picker shows it.
+- `type ProductSearchQueries { search, byIds }` Where a filter's `product` fields search products and load picked ones.
+- `productTitle(product)` A product's name, with its code when it has one: "iPhone 15 · IP15".
 - `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
 - `type RecordPageProps { listPath }` A `RecordPage`'s record, and the list it goes back to.
@@ -128,11 +133,12 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TagsQuery` TanStack query options for the tags of one record type.
 - `type TConditionField { path, label, type, options, group, … }` A field conditions can use: a record's, or an earlier step's output.
 - `type TConditionGroup { match, rules }` Rules (or nested groups) that must all, or any, hold.
-- `type TConditionLookups { members, tags, contacts }` Where `member`, `tags`, `customer` and `company` values pick from.
+- `type TConditionLookups { members, tags, contacts, products }` Where member, tag, contact and product values pick from.
 - `type TConditionRule { path, op, value, where }` One rule of a condition: a `path`, an operator and maybe a value.
 - `<TextField placeholder value scope onSave onValueChange>` A text value in a table cell or panel row that edits in a popover.
 - `useMemberOptions(members, enabled, picked)` The active team members as picker options.
 - `useMembersById(ids, members)` Members by id, any status.
+- `useProductOptions(products, enabled, picked, search)` Products matching `search` as picker options, the `picked` ones first.
 - `useTagOptions(tags, enabled)` A record type's tags as picker options; none without `tags`.
 
 ## Components
@@ -226,7 +232,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
-- `type TPluginSettingsPage { path, label, icon }` A plugin's settings page, linked from core's settings sidebar.
+- `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.
 - `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
 - `type TPropertyValue` A custom field's value: text, number, date, yes/no or options.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.

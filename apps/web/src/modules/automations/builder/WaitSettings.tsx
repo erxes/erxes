@@ -5,6 +5,7 @@ import { BuilderContext } from './BuilderContext';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
+import { eventDataFields } from './flowChecks';
 import type { SettingsProps } from './stepSettingsProps';
 
 const UNITS = ['minutes', 'hours', 'days'] as const;
@@ -125,6 +126,7 @@ export const WaitForSettings = ({
         <FieldLabel>{t('only-if', 'Only if')}</FieldLabel>
         <ConditionsEditor
           subject={subject}
+          extraFields={eventDataFields(events.find((event) => event.type === step.event))}
           value={step.conditions}
           disabled={disabled}
           onChange={(conditions) => onChange({ ...step, conditions })}

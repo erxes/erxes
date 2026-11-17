@@ -1,6 +1,6 @@
 {
-  "id": "10f91a87-bbd4-42aa-bacf-c9508b7240ff",
-  "prevId": "19f0710d-96e9-43d5-be43-1abab59f0270",
+  "id": "c61cf754-da3f-4fa5-9000-fa7317582189",
+  "prevId": "4bc5b848-1866-4601-a402-b499b204acc9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1446,6 +1446,13 @@
         },
         "is_visible": {
           "name": "is_visible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "filterable": {
+          "name": "filterable",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -10469,68 +10476,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'member'"
-        },
-        "areas": {
-          "name": "areas",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "plugin_access": {
-          "name": "plugin_access",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "actions": {
-          "name": "actions",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "own_records": {
-          "name": "own_records",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "unit_ids": {
-          "name": "unit_ids",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "tag_ids": {
-          "name": "tag_ids",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "allowed_ips": {
-          "name": "allowed_ips",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "permissions": {
-          "name": "permissions",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
         "expires_at": {
           "name": "expires_at",
           "type": "timestamp with time zone",
@@ -10549,12 +10494,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -10611,24 +10550,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "core_api_keys_kind_check": {
-          "name": "core_api_keys_kind_check",
-          "value": "\"core_api_keys\".\"kind\" IN ('member', 'regular', 'management')"
-        },
-        "core_api_keys_rules_check": {
-          "name": "core_api_keys_rules_check",
-          "value": "\"core_api_keys\".\"kind\" = 'member' OR \"core_api_keys\".\"permissions\" IS NOT NULL"
-        },
-        "core_api_keys_management_expires_check": {
-          "name": "core_api_keys_management_expires_check",
-          "value": "\"core_api_keys\".\"kind\" <> 'management' OR \"core_api_keys\".\"expires_at\" IS NOT NULL"
-        },
-        "core_api_keys_plugin_access_check": {
-          "name": "core_api_keys_plugin_access_check",
-          "value": "\"core_api_keys\".\"kind\" = 'regular' OR \"core_api_keys\".\"plugin_access\" = '{}'::jsonb"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.core_broadcast_recipients": {
@@ -11705,6 +11627,125 @@
         "core_ebarimt_settings_percent_check": {
           "name": "core_ebarimt_settings_percent_check",
           "value": "\"core_ebarimt_settings\".\"vat_percent\" >= 0 AND \"core_ebarimt_settings\".\"vat_percent\" <= 100 AND \"core_ebarimt_settings\".\"city_tax_percent\" >= 0 AND \"core_ebarimt_settings\".\"city_tax_percent\" <= 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_email_settings": {
+      "name": "core_email_settings",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from_name": {
+          "name": "from_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "from_email": {
+          "name": "from_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "smtp_host": {
+          "name": "smtp_host",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "smtp_port": {
+          "name": "smtp_port",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 587
+        },
+        "smtp_secure": {
+          "name": "smtp_secure",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "region": {
+          "name": "region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "secret_sealed": {
+          "name": "secret_sealed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_email_settings_org_id_fkey": {
+          "name": "core_email_settings_org_id_fkey",
+          "tableFrom": "core_email_settings",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_email_settings_provider_check": {
+          "name": "core_email_settings_provider_check",
+          "value": "\"core_email_settings\".\"provider\" IN ('smtp', 'sendgrid', 'ses')"
         }
       },
       "isRLSEnabled": false

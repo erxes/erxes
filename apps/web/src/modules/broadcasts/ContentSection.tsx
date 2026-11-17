@@ -1,9 +1,15 @@
-import { BROADCAST_PLACEHOLDERS, type BroadcastPlaceholder } from '@erxes/core-contract';
-import { IconBraces } from '@tabler/icons-react';
-import { Button, DropdownMenu, Input, Label, Textarea } from 'erxes-ui';
-import { useId, useRef } from 'react';
+import type { BroadcastPlaceholder } from '@erxes/core-contract';
+import { Input, Textarea } from 'erxes-ui';
+import { lazy, Suspense, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { fieldToken } from './body-editor/fields';
+import { LabelRow } from './PlaceholderMenu';
 import type { BroadcastDraft } from './useBroadcastDraft';
+
+/** BlockNote and ProseMirror load the first time an email is opened. */
+const BodyEditor = lazy(async () => ({
+  default: (await import('./body-editor/BodyEditor')).BodyEditor,
+}));
 
 const GREETING = '{{ firstName | there }}';
 
@@ -18,25 +24,29 @@ const smsParts = (text: string) => {
   return text.length <= single ? 1 : Math.ceil(text.length / part);
 };
 
-const PlaceholderMenu = ({ onPick }: { onPick: (name: BroadcastPlaceholder) => void }) => {
-  const { t } = useTranslation('broadcasts');
+type TextElement = HTMLInputElement | HTMLTextAreaElement;
 
-  return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger render={<Button variant="ghost" size="sm" />}>
-        <IconBraces />
-        {t('insert-placeholder', 'Insert a field')}
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="end">
-        {BROADCAST_PLACEHOLDERS.map((name) => (
-          <DropdownMenu.Item key={name} onClick={() => onPick(name)}>
-            {t(`placeholder.${name}`, name)}
-            <span className="ml-auto font-mono text-xs text-muted-foreground">{`{{ ${name} }}`}</span>
-          </DropdownMenu.Item>
-        ))}
-      </DropdownMenu.Content>
-    </DropdownMenu>
-  );
+/** Puts a field where the cursor is in an input, and the cursor after it. */
+const useInsertAtCursor = <T extends TextElement>(
+  value: string,
+  onChange: (next: string) => void,
+) => {
+  const ref = useRef<T>(null);
+
+  const insert = (name: BroadcastPlaceholder) => {
+    const element = ref.current;
+    const token = fieldToken(name);
+    const start = element?.selectionStart ?? value.length;
+    const end = element?.selectionEnd ?? value.length;
+
+    onChange(value.slice(0, start) + token + value.slice(end));
+    requestAnimationFrame(() => {
+      element?.focus();
+      element?.setSelectionRange(start + token.length, start + token.length);
+    });
+  };
+
+  return { ref, insert };
 };
 
 const TextField = ({
@@ -45,20 +55,25 @@ const TextField = ({
   onChange,
   placeholder,
   hint,
+  withFields = false,
 }: {
   label: string;
   value: string | null;
   onChange: (value: string) => void;
   placeholder?: string;
   hint?: string;
+  /** Offer Insert a field, for text that's filled per customer. */
+  withFields?: boolean;
 }) => {
   const id = useId();
+  const { ref, insert } = useInsertAtCursor<HTMLInputElement>(value ?? '', onChange);
 
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
+      <LabelRow id={id} label={label} onPick={withFields ? insert : undefined} />
       <Input
         id={id}
+        ref={ref}
         value={value ?? ''}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
@@ -81,6 +96,7 @@ const EmailFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
   return (
     <>
       <TextField
+        withFields
         label={t('subject', 'Subject')}
         value={draft.subject}
         onChange={(subject) => onChange({ subject })}
@@ -89,6 +105,7 @@ const EmailFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
         })}
       />
       <TextField
+        withFields
         label={t('preheader', 'Preview text')}
         value={draft.preheader}
         onChange={(preheader) => onChange({ preheader })}
@@ -112,14 +129,14 @@ const EmailFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
   );
 };
 
-/** What it says: subject, preheader and sender for email; the Markdown or SMS text with fields. */
+/** What it says: subject, preheader and sender for email; the message or SMS text with fields. */
 export const ContentSection = ({
   unknownPlaceholders,
   ...props
 }: SectionProps & { unknownPlaceholders: string[] }) => (
   <section className="space-y-4">
     {props.channel === 'email' && <EmailFields draft={props.draft} onChange={props.onChange} />}
-    <BodyField {...props} />
+    {props.channel === 'email' ? <EmailBody {...props} /> : <SmsBody {...props} />}
     {unknownPlaceholders.length > 0 && <UnknownPlaceholders names={unknownPlaceholders} />}
   </section>
 );
@@ -136,56 +153,66 @@ const UnknownPlaceholders = ({ names }: { names: string[] }) => {
   );
 };
 
-/** The message, with a menu that puts a field where the cursor is. */
-const BodyField = ({ channel, draft, onChange }: SectionProps) => {
+/** The email's message in the block editor. */
+const EmailBody = ({ draft, onChange }: SectionProps) => {
   const { t } = useTranslation('broadcasts');
-  const bodyId = useId();
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
-
-  // The field goes where the cursor is, and the cursor after it.
-  const insert = (name: BroadcastPlaceholder) => {
-    const element = bodyRef.current;
-    const token = `{{ ${name} }}`;
-    const start = element?.selectionStart ?? draft.body.length;
-    const end = element?.selectionEnd ?? draft.body.length;
-
-    onChange({ body: draft.body.slice(0, start) + token + draft.body.slice(end) });
-    requestAnimationFrame(() => {
-      element?.focus();
-      element?.setSelectionRange(start + token.length, start + token.length);
-    });
-  };
+  const label = t('body-email', 'Message');
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <Label htmlFor={bodyId}>
-          {channel === 'email' ? t('body-email', 'Message (Markdown)') : t('body-sms', 'Text')}
-        </Label>
-        <PlaceholderMenu onPick={insert} />
-      </div>
+      <Suspense
+        fallback={
+          <>
+            <LabelRow label={label} />
+            <div className="h-64 rounded-md shadow-xs" />
+          </>
+        }
+      >
+        <BodyEditor
+          label={label}
+          value={draft.body}
+          onChange={(body) => onChange({ body })}
+          placeholder={t(
+            'body-email-placeholder',
+            "Write, or type '/' for headings, lists and pictures",
+          )}
+        />
+      </Suspense>
+      <p className="text-xs text-muted-foreground">
+        {t(
+          'body-email-hint',
+          'Type { or use Insert a field for a customer’s name. An unsubscribe link is added at the end.',
+        )}
+      </p>
+    </div>
+  );
+};
+
+/** The SMS text, with a menu that puts a field where the cursor is. */
+const SmsBody = ({ draft, onChange }: SectionProps) => {
+  const { t } = useTranslation('broadcasts');
+  const id = useId();
+
+  const { ref, insert } = useInsertAtCursor<HTMLTextAreaElement>(draft.body, (body) =>
+    onChange({ body }),
+  );
+
+  return (
+    <div className="space-y-1.5">
+      <LabelRow id={id} label={t('body-sms', 'Text')} onPick={insert} />
       <Textarea
-        id={bodyId}
-        ref={bodyRef}
-        rows={channel === 'email' ? 16 : 6}
+        id={id}
+        ref={ref}
+        rows={6}
         value={draft.body}
         onChange={(event) => onChange({ body: event.target.value })}
-        placeholder={
-          channel === 'email'
-            ? t('body-email-placeholder', 'Hi {{field}},\n\n**News** …', { field: GREETING })
-            : t('body-sms-placeholder', 'Hi {{field}}, …', { field: GREETING })
-        }
+        placeholder={t('body-sms-placeholder', 'Hi {{field}}, …', { field: GREETING })}
       />
       <p className="text-xs text-muted-foreground">
-        {channel === 'email'
-          ? t(
-              'body-email-hint',
-              'Markdown: **bold**, _italic_, [links](https://…), lists. An unsubscribe link is added at the end.',
-            )
-          : t('sms-length', '{{count}} characters · {{parts}} SMS each, before the stop link', {
-              count: draft.body.length,
-              parts: smsParts(draft.body),
-            })}
+        {t('sms-length', '{{count}} characters · {{parts}} SMS each, before the stop link', {
+          count: draft.body.length,
+          parts: smsParts(draft.body),
+        })}
       </p>
     </div>
   );

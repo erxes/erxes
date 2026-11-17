@@ -565,22 +565,29 @@
     {
       "idx": 80,
       "version": "7",
-      "when": 1794864037629,
-      "tag": "0080_api_key_rules",
+      "when": 1794865178901,
+      "tag": "0080_field_filterable",
       "breakpoints": true
     },
     {
       "idx": 81,
       "version": "7",
-      "when": 1794869382715,
-      "tag": "0081_api_key_plugins",
+      "when": 1794875989085,
+      "tag": "0081_audit_changes_shape",
       "breakpoints": true
     },
     {
       "idx": 82,
       "version": "7",
-      "when": 1794871038014,
-      "tag": "0082_api_key_actions",
+      "when": 1794876996798,
+      "tag": "0082_email_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1794904039146,
+      "tag": "0083_api_key_rules",
       "breakpoints": true
     }
   ]

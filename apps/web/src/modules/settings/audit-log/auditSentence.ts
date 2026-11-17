@@ -76,7 +76,8 @@ export const auditSentence = (entry: AuditEntry, language: string): string => {
     case 'auth.sign_in_failed':
       return `failed to sign in as ${label}${metadata.reason ? ` (${textOf(metadata.reason)})` : ''}`;
     case 'auth.password_changed':
-      return 'changed their password';
+    case 'auth.password_set':
+      return `${entry.action === 'auth.password_set' ? 'set' : 'changed'} their password`;
     case 'organization.created':
       return `created the organisation ${label}`;
     case 'organization.updated':

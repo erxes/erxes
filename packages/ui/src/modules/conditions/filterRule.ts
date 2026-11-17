@@ -103,6 +103,7 @@ export const operatorsFor = (
     case 'tags':
     case 'customer':
     case 'company':
+    case 'product':
       return ['in', 'not_in', 'exists', 'not_exists'];
 
     case 'list':

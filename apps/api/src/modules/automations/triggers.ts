@@ -1,15 +1,22 @@
 import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core-contract';
-import { automations, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
-import { and, eq, lte, type SQL, sql } from 'drizzle-orm';
+import { automations, customers, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
+import { and, eq, inArray, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { valuesTable } from '~/modules/fields/fieldValues';
 import { defineJob } from '~/modules/jobs/jobs';
-import { evaluateGroup } from './conditions';
+import { automationChecker } from './conditionCheck';
+import { dateConditions } from './conditions';
 import { startRun, startRuns } from './consumer';
 import { definitionOf, log } from './runs';
 import { nextOccurrence, zonedDate } from './schedule';
-import { loadSubjects, SUBJECT_PAGE, type Subject, type SubjectType } from './subjects';
+import {
+  loadSubjects,
+  SUBJECT_PAGE,
+  SUBJECT_TABLES,
+  type Subject,
+  type SubjectType,
+} from './subjects';
 
 type AutomationRow = typeof automations.$inferSelect;
 
@@ -25,28 +32,52 @@ export const firstRunAt = (definition: AutomationDefinition, now = new Date()) =
     ? nextOccurrence(definition.trigger, now)
     : null;
 
+/** An event a firing starts runs with. */
+type FiringEvent = { type: string; occurredAt: string; payload: Record<string, unknown> };
+
 /** Which records one firing starts, and how each one's run starts. */
 interface Enrollment {
   type: SubjectType;
-  where: SQL;
+  /** Which records, before the conditions (undefined: all). */
+  where: SQL | undefined;
+  /** On the records' fields, and the firing's event (the same for every record). */
   conditions: ConditionGroup | undefined;
-  eventType: string;
+  event: FiringEvent;
   startOf: (subject: Subject) => { eventId: string; event: Record<string, unknown> };
 }
 
 const audienceEnrollment = (
   audience: Audience,
   startKey: string,
-  event: { type: string; occurredAt: string; payload: Record<string, unknown> },
+  event: FiringEvent,
 ): Enrollment => ({
   type: audience.type,
-  where: sql`true`,
+  where: undefined,
   conditions: audience.conditions,
-  eventType: event.type,
+  event,
   startOf: (subject) => ({ eventId: `${startKey}:${subject.id}`, event }),
 });
 
 const CustomFields = z.record(z.string(), z.unknown());
+
+/** Month * 100 + day of a `YYYY-MM-DD` day, as the birthday column and value index hold it. */
+const monthDayOf = (iso: string) => Number(iso.slice(5, 7)) * 100 + Number(iso.slice(8, 10));
+
+/** The records whose date is `iso` (any year: its month and day), through the date's index. */
+const onDate = (trigger: DateTrigger, iso: string): SQL => {
+  if (trigger.field === 'birthDate' && trigger.subject === 'customer')
+    return trigger.yearly
+      ? sql`${customers.birthMonthDay} = ${monthDayOf(iso)}`
+      : sql`${customers.birthDate} = ${iso}::date`;
+
+  const v = valuesTable(trigger.subject);
+
+  const day = trigger.yearly
+    ? sql`((extract(month from ${v.dateValue}) * 100 + extract(day from ${v.dateValue}))::smallint) = ${monthDayOf(iso)}`
+    : sql`${v.dateValue} = ${iso}::date`;
+
+  return sql`exists (select 1 from ${v} where ${v.recordId} = ${SUBJECT_TABLES[trigger.subject].id} and ${v.fieldId} = ${trigger.field} and ${v.dateValue} is not null and ${day})`;
+};
 
 /** The records whose date (moved by the offset) is today in the trigger's time zone. */
 const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
@@ -56,20 +87,14 @@ const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
   const iso = target.toISOString().slice(0, 10);
   const day = new Date(Date.UTC(today.year, today.month - 1, today.day)).toISOString().slice(0, 10);
 
-  const column =
-    trigger.field === 'birthDate' && trigger.subject === 'customer'
-      ? sql`r.birth_date::text`
-      : sql`(select to_char(v.date_value, 'YYYY-MM-DD') from ${valuesTable(trigger.subject)} v where v.record_id = r.id and v.field_id = ${trigger.field} and v.date_value is not null limit 1)`;
-
   const payload = { field: trigger.field, offsetDays: trigger.offsetDays, day };
+  const event = { type: 'date', occurredAt: at, payload };
 
   return {
     type: trigger.subject,
-    where: trigger.yearly
-      ? sql`substr(${column}, 6, 5) = ${iso.slice(5)}`
-      : sql`substr(${column}, 1, 10) = ${iso}`,
-    conditions: trigger.conditions,
-    eventType: 'date',
+    where: onDate(trigger, iso),
+    conditions: dateConditions(trigger),
+    event,
     startOf: (subject) => ({
       eventId: `date:${day}:${subject.id}`,
       event: {
@@ -95,22 +120,25 @@ const enrollPage = async (
   enrollment: Enrollment,
   page: { after?: string; limit?: number } = {},
 ) => {
-  const subjects = await loadSubjects(tx, enrollment.type, enrollment.where, page);
+  // The conditions are part of the query: a page holds only records that match them.
+  const conditions = await automationChecker(tx, automation).where(
+    enrollment.type,
+    enrollment.conditions,
+    { event: enrollment.event, steps: {} },
+  );
 
-  const starts = subjects.flatMap((subject) => {
+  const subjects = await loadSubjects(tx, enrollment.type, and(enrollment.where, conditions), page);
+
+  const starts = subjects.map((subject) => {
     const { eventId, event } = enrollment.startOf(subject);
 
-    return evaluateGroup(enrollment.conditions, { event, subject, steps: {} })
-      ? [
-          {
-            eventId,
-            eventType: enrollment.eventType,
-            subject: { type: enrollment.type, id: subject.id },
-            event,
-            loaded: subject,
-          },
-        ]
-      : [];
+    return {
+      eventId,
+      eventType: enrollment.event.type,
+      subject: { type: enrollment.type, id: subject.id },
+      event,
+      loaded: subject,
+    };
   });
 
   const runs = await startRuns(tx, automation, definition, starts);
@@ -284,17 +312,12 @@ export const startNow = async (
       tx,
       automation,
       definition,
-      {
-        ...chosen,
-        where: sql`r.id in (${sql.join(
-          subjects.map((id) => sql`${id}`),
-          sql`, `,
-        )})`,
-      },
+      { ...chosen, where: inArray(SUBJECT_TABLES[chosen.type].id, subjects) },
       { limit: subjects.length },
     );
 
-    return { started: page.started, skipped: page.skipped, continuing: false };
+    // Those that don't match the audience are skipped too.
+    return { started: page.started, skipped: subjects.length - page.started, continuing: false };
   }
 
   if (audience) {

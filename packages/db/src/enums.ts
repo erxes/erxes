@@ -87,6 +87,7 @@ export const FILTER_FIELD_TYPES = [
   'tags',
   'customer',
   'company',
+  'product',
 ] as const;
 
 /** Where a list filter comes from, for grouping in the picker; `plugin`: a plugin's fields, under its name. */
@@ -99,6 +100,12 @@ export const FILTER_FIELD_GROUPS = [
   'plugin',
 ] as const;
 
+/** What automations' conditions read: a list filter's fields, and the event's. */
+export const AUTOMATION_FIELD_GROUPS = [...FILTER_FIELD_GROUPS, 'event'] as const;
+
+/** How an automation path's values compare: a list filter's types, and `list` (several values) of event data and step outputs. */
+export const AUTOMATION_PATH_TYPES = [...FILTER_FIELD_TYPES, 'list'] as const;
+
 /** How a field of a plugin's relation (`relations` in its manifest) compares: its view column's kind. */
 export const RELATION_FIELD_TYPES = [
   'text',
@@ -107,6 +114,7 @@ export const RELATION_FIELD_TYPES = [
   'boolean',
   'select',
   'member',
+  'product',
 ] as const;
 
 /**
@@ -472,6 +480,11 @@ export const EBARIMT_RECEIPT_STATUSES = ['pending', 'success', 'failed'] as cons
 
 /** A receipt for a person (B2C) or a company (B2B, with its tax number). */
 export const EBARIMT_BUYER_TYPES = ['B2C_RECEIPT', 'B2B_RECEIPT'] as const;
+
+// ─── Email sending ──────────────────────────────────────────────────────────
+
+/** How an organisation sends its emails, when not through the server's (`EMAIL_SMTP_URL`). */
+export const EMAIL_PROVIDERS = ['smtp', 'sendgrid', 'ses'] as const;
 
 // ─── Settings ───────────────────────────────────────────────────────────────
 

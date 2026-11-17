@@ -1,5 +1,5 @@
 {
-  "id": "5636dd33-5101-4685-823a-640f5cf7170f",
+  "id": "034b9c02-3025-4ae7-98c5-e516c9a62cea",
   "prevId": "c19f3ae3-1214-493c-83b4-493eddf896d2",
   "version": "7",
   "dialect": "postgresql",
@@ -1446,6 +1446,13 @@
         },
         "is_visible": {
           "name": "is_visible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "filterable": {
+          "name": "filterable",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -10469,54 +10476,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'member'"
-        },
-        "areas": {
-          "name": "areas",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "own_records": {
-          "name": "own_records",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "unit_ids": {
-          "name": "unit_ids",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "tag_ids": {
-          "name": "tag_ids",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "allowed_ips": {
-          "name": "allowed_ips",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "permissions": {
-          "name": "permissions",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
         "expires_at": {
           "name": "expires_at",
           "type": "timestamp with time zone",
@@ -10535,12 +10494,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -10597,20 +10550,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "core_api_keys_kind_check": {
-          "name": "core_api_keys_kind_check",
-          "value": "\"core_api_keys\".\"kind\" IN ('member', 'regular', 'management')"
-        },
-        "core_api_keys_rules_check": {
-          "name": "core_api_keys_rules_check",
-          "value": "\"core_api_keys\".\"kind\" = 'member' OR \"core_api_keys\".\"permissions\" IS NOT NULL"
-        },
-        "core_api_keys_management_expires_check": {
-          "name": "core_api_keys_management_expires_check",
-          "value": "\"core_api_keys\".\"kind\" <> 'management' OR \"core_api_keys\".\"expires_at\" IS NOT NULL"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.core_broadcast_recipients": {

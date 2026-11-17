@@ -28,6 +28,7 @@ const CATEGORY: Record<RelationField['type'], string> = {
   text: 'S',
   select: 'S',
   member: 'S',
+  product: 'S',
 };
 
 const ROLE_PREFIX = 'erxes_plugin_';

@@ -7,6 +7,7 @@ import {
   IconChevronLeft,
   IconCloudUpload,
   IconApps,
+  IconArrowUpRight,
   IconHierarchy2,
   IconLock,
   IconPlugConnected,
@@ -172,42 +173,41 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
 };
 
 /**
- * The settings pages of the plugins the member may use, a group per plugin under its name.
- * The pages are the plugin's own routes, so opening one leaves settings for the plugin.
+ * One link per plugin the member may use that has settings: to its first settings page, which
+ * the plugin draws in its own layout, else to the properties of its first record type.
  */
-function PluginSettingsGroups() {
+function PluginSettingsLinks() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { plugins } = usePlugins();
   const text = usePluginText();
   const propertyTypes = pluginPropertyTypes(plugins);
 
-  return plugins.map(({ remote, config }) => {
-    // Core draws the properties of the plugin's record types: one entry, on its first type.
+  const links = plugins.flatMap(({ remote, config }) => {
     const properties = propertyTypes.find((entry) => entry.plugin === config.name);
+    const to = config.settings[0]?.path ?? (properties && propertyPaths(properties.type).list);
 
-    return (
-      <SettingsNavigationGroup key={remote} name={pluginName(text, config.name)}>
-        {config.settings.map((page) => (
-          <NavigationMenuLinkItem
-            key={page.path}
-            to={page.path}
-            name={text(config.name, page.label)}
-            icon={page.icon ?? config.icon ?? IconApps}
-          />
-        ))}
-        {properties && (
-          <NavigationMenuLinkItem
-            to={propertyPaths(properties.type).list}
-            name={t('properties', 'Properties')}
-            icon={IconHierarchy2}
-          />
-        )}
-      </SettingsNavigationGroup>
-    );
+    return to ? [{ remote, to, name: pluginName(text, config.name), icon: config.icon }] : [];
   });
+
+  return (
+    <SettingsNavigationGroup name={t('plugin-settings', 'Plugin settings')}>
+      {links.map((link) => (
+        <NavigationMenuLinkItem
+          key={link.remote}
+          to={link.to}
+          name={link.name}
+          icon={link.icon ?? IconApps}
+        >
+          {!link.to.startsWith(paths.settings.root) && (
+            <IconArrowUpRight className="text-muted-foreground ml-auto" />
+          )}
+        </NavigationMenuLinkItem>
+      ))}
+    </SettingsNavigationGroup>
+  );
 }
 
-/** Exit, the member's own account first, then the workspace settings, then the plugins'. */
+/** Exit, the member's own account first, then the workspace settings, then links to the plugins'. */
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
@@ -233,7 +233,7 @@ export function SettingsSidebar() {
             <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>
-        <PluginSettingsGroups />
+        <PluginSettingsLinks />
       </Sidebar.Content>
     </>
   );
