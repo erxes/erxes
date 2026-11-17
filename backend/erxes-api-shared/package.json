@@ -88,6 +88,7 @@
     "@trpc/server": "^11.0.0",
     "aws-sdk": "^2.1692.0",
     "bullmq": "^5.40.0",
+    "bullmq-otel": "1.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "csv-parse": "^6.2.1",

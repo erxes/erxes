@@ -1005,6 +1005,9 @@ importers:
       bullmq:
         specifier: ^5.40.0
         version: 5.40.4
+      bullmq-otel:
+        specifier: 1.2.0
+        version: 1.2.0
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -11691,6 +11694,9 @@ packages:
   builtin-modules@3.3.0:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
     engines: {node: '>=6'}
+
+  bullmq-otel@1.2.0:
+    resolution: {integrity: sha512-YhmnT3bb9TD9GH8RPRGkxqE9UXxUpykMxoNbUZSVX6oXL5P9UhZWVvzUxv88QvfbfDLhICWBn3PQZ/1sQQ3pfQ==}
 
   bullmq@5.40.4:
     resolution: {integrity: sha512-MaIOhc31ZbVi9HbY0VAalsXoywelzEPNr6dojoKSMCXDnEVTQ27LkT5LA0Mlpr7ZunMLfpH94SLYrWNsPMsQrg==}
@@ -36033,6 +36039,14 @@ snapshots:
   buffers@0.1.1: {}
 
   builtin-modules@3.3.0: {}
+
+  bullmq-otel@1.2.0:
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      bullmq: 5.40.4
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
 
   bullmq@5.40.4:
     dependencies:
