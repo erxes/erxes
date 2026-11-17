@@ -131,14 +131,21 @@ jobs:
           pnpm exec stryker run .erxes-mutation/tools/mutation/stryker.json \
             --mutate "$MUTATE_FILES" --appendPlugins "$PWD/.erxes-mutation/tools/mutation/ignorers.ts"
           test -f .scratch/mutation/mutation.json || touch .scratch/mutation/untested
+      # Inside a folder named by shard: a lone artifact downloads without its own folder.
+      - name: Results by shard
+        if: always()
+        env:
+          OUT: ${{ runner.temp }}/out/mutation-${{ matrix.shard }}
+        run: |
+          mkdir -p "$OUT"
+          for file in mutation.json mutation.html untested; do
+            if [ -f ".scratch/mutation/$file" ]; then cp ".scratch/mutation/$file" "$OUT/"; fi
+          done
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: mutation-${{ matrix.shard }}
-          path: |
-            .scratch/mutation/mutation.json
-            .scratch/mutation/mutation.html
-            .scratch/mutation/untested
+          path: ${{ runner.temp }}/out
           retention-days: 14
           if-no-files-found: ignore
 
