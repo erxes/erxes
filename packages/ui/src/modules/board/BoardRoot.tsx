@@ -9,7 +9,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useLayoutEffect, useMemo, useState } from 'react';
 import { cn } from '../../lib/utils';
 import { BoardCardShell } from './BoardCardShell';
 import { type BoardCardEntry, BoardCards, BoardContext, type BoardTarget } from './boardContext';
@@ -62,7 +62,7 @@ export const BoardRoot = ({
 
     return {
       cards,
-      collision: pointerSlot(cards.columnOf),
+      collision: pointerSlot(cards.columnOf, cards.visible),
       dropAnimation: glideToCard(cards.moved),
     };
   });
@@ -70,9 +70,12 @@ export const BoardRoot = ({
   const { cards } = drag;
   const [dragging, setDragging] = useState<BoardCardEntry | null>(null);
   const [target, setTarget] = useState<BoardMove | null>(null);
+  const [board, setBoard] = useState<HTMLDivElement | null>(null);
   const context = useMemo(() => ({ ordered, target, cards }), [ordered, target, cards]);
   const sensors = useBoardSensors(cards.columnOf);
   const accessibility = useBoardAccessibility(cards);
+
+  useLayoutEffect(() => cards.setBoard(board), [cards, board]);
 
   const end = () => {
     setDragging(null);
@@ -81,6 +84,7 @@ export const BoardRoot = ({
 
   const onDragStart = ({ active }: DragStartEvent) => {
     cards.drop(false);
+    cards.refocus(null);
     setDragging(cards.get(String(active.id)) ?? null);
   };
 
@@ -92,6 +96,7 @@ export const BoardRoot = ({
     if (!move) return;
 
     cards.drop(true);
+    cards.refocus(event.activatorEvent instanceof KeyboardEvent ? move.id : null);
     onMove(move);
   };
 
@@ -107,6 +112,7 @@ export const BoardRoot = ({
         onDragCancel={end}
       >
         <div
+          ref={setBoard}
           className={cn(
             'flex min-h-0 flex-1 gap-3 overflow-x-auto p-3',
             dragging && 'cursor-grabbing',

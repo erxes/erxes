@@ -11,8 +11,31 @@ export class BoardCards {
   #cards = new Map<string, BoardCardEntry>();
   #columns = new Map<string, string>();
   #moved = false;
+  #board: HTMLElement | null = null;
+  #refocus: string | null = null;
 
   get = (id: string) => this.#cards.get(id);
+
+  setBoard = (node: HTMLElement | null) => {
+    this.#board = node;
+  };
+
+  /** The board's visible box: columns scrolled out of it take no drop. */
+  visible = () => this.#board?.getBoundingClientRect();
+
+  /** After a keyboard drop the card takes the focus back once it shows in its new place. */
+  refocus = (id: string | null) => {
+    this.#refocus = id;
+  };
+
+  /** Whether `button`, the card's, should take the focus now; it takes it once. */
+  takesFocus = (id: string, button: HTMLElement | null) => {
+    if (this.#refocus !== id || !button || document.activeElement === button) return false;
+
+    this.#refocus = null;
+
+    return true;
+  };
 
   columnOf = (id: string) => this.#cards.get(id)?.columnId;
 

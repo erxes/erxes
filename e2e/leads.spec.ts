@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import type { Locator, Page, Route } from '@playwright/test';
 import { type coreClient, expect, expectAccessible, test, unique } from './fixtures';
 
 const boxOf = async (locator: Locator) => {
@@ -25,6 +25,18 @@ const drag = async (page: Page, card: Locator, grab: number, x: number, y: numbe
   await page.mouse.move(x, y, { steps: 16 });
   await page.mouse.up();
 };
+
+/** Answers a held request the way the API does when a save fails. */
+const refuse = (route: Route) =>
+  route.fulfill({
+    status: 500,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Saving failed',
+      defined: false,
+    }),
+  });
 
 /** The board of the leads matching `search`, so the columns hold this test's leads only. */
 const openBoard = async (page: Page, search: string) => {
@@ -155,11 +167,8 @@ test('the dragged copy glides into the new column, not back to the old one', asy
   // Where the copy under the pointer is drawn on each frame after the drop, until it is gone.
   const frames = page.evaluate((text) => {
     const copy = () =>
-      [...document.querySelectorAll('div')].find(
-        (node) =>
-          getComputedStyle(node).position === 'fixed' &&
-          node.getBoundingClientRect().width > 100 &&
-          node.textContent.includes(text),
+      [...document.querySelectorAll<HTMLElement>('div[style*="position: fixed"]')].find(
+        (node) => node.getBoundingClientRect().width > 100 && node.textContent.includes(text),
       );
 
     return new Promise<number[]>((resolve) => {
@@ -261,17 +270,20 @@ test('the keyboard picks a card up, moves it a column across and drops it', asyn
   await card.focus();
   await page.keyboard.press('Space');
   await expect(page.getByText(`Keys ${tag} is in ${from.name}.`)).toBeAttached();
+  // dnd-kit listens for the arrow keys from the next timer tick after the pick-up.
+  await page.evaluate(() => new Promise((resolve) => setTimeout(resolve)));
   await page.keyboard.press('ArrowRight');
   await expect(page.getByText(`Keys ${tag} is in ${to.name}.`)).toBeAttached();
   await page.keyboard.press('Space');
 
   await expect.poll(async () => (await api.customers.get({ id: lead.id })).leadStageId).toBe(to.id);
 
-  // Enter opens the lead instead.
-  await page
-    .getByRole('region', { name: to.name })
-    .getByRole('button', { name: new RegExp(` ${tag}`) })
-    .focus();
+  // The moved card keeps the focus in its new column, and Enter opens it.
+  await expect(
+    page
+      .getByRole('region', { name: to.name })
+      .getByRole('button', { name: new RegExp(` ${tag}`) }),
+  ).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('tab', { name: 'Detail' })).toBeVisible();
 });
@@ -286,24 +298,24 @@ test('a move the server refuses puts the card back and says why', async ({ page,
     leadStageId: from.id,
   });
 
-  await page.route('**/leads/move', (route) =>
-    route.fulfill({
-      status: 500,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Saving failed',
-        defined: false,
-      }),
-    }),
-  );
+  const held: Route[] = [];
+
+  await page.route('**/leads/move', (route) => {
+    held.push(route);
+  });
 
   await openBoard(page, tag);
 
   const card = page.getByRole('button', { name: new RegExp(` ${tag}`) });
-  const target = await boxOf(page.getByRole('region', { name: to.name }));
+  const target = page.getByRole('region', { name: to.name });
+  const box = await boxOf(target);
 
-  await drag(page, card, 20, target.x + target.width / 2, target.middle);
+  await drag(page, card, 20, box.x + box.width / 2, box.middle);
+
+  // It lands at once, then goes back when the server refuses.
+  await expect(target.getByRole('button', { name: new RegExp(` ${tag}`) })).toBeVisible();
+  await expect.poll(() => held.length).toBe(1);
+  await Promise.all(held.map(refuse));
 
   await expect(page.getByText('Could not move the lead')).toBeVisible();
   await expect(
@@ -312,4 +324,53 @@ test('a move the server refuses puts the card back and says why', async ({ page,
       .getByRole('button', { name: new RegExp(` ${tag}`) }),
   ).toBeVisible();
   expect((await api.customers.get({ id: lead.id })).leadStageId).toBe(from.id);
+});
+
+test('a card let go over the sidebar stays put while the board is scrolled', async ({
+  page,
+  api,
+}) => {
+  const { data: stages } = await api.leads.stages({});
+  const last = stages.filter((stage) => stage.kind !== 'disqualified').at(-1);
+
+  if (!last) throw new Error('a new organisation has open lead stages');
+
+  const tag = unique();
+
+  const lead = await api.customers.create({
+    firstName: `Stay ${tag}`,
+    state: 'lead',
+    leadStageId: last.id,
+  });
+
+  const moves: string[] = [];
+
+  page.on('request', (request) => {
+    if (request.url().includes('/leads/move')) moves.push(request.url());
+  });
+
+  await openBoard(page, tag);
+
+  const column = page.getByRole('region', { name: last.name, exact: true });
+
+  await column.scrollIntoViewIfNeeded();
+  await expect(column.locator('..')).not.toHaveJSProperty('scrollLeft', 0);
+
+  // The first columns sit scrolled away under the sidebar.
+  const sidebar = await boxOf(page.getByRole('link', { name: 'People' }));
+  const card = column.getByRole('button', { name: new RegExp(` ${tag}`) });
+
+  const held = await boxOf(card);
+
+  // A quick flick: let go before the board scrolls itself back.
+  await page.mouse.move(held.x + 20, held.middle);
+  await page.mouse.down();
+  await page.mouse.move(held.x + 32, held.middle, { steps: 3 });
+  await page.mouse.move(sidebar.x + sidebar.width / 2, held.middle);
+  await page.mouse.up();
+  await page.waitForFunction(() => document.getAnimations().length === 0);
+
+  await expect(column.getByRole('button', { name: new RegExp(` ${tag}`) })).toBeVisible();
+  expect(moves).toEqual([]);
+  expect((await api.customers.get({ id: lead.id })).leadStageId).toBe(last.id);
 });

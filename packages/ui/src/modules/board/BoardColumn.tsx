@@ -100,7 +100,7 @@ export const BoardColumn = ({
 
   const sentinel = useLoadMore(pages);
   const here = target?.columnId === id;
-  const hasCards = Children.count(children) > 0;
+  const hasCards = Children.toArray(children).length > 0;
 
   return (
     <section

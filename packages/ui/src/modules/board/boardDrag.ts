@@ -43,16 +43,24 @@ const slotsOf = (
     return rect ? [{ id: String(id), rect }] : [];
   });
 
+const cardsIn = (slots: Slot[], columnOf: CardColumns, columnId: string) =>
+  slots.filter(({ id }) => columnOf(id) === columnId).toSorted((a, b) => a.rect.top - b.rect.top);
+
 /**
  * The drop target is where the pointer is, whichever part of the card it holds: the column
- * under it, above the first of its cards whose middle is below the pointer, or last. A drop
- * that leaves the card where it is targets the card itself. A keyboard drag goes by the
- * dragged card's middle, in the nearest column.
+ * under it, above the first of its cards whose middle is below the pointer, or last. Outside
+ * the board's visible box, where scrolled-away columns sit, nothing is. A drop that leaves
+ * the card where it is targets the card itself. A keyboard drag goes by the dragged card's
+ * middle, in the nearest column.
  */
 export const pointerSlot =
-  (columnOf: CardColumns): CollisionDetection =>
+  (columnOf: CardColumns, visible: () => ClientRect | undefined): CollisionDetection =>
   ({ active, collisionRect, droppableContainers, droppableRects, pointerCoordinates }) => {
     const point = pointerCoordinates ?? middle(collisionRect);
+    const area = visible();
+
+    if (pointerCoordinates && area && !holds(area, point)) return [];
+
     const slots = slotsOf(droppableContainers, droppableRects);
     const columns = slots.filter(({ id }) => columnOf(id) === undefined);
 
@@ -62,9 +70,7 @@ export const pointerSlot =
 
     if (!column) return [];
 
-    const cards = slots
-      .filter(({ id }) => columnOf(id) === column.id)
-      .toSorted((a, b) => a.rect.top - b.rect.top);
+    const cards = cardsIn(slots, columnOf, column.id);
 
     const below = cards.findIndex(({ rect }) => middle(rect).y > point.y);
     const at = below === -1 ? cards.length : below;
@@ -75,31 +81,44 @@ export const pointerSlot =
     return [{ id: cards[at]?.id ?? column.id }];
   };
 
-/** The arrow keys move a picked-up card one column across, or one card up or down. */
+/**
+ * The arrow keys move a picked-up card one column across, or past the middle of the next card
+ * up or down in its column (by its own height where there is none).
+ */
 export const boardKeyboard =
   (columnOf: CardColumns): KeyboardCoordinateGetter =>
   (
     event,
-    { currentCoordinates, context: { collisionRect, droppableContainers, droppableRects } },
+    { active, currentCoordinates, context: { collisionRect, droppableContainers, droppableRects } },
   ) => {
     if (!collisionRect || !ARROWS.includes(event.code)) return undefined;
 
     event.preventDefault();
 
-    const step = collisionRect.height + CARD_GAP;
+    const slots = slotsOf(droppableContainers.getEnabled(), droppableRects);
 
-    if (event.code === 'ArrowUp') return { ...currentCoordinates, y: currentCoordinates.y - step };
-
-    if (event.code === 'ArrowDown')
-      return { ...currentCoordinates, y: currentCoordinates.y + step };
-
-    const way = event.code === 'ArrowLeft' ? -1 : 1;
-
-    const columns = slotsOf(droppableContainers.getEnabled(), droppableRects)
+    const columns = slots
       .filter(({ id }) => columnOf(id) === undefined)
       .toSorted((a, b) => a.rect.left - b.rect.left);
 
     const [here] = columns.toSorted(byDistanceFrom(middle(collisionRect)));
+
+    if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
+      const down = event.code === 'ArrowDown';
+      const now = middle(collisionRect).y;
+
+      const middles = (here ? cardsIn(slots, columnOf, here.id) : [])
+        .filter(({ id }) => id !== String(active))
+        .map(({ rect }) => middle(rect).y);
+
+      const next = down ? middles.find((y) => y > now) : middles.findLast((y) => y < now);
+      const step = collisionRect.height + CARD_GAP;
+      const to = next === undefined ? now + (down ? step : -step) : next + (down ? 1 : -1);
+
+      return { ...currentCoordinates, y: currentCoordinates.y + to - now };
+    }
+
+    const way = event.code === 'ArrowLeft' ? -1 : 1;
     const next = here && columns[columns.indexOf(here) + way];
 
     if (!next) return undefined;

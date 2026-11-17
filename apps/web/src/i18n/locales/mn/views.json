@@ -151,6 +151,7 @@
     "nowhere": "{{card}}: хуучин байрандаа.",
     "dropped": "Тавьсан: {{card}}, {{place}}.",
     "dropped-nowhere": "Тавьсан: {{card}}, хуучин байрандаа.",
-    "cancelled": "Буцаасан: {{card}}."
+    "cancelled": "Буцаасан: {{card}}.",
+    "draggable": "зөөж болох карт"
   }
 }

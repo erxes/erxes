@@ -152,6 +152,7 @@
     "nowhere": "{{card}} is where it was.",
     "dropped": "Dropped {{card}} {{place}}.",
     "dropped-nowhere": "Dropped {{card}} where it was.",
-    "cancelled": "Put {{card}} back where it was."
+    "cancelled": "Put {{card}} back where it was.",
+    "draggable": "movable card"
   }
 }
