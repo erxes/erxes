@@ -15,6 +15,12 @@ export type ApiKeyAccess = (typeof API_KEY_ACCESS)[number];
 /** What a key may do in each area it names; an area it leaves out is closed. */
 export type ApiKeyAreas = Partial<Record<ApiKeyArea, ApiKeyAccess>>;
 
+/** What a regular key may do in each installed plugin's API, by plugin name. */
+export type ApiKeyPlugins = Record<string, ApiKeyAccess>;
+
+/** Areas and plugins where a key uses only these of their actions; those it leaves out use all. */
+export type ApiKeyActions = Record<string, string[]>;
+
 /**
  * The organisation's API keys, for scripts and other systems. `userId` is the member
  * who made it. A `member` key acts as that member with their role now. A `regular` or
@@ -34,6 +40,10 @@ export const apiKeys = pgTable(
     secretHash: text().notNull(),
     kind: text({ enum: API_KEY_KINDS }).default('member').notNull(),
     areas: jsonb().$type<ApiKeyAreas>().default({}).notNull(),
+    /** Regular keys: the plugins whose APIs it may call, read only or read and write. */
+    pluginAccess: jsonb().$type<ApiKeyPlugins>().default({}).notNull(),
+    /** Where the key uses only some actions, by area or plugin name. */
+    actions: jsonb().$type<ApiKeyActions>().default({}).notNull(),
     /** Only contacts the maker owns. */
     ownRecords: boolean().default(false).notNull(),
     /** Only contacts owned by members of these branches or departments, or units under them. */
@@ -70,6 +80,10 @@ export const apiKeys = pgTable(
     check(
       'core_api_keys_management_expires_check',
       sql`${table.kind} <> 'management' OR ${table.expiresAt} IS NOT NULL`,
+    ),
+    check(
+      'core_api_keys_plugin_access_check',
+      sql`${table.kind} = 'regular' OR ${table.pluginAccess} = '{}'::jsonb`,
     ),
     foreignKey({
       columns: [table.orgId],

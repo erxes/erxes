@@ -77,7 +77,7 @@ const ContactLimits = ({ draft, onChange }: DraftProps) => {
         <p className="text-xs text-muted-foreground">
           {t(
             'limited-areas',
-            "With contact limits the key opens contacts and products only: payments, files and automations don't follow them.",
+            "With contact limits the key opens contacts and products only: payments, files, automations and plugins don't follow them.",
           )}
         </p>
       )}

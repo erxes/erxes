@@ -4,13 +4,14 @@ import {
   API_KEY_DATA_AREAS,
   coreContract,
   type ApiKeyAccess,
+  type ApiKeyActions,
   type ApiKeyArea,
   type ApiKeyAreas,
   type CorePermission,
 } from '@erxes/core-contract';
 import type { KeyRules } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
-import type { ProcedurePath } from './policies';
+import { ACCESS, type ProcedurePath } from './policies';
 
 type Group = keyof typeof coreContract;
 
@@ -103,8 +104,6 @@ const PROCEDURE_RULES: Partial<Record<ProcedurePath, ApiKeyArea | null>> = {
   'ebarimt.saveSettings': 'settings',
   'ebarimt.removeSettings': 'settings',
   'ebarimt.testConnection': 'settings',
-  // A plugin session acts as the member, without the key's rules.
-  'plugins.session': null,
   'users.setPassword': null,
   'users.update': null,
   // Webhooks carry the events' data: where they send it and what is a signed-in member's call.
@@ -122,9 +121,24 @@ export const AREA_PERMISSIONS: Record<
   Record<ApiKeyAccess, readonly CorePermission[]>
 > = API_KEY_AREA_INFO;
 
-/** The permissions the areas open. */
-export const areaPermissions = (areas: ApiKeyAreas) =>
-  API_KEY_AREAS.flatMap((area): readonly CorePermission[] => {
+const POLICIES = new Map(Object.entries(ACCESS));
+
+/** The permission a member needs for the call; null when any member may make it. */
+export const callPermission = (path: string): string | null => {
+  const policy = POLICIES.get(path);
+
+  return policy && 'member' in policy && policy.member && policy.member !== 'any'
+    ? policy.member
+    : null;
+};
+
+/** The permissions the areas open: what their chosen calls need, or all their access brings. */
+export const areaPermissions = (areas: ApiKeyAreas, actions: ApiKeyActions) =>
+  API_KEY_AREAS.flatMap((area): readonly string[] => {
+    const chosen = actions[area];
+
+    if (chosen) return chosen.map(callPermission).filter((permission) => permission !== null);
+
     const perms = AREA_PERMISSIONS[area];
 
     if (areas[area] === 'write') return [...perms.read, ...perms.write];
@@ -172,12 +186,64 @@ export const keyNeed = (path: string): KeyNeed | null => {
   return access === 'read' ? { area: 'lookup', access } : { area: rule.writes, access };
 };
 
+const NEEDS = [...POLICIES.keys()].map((path) => ({ path, need: keyNeed(path) }));
+
+/** The calls a key may make in the area with the access. */
+export const areaCalls = (area: ApiKeyArea, access: ApiKeyAccess) =>
+  NEEDS.filter(({ need }) => need?.area === area && need.access === access).map(({ path }) => path);
+
 export interface KeyDecision {
   allowed: boolean;
   /** The rule that decided, as the audit log and "Try this key" show it. */
   rule: string;
   reason: string;
 }
+
+const isLimited = (rows: KeyRules['rows']) => rows.owners !== null || rows.tags !== null;
+
+/**
+ * May the key take a token for a plugin's API (`plugins.session`)? A regular key without
+ * contact limits, for a plugin it opens; without `plugin`, for any. Plugins keep their own
+ * records, outside the rows a key's limits hide.
+ */
+export const decidePluginKey = (
+  key: Pick<KeyRules, 'kind' | 'plugins' | 'rows'>,
+  plugin?: string,
+): KeyDecision => {
+  if (key.kind !== 'regular') {
+    return {
+      allowed: false,
+      rule: `kind:${key.kind}`,
+      reason: 'Management keys work with setup; plugins are data',
+    };
+  }
+
+  if (isLimited(key.rows)) {
+    return {
+      allowed: false,
+      rule: 'rows:plugins',
+      reason: "Plugins don't follow this key's contact limits, so it can't open them",
+    };
+  }
+
+  if (plugin === undefined) {
+    return Object.keys(key.plugins).length
+      ? { allowed: true, rule: 'plugins', reason: 'This key calls the plugins it opens' }
+      : { allowed: false, rule: 'plugins', reason: "This key doesn't open any plugin" };
+  }
+
+  const access = key.plugins[plugin];
+
+  if (!access) {
+    return { allowed: false, rule: `plugin:${plugin}`, reason: `This key doesn't open ${plugin}` };
+  }
+
+  return {
+    allowed: true,
+    rule: `plugin:${plugin}:${access}`,
+    reason: access === 'write' ? `This key reads and writes ${plugin}` : `This key reads ${plugin}`,
+  };
+};
 
 /**
  * May a regular or management key call the procedure? Deny by default: the procedure must
@@ -186,9 +252,11 @@ export interface KeyDecision {
  * holds is `permissions`'.
  */
 export const decideKey = (
-  key: Pick<KeyRules, 'kind' | 'areas' | 'rows'>,
+  key: Pick<KeyRules, 'kind' | 'areas' | 'plugins' | 'actions' | 'rows'>,
   path: string,
 ): KeyDecision => {
+  if (path === 'plugins.session') return decidePluginKey(key);
+
   const need = keyNeed(path);
 
   if (!need) {
@@ -218,9 +286,7 @@ export const decideKey = (
     return { allowed: false, rule: `area:${need.area}`, reason: `This key doesn't open ${label}` };
   }
 
-  const limited = key.rows.owners !== null || key.rows.tags !== null;
-
-  if (limited && 'outsideContactLimits' in API_KEY_AREA_INFO[need.area]) {
+  if (isLimited(key.rows) && 'outsideContactLimits' in API_KEY_AREA_INFO[need.area]) {
     return {
       allowed: false,
       rule: `rows:${need.area}`,
@@ -234,6 +300,12 @@ export const decideKey = (
       rule: `area:${need.area}:read`,
       reason: `This key only reads ${label}`,
     };
+  }
+
+  const chosen = key.actions[need.area];
+
+  if (chosen && !chosen.includes(path)) {
+    return { allowed: false, rule: `call:${path}`, reason: `This key wasn't given ${path}` };
   }
 
   return {

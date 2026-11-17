@@ -4,7 +4,7 @@ import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import { eq } from 'drizzle-orm';
 import { can, decideKeyCall } from '~/http/access';
 import { memberOf } from '~/http/auth';
-import { type KeyDecision, keyNeed } from '~/http/keyRules';
+import { callPermission, type KeyDecision, keyNeed } from '~/http/keyRules';
 import { ACCESS } from '~/http/policies';
 import { sessionMember, visibleKey } from './apiKeys.service';
 import { keyCaller } from './keyCaller';
@@ -31,17 +31,16 @@ export const keyCalls = () => ({
         summary: summary ?? null,
         area: need?.area ?? null,
         access: need?.access ?? 'read',
+        permission: callPermission(name),
       },
     ];
   }),
 });
 
+type Member = NonNullable<Awaited<ReturnType<typeof memberOf>>>;
+
 /** A key made before rules: what its maker's role allows now. */
-const tryMemberKey = async (orgId: string, userId: string, path: string) => {
-  const member = await memberOf(orgId, userId);
-
-  if (!member) return deny('maker', "Its maker can't sign in, so the key doesn't work");
-
+const decideMemberKey = (member: Member, path: string): KeyDecision => {
   const policy = POLICIES.get(path);
   const rule = policy && 'member' in policy ? policy.member : undefined;
 
@@ -73,48 +72,67 @@ const contactVisible = async (client: Db, id: string) => {
   return Boolean(customer ?? company);
 };
 
-/**
- * Would the key be allowed the call, from the address, on the contact? The same checks a
- * real call meets, in the same order; says which rule decided. Nothing is recorded.
- */
-export const tryKey = async (
+/** Why the contact stops a call the key's rules allow; null when it doesn't. */
+const contactDenial = async (
   client: Db,
-  input: { id: string; procedure: string; recordId?: string; ip?: string },
-): Promise<KeyDecision> => {
+  rows: Parameters<typeof withRowLimits>[0],
+  recordId: string | undefined,
+) => {
+  if (!recordId) return null;
+
+  if (!(await contactVisible(client, recordId))) return deny('rows', 'No contact has this id');
+
+  return (await withRowLimits(rows, (tx) => contactVisible(tx, recordId)))
+    ? null
+    : deny('rows', "This contact is outside the key's limits, so the key can't see it");
+};
+
+type Input = { id: string; recordId?: string; ip?: string };
+
+/** How the key decides each call: the same checks a real call meets, in the same order. */
+const decider = async (client: Db, input: Input): Promise<(path: string) => KeyDecision> => {
   const me = sessionMember();
   const key = await visibleKey(client, input.id, me.userId);
 
-  if (!POLICIES.has(input.procedure)) return deny('unknown', 'No such call');
+  if (key.expiresAt && key.expiresAt.getTime() <= Date.now()) {
+    return () => deny('expired', 'This key has expired');
+  }
 
   if (key.kind === 'member') {
-    if (key.expiresAt && key.expiresAt.getTime() <= Date.now()) {
-      return deny('expired', 'This key has expired');
-    }
+    const member = await memberOf(key.orgId, key.userId);
 
-    return tryMemberKey(key.orgId, key.userId, input.procedure);
+    if (!member) return () => deny('maker', "Its maker can't sign in, so the key doesn't work");
+
+    return (path) => decideMemberKey(member, path);
   }
 
   const result = await keyCaller(client, key, input.ip ?? null, { anyAddress: !input.ip });
 
-  if ('denied' in result) return result.denied;
+  if ('denied' in result) return () => result.denied;
 
   const { caller } = result;
+  const rules = caller.key;
 
-  const decision = caller.key
-    ? decideKeyCall({ ...caller, key: caller.key }, input.procedure)
-    : null;
+  if (!rules) return () => deny('never', 'Not a key');
 
-  if (!decision?.allowed || !caller.key) return decision ?? deny('never', 'Not a key');
+  const contact = await contactDenial(client, rules.rows, input.recordId);
 
-  if (input.recordId && keyNeed(input.procedure)?.area === 'contacts') {
-    const { recordId } = input;
+  return (path) => {
+    const decision = decideKeyCall({ ...caller, key: rules }, path);
 
-    if (!(await contactVisible(client, recordId))) return deny('rows', 'No contact has this id');
+    return decision.allowed && contact && keyNeed(path)?.area === 'contacts' ? contact : decision;
+  };
+};
 
-    if (!(await withRowLimits(caller.key.rows, (tx) => contactVisible(tx, recordId)))) {
-      return deny('rows', "This contact is outside the key's limits, so the key can't see it");
-    }
-  }
+/** The calls a key can be given: every procedure in an area or a lookup list. */
+const KEY_CALLS = keyCalls().data.flatMap((call) => (call.area ? [call.procedure] : []));
 
-  return decision;
+/**
+ * Would the key be allowed each call it can be given, from the address, on the contact? Says
+ * which rule decided each. Nothing is called or recorded.
+ */
+export const tryKey = async (client: Db, input: Input) => {
+  const decide = await decider(client, input);
+
+  return { data: KEY_CALLS.map((procedure) => ({ procedure, ...decide(procedure) })) };
 };

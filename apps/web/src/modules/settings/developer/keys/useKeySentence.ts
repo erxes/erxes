@@ -1,11 +1,21 @@
-import { API_KEY_AREA_INFO, type ApiKeyAreas } from '@erxes/core-contract';
+import {
+  API_KEY_AREA_INFO,
+  type ApiKeyAccess,
+  type ApiKeyActions,
+  type ApiKeyAreas,
+} from '@erxes/core-contract';
 import { useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { areasOf, type ContactScope, type KeyKind } from './keyDraft';
+import { useKeyCalls } from './useKeyCalls';
 
 export interface SentenceInput {
   kind: KeyKind;
   areas: ApiKeyAreas;
+  /** The plugins it opens, under their titles. */
+  plugins: { name: string; title: string; access: ApiKeyAccess }[];
+  /** Where it uses only some actions, by area or plugin name. */
+  actions: ApiKeyActions;
   scope: ContactScope;
   unitNames: string[];
   tagNames: string[];
@@ -21,6 +31,7 @@ export interface SentenceInput {
 export const useKeySentence = () => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'api-keys.sentence' });
   const fmt = useFormat();
+  const { labelOf } = useKeyCalls();
 
   const list = (items: string[], type: 'conjunction' | 'disjunction' = 'conjunction') =>
     new Intl.ListFormat(i18n.language, { type }).format(items);
@@ -28,12 +39,48 @@ export const useKeySentence = () => {
   return (input: SentenceInput) => {
     const opened = areasOf(input.kind).filter((area) => input.areas[area]);
 
-    const nouns = (access: 'read' | 'write') =>
-      opened
-        .filter((area) => input.areas[area] === access)
-        .map((area) => t(`area.${area}`, API_KEY_AREA_INFO[area].label.toLowerCase()));
+    const named = [
+      ...opened.map((area) => ({
+        name: area,
+        noun: t(`area.${area}`, API_KEY_AREA_INFO[area].label.toLowerCase()),
+        access: input.areas[area],
+      })),
+      ...input.plugins.map((plugin) => ({ ...plugin, noun: plugin.title })),
+    ];
 
-    if (!opened.length) return t('nothing', 'Opens nothing yet: choose what it may use.');
+    const nouns = (access: ApiKeyAccess) =>
+      named
+        .filter((item) => !input.actions[item.name] && item.access === access)
+        .map((item) => item.noun);
+
+    const chosen = named.flatMap((item) => {
+      const actions = input.actions[item.name];
+
+      if (!actions?.length) return [];
+
+      if (actions.length > 3) {
+        return [
+          t('chosen-count', 'in {{area}} only {{count}} chosen calls', {
+            area: item.noun,
+            count: actions.length,
+          }),
+        ];
+      }
+
+      const labels = actions.map((action) => {
+        const label = labelOf(action);
+
+        return label.charAt(0).toLowerCase() + label.slice(1);
+      });
+
+      return [
+        t('chosen', 'in {{area}} only {{actions}}', { area: item.noun, actions: list(labels) }),
+      ];
+    });
+
+    if (!opened.length && !input.plugins.length) {
+      return t('nothing', 'Opens nothing yet: choose what it may use.');
+    }
 
     const writes = nouns('write');
     const reads = nouns('read');
@@ -44,6 +91,7 @@ export const useKeySentence = () => {
         (writes.length
           ? t('reads-too', 'reads {{areas}}', { areas: list(reads) })
           : t('reads', 'Reads {{areas}}', { areas: list(reads) })),
+      ...chosen,
     ].filter((part): part is string => Boolean(part));
 
     if (input.kind === 'regular' && input.areas.contacts) {
@@ -71,7 +119,8 @@ export const useKeySentence = () => {
         : t('forever', 'until you revoke it'),
     );
 
-    const sentence = `${parts.join(', ')}.`;
+    const joined = parts.join(', ');
+    const sentence = `${joined.charAt(0).toUpperCase()}${joined.slice(1)}.`;
 
     return input.kind === 'management'
       ? `${sentence} ${t('no-contacts', 'It never sees customers or companies.')}`

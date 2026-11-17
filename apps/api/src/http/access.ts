@@ -127,14 +127,17 @@ export const decideKeyCall = (
   return decision;
 };
 
+/** Refuses a key's call with the rule that decided, and records it. */
+export const refuseKeyCall = async (keyId: string, path: string, decision: KeyDecision) => {
+  await recordKeyDenial(keyId, path, decision);
+
+  return fail('KEY_NOT_ALLOWED', decision.reason, { rule: decision.rule });
+};
+
 const checkKey = async (member: Member, key: KeyRules, path: string) => {
   const decision = decideKeyCall({ ...member, key }, path);
 
-  if (decision.allowed) return;
-
-  await recordKeyDenial(key.id, path, decision);
-
-  throw fail('KEY_NOT_ALLOWED', decision.reason, { rule: decision.rule });
+  if (!decision.allowed) throw await refuseKeyCall(key.id, path, decision);
 };
 
 /** An HTTP route outside oRPC that serves what `path` serves: a key meets the same rules. */

@@ -1,70 +1,29 @@
-import { API_KEY_AREA_INFO, type ApiKeyAccess, type ApiKeyArea } from '@erxes/core-contract';
-import { ChoiceboxGroup, Form, Select } from 'erxes-ui';
+import {
+  IconAdjustmentsHorizontal,
+  IconDatabase,
+  IconEye,
+  IconPencil,
+  IconSettings,
+} from '@tabler/icons-react';
+import { ChoiceboxGroup, Form } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useCan, useSession } from '~/modules/auth/session';
+import { useSession } from '~/modules/auth/session';
+import { AreaRow, PluginRows } from './AccessRows';
 import {
   areasOf,
-  canGive,
-  fitsLimits,
   isLimited,
+  type KeyDraft,
   type KeyKind,
   type Preset,
-  presetAreas,
+  presetAccess,
 } from './keyDraft';
 import { Choice, type DraftProps } from './keyParts';
-
-const OFF = 'off';
-
-/** One area in "Custom": off, read, or read and write, as far as the member may give it. */
-const AreaRow = ({
-  area,
-  value,
-  limited,
-  onChange,
-}: {
-  area: ApiKeyArea;
-  value: ApiKeyAccess | undefined;
-  limited: boolean;
-  onChange: (access: ApiKeyAccess | undefined) => void;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'api-keys.form' });
-  const can = useCan();
-  const info = API_KEY_AREA_INFO[area];
-  const readable = canGive(area, 'read', can);
-  const writable = canGive(area, 'write', can);
-
-  const note = readable
-    ? t(`covers.${area}`, info.covers)
-    : t('not-yours', "Your role can't use this");
-
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3 py-3">
-      <div className="min-w-0 flex-1 space-y-0.5">
-        <p className="text-sm font-medium">{t(`area.${area}`, info.label)}</p>
-        <p className="text-xs text-muted-foreground">{note}</p>
-      </div>
-      <Select
-        value={value ?? OFF}
-        disabled={!readable || limited}
-        onValueChange={(next) => onChange(next === 'read' || next === 'write' ? next : undefined)}
-      >
-        <Select.Trigger className="w-40" aria-label={t(`area.${area}`, info.label)}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value={OFF}>{t('off', 'No access')}</Select.Item>
-          <Select.Item value="read">{t('read', 'Read')}</Select.Item>
-          {writable && <Select.Item value="write">{t('write', 'Read and write')}</Select.Item>}
-        </Select.Content>
-      </Select>
-    </div>
-  );
-};
+import { useGiver } from './useKeyPlugins';
 
 /** Regular or management. A management key needs an owner or admin, and an expiry. */
 export const KindSection = ({ draft, onChange }: DraftProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys.form' });
-  const can = useCan();
+  const giver = useGiver();
   const { user } = useSession();
   const setupAllowed = user.role === 'owner' || user.role === 'admin';
 
@@ -73,7 +32,7 @@ export const KindSection = ({ draft, onChange }: DraftProps) => {
       ...draft,
       kind,
       preset: draft.preset === 'custom' ? 'read' : draft.preset,
-      areas: presetAreas(kind, draft.preset === 'write' ? 'write' : 'read', can),
+      ...presetAccess(kind, draft.preset === 'write' ? 'write' : 'read', giver),
       lifetime: kind === 'management' && draft.lifetime === null ? 90 : draft.lifetime,
     });
 
@@ -87,15 +46,17 @@ export const KindSection = ({ draft, onChange }: DraftProps) => {
       >
         <ChoiceboxGroup.Item value="regular">
           <Choice
+            icon={IconDatabase}
             title={t('regular', 'Regular key')}
             text={t(
               'regular-text',
-              'Works with data: contacts, products, payments, files, automations.',
+              'Works with data: contacts, products, payments, files, automations, plugins.',
             )}
           />
         </ChoiceboxGroup.Item>
         <ChoiceboxGroup.Item value="management" disabled={!setupAllowed}>
           <Choice
+            icon={IconSettings}
             title={t('management', 'Management key')}
             text={
               setupAllowed
@@ -109,20 +70,28 @@ export const KindSection = ({ draft, onChange }: DraftProps) => {
   );
 };
 
-/** Read only, read and write, or area by area. */
+/** Read only, read and write, or area by area and plugin by plugin. */
 export const AccessSection = ({ draft, onChange }: DraftProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys.form' });
-  const can = useCan();
+  const giver = useGiver();
+
+  const setRows = (next: KeyDraft) => onChange({ ...next, preset: 'custom' });
 
   const setPreset = (preset: Preset) =>
     onChange({
       ...draft,
       preset,
-      areas: preset === 'custom' ? draft.areas : presetAreas(draft.kind, preset, can),
+      ...(preset === 'custom' ? {} : presetAccess(draft.kind, preset, giver)),
     });
 
   return (
-    <Form.Section title={t('access-title', 'What can it do?')}>
+    <Form.Section
+      title={t('access-title', 'What can it do?')}
+      description={t(
+        'access-text',
+        'Start from a preset, then change any area below. "Choose" picks single API calls.',
+      )}
+    >
       <ChoiceboxGroup
         direction="row"
         value={draft.preset}
@@ -133,43 +102,40 @@ export const AccessSection = ({ draft, onChange }: DraftProps) => {
       >
         <ChoiceboxGroup.Item value="read">
           <Choice
+            icon={IconEye}
             title={t('read-only', 'Read only')}
             text={t('read-only-text', 'Looks, never changes.')}
           />
         </ChoiceboxGroup.Item>
         <ChoiceboxGroup.Item value="write">
           <Choice
+            icon={IconPencil}
             title={t('read-write', 'Read and write')}
             text={t('read-write-text', 'Looks and changes.')}
           />
         </ChoiceboxGroup.Item>
         <ChoiceboxGroup.Item value="custom">
-          <Choice title={t('custom', 'Custom')} text={t('custom-text', 'Choose area by area.')} />
+          <Choice
+            icon={IconAdjustmentsHorizontal}
+            title={t('custom', 'Custom')}
+            text={t('custom-text', 'Area by area, call by call.')}
+          />
         </ChoiceboxGroup.Item>
       </ChoiceboxGroup>
-      {draft.preset === 'custom' && isLimited(draft) && (
+      {isLimited(draft) && (
         <p className="text-xs text-muted-foreground">
           {t(
             'not-limited',
-            'Payments, files and automations are off: this key sees only some contacts (see Limits).',
+            'Payments, files, automations and plugins are off: this key sees only some contacts (see Limits).',
           )}
         </p>
       )}
-      {draft.preset === 'custom' && (
-        <div className="divide-y rounded-md border px-4">
-          {areasOf(draft.kind).map((area) => (
-            <AreaRow
-              key={area}
-              area={area}
-              value={draft.areas[area]}
-              limited={!fitsLimits(draft, area)}
-              onChange={(access) =>
-                onChange({ ...draft, areas: { ...draft.areas, [area]: access } })
-              }
-            />
-          ))}
-        </div>
-      )}
+      <div className="divide-y rounded-lg border px-4">
+        {areasOf(draft.kind).map((area) => (
+          <AreaRow key={area} area={area} draft={draft} onChange={setRows} />
+        ))}
+        <PluginRows draft={draft} onChange={setRows} />
+      </div>
     </Form.Section>
   );
 };

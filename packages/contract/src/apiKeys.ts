@@ -4,13 +4,23 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { API_KEY_LIFETIMES, ApiKeyAccess, ApiKeyArea, ApiKeyAreas, ApiKeyKind } from './values';
+import {
+  API_KEY_LIFETIMES,
+  ApiKeyAccess,
+  ApiKeyActions,
+  ApiKeyArea,
+  ApiKeyAreas,
+  ApiKeyKind,
+  ApiKeyPlugins,
+} from './values';
 
 export const ApiKey = createSelectSchema(apiKeys, {
   id: Id,
   userId: Id,
   kind: ApiKeyKind,
   areas: ApiKeyAreas,
+  pluginAccess: ApiKeyPlugins,
+  actions: ApiKeyActions,
   expiresAt: isoDate,
   lastUsedAt: isoDate,
   createdAt: isoDate,
@@ -22,6 +32,8 @@ export const ApiKey = createSelectSchema(apiKeys, {
     name: true,
     kind: true,
     areas: true,
+    pluginAccess: true,
+    actions: true,
     ownRecords: true,
     unitIds: true,
     tagIds: true,
@@ -49,6 +61,16 @@ const KeyRules = createUpdateSchema(apiKeys, { name: (name) => name.trim().min(1
     kind: ApiKeyKind.exclude(['member']),
     /** At least one area, all of the key's kind. */
     areas: ApiKeyAreas,
+    /**
+     * Regular keys: the installed plugins whose APIs it may call (`plugins.session`), read only
+     * or read and write. Not with contact limits: plugins keep their own records.
+     */
+    pluginAccess: ApiKeyPlugins.default({}),
+    /**
+     * Where it does only some things: an area's API calls, a plugin's actions. The area opens
+     * for writing when one of its calls writes; the plugin opens for writing.
+     */
+    actions: ApiKeyActions.default({}),
     /** Regular keys: only contacts the maker owns. */
     ownRecords: z.boolean().default(false),
     /** Regular keys: only contacts owned by members of these units or units under them. */
@@ -76,6 +98,8 @@ const KeyCall = z.object({
   summary: z.string().nullable(),
   area: z.union([ApiKeyArea, z.literal('lookup')]).nullable(),
   access: ApiKeyAccess,
+  /** The permission a member needs for it; null when any member may make it. */
+  permission: z.string().nullable(),
 });
 
 const { BEYOND_OWN_PERMISSIONS, LIMIT_EXCEEDED, SESSION_REQUIRED, OWNER_ONLY } = ERRORS;
@@ -142,15 +166,14 @@ export const apiKeysContract = {
       method: 'POST',
       path: '/api-keys/{id}/try',
       summary:
-        'Would the key be allowed this call (from this address, on this contact)? Says which rule decided',
+        'Would the key be allowed each call it can be given (from this address, on this contact)? Says which rule decided each; nothing is called',
     })
     .input(
       z.object({
         id: Id,
-        procedure: z.string().min(1).max(100),
         recordId: Id.optional(),
         ip: z.union([z.ipv4(), z.ipv6()]).optional(),
       }),
     )
-    .output(KeyDecision),
+    .output(listOf(KeyDecision.extend({ procedure: z.string() }))),
 };

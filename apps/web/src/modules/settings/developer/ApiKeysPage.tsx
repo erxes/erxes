@@ -20,6 +20,7 @@ import { paths } from '~/lib/paths';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { useKeyLookups } from './keys/useKeyLookups';
+import { useKeyPlugins } from './keys/useKeyPlugins';
 import { useKeySentence } from './keys/useKeySentence';
 
 const NoKeys = () => {
@@ -71,6 +72,7 @@ const useKeySummary = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys' });
   const sentence = useKeySentence();
   const { nameOf } = useKeyLookups();
+  const { titled } = useKeyPlugins();
 
   return (key: ApiKey) =>
     key.kind === 'member'
@@ -80,6 +82,8 @@ const useKeySummary = () => {
       : sentence({
           kind: key.kind,
           areas: key.areas,
+          plugins: titled(key.pluginAccess),
+          actions: key.actions,
           scope: key.ownRecords ? 'own' : key.unitIds.length ? 'units' : 'all',
           unitNames: key.unitIds.map(nameOf),
           tagNames: key.tagIds.map(nameOf),
