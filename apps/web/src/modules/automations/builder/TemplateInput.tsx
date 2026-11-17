@@ -7,12 +7,63 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { Button, Command, InputGroup, Popover } from 'erxes-ui';
-import { type ReactNode, useRef, useState } from 'react';
+import { type ReactNode, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BuilderContext, type StartingEvent } from './BuilderContext';
 import { readableTemplate } from './flowText';
 import type { FieldInfo } from './useAutomationFields';
 
-/** The trigger's values, earlier steps' results, the record's fields and the time, searchable. */
+/** "Order" reads "order" in "The order"; "POS order" keeps its capitals. */
+const inSentence = (noun: string) =>
+  /^[A-Z][a-z]/.test(noun) ? noun.charAt(0).toLowerCase() + noun.slice(1) : noun;
+
+/** The trigger's own values, under what it is about ("The order"), or why there are none. */
+const TriggerGroup = ({
+  trigger,
+  fields,
+  hasSubject,
+  onPick,
+}: {
+  trigger: StartingEvent | undefined;
+  fields: FieldInfo[];
+  hasSubject: boolean;
+  onPick: (path: string) => void;
+}) => {
+  const { t } = useTranslation('automations');
+
+  // Core's customer and company events carry that record, listed below as the record.
+  if (!trigger || (!fields.length && trigger.source === 'core' && hasSubject)) return null;
+
+  const heading = trigger.record
+    ? t('the-record', 'The {{record}}', { record: inSentence(trigger.record) })
+    : trigger.label;
+
+  return (
+    <Command.Group heading={heading}>
+      {fields.length ? (
+        fields.map((field) => (
+          <Command.Item
+            key={field.path}
+            value={`${field.label} ${field.path}`}
+            onSelect={() => onPick(field.path)}
+          >
+            <IconBolt className="text-muted-foreground" />
+            <span className="truncate">{field.label}</span>
+          </Command.Item>
+        ))
+      ) : (
+        <p className="px-2 py-1.5 text-xs text-muted-foreground">
+          {t('trigger-no-data', 'No data shared yet')}
+        </p>
+      )}
+    </Command.Group>
+  );
+};
+
+/**
+ * What a step can insert, searchable: the trigger's own values first, then the customer or
+ * company runs are about, then earlier steps' results, then the time.
+ */
 const DataPicker = ({
   fields,
   subject,
@@ -23,40 +74,23 @@ const DataPicker = ({
   onPick: (path: string) => void;
 }) => {
   const { t } = useTranslation('automations');
+  const { trigger, hasSubject } = useContext(BuilderContext);
 
   // Only what the record itself holds: not a measure of related records, nor its company's.
-  const record = fields.filter(
-    (field) => field.path.startsWith('subject.') && !field.conditionsOnly,
-  );
+  const record = hasSubject
+    ? fields.filter((field) => field.path.startsWith('subject.') && !field.conditionsOnly)
+    : [];
 
-  const trigger = fields.filter((field) => field.path.startsWith('event.payload.'));
+  const own = fields.filter((field) => field.path.startsWith('event.payload.'));
   const steps = fields.filter((field) => field.path.startsWith('steps.'));
   const RecordIcon = subject === 'company' ? IconBuilding : IconUser;
-
-  const group = (heading: string, items: FieldInfo[], Icon: typeof IconRoute) =>
-    items.length > 0 && (
-      <Command.Group heading={heading}>
-        {items.map((field) => (
-          <Command.Item
-            key={field.path}
-            value={`${field.label} ${field.path}`}
-            onSelect={() => onPick(field.path)}
-          >
-            <Icon className="text-muted-foreground" />
-            <span className="truncate">{field.label}</span>
-          </Command.Item>
-        ))}
-      </Command.Group>
-    );
 
   return (
     <Command loop>
       <Command.Input placeholder={t('insert-data-search', 'Search data…')} />
       <Command.List className="max-h-72">
         <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
-        {/* The trigger's values and earlier results first: short lists, and what an id field wants. */}
-        {group(t('the-trigger', 'The trigger'), trigger, IconBolt)}
-        {group(t('earlier-steps', 'Earlier steps'), steps, IconRoute)}
+        <TriggerGroup trigger={trigger} fields={own} hasSubject={hasSubject} onPick={onPick} />
         {record.length > 0 && (
           <Command.Group
             heading={
@@ -78,6 +112,20 @@ const DataPicker = ({
                     {t('custom', 'Custom')}
                   </span>
                 )}
+              </Command.Item>
+            ))}
+          </Command.Group>
+        )}
+        {steps.length > 0 && (
+          <Command.Group heading={t('earlier-steps', 'Earlier steps')}>
+            {steps.map((field) => (
+              <Command.Item
+                key={field.path}
+                value={`${field.label} ${field.path}`}
+                onSelect={() => onPick(field.path)}
+              >
+                <IconRoute className="text-muted-foreground" />
+                <span className="truncate">{field.label}</span>
               </Command.Item>
             ))}
           </Command.Group>

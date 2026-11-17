@@ -1,11 +1,12 @@
-import { apiKeys, caller, type Db, newId, users, withSystem } from '@erxes/core-db';
-import { and, count, desc, eq, getTableColumns, gt, isNull, lt, or, sql } from 'drizzle-orm';
+import { apiKeys, caller, type Db, newId, users, withOrg, withSystem } from '@erxes/core-db';
+import { and, count, desc, eq, getTableColumns, isNull, lt, or, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { type KeyRulesInput, keyRuleColumns } from './keyRulesInput';
 
 /** Keys read `erxes_<id>.<secret>`: the prefix tells them from session and plugin tokens. */
 const KEY_PREFIX = 'erxes_';
@@ -16,13 +17,26 @@ const MAX_KEYS = 20;
 /** Is the bearer token an API key (not a session or plugin token)? */
 export const isApiKey = (token: string) => token.startsWith(KEY_PREFIX);
 
-/** The signed-in member; a request made with an API key can't manage keys. */
-const sessionMember = () => {
+const sessionRequired = () =>
+  fail('SESSION_REQUIRED', "Sign in to manage API keys; an API key can't");
+
+/** The signed-in member; keys are made, changed and tried from a session only. */
+export const sessionMember = () => {
   const who = caller('user');
 
-  if (who.apiKeyId) {
-    throw fail('SESSION_REQUIRED', "Sign in to manage API keys; an API key can't");
-  }
+  if (who.apiKeyId) throw sessionRequired();
+
+  return who;
+};
+
+/**
+ * Who lists and revokes keys: a signed-in member, or a management key that opens API keys
+ * (its rules already said so). A member key can't.
+ */
+const keyManager = () => {
+  const who = caller('user');
+
+  if (who.apiKeyId && !who.key) throw sessionRequired();
 
   return who;
 };
@@ -36,8 +50,17 @@ const withMember = (client: Db) =>
     .from(apiKeys)
     .innerJoin(users, eq(users.id, apiKeys.userId));
 
+/** A key the caller may see (their own, or any with api_keys.manage), or 404. */
+export const visibleKey = async (client: Db, id: string, userId: string) => {
+  const [row] = await withMember(client).where(eq(apiKeys.id, id)).limit(1);
+
+  if (!row || (row.userId !== userId && !managesEveryKey())) throw notFound('API key');
+
+  return row;
+};
+
 export const listApiKeys = async (client: Db) => {
-  const { userId } = sessionMember();
+  const { userId } = keyManager();
   const own = managesEveryKey() ? undefined : eq(apiKeys.userId, userId);
 
   return {
@@ -47,16 +70,35 @@ export const listApiKeys = async (client: Db) => {
   };
 };
 
+const expiry = (lifetimeDays: number | null) =>
+  lifetimeDays === null ? null : sql`now() + make_interval(days => ${lifetimeDays})`;
+
+const mustExpire = (kind: KeyRulesInput['kind'], lifetimeDays: number | null | undefined) => {
+  if (kind === 'management' && lifetimeDays === null) {
+    const message = 'A management key must expire';
+
+    throw fail('INVALID_INPUT', message, { issues: [{ path: ['lifetimeDays'], message }] });
+  }
+};
+
+/** The rules as the key keeps them, for the audit log. */
+const auditRules = ({ permissions: _held, ...rules }: Awaited<ReturnType<typeof keyRuleColumns>>) =>
+  rules;
+
 export const createApiKey = async (
   client: Db,
-  input: { name: string; lifetimeDays: number | null },
+  input: KeyRulesInput & { name: string; lifetimeDays: number | null },
 ) => {
-  const { userId } = sessionMember();
+  const me = sessionMember();
+
+  mustExpire(input.kind, input.lifetimeDays);
+
+  const rules = await keyRuleColumns(client, me, input);
 
   const [held] = await client
     .select({ total: count() })
     .from(apiKeys)
-    .where(eq(apiKeys.userId, userId));
+    .where(eq(apiKeys.userId, me.userId));
 
   if ((held?.total ?? 0) >= MAX_KEYS) {
     throw fail('LIMIT_EXCEEDED', `You can hold ${MAX_KEYS} API keys; revoke one first`);
@@ -67,13 +109,11 @@ export const createApiKey = async (
 
   await client.insert(apiKeys).values({
     id,
-    userId,
+    userId: me.userId,
     name: input.name,
     secretHash: sha256(secret),
-    expiresAt:
-      input.lifetimeDays === null
-        ? null
-        : sql`now() + make_interval(days => ${input.lifetimeDays})`,
+    ...rules,
+    expiresAt: expiry(input.lifetimeDays),
   });
 
   const apiKey = oneRow(await withMember(client).where(eq(apiKeys.id, id)).limit(1));
@@ -83,19 +123,57 @@ export const createApiKey = async (
     targetType: 'api_key',
     targetId: id,
     targetLabel: input.name,
-    metadata: { expiresAt: apiKey.expiresAt?.toISOString() ?? null },
+    metadata: { ...auditRules(rules), expiresAt: apiKey.expiresAt?.toISOString() ?? null },
   });
 
   return { apiKey, key: `${KEY_PREFIX}${id}.${secret}` };
 };
 
-/** Revokes a key: the member's own, or anyone's with `api_keys.manage` (others' are 404). */
-export const removeApiKey = async (client: Db, id: string) => {
-  const { userId } = sessionMember();
-
+/**
+ * Changes a key its maker made: name and rules, with the maker's role and permissions as
+ * they are now. A member key takes rules here and stops acting as its member.
+ */
+export const updateApiKey = async (
+  client: Db,
+  id: string,
+  input: KeyRulesInput & { name: string; lifetimeDays?: number | null },
+) => {
+  const me = sessionMember();
   const [row] = await client.select().from(apiKeys).where(eq(apiKeys.id, id)).limit(1);
 
-  if (!row || (row.userId !== userId && !managesEveryKey())) throw notFound('API key');
+  if (!row || row.userId !== me.userId) throw notFound('API key');
+
+  const keepsExpiry = input.lifetimeDays === undefined;
+
+  mustExpire(input.kind, keepsExpiry && !row.expiresAt ? null : input.lifetimeDays);
+
+  const rules = await keyRuleColumns(client, me, input);
+
+  await client
+    .update(apiKeys)
+    .set({
+      name: input.name,
+      ...rules,
+      expiresAt: keepsExpiry ? row.expiresAt : expiry(input.lifetimeDays ?? null),
+      updatedAt: sql`now()`,
+    })
+    .where(eq(apiKeys.id, id));
+
+  await recordAudit(client, {
+    action: 'api_key.updated',
+    targetType: 'api_key',
+    targetId: id,
+    targetLabel: input.name,
+    metadata: { ...auditRules(rules), was: row.kind },
+  });
+
+  return oneRow(await withMember(client).where(eq(apiKeys.id, id)).limit(1));
+};
+
+/** Revokes a key: the caller's own, or anyone's with `api_keys.manage` (others' are 404). */
+export const removeApiKey = async (client: Db, id: string) => {
+  const { userId } = keyManager();
+  const row = await visibleKey(client, id, userId);
 
   await client.delete(apiKeys).where(eq(apiKeys.id, id));
 
@@ -111,33 +189,26 @@ export const removeApiKey = async (client: Db, id: string) => {
 };
 
 /**
- * The member and organisation an API key acts for, or null when it is unknown,
- * expired or revoked. The id says where to look (the one lookup before the
- * organisation is known); the secret must match its hash. Marks the key used,
- * at most once a minute.
+ * The key a bearer token names, or null when it is unknown or revoked or the secret doesn't
+ * match its hash. The id says where to look (the one lookup before the organisation is
+ * known). Expiry and the key's other rules are the caller's to check.
  */
-export const apiKeyOwner = async (token: string) => {
+export const apiKeyOfToken = async (token: string) => {
   const [id, secret] = token.slice(KEY_PREFIX.length).split('.');
 
   if (!id || !secret) return null;
 
-  return withSystem('api key lookup', async (tx) => {
-    const [row] = await tx
-      .select({
-        id: apiKeys.id,
-        orgId: apiKeys.orgId,
-        userId: apiKeys.userId,
-        secretHash: apiKeys.secretHash,
-      })
-      .from(apiKeys)
-      .where(
-        and(eq(apiKeys.id, id), or(isNull(apiKeys.expiresAt), gt(apiKeys.expiresAt, sql`now()`))),
-      )
-      .limit(1);
+  const [row] = await withSystem('api key lookup', (tx) =>
+    tx.select().from(apiKeys).where(eq(apiKeys.id, id)).limit(1),
+  );
 
-    if (!row || !safeEqual(row.secretHash, sha256(secret))) return null;
+  return row && safeEqual(row.secretHash, sha256(secret)) ? row : null;
+};
 
-    await tx
+/** Marks the key used, at most once a minute. */
+export const markKeyUsed = (orgId: string, id: string) =>
+  withOrg(orgId, (tx) =>
+    tx
       .update(apiKeys)
       .set({ lastUsedAt: sql`now()` })
       .where(
@@ -145,8 +216,5 @@ export const apiKeyOwner = async (token: string) => {
           eq(apiKeys.id, id),
           or(isNull(apiKeys.lastUsedAt), lt(apiKeys.lastUsedAt, sql`now() - interval '1 minute'`)),
         ),
-      );
-
-    return { apiKeyId: row.id, orgId: row.orgId, userId: row.userId };
-  });
-};
+      ),
+  );

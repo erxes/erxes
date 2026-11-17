@@ -24,6 +24,7 @@ const Row = ({
       value={`${keyPrefix}${item.type}`}
       keywords={[item.label, item.description ?? '', group.label, item.source]}
       onSelect={onSelect}
+      checked={selected}
       className="h-auto items-start"
     >
       {showIcon && (

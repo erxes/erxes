@@ -86,6 +86,8 @@ export const paths = {
     apiReferenceOf: (api: string, audience?: string) =>
       `/settings/api-reference/${id(api)}${audience ? `/${id(audience)}` : ''}`,
     apiKeys: '/settings/api-keys',
+    apiKeyNew: '/settings/api-keys/new',
+    apiKeyOf: (keyId: string) => `/settings/api-keys/${id(keyId)}`,
     profile: '/settings/profile',
     security: '/settings/security',
     notifications: '/settings/notifications',

@@ -4,7 +4,7 @@ import { stringify } from 'csv-stringify/sync';
 import { and, desc, type SQL, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { callerCan } from '~/http/access';
+import { callerCan, enforceKeyAccess } from '~/http/access';
 import { fail, invalidInput } from '~/http/errors';
 import { defuse } from '~/lib/csv';
 import { repeatWhile } from '~/lib/sequence';
@@ -116,6 +116,8 @@ const writeEntries = async (
 export const auditExportRouter = Router();
 
 auditExportRouter.get('/audit/export', async (req: Request, res: Response) => {
+  await enforceKeyAccess('audit.list');
+
   if (!callerCan('audit.view')) {
     throw fail('NOT_ALLOWED', "Your role doesn't allow this", {
       permission: 'audit.view',

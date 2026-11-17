@@ -1,5 +1,6 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
-import { CUSTOMER, MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
+import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
+import { CUSTOMER_ACCESS } from './customerPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
 
 /**
@@ -29,7 +30,10 @@ export const ACCESS = {
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
   'apiKeys.list': MEMBER,
   'apiKeys.create': needs('api_keys.create'),
+  'apiKeys.update': needs('api_keys.create'),
   'apiKeys.remove': MEMBER,
+  'apiKeys.calls': MEMBER,
+  'apiKeys.try': MEMBER,
 
   'audit.list': needs('audit.view'),
   'audit.record': { plugin: 'audit:write' },
@@ -88,25 +92,7 @@ export const ACCESS = {
   'auth.changePassword': MEMBER,
   'auth.signIns': MEMBER,
 
-  'customerAuth.sendCode': PUBLIC,
-  'customerAuth.signIn': PUBLIC,
-  'customerAuth.refresh': PUBLIC,
-  'customerAuth.signOut': PUBLIC,
-
-  'customerAccount.me': CUSTOMER,
-  'customerAccount.update': CUSTOMER,
-  'customerAccount.logins': CUSTOMER,
-  'customerAccount.addLogin': CUSTOMER,
-  'customerAccount.confirmLogin': CUSTOMER,
-  'customerAccount.removeLogin': CUSTOMER,
-  'customerAccount.sessions': CUSTOMER,
-  'customerAccount.revokeSession': CUSTOMER,
-  'customerAccount.signOutEverywhere': CUSTOMER,
-
-  'customerNotifications.create': { plugin: 'notifications:write' },
-  'customerNotifications.list': CUSTOMER,
-  'customerNotifications.unreadCount': CUSTOMER,
-  'customerNotifications.markRead': CUSTOMER,
+  ...CUSTOMER_ACCESS,
 
   'companies.list': { member: 'contacts.view', plugin: 'customers:read' },
   'companies.get': { member: 'contacts.view', plugin: 'customers:read' },

@@ -2,9 +2,11 @@ import type { ApiKey } from '@erxes/core-contract';
 import { memberQueries, messageOf, orpc } from '@erxes/core-contract/client';
 import {
   IconCalendarPlus,
+  IconCategory,
   IconClock,
   IconHourglass,
   IconKey,
+  IconShieldCheck,
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
@@ -23,6 +25,7 @@ import {
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useMinuteClock } from '~/lib/useMinuteClock';
+import { KeyAccessCell, KeyKindCell, KeyNameCell } from './keys/KeyCells';
 
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 
@@ -118,8 +121,23 @@ export const apiKeyColumns = (
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconKey} label={t('name', 'Name')} />,
-    cell: ({ row }) => <RecordTableInlineCell>{row.original.name}</RecordTableInlineCell>,
-    size: 280,
+    cell: ({ row }) => <KeyNameCell apiKey={row.original} />,
+    size: 220,
+  },
+  {
+    id: 'kind',
+    accessorKey: 'kind',
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('kind-head', 'Kind')} />,
+    cell: ({ row }) => <KeyKindCell kind={row.original.kind} />,
+    size: 130,
+  },
+  {
+    id: 'access',
+    header: () => (
+      <RecordTable.InlineHead icon={IconShieldCheck} label={t('access', 'What it can do')} />
+    ),
+    cell: ({ row }) => <KeyAccessCell apiKey={row.original} />,
+    size: 420,
   },
   ...(everyone
     ? [

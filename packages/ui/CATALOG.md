@@ -200,7 +200,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<Skeleton radius>` A pulsing grey block that holds the place of content while it loads.
 - `<Slider>` A draggable slider for one number or a range.
 - `<Spinner size show area containerClassName>` A spinning loader; `area` pads it to stand in for a section or page.
-- `<StringArrayInput value onValueChange placeholder>` A list of short strings as removable badges.
+- `<StringArrayInput id value onValueChange placeholder>` A list of short strings as removable badges.
 - `<Switch size>` An on/off toggle for a setting that applies as soon as it flips.
 - `<TabButton render variant active dragging split>` A tab-looking button for a strip that isn't a `Tabs` list.
 - `Table.{Header, Body, Footer, Head, Row, …}` A plain styled HTML table, for small static grids of values.

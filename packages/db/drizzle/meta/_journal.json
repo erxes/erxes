@@ -586,8 +586,15 @@
     {
       "idx": 83,
       "version": "7",
-      "when": 1794903880109,
-      "tag": "0083_assistant",
+      "when": 1794904039146,
+      "tag": "0083_api_key_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1794910177461,
+      "tag": "0084_assistant",
       "breakpoints": true
     }
   ]

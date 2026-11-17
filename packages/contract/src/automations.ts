@@ -12,7 +12,7 @@ import {
   AutomationFieldPath,
   AutomationRun,
   DataField,
-  DryRunStep,
+  DryRun,
   RunStatus,
   RunStep,
 } from './automationRuns';
@@ -111,6 +111,8 @@ export const automationsContract = {
             description: z.string().nullable().optional(),
             source: z.string(),
             subject: z.enum(CONTENT_TYPES).nullable(),
+            /** The record it is about, as its plugin names it (`Order`). */
+            record: z.string().nullable(),
             /** Its payload's values later steps can insert (`{{event.payload.<key>}}`). */
             fields: z.array(DataField),
           }),
@@ -199,13 +201,7 @@ export const automationsContract = {
           path: ['subjectId'],
         }),
     )
-    .output(
-      z.object({
-        triggerMatches: z.boolean(),
-        goalMetAtStart: z.boolean(),
-        trace: z.array(DryRunStep),
-      }),
-    ),
+    .output(DryRun),
   stats: base
     .route({
       method: 'GET',

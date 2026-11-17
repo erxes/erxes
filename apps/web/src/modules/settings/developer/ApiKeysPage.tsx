@@ -1,17 +1,15 @@
 import type { ApiKey } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { IconKey } from '@tabler/icons-react';
+import { IconKey, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Empty, PageContainer, PageHeader, PageSubHeader, RecordTable } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Empty, PageContainer, PageHeader, PageSubHeader, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import { ShownOnce } from '~/components/ShownOnce';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { apiKeyColumns } from './apiKeyColumns';
-import { NewApiKey } from './NewApiKey';
 
 const NoKeys = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys' });
@@ -58,11 +56,10 @@ const KeyTable = ({ keys, everyone }: { keys: ApiKey[]; everyone: boolean }) => 
   );
 };
 
-/** Settings › API keys: keys that let a script call the API as the member who made them. */
+/** Settings › API keys: the organisation's keys, each with what it can do. */
 export const ApiKeysPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys' });
   const can = useCan();
-  const [key, setKey] = useState<string | null>(null);
   const keys = useQuery(orpc.apiKeys.list.queryOptions());
 
   return (
@@ -74,14 +71,19 @@ export const ApiKeysPage = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          {can('api_keys.create') && <NewApiKey onCreated={setKey} />}
+          {can('api_keys.create') && (
+            <Button render={<Link to={paths.settings.apiKeyNew} />}>
+              <IconPlus />
+              {t('add', 'Create key')}
+            </Button>
+          )}
         </PageHeader.End>
       </PageHeader>
       <PageSubHeader className="items-center">
         <span className="text-sm text-muted-foreground">
           {t(
             'intro',
-            'Send a key as "Authorization: Bearer <key>". It can call what its member can, and stops working when it expires, is revoked, or the member is disabled.',
+            'Keys let other systems use erxes. A regular key works with data, a management key sets up the organisation. A key never does more than the person who made it.',
           )}
         </span>
       </PageSubHeader>
@@ -93,14 +95,6 @@ export const ApiKeysPage = () => {
       >
         {({ data }) => <KeyTable keys={data} everyone={can('api_keys.manage')} />}
       </QueryState>
-      {key && (
-        <ShownOnce
-          value={key}
-          title={t('key-title', 'Your API key')}
-          description={t('key-description', "Copy it now: it won't be shown again.")}
-          onClose={() => setKey(null)}
-        />
-      )}
     </PageContainer>
   );
 };

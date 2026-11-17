@@ -1,10 +1,19 @@
-import { CONTENT_TYPES, WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
+import { WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
 import { webhookDeliveries, webhooks } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, httpUrl, Id, isoDate, listOf } from './common';
+import {
+  type CoreEventType,
+  EventTypeInfo,
+  INVOICE_DATA,
+  INVOICE_PAID_DATA,
+  INVOICE_REFUNDED_DATA,
+} from './eventTypes';
+
+export { type CoreEventType, EventTypeInfo } from './eventTypes';
 
 /**
  * Events core publishes (plugins add theirs through their manifest). Webhooks
@@ -148,38 +157,30 @@ export const CORE_EVENT_TYPES = [
     label: 'Invoice paid',
     subject: null,
     description: 'An invoice is paid',
+    ...INVOICE_PAID_DATA,
   },
   {
     type: 'core.payment.cancelled',
     label: 'Invoice cancelled',
     subject: null,
     description: 'An invoice is cancelled',
+    ...INVOICE_DATA,
   },
   {
     type: 'core.payment.expired',
     label: 'Invoice expired unpaid',
     subject: null,
     description: 'An invoice expires unpaid',
+    ...INVOICE_DATA,
   },
   {
     type: 'core.payment.refunded',
     label: 'Payment refunded',
     subject: null,
     description: 'A payment is refunded, in part or in full',
+    ...INVOICE_REFUNDED_DATA,
   },
-] as const;
-
-export const EventTypeInfo = z.object({
-  type: z.string(),
-  label: z.string(),
-  description: z.string().nullable(),
-  /** `core` or the plugin that publishes it. */
-  source: z.string(),
-  /** The record it is about, when it is about a customer or company. */
-  subject: z.enum(CONTENT_TYPES).nullable(),
-});
-
-export type EventTypeInfo = z.infer<typeof EventTypeInfo>;
+] as const satisfies readonly CoreEventType[];
 
 /** `core.customer.created`, `core.customer.*`, `hr.*` or `*`. */
 export const EventPattern = z

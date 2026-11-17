@@ -79,7 +79,7 @@ export const BodyEditor = ({
     schema: BODY_SCHEMA,
     initialContent,
     placeholders: { default: placeholder, emptyDocument: placeholder },
-    domAttributes: { editor: { role: 'textbox', 'aria-multiline': 'true', 'aria-label': label } },
+    domAttributes: { editor: { role: 'combobox', 'aria-expanded': 'false', 'aria-label': label } },
   });
 
   const fieldItems = (): DefaultReactSuggestionItem[] =>

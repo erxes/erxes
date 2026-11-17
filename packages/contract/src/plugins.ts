@@ -237,6 +237,8 @@ export const PluginManifest = z.object({
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         subject: z.enum(CONTENT_TYPES).optional(),
+        /** The record it is about, singular (`Order`): the builder lists `fields` as "The order". */
+        record: z.string().trim().min(1).max(60).optional(),
         /** Its payload's values later steps can insert (`dealId` as "Deal"). */
         fields: z.array(DataField).max(50).optional(),
       }),
@@ -351,7 +353,16 @@ export const pluginsContract = {
         "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills and operations. 400 INVALID_SCHEDULE when a job's cron doesn't parse, 400 API_REQUIRED when it declares assistant operations without api",
     })
     .input(PluginManifest)
-    .output(z.object({ ok: z.literal(true) })),
+    .output(
+      z.object({
+        ok: z.literal(true),
+        /**
+         * What the manifest leaves out that members will miss, one line each ("Event
+         * shop.order.created declares no fields: …"). The SDK logs them at start.
+         */
+        warnings: z.array(z.string()),
+      }),
+    ),
   list: base
     .route({
       method: 'GET',

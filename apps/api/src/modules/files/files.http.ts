@@ -4,6 +4,7 @@ import { link, rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import { Router } from 'express';
 import { config } from '~/config';
+import { enforceKeyAccess } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -113,6 +114,8 @@ signedFilesRouter.get('/:token', (req, res, next) => {
 export const downloadRouter = Router();
 
 downloadRouter.get('/files/:id/download', async (req, res) => {
+  await enforceKeyAccess('files.get');
+
   const url = await withOrg(requestOrgId(), async (tx) => {
     const row = await readyFile(tx, req.params.id);
     const saving = req.query.download === '1';

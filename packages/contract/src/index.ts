@@ -34,8 +34,50 @@ import { viewsContract } from './views';
 import { transferContract } from './transfer';
 import { leadsContract } from './leads';
 
+/** The whole core API's type, each module by name, so its declaration stays small. */
+export type CoreContract = {
+  activities: typeof activitiesContract;
+  assistant: typeof assistantContract;
+  apiKeys: typeof apiKeysContract;
+  automations: typeof automationsContract;
+  audit: typeof auditContract;
+  auth: typeof authContract;
+  broadcasts: typeof broadcastsContract;
+  companies: typeof companiesContract;
+  customers: typeof customersContract;
+  favorites: typeof favoritesContract;
+  customerAccount: typeof customerAccountContract;
+  customerAuth: typeof customerAuthContract;
+  customerNotifications: typeof customerNotificationsContract;
+  emails: typeof emailsContract;
+  events: typeof eventsContract;
+  fieldGroups: typeof fieldGroupsContract;
+  fields: typeof fieldsContract;
+  files: typeof filesContract;
+  leads: typeof leadsContract;
+  notifications: typeof notificationsContract;
+  organizations: typeof organizationsContract;
+  payments: typeof paymentsContract;
+  ebarimt: typeof ebarimtContract;
+  plugins: typeof pluginsContract;
+  productCategories: typeof productCategoriesContract;
+  products: typeof productsContract;
+  roles: typeof rolesContract;
+  saas: typeof saasContract;
+  search: typeof searchContract;
+  suppressions: typeof suppressionsContract;
+  tags: typeof tagsContract;
+  units: typeof unitsContract;
+  unitTypes: typeof unitTypesContract;
+  trash: typeof trashContract;
+  transfer: typeof transferContract;
+  users: typeof usersContract;
+  views: typeof viewsContract;
+  webhooks: typeof webhooksContract;
+};
+
 /** The whole core API. Core implements it; plugins call it with a typed client. */
-export const coreContract = {
+export const coreContract: CoreContract = {
   activities: activitiesContract,
   assistant: assistantContract,
   apiKeys: apiKeysContract,

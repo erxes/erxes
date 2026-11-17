@@ -1,7 +1,49 @@
 import { sql } from 'drizzle-orm';
 import { rootDb } from './client';
 import type { Transaction } from './types';
-import { currentScope, openScope, scopeStorage, system } from './scope';
+import {
+  type Caller,
+  currentScope,
+  openScope,
+  type RowLimits,
+  scopeStorage,
+  system,
+} from './scope';
+
+const limitList = (ids: readonly string[] | null) => (ids === null ? '' : ids.join(',') || '-');
+
+const rowLimitsOf = (who: Caller) => (who.type === 'user' ? who.key?.rows : undefined);
+
+const NO_LIMITS: RowLimits = { owners: null, tags: null };
+
+/**
+ * A key's row limits (`RowLimits`) for the transaction: row level security on contacts reads
+ * them. Empty settings mean no limit; `-` matches no id.
+ */
+const applyRowLimits = async (tx: Transaction, rows: RowLimits | undefined) => {
+  if (!rows) return;
+
+  await tx.execute(
+    sql`select set_config('app.key_owners', ${limitList(rows.owners)}, true), set_config('app.key_tags', ${limitList(rows.tags)}, true)`,
+  );
+};
+
+/** Runs `fn` in a savepoint that sees only the rows `rows` leaves (checking what a key would see). */
+export const withRowLimits = <T>(rows: RowLimits, fn: (tx: Transaction) => Promise<T>) => {
+  const current = openScope();
+
+  if (!current) throw new Error('withRowLimits() needs a withOrg scope');
+
+  return current.tx.transaction(async (sp) => {
+    await applyRowLimits(sp, rows);
+
+    const result = await fn(sp);
+
+    await applyRowLimits(sp, rowLimitsOf(current.caller) ?? NO_LIMITS);
+
+    return result;
+  });
+};
 
 /** The caller a new transaction keeps: the request's, or core's own outside a request. */
 const callerFor = (reason: string) => currentScope()?.caller ?? system(reason);
@@ -44,10 +86,14 @@ export const withOrg = async <T>(
       // an error the savepoint's rollback undoes both settings.
       await sp.execute(sql`reset role`);
       await sp.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
+      const rows = rowLimitsOf(current.caller);
+
+      await applyRowLimits(sp, rows);
 
       const result = await scopeStorage.run({ ...current, tx: sp, orgId }, () => fn(sp));
 
       await sp.execute(sql`select set_config('app.org_id', '', true)`);
+      await applyRowLimits(sp, rows && NO_LIMITS);
       await sp.execute(sql`set local role erxes_core_system`);
 
       return result;
@@ -58,6 +104,7 @@ export const withOrg = async <T>(
 
   return rootDb().transaction(async (tx) => {
     await tx.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
+    await applyRowLimits(tx, rowLimitsOf(who));
 
     return scopeStorage.run({ caller: who, tx, orgId }, () => fn(tx));
   });

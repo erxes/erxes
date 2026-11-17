@@ -26,6 +26,7 @@ import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
+import { manifestWarnings } from './manifestWarnings';
 import { queueInstallJobs, schedulePluginJobs } from './pluginJobs';
 
 type PluginRow = typeof plugins.$inferSelect;
@@ -377,5 +378,5 @@ export const registerManifest = async (manifest: PluginManifest) => {
     );
   });
 
-  return { ok: true as const };
+  return { ok: true as const, warnings: manifestWarnings(manifest) };
 };

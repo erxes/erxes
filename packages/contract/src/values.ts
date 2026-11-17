@@ -1,4 +1,9 @@
 import {
+  API_KEY_ACCESS,
+  API_KEY_AREAS,
+  API_KEY_DATA_AREAS,
+  API_KEY_KINDS,
+  API_KEY_SETUP_AREAS,
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
   BROADCAST_CHANNELS,
@@ -48,6 +53,123 @@ export const PluginName = z
 
 /** How long a new API key works, in days (or until it is revoked). */
 export const API_KEY_LIFETIMES = [30, 90, 365] as const;
+
+export { API_KEY_ACCESS, API_KEY_AREAS, API_KEY_DATA_AREAS, API_KEY_KINDS, API_KEY_SETUP_AREAS };
+
+export const ApiKeyKind = z.enum(API_KEY_KINDS);
+export const ApiKeyArea = z.enum(API_KEY_AREAS);
+export const ApiKeyAccess = z.enum(API_KEY_ACCESS);
+
+export type ApiKeyKind = z.infer<typeof ApiKeyKind>;
+
+export type ApiKeyArea = z.infer<typeof ApiKeyArea>;
+
+export type ApiKeyAccess = z.infer<typeof ApiKeyAccess>;
+
+/** What a key may do in each area it names; an area it leaves out is closed. */
+export const ApiKeyAreas = z.partialRecord(ApiKeyArea, ApiKeyAccess);
+
+export type ApiKeyAreas = z.infer<typeof ApiKeyAreas>;
+
+/** What a regular key may do in each installed plugin's API, by plugin name. */
+export const ApiKeyPlugins = z.record(PluginName, ApiKeyAccess);
+
+export type ApiKeyPlugins = z.infer<typeof ApiKeyPlugins>;
+
+/**
+ * Where a key does only some things: in an area, the API calls it may make
+ * (`{ contacts: ['customers.create'] }` adds customers and does nothing else with contacts); in a
+ * plugin, the plugin's actions it may use.
+ */
+export const ApiKeyActions = z.record(
+  z.string().min(1).max(100),
+  z.array(z.string().min(1).max(200)).min(1).max(100),
+);
+
+export type ApiKeyActions = z.infer<typeof ApiKeyActions>;
+
+/**
+ * What each area covers, as the key screens say it, and the permissions it brings when read
+ * or written. A key holds its maker's permissions, its maker's role's now, and its areas', all
+ * at once; to give an area the maker needs all of `read` and, to write it, one of `write`.
+ */
+export const API_KEY_AREA_INFO = {
+  contacts: {
+    label: 'Contacts',
+    covers: 'Customers, companies, leads and their notes',
+    read: ['contacts.view'],
+    write: ['contacts.create', 'contacts.edit', 'contacts.delete', 'contacts.merge'],
+  },
+  products: {
+    label: 'Products',
+    covers: 'Products and categories',
+    read: [],
+    write: ['products.manage'],
+  },
+  payments: {
+    label: 'Payments',
+    covers: 'Invoices, payments, refunds and receipts',
+    outsideContactLimits: true,
+    read: ['payments.manage'],
+    write: ['payments.refund'],
+  },
+  files: {
+    label: 'Files',
+    covers: 'Uploaded files',
+    outsideContactLimits: true,
+    read: [],
+    write: ['files.moderate'],
+  },
+  automations: {
+    label: 'Automations',
+    covers: 'Automations and their runs',
+    readOnly: true,
+    outsideContactLimits: true,
+    read: ['automations.view'],
+    write: [],
+  },
+  team: {
+    label: 'Team and roles',
+    covers: 'Members, invitations, roles, branches and departments',
+    read: ['team.view'],
+    write: ['team.invite', 'team.manage', 'roles.manage', 'structure.manage'],
+  },
+  keys: {
+    label: 'API keys',
+    covers: 'See and revoke keys; keys never make keys',
+    read: ['api_keys.manage'],
+    write: [],
+  },
+  plugins: {
+    label: 'Plugins',
+    covers: 'Install and remove plugins',
+    read: [],
+    write: ['plugins.manage'],
+  },
+  webhooks: {
+    label: 'Webhooks',
+    covers: 'See, test and remove webhooks; only a signed-in member sets where they send',
+    read: ['webhooks.manage'],
+    write: [],
+  },
+  settings: {
+    label: 'Settings',
+    covers: 'Organisation, tags, fields, payment gateways',
+    read: ['settings.manage', 'integrations.manage', 'payments.manage'],
+    write: ['tags.manage', 'tags.delete', 'properties.manage'],
+  },
+} as const satisfies Record<
+  ApiKeyArea,
+  {
+    label: string;
+    covers: string;
+    readOnly?: true;
+    /** Its records don't follow contact limits, so a key limited to some contacts can't open it. */
+    outsideContactLimits?: true;
+    read: readonly string[];
+    write: readonly string[];
+  }
+>;
 
 /**
  * Who a plugin's API document is for (the manifest's `api.docs`): its team members in erxes

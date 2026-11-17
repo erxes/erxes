@@ -14,7 +14,7 @@ const FieldChip = ({ name, fallback }: { name: string; fallback: string }) => {
 
   return (
     <span
-      className="inline-flex items-center rounded bg-primary/10 px-1 font-medium text-primary"
+      className="inline-flex items-center rounded bg-primary/10 px-1 font-medium text-primary-text"
       title={fallback ? t('field-fallback', 'Else “{{fallback}}”', { fallback }) : undefined}
     >
       {label}
