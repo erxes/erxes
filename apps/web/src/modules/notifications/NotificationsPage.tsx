@@ -86,7 +86,7 @@ export const NotificationsPage = () => {
               unread={unreadHere}
               className="self-stretch"
             />
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <label className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
               <Switch checked={important} onCheckedChange={setImportant} />
               {t('important-only', 'Important only')}
             </label>

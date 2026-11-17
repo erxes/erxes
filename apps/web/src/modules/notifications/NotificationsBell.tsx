@@ -1,6 +1,6 @@
 import { paths } from '~/lib/paths';
 import { IconBell, IconChecks, IconInbox } from '@tabler/icons-react';
-import { Button, cn, Popover, ScrollArea, buttonVariants } from 'erxes-ui';
+import { Button, cn, Popover, ScrollArea, Select, buttonVariants } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -87,46 +87,80 @@ const BellHeader = ({
   );
 };
 
-/** One chip per inbox (erxes, then each plugin), like Atlassian's product filter. */
-const InboxChips = ({
+/** Every inbox in the picker: none picked. Not a plugin name, which starts with a letter. */
+const ALL_INBOXES = '*';
+
+/** An inbox's icon, name and unread count, as the picker lists it. */
+const InboxOption = ({
+  icon: Icon,
+  label,
+  unread,
+}: {
+  icon: Inbox['icon'];
+  label: string;
+  unread: number;
+}) => (
+  <span className="flex w-full min-w-0 items-center gap-2">
+    <Icon className="size-4 shrink-0 text-muted-foreground" />
+    <span className="truncate">{label}</span>
+    {unread > 0 && (
+      <span className="ml-auto shrink-0 pl-3 text-xs text-muted-foreground tabular-nums">
+        {unread > 99 ? '99+' : unread}
+      </span>
+    )}
+  </span>
+);
+
+/** Which inbox the panel shows: all of them, erxes' own or one plugin's, with their unread counts. */
+const InboxPicker = ({
   inboxes,
   source,
+  count,
   bySource,
   onChange,
 }: {
   inboxes: Inbox[];
   source?: string;
+  count: number;
   bySource: Record<string, number>;
   onChange: (source: string | undefined) => void;
-}) => (
-  <div className="flex min-w-0 items-center gap-1 self-center overflow-x-auto py-1.5">
-    {inboxes.map((inbox) => {
-      const Icon = inbox.icon;
-      const active = source === inbox.source;
-      const unread = bySource[inbox.source] ?? 0;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notifications' });
+  const picked = inboxes.find((inbox) => inbox.source === source);
 
-      return (
-        <button
-          key={inbox.source}
-          type="button"
-          title={inbox.label}
-          aria-pressed={active}
-          onClick={() => onChange(active ? undefined : inbox.source)}
-          className={cn(
-            'flex h-6 shrink-0 items-center gap-1 rounded-full border px-2 text-xs',
-            active
-              ? 'border-primary bg-primary/10 text-primary-text'
-              : 'text-muted-foreground hover:bg-accent',
-          )}
-        >
-          <Icon className="size-3" />
-          {inbox.label}
-          {unread > 0 && <span className="font-semibold">{unread}</span>}
-        </button>
-      );
-    })}
-  </div>
-);
+  return (
+    <Select
+      value={source ?? ALL_INBOXES}
+      onValueChange={(next) => onChange(next === ALL_INBOXES ? undefined : next)}
+    >
+      {/* The tabs beside it count the unread, so the trigger names the inbox alone. */}
+      <Select.Trigger aria-label={t('inbox', 'Inbox')} className="w-auto max-w-48">
+        <Select.Value>
+          <InboxOption
+            icon={picked?.icon ?? IconInbox}
+            label={picked?.label ?? t('all-inboxes', 'All inboxes')}
+            unread={0}
+          />
+        </Select.Value>
+      </Select.Trigger>
+      <Select.Content align="end" className="min-w-52">
+        <Select.Item value={ALL_INBOXES}>
+          <InboxOption icon={IconInbox} label={t('all-inboxes', 'All inboxes')} unread={count} />
+        </Select.Item>
+        <Select.Separator />
+        {inboxes.map((inbox) => (
+          <Select.Item key={inbox.source} value={inbox.source}>
+            <InboxOption
+              icon={inbox.icon}
+              label={inbox.label}
+              unread={bySource[inbox.source] ?? 0}
+            />
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select>
+  );
+};
 
 /**
  * The top bar's inbox: unread count, the latest notifications from every
@@ -171,12 +205,15 @@ export const NotificationsBell = () => {
         <div className="flex items-stretch justify-between gap-2 border-b px-2">
           <NotificationTabs value={tab} onChange={setTab} unread={unreadHere} />
           {inboxes.length > 1 && (
-            <InboxChips
-              inboxes={inboxes}
-              source={source}
-              bySource={bySource}
-              onChange={setSource}
-            />
+            <div className="flex min-w-0 items-center">
+              <InboxPicker
+                inboxes={inboxes}
+                source={source}
+                count={count}
+                bySource={bySource}
+                onChange={setSource}
+              />
+            </div>
           )}
         </div>
         <ScrollArea className="max-h-112">
