@@ -195,20 +195,31 @@ const Properties: FC<PropertiesProps> = ({
           className="space-y-6"
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <NameField control={control} />
-            <IsOnlineField control={control} />
+            <div className="md:col-span-2">
+              <NameField control={control} />
+            </div>
             <BranchField control={control} />
             <DepartmentField control={control} />
           </div>
 
-          {isOnline ? (
-            <>
-              <AllowBranchesField control={control} />
-              <PosDomainField control={control} />
-            </>
-          ) : (
-            <AllowTypesField control={control} />
-          )}
+          <div className="rounded-lg border">
+            <div className="p-4">
+              <IsOnlineField control={control} />
+            </div>
+            <div
+              key={isOnline ? 'online' : 'offline'}
+              className="space-y-4 border-t p-4 animate-in fade-in-0 slide-in-from-top-1 duration-200"
+            >
+              {isOnline ? (
+                <>
+                  <AllowBranchesField control={control} />
+                  <PosDomainField control={control} />
+                </>
+              ) : (
+                <AllowTypesField control={control} />
+              )}
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 gap-4 border-t pt-6 md:grid-cols-2">
             <BeginNumberField control={control} />

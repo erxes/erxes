@@ -1,4 +1,6 @@
 import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import {
   restorePosPaymentConfig,
   restorePosPaymentText,
@@ -47,6 +49,7 @@ const DEFAULT_FORM_VALUES: PaymentFormData = {
 
 const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PaymentFormData>({
@@ -203,11 +206,30 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <PaymentIdsField control={control} />
-          <OtherPaymentsField control={control} />
-          <EarnScoreCampaignsField control={control} posId={posId} />
-          <PosEarnTierField control={control} />
-          <AcceptCouponsField control={control} />
+          <PosSettingsSection
+            title={labels.paymentMethodsTitle}
+            description={labels.paymentMethodsDescription}
+          >
+            <div className="space-y-6">
+              <PaymentIdsField control={control} />
+              <OtherPaymentsField control={control} />
+            </div>
+          </PosSettingsSection>
+
+          <PosSettingsSection
+            separated
+            title={labels.loyaltyTitle}
+            description={labels.loyaltyDescription}
+          >
+            <div className="space-y-6">
+              <EarnScoreCampaignsField control={control} posId={posId} />
+              <PosEarnTierField control={control} />
+            </div>
+          </PosSettingsSection>
+
+          <PosSettingsSection separated title={labels.couponsTitle}>
+            <AcceptCouponsField control={control} />
+          </PosSettingsSection>
         </form>
       </Form>
     );

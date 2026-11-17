@@ -30,7 +30,9 @@ export const EarnScoreCampaignsField = ({
 
         return (
           <Form.Item>
-            <Form.Label>{t('pos-earn-campaigns')}</Form.Label>
+            <Form.Label variant="peer" className="text-sm font-medium">
+              {t('pos-earn-campaigns')}
+            </Form.Label>
             <p className="text-xs text-muted-foreground">
               {t('pos-earn-campaigns-hint')}
             </p>

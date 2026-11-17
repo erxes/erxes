@@ -1,4 +1,4 @@
-import { Form, Input, Label } from 'erxes-ui';
+import { Form, Input } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
@@ -35,13 +35,13 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
         control={control}
         name="serviceCharge"
         render={({ field }) => (
-          <Form.Item>
-            <Label htmlFor="serviceCharge">{t('service-charge-percent')}</Label>
-
-            <Form.Control>
-              <div className="relative">
+          <Form.Item className="min-w-0">
+            <Form.Label variant="peer" className="text-sm font-medium">
+              {t('service-charge-percent')}
+            </Form.Label>
+            <div className="relative">
+              <Form.Control>
                 <Input
-                  id="serviceCharge"
                   type="number"
                   min={0}
                   max={100}
@@ -59,12 +59,11 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
                     }
                   }}
                 />
-
-                <span className="absolute right-3 top-1/2 text-sm -translate-y-1/2 text-muted-foreground">
-                  %
-                </span>
-              </div>
-            </Form.Control>
+              </Form.Control>
+              <span className="absolute right-3 top-1/2 text-sm -translate-y-1/2 text-muted-foreground">
+                %
+              </span>
+            </div>
           </Form.Item>
         )}
       />
@@ -73,17 +72,18 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
         control={control}
         name="serviceChargeApplicableProductId"
         render={({ field }) => (
-          <Form.Item>
-            <Label>{t('applicable-products')}</Label>
-
+          <Form.Item className="min-w-0">
+            <Form.Label variant="peer" className="text-sm font-medium">
+              {t('applicable-products')}
+            </Form.Label>
             <Form.Control>
               <SelectProduct
                 mode="single"
                 value={field.value}
                 onValueChange={(value) => {
                   const nextValue = Array.isArray(value)
-                    ? (value.at(0) ?? '')
-                    : (value ?? '');
+                    ? value.at(0) ?? ''
+                    : value ?? '';
 
                   field.onChange(nextValue);
                 }}

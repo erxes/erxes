@@ -1,7 +1,12 @@
-import { Checkbox, Form, Label } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useWatch, type Control } from 'react-hook-form';
+import { type Control } from 'react-hook-form';
 import { type ProductsFormData } from '@/pos/components/products/Products';
+import {
+  PosSwitchList,
+  PosSwitchRow,
+} from '@/pos/components/pos-edit/PosSwitchRow';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import { SelectCategory } from 'ui-modules/modules';
 
 interface RemainderConfigsProps {
@@ -12,115 +17,59 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
   control,
 }) => {
   const { t } = useTranslation('sales');
-  const isCheckRemainder = useWatch({
-    control,
-    name: 'isCheckRemainder',
-  });
+  const labels = usePosSettingsLabels();
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Form.Field
-          control={control}
-          name="isShowRemainder"
-          render={({ field }) => (
-            <Form.Item>
-              <div className="flex gap-2 items-center">
-                <Form.Control>
-                  <Checkbox
-                    id="isShowRemainder"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label htmlFor="isShowRemainder" className="cursor-pointer">
-                  {t('show-remainder', { defaultValue: 'Show remainder' })}
-                </Label>
-              </div>
-            </Form.Item>
-          )}
-        />
-
-        <Form.Field
-          control={control}
-          name="isCheckRemainder"
-          render={({ field }) => (
-            <Form.Item>
-              <div className="flex gap-2 items-center">
-                <Form.Control>
-                  <Checkbox
-                    id="isCheckRemainder"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label htmlFor="isCheckRemainder" className="cursor-pointer">
-                  {t('check-remainder')}
-                </Label>
-              </div>
-            </Form.Item>
-          )}
-        />
-
-        {isCheckRemainder && (<Form.Field
-          control={control}
-          name="saveRemainder"
-          render={({ field }) => (
-            <Form.Item>
-              <div className="flex gap-2 items-center">
-                <Form.Control>
-                  <Checkbox
-                    id="saveRemainder"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label htmlFor="saveRemainder" className="cursor-pointer">
-                  {t('save-remainder')}
-                </Label>
-              </div>
-            </Form.Item>
-          )}
-        />)}
-
-        <Form.Field
-          control={control}
-          name="banFractions"
-          render={({ field }) => (
-            <Form.Item>
-              <div className="flex gap-2 items-center">
-                <Form.Control>
-                  <Checkbox
-                    id="banFractions"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label htmlFor="banFractions">{t('ban-fractions')}</Label>
-              </div>
-            </Form.Item>
-          )}
-        />
-      </div>
-
-      <Form.Field
+    <PosSwitchList>
+      <PosSwitchRow
         control={control}
-        name="checkExcludeCategoryIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Label>{t('exclude-categories')}</Label>
-
-            <Form.Control>
-              <SelectCategory
-                mode="multiple"
-                value={field.value}
-                onValueChange={field.onChange}
-                placeholder={t('select-categories-to-exclude')}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
+        name="isShowRemainder"
+        label={labels.showRemainder}
+        description={labels.showRemainderDescription}
       />
-    </div>
+      <PosSwitchRow
+        control={control}
+        name="isCheckRemainder"
+        label={t('check-remainder')}
+        description={labels.checkRemainderDescription}
+      >
+        <PosSwitchList>
+          <PosSwitchRow
+            control={control}
+            name="saveRemainder"
+            label={t('save-remainder')}
+            description={labels.saveRemainderDescription}
+          />
+        </PosSwitchList>
+        <Form.Field
+          control={control}
+          name="checkExcludeCategoryIds"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label variant="peer" className="text-sm font-medium">
+                {t('exclude-categories')}
+              </Form.Label>
+              <Form.Control>
+                <SelectCategory
+                  mode="multiple"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder={t('select-categories-to-exclude')}
+                />
+              </Form.Control>
+              <Form.Description>
+                {labels.checkExcludeDescription}
+              </Form.Description>
+            </Form.Item>
+          )}
+        />
+      </PosSwitchRow>
+      <PosSwitchRow
+        control={control}
+        name="banFractions"
+        label={labels.banFractions}
+        description={labels.banFractionsDescription}
+      />
+    </PosSwitchList>
   );
 };

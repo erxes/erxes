@@ -41,7 +41,7 @@
   Buttons render only with `dealsExportManage` / `posOrdersExportManage`.
 - Pipeline Product config edits include products, include product tags, and exclude product tags; create/edit and detail documents carry all three arrays. Category, tag and explicit-product includes form a union; all exclusions override that union, even explicit products. Category/tag descendants are included by Core. Pipeline categories now scope products as well as prioritizing them. Pipeline edits evict `productsMain` and `productsTotalCount` so cached deal choosers reload the changed scope.
 
-- Pipeline and POS product filters share a two-column layout whose rows pair category/exclude category, include tag/exclude tag, and include products/exclude products. The pipeline filter collapses to category and More on one row, the collapse button following the grid, and hidden fields retain their saved values. The POS product group form (`AddGroupForm`) always shows every field: POS settings tabs have no More options toggles.
+- The pipeline product filter uses a two-column layout whose rows pair category/exclude category, include tag/exclude tag, and include products/exclude products. The pipeline filter collapses to category and More on one row, the collapse button following the grid, and hidden fields retain their saved values. The POS product group form (`AddGroupForm`) always shows every field in an Include card and an Exclude card: POS settings tabs have no More options toggles.
 - POS product-group settings edit and reload include products (`productIds`), include tags (`tagIds`), and exclude tags (`excludeTagIds`). React Hook Form with Zod validates selections. Saves project all six filter arrays into `GroupInput` and refetch the current POS groups.
 - Product filters use OR between category/tag/product includes; all category/tag/product exclusions always win, including against explicit product ids. Category/tag filters include descendants. Product tag pickers use public `ui-modules` `SelectTags` scoped to `core:product`; English/Mongolian explanatory labels live in `modules/productFilters`.
 - POS orders and covers open in the app's side panel (no sheets): the
@@ -140,30 +140,54 @@
   settings), Sync Card config (`sales:pos.cardConfig`, `PosCardConfigPanel`,
   draft `{ posId, configKey }`) and product & category mapping
   (`sales:pos.categoryMapping`, `PosCategoryMappingPanel`, draft
-  `{ posId, mappingId }`). These panels save on their own Save through
+  `{ posId, mappingId }`), plus the customer form's Add field
+  (`sales:pos.customerField`, `PosCustomerFieldPanel`, draft `{ posId }`)
+  and Edit layout (`sales:pos.customerLayout`, `PosCustomerLayoutPanel`,
+  draft `{ posId, layout }`).
+  The first three panels save on their own Save through
   `posEdit` (`cardsConfig` keyed by unique title, or `catProdMappings`) and
   refetch `salesPosSettingsDetail`; the tabs list straight from `posDetail`
   and delete with a confirm, saving at once. The Products tab form no longer
   holds `catProdMappings` and resets with `keepDirtyValues`, so a panel save
   keeps its unsaved edits; the Sync Card tab has no save action. Draft
   defaults live only in memory: after a reload the panel shows
-  `PosPanelMissing`. `PosCreate` (sheet, `usePosCreateForm`) remains only for
-  callers that pick the new POS (automation template requirement). The
-  customer layout editor and `PropertyAddSheet` stay sheets.
+  `PosPanelMissing`. Create drafts have no expand button. Editing a sync
+  card config or a mapping does: their `recordPanels` entries set core's
+  `draftPath` (`getPosEditRecordPath`), which returns
+  `/sales/settings/pos/:id/edit/:recordType/:recordKey` (`card-config` /
+  `category-mapping`, the URL-encoded `configKey` / `mappingId`) only when
+  the draft carries that key, and null while creating.
+  `PosEditRecordPage` rebuilds the draft from the URL (a scoped
+  `SidePanelDraftContext`, and `sidePanelDraftState` so minimize reopens the
+  panel even after a reload), draws the same `RecordPanel` `new` view in a
+  left `md:w-96` column under a POS › title crumb with
+  `RecordPageMinimize`, and its `SidePanelNavigatorContext` sends Cancel,
+  Save and minimize back to the POS tab (`?activeTab=sync|product`).
+  Values typed in the panel before expanding are not carried over.
+  `PosCreate` (sheet, `usePosCreateForm`) remains only for
+  callers that pick the new POS (automation template requirement).
 - POS settings (`/sales/settings/pos/:id`, `PosEdit`) follow core's 3.0
-  settings pages: one `SettingsHeader` (POS › POS picker crumbs, Remove POS on
-  the right), then `MainContent` draws the active tab as a centered column
-  (`max-w-4xl`; `WIDE_TABS` Product & Service `max-w-6xl`) under an `h2` of the
+  settings pages: one `SettingsHeader` (a single POS crumb back to the list, Remove POS on
+  the right), then `MainContent` draws the active tab as a centered column in an erxes-ui `ScrollArea` (thin scrollbar)
+  (`max-w-4xl` on every form tab, Product & Service included) under an `h2` of the
   tab's name, with no `InfoCard` frames (`SourceAutomations` takes
   `framed={false}` here; pipeline settings keep its card). A tab with several
   parts splits them with `PosSettingsSection` (`pos-edit/PosSettingsSection.tsx`:
   an `h3` title, optional description, `separated` rule above), as Product &
   Service does; every field shows at once, with no More options toggle
-  (General information keeps its advanced fields under a rule). The tab's
-  `PosSaveAction` (`onSaveActionChange`) sits in a footer pinned to the
-  bottom of the tab, outside the scroll area and aligned with the form
-  column, so it stays in one place across tabs: Save Changes always shown on form tabs, disabled until the
-  form is dirty, with an "Unsaved changes" badge while it is. `FULL_HEIGHT_TABS`
+  (General information keeps its advanced fields under a rule; its Online
+  POS `Switch` heads a bordered card whose body swaps, with a short fade-in,
+  between Allow types (offline) and Allow branches plus POS domain (online)).
+  The tab's `PosSaveAction` (`onSaveActionChange`) sits in a full-width
+  footer pinned to the bottom of the tab, outside the scroll area, with the
+  button at the right edge, so it stays in one place across tabs, Slots
+  included: Save Changes always shown on form tabs, disabled until the
+  form is dirty, with an "Unsaved changes" badge while it is. Every value in
+  the deps of the effect that publishes the save action must be stable
+  (`useCallback`/`useMemo`, as `usePosSlots`' `saveSlots` is): a handler
+  recreated each render re-runs the effect, which re-renders `PosEdit` in a
+  loop and starves router transitions, so the URL changes while the page
+  stays on the old tab. `FULL_HEIGHT_TABS`
   (Slots) keep the `h2` and footer but fill the full width and height
   without scrolling.
 - The Slots tab (`components/slots/Slots.tsx`, `modules/pos/slot`) is a floor
@@ -190,6 +214,34 @@
   `replace`, so Back leaves the page in one step.
 - POS product settings independently persist `isShowRemainder` for display and
   `isCheckRemainder` for preventing negative stock, with category exclusions.
+- The Product & Service tab (`products/Products.tsx`) orders its sections as
+  Initial product categories, Product groups, Kiosk exclusions, Remainder,
+  Service charge, then Product & category mapping; all sit inside one form
+  while product groups keep their own save state. Product groups split into
+  bordered Include and Exclude cards (categories, tags, products). Save
+  remainder and the check-exclusion categories nest under Check remainder
+  (the backend reads those categories only then); hidden values are kept.
+- POS settings tabs share three plugin-local building blocks in `pos-edit/`:
+  `PosSettingsSection` (title, description, optional `actions`, `separated`),
+  `PosSwitchRow`/`PosSwitchList` (a bordered list of label + description +
+  `Switch` rows for any boolean form field; a row's children show in a muted
+  nested panel only while it is on), and `PosItemList` (bordered rows with
+  ghost edit/delete buttons and an add button below, or a dashed empty state
+  holding that button). Every boolean setting on Product & Service,
+  Permission, Payments (coupons), Screen and Customer uses `PosSwitchRow`;
+  mappings and sync cards use `PosItemList`.
+- Tab structure: Permission has Admins and Cashiers sections (members, then
+  switch rows; Direct discount nests its limit). Payments has Payment methods
+  (shared `@/payments` fields, unchanged), Loyalty (earn campaign, earn tier)
+  and Coupons. Delivery has Deal stage (board, pipeline, stage, location
+  field) and Deal users (watched, assigned, delivery product). Appearance has
+  Logos, Main colors and Infos. Screen shows the kitchen and waiting screens
+  as switch cards with their settings nested, then a Print section. Sync
+  lists card configs. Customer starts with its two switch rows, then a Form
+  fields section whose actions hold Add field and Edit layout.
+- English/Mongolian section descriptions and sentence-case field labels for
+  these tabs live in `hooks/usePosSettingsLabels.ts` (the gateway locales
+  only hold the older upper-case keys); add new tab copy there.
 
 - Runs as the sales Module Federation remote.
 - Development Rspack serving ignores generated dependency/cache/output folders
@@ -430,10 +482,18 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `useCustomerCreateConfig`) enables cashier-side customer creation, picks
   whether the cashier becomes owner, toggles which system fields and Core
   `core:customer` properties show, and arranges them with the shared
-  `ui-modules` `LayoutEditor`. Properties deleted or archived since saving
+  `ui-modules` `LayoutEditor` (`layout="record"` in `PosCustomerLayoutPanel`).
+  Properties deleted or archived since saving
   show a warning and are stripped on the next save. "Add field" (gated by
-  `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
-  `core:customer` and places the new property on the form, visible.
+  `fieldsManage`) opens `PosCustomerFieldPanel` in the app side panel: the
+  shared `ui-modules` `PropertyForm` (`layout="panel"`: `PanelFormRow` rows for icon, name, code, description, group, type and show in card, then the type-specific sections; its Group row's `+` opens
+  `PropertyGroupForm` in a popover) adds a
+  `core:customer` property. Both panels hand their result to the tab through
+  `posCustomerFormEditAtom` (`modules/pos/states/posCustomerField.ts`):
+  `{ posId, kind: 'field', fieldId }` places the new property on the open
+  POS's form, visible, and `{ posId, kind: 'layout', layout }` applies the
+  edited rows (`null` resets to the default); both stay unsaved until Save
+  Changes.
 - The Create deal action form (`CreateDealActionConfigForm`) adds `productIds`
   (product suggestions) and `items` (JSON lines, attribute placeholders) like
   the POS order form, reusing its `products` / `order-items` translations;
@@ -480,11 +540,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | Dashboard widgets   | `frontend/plugins/sales_ui/src/widgets/dashboard`                                                     | `./dashboardWidget` remote: loyalty points tiles, their config form and states                                             |
 | Loyalty sections    | `frontend/plugins/sales_ui/src/modules/loyalty-points/components`                                     | Insight/timeline sections shared by the Loyalty points pages and the dashboard widgets                                     |
 | Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                         | Voucher and coupon line on a deal's Products tab, saved with the products                                                  |
-| POS settings list   | `frontend/plugins/sales_ui/src/modules/pos/components/PosRecordTable.tsx`                             | Table view of the POS settings list; cards stay in `PosRecordList.tsx`                                                     |
+| POS settings list   | `frontend/plugins/sales_ui/src/modules/pos/components/PosRecordTable.tsx`                             | Table view of the POS settings list; cards stay in `PosItemList.tsx`                                                     |
 | POS settings shell  | `frontend/plugins/sales_ui/src/modules/pos/components/pos-edit`                                       | POS settings page: single header with save/remove, per-tab content width                                                   |
 | POS slots editor    | `frontend/plugins/sales_ui/src/modules/pos/slot`                                                      | Slots tab floor plan: canvas, slot list, inspector, slot ⇄ `posSlotBulkUpdate` input mapping                               |
 | POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                     | Manages admin and cashier POS permission controls                                                                          |
-| POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                 | POS customer registration settings and layout sheet                                                                        |
+| POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                 | POS customer registration settings and side panels                                                                         |
 | POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                   | Provides POS queries and mutations used by settings screens                                                                |
 | POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                     | Describes POS configuration data consumed by the UI                                                                        |
 | Settings POS tabs   | `frontend/plugins/sales_ui/src/modules/pos/components/PosSettingsTabs.tsx`                            | The open POS's tabs as a settings sidebar group                                                                            |
@@ -526,7 +586,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Core properties through public `ui-modules` property hooks with
   `contentType: 'sales:deal'` and, for the POS customer form,
   `contentType: 'core:customer'`.
-- `ui-modules` `LayoutEditor` and `PropertyAddSheet` for the POS customer form.
+- `ui-modules` `LayoutEditor`, `PropertyForm` and `useAddProperty` for the POS
+  customer form.
 - `erxes-ui` and `ui-modules` public React components, including
   `DashboardWidgetCard`, `DashboardWidgetEmptyState`,
   `DashboardWidgetListSkeleton`, `IDashboardWidgetProps` and

@@ -1,16 +1,27 @@
 import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import {
+  PosSwitchList,
+  PosSwitchRow,
+} from '@/pos/components/pos-edit/PosSwitchRow';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import {
   IconAlertTriangle,
   IconLayoutRows,
   IconPlus,
 } from '@tabler/icons-react';
-import { Alert, Button, Form, Label, Spinner, Switch } from 'erxes-ui';
-import { type ReactNode, useEffect, useState } from 'react';
+import { Alert, Button, Form, Spinner, Switch } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Can, PropertyAddSheet } from 'ui-modules';
-import { CustomerLayoutSheet } from '@/pos/components/customerCreate/CustomerLayoutSheet';
+import { Can, useSidePanel } from 'ui-modules';
 import { POS_CUSTOMER_PROPERTY_PREFIX } from '@/pos/components/customerCreate/constants';
+import {
+  POS_CUSTOMER_FIELD_CONTENT_TYPE,
+  POS_CUSTOMER_LAYOUT_CONTENT_TYPE,
+} from '@/pos/constants/posPanel';
 import { useCustomerCreateConfig } from '@/pos/hooks/useCustomerCreateConfig';
+import { posCustomerFormEditAtom } from '@/pos/states/posCustomerField';
 
 const CUSTOMER_CREATE_FORM_ID = 'pos-customer-create-form';
 
@@ -22,8 +33,9 @@ export const CustomerCreate = ({
   onSaveActionChange?: (action: ReactNode | null) => void;
 }) => {
   const { t } = useTranslation('sales');
-  const [layoutOpen, setLayoutOpen] = useState(false);
-  const [addFieldOpen, setAddFieldOpen] = useState(false);
+  const labels = usePosSettingsLabels();
+  const { openNewRecord } = useSidePanel();
+  const [formEdit, setFormEdit] = useAtom(posCustomerFormEditAtom);
   const {
     form,
     options,
@@ -40,6 +52,20 @@ export const CustomerCreate = ({
   } = useCustomerCreateConfig(posId);
   const { control, handleSubmit, formState } = form;
   const isDirty = formState.isDirty || staleCodes.length > 0;
+
+  useEffect(() => {
+    if (loading || !formEdit || formEdit.posId !== posId) {
+      return;
+    }
+
+    if (formEdit.kind === 'field') {
+      toggleField(`${POS_CUSTOMER_PROPERTY_PREFIX}${formEdit.fieldId}`, true);
+    } else {
+      applyLayout(formEdit.layout);
+    }
+
+    setFormEdit(null);
+  }, [applyLayout, formEdit, loading, posId, setFormEdit, toggleField]);
 
   useEffect(() => {
     if (!onSaveActionChange) {
@@ -77,52 +103,25 @@ export const CustomerCreate = ({
           onSubmit={handleSubmit(save)}
           className="space-y-6"
         >
-          <div className="flex flex-wrap gap-8 items-center">
-            <Form.Field
+          <PosSwitchList>
+            <PosSwitchRow
               control={control}
               name="enabled"
-              render={({ field }) => (
-                <Form.Item className="flex gap-2 items-center">
-                  <Form.Control>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Label className="text-xs">
-                    {t('enable-create-customer', 'Enable create customer')}
-                  </Label>
-                </Form.Item>
+              label={t('enable-create-customer', 'Enable create customer')}
+              description={t(
+                'customer-create-permission-hint',
+                'Admins can always add customers; cashiers need the permission on the Permission tab.',
               )}
             />
-            <Form.Field
+            <PosSwitchRow
               control={control}
               name="assignCashierAsOwner"
-              render={({ field }) => (
-                <Form.Item className="flex gap-2 items-center">
-                  <Form.Control>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Label className="text-xs">
-                    {t(
-                      'cashier-as-customer-owner',
-                      'Cashier becomes the owner of the customer',
-                    )}
-                  </Label>
-                </Form.Item>
+              label={t(
+                'cashier-as-customer-owner',
+                'Cashier becomes the owner of the customer',
               )}
             />
-          </div>
-
-          <p className="text-sm text-muted-foreground">
-            {t(
-              'customer-create-permission-hint',
-              'Admins can always add customers; cashiers need the permission on the Permission tab.',
-            )}
-          </p>
+          </PosSwitchList>
 
           {staleCodes.length > 0 && (
             <Alert variant="warning">
@@ -140,81 +139,79 @@ export const CustomerCreate = ({
             </Alert>
           )}
 
-          <Form.Field
-            control={control}
-            name="layout"
-            render={() => (
-              <Form.Item className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label>{t('form-fields', 'Form fields')}</Label>
-                  <div className="flex gap-2">
-                    <Can action="fieldsManage">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => setAddFieldOpen(true)}
+          <PosSettingsSection
+            separated
+            title={t('form-fields', 'Form fields')}
+            description={labels.customerFormDescription}
+            actions={
+              <>
+                <Can action="fieldsManage">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      openNewRecord(POS_CUSTOMER_FIELD_CONTENT_TYPE, {
+                        posId,
+                      })
+                    }
+                  >
+                    <IconPlus />
+                    {t('add-field', 'Add field')}
+                  </Button>
+                </Can>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!layout.length}
+                  onClick={() =>
+                    openNewRecord(POS_CUSTOMER_LAYOUT_CONTENT_TYPE, {
+                      posId,
+                      layout,
+                    })
+                  }
+                >
+                  <IconLayoutRows />
+                  {t('edit-layout', 'Edit layout')}
+                </Button>
+              </>
+            }
+          >
+            <Form.Field
+              control={control}
+              name="layout"
+              render={() => (
+                <Form.Item>
+                  <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                    {options.map((option) => (
+                      <div
+                        key={option.code}
+                        className="flex gap-2 items-center px-3 py-2.5 rounded-lg border"
                       >
-                        <IconPlus />
-                        {t('add-field', 'Add field')}
-                      </Button>
-                    </Can>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      disabled={!layout.length}
-                      onClick={() => setLayoutOpen(true)}
-                    >
-                      <IconLayoutRows />
-                      {t('edit-layout', 'Edit layout')}
-                    </Button>
+                        <Switch
+                          checked={placed.has(option.code)}
+                          disabled={isLocked(option.code)}
+                          onCheckedChange={(checked) =>
+                            toggleField(option.code, checked)
+                          }
+                        />
+                        <span className="text-sm truncate">{option.name}</span>
+                        {option.isProperty && (
+                          <span className="ml-auto text-xs text-muted-foreground">
+                            {t('property', 'Property')}
+                          </span>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-                  {options.map((option) => (
-                    <div
-                      key={option.code}
-                      className="flex gap-2 items-center px-3 py-2 rounded-md border"
-                    >
-                      <Switch
-                        checked={placed.has(option.code)}
-                        disabled={isLocked(option.code)}
-                        onCheckedChange={(checked) =>
-                          toggleField(option.code, checked)
-                        }
-                      />
-                      <span className="text-sm truncate">{option.name}</span>
-                      {option.isProperty && (
-                        <span className="ml-auto text-xs text-muted-foreground">
-                          {t('property', 'Property')}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </PosSettingsSection>
         </form>
       </Form>
-      <CustomerLayoutSheet
-        open={layoutOpen}
-        layout={layout}
-        options={options}
-        onApply={applyLayout}
-        onClose={() => setLayoutOpen(false)}
-      />
-      {/* Outside the form: a portaled sheet's submit still bubbles through React. */}
-      <PropertyAddSheet
-        contentType="core:customer"
-        open={addFieldOpen}
-        onClose={() => setAddFieldOpen(false)}
-        onCreated={(fieldId) =>
-          toggleField(`${POS_CUSTOMER_PROPERTY_PREFIX}${fieldId}`, true)
-        }
-      />
     </div>
   );
 };

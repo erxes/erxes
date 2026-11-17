@@ -6,10 +6,12 @@ import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
 import { useMutation } from '@apollo/client';
-import { Form, Label, toast } from 'erxes-ui';
+import { Form, toast } from 'erxes-ui';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
 interface AppearanceProps {
   posId?: string;
@@ -55,6 +57,7 @@ const Appearance: React.FC<AppearanceProps> = ({
   onSaveActionChange,
 }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<AppearanceFormData>({
@@ -163,7 +166,7 @@ const Appearance: React.FC<AppearanceProps> = ({
     if (detailLoading) {
       return (
         <div className="space-y-4">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {[1, 2, 3, 4, 5, 6, 7].map((i) => (
               <div key={i} className="space-y-2">
                 <div className="w-20 h-4 rounded animate-pulse bg-muted" />
@@ -192,20 +195,28 @@ const Appearance: React.FC<AppearanceProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <section className="space-y-4">
-            <Label>{t('logos-and-favicon')}</Label>
+          <PosSettingsSection
+            title={t('logos-and-favicon')}
+            description={labels.logosDescription}
+          >
             <LogosAndFavicon control={control} posType={posType} />
-          </section>
+          </PosSettingsSection>
 
-          <section className="pt-6 space-y-4 border-t">
-            <Label>{t('main-colors')}</Label>
+          <PosSettingsSection
+            separated
+            title={t('main-colors')}
+            description={labels.colorsDescription}
+          >
             <MainColors control={control} />
-          </section>
+          </PosSettingsSection>
 
-          <section className="pt-6 space-y-4 border-t">
-            <Label>{t('infos')}</Label>
+          <PosSettingsSection
+            separated
+            title={t('infos')}
+            description={labels.infosDescription}
+          >
             <Infos control={control} />
-          </section>
+          </PosSettingsSection>
         </form>
       </Form>
     );

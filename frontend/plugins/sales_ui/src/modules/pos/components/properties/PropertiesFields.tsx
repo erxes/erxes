@@ -3,6 +3,7 @@ import {
   Form,
   Checkbox,
   MultipleSelector,
+  Switch,
   Textarea,
 } from 'erxes-ui';
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
@@ -200,14 +201,26 @@ export const IsOnlineField = ({ control }: FieldProps) => {
       control={control}
       name="isOnline"
       render={({ field }) => (
-        <Form.Item>
-          <div className="flex items-center pt-6 space-x-2">
-            <Form.Control>
-              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-            </Form.Control>
-            <Form.Label>{t('is-online')}</Form.Label>
+        <Form.Item className="flex items-center justify-between gap-6 space-y-0">
+          <div className="space-y-1">
+            <Form.Label variant="peer" className="text-sm font-medium">
+              {t('online-pos', 'Online POS')}
+            </Form.Label>
+            <Form.Description>
+              {field.value
+                ? t(
+                    'online-pos-description',
+                    'Takes orders on a website for the branches you allow.',
+                  )
+                : t(
+                    'offline-pos-description',
+                    'Runs at a counter in the store for the order types you allow.',
+                  )}
+            </Form.Description>
           </div>
-          <Form.Message />
+          <Form.Control>
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+          </Form.Control>
         </Form.Item>
       )}
     />

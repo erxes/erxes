@@ -11,6 +11,14 @@ import {
   PosCreatePanelTitle,
 } from '@/pos/components/pos-create/PosCreatePanel';
 import {
+  PosCustomerFieldPanel,
+  PosCustomerFieldPanelTitle,
+} from '@/pos/components/customerCreate/PosCustomerFieldPanel';
+import {
+  PosCustomerLayoutPanel,
+  PosCustomerLayoutPanelTitle,
+} from '@/pos/components/customerCreate/PosCustomerLayoutPanel';
+import {
   PosCategoryMappingPanel,
   PosCategoryMappingPanelTitle,
 } from '@/pos/components/products/PosCategoryMappingPanel';
@@ -23,6 +31,8 @@ import {
   POS_CATEGORY_MAPPING_CONTENT_TYPE,
   POS_COVER_CONTENT_TYPE,
   POS_CREATE_CONTENT_TYPE,
+  POS_CUSTOMER_FIELD_CONTENT_TYPE,
+  POS_CUSTOMER_LAYOUT_CONTENT_TYPE,
   POS_ORDER_CONTENT_TYPE,
   POS_PANEL_FIELDS_CLASS_NAME,
 } from '@/pos/constants/posPanel';
@@ -245,6 +255,14 @@ const POS_FORM_PANELS: Record<
   [POS_CATEGORY_MAPPING_CONTENT_TYPE]: {
     Title: PosCategoryMappingPanelTitle,
     Form: PosCategoryMappingPanel,
+  },
+  [POS_CUSTOMER_FIELD_CONTENT_TYPE]: {
+    Title: PosCustomerFieldPanelTitle,
+    Form: PosCustomerFieldPanel,
+  },
+  [POS_CUSTOMER_LAYOUT_CONTENT_TYPE]: {
+    Title: PosCustomerLayoutPanelTitle,
+    Form: PosCustomerLayoutPanel,
   },
 };
 

@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { IconCircleMinus, IconCirclePlus } from '@tabler/icons-react';
 import { Label } from 'erxes-ui';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useProductFilterLabels } from '@/productFilters/useProductFilterLabels';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import { ProductTagSelect } from '@/productFilters/ProductTagSelect';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';
@@ -46,6 +48,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
 }) => {
   const { t } = useTranslation('sales');
   const filterLabels = useProductFilterLabels();
+  const labels = usePosSettingsLabels();
   const {
     control,
     reset,
@@ -149,65 +152,89 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 items-end gap-x-4 gap-y-6">
-        <div className="min-w-0 space-y-2">
-          <Label>{t('PRODUCT-CATEGORY')}</Label>
-          <SelectCategory
-            mode="multiple"
-            value={formState.categoryIds}
-            onValueChange={handleCategorySelect}
-            placeholder={t('select-product-categories')}
-          />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="min-w-0 space-y-4 rounded-lg border p-4">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <IconCirclePlus className="size-4 text-primary" />
+            {labels.include}
+          </div>
+          <div className="space-y-2">
+            <Label variant="peer" className="text-sm">
+              {t('product-categories')}
+            </Label>
+            <SelectCategory
+              mode="multiple"
+              value={formState.categoryIds}
+              onValueChange={handleCategorySelect}
+              placeholder={t('select-product-categories')}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label variant="peer" className="text-sm">
+              {filterLabels.tags}
+            </Label>
+            <ProductTagSelect
+              value={formState.tagIds || []}
+              onValueChange={(value) => updateField('tagIds', value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label variant="peer" className="text-sm">
+              {filterLabels.products}
+            </Label>
+            <SelectProduct
+              mode="multiple"
+              value={formState.productIds}
+              onValueChange={(value) =>
+                updateField(
+                  'productIds',
+                  Array.isArray(value) ? value : value ? [value] : [],
+                )
+              }
+            />
+          </div>
         </div>
-        <div className="min-w-0 space-y-2">
-          <Label>{t('EXCLUDE-PRODUCT-CATEGORY')}</Label>
-          <SelectCategory
-            mode="multiple"
-            value={formState.excludedCategoryIds}
-            onValueChange={handleExcludeCategorySelect}
-            placeholder={t('select-product-categories-to-exclude')}
-          />
+        <div className="min-w-0 space-y-4 rounded-lg border p-4">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <IconCircleMinus className="size-4 text-destructive" />
+            {labels.exclude}
+          </div>
+          <div className="space-y-2">
+            <Label variant="peer" className="text-sm">
+              {t('exclude-categories')}
+            </Label>
+            <SelectCategory
+              mode="multiple"
+              value={formState.excludedCategoryIds}
+              onValueChange={handleExcludeCategorySelect}
+              placeholder={t('select-product-categories-to-exclude')}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label variant="peer" className="text-sm">
+              {filterLabels.excludeTags}
+            </Label>
+            <ProductTagSelect
+              value={formState.excludeTagIds || []}
+              onValueChange={(value) => updateField('excludeTagIds', value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label variant="peer" className="text-sm">
+              {t('exclude-products')}
+            </Label>
+            <SelectProduct
+              mode="multiple"
+              value={formState.excludedProductIds}
+              onValueChange={handleExcludeProductsChange}
+              placeholder={t('select-products-to-exclude')}
+            />
+          </div>
         </div>
-        <div className="min-w-0 space-y-2">
-          <Label>{filterLabels.tags}</Label>
-          <ProductTagSelect
-            value={formState.tagIds || []}
-            onValueChange={(value) => updateField('tagIds', value)}
-          />
-        </div>
-        <div className="min-w-0 space-y-2">
-          <Label>{filterLabels.excludeTags}</Label>
-          <ProductTagSelect
-            value={formState.excludeTagIds || []}
-            onValueChange={(value) => updateField('excludeTagIds', value)}
-          />
-        </div>
-        <div className="min-w-0 space-y-2">
-          <Label>{filterLabels.products}</Label>
-          <SelectProduct
-            mode="multiple"
-            value={formState.productIds}
-            onValueChange={(value) =>
-              updateField(
-                'productIds',
-                Array.isArray(value) ? value : value ? [value] : [],
-              )
-            }
-          />
-        </div>
-        <div className="min-w-0 space-y-2">
-          <Label>{t('exclude-products')}</Label>
-          <SelectProduct
-            mode="multiple"
-            value={formState.excludedProductIds}
-            onValueChange={handleExcludeProductsChange}
-            placeholder={t('select-products-to-exclude')}
-          />
-        </div>
-        <p className="col-span-2 text-sm text-muted-foreground">
-          {filterLabels.description}
-        </p>
       </div>
+      <p className="text-xs text-muted-foreground">
+        {filterLabels.description}
+      </p>
       {Object.keys(errors).length > 0 && (
         <p className="text-sm text-destructive" role="alert">
           {filterLabels.invalidSelection}

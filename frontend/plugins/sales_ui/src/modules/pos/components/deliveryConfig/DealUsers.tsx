@@ -3,6 +3,7 @@ import { Label, Combobox, PopoverScoped } from 'erxes-ui';
 import { SelectMember, SelectProduct } from 'ui-modules';
 import type { DeliveryConfigFormData } from './DeliveryConfig';
 import { useTranslation } from 'react-i18next';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
 interface DealUsersProps {
   control: Control<DeliveryConfigFormData>;
@@ -10,14 +11,17 @@ interface DealUsersProps {
 
 export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <Controller
         name="watchedUserIds"
         control={control}
         render={({ field }) => (
-          <div className="space-y-2">
-            <Label>{t('watched-users')}</Label>
+          <div className="min-w-0 space-y-2">
+            <Label variant="peer" className="text-sm font-medium">
+              {labels.watchedUsers}
+            </Label>
             <SelectMember.Provider
               value={field.value}
               onValueChange={field.onChange}
@@ -25,7 +29,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
             >
               <PopoverScoped>
                 <Combobox.Trigger className="w-full h-8">
-                  <SelectMember.Value placeholder={t("choose-team-member")} />
+                  <SelectMember.Value placeholder={t('choose-team-member')} />
                 </Combobox.Trigger>
                 <Combobox.Content>
                   <SelectMember.Content />
@@ -40,8 +44,10 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         name="assignedUserIds"
         control={control}
         render={({ field }) => (
-          <div className="space-y-2">
-            <Label>{t('assigned-users')}</Label>
+          <div className="min-w-0 space-y-2">
+            <Label variant="peer" className="text-sm font-medium">
+              {labels.assignedUsers}
+            </Label>
             <SelectMember.Provider
               value={field.value}
               onValueChange={field.onChange}
@@ -64,8 +70,10 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         name="productId"
         control={control}
         render={({ field }) => (
-          <div className="space-y-2">
-            <Label>{t('delivery-product')}</Label>
+          <div className="min-w-0 space-y-2 md:col-span-2">
+            <Label variant="peer" className="text-sm font-medium">
+              {labels.deliveryProduct}
+            </Label>
             <SelectProduct
               value={field.value}
               onValueChange={(value) => {

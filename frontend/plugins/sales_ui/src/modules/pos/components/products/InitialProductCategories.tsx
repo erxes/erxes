@@ -1,4 +1,4 @@
-import { Form, Label } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { type ProductsFormData } from '@/pos/components/products/Products';
@@ -18,10 +18,10 @@ export const InitialProductCategories: React.FC<
       name="initialCategoryIds"
       render={({ field }) => (
         <Form.Item>
-          <Label>
-            {t('product-categories')} <span className="text-destructive">*</span>
-          </Label>
-
+          <Form.Label variant="peer" className="text-sm font-medium">
+            {t('product-categories')}{' '}
+            <span className="text-destructive">*</span>
+          </Form.Label>
           <Form.Control>
             <SelectCategory
               mode="multiple"

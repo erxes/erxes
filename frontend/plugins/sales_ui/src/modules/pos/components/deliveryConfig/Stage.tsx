@@ -6,6 +6,7 @@ import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
 import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
 import type { DeliveryConfigFormData } from './DeliveryConfig';
 import { useTranslation } from 'react-i18next';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
 interface StageProps {
   control: Control<DeliveryConfigFormData>;
@@ -19,16 +20,19 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
   const boardId = useWatch({ control, name: 'boardId' });
   const pipelineId = useWatch({ control, name: 'pipelineId' });
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Controller
           name="boardId"
           control={control}
           render={({ field }) => (
-            <div className="space-y-2">
-              <Label>{t('board')}</Label>
+            <div className="min-w-0 space-y-2">
+              <Label variant="peer" className="text-sm font-medium">
+                {t('board')}
+              </Label>
               <SelectBoardFormItem
                 value={field.value}
                 onValueChange={(val) => {
@@ -44,8 +48,10 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           name="pipelineId"
           control={control}
           render={({ field }) => (
-            <div className="space-y-2">
-              <Label>{t('PIPELINE')}</Label>
+            <div className="min-w-0 space-y-2">
+              <Label variant="peer" className="text-sm font-medium">
+                {labels.pipeline}
+              </Label>
               <SelectPipelineFormItem
                 value={field.value}
                 onValueChange={field.onChange}
@@ -60,8 +66,10 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           name="stageId"
           control={control}
           render={({ field }) => (
-            <div className="space-y-2">
-              <Label>{t('STAGE')}</Label>
+            <div className="min-w-0 space-y-2">
+              <Label variant="peer" className="text-sm font-medium">
+                {labels.stage}
+              </Label>
               <SelectStageFormItem
                 value={field.value}
                 onValueChange={field.onChange}
@@ -78,9 +86,11 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>{t('CHOOSE-MAP-FIELD')}</Label>
+            <Label variant="peer" className="text-sm font-medium">
+              {labels.mapField}
+            </Label>
             <Select value={field.value} onValueChange={field.onChange}>
-              <Select.Trigger className="w-48" disabled={fieldsLoading}>
+              <Select.Trigger className="md:w-1/3" disabled={fieldsLoading}>
                 <Select.Value
                   placeholder={fieldsLoading ? t('loading') : t('select-field')}
                 />
@@ -93,6 +103,9 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
                 ))}
               </Select.Content>
             </Select>
+            <p className="text-xs text-accent-foreground">
+              {labels.mapFieldDescription}
+            </p>
           </div>
         )}
       />

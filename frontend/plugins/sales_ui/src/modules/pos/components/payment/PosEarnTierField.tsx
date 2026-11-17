@@ -29,7 +29,9 @@ export const PosEarnTierField = ({
 
         return (
           <Form.Item>
-            <Form.Label>{t('pos-earn-tier')}</Form.Label>
+            <Form.Label variant="peer" className="text-sm font-medium">
+              {t('pos-earn-tier')}
+            </Form.Label>
             <p className="text-xs text-muted-foreground">
               {t('pos-earn-tier-hint')}
             </p>

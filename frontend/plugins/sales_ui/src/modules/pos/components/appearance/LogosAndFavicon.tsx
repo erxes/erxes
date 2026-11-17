@@ -68,7 +68,9 @@ const ImageUploadField = ({
       control={control}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label className="text-xs">{t(label)}</Form.Label>
+          <Form.Label variant="peer" className="text-sm font-medium">
+            {t(label)}
+          </Form.Label>
           <Form.Control>
             <Upload.Root
               value={typeof field.value === 'string' ? field.value : ''}
@@ -162,16 +164,15 @@ export const LogosAndFavicon: React.FC<LogosAndFaviconProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-4 gap-4">
-        {imageFields
-          .map((configField) => (
-            <ImageUploadField
-              key={configField.key}
-              control={control}
-              name={configField.key}
-              label={configField.label}
-            />
-          ))}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {imageFields.map((configField) => (
+          <ImageUploadField
+            key={configField.key}
+            control={control}
+            name={configField.key}
+            label={configField.label}
+          />
+        ))}
       </div>
     </div>
   );

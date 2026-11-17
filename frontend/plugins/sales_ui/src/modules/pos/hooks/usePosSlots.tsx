@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { mutations, queries } from '@/pos/graphql';
 import { toSlotInputs, toSlotNodes } from '@/pos/slot/slotNodes';
 import type { SlotNode } from '@/pos/slot/types';
@@ -20,8 +20,11 @@ export const usePosSlots = (posId: string) => {
     [data],
   );
 
-  const saveSlots = (nodes: SlotNode[]) =>
-    saveMutation({ variables: { posId, slots: toSlotInputs(nodes, posId) } });
+  const saveSlots = useCallback(
+    (nodes: SlotNode[]) =>
+      saveMutation({ variables: { posId, slots: toSlotInputs(nodes, posId) } }),
+    [posId, saveMutation],
+  );
 
   return { slots, loading: loading && !data, error, saving, saveSlots };
 };

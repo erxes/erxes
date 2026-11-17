@@ -7,6 +7,7 @@ import { toCatProdMappings } from '@/pos/components/products/catProdMappings';
 import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
 import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
 import { ServiceCharge } from '@/pos/components/products/ServiceCharge';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
@@ -71,6 +72,7 @@ const parseServiceCharge = (value: string): number | undefined => {
 
 const Products: React.FC<ProductsProps> = ({ posId, onSaveActionChange }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const [productGroupSaveState, setProductGroupSaveState] =
     useState<ProductGroupSaveState | null>(null);
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
@@ -240,12 +242,46 @@ const Products: React.FC<ProductsProps> = ({ posId, onSaveActionChange }) => {
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <PosSettingsSection separated title={t('initial-product-categories')}>
+          <PosSettingsSection
+            title={t('initial-product-categories')}
+            description={labels.initialCategoriesDescription}
+          >
             <InitialProductCategories control={control} />
           </PosSettingsSection>
 
-          <PosSettingsSection separated title={t('kiosk-exclude-products')}>
+          <PosSettingsSection
+            separated
+            title={t('product-groups')}
+            description={labels.productGroupsDescription}
+          >
+            <ProductGroupsList
+              posId={posId}
+              onSaveStateChange={setProductGroupSaveState}
+            />
+          </PosSettingsSection>
+
+          <PosSettingsSection
+            separated
+            title={t('kiosk-exclude-products')}
+            description={labels.kioskDescription}
+          >
             <KioskExcludeProducts control={control} />
+          </PosSettingsSection>
+
+          <PosSettingsSection
+            separated
+            title={t('remainder-configs')}
+            description={labels.remainderDescription}
+          >
+            <RemainderConfigs control={control} />
+          </PosSettingsSection>
+
+          <PosSettingsSection
+            separated
+            title={t('service-charge')}
+            description={labels.serviceChargeDescription}
+          >
+            <ServiceCharge control={control} />
           </PosSettingsSection>
 
           <PosSettingsSection
@@ -258,30 +294,12 @@ const Products: React.FC<ProductsProps> = ({ posId, onSaveActionChange }) => {
               mappings={catProdMappings}
             />
           </PosSettingsSection>
-
-          <PosSettingsSection separated title={t('remainder-configs')}>
-            <RemainderConfigs control={control} />
-          </PosSettingsSection>
-
-          <PosSettingsSection separated title={t('service-charge')}>
-            <ServiceCharge control={control} />
-          </PosSettingsSection>
         </form>
       </Form>
     );
   };
 
-  return (
-    <div className="space-y-8">
-      <PosSettingsSection title={t('product-groups')}>
-        <ProductGroupsList
-          posId={posId}
-          onSaveStateChange={setProductGroupSaveState}
-        />
-      </PosSettingsSection>
-      {renderProductSettings()}
-    </div>
-  );
+  return renderProductSettings();
 };
 
 export { Products };

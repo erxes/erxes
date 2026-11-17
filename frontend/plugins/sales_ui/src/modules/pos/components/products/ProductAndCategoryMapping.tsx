@@ -1,12 +1,13 @@
 import { useMutation } from '@apollo/client';
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, toast, useConfirm } from 'erxes-ui';
+import { IconArrowsExchange } from '@tabler/icons-react';
+import { toast, useConfirm } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from 'ui-modules';
 import {
   type CatProdMappingDraft,
   toCatProdMappingsInput,
 } from '@/pos/components/products/catProdMappings';
+import { PosItemList } from '@/pos/components/pos-edit/PosItemList';
 import { POS_CATEGORY_MAPPING_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import { mutations } from '@/pos/graphql/mutations';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
@@ -59,60 +60,19 @@ export const ProductAndCategoryMapping: React.FC<
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          disabled={!posId}
-          onClick={() => openMapping()}
-        >
-          <IconPlus />
-          {t('add-mapping')}
-        </Button>
-      </div>
-
-      {mappings.length === 0 ? (
-        <div className="py-8 text-center text-muted-foreground">
-          <p>{t('no-mappings-found')}</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {mappings.map((mapping) => (
-            <div
-              key={mapping._id}
-              className="flex items-center justify-between p-3 border rounded-lg"
-            >
-              <span className="text-sm">
-                {mapping.name || mapping.categoryId}
-              </span>
-
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  aria-label={t('edit')}
-                  onClick={() => openMapping(mapping._id)}
-                >
-                  <IconEdit size={16} />
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  aria-label={t('delete')}
-                  disabled={deleting}
-                  onClick={() => handleDelete(mapping._id)}
-                  className="text-destructive"
-                >
-                  <IconTrash size={16} />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    <PosItemList
+      items={mappings.map((mapping) => ({
+        id: mapping._id,
+        title: mapping.name || mapping.categoryId,
+      }))}
+      emptyIcon={IconArrowsExchange}
+      emptyText={t('no-mappings-found')}
+      addLabel={t('add-mapping')}
+      addDisabled={!posId}
+      deleting={deleting}
+      onAdd={() => openMapping()}
+      onEdit={openMapping}
+      onDelete={handleDelete}
+    />
   );
 };

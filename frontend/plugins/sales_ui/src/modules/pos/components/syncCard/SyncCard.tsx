@@ -1,6 +1,8 @@
-import { SyncList } from '@/pos/components/syncCard/SyncList';
+import { IconRefresh } from '@tabler/icons-react';
+import { PosItemList } from '@/pos/components/pos-edit/PosItemList';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import {
-  type CardConfig,
   type CardConfigDraft,
   toCardConfigs,
   toCardsConfigInput,
@@ -9,7 +11,7 @@ import { POS_CARD_CONFIG_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
-import { Label, toast, useConfirm } from 'erxes-ui';
+import { toast, useConfirm } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from 'ui-modules';
@@ -20,6 +22,7 @@ interface SyncCardProps {
 
 const SyncCard: React.FC<SyncCardProps> = ({ posId }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const { posDetail, loading, error } = usePosDetail(posId);
   const [posEdit, { loading: deleting }] = useMutation(mutations.posEdit);
   const { openNewRecord } = useSidePanel();
@@ -35,7 +38,7 @@ const SyncCard: React.FC<SyncCardProps> = ({ posId }) => {
     openNewRecord(POS_CARD_CONFIG_CONTENT_TYPE, { ...draft });
   };
 
-  const handleDelete = (config: CardConfig) => {
+  const handleDelete = (configId: string) => {
     if (!posId) return;
 
     confirm({
@@ -46,7 +49,7 @@ const SyncCard: React.FC<SyncCardProps> = ({ posId }) => {
           variables: {
             _id: posId,
             cardsConfig: toCardsConfigInput(
-              configs.filter(({ _id }) => _id !== config._id),
+              configs.filter(({ _id }) => _id !== configId),
             ),
           },
           refetchQueries: ['salesPosSettingsDetail'],
@@ -85,16 +88,25 @@ const SyncCard: React.FC<SyncCardProps> = ({ posId }) => {
     }
 
     return (
-      <section className="space-y-4">
-        <Label>{t('sync-cards')}</Label>
-        <SyncList
-          configs={configs}
+      <PosSettingsSection
+        title={t('sync-cards')}
+        description={labels.syncCardsDescription}
+      >
+        <PosItemList
+          items={configs.map((config) => ({
+            id: config._id,
+            title: config.title || t('untitled'),
+          }))}
+          emptyIcon={IconRefresh}
+          emptyText={t('no-configs-yet')}
+          addLabel={t('add-config')}
+          addDisabled={!posId}
           deleting={deleting}
           onAdd={() => openConfig()}
-          onEdit={(config) => openConfig(config._id)}
+          onEdit={openConfig}
           onDelete={handleDelete}
         />
-      </section>
+      </PosSettingsSection>
     );
   };
 

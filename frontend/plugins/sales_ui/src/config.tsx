@@ -21,8 +21,11 @@ import {
   POS_CATEGORY_MAPPING_CONTENT_TYPE,
   POS_COVER_CONTENT_TYPE,
   POS_CREATE_CONTENT_TYPE,
+  POS_CUSTOMER_FIELD_CONTENT_TYPE,
+  POS_CUSTOMER_LAYOUT_CONTENT_TYPE,
   POS_ORDER_CONTENT_TYPE,
   getPosCoverDetailPath,
+  getPosEditRecordPath,
   getPosOrderDetailPath,
 } from '@/pos/constants/posPanel';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
@@ -202,9 +205,21 @@ export const CONFIG: IUIConfig = {
         contentType: POS_CARD_CONFIG_CONTENT_TYPE,
         properties: false,
         draftTitle: true,
+        draftPath: getPosEditRecordPath(POS_CARD_CONFIG_CONTENT_TYPE),
       },
       {
         contentType: POS_CATEGORY_MAPPING_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+        draftPath: getPosEditRecordPath(POS_CATEGORY_MAPPING_CONTENT_TYPE),
+      },
+      {
+        contentType: POS_CUSTOMER_FIELD_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+      },
+      {
+        contentType: POS_CUSTOMER_LAYOUT_CONTENT_TYPE,
         properties: false,
         draftTitle: true,
       },

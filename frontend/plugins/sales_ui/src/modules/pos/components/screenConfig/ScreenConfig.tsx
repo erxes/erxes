@@ -5,7 +5,9 @@ import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
-import { Form, Label, toast } from 'erxes-ui';
+import { Form, toast } from 'erxes-ui';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +52,7 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
   onSaveActionChange,
 }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<ScreenConfigFormData>({
@@ -174,23 +177,18 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <section className="space-y-4">
-            <Label>{t('kitchen-screen')}</Label>
-
+          <div className="space-y-4">
             <KitchenScreen control={control} />
-          </section>
-
-          <section className="pt-6 space-y-4 border-t">
-            <Label>{t('waiting-screen')}</Label>
-
             <WaitingScreen control={control} />
-          </section>
+          </div>
 
-          <section className="pt-6 space-y-4 border-t">
-            <Label>{t('print')}</Label>
-
+          <PosSettingsSection
+            separated
+            title={t('print')}
+            description={labels.printDescription}
+          >
             <PrintConfig control={control} />
-          </section>
+          </PosSettingsSection>
         </form>
       </Form>
     );

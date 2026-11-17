@@ -12,7 +12,7 @@ import { Slots } from '@/pos/components/slots';
 import { SyncCard } from '@/pos/components/syncCard';
 import { getSteps, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
 import { IPos } from '@/pos/types/pos';
-import { cn, Spinner } from 'erxes-ui';
+import { cn, ScrollArea, Spinner } from 'erxes-ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -31,7 +31,6 @@ interface MainContentProps {
 }
 
 const FULL_HEIGHT_TABS = new Set(['slots']);
-const WIDE_TABS = new Set(['product']);
 
 const POS_EDIT_STEP_TITLES = new Map(
   getSteps().map((step) => [step.value, step.title] as const),
@@ -173,8 +172,7 @@ export const MainContent: React.FC<MainContentProps> = ({
 
   const fullHeight = FULL_HEIGHT_TABS.has(activeStep);
   const columnClassName = cn('mx-auto w-full px-6', {
-    'max-w-6xl': !fullHeight && WIDE_TABS.has(activeStep),
-    'max-w-4xl': !fullHeight && !WIDE_TABS.has(activeStep),
+    'max-w-4xl': !fullHeight,
   });
 
   return (
@@ -190,21 +188,16 @@ export const MainContent: React.FC<MainContentProps> = ({
           <div className="min-h-0 flex-1">{renderContent()}</div>
         </section>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <ScrollArea className="min-h-0 flex-1">
           <section className={cn(columnClassName, 'pt-8 pb-10')}>
             <h2 className="mb-8 text-lg font-semibold">{getTitle()}</h2>
             {renderContent()}
           </section>
-        </div>
+        </ScrollArea>
       )}
       {saveAction && (
         <footer className="shrink-0 border-t bg-background">
-          <div
-            className={cn(
-              columnClassName,
-              'flex items-center justify-end gap-3 py-3',
-            )}
-          >
+          <div className="flex items-center justify-end gap-3 px-6 py-3">
             {saveAction}
           </div>
         </footer>
