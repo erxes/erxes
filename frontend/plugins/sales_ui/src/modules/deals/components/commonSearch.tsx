@@ -47,7 +47,9 @@ export const CommonDealSearch = () => {
         />
         <DealSearchToolbar
           category={search.category}
-          hasDateFilter={Boolean(search.dateRange?.from)}
+          hasDateFilter={
+            search.category === 'date' && Boolean(search.dateRange?.from)
+          }
           hasNameFilter={search.nameSearchReady}
           hasNumberFilter={search.numberSearchReady}
           sortOrder={search.sortOrder}
