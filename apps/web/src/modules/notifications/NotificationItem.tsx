@@ -151,17 +151,27 @@ const NotificationActions = ({
   );
 };
 
-/** Who sent it, badged with the inbox it came to. */
+/** A member's face badged with the inbox it came to; for anything else, the inbox's own icon. */
 const SenderAvatar = ({
   sender,
   src,
   inbox,
+  member,
 }: {
   sender: string;
   src?: string | null;
   inbox?: Inbox;
+  member: boolean;
 }) => {
   const InboxIcon = inbox?.icon;
+
+  if (!member && InboxIcon) {
+    return (
+      <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border bg-background text-primary-text">
+        <InboxIcon className="size-4" />
+      </span>
+    );
+  }
 
   return (
     <span className="relative mt-0.5 shrink-0">
@@ -249,7 +259,12 @@ export const NotificationItem = ({
         notification.readAt === null && 'bg-primary/5',
       )}
     >
-      <SenderAvatar sender={sender} src={senderAvatar} inbox={inbox} />
+      <SenderAvatar
+        sender={sender}
+        src={senderAvatar}
+        inbox={inbox}
+        member={notification.actorType === 'user'}
+      />
       <div className="min-w-0 flex-1">
         <NotificationTitle notification={notification} onOpen={open} />
         {notification.body && (
