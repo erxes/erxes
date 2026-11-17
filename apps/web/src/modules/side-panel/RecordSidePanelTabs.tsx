@@ -2,6 +2,7 @@ import { IconChevronDown } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, PanelExpansionContext, Tabs } from 'erxes-ui';
 import { type Ref, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PanelTabList } from './PanelTabList';
 import type { IRecordSidePanelTab, RecordSidePanelTabsProps } from './recordSidePanelTypes';
 import { leadWith } from './tabOrder';
 import { useTabFit } from './useTabFit';
@@ -47,28 +48,13 @@ const TabBar = ({
     // Lines up with a list's bar (erxes-ui's ViewBar): 40px, its rule included. Never wider than its
     // container: pinning a tab moves tabs into More instead of widening the panel's holder.
     <div ref={barRef} className={cn('flex flex-none min-w-0 overflow-hidden', className)}>
-      <Tabs.List
-        aria-label={t('navigation', 'Record navigation')}
-        variant={sidebar ? 'vertical' : 'flush'}
-        className={cn('min-w-0', !sidebar && 'h-full')}
-      >
-        {visible.map((tab) => (
-          // Full row height, so the active underline lands on the row's bottom border.
-          <Tabs.Trigger
-            key={tab.value}
-            value={tab.value}
-            data-panel-tab={tab.value}
-            title={expanded ? tab.label : undefined}
-            size="sm"
-          >
-            <tab.icon
-              className={cn('size-4 shrink-0', compact && !sidebar && 'hidden')}
-              aria-hidden="true"
-            />
-            <span className={sidebar ? 'sr-only sm:not-sr-only' : undefined}>{tab.label}</span>
-          </Tabs.Trigger>
-        ))}
-      </Tabs.List>
+      <PanelTabList
+        label={t('navigation', 'Record navigation')}
+        tabs={visible}
+        sidebar={sidebar}
+        compact={compact}
+        expanded={expanded}
+      />
       {overflow.length > 0 && (
         <DropdownMenu>
           <DropdownMenu.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>

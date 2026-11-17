@@ -6,6 +6,8 @@ export interface IRecordSidePanelTab {
   label: string;
   icon: Icon;
   content: ReactNode;
+  /** A plugin's relation tab: the member drags it into place. Core's own tabs stay put. */
+  sortable?: boolean;
 }
 
 export type RecordSidePanelResizeHandleProps = {

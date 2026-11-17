@@ -2,6 +2,7 @@ import { Spinner, type TRecordContacts, type TRelationTab } from 'erxes-ui';
 import { Suspense } from 'react';
 import { ContactDetailScroll } from '~/modules/side-panel/details/ContactDetailFields';
 import type { IRecordSidePanelTab } from '~/modules/side-panel/RecordSidePanel';
+import { useRelationTabOrder } from '~/modules/side-panel/relationTabOrder';
 import { PluginBoundary } from './PluginBoundary';
 import { usePluginText } from './pluginText';
 import { usePlugins } from './usePlugins';
@@ -64,16 +65,18 @@ export const usePluginRelationTabs = ({
 }): IRecordSidePanelTab[] => {
   const { plugins } = usePlugins();
   const text = usePluginText();
+  const order = useRelationTabOrder();
 
   if (!contacts) return [];
 
-  return plugins.flatMap(({ remote, config }) =>
+  const tabs = plugins.flatMap(({ remote, config }) =>
     config.relationTabs
       .filter((tab) => showsOn(tab, contentType))
       .map((tab) => ({
         value: `${remote}:${tab.name}`,
         label: text(config.name, tab.title),
         icon: tab.icon,
+        sortable: true,
         content: (
           <RelationTabContent
             plugin={config.name}
@@ -85,4 +88,6 @@ export const usePluginRelationTabs = ({
         ),
       })),
   );
+
+  return order.sort(tabs, (tab) => tab.value);
 };

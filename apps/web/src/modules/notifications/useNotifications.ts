@@ -12,11 +12,17 @@ import { messageOf, orpc } from '@erxes/core-contract/client';
 import { forwardPaging } from '~/lib/cursorList';
 import { useLivePolling } from '~/lib/live';
 import { pluginLabel } from '~/lib/members';
+import { savedOrderState, useSavedOrder } from '~/lib/savedOrder';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
 /** `core` is erxes' own inbox; every plugin has one under its name. */
-const CORE_INBOX = 'core';
+export const CORE_INBOX = 'core';
+
+/** The plugin inboxes in the order the member dragged them; erxes' own stays first. */
+const inboxOrderState = savedOrderState('erxes:notifications:inbox-order');
+
+export const useInboxOrder = () => useSavedOrder(inboxOrderState);
 
 /**
  * Unread notifications, in total and per inbox. Core's database may sit behind
@@ -139,21 +145,26 @@ const configFor = (plugins: ReturnType<typeof usePlugins>['plugins'], source: st
 
 /**
  * Every inbox the member has, like Atlassian's per-product inboxes: erxes'
- * own first, then each plugin that notified them (or that they muted).
+ * own first, then each plugin that notified them (or that they muted), in the order they
+ * dragged them into, else by name.
  */
 export const useInboxes = (): Inbox[] => {
   const { plugins } = usePlugins();
   const { settings } = useNotificationSettings();
   const { bySource } = useUnreadCounts();
+  const order = useInboxOrder();
 
-  const sources = [
-    ...new Set([
-      ...(settings?.groups ?? []).filter((group) => group.plugin).map((group) => group.key),
-      ...Object.keys(bySource),
-    ]),
-  ]
-    .filter((source) => source !== CORE_INBOX)
-    .toSorted((a, b) => a.localeCompare(b));
+  const sources = order.sort(
+    [
+      ...new Set([
+        ...(settings?.groups ?? []).filter((group) => group.plugin).map((group) => group.key),
+        ...Object.keys(bySource),
+      ]),
+    ]
+      .filter((source) => source !== CORE_INBOX)
+      .toSorted((a, b) => a.localeCompare(b)),
+    (source) => source,
+  );
 
   return [
     { source: CORE_INBOX, label: 'erxes', icon: OrgLogoIcon },
