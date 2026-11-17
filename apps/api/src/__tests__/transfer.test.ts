@@ -82,6 +82,15 @@ describe('reading files and suggesting columns', () => {
   });
 });
 
+/** An editor paragraph block with the text. */
+const paragraph = (text: string) => ({
+  id: text || 'empty',
+  type: 'paragraph',
+  props: {},
+  content: text ? [{ type: 'text', text, styles: {} }] : [],
+  children: [],
+});
+
 describe('import and export of contacts', { timeout: 300_000 }, () => {
   useTestDatabase();
 
@@ -304,5 +313,61 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
 
     // Exports are in the audit log.
     expect((await t.owner().audit.list({ action: 'contacts.exported' })).data).toHaveLength(3);
+  });
+
+  it('writes descriptions as their text and reads text back as editor paragraphs', async () => {
+    await t.owner().companies.create({
+      primaryName: 'Blocks LLC',
+      description: JSON.stringify([
+        paragraph('Supplies chairs'),
+        paragraph(''),
+        paragraph('- VIP'),
+      ]),
+    });
+    await t.owner().companies.create({
+      primaryName: 'Html LLC',
+      description: '<p>Tom &amp; Jerry</p><p>Second</p>',
+    });
+
+    const sheet = await t.owner().transfer.createExport({
+      recordType: 'company',
+      format: 'csv',
+      columns: ['primaryName', 'description'],
+    });
+
+    await settle();
+
+    const [header, ...rows]: string[][] = parse(
+      (await exported(sheet.id)).toString('utf8').slice(1),
+    );
+
+    expect(header).toEqual(['Name', 'Description']);
+    const ours = rows.filter((row) => row[0]?.endsWith(' LLC'));
+
+    expect(ours.toSorted((a, b) => (a[0] ?? '').localeCompare(b[0] ?? ''))).toEqual([
+      ['Blocks LLC', 'Supplies chairs\n\n- VIP'],
+      ['Html LLC', 'Tom & Jerry\nSecond'],
+    ]);
+
+    const file = await upload(
+      'companies.csv',
+      Buffer.from('Name,Description\nLines LLC,"First line\nSecond line"\n'),
+    );
+
+    const { id } = await t
+      .owner()
+      .transfer.createImport({ recordType: 'company', fileId: file.id });
+
+    await settle();
+    await t.owner().transfer.startImport({ id });
+    await settle();
+
+    const [lines] = (await t.owner().companies.list({ search: 'Lines LLC' })).data;
+    const stored: unknown = JSON.parse(lines?.description ?? 'null');
+
+    expect(stored).toMatchObject([
+      { type: 'paragraph', content: [{ type: 'text', text: 'First line' }] },
+      { type: 'paragraph', content: [{ type: 'text', text: 'Second line' }] },
+    ]);
   });
 });

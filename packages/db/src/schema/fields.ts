@@ -89,6 +89,8 @@ export const fields = pgTable(
       .notNull(),
     /** Shown where records show (table columns, record panel). */
     isVisible: boolean().default(true).notNull(),
+    /** Listed in list filters; a plugin's rollup a relation filters by better is a column only. */
+    filterable: boolean().default(true).notNull(),
     order: integer().default(0).notNull(),
     /**
      * The plugin that declared it in its manifest and writes its values; members only read it.

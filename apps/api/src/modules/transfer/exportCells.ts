@@ -14,6 +14,7 @@ import { stringify } from 'csv-stringify/sync';
 import { eq, inArray, sql } from 'drizzle-orm';
 import writeXlsxFile from 'write-excel-file/node';
 import { defuse } from '~/lib/csv';
+import { editorText } from '~/lib/editorText';
 import { customCell } from './columns';
 
 export type Cell = string | number | Date | null;
@@ -118,6 +119,9 @@ export const pageCells = async (
       if (key === 'companies') return (relations.companies.get(row.id) ?? []).join('; ');
 
       if (key === 'customerCount') return relations.customerCounts.get(row.id) ?? 0;
+
+      if (key === 'description')
+        return typeof row.description === 'string' ? editorText(row.description) : '';
 
       return plainCell(row[key]);
     }),

@@ -100,9 +100,13 @@ export const relationFields = async (
               ? DATE_MEASURES
               : [];
 
-        return measures.map(([measure, word]) =>
-          spec(measure, `${relation.label}: ${field.label} (${word})`, field),
-        );
+        const offered = field.measures ? new Set<RelationMeasure>(field.measures) : undefined;
+
+        return measures
+          .filter(([measure]) => !offered || offered.has(measure))
+          .map(([measure, word]) =>
+            spec(measure, `${relation.label}: ${field.label} (${word})`, field),
+          );
       }),
     ];
   });

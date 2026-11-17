@@ -5,6 +5,7 @@ import {
   type PLUGIN_FIELD_TYPES,
   PLUGIN_STATUSES,
   type RELATION_FIELD_TYPES,
+  type RELATION_MEASURES,
   type TAX_RECEIPT_ISSUERS,
 } from '../enums';
 import { sql } from 'drizzle-orm';
@@ -38,6 +39,8 @@ export interface StoredPluginRelation {
     options?: string[];
     array?: boolean;
     money?: boolean;
+    /** The measures the filter offers; all that fit the type when absent. */
+    measures?: Exclude<(typeof RELATION_MEASURES)[number], 'count'>[];
   }[];
 }
 
@@ -108,6 +111,8 @@ export interface StoredPluginManifest {
     type: (typeof PLUGIN_FIELD_TYPES)[number];
     options?: string[];
     description?: string;
+    /** `false`: a column and sort key only, not in list filters. */
+    filterable?: boolean;
   }[];
   /**
    * Its records that belong to customers or companies, read from its view `view` (`record_id`

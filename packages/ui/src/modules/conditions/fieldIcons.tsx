@@ -4,6 +4,7 @@ import {
   IconHash,
   IconLetterCase,
   IconList,
+  IconPackage,
   IconSelector,
   IconTags,
   IconToggleLeft,
@@ -22,6 +23,7 @@ const FIELD_ICONS: Partial<Record<string, typeof IconHash>> = {
   tags: IconTags,
   customer: IconUserCircle,
   company: IconBuilding,
+  product: IconPackage,
   list: IconList,
 };
 

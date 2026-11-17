@@ -12,7 +12,8 @@ export const PLUGIN_VALUES_MAX = 500;
 
 /**
  * A field a plugin keeps on customers or companies (a rollup: `total_spent`, `last_order_at`).
- * Core stores it as a custom field members filter, sort and save views by, and shows read-only;
+ * Core stores it as a custom field members filter (unless `filterable` is false), sort and save
+ * views by, and shows read-only;
  * the plugin writes its values with `fields.setPluginValues`. Select types need `options`.
  */
 export const PluginField = z
@@ -25,6 +26,11 @@ export const PluginField = z
     type: z.enum(PLUGIN_FIELD_TYPES),
     options: z.array(z.string().trim().min(1).max(200)).max(100).optional(),
     description: z.string().trim().max(1000).optional(),
+    /**
+     * `false`: a column and sort key, not in list filters, where the plugin's `relations` filter
+     * by the same records better ("Orders: count, only paid orders" over a paid-orders rollup).
+     */
+    filterable: z.boolean().optional(),
   })
   .refine(
     (field) => (field.type !== 'select' && field.type !== 'multiselect') || !!field.options?.length,

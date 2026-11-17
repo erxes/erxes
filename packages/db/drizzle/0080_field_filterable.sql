@@ -1,0 +1,1 @@
+ALTER TABLE "core_fields" ADD COLUMN "filterable" boolean DEFAULT true NOT NULL;

@@ -1,10 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { useContactOptions, useMemberOptions, useTagOptions } from '../pickers/LookupPicker';
+import {
+  useContactOptions,
+  useMemberOptions,
+  useProductOptions,
+  useTagOptions,
+} from '../pickers/LookupPicker';
 import type { TConditionField, TConditionLookups } from './conditions';
 
 /**
  * What a choice field picks from, with labels: its `options`, the team ("Me" first), the
- * record type's tags, or customers or companies matching `search` (`searched`: the server
+ * record type's tags, or customers, companies or products matching `search` (`searched`: the server
  * searches). `picked` are the ids a rule holds, so a member who left still has a name.
  */
 export const useFieldOptions = (
@@ -25,6 +30,8 @@ export const useFieldOptions = (
     search,
   );
 
+  const products = useProductOptions(lookups.products, type === 'product', picked, search);
+
   if (type === 'member') {
     return {
       ...members,
@@ -36,6 +43,8 @@ export const useFieldOptions = (
   if (type === 'tags') return { ...tags, searched: false };
 
   if (type === 'customer' || type === 'company') return { ...contacts, searched: true };
+
+  if (type === 'product') return { ...products, searched: true };
 
   return { options: field?.options ?? [], loading: false, error: null, searched: false };
 };
