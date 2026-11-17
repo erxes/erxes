@@ -435,6 +435,7 @@
     "name": "Нэр",
     "name-placeholder": "Үүнийг юу ашиглах вэ?",
     "expires": "Дуусах",
+    "expired": "Хугацаа дууссан",
     "in-days_one": "{{count}} хоногийн дараа",
     "in-days_other": "{{count}} хоногийн дараа",
     "never": "Хэзээ ч үгүй",

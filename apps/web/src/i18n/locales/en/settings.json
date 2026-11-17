@@ -445,6 +445,7 @@
     "name": "Name",
     "name-placeholder": "What uses this key?",
     "expires": "Expires",
+    "expired": "Expired",
     "in-days_one": "In {{count}} day",
     "in-days_other": "In {{count}} days",
     "never": "Never",
