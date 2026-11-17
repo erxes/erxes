@@ -46,6 +46,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
 - `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
+- `type TCheckedListType` `T` when core can keep views of it, else the rule it breaks.
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
 - `type TListDisplayOption { key, label, icon }` A list's own display, such as a cards grid or a chart.
 - `type TListFilterField { path, label, type, options, icon, … }` A field a list can filter by, for `ListFilter`'s `fields`.

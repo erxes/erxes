@@ -41,6 +41,7 @@ type RecordPanelControls
 type RecordRef
 type RecordTableColumnDef
 type RecordTimelineProps
+type TCheckedListType
 type TConditionField
 type TConditionGroup
 type TConditionLookups

@@ -12,11 +12,12 @@ import {
 } from 'erxes-ui';
 import { createStore, Provider } from 'jotai';
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
-import { act, createElement, type ReactNode } from 'react';
+import { act, createElement, type ReactNode, Suspense } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
+import { afterEach, beforeAll, describe, expect, expectTypeOf, it, vi } from 'vite-plus/test';
 import { I18nextProvider } from 'react-i18next';
 import { i18n, i18nReady } from '~/i18n';
+import { LIST_VIEWS } from '~/modules/views/listViews';
 
 let root: Root | undefined;
 
@@ -89,6 +90,51 @@ describe('a plugin list’s bar', () => {
 
     expect(container.querySelector('[aria-current="page"]')?.textContent).toBe('All deals');
     expect(container.textContent).toContain('filter');
+  });
+
+  it('does not compile a record type core can’t store, so a plugin can’t ship one', () => {
+    type ViewBarType<T extends string> = Parameters<typeof ViewBar<T>>[0]['recordType'];
+
+    type ListFilterType<T extends string> = Parameters<typeof ListFilter<T>>[0]['recordType'];
+
+    type Books = `accounting:transaction_${'cash' | 'sale_return'}`;
+
+    type Hyphened = `accounting:transaction_${'cash' | 'sale-return'}`;
+
+    expectTypeOf<'sales:deal'>().toExtend<ViewBarType<'sales:deal'>>();
+    expectTypeOf<Books>().toExtend<ViewBarType<Books>>();
+    expectTypeOf<Books>().toExtend<ListFilterType<Books>>();
+    expectTypeOf<Hyphened>().not.toExtend<ViewBarType<Hyphened>>();
+    expectTypeOf<Hyphened>().not.toExtend<ListFilterType<Hyphened>>();
+    expectTypeOf<'Sales:deal'>().not.toExtend<ViewBarType<'Sales:deal'>>();
+    expectTypeOf<`sales:${string}`>().not.toExtend<ViewBarType<`sales:${string}`>>();
+  });
+
+  it('keeps a list with a record type core can’t store working: "All …" alone, the cause in the console', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    // The chunk the lazy tabs fetch, loaded first so the wait below is for the render alone.
+    await import('~/modules/views/PluginListViews');
+
+    // The tabs web gives every plugin list, as a plugin built before the type check reaches them.
+    const container = await render(
+      createElement(
+        Suspense,
+        null,
+        createElement(LIST_VIEWS.Tabs, {
+          recordType: 'accounting:transaction_sale-return',
+          allLabel: 'Sale return',
+        }),
+      ),
+    );
+
+    await vi.waitFor(() => expect(container.textContent).toBe('Sale return'));
+    expect(container.querySelector('[aria-current="page"]')).not.toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledWith(
+      expect.stringContaining('accounting:transaction_sale-return'),
+    );
   });
 
   it('draws core’s filter bar on the plugin’s fields, a choice by its label, in web’s language', async () => {

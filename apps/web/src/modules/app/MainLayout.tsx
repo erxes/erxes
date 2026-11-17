@@ -1,5 +1,5 @@
 import { ListViewsProvider, Sidebar } from 'erxes-ui';
-import { lazy, type PropsWithChildren, Suspense } from 'react';
+import { type PropsWithChildren, Suspense } from 'react';
 import { PageOutlet } from '~/components/CrashBoundary';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { useLiveUpdates } from '~/lib/live';
@@ -9,14 +9,7 @@ import { PlanBanner } from '~/modules/saas/PlanBanner';
 import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
 import { PanelRecordOpener } from '~/modules/side-panel/PanelRecordOpener';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
-
-/** Saved views for plugins' lists, loaded when a list with a record type first shows. */
-const LIST_VIEWS = {
-  Tabs: lazy(async () => ({ default: (await import('~/modules/views/ViewTabs')).ViewTabs })),
-  Changes: lazy(async () => ({
-    default: (await import('~/modules/views/ViewControls')).ViewChanges,
-  })),
-};
+import { LIST_VIEWS } from '~/modules/views/listViews';
 
 /** Plugins' floating widgets, a chunk of their own so the shell stays as small. */
 const PluginFloatingWidgets = lazyNamed(
