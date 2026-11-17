@@ -983,6 +983,11 @@ owns the setup form and connection actions.
   `RecordSidePanel expanded expandedMode="page" expandable={false}`: a
   `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`,
   then `TicketPageFields`
+  `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`
+  (`PageHeader.End` is always rendered; `RecordSidePanel`'s `minimizeTo`
+  `{ frontline:ticket, /frontline/tickets }` makes it end with the shared
+  minimize button, back to the tickets list with the ticket in the side
+  panel), then `TicketPageFields`
   beside Description, Properties and Activity tabs, the name edited above the
   fields with `TicketPanelName`. Deleting the ticket from the page replaces it
   with `/frontline/tickets`; a missing ticket shows the panel's empty state.

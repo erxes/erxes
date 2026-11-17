@@ -5,23 +5,19 @@ import type {
 } from '~/gql/graphql';
 
 import { ADD_DEALS } from '@/deals/graphql/mutations/DealsMutations';
-import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
 import { toast } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 export function useDealsAdd(
   options?: MutationHookOptions<DealsAddMutation, DealsAddMutationVariables>,
 ) {
   const { t } = useTranslation('sales');
-  const [defaultValues] = useAtom(dealCreateDefaultValuesState);
 
   const [addDeals, { loading, error }] = useMutation(ADD_DEALS, {
     ...options,
     variables: {
       ...options?.variables,
       aboveItemId: '',
-      stageId: defaultValues?.stageId,
     },
     awaitRefetchQueries: true,
     onCompleted: (...args) => {

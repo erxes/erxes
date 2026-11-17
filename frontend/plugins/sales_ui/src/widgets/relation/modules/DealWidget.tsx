@@ -8,7 +8,7 @@ export const DealWidget = ({ dealId }: { dealId: string }) => {
   const { loading, deal } = useDealDetail({ variables: { _id: dealId } });
 
   if (loading) {
-    return <Spinner containerClassName="py-20" />;
+    return <Spinner containerClassName="py-6" />;
   }
 
   if (!deal) return <div>{t('no-deal-found')}</div>;
