@@ -1,6 +1,5 @@
 import {
   Button,
-  Collapsible,
   Dialog,
   Form,
   Input,
@@ -17,37 +16,7 @@ import { instagramConfigSchema } from '../constants/IgConfigSchema';
 import { z } from 'zod';
 import { useInstagramGetConfigs } from '../hooks/useInstagramGetConfigs';
 import { useEffect } from 'react';
-import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
-import { INTEGRATIONS } from '@/integrations/constants/integrations';
-import { IntegrationType } from '@/types/Integration';
-import { getPluginAssetsUrl } from 'erxes-ui';
 import { SecretInput } from '@/integrations/components/SecretInput';
-
-export const InstagramConfigUpdateCollapse = () => {
-  return (
-    <Collapsible className="w-full bg-muted rounded-lg">
-      <Collapsible.Trigger asChild>
-        <Button
-          variant="secondary"
-          className="w-full h-auto flex justify-start group bg-transparent hover:bg-transparent gap-3 px-3 font-semibold"
-        >
-          <Collapsible.TriggerIcon className="text-accent-foreground" />
-          <IntegrationLogo
-            img={getPluginAssetsUrl(
-              'frontline',
-              INTEGRATIONS[IntegrationType.INSTAGRAM_MESSENGER].img,
-            )}
-            name={INTEGRATIONS[IntegrationType.INSTAGRAM_MESSENGER].name}
-          />
-          Instagram
-        </Button>
-      </Collapsible.Trigger>
-      <Collapsible.Content className="shadow-xs rounded-lg p-3 bg-background">
-        <InstagramConfigUpdate />
-      </Collapsible.Content>
-    </Collapsible>
-  );
-};
 
 export const InstagramConfigUpdate = () => {
   const { t } = useTranslation('frontline', {

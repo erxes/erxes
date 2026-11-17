@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-16`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -17,7 +17,8 @@
 - Inbox surfaces: conversation list, conversation detail, message input, the
   inbox navigation sub-groups, response templates, and integration
   configuration screens.
-- Channel settings (list, detail, members, integrations) and channel forms.
+- Channel settings (list, the channel workspace with members, pipelines,
+  forms, surveys, response templates and integrations) and channel forms.
 - The `Move to channel` action on every channel-owned resource: integrations,
   ticket pipelines, forms, surveys and response templates.
 - Integration connect/detail UIs for Mail, Facebook, Instagram, Discord, Telegram,
@@ -248,6 +249,17 @@
 - Telegram Disconnect remains available after a webhook status failure. It
   reports local deactivation separately from unconfirmed provider cleanup and
   refetches active setup/integration queries; status errors remain inline.
+- Integrations config (`/frontline/settings/config`) uses the channel
+  workspace layout: a `Providers` rail (`IntegrationConfigNav`, built on the
+  shared `WorkspaceRail` and `IntegrationNavLink`) beside one provider pane at
+  `/config/:provider` — `facebook`, `instagram`, `telegram`, `call`, `mail`.
+  `useConfigProviders` is the catalogue; Facebook and Instagram are hidden for
+  SaaS organizations, and an unknown or hidden provider redirects to the index,
+  which opens the first available one. Each pane shows the provider logo, title
+  and a one-line purpose above the provider's own config component
+  (`FacebookConfigUpdate`, `InstagramConfigUpdate`, `TelegramConfig`,
+  `CallConfigUpdate`, `MailConfigUpdate`); there are no collapsible wrappers.
+  Mail onboarding and `MailSendingRequired` link straight to `/config/mail`.
 - Integrations config includes a Telegram section with setup instructions and
   links to personal and team inbox settings. Each bot is configured through
   the shared integration record panel; no workspace-wide bot credentials are
@@ -381,8 +393,7 @@
   `Create survey` button on the right, the sub-header holds only the status/search
   filters and the record count, and the page renders a `RecordTable` list, the
   per-row results dialog, and a command bar that archives or removes a
-  selection. The channel detail page reaches it through the
-  `Manage channel surveys` row.
+  selection. It is the `Surveys` section of the channel workspace.
 - A survey requested by a client portal user arrives as `pending` and is
   approved from this list. The status filter offers `pending` alongside
   `active` and `archived`, `FormStatus.Badge` renders `pending` as a warning
@@ -484,8 +495,11 @@
   ticket record panel's actions view and in the `TicketDetailPage` header; the
   fields row carries no actions. The
   notification ticket view's `Open ticket` button opens the same record panel.
-  `TicketPanelDetail` shows linked customers and companies through
-  `ContactRecordChip`, opening each contact with stacked navigation.
+  `TicketPanelDetail` shows the ticket's one customer and one company through
+  ui-modules `ContactsRelationField`: each chip opens the contact with stacked
+  navigation, and the picker sets or clears `customerId` / `companyId` through
+  `updateTicket` (evicting cached `getTickets` lists). Without edit permission
+  the field is read-only.
   While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
@@ -591,9 +605,17 @@
 - Channel creation from either the settings page or the Team inbox group; the
   form sends no `scope`, so the API creates a `team` channel.
 - A `Personal channel` settings route (`/frontline/settings/personal-channel`)
-  acting as the profile for the user's private inbox: name, icon, description,
-  and its integrations — the same catalogue a team channel offers. Opening it is
-  what provisions the channel — there is no create button anywhere for personal
+  acting as the profile for the user's private inbox, laid out as the same
+  channel workspace as a team channel (`PersonalChannelLayout`): the rail
+  carries a `Private` badge, a single **General** section
+  (`/personal-channel/general`, the index redirects there) with the inline
+  name/icon/description form and no Danger zone, and the Connected/Available
+  integration catalogue a team channel offers, opening at
+  `/personal-channel/details/:id/:integrationType`; an `:id` other than the
+  user's personal channel redirects to the same path for their own channel.
+  There are no Members,
+  Pipelines, Forms, Surveys or Response templates sections. Opening it is what
+  provisions the channel — there is no create button anywhere for personal
   channels.
 - Channel member management, integration attachment, and per-channel forms,
   pipelines, and response templates.
@@ -750,6 +772,62 @@
   instead of the component skipping the hook. A hook after the "select a page"
   return changes the hook count when the page is picked and crashes the bot
   sheet with React error #310.
+- A channel opens as one workspace: a left rail
+  (`channel-workspace/ChannelWorkspaceNav`) beside the active section, both
+  under the pathless layout route `ChannelWorkspaceLayout`. The rail shows the
+  channel's icon, name and description, a `Channel`
+  group of sections from `CHANNEL_SECTIONS` — General, Members, Pipelines,
+  Forms, Surveys, Response templates, each list section with its count from
+  `useChannelSectionCounts` — and the integration catalogue split into
+  `Connected` (kinds with at least one integration in the channel, with a count
+  and a red dot when any of them is unhealthy) and `Available`, plus an
+  `N of M connected` footer. Sections and integrations are links to the
+  existing routes (`/:id/general`, `/:id/members`, `/:id/pipelines`, `/:id/forms`,
+  `/:id/surveys`, `/:id/response`, `details/:id/:integrationType`), rendered
+  inside the layout's `Outlet`, so the rail never unmounts, deep links and
+  browser history keep working, and section chunks load under the layout's own
+  `Suspense`. `/:id` renders Members and marks it active. Full-page flows —
+  form and survey create/detail, form submissions, response detail and the
+  pipeline redirect — stay outside the layout. The rail's integration data is
+  `ChannelIntegrationsPeek` grouped by `groupIntegrationKinds`. The peek reads
+  `CHANNEL_INTEGRATIONS_PEEK_LIMIT` (100, the API's page maximum) through its
+  `$limit` variable; when the channel holds more, the rail footer says the
+  counts cover only the first page instead of showing them as complete. Do not
+  switch the rail to `integrationsTotalCount.byKind`: it skips the private
+  integration visibility filter the `integrations` list applies. The catalogue
+  is `useIntegrationEntries` (Call Pro only when enabled), shared with
+  `IntegrationList`. Member counts come from `GetChannelMembers` (active
+  members only, `isActiveChannelMember`), so adding or removing a member
+  updates the rail.
+- Channel editing lives in the workspace's **General** section
+  (`/:id/general`, `ChannelGeneralSection`); the channel list's `Edit` action
+  navigates there instead of opening a panel. It renders `UpdateChannelForm`
+  inline: name with its icon picker on one row, an optional description, and
+  a footer with `Discard` / `Save changes` enabled only while the form is
+  dirty. Users who are neither the workspace owner nor a channel admin
+  (`useCanManageChannels`) see the fields disabled with a lock notice and no
+  Danger zone. The Danger zone deletes the channel through `useChannelDelete`
+  (typed `delete` confirmation, error toast, then back to the channel list).
+  The `frontline:channel` record panel still edits an existing channel with
+  the same fields for direct `?panel=` links.
+- The inline General form's Discard resets the form to the saved values,
+  which also removes its draft (`usePanelFormDraft`'s watcher deletes a draft
+  that matches the defaults), so a discarded edit never returns on remount;
+  `shared/hooks/__tests__/usePanelFormDraft.spec.tsx` covers this.
+- Every string the channel workspace, General section, channel forms and
+  Integrations config render has a key in both
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (`modules.channels.*`,
+  and `modules.integrations.*` for `config-*` and `providers`). Add new copy to
+  both files with the same placeholders; the inline `t(key, default)` fallback
+  is English only.
+- `ChannelForm` is the one set of channel fields, shared by the create panel,
+  `UpdateChannelForm` (`withMembers={false}`) and the ticket channel select's
+  inline create. Create shows a one-line intro, autofocuses the name, offers
+  `Add teammates` with the hint that the creator joins as channel admin (the
+  API adds the creator as admin and drops them from `memberIds`), and submits
+  as `Create channel`. `CHANNEL_SCHEMA` requires a non-blank, trimmed name.
+  `IconPicker` keeps internal state, so `ChannelForm` keys it by the field
+  value to show resets and discards.
 - The channel list's integrations cell opens a popover
   (`ChannelIntegrationsPeek`, query `ChannelIntegrationsPeek`) listing every
   integration of that channel with kind, Facebook page names and health —
@@ -873,7 +951,7 @@ provider flags at those existing entry points.
 `TelegramMessageAttachments.tsx` only adds the Cloudflare Stream player and
 media open links; native audio/video/image/file rendering remains shared within
 Frontline. No separate Telegram editor or reply atom is needed.
-`TelegramConfig.tsx` provides the Integrations config entry and links to the
+`TelegramConfig.tsx` provides the Integrations config pane and links to the
 existing personal/team inbox routes, where `TelegramIntegrationDetail.tsx`
 owns the setup form and connection actions.
 
@@ -897,7 +975,8 @@ owns the setup form and connection actions.
 | Sidebar counts            | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                                 | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                                                        |
 | Live unread               | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                                                                                                 |
 | Channel settings          | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                                                       |
-| Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                                                    |
+| Integrations config       | `src/modules/integrations-config/`, `src/pages/IntegrationConfigPage.tsx`                                                                         | Config route tree, providers rail and catalogue, per-provider pane                                                                                                           |
+| Personal channel          | `src/modules/channels/components/settings/channel-workspace/PersonalChannelLayout.tsx`, `src/pages/PersonalChannelPage.tsx`                       | Personal channel workspace: route tree (General, integrations) and its rail                                                                                                  |
 | Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                                             |
 | Integrations              | `src/modules/integrations/`                                                                                                                       | Provider catalog, add/edit record panels, setup, recovery and connection actions                                                                                             |
 | Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Record panels over shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                                                    |
@@ -910,7 +989,7 @@ owns the setup form and connection actions.
 | Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                                                |
 | Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                                               |
 | Survey wizard state       | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`  | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                                                       |
-| Surveys channel row       | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                     | `Manage channel surveys` row on the channel detail page                                                                                                                      |
+| Channel workspace         | `src/modules/channels/components/settings/channel-workspace/`, `src/modules/channels/constants/channelSections.ts`                                | Channel layout route, left rail (sections, Connected/Available integrations, summary) and the section catalogue                                                             |
 | Surveys results           | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                                                    |
 | Surveys data              | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                                                           |
 | Send survey               | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                                                     |
@@ -1688,7 +1767,10 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   clears the edit identity even while detail is loading, and edit hydration
   must match both the requested id and the active editor.
 - Integration create/update/delete/repair/move mutations refetch
-  `ChannelIntegrationsPeek` alongside `Integrations`.
+  `ChannelIntegrationsPeek` alongside `Integrations` — including
+  `useIntegrationAdd`, the Facebook and Instagram setups and Telegram's
+  refresh — because the channel workspace rail reads its Connected/Available
+  groups from it.
 - `ChannelIntegrationsPeek` never selects `instagramPage`: that resolver calls
   Graph with a user token and spends the shared app quota.
 - Customer media is recognised by its URL (`isUnverifiedAttachment` in
@@ -2589,6 +2671,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Anything that creates, removes, or archives an integration must refetch
   `IntegrationsGetUsedTypes` and `IntegrationsGetUsedTypesByChannel`, or the
   sidebar keeps listing a type that no longer exists.
+- The team channel workspace (`ChannelWorkspaceLayout`) redirects a channel
+  whose `scope` is `personal` into the personal tree — integration routes to
+  `/personal-channel/details/:id/:integrationType`, everything else to
+  `/personal-channel` — so a personal channel never shows Members or the other
+  team sections. `GetChannel` selects `scope` for this. Workspace rails share
+  `ChannelWorkspaceNav`, configured by a section list
+  (`CHANNEL_SECTIONS` / `PERSONAL_CHANNEL_SECTIONS`) and
+  `getChannelWorkspacePaths` / `getPersonalChannelWorkspacePaths`.
+  `IntegrationRecordPanel` falls back to either integration route pattern.
 - Never expose a scope picker or a "create personal channel" action. Personal
   channels are provisioned lazily by the API when `GetPersonalChannel` is read
   or an integration is created without a channel; the UI only ever reads one.
@@ -3353,6 +3444,21 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and confirm the second request has no previous ID.
   Delete A, open B while pending and confirm B stays open; keep A selected and
   confirm its stacked parent returns.
+
+- Channel workspace smoke: open a channel, switch between every section and
+  several integrations and confirm the rail stays put and the URL follows;
+  add a member, pipeline, form and integration and confirm the rail's counts
+  and Connected group update without a refresh; open an unknown channel id and
+  confirm the not-found state. From the channel list choose `Edit` and land on
+  General; change the icon and name, Discard, then Save and confirm the rail
+  header updates; as a non-admin confirm the fields are locked. Open Personal
+  channel and confirm it lands on General with the `Private` badge and no
+  Members section; connect an integration there and confirm the URL stays under
+  `/personal-channel`; open `/frontline/settings/channels/<personal id>` and
+  confirm it redirects to the personal workspace. Open Integrations config,
+  switch providers and confirm the rail stays put and the URL follows; as a
+  SaaS organization confirm Facebook and Instagram are absent and
+  `/config/facebook` redirects.
 
 - `frontline_ui:build` explicitly depends on `erxes-ui:build` and
   `frontline_ui:codegen`. Keep those project dependencies explicit: shared

@@ -33,6 +33,7 @@ export const ChannelSettingsBreadcrumb = () => {
   const isChannelDetailOrSubRoute =
     isMatchingLocation(FrontlinePaths.ChannelDetails) ||
     isMatchingLocation(FrontlinePaths.ChannelMembers) ||
+    isMatchingLocation(FrontlinePaths.ChannelGeneral) ||
     isAnyPipelineRoute ||
     isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`);
 

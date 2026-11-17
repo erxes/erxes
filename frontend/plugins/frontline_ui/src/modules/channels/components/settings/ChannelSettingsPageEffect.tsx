@@ -17,7 +17,8 @@ export const ChannelSettingsPageEffect = () => {
         setHotkeyScope(ResponseHotkeyScope.ResponseDetail);
         break;
       }
-      case isMatchingLocation(FrontlinePaths.ChannelMembers): {
+      case isMatchingLocation(FrontlinePaths.ChannelMembers):
+      case isMatchingLocation(FrontlinePaths.ChannelDetails): {
         setHotkeyScope(ChannelHotKeyScope.ChannelMembersPage);
         break;
       }
@@ -31,10 +32,6 @@ export const ChannelSettingsPageEffect = () => {
       }
       case isMatchingLocation(FrontlinePaths.ChannelIntegrations): {
         setHotkeyScope(ChannelHotKeyScope.ChannelIntegrationsPage);
-        break;
-      }
-      case isMatchingLocation(FrontlinePaths.ChannelDetails): {
-        setHotkeyScope(ChannelHotKeyScope.ChannelDetailPage);
         break;
       }
       default: {

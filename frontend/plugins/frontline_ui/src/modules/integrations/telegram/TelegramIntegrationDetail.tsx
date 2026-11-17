@@ -463,6 +463,7 @@ export const TelegramSetup = ({
       'IntegrationsTotalCount',
       'IntegrationsGetUsedTypes',
       'IntegrationsGetUsedTypesByChannel',
+      'ChannelIntegrationsPeek',
       'GetMyChannels',
     ]);
     await client.refetchQueries({
