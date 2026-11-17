@@ -19,6 +19,7 @@ on:
         type: number
         default: 4
       timeout-minutes:
+        description: Minutes a branch run's runner may take; a pull request's stops at 60.
         type: number
         default: 180
       issue-branch:
@@ -77,7 +78,7 @@ jobs:
     needs: plan
     if: needs.plan.outputs.count != '0'
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ inputs.timeout-minutes }}
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 60 || inputs.timeout-minutes }}
     permissions:
       contents: read
     strategy:
@@ -122,7 +123,7 @@ jobs:
       - uses: actions/cache/restore@v6
         with:
           path: .scratch/mutation/previous.json
-          key: mutation-${{ github.sha }}
+          key: mutation-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: mutation-
       - name: Stryker
         run: |
@@ -165,7 +166,7 @@ jobs:
       - uses: actions/cache/restore@v6
         with:
           path: ${{ env.MERGED_OUT }}
-          key: mutation-${{ github.sha }}
+          key: mutation-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: mutation-
       - uses: actions/download-artifact@v8
         with:
@@ -183,8 +184,9 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       # Saved even when a shard or the issue update failed: the next run redoes only what is missing.
+      # Named by run, not commit, since a saved cache is never replaced; the newest one is restored.
       - uses: actions/cache/save@v6
         if: ${{ !cancelled() && env.MODE == 'full' && hashFiles(env.MERGED_OUT) != '' }}
         with:
           path: ${{ env.MERGED_OUT }}
-          key: mutation-${{ github.sha }}
+          key: mutation-${{ github.run_id }}-${{ github.run_attempt }}
