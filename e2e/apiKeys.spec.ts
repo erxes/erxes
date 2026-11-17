@@ -40,7 +40,7 @@ test('an owner makes a read-only key and tries it', async ({ page }) => {
   await expectAccessible(page);
 
   await page.goto('/settings/api-keys');
-  await expect(page.getByRole('link', { name: new RegExp(name) })).toContainText(
+  await expect(page.getByRole('row', { name: new RegExp(name) })).toContainText(
     'only from 203.0.113.7',
   );
 });
