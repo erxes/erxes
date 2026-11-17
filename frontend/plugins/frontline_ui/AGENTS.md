@@ -49,7 +49,8 @@
   step-based create/edit wizard, archive, remove), the results board and the
   create wizard on the main `frontline/surveys` route, and the composer dialog
   that posts a saved survey into a messenger conversation.
-- Knowledge base UI: a topic tree sidebar beside every knowledge base page —
+- Knowledge base UI: a topic tree group in the main Frontline sidebar on every
+  knowledge base page —
   each topic collapses open to its categories (nested by parent, with article
   counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
   routes: record tables with inline editing, filters, command bar bulk delete,
@@ -130,6 +131,32 @@
   panels with explicit Save, scoped in-memory drafts, independent placement
   history and a supported Activity empty state. Save waits for media uploads;
   failed uploads release the pending operation and keep existing media intact.
+  The article record panel adds a Media tab beside Detail and Activity for
+  image, attachment, and PDF uploads; Detail and Media expose Save/Cancel
+  for the same article form and share its validation and upload guard. The
+  required Knowledge Base label is truncated to one line with a tooltip.
+  Knowledge base panel selects
+  (topic, category, parent category, icon, status, language, reaction choices)
+  use borderless panel triggers: `variant="table"` on `SelectKbTopic`,
+  `SelectKbCategory` and `IconPicker`, `PANEL_INPUT_CLASS_NAME` on `Select`
+  triggers. Summary and Content follow the panel description style: an
+  `IconAlignLeft` label and a borderless field that fills on hover. Detail
+  places the Summary and Content editors after publishing controls; on the full-screen page they move into a
+  right-hand Content tab (the default tab) and render full width only in that
+  tab. The panel's expand button opens the
+  article's full-screen page (`/frontline/knowledgebase/articles/:articleId`,
+  or `/frontline/knowledgebase/:topicId/articles/:articleId` when opened from a
+  topic's article list). Saving there keeps the user on the article, Cancel
+  clears the retained draft and remounts the form in place, invalidating pending
+  uploads, and deleting the article returns to its
+  topic's article list. The page breadcrumb links Knowledge Base, the topic
+  and Articles, and ends with the article title. Its header end holds the same
+  `KbRecordActions` menu as the panel (Duplicate, Delete) followed by the
+  public minimize button (`RecordSidePanel` `minimizeTo`), which returns to
+  the topic's article list with the article open in the side panel. The
+  article's topic is resolved by `useArticleTopicId` (its own `topicId`, else
+  its category's first topic) for the panel, page breadcrumb, minimize target
+  and duplication alike.
 - Help Center creation/editing uses the shared record panel, retaining General,
   Appearance, Embed and Domain behavior with scoped in-memory drafts, confirmed
   create continuation and full-config conflict confirmation.
@@ -1072,9 +1099,15 @@ pipelineIds?, pageIds? } }` (`frontlineDashboardConfig.ts`); view mode turns
   `./recordPanel` exposes the named `RecordPanel` at
   `src/widgets/record-panel/RecordPanel.tsx`; it lazy-loads
   `KnowledgeBaseRecordPanel` for those six types and ignores unsupported types.
-  The views are title, actions, new, Detail and Activity. Activity has an explicit
+  The views are title, actions, new, Detail and Activity, plus the article
+  `media` tab (`ARTICLE_MEDIA_TAB`, label key `kb-media`). The article type sets
+  `detailPath` to `getArticleDetailPath`, which keeps the topic from a
+  `/frontline/knowledgebase/:topicId/articles` pathname and otherwise returns
+  the topic-less article route. Activity has an explicit
   supported empty state because the available Frontline history API is
   ticket-specific. `KnowledgeBaseDetailLink` consumes legacy `editId` links.
+  The actions view renders `shared/components/KbRecordActions`, which the
+  article page reuses; its `onRemoved` lets a page leave a deleted record.
 - `CONFIG.widgets.recordPanels` also registers `frontline:helpcenter`, with
   `properties: false` and `draftTitle: true`. `./recordPanel` exposes the named
   `RecordPanel` at `src/widgets/record-panel/RecordPanel.tsx`; it lazy-loads
@@ -1464,6 +1497,18 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Each saved article has exactly one mounted `ArticleDrawer` form. Its Media
+  tab and the page's Content tab render only `ArticleMediaSlot`, which
+  registers a DOM node in `articleMediaSlotsState` under
+  `getArticleSlotKey(articleId, tab)`; `ArticleDrawer` portals its media fields
+  inside `KbFormSheet` with the same submit/cancel handlers and upload/save locks,
+  and Summary/Content (`contentTab`) there. Both form views share one React Hook
+  Form provider and draft owner. Media renders inline only when the drawer has
+  no Media tab (create flow); Summary/Content render inline only when the drawer
+  has no Content tab.
+  Never mount a second `ArticleDrawer` for the same article, because both
+  would write the same draft key.
 
 - `FRONTLINE_DASHBOARD_WIDGETS` must list only keys of `reportComponents`,
   `ticketReportComponents` or `facebookReportComponents` in its `group`; a
@@ -2823,11 +2868,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   reintroduce a `?topicId=` selection. A sidebar category links to its topic's
   `articles` route with the existing `categoryId` filter param, so the sidebar
   and the filter bar chip always show the same selection. `categoryId` and
-  `status` remain filters. `createTopic=true` is consumed by the sidebar;
+  `status` remain filters. `createTopic=true` is consumed by
+  `KnowledgeBaseNavigations`;
   `KnowledgeBaseDetailLink` replaces legacy `editId` with a panel URL.
-- `KnowledgeBaseLayout` renders `sidebar/components/KnowledgeBaseSidebar` on
-  every knowledge base page, including the index; there is no topics card grid
-  or topics table. The index redirects to the first topic's `articles` route,
+- `FrontlineSubGroups` renders `sidebar/components/KnowledgeBaseNavigations`
+  for every `/frontline/knowledgebase` route (including article pages), like
+  `TicketNavigations` on Tickets; `KnowledgeBaseLayout` is only a
+  `PageContainer` with header and has no sidebar of its own. There is no
+  topics card grid or topics table. The index redirects to the first topic's `articles` route,
   carrying the query string so `?createTopic=true` from the Frontline
   navigation still opens the topic record panel; with no topics it shows
   `TopicsEmptyState`.
@@ -2841,26 +2889,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   categories) without the search/brand filters — the articles search box must
   never filter the tree. Article, category and topic writes all refetch
   `TOPICS`, so tree titles and per-category article counts stay live.
-- The sidebar is an erxes-ui `Sidebar.Panel` (collapsible, `w-60`, its own
-  open state) without a `label`, laid out like the `AppLayout` sidebar on
-  the Tickets/Forms pages: `KnowledgeBaseLayout` puts the panel full height to
-  the left of the `PageContainer`, so its first row — "Knowledge Base"
-  (`text-sm font-medium`, `h-12` to line up with `PageHeader`) with a `size-8`
-  `Sidebar.PanelTrigger`, with the ghost `+` (new topic) beside it — sits
-  beside the page header, followed by a `Separator` that continues the page
-  header's rule. There is no second "Knowledge bases" heading under it; the
-  panel's built-in `label` is not used either, because its mono face differs
-  from the other headings. When collapsed the panel still portals its expand trigger
-  into the page header's `data-sidebar-panel-slot`.
-  The panel resizes like the `erxes-ui` `AppLayout` sidebar: `sidebar/components/KbResizeHandle`
-  (same drag/keyboard/double-click behaviour) sits on its right edge —
-  drag or arrow keys between `KB_SIDEBAR_MIN_WIDTH` (180) and
-  `KB_SIDEBAR_MAX_WIDTH` (480), double-click to reset. The width lives in
-  `kbSidebarWidthAtom` (`atomWithStorage` under `frontline:kb-sidebar-width`,
-  `null` = the panel's default `w-60`) and is passed as an inline `width`;
-  the panel's width transition is switched off while `kbSidebarResizingAtom`
-  is set, and its collapsed `w-0!` still wins over the inline width. The panel
-  keeps its children mounted while collapsed. The `+` opens a topic draft
+- The tree is a `NavigationMenuGroup` titled "Knowledge Base" (key
+  `knowledge-base`) whose hover action, wrapped in `NavigationGroupActions`, is
+  a ghost `+` (`kb-new-topic`). It has no panel, resize handle or stored
+  width; the main Frontline sidebar owns layout and collapse.
+  The `+` opens a topic draft
   using `openNewRecord`; category creation and editing use the corresponding
   record panel, reusing `TopicDrawer` and `CategoryDrawer` as form bodies. A topic
   row has one `...` button, shown on hover, that opens a dropdown through
@@ -2911,13 +2944,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   menu. Deleting the selected category returns to its topic's articles.
   Category deletion goes through `useConfirmRemoveCategory`, shared with the
   categories table.
-- `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
-  are navigated from the knowledge base's own sidebar panel, never from a
-  second navigation column.
+- Topics are navigated only from the `KnowledgeBaseNavigations` group in the
+  main Frontline sidebar; never add a second knowledge base sidebar column.
 - `TopicDrawer`, `CategoryDrawer` and `ArticleDrawer` are panel form bodies.
   `KbFormSheet` renders a real form around the public `PanelFormLayout`; fields
   use `KbFormSection` and `KbFormItem`, with the layout supplying scrolling and
-  Save/Cancel controls. Only an explicitly typed submit button saves: implicit
+  Save/Cancel controls. In a panel each `KbFormSection` after the first draws a
+  divider and a small muted heading (article: Publishing, Content, Media;
+  category: Placement; topic: Appearance); the first section — the record's
+  own identity fields (article General, category General, topic General) —
+  keeps its heading screen-reader only. Outside a panel sections stay
+  `InfoCard`s. Only an explicitly typed submit button saves: implicit
   buttons inside selectors must not submit the containing form. Single-line
   `KbTextField` inputs prevent implicit Enter submission before the browser can activate an
   untyped chip removal button. Textarea newlines, IME composition and combobox
@@ -3462,6 +3499,10 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open or play, external media stays covered until revealed, and no upload or
   removal control appears. Repeat while permission queries load or fail, then
   confirm an assigned user can edit a private pipeline when its status allows.
+- Knowledge base full-screen smoke: expand an article from a topic's list —
+  the header shows the actions menu and minimize; minimize lands on that
+  topic's articles with the article in the side panel; Delete from the page
+  returns to the list; Duplicate keeps the user on the article.
 - Knowledge base panel smoke: open article/category/topic drafts, edit fields,
   visit Activity or another record, then return and confirm edits remain.
   Switch create placement, use Back/Forward, change a background filter and

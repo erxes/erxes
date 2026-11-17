@@ -2,19 +2,23 @@ import {
   Combobox,
   Command,
   PopoverScoped,
+  RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTopicOptions } from '@/knowledgebase/topics/hooks/useTopics';
+import { KbOverflowText } from '@/knowledgebase/shared/components/KbOverflowText';
 
 export const SelectKbTopic = ({
   value,
   onValueChange,
+  variant = 'form',
   scope,
 }: {
   value?: string;
   onValueChange: (topicId: string) => void;
+  variant?: 'form' | 'table';
   scope?: string;
 }) => {
   const { t } = useTranslation('frontline', {
@@ -24,6 +28,8 @@ export const SelectKbTopic = ({
   const { topics, loading } = useTopicOptions();
 
   const selected = topics.find((topic) => topic._id === value);
+  const label =
+    selected?.title || t('kb-select-topic', 'Select a knowledge base');
 
   const handleSelect = (topicId: string) => {
     onValueChange(topicId);
@@ -32,13 +38,15 @@ export const SelectKbTopic = ({
 
   return (
     <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger className="w-full h-8 font-medium">
-        <TextOverflowTooltip
-          value={
-            selected?.title || t('kb-select-topic', 'Select a knowledge base')
-          }
-        />
-      </Combobox.Trigger>
+      {variant === 'table' ? (
+        <RecordTableInlineCell.Trigger>
+          <KbOverflowText value={label} />
+        </RecordTableInlineCell.Trigger>
+      ) : (
+        <Combobox.Trigger className="w-full h-8 font-medium">
+          <TextOverflowTooltip value={label} />
+        </Combobox.Trigger>
+      )}
       <Combobox.Content>
         <Command>
           <Command.Input
