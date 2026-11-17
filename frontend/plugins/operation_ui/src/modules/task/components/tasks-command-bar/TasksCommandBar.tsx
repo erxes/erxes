@@ -204,6 +204,7 @@ export const TasksCommandBar = () => {
                 tasks={tasksData}
                 setOpen={setOpen}
                 currentTeamId={teamId}
+                onSuccess={() => table.toggleAllRowsSelected(false)}
               />
             )}
             {currentContent === 'status' && statusTeamId && (

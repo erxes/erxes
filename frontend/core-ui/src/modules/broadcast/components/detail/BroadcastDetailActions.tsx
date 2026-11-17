@@ -12,14 +12,16 @@ import {
   IconPencil,
   IconPlayerPauseFilled,
   IconPlayerPlayFilled,
+  IconPrinter,
 } from '@tabler/icons-react';
 import { Button, Dialog, DropdownMenu, Spinner } from 'erxes-ui';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ApprovalLockForm,
   ApprovalRequestAccessButton,
   Can,
+  PrintDocument,
   useApprovalLock,
   usePermissionCheck,
 } from 'ui-modules';
@@ -27,9 +29,13 @@ import {
 export const BroadcastDetailActions = () => {
   const { t } = useTranslation('broadcasts');
   const { t: approvalT } = useTranslation('approval');
-  const { messageId, message, refetch } = useBroadcastDetail();
+  const { t: documentsT } = useTranslation('documents', {
+    keyPrefix: 'document',
+  });
+  const { messageId, message, error, refetch } = useBroadcastDetail();
   const { hasActionPermission } = usePermissionCheck();
   const trigger = useRef<HTMLButtonElement>(null);
+  const [printOpen, setPrintOpen] = useState(false);
   const actions = useBroadcastCampaignActions(message ?? null);
   const lockState = message?.approvalLockState;
   const lock = useApprovalLock({
@@ -39,7 +45,13 @@ export const BroadcastDetailActions = () => {
     onChanged: () => refetch(),
   });
   const canStart = actions.canGoLive || actions.canResume;
+  const canPrint =
+    Boolean(message) &&
+    !error &&
+    !actions.locked &&
+    hasActionPermission('documentsRead');
   const hasActions =
+    canPrint ||
     hasActionPermission('approvalLocksManage') ||
     (actions.canCopy && hasActionPermission('broadcastCreate')) ||
     (hasActionPermission('broadcastUpdate') &&
@@ -76,10 +88,16 @@ export const BroadcastDetailActions = () => {
             align="end"
             className="min-w-48"
             onCloseAutoFocus={(event) => {
-              if (lock.open || actions.scheduleDialog.open)
+              if (lock.open || actions.scheduleDialog.open || printOpen)
                 event.preventDefault();
             }}
           >
+            {canPrint && (
+              <DropdownMenu.Item onSelect={() => setPrintOpen(true)}>
+                <IconPrinter />
+                {documentsT('print')}
+              </DropdownMenu.Item>
+            )}
             <Can action="approvalLocksManage">
               <DropdownMenu.Item
                 disabled={lock.loading || (lock.isLocked && !lock.canRelease)}
@@ -147,6 +165,15 @@ export const BroadcastDetailActions = () => {
             )}
           </DropdownMenu.Content>
         </DropdownMenu>
+      )}
+      {canPrint && (
+        <PrintDocument
+          items={[]}
+          contentType="core:broadcast"
+          open={printOpen}
+          onOpenChange={setPrintOpen}
+          trigger={null}
+        />
       )}
       <Can action="approvalLocksManage">
         <Dialog open={lock.open} onOpenChange={lock.setOpen}>
