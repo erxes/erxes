@@ -83,7 +83,15 @@ export const useViewState = (recordType: ViewListType) => {
       (current.search ?? null) !== (query.search || null)
     : filtered;
 
-  return { views, error: viewsList.error, current, changed, filtered, query };
+  return {
+    views,
+    error: viewsList.error,
+    retry: () => void viewsList.refetch(),
+    current,
+    changed,
+    filtered,
+    query,
+  };
 };
 
 export const useViewMutations = (recordType: ViewListType) => {

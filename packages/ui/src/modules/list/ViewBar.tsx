@@ -6,6 +6,60 @@ import { TabButton } from '../../components/tabs';
 /** A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`). */
 export type TPluginListType = `${string}:${string}`;
 
+type TLetter =
+  | 'a'
+  | 'b'
+  | 'c'
+  | 'd'
+  | 'e'
+  | 'f'
+  | 'g'
+  | 'h'
+  | 'i'
+  | 'j'
+  | 'k'
+  | 'l'
+  | 'm'
+  | 'n'
+  | 'o'
+  | 'p'
+  | 'q'
+  | 'r'
+  | 's'
+  | 't'
+  | 'u'
+  | 'v'
+  | 'w'
+  | 'x'
+  | 'y'
+  | 'z';
+
+type TKeyChar = TLetter | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '_';
+
+type TIsKeyTail<S extends string> = S extends ''
+  ? true
+  : S extends `${TKeyChar}${infer Rest}`
+    ? TIsKeyTail<Rest>
+    : false;
+
+type TIsKey<S extends string> = S extends `${TLetter}${infer Rest}` ? TIsKeyTail<Rest> : false;
+
+type TListTypeRule = '<plugin>:<record>: lower case letters, digits and _, known as written';
+
+/**
+ * `T` when core can keep views of it, else the rule it breaks.
+ * Both parts are lower case letters, digits and `_`, starting with a letter, as core's
+ * `views.recordType` stores them. So `sales:sale-return`, `Sales:deal` or a value typed only as
+ * `string` fails the plugin's type check instead of the member's list.
+ */
+export type TCheckedListType<T extends string> = T extends `${infer Plugin}:${infer Record}`
+  ? TIsKey<Plugin> extends true
+    ? TIsKey<Record> extends true
+      ? T
+      : TListTypeRule
+    : TListTypeRule
+  : TListTypeRule;
+
 /** The props of the host's saved-view tabs: the list and its "All …" label. */
 export type TViewTabsProps = { recordType: TPluginListType; allLabel: string };
 
@@ -50,7 +104,7 @@ export const ListViewsProvider = ({
  * that list show as tabs, as on core's lists; without it the list has one view, "All …"
  * (`allLabel`).
  */
-export const ViewBar = ({
+export const ViewBar = <const T extends string = never>({
   allLabel,
   recordType,
   tabs,
@@ -58,7 +112,7 @@ export const ViewBar = ({
 }: {
   allLabel: string;
   /** The list's record type, `<plugin>:<record>`: its saved views show as tabs. */
-  recordType?: TPluginListType;
+  recordType?: TCheckedListType<T>;
   /** Tabs of the list's own instead. */
   tabs?: ReactNode;
   /** The list's filter. */

@@ -12,9 +12,11 @@ import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 
 /** Saved views for plugins' lists, loaded when a list with a record type first shows. */
 const LIST_VIEWS = {
-  Tabs: lazy(async () => ({ default: (await import('~/modules/views/ViewTabs')).ViewTabs })),
+  Tabs: lazy(async () => ({
+    default: (await import('~/modules/views/PluginListViews')).PluginViewTabs,
+  })),
   Changes: lazy(async () => ({
-    default: (await import('~/modules/views/ViewControls')).ViewChanges,
+    default: (await import('~/modules/views/PluginListViews')).PluginViewChanges,
   })),
 };
 

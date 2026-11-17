@@ -263,6 +263,7 @@ export { ConditionsEditor } from './modules/conditions/LazyConditionsEditor';
 
 export {
   ListViewsProvider,
+  type TCheckedListType,
   type TListViews,
   type TPluginListType,
   type TViewTabsProps,

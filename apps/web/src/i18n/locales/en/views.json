@@ -34,6 +34,7 @@
   "count_one": "{{formatted}} record",
   "save-description": "Saves the filter and search; it always shows the latest records.",
   "save-failed": "Could not save the view",
+  "load-failed": "Views didn’t load · Retry",
   "filter": {
     "label": "Filter",
     "row": "Filters",

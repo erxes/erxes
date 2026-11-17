@@ -122,6 +122,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      (`recordType="sales:deal"`): web provides the tabs and the save through `ListViewsProvider`,
      core stores the view (`views.recordType` takes `<plugin>:<record>`), and the plugin's API
      applies its filter. The prop, the address key `view` and that type's shape are the contract.
+     The prop's type (`TCheckedListType`) fails the plugin's type check on a type core can't
+     store (`sales:sale-return`, or one typed only as `string`), and web shows such a list with
+     "All …" alone and names the type in the console.
      `DisplayMenu` and `useListDisplay` take built-in displays and the list's own
      (`TListDisplayOption`: `key`, `label`, `icon`), and keep the chosen key per `list` in the
      browser: a list's name and its displays' keys are the contract.

@@ -6,7 +6,7 @@ import { Button } from '../../components/button';
 import { Empty } from '../../components/empty';
 import type { TConditionLookups } from '../conditions/conditions';
 import { useListConditions } from './filter/listFilterQuery';
-import { type TPluginListType, useListViews } from './ViewBar';
+import { type TCheckedListType, useListViews } from './ViewBar';
 
 /**
  * The bar, fetched the first time a list renders one: erxes-ui is one shared chunk every route
@@ -59,7 +59,7 @@ export type TListFilterField = {
 };
 
 /** The props of `ListFilter`: its `id`, `fields`, lookups and record count. */
-export type TListFilterProps = TConditionLookups & {
+export type TListFilterProps<T extends string = never> = TConditionLookups & {
   /** Unique per list, e.g. `sales-deals`: its menu's hotkey scope. */
   id: string;
   fields: TListFilterField[];
@@ -78,7 +78,7 @@ export type TListFilterProps = TConditionLookups & {
    * The list's record type, `<plugin>:<record>`, as its `ViewBar` has it: while the list differs
    * from its saved view, the bar offers to reset it or save it as a view.
    */
-  recordType?: TPluginListType;
+  recordType?: TCheckedListType<T>;
 };
 
 /**
@@ -92,7 +92,10 @@ export type TListFilterProps = TConditionLookups & {
  * `productSearchQueries` from `@erxes/core-contract/client` and the
  * tags query of the record type; outside erxes, the plugin's own.
  */
-export const ListFilter = ({ recordType, ...props }: TListFilterProps) => {
+export const ListFilter = <const T extends string = never>({
+  recordType,
+  ...props
+}: TListFilterProps<T>) => {
   const [barRef] = useAutoAnimate({ duration: 150 });
   const host = useListViews();
   const status = props.status ?? (recordType && host && <host.Changes recordType={recordType} />);
