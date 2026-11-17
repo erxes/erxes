@@ -1,169 +1,27 @@
 import { useQuery } from '@apollo/client';
-import {
-  IconCopy,
-  IconCode,
-  IconDotsVertical,
-  IconSettings,
-  IconTrash,
-} from '@tabler/icons-react';
-import {
-  Button,
-  DropdownMenu,
-  Empty,
-  Skeleton,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
-import { ReactNode, useState } from 'react';
+import { Empty, Skeleton, Spinner } from 'erxes-ui';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { IRecordPanelProps, useSidePanel } from 'ui-modules';
 import { ArticleDrawer } from '@/knowledgebase/articles/components/ArticleDrawer';
+import { ArticleMediaSlot } from '@/knowledgebase/articles/components/ArticleMediaSlot';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
-import {
-  useDuplicateArticle,
-  useRemoveArticles,
-} from '@/knowledgebase/articles/hooks/useArticleMutations';
+import { useArticleTopicId } from '@/knowledgebase/articles/hooks/useArticleTopicId';
 import { CategoryDrawer } from '@/knowledgebase/categories/components/CategoryDrawer';
-import { useConfirmRemoveCategory } from '@/knowledgebase/categories/hooks/useConfirmRemoveCategory';
 import {
+  ARTICLE_MEDIA_TAB,
   KB_RECORD_CONTENT_TYPES,
   KB_DRAFT_CONTENT_TYPES,
-  KNOWLEDGE_BASE_PATH,
 } from '@/knowledgebase/constants';
 import { CATEGORY_DETAIL } from '@/knowledgebase/graphql/queries';
-import { TopicEmbedScriptDialog } from '@/knowledgebase/shared/components/TopicEmbedScriptDialog';
-import { useKbConfirmRemove } from '@/knowledgebase/shared/hooks/useKbConfirmRemove';
+import {
+  KbRecordActions,
+  TKbRecordKind,
+} from '@/knowledgebase/shared/components/KbRecordActions';
 import { useKbPanelCreatePlacement } from '@/knowledgebase/shared/hooks/useKbPanelCreatePlacement';
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
 import { TopicDrawer } from '@/knowledgebase/topics/components/TopicDrawer';
 import type { IArticleDetail } from '@/knowledgebase/types';
-
-type TKbKind = keyof typeof KB_RECORD_CONTENT_TYPES;
-
-const KnowledgeBasePanelActions = ({
-  kind,
-  id,
-  title,
-  topicId,
-  article,
-}: {
-  kind: TKbKind;
-  id: string;
-  title?: string | null;
-  topicId: string;
-  article?: IArticleDetail;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.knowledgebase',
-  });
-  const navigate = useNavigate();
-  const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
-  const { duplicateArticle, loading: duplicating } =
-    useDuplicateArticle(topicId);
-  const { removeArticles, loading: removingArticle } = useRemoveArticles();
-  const { confirmRemoveCategory, loading: removingCategory } =
-    useConfirmRemoveCategory();
-  const confirmRemove = useKbConfirmRemove();
-  const [scriptOpen, setScriptOpen] = useState(false);
-  const [pending, setPending] = useState(false);
-  const disabled =
-    pending || duplicating || removingArticle || removingCategory;
-
-  const handleDelete = async () => {
-    if (disabled) return;
-    try {
-      if (kind === 'category') {
-        await confirmRemoveCategory({ _id: id, title }, () => {
-          if (categoryId === id) setCategoryId(null);
-        });
-      } else if (kind === 'article') {
-        await confirmRemove({
-          message: t('kb-confirm-delete-article', {
-            title: title || t('kb-untitled-article', 'Untitled article'),
-            defaultValue: 'Are you sure you want to delete "{{title}}"?',
-          }),
-          removedMessage: t('kb-article-deleted', 'Article deleted'),
-          remove: async () => {
-            setPending(true);
-            try {
-              await removeArticles([id]);
-            } finally {
-              setPending(false);
-            }
-          },
-        });
-      }
-    } catch {
-      return;
-    }
-  };
-
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            disabled={disabled}
-            aria-label={t('actions', {
-              keyPrefix: '',
-              defaultValue: 'Actions',
-            })}
-          >
-            <IconDotsVertical />
-          </Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end">
-          {article && (
-            <DropdownMenu.Item
-              disabled={disabled}
-              onSelect={() => duplicateArticle(article)}
-            >
-              <IconCopy /> {t('kb-duplicate', 'Duplicate')}
-            </DropdownMenu.Item>
-          )}
-          {kind === 'topic' && (
-            <>
-              <DropdownMenu.Item
-                disabled={disabled}
-                onSelect={() => setScriptOpen(true)}
-              >
-                <IconCode /> {t('kb-embed-script-title', 'Embed script')}
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                onSelect={() =>
-                  navigate(`${KNOWLEDGE_BASE_PATH}/${id}/kbsettings`)
-                }
-              >
-                <IconSettings /> {t('settings', 'Settings')}
-              </DropdownMenu.Item>
-            </>
-          )}
-          {kind !== 'topic' && (
-            <DropdownMenu.Item
-              className="text-destructive"
-              disabled={disabled}
-              onSelect={handleDelete}
-            >
-              <IconTrash /> {t('delete', 'Delete')}
-            </DropdownMenu.Item>
-          )}
-        </DropdownMenu.Content>
-      </DropdownMenu>
-      {kind === 'topic' && (
-        <TopicEmbedScriptDialog
-          topicId={id}
-          open={scriptOpen}
-          onOpenChange={setScriptOpen}
-          t={t}
-        />
-      )}
-    </>
-  );
-};
 
 const KnowledgeBasePanelView = ({
   kind,
@@ -176,7 +34,7 @@ const KnowledgeBasePanelView = ({
   article,
   children,
 }: {
-  kind: TKbKind;
+  kind: TKbRecordKind;
   record?: { _id: string; title?: string | null };
   loading: boolean;
   error?: Error;
@@ -199,7 +57,7 @@ const KnowledgeBasePanelView = ({
   }
   if (view === 'actions') {
     return record ? (
-      <KnowledgeBasePanelActions
+      <KbRecordActions
         kind={kind}
         id={contentId}
         title={record.title}
@@ -251,17 +109,10 @@ const ArticlePanel = (props: IRecordPanelProps) => {
   const { article, loading, error } = useArticleDetail(props.contentId);
   const { close } = useSidePanel();
   const {
-    data: placement,
+    topicId,
     loading: placementLoading,
     error: placementError,
-  } = useQuery(CATEGORY_DETAIL, {
-    variables: { _id: article?.categoryId || '' },
-    skip: !article?.categoryId || Boolean(article.topicId),
-  });
-  const topicId =
-    article?.topicId ||
-    placement?.knowledgeBaseCategoryDetail?.firstTopic?._id ||
-    '';
+  } = useArticleTopicId(article);
 
   return (
     <KnowledgeBasePanelView
@@ -273,16 +124,20 @@ const ArticlePanel = (props: IRecordPanelProps) => {
       loading={loading || placementLoading}
       error={error || placementError}
     >
-      {article && (
-        <ArticleDrawer
-          key={article._id}
-          articleId={article._id}
-          article={article}
-          topicId={topicId}
-          categoryId={article.categoryId || ''}
-          onClose={close}
-        />
-      )}
+      {article &&
+        (props.view === 'tab' && props.tab === ARTICLE_MEDIA_TAB ? (
+          <ArticleMediaSlot key={article._id} articleId={article._id} />
+        ) : (
+          <ArticleDrawer
+            key={article._id}
+            articleId={article._id}
+            article={article}
+            topicId={topicId}
+            categoryId={article.categoryId || ''}
+            mediaTab
+            onClose={close}
+          />
+        ))}
     </KnowledgeBasePanelView>
   );
 };

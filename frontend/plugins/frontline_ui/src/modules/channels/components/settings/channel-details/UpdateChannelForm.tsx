@@ -1,22 +1,67 @@
 import { SettingsPanelFooter } from '@/settings/components/SettingsPanelForm';
+import { ChannelForm } from '@/channels/components/settings/channels-list/ChannelForm';
 import { useChannelsForm } from '@/channels/hooks/useChannelsForm';
 import { IChannelDetail, TChannelForm } from '@/channels/types';
 import { useChannelUpdate } from '@/channels/hooks/useChannelUpdate';
 import { channelPanelDraftsState } from '@/channels/states';
 import { usePanelFormDraft } from '@/shared/hooks/usePanelFormDraft';
-import { Button, Form, IconPicker, Input, Textarea, useToast } from 'erxes-ui';
+import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import { SubmitHandler } from 'react-hook-form';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+
+type TUpdateChannel = Pick<
+  IChannelDetail,
+  '_id' | 'name' | 'description' | 'icon'
+>;
+
+const InlineFormFooter = ({
+  dirty,
+  busy,
+  onDiscard,
+}: {
+  dirty: boolean;
+  busy: boolean;
+  onDiscard: () => void;
+}) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
+
+  return (
+    <div className="flex items-center gap-2 border-t bg-muted/30 px-4 py-2.5">
+      <span
+        className="mr-auto text-xs text-muted-foreground"
+        aria-live="polite"
+      >
+        {dirty
+          ? t('unsaved-changes', 'Unsaved changes')
+          : t('all-changes-saved', 'All changes saved')}
+      </span>
+      <Button
+        type="button"
+        variant="ghost"
+        disabled={!dirty || busy}
+        onClick={onDiscard}
+      >
+        {t('discard', 'Discard')}
+      </Button>
+      <Button type="submit" disabled={!dirty || busy}>
+        {busy && <Spinner size="sm" />}
+        {t('save-changes', 'Save changes')}
+      </Button>
+    </div>
+  );
+};
 
 export const UpdateChannelForm = ({
   channel,
   onCancel,
   onCompleted,
+  readOnly = false,
 }: {
-  channel: Pick<IChannelDetail, '_id' | 'name' | 'description' | 'icon'>;
+  channel: TUpdateChannel;
   onCancel?: () => void;
   onCompleted?: () => void;
+  readOnly?: boolean;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { toast } = useToast();
@@ -29,7 +74,7 @@ export const UpdateChannelForm = ({
   const form = useChannelsForm({
     defaultValues: values,
   });
-  const { dirtyFields } = form.formState;
+  const { dirtyFields, isDirty, isSubmitting } = form.formState;
   const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
     usePanelFormDraft({
       form,
@@ -37,6 +82,7 @@ export const UpdateChannelForm = ({
       values,
       draftsState: channelPanelDraftsState,
     });
+  const busy = loading || saving || isSubmitting;
 
   const submitHandler: SubmitHandler<TChannelForm> = React.useCallback(
     async (data) => {
@@ -52,7 +98,7 @@ export const UpdateChannelForm = ({
         },
         onCompleted: () => {
           endSave(saveId);
-          toast({ title: t('success', 'Success!') });
+          toast({ title: t('channel-saved', 'Channel saved') });
           if (markSaved(data, submittedValues) && isActive()) onCompleted?.();
         },
         onError: (error) => {
@@ -80,80 +126,46 @@ export const UpdateChannelForm = ({
     ],
   );
 
-  return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(submitHandler)}
-        className="flex flex-col gap-2 size-full"
-      >
-        <div className="flex w-full gap-4">
-          <div className="shrink-0">
-            <Form.Field
-              control={form.control}
-              name="icon"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('icon', 'Icon')}</Form.Label>
-                  <Form.Description className="sr-only">
-                    {t('icon', 'Icon')}
-                  </Form.Description>
-                  <Form.Control>
-                    <IconPicker
-                      onValueChange={field.onChange}
-                      value={field.value ?? undefined}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+  if (onCancel) {
+    return (
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(submitHandler)}
+          className="flex flex-1 min-h-0 flex-col"
+        >
+          <div className="flex-1 min-h-0 overflow-y-auto p-4">
+            <ChannelForm form={form} withMembers={false} disabled={readOnly} />
           </div>
-          <div className="flex-1">
-            <Form.Field
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('name', 'Name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-        </div>
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('description', 'Description')}</Form.Label>
-              <Form.Control>
-                <Textarea {...field} />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        {onCancel ? (
           <SettingsPanelFooter
             onCancel={() => {
               clearDraft();
               onCancel();
             }}
             cancelLabel={t('cancel', 'Cancel')}
-            submitLabel={t('update', 'Update')}
-            loading={loading || saving || form.formState.isSubmitting}
+            submitLabel={t('save-changes', 'Save changes')}
+            loading={busy}
+            disabled={readOnly || !isDirty}
           />
-        ) : (
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={loading || saving || form.formState.isSubmitting}
-            >
-              {t('update', 'Update')}
-            </Button>
-          </div>
+        </form>
+      </Form>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(submitHandler)}
+        className="overflow-hidden rounded-lg border bg-background"
+      >
+        <div className="p-4">
+          <ChannelForm form={form} withMembers={false} disabled={readOnly} />
+        </div>
+        {!readOnly && (
+          <InlineFormFooter
+            dirty={isDirty}
+            busy={busy}
+            onDiscard={() => form.reset(values)}
+          />
         )}
       </form>
     </Form>

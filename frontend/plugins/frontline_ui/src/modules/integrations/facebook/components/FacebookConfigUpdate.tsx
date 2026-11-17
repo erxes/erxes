@@ -1,13 +1,8 @@
-import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
-import { INTEGRATIONS } from '@/integrations/constants/integrations';
-import { IntegrationType } from '@/types/Integration';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
-  Collapsible,
   Dialog,
   Form,
-  getPluginAssetsUrl,
   Input,
   Skeleton,
   Spinner,
@@ -23,32 +18,6 @@ import { facebookConfigSchema } from '../constants/FbConfigSchema';
 import { useFacebookGetConfigs } from '../hooks/useFacebookGetConfigs';
 import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
 import { SecretInput } from '@/integrations/components/SecretInput';
-
-export const FacebookConfigUpdateCollapse = () => {
-  return (
-    <Collapsible className="w-full bg-muted rounded-lg">
-      <Collapsible.Trigger asChild>
-        <Button
-          variant="secondary"
-          className="w-full h-auto flex justify-start group bg-transparent hover:bg-transparent gap-3 px-3 font-semibold"
-        >
-          <Collapsible.TriggerIcon className="text-accent-foreground" />
-          <IntegrationLogo
-            img={getPluginAssetsUrl(
-              'frontline',
-              INTEGRATIONS[IntegrationType.FACEBOOK_MESSENGER].img,
-            )}
-            name={INTEGRATIONS[IntegrationType.FACEBOOK_MESSENGER].name}
-          />
-          Facebook
-        </Button>
-      </Collapsible.Trigger>
-      <Collapsible.Content className="shadow-xs rounded-lg p-3 bg-background">
-        <FacebookConfigUpdate />
-      </Collapsible.Content>
-    </Collapsible>
-  );
-};
 
 export const FacebookConfigUpdate = () => {
   const { t } = useTranslation('frontline', {

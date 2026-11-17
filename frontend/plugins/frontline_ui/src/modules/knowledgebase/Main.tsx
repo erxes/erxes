@@ -13,6 +13,12 @@ const ArticlesPage = lazy(() =>
   })),
 );
 
+const ArticleDetailPage = lazy(() =>
+  import('~/pages/knowledgebase/ArticleDetailPage').then((module) => ({
+    default: module.ArticleDetailPage,
+  })),
+);
+
 const CategoriesPage = lazy(() =>
   import('~/pages/knowledgebase/CategoriesPage').then((module) => ({
     default: module.CategoriesPage,
@@ -30,7 +36,12 @@ const KnowledgeBaseMain = () => (
     <Routes>
       <Route path="/" element={<TopicsPage />} />
       <Route path="/:topicId" element={<Navigate to="articles" replace />} />
+      <Route path="/articles/:articleId" element={<ArticleDetailPage />} />
       <Route path="/:topicId/articles" element={<ArticlesPage />} />
+      <Route
+        path="/:topicId/articles/:articleId"
+        element={<ArticleDetailPage />}
+      />
       <Route path="/:topicId/categories" element={<CategoriesPage />} />
       <Route
         path="/:topicId/kbsettings"

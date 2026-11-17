@@ -7,7 +7,7 @@ import { IntegrationType } from '@/types/Integration';
 import { useQuery } from '@apollo/client';
 import { gql } from '~/gql';
 import { useTranslation } from 'react-i18next';
-import { useCallProConfig } from '@/integrations/callpro/hooks/useCallProConfig';
+import { useIntegrationEntries } from '@/integrations/hooks/useIntegrationEntries';
 
 const INTEGRATIONS_TOTAL_COUNT = gql(`
   query IntegrationsTotalCount($kind: String, $channelId: String!) {
@@ -28,12 +28,7 @@ export const IntegrationList = ({
 } = {}) => {
   const { t } = useTranslation('frontline');
   useTelegramTranslation();
-  const { enabled: callProEnabled } = useCallProConfig();
-
-  const entries = Object.entries(INTEGRATIONS).filter(
-    ([integrationType]) =>
-      integrationType !== IntegrationType.CALLPRO || callProEnabled,
-  );
+  const entries = useIntegrationEntries();
 
   return (
     <Command>
@@ -42,11 +37,11 @@ export const IntegrationList = ({
         className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"
       >
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {entries.map(([integrationType, integration]) => (
+          {entries.map((entry) => (
             <IntegrationCard
-              key={integrationType}
-              integration={integration}
-              integrationType={integrationType as IntegrationType}
+              key={entry.type}
+              integration={entry}
+              integrationType={entry.type}
               channelId={channelId}
             />
           ))}

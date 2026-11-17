@@ -3,10 +3,9 @@ import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
 import { IntegrationsRecordTable } from '@/integrations/components/IntegrationsRecordTable';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
 import { IntegrationType } from '@/types/Integration';
-import { IconChevronLeft } from '@tabler/icons-react';
-import { Button, getPluginAssetsUrl } from 'erxes-ui';
+import { getPluginAssetsUrl } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 const ErxesMessengerDetail = lazy(() =>
@@ -74,33 +73,13 @@ const TelegramIntegrationDetail = lazy(() =>
 export const IntegrationDetailPage = () => {
   const { t } = useTranslation('frontline');
   useTelegramTranslation();
-  const { integrationType, id } = useParams<{
-    integrationType: string;
-    id: string;
-  }>();
-  const navigate = useNavigate();
+  const { integrationType } = useParams<{ integrationType: string }>();
 
   const integration =
     INTEGRATIONS[integrationType as keyof typeof INTEGRATIONS];
 
   return (
-    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden flex-1 min-h-0">
-      <div>
-        <Button
-          variant="ghost"
-          className="text-muted-foreground"
-          onClick={() => {
-            if (!id) {
-              navigate('/frontline/settings/channels');
-              return;
-            }
-            navigate(`/frontline/settings/channels/${id}`);
-          }}
-        >
-          <IconChevronLeft />
-          {t('integrations')}
-        </Button>
-      </div>
+    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-6 overflow-hidden flex-1 min-h-0">
       <div className="flex gap-2">
         <IntegrationLogo
           img={getPluginAssetsUrl('frontline', integration?.img || '')}

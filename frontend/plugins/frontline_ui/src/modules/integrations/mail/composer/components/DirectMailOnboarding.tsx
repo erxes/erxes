@@ -80,7 +80,7 @@ export const DirectMailOnboarding = ({
                 asChild
               >
                 <Link
-                  to={`${settingsPath}${FrontlinePaths.IntegrationConfig}`}
+                  to={`${settingsPath}${FrontlinePaths.IntegrationConfig}/mail`}
                   onClick={onClose}
                 >
                   {t('mail-onboarding-configure', 'Set up email')}

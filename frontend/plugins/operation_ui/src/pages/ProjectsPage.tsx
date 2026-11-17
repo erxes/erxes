@@ -1,6 +1,6 @@
 import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator, Skeleton } from 'erxes-ui';
-import { AddProjectSheet } from '@/project/components/add-project/AddProjectSheet';
+import { AddProjectButton } from '@/project/components/add-project/AddProjectButton';
 import { useParams } from 'react-router-dom';
 import { ProjectBreadCrumb } from '@/project/components/breadcumb/ProjectBreadCrumb';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
@@ -47,7 +47,7 @@ export const ProjectsPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
         <PageHeader.End>
-          <AddProjectSheet />
+          <AddProjectButton />
         </PageHeader.End>
       </PageHeader>
 

@@ -1,4 +1,5 @@
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
+import { isActiveChannelMember } from '@/channels/utils/channelMembers';
 import { RecordTable, RecordTableTree, Spinner } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { AddMembers } from './AddMembers';
@@ -10,9 +11,7 @@ export function Members() {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id: channelId } = useParams<{ id: string }>();
   const { members, loading } = useGetChannelMembers({ channelIds: channelId });
-  const activeMembers = members?.filter(
-    (member) => member.member?.isActive !== false,
-  );
+  const activeMembers = members?.filter(isActiveChannelMember);
 
   if (loading) {
     return <Spinner containerClassName="py-32" />;

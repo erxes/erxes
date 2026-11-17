@@ -13,12 +13,7 @@ import { ComponentProps, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  ActivityLogs,
-  AddInternalNote,
-  FieldsInDetail,
-  PrintDocument,
-} from 'ui-modules';
+import { ActivityLogs, AddInternalNote, FieldsInDetail } from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
@@ -41,6 +36,7 @@ import {
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
 import { useProductFileLinks } from 'ui-modules/modules/products/hooks/useProductFiles';
+import { DocumentPrintMenu } from '@/documents/components/DocumentPrintMenu';
 
 type ProductDetailMainProps = {
   productDetail?: ProductDetail | null;
@@ -139,14 +135,6 @@ const ProductDetailMain = ({
   editLoading,
 }: ProductDetailMainProps) => (
   <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
-    {productDetail?._id && (
-      <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
-        <PrintDocument
-          items={[{ _id: productDetail._id }]}
-          contentType="core:product"
-        />
-      </div>
-    )}
     <Form {...form}>
       <form
         onSubmit={onSubmit}
@@ -384,7 +372,17 @@ export const ProductDetailSheet = () => {
         notFoundState={<ProductDetailEmptyState />}
         errorState={<ProductDetailErrorState />}
       >
-        <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
+        <FocusSheet.Header title={productDetail?.name || t('product-detail')}>
+          {productDetail?._id && (
+            <div className="ml-auto">
+              <DocumentPrintMenu
+                key={productDetail._id}
+                items={[{ _id: productDetail._id }]}
+                contentType="core:product"
+              />
+            </div>
+          )}
+        </FocusSheet.Header>
         <FocusSheet.Content className="flex overflow-hidden flex-1 min-w-0 min-h-0">
           <FocusSheet.SideBar>
             <ProductDetailSidebar />
