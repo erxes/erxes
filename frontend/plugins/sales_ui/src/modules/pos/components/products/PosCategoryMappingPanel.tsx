@@ -1,4 +1,3 @@
-import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconBarcode,
@@ -6,7 +5,7 @@ import {
   IconPackage,
   IconTextCaption,
 } from '@tabler/icons-react';
-import { Form, Input, Spinner, toast } from 'erxes-ui';
+import { Form, Input } from 'erxes-ui';
 import { nanoid } from 'nanoid';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -20,7 +19,8 @@ import {
   useSidePanelDraft,
 } from 'ui-modules';
 import { z } from 'zod';
-import { PosPanelMissing } from '@/pos/components/PosPanelMissing';
+import { renderPosPanelStatus } from '@/pos/components/PosPanelMissing';
+import { usePosPanelSave } from '@/pos/hooks/usePosPanelSave';
 import {
   type CatProdMappingDraft,
   toCatProdMappings,
@@ -30,7 +30,6 @@ import {
   POS_CATEGORY_MAPPING_CONTENT_TYPE,
   POS_PANEL_INPUT_CLASS_NAME,
 } from '@/pos/constants/posPanel';
-import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
 interface MappingFormValues {
@@ -66,7 +65,6 @@ export const PosCategoryMappingPanel = () => {
   );
   const { back, canGoBack, close } = useSidePanel();
   const { posDetail, loading, error } = usePosDetail(posId);
-  const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   const mappings = useMemo(
     () => toCatProdMappings(posDetail?.catProdMappings),
@@ -103,24 +101,23 @@ export const PosCategoryMappingPanel = () => {
   }, [editing, form]);
 
   const cancel = () => (canGoBack ? back() : close());
+  const { save: savePos, saving } = usePosPanelSave({
+    successMessage: t('product-settings-saved'),
+    failureMessage: t('product-settings-save-failed'),
+    onSaved: cancel,
+  });
+  const status = renderPosPanelStatus({
+    missing: !posId || (!!mappingId && !loading && !editing),
+    loading,
+    error,
+    onCancel: cancel,
+  });
 
-  if (!posId || (mappingId && !loading && !editing)) {
-    return <PosPanelMissing onCancel={cancel} />;
+  if (status || !posId) {
+    return status;
   }
 
-  if (loading) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (error) {
-    return (
-      <p className="p-4 text-sm text-destructive">
-        {t('failed-to-load-pos-details', { message: error.message })}
-      </p>
-    );
-  }
-
-  const save = async (values: MappingFormValues) => {
+  const save = (values: MappingFormValues) => {
     const next = { ...values, _id: editing?._id || nanoid() };
     const nextMappings = editing
       ? mappings.map((mapping) =>
@@ -128,24 +125,10 @@ export const PosCategoryMappingPanel = () => {
         )
       : [...mappings, next];
 
-    try {
-      await posEdit({
-        variables: {
-          _id: posId,
-          catProdMappings: toCatProdMappingsInput(nextMappings),
-        },
-        refetchQueries: ['salesPosSettingsDetail'],
-      });
-      toast({ title: t('success'), description: t('product-settings-saved') });
-      cancel();
-    } catch (e) {
-      toast({
-        title: t('error'),
-        description:
-          e instanceof Error ? e.message : t('product-settings-save-failed'),
-        variant: 'destructive',
-      });
-    }
+    return savePos({
+      _id: posId,
+      catProdMappings: toCatProdMappingsInput(nextMappings),
+    });
   };
 
   return (

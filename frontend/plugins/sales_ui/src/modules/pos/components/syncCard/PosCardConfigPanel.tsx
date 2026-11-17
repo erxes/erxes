@@ -1,4 +1,3 @@
-import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconBuilding,
@@ -16,8 +15,6 @@ import {
   isDefined,
   PopoverScoped,
   Select,
-  Spinner,
-  toast,
 } from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -41,13 +38,13 @@ import {
   POS_CARD_CONFIG_CONTENT_TYPE,
   POS_PANEL_INPUT_CLASS_NAME,
 } from '@/pos/constants/posPanel';
-import { mutations } from '@/pos/graphql/mutations';
 import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { SelectBoardFormItem } from '@/pos/hooks/useSelectBoard';
 import { SelectPipelineFormItem } from '@/pos/hooks/useSelectPipeline';
 import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
-import { PosPanelMissing } from '@/pos/components/PosPanelMissing';
+import { renderPosPanelStatus } from '@/pos/components/PosPanelMissing';
+import { usePosPanelSave } from '@/pos/hooks/usePosPanelSave';
 
 type CardConfigFormValues = Omit<CardConfig, '_id'>;
 
@@ -77,7 +74,6 @@ export const PosCardConfigPanel = () => {
   );
   const { back, canGoBack, close } = useSidePanel();
   const { posDetail, loading, error } = usePosDetail(posId);
-  const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const { fields: mapFields, loading: fieldsLoading } = useFieldsCombined({
     contentType: 'sales:sales.deal',
   });
@@ -138,44 +134,32 @@ export const PosCardConfigPanel = () => {
   }, [editing, form]);
 
   const cancel = () => (canGoBack ? back() : close());
+  const { save: savePos, saving } = usePosPanelSave({
+    successMessage: t('cards-config-saved'),
+    failureMessage: t('cards-config-save-failed'),
+    onSaved: cancel,
+  });
+  const status = renderPosPanelStatus({
+    missing: !posId || (!!configKey && !loading && !editing),
+    loading,
+    error,
+    onCancel: cancel,
+  });
 
-  if (!posId || (configKey && !loading && !editing)) {
-    return <PosPanelMissing onCancel={cancel} />;
+  if (status || !posId) {
+    return status;
   }
 
-  if (loading) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (error) {
-    return (
-      <p className="p-4 text-sm text-destructive">
-        {t('failed-to-load-pos-details', { message: error.message })}
-      </p>
-    );
-  }
-
-  const save = async (values: CardConfigFormValues) => {
+  const save = (values: CardConfigFormValues) => {
     const next: CardConfig = { ...values, _id: values.title };
     const nextConfigs = editing
       ? configs.map((config) => (config._id === configKey ? next : config))
       : [...configs, next];
 
-    try {
-      await posEdit({
-        variables: { _id: posId, cardsConfig: toCardsConfigInput(nextConfigs) },
-        refetchQueries: ['salesPosSettingsDetail'],
-      });
-      toast({ title: t('success'), description: t('cards-config-saved') });
-      cancel();
-    } catch (e) {
-      toast({
-        title: t('error'),
-        description:
-          e instanceof Error ? e.message : t('cards-config-save-failed'),
-        variant: 'destructive',
-      });
-    }
+    return savePos({
+      _id: posId,
+      cardsConfig: toCardsConfigInput(nextConfigs),
+    });
   };
 
   return (

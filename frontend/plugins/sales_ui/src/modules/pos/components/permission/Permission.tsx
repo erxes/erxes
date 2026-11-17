@@ -1,8 +1,7 @@
 import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
 import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
-import { AdminPermissions } from '@/pos/components/permission/AdminPermissions';
-import { CashierPermissions } from '@/pos/components/permission/CashierPermissions';
+import { RolePermissions } from '@/pos/components/permission/RolePermissions';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
@@ -194,7 +193,7 @@ const Permission: React.FC<PermissionProps> = ({
             title={t('admins')}
             description={labels.adminsDescription}
           >
-            <AdminPermissions control={control} />
+            <RolePermissions control={control} kind="admin" />
           </PosSettingsSection>
 
           <PosSettingsSection
@@ -202,7 +201,7 @@ const Permission: React.FC<PermissionProps> = ({
             title={t('cashiers')}
             description={labels.cashiersDescription}
           >
-            <CashierPermissions control={control} />
+            <RolePermissions control={control} kind="cashier" />
           </PosSettingsSection>
         </form>
       </Form>

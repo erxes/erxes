@@ -17,6 +17,29 @@ import { FIELD_TYPES } from '../constants/fieldTypes';
 import { IPropertyForm } from '../types/propertyFormTypes';
 import { PropertyFormGroupField } from './PropertyFormGroupField';
 
+export const PropertyTypeSelectContent = ({
+  allowedTypes,
+}: {
+  allowedTypes: string[];
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+
+  return (
+    <Select.Content>
+      {FIELD_TYPES.filter(({ value }) => allowedTypes.includes(value)).map(
+        (type) => (
+          <Select.Item key={type.value} value={type.value}>
+            <div className="flex items-center gap-2 [&_svg]:size-4">
+              <type.icon />
+              {t(`field-type.${type.value}`, type.label)}
+            </div>
+          </Select.Item>
+        ),
+      )}
+    </Select.Content>
+  );
+};
+
 export const PropertyFormPanelFields = ({
   form,
   contentType,
@@ -116,18 +139,7 @@ export const PropertyFormPanelFields = ({
               <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
                 <Select.Value placeholder={t('select-type', 'Select type')} />
               </Select.Trigger>
-              <Select.Content>
-                {FIELD_TYPES.filter(({ value }) =>
-                  allowedTypes.includes(value),
-                ).map((type) => (
-                  <Select.Item key={type.value} value={type.value}>
-                    <div className="flex items-center gap-2 [&_svg]:size-4">
-                      <type.icon />
-                      {t(`field-type.${type.value}`, type.label)}
-                    </div>
-                  </Select.Item>
-                ))}
-              </Select.Content>
+              <PropertyTypeSelectContent allowedTypes={allowedTypes} />
             </Select>
           )}
         />

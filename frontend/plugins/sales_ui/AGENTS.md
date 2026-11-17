@@ -230,8 +230,10 @@
   holding that button). Every boolean setting on Product & Service,
   Permission, Payments (coupons), Screen and Customer uses `PosSwitchRow`;
   mappings and sync cards use `PosItemList`.
-- Tab structure: Permission has Admins and Cashiers sections (members, then
-  switch rows; Direct discount nests its limit). Payments has Payment methods
+- Tab structure: Permission has Admins and Cashiers sections, both drawn by
+  one `RolePermissions` (`kind` admin or cashier: members, then switch rows;
+  cashier adds See reports and Create customers; Direct discount nests its
+  limit). Payments has Payment methods
   (shared `@/payments` fields, unchanged), Loyalty (earn campaign, earn tier)
   and Coupons. Delivery has Deal stage (board, pipeline, stage, location
   field) and Deal users (watched, assigned, delivery product). Appearance has
@@ -240,8 +242,13 @@
   lists card configs. Customer starts with its two switch rows, then a Form
   fields section whose actions hold Add field and Edit layout.
 - English/Mongolian section descriptions and sentence-case field labels for
-  these tabs live in `hooks/usePosSettingsLabels.ts` (the gateway locales
-  only hold the older upper-case keys); add new tab copy there.
+  these tabs live in `hooks/usePosSettingsLabels.ts` as one table of
+  `[en, mn]` pairs (the gateway locales only hold the older upper-case keys);
+  add new tab copy there as a pair, never as a second per-language block.
+- The sync card and mapping panels share `renderPosPanelStatus`
+  (`components/PosPanelMissing.tsx`: missing draft, loading, load error) and
+  `usePosPanelSave` (`hooks/usePosPanelSave.ts`: `posEdit`, refetch
+  `salesPosSettingsDetail`, toasts, then back/close).
 
 - Runs as the sales Module Federation remote.
 - Development Rspack serving ignores generated dependency/cache/output folders

@@ -1,4 +1,5 @@
-import { Button } from 'erxes-ui';
+import { Button, Spinner } from 'erxes-ui';
+import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const PosPanelMissing = ({ onCancel }: { onCancel: () => void }) => {
@@ -14,4 +15,40 @@ export const PosPanelMissing = ({ onCancel }: { onCancel: () => void }) => {
       </Button>
     </div>
   );
+};
+
+const PosPanelError = ({ message }: { message: string }) => {
+  const { t } = useTranslation('sales');
+
+  return (
+    <p className="p-4 text-sm text-destructive">
+      {t('failed-to-load-pos-details', { message })}
+    </p>
+  );
+};
+
+export const renderPosPanelStatus = ({
+  missing,
+  loading,
+  error,
+  onCancel,
+}: {
+  missing: boolean;
+  loading: boolean;
+  error?: Error;
+  onCancel: () => void;
+}): ReactNode | null => {
+  if (missing) {
+    return <PosPanelMissing onCancel={onCancel} />;
+  }
+
+  if (loading) {
+    return <Spinner containerClassName="py-12" />;
+  }
+
+  if (error) {
+    return <PosPanelError message={error.message} />;
+  }
+
+  return null;
 };

@@ -23,7 +23,10 @@ import { IPropertyForm } from '../types/propertyFormTypes';
 import { PropertyFormGroupField } from './PropertyFormGroupField';
 import { PropertyFormLogicFields } from './PropertyFormLogicFields';
 import { PropertyFormObjectListFields } from './PropertyFormObjectListFields';
-import { PropertyFormPanelFields } from './PropertyFormPanelFields';
+import {
+  PropertyFormPanelFields,
+  PropertyTypeSelectContent,
+} from './PropertyFormPanelFields';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
@@ -314,18 +317,7 @@ export const PropertyForm = ({
                           />
                         </Select.Trigger>
                       </Form.Control>
-                      <Select.Content>
-                        {FIELD_TYPES.filter(({ value }) =>
-                          allowedTypes.includes(value),
-                        ).map((type) => (
-                          <Select.Item key={type.value} value={type.value}>
-                            <div className="flex items-center gap-2 [&_svg]:size-4">
-                              <type.icon />
-                              {t(`field-type.${type.value}`, type.label)}
-                            </div>
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
+                      <PropertyTypeSelectContent allowedTypes={allowedTypes} />
                     </Select>
                     {typeHint}
                     <Form.Message />
