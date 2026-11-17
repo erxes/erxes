@@ -1,4 +1,4 @@
-import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative } from 'node:path';
 import {
   createIssue,
@@ -179,7 +179,11 @@ const fileIssues = async (mutants: Mutant[]) => {
     }
   }
 
+  const unsureAreas = new Set(tally(mutants).brokenSetup.map((mutant) => mutant.area));
+
   for (const [area, issue] of open) {
+    if (unsureAreas.has(area)) continue;
+
     const { reason, text } = closing(areas.get(area));
 
     await comment(issue.number, text);
@@ -239,8 +243,9 @@ const summary = (mutants: Mutant[]) => {
 };
 
 const plan = plannedFiles(env('PLAN'));
-const { merged, reports } = mergeReports(env('REPORTS_DIR'), plan);
 const out = env('MERGED_OUT');
+const previous: unknown = out && existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')) : null;
+const { merged, reports } = mergeReports(env('REPORTS_DIR'), plan, previous);
 
 if (out) {
   mkdirSync(dirname(out), { recursive: true });

@@ -64,9 +64,10 @@ export const plannedFiles = (matrix: string) => {
 /**
  * The shard reports (`mutation-<shard>/mutation.json` under `dir`) merged into one Stryker
  * report. In incremental mode each shard also carries the last run's results for every other file,
- * so a file is taken only from the shard that mutated it.
+ * so a file is taken only from the shard that mutated it. A shard that sent no report keeps its
+ * files' results from `previous`, the last run's merged report.
  */
-export const mergeReports = (dir: string, plan: Map<number, Set<string>>) => {
+export const mergeReports = (dir: string, plan: Map<number, Set<string>>, previous: unknown) => {
   const paths = readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter(
     (path) => path.endsWith('mutation.json') && statSync(join(dir, path)).isFile(),
   );
@@ -78,10 +79,19 @@ export const mergeReports = (dir: string, plan: Map<number, Set<string>>) => {
     report: json(JSON.parse(readFileSync(join(dir, path), 'utf8'))),
   }));
 
-  const shards = reports.map(({ shard, report }) => ({
-    ...withStableTestIds(report),
-    planned: plan.get(shard) ?? new Set<string>(),
-  }));
+  const reported = new Set(reports.map(({ shard }) => shard));
+
+  const unreported = new Set(
+    [...plan].flatMap(([shard, files]) => (reported.has(shard) ? [] : [...files])),
+  );
+
+  const shards = [
+    ...reports.map(({ shard, report }) => ({
+      ...withStableTestIds(report),
+      planned: plan.get(shard) ?? new Set<string>(),
+    })),
+    ...(unreported.size ? [{ ...withStableTestIds(json(previous)), planned: unreported }] : []),
+  ];
 
   const testFiles = new Map<string, Json>();
 

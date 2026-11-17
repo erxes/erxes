@@ -161,6 +161,12 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 26
+      # The last results, for the files of a shard that sent no report.
+      - uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.MERGED_OUT }}
+          key: mutation-${{ github.sha }}
+          restore-keys: mutation-
       - uses: actions/download-artifact@v8
         with:
           pattern: mutation-*
@@ -172,7 +178,8 @@ jobs:
           REPORTS_DIR: ${{ runner.temp }}/reports
           PLAN: ${{ needs.plan.outputs.matrix }}
           MUTATE_RESULT: ${{ needs.mutate.result }}
-          ISSUES: ${{ env.MODE == 'full' && github.ref_name == (inputs.issue-branch || github.event.repository.default_branch) }}
+          # A scheduled run is always on the default branch and its event names no repository.
+          ISSUES: ${{ env.MODE == 'full' && (inputs.issue-branch != '' && github.ref_name == inputs.issue-branch || inputs.issue-branch == '' && (github.event_name == 'schedule' || github.ref_name == github.event.repository.default_branch)) }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       # Saved even when a shard or the issue update failed: the next run redoes only what is missing.
