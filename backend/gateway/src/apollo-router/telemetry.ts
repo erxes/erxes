@@ -1,8 +1,11 @@
 // Apollo Router tracing, configured from the standard OpenTelemetry env vars.
 // Nothing is added to the router config unless OTEL_EXPORTER_OTLP_ENDPOINT is set.
 //
-//   OTEL_EXPORTER_OTLP_ENDPOINT  e.g. http://alloy:4317 (grpc) or http://alloy:4318 (http)
-//   OTEL_EXPORTER_OTLP_PROTOCOL  grpc (default) | http/protobuf | http/json
+//   OTEL_EXPORTER_OTLP_ENDPOINT  e.g. http://alloy:4318 (http) or http://alloy:4317 (grpc)
+//   OTEL_EXPORTER_OTLP_PROTOCOL  http/protobuf (default) | http/json | grpc
+//
+// The gateway's own Node spans (erxes-api-shared tracing) go over OTLP/HTTP to the same
+// endpoint, so the router defaults to HTTP too: one endpoint, http://alloy:4318, serves both.
 //   OTEL_EXPORTER_OTLP_HEADERS   key1=value1,key2=value2
 //   OTEL_SERVICE_NAME            default: gateway
 //   OTEL_TRACES_SAMPLER_ARG      ratio 0..1, default: 0.1
@@ -35,7 +38,7 @@ const parseHeaders = (value?: string) => {
 };
 
 // The router exports OTLP over gRPC or HTTP/protobuf only. Collectors accept protobuf on the
-// same /v1/traces path, so http/json still works; anything else falls back to grpc.
+// same /v1/traces path, so http/json still works; anything else falls back to http.
 const ROUTER_PROTOCOLS: Record<string, 'grpc' | 'http'> = {
   grpc: 'grpc',
   'http/protobuf': 'http',
@@ -43,16 +46,16 @@ const ROUTER_PROTOCOLS: Record<string, 'grpc' | 'http'> = {
 };
 
 const parseProtocol = (value?: string) => {
-  const name = (value || '').trim().toLowerCase() || 'grpc';
+  const name = (value || '').trim().toLowerCase() || 'http/protobuf';
   const protocol = ROUTER_PROTOCOLS[name];
 
   if (!protocol) {
     console.warn(
-      `Apollo Router tracing: unsupported OTEL_EXPORTER_OTLP_PROTOCOL "${name}", using grpc`,
+      `Apollo Router tracing: unsupported OTEL_EXPORTER_OTLP_PROTOCOL "${name}", using http/protobuf`,
     );
   }
 
-  return protocol || 'grpc';
+  return protocol || 'http';
 };
 
 const parseSampleRatio = (value?: string) => {
