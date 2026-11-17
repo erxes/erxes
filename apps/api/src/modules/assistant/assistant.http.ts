@@ -9,6 +9,7 @@ import { chatTools, generateTitle, type Run, streamTurn } from './agent';
 import { attachmentsOf, readContents } from './attachments';
 import { installedPlugins } from './plugins';
 import { getSettings } from './settings.service';
+import { toolScope } from './tools/apiTools';
 import { readTurnContext } from './turnContext';
 import { trackTurn } from './runningTurns';
 import { beginTurn, saveReply, setTitle } from './turns.service';
@@ -60,7 +61,7 @@ const startRun = async (req: Request, res: Response, orgId: string) => {
   const { run, titled } = await withOrg(orgId, async (tx) => {
     const { approvalMode, codeMode } = await getSettings(tx);
     const plugins = await installedPlugins(tx);
-    const scope = { member, orgId, threadId, approvalMode, codeMode, plugins, context };
+    const scope = toolScope({ member, orgId, threadId, approvalMode, codeMode, plugins, context });
     const tools = chatTools(scope);
     const turn = await beginTurn(tx, request, tools, { threadId, context: turnContext });
 

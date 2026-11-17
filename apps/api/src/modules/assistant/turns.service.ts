@@ -8,22 +8,15 @@ import {
 } from '@erxes/core-db';
 import { safeValidateUIMessages, type ToolSet, type UIMessage } from 'ai';
 import { and, eq, gte, isNull, max, sql } from 'drizzle-orm';
-import { fail, notFound } from '~/http/errors';
+import { fail } from '~/http/errors';
 import { findConnection, openKey } from './connections.service';
 import { continueReply } from './continuation';
 import { unreadableKey } from './providers';
-import { isRunning, ownThread, threadMessages } from './threads.service';
+import { findThread, isRunning, threadMessages } from './threads.service';
 import { type TurnContext, withTurnContext } from './turnContext';
 
 const lockThread = async (client: Db, id: string) => {
-  const [row] = await client
-    .select()
-    .from(assistantThreads)
-    .where(and(ownThread(), eq(assistantThreads.id, id)))
-    .for('update')
-    .limit(1);
-
-  if (!row) throw notFound('Thread');
+  const row = await findThread(client, id, { lock: true });
 
   if (isRunning(row)) {
     throw fail('ASSISTANT_BUSY', 'A reply is still being written in this thread');
@@ -71,6 +64,8 @@ const validated = async (messages: unknown[], tools: ToolSet) => {
   return result.data;
 };
 
+type MessageRow = typeof assistantMessages.$inferSelect;
+
 const addUserMessage = async (client: Db, threadId: string, message: UIMessage) => {
   await client.insert(assistantMessages).values({
     threadId,
@@ -80,8 +75,6 @@ const addUserMessage = async (client: Db, threadId: string, message: UIMessage) 
     position: await nextPosition(client, threadId),
   });
 };
-
-type MessageRow = typeof assistantMessages.$inferSelect;
 
 const rewind = async (client: Db, threadId: string, rows: MessageRow[], messageId: string) => {
   const index = rows.findIndex((row) => row.id === messageId);

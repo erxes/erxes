@@ -6,6 +6,7 @@ import { Button, Command, Spinner, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
 import { type CursorParams, forwardPaging } from '~/lib/cursorList';
+import { threadTitle } from './useThread';
 
 const PAGE = 50;
 
@@ -36,7 +37,7 @@ const useThreadPages = () =>
 const ThreadItem = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () => void }) => {
   const { t } = useTranslation('assistant');
   const format = useFormat();
-  const title = thread.title ?? t('untitled', 'Untitled conversation');
+  const title = threadTitle(thread, t);
   const Icon = thread.pinned ? IconPin : IconMessage;
 
   return (

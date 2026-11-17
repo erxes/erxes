@@ -7,12 +7,13 @@ import {
 import { IconFileText } from '@tabler/icons-react';
 import type { UIMessage } from 'ai';
 import { useTranslation } from 'react-i18next';
-import { fileUrl, isImage, sizeLabel, typeLabel } from './attachments';
+import { fileDownloadUrl } from '~/lib/files';
+import { isImage, sizeLabel, typeLabel } from './attachments';
 
 const CARD =
   'flex h-12 max-w-56 min-w-0 items-center gap-2 rounded-lg border bg-background p-1.5 pr-3 text-xs hover:bg-accent';
 
-const attachmentsOf = (message: UIMessage) => ({
+export const attachmentsOf = (message: UIMessage) => ({
   files: message.parts.flatMap((part) =>
     part.type === 'data-files' ? (AssistantFiles.safeParse(part.data).data?.files ?? []) : [],
   ),
@@ -25,10 +26,16 @@ const attachmentsOf = (message: UIMessage) => ({
 
 const FileCard = ({ file }: { file: AssistantAttachment }) => (
   <li>
-    <a href={fileUrl(file.id)} target="_blank" rel="noreferrer" className={CARD} title={file.name}>
+    <a
+      href={fileDownloadUrl(file.id)}
+      target="_blank"
+      rel="noreferrer"
+      className={CARD}
+      title={file.name}
+    >
       {isImage(file.contentType) ? (
         <img
-          src={fileUrl(file.id)}
+          src={fileDownloadUrl(file.id)}
           alt=""
           className="size-9 shrink-0 rounded-md border object-cover"
         />
@@ -53,14 +60,14 @@ const SelectionCard = ({ selection }: { selection: AssistantSelection }) => {
   return (
     <li>
       <a
-        href={fileUrl(selection.snapshot)}
+        href={fileDownloadUrl(selection.snapshot)}
         target="_blank"
         rel="noreferrer"
         className={CARD}
         title={selection.title}
       >
         <img
-          src={fileUrl(selection.snapshot)}
+          src={fileDownloadUrl(selection.snapshot)}
           alt={t('select.snapshot', 'Snapshot')}
           className="size-9 shrink-0 rounded-md border bg-background object-contain"
         />

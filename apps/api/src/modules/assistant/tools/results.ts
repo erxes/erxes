@@ -2,7 +2,7 @@ import { ORPCError, ValidationError } from '@orpc/server';
 
 const MAX_RESULT_CHARS = 40_000;
 
-export interface IssuedReference {
+interface IssuedReference {
   ref: string;
   type: string;
   label: string;

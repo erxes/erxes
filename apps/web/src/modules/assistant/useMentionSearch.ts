@@ -1,6 +1,7 @@
 import { type AssistantMention, type AssistantRecordType, recordLabel } from '@erxes/core-contract';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { orpc } from '@erxes/core-contract/client';
+import { useDebounce } from 'use-debounce';
 import { useCan } from '~/modules/auth/session';
 
 const PER_TYPE = 4;
@@ -14,7 +15,7 @@ const matches = (rows: { id: string }[], type: AssistantRecordType): AssistantMe
 
 export const useMentionSearch = (query: string | null) => {
   const can = useCan();
-  const search = query?.trim() ?? '';
+  const [search] = useDebounce(query?.trim() ?? '', 250);
   const open = query !== null;
   const input = { search: search || undefined, limit: PER_TYPE };
   const listed = { placeholderData: keepPreviousData };
@@ -62,7 +63,6 @@ export const useMentionSearch = (query: string | null) => {
 
   return {
     options,
-    loading: lists.some((list) => list.isFetching),
     failed: lists.some((list) => list.isError),
   };
 };

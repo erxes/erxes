@@ -14,7 +14,12 @@ const useKeyMutations = () => {
   const client = useQueryClient();
   const { toast } = useToast();
   const onError = (error: Error) => toast({ variant: 'destructive', title: messageOf(error) });
-  const onSuccess = () => client.invalidateQueries({ queryKey: orpc.assistant.key() });
+
+  const onSuccess = () =>
+    Promise.all([
+      client.invalidateQueries({ queryKey: orpc.assistant.connections.key() }),
+      client.invalidateQueries({ queryKey: orpc.assistant.models.key() }),
+    ]);
 
   return {
     save: useMutation(orpc.assistant.saveConnection.mutationOptions({ onSuccess, onError })),

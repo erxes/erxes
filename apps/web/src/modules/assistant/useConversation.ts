@@ -1,9 +1,10 @@
 import { useChat } from '@ai-sdk/react';
 import { matchQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AssistantMentions, type AssistantPage } from '@erxes/core-contract';
+import type { AssistantPage } from '@erxes/core-contract';
 import { getToolName, isDataUIPart, isToolUIPart, type UIMessage } from 'ai';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
+import { z } from 'zod';
 import { orpc } from '@erxes/core-contract/client';
 import {
   type AssistantTab,
@@ -16,7 +17,8 @@ import type { ComposerBlock, ComposerMessage } from './Composer';
 import { pendingAction } from './transcriptRows';
 import type { AssistantTabs } from './useAssistantTabs';
 import { useModelRun } from './useModelRun';
-import { useThread } from './useThread';
+import { threadKey, useThread } from './useThread';
+import { mentionsOf } from './UserMessage';
 
 type Status = ReturnType<typeof useChat>['status'];
 
@@ -35,38 +37,28 @@ const useStoredMessages = (session: ChatSession, threadId: string | null, status
   return { thread, loaded: startedEmpty || stored !== undefined };
 };
 
-const useUnreadWhenClosed = (status: Status, open: boolean) => {
-  const setUnread = useSetAtom(assistantUnreadState);
+const useReplyEnded = (status: Status, onEnded: () => void) => {
   const previous = useRef(status);
+  const ended = useEffectEvent(onEnded);
 
   useEffect(() => {
-    if (isBusy(previous.current) && !isBusy(status) && !open) setUnread(true);
+    if (isBusy(previous.current) && !isBusy(status)) ended();
 
     previous.current = status;
-  }, [status, open, setUnread]);
+  }, [status]);
 };
 
-const calledApi = (message: UIMessage | undefined) =>
+const ChangedRecords = z.object({ changed: z.literal(true) });
+
+const changedRecords = (message: UIMessage | undefined) =>
   message?.role === 'assistant' &&
   message.parts.some(
     (part) =>
-      isToolUIPart(part) && getToolName(part) === 'callApi' && part.state === 'output-available',
+      isToolUIPart(part) &&
+      getToolName(part) === 'callApi' &&
+      part.state === 'output-available' &&
+      ChangedRecords.safeParse(part.output).success,
   );
-
-const useRefreshAfterChanges = (status: Status, last: UIMessage | undefined) => {
-  const client = useQueryClient();
-  const previous = useRef(status);
-
-  useEffect(() => {
-    if (isBusy(previous.current) && !isBusy(status) && calledApi(last)) {
-      void client.invalidateQueries({
-        predicate: (query) => !matchQuery({ queryKey: orpc.assistant.key() }, query),
-      });
-    }
-
-    previous.current = status;
-  }, [status, last, client]);
-};
 
 const partsOf = ({
   text,
@@ -82,18 +74,15 @@ const partsOf = ({
   ...(selections.length ? [{ type: 'data-selections' as const, data: { selections } }] : []),
 ];
 
-const editedParts = (message: UIMessage, text: string): UIMessage['parts'] => [
-  { type: 'text', text },
-  ...message.parts.flatMap((part) => {
-    if (part.type !== 'data-mentions') return isDataUIPart(part) ? [part] : [];
+const editedParts = (message: UIMessage, text: string): UIMessage['parts'] => {
+  const mentions = mentionsOf(message).filter((mention) => text.includes(`@${mention.label}`));
 
-    const mentions = (AssistantMentions.safeParse(part.data).data?.mentions ?? []).filter(
-      (mention) => text.includes(`@${mention.label}`),
-    );
-
-    return mentions.length ? [{ type: 'data-mentions' as const, data: { mentions } }] : [];
-  }),
-];
+  return [
+    { type: 'text', text },
+    ...(mentions.length ? [{ type: 'data-mentions' as const, data: { mentions } }] : []),
+    ...message.parts.filter((part) => isDataUIPart(part) && part.type !== 'data-mentions'),
+  ];
+};
 
 /** Sends a question asked from the top bar search, once, in a blank chat. */
 const useAskedElsewhere = (session: ChatSession, blank: boolean, page: AssistantPage | null) => {
@@ -120,6 +109,7 @@ export const useConversation = (
   page: AssistantPage | null,
 ) => {
   const client = useQueryClient();
+  const setUnread = useSetAtom(assistantUnreadState);
   const model = useModelRun();
   const [session] = useState(() => sessionFor(tab, tabs.setThreadId));
   const chat = useChat({ chat: session.chat });
@@ -134,8 +124,15 @@ export const useConversation = (
     session.chooseModel(model.run);
   }, [session, model.run]);
 
-  useUnreadWhenClosed(chat.status, open);
-  useRefreshAfterChanges(chat.status, chat.messages.at(-1));
+  useReplyEnded(chat.status, () => {
+    if (!open) setUnread(true);
+
+    if (changedRecords(chat.messages.at(-1))) {
+      void client.invalidateQueries({
+        predicate: (query) => !matchQuery({ queryKey: orpc.assistant.key() }, query),
+      });
+    }
+  });
   useAskedElsewhere(session, tab.threadId === null && loaded && chat.messages.length === 0, page);
 
   const sendParts = (parts: UIMessage['parts']) => {
@@ -165,7 +162,7 @@ export const useConversation = (
     },
     reload: () => {
       chat.clearError();
-      void client.invalidateQueries({ queryKey: orpc.assistant.key() });
+      void client.invalidateQueries({ queryKey: threadKey(tab.threadId) });
     },
     actions: {
       busy,

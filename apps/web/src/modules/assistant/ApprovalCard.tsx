@@ -1,6 +1,7 @@
 import { IconShieldCheck } from '@tabler/icons-react';
 import { Button, Collapsible } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { FoldTrigger, Json } from './Steps';
 
 export const ApprovalCard = ({
   procedure,
@@ -34,14 +35,9 @@ export const ApprovalCard = ({
         </div>
       </div>
       <Collapsible>
-        <Collapsible.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>
-          <Collapsible.TriggerIcon className="size-3" />
-          {t('approval.details', 'What it will send')}
-        </Collapsible.Trigger>
+        <FoldTrigger>{t('approval.details', 'What it will send')}</FoldTrigger>
         <Collapsible.Panel>
-          <pre className="mt-1 max-h-48 overflow-auto rounded-md bg-muted p-2 font-mono text-xs whitespace-pre-wrap">
-            {JSON.stringify(input, null, 2)}
-          </pre>
+          <Json value={input} className="mt-1" />
         </Collapsible.Panel>
       </Collapsible>
       <div className="flex gap-2">

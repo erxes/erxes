@@ -14,7 +14,7 @@ import { COMMON_ERRORS } from './errors';
 import { AssistantRecordType, ReferenceHandle } from './records';
 import { AssistantApprovalMode, AssistantProvider, AssistantThinkingLevel } from './values';
 
-export const AssistantModelId = z
+const AssistantModelId = z
   .string()
   .trim()
   .regex(/^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$/, 'a model id such as gpt-6-luna');
@@ -60,6 +60,8 @@ export const AssistantThread = createSelectSchema(assistantThreads, {
 export type AssistantThread = z.infer<typeof AssistantThread>;
 
 export const AssistantMessagePart = z.looseObject({ type: z.string() });
+
+export type AssistantMessagePart = z.infer<typeof AssistantMessagePart>;
 
 export const AssistantMessage = createSelectSchema(assistantMessages, {
   parts: () => z.array(AssistantMessagePart),

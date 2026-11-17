@@ -20,9 +20,9 @@ export const ProductId = recordId('product');
 
 export const AutomationId = recordId('automation');
 
-export const RECORD_LABEL_MAX = 80;
+const RECORD_LABEL_MAX = 80;
 
-export const cleanRecordLabel = (text: string) =>
+const cleanRecordLabel = (text: string) =>
   text.replace(/[[\]]/g, '').replace(/\s+/g, ' ').trim().slice(0, RECORD_LABEL_MAX).trim();
 
 const LABEL_FIELDS: Record<AssistantRecordType, (string | string[])[]> = {
@@ -53,7 +53,7 @@ export const recordLabel = (type: AssistantRecordType, value: unknown) => {
   return null;
 };
 
-export const RecordLabel = z
+const RecordLabel = z
   .string()
   .trim()
   .min(1)

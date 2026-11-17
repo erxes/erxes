@@ -1,9 +1,7 @@
-import type { AssistantChatRequest, AssistantMessagePart } from '@erxes/core-contract';
+import type { AssistantChatRequest, AssistantMessagePart as Part } from '@erxes/core-contract';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
 import { AskUserOutput } from './tools/askUser';
-
-type Part = z.infer<typeof AssistantMessagePart>;
 
 const PendingApproval = z.looseObject({
   type: z.string().startsWith('tool-'),

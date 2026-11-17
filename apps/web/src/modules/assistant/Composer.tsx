@@ -143,7 +143,7 @@ const useFileDrop = (add: (files: File[]) => void, enabled: boolean) => {
   };
 };
 
-const composerKey = (
+export const composerKey = (
   event: React.KeyboardEvent<HTMLTextAreaElement>,
   stop: (() => void) | null,
   send: () => void,

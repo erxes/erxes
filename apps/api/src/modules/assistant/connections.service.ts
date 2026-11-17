@@ -46,17 +46,19 @@ const lockMine = (client: Db) =>
   lockKeys(client, [`assistant-connections:${requestOrgId()}:${caller('user').userId}`]);
 
 export const saveConnection = async (client: Db, provider: AssistantProvider, apiKey: string) => {
+  const sealedKey = seal(apiKey);
+
   await lockMine(client);
   await client
     .insert(assistantConnections)
-    .values({ id: newId(), userId: caller('user').userId, provider, sealedKey: seal(apiKey) })
+    .values({ id: newId(), userId: caller('user').userId, provider, sealedKey })
     .onConflictDoUpdate({
       target: [
         assistantConnections.orgId,
         assistantConnections.userId,
         assistantConnections.provider,
       ],
-      set: { sealedKey: seal(apiKey), updatedAt: sql`now()` },
+      set: { sealedKey, updatedAt: sql`now()` },
     });
 
   const rows = present(await ownRows(client));

@@ -11,7 +11,6 @@ export interface IRecordSidePanelTab {
 }
 
 export type RecordSidePanelResizeHandleProps = {
-  className?: string;
   width: number;
   maxWidth: number;
   onWidthChange: (width: number) => void;

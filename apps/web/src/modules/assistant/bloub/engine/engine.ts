@@ -81,15 +81,6 @@ export class BotEngine {
     if (STATES[state].blinkIn) this.blinkAt = now;
   }
 
-  reset(state: AvatarState, now: number) {
-    this.current = state;
-    this.previous = null;
-    this.frozenStart = null;
-    this.since = now;
-    this.previousSince = now;
-    this.blinkAt = -10;
-  }
-
   private lookAtTime(now: number) {
     return lerpLook(this.previousLook, this.look, progress(now, this.lookAt, this.lookMorph));
   }

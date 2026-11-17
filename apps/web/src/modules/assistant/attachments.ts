@@ -4,7 +4,6 @@ import {
   AssistantFileType,
   AssistantImageType,
   assistantFileLimitMb,
-  CORE_API_PREFIX,
 } from '@erxes/core-contract';
 
 const BY_EXTENSION: Record<string, AssistantFileType> = {
@@ -31,8 +30,6 @@ export const ATTACH_ACCEPT = [
   ...ASSISTANT_FILE_TYPES,
   ...Object.keys(BY_EXTENSION).map((ext) => `.${ext}`),
 ].join(',');
-
-export const fileUrl = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
 
 export const isImage = (contentType: string) => AssistantImageType.safeParse(contentType).success;
 

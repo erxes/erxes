@@ -28,7 +28,7 @@ const DOCUMENT_FORMATS: Record<AssistantDocumentType, DocumentFormat> = {
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
 };
 
-export type FileContent =
+type FileContent =
   | { kind: 'image'; url: string; mediaType: string }
   | { kind: 'text'; text: string; truncated: boolean }
   | { kind: 'failed'; reason: string };
@@ -99,37 +99,26 @@ export const resolveAttachments = async (
   files: AssistantAttachment[],
   selections: AssistantSelection[],
 ) => {
-  const wanted = [
-    ...files.map(({ id }) => ({ id, image: false })),
-    ...selections.map(({ snapshot }) => ({ id: snapshot, image: true })),
-  ];
-
-  const rows = await readyFilesOfCaller(
-    client,
-    wanted.map(({ id }) => id),
-  );
+  const rows = await readyFilesOfCaller(client, [
+    ...files.map(({ id }) => id),
+    ...selections.map(({ snapshot }) => snapshot),
+  ]);
 
   const byId = new Map(rows.map((row) => [row.id, row]));
 
-  wanted.forEach(({ id, image }) => {
+  const stored = (id: string, image: boolean): AssistantAttachment => {
     const row = byId.get(id);
 
     if (!row) throw unavailable(id);
 
     checkRow(row, image);
-  });
-
-  const stored = (id: string): AssistantAttachment => {
-    const row = byId.get(id);
-
-    if (!row) throw unavailable(id);
 
     return { id: row.id, name: row.name, contentType: row.contentType, size: row.size };
   };
 
   return {
-    files: files.map(({ id }) => stored(id)),
-    snapshots: selections.map(({ snapshot }) => stored(snapshot)),
+    files: files.map(({ id }) => stored(id, false)),
+    snapshots: selections.map(({ snapshot }) => stored(snapshot, true)),
   };
 };
 
@@ -151,19 +140,25 @@ const IMAGE_SIGNATURES: Record<AssistantImageType, (bytes: Buffer) => boolean> =
     bytes.subarray(8, 12).toString('latin1') === 'WEBP',
 };
 
-const plainText = (bytes: Buffer) => {
+const utf8 = (bytes: Buffer) => {
   try {
-    const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-
-    if (text.includes('\0')) throw new DocumentTextError('The file is not text');
-
-    return {
-      text: text.slice(0, ATTACHMENT_TEXT_MAX),
-      truncated: text.length > ATTACHMENT_TEXT_MAX,
-    };
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   } catch {
+    return null;
+  }
+};
+
+const plainText = (bytes: Buffer) => {
+  const text = utf8(bytes);
+
+  if (text === null || text.includes('\0')) {
     throw new DocumentTextError('The file is not valid UTF-8 text');
   }
+
+  return {
+    text: text.slice(0, ATTACHMENT_TEXT_MAX),
+    truncated: text.length > ATTACHMENT_TEXT_MAX,
+  };
 };
 
 const imageTypeOf = (bytes: Buffer) =>
@@ -321,11 +316,13 @@ const selectionParts = (
 
 const expand = (part: Part, contents: Contents | null): Part[] => {
   if (part.type === 'data-files') {
-    return filesIn([part]).flatMap((file) => fileParts(file, contents?.get(file.id)));
+    return (AssistantFiles.safeParse(part.data).data?.files ?? []).flatMap((file) =>
+      fileParts(file, contents?.get(file.id)),
+    );
   }
 
   if (part.type === 'data-selections') {
-    return selectionsIn([part]).flatMap((selection) =>
+    return (AssistantSelections.safeParse(part.data).data?.selections ?? []).flatMap((selection) =>
       selectionParts(selection, contents?.get(selection.snapshot)),
     );
   }

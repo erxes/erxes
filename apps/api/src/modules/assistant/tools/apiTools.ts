@@ -1,3 +1,4 @@
+import type { AssistantApprovalMode } from '@erxes/core-contract';
 import { type Caller, enterScope, withOrg } from '@erxes/core-db';
 import { call, getRouter, isProcedure } from '@orpc/server';
 import { tool } from 'ai';
@@ -9,7 +10,6 @@ import { coreRouter } from '~/router';
 import type { InstalledPlugin } from '../plugins';
 import { identitiesIn } from '../records';
 import { issueReferences } from '../references.service';
-import type { ApprovalMode } from '../settings.service';
 import { type ApiProcedure, apiCatalog, needsApproval } from './apiCatalog';
 import { callPluginProcedure, type PluginProcedure, pluginProcedures } from './pluginOperations';
 import { bounded, describeError, refusal } from './results';
@@ -21,12 +21,20 @@ export interface ToolScope {
   orgId: string;
   threadId: string;
   context: CoreContext;
-  approvalMode: ApprovalMode;
+  approvalMode: AssistantApprovalMode;
   codeMode: boolean;
   plugins: InstalledPlugin[];
+  pluginProcedures: PluginProcedure[];
 }
 
-const SEARCH_LIMIT = 8;
+export const toolScope = (scope: Omit<ToolScope, 'pluginProcedures'>): ToolScope => ({
+  ...scope,
+  pluginProcedures: pluginProcedures(scope.plugins),
+});
+
+export const SEARCH_LIMIT = 8;
+
+export const SEARCH_MAX = 20;
 
 export const CallApiInput = z.object({
   procedure: z
@@ -77,15 +85,15 @@ type Entry = ApiProcedure | PluginProcedure;
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
 
 const findEntry = (scope: ToolScope, name: string): Entry | undefined =>
-  apiCatalog().get(name) ?? pluginProcedures(scope.plugins).find((entry) => entry.name === name);
+  apiCatalog().get(name) ?? scope.pluginProcedures.find((entry) => entry.name === name);
 
 const mayCall = (scope: ToolScope, entry: Entry) =>
   !entry.denied && (isPluginEntry(entry) || memberMayCall(entry.name, scope.member));
 
-const searchProcedures = (scope: ToolScope, query: string, limit: number) => {
+export const searchApi = (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
   const tokens = tokensOf(query);
 
-  const found = [...apiCatalog().values(), ...pluginProcedures(scope.plugins)]
+  const found = [...apiCatalog().values(), ...scope.pluginProcedures]
     .filter((entry) => mayCall(scope, entry))
     .map((procedure) => ({ procedure, score: scoreOf(procedure, tokens) }))
     .filter(({ score }) => score > 0)
@@ -104,8 +112,12 @@ const searchProcedures = (scope: ToolScope, query: string, limit: number) => {
 };
 
 const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) => {
+  const identities = identitiesIn(schema, result);
+
+  if (identities.length === 0) return bounded(result);
+
   const issued = await withOrg(scope.orgId, (tx) =>
-    issueReferences(tx, scope.threadId, identitiesIn(schema, result)),
+    issueReferences(tx, scope.threadId, identities),
   );
 
   return bounded(
@@ -147,11 +159,13 @@ export const callProcedure = async (
   if (!member)
     return refusal('UNAUTHORIZED', 'The member who started this chat is no longer active');
 
-  return enterScope(member, scope.orgId, () =>
+  const result = await enterScope(member, scope.orgId, () =>
     isPluginEntry(entry)
       ? callPluginProcedure(scope.orgId, entry, input)
       : runCore(scope, name, input),
   );
+
+  return result.ok ? { ...result, changed: entry.changes } : result;
 };
 
 export const approvalFor = (scope: ToolScope, input: CallApiInput) => {
@@ -162,16 +176,13 @@ export const approvalFor = (scope: ToolScope, input: CallApiInput) => {
   return needsApproval(entry, scope.approvalMode) ? 'user-approval' : 'not-applicable';
 };
 
-export const searchApi = (scope: ToolScope, query: string, limit = SEARCH_LIMIT) =>
-  searchProcedures(scope, query, limit);
-
 export const apiTools = (scope: ToolScope) => ({
   searchApi: tool({
     description:
       'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary and input JSON schema.',
     inputSchema: z.object({
       query: z.string().trim().min(1).max(200),
-      limit: z.int().min(1).max(20).optional(),
+      limit: z.int().min(1).max(SEARCH_MAX).optional(),
     }),
     execute: ({ query, limit }) => searchApi(scope, query, limit),
   }),

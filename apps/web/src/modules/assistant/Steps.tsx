@@ -10,7 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { Badge, Button, Collapsible, cn } from 'erxes-ui';
 import type { TFunction } from 'i18next';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import type { Step, StepStatus } from './transcriptRows';
@@ -86,13 +86,37 @@ const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
   return labels[step.status];
 };
 
-const Json = ({ label, value }: { label: string; value: unknown }) => (
+export const Json = ({ value, className }: { value: unknown; className?: string }) => (
+  <pre
+    className={cn(
+      'max-h-48 overflow-auto rounded-md bg-muted p-2 font-mono text-xs whitespace-pre-wrap',
+      className,
+    )}
+  >
+    {JSON.stringify(value, null, 2)}
+  </pre>
+);
+
+const LabeledJson = ({ label, value }: { label: string; value: unknown }) => (
   <div className="flex flex-col gap-1">
     <span className="text-xs font-medium text-muted-foreground">{label}</span>
-    <pre className="max-h-48 overflow-auto rounded-md bg-muted p-2 font-mono text-xs whitespace-pre-wrap">
-      {JSON.stringify(value, null, 2)}
-    </pre>
+    <Json value={value} />
   </div>
+);
+
+export const FoldTrigger = ({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) => (
+  <Collapsible.Trigger
+    render={<Button variant="ghost" size="sm" tone="muted" className={className} />}
+  >
+    <Collapsible.TriggerIcon className="size-3" />
+    {children}
+  </Collapsible.Trigger>
 );
 
 const StepRow = ({ step }: { step: Step }) => {
@@ -105,12 +129,7 @@ const StepRow = ({ step }: { step: Step }) => {
   return (
     <li>
       <Collapsible>
-        <Collapsible.Trigger
-          render={
-            <Button variant="ghost" size="sm" tone="muted" className="w-full justify-start" />
-          }
-        >
-          <Collapsible.TriggerIcon className="size-3" />
+        <FoldTrigger className="w-full justify-start">
           <Icon
             aria-hidden
             className={cn(
@@ -129,16 +148,16 @@ const StepRow = ({ step }: { step: Step }) => {
               {t('step.approved', 'Approved')}
             </Badge>
           )}
-        </Collapsible.Trigger>
+        </FoldTrigger>
         <Collapsible.Panel>
           <div className="flex flex-col gap-2 py-1 pl-8">
             {step.error && <p className="text-sm text-destructive-text">{step.error}</p>}
             {step.title && (
               <code className="font-mono text-xs text-muted-foreground">{step.name}</code>
             )}
-            <Json label={t('step.input', 'Sent')} value={step.input} />
+            <LabeledJson label={t('step.input', 'Sent')} value={step.input} />
             {step.output !== null && (
-              <Json label={t('step.output', 'Returned')} value={step.output} />
+              <LabeledJson label={t('step.output', 'Returned')} value={step.output} />
             )}
           </div>
         </Collapsible.Panel>
@@ -171,12 +190,7 @@ const SearchesRow = ({ searches }: { searches: Step[] }) => {
   return (
     <li>
       <Collapsible>
-        <Collapsible.Trigger
-          render={
-            <Button variant="ghost" size="sm" tone="muted" className="w-full justify-start" />
-          }
-        >
-          <Collapsible.TriggerIcon className="size-3" />
+        <FoldTrigger className="w-full justify-start">
           <Icon aria-hidden className={cn('size-3.5 shrink-0', running && 'animate-spin')} />
           <span className="min-w-0 flex-1 truncate text-left">
             {searchLabel(running !== undefined, t)}
@@ -186,7 +200,7 @@ const SearchesRow = ({ searches }: { searches: Step[] }) => {
               {t('step.search-count', '{{count}} searches', { count: searches.length })}
             </span>
           )}
-        </Collapsible.Trigger>
+        </FoldTrigger>
         <Collapsible.Panel>
           <ul className="flex flex-col gap-1 py-1 pl-8 text-xs text-muted-foreground">
             {searches.map((step) => (
@@ -233,8 +247,7 @@ export const StepsGroup = ({ steps: given, live }: { steps: Step[]; live: boolea
 
   return (
     <Collapsible open={open ?? active} onOpenChange={setOpen}>
-      <Collapsible.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>
-        <Collapsible.TriggerIcon className="size-3" />
+      <FoldTrigger>
         {active && <IconLoader2 aria-hidden className="size-3.5 animate-spin" />}
         <span className="min-w-0 truncate">{groupLabel(steps, current, live, t)}</span>
         {failed > 0 && (
@@ -242,7 +255,7 @@ export const StepsGroup = ({ steps: given, live }: { steps: Step[]; live: boolea
             {t('steps-failed', '· {{count}} failed', { count: failed })}
           </span>
         )}
-      </Collapsible.Trigger>
+      </FoldTrigger>
       <Collapsible.Panel>
         <ul className="mt-1 ml-3 flex flex-col border-l pl-1">
           {foldSearches(steps).map((item) =>
@@ -264,11 +277,10 @@ export const ThinkingBlock = ({ text, streaming }: { text: string; streaming: bo
 
   return (
     <Collapsible open={open ?? streaming} onOpenChange={setOpen}>
-      <Collapsible.Trigger render={<Button variant="ghost" size="sm" tone="muted" />}>
-        <Collapsible.TriggerIcon className="size-3" />
+      <FoldTrigger>
         <IconBrain aria-hidden className={cn('size-3.5', streaming && 'animate-pulse')} />
         <span>{streaming ? t('thinking.now', 'Thinking…') : t('thinking.done', 'Thought')}</span>
-      </Collapsible.Trigger>
+      </FoldTrigger>
       <Collapsible.Panel>
         <p className="mt-1 ml-3 border-l pl-3 text-sm whitespace-pre-wrap text-muted-foreground">
           {text}

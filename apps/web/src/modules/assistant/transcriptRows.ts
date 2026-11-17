@@ -163,9 +163,11 @@ const approvalRow = (part: ToolPart): TranscriptRow | null => {
   };
 };
 
+export const artifactOf = (part: ToolPart) =>
+  part.state === 'output-available' ? AssistantArtifact.safeParse(part.output).data : undefined;
+
 const artifactRow = (part: ToolPart): TranscriptRow | null => {
-  const artifact =
-    part.state === 'output-available' ? AssistantArtifact.safeParse(part.output).data : undefined;
+  const artifact = artifactOf(part);
 
   return artifact ? { kind: 'artifact', key: part.toolCallId, artifact } : null;
 };

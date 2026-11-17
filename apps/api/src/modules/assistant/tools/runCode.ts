@@ -1,7 +1,15 @@
 import { tool } from 'ai';
 import { z } from 'zod';
 import { CODE_LIMITS, runProgram } from '../codeMode';
-import { approvalFor, CallApiInput, callProcedure, searchApi, type ToolScope } from './apiTools';
+import {
+  approvalFor,
+  CallApiInput,
+  callProcedure,
+  SEARCH_LIMIT,
+  SEARCH_MAX,
+  searchApi,
+  type ToolScope,
+} from './apiTools';
 import { refusal } from './results';
 
 export const CODE_MODE_INSTRUCTIONS = `Code mode is on: runCode runs a JavaScript program in a sandbox with two async functions, searchApi(query, limit) and callApi(procedure, input), which work like the tools of the same names and return their results. Use it to page through records, join and aggregate them, and compute totals, shares, deltas and scenarios, then return one JSON value; console.log lines come back too. The program has no network, files or timers, stops after ${CODE_LIMITS.timeMs / 1000} seconds or ${CODE_LIMITS.hostCalls} API calls, and returns at most ${CODE_LIMITS.outputChars} characters. Changes that need the member's approval are refused inside a program: make those with callApi in the chat.`;
@@ -33,7 +41,9 @@ export const runCode = (scope: ToolScope) =>
 
       return runProgram(code, {
         searchApi: ([query = '', limit = '']) =>
-          Promise.resolve(searchApi(scope, query, Math.min(Number(limit) || 8, 20))),
+          Promise.resolve(
+            searchApi(scope, query, Math.min(Number(limit) || SEARCH_LIMIT, SEARCH_MAX)),
+          ),
         callApi: (args) => callFromProgram(scope, args),
       });
     },

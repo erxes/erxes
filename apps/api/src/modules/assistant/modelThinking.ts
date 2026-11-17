@@ -1,4 +1,4 @@
-import type { AssistantProvider } from '@erxes/core-contract';
+import { type AssistantProvider, AssistantThinkingLevel } from '@erxes/core-contract';
 import {
   ASSISTANT_THINKING_LEVELS,
   type ASSISTANT_THINKING_KINDS,
@@ -6,21 +6,22 @@ import {
 import type { streamText } from 'ai';
 import { findModelsDevModel } from './modelsDev';
 
-export type ThinkingLevel = (typeof ASSISTANT_THINKING_LEVELS)[number];
-
 type ThinkingKind = (typeof ASSISTANT_THINKING_KINDS)[number];
 
 type ProviderOptions = NonNullable<Parameters<typeof streamText>[0]['providerOptions']>;
 
-const LEGACY_LEVELS: readonly ThinkingLevel[] = ['off', 'minimal', 'low', 'medium', 'high'];
-
-const isThinkingLevel = (value: string): value is ThinkingLevel =>
-  ASSISTANT_THINKING_LEVELS.some((level) => level === value);
+const LEGACY_LEVELS: readonly AssistantThinkingLevel[] = [
+  'off',
+  'minimal',
+  'low',
+  'medium',
+  'high',
+];
 
 interface ResolvedThinking {
   kind: ThinkingKind;
-  levels: ThinkingLevel[];
-  native: Partial<Record<ThinkingLevel, string>>;
+  levels: AssistantThinkingLevel[];
+  native: Partial<Record<AssistantThinkingLevel, string>>;
   min: number;
   max: number;
 }
@@ -31,15 +32,19 @@ export const modelDisplayName = (provider: AssistantProvider, model: string) => 
   return name && name.toLowerCase() !== model.trim().toLowerCase() ? name : null;
 };
 
-const BUDGET_SHARE: Partial<Record<ThinkingLevel, number>> = { low: 0.25, medium: 0.5, high: 1 };
+const BUDGET_SHARE: Partial<Record<AssistantThinkingLevel, number>> = {
+  low: 0.25,
+  medium: 0.5,
+  high: 1,
+};
 
 const effortThinking = (values: string[]): ResolvedThinking | null => {
-  const native: Partial<Record<ThinkingLevel, string>> = {};
+  const native: Partial<Record<AssistantThinkingLevel, string>> = {};
 
   for (const value of values) {
-    const level = value === 'none' ? 'off' : value;
+    const level = AssistantThinkingLevel.safeParse(value === 'none' ? 'off' : value);
 
-    if (isThinkingLevel(level)) native[level] = value;
+    if (level.success) native[level.data] = value;
   }
 
   const levels = ASSISTANT_THINKING_LEVELS.filter((level) => level in native);
@@ -68,7 +73,7 @@ const resolveThinking = (provider: AssistantProvider, model: string): ResolvedTh
     const min = Math.max(0, budget.min ?? 0);
     const max = Math.max(min, budget.max ?? min);
 
-    const levels: ThinkingLevel[] =
+    const levels: AssistantThinkingLevel[] =
       min === 0 ? ['off', 'low', 'medium', 'high'] : ['low', 'medium', 'high'];
 
     return { native: {}, kind: 'budget', levels, min, max };
@@ -87,9 +92,9 @@ export const modelThinking = (provider: AssistantProvider, model: string) => {
   return thinking ? { kind: thinking.kind, levels: thinking.levels } : null;
 };
 
-const rank = (level: ThinkingLevel) => ASSISTANT_THINKING_LEVELS.indexOf(level);
+const rank = (level: AssistantThinkingLevel) => ASSISTANT_THINKING_LEVELS.indexOf(level);
 
-const clampLevel = (level: ThinkingLevel, levels: readonly ThinkingLevel[]) => {
+const clampLevel = (level: AssistantThinkingLevel, levels: readonly AssistantThinkingLevel[]) => {
   if (levels.length === 0 || levels.includes(level)) return level;
 
   return levels.reduce((best, candidate) => {
@@ -102,10 +107,10 @@ const clampLevel = (level: ThinkingLevel, levels: readonly ThinkingLevel[]) => {
   });
 };
 
-const clampTo = (thinking: ResolvedThinking | null, level: ThinkingLevel) =>
+const clampTo = (thinking: ResolvedThinking | null, level: AssistantThinkingLevel) =>
   clampLevel(level, thinking?.levels ?? LEGACY_LEVELS);
 
-const OPENAI_EFFORT: Record<Exclude<ThinkingLevel, 'off'>, string> = {
+const OPENAI_EFFORT: Record<Exclude<AssistantThinkingLevel, 'off'>, string> = {
   minimal: 'minimal',
   low: 'low',
   medium: 'medium',
@@ -114,9 +119,9 @@ const OPENAI_EFFORT: Record<Exclude<ThinkingLevel, 'off'>, string> = {
   max: 'high',
 };
 
-export const MIN_ANTHROPIC_THINKING_BUDGET = 1024;
+const MIN_ANTHROPIC_THINKING_BUDGET = 1024;
 
-const ANTHROPIC_BUDGET: Record<Exclude<ThinkingLevel, 'off'>, number> = {
+const ANTHROPIC_BUDGET: Record<Exclude<AssistantThinkingLevel, 'off'>, number> = {
   minimal: MIN_ANTHROPIC_THINKING_BUDGET,
   low: 4000,
   medium: 10000,
@@ -127,7 +132,7 @@ const ANTHROPIC_BUDGET: Record<Exclude<ThinkingLevel, 'off'>, number> = {
 
 const KIMI_CODE_OUTPUT_CEILING = 32768;
 
-const kimiCodeBudget = (thinking: ResolvedThinking | null, level: ThinkingLevel) => {
+const kimiCodeBudget = (thinking: ResolvedThinking | null, level: AssistantThinkingLevel) => {
   if (level === 'off' || thinking?.kind === 'none' || thinking?.kind === 'fixed') return 0;
 
   const budget =
@@ -141,9 +146,20 @@ const kimiCodeBudget = (thinking: ResolvedThinking | null, level: ThinkingLevel)
   return Math.max(budget, MIN_ANTHROPIC_THINKING_BUDGET);
 };
 
-export const anthropicThinking = (budgetTokens: number): ProviderOptions => ({
+const anthropicThinking = (budgetTokens: number): ProviderOptions => ({
   anthropic: { thinking: { type: 'enabled', budgetTokens } },
 });
+
+export const shortAnswer = (
+  provider: AssistantProvider,
+  tokens: number,
+): { maxOutputTokens: number; providerOptions?: ProviderOptions } =>
+  provider === 'kimi-code'
+    ? {
+        maxOutputTokens: MIN_ANTHROPIC_THINKING_BUDGET + tokens,
+        providerOptions: anthropicThinking(MIN_ANTHROPIC_THINKING_BUDGET),
+      }
+    : { maxOutputTokens: tokens };
 
 const PROVIDER_OPTIONS_KEY: Record<AssistantProvider, string> = {
   openai: 'openai',
@@ -155,7 +171,7 @@ const PROVIDER_OPTIONS_KEY: Record<AssistantProvider, string> = {
 export const thinkingProviderOptions = (
   provider: AssistantProvider,
   model: string,
-  level: ThinkingLevel,
+  level: AssistantThinkingLevel,
 ): ProviderOptions | undefined => {
   const thinking = resolveThinking(provider, model);
   const normalized = clampTo(thinking, level);
@@ -186,7 +202,7 @@ export const thinkingProviderOptions = (
 export const outputTokens = (
   provider: AssistantProvider,
   model: string,
-  level: ThinkingLevel,
+  level: AssistantThinkingLevel,
   visible: number,
 ) => {
   if (provider !== 'kimi-code') return visible;

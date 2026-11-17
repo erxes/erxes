@@ -1,4 +1,8 @@
 import { REFERENCE_PATTERN } from '@erxes/core-contract';
+import { orpc } from '@erxes/core-contract/client';
+
+export const referenceQuery = (handle: string) =>
+  orpc.assistant.reference.queryOptions({ input: { handle }, staleTime: 60_000 });
 
 const REFERENCE_PREFIX = '#erxes-ref-';
 

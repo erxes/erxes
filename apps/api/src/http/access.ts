@@ -40,23 +40,27 @@ const POLICIES = new Map<string, Policy>(Object.entries(ACCESS));
 
 const unauthorized = () => fail('UNAUTHORIZED', 'Sign in to continue');
 
-export const memberMayCall = (path: string, member: Member) => {
+const memberRuleOf = (path: string) => {
   const policy = POLICIES.get(path);
 
-  if (!policy || !('member' in policy) || !policy.member) return false;
-
-  return policy.member === 'any' || can(member, policy.member);
+  return policy && 'member' in policy && policy.member ? policy.member : undefined;
 };
 
-const checkMember = (policy: Policy, member: Member) => {
-  if (!('member' in policy) || !policy.member) {
-    throw fail('PLUGIN_ONLY', 'Only plugins can do this');
-  }
+export const memberMayCall = (path: string, member: Member) => {
+  const rule = memberRuleOf(path);
 
-  if (policy.member !== 'any' && !can(member, policy.member)) {
-    throw fail('NOT_ALLOWED', "Your role doesn't allow this", {
-      permission: policy.member,
-    });
+  if (!rule) return false;
+
+  return rule === 'any' || can(member, rule);
+};
+
+const checkMember = (path: string, member: Member) => {
+  const rule = memberRuleOf(path);
+
+  if (!rule) throw fail('PLUGIN_ONLY', 'Only plugins can do this');
+
+  if (rule !== 'any' && !can(member, rule)) {
+    throw fail('NOT_ALLOWED', "Your role doesn't allow this", { permission: rule });
   }
 };
 
@@ -119,17 +123,15 @@ export const decideKeyCall = (
 
   if (!decision.allowed) return decision;
 
-  const policy = POLICIES.get(path);
+  const rule = memberRuleOf(path);
 
-  if (!policy || !('member' in policy) || !policy.member) {
-    return { allowed: false, rule: 'never', reason: 'API keys cannot call this' };
-  }
+  if (!rule) return { allowed: false, rule: 'never', reason: 'API keys cannot call this' };
 
-  if (policy.member !== 'any' && !can(member, policy.member)) {
+  if (rule !== 'any' && !can(member, rule)) {
     return {
       allowed: false,
-      rule: `permission:${policy.member}`,
-      reason: `It needs ${policy.member}, which the maker's role no longer has`,
+      rule: `permission:${rule}`,
+      reason: `It needs ${rule}, which the maker's role no longer has`,
     };
   }
 
@@ -179,7 +181,7 @@ export const enforceAccess = async (path: string) => {
     case 'customer':
       throw fail('NOT_ALLOWED', 'Customers cannot do this');
     case 'user':
-      return who.key ? checkKey(who, who.key, path) : checkMember(policy, who);
+      return who.key ? checkKey(who, who.key, path) : checkMember(path, who);
     case 'plugin':
       return checkPlugin(policy, who.scopes);
     case 'system':

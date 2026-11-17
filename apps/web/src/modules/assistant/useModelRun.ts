@@ -23,8 +23,6 @@ export const useModelRun = () => {
     run: modelToRun({ connections: saved, catalog: entries, picked }),
     picked,
     setPicked,
-    connections,
-    catalog,
     entries,
     noKey: connections.isSuccess && saved.length === 0,
   };

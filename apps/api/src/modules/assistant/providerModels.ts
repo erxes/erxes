@@ -18,7 +18,7 @@ const Listing = z.object({
   ),
 });
 
-export type ModelListing =
+type ModelListing =
   | { entries: ProviderModelEntry[]; error: null; unsupported: false }
   | { entries: []; error: string; unsupported: boolean };
 

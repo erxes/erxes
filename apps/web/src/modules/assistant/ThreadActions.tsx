@@ -28,23 +28,31 @@ import { messageOf, orpc } from '@erxes/core-contract/client';
 import { saveFile } from '~/lib/files';
 import { threadMarkdown } from './exportMarkdown';
 import { paths } from '~/lib/paths';
-import { type StoredThread, useThread } from './useThread';
+import { type StoredThread, threadKey, threadTitle, useThread } from './useThread';
 
 const useThreadMutations = (onDeleted: (threadId: string) => void) => {
   const client = useQueryClient();
   const { toast } = useToast();
   const onError = (error: Error) => toast({ variant: 'destructive', title: messageOf(error) });
-  const refresh = () => client.invalidateQueries({ queryKey: orpc.assistant.key() });
+
+  const refresh = (id: string) =>
+    Promise.all([
+      client.invalidateQueries({ queryKey: orpc.assistant.threads.key() }),
+      client.invalidateQueries({ queryKey: threadKey(id) }),
+    ]);
 
   return {
     update: useMutation(
-      orpc.assistant.updateThread.mutationOptions({ onSuccess: refresh, onError }),
+      orpc.assistant.updateThread.mutationOptions({
+        onSuccess: (_result, { id }) => refresh(id),
+        onError,
+      }),
     ),
     remove: useMutation(
       orpc.assistant.removeThread.mutationOptions({
         onSuccess: (_result, { id }) => {
           onDeleted(id);
-          void refresh();
+          void refresh(id);
         },
         onError,
       }),
@@ -139,8 +147,7 @@ const ThreadMenu = ({
           <DropdownMenu.Item
             disabled={messages === null}
             onClick={() => {
-              if (messages)
-                exportThread(messages, thread.title ?? t('untitled', 'Untitled conversation'));
+              if (messages) exportThread(messages, threadTitle(thread, t));
             }}
           >
             <IconDownload />

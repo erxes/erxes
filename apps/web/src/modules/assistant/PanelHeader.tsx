@@ -7,7 +7,7 @@ import { type AssistantTab, wantComposerFocus } from './assistantState';
 import { HistoryDialog } from './HistoryDialog';
 import { ThreadActions } from './ThreadActions';
 import type { AssistantTabs } from './useAssistantTabs';
-import { useThread } from './useThread';
+import { threadTitle, useThread } from './useThread';
 
 const Tab = ({
   tab,
@@ -23,10 +23,7 @@ const Tab = ({
   const { t } = useTranslation('assistant');
   const thread = useThread(tab.threadId).data;
 
-  const unnamed =
-    tab.threadId === null ? t('new-chat', 'New chat') : t('untitled', 'Untitled conversation');
-
-  const title = thread?.title ?? unnamed;
+  const title = tab.threadId === null ? t('new-chat', 'New chat') : threadTitle(thread, t);
   const button = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {

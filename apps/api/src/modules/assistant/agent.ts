@@ -1,4 +1,8 @@
-import type { AssistantChatRequest, AssistantProvider } from '@erxes/core-contract';
+import type {
+  AssistantChatRequest,
+  AssistantProvider,
+  AssistantThinkingLevel,
+} from '@erxes/core-contract';
 import { newId } from '@erxes/core-db';
 import {
   convertToModelMessages,
@@ -10,13 +14,7 @@ import {
   type UIMessage,
 } from 'ai';
 import { instructionsFor, TITLE_INSTRUCTIONS } from './instructions';
-import {
-  anthropicThinking,
-  MIN_ANTHROPIC_THINKING_BUDGET,
-  outputTokens,
-  type ThinkingLevel,
-  thinkingProviderOptions,
-} from './modelThinking';
+import { outputTokens, shortAnswer, thinkingProviderOptions } from './modelThinking';
 import { createModel, DEFAULT_MODELS, describeProviderError } from './providers';
 import { apiTools, approvalFor, type ToolScope } from './tools/apiTools';
 import { askUser } from './tools/askUser';
@@ -65,7 +63,14 @@ export interface Run {
 const temperatureFor = (provider: AssistantProvider) =>
   provider === 'kimi' ? {} : { temperature: TEMPERATURE };
 
-const turnProviderOptions = (provider: AssistantProvider, model: string, level: ThinkingLevel) => {
+const modelOf = ({ provider, request }: Pick<Run, 'provider' | 'request'>) =>
+  request.model ?? DEFAULT_MODELS[provider];
+
+const turnProviderOptions = (
+  provider: AssistantProvider,
+  model: string,
+  level: AssistantThinkingLevel,
+) => {
   const thinking = thinkingProviderOptions(provider, model, level);
 
   return provider === 'openai'
@@ -84,7 +89,7 @@ const stoppedReply = (message: UIMessage): UIMessage => ({
 
 export const streamTurn = async (run: Run, abortSignal: AbortSignal) => {
   const { provider, apiKey, tools, scope, request } = run;
-  const model = request.model ?? DEFAULT_MODELS[provider];
+  const model = modelOf(run);
   const level = request.thinkingLevel ?? 'off';
   let reply: UIMessage | null = null;
 
@@ -140,16 +145,13 @@ export const generateTitle = async (run: Run) => {
   if (!prompt) return null;
 
   const { provider, apiKey } = run;
-  const model = run.request.model ?? DEFAULT_MODELS[provider];
-  const thinking = provider === 'kimi-code';
 
   const { text } = await generateText({
-    model: createModel(provider, model, apiKey),
+    model: createModel(provider, modelOf(run), apiKey),
     instructions: TITLE_INSTRUCTIONS,
     prompt,
-    maxOutputTokens: thinking ? MIN_ANTHROPIC_THINKING_BUDGET + 64 : 64,
     abortSignal: AbortSignal.timeout(30_000),
-    ...(thinking ? { providerOptions: anthropicThinking(MIN_ANTHROPIC_THINKING_BUDGET) } : {}),
+    ...shortAnswer(provider, 64),
   });
 
   return cleanTitle(text) || null;

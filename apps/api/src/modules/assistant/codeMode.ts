@@ -33,7 +33,7 @@ const ProgramResult = z.discriminatedUnion('ok', [
   z.object({ ok: z.literal(false), code: z.enum(ASSISTANT_PROGRAM_FAILURES), message: z.string() }),
 ]);
 
-export type ProgramResult = z.infer<typeof ProgramResult>;
+type ProgramResult = z.infer<typeof ProgramResult>;
 
 const FromProgram = z.discriminatedUnion('type', [
   z.object({

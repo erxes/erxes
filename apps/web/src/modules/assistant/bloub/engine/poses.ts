@@ -1,6 +1,6 @@
 import { EYE_H, EYE_SPLIT, EYE_W, REST_GAZE, type EyeCfg, type Face } from './face';
 import { TAU, clamp, easeOutCubic } from './math';
-import { circle, hullOfCircles, profileFromPolygon, type Silhouette } from './outline';
+import { circle, type Silhouette } from './outline';
 
 export interface Dot {
   x: number;
@@ -17,7 +17,7 @@ export interface Pose extends Face {
   dots: Dot[];
 }
 
-export type AvatarState = 'idle' | 'thinking' | 'wink' | 'exclaim';
+export type AvatarState = 'idle' | 'thinking' | 'wink';
 
 export interface StateDef {
   morph: number;
@@ -55,14 +55,6 @@ const dotPulse = (t: number, index: number) => {
 
   return clamp((p < 0.5 ? 0.5 - 0.5 * Math.cos(p * TAU) : 0) * 2);
 };
-
-const BAR_CY = -0.1875;
-
-const BAR = profileFromPolygon(
-  hullOfCircles({ x: 0, y: -0.505, r: 0.132 }, { x: 0, y: 0.13, r: 0.075 }),
-  0,
-  BAR_CY,
-);
 
 const thinking = (t: number) => {
   const emerge = 0.3 + 0.7 * easeOutCubic(clamp(t / 0.3));
@@ -114,20 +106,6 @@ export const STATES: Record<AvatarState, StateDef> = {
           { w: 0.236, h: 0.464, open: 1, tilt: 0 },
           { w: 0.447, h: 0.089, open: 1, tilt: 0 },
         ],
-      }),
-  },
-  exclaim: {
-    duration: 2,
-    morph: 0.45,
-    blinkIn: false,
-    ownBody: true,
-    ownFace: true,
-    frozenAt: 0.8,
-    pose: () =>
-      base({
-        sil: { radii: BAR, rot: 0, cx: 0, cy: BAR_CY, sx: 1, sy: 1 },
-        eyeAlpha: 0,
-        dots: [{ x: -0.012, y: 0.526, r: 0.113, opacity: 1 }],
       }),
   },
 };

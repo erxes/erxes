@@ -4,11 +4,12 @@ import type { UIMessage } from 'ai';
 import { Button, IconTip, Textarea } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { composerKey } from './Composer';
 import { CopyButton, textOf } from './CopyButton';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageText } from './MessageText';
 
-const mentionsOf = (message: UIMessage) =>
+export const mentionsOf = (message: UIMessage) =>
   message.parts.flatMap((part) =>
     part.type === 'data-mentions'
       ? (AssistantMentions.safeParse(part.data).data?.mentions ?? [])
@@ -52,14 +53,7 @@ const EditForm = ({
         rows={2}
         className="max-h-48 min-h-14 resize-none"
         onChange={(event) => setDraft(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') onCancel();
-
-          if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-            event.preventDefault();
-            send();
-          }
-        }}
+        onKeyDown={(event) => composerKey(event, onCancel, send)}
       />
       <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
         <IconInfoCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />

@@ -1,28 +1,16 @@
 import { cn } from 'erxes-ui';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
+import { useAppliedTheme } from '~/modules/app/ThemeEffect';
 import { isNumeric } from './csvRows';
 import { HEIGHT_MESSAGE, reportDocument } from './reportDocument';
-
-const watchTheme = (onChange: () => void) => {
-  const observer = new MutationObserver(onChange);
-
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
-  return () => observer.disconnect();
-};
-
-const useColorScheme = () =>
-  useSyncExternalStore(watchTheme, () =>
-    document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-  );
 
 const FRAME_MIN = 120;
 
 const HeightMessage = z.object({ [HEIGHT_MESSAGE]: z.number().int().min(0).max(100_000) });
 
 export const HtmlFrame = ({ title, html }: { title: string; html: string }) => {
-  const scheme = useColorScheme();
+  const scheme = useAppliedTheme();
   const [nonce] = useState(() => crypto.randomUUID().replaceAll('-', ''));
   const [height, setHeight] = useState(FRAME_MIN);
   const frame = useRef<HTMLIFrameElement>(null);

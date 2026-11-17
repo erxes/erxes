@@ -1,6 +1,6 @@
 import type { AssistantAppearance } from '@erxes/core-contract';
 import { useMediaQuery } from 'erxes-ui';
-import { type Ref, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
+import { type Ref, useEffect, useMemo, useRef, useState } from 'react';
 import { COLORS } from './engine/bodies';
 import { BotEngine } from './engine/engine';
 import type { BotFrame } from './engine/frame';
@@ -15,23 +15,20 @@ export interface BloubAvatarProps {
   state?: AvatarState;
   animated?: boolean;
   follow?: boolean;
-  replay?: number;
-  paper?: string;
   label?: string;
-  className?: string;
 }
 
 interface SvgProps {
   frame: BotFrame;
   size: number;
   ink: string;
-  paper: string;
   label?: string;
-  className?: string;
   svgRef?: Ref<SVGSVGElement>;
 }
 
-const BotSvg = ({ frame, size, ink, paper, label, className, svgRef }: SvgProps) => (
+const PAPER = 'var(--color-background)';
+
+const BotSvg = ({ frame, size, ink, label, svgRef }: SvgProps) => (
   <svg
     ref={svgRef}
     width={size}
@@ -40,7 +37,6 @@ const BotSvg = ({ frame, size, ink, paper, label, className, svgRef }: SvgProps)
     role={label ? 'img' : 'presentation'}
     aria-label={label}
     aria-hidden={label ? undefined : true}
-    className={className}
   >
     <path d={frame.bodyPath} fill={ink} />
     {frame.eyes.map((eye, index) => (
@@ -49,7 +45,7 @@ const BotSvg = ({ frame, size, ink, paper, label, className, svgRef }: SvgProps)
         d={eye.d}
         transform={eye.matrix}
         opacity={eye.alpha}
-        fill={paper}
+        fill={PAPER}
       />
     ))}
     {frame.dots.map((dot) => (
@@ -58,8 +54,8 @@ const BotSvg = ({ frame, size, ink, paper, label, className, svgRef }: SvgProps)
   </svg>
 );
 
-type Resolved = Required<Pick<BloubAvatarProps, 'state' | 'paper'>> &
-  Omit<BloubAvatarProps, 'state' | 'paper' | 'animated'>;
+type Resolved = Required<Pick<BloubAvatarProps, 'state'>> &
+  Omit<BloubAvatarProps, 'state' | 'animated'>;
 
 const FrozenAvatar = ({ appearance, state, ...rest }: Resolved) => {
   const { body, color, expression } = appearance;
@@ -72,7 +68,7 @@ const FrozenAvatar = ({ appearance, state, ...rest }: Resolved) => {
   return <BotSvg frame={frame} ink={COLORS[color]} {...rest} />;
 };
 
-const AnimatedAvatar = ({ appearance, state, follow = false, replay, ...rest }: Resolved) => {
+const AnimatedAvatar = ({ appearance, state, follow = false, ...rest }: Resolved) => {
   const { body, color, expression } = appearance;
   const [engine] = useState(() => new BotEngine(state, body, expression));
   const [frame, setFrame] = useState(() => engine.sample(0));
@@ -102,29 +98,19 @@ const AnimatedAvatar = ({ appearance, state, follow = false, replay, ...rest }: 
     setFrame(engine.sample(seconds));
   });
 
-  const restart = useEffectEvent(() => engine.reset(state, clock.current));
-
   useEffect(() => engine.setState(state, clock.current), [engine, clock, state]);
   useEffect(() => engine.setBody(body, clock.current), [engine, clock, body]);
   useEffect(() => engine.setFace(expression, clock.current), [engine, clock, expression]);
-  useEffect(() => {
-    if (replay) restart();
-  }, [replay]);
 
   return <BotSvg frame={frame} ink={COLORS[color]} svgRef={svg} {...rest} />;
 };
 
-export const BloubAvatar = ({
-  animated = true,
-  state = 'idle',
-  paper = 'var(--color-background)',
-  ...props
-}: BloubAvatarProps) => {
+export const BloubAvatar = ({ animated = true, state = 'idle', ...props }: BloubAvatarProps) => {
   const still = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   return animated && !still ? (
-    <AnimatedAvatar state={state} paper={paper} {...props} />
+    <AnimatedAvatar state={state} {...props} />
   ) : (
-    <FrozenAvatar state={state} paper={paper} {...props} />
+    <FrozenAvatar state={state} {...props} />
   );
 };

@@ -4,7 +4,7 @@ import {
   type AssistantChatRequest,
   AssistantFiles,
   AssistantMentions,
-  type AssistantMessagePart,
+  type AssistantMessagePart as Part,
   AssistantPage,
   type AssistantSelection,
   AssistantSelections,
@@ -17,8 +17,6 @@ import { fail, inputIssues } from '~/http/errors';
 import { resolveAttachments } from './attachments';
 import { type RecordIdentity, readRecord, readRecords } from './records';
 import { issueReferences } from './references.service';
-
-type Part = z.infer<typeof AssistantMessagePart>;
 
 interface Mention extends RecordIdentity {
   text: string;

@@ -15,12 +15,14 @@ const present = (row: ThreadRow) => ({ ...row, running: isRunning(row) });
 
 export const ownThread = () => eq(assistantThreads.userId, caller('user').userId);
 
-const findThread = async (client: Db, id: string) => {
-  const [row] = await client
+export const findThread = async (client: Db, id: string, { lock = false } = {}) => {
+  const query = client
     .select()
     .from(assistantThreads)
     .where(and(ownThread(), eq(assistantThreads.id, id)))
     .limit(1);
+
+  const [row] = await (lock ? query.for('update') : query);
 
   if (!row) throw notFound('Thread');
 
@@ -68,8 +70,6 @@ export const updateThread = async (
   id: string,
   changes: { title?: string; pinned?: boolean },
 ) => {
-  await findThread(client, id);
-
   const [row] = await client
     .update(assistantThreads)
     .set({ ...changes, updatedAt: sql`now()` })

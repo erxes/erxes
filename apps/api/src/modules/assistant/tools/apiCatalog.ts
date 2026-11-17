@@ -1,7 +1,6 @@
-import { coreContract } from '@erxes/core-contract';
+import { type AssistantApprovalMode, coreContract } from '@erxes/core-contract';
 import { type AnyContractProcedure, type AnySchema, isContractProcedure } from '@orpc/contract';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
-import type { ApprovalMode } from '../settings.service';
 
 export interface ApiProcedure {
   name: string;
@@ -143,5 +142,5 @@ export const apiCatalog = () => {
   return catalog;
 };
 
-export const needsApproval = (procedure: ApiProcedure, mode: ApprovalMode) =>
+export const needsApproval = (procedure: ApiProcedure, mode: AssistantApprovalMode) =>
   procedure.changes && (mode === 'writes' || procedure.risky);

@@ -12,9 +12,9 @@ export const ASSISTANT_FILES_MAX = 5;
 
 export const ASSISTANT_SELECTIONS_MAX = 3;
 
-export const ASSISTANT_IMAGE_MAX_MB = 4;
+const ASSISTANT_IMAGE_MAX_MB = 4;
 
-export const ASSISTANT_FILE_MAX_MB = 10;
+const ASSISTANT_FILE_MAX_MB = 10;
 
 export const ASSISTANT_SELECTION_TEXT_MAX = 8000;
 
@@ -28,7 +28,7 @@ export const AssistantDocumentType = z.enum(ASSISTANT_DOCUMENT_TYPES);
 
 export type AssistantDocumentType = z.infer<typeof AssistantDocumentType>;
 
-export const AssistantTextType = z.enum(ASSISTANT_TEXT_TYPES);
+const AssistantTextType = z.enum(ASSISTANT_TEXT_TYPES);
 
 export const AssistantFileType = z.union([
   AssistantImageType,

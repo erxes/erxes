@@ -9,12 +9,7 @@ import {
   hasFixedCatalog,
   isUsableModel,
 } from './modelCatalog';
-import {
-  anthropicThinking,
-  MIN_ANTHROPIC_THINKING_BUDGET,
-  modelDisplayName,
-  modelThinking,
-} from './modelThinking';
+import { modelDisplayName, modelThinking, shortAnswer } from './modelThinking';
 import { fetchProviderModels } from './providerModels';
 import {
   createModel,
@@ -64,15 +59,12 @@ export const listModels = async () => {
 const ACCEPTED = new Set(['text-delta', 'reasoning-delta', 'finish-step', 'finish']);
 
 const probe = async (provider: AssistantProvider, model: string, apiKey: string) => {
-  const thinking = provider === 'kimi-code';
-
   const result = streamText({
     model: createModel(provider, model, apiKey),
     prompt: 'Reply with OK.',
-    maxOutputTokens: thinking ? MIN_ANTHROPIC_THINKING_BUDGET + 16 : 16,
     maxRetries: 0,
     abortSignal: AbortSignal.timeout(20_000),
-    ...(thinking ? { providerOptions: anthropicThinking(MIN_ANTHROPIC_THINKING_BUDGET) } : {}),
+    ...shortAnswer(provider, 16),
   });
 
   for await (const part of result.stream) {

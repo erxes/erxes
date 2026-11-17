@@ -1,19 +1,15 @@
+import type { AssistantApprovalMode, coreContract } from '@erxes/core-contract';
 import { assistantSettings, type Db } from '@erxes/core-db';
-import type { ASSISTANT_APPROVAL_MODES } from '@erxes/core-db/assistantEnums';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { sql } from 'drizzle-orm';
 
-export type ApprovalMode = (typeof ASSISTANT_APPROVAL_MODES)[number];
-
-export interface SettingsChange {
-  approvalMode?: ApprovalMode;
-  codeMode?: boolean;
-}
+type SettingsChange = InferContractRouterInputs<typeof coreContract>['assistant']['updateSettings'];
 
 export const getSettings = async (client: Db) => {
   const [row] = await client.select().from(assistantSettings).limit(1);
 
   return {
-    approvalMode: row?.approvalMode ?? ('writes' satisfies ApprovalMode),
+    approvalMode: row?.approvalMode ?? ('writes' satisfies AssistantApprovalMode),
     codeMode: row?.codeMode ?? false,
   };
 };

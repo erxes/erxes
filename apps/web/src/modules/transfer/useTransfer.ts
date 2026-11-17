@@ -37,5 +37,3 @@ export const useExports = () =>
         query.state.data?.data.some((item) => item.status === 'running') ? 2000 : false,
     }),
   );
-
-export const downloadHref = (fileId: string) => `/core/v1/files/${fileId}/download`;

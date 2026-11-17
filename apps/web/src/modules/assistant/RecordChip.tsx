@@ -12,8 +12,8 @@ import { badgeVariants, cn, RecordChip as PanelChip } from 'erxes-ui';
 import { createContext, type ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { orpc } from '@erxes/core-contract/client';
 import { RECORD_CONTENT_TYPES, recordPath } from './recordPages';
+import { referenceQuery } from './references';
 
 const CHIP = 'mx-0.5 max-w-full align-middle';
 
@@ -110,7 +110,7 @@ const ResolvedChip = ({ record, pending }: { record?: AssistantRecord; pending: 
 };
 
 export const ReferenceChip = ({ handle }: { handle: string }) => {
-  const query = useQuery(orpc.assistant.reference.queryOptions({ input: { handle } }));
+  const query = useQuery(referenceQuery(handle));
 
   return <ResolvedChip record={query.data} pending={query.isPending} />;
 };

@@ -16,8 +16,9 @@ import { Link, Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
+import { fileDownloadUrl } from '~/lib/files';
 import { paths } from '~/lib/paths';
-import { downloadHref, useExports, useImports } from '~/modules/transfer/useTransfer';
+import { useExports, useImports } from '~/modules/transfer/useTransfer';
 
 const IMPORT_TONE: Record<
   Import['status'],
@@ -99,7 +100,7 @@ const ExportRow = ({ item }: { item: Export }) => {
       <When value={item.createdAt} />
       {item.fileId && (
         <a
-          href={downloadHref(item.fileId)}
+          href={fileDownloadUrl(item.fileId)}
           className="flex items-center gap-1 text-primary-text hover:underline"
         >
           <IconDownload className="size-4" />
