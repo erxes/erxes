@@ -5,6 +5,7 @@ import { Input } from '../../components/input';
 import { setupDomRender } from '../../lib/render-in-dom';
 import { Editor } from '../blocks/components/Editor';
 import { PanelFormLayout, PanelFormRow } from './PanelForm';
+import { PanelExpansionContext } from './panelExpansion';
 
 const render = setupDomRender();
 
@@ -29,6 +30,10 @@ const switchRow = (props: { error?: string; hint?: string }) => (
     <input id="new-tab" type="checkbox" />
   </PanelFormRow>
 );
+
+/** Whether the row's label is cut at two lines. */
+const labelClamped = (container: HTMLElement) =>
+  container.querySelector('label span span')?.classList.contains('line-clamp-2');
 
 describe('PanelFormRow', () => {
   it('names its control by the label, so a click on the label reaches it', () => {
@@ -119,6 +124,18 @@ describe('PanelFormRow', () => {
     expect(document.getElementById(box.getAttribute('aria-describedby') ?? '')?.textContent).toBe(
       'Enter a description',
     );
+  });
+
+  it('cuts a long label at two lines in a side panel, and shows it whole on the record page', () => {
+    expect(labelClamped(render(switchRow({})))).toBe(true);
+
+    const page = render(
+      <PanelExpansionContext.Provider value={{ expanded: true }}>
+        {switchRow({})}
+      </PanelExpansionContext.Provider>,
+    );
+
+    expect(labelClamped(page)).toBe(false);
   });
 });
 

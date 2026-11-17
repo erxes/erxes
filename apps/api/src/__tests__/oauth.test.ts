@@ -1,10 +1,12 @@
+import { auditLogs, oauthCodes, oauthRefreshTokens, users } from '@erxes/core-db';
 import { verifyErxesAccessToken } from '@erxes/plugin-sdk';
+import { eq } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { hashPassword, randomToken, sha256 } from '~/lib/crypto';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 const REDIRECT = 'https://acme.hr.example.com/callback';
@@ -38,6 +40,11 @@ const exchange = (code: string, verifier: string) => ({
   redirect_uri: REDIRECT,
   code_verifier: verifier,
 });
+
+/** The id half of a code or refresh token (`<id>.<secret>`). */
+const idOf = (credential = '') => credential.split('.')[0] ?? '';
+
+const refused = { error: 'invalid_grant' };
 
 const refresh = (refreshToken = '') => ({
   grant_type: 'refresh_token',
@@ -203,5 +210,70 @@ describe('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300_000 }
 
     await owner.api.auth.signOutEverywhere({});
     expect((await token(refresh(fresh.refresh_token))).status).toBe(400);
+  });
+
+  it('refuses a code sent to another address, with a changed secret, expired, or without the verifier', async () => {
+    await owner.api.auth.signIn(OWNER);
+
+    const { verifier, challenge } = pkce();
+    const fresh = async () => (await codeFor(challenge)).code;
+
+    const elsewhere = { ...exchange(await fresh(), verifier), redirect_uri: `${REDIRECT}/other` };
+
+    expect((await token(elsewhere)).body).toEqual(refused);
+    expect((await token(exchange(`${idOf(await fresh())}.changed`, verifier))).body).toEqual(
+      refused,
+    );
+    expect((await token(exchange(idOf(await fresh()), verifier))).body).toEqual(refused);
+
+    const { code_verifier: _, ...noVerifier } = exchange(await fresh(), verifier);
+
+    expect((await token(noVerifier)).body).toEqual(refused);
+
+    const expired = await fresh();
+
+    await adminDb()
+      .update(oauthCodes)
+      .set({ expiresAt: new Date(Date.now() - 1000) })
+      .where(eq(oauthCodes.id, idOf(expired)));
+    expect((await token(exchange(expired, verifier))).body).toEqual(refused);
+    expect((await token(exchange('unknown.secret', verifier))).body).toEqual(refused);
+
+    expect(await granted(exchange(await fresh(), verifier))).toMatchObject({
+      token_type: 'Bearer',
+    });
+
+    const signIns = await adminDb()
+      .select({ targetType: auditLogs.targetType, targetId: auditLogs.targetId })
+      .from(auditLogs)
+      .where(eq(auditLogs.action, 'auth.oauth_signed_in'));
+
+    expect(signIns).toContainEqual({ targetType: 'plugin', targetId: 'hr' });
+  });
+
+  it('refuses a refresh token with a changed secret, past its expiry, or of a member no longer active', async () => {
+    await owner.api.auth.signIn(OWNER);
+
+    const { verifier, challenge } = pkce();
+    const signIn = async () => granted(exchange((await codeFor(challenge)).code, verifier));
+
+    const changed = await signIn();
+
+    expect((await token(refresh(`${idOf(changed.refresh_token)}.changed`))).body).toEqual(refused);
+    expect((await token(refresh('unknown.secret'))).body).toEqual(refused);
+    expect(await granted(refresh(changed.refresh_token))).toMatchObject({ token_type: 'Bearer' });
+
+    const expired = await signIn();
+
+    await adminDb()
+      .update(oauthRefreshTokens)
+      .set({ expiresAt: new Date(Date.now() - 1000) })
+      .where(eq(oauthRefreshTokens.id, idOf(expired.refresh_token)));
+    expect((await token(refresh(expired.refresh_token))).body).toEqual(refused);
+
+    const disabled = await signIn();
+
+    await adminDb().update(users).set({ status: 'disabled' }).where(eq(users.email, OWNER.email));
+    expect((await token(refresh(disabled.refresh_token))).body).toEqual(refused);
   });
 });

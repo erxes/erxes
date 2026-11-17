@@ -1,0 +1,202 @@
+# Mutation testing with Stryker, shared by core (mutation-tests.yml) and every plugin. Stryker makes
+# small changes to the code (`>` to `>=`, a branch removed) and runs the tests that cover each one.
+# A change every test still passes on is a false test: it runs over the code without checking it.
+# Pull requests: only the files they change, from the base branch's last results, and one comment
+# with what no test caught. Branch runs: every file, rerunning only what changed since the last run,
+# and one `false-test` issue per folder, updated in place and closed once every change is caught.
+# It reports and never blocks a merge. The settings and ignore rules are tools/mutation/.
+name: Mutation testing
+
+on:
+  workflow_call:
+    inputs:
+      mutate:
+        description: Files to mutate, one glob per line; a line starting with ! leaves files out.
+        type: string
+        required: true
+      shards:
+        description: Runners a branch run splits the files across (a pull request uses one).
+        type: number
+        default: 4
+      timeout-minutes:
+        description: Minutes a branch run's runner may take; a pull request's stops at 60.
+        type: number
+        default: 180
+      issue-branch:
+        description: The one branch whose runs open and close issues; the default branch if empty.
+        type: string
+        default: ''
+
+env:
+  VP_GIT_HOOKS: '0'
+  STRYKER: '@stryker-mutator/core@10.1.1 @stryker-mutator/vitest-runner@10.1.1'
+  MODE: ${{ github.event_name == 'pull_request' && 'pr' || 'full' }}
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      count: ${{ steps.plan.outputs.count }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # This workflow's own scripts, at the commit the caller pinned.
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .erxes-mutation
+          sparse-checkout: tools/mutation
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - name: Files the pull request changes
+        if: env.MODE == 'pr'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+            --jq '.[] | select(.status != "removed") | .filename' > "$RUNNER_TEMP/changed.txt"
+      - id: plan
+        run: node .erxes-mutation/tools/mutation/plan.ts
+        env:
+          MUTATE: ${{ inputs.mutate }}
+          SHARDS: ${{ env.MODE == 'pr' && 1 || inputs.shards }}
+          CHANGED_FILES: ${{ env.MODE == 'pr' && format('{0}/changed.txt', runner.temp) || '' }}
+
+  mutate:
+    name: Mutate (${{ matrix.shard }})
+    needs: plan
+    if: needs.plan.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 60 || inputs.timeout-minutes }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      # The org shares 20 job slots across all its repos; this leaves the rest to everyone's CI.
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
+      MUTATE_FILES: ${{ matrix.files }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .erxes-mutation
+          sparse-checkout: tools/mutation
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Installed here, not in each repo's package.json, so one version change in core reaches all.
+      - run: pnpm add --workspace-root --save-dev $STRYKER
+      # The last branch run's results: Stryker reruns only mutants whose code or tests changed.
+      - uses: actions/cache/restore@v6
+        with:
+          path: .scratch/mutation/previous.json
+          key: mutation-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: mutation-
+      # When no test imports these files, Stryker stops after the dry run and writes no report.
+      - name: Stryker
+        run: |
+          pnpm exec stryker run .erxes-mutation/tools/mutation/stryker.json \
+            --mutate "$MUTATE_FILES" --appendPlugins "$PWD/.erxes-mutation/tools/mutation/ignorers.ts"
+          test -f .scratch/mutation/mutation.json || touch .scratch/mutation/untested
+      # Inside a folder named by shard: a lone artifact downloads without its own folder.
+      - name: Results by shard
+        if: always()
+        env:
+          OUT: ${{ runner.temp }}/out/mutation-${{ matrix.shard }}
+        run: |
+          mkdir -p "$OUT"
+          for file in mutation.json mutation.html untested; do
+            if [ -f ".scratch/mutation/$file" ]; then cp ".scratch/mutation/$file" "$OUT/"; fi
+          done
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: mutation-${{ matrix.shard }}
+          path: ${{ runner.temp }}/out
+          retention-days: 14
+          if-no-files-found: ignore
+
+  report:
+    name: Report
+    needs: [plan, mutate]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.count != '0' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    env:
+      MERGED_OUT: .scratch/mutation/previous.json
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .erxes-mutation
+          sparse-checkout: tools/mutation
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      # The last results, for the files of a shard that sent no report.
+      - uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.MERGED_OUT }}
+          key: mutation-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: mutation-
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: mutation-*
+          path: ${{ runner.temp }}/reports
+      - name: Summary, and the comment or issues
+        run: node .erxes-mutation/tools/mutation/report.ts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPORTS_DIR: ${{ runner.temp }}/reports
+          PLAN: ${{ needs.plan.outputs.matrix }}
+          MUTATE_RESULT: ${{ needs.mutate.result }}
+          # A scheduled run is always on the default branch and its event names no repository.
+          ISSUES: ${{ env.MODE == 'full' && (inputs.issue-branch != '' && github.ref_name == inputs.issue-branch || inputs.issue-branch == '' && (github.event_name == 'schedule' || github.ref_name == github.event.repository.default_branch)) }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      # Saved even when a shard or the issue update failed: the next run redoes only what is missing.
+      # Named by run, not commit, since a saved cache is never replaced; the newest one is restored.
+      - uses: actions/cache/save@v6
+        if: ${{ !cancelled() && env.MODE == 'full' && hashFiles(env.MERGED_OUT) != '' }}
+        with:
+          path: ${{ env.MERGED_OUT }}
+          key: mutation-${{ github.run_id }}-${{ github.run_attempt }}

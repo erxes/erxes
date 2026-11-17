@@ -26,6 +26,24 @@ describe('broadcast body Markdown', () => {
     expect(blocksToMarkdown(editorWith(markdown))).toBe(markdown);
   });
 
+  it('saves a chip fallback without its spaces, and one of only spaces as none', () => {
+    const editor: BodyEditor = BlockNoteEditor.create({
+      schema: BODY_SCHEMA,
+      initialContent: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'field', props: { name: 'firstName', fallback: '  there ' } },
+            { type: 'text', text: ' and ', styles: {} },
+            { type: 'field', props: { name: 'organization', fallback: '   ' } },
+          ],
+        },
+      ],
+    });
+
+    expect(blocksToMarkdown(editor)).toBe('{{ firstName | there }} and {{ organization }}');
+  });
+
   it('saves the Markdown core renders, fields as placeholders', () => {
     const markdown = [
       '# News for {{ firstName | you }}',

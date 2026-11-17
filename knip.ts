@@ -4,8 +4,9 @@ import type { KnipConfig } from 'knip';
 const config: KnipConfig = {
   workspaces: {
     '.': {
-      // tools/*.ts are scripts the vp tasks in vite.config.ts run with node.
-      entry: ['tools/*.ts'],
+      // tools/*.ts are scripts the vp tasks in vite.config.ts run with node; tools/mutation/*.ts
+      // are what .github/workflows/mutation.yml runs and loads into Stryker.
+      entry: ['tools/*.ts', 'tools/mutation/*.ts'],
       project: ['tools/**/*.ts', 'e2e/**/*.ts'],
       // The daily flows in Chromium (pnpm e2e); the config names the specs and the setup file.
       playwright: {
@@ -15,6 +16,8 @@ const config: KnipConfig = {
       // The check task runs these: oxlint calls tsrs-lint through OXLINT_TSGOLINT_PATH, jscpd
       // reads .jscpd.json and react-doctor reads doctor.config.jsonc.
       ignoreDependencies: ['tsrs', 'jscpd', 'react-doctor'],
+      // mutation.yml installs Stryker on the runner, for core and every plugin alike.
+      ignoreBinaries: ['stryker'],
     },
     // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
     'apps/api': {
