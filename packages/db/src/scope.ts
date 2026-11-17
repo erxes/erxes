@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { ActorType, ApiKeyAreas, ApiKeyPlugins } from './schema';
+import type { ActorType, ApiKeyActions, ApiKeyAreas, ApiKeyPlugins } from './schema';
 import type { Transaction } from './types';
 
 /**
@@ -19,6 +19,8 @@ export interface KeyRules {
   areas: ApiKeyAreas;
   /** The plugins whose APIs it may call (`plugins.session`). */
   plugins: ApiKeyPlugins;
+  /** Where it uses only some actions, by area or plugin name. */
+  actions: ApiKeyActions;
   rows: RowLimits;
 }
 

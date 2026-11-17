@@ -83,6 +83,7 @@ const useKeySummary = () => {
           kind: key.kind,
           areas: key.areas,
           plugins: titled(key.pluginAccess),
+          actions: key.actions,
           scope: key.ownRecords ? 'own' : key.unitIds.length ? 'units' : 'all',
           unitNames: key.unitIds.map(nameOf),
           tagNames: key.tagIds.map(nameOf),
