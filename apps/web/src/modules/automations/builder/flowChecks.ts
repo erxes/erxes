@@ -58,6 +58,23 @@ export const countSteps = (steps: AutomationStep[]): number =>
   );
 
 /**
+ * An event's own values as fields (`event.payload.<key>`), under the event's name. One that holds
+ * a plugin's record id (`recordType`) is picked from that plugin's records.
+ */
+export const eventDataFields = (
+  event: { label: string; source?: string; fields?: DataField[] } | undefined,
+): FieldInfo[] =>
+  (event?.fields ?? []).map((field) => ({
+    path: `event.payload.${field.key}`,
+    label: field.label,
+    type: field.type,
+    group: 'event',
+    groupLabel: event?.label,
+    recordType: field.recordType,
+    source: event?.source,
+  }));
+
+/**
  * What the steps before `id` can use besides the record: the trigger event's values
  * ("Deal" of "Deal created") and earlier steps' outputs ("Create a deal: Deal",
  * "Customer updated within the wait").
@@ -69,14 +86,10 @@ export const stepOutputFields = (
     events: { type: string; label: string }[];
     actions: ActionInfo[];
     /** The trigger event's own values, as its plugin declares them. */
-    trigger?: { label: string; fields: DataField[] };
+    trigger?: { label: string; source?: string; fields: DataField[] };
   },
 ): FieldInfo[] => {
-  const out: FieldInfo[] = (context.trigger?.fields ?? []).map((field) => ({
-    path: `event.payload.${field.key}`,
-    label: field.label,
-    type: field.type,
-  }));
+  const out: FieldInfo[] = eventDataFields(context.trigger);
 
   const walk = (list: AutomationStep[]): boolean => {
     for (const step of list) {
@@ -91,6 +104,9 @@ export const stepOutputFields = (
             path: `steps.${step.id}.output.${output.key}`,
             label: `${title}: ${output.label}`,
             type: output.type,
+            ...(output.recordType && action
+              ? { recordType: output.recordType, source: action.source }
+              : {}),
           });
         }
       }

@@ -1,12 +1,4 @@
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
 import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -14,6 +6,7 @@ import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-reac
 import { cn, ContextMenu, TabButton } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePointerSortSensors } from '~/lib/sortSensors';
 import type { NavApp } from './apps';
 
 /** The app's icon; on hover it turns into a grip, as tabs can be dragged. */
@@ -240,10 +233,7 @@ export const CoreTabAppTabs = ({
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 6 } }),
-  );
+  const sensors = usePointerSortSensors();
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over && active.id !== over.id) onMove(String(active.id), String(over.id));

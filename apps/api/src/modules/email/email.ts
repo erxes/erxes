@@ -4,6 +4,7 @@ import { config } from '~/config';
 import { logger } from '~/logger';
 import { defineJob } from '~/modules/jobs/jobs';
 import { EmailPayload, renderEmail } from './templates';
+import { orgTransport } from './transport';
 
 const log = logger.child({ component: 'email' });
 
@@ -12,7 +13,7 @@ let transporter: Transporter | null = null;
 interface Message {
   to: string;
   replyTo?: string;
-  /** The sender's name shown with erxes's sending address (`EMAIL_FROM`). */
+  /** The sender's name, shown with the sending address (the organisation's, else `EMAIL_FROM`). */
   fromName?: string;
   subject: string;
   html: string;
@@ -56,8 +57,27 @@ const fromWith = (name: string | undefined) => {
   return { name, address };
 };
 
-/** Sends one email now, or throws the server's refusal (nodemailer's `responseCode`). */
-export const deliverEmail = async (message: Message) => {
+/**
+ * Sends one email now, or throws the server's refusal (nodemailer's
+ * `responseCode`). An organisation with its own settings (Settings ›
+ * Integrations › Email sending) sends from its address through its provider;
+ * the others through the server's.
+ */
+export const deliverEmail = async (message: Message, orgId?: string) => {
+  const own = orgId ? await orgTransport(orgId) : null;
+
+  if (own) {
+    const { fromName, ...mail } = message;
+    const name = fromName ?? own.settings.fromName;
+
+    await own.transport.sendMail({
+      from: name ? { name, address: own.settings.fromEmail } : own.settings.fromEmail,
+      ...mail,
+    });
+
+    return;
+  }
+
   if (config.email.driver === 'log') {
     logRefusal(message.to);
     loggedEmails.push({
@@ -108,12 +128,15 @@ export const emailJob = defineJob({
 
     const rendered = payload.template === 'rendered';
 
-    await deliverEmail({
-      to: payload.to,
-      replyTo: payload.template === 'message' || rendered ? payload.replyTo : undefined,
-      fromName: rendered ? payload.fromName : undefined,
-      ...renderEmail(payload),
-    });
+    await deliverEmail(
+      {
+        to: payload.to,
+        replyTo: payload.template === 'message' || rendered ? payload.replyTo : undefined,
+        fromName: rendered ? payload.fromName : undefined,
+        ...renderEmail(payload),
+      },
+      job.orgId,
+    );
   },
 });
 

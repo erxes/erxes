@@ -288,6 +288,8 @@ describe('a plugin record in core’s side panel', () => {
 
     await vi.waitFor(() => expect(address(container)).toBe('/sales/deals/d1'));
     await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
+    const crumbs = container.querySelectorAll('nav a[href="/sales"], nav a[href="/sales/deals"]');
+    expect([...crumbs].map((a) => a.textContent).join(' › ')).toBe('Sales › Deal');
   });
 
   it.each([

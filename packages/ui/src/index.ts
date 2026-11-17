@@ -217,6 +217,10 @@ export { TextField } from './modules/record-field/components/TextField';
 
 export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneInput';
 
+export { Board } from './modules/board/Board';
+
+export type { BoardMove } from './modules/board/BoardRoot';
+
 export { RecordList } from './modules/record-list/RecordList';
 
 export type { RecordListGroup } from './modules/record-list/RecordListRoot';

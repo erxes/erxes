@@ -164,7 +164,10 @@ export type TPanelRecordType = {
   contacts?: (contentId: string) => UseQueryOptions<TRecordContacts, Error, TRecordContacts>;
   /** A timeline type of the plugin's manifest (`timelines`): core's Activity tab shows it. */
   activity?: string;
-  /** Custom fields: core adds a Properties tab and a settings page for them. */
+  /**
+   * Custom fields: core adds a Properties tab and their settings page,
+   * `/settings/properties/<plugin>.<type>`, which the plugin's own settings link.
+   */
   properties?: TRecordProperties;
 };
 
@@ -189,8 +192,9 @@ export type TRelationTab = {
 };
 
 /**
- * A plugin's settings page, linked from core's settings sidebar.
- * The page is a route of the plugin's own, under its `path`, e.g. `/frontline/settings/tags`.
+ * A plugin's settings page; core's settings link the first one.
+ * The page is a route of the plugin's own, under its `path`, e.g. `/frontline/settings/tags`,
+ * drawn in the plugin's layout and opened from its sidebar's `AppLayoutFooterLink`.
  */
 export type TPluginSettingsPage = {
   /** The page's address, under the plugin's `path`. */
@@ -209,7 +213,7 @@ export type IUIConfig = {
   name: string;
   path: string;
   icon?: React.ElementType;
-  /** The plugin's settings pages, in core's settings sidebar for members who may use the plugin. */
+  /** The plugin's settings pages; core's settings link the first for members who may use the plugin. */
   settings?: TPluginSettingsPage[];
   /** Sections on core's customer and company detail, shown to members who may use the plugin. */
   recordSections?: TRecordSection[];

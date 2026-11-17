@@ -20,17 +20,20 @@ import { z } from 'zod';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
-import { useSignOutEverywhere } from '~/modules/auth/session';
+import { useSession, useSessionQuery, useSignOutEverywhere } from '~/modules/auth/session';
 import { TwoFactorSection } from './TwoFactorSection';
 
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
 
-const usePasswordSchema = () => {
+/** `first`: the member has no password yet, so no current one is asked for. */
+const usePasswordSchema = (first: boolean) => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
   return z
     .object({
-      currentPassword: z.string().min(1, t('current-password-required', 'Enter your password')),
+      currentPassword: first
+        ? z.string()
+        : z.string().min(1, t('current-password-required', 'Enter your password')),
       newPassword: z
         .string()
         .regex(
@@ -77,21 +80,26 @@ const PasswordField = ({
   />
 );
 
-/** Changing my own password needs the current one. */
+/** Changing my own password needs the current one; a member without one sets it. */
 const PasswordForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { toast } = useToast();
+  const first = !useSession().hasPassword;
+  const { refetch } = useSessionQuery();
 
   const form = useForm<PasswordValues>({
-    resolver: zodResolver(usePasswordSchema()),
+    resolver: zodResolver(usePasswordSchema(first)),
     defaultValues: { currentPassword: '', newPassword: '', confirm: '' },
   });
 
   const change = useMutation(
     orpc.auth.changePassword.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
         form.reset();
         toast({ title: t('password-changed', 'Password changed') });
+
+        // The session now says the member has one.
+        if (first) await refetch();
       },
       onError: (error) => {
         if (isApiError(error, 'WRONG_PASSWORD'))
@@ -111,7 +119,11 @@ const PasswordForm = () => {
   return (
     <Form.Section
       title={t('password', 'Password')}
-      description={t('password-description', 'Use a password you don’t use elsewhere.')}
+      description={
+        first
+          ? t('password-first', 'You sign in from erxes.io. Set a password to sign in here too.')
+          : t('password-description', 'Use a password you don’t use elsewhere.')
+      }
     >
       <Form {...form}>
         <form
@@ -119,15 +131,17 @@ const PasswordForm = () => {
           noValidate
           onSubmit={(event) =>
             void form.handleSubmit(({ currentPassword, newPassword }) =>
-              change.mutate({ currentPassword, newPassword }),
+              change.mutate({ currentPassword: first ? undefined : currentPassword, newPassword }),
             )(event)
           }
         >
-          <PasswordField
-            name="currentPassword"
-            label={t('current-password', 'Current password')}
-            autoComplete="current-password"
-          />
+          {!first && (
+            <PasswordField
+              name="currentPassword"
+              label={t('current-password', 'Current password')}
+              autoComplete="current-password"
+            />
+          )}
           <PasswordField
             name="newPassword"
             label={t('new-password', 'New password')}

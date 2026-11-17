@@ -16,6 +16,7 @@ shared nuqs
 shared react-hook-form
 type AvatarProps
 type BadgeProps
+type BoardMove
 type ButtonProps
 type CalendarProps
 type ChartConfig
@@ -79,6 +80,7 @@ value AppLayoutFooterLink
 value Avatar
 value BackgroundGradientAnimation
 value Badge
+value Board
 value Breadcrumb
 value Button
 value Calendar

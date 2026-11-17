@@ -1,9 +1,9 @@
 import type { LeadRecordType } from '@erxes/core-contract';
-import { useDraggable } from '@dnd-kit/core';
 import { IconClockHour4, IconMail, IconPhone } from '@tabler/icons-react';
 import { memberQueries } from '@erxes/core-contract/client';
 import {
   Avatar,
+  Board,
   cn,
   companyTitle,
   customerTitle,
@@ -67,7 +67,7 @@ const CardFooter = ({ lead }: { lead: BoardLead }) => {
   );
 };
 
-export const CardBody = ({ lead }: { lead: BoardLead }) => {
+const CardBody = ({ lead }: { lead: BoardLead }) => {
   const t = useLeadsT();
   const name = nameOf(lead) || t('board.unnamed');
 
@@ -98,9 +98,6 @@ export const CardBody = ({ lead }: { lead: BoardLead }) => {
   );
 };
 
-export const CARD =
-  'flex select-none flex-col gap-2 rounded-lg border bg-background p-3 text-left shadow-xs';
-
 export const LeadCard = memo(function LeadCard({
   recordType,
   lead,
@@ -108,29 +105,21 @@ export const LeadCard = memo(function LeadCard({
   recordType: LeadRecordType;
   lead: BoardLead;
 }) {
+  const t = useLeadsT();
   const { openRecord } = useSidePanel();
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id });
 
   return (
-    <button
-      type="button"
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      onClick={() =>
+    <Board.Card
+      id={lead.id}
+      title={nameOf(lead) || t('board.unnamed')}
+      onOpen={() =>
         openRecord({
           contentType: recordType === 'company' ? 'core:company' : 'core:customer',
           contentId: lead.id,
         })
       }
-      className={cn(
-        CARD,
-        'block w-full cursor-grab text-left outline-none transition hover:border-foreground/15 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing',
-        // A placeholder stays where the card was while its copy is dragged.
-        isDragging && 'border-dashed opacity-40 shadow-none',
-      )}
     >
       <CardBody lead={lead} />
-    </button>
+    </Board.Card>
   );
 });

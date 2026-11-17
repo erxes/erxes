@@ -10,6 +10,7 @@ import { InviteTeamMemberSection } from './components/InviteTeamMemberSection';
 import { OnboardingLeftSideBar } from './components/OnboardingLeftSideBar';
 import { OnboardingStepper } from './components/OnboardingStepper';
 import { getOnboardingSteps, type OnboardingStepDef } from './components/onboardingSteps';
+import { PasswordSection } from './components/PasswordSection';
 import { ProfileSection } from './components/ProfileSection';
 import { SetupScreen } from './components/SetupScreen';
 import { ThemeSection } from './components/ThemeSection';
@@ -33,37 +34,41 @@ const useWelcomeHotkeyScope = () => {
 const StepContent = ({
   step,
   steps,
-  canInvite,
   exampleData,
   onStep,
   onFinish,
 }: {
   step: number;
   steps: OnboardingStepDef[];
-  canInvite: boolean;
   exampleData?: { value: boolean; onChange: (value: boolean) => void };
   onStep: (step: number) => void;
   onFinish: () => void;
 }) => {
-  if (step === 1) return <WelcomeSection steps={steps} onContinue={() => onStep(2)} />;
+  const next = () => onStep(step + 1);
 
-  if (step === 2) return <ProfileSection onContinue={() => onStep(3)} />;
-
-  if (step === 3) return <ThemeSection onContinue={() => onStep(4)} />;
-
-  if (canInvite && step === 4) return <InviteTeamMemberSection onContinue={() => onStep(5)} />;
-
-  if (step === (canInvite ? 5 : 4)) {
-    return <FinalSection exampleData={exampleData} onContinue={onFinish} />;
+  switch (steps[step - 1]?.key) {
+    case 'welcome':
+      return <WelcomeSection steps={steps} onContinue={next} />;
+    case 'password':
+      // Once it is set the step leaves the list, so the profile takes its number.
+      return <PasswordSection onContinue={() => onStep(step)} />;
+    case 'profile':
+      return <ProfileSection onContinue={next} />;
+    case 'theme':
+      return <ThemeSection onContinue={next} />;
+    case 'invite':
+      return <InviteTeamMemberSection onContinue={next} />;
+    case 'done':
+      return <FinalSection exampleData={exampleData} onContinue={onFinish} />;
+    default:
+      return null;
   }
-
-  return null;
 };
 
 export const MainOnboarding = () => {
   const navigate = useNavigate();
   const needsOnboarding = useNeedsOnboarding();
-  const { user } = useSession();
+  const { user, hasPassword } = useSession();
   // The owner (who opens a fresh organisation) is offered example data.
   const isOwner = user.role === 'owner';
   const [exampleData, setExampleData] = useState(isOwner);
@@ -73,7 +78,12 @@ export const MainOnboarding = () => {
   const [storedStep, setCurrentStep] = useAtom(onboardingStepState);
   // Owners and admins may invite.
   const canInvite = useCan()('team.invite');
-  const steps = useMemo(() => getOnboardingSteps(canInvite), [canInvite]);
+
+  const steps = useMemo(
+    () => getOnboardingSteps({ canInvite, needsPassword: !hasPassword }),
+    [canInvite, hasPassword],
+  );
+
   // A step kept from another layout (e.g. before invites were allowed) starts over.
   const currentStep = storedStep >= 1 && storedStep <= steps.length ? storedStep : 1;
 
@@ -117,7 +127,6 @@ export const MainOnboarding = () => {
           <StepContent
             step={currentStep}
             steps={steps}
-            canInvite={canInvite}
             exampleData={isOwner ? { value: exampleData, onChange: setExampleData } : undefined}
             onStep={setCurrentStep}
             onFinish={() => setSettingUp(true)}

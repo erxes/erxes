@@ -175,7 +175,12 @@ export const recordSignedIn = (
 export const getSession = async (orgId: string, userId: string) =>
   withOrg(orgId, async (tx) => {
     const [row] = await tx
-      .select({ user: users, organization: organizations, permissions: roles.permissions })
+      .select({
+        user: users,
+        organization: organizations,
+        permissions: roles.permissions,
+        hasPassword: sql<boolean>`${users.passwordHash} is not null`,
+      })
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
@@ -194,6 +199,7 @@ export const getSession = async (orgId: string, userId: string) =>
         role: row.user.role,
         permissions: row.permissions,
       }),
+      hasPassword: row.hasPassword,
     };
   });
 

@@ -1445,6 +1445,46 @@
           "path": "/emails"
         }
       }
+    },
+    "settings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/settings"
+        }
+      }
+    },
+    "saveSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/email/settings"
+        }
+      }
+    },
+    "removeSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/email/settings"
+        }
+      }
+    },
+    "sendTest": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/settings/test"
+        }
+      }
     }
   },
   "events": {

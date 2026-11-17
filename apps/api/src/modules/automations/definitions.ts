@@ -2,21 +2,26 @@ import type {
   AutomationDefinition,
   AutomationFieldPath,
   AutomationStep,
+  ConditionGroup,
 } from '@erxes/core-contract';
 import {
   CONTENT_TYPES,
   type ContentType,
   type Db,
-  type FIELD_TYPES,
   fields,
   pluginInstallations,
   plugins,
 } from '@erxes/core-db';
-import { and, eq, inArray } from 'drizzle-orm';
+import { compileGroup } from '@erxes/plugin-sdk/filter';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
+import { inOrder } from '~/lib/sequence';
+import { subjectFilterFields } from '~/modules/views/filterFields';
+import { subjectCompiler } from '~/modules/views/recordFilter';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions/catalog';
 import { render } from './templates';
+import { dateConditions } from './conditions';
 
 const installedPlugins = (client: Db) =>
   client
@@ -169,79 +174,128 @@ const templateProblems = (definition: AutomationDefinition) => {
   }
 };
 
-/** How conditions compare a custom field's values. */
-const KIND_OF_FIELD = {
-  text: 'text',
-  textarea: 'text',
-  number: 'number',
-  date: 'date',
-  boolean: 'boolean',
-  select: 'select',
-  multiselect: 'select',
-  radio: 'select',
-  check: 'text',
-  phone: 'text',
-  list: 'text',
-} satisfies Record<(typeof FIELD_TYPES)[number], AutomationFieldPath['type']>;
-
 const COMMON_FIELDS: AutomationFieldPath[] = [
-  { path: 'event.type', label: 'Event type', type: 'text' },
-  { path: 'event.actorType', label: 'Who did it (user, plugin, system)', type: 'text' },
-  { path: 'event.payload', label: 'Event details', type: 'text' },
+  { path: 'event.type', label: 'Event type', type: 'text', group: 'event', groupLabel: 'Event' },
+  {
+    path: 'event.actorType',
+    label: 'Who did it (user, plugin, system)',
+    type: 'text',
+    group: 'event',
+    groupLabel: 'Event',
+  },
+  {
+    path: 'event.payload',
+    label: 'Event details',
+    type: 'text',
+    group: 'event',
+    groupLabel: 'Event',
+  },
 ];
 
-const CUSTOMER_FIELDS: AutomationFieldPath[] = [
-  { path: 'subject.firstName', label: 'First name', type: 'text' },
-  { path: 'subject.lastName', label: 'Last name', type: 'text' },
-  { path: 'subject.primaryEmail', label: 'Email', type: 'text' },
-  { path: 'subject.primaryPhone', label: 'Phone', type: 'text' },
-  { path: 'subject.state', label: 'State', type: 'select', options: ['lead', 'customer'] },
-  { path: 'subject.ownerId', label: 'Owner', type: 'member' },
-  { path: 'subject.tagIds', label: 'Tags', type: 'tags' },
-  { path: 'subject.birthDate', label: 'Birthday', type: 'date' },
-  { path: 'subject.createdAt', label: 'Created', type: 'date' },
-];
-
-const COMPANY_NAME: AutomationFieldPath = {
-  path: 'subject.primaryName',
-  label: 'Name',
-  type: 'text',
-};
-
-const COMPANY_FIELDS: AutomationFieldPath[] = [
-  COMPANY_NAME,
-  { path: 'subject.ownerId', label: 'Owner', type: 'member' },
-  { path: 'subject.tagIds', label: 'Tags', type: 'tags' },
-  { path: 'subject.createdAt', label: 'Created', type: 'date' },
-];
-
-const builtInFields = (subject?: ContentType) => {
-  if (subject === 'company') return COMPANY_FIELDS;
-
-  if (subject === 'customer') return CUSTOMER_FIELDS;
-
-  return [...CUSTOMER_FIELDS, COMPANY_NAME];
-};
-
-/** Built-in fields of customers and companies, and the organisation's custom fields. */
+/**
+ * What conditions and placeholders read: the event's fields, and the record's fields as its
+ * lists filter them (built-in, lead, custom, the company's, plugins' relations), so a condition
+ * means the same as in a saved view. Placeholders insert only what the record itself holds.
+ */
 export const automationFields = async (client: Db, subject?: ContentType) => {
-  const custom = await client
-    .select({ id: fields.id, label: fields.label, type: fields.type, options: fields.options })
-    .from(fields)
-    .where(subject ? eq(fields.contentType, subject) : inArray(fields.contentType, CONTENT_TYPES));
+  const types = subject ? [subject] : CONTENT_TYPES;
+  const seen = new Set<string>();
+  const record: AutomationFieldPath[] = [];
 
-  return {
-    data: [
-      ...COMMON_FIELDS,
-      ...builtInFields(subject),
-      ...custom.map((field) => ({
-        path: `subject.customFields.${field.id}`,
-        label: `${field.label} (custom)`,
-        type: KIND_OF_FIELD[field.type],
-        options: field.options,
-      })),
-    ],
-  };
+  // Both types' fields when the trigger names none, each path once.
+  await inOrder(types, async (type) => {
+    for (const spec of await subjectFilterFields(client, type)) {
+      if (seen.has(spec.path)) continue;
+
+      seen.add(spec.path);
+      record.push({
+        path: spec.path,
+        label: spec.label,
+        type: spec.type,
+        options: spec.options,
+        group: spec.group,
+        groupLabel: spec.groupLabel,
+        currency: spec.currency,
+        relation: spec.relation,
+        conditionsOnly:
+          Boolean(spec.related) || spec.viaCompany === true || spec.group === 'company',
+      });
+    }
+  });
+
+  return { data: [...COMMON_FIELDS, ...record] };
+};
+
+/** Every condition group of a definition: the trigger's, the goal, and its steps'. */
+const conditionGroups = (definition: AutomationDefinition) => {
+  const { trigger } = definition;
+
+  const groups: (ConditionGroup | undefined)[] = [
+    trigger.kind === 'event'
+      ? trigger.conditions
+      : trigger.kind === 'date'
+        ? dateConditions(trigger)
+        : trigger.audience?.conditions,
+    definition.goal,
+  ];
+
+  walk(definition.steps, (step) => {
+    if (step.type === 'branch' || step.type === 'wait_for') groups.push(step.conditions);
+
+    if (step.type === 'switch') groups.push(...step.cases.map((item) => item.conditions));
+  });
+
+  return groups.filter((group): group is ConditionGroup => Boolean(group?.rules.length));
+};
+
+const subjectPaths = (group: ConditionGroup): string[] =>
+  group.rules.flatMap((rule) =>
+    'match' in rule ? subjectPaths(rule) : rule.path.startsWith('subject.') ? [rule.path] : [],
+  );
+
+/**
+ * Conditions a run couldn't check: on a field the record doesn't have, an operator or value its
+ * field can't take, groups nested too deep. Compiled as runs compile them, so what saves runs.
+ */
+const conditionProblems = async (
+  client: Db,
+  definition: AutomationDefinition,
+  subject: SubjectKind,
+) => {
+  const groups = conditionGroups(definition);
+
+  if (!groups.length) return [];
+
+  const problems: string[] = [];
+
+  if (!subject) {
+    // Rules on the record read empty without one: only how deep the groups go matters.
+    groups.forEach((group) => {
+      try {
+        compileGroup(group, () => sql`true`);
+      } catch (error) {
+        problems.push(error instanceof Error ? error.message : String(error));
+      }
+    });
+
+    return problems;
+  }
+
+  const compiler = await subjectCompiler(client, subject);
+
+  await inOrder(groups, async (group) => {
+    const unknown = subjectPaths(group).filter((path) => !compiler.fields.has(path));
+
+    problems.push(...unknown.map((path) => `Conditions: unknown field ${path}`));
+
+    try {
+      await compiler.compile(group, () => true);
+    } catch (error) {
+      problems.push(`Conditions: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  });
+
+  return problems;
 };
 
 /**
@@ -262,6 +316,7 @@ export const definitionProblems = async (client: Db, definition: AutomationDefin
     problems.push(...stepProblems(step, catalog, subject));
   });
   problems.push(...templateProblems(definition));
+  problems.push(...(await conditionProblems(client, definition, subject)));
 
   return problems;
 };

@@ -1,8 +1,8 @@
-import { type Icon, IconCreditCard, IconReceiptTax } from '@tabler/icons-react';
+import { type Icon, IconCreditCard, IconMail, IconReceiptTax } from '@tabler/icons-react';
 import { paths } from '~/lib/paths';
 
 /** What an integration is for: the catalog's filters, in this order. */
-export const INTEGRATION_CATEGORIES = ['payments', 'tax'] as const;
+export const INTEGRATION_CATEGORIES = ['email', 'payments', 'tax'] as const;
 
 export type IntegrationCategory = (typeof INTEGRATION_CATEGORIES)[number];
 
@@ -24,9 +24,22 @@ interface Base {
  * settings page elsewhere (payment gateways on Settings › Payments) links there,
  * so each is connected in one place. A new one adds an entry here.
  */
-export type Integration = (Base & { kind: 'ebarimt' }) | (Base & { kind: 'gateways'; to: string });
+export type Integration =
+  | (Base & { kind: 'email' })
+  | (Base & { kind: 'ebarimt' })
+  | (Base & { kind: 'gateways'; to: string });
 
 export const INTEGRATIONS: Integration[] = [
+  {
+    kind: 'email',
+    key: 'email',
+    name: 'Email sending',
+    summary:
+      'Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES.',
+    icon: IconMail,
+    category: 'email',
+    countries: [],
+  },
   {
     kind: 'ebarimt',
     key: 'ebarimt',

@@ -13,13 +13,14 @@ export interface IntegrationStatus {
 }
 
 /**
- * Each integration's state (`statusOf`), from three queries for the whole
+ * Each integration's state (`statusOf`), from four queries for the whole
  * catalog. Null while it loads, when its query failed (`error`), or when the
  * member may not see it (gateways and receipts need payments.manage).
  */
 export const useIntegrationStatus = () => {
   const canPayments = useCan()('payments.manage');
   const ebarimt = useQuery(orpc.ebarimt.settings.queryOptions());
+  const email = useQuery(orpc.emails.settings.queryOptions());
 
   const gateways = useQuery(
     orpc.payments.gateways.queryOptions({ input: canPayments ? undefined : skipToken }),
@@ -35,6 +36,12 @@ export const useIntegrationStatus = () => {
   );
 
   const statusOf = (integration: Integration): IntegrationStatus | null => {
+    if (integration.kind === 'email') {
+      if (!email.isSuccess) return null;
+
+      return { state: email.data ? 'connected' : 'not-set-up' };
+    }
+
     if (integration.kind === 'ebarimt') {
       if (!ebarimt.isSuccess) return null;
 
@@ -63,7 +70,8 @@ export const useIntegrationStatus = () => {
   return {
     statusOf,
     /** A state query failed: its tiles show no state, the page says so. */
-    error: ebarimt.error ?? gateways.error ?? failed.error,
-    refetch: () => Promise.all([ebarimt.refetch(), gateways.refetch(), failed.refetch()]),
+    error: email.error ?? ebarimt.error ?? gateways.error ?? failed.error,
+    refetch: () =>
+      Promise.all([email.refetch(), ebarimt.refetch(), gateways.refetch(), failed.refetch()]),
   };
 };

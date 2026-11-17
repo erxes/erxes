@@ -26,7 +26,7 @@ export interface LoadedPluginConfig extends PluginConfig {
   recordTypes: TPanelRecordType[];
   /** The well-formed ones of the plugin's tabs on other records' panels. */
   relationTabs: TRelationTab[];
-  /** The well-formed ones of the plugin's settings pages, linked from core's settings sidebar. */
+  /** The well-formed ones of the plugin's settings pages; core's settings link the first. */
   settings: TPluginSettingsPage[];
   /** The well-formed ones of the plugin's tiles for the home dashboard. */
   dashboardWidgets: TDashboardWidget[];

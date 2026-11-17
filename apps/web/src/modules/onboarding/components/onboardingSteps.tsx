@@ -1,5 +1,6 @@
 import {
   IconCircleCheck,
+  IconLock,
   IconPalette,
   IconSparkles,
   IconUserCircle,
@@ -8,6 +9,7 @@ import {
 import type { ComponentType } from 'react';
 
 export interface OnboardingStepDef {
+  key: 'welcome' | 'password' | 'profile' | 'theme' | 'invite' | 'done';
   step: number;
   title: string;
   subtitle: string;
@@ -16,8 +18,19 @@ export interface OnboardingStepDef {
   icon: ComponentType<{ className?: string }>;
 }
 
-export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
+/**
+ * `needsPassword`: the member has none yet (a SaaS owner comes in signed in
+ * from erxes.io), so they set one right after the welcome.
+ */
+export function getOnboardingSteps({
+  canInvite,
+  needsPassword,
+}: {
+  canInvite?: boolean;
+  needsPassword?: boolean;
+} = {}): OnboardingStepDef[] {
   const welcome: Omit<OnboardingStepDef, 'step'> = {
+    key: 'welcome',
     title: 'Welcome to erxes',
     subtitle: 'An open-source experience operating system (XOS)',
     cardTitle: 'Welcome',
@@ -25,7 +38,17 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
     icon: IconSparkles,
   };
 
+  const password: Omit<OnboardingStepDef, 'step'> = {
+    key: 'password',
+    title: 'Set your password',
+    subtitle: 'So you can also sign in at your workspace address',
+    cardTitle: 'Your Password',
+    cardSubtitle: 'Sign in directly',
+    icon: IconLock,
+  };
+
   const profile: Omit<OnboardingStepDef, 'step'> = {
+    key: 'profile',
     title: 'Create your profile',
     subtitle: 'Set your name, username and avatar — how your team will see you',
     cardTitle: 'Your Profile',
@@ -34,6 +57,7 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
   };
 
   const theme: Omit<OnboardingStepDef, 'step'> = {
+    key: 'theme',
     title: 'Choose your theme',
     subtitle: 'Light or dark mode — pick the look that is easy on your eyes',
     cardTitle: 'Your Preferences',
@@ -42,6 +66,7 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
   };
 
   const inviteTeam: Omit<OnboardingStepDef, 'step'> = {
+    key: 'invite',
     title: 'Invite your team',
     subtitle: 'Add teammates by email so you can collaborate from day one',
     cardTitle: 'Invite team',
@@ -50,6 +75,7 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
   };
 
   const allSet: Omit<OnboardingStepDef, 'step'> = {
+    key: 'done',
     title: "You're all set",
     subtitle: 'Your workspace is ready — dive in and make it yours',
     cardTitle: 'All set',
@@ -58,12 +84,13 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
   };
 
   return [
-    { ...welcome, step: 1 },
-    { ...profile, step: 2 },
-    { ...theme, step: 3 },
-    ...(canInvite ? [{ ...inviteTeam, step: 4 }] : []),
-    { ...allSet, step: canInvite ? 5 : 4 },
-  ];
+    welcome,
+    ...(needsPassword ? [password] : []),
+    profile,
+    theme,
+    ...(canInvite ? [inviteTeam] : []),
+    allSet,
+  ].map((def, index) => ({ ...def, step: index + 1 }));
 }
 
 export function getOnboardingStepForScreen(steps: OnboardingStepDef[], screenStep: number) {

@@ -1,11 +1,18 @@
 import { type AutomationDefinition, CoreEvent } from '@erxes/core-contract';
-import { automationRuns, automations, type Db, type events, newId } from '@erxes/core-db';
+import {
+  automationRuns,
+  automations,
+  type Db,
+  type events,
+  newId,
+  savepoint,
+} from '@erxes/core-db';
 import { and, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import type { EventConsumer } from '~/modules/events/consumers';
 import { enqueueJobs } from '~/modules/jobs/jobs';
-import { evaluateGroup } from './conditions';
+import { checkersByMember } from './conditionCheck';
 import { nextCursor, stepAt } from './cursor';
 import { advanceJob, continueAfter, definitionsOf, finishRun, log, type SubjectRef } from './runs';
 import { type Subject, subjectOf } from './subjects';
@@ -207,6 +214,7 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
 
   const subject = await subjectOf(tx, event.subjectType, event.subjectId);
   const context = { event: dto, subject, steps: {} };
+  const ref = subjectRefOf(event);
 
   // Never an automation's own events.
   const eligible = candidates.flatMap((automation) =>
@@ -220,29 +228,52 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
     eligible.map(({ automation, version }) => ({ automationId: automation.id, version })),
   );
 
-  const matches = eligible.flatMap(({ automation, version }) => {
+  const checkerOf = checkersByMember(tx, event.orgId);
+
+  // Each automation checks its conditions, then its own re-entry and hourly limit, in turn on
+  // one transaction.
+  await inOrder(eligible, async ({ automation, version }) => {
     const definition = definitions.get(automation.id, version);
 
-    return definition?.trigger.kind === 'event' &&
-      evaluateGroup(definition.trigger.conditions, context)
-      ? [{ automation, definition }]
-      : [];
-  });
+    if (definition?.trigger.kind !== 'event') return;
 
-  // Each automation checks its own re-entry and hourly limit, on one transaction.
-  await inOrder(matches, ({ automation, definition }) =>
-    startRun(tx, automation, definition, {
+    const { conditions } = definition.trigger;
+
+    const matched = await conditionsHold(
+      () => checkerOf(automation.activatedBy).holds(ref, conditions, context),
+      { automation: automation.id, event: event.id },
+    );
+
+    if (!matched) return;
+
+    await startRun(tx, automation, definition, {
       eventId: event.id,
       eventType: event.type,
-      subject:
-        event.subjectType && event.subjectId
-          ? { type: event.subjectType, id: event.subjectId }
-          : null,
+      subject: ref,
       event: dto,
       depth: event.depth,
       loaded: subject,
-    }),
-  );
+    });
+  });
+};
+
+/** The record an event is about, if any. */
+const subjectRefOf = (event: EventRow) =>
+  event.subjectType && event.subjectId ? { type: event.subjectType, id: event.subjectId } : null;
+
+/**
+ * Whether an automation's conditions hold, checked in a savepoint: conditions that can't be
+ * checked (a value the field can't take, the member who turned it on is gone) count as not
+ * holding for this one automation, logged, and leave the event's other automations be.
+ */
+const conditionsHold = async (check: () => Promise<boolean>, facts: Record<string, string>) => {
+  try {
+    return await savepoint(check);
+  } catch (error) {
+    log.warn({ ...facts, err: error }, 'automation conditions could not be checked');
+
+    return false;
+  }
 };
 
 /**
@@ -270,6 +301,18 @@ const resumeWaiting = async (tx: Db, event: EventRow, subjectId: string, dto: Co
     subjects.set(type, await subjectOf(tx, type, subjectId));
   });
 
+  const owners = await tx
+    .select({ id: automations.id, activatedBy: automations.activatedBy })
+    .from(automations)
+    .where(
+      inArray(
+        automations.id,
+        waiting.map((run) => run.automationId),
+      ),
+    );
+
+  const checkerOf = checkersByMember(tx, event.orgId);
+
   // Each run advances on its own (finished, or past its wait), in turn on one transaction.
   await inOrder(waiting, async (run) => {
     const definition = definitions.get(run.automationId, run.version);
@@ -277,23 +320,37 @@ const resumeWaiting = async (tx: Db, event: EventRow, subjectId: string, dto: Co
     if (!definition) return;
 
     const context = { ...run.context, subject: subjects.get(run.subjectType) ?? null };
+    const step = stepAt(definition.steps, run.cursor);
+    const awaited = run.waitEvent === event.type && step?.type === 'wait_for' ? step : null;
+    const activatedBy = owners.find((owner) => owner.id === run.automationId)?.activatedBy ?? null;
 
-    if (definition.goal && evaluateGroup(definition.goal, context)) {
+    const ref =
+      run.subjectType && run.subjectId ? { type: run.subjectType, id: run.subjectId } : null;
+
+    // The goal, and the awaited event's conditions, in one check.
+    const [goalMet, arrived] = await savepoint(() =>
+      checkerOf(activatedBy).check(ref, [
+        { group: definition.goal, context },
+        { group: awaited?.conditions, context: { ...context, event: dto } },
+      ]),
+    ).catch((error: unknown) => {
+      log.warn(
+        { run: run.id, event: event.id, err: error },
+        'a waiting run’s conditions could not be checked; it waits on',
+      );
+
+      return [false, false];
+    });
+
+    if (definition.goal && goalMet) {
       await finishRun(tx, run.id, 'succeeded', { goal: true, context });
 
       return;
     }
 
-    const step = stepAt(definition.steps, run.cursor);
+    if (!awaited || !arrived) return;
 
-    if (
-      run.waitEvent !== event.type ||
-      step?.type !== 'wait_for' ||
-      !evaluateGroup(step.conditions, { ...context, event: dto })
-    )
-      return;
-
-    await continueAfter(tx, run, step, context, {
+    await continueAfter(tx, run, awaited, context, {
       input: null,
       output: { matched: true, event: dto },
       next: nextCursor(definition.steps, run.cursor),
