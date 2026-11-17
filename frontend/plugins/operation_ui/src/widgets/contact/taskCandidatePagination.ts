@@ -1,3 +1,4 @@
+import { mergeContactCandidatePages } from './contactConnection';
 import type { OperationContactTaskCandidatesQuery } from '~/gql/graphql';
 
 export const mergeTaskCandidatePages = (
@@ -6,16 +7,15 @@ export const mergeTaskCandidatePages = (
   requestedSearch: string,
   activeSearch: string | null | undefined,
 ): OperationContactTaskCandidatesQuery => {
-  if (requestedSearch !== activeSearch || !previous.getTasks || !next.getTasks)
-    return previous;
+  if (!previous.getTasks || !next.getTasks) return previous;
 
-  const tasks = new Map(
-    [...(previous.getTasks.list ?? []), ...(next.getTasks.list ?? [])]
-      .filter((task) => task !== null)
-      .map((task) => [task._id, task]),
-  );
   return {
     ...previous,
-    getTasks: { ...next.getTasks, list: [...tasks.values()] },
+    getTasks: mergeContactCandidatePages(
+      previous.getTasks,
+      next.getTasks,
+      requestedSearch,
+      activeSearch,
+    ),
   };
 };

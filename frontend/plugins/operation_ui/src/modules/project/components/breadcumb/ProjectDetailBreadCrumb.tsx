@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { FavoriteToggleIconButton } from 'ui-modules';
 import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
 
+// The project's breadcrumb items; render inside an existing Breadcrumb.List.
 export const ProjectDetailBreadCrumb = () => {
   const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams<{
@@ -39,32 +40,30 @@ export const ProjectDetailBreadCrumb = () => {
   }
 
   return (
-    <Breadcrumb>
-      <Breadcrumb.List className="gap-1">
-        <Breadcrumb.Item>
-          <Button variant="ghost" asChild>
-            <Link to={`${basePath}/overview`}>
-              <IconComponent name={project?.icon ?? undefined} />
-              {project?.name}
-            </Link>
-          </Button>
-        </Breadcrumb.Item>
-        <Separator.Inline />
-        <ToggleGroup type="single" value={pathname}>
-          <ToggleGroup.Item value={`${basePath}/overview`} asChild>
-            <Link to={`${basePath}/overview`}>{t('overview')}</Link>
-          </ToggleGroup.Item>
-          <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
-            <Link to={`${basePath}/tasks`}>{t('tasks')}</Link>
-          </ToggleGroup.Item>
-        </ToggleGroup>
-        <Breadcrumb.Item className="ml-1">
-          <FavoriteToggleIconButton
-            breadcrumb={favoriteBreadcrumb}
-            icon="IconClipboard"
-          />
-        </Breadcrumb.Item>
-      </Breadcrumb.List>
-    </Breadcrumb>
+    <>
+      <Breadcrumb.Item>
+        <Button variant="ghost" asChild>
+          <Link to={`${basePath}/overview`}>
+            <IconComponent name={project?.icon ?? undefined} />
+            {project?.name}
+          </Link>
+        </Button>
+      </Breadcrumb.Item>
+      <Separator.Inline />
+      <ToggleGroup type="single" value={pathname}>
+        <ToggleGroup.Item value={`${basePath}/overview`} asChild>
+          <Link to={`${basePath}/overview`}>{t('overview')}</Link>
+        </ToggleGroup.Item>
+        <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
+          <Link to={`${basePath}/tasks`}>{t('tasks')}</Link>
+        </ToggleGroup.Item>
+      </ToggleGroup>
+      <Breadcrumb.Item className="ml-1">
+        <FavoriteToggleIconButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconClipboard"
+        />
+      </Breadcrumb.Item>
+    </>
   );
 };
