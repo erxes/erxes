@@ -201,7 +201,7 @@ export const mutantsOf = (report: Json) => {
           replacement: text(mutant.replacement),
           status,
           reason: text(mutant.statusReason),
-          testFiles: [...new Set(tests.filter(Boolean))].toSorted(),
+          testFiles: [...new Set(tests.filter(Boolean))].toSorted((a, b) => a.localeCompare(b)),
         },
       ];
     });

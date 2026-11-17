@@ -25,18 +25,21 @@ const files = changedList
 
 const shardCount = Math.max(1, Math.min(Number(process.env.SHARDS ?? '1'), files.length));
 
-const shards = Array.from({ length: shardCount }, (_, index) => ({
-  shard: index + 1,
-  size: 0,
-  files: new Array<string>(),
-}));
+const newShard = (shard: number) => ({ shard, size: 0, files: new Array<string>() });
+
+const first = newShard(1);
+
+const shards = [
+  first,
+  ...Array.from({ length: shardCount - 1 }, (_, index) => newShard(index + 2)),
+];
 
 const bySize = files
   .map((file) => ({ file, size: statSync(file).size }))
   .toSorted((a, b) => b.size - a.size || a.file.localeCompare(b.file));
 
 for (const { file, size } of bySize) {
-  const lightest = shards.reduce((min, shard) => (shard.size < min.size ? shard : min));
+  const lightest = shards.reduce((min, shard) => (shard.size < min.size ? shard : min), first);
 
   lightest.files.push(file);
   lightest.size += size;
@@ -44,7 +47,10 @@ for (const { file, size } of bySize) {
 
 const matrix = shards
   .filter((shard) => shard.files.length)
-  .map((shard) => ({ shard: shard.shard, files: shard.files.toSorted().join(',') }));
+  .map((shard) => ({
+    shard: shard.shard,
+    files: shard.files.toSorted((a, b) => a.localeCompare(b)).join(','),
+  }));
 
 const output = process.env.GITHUB_OUTPUT;
 

@@ -112,7 +112,7 @@ const byArea = (mutants: Mutant[]) => {
   return [...areas.entries()].toSorted(([a], [b]) => a.localeCompare(b));
 };
 
-const areaOf = (body: string) => body.match(new RegExp(`${AREA_MARKER} (\\S+)`))?.[1] ?? '';
+const areaOf = (body: string) => new RegExp(String.raw`${AREA_MARKER} (\S+)`).exec(body)?.[1] ?? '';
 
 const fileIssues = async (mutants: Mutant[]) => {
   await ensureLabel(LABEL, 'Tests that pass whatever the code does (mutation testing)');
