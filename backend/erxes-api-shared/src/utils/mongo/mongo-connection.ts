@@ -14,6 +14,10 @@ mongoose.connection
     logger.info({ url: MONGO_URL }, 'connected to the database');
   })
   .on('disconnected', () => {
+    if (closing) {
+      return;
+    }
+
     logger.error({ url: MONGO_URL }, 'disconnected from the database');
 
     process.exit(1);
@@ -33,7 +37,13 @@ export async function connect(): Promise<mongoose.Connection> {
   return mongoose.connection;
 }
 
+// Set by closeMongooose: a disconnect we asked for on shutdown must not exit before the rest of
+// the shutdown (leaving service discovery, sending telemetry) has run.
+let closing = false;
+
 export async function closeMongooose() {
+  closing = true;
+
   try {
     await mongoose.connection.close();
     console.log('Mongoose connection disconnected ');
