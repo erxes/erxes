@@ -14,6 +14,13 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '');
 
 const count = (value: unknown) => (typeof value === 'number' ? value : 0);
 
+/** The score lines from stryker.json: at `high` or above the tests are good, under `low` weak. */
+export const thresholdsOf = (config: unknown) => {
+  const thresholds = json(json(config).thresholds);
+
+  return { high: count(thresholds.high), low: count(thresholds.low) };
+};
+
 export type Status =
   | 'Killed'
   | 'Survived'

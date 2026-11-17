@@ -15,6 +15,7 @@ import {
   mutantsOf,
   plannedFiles,
   tally,
+  thresholdsOf,
   withoutUnsure,
 } from './results.ts';
 
@@ -76,6 +77,24 @@ const rows = (misses: Mutant[], area: string, authors: Authors) => {
   return lines.join('\n');
 };
 
+const { high, low } = thresholdsOf(
+  JSON.parse(readFileSync(new URL('stryker.json', import.meta.url), 'utf8')),
+);
+
+const rating = (score: number | null) => {
+  if (score === null) return { dot: '⚪', word: 'Nothing to judge' };
+
+  if (score >= high) return { dot: '🟢', word: 'Good tests' };
+
+  return score >= low ? { dot: '🟡', word: 'Fair tests' } : { dot: '🔴', word: 'Weak tests' };
+};
+
+const grade = (score: number | null) => {
+  const { dot, word } = rating(score);
+
+  return `${dot} ${word}`;
+};
+
 const scoreLine = (mutants: Mutant[]) => {
   const { killed, survived, timeout, score } = tally(mutants);
 
@@ -83,7 +102,31 @@ const scoreLine = (mutants: Mutant[]) => {
     ? `; ${timeout} that only made the tests time out count as not caught`
     : '';
 
-  return `**Score: ${score ?? '–'}%** (${killed} of ${killed + survived + timeout} changes caught${timeouts}) · [run and HTML report](${runUrl})`;
+  return `**${grade(score)}: ${score ?? '–'}%** (${killed} of ${killed + survived + timeout} changes caught${timeouts}; good is ${high}%+) · [run and HTML report](${runUrl})`;
+};
+
+/** A pie of what happened to the changes, which GitHub draws from Mermaid. */
+const chart = (mutants: Mutant[]) => {
+  const { killed, survived, timeout, noCoverage } = tally(mutants);
+
+  const slices = [
+    { label: 'Caught by a test', value: killed, color: '#2da44e' },
+    { label: 'Not caught', value: survived, color: '#cf222e' },
+    { label: 'Tests only timed out', value: timeout, color: '#bf8700' },
+    { label: 'No test runs it', value: noCoverage, color: '#8c959f' },
+  ].filter((slice) => slice.value > 0);
+
+  if (!slices.length) return '';
+
+  const colors = Object.fromEntries(slices.map((slice, index) => [`pie${index + 1}`, slice.color]));
+
+  return [
+    '```mermaid',
+    `%%{init: {"theme": "base", "themeVariables": ${JSON.stringify(colors)}}}%%`,
+    'pie showData',
+    ...slices.map((slice) => `  "${slice.label}" : ${slice.value}`),
+    '```',
+  ].join('\n');
 };
 
 const untested = (mutants: Mutant[]) => {
@@ -99,6 +142,8 @@ const issueBody = (area: string, mutants: Mutant[], authors: Authors) =>
     'Tests run over this code and still pass when it changes, so they do not check what it does. Each row is one change no test caught. Make a test fail for it; the next run closes this issue.',
     '',
     scoreLine(mutants),
+    '',
+    chart(mutants),
     '',
     rows(mutants.filter(missed), area, authors),
     '',
@@ -219,6 +264,8 @@ const prComment = async (mutants: Mutant[], untestedFiles: string[]) => {
     '',
     tested ? scoreLine(mutants) : `[Run and HTML report](${runUrl})`,
     '',
+    chart(mutants),
+    '',
     await verdict(mutants),
     '',
     untested(mutants),
@@ -243,7 +290,7 @@ const summary = (mutants: Mutant[]) => {
     const t = tally(inArea);
 
     lines.push(
-      `| ${area} | ${t.score ?? '–'}% | ${t.killed} | ${t.survived} | ${t.timeout} | ${t.noCoverage} |`,
+      `| ${area} | ${rating(t.score).dot} ${t.score ?? '–'}% | ${t.killed} | ${t.survived} | ${t.timeout} | ${t.noCoverage} |`,
     );
   }
 
@@ -252,7 +299,9 @@ const summary = (mutants: Mutant[]) => {
   return [
     '## Mutation testing',
     '',
-    `Score ${all.score ?? '–'}%: ${all.killed} caught, ${all.survived} not caught, ${all.timeout} timed out, ${all.noCoverage} in untested code, ${all.ignored} ignored, ${all.errors} errors, ${all.brokenSetup.length} unsure (the setup broke).`,
+    chart(mutants),
+    '',
+    `${grade(all.score)}: ${all.score ?? '–'}%: ${all.killed} caught, ${all.survived} not caught, ${all.timeout} timed out, ${all.noCoverage} in untested code, ${all.ignored} ignored, ${all.errors} errors, ${all.brokenSetup.length} unsure (the setup broke).`,
     '',
     ...lines,
   ].join('\n');
