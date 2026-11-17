@@ -56,7 +56,22 @@ test('period inheritance respects explicit false and formula overrides', () => {
 test('rejects unresolved date selections and a movement period for balances', () => {
   const report = definition();
   delete report.sections[0].columns[0].getDate;
-  expect(() => validateReportDefinitions([report])).toThrow('needs a period');
+  report.sections[0].formulas.push({
+    ...report.sections[0].formulas[0],
+    _id: 'f2',
+    rowId: 'total',
+    kind: 'transaction',
+  });
+  report.sections[0].rows[1].number = '2';
+  // Every cell without a formula, column or row period is listed at once.
+  expect(() => validateReportDefinitions([report])).toThrow(
+    'Set a period on the formula, column or row: a › Section › Cash › Closing; a › Section › 2. Total › Closing',
+  );
+  report.sections[0].rows[1].getDate = 'last';
+  expect(() => validateReportDefinitions([report])).toThrow(
+    'Set a period on the formula, column or row: a › Section › Cash › Closing',
+  );
+  report.sections[0].formulas.pop();
   report.sections[0].columns[0].getDate = 'between';
   expect(() => validateReportDefinitions([report])).toThrow(
     'opening or closing',

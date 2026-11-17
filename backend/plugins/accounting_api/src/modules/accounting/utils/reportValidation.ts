@@ -1,5 +1,5 @@
 import { validateReportPercent } from './tunableReports/percent';
-import { validateReportFormulaPeriod } from './tunableReports/period';
+import { reportPeriodIssue } from './tunableReports/period';
 import {
   IReportDefinition,
   IReportFormula,
@@ -10,6 +10,7 @@ import {
 import {
   getReportCellFormulas,
   reportCellKey,
+  reportCellLabel,
   resolveReportPeriod,
   resolveReportSource,
 } from './tunableReports/cells';
@@ -36,6 +37,8 @@ export const validateReportDefinitions = (
 ): void => {
   const reportMap = new Map(reports.map((report) => [report._id, report]));
   const graph = new Map<string, string[]>();
+  // Period problems are collected for every cell so one save reports them all.
+  const periodIssues = new Map<string, Set<string>>();
   for (const report of reports) {
     requireUniqueIds(report.sections, 'Sections');
     for (const section of report.sections) {
@@ -72,10 +75,15 @@ export const validateReportDefinitions = (
       validateReportPercent(formula.percent);
       if (row.kind === 'title' || row.kind === 'date')
         throw new Error('Title and date rows cannot have formulas');
-      validateReportFormulaPeriod(
+      const periodIssue = reportPeriodIssue(
         formula.kind,
         resolveReportPeriod(formula, row, column).getDate,
       );
+      if (periodIssue) {
+        const cells = periodIssues.get(periodIssue) ?? new Set<string>();
+        cells.add(reportCellLabel({ report, section, row, column }));
+        periodIssues.set(periodIssue, cells);
+      }
       if (
         (formula.kind === 'from_row' || formula.kind === 'ratio') &&
         !formula.source
@@ -108,6 +116,12 @@ export const validateReportDefinitions = (
       for (const row of section.rows)
         for (const column of section.columns)
           buildNode(report, section, row, column);
+  if (periodIssues.size)
+    throw new Error(
+      [...periodIssues]
+        .map(([issue, cells]) => `${issue}: ${[...cells].join('; ')}`)
+        .join('\n'),
+    );
   const done = new Set<string>();
   const visiting = new Set<string>();
   const visit = (node: string): void => {

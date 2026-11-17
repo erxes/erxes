@@ -234,16 +234,26 @@ test('turnovers group by account, side and effective opposite codes without poin
   expect(pipeline).toContain('relAccounts.ct');
   expect(pipeline).not.toContain('ptrId');
 });
-test('transaction formulas reject opening or closing periods at run time', async () => {
-  const { models } = setup();
+test('transaction formulas follow the inherited column period and name cells without one', async () => {
+  const { models, aggregate } = setup();
   const report = definition();
-  report.sections[0].formulas[0] = {
-    ...report.sections[0].formulas[0],
-    kind: 'transaction',
-  };
+  report.sections[0].formulas = [
+    { ...report.sections[0].formulas[0], kind: 'transaction' },
+  ];
+  aggregate.mockResolvedValue([
+    { _id: { accountId: 'a', side: 'dt', related: [] }, amount: 9 },
+  ]);
+  const [cell] = await generateTunableReport(models, report, settings, user);
+  expect(cell.value).toBe(9);
+  expect(aggregate.mock.calls[0][0][0].$match.date).toEqual({
+    $lt: new Date('2026-01-21T00:00:00Z'),
+  });
+  delete report.sections[0].columns[0].getDate;
   await expect(
     generateTunableReport(models, report, settings, user),
-  ).rejects.toThrow('between period');
+  ).rejects.toThrow(
+    'Set a period on the formula, column or row: R › s › Balance › Closing',
+  );
 });
 test('runtime guard rejects stale cycles and division by zero', async () => {
   const { models, aggregate } = setup();

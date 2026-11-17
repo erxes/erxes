@@ -13,6 +13,7 @@ import { generateFilter } from '../../graphql/resolvers/queries/accounts';
 import {
   getReportCellFormulas,
   reportCellKey,
+  reportCellLabel,
   resolveReportPeriod,
   resolveReportSource,
 } from './cells';
@@ -142,12 +143,18 @@ export const generateTunableReport = async (
     return amount / operand;
   };
   const ledgerAmount = async (
+    owner: IReportDefinition,
+    section: IReportSection,
     row: Row,
     column: Column,
     formula: IReportFormula,
   ): Promise<number> => {
     const period = resolveReportPeriod(formula, row, column);
-    validateReportFormulaPeriod(formula.kind, period.getDate);
+    validateReportFormulaPeriod(
+      formula.kind,
+      period.getDate,
+      reportCellLabel({ report: owner, section, row, column }),
+    );
     const side =
       formula.valueSide ?? (row.valueSide === 'credit' ? 'credit' : 'debit');
     const { accounts, categories, data } = await getLedger();
@@ -171,7 +178,7 @@ export const generateTunableReport = async (
     const amount =
       formula.kind === 'from_row' || formula.kind === 'ratio'
         ? await ratioAmount(owner, section, row, column, formula, path)
-        : await ledgerAmount(row, column, formula);
+        : await ledgerAmount(owner, section, row, column, formula);
     return (
       applyReportPercent(amount, formula.percent) *
       (formula.plusOrMinus ? 1 : -1)

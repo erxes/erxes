@@ -73,7 +73,7 @@ export const ReportPreview = ({
                   />
                 )}
                 <div className="overflow-x-auto print:overflow-visible">
-                  <Table className="w-full table-fixed [&_th]:whitespace-normal [&_td]:whitespace-normal [&_th]:[overflow-wrap:anywhere] [&_td]:[overflow-wrap:anywhere] [&_td]:h-auto [&_td]:py-1">
+                  <Table className="w-full table-fixed bg-white [&_th]:whitespace-normal [&_td]:whitespace-normal [&_th]:[overflow-wrap:anywhere] [&_td]:[overflow-wrap:anywhere] [&_td]:h-auto [&_td]:py-1">
                     <colgroup>
                       <col className="w-[8%]" />
                       <col style={{ width: columns.length ? '52%' : '92%' }} />
@@ -84,7 +84,7 @@ export const ReportPreview = ({
                         />
                       ))}
                     </colgroup>
-                    <Table.Header className="[&_th]:border-t [&_th]:border-r [&_th]:border-b [&_th:first-child]:border-l">
+                    <Table.Header className="[&_th]:bg-white [&_th]:text-black [&_th]:border-t [&_th]:border-r [&_th]:border-b [&_th:first-child]:border-l">
                       <Table.Row>
                         <Table.Head>{t('number')}</Table.Head>
                         <Table.Head>{t('name')}</Table.Head>
@@ -153,7 +153,7 @@ export const ReportPreview = ({
                               return (
                                 <Table.Cell
                                   key={column._id}
-                                  className="px-2 text-right text-muted-foreground"
+                                  className="px-2 text-right text-black"
                                   title={cellTitle}
                                 >
                                   {formatAmount(value)}

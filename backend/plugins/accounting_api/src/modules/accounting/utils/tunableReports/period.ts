@@ -33,20 +33,25 @@ export const reportPeriod = (
   };
 };
 
-// Every formula kind reads exactly one boundary: balances use an opening or
-// closing remainder, transactions use the turnover between the boundaries.
+// A cell's period resolves formula → column → row; a cell where none of them
+// sets one cannot be calculated. Balances need an opening or closing boundary.
+export const reportPeriodIssue = (
+  kind: IReportFormula['kind'],
+  getDate: IReportFormula['getDate'],
+): string | undefined => {
+  if (!getDate) return 'Set a period on the formula, column or row';
+  if (kind === 'balance' && getDate === 'between')
+    return 'Balance formulas need an opening or closing date';
+  return undefined;
+};
+
 export const validateReportFormulaPeriod = (
   kind: IReportFormula['kind'],
   getDate: IReportFormula['getDate'],
+  cellLabel: string,
 ): void => {
-  if (!getDate)
-    throw new Error(
-      'Every formula cell needs a period: set it on the formula, column or row',
-    );
-  if (kind === 'balance' && getDate === 'between')
-    throw new Error('Balance formulas need an opening or closing date');
-  if (kind === 'transaction' && getDate !== 'between')
-    throw new Error('Transaction formulas need the between period');
+  const issue = reportPeriodIssue(kind, getDate);
+  if (issue) throw new Error(`${issue}: ${cellLabel}`);
 };
 
 export const reportDateMatch = (

@@ -27,6 +27,23 @@ export const reportCellKey = ({
     column.isPre,
   ]);
 
+const labelOf = (item: { code?: string; name?: string; _id: string }) =>
+  item.name?.trim() || item.code?.trim() || item._id;
+
+// Identifies a cell for accountants: report, section, row number/name, column.
+export const reportCellLabel = ({
+  report,
+  section,
+  row,
+  column,
+}: ReportCellContext): string =>
+  [
+    report.code,
+    labelOf(section),
+    [row.number, row.name].filter((part) => part?.trim()).join('. ') || row._id,
+    labelOf(column),
+  ].join(' › ');
+
 export const getReportCellFormulas = (
   section: IReportSection,
   rowId: string,

@@ -129,8 +129,6 @@ export const reportFormSchema = reportDefinitionSchema.superRefine(
               'getDate',
               'Balance formulas require an opening or closing date',
             );
-          if (formula.kind === 'transaction' && date && date !== 'between')
-            issue('getDate', 'Transaction formulas require the between period');
         });
       });
     });
