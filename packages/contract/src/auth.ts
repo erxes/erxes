@@ -12,6 +12,8 @@ export const Session = z.object({
   organization: Organization,
   /** What the member may do (actions); owners have every one. */
   permissions: z.array(z.string()),
+  /** False until the member sets one: a SaaS owner arrives signed in from erxes.io without one. */
+  hasPassword: z.boolean(),
 });
 
 export type Session = z.infer<typeof Session>;
@@ -272,9 +274,15 @@ export const authContract = {
       method: 'POST',
       path: '/auth/password',
       summary:
-        'Change my own password. 400 WRONG_PASSWORD when the current one is wrong; SAME_PASSWORD when unchanged',
+        'Change my own password, or set my first one (no current one then). 400 WRONG_PASSWORD when the current one is wrong or missing; SAME_PASSWORD when unchanged',
     })
-    .input(z.object({ currentPassword: z.string().min(1).max(200), newPassword: NewPassword }))
+    .input(
+      z.object({
+        /** Left out by a member who has no password yet (`Session.hasPassword`). */
+        currentPassword: z.string().min(1).max(200).optional(),
+        newPassword: NewPassword,
+      }),
+    )
     .output(z.object({ ok: z.literal(true) })),
   signIns: base
     .route({
