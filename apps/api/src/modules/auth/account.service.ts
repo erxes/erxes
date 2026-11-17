@@ -1,5 +1,5 @@
 import { auditLogs, type Caller, caller, db, users } from '@erxes/core-db';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword, verifyPassword } from '~/lib/crypto';
@@ -18,10 +18,12 @@ export const asMember = (user: { id: string; role: string }): Caller => ({
 
 /**
  * A member changes their own password, proving they know the current one.
+ * One who has none yet (a SaaS owner, signed in from erxes.io) sets their
+ * first one: being signed in is enough, there is no password to prove.
  * (Managers set others' passwords with `users.setPassword`.)
  */
 export const changeOwnPassword = async (input: {
-  currentPassword: string;
+  currentPassword?: string;
   newPassword: string;
 }) => {
   const { userId } = caller('user');
@@ -32,11 +34,17 @@ export const changeOwnPassword = async (input: {
     .where(eq(users.id, userId))
     .limit(1);
 
-  if (!user || !(await verifyPassword(input.currentPassword, user.passwordHash))) {
+  // No password yet: nothing to prove.
+  const first = user?.passwordHash === null;
+
+  if (
+    !user ||
+    (!first && !(await verifyPassword(input.currentPassword ?? '', user.passwordHash)))
+  ) {
     throw fail('WRONG_PASSWORD', 'The current password is not right');
   }
 
-  if (input.currentPassword === input.newPassword) {
+  if (input.currentPassword === input.newPassword && !first) {
     throw fail('SAME_PASSWORD', 'Choose a password different from the current one');
   }
 
@@ -44,16 +52,21 @@ export const changeOwnPassword = async (input: {
 
   const tx = db();
 
-  await tx
+  const changed = await tx
     .update(users)
     .set({
       passwordHash,
       sessionVersion: sql`${users.sessionVersion} + 1`,
       updatedAt: sql`now()`,
     })
-    .where(eq(users.id, userId));
+    .where(first ? and(eq(users.id, userId), isNull(users.passwordHash)) : eq(users.id, userId))
+    .returning({ id: users.id });
+
+  // Another request set a first password meanwhile: that one stays.
+  if (!changed.length) throw fail('WRONG_PASSWORD', 'The current password is not right');
+
   await recordAudit(tx, {
-    action: 'auth.password_changed',
+    action: first ? 'auth.password_set' : 'auth.password_changed',
     targetType: 'user',
     targetId: userId,
     targetLabel: user.email,

@@ -55,7 +55,8 @@
     "failed": "Failed",
     "sign-ins": "Recent sign-ins",
     "sign-ins-description": "If you don’t recognise one, change your password.",
-    "no-sign-ins": "No sign-ins recorded yet."
+    "no-sign-ins": "No sign-ins recorded yet.",
+    "password-first": "You sign in from erxes.io. Set a password to sign in here too."
   },
   "team-member": {
     "_": "Team Member",
