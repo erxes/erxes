@@ -114,6 +114,9 @@ describe('a plugin list’s bar', () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
+    // The chunk the lazy tabs fetch, loaded first so the wait below is for the render alone.
+    await import('~/modules/views/PluginListViews');
+
     // The tabs web gives every plugin list, as a plugin built before the type check reaches them.
     const container = await render(
       createElement(
