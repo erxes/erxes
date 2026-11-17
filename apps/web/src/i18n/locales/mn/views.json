@@ -140,5 +140,17 @@
       "company_lead": "потенциал байгууллага",
       "product": "бүтээгдэхүүн"
     }
+  },
+  "board": {
+    "drop-here": "Энд тавьж шилжүүлнэ",
+    "instructions": "Картыг нээхийн тулд Enter дарна. Space дарж өргөөд, сумаар зөөж, дахин Space дарж тавина. Escape дарвал цуцална.",
+    "picked": "Өргөсөн: {{card}}.",
+    "above": "{{column}} баганад, {{card}} картын дээр",
+    "in": "{{column}} баганад",
+    "over": "{{card}}: {{place}}.",
+    "nowhere": "{{card}}: хуучин байрандаа.",
+    "dropped": "Тавьсан: {{card}}, {{place}}.",
+    "dropped-nowhere": "Тавьсан: {{card}}, хуучин байрандаа.",
+    "cancelled": "Буцаасан: {{card}}."
   }
 }

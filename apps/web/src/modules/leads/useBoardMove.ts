@@ -26,7 +26,7 @@ const leadListKey = (recordType: LeadRecordType, stageId?: string) => {
 };
 
 /** A lead some loaded list holds, such as the card being dragged. */
-export const findCachedLead = (client: QueryClient, recordType: LeadRecordType, id: string) =>
+const findCachedLead = (client: QueryClient, recordType: LeadRecordType, id: string) =>
   client
     .getQueriesData<BoardCache>({ queryKey: leadListKey(recordType) })
     .flatMap(([, cache]) => cache?.pages ?? [])
