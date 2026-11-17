@@ -18,10 +18,7 @@ jest.mock('@/inventories/remainders/states/productCounts', () => ({
   selectedProductIdsAtom: {},
 }));
 jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: { defaultValue?: string }) =>
-      options?.defaultValue ?? key,
-  }),
+  useTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock('jotai', () => ({
   atom: () => ({}),
@@ -218,12 +215,15 @@ describe('recalculation location selection', () => {
     openPanel();
     expect(
       screen.getByRole('button', {
-        name: 'Салбар сонгогдоогүй',
+        name: 'branch-not-assigned',
         pressed: false,
       }),
     ).toBeTruthy();
     expect(
-      screen.getByRole('button', { name: 'Нэгж сонгогдоогүй', pressed: false }),
+      screen.getByRole('button', {
+        name: 'department-not-assigned',
+        pressed: false,
+      }),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Бүх салбар' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Бүх нэгж' })).toBeNull();
@@ -234,12 +234,15 @@ describe('recalculation location selection', () => {
     openPanel();
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Салбар сонгогдоогүй',
+        name: 'branch-not-assigned',
         pressed: false,
       }),
     );
     fireEvent.click(
-      screen.getByRole('button', { name: 'Нэгж сонгогдоогүй', pressed: false }),
+      screen.getByRole('button', {
+        name: 'department-not-assigned',
+        pressed: false,
+      }),
     );
     await run({ branchId: '_', departmentId: '_' });
   });
@@ -248,16 +251,19 @@ describe('recalculation location selection', () => {
     openPanel();
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Салбар сонгогдоогүй',
+        name: 'branch-not-assigned',
         pressed: false,
       }),
     );
     fireEvent.click(
-      screen.getByRole('button', { name: 'Нэгж сонгогдоогүй', pressed: false }),
+      screen.getByRole('button', {
+        name: 'department-not-assigned',
+        pressed: false,
+      }),
     );
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Салбар сонгогдоогүй',
+        name: 'branch-not-assigned',
         pressed: true,
       }),
     );

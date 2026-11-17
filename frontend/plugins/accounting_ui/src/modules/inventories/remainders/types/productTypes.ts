@@ -1,4 +1,6 @@
 import { IAttachment } from 'erxes-ui';
+import type { AccountingProductsRemainderMainQuery } from '~/gql/graphql';
+import type { GraphqlView } from '@/utils/graphql';
 
 export interface IProduct {
   _id: string;
@@ -29,3 +31,11 @@ export interface IProductType {
   label: string;
   value: string;
 }
+
+export type IRemainderProduct = GraphqlView<
+  NonNullable<
+    NonNullable<
+      NonNullable<AccountingProductsRemainderMainQuery['productsMain']>['list']
+    >[number]
+  >
+>;

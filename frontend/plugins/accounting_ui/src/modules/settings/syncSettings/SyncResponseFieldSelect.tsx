@@ -2,7 +2,7 @@ import { toGraphqlView } from '@/utils/graphql';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Form, Select, Spinner } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
+import { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
 import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
 import { DEAL_FIELD_GROUPS_WITH_FIELDS } from '../graphql/queries/relatedQueries';
 import { SETTINGS_PANEL_SELECT_ITEM_CLASS_NAME } from '@/settings/constants/settingsPanel';
@@ -10,13 +10,13 @@ import { SETTINGS_PANEL_SELECT_ITEM_CLASS_NAME } from '@/settings/constants/sett
 const getFieldLabel = (field: { name?: string | null; code?: string | null }) =>
   field.name || field.code || '-';
 
-export const SyncResponseFieldSelect = ({
+export const SyncResponseFieldSelect = <T extends FieldValues>({
   form,
-  name = 'responseFieldId',
+  name = 'responseFieldId' as FieldPath<T>,
   label: labelProp,
 }: {
-  form: UseFormReturn<any>;
-  name?: string;
+  form: UseFormReturn<T>;
+  name?: FieldPath<T>;
   label?: string;
 }) => {
   const { t } = useTranslation('accounting');
@@ -26,11 +26,8 @@ export const SyncResponseFieldSelect = ({
   });
   const data = toGraphqlView(queryData);
 
-  const groupNameById = new Map(
-    (data?.fieldGroups?.list || []).map((group: any) => [
-      group._id,
-      group.name,
-    ]),
+  const groupNameById = new Map<string | undefined, string | undefined>(
+    (data?.fieldGroups?.list || []).map((group) => [group._id, group.name]),
   );
   const fields = data?.fields?.list || [];
 
@@ -56,7 +53,7 @@ export const SyncResponseFieldSelect = ({
                   <Spinner />
                 </div>
               ) : (
-                fields.map((customField: any) => (
+                fields.map((customField) => (
                   <Select.Item
                     key={customField._id}
                     value={customField._id}

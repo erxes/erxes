@@ -17,9 +17,7 @@ export const FxaAccountMatchingWarning = ({ message }: { message: string }) => {
           target="_blank"
           rel="noreferrer"
         >
-          {t('fxa-configure-account-links', {
-            defaultValue: 'Дансны холбоос тохируулах',
-          })}
+          {t('fxa-configure-account-links')}
         </Link>
       </Alert.Description>
     </Alert>

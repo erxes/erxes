@@ -300,7 +300,7 @@ export const FixedAssetChooserBody = ({
               type="button"
               variant="ghost"
               size="icon"
-              aria-label={t('previous-page', { defaultValue: 'Өмнөх' })}
+              aria-label={t('previous-page')}
               disabled={loading || page <= 1}
               onClick={() => setPage((value) => value - 1)}
             >

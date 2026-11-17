@@ -33,10 +33,7 @@ export const AdjustFixedAssetTransactions = ({
     return (
       <p className="p-3 text-muted-foreground">
         {completed && !parentId
-          ? t('fxa-zero-depreciation-period', {
-              defaultValue:
-                'Энэ хугацааны элэгдлийн дүн 0 тул журнал үүсээгүй. Элэгдэл эхлэх огноо болон тооцооны дэлгэрэнгүйг шалгана уу.',
-            })
+          ? t('fxa-zero-depreciation-period')
           : t('no-transactions')}
       </p>
     );

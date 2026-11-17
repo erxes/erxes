@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import dayjs from 'dayjs';
@@ -28,25 +28,11 @@ import {
   usePermissionCheck,
 } from 'ui-modules';
 import { AccountsInline } from '@/settings/account/components/AccountsInline';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { JOB_EXECUTION_CONTENT_TYPE } from '@/inventories/job-executions/jobExecutionPanel';
 import { useExecutionActions } from '@/inventories/job-executions/useExecutionActions';
 import { JOB_EXECUTION_COLUMN_ORDER } from '@/inventories/job-executions/tableDefaults';
 import { JobExecution } from '@/inventories/job-executions/types';
-
-const ExecutionEditContext = createContext<
-  ((execution: JobExecution) => void) | undefined
->(undefined);
-
-export const ExecutionTableProvider = ({
-  onEdit,
-  children,
-}: {
-  onEdit: (execution: JobExecution) => void;
-  children: ReactNode;
-}) => (
-  <ExecutionEditContext.Provider value={onEdit}>
-    {children}
-  </ExecutionEditContext.Provider>
-);
 
 const ExecutionActions = ({
   execution,
@@ -59,9 +45,10 @@ const ExecutionActions = ({
   const { hasActionPermission } = usePermissionCheck();
   const canManage = hasActionPermission('manageJobExecutions');
   const { canRun, run, loading } = useExecutionActions();
+  const [open, setOpen] = useState(false);
   const busy = loading || ['posting', 'undoing'].includes(execution.status);
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton
           className="w-full h-full"
@@ -72,7 +59,12 @@ const ExecutionActions = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item onSelect={edit}>
+            <Command.Item
+              onSelect={() => {
+                setOpen(false);
+                edit();
+              }}
+            >
               <IconEdit />
               {t(
                 ['draft', 'posted'].includes(execution.status) && canManage
@@ -118,12 +110,11 @@ const ExecutionActions = ({
 };
 
 const ExecutionActionsCell = ({ row }: CellContext<JobExecution, unknown>) => {
-  const edit = useContext(ExecutionEditContext);
-  if (!edit) throw new Error('ExecutionTableProvider is required');
+  const { openDetail } = useSettingsPanel(JOB_EXECUTION_CONTENT_TYPE);
   return (
     <ExecutionActions
       execution={row.original}
-      edit={() => edit(row.original)}
+      edit={() => openDetail(row.original._id)}
     />
   );
 };
@@ -157,19 +148,10 @@ const sideColumns = (['input', 'output'] as const).flatMap((side) => [
 const ExecutionColumnHeader = ({
   column,
 }: HeaderContext<JobExecution, unknown>) => {
-  const { t, i18n } = useTranslation('accounting');
+  const { t } = useTranslation('accounting');
   const sideColumn = sideColumns.find((item) => item.id === column.id);
   if (sideColumn) {
-    const isMongolian = (i18n.resolvedLanguage ?? i18n.language).startsWith(
-      'mn',
-    );
-    const defaults = isMongolian
-      ? { input: 'Орц', output: 'Гарц' }
-      : { input: 'Inputs', output: 'Outputs' };
-    const label = [
-      t(sideColumn.side + 's', { defaultValue: defaults[sideColumn.side] }),
-      t(sideColumn.label),
-    ].join(': ');
+    const label = [t(sideColumn.side + 's'), t(sideColumn.label)].join(': ');
     return <RecordTable.InlineHead label={label} />;
   }
   const labels: Record<string, string> = {

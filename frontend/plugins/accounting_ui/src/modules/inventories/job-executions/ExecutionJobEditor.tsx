@@ -3,24 +3,16 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Input,
-  RecordTable,
-  Sheet,
-  Table,
-  Tooltip,
-} from 'erxes-ui';
-import { AccountingSheet } from '@/layout/components/Sheet';
+import { Button, Collapsible, Form, Input, Tooltip } from 'erxes-ui';
+import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
 import { JobForm } from '@/settings/jobs/components/JobForm';
 import { TJobForm } from '@/settings/jobs/types/Job';
 import { scaleJobFormValues } from '@/settings/jobs/utils/jobFormValues';
 import { getJobFormSchema } from '@/settings/jobs/types/jobFormSchema';
-import { ExecutionMetadata } from './JobExecutionEditor';
-import { JobExecution } from './types';
+import { ExecutionMetadata } from '@/inventories/job-executions/JobExecutionEditor';
+import { JobExecution } from '@/inventories/job-executions/types';
 import { jobValues } from '@/inventories/job-executions/jobValues';
-import { SelectExecutionJob } from './SelectExecutionJob';
+import { SelectExecutionJob } from '@/inventories/job-executions/SelectExecutionJob';
 
 export const ExecutionJobEditor = ({
   rowId,
@@ -77,12 +69,16 @@ export const ExecutionJobEditor = ({
   useEffect(() => {
     if (hasErrors) setOpen(true);
   }, [hasErrors]);
+  const handleOpenChange = async (next: boolean) => {
+    if (next || readOnly || (await form.trigger())) setOpen(next);
+  };
   const removeDisabled = readOnly || !onRemove;
   const removeButton = (
     <Button
       type="button"
       variant="ghost"
       size="icon"
+      className="size-7 shrink-0"
       aria-label={t('production-remove-job')}
       disabled={removeDisabled}
       onClick={onRemove}
@@ -91,116 +87,93 @@ export const ExecutionJobEditor = ({
     </Button>
   );
   return (
-    <Table.Row className="h-cell hover:bg-background!">
-      <Table.Cell className="w-8">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <Sheet.Trigger asChild>
-            <RecordTable.MoreButton
-              type="button"
-              className="h-8 w-8"
-              aria-label={`${t('production-job')} ${index + 1}`}
-            />
-          </Sheet.Trigger>
-          <AccountingSheet
-            title={form.watch('name') || t('production-job')}
-            className="sm:max-w-3xl"
+    <Collapsible
+      open={open}
+      onOpenChange={(next) => void handleOpenChange(next)}
+      className="rounded-md border"
+    >
+      <div className="flex items-start gap-1 p-1">
+        <Collapsible.Trigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="group size-7 shrink-0"
+            aria-label={`${t('production-job')} ${index + 1}`}
+            aria-expanded={open}
           >
-            <Sheet.Content className="overflow-y-auto p-5">
-              <JobForm
-                form={form}
-                onSubmit={() => undefined}
-                loading={false}
-                hideSettings
-                embedded
-                baseUnitsOnly
-                readOnlyCostRatio
-                readOnly={readOnly}
-              />
-            </Sheet.Content>
-            <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={async () => {
-                  if (readOnly || (await form.trigger())) setOpen(false);
-                }}
-              >
-                {t('close')}
-              </Button>
-            </Sheet.Footer>
-          </AccountingSheet>
-        </Sheet>
-      </Table.Cell>
-      <Table.Cell className="whitespace-normal">
-        <Form {...metadata}>
-          <Form.Field
-            control={metadata.control}
-            name={`jobs.${index}.jobId`}
-            render={() => (
-              <Form.Item>
-                <Form.Label className="sr-only">
-                  {t('production-job')}
-                </Form.Label>
-                <SelectExecutionJob
-                  label={form.watch('name')}
-                  onChange={(job) => {
-                    metadata.setValue(`jobs.${index}.jobId`, job._id, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
-                    form.reset(jobValues(job, lastQuantity.current));
-                  }}
-                />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </Form>
-      </Table.Cell>
-      <Table.Cell className="whitespace-normal">
-        <Form {...metadata}>
-          <Form.Field
-            control={metadata.control}
-            name={`jobs.${index}.quantity`}
-            render={({ field }) => (
-              <Form.Item className="flex-1">
-                <Form.Label className="sr-only">
-                  {t('production-quantity')}
-                </Form.Label>
-                <Form.Control>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={Number.isNaN(field.value) ? '' : field.value}
-                    onChange={(event) => {
-                      const quantity = event.target.valueAsNumber;
-                      field.onChange(quantity);
-                      if (!Number.isFinite(quantity) || quantity <= 0) return;
-                      const multiplier = quantity / lastQuantity.current;
-                      lastQuantity.current = quantity;
-                      const scaled = scaleJobFormValues(
-                        form.getValues(),
-                        multiplier,
-                      );
-                      for (const name of [
-                        'inputs',
-                        'outputs',
-                        'laborCosts',
-                        'overheadCosts',
-                      ] as const)
-                        form.setValue(name, scaled[name], {
-                          shouldDirty: true,
-                        });
+            <Collapsible.TriggerIcon />
+          </Button>
+        </Collapsible.Trigger>
+        <fieldset
+          disabled={readOnly}
+          className="flex min-w-0 flex-1 items-start gap-1"
+        >
+          <Form {...metadata}>
+            <Form.Field
+              control={metadata.control}
+              name={`jobs.${index}.jobId`}
+              render={() => (
+                <Form.Item className="flex-1 min-w-0 space-y-0.5">
+                  <Form.Label className="sr-only">
+                    {t('production-job')}
+                  </Form.Label>
+                  <SelectExecutionJob
+                    label={form.watch('name')}
+                    onChange={(job) => {
+                      metadata.setValue(`jobs.${index}.jobId`, job._id, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                      form.reset(jobValues(job, lastQuantity.current));
                     }}
                   />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </Form>
-      </Table.Cell>
-      <Table.Cell className="w-8">
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={metadata.control}
+              name={`jobs.${index}.quantity`}
+              render={({ field }) => (
+                <Form.Item className="w-28 shrink-0 space-y-0.5">
+                  <Form.Label className="sr-only">
+                    {t('production-quantity')}
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      type="number"
+                      min="0"
+                      className={PANEL_INPUT_CLASS_NAME}
+                      value={Number.isNaN(field.value) ? '' : field.value}
+                      onChange={(event) => {
+                        const quantity = event.target.valueAsNumber;
+                        field.onChange(quantity);
+                        if (!Number.isFinite(quantity) || quantity <= 0) return;
+                        const multiplier = quantity / lastQuantity.current;
+                        lastQuantity.current = quantity;
+                        const scaled = scaleJobFormValues(
+                          form.getValues(),
+                          multiplier,
+                        );
+                        for (const name of [
+                          'inputs',
+                          'outputs',
+                          'laborCosts',
+                          'overheadCosts',
+                        ] as const)
+                          form.setValue(name, scaled[name], {
+                            shouldDirty: true,
+                          });
+                      }}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </Form>
+        </fieldset>
         {removeDisabled ? (
           <Tooltip>
             <Tooltip.Trigger asChild>
@@ -213,7 +186,19 @@ export const ExecutionJobEditor = ({
         ) : (
           removeButton
         )}
-      </Table.Cell>
-    </Table.Row>
+      </div>
+      <Collapsible.Content className="border-t p-3">
+        <JobForm
+          form={form}
+          onSubmit={() => undefined}
+          loading={false}
+          hideSettings
+          embedded
+          baseUnitsOnly
+          readOnlyCostRatio
+          readOnly={readOnly}
+        />
+      </Collapsible.Content>
+    </Collapsible>
   );
 };

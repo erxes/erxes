@@ -87,10 +87,7 @@ export const FxaOutAccountWarning = ({
       message={
         error?.message ||
         accountsError?.message ||
-        t('fxa-missing-depreciation-account', {
-          defaultValue:
-            'Сонгосон үндсэн хөрөнгийн дансанд хуримтлагдсан элэгдлийн дансны холбоос тохируулаагүй эсвэл ашиглах боломжгүй байна.',
-        })
+        t('fxa-missing-depreciation-account')
       }
     />
   );

@@ -46,9 +46,7 @@ const RecalcLocationSelect = ({
   const [open, setOpen] = useState(false);
   const SelectLocation = kind === 'branch' ? SelectBranches : SelectDepartments;
   const emptyLabel =
-    kind === 'branch'
-      ? t('branch-not-assigned', { defaultValue: 'Салбар сонгогдоогүй' })
-      : t('department-not-assigned', { defaultValue: 'Нэгж сонгогдоогүй' });
+    kind === 'branch' ? t('branch-not-assigned') : t('department-not-assigned');
 
   const handleChange = (nextValue?: string | string[]) => {
     if (typeof nextValue === 'string' || nextValue === undefined) {

@@ -81,8 +81,8 @@ export const usePermissionEdit = () => {
   ) => {
     if (!permission.accountId || !permission.userId) return;
     const promise = setPermissions([permission], permission.userId, changes);
-    promise?.then(({ errors } = {} as any) => {
-      if (errors?.length) return;
+    promise?.then((result) => {
+      if (!result?.data) return;
       toast({
         title: t('success'),
         description: t('permission-updated'),
@@ -112,7 +112,7 @@ export const usePermissionEdit = () => {
       ),
     );
     promise.then((results) => {
-      const hasErrors = results.some((r) => r?.errors?.length);
+      const hasErrors = results.some((r) => !r?.data);
       if (hasErrors) return;
       toast({
         title: t('success'),
