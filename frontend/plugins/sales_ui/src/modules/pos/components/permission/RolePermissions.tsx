@@ -8,6 +8,14 @@ import {
 } from '@/pos/components/pos-edit/PosSwitchRow';
 import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
+const toIds = (value: string | string[] | null | undefined): string[] => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return value ? [value] : [];
+};
+
 interface RolePermissionsProps {
   control: Control<PermissionFormData>;
   kind: 'admin' | 'cashier';
@@ -29,14 +37,7 @@ export const RolePermissions = ({ control, kind }: RolePermissionsProps) => {
             <Form.Control>
               <SelectMember
                 value={field.value}
-                onValueChange={(value) => {
-                  const ids = Array.isArray(value)
-                    ? value
-                    : value
-                    ? [value]
-                    : [];
-                  field.onChange(ids);
-                }}
+                onValueChange={(value) => field.onChange(toIds(value))}
                 mode="multiple"
               />
             </Form.Control>

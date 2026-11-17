@@ -24,6 +24,7 @@ import { PropertyFormGroupField } from './PropertyFormGroupField';
 import { PropertyFormLogicFields } from './PropertyFormLogicFields';
 import { PropertyFormObjectListFields } from './PropertyFormObjectListFields';
 import {
+  PropertyFormPanel,
   PropertyFormPanelFields,
   PropertyTypeSelectContent,
 } from './PropertyFormPanelFields';
@@ -142,50 +143,25 @@ export const PropertyForm = ({
 
   if (layout === 'panel') {
     return (
-      <Form {...form}>
-        <form
-          className="flex flex-1 min-h-0 flex-col"
-          onSubmit={form.handleSubmit(handleSubmit)}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="flex flex-col gap-4 p-3">
-              {locked && (
-                <p className="text-xs text-muted-foreground">
-                  {t(
-                    'featured-field-edit-hint',
-                    'A plugin feature owns this field and fills its values: its type and options cannot change, but its name, icon and visibility can.',
-                  )}
-                </p>
-              )}
-              <PropertyFormPanelFields
-                form={form}
-                contentType={contentType}
-                locked={locked}
-                typeDisabled={typeDisabled}
-                allowedTypes={allowedTypes}
-                onTypeChange={handleTypeChange}
-                typeHint={typeHint}
-              />
-              <div className="flex flex-col gap-5 empty:hidden">
-                {advancedFields}
-              </div>
-            </div>
-          </div>
-          <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
-            <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-              {t('cancel', 'Cancel')}
-            </Button>
-            <Can action="fieldsManage">
-              <Button type="submit" size="sm" disabled={loading}>
-                {loading && <Spinner size="sm" />}
-                {isEdit
-                  ? t('update-property', 'Update Property')
-                  : t('add-property', 'Add Property')}
-              </Button>
-            </Can>
-          </div>
-        </form>
-      </Form>
+      <PropertyFormPanel
+        form={form}
+        onSubmit={handleSubmit}
+        onCancel={onCancel}
+        loading={loading}
+        isEdit={isEdit}
+        locked={locked}
+      >
+        <PropertyFormPanelFields
+          form={form}
+          contentType={contentType}
+          locked={locked}
+          typeDisabled={typeDisabled}
+          allowedTypes={allowedTypes}
+          onTypeChange={handleTypeChange}
+          typeHint={typeHint}
+        />
+        <div className="flex flex-col gap-5 empty:hidden">{advancedFields}</div>
+      </PropertyFormPanel>
     );
   }
 
