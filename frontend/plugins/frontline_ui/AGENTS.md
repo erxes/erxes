@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-16`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -131,21 +131,23 @@
   history and a supported Activity empty state. Save waits for media uploads;
   failed uploads release the pending operation and keep existing media intact.
   The article record panel adds a Media tab beside Detail and Activity for
-  image, attachment, and PDF uploads; Media edits belong to the Detail form
-  and are saved with its single Save. The required Knowledge Base label is
-  truncated to one line with a tooltip. Knowledge base panel selects
+  image, attachment, and PDF uploads; Detail and Media expose Save/Cancel
+  for the same article form and share its validation and upload guard. The
+  required Knowledge Base label is truncated to one line with a tooltip.
+  Knowledge base panel selects
   (topic, category, parent category, icon, status, language, reaction choices)
   use borderless panel triggers: `variant="table"` on `SelectKbTopic`,
   `SelectKbCategory` and `IconPicker`, `PANEL_INPUT_CLASS_NAME` on `Select`
   triggers. Summary and Content follow the panel description style: an
   `IconAlignLeft` label and a borderless field that fills on hover. Detail
   places the Summary and Content editors after publishing controls; on the full-screen page they move into a
-  right-hand Content tab (the default tab) and render full width, falling back
-  to the Detail column until that tab is mounted. The panel's expand button opens the
+  right-hand Content tab (the default tab) and render full width only in that
+  tab. The panel's expand button opens the
   article's full-screen page (`/frontline/knowledgebase/articles/:articleId`,
   or `/frontline/knowledgebase/:topicId/articles/:articleId` when opened from a
   topic's article list). Saving there keeps the user on the article, Cancel
-  discards unsaved edits in place, and deleting the article returns to its
+  clears the retained draft and remounts the form in place, invalidating pending
+  uploads, and deleting the article returns to its
   topic's article list. The page breadcrumb links Knowledge Base, the topic
   and Articles, and ends with the article title.
 - Help Center creation/editing uses the shared record panel, retaining General,
@@ -1412,10 +1414,12 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 - Each saved article has exactly one mounted `ArticleDrawer` form. Its Media
   tab and the page's Content tab render only `ArticleMediaSlot`, which
   registers a DOM node in `articleMediaSlotsState` under
-  `getArticleSlotKey(articleId, tab)`; the Detail form portals its media fields
-  (`mediaTab`) and Summary/Content (`contentTab`) there. Media renders inline
-  only when the drawer has no Media tab (create flow); Summary/Content render
-  inline whenever no Content slot is mounted.
+  `getArticleSlotKey(articleId, tab)`; `ArticleDrawer` portals its media fields
+  inside `KbFormSheet` with the same submit/cancel handlers and upload/save locks,
+  and Summary/Content (`contentTab`) there. Both form views share one React Hook
+  Form provider and draft owner. Media renders inline only when the drawer has
+  no Media tab (create flow); Summary/Content render inline only when the drawer
+  has no Content tab.
   Never mount a second `ArticleDrawer` for the same article, because both
   would write the same draft key.
 

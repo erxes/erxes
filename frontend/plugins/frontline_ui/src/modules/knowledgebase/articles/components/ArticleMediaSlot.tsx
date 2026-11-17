@@ -30,7 +30,9 @@ export const ArticleMediaSlot = ({
       );
   }, [node, articleId, tab, setSlots]);
 
-  return (
+  return tab === ARTICLE_MEDIA_TAB ? (
+    <div ref={setNode} className="flex flex-1 min-h-0 flex-col" />
+  ) : (
     <div className="flex-1 min-h-0 overflow-y-auto">
       <div ref={setNode} className="flex flex-col gap-1 p-3" />
     </div>

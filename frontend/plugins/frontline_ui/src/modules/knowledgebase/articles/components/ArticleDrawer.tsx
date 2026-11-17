@@ -20,7 +20,6 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
@@ -578,11 +577,11 @@ const ArticleFormFields = ({
   invalidateUpdates,
   disabled,
   mediaTab,
-  mediaSlot,
+  contentTab,
   contentSlot,
 }: TArticleMediaFieldsProps & {
   mediaTab: boolean;
-  mediaSlot?: HTMLElement;
+  contentTab: boolean;
   contentSlot?: HTMLElement;
 }) => {
   const mediaFields = (
@@ -602,11 +601,9 @@ const ArticleFormFields = ({
       {contentSlot ? (
         createPortal(<ArticleBodyFields form={form} t={t} />, contentSlot)
       ) : (
-        <ArticleBodyFields form={form} t={t} />
+        !contentTab && <ArticleBodyFields form={form} t={t} />
       )}
-      {mediaSlot
-        ? createPortal(mediaFields, mediaSlot)
-        : !mediaTab && mediaFields}
+      {!mediaTab && mediaFields}
     </div>
   );
 };
@@ -620,6 +617,7 @@ export const ArticleDrawer = ({
   mediaTab = false,
   contentTab = false,
   onClose,
+  onCancel = onClose,
   onSaved,
 }: {
   articleId?: string | null;
@@ -630,6 +628,7 @@ export const ArticleDrawer = ({
   mediaTab?: boolean;
   contentTab?: boolean;
   onClose: () => void;
+  onCancel?: () => void;
   onSaved?: () => void;
 }) => {
   const { t } = useTranslation('frontline', {
@@ -649,7 +648,6 @@ export const ArticleDrawer = ({
     contentTab && articleId
       ? mediaSlots[getArticleSlotKey(articleId, ARTICLE_CONTENT_TAB)]
       : undefined;
-  const [fieldsKey, setFieldsKey] = useState(0);
 
   const form = useForm<TArticleForm>({
     resolver: zodResolver(articleSchema),
@@ -703,13 +701,8 @@ export const ArticleDrawer = ({
   const isEditing = Boolean(articleId || createdId);
 
   const cancel = () => {
-    if (closeOnSave) {
-      clearDraft();
-      onClose();
-      return;
-    }
-    form.reset();
-    setFieldsKey((key) => key + 1);
+    clearDraft();
+    onCancel();
   };
 
   const submit = form.handleSubmit(async (values) => {
@@ -734,31 +727,45 @@ export const ArticleDrawer = ({
     if (closeOnSave && isActive()) onClose();
   });
 
+  const formSheetProps = {
+    onClose: cancel,
+    submitLabel: isEditing
+      ? t('kb-save-changes', 'Save Changes')
+      : t('kb-create-article', 'Create Article'),
+    loading: loading || saving,
+    uploading,
+    onSubmit: submit,
+  };
+
   return (
-    <KbFormSheet
-      onClose={cancel}
-      submitLabel={
-        isEditing
-          ? t('kb-save-changes', 'Save Changes')
-          : t('kb-create-article', 'Create Article')
-      }
-      loading={loading || saving}
-      uploading={uploading}
-      onSubmit={submit}
-    >
-      <Form {...form}>
-        <ArticleFormFields
-          key={fieldsKey}
-          form={form}
-          t={t}
-          captureUpdate={captureUpdate}
-          invalidateUpdates={invalidateUpdates}
-          disabled={loading || saving}
-          mediaTab={mediaTab}
-          mediaSlot={mediaSlot}
-          contentSlot={contentSlot}
-        />
-      </Form>
-    </KbFormSheet>
+    <Form {...form}>
+      <>
+        <KbFormSheet {...formSheetProps}>
+          <ArticleFormFields
+            form={form}
+            t={t}
+            captureUpdate={captureUpdate}
+            invalidateUpdates={invalidateUpdates}
+            disabled={loading || saving}
+            mediaTab={mediaTab}
+            contentTab={contentTab}
+            contentSlot={contentSlot}
+          />
+        </KbFormSheet>
+        {mediaSlot &&
+          createPortal(
+            <KbFormSheet {...formSheetProps}>
+              <ArticleMediaFields
+                form={form}
+                t={t}
+                captureUpdate={captureUpdate}
+                invalidateUpdates={invalidateUpdates}
+                disabled={loading || saving}
+              />
+            </KbFormSheet>,
+            mediaSlot,
+          )}
+      </>
+    </Form>
   );
 };
