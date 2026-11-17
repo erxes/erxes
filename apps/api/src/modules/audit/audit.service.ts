@@ -151,15 +151,55 @@ export const listAudit = async (client: Db, query: CursorQuery & AuditFilters) =
     },
     filters,
     query,
-    (where, orderBy, limit) =>
-      client
-        .select()
-        .from(auditLogs)
-        .where(where)
-        .orderBy(...orderBy)
-        .limit(limit),
+    async (where, orderBy, limit) =>
+      (
+        await client
+          .select()
+          .from(auditLogs)
+          .where(where)
+          .orderBy(...orderBy)
+          .limit(limit)
+      ).map(splitChanges),
   );
 };
+
+const isChange = (value: unknown): value is [unknown, unknown] =>
+  Array.isArray(value) && value.length === 2;
+
+/**
+ * Entries a plugin wrote before migration 0081 can hold `changes` values that are not
+ * `[before, after]` (`{ total: 120 }`). The log is append-only and hash-chained, so they stay
+ * stored as written; the list shows those values as metadata.
+ */
+const splitChanges = <Row extends { changes: unknown; metadata: unknown }>(row: Row) => {
+  if (row.changes === null) {
+    return row;
+  }
+
+  if (typeof row.changes !== 'object' || Array.isArray(row.changes)) {
+    return { ...row, changes: null, metadata: { changes: row.changes, ...asObject(row.metadata) } };
+  }
+
+  const entries = Object.entries(row.changes);
+  const other = entries.filter(([, value]) => !isChange(value));
+
+  if (!other.length) {
+    return row;
+  }
+
+  const changes = Object.fromEntries(entries.filter(([, value]) => isChange(value)));
+
+  return {
+    ...row,
+    changes: Object.keys(changes).length ? changes : null,
+    metadata: { ...Object.fromEntries(other), ...asObject(row.metadata) },
+  };
+};
+
+const asObject = (value: unknown): Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? Object.fromEntries(Object.entries(value))
+    : {};
 
 /**
  * Deletes entries past each organisation's retention (at most the

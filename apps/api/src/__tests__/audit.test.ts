@@ -105,6 +105,32 @@ describe('audit log', () => {
     expect((await t.owner().audit.list({})).totalCapped).toBe(false);
   });
 
+  it('lists plugin values that are not [before, after] as metadata', async () => {
+    const { org } = t.ids;
+
+    await adminDb().execute(
+      sql`select core_record_audit(${org}, 'hr', 'hr.order.placed', null, 'order', 'o1', 'Order 1', '{"total":120,"status":["new","paid"]}'::jsonb, '{"channel":"web"}'::jsonb)`,
+    );
+    // Written by the old function, which stored any shape.
+    await adminDb().execute(
+      sql`insert into core_audit_logs (id, org_id, source, actor_type, actor_id, action, changes)
+          values ('oldshape000000001', ${org}, 'hr', 'plugin', 'hr', 'hr.order.refunded', '{"amount":50}'::jsonb)`,
+    );
+
+    const entries = await t.owner().audit.list({ source: 'hr', action: 'hr.order.' });
+
+    expect(
+      entries.data.map(({ action, changes, metadata }) => ({ action, changes, metadata })),
+    ).toEqual([
+      { action: 'hr.order.refunded', changes: null, metadata: { amount: 50 } },
+      {
+        action: 'hr.order.placed',
+        changes: { status: ['new', 'paid'] },
+        metadata: { total: 120, channel: 'web' },
+      },
+    ]);
+  });
+
   it('is append-only and shows when an entry was changed', async () => {
     const { org } = t.ids;
 
