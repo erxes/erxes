@@ -568,6 +568,20 @@
       "when": 1794864037629,
       "tag": "0080_api_key_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1794869382715,
+      "tag": "0081_api_key_plugins",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1794871038014,
+      "tag": "0082_api_key_actions",
+      "breakpoints": true
     }
   ]
 }
