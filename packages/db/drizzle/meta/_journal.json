@@ -568,6 +568,13 @@
       "when": 1794865178901,
       "tag": "0080_field_filterable",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1794875049959,
+      "tag": "0081_email_settings",
+      "breakpoints": true
     }
   ]
 }

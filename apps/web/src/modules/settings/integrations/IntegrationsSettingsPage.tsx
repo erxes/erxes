@@ -36,7 +36,11 @@ const useCategoryLabel = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.category' });
 
   return (category: IntegrationCategory) =>
-    ({ payments: t('payments', 'Payments'), tax: t('tax', 'Tax receipts') })[category];
+    ({
+      email: t('email', 'Email'),
+      payments: t('payments', 'Payments'),
+      tax: t('tax', 'Tax receipts'),
+    })[category];
 };
 
 const IntegrationTile = ({

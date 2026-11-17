@@ -10,7 +10,12 @@ import { useCan } from '~/modules/auth/session';
 import type { Integration } from './catalog';
 import { EbarimtActivity } from './EbarimtActivity';
 import { EbarimtForm } from './EbarimtForm';
-import { IntegrationLayout, OverviewSection, useIntegrationTab } from './IntegrationLayout';
+import {
+  HowItWorks,
+  IntegrationLayout,
+  OverviewSection,
+  useIntegrationTab,
+} from './IntegrationLayout';
 import { useIntegrationStatus } from './useIntegrationStatus';
 
 const useRefreshFailed = () => {
@@ -143,13 +148,10 @@ const Overview = ({
           )}
         </p>
       )}
-      <OverviewSection title={t('how', 'How it works')}>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          {HOW_IT_WORKS.map(([key, text]) => (
-            <li key={key}>{t(`how-${key}`, text)}</li>
-          ))}
-        </ul>
-      </OverviewSection>
+      <HowItWorks
+        title={t('how', 'How it works')}
+        lines={HOW_IT_WORKS.map(([key, text]) => t(`how-${key}`, text))}
+      />
     </div>
   );
 };

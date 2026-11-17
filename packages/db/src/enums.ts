@@ -451,6 +451,11 @@ export const EBARIMT_RECEIPT_STATUSES = ['pending', 'success', 'failed'] as cons
 /** A receipt for a person (B2C) or a company (B2B, with its tax number). */
 export const EBARIMT_BUYER_TYPES = ['B2C_RECEIPT', 'B2B_RECEIPT'] as const;
 
+// ─── Email sending ──────────────────────────────────────────────────────────
+
+/** How an organisation sends its emails, when not through the server's (`EMAIL_SMTP_URL`). */
+export const EMAIL_PROVIDERS = ['smtp', 'sendgrid', 'ses'] as const;
+
 // ─── Settings ───────────────────────────────────────────────────────────────
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;
