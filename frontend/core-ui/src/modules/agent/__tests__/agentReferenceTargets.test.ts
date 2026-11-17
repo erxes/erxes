@@ -77,6 +77,19 @@ describe('getPageRecordFromLocation', () => {
     ).toEqual({ type: 'deal', id: 'abc123' });
   });
 
+  it("recognizes a product's own page but not the product settings pages", () => {
+    expect(getPageRecordFromLocation('/settings/products/p1', '')).toEqual({
+      type: 'product',
+      id: 'p1',
+    });
+    expect(
+      getPageRecordFromLocation('/settings/products/categories', ''),
+    ).toBeUndefined();
+    expect(
+      getPageRecordFromLocation('/settings/products/uoms', ''),
+    ).toBeUndefined();
+  });
+
   it('returns undefined on unrelated pages or missing params', () => {
     expect(getPageRecordFromLocation('/agent', '')).toBeUndefined();
     expect(

@@ -6,7 +6,7 @@ import { useProducts } from '@/products/hooks/useProducts';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '@/products/constants/productsCursorSessionKey';
 import { useTranslation } from 'react-i18next';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { ProductAddSheet } from '@/products/components/ProductAddSheet';
+import { ProductAddButton } from '@/products/components/ProductAddButton';
 export const ProductsRecordTable = () => {
   const { productsMain, handleFetchMore, loading, pageInfo, totalCount } =
     useProducts();
@@ -63,7 +63,7 @@ function EmptyStateRow() {
       <p className="mb-4 text-md text-muted-foreground">
         {t('get-started-first-product')}
       </p>
-      <ProductAddSheet />
+      <ProductAddButton />
     </div>
   );
 }

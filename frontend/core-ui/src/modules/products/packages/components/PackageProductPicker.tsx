@@ -1,15 +1,21 @@
 import {
-  IconChevronDown,
-  IconChevronUp,
+  IconAlertCircle,
+  IconMinus,
   IconPackageOff,
+  IconPlus,
+  IconX,
 } from '@tabler/icons-react';
-import { Checkbox, InfoCard, Spinner, cn } from 'erxes-ui';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { Button, Combobox, Popover, Skeleton } from 'erxes-ui';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useInView } from 'react-intersection-observer';
-import { IProduct } from 'ui-modules';
-import { useProducts } from 'ui-modules/modules/products/hooks/useProducts';
+import { SelectProduct } from 'ui-modules';
+import {
+  type TPackageChosenProduct,
+  usePackageChosenProducts,
+} from '../hooks/usePackageChosenProducts';
 import { IPackageProduct } from '../types/Package';
+
+const MAX_QUANTITY = 999;
 
 const formatNumber = (value?: number | null) =>
   value == null
@@ -18,228 +24,279 @@ const formatNumber = (value?: number | null) =>
         value,
       );
 
-const clamp = (n: number) => Math.min(999, Math.max(1, n));
+const clampQuantity = (quantity: number) =>
+  Math.min(MAX_QUANTITY, Math.max(1, quantity));
 
-const QtyControl = ({
-  qty,
-  disabled,
+const QuantityStepper = ({
+  quantity,
   onChange,
 }: {
-  qty: number;
-  disabled?: boolean;
-  onChange: (qty: number) => void;
+  quantity: number;
+  onChange: (quantity: number) => void;
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      e.preventDefault();
-      onChange(clamp(qty + (e.deltaY < 0 ? 1 : -1)));
-    },
-    [qty, onChange],
-  );
-
-  useEffect(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    el.addEventListener('wheel', handleWheel, { passive: false });
-    return () => el.removeEventListener('wheel', handleWheel);
-  }, [handleWheel]);
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
 
   return (
-    <div className="flex items-center gap-0.5 shrink-0">
+    <div className="flex h-7 shrink-0 items-center rounded-md border">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-6"
+        disabled={quantity <= 1}
+        aria-label={t('decrease-quantity', 'Decrease quantity')}
+        onClick={() => onChange(clampQuantity(quantity - 1))}
+      >
+        <IconMinus className="size-3" />
+      </Button>
       <input
-        ref={inputRef}
         type="number"
         min={1}
-        max={999}
-        value={qty}
-        disabled={disabled}
-        onChange={(e) => onChange(clamp(parseInt(e.target.value, 10) || 1))}
-        className="box-content bg-transparent border-0 outline-none w-8 tabular-nums text-sm text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [appearance:textfield]"
+        max={MAX_QUANTITY}
+        value={quantity}
+        aria-label={t('quantity', 'Quantity')}
+        onChange={(event) =>
+          onChange(clampQuantity(Number.parseInt(event.target.value, 10) || 1))
+        }
+        className="w-8 bg-transparent text-center text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
-      <div className="flex flex-col">
-        <button
-          type="button"
-          disabled={disabled || qty >= 999}
-          onClick={() => onChange(clamp(qty + 1))}
-          className="flex justify-center items-center disabled:opacity-30 size-3 text-foreground/60 hover:text-foreground disabled:cursor-not-allowed"
-        >
-          <IconChevronUp className="size-2.5" />
-        </button>
-        <button
-          type="button"
-          disabled={disabled || qty <= 1}
-          onClick={() => onChange(clamp(qty - 1))}
-          className="flex justify-center items-center disabled:opacity-30 size-3 text-foreground/60 hover:text-foreground disabled:cursor-not-allowed"
-        >
-          <IconChevronDown className="size-2.5" />
-        </button>
-      </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-6"
+        disabled={quantity >= MAX_QUANTITY}
+        aria-label={t('increase-quantity', 'Increase quantity')}
+        onClick={() => onChange(clampQuantity(quantity + 1))}
+      >
+        <IconPlus className="size-3" />
+      </Button>
     </div>
   );
 };
 
-const ProductRow = ({
-  product,
+const PackageProductLine = ({
   item,
-  disabled,
-  onToggle,
-  onQtyChange,
+  product,
+  onQuantityChange,
+  onRemove,
 }: {
-  product: Pick<IProduct, '_id' | 'name' | 'code' | 'unitPrice'>;
-  item?: IPackageProduct;
-  disabled?: boolean;
-  onToggle: (id: string) => void;
-  onQtyChange: (id: string, qty: number) => void;
+  item: IPackageProduct;
+  product?: TPackageChosenProduct;
+  onQuantityChange: (quantity: number) => void;
+  onRemove: () => void;
 }) => {
-  const checked = !!item;
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
+  const unitPrice = product ? Number(product.unitPrice) || 0 : null;
 
-  const handleRowClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('input,button')) return;
-    onToggle(product._id);
-  };
+  return (
+    // The controls drop below the name when the panel is too narrow for both.
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-2">
+      <div className="flex min-w-32 flex-1 flex-col">
+        <span className="truncate text-sm font-medium">
+          {product?.name ||
+            product?.code ||
+            t('unavailable-product', 'Unavailable product')}
+        </span>
+        <span className="truncate text-xs text-muted-foreground">
+          {[product?.code, `${formatNumber(unitPrice)} ${t('each', 'each')}`]
+            .filter(Boolean)
+            .join(' · ')}
+        </span>
+      </div>
+      <div className="ml-auto flex shrink-0 items-center gap-3">
+        <QuantityStepper quantity={item.quantity} onChange={onQuantityChange} />
+        <span className="min-w-16 text-right text-sm tabular-nums">
+          {formatNumber(unitPrice == null ? null : unitPrice * item.quantity)}
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7 text-muted-foreground"
+          aria-label={t('remove-product', 'Remove product')}
+          onClick={onRemove}
+        >
+          <IconX className="size-4" />
+        </Button>
+      </div>
+    </li>
+  );
+};
+
+// Opens the shared product search; each pick adds or removes a product.
+const PackageProductAdd = ({
+  productIds,
+  onChange,
+}: {
+  productIds: string[];
+  onChange: (productIds: string[]) => void;
+}) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectProduct.Provider
+      mode="multiple"
+      value={productIds}
+      onValueChange={(next) =>
+        onChange(Array.isArray(next) ? next : [next].filter(Boolean))
+      }
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <Button type="button" variant="ghost" size="sm">
+            <IconPlus />
+            {t('add-products', 'Add products')}
+          </Button>
+        </Popover.Trigger>
+        <Combobox.Content align="end">
+          <SelectProduct.Content />
+        </Combobox.Content>
+      </Popover>
+    </SelectProduct.Provider>
+  );
+};
+
+const PackageProductsEmpty = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
+
+  return (
+    <div className="flex flex-col items-center gap-1.5 rounded-lg border border-dashed px-4 py-6 text-center">
+      <IconPackageOff className="size-5 text-muted-foreground" />
+      <span className="text-sm font-medium">
+        {t('no-package-products', 'No products yet')}
+      </span>
+      <span className="text-xs text-muted-foreground">
+        {t(
+          'no-package-products-description',
+          'Add the products this package bundles; its total price follows them.',
+        )}
+      </span>
+    </div>
+  );
+};
+
+// Shown in place of the lines: without the products their names and prices
+// are unknown.
+const PackageProductsLoadError = ({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
 
   return (
     <div
-      className={cn(
-        'flex items-center gap-3 hover:bg-accent px-3 py-1 transition-colors cursor-pointer',
-        checked && 'bg-primary/5',
-        disabled && 'opacity-60 cursor-not-allowed',
-      )}
-      onClick={handleRowClick}
+      role="alert"
+      className="flex flex-col items-center gap-1.5 rounded-lg border border-dashed px-4 py-6 text-center"
     >
-      <Checkbox
-        checked={checked}
-        disabled={disabled}
-        onCheckedChange={() => onToggle(product._id)}
-        className="pointer-events-none shrink-0"
-      />
-      <span className="flex-auto min-w-0 font-medium text-sm truncate">
-        {product.name || product.code || product._id}
+      <IconAlertCircle className="size-5 text-destructive" />
+      <span className="text-sm font-medium">
+        {t('products-load-failed', 'Could not load the products')}
       </span>
-      <div className="flex items-center gap-3 shrink-0">
-        {product.code && (
-          <span className="max-w-28 font-mono text-muted-foreground text-xs truncate">
-            {product.code}
-          </span>
-        )}
-        <span className="tabular-nums text-muted-foreground text-sm">
-          {formatNumber(product.unitPrice)}
-        </span>
-        <QtyControl
-          qty={item?.quantity ?? 1}
-          disabled={disabled || !checked}
-          onChange={(qty) => onQtyChange(product._id, qty)}
-        />
-      </div>
+      <span className="text-xs text-muted-foreground">{message}</span>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-1"
+        onClick={onRetry}
+      >
+        {t('retry', 'Retry')}
+      </Button>
     </div>
   );
 };
 
+/**
+ * The products a package holds: found through the shared product search,
+ * each listed with its quantity and line total.
+ */
 export const PackageProductPicker = ({
   value,
   onChange,
-  onTotalChange,
-  disabled,
 }: {
   value: IPackageProduct[];
   onChange: (items: IPackageProduct[]) => void;
-  onTotalChange?: (total: number) => void;
-  disabled?: boolean;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'package' });
-  const { products, loading, handleFetchMore, totalCount } = useProducts({
-    variables: {},
-  });
-
-  const itemMap = useMemo(
-    () => new Map(value.map((p) => [p.productId, p])),
+  const productIds = useMemo(
+    () => value.map((item) => item.productId),
     [value],
   );
+  const { products, loading, error, retry } =
+    usePackageChosenProducts(productIds);
+  const productMap = useMemo(
+    () => new Map(products.map((product) => [product._id, product])),
+    [products],
+  );
 
-  const priceCache = useRef<Record<string, number>>({});
+  const choose = (nextIds: string[]) => {
+    const kept = value.filter((item) => nextIds.includes(item.productId));
+    const added = nextIds
+      .filter((id) => !productIds.includes(id))
+      .map((productId) => ({ productId, quantity: 1 }));
+    onChange([...kept, ...added]);
+  };
 
-  const computeTotal = (items: IPackageProduct[]) =>
-    items.reduce(
-      (sum, p) => sum + (priceCache.current[p.productId] || 0) * p.quantity,
-      0,
+  const changeQuantity = (productId: string, quantity: number) =>
+    onChange(
+      value.map((item) =>
+        item.productId === productId ? { ...item, quantity } : item,
+      ),
     );
 
-  useEffect(() => {
-    for (const p of products) {
-      priceCache.current[p._id] = Number(p.unitPrice) || 0;
+  const remove = (productId: string) =>
+    onChange(value.filter((item) => item.productId !== productId));
+
+  const showSkeleton = loading && !products.length;
+
+  const renderProducts = () => {
+    if (!value.length) return <PackageProductsEmpty />;
+    // While Retry runs the lines show as loading again.
+    if (error && !loading) {
+      return (
+        <PackageProductsLoadError message={error.message} onRetry={retry} />
+      );
     }
-    onTotalChange?.(computeTotal(value));
-  }, [products]);
-
-  const handleToggle = (productId: string) => {
-    const next = itemMap.has(productId)
-      ? value.filter((p) => p.productId !== productId)
-      : [...value, { productId, quantity: 1 }];
-    onChange(next);
-    onTotalChange?.(computeTotal(next));
-  };
-
-  const handleQtyChange = (productId: string, qty: number) => {
-    const next = value.map((p) =>
-      p.productId === productId ? { ...p, quantity: qty } : p,
+    return (
+      <ul className="divide-y rounded-lg border">
+        {value.map((item) =>
+          showSkeleton ? (
+            <li key={item.productId} className="px-3 py-2.5">
+              <Skeleton className="h-8 w-full" />
+            </li>
+          ) : (
+            <PackageProductLine
+              key={item.productId}
+              item={item}
+              product={productMap.get(item.productId)}
+              onQuantityChange={(quantity) =>
+                changeQuantity(item.productId, quantity)
+              }
+              onRemove={() => remove(item.productId)}
+            />
+          ),
+        )}
+      </ul>
     );
-    onChange(next);
-    onTotalChange?.(computeTotal(next));
   };
-
-  const hasMore = products.length < totalCount;
-
-  const { ref: sentinelRef } = useInView({
-    skip: !hasMore || loading,
-    onChange: (inView) => {
-      if (inView) handleFetchMore();
-    },
-  });
 
   return (
-    <InfoCard
-      title={t('products-count', {
-        count: value.length,
-        defaultValue: 'Products ({{count}})',
-      })}
-      className="flex-auto overflow-hidden"
-    >
-      <InfoCard.Content className="p-0 overflow-auto">
-        {loading && !products.length ? (
-          <div className="flex justify-center items-center gap-2 py-12 text-muted-foreground text-sm">
-            <Spinner /> {t('loading-products', 'Loading products…')}
-          </div>
-        ) : products.length === 0 ? (
-          <div className="flex flex-col justify-center items-center gap-2 py-12 text-muted-foreground text-sm text-center">
-            <IconPackageOff className="opacity-60 size-6" />
-            <span>{t('no-products-found', 'No products found.')}</span>
-          </div>
-        ) : (
-          <ul className="divide-y">
-            {products.map((p) => (
-              <li key={p._id}>
-                <ProductRow
-                  product={p}
-                  item={itemMap.get(p._id)}
-                  disabled={disabled}
-                  onToggle={handleToggle}
-                  onQtyChange={handleQtyChange}
-                />
-              </li>
-            ))}
-            {hasMore && (
-              <li
-                ref={sentinelRef}
-                className="flex justify-center items-center gap-2 py-3 text-muted-foreground text-sm"
-              >
-                <Spinner className="size-4" />
-              </li>
-            )}
-          </ul>
-        )}
-      </InfoCard.Content>
-    </InfoCard>
+    <section className="flex min-w-0 flex-col gap-1 pt-1">
+      <div className="flex h-7 items-center justify-between gap-2 px-1">
+        <h3 className="text-xs font-normal text-muted-foreground">
+          {t('products-count', {
+            count: value.length,
+            defaultValue: 'Products ({{count}})',
+          })}
+        </h3>
+        <PackageProductAdd productIds={productIds} onChange={choose} />
+      </div>
+      {renderProducts()}
+    </section>
   );
 };

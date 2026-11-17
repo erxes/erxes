@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePackages } from '../hooks/usePackages';
 import { createPackageColumns } from './packageColumns';
-import { PackageAddSheet } from './PackageAddSheet';
+import { PackageAddButton } from './PackageAddButton';
 import { PackageCommandBar } from './PackageCommandBar';
 
 export const PackagesRecordTable = () => {
@@ -40,7 +40,7 @@ export const PackagesRecordTable = () => {
         <p className="max-w-md mb-6 text-muted-foreground">
           {t('empty-hint', 'Get started by creating your first package.')}
         </p>
-        <PackageAddSheet />
+        <PackageAddButton />
       </div>
     );
   }

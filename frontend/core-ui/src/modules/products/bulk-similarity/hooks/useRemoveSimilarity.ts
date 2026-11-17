@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { SIMILARITY_CHANGE_REFETCH_QUERIES } from '../constants/similarityContentType';
 import { PRODUCT_SIMILARITY_REMOVE } from '../graphql/mutations';
 
 export const useRemoveSimilarity = () => {
@@ -8,20 +9,21 @@ export const useRemoveSimilarity = () => {
   const { toast } = useToast();
 
   const [removeMutation, { loading }] = useMutation(PRODUCT_SIMILARITY_REMOVE, {
-    refetchQueries: ['ProductSimilarities'],
+    // Its products are kept but leave the group.
+    refetchQueries: SIMILARITY_CHANGE_REFETCH_QUERIES,
   });
 
   const remove = async (_id: string) => {
     try {
       await removeMutation({ variables: { _id } });
       toast({ title: t('similarity-removed', 'Similarity removed') });
-    } catch (e: any) {
+    } catch (error) {
       toast({
         title: t('error', 'Error'),
-        description: e.message,
+        description: error instanceof Error ? error.message : undefined,
         variant: 'destructive',
       });
-      throw e;
+      throw error;
     }
   };
 

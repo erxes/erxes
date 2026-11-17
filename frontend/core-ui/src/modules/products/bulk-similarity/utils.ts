@@ -62,6 +62,61 @@ export const generateName = (
     .filter(Boolean)
     .join(' ');
 
+const matchesKnownValues = (
+  combination: Record<string, string>,
+  known: Record<string, string | string[]>,
+): boolean =>
+  Object.entries(known).every(([fieldId, raw]) => {
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    return !value || !combination[fieldId] || combination[fieldId] === value;
+  });
+
+// When a group starts from a product whose option values are empty or only
+// cover some of the chosen variant fields, bind that product to the first
+// compatible new combination so saving includes the source product.
+const findFallbackSeedKey = ({
+  combinations,
+  fieldIds,
+  productByKey,
+  previousByKey,
+  previousRows,
+  starProduct,
+}: {
+  combinations: Record<string, string>[];
+  fieldIds: string[];
+  productByKey: Map<string, ISimilarityProduct>;
+  previousByKey: Map<string, BulkRowFormValue>;
+  previousRows: BulkRowFormValue[];
+  starProduct: ISimilarityProduct;
+}): string | undefined => {
+  const keys = combinations.map((c) => combinationKey(fieldIds, c));
+  const alreadyMatched = keys.some(
+    (key) =>
+      productByKey.get(key)?._id === starProduct._id ||
+      previousByKey.get(key)?.productId === starProduct._id,
+  );
+  if (alreadyMatched) return undefined;
+
+  const previousStarRow = previousRows.find(
+    (row) => row.productId === starProduct._id,
+  );
+  const known =
+    previousStarRow?.combination ||
+    ((starProduct.propertiesData || {}) as Record<string, string | string[]>);
+
+  const isUnassignedNewKey = (combo: Record<string, string>) => {
+    const key = combinationKey(fieldIds, combo);
+    return !productByKey.has(key) && !previousByKey.has(key);
+  };
+
+  const candidate =
+    combinations.find(
+      (combo) => isUnassignedNewKey(combo) && matchesKnownValues(combo, known),
+    ) ?? combinations.find(isUnassignedNewKey);
+
+  return candidate ? combinationKey(fieldIds, candidate) : undefined;
+};
+
 export const buildRows = ({
   fieldIds,
   selection,
@@ -97,6 +152,23 @@ export const buildRows = ({
   }
 
   const previousByKey = new Map(previousRows.map((row) => [row.key, row]));
+
+  const starProduct = starProductId
+    ? products.find((p) => p._id === starProductId)
+    : undefined;
+  if (starProduct && combinations.length > 0) {
+    const fallbackKey = findFallbackSeedKey({
+      combinations,
+      fieldIds,
+      productByKey,
+      previousByKey,
+      previousRows,
+      starProduct,
+    });
+    if (fallbackKey !== undefined) {
+      productByKey.set(fallbackKey, starProduct);
+    }
+  }
 
   return combinations.map((combination) => {
     const key = combinationKey(fieldIds, combination);

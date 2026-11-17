@@ -1,3 +1,4 @@
+import type { IFieldMutation } from 'ui-modules';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
 
 export const useProductCustomFieldEdit = () => {
@@ -10,3 +11,11 @@ export const useProductCustomFieldEdit = () => {
     loading: productsEditLoading,
   };
 };
+
+// A read-only product's properties are shown, never sent: `productsEdit`
+// would make a deleted product active again. A field that still reports a
+// change (e.g. a rich-text one) is told it was not saved.
+export const useReadOnlyFieldEdit = (): IFieldMutation => ({
+  mutate: (variables, callbacks) => callbacks?.onError?.(),
+  loading: false,
+});

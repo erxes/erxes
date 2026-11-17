@@ -13,7 +13,7 @@ import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
 import { useBulkRows } from '../hooks/useBulkRows';
 import { useVariantFields } from '../hooks/useVariantFields';
 import { generateCodeSuffix } from '../utils';
-import { ChoosableProduct, ProductChooserSheet } from './ProductChooserSheet';
+import { ChoosableProduct, ProductChooser } from './ProductChooser';
 
 const EditableCell = ({
   value,
@@ -59,7 +59,7 @@ const EditableCell = ({
       onBlur={commit}
       onBeforeInput={(e) => {
         const data = (e.nativeEvent as InputEvent).data;
-        if (numeric && data && /[^0-9.\-]/.test(data)) {
+        if (numeric && data && /[^0-9.-]/.test(data)) {
           e.preventDefault();
         }
       }}
@@ -106,7 +106,7 @@ const NumericEditableCell = ({
   const shown = value ?? fallback;
   return (
     <IMaskInput
-      mask={Number as any}
+      mask={Number}
       thousandsSeparator=","
       radix="."
       unmask
@@ -137,11 +137,24 @@ const NumericEditableCell = ({
 interface GeneratedProductsTableProps {
   fieldName: (fieldId: string) => string;
   unitPrice?: number;
+  // Read-only, or held while saving. A disabled `fieldset` stops the inputs
+  // and buttons but not the text cells, which are content-editable.
+  disabled?: boolean;
 }
+
+// The header checkbox: every row, none, or some included.
+const includedState = (
+  includedCount: number,
+  total: number,
+): boolean | 'indeterminate' => {
+  if (includedCount === 0) return false;
+  return includedCount === total ? true : 'indeterminate';
+};
 
 const RowSwapCell = ({
   index,
   isExcluded,
+  disabled,
   productId,
   code,
   combination,
@@ -151,6 +164,7 @@ const RowSwapCell = ({
 }: {
   index: number;
   isExcluded: boolean;
+  disabled: boolean;
   productId?: string;
   code: string;
   combination: Record<string, string>;
@@ -180,7 +194,7 @@ const RowSwapCell = ({
 
   return (
     <div className="flex justify-center items-center">
-      <ProductChooserSheet
+      <ProductChooser
         excludeIds={excludeIds}
         value={productId}
         valueCode={code}
@@ -192,11 +206,11 @@ const RowSwapCell = ({
           variant={productId ? 'secondary' : 'ghost'}
           size="icon"
           className="bg-transparent size-7"
-          disabled={isExcluded}
+          disabled={disabled || isExcluded}
         >
           <IconSwitchHorizontal size={14} />
         </Button>
-      </ProductChooserSheet>
+      </ProductChooser>
     </div>
   );
 };
@@ -221,6 +235,7 @@ const EmptyPanel = ({
 
 const DEFAULT_COLUMN_WIDTH = 144;
 const MIN_COLUMN_WIDTH = 64;
+const CHECKBOX_COLUMN_WIDTH = 40;
 
 const useColumnWidths = (defaults: Record<string, number>) => {
   const [widths, setWidths] = useState<Record<string, number>>(defaults);
@@ -235,7 +250,10 @@ const useColumnWidths = (defaults: Record<string, number>) => {
       const startWidth = widths[id] ?? defaults[id] ?? DEFAULT_COLUMN_WIDTH;
 
       const onMove = (e: MouseEvent) => {
-        const next = Math.max(MIN_COLUMN_WIDTH, startWidth + e.clientX - startX);
+        const next = Math.max(
+          MIN_COLUMN_WIDTH,
+          startWidth + e.clientX - startX,
+        );
         setWidths((prev) => ({ ...prev, [id]: next }));
       };
 
@@ -295,6 +313,7 @@ const ResizableHead = ({
 export const GeneratedProductsTable = ({
   fieldName,
   unitPrice,
+  disabled = false,
 }: GeneratedProductsTableProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { control, setValue } = useFormContext<BulkSimilarityFormValues>();
@@ -311,6 +330,11 @@ export const GeneratedProductsTable = ({
     [fieldIds],
   );
   const { widthOf, startResize } = useColumnWidths(columnDefaults);
+  // The include checkbox column (`w-10`) and every sized column.
+  const tableWidth = Object.keys(columnDefaults).reduce(
+    (sum, id) => sum + widthOf(id),
+    CHECKBOX_COLUMN_WIDTH,
+  );
   const {
     rows,
     duplicateCodes,
@@ -346,8 +370,7 @@ export const GeneratedProductsTable = ({
   }
 
   const allIncluded = includedCount === rows.length;
-  const headerState: boolean | 'indeterminate' =
-    includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
+  const headerState = includedState(includedCount, rows.length);
 
   const usedProductIds = watchedRows
     .map((r) => r.productId)
@@ -355,7 +378,9 @@ export const GeneratedProductsTable = ({
 
   return (
     <div className="border rounded-lg max-h-[28rem] overflow-auto">
-      <Table className="w-auto min-w-full">
+      {/* A fixed table keeps its column widths only when it has a width; it
+          then scrolls in a narrow panel instead of squeezing the columns. */}
+      <Table className="min-w-full" style={{ width: tableWidth }}>
         <Table.Header className="top-0 z-10 sticky bg-sidebar">
           <Table.Row>
             <Table.Head className="px-3 w-10">
@@ -365,6 +390,7 @@ export const GeneratedProductsTable = ({
                     <span className="inline-flex">
                       <Checkbox
                         checked={headerState}
+                        disabled={disabled}
                         onCheckedChange={(checked) =>
                           handleSetAllExcluded(!checked)
                         }
@@ -455,6 +481,7 @@ export const GeneratedProductsTable = ({
                     render={({ field }) => (
                       <Checkbox
                         checked={!field.value}
+                        disabled={disabled}
                         onCheckedChange={(checked) => field.onChange(!checked)}
                         aria-label={t('include-product', 'Include product')}
                       />
@@ -469,6 +496,7 @@ export const GeneratedProductsTable = ({
                       setValue(`rows.${index}.nameEdited`, true);
                     }}
                     placeholder={t('name-placeholder', 'name')}
+                    disabled={disabled}
                   />
                 </Table.Cell>
                 <Table.Cell className="px-1" style={{ width: widthOf('code') }}>
@@ -483,6 +511,7 @@ export const GeneratedProductsTable = ({
                       }}
                       placeholder={t('code-placeholder', 'code')}
                       className="font-mono"
+                      disabled={disabled}
                     />
                     {isDup && (
                       <Tooltip.Provider>
@@ -493,7 +522,9 @@ export const GeneratedProductsTable = ({
                               className="mr-1 text-destructive shrink-0"
                             />
                           </Tooltip.Trigger>
-                          <Tooltip.Content>{t('duplicate-code', 'Duplicate code')}</Tooltip.Content>
+                          <Tooltip.Content>
+                            {t('duplicate-code', 'Duplicate code')}
+                          </Tooltip.Content>
                         </Tooltip>
                       </Tooltip.Provider>
                     )}
@@ -511,7 +542,7 @@ export const GeneratedProductsTable = ({
                         value={field.value}
                         fallback={unitPrice}
                         placeholder="0"
-                        disabled={isExcluded}
+                        disabled={disabled || isExcluded}
                         edited={
                           field.value != null && field.value !== unitPrice
                         }
@@ -544,6 +575,7 @@ export const GeneratedProductsTable = ({
                   <RowSwapCell
                     index={index}
                     isExcluded={isExcluded}
+                    disabled={disabled}
                     productId={row.productId}
                     code={code}
                     combination={combination}
@@ -565,7 +597,7 @@ export const GeneratedProductsTable = ({
                         size="icon"
                         className="size-7"
                         onClick={() => handleSetRowStar(row.key)}
-                        disabled={isExcluded}
+                        disabled={disabled || isExcluded}
                       >
                         {field.value ? (
                           <IconStarFilled size={14} className="text-warning" />

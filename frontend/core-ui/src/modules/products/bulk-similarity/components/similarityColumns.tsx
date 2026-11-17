@@ -4,11 +4,49 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
-  useQueryState,
 } from 'erxes-ui';
 import { IconStarFilled } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { SIMILARITY_CONTENT_TYPE } from '../constants/similarityContentType';
 import { IProductSimilarity } from '../types';
+
+const SimilarityNameCell = ({
+  similarity,
+}: {
+  similarity: IProductSimilarity;
+}) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
+  const { openRecord } = useSidePanel();
+
+  return (
+    <RecordTableInlineCell>
+      <div className="flex items-center gap-2">
+        <Badge
+          variant="secondary"
+          className="cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            openRecord({
+              contentType: SIMILARITY_CONTENT_TYPE,
+              contentId: similarity._id,
+            });
+          }}
+        >
+          {similarity.info?.name || t('untitled', 'Untitled')}
+        </Badge>
+        {similarity.starProductId && (
+          <IconStarFilled
+            size={13}
+            className="text-warning shrink-0"
+            aria-label={t('has-star-product', 'Has a star product')}
+          />
+        )}
+      </div>
+    </RecordTableInlineCell>
+  );
+};
 
 export const createSimilarityColumns = (
   t: TFunction,
@@ -18,32 +56,7 @@ export const createSimilarityColumns = (
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
-    cell: ({ row }) => {
-      const [, setEditId] = useQueryState<string>('similarityId');
-      return (
-        <RecordTableInlineCell>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant="secondary"
-              className="cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditId(row.original._id);
-              }}
-            >
-              {row.original.info?.name || t('untitled', 'Untitled')}
-            </Badge>
-            {row.original.starProductId && (
-              <IconStarFilled
-                size={13}
-                className="text-warning shrink-0"
-                aria-label={t('has-star-product', 'Has a star product')}
-              />
-            )}
-          </div>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => <SimilarityNameCell similarity={row.original} />,
   },
   {
     id: 'code',

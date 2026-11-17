@@ -2,44 +2,89 @@ import { useState } from 'react';
 import { Button, Empty, Form, InfoCard, Spinner } from 'erxes-ui';
 import { IconLayoutGrid, IconLoader2, IconPlus } from '@tabler/icons-react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { useFields } from 'ui-modules';
+import { useFields, useSidePanel } from 'ui-modules';
 import { ProductDetail } from '@/products/product-detail/types/detailTypes';
-import { ProductSimilarityCreateSheet } from '@/products/product-detail/components/ProductSimilarityCreateSheet';
+import { buildProductSimilarityDraft } from '@/products/product-detail/utils/similarityDraft';
+import {
+  SIMILARITY_CONTENT_TYPE,
+  type TSimilarityDraftDefaults,
+} from '@/products/bulk-similarity/constants/similarityContentType';
 import { useProductSimilarity } from '@/products/bulk-similarity/hooks/useProductSimilarityDetail';
 import { useBulkProductForm } from '@/products/bulk-similarity/hooks/useBulkProductForm';
 import { useEditSimilarity } from '@/products/bulk-similarity/hooks/useEditSimilarity';
+import { useBulkRows } from '@/products/bulk-similarity/hooks/useBulkRows';
 import { BulkSimilarityFormValues } from '@/products/bulk-similarity/constants/bulkSimilaritySchema';
 import { GeneratedProductsTable } from '@/products/bulk-similarity/components/GeneratedProductsTable';
 import {
   VariantFieldAddButton,
+  VariantFieldAddView,
   VariantFieldPicker,
 } from '@/products/bulk-similarity/components/VariantFieldPicker';
 import { useTranslation } from 'react-i18next';
 
 interface ProductDetailSimilarityProps {
   product?: ProductDetail | null;
-  callBack?: () => void;
+  // Shown, never changed: no field is added, nothing is saved or created.
+  readOnly?: boolean;
 }
 
 const ProductsWithUnitPrice = ({
   fieldName,
+  disabled,
 }: {
   fieldName: (id: string) => string;
+  disabled: boolean;
 }) => {
   const { control } = useFormContext<BulkSimilarityFormValues>();
   const unitPrice = useWatch({ control, name: 'unitPrice' });
-  return <GeneratedProductsTable fieldName={fieldName} unitPrice={unitPrice} />;
+  return (
+    <GeneratedProductsTable
+      fieldName={fieldName}
+      unitPrice={unitPrice}
+      disabled={disabled}
+    />
+  );
 };
 
+// Save, held back while the generated rows cannot be saved (duplicate codes),
+// as in the similarity group's own panel.
+const SimilaritySaveButton = ({
+  saving,
+  onClick,
+}: {
+  saving: boolean;
+  onClick: () => void;
+}) => {
+  const { t } = useTranslation('product', { keyPrefix: 'detail' });
+  const { validation } = useBulkRows();
+
+  return (
+    <Button
+      type="button"
+      disabled={saving || !validation.canSave}
+      onClick={onClick}
+    >
+      {saving && <IconLoader2 size={16} className="animate-spin" />}
+      {saving ? t('saving') : t('save')}
+    </Button>
+  );
+};
+
+/**
+ * A product's similarity group: edited here once the product is in one.
+ * Otherwise a new group starts from the product as a draft stacked in the
+ * side panel; Back returns to the product.
+ */
 export const ProductDetailSimilarity = ({
   product,
-  callBack,
+  readOnly = false,
 }: ProductDetailSimilarityProps) => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const { fields } = useFields({ contentType: 'core:product' });
-  const [createOpen, setCreateOpen] = useState(false);
+  const { openNewRecord } = useSidePanel();
+  const [addingField, setAddingField] = useState(false);
 
   const similarity = product?.similarity;
 
@@ -65,19 +110,24 @@ export const ProductDetailSimilarity = ({
               {t('not-in-similarity-description')}
             </Empty.Description>
           </Empty.Header>
-          <Empty.Content>
-            <Button onClick={() => setCreateOpen(true)}>
-              <IconPlus />
-              {t('create-similarity-group')}
-            </Button>
-          </Empty.Content>
+          {product && !readOnly && (
+            <Empty.Content>
+              <Button
+                onClick={() => {
+                  const defaults: TSimilarityDraftDefaults = {
+                    similarity: buildProductSimilarityDraft(product, fields),
+                  };
+                  openNewRecord(SIMILARITY_CONTENT_TYPE, defaults, {
+                    stack: true,
+                  });
+                }}
+              >
+                <IconPlus />
+                {t('create-similarity-group')}
+              </Button>
+            </Empty.Content>
+          )}
         </Empty>
-        <ProductSimilarityCreateSheet
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          product={product}
-          callBack={callBack}
-        />
       </div>
     );
   }
@@ -90,6 +140,8 @@ export const ProductDetailSimilarity = ({
     await edit(fullSimilarity._id, buildSavePayload(values));
   };
 
+  const locked = readOnly || saving;
+
   return (
     <Form {...form}>
       <div className="flex flex-col flex-1 overflow-hidden">
@@ -97,31 +149,41 @@ export const ProductDetailSimilarity = ({
           <div className="relative">
             <InfoCard title={t('property-fields')}>
               <InfoCard.Content>
-                <VariantFieldPicker />
+                {addingField ? (
+                  <VariantFieldAddView
+                    disabled={locked}
+                    onDone={() => setAddingField(false)}
+                  />
+                ) : (
+                  <VariantFieldPicker disabled={locked} />
+                )}
               </InfoCard.Content>
             </InfoCard>
-            <div className="absolute top-0.5 right-3">
-              <VariantFieldAddButton />
-            </div>
+            {!addingField && !locked && (
+              <div className="absolute top-0.5 right-3">
+                <VariantFieldAddButton onClick={() => setAddingField(true)} />
+              </div>
+            )}
           </div>
 
           <InfoCard title={t('products')}>
             <InfoCard.Content>
-              <ProductsWithUnitPrice fieldName={fieldName} />
+              <ProductsWithUnitPrice
+                fieldName={fieldName}
+                disabled={locked}
+              />
             </InfoCard.Content>
           </InfoCard>
         </div>
 
-        <div className="flex justify-end p-4 space-x-2 border-t bg-background">
-          <Button
-            type="button"
-            disabled={saving}
-            onClick={() => form.handleSubmit(handleSave)()}
-          >
-            {saving && <IconLoader2 size={16} className="animate-spin" />}
-            {saving ? t('saving') : t('save')}
-          </Button>
-        </div>
+        {!readOnly && (
+          <div className="flex justify-end p-4 space-x-2 border-t bg-background">
+            <SimilaritySaveButton
+              saving={saving}
+              onClick={() => form.handleSubmit(handleSave)()}
+            />
+          </div>
+        )}
       </div>
     </Form>
   );

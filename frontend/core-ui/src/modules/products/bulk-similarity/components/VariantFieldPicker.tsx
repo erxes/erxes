@@ -2,13 +2,14 @@ import {
   Badge,
   Button,
   Collapsible,
+  cn,
   IconComponent,
-  Sheet,
+  Spinner,
   Table,
   toast,
   Tooltip,
 } from 'erxes-ui';
-import { IconArrowLeft, IconPlus, IconX } from '@tabler/icons-react';
+import { IconChevronLeft, IconPlus, IconX } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -26,27 +27,30 @@ const FIELDS_LIMIT = 100;
 
 type VariantField = ReturnType<typeof useFields>['fields'][number];
 
-export const VariantFieldAddButton = () => {
-  const { fieldIds, handleToggleFieldValue } = useVariantFields();
-
-  const { fields, loading, refetch } = useFields({
-    contentType: CONTENT_TYPE,
-    limit: FIELDS_LIMIT,
-  });
-  const optionFields = fields.filter((f) => (f.options || []).length > 0);
+// Opens `VariantFieldAddView` in place of the field list.
+export const VariantFieldAddButton = ({ onClick }: { onClick: () => void }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
 
   return (
-    <AddFieldSheet
-      fields={optionFields}
-      activeFieldIds={fieldIds}
-      loading={loading}
-      refetchFields={refetch}
-      onPick={(fieldId, value) => handleToggleFieldValue(fieldId, value)}
-    />
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="size-6 text-accent-foreground"
+      title={t('add-variant-field', 'Add variant field')}
+      aria-label={t('add-variant-field', 'Add variant field')}
+      onClick={onClick}
+    >
+      <IconPlus className="size-4" />
+    </Button>
   );
 };
 
-export const VariantFieldPicker = () => {
+export const VariantFieldPicker = ({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { properties, fieldIds, handleToggleFieldValue, handleRemoveField } =
     useVariantFields();
@@ -83,19 +87,26 @@ export const VariantFieldPicker = () => {
                 {field.name}
               </div>
             </div>
-            <div className="flex flex-wrap flex-auto gap-1">
+            {/* A long value shortens rather than pushing out the remove. */}
+            <div className="flex min-w-0 flex-auto flex-wrap gap-1">
               {options.map((option) => {
                 const isOn = selected.includes(option.value);
                 return (
                   <Badge
                     key={option.value}
                     variant={isOn ? 'default' : 'secondary'}
-                    className="cursor-pointer"
+                    title={option.label}
+                    className={cn(
+                      'max-w-full',
+                      disabled
+                        ? 'pointer-events-none opacity-60'
+                        : 'cursor-pointer',
+                    )}
                     onClick={() =>
-                      handleToggleFieldValue(fieldId, option.value)
+                      !disabled && handleToggleFieldValue(fieldId, option.value)
                     }
                   >
-                    {option.label}
+                    <span className="truncate">{option.label}</span>
                   </Badge>
                 );
               })}
@@ -107,12 +118,15 @@ export const VariantFieldPicker = () => {
                     variant="ghost"
                     size="icon"
                     className="size-7 shrink-0"
+                    disabled={disabled}
                     onClick={() => handleRemoveField(fieldId)}
                   >
                     <IconX size={14} />
                   </Button>
                 </Tooltip.Trigger>
-                <Tooltip.Content>{t('remove-field', 'Remove field')}</Tooltip.Content>
+                <Tooltip.Content>
+                  {t('remove-field', 'Remove field')}
+                </Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
           </div>
@@ -122,21 +136,24 @@ export const VariantFieldPicker = () => {
   );
 };
 
-const AddFieldSheet = ({
-  fields,
-  activeFieldIds,
-  loading,
-  refetchFields,
-  onPick,
+/**
+ * Picks a property to use as a variant axis, or creates one, in place of
+ * the field list inside the panel; `onDone` goes back to the list.
+ */
+export const VariantFieldAddView = ({
+  onDone,
+  disabled = false,
 }: {
-  fields: VariantField[];
-  activeFieldIds: string[];
-  loading: boolean;
-  refetchFields: () => Promise<unknown>;
-  onPick: (fieldId: string, value: string) => void;
+  onDone: () => void;
+  disabled?: boolean;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
-  const [open, setOpen] = useState(false);
+  const { t: navT } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { fieldIds, handleToggleFieldValue } = useVariantFields();
+  const { fields, loading, refetch } = useFields({
+    contentType: CONTENT_TYPE,
+    limit: FIELDS_LIMIT,
+  });
   const [createGroup, setCreateGroup] = useState<string | null>(null);
   const { fieldGroups, loading: groupsLoading } = useFieldGroups({
     contentType: CONTENT_TYPE,
@@ -144,8 +161,11 @@ const AddFieldSheet = ({
   });
 
   const available = useMemo(
-    () => fields.filter((f) => !activeFieldIds.includes(f._id)),
-    [fields, activeFieldIds],
+    () =>
+      fields.filter(
+        (f) => (f.options || []).length > 0 && !fieldIds.includes(f._id),
+      ),
+    [fields, fieldIds],
   );
 
   const groups = useMemo(() => {
@@ -155,13 +175,12 @@ const AddFieldSheet = ({
       byGroup.set(key, [...(byGroup.get(key) || []), field]);
     }
 
-    const ordered = fieldGroups
-      .map((group) => ({
-        _id: group._id,
-        name: group.name,
-        fields: byGroup.get(group._id) || [],
-      }))
-      .filter((group) => group.fields.length);
+    const ordered = fieldGroups.map((group) => ({
+      _id: group._id,
+      name: group.name,
+      fields: byGroup.get(group._id) || [],
+    }));
+    // Every group is listed, even with no field left to add: its + creates one.
 
     const ungrouped = [...byGroup.entries()]
       .filter(([key]) => !fieldGroups.some((group) => group._id === key))
@@ -178,151 +197,141 @@ const AddFieldSheet = ({
     return ordered;
   }, [available, fieldGroups, t]);
 
+  const pick = (fieldId: string, value: string) => {
+    handleToggleFieldValue(fieldId, value);
+    onDone();
+  };
+
   const handlePick = (field: VariantField) => {
+    if (disabled) return;
     const first = field.options?.[0];
-    if (!first) return;
-    onPick(field._id, first.value);
-    setOpen(false);
+    if (first) pick(field._id, first.value);
   };
 
-  const handleCreated = (fieldId: string, value: string) => {
-    onPick(fieldId, value);
-    setCreateGroup(null);
-    setOpen(false);
-  };
+  const renderList = () => {
+    if ((loading || groupsLoading) && !groups.length) {
+      return <Spinner containerClassName="py-6" />;
+    }
+    if (!groups.length) {
+      return (
+        <div className="flex justify-center items-center px-4 py-6 border border-dashed rounded-lg text-muted-foreground text-sm">
+          {t(
+            'no-property-groups',
+            'Products have no property groups yet. Add one in Properties settings.',
+          )}
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-2">
+        {groups.map((group) => (
+          <Collapsible
+            key={group._id || 'ungrouped'}
+            className="group"
+            defaultOpen
+          >
+            <div className="relative">
+              <Collapsible.Trigger asChild>
+                <Button variant="secondary" className="w-full justify-start">
+                  <Collapsible.TriggerIcon />
+                  {group.name}
+                </Button>
+              </Collapsible.Trigger>
+              {group._id && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-0.5 top-0.5 size-6 px-0"
+                  onClick={() => setCreateGroup(group._id)}
+                >
+                  <IconPlus />
+                </Button>
+              )}
+            </div>
 
-  const handleOpenChange = (next: boolean) => {
-    setOpen(next);
-    if (!next) setCreateGroup(null);
+            <Collapsible.Content className="pt-2">
+              <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
+                <Table.Body>
+                  {group.fields.map((field) => {
+                    const fieldTypeObject =
+                      FIELD_TYPES_OBJECT[field.type || ''];
+                    const FieldTypeIcon = fieldTypeObject?.icon;
+
+                    return (
+                      <Table.Row
+                        key={field._id}
+                        className="hover:bg-sidebar cursor-pointer"
+                        onClick={() => handlePick(field)}
+                      >
+                        <Table.Cell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-full w-full justify-start hover:bg-transparent"
+                            asChild
+                          >
+                            <div>
+                              <IconComponent name={field.icon} />
+                              {field.name}
+                            </div>
+                          </Button>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-full w-full justify-end hover:bg-transparent text-muted-foreground"
+                            asChild
+                          >
+                            <div>
+                              {FieldTypeIcon && <FieldTypeIcon />}
+                              {fieldTypeObject?.label}
+                            </div>
+                          </Button>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table>
+            </Collapsible.Content>
+          </Collapsible>
+        ))}
+      </div>
+    );
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <Sheet.Trigger asChild>
+    <div className="flex flex-col gap-3">
+      <div className="flex h-7 items-center gap-1">
         <Button
+          type="button"
           variant="ghost"
           size="icon"
-          className="size-6 text-accent-foreground"
+          className="size-7"
+          title={navT('back', 'Back')}
+          aria-label={navT('back', 'Back')}
+          onClick={() => (createGroup ? setCreateGroup(null) : onDone())}
         >
-          <IconPlus className="size-4" />
+          <IconChevronLeft className="size-4" />
         </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="flex flex-col p-0 sm:max-w-md">
-        <Sheet.Header className="gap-3">
-          {createGroup && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="-ml-2 size-7"
-              onClick={() => setCreateGroup(null)}
-            >
-              <IconArrowLeft className="size-4" />
-            </Button>
-          )}
-          <Sheet.Title>
-            {createGroup
-              ? t('new-property', 'New property')
-              : t('add-variant-field', 'Add variant field')}
-          </Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            {t(
-              'add-field-description',
-              'Pick a property to use as a variant axis, or create a new one.',
-            )}
-          </Sheet.Description>
-        </Sheet.Header>
-
-        {createGroup ? (
-          <CreatePropertyForm
-            groupId={createGroup}
-            refetchFields={refetchFields}
-            onCreated={handleCreated}
-          />
-        ) : (
-          <Sheet.Content className="flex-auto p-5 overflow-auto">
-            <div className="flex flex-col gap-2">
-              {groups.map((group) => (
-                <Collapsible
-                  key={group._id || 'ungrouped'}
-                  className="group"
-                  defaultOpen
-                >
-                  <div className="relative">
-                    <Collapsible.Trigger asChild>
-                      <Button
-                        variant="secondary"
-                        className="w-full justify-start"
-                      >
-                        <Collapsible.TriggerIcon />
-                        {group.name}
-                      </Button>
-                    </Collapsible.Trigger>
-                    {group._id && (
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute right-0.5 top-0.5 size-6 px-0"
-                        onClick={() => setCreateGroup(group._id)}
-                      >
-                        <IconPlus />
-                      </Button>
-                    )}
-                  </div>
-
-                  <Collapsible.Content className="pt-2">
-                    <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
-                      <Table.Body>
-                        {group.fields.map((field) => {
-                          const fieldTypeObject =
-                            FIELD_TYPES_OBJECT[field.type || ''];
-                          const FieldTypeIcon = fieldTypeObject?.icon;
-
-                          return (
-                            <Table.Row
-                              key={field._id}
-                              className="hover:bg-sidebar cursor-pointer"
-                              onClick={() => handlePick(field)}
-                            >
-                              <Table.Cell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-full w-full justify-start hover:bg-transparent"
-                                  asChild
-                                >
-                                  <div>
-                                    <IconComponent name={field.icon} />
-                                    {field.name}
-                                  </div>
-                                </Button>
-                              </Table.Cell>
-                              <Table.Cell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-full w-full justify-end hover:bg-transparent text-muted-foreground"
-                                  asChild
-                                >
-                                  <div>
-                                    {FieldTypeIcon && <FieldTypeIcon />}
-                                    {fieldTypeObject?.label}
-                                  </div>
-                                </Button>
-                              </Table.Cell>
-                            </Table.Row>
-                          );
-                        })}
-                      </Table.Body>
-                    </Table>
-                  </Collapsible.Content>
-                </Collapsible>
-              ))}
-            </div>
-          </Sheet.Content>
-        )}
-      </Sheet.View>
-    </Sheet>
+        <h3 className="text-xs font-medium">
+          {createGroup
+            ? t('new-property', 'New property')
+            : t('add-variant-field', 'Add variant field')}
+        </h3>
+      </div>
+      {createGroup ? (
+        <CreatePropertyForm
+          groupId={createGroup}
+          refetchFields={refetch}
+          onCreated={pick}
+          onCancel={() => setCreateGroup(null)}
+        />
+      ) : (
+        renderList()
+      )}
+    </div>
   );
 };
 
@@ -330,10 +339,12 @@ const CreatePropertyForm = ({
   groupId,
   refetchFields,
   onCreated,
+  onCancel,
 }: {
   groupId: string;
   refetchFields: () => Promise<unknown>;
   onCreated: (fieldId: string, value: string) => void;
+  onCancel: () => void;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { addProperty, loading } = useAddProperty();
@@ -349,8 +360,14 @@ const CreatePropertyForm = ({
         await refetchFields();
         const newId = res?.fieldAdd?._id;
         const firstValue = data.options?.[0]?.value;
+        // Without an option it is no variant axis: back to the list, where
+        // it shows once it has options.
         if (newId && firstValue) onCreated(newId, firstValue);
-        toast({ title: t('property-created', 'Property created'), variant: 'success' });
+        else onCancel();
+        toast({
+          title: t('property-created', 'Property created'),
+          variant: 'success',
+        });
       },
       onError: (error) =>
         toast({
@@ -362,26 +379,31 @@ const CreatePropertyForm = ({
   };
 
   return (
-    <Sheet.Content className="flex-auto p-5 overflow-auto">
-      <div className="flex flex-col gap-5">
-        <div onSubmit={(e) => e.stopPropagation()}>
-          <PropertyForm
-            onSubmit={handleSubmit}
-            loading={loading}
-            disableType
-            defaultValues={{
-              icon: '123',
-              name: '',
-              type: 'multiSelect',
-              isSearchable: false,
-              description: '',
-              code: '',
-              validation: '',
-              options: [],
-            }}
-          />
-        </div>
+    <div className="flex flex-col gap-5">
+      <div onSubmit={(e) => e.stopPropagation()}>
+        <PropertyForm
+          onSubmit={handleSubmit}
+          loading={loading}
+          disableType
+          defaultValues={{
+            icon: '123',
+            name: '',
+            type: 'multiSelect',
+            groupId,
+            isSearchable: false,
+            isVisible: true,
+            isVisibleToCreate: false,
+            isRequired: false,
+            isVisibleInCard: false,
+            description: '',
+            code: '',
+            options: [],
+          }}
+          onCancel={onCancel}
+          contentType={CONTENT_TYPE}
+          layout="record"
+        />
       </div>
-    </Sheet.Content>
+    </div>
   );
 };

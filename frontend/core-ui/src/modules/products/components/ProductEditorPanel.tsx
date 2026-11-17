@@ -41,7 +41,20 @@ export const ProductEditorPanel = ({
   );
 };
 
-export const ProductEditorHeader = ({ title }: { title: ReactNode }) => {
+/** The editor's header; `onBack` goes back inside the editor, e.g. from a row's form to its parent. */
+export const ProductEditorHeader = ({
+  title,
+  onBack,
+}: {
+  title: ReactNode;
+  onBack?: () => void;
+}) => {
   const entry = usePagePanelContext();
-  return <RecordSidePanel.Header title={title} {...entry.headerProps} />;
+  return (
+    <RecordSidePanel.Header
+      title={title}
+      {...entry.headerProps}
+      {...(onBack ? { onBack } : {})}
+    />
+  );
 };
