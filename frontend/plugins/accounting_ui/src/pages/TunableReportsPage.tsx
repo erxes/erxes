@@ -19,7 +19,7 @@ import { useReportActions } from '@/tunable-reports/useReports';
 type SelectedReport = { _id: string; name: string };
 export const TunableReportsPage = () => {
   const { t } = useReportTranslation();
-  const [searchValue, setSearch] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<SelectedReport>();
   const { canManage } = useReportActions();
@@ -37,6 +37,72 @@ export const TunableReportsPage = () => {
       </Link>
     </Button>
   );
+  const renderReports = () => {
+    if (error) return <AccountingEmptyState error={error} />;
+    if (loading && !data)
+      return (
+        <div
+          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          aria-label={t('loading')}
+        >
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="h-44 rounded-xl" />
+          ))}
+        </div>
+      );
+    if (!reports.length)
+      return (
+        <AccountingEmptyState
+          title={t('empty')}
+          description={t('emptyDescription')}
+          action={add}
+        />
+      );
+    return (
+      <div
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+        aria-label={t('title')}
+      >
+        {reports.map((report) => (
+          <Card
+            key={report._id}
+            className="flex min-w-0 flex-col border border-border/70 shadow-none"
+          >
+            <Card.Header className="flex-1 space-y-3">
+              <Badge variant="secondary" className="w-fit font-mono">
+                {report.code}
+              </Badge>
+              <Card.Title
+                className="line-clamp-2 text-base leading-relaxed"
+                title={report.name}
+              >
+                {report.name}
+              </Card.Title>
+            </Card.Header>
+            <Card.Footer className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setSelected(report)}
+              >
+                <IconReport />
+                {t('run')}
+              </Button>
+              {canManage && (
+                <Button asChild variant="ghost">
+                  <Link to={`/accounting/tunable-reports/${report._id}/edit`}>
+                    <IconEdit />
+                    {t('edit')}
+                  </Link>
+                </Button>
+              )}
+            </Card.Footer>
+          </Card>
+        ))}
+      </div>
+    );
+  };
   return (
     <AccountingLayout>
       <AccountingHeader
@@ -52,7 +118,7 @@ export const TunableReportsPage = () => {
           placeholder={t('search')}
           value={searchValue}
           onChange={(event) => {
-            setSearch(event.target.value);
+            setSearchValue(event.target.value);
             setPage(1);
           }}
           className="max-w-sm"
@@ -66,71 +132,7 @@ export const TunableReportsPage = () => {
           </Button>
         )}
       </div>
-      <div className="min-h-0 flex-1 overflow-auto p-3">
-        {error ? (
-          <AccountingEmptyState error={error} />
-        ) : loading && !data ? (
-          <div
-            className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
-            aria-label={t('loading')}
-          >
-            {Array.from({ length: 6 }, (_, index) => (
-              <Skeleton key={index} className="h-44 rounded-xl" />
-            ))}
-          </div>
-        ) : !reports.length ? (
-          <AccountingEmptyState
-            title={t('empty')}
-            description={t('emptyDescription')}
-            action={add}
-          />
-        ) : (
-          <div
-            className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
-            aria-label={t('title')}
-          >
-            {reports.map((report) => (
-              <Card
-                key={report._id}
-                className="flex min-w-0 flex-col border border-border/70 shadow-none"
-              >
-                <Card.Header className="flex-1 space-y-3">
-                  <Badge variant="secondary" className="w-fit font-mono">
-                    {report.code}
-                  </Badge>
-                  <Card.Title
-                    className="line-clamp-2 text-base leading-relaxed"
-                    title={report.name}
-                  >
-                    {report.name}
-                  </Card.Title>
-                </Card.Header>
-                <Card.Footer className="gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setSelected(report)}
-                  >
-                    <IconReport />
-                    {t('run')}
-                  </Button>
-                  {canManage && (
-                    <Button asChild variant="ghost">
-                      <Link
-                        to={`/accounting/tunable-reports/${report._id}/edit`}
-                      >
-                        <IconEdit />
-                        {t('edit')}
-                      </Link>
-                    </Button>
-                  )}
-                </Card.Footer>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+      <div className="min-h-0 flex-1 overflow-auto p-3">{renderReports()}</div>
       <div className="flex justify-end gap-2 p-3">
         <Button
           variant="outline"

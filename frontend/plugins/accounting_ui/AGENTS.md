@@ -212,6 +212,8 @@
 
 ## Data and State
 
+- Row, column and formula comparison choices map optional `isPre` through `comparisonChoice`/`comparisonIsPre` in `values.ts` (undefined inherits, false forces current).
+
 - Formula period options and form validation follow the backend: balance terms cannot use `between`; transaction terms allow only inherit or `between`, and an inherited non-between period is a validation error.
 
 - New tunable report sections start with an empty optional name and no columns. Empty sections may be saved; formulas require at least one column. Columns are added explicitly by the user, with an empty name input rather than a generated numbered title; a column name is required when saving.

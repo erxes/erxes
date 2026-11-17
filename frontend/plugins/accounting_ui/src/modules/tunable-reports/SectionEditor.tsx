@@ -20,6 +20,20 @@ type SettingsTarget =
   | { kind: 'section' }
   | { kind: 'row' | 'column'; id: string }
   | { kind: 'cell'; target: GridTarget };
+
+const SETTINGS_TITLES: Record<SettingsTarget['kind'], string> = {
+  section: 'sectionSettings',
+  row: 'rowSettings',
+  column: 'columnSettings',
+  cell: 'configureFormula',
+};
+const removalMessage = (
+  kind: 'rows' | 'columns',
+  lastColumn: boolean,
+): string => {
+  if (kind === 'rows') return 'removeRowConfirm';
+  return lastColumn ? 'removeLastColumnConfirm' : 'removeColumnConfirm';
+};
 export const SectionEditor = ({
   form,
   index,
@@ -137,13 +151,7 @@ export const SectionEditor = ({
     }
     try {
       await confirm({
-        message: t(
-          kind === 'rows'
-            ? 'removeRowConfirm'
-            : lastColumn
-            ? 'removeLastColumnConfirm'
-            : 'removeColumnConfirm',
-        ),
+        message: t(removalMessage(kind, lastColumn)),
       });
     } catch {
       return;
@@ -154,14 +162,7 @@ export const SectionEditor = ({
   const addColumn = () => columns.append(newColumn());
   const addRow = () =>
     rows.append(reportSectionInputSchema.shape.rows.element.parse(newRow()));
-  const title =
-    settings?.kind === 'row'
-      ? t('rowSettings')
-      : settings?.kind === 'column'
-      ? t('columnSettings')
-      : settings?.kind === 'cell'
-      ? t('configureFormula')
-      : t('sectionSettings');
+  const title = t(SETTINGS_TITLES[settings?.kind ?? 'section']);
   const cellRow =
     settings?.kind === 'cell'
       ? section.rows.find((row) => row._id === settings.target.rowId)

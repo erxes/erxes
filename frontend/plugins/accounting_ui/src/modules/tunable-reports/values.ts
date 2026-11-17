@@ -8,6 +8,15 @@ import {
 import { AccountingTunableReportFieldsFragment } from '~/gql/graphql';
 
 export const reportId = (): string => nanoid();
+
+export type ComparisonChoice = '__inherit' | 'current' | 'previous';
+// `isPre` is optional: undefined inherits, false forces the current period.
+export const comparisonChoice = (isPre?: boolean): ComparisonChoice => {
+  if (isPre === undefined) return '__inherit';
+  return isPre ? 'previous' : 'current';
+};
+export const comparisonIsPre = (choice: string): boolean | undefined =>
+  choice === '__inherit' ? undefined : choice === 'previous';
 export const newColumn = (name = ''): ReportSection['columns'][number] => ({
   _id: reportId(),
   name,

@@ -59,11 +59,13 @@ export const resolveReportSource = (
   const sameSection =
     sourceReport?._id === current.report._id &&
     section?._id === current.section._id;
-  const column = reference.columnId
-    ? section?.columns.find((item) => item._id === reference.columnId)
-    : sameSection || section?.formulaType === 'row'
-    ? current.column
-    : undefined;
+  // Without an explicit column, a reference borrows the current column's
+  // period context only within its own section or a row-scoped section.
+  const inheritsColumn = sameSection || section?.formulaType === 'row';
+  let column: ReportCellContext['column'] | undefined;
+  if (reference.columnId)
+    column = section?.columns.find((item) => item._id === reference.columnId);
+  else if (inheritsColumn) column = current.column;
   if (section && section.formulaType !== current.section.formulaType)
     throw new Error('Referenced sections must use the same formula scope');
   if (!sourceReport || !section || !row || !column)

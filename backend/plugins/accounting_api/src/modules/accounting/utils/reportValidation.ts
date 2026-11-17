@@ -1,6 +1,11 @@
 import { validateReportPercent } from './tunableReports/percent';
 import { validateReportFormulaPeriod } from './tunableReports/period';
-import { IReportDefinition, IReportSection } from '../@types/report';
+import {
+  IReportDefinition,
+  IReportFormula,
+  IReportReference,
+  IReportSection,
+} from '../@types/report';
 
 import {
   getReportCellFormulas,
@@ -15,6 +20,15 @@ const requireUniqueIds = (items: { _id: string }[], label: string): void => {
     throw new Error(`${label}: duplicate ids`);
 };
 type Column = IReportSection['columns'][number];
+const FORMULA_REFERENCES: Record<
+  IReportFormula['kind'],
+  (formula: IReportFormula) => (IReportReference | undefined)[]
+> = {
+  balance: () => [],
+  transaction: () => [],
+  from_row: (formula) => [formula.source],
+  ratio: (formula) => [formula.source, formula.ratioSource],
+};
 type Row = IReportSection['rows'][number];
 
 export const validateReportDefinitions = (
@@ -69,12 +83,7 @@ export const validateReportDefinitions = (
         throw new Error('A source row is required');
       if (formula.kind === 'ratio' && !formula.ratioSource)
         throw new Error('A ratio source row is required');
-      const references =
-        formula.kind === 'ratio'
-          ? [formula.source, formula.ratioSource]
-          : formula.kind === 'from_row'
-          ? [formula.source]
-          : [];
+      const references = FORMULA_REFERENCES[formula.kind](formula);
       for (const source of references) {
         if (!source) continue;
         const resolved = resolveReportSource(

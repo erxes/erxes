@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 const id = z.string().trim().min(1);
-const numericPercent = '-?\\d+(?:\\.\\d+)?';
+const numericPercent = String.raw`-?\d+(?:\.\d+)?`;
 const percentageRule = new RegExp(
-  `^(?:${numericPercent}|if\\(\\w+\\s*(?:>=|<=|!=|>|<|=)\\s*${numericPercent}\\s*:\\s*(?:${numericPercent}|\\[${numericPercent}\\])(?:\\s*,\\s*\\w+\\s*(?:>=|<=|!=|>|<|=)\\s*${numericPercent}\\s*:\\s*(?:${numericPercent}|\\[${numericPercent}\\]))*\\)\\s*${numericPercent})$`,
+  String.raw`^(?:${numericPercent}|if\(\w+\s*(?:>=|<=|!=|>|<|=)\s*${numericPercent}\s*:\s*(?:${numericPercent}|\[${numericPercent}\])(?:\s*,\s*\w+\s*(?:>=|<=|!=|>|<|=)\s*${numericPercent}\s*:\s*(?:${numericPercent}|\[${numericPercent}\]))*\)\s*${numericPercent})$`,
 );
 const period = {
   getDate: z.enum(['first', 'last', 'between']).optional(),

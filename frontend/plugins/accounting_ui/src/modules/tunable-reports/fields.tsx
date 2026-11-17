@@ -2,6 +2,7 @@ import { Form, Input, Select, Checkbox, Textarea } from 'erxes-ui';
 import { FieldPath, UseFormReturn } from 'react-hook-form';
 import { ReportValues } from '@/tunable-reports/schema';
 import { useReportTranslation } from '@/tunable-reports/locales';
+import { comparisonChoice, comparisonIsPre } from '@/tunable-reports/values';
 
 export type ReportForm = UseFormReturn<ReportValues>;
 export type ReportPath = FieldPath<ReportValues>;
@@ -213,18 +214,8 @@ export const PeriodSettings = ({
             <Form.Label>{t('comparison')}</Form.Label>
             <Choice
               label={t('comparison')}
-              value={
-                field.value === undefined
-                  ? '__inherit'
-                  : field.value
-                  ? 'previous'
-                  : 'current'
-              }
-              onChange={(value) =>
-                field.onChange(
-                  value === '__inherit' ? undefined : value === 'previous',
-                )
-              }
+              value={comparisonChoice(field.value)}
+              onChange={(value) => field.onChange(comparisonIsPre(value))}
               options={['__inherit', 'current', 'previous'].map((value) => ({
                 value,
                 label: t(value === '__inherit' ? 'inherit' : value),

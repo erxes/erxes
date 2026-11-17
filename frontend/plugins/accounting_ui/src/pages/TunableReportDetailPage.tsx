@@ -76,17 +76,13 @@ export const TunableReportDetailPage = ({
             </Button>
           </div>
         )}
-        {!error &&
-          (mode === 'new' ? (
-            <ReportEditor key="new" />
-          ) : (
-            report &&
-            (mode === 'show' ? (
-              <ReportPreview report={report} />
-            ) : (
-              <ReportEditor key={report._id} report={report} />
-            ))
-          ))}
+        {!error && mode === 'new' && <ReportEditor key="new" />}
+        {!error && report && mode === 'show' && (
+          <ReportPreview report={report} />
+        )}
+        {!error && report && mode === 'edit' && (
+          <ReportEditor key={report._id} report={report} />
+        )}
       </div>
       {report && runOpen && (
         <ReportRunSheet

@@ -13,6 +13,7 @@ import {
 } from '@/tunable-reports/formulaColumns';
 import { FormulaReferenceFields } from '@/tunable-reports/FormulaReferenceFields';
 import { useReportTranslation } from '@/tunable-reports/locales';
+import { comparisonChoice, comparisonIsPre } from '@/tunable-reports/values';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
 
@@ -226,18 +227,8 @@ export const FormulaRow = ({
               <Choice
                 inline
                 label={t('comparison')}
-                value={
-                  field.value === undefined
-                    ? '__inherit'
-                    : field.value
-                    ? 'previous'
-                    : 'current'
-                }
-                onChange={(value) =>
-                  field.onChange(
-                    value === '__inherit' ? undefined : value === 'previous',
-                  )
-                }
+                value={comparisonChoice(field.value)}
+                onChange={(value) => field.onChange(comparisonIsPre(value))}
                 options={['__inherit', 'current', 'previous'].map((value) => ({
                   value,
                   label: t(value === '__inherit' ? 'inherit' : value),

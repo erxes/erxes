@@ -34,6 +34,9 @@ export const ReportPreview = ({
     minimumFractionDigits: settings.decimals,
     maximumFractionDigits: settings.decimals,
   });
+  const unit = settings.amountUnit === 'thousands' ? 1000 : 1;
+  const formatAmount = (value?: number | null): string =>
+    value == null ? '' : numberFormat.format(value / unit);
   return (
     <div className="space-y-5 p-4 print:p-0">
       <article
@@ -143,25 +146,17 @@ export const ReportPreview = ({
                                   column._id,
                                 ]),
                               );
+                              const period = previous ? 'previous' : 'current';
+                              const cellTitle = date
+                                ? `${t(date)} · ${t(period)}`
+                                : undefined;
                               return (
                                 <Table.Cell
                                   key={column._id}
                                   className="px-2 text-right text-muted-foreground"
-                                  title={
-                                    date
-                                      ? `${t(date)} · ${t(
-                                          previous ? 'previous' : 'current',
-                                        )}`
-                                      : undefined
-                                  }
+                                  title={cellTitle}
                                 >
-                                  {value == null
-                                    ? ''
-                                    : numberFormat.format(
-                                        settings.amountUnit === 'thousands'
-                                          ? value / 1000
-                                          : value,
-                                      )}
+                                  {formatAmount(value)}
                                 </Table.Cell>
                               );
                             })}

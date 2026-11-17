@@ -72,9 +72,7 @@ export const FormulaReferenceFields = ({
                   label: `${report.code} ${report.name}`,
                 })),
             ]}
-            onChange={(id) =>
-              setSource(id === '__inherit' ? undefined : id, undefined)
-            }
+            onChange={(id) => setSource(id === '__inherit' ? undefined : id)}
           />
           {list.loading && <Spinner size="sm" />}
           {list.error && <p role="alert">{list.error.message}</p>}

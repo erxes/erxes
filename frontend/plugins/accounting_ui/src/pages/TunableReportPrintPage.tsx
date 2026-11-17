@@ -27,6 +27,39 @@ export const TunableReportPrintPage = () => {
   const report = result?.report;
   const orientation =
     report?.orientation === 'landscape' ? 'landscape' : 'portrait';
+  const renderContent = () => {
+    if (!settings.success)
+      return (
+        <p role="alert" className="p-6">
+          {t('dateError')}
+        </p>
+      );
+    if (error)
+      return (
+        <div role="alert" className="p-6">
+          {error.message}
+          <Button variant="outline" onClick={() => void refetch()}>
+            {t('retry')}
+          </Button>
+        </div>
+      );
+    if (report)
+      return (
+        <ReportPreview
+          report={report}
+          settings={settings.data}
+          cells={result?.cells}
+          organizationName={organizationName}
+        />
+      );
+    if (loading)
+      return (
+        <div className="p-6">
+          <Spinner />
+        </div>
+      );
+    return <p className="p-6">{t('empty')}</p>;
+  };
   return (
     <div className="h-dvh overflow-auto bg-muted print:h-auto print:overflow-visible print:bg-white">
       <style>{`@page { size: A4 ${orientation}; margin: 10mm; } @media print { body { background: white; } .report-paper thead { display: table-header-group; } .report-paper tr { break-inside: avoid; } .report-paper table { font-size: 10pt; } }`}</style>
@@ -48,31 +81,7 @@ export const TunableReportPrintPage = () => {
           {t('print')}
         </Button>
       </div>
-      {!settings.success ? (
-        <p role="alert" className="p-6">
-          {t('dateError')}
-        </p>
-      ) : error ? (
-        <div role="alert" className="p-6">
-          {error.message}
-          <Button variant="outline" onClick={() => void refetch()}>
-            {t('retry')}
-          </Button>
-        </div>
-      ) : report ? (
-        <ReportPreview
-          report={report}
-          settings={settings.data}
-          cells={result?.cells}
-          organizationName={organizationName}
-        />
-      ) : loading ? (
-        <div className="p-6">
-          <Spinner />
-        </div>
-      ) : (
-        <p className="p-6">{t('empty')}</p>
-      )}
+      {renderContent()}
     </div>
   );
 };

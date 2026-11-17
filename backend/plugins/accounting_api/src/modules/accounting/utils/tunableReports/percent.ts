@@ -1,7 +1,16 @@
-const number = '-?\\d+(?:\\.\\d+)?';
+const number = String.raw`-?\d+(?:\.\d+)?`;
 const conditionPattern = new RegExp(
-  `^\\w+\\s*(>=|<=|!=|>|<|=)\\s*(${number})\\s*:\\s*(\\[?${number}\\]?)$`,
+  String.raw`^\w+\s*(>=|<=|!=|>|<|=)\s*(${number})\s*:\s*(\[?${number}\]?)$`,
 );
+const COMPARE: Record<string, (amount: number, threshold: number) => boolean> =
+  {
+    '>': (amount, threshold) => amount > threshold,
+    '>=': (amount, threshold) => amount >= threshold,
+    '<': (amount, threshold) => amount < threshold,
+    '<=': (amount, threshold) => amount <= threshold,
+    '!=': (amount, threshold) => amount !== threshold,
+    '=': (amount, threshold) => amount === threshold,
+  };
 const numeric = new RegExp(`^${number}$`);
 const parsePercent = (text: string) => {
   const value = text.trim();
@@ -34,18 +43,7 @@ export const validateReportPercent = (text: string): void => {
 export const applyReportPercent = (amount: number, text: string): number => {
   const { fallback, conditions } = parsePercent(text);
   for (const { operator, threshold, percent, progressive } of conditions) {
-    const matches =
-      operator === '>'
-        ? amount > threshold
-        : operator === '>='
-        ? amount >= threshold
-        : operator === '<'
-        ? amount < threshold
-        : operator === '<='
-        ? amount <= threshold
-        : operator === '!='
-        ? amount !== threshold
-        : amount === threshold;
+    const matches = COMPARE[operator](amount, threshold);
     if (matches)
       return operator === '>' && progressive
         ? (threshold * fallback + (amount - threshold) * percent) / 100
