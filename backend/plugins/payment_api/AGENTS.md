@@ -36,11 +36,24 @@
 - Marks invoices paid from either a gateway callback or the
   `invoicesCheck`/`cpInvoicesCheck` GraphQL mutations; each of those sites
   enqueues the host-plugin `callback` job inline.
+- Accepts Golomt's server-to-server push at `/notification/golomt`
+  (`apis/golomt/api.ts` `notificationHandler`). The payload is never trusted:
+  the transaction is confirmed with Golomt's inquiry API, then the invoice goes
+  through `checkInvoiceAndClaim` + `notifyPaidInvoice` like `invoicesCheck`, so
+  a push racing the widget or redirect callback cannot notify twice. A
+  `contentType` whose plugin is not enabled is logged, not silently dropped.
 - Filters `invoices` / `cpInvoices` / `invoicesTotalCount` by `kind` with an indexed match on the
   invoice's `paymentKinds` field (`buildKindQuery` in `graphql/resolvers/queries/invoices.ts`).
 - Keeps `Invoice.paymentKinds` (distinct `paymentKind` of the invoice's own transactions) in sync
   through `services/invoicePaymentKinds.ts`, and backfills invoices missing the field in batches
-  from the per-org pending-invoice job.
+  from the invoice re-check worker, at most hourly per org and only for orgs taking payments.
+- Re-checks invoices whose provider callback may be lost: `Transactions.createTransaction` queues
+  a delayed `payment-invoice-recheck` job for its invoice (`services/invoiceRecheckQueue.ts`,
+  2m → 8h, ~16h total, job id deduped by invoice and attempt). `workers/invoiceRecheck.ts` checks
+  the invoice with its provider (`checkInvoiceAndClaim`), sends the paid notification
+  (`notifyPaidInvoice`), and queues the next check while it is pending or its notification fails.
+  There is no per-org scan and nothing runs at startup; on SaaS a job that walks every org builds
+  every tenant's models and runs the plugin out of memory.
 - Declares the plugin permission config (`invoice` module with
   `paymentInvoiceView` / `paymentInvoiceEdit`, plus the `payment:admin` and
   `payment:viewer` default groups) and enforces `paymentInvoiceEdit` on the
@@ -60,6 +73,7 @@
 | GraphQL          | `src/modules/payment/graphql/`, `src/apollo/`         | `payment*` queries, mutations, custom resolvers, subscriptions       |
 | tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures                        |
 | Workers          | `src/workers/payments.ts`                             | BullMQ consumer for this plugin's `payments` queue                   |
+| Invoice re-check | `src/workers/invoiceRecheck.ts`                       | Per-invoice delayed provider re-checks and paid-notification retries |
 | Permissions      | `src/meta/permissions.ts`                             | `invoice` permission module, actions, and default permission groups  |
 | Widget Pocket UI | `src/widget/src/components/payments/PocketForm.tsx`   | Pocket QR; phone-only deeplink auto-open with fallback buttons       |
 

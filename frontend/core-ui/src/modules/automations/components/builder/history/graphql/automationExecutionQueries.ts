@@ -15,6 +15,7 @@ export const GET_AUTOMATION_EXECUTION_DETAIL = gql`
       status
       description
       actions
+      actionVersions
       startWaitingDate
       waitingActionId
     }

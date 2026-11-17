@@ -1,4 +1,4 @@
-import { useBroadcastColumns } from '@/broadcast/components/list/BroadcastColumns';
+import { useBroadcastColumns } from '@/broadcast/hooks/useBroadcastColumns';
 import { useMessages } from '@/broadcast/hooks/useBroadcastMessages';
 import { RecordTable } from 'erxes-ui';
 import { BroadcastCommandBar } from './BroadcastCommandBar';

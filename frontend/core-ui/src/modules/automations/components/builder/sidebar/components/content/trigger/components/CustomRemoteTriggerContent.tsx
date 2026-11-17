@@ -1,7 +1,6 @@
-import React, { Suspense, useCallback, useMemo, useRef } from 'react';
-import { useCustomTriggerContent } from '@/automations/components/builder/sidebar/hooks/useCustomTriggerContent';
+import React, { Suspense, useMemo } from 'react';
+import { useCustomRemoteTriggerContent } from '@/automations/components/builder/sidebar/hooks/useCustomRemoteTriggerContent';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
-import { AutomationNodeType } from '@/automations/types';
 import { Button } from 'erxes-ui';
 import { AutomationTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
 import { TriggerContentWrapper } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentWrapper';
@@ -14,41 +13,21 @@ import { useTranslation } from 'react-i18next';
 export const CustomRemoteTriggerContent =
   React.memo<AutomationTriggerContentProps>(({ activeNode }) => {
     const { t } = useTranslation('automations');
-    const formRef = useRef<{ submit: () => void }>(null);
-
-    const { pluginName, moduleName, activeTrigger, onSaveTriggerConfig } =
-      useCustomTriggerContent(activeNode);
-
-    const handleSave = useCallback(() => {
-      try {
-        formRef.current?.submit();
-      } catch (error) {
-        console.error('Error submitting trigger form:', error);
-      }
-    }, []);
+    const { pluginName, moduleName, pluginProps, handleSave, triggerType } =
+      useCustomRemoteTriggerContent(activeNode);
 
     const footerContent = useMemo(
       () => (
         <Button
           onClick={handleSave}
           aria-label={t('sidebar-save-trigger-configuration-aria', {
-            type: activeNode?.type || AutomationNodeType.Trigger,
+            type: triggerType,
           })}
         >
           {t('save-configuration')}
         </Button>
       ),
-      [handleSave, activeNode?.type, t],
-    );
-
-    const pluginProps = useMemo(
-      () => ({
-        formRef,
-        componentType: 'triggerForm' as const,
-        activeTrigger,
-        onSaveTriggerConfig,
-      }),
-      [activeTrigger, onSaveTriggerConfig],
+      [handleSave, triggerType, t],
     );
 
     return (

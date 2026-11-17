@@ -27,7 +27,7 @@ interface DateSelectContextType {
   value?: Date;
   onSelect: (date?: Date) => void;
   loading: boolean;
-  error: any;
+  error: Error | null;
 }
 
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
@@ -251,6 +251,34 @@ export const DateSelectFilterBar = ({
   );
 };
 
+// Saves a project's start/target date (null clears it), then reports it.
+const useProjectDateChange = ({
+  id,
+  type,
+  onValueChange,
+  onDone,
+}: {
+  id?: string;
+  type?: 'start' | 'target';
+  onValueChange?: (value?: Date) => void;
+  onDone: () => void;
+}) => {
+  const { updateProject } = useUpdateProject();
+  return (value?: Date): void => {
+    if (id) {
+      updateProject({
+        variables: {
+          _id: id,
+          [type === 'start' ? 'startDate' : 'targetDate']:
+            value?.toISOString() ?? null,
+        },
+      });
+    }
+    onValueChange?.(value);
+    onDone();
+  };
+};
+
 export const DateSelectInlineCell = ({
   value,
   id,
@@ -267,22 +295,14 @@ export const DateSelectInlineCell = ({
   status?: number;
 }) => {
   const { t } = useTranslation('operation');
-  const { updateProject } = useUpdateProject();
   const [open, setOpen] = useState(false);
 
-  const handleValueChange = (value?: Date) => {
-    if (id) {
-      updateProject({
-        variables: {
-          _id: id,
-          startDate: type === 'start' ? value?.toISOString() : undefined,
-          targetDate: type === 'target' ? value?.toISOString() : undefined,
-        },
-      });
-    }
-    onValueChange?.(value);
-    setOpen(false);
-  };
+  const handleValueChange = useProjectDateChange({
+    id,
+    type,
+    onValueChange,
+    onDone: () => setOpen(false),
+  });
 
   const finalScope =
     scope ||
@@ -427,21 +447,13 @@ export const DateSelectDetail = React.forwardRef<
 >(({ onValueChange, className, placeholder, value, type, id, label }, ref) => {
   const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
-  const { updateProject } = useUpdateProject();
 
-  const handleValueChange = (value?: Date) => {
-    if (id) {
-      updateProject({
-        variables: {
-          _id: id,
-          [type === 'start' ? 'startDate' : 'targetDate']:
-            value?.toISOString() ?? null,
-        },
-      });
-    }
-    onValueChange?.(value);
-    setOpen(false);
-  };
+  const handleValueChange = useProjectDateChange({
+    id,
+    type,
+    onValueChange,
+    onDone: () => setOpen(false),
+  });
 
   return (
     <DateSelectProvider

@@ -1,5 +1,3 @@
-import { Time } from '@internationalized/date';
-import dayjs from 'dayjs';
 import {
   cn,
   DateInput,
@@ -8,32 +6,9 @@ import {
   TimeField,
   ToggleGroup,
 } from 'erxes-ui';
-import type { TimeValue } from 'react-aria-components';
-import { useBroadcastSchedulePreview } from '../../hooks/useBroadcastSchedulePreview';
-import {
-  BROADCAST_EVERY_OPTIONS,
-  describeRecurrence,
-  isAfterSegmentForm,
-  isRecurringForm,
-  TBroadcastEvery,
-  TBroadcastScheduleForm,
-} from '../../utils/scheduleForm';
 import { useTranslation } from 'react-i18next';
-
-/** Far enough ahead that the offered moment is never already in the past. */
-export const defaultScheduleMoment = () =>
-  dayjs().add(1, 'day').hour(9).minute(0).second(0).millisecond(0).toDate();
-
-export const emptySchedule = (): TBroadcastScheduleForm => ({
-  every: 'once',
-  at: defaultScheduleMoment(),
-});
-
-const withDate = (at: Date, next: Date) =>
-  dayjs(next).hour(at.getHours()).minute(at.getMinutes()).second(0).toDate();
-
-const withTime = (at: Date, time: TimeValue) =>
-  dayjs(at).hour(time.hour).minute(time.minute).second(0).toDate();
+import { useBroadcastScheduleFields } from '../../hooks/useBroadcastScheduleFields';
+import { TBroadcastScheduleForm } from '../../utils/scheduleForm';
 
 /**
  * One schedule: how often, when, and until when.
@@ -51,32 +26,31 @@ export const BroadcastScheduleFields = ({
   /** The audience is one segment the clock moves, so it can start the send. */
   canFollowSegment?: boolean;
 }) => {
-  const { t, i18n } = useTranslation('broadcasts');
-  const at = value.at ?? defaultScheduleMoment();
-  const recurring = isRecurringForm(value);
-  const afterSegment = isAfterSegmentForm(value);
-  const { count, loading } = useBroadcastSchedulePreview(value);
-
-  // Kept on offer once chosen, so a campaign that follows its segment still
-  // shows what it does while its audience is being looked at.
-  const options = BROADCAST_EVERY_OPTIONS.filter(
-    (option) =>
-      option.value !== 'afterSegment' || canFollowSegment || afterSegment,
-  );
-
-  const set = (patch: Partial<TBroadcastScheduleForm>) =>
-    onChange({ ...value, ...patch });
+  const { t } = useTranslation('broadcasts');
+  const {
+    at,
+    time,
+    recurring,
+    afterSegment,
+    options,
+    asGrid,
+    atLabelKey,
+    recurrenceText,
+    sendCount,
+    isInPast,
+    onEveryChange,
+    onDateChange,
+    onTimeChange,
+    onEndDateChange,
+  } = useBroadcastScheduleFields({ value, onChange, canFollowSegment });
 
   return (
     <div className="w-72 space-y-3">
       <ToggleGroup
         type="single"
         value={value.every}
-        onValueChange={(every) =>
-          every && set({ every: every as TBroadcastEvery, at })
-        }
-        // Six choices do not fit one row, so they split into two of three.
-        className={cn('w-full', options.length > 5 && 'grid grid-cols-3')}
+        onValueChange={onEveryChange}
+        className={cn('w-full', asGrid && 'grid grid-cols-3')}
       >
         {options.map((option) => (
           <ToggleGroup.Item
@@ -97,24 +71,11 @@ export const BroadcastScheduleFields = ({
 
       {!afterSegment && (
         <div className="space-y-1">
-          <Label>
-            {t(recurring ? 'schedule.starting-from' : 'schedule.send-at')}
-          </Label>
+          <Label>{t(atLabelKey)}</Label>
           <div className="flex items-center gap-2">
-            <DatePicker
-              value={at}
-              defaultMonth={at}
-              onChange={(date) => {
-                if (date instanceof Date) {
-                  set({ at: withDate(at, date) });
-                }
-              }}
-            />
+            <DatePicker value={at} defaultMonth={at} onChange={onDateChange} />
             <div className="w-24">
-              <TimeField
-                value={new Time(at.getHours(), at.getMinutes())}
-                onChange={(time) => time && set({ at: withTime(at, time) })}
-              >
+              <TimeField value={time} onChange={onTimeChange}>
                 <DateInput />
               </TimeField>
             </div>
@@ -129,28 +90,27 @@ export const BroadcastScheduleFields = ({
             value={value.endDate}
             defaultMonth={value.endDate ?? at}
             placeholder={t('schedule.pick-end')}
-            onChange={(date) => date instanceof Date && set({ endDate: date })}
+            onChange={onEndDateChange}
           />
         </div>
       )}
 
-      {recurring ? (
+      {recurring && (
         <p className="text-xs text-muted-foreground">
-          {describeRecurrence({ ...value, at }, t, i18n.language)}
-          {value.endDate && !loading && count !== undefined && (
+          {recurrenceText}
+          {sendCount !== undefined && (
             <>
               {' · '}
               <span className="text-foreground">
-                {t('schedule.times', { count })}
+                {t('schedule.times', { count: sendCount })}
               </span>
             </>
           )}
         </p>
-      ) : (
-        !afterSegment &&
-        at.getTime() <= Date.now() && (
-          <p className="text-xs text-destructive">{t('schedule.in-past')}</p>
-        )
+      )}
+
+      {isInPast && (
+        <p className="text-xs text-destructive">{t('schedule.in-past')}</p>
       )}
     </div>
   );

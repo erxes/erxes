@@ -1125,13 +1125,16 @@ const deriveCdrCallStatus = (cdr: ICallCdrDocument): string => {
 export const mapCdrToCallHistory = (
   cdr: ICallCdrDocument,
 ): ICallHistory & { acctId: string } => {
+  const isForwarded = (cdr.actionType || '').includes('FOLLOWME');
+  const isInbound = cdr.userfield === 'Inbound' || isForwarded;
+
   return {
-    operatorPhone: cdr.userfield === 'Inbound' ? cdr.dst : cdr.src || '',
-    customerPhone: cdr.userfield === 'Inbound' ? cdr.src : cdr.dst || '',
+    operatorPhone: isInbound ? cdr.dst : cdr.src || '',
+    customerPhone: isInbound ? cdr.src : cdr.dst || '',
     callDuration: cdr.billsec || 0,
     callStartTime: cdr.start,
     callEndTime: cdr.end,
-    callType: cdr.userfield || '',
+    callType: isForwarded ? 'Inbound' : cdr.userfield || '',
     callStatus: deriveCdrCallStatus(cdr),
     timeStamp: cdr.start ? cdr.start.getTime() / 1000 : 0,
     modifiedAt: cdr.updatedAt,

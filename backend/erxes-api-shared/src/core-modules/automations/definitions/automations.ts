@@ -97,6 +97,8 @@ export interface IAutomation {
   ownedBy?: 'broadcast';
   ownerContentId?: string;
   duplicatedFrom?: string;
+  // The one place it sits in the list; tags still group it any other way
+  folderId?: string;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -199,6 +201,7 @@ export const automationSchema = new Schema({
   ownedBy: { type: String, optional: true, label: 'Owned by' },
   ownerContentId: { type: String, optional: true, label: 'Owner content id' },
   duplicatedFrom: { type: String, optional: true },
+  folderId: { type: String, optional: true, label: 'Folder' },
   createdAt: {
     type: Date,
     default: new Date(),
@@ -214,3 +217,4 @@ export const automationSchema = new Schema({
 });
 
 automationSchema.index({ ownedBy: 1, ownerContentId: 1 });
+automationSchema.index({ folderId: 1 });

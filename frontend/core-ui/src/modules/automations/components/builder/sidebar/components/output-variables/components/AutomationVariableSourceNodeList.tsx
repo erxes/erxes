@@ -1,7 +1,4 @@
-import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
-import { AutomationNodeType, NodeData } from '@/automations/types';
 import { IconFocusCentered } from '@tabler/icons-react';
-import { Node, useReactFlow } from '@xyflow/react';
 import {
   Button,
   Combobox,
@@ -11,10 +8,12 @@ import {
   Tooltip,
   cn,
 } from 'erxes-ui';
-import { useMemo, useState } from 'react';
-import { TAutomationVariableSourceNode } from '../AutomationVariableBrowserTypes';
-import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
 import { useTranslation } from 'react-i18next';
+import { TAutomationVariableSourceNode } from '../AutomationVariableBrowserTypes';
+import {
+  useAutomationVariableSourceNodeList,
+  useAutomationVariableSourceNodeValue,
+} from '../hooks/useAutomationVariableSourceNodeList';
 
 export const AutomationVariableSourceNodeList = ({
   activeSourceNodeId,
@@ -26,25 +25,12 @@ export const AutomationVariableSourceNodeList = ({
   onSelectSourceNode: (nodeId: string) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const [open, setOpen] = useState(false);
-  const { fitView, getNode } = useReactFlow<Node<NodeData>>();
-  const selectedNode = useMemo(
-    () => sourceNodes.find((node) => node.id === activeSourceNodeId),
-    [activeSourceNodeId, sourceNodes],
-  );
-  const focusSelectedNode = () => {
-    const node = getNode(activeSourceNodeId);
-
-    if (!node) {
-      return;
-    }
-
-    fitView({
-      nodes: [node],
-      duration: 300,
-      ...CANVAS_FIT_VIEW_OPTIONS,
+  const { open, setOpen, selectedNode, focusSelectedNode, selectNode } =
+    useAutomationVariableSourceNodeList({
+      activeSourceNodeId,
+      sourceNodes,
+      onSelectSourceNode,
     });
-  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -84,10 +70,7 @@ export const AutomationVariableSourceNodeList = ({
                 className="py-2"
                 value={node.id}
                 keywords={[node.label]}
-                onSelect={() => {
-                  onSelectSourceNode(node.id);
-                  setOpen(false);
-                }}
+                onSelect={() => selectNode(node.id)}
               >
                 <AutomationVariableSourceNodeValue node={node} />
                 <Combobox.Check checked={node.id === activeSourceNodeId} />
@@ -105,21 +88,16 @@ const AutomationVariableSourceNodeValue = ({
 }: {
   node: TAutomationVariableSourceNode;
 }) => {
-  const { t } = useTranslation('automations');
+  const { colorClassName, label, kindLabel } =
+    useAutomationVariableSourceNodeValue(node);
+
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <span className={cn('rounded-md p-1.5', getNodeColor(node.nodeType))}>
+      <span className={cn('rounded-md p-1.5', colorClassName)}>
         <IconComponent className="size-4" name={node.icon} />
       </span>
-      <span className="min-w-0 flex-1 truncate font-medium">
-        {node.label || node.id}
-      </span>
-      <span className="text-xs text-muted-foreground">
-        {node.kindLabel ??
-          (node.nodeType === AutomationNodeType.Trigger
-            ? t('trigger')
-            : t('action'))}
-      </span>
+      <span className="min-w-0 flex-1 truncate font-medium">{label}</span>
+      <span className="text-xs text-muted-foreground">{kindLabel}</span>
     </div>
   );
 };

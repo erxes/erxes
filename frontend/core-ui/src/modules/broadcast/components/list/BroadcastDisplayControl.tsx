@@ -5,11 +5,7 @@ import {
   IconList,
 } from '@tabler/icons-react';
 import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
-import { useState } from 'react';
-import {
-  parseLayout,
-  useBroadcastListLayout,
-} from '../../hooks/useBroadcastListLayout';
+import { useBroadcastDisplayControl } from '../../hooks/useBroadcastDisplayControl';
 import { TBroadcastListLayout } from '../../states/broadcastListLayoutState';
 import { useTranslation } from 'react-i18next';
 
@@ -65,19 +61,8 @@ const BroadcastLayoutOptions = ({
 
 export const BroadcastDisplayControl = () => {
   const { t } = useTranslation('broadcasts');
-  const [isOpen, setIsOpen] = useState(false);
-  const { layout, setLayout } = useBroadcastListLayout();
-
-  const handleValueChange = (value: string) => {
-    const next = parseLayout(value);
-
-    if (!next) {
-      return;
-    }
-
-    setLayout(next);
-    setIsOpen(false);
-  };
+  const { isOpen, setIsOpen, layout, selectLayout } =
+    useBroadcastDisplayControl();
 
   return (
     <PopoverScoped open={isOpen} onOpenChange={setIsOpen}>
@@ -88,10 +73,7 @@ export const BroadcastDisplayControl = () => {
         </Button>
       </Popover.Trigger>
       <Popover.Content>
-        <BroadcastLayoutOptions
-          value={layout}
-          onValueChange={handleValueChange}
-        />
+        <BroadcastLayoutOptions value={layout} onValueChange={selectLayout} />
       </Popover.Content>
     </PopoverScoped>
   );

@@ -10,6 +10,7 @@ import {
   SyncConfigVatCtaxSection,
   normalizeSyncConfigData,
   usePipelineReset,
+  useSyncConfigInvalidToast,
 } from './SyncConfigFormSections';
 
 import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
@@ -19,41 +20,9 @@ import { UseFormReturn } from 'react-hook-form';
 import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
+import { TSyncDealConfigFormValues } from '@/settings/syncSettings/syncConfigSchema';
 
-export const syncDealConfigFormSchema = z.object({
-  title: z.string(),
-  boardId: z.string().optional(),
-  pipelineId: z.string().optional(),
-  stageId: z.string(),
-  responseFieldId: z.string().optional(),
-  dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
-  trStatus: z.string().optional(),
-  saleAccountId: z.string(),
-  saleOutAccountId: z.string(),
-  saleCostAccountId: z.string(),
-  branchId: z.string(),
-  departmentId: z.string(),
-  hasVat: z.boolean(),
-  vatRowId: z.string(),
-  reverseVatRules: z.array(z.string()).optional(),
-  hasCtax: z.boolean(),
-  ctaxRowId: z.string(),
-  reverseCtaxRules: z.array(z.string()).optional(),
-  payments: z.record(
-    z.object({
-      accountId: z.string(),
-    }),
-  ),
-  defaultPayment: z.object({
-    accountId: z.string(),
-  }),
-  defaultNegPayment: z.object({
-    accountId: z.string(),
-  }),
-});
-
-type ConfigFormValues = z.infer<typeof syncDealConfigFormSchema>;
+type ConfigFormValues = TSyncDealConfigFormValues;
 
 export const SyncDealConfigForm = ({
   form,
@@ -67,6 +36,7 @@ export const SyncDealConfigForm = ({
   onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const showInvalidToast = useSyncConfigInvalidToast();
   const { boardId, pipelineId } = usePipelineReset(form);
 
   const { data: rawGraphqlPipelineDetail, refetch: pipelineRefetch } = useQuery(
@@ -104,6 +74,7 @@ export const SyncDealConfigForm = ({
     <SettingsPanelDraftForm
       form={form}
       onSubmit={handleSubmit}
+      onInvalid={showInvalidToast}
       onCancel={onCancel}
       saving={loading}
     >

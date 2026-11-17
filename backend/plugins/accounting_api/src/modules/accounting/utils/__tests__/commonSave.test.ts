@@ -1,5 +1,9 @@
 /// <reference types="jest" />
 
+jest.mock('@/accounting/utils/transactionDateValidation', () => ({
+  validateTransactionDate: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { IModels } from '~/connectionResolvers';
 import { ITransaction } from '../../@types/transaction';
 import { commonSave } from '../commonSave';

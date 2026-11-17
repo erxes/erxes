@@ -1,15 +1,9 @@
 import { DocumentNode } from '@apollo/client';
-import { Combobox, Command, EnumCursorDirection, Popover } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
-import { useDebounce } from 'use-debounce';
-import { useQuerySelectInputList } from '../hooks/useQuerySelectInputList';
-
-type TQuerySelectValue = string | string[];
-
-type TQuerySelectOption = {
-  label: string;
-  value: string;
-};
+import { Combobox, Command, Popover } from 'erxes-ui';
+import {
+  TQuerySelectValue,
+  useQuerySelectInput,
+} from '../hooks/useQuerySelectInput';
 
 type Props = {
   query: DocumentNode;
@@ -35,92 +29,27 @@ export const QuerySelectInput = ({
   multi,
   variables,
 }: Props) => {
-  const [search, setSearch] = useState('');
-  const [selectedOptions, setSelectedOptions] = useState<
-    Record<string, TQuerySelectOption>
-  >({});
-  const [open, setOpen] = useState(false);
-  const [debouncedSearch] = useDebounce(search, 500);
   const {
-    list = [],
-    totalCount = 0,
-    handleFetchMore,
-  } = useQuerySelectInputList(
+    open,
+    setOpen,
+    search,
+    setSearch,
+    selectedLabel,
+    options,
+    totalCount,
+    handleSelect,
+    fetchMore,
+  } = useQuerySelectInput({
     query,
     queryName,
-    debouncedSearch,
-    false,
+    labelField,
+    valueField,
+    value,
+    multi,
     variables,
-  );
+    onSelect,
+  });
 
-  const items = useMemo<TQuerySelectOption[]>(
-    () =>
-      list.map((option: Record<string, unknown>) => ({
-        label: String(option[labelField] || ''),
-        value: String(option[valueField] || ''),
-      })),
-    [labelField, list, valueField],
-  );
-
-  useEffect(() => {
-    const selectedValues = Array.isArray(value) ? value : value ? [value] : [];
-    const matchedOptions = items.filter((option) =>
-      selectedValues.includes(option.value),
-    );
-
-    if (!matchedOptions.length) {
-      return;
-    }
-
-    setSelectedOptions((currentOptions) => ({
-      ...currentOptions,
-      ...Object.fromEntries(
-        matchedOptions.map((option) => [option.value, option]),
-      ),
-    }));
-  }, [items, value]);
-
-  const selectedLabel = useMemo(() => {
-    const selectedValues = Array.isArray(value) ? value : value ? [value] : [];
-
-    return selectedValues
-      .map(
-        (selectedValue) =>
-          selectedOptions[selectedValue]?.label ||
-          items.find((option) => option.value === selectedValue)?.label,
-      )
-      .filter(Boolean)
-      .join(', ');
-  }, [items, selectedOptions, value]);
-
-  const handleSelect = (selectedValue: string) => {
-    let updatedValue: TQuerySelectValue = '';
-    const selectedOption = items.find(
-      (option) => option.value === selectedValue,
-    );
-
-    if (multi) {
-      const stateArray = Array.isArray(value) ? value : value ? [value] : [];
-
-      const exists = stateArray.find((val) => val === selectedValue);
-
-      updatedValue = exists
-        ? stateArray.filter((val) => val !== selectedValue)
-        : [...stateArray, selectedValue];
-    } else {
-      updatedValue = selectedValue === value ? '' : selectedValue;
-    }
-    if (selectedOption) {
-      setSelectedOptions((currentOptions) => ({
-        ...currentOptions,
-        [selectedOption.value]: selectedOption,
-      }));
-    }
-    onSelect(updatedValue);
-    if (!multi) {
-      setOpen(false);
-    }
-  };
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger>
@@ -132,33 +61,25 @@ export const QuerySelectInput = ({
             focusOnMount={focusOnMount}
             placeholder={`Search ${labelField}...`}
             value={search}
-            onValueChange={(searchValue) => setSearch(searchValue)}
+            onValueChange={setSearch}
           />
 
           <Command.List>
             <Command.Empty>No {labelField}.</Command.Empty>
-            {items.map((option) => (
+            {options.map((option) => (
               <Command.Item
                 key={option.value}
                 value={option.value}
                 onSelect={handleSelect}
               >
                 {option.label}
-                <Combobox.Check
-                  checked={
-                    Array.isArray(value)
-                      ? value.includes(option.value)
-                      : value === option.value
-                  }
-                />
+                <Combobox.Check checked={option.checked} />
               </Command.Item>
             ))}
             <Combobox.FetchMore
-              currentLength={items?.length}
+              currentLength={options.length}
               totalCount={totalCount}
-              fetchMore={() =>
-                handleFetchMore({ direction: EnumCursorDirection.FORWARD })
-              }
+              fetchMore={fetchMore}
             />
           </Command.List>
         </Command>

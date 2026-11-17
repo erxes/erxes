@@ -1,10 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
-import { SegmentForm, useFormValidationErrorHandler } from 'ui-modules';
-import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
+import { SegmentForm } from 'ui-modules';
+import { useSplitConditionFormFooter } from '@/automations/components/builder/nodes/actions/split/hooks/useSplitConditionFormFooter';
 import { AUTOMATION_SEGMENT_OWNER } from '@/automations/components/common/AutomationSegmentForm';
 
 export const SplitConditionForm = ({
@@ -52,40 +50,16 @@ const SplitConditionFormFooter = ({
   onDirtyChange?: (isDirty: boolean) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { form } = useSegment();
-  const { handleSave } = useSegmentActions({ callback });
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Split condition',
-  });
-  const {
-    formState: { isDirty, isSubmitting },
-  } = form;
-  const onDirtyChangeRef = useRef(onDirtyChange);
-  const shouldSaveCondition = isDirty || !segmentId;
-
-  useEffect(() => {
-    onDirtyChangeRef.current = onDirtyChange;
-  });
-
-  useEffect(() => {
-    onDirtyChangeRef.current?.(shouldSaveCondition);
-  }, [shouldSaveCondition]);
-
-  useEffect(() => {
-    return () => onDirtyChangeRef.current?.(false);
-  }, []);
+  const { shouldSave, unsavedKey, saveDisabled, onSave } =
+    useSplitConditionFormFooter({ segmentId, callback, onDirtyChange });
 
   return (
     <div className="flex items-center justify-between gap-3 border-t bg-background p-2">
       <div className="flex min-w-0 items-center gap-2 text-xs">
-        {shouldSaveCondition ? (
+        {shouldSave ? (
           <>
             <IconAlertCircle className="size-4 shrink-0 text-warning" />
-            <span className="font-medium text-warning">
-              {segmentId
-                ? t('split-condition-unsaved-changes')
-                : t('split-condition-not-saved')}
-            </span>
+            <span className="font-medium text-warning">{t(unsavedKey)}</span>
           </>
         ) : (
           <>
@@ -97,11 +71,11 @@ const SplitConditionFormFooter = ({
         )}
       </div>
       <Button
-        disabled={!shouldSaveCondition || isSubmitting}
-        variant={shouldSaveCondition ? 'default' : 'secondary'}
-        onClick={form.handleSubmit(handleSave, handleValidationErrors)}
+        disabled={saveDisabled}
+        variant={shouldSave ? 'default' : 'secondary'}
+        onClick={onSave}
       >
-        {shouldSaveCondition ? t('split-save-condition') : t('split-saved')}
+        {shouldSave ? t('split-save-condition') : t('split-saved')}
       </Button>
     </div>
   );

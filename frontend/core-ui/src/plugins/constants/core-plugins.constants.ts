@@ -9,6 +9,7 @@ import {
   IconLayoutGrid,
   IconMagnet,
   IconPackage,
+  IconPackageImport,
   IconTrash,
   IconUser,
   IconUsersGroup,
@@ -88,6 +89,18 @@ export const GET_CORE_MODULES = (t: TFunction): ICoreModule[] => {
       name: t('templates'),
       icon: IconPackage,
       path: 'templates',
+      submenus: [
+        {
+          name: t('templates'),
+          path: 'templates',
+          icon: IconPackage,
+        },
+        {
+          name: t('installed-templates'),
+          path: 'templates/installed',
+          icon: IconPackageImport,
+        },
+      ],
     },
     {
       name: t('documents'),

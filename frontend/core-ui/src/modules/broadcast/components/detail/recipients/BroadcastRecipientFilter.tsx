@@ -4,28 +4,23 @@ import {
   IconProgressCheck,
   IconSearch,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-  useQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY } from '../../../constants';
 import {
+  useBroadcastRecipientFilter,
+  useBroadcastRecipientStatusView,
+} from '../../../hooks/useBroadcastRecipientFilter';
+import {
   RECIPIENT_FILTER_KEYS,
   RECIPIENT_FILTER_STATUSES,
-  TRecipientFilterQueries,
 } from '../../../types';
 
 const FILTER_ID = 'broadcast-recipients-filter';
 
 const StatusView = () => {
   const { t } = useTranslation('broadcasts');
-  const [status, setStatus] = useQueryState<string>(
-    RECIPIENT_FILTER_KEYS.status,
-  );
+  const { status, toggleStatus } = useBroadcastRecipientStatusView();
 
   return (
     <Filter.View filterKey={RECIPIENT_FILTER_KEYS.status}>
@@ -37,7 +32,7 @@ const StatusView = () => {
               key={value}
               value={value}
               className="cursor-pointer"
-              onSelect={() => setStatus(value === status ? null : value)}
+              onSelect={() => toggleStatus(value)}
             >
               {t(labelKey)}
               {status === value && <IconCheck className="ml-auto" />}
@@ -64,19 +59,8 @@ const StatusView = () => {
  */
 export const BroadcastRecipientFilter = () => {
   const { t } = useTranslation('broadcasts');
-  const [queries] = useMultiQueryState<TRecipientFilterQueries>([
-    RECIPIENT_FILTER_KEYS.status,
-    RECIPIENT_FILTER_KEYS.updatedAt,
-    RECIPIENT_FILTER_KEYS.searchValue,
-  ]);
-
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
-  );
-
-  const activeStatus = RECIPIENT_FILTER_STATUSES.find(
-    ({ value }) => value === queries?.[RECIPIENT_FILTER_KEYS.status],
-  );
+  const { hasFilters, searchValue, status, statusLabel, hasUpdatedAt } =
+    useBroadcastRecipientFilter();
 
   return (
     <Filter id={FILTER_ID} sessionKey={BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY}>
@@ -118,7 +102,7 @@ export const BroadcastRecipientFilter = () => {
           </Combobox.Content>
         </Filter.Popover>
 
-        {!!queries?.[RECIPIENT_FILTER_KEYS.searchValue] && (
+        {!!searchValue && (
           <Filter.BarItem queryKey={RECIPIENT_FILTER_KEYS.searchValue}>
             <Filter.BarName>
               <IconSearch />
@@ -128,28 +112,26 @@ export const BroadcastRecipientFilter = () => {
               filterKey={RECIPIENT_FILTER_KEYS.searchValue}
               inDialog
             >
-              {queries[RECIPIENT_FILTER_KEYS.searchValue]}
+              {searchValue}
             </Filter.BarButton>
           </Filter.BarItem>
         )}
 
-        {!!queries?.[RECIPIENT_FILTER_KEYS.status] && (
+        {!!status && (
           <Filter.BarItem queryKey={RECIPIENT_FILTER_KEYS.status}>
             <Filter.BarName>
               <IconProgressCheck />
               {t('filter.status')}
             </Filter.BarName>
             <Filter.BarButton filterKey={RECIPIENT_FILTER_KEYS.status}>
-              {activeStatus
-                ? t(activeStatus.labelKey)
-                : queries[RECIPIENT_FILTER_KEYS.status]}
+              {statusLabel}
             </Filter.BarButton>
           </Filter.BarItem>
         )}
 
         {/* Rendered only once set: the bar's date button shows "Today" even
             with no query behind it, which reads as a filter that is not on. */}
-        {!!queries?.[RECIPIENT_FILTER_KEYS.updatedAt] && (
+        {hasUpdatedAt && (
           <Filter.BarItem queryKey={RECIPIENT_FILTER_KEYS.updatedAt}>
             <Filter.BarName>
               <IconCalendarTime />

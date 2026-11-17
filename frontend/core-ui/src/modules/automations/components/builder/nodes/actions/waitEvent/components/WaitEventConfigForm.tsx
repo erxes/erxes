@@ -14,36 +14,35 @@ export const WaitEventConfigForm = ({
 }: TAutomationActionProps) => {
   const { control } = useFormContext<TAutomationBuilderForm>();
 
+  const { t } = useTranslation('automations');
   const {
     waitEventOptions,
     configFieldNamePrefix,
     config,
     onSelectTargetTypeId,
+    defaultTargetTypeId,
+    effectiveTargetType,
   } = useWaitEventConfigForm(currentAction, currentActionIndex);
-  const { t } = useTranslation('automations');
-
-  const { targetType } = config || {};
-
-  const effectiveTargetType = targetType ?? waitEventOptions[0]?.type;
+  const helpId = `target-type-help-${currentAction.id}`;
 
   return (
     <div className="h-full min-h-0 flex flex-col gap-4 overflow-hidden">
       <Form.Field
         name={`${configFieldNamePrefix}.targetTypeId`}
         control={control}
-        defaultValue={waitEventOptions[0]?.id}
+        defaultValue={defaultTargetTypeId}
         render={({ field }) => (
           <Form.Item className="px-4">
             <Form.Label>
-              {t('select-target-type')} ({`${field.value}`})
+              {t('select-target-type')} ({String(field.value)})
             </Form.Label>
             <Select
-              value={field.value ?? waitEventOptions[0]?.id}
+              value={field.value ?? defaultTargetTypeId}
               onValueChange={onSelectTargetTypeId}
             >
               <Select.Trigger
                 id={`target-type-${currentAction.id}`}
-                aria-describedby={`target-type-help-${currentAction.id}`}
+                aria-describedby={helpId}
                 className="mt-1"
               >
                 <Select.Value placeholder={t('select-target-type')} />
@@ -59,7 +58,7 @@ export const WaitEventConfigForm = ({
                 ))}
               </Select.Content>
             </Select>
-            <Form.Description id={`target-type-help-${currentAction.id}`}>
+            <Form.Description id={helpId}>
               {t('event-listen-description')}
             </Form.Description>
             <Form.Message />

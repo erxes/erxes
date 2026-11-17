@@ -1,5 +1,17 @@
 
 
+## [3.4.22](https://github.com/erxes/erxes/compare/3.4.21...3.4.22) (2026-11-13)
+
+
+### Bug Fixes
+
+* **frontline:** do not show a call picked up only on a follow-me target as answered ([595404d](https://github.com/erxes/erxes/commit/595404d0df11af7beab6eec99e42c8a48c7e19ae))
+
+
+### Features
+
+* implement automation folder management features ([99d88b9](https://github.com/erxes/erxes/commit/99d88b9b2cad4c697c4c97937beb7c3d3e3d3fc2))
+
 ## [3.4.21](https://github.com/erxes/erxes/compare/3.4.20...3.4.21) (2026-11-12)
 
 

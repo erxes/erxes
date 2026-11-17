@@ -1,18 +1,15 @@
-import { RecordTableInlineCell, useQueryState } from 'erxes-ui';
+import { RecordTableInlineCell } from 'erxes-ui';
+import { useOpenDealPanel } from '@/deals/hooks/useOpenDealPanel';
 
 import { IDeal } from '@/deals/types/deals';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 export const NameCell = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
-  const setActiveDealId = useSetAtom(dealDetailSheetState);
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const openDealPanel = useOpenDealPanel();
 
   const handleClick = () => {
-    setSalesItemId(deal._id);
-    setActiveDealId(deal._id);
+    openDealPanel(deal._id);
   };
 
   return (
@@ -31,12 +28,10 @@ export const NameCell = ({ deal }: { deal: IDeal }) => {
 
 export const NumberCell = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
-  const setActiveDealId = useSetAtom(dealDetailSheetState);
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const openDealPanel = useOpenDealPanel();
 
   const handleClick = () => {
-    setSalesItemId(deal._id);
-    setActiveDealId(deal._id);
+    openDealPanel(deal._id);
   };
 
   return (

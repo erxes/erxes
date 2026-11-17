@@ -1,28 +1,25 @@
-import { useSendEmailSidebarForm } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailSidebarForm';
+import {
+  EMAIL_ADDRESS_INPUT_PROPS,
+  useSendEmailConfigForm,
+} from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailConfigForm';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
-import {
-  IEmailSender,
-  useSenderOptions,
-} from '@/settings/mail-config/hooks/useVerifiedSenders';
+import { IEmailSender } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import {
   Collapsible,
   Form,
   Input,
   Label,
   RadioGroup,
-  renderEmailHtml,
   Separator,
   Skeleton,
 } from 'erxes-ui';
-import { useRef } from 'react';
 import { Control, FormProvider } from 'react-hook-form';
 import {
   PlaceholderInput,
   TAutomationActionProps,
   TPlaceholderInputSuggestion,
-  useFormValidationErrorHandler,
 } from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
 import { useTranslation } from 'react-i18next';
@@ -64,64 +61,31 @@ export const SendEmailConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TAutomationSendEmailConfig>) => {
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Send email Configuration',
-  });
-  const { form, contentType, availableVariableSourceNodes } =
-    useSendEmailSidebarForm(currentActionIndex, currentAction);
+  const { t } = useTranslation('automations');
   const {
+    form,
+    contentType,
+    availableVariableSourceNodes,
     supportsSenderVerification,
     defaultSenderEmail,
-    alignedFrom,
-    loading: senderOptionsLoading,
-  } = useSenderOptions();
-  const { t } = useTranslation('automations');
-  const senderName = form.watch('sender');
-  // Remembers what the last pick wrote, so choosing another address updates a
-  // name this field put there while never overwriting one that was typed.
-  const autoFilledSender = useRef('');
-
-  const handleSenderSelected = (sender?: IEmailSender) => {
-    const name = sender?.name?.trim();
-
-    if (!name) {
-      return;
-    }
-
-    const current = form.getValues('sender')?.trim();
-
-    if (current && current !== autoFilledSender.current) {
-      return;
-    }
-
-    autoFilledSender.current = name;
-    form.setValue('sender', name, { shouldDirty: true, shouldValidate: true });
-  };
-
-  // The html beside the editor's source renders asynchronously, so it is
-  // rendered once more here rather than trusting whichever render landed last.
-  const handleSubmit = async (values: TAutomationSendEmailConfig) => {
-    if (values.contentFormat !== 'maily' || !values.contentJson) {
-      return handleSave(values);
-    }
-
-    return handleSave({
-      ...values,
-      content: await renderEmailHtml(values.contentJson),
-    });
-  };
+    senderOptionsLoading,
+    replyToFieldName,
+    replyToFieldKey,
+    fromPreview,
+    showSenderType,
+    handleSenderSelected,
+    onSave,
+  } = useSendEmailConfigForm({ currentActionIndex, currentAction, handleSave });
 
   return (
     <FormProvider {...form}>
-      <AutomationConfigFormWrapper
-        onSave={form.handleSubmit(handleSubmit, handleValidationErrors)}
-      >
+      <AutomationConfigFormWrapper onSave={onSave}>
         {/* Above the name on purpose: the address is what the name belongs to,
             and picking one fills the name in. */}
         <ReplyToField
           control={form.control}
-          name={alignedFrom ? 'fromEmailPlaceHolder' : 'replyToEmail'}
-          key={alignedFrom ? 'aligned' : 'plain'}
+          name={replyToFieldName}
+          key={replyToFieldKey}
           label={t('reply-to')}
           placeholder={t('no-reply-to')}
           onSelect={handleSenderSelected}
@@ -142,21 +106,16 @@ export const SendEmailConfigForm = ({
                   placeholder={t('send-email-sender-name-placeholder')}
                 />
               </Form.Control>
-              {alignedFrom && (
-                <Form.Description>
-                  {senderName
-                    ? `${senderName} <${alignedFrom}>`
-                    : `<${alignedFrom}>`}
-                </Form.Description>
+              {fromPreview && (
+                <Form.Description>{fromPreview}</Form.Description>
               )}
               <Form.Message />
             </Form.Item>
           )}
         />
 
-        {senderOptionsLoading ? (
-          <Skeleton className="h-5 w-40" />
-        ) : alignedFrom ? null : (
+        {senderOptionsLoading && <Skeleton className="h-5 w-40" />}
+        {showSenderType && (
           <>
             <Form.Field
               name="type"
@@ -169,7 +128,7 @@ export const SendEmailConfigForm = ({
                   </Form.Label>
                   <RadioGroup
                     value={field.value}
-                    onValueChange={(value) => field.onChange(value)}
+                    onValueChange={field.onChange}
                   >
                     <label className="flex space-x-2 items-center">
                       <RadioGroup.Item value="default" id="env-sender" />
@@ -232,19 +191,9 @@ export const SendEmailConfigForm = ({
                       render={({ field }) => (
                         <Form.Item className="py-4">
                           <PlaceholderInput
-                            propertyType={contentType || ''}
+                            propertyType={contentType}
                             {...field}
-                            disabled={[TPlaceholderInputSuggestion.Attribute]}
-                            enabled={[
-                              TPlaceholderInputSuggestion.Attribute,
-                              TPlaceholderInputSuggestion.CallUser,
-                            ]}
-                            suggestionsOptions={{
-                              call_user: {
-                                selectFieldName: 'email',
-                                formatSelection: (value) => value,
-                              },
-                            }}
+                            {...EMAIL_ADDRESS_INPUT_PROPS}
                           />
                           <Form.Description>
                             {t('custom-sender-email-hint')}
@@ -281,19 +230,9 @@ export const SendEmailConfigForm = ({
                   </Collapsible.Trigger>
                 </Form.Label>
                 <PlaceholderInput
-                  propertyType={contentType || ''}
+                  propertyType={contentType}
                   {...field}
-                  disabled={[TPlaceholderInputSuggestion.Attribute]}
-                  enabled={[
-                    TPlaceholderInputSuggestion.Attribute,
-                    TPlaceholderInputSuggestion.CallUser,
-                  ]}
-                  suggestionsOptions={{
-                    call_user: {
-                      selectFieldName: 'email',
-                      formatSelection: (value) => value,
-                    },
-                  }}
+                  {...EMAIL_ADDRESS_INPUT_PROPS}
                 />
               </Form.Item>
             )}
@@ -305,19 +244,9 @@ export const SendEmailConfigForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <PlaceholderInput
-                    propertyType={contentType || ''}
+                    propertyType={contentType}
                     {...field}
-                    disabled={[TPlaceholderInputSuggestion.Attribute]}
-                    enabled={[
-                      TPlaceholderInputSuggestion.Attribute,
-                      TPlaceholderInputSuggestion.CallUser,
-                    ]}
-                    suggestionsOptions={{
-                      call_user: {
-                        selectFieldName: 'email',
-                        formatSelection: (value) => value,
-                      },
-                    }}
+                    {...EMAIL_ADDRESS_INPUT_PROPS}
                   />
                 </Form.Item>
               )}
@@ -335,7 +264,7 @@ export const SendEmailConfigForm = ({
                 <span className="text-destructive">*</span>
               </Form.Label>
               <PlaceholderInput
-                propertyType={contentType || ''}
+                propertyType={contentType}
                 disabled={[TPlaceholderInputSuggestion.Attribute]}
                 {...field}
               />
@@ -353,7 +282,7 @@ export const SendEmailConfigForm = ({
                 <span className="text-destructive">*</span>
               </Form.Label>
               <SendEmailEmailContentBuilder
-                contentType={contentType || ''}
+                contentType={contentType}
                 content={field.value || ''}
                 variableSourceNodes={availableVariableSourceNodes}
                 onChange={field.onChange}

@@ -31,10 +31,12 @@ export const ChecklistItem = ({
   item,
   stageId,
   focusNewItem = false,
+  compact = false,
 }: Readonly<{
   item: IChecklist;
   stageId?: string;
   focusNewItem?: boolean;
+  compact?: boolean;
 }>) => {
   const [open, setOpen] = useState(false);
 
@@ -331,16 +333,30 @@ export const ChecklistItem = ({
             </Button>
           )}
 
-          <Button
-            variant="destructive"
-            onClick={() => onDeleteChecklist(item._id)}
-            title={t('delete-checklist')}
-            size="sm"
-            disabled={salesChecklistsRemoveLoading}
-          >
-            <IconTrash />{' '}
-            {salesChecklistsRemoveLoading ? <Spinner /> : t('delete')}
-          </Button>
+          {compact ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 text-muted-foreground hover:text-destructive"
+              onClick={() => onDeleteChecklist(item._id)}
+              title={t('delete-checklist')}
+              aria-label={t('delete-checklist')}
+              disabled={salesChecklistsRemoveLoading}
+            >
+              {salesChecklistsRemoveLoading ? <Spinner /> : <IconTrash />}
+            </Button>
+          ) : (
+            <Button
+              variant="destructive"
+              onClick={() => onDeleteChecklist(item._id)}
+              title={t('delete-checklist')}
+              size="sm"
+              disabled={salesChecklistsRemoveLoading}
+            >
+              <IconTrash />{' '}
+              {salesChecklistsRemoveLoading ? <Spinner /> : t('delete')}
+            </Button>
+          )}
         </div>
       </div>
 

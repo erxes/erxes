@@ -1,30 +1,17 @@
 import { AutomationBuilderDnDProvider } from '@/automations/context/AutomationBuilderDnDProvider';
-import {
-  AutomationProvider,
-  useAutomation,
-} from '@/automations/context/AutomationProvider';
-import { AutomationNodeType } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import { AutomationProvider } from '@/automations/context/AutomationProvider';
 import { BroadcastNodeConfigSheet } from '@/broadcast/components/workflow/components/BroadcastNodeConfigSheet';
-import {
-  BROADCAST_TARGET_TYPE,
-  BroadcastNodeLibrary,
-} from '@/broadcast/components/workflow/components/BroadcastNodeLibrary';
+import { BroadcastNodeLibrary } from '@/broadcast/components/workflow/components/BroadcastNodeLibrary';
 import { BroadcastWorkflowCanvas } from '@/broadcast/components/workflow/components/BroadcastWorkflowCanvas';
-import { BROADCAST_START_NODE_ID } from '@/broadcast/components/workflow/components/BroadcastStartNode';
+import {
+  TBroadcastWorkflow,
+  useBroadcastWorkflowEditorBody,
+  useBroadcastWorkflowEditorForm,
+} from '@/broadcast/components/workflow/hooks/useBroadcastWorkflowEditor';
 import { ReactFlowProvider } from '@xyflow/react';
-import { TAutomationAction } from 'ui-modules';
-import { useEffect } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 
-// The flow as the campaign carries it: the automation's own transport shape,
-// which is what the server returns and what the mutation takes.
-export type TBroadcastWorkflow = {
-  actions?: TAutomationAction[];
-  entryActionId?: string;
-};
-
-const START_HANDLE_ID = `${AutomationNodeType.Trigger}__${BROADCAST_START_NODE_ID}`;
+export type { TBroadcastWorkflow };
 
 /**
  * The campaign's flow editor.
@@ -49,27 +36,7 @@ export const BroadcastWorkflowEditor = ({
   readOnly?: boolean;
   onChange?: (value: TBroadcastWorkflow) => void;
 }) => {
-  const form = useForm<TAutomationBuilderForm>({
-    defaultValues: {
-      name: 'Broadcast workflow',
-      status: 'draft',
-      edgeType: 'default',
-      flowDirection: 'horizontal',
-      triggers: [
-        {
-          id: BROADCAST_START_NODE_ID,
-          type: BROADCAST_TARGET_TYPE,
-          label: startLabel,
-          description: '',
-          config: {},
-          position: { x: 0, y: 0 },
-          actionId: value?.entryActionId,
-        },
-      ],
-      actions: value?.actions || [],
-      workflows: [],
-    } as TAutomationBuilderForm,
-  });
+  const form = useBroadcastWorkflowEditorForm(value, startLabel);
 
   return (
     <AutomationProvider scoped>
@@ -98,38 +65,7 @@ const BroadcastWorkflowEditorBody = ({
   readOnly?: boolean;
   onChange?: (value: TBroadcastWorkflow) => void;
 }) => {
-  const { awaitingToConnectNodeId, setAwaitingToConnectNodeId } =
-    useAutomation();
-  const [triggers, actions] = useWatch<TAutomationBuilderForm>({
-    name: ['triggers', 'actions'],
-  }) as [
-    TAutomationBuilderForm['triggers'] | undefined,
-    TAutomationBuilderForm['actions'] | undefined,
-  ];
-
-  const entryActionId = triggers?.[0]?.actionId;
-
-  // Reported by value: react-hook-form hands back a fresh array on unrelated
-  // renders, which would otherwise write to the campaign form on every one.
-  const snapshot = JSON.stringify({ actions: actions || [], entryActionId });
-
-  useEffect(() => {
-    onChange?.({ actions: actions || [], entryActionId });
-  }, [snapshot]);
-
-  // With nothing after the audience, the only place a pick can go is right
-  // behind it, so it is pre-targeted: the first step chosen connects instead
-  // of landing loose on the canvas.
-  useEffect(() => {
-    if (!readOnly && !entryActionId && !awaitingToConnectNodeId) {
-      setAwaitingToConnectNodeId(START_HANDLE_ID);
-    }
-  }, [
-    readOnly,
-    entryActionId,
-    awaitingToConnectNodeId,
-    setAwaitingToConnectNodeId,
-  ]);
+  useBroadcastWorkflowEditorBody(readOnly, onChange);
 
   return (
     <div className="relative flex h-full min-h-0 w-full flex-row overflow-hidden">

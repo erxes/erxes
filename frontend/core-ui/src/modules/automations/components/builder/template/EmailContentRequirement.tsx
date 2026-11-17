@@ -1,4 +1,5 @@
 import { SendEmailEmailContentBuilder } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailEmailContentBuilder';
+import { TAutomationVariableSourceNode } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowserTypes';
 import {
   TEmailContentAnswer,
   useEmailContentRequirement,
@@ -15,10 +16,13 @@ const EMAIL_RECORD_TYPE = 'core:contacts.customers';
 export const EmailContentRequirement = ({
   value,
   defaultValue,
+  variableSourceNodes = [],
   onChange,
 }: {
   value: unknown;
   defaultValue?: Partial<TEmailContentAnswer>;
+  // Its journey's trigger, so `{{ trigger.* }}` can be inserted while writing
+  variableSourceNodes?: TAutomationVariableSourceNode[];
   onChange: (value: TEmailContentAnswer | null) => void;
 }) => {
   const { t } = useTranslation('automations');
@@ -38,7 +42,7 @@ export const EmailContentRequirement = ({
         <SendEmailEmailContentBuilder
           content={content}
           contentType={EMAIL_RECORD_TYPE}
-          variableSourceNodes={[]}
+          variableSourceNodes={variableSourceNodes}
           onChange={(next) =>
             form.setValue('content', next, { shouldDirty: true })
           }

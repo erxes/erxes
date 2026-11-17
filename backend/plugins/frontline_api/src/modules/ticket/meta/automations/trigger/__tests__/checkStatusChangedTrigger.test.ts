@@ -66,4 +66,21 @@ describe('isTicketStatusChanged', () => {
       }),
     ).toBe(true);
   });
+
+  it('accepts one status id written in directly, not as an array', () => {
+    expect(
+      isTicketStatusChanged({
+        target,
+        config: { toStatusIds: 's2' },
+        eventUpdateDescription: moved('s1', 's2'),
+      }),
+    ).toBe(true);
+    expect(
+      isTicketStatusChanged({
+        target,
+        config: { toStatusIds: 's3' },
+        eventUpdateDescription: moved('s1', 's2'),
+      }),
+    ).toBe(false);
+  });
 });

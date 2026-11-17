@@ -46,6 +46,22 @@ export const supportsErrorPolicy = (
 export const isBranchingOnError = (config?: Record<string, any>) =>
   (config?.errorPolicy?.onError as string) === 'branch';
 
+type TErrorPolicyConfig = {
+  errorPolicy?: { retry?: { attempts?: number } };
+};
+
+/** The node's error policy in a few words, or empty when it has none. */
+export const errorPolicySummaryOf = (config?: TErrorPolicyConfig) => {
+  const attempts = Number(config?.errorPolicy?.retry?.attempts || 0);
+
+  return [
+    attempts > 0 && `retry x${attempts}`,
+    isBranchingOnError(config) && 'on error',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+};
+
 /**
  * The folks an action node actually shows. Declared folks come with the action
  * type; the success/error pair belongs to the node, because only that node's

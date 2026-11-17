@@ -5,41 +5,26 @@ import {
   IconUpload,
 } from '@tabler/icons-react';
 import { FileGrid } from '@/automations/components/settings/components/agents/components/FilesList';
+import {
+  TUploadedContextFile,
+  useUploadDropzone,
+} from '@/automations/components/settings/components/agents/hooks/useUploadDropzone';
+import { CONTEXT_FILE_ACCEPT } from '@/automations/components/settings/components/agents/utils/contextFileUpload';
 import { TAiAgentContextFile } from '@/automations/components/settings/components/agents/utils/contextFiles';
-import { Button, cn, toast, useUpload } from 'erxes-ui';
-import type React from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-type UploadedContextFile = {
-  key: string;
-  name: string;
-  size?: number;
-  type?: string;
-  uploadedAt?: Date;
-};
 
 interface UploadDropzoneProps {
   files: TAiAgentContextFile[];
   maxFiles: number;
   maxSingleFileBytes: number;
   maxTotalContextBytes: number;
-  onFilesUploaded: (file: UploadedContextFile[]) => void;
+  onFilesUploaded: (file: TUploadedContextFile[]) => void;
   onFileDelete: (fileId: string) => void;
   onFileClick?: (fileId: string) => void;
   onFileReindex?: (fileId: string) => void;
   reindexingFileId?: string | null;
 }
-
-const ACCEPTED_FORMATS = ['.md', '.markdown', '.txt'] as const;
-
-const formatBytes = (bytes: number) => {
-  if (bytes >= 1000) {
-    return `${Math.round(bytes / 1000)} KB`;
-  }
-
-  return `${bytes} B`;
-};
 
 export function UploadDropzone({
   files,
@@ -53,173 +38,29 @@ export function UploadDropzone({
   reindexingFileId,
 }: UploadDropzoneProps) {
   const { t } = useTranslation('automations');
-  const [isDragOver, setIsDragOver] = useState(false);
-  const { isLoading, upload } = useUpload();
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const totalBytes = files.reduce(
-    (sum, currentFile) => sum + (currentFile.size || 0),
-    0,
-  );
-  const usagePercent = Math.min((totalBytes / maxTotalContextBytes) * 100, 100);
-  const canAddMore =
-    files.length < maxFiles && totalBytes < maxTotalContextBytes;
-
-  const openFilePicker = useCallback(() => {
-    if (!canAddMore || isLoading) {
-      return;
-    }
-
-    inputRef.current?.click();
-  }, [canAddMore, isLoading]);
-
-  const validateFiles = useCallback(
-    (selectedFiles: File[]) => {
-      const uploaded: File[] = [];
-
-      for (const file of selectedFiles) {
-        const extension = `.${file.name.split('.').pop()?.toLowerCase() || ''}`;
-
-        if (
-          !ACCEPTED_FORMATS.includes(
-            extension as (typeof ACCEPTED_FORMATS)[number],
-          )
-        ) {
-          toast({
-            title: t('settings-dropzone-unsupported-format'),
-            description: t('settings-dropzone-unsupported-format-description', {
-              name: file.name,
-            }),
-            variant: 'destructive',
-          });
-          return null;
-        }
-
-        if (file.size > maxSingleFileBytes) {
-          toast({
-            title: t('settings-dropzone-file-too-large'),
-            description: t('settings-dropzone-file-too-large-description', {
-              name: file.name,
-              size: formatBytes(maxSingleFileBytes),
-            }),
-            variant: 'destructive',
-          });
-          return null;
-        }
-
-        if (files.length + uploaded.length >= maxFiles) {
-          toast({
-            title: t('settings-dropzone-too-many-files'),
-            description: t('settings-dropzone-too-many-files-description', {
-              count: maxFiles,
-            }),
-            variant: 'destructive',
-          });
-          return null;
-        }
-
-        const nextTotalBytes =
-          totalBytes +
-          uploaded.reduce((sum, currentFile) => sum + currentFile.size, 0) +
-          file.size;
-
-        if (nextTotalBytes > maxTotalContextBytes) {
-          toast({
-            title: t('settings-dropzone-combined-too-large'),
-            description: t('settings-dropzone-combined-too-large-description', {
-              size: formatBytes(maxTotalContextBytes),
-            }),
-            variant: 'destructive',
-          });
-          return null;
-        }
-
-        uploaded.push(file);
-      }
-
-      return uploaded;
-    },
-    [
-      files.length,
-      maxFiles,
-      maxSingleFileBytes,
-      maxTotalContextBytes,
-      totalBytes,
-      t,
-    ],
-  );
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  }, []);
-
-  const onUploadFiles = useCallback(
-    (fileList: FileList) => {
-      const validFiles = validateFiles(Array.from(fileList));
-      const uploaded: UploadedContextFile[] = [];
-
-      if (validFiles && validFiles.length > 0) {
-        let remaining = validFiles.length;
-        const dataTransfer = new DataTransfer();
-
-        validFiles.forEach((file) => dataTransfer.items.add(file));
-
-        upload({
-          files: dataTransfer.files,
-          afterUpload: ({ fileInfo, response }) => {
-            const { name, size, type } = fileInfo;
-
-            uploaded.push({
-              name,
-              size,
-              key: response,
-              type,
-              uploadedAt: new Date(),
-            });
-
-            remaining -= 1;
-            if (remaining === 0) {
-              onFilesUploaded(uploaded);
-            }
-          },
-        });
-      }
-    },
-    [onFilesUploaded, upload, validateFiles],
-  );
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragOver(false);
-
-      if (!canAddMore || isLoading) {
-        return;
-      }
-
-      onUploadFiles(e.dataTransfer.files);
-    },
-    [canAddMore, isLoading, onUploadFiles],
-  );
-
-  const handleFileSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const fileList = e.target.files;
-
-      if (fileList && fileList.length > 0) {
-        onUploadFiles(fileList);
-      }
-
-      e.target.value = '';
-    },
-    [onUploadFiles],
-  );
+  const {
+    inputRef,
+    isDragOver,
+    isLoading,
+    canAddMore,
+    isDisabled,
+    usageStyle,
+    usedLabel,
+    totalLabel,
+    openFilePicker,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleFileSelect,
+    handleKeyDown,
+    handleChooseClick,
+  } = useUploadDropzone({
+    files,
+    maxFiles,
+    maxSingleFileBytes,
+    maxTotalContextBytes,
+    onFilesUploaded,
+  });
 
   return (
     <div
@@ -230,21 +71,15 @@ export function UploadDropzone({
         isDragOver
           ? 'border-primary bg-primary/5'
           : 'border-border/80 bg-background/60',
-        canAddMore &&
-          !isLoading &&
-          'cursor-pointer hover:border-muted-foreground/50',
-        (!canAddMore || isLoading) && 'cursor-default',
+        isDisabled
+          ? 'cursor-default'
+          : 'cursor-pointer hover:border-muted-foreground/50',
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={openFilePicker}
-      onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && canAddMore && !isLoading) {
-          e.preventDefault();
-          openFilePicker();
-        }
-      }}
+      onKeyDown={handleKeyDown}
     >
       <input
         ref={inputRef}
@@ -252,8 +87,8 @@ export function UploadDropzone({
         multiple
         onChange={handleFileSelect}
         className="hidden"
-        accept=".md,.markdown,.txt,text/markdown,text/plain"
-        disabled={!canAddMore || isLoading}
+        accept={CONTEXT_FILE_ACCEPT}
+        disabled={isDisabled}
       />
 
       {files.length === 0 ? (
@@ -276,11 +111,8 @@ export function UploadDropzone({
           <Button
             variant="secondary"
             size="lg"
-            onClick={(e) => {
-              e.stopPropagation();
-              openFilePicker();
-            }}
-            disabled={!canAddMore || isLoading}
+            onClick={handleChooseClick}
+            disabled={isDisabled}
           >
             {isLoading ? (
               <IconLoader2 className="size-4 animate-spin" />
@@ -299,9 +131,7 @@ export function UploadDropzone({
         <div className="space-y-4 p-4">
           <FileGrid
             files={files}
-            onFileDelete={(fileId) => {
-              onFileDelete(fileId);
-            }}
+            onFileDelete={onFileDelete}
             onFileClick={onFileClick}
             onFileReindex={onFileReindex}
             reindexingFileId={reindexingFileId}
@@ -339,15 +169,15 @@ export function UploadDropzone({
               </span>
               <span>
                 {t('settings-dropzone-used', {
-                  used: formatBytes(totalBytes),
-                  total: formatBytes(maxTotalContextBytes),
+                  used: usedLabel,
+                  total: totalLabel,
                 })}
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-primary transition-all"
-                style={{ width: `${usagePercent}%` }}
+                style={usageStyle}
               />
             </div>
           </div>

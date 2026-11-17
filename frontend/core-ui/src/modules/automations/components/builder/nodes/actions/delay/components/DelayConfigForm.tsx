@@ -2,98 +2,29 @@ import { Button, Form, Input, Select, Switch, cn } from 'erxes-ui';
 import { SelectBranches, TAutomationActionProps } from 'ui-modules';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { FormProvider } from 'react-hook-form';
-import { useDelay } from '@/automations/components/builder/nodes/actions/delay/hooks/useDelay';
+import {
+  branchIdOf,
+  useDelayConfigForm,
+} from '@/automations/components/builder/nodes/actions/delay/hooks/useDelayConfigForm';
 import { useTranslation } from 'react-i18next';
 import { IconClockPlay, IconInfoCircle } from '@tabler/icons-react';
-import { TDelayConfigForm } from '../states/delayConfigForm';
-
-const QUICK_PRESETS: Array<{
-  label: string;
-  value: string;
-  type: TDelayConfigForm['type'];
-}> = [
-  { label: '5 min', value: '5', type: 'minute' },
-  { label: '15 min', value: '15', type: 'minute' },
-  { label: '1 hour', value: '1', type: 'hour' },
-  { label: '6 hours', value: '6', type: 'hour' },
-  { label: '1 day', value: '1', type: 'day' },
-  { label: '1 week', value: '7', type: 'day' },
-];
-
-const getDelayUnitLabel = (
-  type: TDelayConfigForm['type'],
-  value: string | undefined,
-  t: (key: string, options?: { defaultValue: string }) => string,
-) => {
-  const count = Number(value || 0);
-  const isSingular = count === 1;
-
-  if (type === 'minute') {
-    return isSingular
-      ? t('minute', { defaultValue: 'minute' })
-      : t('minutes', { defaultValue: 'minutes' });
-  }
-
-  if (type === 'hour') {
-    return isSingular
-      ? t('hour', { defaultValue: 'hour' })
-      : t('hours', { defaultValue: 'hours' });
-  }
-
-  if (type === 'day') {
-    return isSingular
-      ? t('day', { defaultValue: 'day' })
-      : t('days', { defaultValue: 'days' });
-  }
-
-  if (type === 'month') {
-    return isSingular
-      ? t('month', { defaultValue: 'month' })
-      : t('months', { defaultValue: 'months' });
-  }
-
-  if (type === 'year') {
-    return isSingular
-      ? t('year', { defaultValue: 'year' })
-      : t('years', { defaultValue: 'years' });
-  }
-
-  return t('days', { defaultValue: 'days' });
-};
 
 export const DelayConfigForm = ({
   handleSave,
   currentAction,
 }: TAutomationActionProps) => {
+  const { t } = useTranslation('automations');
   const {
     form,
     control,
-    value,
-    type = 'day',
     handleValueChange,
     handleIntervalChange,
     handleSubmit,
     workingTime,
-  } = useDelay(currentAction?.config || {});
-  const { t } = useTranslation('automations');
-  const selectedValue = value || '1';
-  const selectedUnitLabel = getDelayUnitLabel(type, selectedValue, t);
-  const summary = workingTime
-    ? `${selectedValue} ${selectedUnitLabel} · ${t('delay-working-hours-short', {
-        defaultValue: 'working hours',
-      })}`
-    : `${selectedValue} ${selectedUnitLabel}`;
-
-  const handlePresetClick = (preset: (typeof QUICK_PRESETS)[number]) => {
-    form.setValue('value', preset.value, {
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-    form.setValue('type', preset.type, {
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  };
+    summary,
+    presets,
+    applyPreset,
+  } = useDelayConfigForm(currentAction?.config || {});
 
   return (
     <FormProvider {...form}>
@@ -122,25 +53,20 @@ export const DelayConfigForm = ({
               {t('quick-presets', { defaultValue: 'Quick presets' })}
             </div>
             <div className="flex flex-wrap gap-2">
-              {QUICK_PRESETS.map((preset) => {
-                const isSelected =
-                  selectedValue === preset.value && type === preset.type;
-
-                return (
-                  <Button
-                    key={`${preset.value}-${preset.type}`}
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      'h-8 min-w-20 justify-center bg-background px-3 text-xs font-medium',
-                      isSelected && 'border-success/40 bg-success/10',
-                    )}
-                    onClick={() => handlePresetClick(preset)}
-                  >
-                    {preset.label}
-                  </Button>
-                );
-              })}
+              {presets.map((preset) => (
+                <Button
+                  key={`${preset.value}-${preset.type}`}
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    'h-8 min-w-20 justify-center bg-background px-3 text-xs font-medium',
+                    preset.isSelected && 'border-success/40 bg-success/10',
+                  )}
+                  onClick={() => applyPreset(preset)}
+                >
+                  {preset.label}
+                </Button>
+              ))}
             </div>
           </section>
 
@@ -240,7 +166,7 @@ export const DelayConfigForm = ({
                       mode="single"
                       value={field.value ?? ''}
                       onValueChange={(value) =>
-                        field.onChange((value as string) || undefined)
+                        field.onChange(branchIdOf(value))
                       }
                     />
                     <Form.Message />

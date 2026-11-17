@@ -1,6 +1,7 @@
 import { splitType, TTemplate } from 'erxes-api-shared/core-modules';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { getAutomationConstants } from '@/automations/graphql/resolvers/utils/queriesUtils';
+import { CORE_TEMPLATES } from '@/template/builtIn';
 
 export type TRegisteredTemplate = TTemplate & { pluginName: string };
 
@@ -58,7 +59,7 @@ export const getTemplateNodeDetails = async () => {
   return details;
 };
 
-/** Every template enabled plugins declare, available ones only. */
+/** Every template core and enabled plugins declare, available ones only. */
 export const getAvailableTemplates = async (): Promise<
   TRegisteredTemplate[]
 > => {
@@ -70,7 +71,9 @@ export const getAvailableTemplates = async (): Promise<
       .filter((type): type is string => !!type),
   );
   const plugins = new Set(pluginNames);
-  const templates: TRegisteredTemplate[] = [];
+  const templates: TRegisteredTemplate[] = CORE_TEMPLATES.filter((template) =>
+    isTemplateAvailable(template, { nodeTypes, plugins }),
+  ).map((template) => ({ ...template, pluginName: 'core' }));
 
   for (const pluginName of pluginNames) {
     const plugin = await getPlugin(pluginName);
