@@ -13,6 +13,17 @@ export interface ReportCategory {
   _id: string;
   parentId?: string;
 }
+export interface ReportTurnover {
+  accountId: string;
+  side: 'dt' | 'ct';
+  // Effective opposite-side account codes: custom codes win, defaults fill in.
+  related: string[];
+  amount: number;
+}
+export interface ReportLedger {
+  balances(date: Record<string, Date>): Promise<Map<string, number>>;
+  turnovers(date: Record<string, Date>): Promise<ReportTurnover[]>;
+}
 
 export const selectReportAccounts = (
   accounts: ReportAccount[],
@@ -35,23 +46,103 @@ export const selectReportAccounts = (
   );
 };
 
-// Ordinary field predicates can run before unwind and use relation-code indexes.
-// Older documents without materialized custom codes retain the default-side fallback.
-export const relatedAccountMatch = (
-  side: 'Dt' | 'Ct',
-  codes: string[],
-): Record<string, unknown> => ({
-  $or: [
-    { [`relAccounts.custom${side}`]: { $in: codes } },
+// Older documents without materialized custom codes fall back to the defaults.
+const effectiveRelated = (side: 'Dt' | 'Ct') => {
+  const custom = `$relAccounts.custom${side}`;
+  return {
+    $cond: [
+      { $gt: [{ $size: { $ifNull: [custom, []] } }, 0] },
+      custom,
+      { $ifNull: [`$relAccounts.${side.toLowerCase()}`, []] },
+    ],
+  };
+};
+
+// One aggregate per date window serves every formula of the run, as Erkhet
+// prepares its interval dictionaries once and evaluates formulas in memory.
+export const createReportLedger = (
+  models: IModels,
+  accountIds: string[],
+): ReportLedger => {
+  const balanceCache = new Map<string, Promise<Map<string, number>>>();
+  const turnoverCache = new Map<string, Promise<ReportTurnover[]>>();
+  const detailStages = (date: Record<string, Date>): PipelineStage[] => [
     {
-      [`relAccounts.custom${side}.0`]: { $exists: false },
-      [`relAccounts.${side.toLowerCase()}`]: { $in: codes },
+      $match: {
+        status: { $in: TR_STATUSES.ACTIVE },
+        date,
+        'details.accountId': { $in: accountIds },
+      },
     },
-  ],
-});
+    { $unwind: '$details' },
+    // Unrelated details of a matching voucher must not sum.
+    { $match: { 'details.accountId': { $in: accountIds } } },
+  ];
+  return {
+    balances: (date) => {
+      const key = JSON.stringify(date);
+      let result = balanceCache.get(key);
+      if (!result) {
+        result = models.Transactions.aggregate<{ _id: string; amount: number }>(
+          [
+            ...detailStages(date),
+            {
+              $group: {
+                _id: '$details.accountId',
+                amount: {
+                  $sum: {
+                    $cond: [
+                      { $eq: ['$side', 'dt'] },
+                      '$details.amount',
+                      { $multiply: ['$details.amount', -1] },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        ).then((rows) => new Map(rows.map((row) => [row._id, row.amount])));
+        balanceCache.set(key, result);
+      }
+      return result;
+    },
+    turnovers: (date) => {
+      const key = JSON.stringify(date);
+      let result = turnoverCache.get(key);
+      if (!result) {
+        result = models.Transactions.aggregate<{
+          _id: Omit<ReportTurnover, 'amount'>;
+          amount: number;
+        }>([
+          ...detailStages(date),
+          {
+            $group: {
+              _id: {
+                accountId: '$details.accountId',
+                side: '$side',
+                related: {
+                  $cond: [
+                    { $eq: ['$side', 'dt'] },
+                    effectiveRelated('Ct'),
+                    effectiveRelated('Dt'),
+                  ],
+                },
+              },
+              amount: { $sum: '$details.amount' },
+            },
+          },
+        ]).then((rows) =>
+          rows.map((row) => ({ ...row._id, amount: row.amount })),
+        );
+        turnoverCache.set(key, result);
+      }
+      return result;
+    },
+  };
+};
 
 export const calculateLedgerFormula = async (
-  models: IModels,
+  ledger: ReportLedger,
   formula: IReportFormula,
   accounts: ReportAccount[],
   categories: ReportCategory[],
@@ -70,75 +161,40 @@ export const calculateLedgerFormula = async (
     formula.creditAccountId,
     formula.creditAccountCategoryId,
   );
-  const balance = formula.kind === 'balance';
-  const selected = balance
-    ? [
-        ...new Map(
-          [...debit, ...credit].map((account) => [account._id, account]),
-        ).values(),
-      ]
-    : valueSide === 'debit'
-    ? debit
-    : credit;
-  if (!selected.length) return 0;
-  const selectedIds = selected.map((account) => account._id);
-  const transactionMatch: Record<string, unknown> = {
-    status: { $in: TR_STATUSES.ACTIVE },
-    date,
-    'details.accountId': { $in: selectedIds },
-  };
-  if (!balance) {
-    transactionMatch.side = valueSide === 'debit' ? 'dt' : 'ct';
-    const other = valueSide === 'debit' ? credit : debit;
-    if (other.length)
-      Object.assign(
-        transactionMatch,
-        relatedAccountMatch(
-          valueSide === 'debit' ? 'Ct' : 'Dt',
-          other
-            .map((account) => account.code)
-            .filter((code): code is string => !!code),
-        ),
-      );
-    if (
-      !other.length &&
-      (valueSide === 'debit'
-        ? formula.creditAccountId || formula.creditAccountCategoryId
-        : formula.debitAccountId || formula.debitAccountCategoryId)
-    )
-      return 0;
+  if (formula.kind === 'balance') {
+    const selected = new Map(
+      [...debit, ...credit].map((account) => [account._id, account]),
+    );
+    if (!selected.size) return 0;
+    const balances = await ledger.balances(date);
+    let total = 0;
+    for (const account of selected.values())
+      total +=
+        (balances.get(account._id) ?? 0) *
+        (account.kind === 'passive' ? -1 : 1);
+    return total;
   }
-  const pipeline: PipelineStage[] = [
-    { $match: transactionMatch },
-    { $unwind: '$details' },
-    // Keep the detail match as well: unrelated details of a matching voucher must not sum.
-    { $match: { 'details.accountId': { $in: selectedIds } } },
-  ];
-  pipeline.push({
-    $group: {
-      _id: '$details.accountId',
-      amount: {
-        $sum: balance
-          ? {
-              $cond: [
-                { $eq: ['$side', 'dt'] },
-                '$details.amount',
-                { $multiply: ['$details.amount', -1] },
-              ],
-            }
-          : '$details.amount',
-      },
-    },
-  });
-  const rows = await models.Transactions.aggregate<{
-    _id: string;
-    amount: number;
-  }>(pipeline);
-  const byId = new Map(selected.map((account) => [account._id, account]));
-  return rows.reduce(
-    (sum, row) =>
-      sum +
-      row.amount * (balance && byId.get(row._id)?.kind === 'passive' ? -1 : 1),
-    0,
+  const isDebit = valueSide === 'debit';
+  const selected = new Set((isDebit ? debit : credit).map(({ _id }) => _id));
+  if (!selected.size) return 0;
+  const other = isDebit ? credit : debit;
+  const otherRequested = isDebit
+    ? formula.creditAccountId || formula.creditAccountCategoryId
+    : formula.debitAccountId || formula.debitAccountCategoryId;
+  if (otherRequested && !other.length) return 0;
+  const otherCodes = new Set(
+    other
+      .map((account) => account.code)
+      .filter((code): code is string => !!code),
   );
+  const side = isDebit ? 'dt' : 'ct';
+  let total = 0;
+  for (const turnover of await ledger.turnovers(date))
+    if (
+      turnover.side === side &&
+      selected.has(turnover.accountId) &&
+      (!otherRequested || turnover.related.some((code) => otherCodes.has(code)))
+    )
+      total += turnover.amount;
+  return total;
 };

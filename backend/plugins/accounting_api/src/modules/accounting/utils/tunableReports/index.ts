@@ -17,15 +17,33 @@ import {
 } from './cells';
 import {
   calculateLedgerFormula,
+  createReportLedger,
   ReportAccount,
   ReportCategory,
+  ReportLedger,
 } from './ledger';
-import { reportDateMatch } from './period';
+import { reportDateMatch, validateReportFormulaPeriod } from './period';
 import { applyReportPercent } from './percent';
 
 type Column = IReportSection['columns'][number];
 type Row = IReportSection['rows'][number];
 type Settings = Omit<ReturnType<typeof reportGenerateInputSchema.parse>, '_id'>;
+
+// Amount cells are rounded to the requested unit and precision, and dependent
+// formulas consume the rounded amount so printed totals equal their printed
+// parts. Ratio cells keep full precision because they act as coefficients.
+export const roundReportAmount = (
+  value: number,
+  { amountUnit, decimals }: Pick<Settings, 'amountUnit' | 'decimals'>,
+): number => {
+  const unit = amountUnit === 'thousands' ? 1000 : 1;
+  const factor = 10 ** decimals;
+  const scaled = Math.abs(value / unit) * factor;
+  const rounded = Math.round(Number(scaled.toPrecision(15))) / factor;
+  return rounded === 0
+    ? 0
+    : Number((Math.sign(value) * rounded * unit).toPrecision(15));
+};
 
 export const generateTunableReport = async (
   models: IModels,
@@ -36,9 +54,12 @@ export const generateTunableReport = async (
   const reports = new Map<string, IReportDefinition>([[report._id, report]]);
   const values = new Map<string, number>();
   const visiting = new Set<string>();
-  const ledgerValues = new Map<string, Promise<number>>();
   let ledger:
-    | Promise<{ accounts: ReportAccount[]; categories: ReportCategory[] }>
+    | Promise<{
+        accounts: ReportAccount[];
+        categories: ReportCategory[];
+        data: ReportLedger;
+      }>
     | undefined;
   const getLedger = () =>
     (ledger ??= (async () => {
@@ -58,7 +79,14 @@ export const generateTunableReport = async (
           ReportCategory[]
         >(),
       ]);
-      return { accounts, categories };
+      return {
+        accounts,
+        categories,
+        data: createReportLedger(
+          models,
+          accounts.map((account) => account._id),
+        ),
+      };
     })());
   const referenceValue = async (
     owner: IReportDefinition,
@@ -97,11 +125,8 @@ export const generateTunableReport = async (
     visiting.add(key);
     let total = 0;
     try {
-      for (const formula of getReportCellFormulas(
-        section,
-        row._id,
-        column._id,
-      )) {
+      const formulas = getReportCellFormulas(section, row._id, column._id);
+      for (const formula of formulas) {
         let amount: number;
         if (formula.kind === 'from_row' || formula.kind === 'ratio') {
           if (!formula.source) throw new Error('A source row is required');
@@ -128,41 +153,19 @@ export const generateTunableReport = async (
           }
         } else {
           const period = resolveReportPeriod(formula, row, column);
-          if (formula.kind === 'balance' && period.getDate === 'between')
-            throw new Error(
-              'Balance formulas require an opening or closing date',
-            );
-          const date = reportDateMatch(
-            settings.fromDate,
-            settings.toDate,
-            period,
-          );
+          validateReportFormulaPeriod(formula.kind, period.getDate);
           const side =
             formula.valueSide ??
             (row.valueSide === 'credit' ? 'credit' : 'debit');
-          const ledgerKey = JSON.stringify([
-            formula.kind,
-            formula.debitAccountId,
-            formula.creditAccountId,
-            formula.debitAccountCategoryId,
-            formula.creditAccountCategoryId,
-            date,
+          const { accounts, categories, data } = await getLedger();
+          amount = await calculateLedgerFormula(
+            data,
+            formula,
+            accounts,
+            categories,
+            reportDateMatch(settings.fromDate, settings.toDate, period),
             side,
-          ]);
-          let result = ledgerValues.get(ledgerKey);
-          if (!result) {
-            const { accounts, categories } = await getLedger();
-            result = calculateLedgerFormula(
-              models,
-              formula,
-              accounts,
-              categories,
-              date,
-              side,
-            );
-            ledgerValues.set(ledgerKey, result);
-          }
-          amount = await result;
+          );
         }
         total +=
           applyReportPercent(amount, formula.percent) *
@@ -171,6 +174,8 @@ export const generateTunableReport = async (
       if (!Number.isFinite(total))
         throw new Error('Report formula produced a non-finite amount');
       if (row.kind === 'plus_formula') total = Math.max(0, total);
+      if (!formulas.some((formula) => formula.kind === 'ratio'))
+        total = roundReportAmount(total, settings);
       values.set(key, total);
       return total;
     } finally {

@@ -1,4 +1,5 @@
 import { validateReportPercent } from './tunableReports/percent';
+import { validateReportFormulaPeriod } from './tunableReports/period';
 import { IReportDefinition, IReportSection } from '../@types/report';
 
 import {
@@ -57,13 +58,10 @@ export const validateReportDefinitions = (
       validateReportPercent(formula.percent);
       if (row.kind === 'title' || row.kind === 'date')
         throw new Error('Title and date rows cannot have formulas');
-      const period = resolveReportPeriod(formula, row, column);
-      if (!period.getDate)
-        throw new Error(
-          'Every formula cell needs a period: set it on the formula, row or column',
-        );
-      if (formula.kind === 'balance' && period.getDate === 'between')
-        throw new Error('Balance formulas need an opening or closing date');
+      validateReportFormulaPeriod(
+        formula.kind,
+        resolveReportPeriod(formula, row, column).getDate,
+      );
       if (
         (formula.kind === 'from_row' || formula.kind === 'ratio') &&
         !formula.source

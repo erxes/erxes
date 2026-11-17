@@ -120,12 +120,24 @@ export const loadReportClass = (
           ])
             if (value) categoryIds.add(value);
         }
-      await Promise.all([
-        ...Array.from(accountIds, (_id) => models.Accounts.getAccount({ _id })),
-        ...Array.from(categoryIds, (_id) =>
-          models.AccountCategories.getAccountCategory({ _id }),
-        ),
+      const [accounts, categories] = await Promise.all([
+        accountIds.size
+          ? models.Accounts.find(
+              { _id: { $in: [...accountIds] } },
+              { _id: 1 },
+            ).lean<{ _id: string }[]>()
+          : [],
+        categoryIds.size
+          ? models.AccountCategories.find(
+              { _id: { $in: [...categoryIds] } },
+              { _id: 1 },
+            ).lean<{ _id: string }[]>()
+          : [],
       ]);
+      if (accounts.length !== accountIds.size)
+        throw new Error('Account not found');
+      if (categories.length !== categoryIds.size)
+        throw new Error('Account category not found');
       const now = new Date();
       const report = previous
         ? await models.Reports.findOneAndUpdate(
