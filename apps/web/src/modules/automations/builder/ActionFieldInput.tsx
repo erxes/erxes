@@ -35,6 +35,7 @@ const TextField = ({
   multiline,
 }: ActionInputProps & { multiline?: boolean }) => (
   <TemplateInput
+    label={field.label}
     value={textOf(value)}
     onChange={onChange}
     fields={dataFields}
@@ -171,6 +172,7 @@ const RecipientsInput = (props: ActionInputProps) => {
       />
       {!toRecord && (
         <TemplateInput
+          label={t('to-addresses', 'Other addresses')}
           value={textOf(value)}
           onChange={onChange}
           fields={props.dataFields}
@@ -191,6 +193,7 @@ const JsonInput = ({ field, value, onChange, disabled }: ActionInputProps) => {
   return (
     <>
       <Textarea
+        aria-label={field.label}
         rows={4}
         text="code"
         disabled={disabled}
