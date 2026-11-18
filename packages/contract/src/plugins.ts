@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { httpUrl, Id, isoDate, listOf } from './common';
 import { ActionFields, DataField } from './automationRuns';
+import { AppOrigin } from './customerAuth';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginAssistant } from './pluginAssistant';
@@ -20,6 +21,7 @@ import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
+import { PluginTranslations } from './pluginTranslations';
 import { PluginApiDocs } from './pluginApiDocs';
 import { PluginSearchSource } from './search';
 import { PluginRead, pluginReadsContract } from './pluginReads';
@@ -39,22 +41,9 @@ export const LiveTopic = z
 
 const HttpsUrl = httpUrl(500);
 
-/**
- * A web origin a customer app runs at: `https://host[:port]`, where
- * `{subdomain}` may stand for a whole label (the organisation's), or
- * `http://localhost[:port]` while developing.
- */
-const AppOrigin = z
-  .string()
-  .trim()
-  .max(200)
-  .regex(
-    /^(https:\/\/(\{subdomain\}|[a-z0-9-]+)(\.(\{subdomain\}|[a-z0-9-]+))+|http:\/\/(localhost|127\.0\.0\.1))(:\d{1,5})?$/,
-    'an origin: https://shop.example.com, https://{subdomain}.shop.example.com or http://localhost:3000',
-  );
-
 export const PluginManifest = z.object({
   title: z.string().trim().min(1).max(80),
+  translations: PluginTranslations.optional(),
   version: z.string().trim().min(1).max(40),
   description: z.string().trim().max(500).optional(),
   /**
@@ -266,6 +255,7 @@ export const Plugin = createSelectSchema(plugins, {
   manifest: () =>
     PluginManifest.pick({
       title: true,
+      translations: true,
       version: true,
       description: true,
       countries: true,
