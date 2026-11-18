@@ -9,20 +9,32 @@ const scrollAreaVariants = cva('relative overflow-hidden', {
   },
 });
 
+type FitWidth = {
+  /**
+   * The content stays as wide as the box, so a long line wraps or truncates instead of widening
+   * every row. For a box that scrolls only down, such as a record panel.
+   */
+  fitWidth?: boolean;
+};
+
 const ScrollAreaMain = ({
   className,
   children,
   scrollBarClassName,
   viewportClassName,
   gutter,
+  fitWidth,
   ...props
 }: ScrollAreaPrimitive.Root.Props &
-  VariantProps<typeof scrollAreaVariants> & {
+  VariantProps<typeof scrollAreaVariants> &
+  FitWidth & {
     scrollBarClassName?: string;
     viewportClassName?: string;
   }) => (
   <ScrollAreaPrimitive.Root className={cn(scrollAreaVariants({ gutter }), className)} {...props}>
-    <ScrollAreaViewport className={viewportClassName}>{children}</ScrollAreaViewport>
+    <ScrollAreaViewport className={viewportClassName} fitWidth={fitWidth}>
+      {children}
+    </ScrollAreaViewport>
     <ScrollBar className={scrollBarClassName} />
     <ScrollAreaPrimitive.Corner />
   </ScrollAreaPrimitive.Root>
@@ -36,17 +48,21 @@ const ScrollAreaRoot = ({
   <ScrollAreaPrimitive.Root className={cn(scrollAreaVariants({ gutter }), className)} {...props} />
 );
 
-/** Content is laid out as a table at least as wide as the viewport, the way Radix wrapped it. */
+/** The scrolling box. Its content is at least as wide as its widest line, unless `fitWidth`. */
 const ScrollAreaViewport = ({
   className,
   children,
+  fitWidth,
   ...props
-}: ScrollAreaPrimitive.Viewport.Props) => (
+}: ScrollAreaPrimitive.Viewport.Props & FitWidth) => (
   <ScrollAreaPrimitive.Viewport
     className={cn('h-full w-full rounded-inherit', className)}
     {...props}
   >
-    <ScrollAreaPrimitive.Content>{children}</ScrollAreaPrimitive.Content>
+    {/* Base UI sets the content's min-width to fit-content inline; only `!` overrides it. */}
+    <ScrollAreaPrimitive.Content className={cn(fitWidth && 'min-w-0!')}>
+      {children}
+    </ScrollAreaPrimitive.Content>
   </ScrollAreaPrimitive.Viewport>
 );
 

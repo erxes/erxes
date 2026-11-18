@@ -107,6 +107,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 ## Fields and pickers
 
 - `<ConditionsEditor>` Edits a condition group of rules, for automations and advanced filters.
+- `<DateField value placeholder scope onSave variant>` A day in a table cell or panel row, edited in a popover with a calendar.
 - `<Editor>` The block editor, fetched the first time one renders.
 - `editorText(content)` Stored editor content, block JSON or HTML, as the plain text it shows.
 - `<EmailDisplay maxVisible primaryEmail emails emailValidationStatus>` A record's emails as chips, the primary one with its validation mark.

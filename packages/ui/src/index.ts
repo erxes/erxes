@@ -219,6 +219,8 @@ export {
   productTitle,
 } from './modules/records/products';
 
+export { DateField } from './modules/record-field/components/DateField';
+
 export { NumberField } from './modules/record-field/components/NumberField';
 
 export { TextField } from './modules/record-field/components/TextField';

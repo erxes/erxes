@@ -1,6 +1,6 @@
 import { type Icon, IconAlignLeft, IconPhone } from '@tabler/icons-react';
 import {
-  DatePicker,
+  DateField,
   formatPhoneNumber,
   PhoneInput,
   Popover,
@@ -8,12 +8,10 @@ import {
   Textarea,
   TextField,
   useToast,
-  toIsoDay,
   PanelFieldTrigger,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatMemberDate, ymdToDate } from '../record/TeamMemberInlineFields';
 
 export const MEMBER_PANEL_SCOPE = 'team-member-panel';
 
@@ -44,51 +42,31 @@ export const MemberPanelTextField = ({
   </TextField>
 );
 
-/** A `YYYY-MM-DD` date, picked in a popover and saved when it closes. */
+/** A `YYYY-MM-DD` date, saved as soon as a day is picked or typed. */
 export const MemberDateField = ({
+  scope,
   value,
   icon: FieldIcon,
   disabled,
   onSave,
 }: {
+  scope: string;
   value: string | null;
   icon: Icon;
   disabled?: boolean;
   onSave: (date: string | null) => void;
-}) => {
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState(value);
-
-  return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-
-        if (next) setDate(value);
-        else if (date !== value) onSave(date);
-      }}
-    >
-      <PanelFieldTrigger disabled={disabled}>
-        {value ? (
-          formatMemberDate(value)
-        ) : (
-          <span className="flex items-center gap-1.5 text-muted-foreground">
-            <FieldIcon className="size-3.5 shrink-0" aria-hidden="true" />
-            YYYY/MM/DD
-          </span>
-        )}
-      </PanelFieldTrigger>
-      <RecordTableInlineCell.Content className="w-auto">
-        <DatePicker
-          defaultMonth={date ? ymdToDate(date) : undefined}
-          value={date ? ymdToDate(date) : undefined}
-          onChange={(next) => setDate(next instanceof Date ? toIsoDay(next) : null)}
-        />
-      </RecordTableInlineCell.Content>
-    </Popover>
-  );
-};
+}) => (
+  <DateField
+    scope={`${MEMBER_PANEL_SCOPE}.${scope}`}
+    value={value}
+    placeholder="YYYY/MM/DD"
+    variant="field"
+    disabled={disabled}
+    onSave={onSave}
+  >
+    {!value && <FieldIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />}
+  </DateField>
+);
 
 /** Stored as `+<digits>`. */
 export const MemberPhoneField = ({
