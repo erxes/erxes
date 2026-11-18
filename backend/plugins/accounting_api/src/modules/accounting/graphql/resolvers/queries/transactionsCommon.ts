@@ -497,8 +497,12 @@ export const generateFilter = async (
     filter._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
 
-  if (number) {
-    const regex = new RegExp(`.*${escapeRegExp(number)}.*`, 'i');
+  const numberPrefix = number?.trim();
+
+  if (numberPrefix) {
+    // An anchored, case-sensitive prefix gives bounded scans on the `number`
+    // and `ptrNumber` indexes; a contains or `i` regex scans every key.
+    const regex = new RegExp(`^${escapeRegExp(numberPrefix)}`);
     orFilter.push(
       { number: { $regex: regex } },
       { ptrNumber: { $regex: regex } },

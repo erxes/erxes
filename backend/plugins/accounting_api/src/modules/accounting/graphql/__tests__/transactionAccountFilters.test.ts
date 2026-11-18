@@ -274,3 +274,23 @@ test('a regular user without account filters stays limited to permitted accounts
     ),
   ).resolves.toEqual(['cash', 'bank']);
 });
+
+test('a number search matches the start of transaction or pointer numbers so it can use their indexes', async () => {
+  const filter = await generateFilter(
+    'tenant',
+    buildModels(),
+    { number: ' 2025_1.' } as Parameters<typeof generateFilter>[2],
+    owner,
+  );
+  const [{ $or: numberConditions }] = filter.$and;
+  const regex = numberConditions[0].number.$regex as RegExp;
+
+  expect(numberConditions).toEqual([
+    { number: { $regex: regex } },
+    { ptrNumber: { $regex: regex } },
+  ]);
+  expect(regex.source).toBe('^2025_1\\.');
+  expect(regex.flags).toBe('');
+  expect(regex.test('2025_1.7')).toBe(true);
+  expect(regex.test('X2025_1.7')).toBe(false);
+});

@@ -198,6 +198,7 @@
 ## Local Invariants
 
 - Transaction list default order is `{ ptrNumber: -1, ptrId: -1, _id: 1 }` (`cursorPaginate` appends `_id: 1`). The ptrNumber-leading indexes must keep `_id: 1` in that position so MongoDB never sorts the list in memory. `accTrRecordsMain` must sort transactions before `$unwind` and must not use `cursorPaginateAggregation`, which sorts after the unwind. Its cursor is `{ ptrNumber, ptrId, trId, detailInd }`; unknown cursors restart from the first page.
+- The transaction `number` filter is a trimmed, anchored, case-sensitive prefix match on `number` or `ptrNumber`, so it uses those single-field indexes. Do not change it back to a contains or case-insensitive regex, which scans every index key.
 - Transaction list filters add `details.accountId: { $in }` only for users restricted by account permissions or when an account filter is sent. Owners and `dominantReadAccountUsers`/`dominantWriteAccountUsers` members with no account filter get no account clause.
 - Required sync-rule fields must stay aligned with what `meta/afterProcessHandlers` reads (`invSale` follow accounts, movement accounts, tax rows) and with the frontend `syncConfigSchema.ts`. Never relax the backend check on the assumption that clients validate.
 - The plugin TypeScript libraries include `es2023.array` for native `findLast` on the supported Node 22 runtime; the emitted JavaScript target remains unchanged.
