@@ -49,7 +49,8 @@ export const fieldGroupsContract = {
     .route({
       method: 'GET',
       path: '/field-groups',
-      summary: 'Field groups of a record type, in order. Archived ones only with `archived=true`',
+      summary:
+        "Field groups of a record type, in order. Archived ones only with `archived=true`. Plugins read product groups (`products:read`) and their own record types'",
     })
     .input(z.object({ contentType: PropertyContentType, archived: QueryBoolean.optional() }))
     .output(listOf(FieldGroup)),

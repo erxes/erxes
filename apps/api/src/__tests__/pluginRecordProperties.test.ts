@@ -225,4 +225,71 @@ describe('plugin record properties', { timeout: 120_000 }, () => {
 
     expect(all.some((field) => [shirt.id, shoe.id, badge.id].includes(field.id))).toBe(false);
   });
+
+  it('asks required fields on create while their logic shows them, and lets the plugin read its groups', async () => {
+    const leave = 'hr.leave';
+    const group = await t.owner().fieldGroups.create({ contentType: leave, name: 'Leave' });
+    const made = { contentType: leave, groupId: group.id, isRequired: true } as const;
+
+    const kind = await t.owner().fields.create({
+      ...made,
+      label: 'Kind',
+      type: 'select',
+      options: ['Sick', 'Holiday'],
+      isRequired: false,
+    });
+
+    const note = await t.owner().fields.create({
+      ...made,
+      label: 'Doctor note',
+      type: 'text',
+      logic: { action: 'show', rules: [{ fieldId: kind.id, operator: 'is', value: 'Sick' }] },
+    });
+
+    const approver = await t.owner().fields.create({
+      ...made,
+      label: 'Approved by',
+      type: 'text',
+      isVisibleToCreate: false,
+    });
+
+    const check = async (current: Record<string, string>, patch: Record<string, string | null>) =>
+      (await t.hr().fields.check({ contentType: leave, current, patch, create: !current[kind.id] }))
+        .values;
+
+    // A holiday needs no note; a sick day does when it is made, and keeps it after.
+    await expect(check({}, { [kind.id]: 'Holiday' })).resolves.toEqual({ [kind.id]: 'Holiday' });
+    await expect(check({}, { [kind.id]: 'Sick' })).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_FIELD_VALUE',
+    });
+
+    const sick = { [kind.id]: 'Sick', [note.id]: 'Flu' };
+
+    await expect(check({}, sick)).resolves.toEqual(sick);
+    await expect(check(sick, { [note.id]: null })).rejects.toMatchObject({
+      code: 'INVALID_FIELD_VALUE',
+    });
+    // The approver isn't asked on create, so it is filled in later.
+    await expect(check(sick, { [approver.id]: 'Ann' })).resolves.toEqual({
+      ...sick,
+      [approver.id]: 'Ann',
+    });
+
+    // A rule names another field of the same type.
+    await expect(
+      t.owner().fields.update({
+        id: kind.id,
+        logic: { action: 'hide', rules: [{ fieldId: kind.id, operator: 'hasValue', value: null }] },
+      }),
+    ).rejects.toMatchObject({ status: 400, code: 'INVALID_INPUT' });
+
+    // The plugin reads its own record types' groups, not core's records'.
+    expect(
+      (await t.hr().fieldGroups.list({ contentType: leave })).data.map(({ id }) => id),
+    ).toEqual([group.id]);
+    await expect(t.hr().fieldGroups.list({ contentType: 'customer' })).rejects.toMatchObject({
+      code: 'NOT_ALLOWED',
+    });
+  });
 });

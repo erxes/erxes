@@ -4,6 +4,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { type FieldType, OPTION_FIELD_TYPES } from './values';
 import { Id, IdList, isoDate, PropertyContentType, QueryBoolean, listOf } from './common';
+import { FieldLogic } from './fieldLogic';
 import { base, changes, code, description, int, label, Ok, order, Orders } from './fieldShared';
 
 /** A custom field ("property") on customers, companies, products or a plugin's record type. */
@@ -14,6 +15,7 @@ export const Field = createSelectSchema(fields, {
   order: int,
   archivedAt: isoDate,
   createdAt: isoDate,
+  logic: () => FieldLogic.nullable(),
 })
   .pick({
     id: true,
@@ -33,6 +35,12 @@ export const Field = createSelectSchema(fields, {
     options: true,
     /** Shown in record tables and the record panel. */
     isVisible: true,
+    /** A record can't be made without a value, nor have it cleared, while the field shows. */
+    isRequired: true,
+    /** Asked for on the form that makes a record. */
+    isVisibleToCreate: true,
+    /** Shows or hides it by other fields' values (`logicShows`); null: always shown. */
+    logic: true,
     order: true,
     /** The plugin that declared it and writes its values (members only read it); null: a member's. */
     plugin: true,
@@ -71,6 +79,7 @@ const FieldFields = createUpdateSchema(fields, {
   code: () => code,
   description,
   icon: (icon) => icon.trim().max(100),
+  logic: () => FieldLogic.nullable(),
 }).pick({
   contentType: true,
   label: true,
@@ -83,6 +92,9 @@ const FieldFields = createUpdateSchema(fields, {
   icon: true,
   validation: true,
   isVisible: true,
+  isRequired: true,
+  isVisibleToCreate: true,
+  logic: true,
 });
 
 const needsOptions = (value: { type?: FieldType; options?: string[] }) =>

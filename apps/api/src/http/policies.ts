@@ -142,7 +142,8 @@ export const ACCESS = {
   'events.retryFailures': needs('events.view'),
   'events.dismissFailures': needs('events.view'),
 
-  'fieldGroups.list': MEMBER,
+  // Plugins read product groups (with products:read) and their own record types' (the service checks).
+  'fieldGroups.list': { member: 'any', plugin: 'installed' },
   'fieldGroups.create': needs('properties.manage'),
   'fieldGroups.update': needs('properties.manage'),
   'fieldGroups.reorder': needs('properties.manage'),
