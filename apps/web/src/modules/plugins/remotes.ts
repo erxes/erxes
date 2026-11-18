@@ -48,40 +48,36 @@ const allowed = async (config: LoadedPluginConfig) => {
   }
 };
 
-/** Registers the remotes and loads every plugin's `./config`; broken ones are skipped. */
-export const loadPlugins = async (remotes = parsePluginRemotes()): Promise<LoadedPlugin[]> => {
-  if (!remotes.length) {
-    return [];
-  }
-
+/**
+ * Loads one plugin's `./config` after registering all `remotes` (once per session); null when it
+ * is broken or not for this member. Each plugin loads on its own, so a slow one holds up no other.
+ */
+export const loadPlugin = async (
+  remote: PluginRemote,
+  remotes: PluginRemote[],
+): Promise<LoadedPlugin | null> => {
   if (!registered) {
-    registerRemotes(remotes.map((remote) => ({ name: remote.name, entry: remote.entry })));
+    registerRemotes(remotes.map(({ name, entry }) => ({ name, entry })));
     registered = true;
   }
 
-  const results = await Promise.all(
-    remotes.map(async (remote): Promise<LoadedPlugin | null> => {
-      try {
-        const module = await loadRemote<{ CONFIG?: unknown }>(`${remote.name}/config`);
+  try {
+    const module = await loadRemote<{ CONFIG?: unknown }>(`${remote.name}/config`);
 
-        const config = parsePluginConfig(remote.name, module?.CONFIG);
+    const config = parsePluginConfig(remote.name, module?.CONFIG);
 
-        if (!config) {
-          console.error(`[plugins] ${remote.name}/config does not export a valid CONFIG`);
+    if (!config) {
+      console.error(`[plugins] ${remote.name}/config does not export a valid CONFIG`);
 
-          return null;
-        }
+      return null;
+    }
 
-        return (await allowed(config)) ? { remote: remote.name, config } : null;
-      } catch (error) {
-        console.error(`[plugins] could not load ${remote.name}`, error);
+    return (await allowed(config)) ? { remote: remote.name, config } : null;
+  } catch (error) {
+    console.error(`[plugins] could not load ${remote.name}`, error);
 
-        return null;
-      }
-    }),
-  );
-
-  return results.filter((plugin): plugin is LoadedPlugin => plugin !== null);
+    return null;
+  }
 };
 
 const pascalCase = (value: string) =>
