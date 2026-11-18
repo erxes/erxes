@@ -143,7 +143,7 @@ describe('DatePicker', () => {
     expect(form.querySelector('label')?.getAttribute('for')).toBe(input?.id);
   });
 
-  it("names its range button by a required row's label and says Required in its description", () => {
+  it("names an empty range button by a required row's label, then its placeholder, and says Required in its description", () => {
     const row = inLanguage(
       'en',
       <PanelFormRow label="Campaign dates" required>
@@ -152,8 +152,10 @@ describe('DatePicker', () => {
     );
 
     const button = row.querySelector('button');
+    const placeholder = button?.textContent ?? '';
 
-    expect(text(button?.getAttribute('aria-labelledby'))).toBe('Campaign dates *');
+    expect(placeholder).not.toBe('');
+    expect(nameOf(button)).toBe(`Campaign dates ${placeholder}`);
     expect(text(button?.getAttribute('aria-describedby'))).toBe('Required');
     expect(button?.hasAttribute('aria-required')).toBe(false);
   });
