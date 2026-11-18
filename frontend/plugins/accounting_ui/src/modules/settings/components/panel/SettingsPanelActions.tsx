@@ -8,18 +8,22 @@ import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 export const SettingsPanelAddButton = ({
   contentType,
   label,
+  permission,
 }: {
   contentType: string;
   label: string;
+  permission?: string;
 }) => {
   const { openDraft } = useSettingsPanel(contentType);
 
-  return (
+  const button = (
     <Button onClick={openDraft}>
       <IconPlus />
       {label}
     </Button>
   );
+
+  return permission ? <Can action={permission}>{button}</Can> : button;
 };
 
 export const SettingsPanelRemoveAction = ({

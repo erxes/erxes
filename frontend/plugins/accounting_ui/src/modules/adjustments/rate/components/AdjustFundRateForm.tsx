@@ -19,6 +19,7 @@ export const AddAdjustFundRate = () => {
     <SettingsPanelAddButton
       contentType={ADJUST_FUND_RATE_CONTENT_TYPE}
       label={t('Add Fund Rate Adjustment')}
+      permission="manageAdjustFundRates"
     />
   );
 };
