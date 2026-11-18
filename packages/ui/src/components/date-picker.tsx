@@ -1,12 +1,13 @@
-import type { DateRange, Matcher, PropsBase } from 'react-day-picker';
+import type { Matcher, PropsBase } from 'react-day-picker';
 import { useRef, useState } from 'react';
-import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Calendar } from './calendar';
 import { Button } from './button';
 import { Popover } from './popover';
 import { useFormat } from '../lib/format';
 import { cn } from '../lib/utils';
-import type { DatePickerMode, DatePickerValue, NormalizedValue } from './date-picker-value';
+import { type DatePickerProps, type SelectedDates, useResolvedProps } from './date-picker-props';
+import type { DatePickerMode, NormalizedValue } from './date-picker-value';
 import {
   describeValue,
   getAnchorDate,
@@ -17,29 +18,6 @@ import {
   toDate,
 } from './date-picker-value';
 import { DateTextInput } from './date-text-input';
-
-type SelectedDates = Date | Date[] | DateRange;
-
-export type DatePickerProps = {
-  value?: DatePickerValue;
-  onChange: (date?: SelectedDates | null) => void;
-  placeholder?: string;
-  withPresent?: boolean;
-  minDate?: Date;
-  maxDate?: Date;
-  mode?: DatePickerMode;
-  formatMultiple?: (count: number) => string;
-  variant?: 'outline' | 'default' | 'ghost';
-  allowNull?: boolean;
-  clearable?: boolean;
-  clearLabel?: string;
-  calendarClassName?: string;
-  popoverContentProps?: ComponentPropsWithoutRef<typeof Popover.Content>;
-  inline?: boolean;
-  disabled?: Matcher | Matcher[];
-} & Omit<PropsBase, 'mode' | 'required' | 'disabled'>;
-
-const defaultFormatMultiple = (count: number) => `${count} ${count > 1 ? 'Days' : 'Day'}`;
 
 type PickerCalendarProps = Omit<PropsBase, 'disabled'> & {
   mode: DatePickerMode;
@@ -61,6 +39,8 @@ const ModeCalendar = ({
       <Calendar
         {...props}
         mode="range"
+        // A click after a whole range starts a new one, instead of moving the nearer end.
+        resetOnSelect
         selected={isDateRange(value) ? value : undefined}
         onSelect={onSelect}
       />
@@ -185,54 +165,13 @@ const useDatePicker = ({
   };
 };
 
-/** The props with their defaults; what is left goes to the calendar. */
-const resolveProps = ({
-  value,
-  onChange,
-  placeholder = 'Pick a date',
-  withPresent = false,
-  minDate,
-  maxDate,
-  disabled,
-  className,
-  mode = 'single',
-  formatMultiple = defaultFormatMultiple,
-  variant = 'outline',
-  allowNull,
-  clearable = allowNull ?? true,
-  clearLabel = 'Clear',
-  calendarClassName,
-  popoverContentProps,
-  inline = false,
-  defaultMonth,
-  ...calendarProps
-}: DatePickerProps) => ({
-  value,
-  onChange,
-  placeholder,
-  withPresent,
-  minDate,
-  maxDate,
-  disabled,
-  className,
-  mode,
-  formatMultiple,
-  variant,
-  clearable,
-  clearLabel,
-  calendarClassName,
-  popoverContentProps,
-  inline,
-  defaultMonth,
-  calendarProps,
-});
-
 /**
  * A date field with a calendar popover, for one day, several or a range.
- * `mode` picks which; `inline` shows the calendar without the popover.
+ * `mode` picks which; `inline` shows the calendar without the popover. Its `aria-label`, or
+ * the label of the form row it's in, names the text input or the button that opens it.
  */
 export const DatePicker = (props: DatePickerProps) => {
-  const { calendarProps, ...o } = resolveProps(props);
+  const { calendarProps, ...o } = useResolvedProps(props);
   const picker = useDatePicker(o);
   const fmt = useFormat();
   const { normalizedValue, isDisabled, hasValue, setIsOpen } = picker;
@@ -248,6 +187,7 @@ export const DatePicker = (props: DatePickerProps) => {
       isDisabled={isDisabled}
       placeholder={o.placeholder}
       className={o.className}
+      control={o.control}
       inputRef={picker.inputRef}
       onClear={picker.handleClear}
       onOpen={o.inline ? undefined : () => setIsOpen(true)}
@@ -290,6 +230,7 @@ export const DatePicker = (props: DatePickerProps) => {
           singleInput
         ) : (
           <Popover.Trigger
+            {...o.control}
             render={<Button variant={o.variant} />}
             disabled={isDisabled}
             className={cn('w-full justify-start text-left font-normal', o.className)}

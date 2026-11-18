@@ -65,6 +65,12 @@
     "copied": "Copied!",
     "hint": "Click to copy"
   },
+  "date": {
+    "clear": "Clear",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "placeholder": "Pick a date"
+  },
   "document": {
     "placeholder": "Document placeholder",
     "placeholder-code": "Document placeholder: {{code}}",

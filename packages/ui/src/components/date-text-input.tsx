@@ -1,5 +1,5 @@
 import { IconCalendar, IconX } from '@tabler/icons-react';
-import type { KeyboardEvent, RefObject } from 'react';
+import type { ComponentProps, KeyboardEvent, RefObject } from 'react';
 import { useState } from 'react';
 import type { Matcher } from 'react-day-picker';
 import { dateMatchModifiers } from 'react-day-picker';
@@ -85,6 +85,11 @@ type DateTextInputProps = DateDraftOptions & {
   isDisabled: boolean;
   placeholder: string;
   className?: string;
+  /** The field's id and the name and state its form row or caller gives it. */
+  control: Pick<
+    ComponentProps<'input'>,
+    'id' | 'aria-label' | 'aria-labelledby' | 'aria-describedby' | 'aria-invalid' | 'aria-required'
+  >;
   inputRef: RefObject<HTMLInputElement | null>;
   onClear: () => void;
 };
@@ -95,6 +100,7 @@ export const DateTextInput = ({
   isDisabled,
   placeholder,
   className,
+  control,
   inputRef,
   onClear,
   ...options
@@ -116,6 +122,7 @@ export const DateTextInput = ({
       )}
     >
       <input
+        {...control}
         ref={inputRef}
         type="text"
         value={inputText}

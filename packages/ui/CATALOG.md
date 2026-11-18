@@ -158,7 +158,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<Button variant tone size>` A button in the theme's variants, tones and sizes; native by default.
 - `type ButtonProps` Base UI button props plus `variant`, `tone` and `size`.
 - `buttonVariants(props)` Button classes by `variant`, `tone` and `size`, to style a link as one.
-- `<Calendar classNames>` A month grid to pick a day or range, with month and year selects.
+- `<Calendar classNames>` A month grid to pick a day or range, in the UI's language.
 - `type CalendarProps` react-day-picker's `DayPicker` props.
 - `Card.{Header, Footer, Title, Description, Content}` A raised panel with header, title, description, content and footer.
 - `type ChartConfig` Each series' label, icon and colour by data key, for `ChartContainer`.
@@ -281,6 +281,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `usePageHotkey(keys, action, { when, useKey })` A page shortcut, skipped while typing or while a dialog or menu is open.
 - `usePreviousHotkeyScope()` Sets a hotkey scope and remembers the old one to go back to.
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
+- `useSortAccessibility(nameOf)` What a screen reader says as a sorted item moves, in the UI's language.
+- `useSortRoleDescription()` What a screen reader calls a sortable item, in the UI's language.
 - `useToast()` `{ toast }` as a hook; calling `toast` directly does the same.
 - `useUpload()` Uploads files to the host's file storage, one request per file.
 - `zoneOffset(zone)` A time zone's offset today, like "UTC+8".

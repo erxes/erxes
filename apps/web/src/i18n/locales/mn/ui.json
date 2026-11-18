@@ -65,6 +65,12 @@
     "copied": "Хуулсан!",
     "hint": "Хуулахын тулд дарна уу"
   },
+  "date": {
+    "clear": "Арилгах",
+    "days_one": "{{count}} өдөр",
+    "days_other": "{{count}} өдөр",
+    "placeholder": "Огноо сонгох"
+  },
   "document": {
     "placeholder": "Баримтын орлуулагч",
     "placeholder-code": "Баримтын орлуулагч: {{code}}",

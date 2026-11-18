@@ -2,16 +2,17 @@ import type { Announcements, ScreenReaderInstructions, UniqueIdentifier } from '
 import { useTranslation } from 'react-i18next';
 
 /**
- * What a screen reader calls a sortable item, for `useSortable({ attributes: { roleDescription } })`;
- * dnd-kit says "sortable" in English without it.
+ * What a screen reader calls a sortable item, in the UI's language. Pass it as
+ * `useSortable({ attributes: { roleDescription } })`; dnd-kit says "sortable" in English without it.
  */
 export const useSortRoleDescription = () =>
   useTranslation('ui', { keyPrefix: 'sort' }).t('role', 'sortable');
 
 /**
- * What a screen reader hears while an item of a sortable list moves, in the UI's language, for
- * dnd-kit's `DndContext accessibility`. Without it dnd-kit speaks English ("Picked up draggable
- * item …"). `nameOf` gives an item's name from its id; the id is read out without it.
+ * What a screen reader says as a sorted item moves, in the UI's language. Pass it as
+ * dnd-kit's `DndContext accessibility`; without it dnd-kit speaks English ("Picked up draggable
+ * item …").
+ * `nameOf` gives an item's name from its id; the id is read out without it.
  */
 export const useSortAccessibility = (
   nameOf: (id: UniqueIdentifier) => string = String,
