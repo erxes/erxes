@@ -1,9 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { type UseQueryResult, useQueries, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { orpc } from '@erxes/core-contract/client';
-import { loadPlugins, parsePluginRemotes } from './remotes';
+import { loadPlugin, parsePluginRemotes } from './remotes';
+import type { LoadedPlugin } from './types';
 
 const LOCAL_REMOTES = parsePluginRemotes();
+
+// Module scope, so React Query keeps the combined result between renders.
+const loadedPlugins = (results: UseQueryResult<LoadedPlugin | null>[]) => ({
+  plugins: results.flatMap(({ data }) => (data ? [data] : [])),
+  pending: results.some(({ isPending }) => isPending),
+});
 
 /**
  * Plugin UIs available to the signed-in member (loaded once per session): the
@@ -36,15 +43,19 @@ export const usePlugins = () => {
     ...(registry.data ?? []).filter((remote) => !names.has(remote.name)),
   ];
 
-  // Module Federation loading, not an API call: keyed by the remotes it loads.
-  const loaded = useQuery({
-    queryKey: ['plugin-uis', remotes],
-    queryFn: () => loadPlugins(remotes),
-    enabled: !registry.isPending,
-    staleTime: Infinity,
-    gcTime: Infinity,
-    retry: false,
+  // Module Federation loading, not an API call: one query per remote, so each plugin's pages,
+  // links and panels appear as soon as its own config arrives.
+  const loaded = useQueries({
+    queries: remotes.map((remote) => ({
+      queryKey: ['plugin-ui', remote.name, remote.entry],
+      queryFn: () => loadPlugin(remote, remotes),
+      enabled: !registry.isPending,
+      staleTime: Infinity,
+      gcTime: Infinity,
+      retry: false,
+    })),
+    combine: loadedPlugins,
   });
 
-  return { plugins: loaded.data ?? [], loading: registry.isPending || loaded.isPending };
+  return { plugins: loaded.plugins, loading: registry.isPending || loaded.pending };
 };
