@@ -1,5 +1,11 @@
 import { ReactNode, ComponentProps } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { TunableReportDetailPage } from '~/pages/TunableReportDetailPage';
 
@@ -39,7 +45,11 @@ jest.mock('@/layout/components/Header', () => ({
   ),
 }));
 jest.mock('@/tunable-reports/ReportEditor', () => ({
-  ReportEditor: () => <p>Editor</p>,
+  ReportEditor: ({
+    renderLayout,
+  }: {
+    renderLayout: (actions: ReactNode, body: ReactNode) => ReactNode;
+  }) => renderLayout(<button type="submit">save</button>, <p>Editor</p>),
 }));
 jest.mock('@/tunable-reports/ReportPreview', () => ({
   ReportPreview: () => <p>Preview</p>,
@@ -81,6 +91,15 @@ test.each(['show', 'edit'] as const)(
     expect(mockRemoveReport).toHaveBeenCalledWith({ _id: 'r', version: 4 });
   },
 );
+test('the edit top bar holds the editor save action beside remove', () => {
+  renderDetail('edit');
+  const header = screen.getByRole('banner');
+  expect(
+    within(header)
+      .getAllByRole('button')
+      .map((button) => button.textContent),
+  ).toEqual(['run', 'remove', 'save']);
+});
 test('keeps the detail open when deletion is cancelled or fails', async () => {
   mockRemoveReport.mockResolvedValue(false);
   renderDetail('show');

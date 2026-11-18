@@ -1614,6 +1614,17 @@
     "records": "reports",
     "formulasHelp": "Configure row formulas here. For cell formulas select both a row and a column.",
     "referenced": "This item is referenced by a formula. Change the reference before deleting.",
-    "changeScope": "Remove existing formulas before changing the formula scope."
+    "changeScope": "Remove existing formulas before changing the formula scope.",
+    "reportJson": "Report JSON",
+    "reportJsonHint": "Fill from the report to copy its definition with account and category codes, or paste a definition and apply it, then review and save.",
+    "reportJsonPlaceholder": "Paste report JSON here",
+    "fillFromReport": "Fill from report",
+    "applyJson": "Apply",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Could not copy to the clipboard",
+    "jsonApplied": "JSON applied to the editor. Review and save the report.",
+    "jsonInvalid": "Invalid report JSON: {{error}}",
+    "jsonMissing": "Not found in this organization: {{items}}"
   }
 }

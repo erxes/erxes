@@ -217,7 +217,11 @@
 
 - Row, column and formula comparison choices map optional `isPre` through `comparisonChoice`/`comparisonIsPre` in `values.ts` (undefined inherits, false forces current).
 
-- Formula period options and form validation follow the backend: every term needs a period from the formula, column or row, and balance terms cannot use `between`. Backend save errors list each failing cell by report › section › row › column.
+- In `/new` and `/:id/edit` the editor's Cancel and Save sit in the page top bar after Generate report and Remove: `ReportEditor` hands its action buttons to `TunableReportDetailPage` through `renderLayout`, and Save submits the editor form through the `form` attribute (default layout keeps them below the body).
+
+- The report settings sheet ends with a portable report JSON area (`ReportTransferField`, `reportTransfer.ts`, `useReportTransfer.ts`). It starts empty. "Fill from report" serializes the current editor state with account `code`, category `code` and other-report `reportCode` instead of tenant ids (own-report references stay relative); Copy writes the text to the clipboard and briefly shows Copied. Apply accepts one report object or a `{ reports: [one] }` file (such as the Erkhet converter output), resolves codes through the `AccountingTunableReportTransferAccounts`/`Categories`/`Reports` queries (ids and codes only, `network-only`), lists every code missing in the organization without changing the form, and otherwise resets the editor state while keeping saved defaults so the report stays dirty until the user saves. Referenced reports must exist (by code) before a dependent report is applied. Apply requires edit permission; fill and copy do not.
+
+- Formula period options and form validation follow the backend: every term needs a period from the formula, column or row; every kind offers every period, and a `between` balance means the net period change. Backend save errors list each failing cell by report › section › row › column.
 
 - New tunable report sections start with an empty optional name and no columns. Empty sections may be saved; formulas require at least one column. Columns are added explicitly by the user, with an empty name input rather than a generated numbered title; a column name is required when saving.
 

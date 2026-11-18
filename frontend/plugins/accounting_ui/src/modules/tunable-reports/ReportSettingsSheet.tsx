@@ -6,6 +6,7 @@ import {
   ChoiceSetting,
 } from '@/tunable-reports/fields';
 import { useReportTranslation } from '@/tunable-reports/locales';
+import { ReportTransferField } from '@/tunable-reports/ReportTransferField';
 
 export const ReportSettingsSheet = ({
   form,
@@ -15,6 +16,7 @@ export const ReportSettingsSheet = ({
   onRemove,
   canEdit,
   busy,
+  reportId,
 }: {
   form: ReportForm;
   open: boolean;
@@ -23,6 +25,7 @@ export const ReportSettingsSheet = ({
   onRemove?: () => Promise<void>;
   canEdit: boolean;
   busy: boolean;
+  reportId?: string;
 }) => {
   const { t } = useReportTranslation();
   return (
@@ -58,6 +61,13 @@ export const ReportSettingsSheet = ({
               }))}
             />
           </fieldset>
+          <div className="mt-6 border-t pt-4">
+            <ReportTransferField
+              form={form}
+              currentReportId={reportId}
+              canApply={canEdit && !busy}
+            />
+          </div>
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           {onRemove && (

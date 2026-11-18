@@ -76,27 +76,34 @@ test('validates effective dates and source operands before saving', () => {
     sections: [
       {
         ...report.sections[0],
-        columns: [{ _id: 'c', name: 'C', getDate: 'between' }],
+        columns: [{ _id: 'c', name: 'C' }],
         rows: [row],
         formulas: [{ _id: 'f', rowId: 'r', kind: 'balance' }],
       },
     ],
   };
   expect(reportFormSchema.safeParse(source).success).toBe(false);
-  source.sections[0].columns[0].getDate = 'last';
+  // A balance over the between period is the net period change.
+  source.sections[0].columns[0] = {
+    ...source.sections[0].columns[0],
+    getDate: 'between',
+  };
   expect(reportFormSchema.safeParse(source).success).toBe(true);
 });
 
-test('column date takes precedence over row; formula date overrides the column', () => {
+test('a missing formula and column date falls back to the row date', () => {
   const report = newReport('Report');
   report.sections[0] = reportSectionInputSchema.parse({
     _id: 's',
-    columns: [{ _id: 'c', name: 'Movement', getDate: 'between' }],
-    rows: [{ _id: 'r', getDate: 'last' }],
+    columns: [{ _id: 'c', name: 'Movement' }],
+    rows: [{ _id: 'r' }],
     formulas: [{ _id: 'f', rowId: 'r', kind: 'balance' }],
   });
   expect(reportFormSchema.safeParse(report).success).toBe(false);
-  report.sections[0].formulas[0].getDate = 'first';
+  report.sections[0].rows[0].getDate = 'last';
+  expect(reportFormSchema.safeParse(report).success).toBe(true);
+  report.sections[0].rows[0].getDate = undefined;
+  report.sections[0].formulas[0].getDate = 'between';
   expect(reportFormSchema.safeParse(report).success).toBe(true);
 });
 

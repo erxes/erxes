@@ -76,7 +76,6 @@ export const validateReportDefinitions = (
       if (row.kind === 'title' || row.kind === 'date')
         throw new Error('Title and date rows cannot have formulas');
       const periodIssue = reportPeriodIssue(
-        formula.kind,
         resolveReportPeriod(formula, row, column).getDate,
       );
       if (periodIssue) {

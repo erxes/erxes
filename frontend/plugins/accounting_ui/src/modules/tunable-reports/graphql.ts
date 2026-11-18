@@ -48,3 +48,20 @@ export const REPORT_GENERATE = gql(`
     }
   }
 `);
+
+// Portable report JSON translates tenant ids and codes; only ids and codes are read.
+export const REPORT_TRANSFER_ACCOUNTS = gql(`
+  query AccountingTunableReportTransferAccounts($ids: [String], $perPage: Int) {
+    accounts(ids: $ids, perPage: $perPage) { _id code }
+  }
+`);
+export const REPORT_TRANSFER_CATEGORIES = gql(`
+  query AccountingTunableReportTransferCategories {
+    accountCategories { _id code }
+  }
+`);
+export const REPORT_TRANSFER_REPORTS = gql(`
+  query AccountingTunableReportTransferReports($perPage: Int) {
+    accountingTunableReports(perPage: $perPage) { list { _id code } }
+  }
+`);
