@@ -1,0 +1,553 @@
+diff --git a/dist/delete.js b/dist/delete.js
+index fb4e65ae81cde9281ec373afd7cf60c7f17cf3c6..e6c1c6dc5b711a7b7ae26bf30725a8216f0ae34c 100644
+--- a/dist/delete.js
++++ b/dist/delete.js
+@@ -23,25 +23,25 @@ export async function deleteConversation(database, conversationId, options = {})
+     return database.transaction.maintenance(async (tx) => {
+         const conversationIds = [];
+         await collectConversationTree(tx, conversationId, options.includeForks ?? false, conversationIds, new Set(), new Set());
+-        const entryIds = await collectIds(tx, "SELECT id FROM entries WHERE conversation_id = ANY($1)", conversationIds);
+-        const taskIds = await collectIds(tx, "SELECT id FROM tasks WHERE conversation_id = ANY($1)", conversationIds);
++        const entryIds = await collectIds(tx, "SELECT id FROM core_agent_entries WHERE conversation_id = ANY($1)", conversationIds);
++        const taskIds = await collectIds(tx, "SELECT id FROM core_agent_tasks WHERE conversation_id = ANY($1)", conversationIds);
+         await assertNoExternalTaskReferences(tx, conversationIds, taskIds);
+-        const submissionIds = await collectIds(tx, "SELECT id FROM submissions WHERE conversation_id = ANY($1)", conversationIds);
+-        const documentIds = (await tx.all(`SELECT id FROM documents WHERE
+-					(scope_kind = 'conversation' AND owner_id = ANY($1))
+-					OR (scope_kind = 'task' AND owner_id IN (SELECT id FROM tasks WHERE conversation_id = ANY($1)))
+-				ORDER BY id`, [[...conversationIds]])).map((row) => row.id);
++        const submissionIds = await collectIds(tx, "SELECT id FROM core_agent_submissions WHERE conversation_id = ANY($1)", conversationIds);
++        const documentIds = (await tx.all(`SELECT id FROM core_agent_documents WHERE
++        					(scope_kind = 'conversation' AND owner_id = ANY($1))
++        					OR (scope_kind = 'task' AND owner_id IN (SELECT id FROM core_agent_tasks WHERE conversation_id = ANY($1)))
++        				ORDER BY id`, [[...conversationIds]])).map((row) => row.id);
+         const revisions = documentIds.length
+-            ? await tx.run("DELETE FROM document_revisions WHERE document_id = ANY($1)", [documentIds])
++            ? await tx.run("DELETE FROM core_agent_document_revisions WHERE document_id = ANY($1)", [documentIds])
+             : 0;
+         if (documentIds.length)
+-            await tx.run("DELETE FROM documents WHERE id = ANY($1)", [documentIds]);
+-        const entries = await tx.run("DELETE FROM entries WHERE conversation_id = ANY($1)", [conversationIds]);
+-        const submissions = await tx.run("DELETE FROM submissions WHERE conversation_id = ANY($1)", [conversationIds]);
+-        const tasks = await tx.run("DELETE FROM tasks WHERE conversation_id = ANY($1)", [conversationIds]);
+-        const conversations = await tx.run("DELETE FROM conversations WHERE id = ANY($1)", [conversationIds]);
++            await tx.run("DELETE FROM core_agent_documents WHERE id = ANY($1)", [documentIds]);
++        const entries = await tx.run("DELETE FROM core_agent_entries WHERE conversation_id = ANY($1)", [conversationIds]);
++        const submissions = await tx.run("DELETE FROM core_agent_submissions WHERE conversation_id = ANY($1)", [conversationIds]);
++        const tasks = await tx.run("DELETE FROM core_agent_tasks WHERE conversation_id = ANY($1)", [conversationIds]);
++        const conversations = await tx.run("DELETE FROM core_agent_conversations WHERE id = ANY($1)", [conversationIds]);
+         const removedRecordIds = [...conversationIds, ...entryIds, ...taskIds, ...submissionIds, ...documentIds];
+-        await tx.run("DELETE FROM record_ids WHERE id = ANY($1)", [removedRecordIds]);
++        await tx.run("DELETE FROM core_agent_record_ids WHERE id = ANY($1)", [removedRecordIds]);
+         return {
+             conversationIds,
+             deleted: {
+@@ -68,16 +68,16 @@ async function collectConversationTree(tx, conversationId, includeSubtree, order
+     if (visited.has(conversationId))
+         return;
+     active.add(conversationId);
+-    const exists = await tx.get("SELECT id FROM conversations WHERE id = $1", [
++    const exists = await tx.get("SELECT id FROM core_agent_conversations WHERE id = $1", [
+         conversationId,
+     ]);
+     if (exists === undefined)
+         throw new Error(`Unknown conversation: ${conversationId}`);
+-    const children = await tx.all(`SELECT id FROM conversations
+-			WHERE owner_conversation_id = $1
+-				OR owner_task_id IN (SELECT id FROM tasks WHERE conversation_id = $1)
+-				OR (record::jsonb -> 'parent' ->> 'conversationId')::bigint = $1
+-			ORDER BY id`, [conversationId]);
++    const children = await tx.all(`SELECT id FROM core_agent_conversations
++    			WHERE owner_conversation_id = $1
++    				OR owner_task_id IN (SELECT id FROM core_agent_tasks WHERE conversation_id = $1)
++    				OR (record::jsonb -> 'parent' ->> 'conversationId')::bigint = $1
++    			ORDER BY id`, [conversationId]);
+     for (const child of children) {
+         if (!includeSubtree) {
+             throw new Error(`Conversation ${conversationId} has attached conversations (for example ${child.id}); pass includeForks: true to remove the subtree`);
+@@ -93,7 +93,7 @@ async function assertNoExternalTaskReferences(tx, conversationIds, taskIds) {
+     if (taskIds.length === 0)
+         return;
+     const removed = new Set(taskIds);
+-    const rows = await tx.all("SELECT record FROM tasks WHERE NOT (conversation_id = ANY($1))", [[...conversationIds]]);
++    const rows = await tx.all("SELECT record FROM core_agent_tasks WHERE NOT (conversation_id = ANY($1))", [[...conversationIds]]);
+     for (const row of rows) {
+         // Parse client-side: task payloads may contain strings jsonb cannot represent.
+         const task = JSON.parse(row.record);
+diff --git a/dist/migrations.js b/dist/migrations.js
+index a42f123275e78938f80505d632a9a034a4f45c16..c327fc64b67f0570718ddfc299071b20be4487e2 100644
+--- a/dist/migrations.js
++++ b/dist/migrations.js
+@@ -1,139 +1,9 @@
+-import { lockMaintenance } from "./locking.js";
+ /**
+- * Port of the pi-durable SQLite initial schema. Design decisions:
+- *
+- * - Records are stored as JSON-encoded `text`, parsed client-side. This keeps
+- *   byte-level round-trips faithful (no `jsonb` key reordering, no surrogate
+- *   normalization). Hosts that need server-side JSON
+- *   queries can add an expression index or a generated `jsonb` column later
+- *   without changing the storage contract.
+- * - Indexed string columns (`kind`, `key_value`, `request_id`) store the
+- *   JSON-encoded string, exactly like the SQLite reference, so IDs with lone
+- *   surrogates stay lossless and equality semantics match upstream.
+- * - All numeric IDs and sequences are BIGINT and are always inside JavaScript's
+- *   safe integer range; the facade must return them as numbers.
++ * erxes owns the schema: its Drizzle migrations create the core_agent_* tables, keyed by
++ * (storage_key, id), and its database facade creates a storage's metadata row when it takes the
++ * storage's lease (apps/api/src/modules/agents/storage.ts). Opening a storage migrates nothing.
+  */
+-const INITIAL_SCHEMA = [
+-    `CREATE TABLE durable_metadata (
+-		singleton integer PRIMARY KEY CHECK (singleton = 1),
+-		next_id bigint NOT NULL,
+-		next_seq bigint NOT NULL
+-	)`,
+-    `INSERT INTO durable_metadata (singleton, next_id, next_seq) VALUES (1, 2, 1)`,
+-    `CREATE TABLE record_ids (
+-		id bigint PRIMARY KEY,
+-		record_type text NOT NULL CHECK (record_type IN ('conversation', 'entry', 'task', 'submission', 'document'))
+-	)`,
+-    `CREATE TABLE conversations (
+-		id bigint PRIMARY KEY,
+-		owner_conversation_id bigint,
+-		owner_task_id bigint,
+-		record text NOT NULL
+-	)`,
+-    "CREATE INDEX conversations_by_owner_conversation ON conversations (owner_conversation_id, id)",
+-    "CREATE INDEX conversations_by_owner_task ON conversations (owner_task_id, id)",
+-    `CREATE TABLE entries (
+-		id bigint PRIMARY KEY,
+-		conversation_id bigint NOT NULL,
+-		head bigint,
+-		commit_seq bigint NOT NULL,
+-		record text NOT NULL
+-	)`,
+-    "CREATE INDEX entries_by_conversation ON entries (conversation_id, id DESC)",
+-    "CREATE INDEX entry_heads_by_conversation ON entries (conversation_id, id DESC) WHERE head IS NOT NULL",
+-    `CREATE TABLE tasks (
+-		id bigint PRIMARY KEY,
+-		conversation_id bigint NOT NULL,
+-		kind text NOT NULL,
+-		status text NOT NULL CHECK (status IN ('pending', 'running', 'waiting', 'completing', 'terminal')),
+-		abort_requested boolean NOT NULL,
+-		background boolean NOT NULL,
+-		record text NOT NULL
+-	)`,
+-    "CREATE INDEX tasks_by_status ON tasks (status, id)",
+-    "CREATE INDEX tasks_by_conversation ON tasks (conversation_id, id)",
+-    "CREATE INDEX tasks_by_kind ON tasks (kind, id)",
+-    "CREATE INDEX tasks_by_abort_requested ON tasks (abort_requested, id)",
+-    "CREATE INDEX tasks_by_background ON tasks (background, id)",
+-    `CREATE TABLE submissions (
+-		id bigint PRIMARY KEY,
+-		conversation_id bigint NOT NULL,
+-		request_id text,
+-		status text NOT NULL CHECK (status IN ('queued', 'placed', 'done', 'unanswered')),
+-		record text NOT NULL
+-	)`,
+-    "CREATE INDEX submissions_by_request ON submissions (conversation_id, request_id)",
+-    "CREATE INDEX submissions_by_conversation ON submissions (conversation_id, id)",
+-    "CREATE INDEX submissions_by_status ON submissions (status, id)",
+-    `CREATE TABLE documents (
+-		id bigint PRIMARY KEY,
+-		kind text NOT NULL,
+-		family smallint NOT NULL CHECK (family IN (0, 1)),
+-		key_value text NOT NULL,
+-		scope_kind text NOT NULL CHECK (scope_kind IN ('session', 'conversation', 'task')),
+-		owner_id bigint NOT NULL,
+-		created_at bigint NOT NULL,
+-		retired_at bigint,
+-		record text NOT NULL
+-	)`,
+-    `CREATE INDEX documents_by_address
+-		ON documents (kind, scope_kind, owner_id, family, key_value, created_at DESC, retired_at)`,
+-    "CREATE INDEX documents_by_scope ON documents (scope_kind, owner_id, id)",
+-    "CREATE INDEX documents_by_scope_kind ON documents (scope_kind, owner_id, kind, id)",
+-    `CREATE TABLE document_revisions (
+-		document_id bigint NOT NULL,
+-		seq bigint NOT NULL,
+-		kind text NOT NULL CHECK (kind IN ('base', 'delta')),
+-		version integer NOT NULL,
+-		content text NOT NULL,
+-		PRIMARY KEY (document_id, seq)
+-	)`,
+-    "CREATE INDEX document_revisions_by_kind ON document_revisions (document_id, kind, seq DESC)",
+-];
+-/**
+- * Version 2 adds the `sleeping` task status (Pi Durable 1.4.0, `TaskRuntime.sleepUntil()`), as the SQLite reference's
+- * schema version 2 does. The constraint is named by PostgreSQL's default for the column check of version 1.
+- */
+-const SLEEPING_STATUS = [
+-    "ALTER TABLE tasks DROP CONSTRAINT tasks_status_check",
+-    `ALTER TABLE tasks ADD CONSTRAINT tasks_status_check
+-		CHECK (status IN ('pending', 'running', 'waiting', 'sleeping', 'completing', 'terminal'))`,
+-];
+-/** Immutable, ordered schema history. Append new migrations after the initial schema ships. */
+-export const POSTGRES_MIGRATIONS = [
+-    { version: 1, statements: INITIAL_SCHEMA },
+-    { version: 2, statements: SLEEPING_STATUS },
+-];
+-export const CURRENT_POSTGRES_SCHEMA_VERSION = POSTGRES_MIGRATIONS.at(-1)?.version ?? 0;
+-/** Apply all pending schema migrations atomically. */
+-export async function applyPostgresMigrations(database, migrations = POSTGRES_MIGRATIONS) {
+-    for (let index = 0; index < migrations.length; index++) {
+-        if (migrations[index]?.version !== index + 1) {
+-            throw new Error("pi-durable-postgres migrations must have contiguous versions starting at 1");
+-        }
+-    }
+-    await database.transaction(async (transaction) => {
+-        // Reentrant for the owning storage; excludes migrations from other connections.
+-        await lockMaintenance(transaction);
+-        await transaction.exec(`CREATE TABLE IF NOT EXISTS durable_schema (
+-			singleton integer PRIMARY KEY CHECK (singleton = 1),
+-			version integer NOT NULL CHECK (version >= 0)
+-		)`);
+-        await transaction.run("INSERT INTO durable_schema (singleton, version) VALUES (1, 0) ON CONFLICT (singleton) DO NOTHING", []);
+-        const row = await transaction.get("SELECT version FROM durable_schema WHERE singleton = 1", []);
+-        if (row === undefined)
+-            throw new Error("pi-durable-postgres schema metadata is missing");
+-        const currentVersion = migrations.at(-1)?.version ?? 0;
+-        if (row.version > currentVersion) {
+-            throw new Error(`pi-durable-postgres schema version ${row.version} is newer than supported version ${currentVersion}`);
+-        }
+-        for (const migration of migrations) {
+-            if (migration.version <= row.version)
+-                continue;
+-            for (const statement of migration.statements)
+-                await transaction.exec(statement);
+-            await transaction.run("UPDATE durable_schema SET version = $1 WHERE singleton = 1", [migration.version]);
+-        }
+-    });
+-}
++export const POSTGRES_MIGRATIONS = [];
++export const CURRENT_POSTGRES_SCHEMA_VERSION = 2;
++export async function applyPostgresMigrations() { }
+ //# sourceMappingURL=migrations.js.map
+diff --git a/dist/storage.js b/dist/storage.js
+index f247f8455f144e26193df8f13f983e7eaddfd303..69ddf1bbb24faf1ecd2b0e8fbcd735cd645894ba 100644
+--- a/dist/storage.js
++++ b/dist/storage.js
+@@ -142,7 +142,7 @@ export class PostgresStorage {
+         try {
+             await db.acquireOwnership();
+             await applyPostgresMigrations(db);
+-            const metadata = await db.get("SELECT next_id, next_seq FROM durable_metadata WHERE singleton = 1", []);
++            const metadata = await db.get("SELECT next_id, next_seq FROM core_agent_durable_metadata WHERE singleton = 1", []);
+             if (metadata === undefined)
+                 throw new Error("pi-durable-postgres metadata is missing");
+             return new PostgresStorage(db, metadata.next_id);
+@@ -172,7 +172,7 @@ export class PostgresStorage {
+             seqs.length = 0;
+             refused = undefined;
+             candidateNextId = this.nextId;
+-            const metadata = await transaction.get("SELECT next_id, next_seq FROM durable_metadata WHERE singleton = 1", []);
++            const metadata = await transaction.get("SELECT next_id, next_seq FROM core_agent_durable_metadata WHERE singleton = 1", []);
+             if (metadata === undefined)
+                 throw new Error("pi-durable-postgres metadata is missing");
+             let next = metadata.next_seq;
+@@ -190,7 +190,7 @@ export class PostgresStorage {
+                 candidateNextId = Math.max(candidateNextId, this.candidateNextId(writes));
+             }
+             if (seqs.length > 0) {
+-                await transaction.run("UPDATE durable_metadata SET next_id = $1, next_seq = $2 WHERE singleton = 1", [Math.max(metadata.next_id, candidateNextId), next]);
++                await transaction.run("UPDATE core_agent_durable_metadata SET next_id = $1, next_seq = $2 WHERE singleton = 1", [Math.max(metadata.next_id, candidateNextId), next]);
+             }
+         });
+         this.nextId = Math.max(this.nextId, candidateNextId);
+@@ -252,7 +252,7 @@ export class PostgresStorage {
+     }
+     async conversation(id, _context) {
+         this.assertOpen();
+-        const row = await this.db.get("SELECT record FROM conversations WHERE id = $1", [id]);
++        const row = await this.db.get("SELECT record FROM core_agent_conversations WHERE id = $1", [id]);
+         return row === undefined ? undefined : parseJson(row.record);
+     }
+     async scanConversations(query, limit, cursor, _context) {
+@@ -280,7 +280,7 @@ export class PostgresStorage {
+         }
+         const limitIndex = params.push(limit + 1);
+         const direction = order === 'ascending' ? 'ASC' : 'DESC';
+-        const rows = await this.db.all(`SELECT record FROM conversations WHERE ${clauses.join(" AND ")} ORDER BY id ${direction} LIMIT $${limitIndex}`, params);
++        const rows = await this.db.all(`SELECT record FROM core_agent_conversations WHERE ${clauses.join(" AND ")} ORDER BY id ${direction} LIMIT $${limitIndex}`, params);
+         return pageOrdered(rows.map((row) => parseJson(row.record)), limit, order);
+     }
+     entry(idOrConversationId, idOrContext, context) {
+@@ -307,7 +307,7 @@ export class PostgresStorage {
+             if (conversation === undefined)
+                 throw new StorageRequestError(`Unknown conversation: ${conversationId}`);
+         }
+-        const row = await this.db.get("SELECT record, commit_seq FROM entries WHERE id = $1", [id]);
++        const row = await this.db.get("SELECT record, commit_seq FROM core_agent_entries WHERE id = $1", [id]);
+         if (row === undefined)
+             return undefined;
+         const entry = parseJson(row.record);
+@@ -331,8 +331,8 @@ export class PostgresStorage {
+         let upper = atOrBeforeEntryId;
+         while (true) {
+             const row = upper === undefined
+-                ? await this.db.get("SELECT record FROM entries WHERE conversation_id = $1 AND head IS NOT NULL ORDER BY id DESC LIMIT 1", [conversation.id])
+-                : await this.db.get("SELECT record FROM entries WHERE conversation_id = $1 AND head IS NOT NULL AND id <= $2 ORDER BY id DESC LIMIT 1", [conversation.id, upper]);
++                ? await this.db.get("SELECT record FROM core_agent_entries WHERE conversation_id = $1 AND head IS NOT NULL ORDER BY id DESC LIMIT 1", [conversation.id])
++                : await this.db.get("SELECT record FROM core_agent_entries WHERE conversation_id = $1 AND head IS NOT NULL AND id <= $2 ORDER BY id DESC LIMIT 1", [conversation.id, upper]);
+             if (row !== undefined)
+                 return parseJson(row.record);
+             if (conversation.parent === undefined)
+@@ -363,7 +363,7 @@ export class PostgresStorage {
+                     clauses.push(`id <= $${params.push(upper)}`);
+                 }
+                 const limitIndex = params.push(limit + 1 - values.length);
+-                const rows = await this.db.all(`SELECT record FROM entries WHERE ${clauses.join(" AND ")} ORDER BY id DESC LIMIT $${limitIndex}`, params);
++                const rows = await this.db.all(`SELECT record FROM core_agent_entries WHERE ${clauses.join(" AND ")} ORDER BY id DESC LIMIT $${limitIndex}`, params);
+                 values.push(...rows.map((row) => parseJson(row.record)));
+                 if (values.length > limit || conversation.parent === undefined)
+                     break;
+@@ -389,7 +389,7 @@ export class PostgresStorage {
+             if (upper !== undefined) {
+                 clauses.push(`id <= $${params.push(upper)}`);
+             }
+-            const rows = await this.db.all(`SELECT record FROM entries WHERE ${clauses.join(" AND ")} ORDER BY id DESC`, params);
++            const rows = await this.db.all(`SELECT record FROM core_agent_entries WHERE ${clauses.join(" AND ")} ORDER BY id DESC`, params);
+             values.push(...rows.map((row) => parseJson(row.record)));
+             if (conversation.parent === undefined)
+                 break;
+@@ -409,7 +409,7 @@ export class PostgresStorage {
+     }
+     async task(id, _context) {
+         this.assertOpen();
+-        const row = await this.db.get("SELECT record FROM tasks WHERE id = $1", [id]);
++        const row = await this.db.get("SELECT record FROM core_agent_tasks WHERE id = $1", [id]);
+         return row === undefined ? undefined : parseJson(row.record);
+     }
+     async scanTasks(query, limit, cursor, _context) {
+@@ -446,12 +446,12 @@ export class PostgresStorage {
+         }
+         const limitIndex = params.push(limit + 1);
+         const direction = order === 'ascending' ? 'ASC' : 'DESC';
+-        const rows = await this.db.all(`SELECT record FROM tasks WHERE ${clauses.join(" AND ")} ORDER BY id ${direction} LIMIT $${limitIndex}`, params);
++        const rows = await this.db.all(`SELECT record FROM core_agent_tasks WHERE ${clauses.join(" AND ")} ORDER BY id ${direction} LIMIT $${limitIndex}`, params);
+         return pageOrdered(rows.map((row) => parseJson(row.record)), limit, order);
+     }
+     async submission(id, _context) {
+         this.assertOpen();
+-        const row = await this.db.get("SELECT record FROM submissions WHERE id = $1", [id]);
++        const row = await this.db.get("SELECT record FROM core_agent_submissions WHERE id = $1", [id]);
+         return row === undefined ? undefined : parseJson(row.record);
+     }
+     async scanSubmissions(query, limit, cursor, _context) {
+@@ -479,27 +479,27 @@ export class PostgresStorage {
+         }
+         const limitIndex = params.push(limit + 1);
+         const direction = order === 'ascending' ? 'ASC' : 'DESC';
+-        const rows = await this.db.all(`SELECT record FROM submissions WHERE ${clauses.join(" AND ")} ORDER BY id ${direction} LIMIT $${limitIndex}`, params);
++        const rows = await this.db.all(`SELECT record FROM core_agent_submissions WHERE ${clauses.join(" AND ")} ORDER BY id ${direction} LIMIT $${limitIndex}`, params);
+         return pageOrdered(rows.map((row) => parseJson(row.record)), limit, order);
+     }
+     async submissionByRequest(conversationId, requestId, _context) {
+         this.assertOpen();
+-        const row = await this.db.get("SELECT record FROM submissions WHERE conversation_id = $1 AND request_id = $2", [conversationId, encodeIndexedString(requestId)]);
++        const row = await this.db.get("SELECT record FROM core_agent_submissions WHERE conversation_id = $1 AND request_id = $2", [conversationId, encodeIndexedString(requestId)]);
+         return row === undefined ? undefined : parseJson(row.record);
+     }
+     async findDocument(address, at, _context) {
+         this.assertOpen();
+         const parts = addressParts(address);
+         if (at === "current") {
+-            const row = await this.db.get(`SELECT record FROM documents
+-					WHERE kind = $1 AND scope_kind = $2 AND owner_id = $3 AND family = $4 AND key_value = $5
+-					AND retired_at IS NULL ORDER BY created_at DESC LIMIT 1`, [parts.kind, parts.scopeKind, parts.ownerId, parts.family, parts.keyValue]);
++            const row = await this.db.get(`SELECT record FROM core_agent_documents
++            					WHERE kind = $1 AND scope_kind = $2 AND owner_id = $3 AND family = $4 AND key_value = $5
++            					AND retired_at IS NULL ORDER BY created_at DESC LIMIT 1`, [parts.kind, parts.scopeKind, parts.ownerId, parts.family, parts.keyValue]);
+             return row === undefined ? undefined : parseJson(row.record);
+         }
+-        const row = await this.db.get(`SELECT record FROM documents
+-				WHERE kind = $1 AND scope_kind = $2 AND owner_id = $3 AND family = $4 AND key_value = $5
+-				AND created_at <= $6 AND (retired_at IS NULL OR retired_at > $7)
+-				ORDER BY created_at DESC LIMIT 1`, [parts.kind, parts.scopeKind, parts.ownerId, parts.family, parts.keyValue, at, at]);
++        const row = await this.db.get(`SELECT record FROM core_agent_documents
++        				WHERE kind = $1 AND scope_kind = $2 AND owner_id = $3 AND family = $4 AND key_value = $5
++        				AND created_at <= $6 AND (retired_at IS NULL OR retired_at > $7)
++        				ORDER BY created_at DESC LIMIT 1`, [parts.kind, parts.scopeKind, parts.ownerId, parts.family, parts.keyValue, at, at]);
+         return row === undefined ? undefined : parseJson(row.record);
+     }
+     async document(id, at, _context) {
+@@ -523,7 +523,7 @@ export class PostgresStorage {
+             clauses.push(`created_at <= $${params.push(query.at)}`, `(retired_at IS NULL OR retired_at > $${params.push(query.at)})`);
+         }
+         const limitIndex = params.push(limit + 1);
+-        const rows = await this.db.all(`SELECT record FROM documents WHERE ${clauses.join(" AND ")} ORDER BY id LIMIT $${limitIndex}`, params);
++        const rows = await this.db.all(`SELECT record FROM core_agent_documents WHERE ${clauses.join(" AND ")} ORDER BY id LIMIT $${limitIndex}`, params);
+         return page(rows.map((row) => parseJson(row.record)), limit);
+     }
+     close(_context) {
+@@ -557,11 +557,11 @@ export class PostgresStorage {
+         }
+     }
+     async readConversation(id) {
+-        const row = await this.db.get("SELECT record FROM conversations WHERE id = $1", [id]);
++        const row = await this.db.get("SELECT record FROM core_agent_conversations WHERE id = $1", [id]);
+         return row === undefined ? undefined : parseJson(row.record);
+     }
+     async materializeDocument(executor, id, at) {
+-        const row = await executor.get("SELECT record FROM documents WHERE id = $1", [id]);
++        const row = await executor.get("SELECT record FROM core_agent_documents WHERE id = $1", [id]);
+         if (row === undefined)
+             return undefined;
+         const record = parseJson(row.record);
+@@ -571,13 +571,13 @@ export class PostgresStorage {
+         if (!isAliveAt(record, at))
+             return undefined;
+         const upper = at === "current" ? Number.MAX_SAFE_INTEGER : at;
+-        const base = await executor.get(`SELECT seq, kind, version, content FROM document_revisions
+-				WHERE document_id = $1 AND kind = 'base' AND seq <= $2 ORDER BY seq DESC LIMIT 1`, [id, upper]);
++        const base = await executor.get(`SELECT seq, kind, version, content FROM core_agent_document_revisions
++        				WHERE document_id = $1 AND kind = 'base' AND seq <= $2 ORDER BY seq DESC LIMIT 1`, [id, upper]);
+         if (base === undefined)
+             throw new Error(`Document ${id} is missing a required base`);
+         let value = parseJson(base.content);
+-        const tail = await executor.all(`SELECT seq, kind, version, content FROM document_revisions
+-				WHERE document_id = $1 AND seq > $2 AND seq <= $3 ORDER BY seq`, [id, base.seq, upper]);
++        const tail = await executor.all(`SELECT seq, kind, version, content FROM core_agent_document_revisions
++        				WHERE document_id = $1 AND seq > $2 AND seq <= $3 ORDER BY seq`, [id, base.seq, upper]);
+         for (const revision of tail) {
+             if (revision.kind !== "delta" || revision.version !== base.version) {
+                 throw new Error(`Document ${id} crosses a stored version boundary without a base`);
+@@ -603,7 +603,7 @@ export class PostgresStorage {
+             const document = write.type === "document.create" || write.type === "document.copy";
+             const table = document ? "document" : write.type;
+             const id = document ? write.record.id : write.value.id;
+-            const existing = (await executor.get("SELECT record_type FROM record_ids WHERE id = $1", [id]))?.record_type;
++            const existing = (await executor.get("SELECT record_type FROM core_agent_record_ids WHERE id = $1", [id]))?.record_type;
+             const earlier = claimed.get(id);
+             if (table === "conversation" || table === "entry" || table === "document") {
+                 if (existing !== undefined)
+@@ -671,7 +671,7 @@ export class PostgresStorage {
+             if (action.copy !== undefined && actions.has(action.copy.id)) {
+                 throw new Error(`Document copy ${id} source is changed in the copy batch`);
+             }
+-            const row = await executor.get("SELECT record FROM documents WHERE id = $1", [id]);
++            const row = await executor.get("SELECT record FROM core_agent_documents WHERE id = $1", [id]);
+             const existing = row === undefined ? undefined : parseJson(row.record);
+             if (action.create === undefined && existing === undefined)
+                 throw new Error(`Unknown document: ${id}`);
+@@ -680,7 +680,7 @@ export class PostgresStorage {
+             if (existing?.retiredAt !== undefined)
+                 throw new Error(`Document ${id} is retired`);
+             if (action.content?.kind === "delta") {
+-                const previous = await executor.get("SELECT version FROM document_revisions WHERE document_id = $1 ORDER BY seq DESC LIMIT 1", [id]);
++                const previous = await executor.get("SELECT version FROM core_agent_document_revisions WHERE document_id = $1 ORDER BY seq DESC LIMIT 1", [id]);
+                 if (previous === undefined)
+                     throw new Error(`Document ${id} delta has no base`);
+                 if (previous.version !== action.content.version) {
+@@ -705,16 +705,16 @@ export class PostgresStorage {
+     }
+     async currentDocumentId(executor, address) {
+         const parts = addressParts(address);
+-        const id = (await executor.get(`SELECT id FROM documents
+-				WHERE kind = $1 AND scope_kind = $2 AND owner_id = $3 AND family = $4 AND key_value = $5 AND retired_at IS NULL
+-				LIMIT 1`, [parts.kind, parts.scopeKind, parts.ownerId, parts.family, parts.keyValue]))?.id;
++        const id = (await executor.get(`SELECT id FROM core_agent_documents
++        				WHERE kind = $1 AND scope_kind = $2 AND owner_id = $3 AND family = $4 AND key_value = $5 AND retired_at IS NULL
++        				LIMIT 1`, [parts.kind, parts.scopeKind, parts.ownerId, parts.family, parts.keyValue]))?.id;
+         return id === undefined ? undefined : idFromNumber(id);
+     }
+     async applyTableWrite(executor, write, seq) {
+         switch (write.type) {
+             case "conversation":
+                 await this.claimId(executor, write.value.id, "conversation");
+-                await executor.run("INSERT INTO conversations (id, owner_conversation_id, owner_task_id, record) VALUES ($1, $2, $3, $4)", [
++                await executor.run("INSERT INTO core_agent_conversations (id, owner_conversation_id, owner_task_id, record) VALUES ($1, $2, $3, $4)", [
+                     write.value.id,
+                     write.value.owner?.conversationId ?? null,
+                     write.value.owner?.taskId ?? null,
+@@ -723,7 +723,7 @@ export class PostgresStorage {
+                 break;
+             case "entry":
+                 await this.claimId(executor, write.value.id, "entry");
+-                await executor.run("INSERT INTO entries (id, conversation_id, head, commit_seq, record) VALUES ($1, $2, $3, $4, $5)", [
++                await executor.run("INSERT INTO core_agent_entries (id, conversation_id, head, commit_seq, record) VALUES ($1, $2, $3, $4, $5)", [
+                     write.value.id,
+                     write.value.conversationId,
+                     write.value.head ?? null,
+@@ -733,11 +733,11 @@ export class PostgresStorage {
+                 break;
+             case "task":
+                 await this.claimId(executor, write.value.id, "task");
+-                await executor.run(`INSERT INTO tasks (id, conversation_id, kind, status, abort_requested, background, record)
+-						VALUES ($1, $2, $3, $4, $5, $6, $7)
+-						ON CONFLICT(id) DO UPDATE SET conversation_id = excluded.conversation_id, kind = excluded.kind,
+-						status = excluded.status, abort_requested = excluded.abort_requested,
+-						background = excluded.background, record = excluded.record`, [
++                await executor.run(`INSERT INTO core_agent_tasks (id, conversation_id, kind, status, abort_requested, background, record)
++                						VALUES ($1, $2, $3, $4, $5, $6, $7)
++                						ON CONFLICT(storage_key, id) DO UPDATE SET conversation_id = excluded.conversation_id, kind = excluded.kind,
++                						status = excluded.status, abort_requested = excluded.abort_requested,
++                						background = excluded.background, record = excluded.record`, [
+                     write.value.id,
+                     write.value.conversationId,
+                     encodeIndexedString(write.value.kind),
+@@ -749,9 +749,9 @@ export class PostgresStorage {
+                 break;
+             case "submission":
+                 await this.claimId(executor, write.value.id, "submission");
+-                await executor.run(`INSERT INTO submissions (id, conversation_id, request_id, status, record) VALUES ($1, $2, $3, $4, $5)
+-						ON CONFLICT(id) DO UPDATE SET conversation_id = excluded.conversation_id,
+-						request_id = excluded.request_id, status = excluded.status, record = excluded.record`, [
++                await executor.run(`INSERT INTO core_agent_submissions (id, conversation_id, request_id, status, record) VALUES ($1, $2, $3, $4, $5)
++                						ON CONFLICT(storage_key, id) DO UPDATE SET conversation_id = excluded.conversation_id,
++                						request_id = excluded.request_id, status = excluded.status, record = excluded.record`, [
+                     write.value.id,
+                     write.value.conversationId,
+                     write.value.requestId === undefined ? null : encodeIndexedString(write.value.requestId),
+@@ -767,7 +767,7 @@ export class PostgresStorage {
+         }
+     }
+     async claimId(executor, id, table) {
+-        await executor.run("INSERT INTO record_ids (id, record_type) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", [id, table]);
++        await executor.run("INSERT INTO core_agent_record_ids (id, record_type) VALUES ($1, $2) ON CONFLICT (storage_key, id) DO NOTHING", [id, table]);
+     }
+     async applyDocumentActions(executor, actions, seq) {
+         for (const [id, action] of actions) {
+@@ -782,9 +782,9 @@ export class PostgresStorage {
+                 };
+                 const parts = addressParts(record);
+                 await this.claimId(executor, id, "document");
+-                await executor.run(`INSERT INTO documents
+-						(id, kind, family, key_value, scope_kind, owner_id, created_at, retired_at, record)
+-						VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [
++                await executor.run(`INSERT INTO core_agent_documents
++                						(id, kind, family, key_value, scope_kind, owner_id, created_at, retired_at, record)
++                						VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [
+                     id,
+                     parts.kind,
+                     parts.family,
+@@ -797,23 +797,23 @@ export class PostgresStorage {
+                 ]);
+             }
+             else {
+-                const row = (await executor.get("SELECT record FROM documents WHERE id = $1", [id]));
++                const row = (await executor.get("SELECT record FROM core_agent_documents WHERE id = $1", [id]));
+                 record = parseJson(row.record);
+             }
+             if (content !== undefined) {
+                 if (content.kind === "base" && isCurrentOnly(record)) {
+-                    await executor.run("DELETE FROM document_revisions WHERE document_id = $1", [id]);
++                    await executor.run("DELETE FROM core_agent_document_revisions WHERE document_id = $1", [id]);
+                 }
+                 const encodedContent = content.kind === "base" ? encodeJson(content.value) : encodeJson(content.ops);
+-                await executor.run("INSERT INTO document_revisions (document_id, seq, kind, version, content) VALUES ($1, $2, $3, $4, $5)", [id, seq, content.kind, content.version, encodedContent]);
++                await executor.run("INSERT INTO core_agent_document_revisions (document_id, seq, kind, version, content) VALUES ($1, $2, $3, $4, $5)", [id, seq, content.kind, content.version, encodedContent]);
+             }
+             if (action.retire) {
+                 if (action.create === undefined) {
+                     record = { ...record, retiredAt: seq };
+-                    await executor.run("UPDATE documents SET retired_at = $1, record = $2 WHERE id = $3", [seq, encodeJson(record), id]);
++                    await executor.run("UPDATE core_agent_documents SET retired_at = $1, record = $2 WHERE id = $3", [seq, encodeJson(record), id]);
+                 }
+                 if (isCurrentOnly(record)) {
+-                    await executor.run("DELETE FROM document_revisions WHERE document_id = $1", [id]);
++                    await executor.run("DELETE FROM core_agent_document_revisions WHERE document_id = $1", [id]);
+                 }
+             }
+         }
