@@ -3,7 +3,7 @@ import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modi
 import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-react';
-import { cn, ContextMenu, TabButton, useSortAccessibility, useSortRoleDescription } from 'erxes-ui';
+import { cn, ContextMenu, TabButton, useSortList, useSortRoleDescription } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePointerSortSensors } from '~/lib/sortSensors';
@@ -236,10 +236,9 @@ export const CoreTabAppTabs = ({
 
   const sensors = usePointerSortSensors();
 
-  const accessibility = useSortAccessibility(
-    (id) => tabs.find((tab) => tab.id === id)?.label ?? String(id),
-    { pointer: true },
-  );
+  const sortList = useSortList((id) => tabs.find((tab) => tab.id === id)?.label ?? String(id), {
+    pointer: true,
+  });
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over && active.id !== over.id) onMove(String(active.id), String(over.id));
@@ -266,7 +265,7 @@ export const CoreTabAppTabs = ({
 
   return (
     <DndContext
-      accessibility={accessibility}
+      {...sortList}
       autoScroll={false}
       collisionDetection={closestCenter}
       modifiers={[restrictToHorizontalAxis, restrictToParentElement]}

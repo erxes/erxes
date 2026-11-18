@@ -29,10 +29,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { IconSettings, IconGripVertical, IconPin, IconPinFilled } from '@tabler/icons-react';
 import { buildHeaderGroups, type Column, type RowData } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
-import {
-  useSortAccessibility,
-  useSortRoleDescription,
-} from 'erxes-ui/hooks/use-sort-accessibility';
+import { useSortList, useSortRoleDescription } from 'erxes-ui/hooks/use-sort-accessibility';
 
 type RecordTableColumn = Column<RecordTableFeatures, RowData>;
 
@@ -179,7 +176,7 @@ export const RecordTableColumnSelector = ({
     useSensor(KeyboardSensor),
   );
 
-  const accessibility = useSortAccessibility(
+  const sortList = useSortList(
     (id) => columns.find((item) => item.column.id === id)?.label ?? String(id),
   );
 
@@ -210,7 +207,7 @@ export const RecordTableColumnSelector = ({
       >
         <DndContext
           sensors={sensors}
-          accessibility={accessibility}
+          {...sortList}
           modifiers={[restrictToVerticalAxis]}
           onDragEnd={handleDragEnd}
         >

@@ -284,6 +284,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
 - `useSexLabels()` Each sex code's label in the UI's language.
 - `useSortAccessibility(nameOf, { pointer })` What a screen reader says as a sorted item moves, in the UI's language.
+- `useSortList(nameOf, options)` The id and screen reader words a sortable list's `DndContext` takes.
 - `useSortRoleDescription()` What a screen reader calls a sortable item, in the UI's language.
 - `useToast()` `{ toast }` as a hook; calling `toast` directly does the same.
 - `useUpload()` Uploads files to the host's file storage, one request per file.
