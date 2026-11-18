@@ -1,10 +1,22 @@
 import {
   IconAdjustmentsCode,
+  IconAssembly,
   IconBucketOff,
+  IconBuildingWarehouse,
   IconCashBanknote,
+  IconClipboardTextFilled,
   IconFlagStar,
+  IconListCheck,
+  IconListDetails,
+  IconMoneybag,
+  IconPackageExport,
+  IconPackages,
   IconReceipt,
+  IconRefreshAlert,
+  IconReportAnalytics,
   IconScale,
+  IconSettings,
+  IconUserCheck,
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
@@ -27,12 +39,12 @@ export const CONFIG: IUIConfig = {
   modules: [
     {
       name: 'documents',
-      icon: IconCashBanknote,
+      icon: IconListDetails,
       path: 'accounting/main',
     },
     {
       name: 'records',
-      icon: IconCashBanknote,
+      icon: IconListCheck,
       path: 'accounting/records',
     },
     {
@@ -42,17 +54,17 @@ export const CONFIG: IUIConfig = {
     },
     {
       name: 'journal-reports',
-      icon: IconCashBanknote,
+      icon: IconClipboardTextFilled,
       path: 'accounting/journal-reports',
     },
     {
       name: 'tunable-reports',
-      icon: IconCashBanknote,
+      icon: IconReportAnalytics,
       path: 'accounting/tunable-reports',
     },
     {
       name: 'check-sync',
-      icon: IconCashBanknote,
+      icon: IconRefreshAlert,
       path: 'accounting/check-sync',
     },
     {
@@ -97,37 +109,37 @@ export const CONFIG: IUIConfig = {
     },
     {
       name: 'fixed-asset-remainders',
-      icon: IconCashBanknote,
+      icon: IconMoneybag,
       path: 'accounting/fixed-assets/remainders',
     },
     {
       name: 'fixed-asset-owner-records',
-      icon: IconCashBanknote,
+      icon: IconUserCheck,
       path: 'accounting/fixed-assets/owner-records',
     },
     {
       name: 'config',
-      icon: IconCashBanknote,
+      icon: IconSettings,
       path: 'accounting/settings/config',
     },
     {
       name: 'fixed-assets',
-      icon: IconCashBanknote,
+      icon: IconBuildingWarehouse,
       path: 'accounting/settings/fixed-assets',
     },
     {
       name: 'inventory-jobs',
-      icon: IconFlagStar,
+      icon: IconPackages,
       path: 'accounting/settings/inventories',
     },
     {
       name: 'job-executions',
-      icon: IconFlagStar,
+      icon: IconAssembly,
       path: 'accounting/inventories/job-executions',
     },
     {
       name: 'inventory-job-outputs',
-      icon: IconFlagStar,
+      icon: IconPackageExport,
       path: 'accounting/settings/inventories/job-outputs',
     },
   ],
