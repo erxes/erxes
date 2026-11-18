@@ -218,7 +218,7 @@ const JsonInput = ({ field, value, onChange, disabled }: ActionInputProps) => {
         }}
       />
       {invalid && (
-        <p className="text-xs text-destructive">
+        <p className="text-xs text-destructive-text">
           {t('invalid-json', 'Not valid JSON, not saved.')}
         </p>
       )}

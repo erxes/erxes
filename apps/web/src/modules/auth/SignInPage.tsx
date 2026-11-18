@@ -162,7 +162,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
           />
         )}
         {signIn.isError && (
-          <p role="alert" className="text-center text-sm text-destructive">
+          <p role="alert" className="text-center text-sm text-destructive-text">
             {messageOf(signIn.error)}
           </p>
         )}

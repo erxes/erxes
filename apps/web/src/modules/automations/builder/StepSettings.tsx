@@ -88,7 +88,7 @@ const ActionInputs = ({
           <div key={field.key} className="space-y-1.5">
             <FieldLabel>
               {field.label}
-              {field.required && <span className="text-destructive"> *</span>}
+              {field.required && <span className="text-destructive-text"> *</span>}
             </FieldLabel>
             <ActionFieldInput
               action={action}
@@ -104,7 +104,7 @@ const ActionInputs = ({
               <p className="text-xs text-muted-foreground">{field.description}</p>
             )}
             {empty.has(field.key) && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive-text">
                 {t('fill-in-field', 'Fill in {{field}}', { field: field.label.toLowerCase() })}
               </p>
             )}

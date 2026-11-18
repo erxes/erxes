@@ -98,7 +98,7 @@ export const ErrorRows = ({ imp }: { imp: Import }) => {
   return (
     <section className="space-y-2">
       <div className="flex items-center gap-2">
-        <h3 className="flex items-center gap-2 text-sm font-medium text-destructive">
+        <h3 className="flex items-center gap-2 text-sm font-medium text-destructive-text">
           <IconAlertTriangle className="size-4" />
           {t('errors-title', 'Rows with errors')}
         </h3>
@@ -116,7 +116,7 @@ export const ErrorRows = ({ imp }: { imp: Import }) => {
       {rows.isPending ? (
         <Spinner size="sm" />
       ) : rows.error ? (
-        <p className="text-sm text-destructive">{messageOf(rows.error)}</p>
+        <p className="text-sm text-destructive-text">{messageOf(rows.error)}</p>
       ) : (
         <ul className="divide-y rounded-lg border text-sm">
           {rows.data.data.map((row) => (
@@ -124,7 +124,7 @@ export const ErrorRows = ({ imp }: { imp: Import }) => {
               <span className="w-14 shrink-0 text-muted-foreground">
                 {t('row', 'Row {{n}}', { n: row.rowNumber })}
               </span>
-              <span className="text-destructive">{row.error}</span>
+              <span className="text-destructive-text">{row.error}</span>
             </li>
           ))}
         </ul>
@@ -154,7 +154,7 @@ export const ImportProgress = ({ imp }: { imp: Import }) => {
 
   if (imp.status === 'failed') {
     return (
-      <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+      <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive-text">
         {imp.error}
       </p>
     );

@@ -223,7 +223,7 @@ export const SetupPage = () => {
           <RegionFields />
           <OwnerFields />
           {setup.isError && (
-            <p role="alert" className="text-center text-sm text-destructive">
+            <p role="alert" className="text-center text-sm text-destructive-text">
               {messageOf(setup.error)}
             </p>
           )}

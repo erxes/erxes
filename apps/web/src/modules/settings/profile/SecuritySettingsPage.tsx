@@ -222,7 +222,7 @@ const SignIns = () => {
                 {entry.success ? (
                   <IconCircleCheck className="size-4 text-success-text" />
                 ) : (
-                  <IconCircleX className="size-4 text-destructive" />
+                  <IconCircleX className="size-4 text-destructive-text" />
                 )}
                 <span className="flex-1">{deviceOf(entry.userAgent)}</span>
                 <span className="text-muted-foreground">{entry.ip ?? '—'}</span>

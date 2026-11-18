@@ -78,7 +78,7 @@ export const ScheduleButton = ({
               {t('schedule-hint', 'Your time zone. The audience is fixed when it starts.')}
             </p>
             {tooSoon && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-destructive-text">
                 {t('schedule-too-soon', 'Pick a time at least a minute from now.')}
               </p>
             )}

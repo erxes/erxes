@@ -99,7 +99,7 @@ export const PropertyOptionsField = ({
             <IconPlus /> {t('add-option', 'Add option')}
           </Button>
           {form.formState.errors.options?.message && (
-            <p className="text-sm font-medium text-destructive">
+            <p className="text-sm font-medium text-destructive-text">
               {form.formState.errors.options.message}
             </p>
           )}

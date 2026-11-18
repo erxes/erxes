@@ -97,7 +97,9 @@ export const NotificationList = ({
   if (loading) return <Spinner area="lg" />;
 
   if (error) {
-    return <p className="px-4 py-10 text-center text-sm text-destructive">{messageOf(error)}</p>;
+    return (
+      <p className="px-4 py-10 text-center text-sm text-destructive-text">{messageOf(error)}</p>
+    );
   }
 
   if (!notifications.length) return <NotificationsEmpty unreadOnly={unreadOnly} />;

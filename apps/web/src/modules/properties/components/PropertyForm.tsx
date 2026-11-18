@@ -77,7 +77,7 @@ const PropertyFormGroupField = ({
               }
             />
           </div>
-          {error && <p className="text-sm text-destructive">{messageOf(error)}</p>}
+          {error && <p className="text-sm text-destructive-text">{messageOf(error)}</p>}
           <Form.Message />
         </Form.Item>
       )}

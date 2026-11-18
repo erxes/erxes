@@ -82,7 +82,7 @@ export const ImportMapping = (props: SetupProps) => {
           'Suggested from the column names; choose another field or leave a column out.',
         )}
       </p>
-      {columns.error && <p className="text-sm text-destructive">{messageOf(columns.error)}</p>}
+      {columns.error && <p className="text-sm text-destructive-text">{messageOf(columns.error)}</p>}
       <div className="divide-y rounded-lg border">
         {props.imp.headers.map((header, index) => (
           <MappingRow key={index} {...props} index={index} header={header} fields={fields} />
@@ -172,7 +172,7 @@ const TagsOption = ({ imp, onChange }: Omit<SetupProps, 'disabled'>) => {
         hidePlaceholderWhenSelected
         onChange={(next) => onChange({ options: { tagIds: next.map((item) => item.value) } })}
       />
-      {error && <p className="text-sm text-destructive">{messageOf(error)}</p>}
+      {error && <p className="text-sm text-destructive-text">{messageOf(error)}</p>}
     </div>
   );
 };
@@ -217,7 +217,7 @@ export const ImportOptionsForm = ({ imp, onChange }: Omit<SetupProps, 'disabled'
           }
         />
         {labels.membersError && (
-          <p className="text-sm text-destructive">{messageOf(labels.membersError)}</p>
+          <p className="text-sm text-destructive-text">{messageOf(labels.membersError)}</p>
         )}
       </div>
       <label className="flex items-center gap-2 text-sm">

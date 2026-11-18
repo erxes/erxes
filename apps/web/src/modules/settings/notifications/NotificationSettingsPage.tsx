@@ -254,7 +254,7 @@ const SettingsBody = () => {
   const { settings, loading, error, update } = useNotificationSettings();
 
   if (error) {
-    return <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>;
+    return <p className="py-12 text-center text-sm text-destructive-text">{messageOf(error)}</p>;
   }
 
   if (loading || !settings) return <Spinner area="lg" />;

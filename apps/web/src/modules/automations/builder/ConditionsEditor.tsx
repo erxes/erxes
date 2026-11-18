@@ -109,7 +109,7 @@ export const ConditionsEditor = ({
         tags={subject ? tagsQuery(subject) : undefined}
       />
       {records.error && (
-        <p className="text-xs text-destructive">
+        <p className="text-xs text-destructive-text">
           {t('records-failed', 'The app’s choices didn’t load: {{message}}', {
             message: messageOf(records.error),
           })}

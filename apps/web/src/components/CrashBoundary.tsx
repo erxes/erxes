@@ -22,7 +22,7 @@ const CrashFallback = ({ scope }: { scope: CrashScope }) => {
       role="alert"
       className={`flex flex-col items-center justify-center gap-3 p-6 text-center ${scope === 'app' ? 'h-svh' : 'h-full'}`}
     >
-      <IconAlertTriangle className="size-8 text-destructive" aria-hidden />
+      <IconAlertTriangle className="size-8 text-destructive-text" aria-hidden />
       <div className="space-y-1">
         <p className="text-sm font-medium">{t(scope === 'app' ? 'app-title' : 'page-title')}</p>
         <p className="max-w-md text-sm break-words text-muted-foreground">{messageOf(error)}</p>

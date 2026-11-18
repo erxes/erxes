@@ -52,7 +52,9 @@ export const TryUpload = () => {
         {send.isPending ? `${progress}%` : <IconCloudUpload />}
         {send.isPending ? t('uploading', 'Uploading…') : t('choose-file', 'Choose a file')}
       </Button>
-      {send.error && <p className="text-sm text-destructive">{uploadErrorMessage(send.error)}</p>}
+      {send.error && (
+        <p className="text-sm text-destructive-text">{uploadErrorMessage(send.error)}</p>
+      )}
       {result && (
         <a
           href={result.url}

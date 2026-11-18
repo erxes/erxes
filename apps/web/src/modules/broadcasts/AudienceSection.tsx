@@ -40,7 +40,7 @@ const ViewSelect = ({
     [t('views-leads', 'Leads'), leads.data?.data ?? []],
   ];
 
-  if (error) return <p className="text-sm text-destructive">{messageOf(error)}</p>;
+  if (error) return <p className="text-sm text-destructive-text">{messageOf(error)}</p>;
 
   return (
     <Select
@@ -81,7 +81,8 @@ const AudienceFilter = ({
 }) => {
   const fields = useFilterFields('customer');
 
-  if (fields.error) return <p className="text-sm text-destructive">{messageOf(fields.error)}</p>;
+  if (fields.error)
+    return <p className="text-sm text-destructive-text">{messageOf(fields.error)}</p>;
 
   return (
     <ConditionsEditor
@@ -116,7 +117,7 @@ const Estimate = ({ channel, audience }: { channel: Broadcast['channel']; audien
   );
 
   if (estimate.error)
-    return <p className="text-sm text-destructive">{messageOf(estimate.error)}</p>;
+    return <p className="text-sm text-destructive-text">{messageOf(estimate.error)}</p>;
 
   if (!estimate.data) return <Spinner size="sm" />;
 

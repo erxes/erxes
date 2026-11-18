@@ -28,10 +28,10 @@ export const Field = ({
   <div className="flex min-w-0 flex-col gap-1.5">
     <Label htmlFor={id}>
       {label}
-      {required && <span className="text-destructive"> *</span>}
+      {required && <span className="text-destructive-text"> *</span>}
     </Label>
     {children}
-    {error && <p className="text-xs text-destructive">{error}</p>}
+    {error && <p className="text-xs text-destructive-text">{error}</p>}
   </div>
 );
 

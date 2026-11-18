@@ -53,7 +53,7 @@ const NoteFiles = ({ fileIds }: { fileIds: string[] }) => {
 
   if (files.isError) {
     return (
-      <p role="alert" className="mt-2 text-xs text-destructive">
+      <p role="alert" className="mt-2 text-xs text-destructive-text">
         {messageOf(files.error)}
       </p>
     );

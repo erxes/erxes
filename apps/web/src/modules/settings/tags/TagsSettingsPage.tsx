@@ -142,7 +142,7 @@ export const TagsSettingsPage = () => {
             </RecordTable.Body>
           </RecordTable>
           {error ? (
-            <p className="py-10 text-center text-sm text-destructive">{messageOf(error)}</p>
+            <p className="py-10 text-center text-sm text-destructive-text">{messageOf(error)}</p>
           ) : (
             !loading &&
             !tags.length && (

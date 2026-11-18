@@ -90,7 +90,7 @@ export const ApiReferencePage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           {plugins.error && (
-            <span className="text-xs text-destructive">
+            <span className="text-xs text-destructive-text">
               {t('plugins-failed', "Plugins' APIs could not load: {{message}}", {
                 message: messageOf(plugins.error),
               })}

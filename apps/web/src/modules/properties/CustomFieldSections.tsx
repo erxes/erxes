@@ -72,7 +72,7 @@ export const CustomFieldSections = ({
     ? found.sections.filter(({ group }) => !group || groupApplies(group.appliesTo, appliesTo))
     : found.sections;
 
-  if (error) return <p className="px-2 py-6 text-sm text-destructive">{messageOf(error)}</p>;
+  if (error) return <p className="px-2 py-6 text-sm text-destructive-text">{messageOf(error)}</p>;
 
   if (loading || !values) return <Spinner area="sm" />;
 

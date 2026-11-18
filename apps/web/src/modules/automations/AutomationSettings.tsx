@@ -22,7 +22,7 @@ export const ProblemList = ({
   return (
     <>
       {serverProblems.length > 0 && (
-        <ul className="list-disc rounded-md border border-destructive/40 bg-destructive/5 p-3 pl-7 text-sm text-destructive">
+        <ul className="list-disc rounded-md border border-destructive/40 bg-destructive/5 p-3 pl-7 text-sm text-destructive-text">
           {serverProblems.map((problem) => (
             <li key={problem}>{problem}</li>
           ))}
@@ -30,14 +30,14 @@ export const ProblemList = ({
       )}
       {stepProblems.length > 0 && (
         <div className="space-y-1 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
-          <p className="font-medium text-destructive">
+          <p className="font-medium text-destructive-text">
             {t('needs-attention', 'These steps need attention')}
           </p>
           {stepProblems.map(({ stepId, title, first }) => (
             <button
               key={stepId}
               type="button"
-              className="block w-full text-left text-destructive hover:underline"
+              className="block w-full text-left text-destructive-text hover:underline"
               onClick={() => onSelect(stepId)}
             >
               {title}: {first}
@@ -170,7 +170,7 @@ export const AutomationSettings = ({
       </div>
       <RunLimit draft={draft} editable={editable} skippedByLimit={skippedByLimit} />
       {fieldsError && (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-sm text-destructive-text">
           {t('fields-failed', 'Could not load the record fields: {{message}}', {
             message: messageOf(fieldsError),
           })}

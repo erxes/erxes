@@ -143,7 +143,7 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
       <p className="truncate text-xs text-muted-foreground">{stream.url}</p>
       <StreamStatus stream={stream} />
       {stream.lastError && (
-        <p className="text-xs text-destructive">
+        <p className="text-xs text-destructive-text">
           {t(
             'last-error',
             'Failing {{count}} times in a row: {{error}}. Entries wait and are sent once it answers.',

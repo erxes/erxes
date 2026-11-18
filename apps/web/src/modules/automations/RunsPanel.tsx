@@ -62,7 +62,7 @@ const StepEntry = ({ step }: { step: RunStep }) => {
           <When value={step.finishedAt} />
         </span>
       </div>
-      {step.error && <p className="mt-1 font-mono text-xs text-destructive">{step.error}</p>}
+      {step.error && <p className="mt-1 font-mono text-xs text-destructive-text">{step.error}</p>}
       {(step.input !== null || step.output !== null) && (
         <details className="mt-1">
           <summary className="cursor-pointer text-xs text-muted-foreground">
@@ -162,7 +162,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
         {canManage && <RunActions run={run} />}
       </div>
       {run.error && (
-        <p className="rounded-md bg-destructive/10 p-2 font-mono text-xs text-destructive">
+        <p className="rounded-md bg-destructive/10 p-2 font-mono text-xs text-destructive-text">
           {run.error}
         </p>
       )}

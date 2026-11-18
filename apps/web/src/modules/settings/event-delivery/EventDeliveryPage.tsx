@@ -88,7 +88,7 @@ const FailureRow = ({
       <IconAlertTriangle
         className={
           failure.status === 'dead'
-            ? 'mt-0.5 size-4 shrink-0 text-destructive'
+            ? 'mt-0.5 size-4 shrink-0 text-destructive-text'
             : 'mt-0.5 size-4 shrink-0 text-warning'
         }
       />
@@ -105,7 +105,7 @@ const FailureRow = ({
             <span className="truncate text-muted-foreground">“{failure.event.summary}”</span>
           )}
         </div>
-        <p className="break-words font-mono text-xs text-destructive/90">{failure.lastError}</p>
+        <p className="break-words font-mono text-xs text-destructive-text">{failure.lastError}</p>
         <p className="text-xs text-muted-foreground">
           {t('attempts', { count: failure.attempts, defaultValue: `${failure.attempts} attempts` })}{' '}
           · {t('last-failed', 'last failed')} <When value={failure.failedAt} />

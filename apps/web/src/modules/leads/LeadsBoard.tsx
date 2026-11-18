@@ -37,7 +37,7 @@ export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
       leadStageId: stageId,
     });
 
-  if (error) return <p className="p-6 text-sm text-destructive">{messageOf(error)}</p>;
+  if (error) return <p className="p-6 text-sm text-destructive-text">{messageOf(error)}</p>;
 
   if (loading) return <Board.Skeleton />;
 

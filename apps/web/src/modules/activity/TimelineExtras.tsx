@@ -80,7 +80,7 @@ const NoteVersions = ({ noteId }: { noteId: string }) => {
 
   if (versions.isError) {
     return (
-      <p role="alert" className="text-xs text-destructive">
+      <p role="alert" className="text-xs text-destructive-text">
         {messageOf(versions.error)}
       </p>
     );

@@ -118,7 +118,7 @@ export const BroadcastReport = ({ broadcast }: { broadcast: Broadcast }) => {
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-7xl space-y-6 p-6">
           {broadcast.error && (
-            <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+            <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive-text">
               {broadcast.error}
             </p>
           )}

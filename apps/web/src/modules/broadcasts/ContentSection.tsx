@@ -145,7 +145,7 @@ const UnknownPlaceholders = ({ names }: { names: string[] }) => {
   const { t } = useTranslation('broadcasts');
 
   return (
-    <p className="text-sm text-destructive">
+    <p className="text-sm text-destructive-text">
       {t('unknown-placeholders', "erxes can't fill {{names}}. Use Insert a field.", {
         names: names.map((name) => `{{ ${name} }}`).join(', '),
       })}

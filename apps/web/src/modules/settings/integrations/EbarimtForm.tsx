@@ -62,7 +62,7 @@ const PluginChoice = ({
     <div className="space-y-2">
       <Label>{t('plugins', 'Issue receipts for invoices of')}</Label>
       {plugins.isError && (
-        <p className="text-xs text-destructive">
+        <p className="text-xs text-destructive-text">
           {t('plugins-failed', 'Could not load the plugins that take payments.')}
         </p>
       )}

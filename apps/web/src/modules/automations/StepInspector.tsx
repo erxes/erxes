@@ -153,7 +153,7 @@ export const StepInspector = ({
         </p>
       )}
       {listed.length > 0 && (
-        <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+        <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive-text">
           {listed.map((problem) => (
             <li key={problem} className="flex items-center gap-2">
               <IconAlertTriangle className="size-4 shrink-0" />

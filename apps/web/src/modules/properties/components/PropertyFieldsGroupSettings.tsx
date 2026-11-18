@@ -139,7 +139,7 @@ export const PropertyFieldsGroupSettings = ({
       <PropertyArchiveDialog />
       <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
         {error ? (
-          <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+          <p className="py-12 text-center text-sm text-destructive-text">{messageOf(error)}</p>
         ) : loading ? (
           <Spinner area="lg" />
         ) : groups.length === 0 && ungrouped.length === 0 && pluginSections.length === 0 ? (

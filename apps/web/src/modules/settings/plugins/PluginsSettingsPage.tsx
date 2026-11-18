@@ -160,7 +160,7 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
             <p className="text-sm text-muted-foreground">{manifest.description}</p>
           )}
           {installation?.statusReason && (
-            <p className="text-sm text-destructive">{installation.statusReason}</p>
+            <p className="text-sm text-destructive-text">{installation.statusReason}</p>
           )}
         </div>
         {isOwner && (

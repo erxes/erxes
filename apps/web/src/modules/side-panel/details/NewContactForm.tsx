@@ -162,7 +162,7 @@ export const ContactDescriptionRow = ({ label, scope }: { label: string; scope: 
           />
         )}
       />
-      {error && <span className="text-xs text-destructive">{error}</span>}
+      {error && <span className="text-xs text-destructive-text">{error}</span>}
     </div>
   );
 };

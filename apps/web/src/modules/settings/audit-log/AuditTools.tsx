@@ -74,7 +74,7 @@ const VerifyResult = ({ result }: { result: Verdict }) => {
         {result.ok ? (
           <IconShieldCheck className="size-5 shrink-0 text-success-text" />
         ) : (
-          <IconShieldX className="size-5 shrink-0 text-destructive" />
+          <IconShieldX className="size-5 shrink-0 text-destructive-text" />
         )}
         <p>
           {result.ok
@@ -122,7 +122,7 @@ export const IntegrityCheck = () => {
       </Popover.Trigger>
       <Popover.Content align="end" className="w-80">
         {verify.isError ? (
-          <p role="alert" className="text-destructive">
+          <p role="alert" className="text-destructive-text">
             {messageOf(verify.error)}
           </p>
         ) : verify.data ? (

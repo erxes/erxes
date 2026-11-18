@@ -136,7 +136,7 @@ export const LeadStagesPage = () => {
             ))}
           </ul>
           {error ? (
-            <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+            <p className="py-12 text-center text-sm text-destructive-text">{messageOf(error)}</p>
           ) : loading ? (
             <Spinner area="lg" />
           ) : (

@@ -46,7 +46,7 @@ export const QueryState = <T,>({
         role="alert"
         className={cn('flex flex-col items-center gap-2 p-6 text-center text-sm', className)}
       >
-        <p className="text-destructive">{messageOf(query.error)}</p>
+        <p className="text-destructive-text">{messageOf(query.error)}</p>
         <Button variant="outline" size="sm" onClick={() => void query.refetch()}>
           {t('retry')}
         </Button>

@@ -230,7 +230,7 @@ const Catalog = () => {
       />
       {sections.error && (
         <div role="alert" className="flex items-center gap-3 rounded-lg border p-3 text-sm">
-          <span className="flex-1 text-destructive">
+          <span className="flex-1 text-destructive-text">
             {t('status-failed', 'Could not load what is connected: {{message}}', {
               message: messageOf(sections.error),
             })}

@@ -54,7 +54,9 @@ const LimitField = ({
               hidePlaceholderWhenSelected
             />
           </Form.Control>
-          {choices.error && <p className="text-sm text-destructive">{messageOf(choices.error)}</p>}
+          {choices.error && (
+            <p className="text-sm text-destructive-text">{messageOf(choices.error)}</p>
+          )}
           <Form.Message />
         </Form.Item>
       )}

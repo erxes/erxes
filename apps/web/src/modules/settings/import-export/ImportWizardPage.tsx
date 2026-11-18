@@ -111,7 +111,9 @@ export const ImportWizardPage = () => {
   const imp = query.data;
 
   if (query.error) {
-    return <p className="py-12 text-center text-sm text-destructive">{messageOf(query.error)}</p>;
+    return (
+      <p className="py-12 text-center text-sm text-destructive-text">{messageOf(query.error)}</p>
+    );
   }
 
   if (!imp) return <Spinner area="lg" />;
