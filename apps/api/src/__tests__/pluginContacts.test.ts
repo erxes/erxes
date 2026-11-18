@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, onTestFinished } from 'vite-plus/test';
+import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 import { useTestDatabase } from './db';
+import { pluginApi } from './pluginApi';
+import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
 describe('contacts and members for plugins', () => {
@@ -47,6 +50,49 @@ describe('contacts and members for plugins', () => {
 
     expect(audit.data[0]).toMatchObject({ actorType: 'plugin', actorId: 'hr' });
     expect((await t.other().customers.list({ search: 'bold' })).data).toEqual([]);
+  });
+
+  it('tells a plugin that keeps contacts when a customer or company is deleted', async () => {
+    const api = await pluginApi(t.url(''), 'tms');
+
+    onTestFinished(api.close);
+
+    const secret = await rotatePluginSecret('tms');
+
+    const token = async (org?: string) =>
+      (
+        await t.client().plugins.token({
+          grant_type: 'client_credentials',
+          client_id: 'tms',
+          client_secret: secret,
+          org,
+        })
+      ).access_token;
+
+    await t.client(await token()).plugins.registerManifest({
+      title: 'TMS',
+      version: '1',
+      api: { url: api.url },
+      scopes: ['customers:read'],
+      subscriptions: ['core.customer.deleted', 'core.company.deleted'],
+    });
+    await token(t.ids.org);
+
+    const owner = t.owner();
+    const customer = await owner.customers.create({ firstName: 'Gone' });
+    const company = await owner.companies.create({ primaryName: 'Gone LLC' });
+
+    await owner.customers.remove({ ids: [customer.id] });
+    await owner.companies.remove({ ids: [company.id] });
+    await settle();
+
+    expect(api.subjects).toEqual(
+      expect.arrayContaining([
+        { type: 'core.customer.deleted', subjectType: 'customer', subjectId: customer.id },
+        { type: 'core.company.deleted', subjectType: 'company', subjectId: company.id },
+      ]),
+    );
+    expect(api.subjects).toHaveLength(2);
   });
 
   it('reads team members', async () => {

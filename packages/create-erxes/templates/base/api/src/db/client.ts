@@ -2,9 +2,16 @@ import { DrizzleQueryError, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { DatabaseError, Pool } from 'pg';
 import { config, PLUGIN } from '#/config.ts';
+import { logger } from '#/logger.ts';
 import * as schema from './schema.ts';
 
 export const pool = new Pool({ connectionString: config.dataUrl, application_name: PLUGIN });
+
+// An idle connection that breaks (Postgres restarted, a failover) is dropped and replaced. Without
+// a listener, its error would end the process.
+pool.on('error', (error) => {
+  logger.error({ err: error }, 'idle database connection failed');
+});
 
 export const db = drizzle({ client: pool, schema, casing: 'snake_case' });
 

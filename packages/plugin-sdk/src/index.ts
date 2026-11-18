@@ -7,6 +7,11 @@
  *
  *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });
  *
+ * In a procedure, pass core's refusals on (400 with the field, 404, 409) and only core being
+ * unreachable as 503 SERVICE_UNAVAILABLE:
+ *
+ *   const customer = await core.forOrg(orgId).customers.get({ id }).catch(passCoreError('customers'));
+ *
  * Payments (scopes `payments:write`, `payments:read`; subscribe to `core.payment.*`):
  *
  *   const invoice = await core.forOrg(orgId).payments.createInvoice({

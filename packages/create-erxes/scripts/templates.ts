@@ -97,6 +97,13 @@ const coreFunctions = (sources: string[], names: string[]) =>
     return definition;
   });
 
+/** The extensions core's migrations create, which a plugin's tables may use but not create. */
+const coreExtensions = (sources: string[]) => [
+  ...new Set(
+    sources.flatMap((source) => source.match(/CREATE EXTENSION IF NOT EXISTS \w+;/g) ?? []),
+  ),
+];
+
 /**
  * A core table as its migrations build it, in order: the table, its column changes and its
  * indexes, without the foreign keys to core's other tables. Row level security as in core.
@@ -129,9 +136,10 @@ const testSql = async () => {
 
   return {
     'core-functions.sql': [
-      "-- Core's tenant functions, which plugin migrations call, as erxes",
-      '-- packages/db/drizzle defines them. Tests and tools/check-rls.sh install them',
+      "-- Core's extensions and tenant functions, which plugin migrations use, as erxes",
+      '-- packages/db/drizzle creates them. Tests and tools/check-rls.sh install them',
       '-- in their throwaway databases.',
+      ...coreExtensions(sources),
       ...coreFunctions(sources, TENANT_FUNCTIONS),
     ],
     'core-calls.sql': [

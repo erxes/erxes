@@ -1,4 +1,7 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import { once } from 'node:events';
+import { pino } from 'pino';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
+import { loggerOptions } from '#/logger.ts';
 import { createApp } from '#/server.ts';
 
 let base = '';
@@ -43,6 +46,27 @@ describe('server', () => {
     });
 
     expect(response.status).toBe(401);
+  });
+
+  it('keeps credentials out of its request logs', async () => {
+    const lines: string[] = [];
+    const log = pino({ ...loggerOptions, level: 'info' }, { write: (line) => lines.push(line) });
+    const logged = createApp(log).listen(0);
+
+    await once(logged, 'listening');
+
+    const address = logged.address();
+
+    if (!address || typeof address === 'string') throw new Error('not listening on a port');
+
+    await fetch(`http://127.0.0.1:${address.port}/health`, {
+      headers: { authorization: 'Bearer session-secret', cookie: 'sid=cookie-secret' },
+    });
+    logged.close();
+
+    await vi.waitFor(() => expect(lines.join('')).toContain('request completed'));
+    expect(lines.join('')).not.toMatch(/session-secret|cookie-secret/);
+    expect(lines.join('')).toContain('"authorization":"[Redacted]"');
   });
 
   it('lets web call it from any organisation address', async () => {

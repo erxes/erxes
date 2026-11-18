@@ -174,6 +174,35 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
     });
   });
 
+  it('can refuse overlapping rows with a btree_gist exclusion constraint', async () => {
+    await asPlugin(async (client) => {
+      // A reservation per room may not overlap another in the same organisation.
+      await client.query(
+        `create table testhr_bookings (
+          id text primary key, org_id text not null, room_id text not null, during tstzrange not null,
+          constraint testhr_bookings_no_overlap exclude using gist (org_id with =, room_id with =, during with &&)
+        )`,
+      );
+      await client.query(`select core_enable_tenant_rls('testhr_bookings')`);
+      await client.query('begin');
+      await client.query(`select set_config('app.org_id', $1, true)`, [orgA]);
+
+      const book = (id: string, from: string, to: string) =>
+        fails(client, `insert into testhr_bookings values ($1, $2, 'r1', tstzrange($3, $4))`, [
+          id,
+          orgA,
+          from,
+          to,
+        ]);
+
+      expect(await book('b1', '2026-12-01 14:00Z', '2026-12-03 12:00Z')).toBeNull();
+      expect(await book('b2', '2026-12-02 14:00Z', '2026-12-04 12:00Z')).toMatch(
+        /testhr_bookings_no_overlap/,
+      );
+      await client.query('rollback');
+    });
+  });
+
   it('lists its tables that are open to every organisation or misnamed', async () => {
     await asPlugin(async (client) => {
       await client.query('create table testhr_open (id text primary key, org_id text not null)');

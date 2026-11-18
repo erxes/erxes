@@ -10,8 +10,8 @@ has a flag (`src/cli.ts`); `-y` takes the defaults.
 - The templates are not code until the names are filled in, so core's check skips them. The
   generated plugin's own `vp run check` lints them, in the e2e test.
 - A plugin takes some files from core unchanged: `tools/check-rls.sql`, `tools/test/no-skips.ts`,
-  the quality section of the root `AGENTS.md`, the tenant functions from `packages/db/drizzle`
-  (`api/src/test/core-functions.sql`) and, for its tests only, the functions its code calls
+  the quality section of the root `AGENTS.md`, the extensions (`btree_gist`, `pg_trgm`) and tenant
+  functions from `packages/db/drizzle` (`api/src/test/core-functions.sql`) and, for its tests only, the functions its code calls
   (`core_publish_event`, `core_record_audit`, `core_live_signal`) with the `core_events` and
   `core_audit_logs` tables they write (`api/src/test/core-calls.sql`),
   and `doctor.config.jsonc` with `ui` as its one project and without core's `ignore` block.
