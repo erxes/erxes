@@ -118,6 +118,7 @@
 | Closing adjustment       | `src/modules/accounting/utils/adjustClosings.ts`                                | Owns temporary account closing calculation, tax impact calculation, and transaction execution.                                                                                          |
 | Fixed assets             | `src/modules/fixedAssets`                                                       | Owns fixed asset categories, acquisition-backed fixed assets, and optional owner-record ledger rows; adjustment models live in `src/modules/accounting/db/models/AdjustFixedAssets.ts`. |
 | Tunable report calculation | `src/modules/accounting/utils/tunableReports` | Read-only date windows, once-per-window cached ledger aggregation, percentages, rounding and memoized row/cell dependencies. |
+| Transaction records pager | `src/modules/accounting/utils/trRecordsCursor.ts` | Cursor-paginates `accTrRecordsMain` by sorting whole transactions on indexed fields before `$unwind`, and counts records from detail array sizes. |
 
 ## Contracts
 
@@ -196,6 +197,8 @@
 
 ## Local Invariants
 
+- Transaction list default order is `{ ptrNumber: -1, ptrId: -1, _id: 1 }` (`cursorPaginate` appends `_id: 1`). The ptrNumber-leading indexes must keep `_id: 1` in that position so MongoDB never sorts the list in memory. `accTrRecordsMain` must sort transactions before `$unwind` and must not use `cursorPaginateAggregation`, which sorts after the unwind. Its cursor is `{ ptrNumber, ptrId, trId, detailInd }`; unknown cursors restart from the first page.
+- Transaction list filters add `details.accountId: { $in }` only for users restricted by account permissions or when an account filter is sent. Owners and `dominantReadAccountUsers`/`dominantWriteAccountUsers` members with no account filter get no account clause.
 - Required sync-rule fields must stay aligned with what `meta/afterProcessHandlers` reads (`invSale` follow accounts, movement accounts, tax rows) and with the frontend `syncConfigSchema.ts`. Never relax the backend check on the assumption that clients validate.
 - The plugin TypeScript libraries include `es2023.array` for native `findLast` on the supported Node 22 runtime; the emitted JavaScript target remains unchanged.
 
@@ -356,6 +359,8 @@
 - Automatic fixed asset adjustment calculation supports every fixed asset depreciation method except `manual`; `manual` must fail validation until an entered-depreciation detail flow exists.
 
 ## Validation
+
+- List performance smoke scenario: as an owner and as a permission-restricted user, open `accounting/main` and `accounting/records` with no filters, verify the first page loads without an in-memory sort (`explain` shows no `SORT` stage), and page forward and backward across transactions sharing one `ptrNumber` without duplicated or skipped rows.
 
 - Related account smoke scenario: save a multi-account pointer with blank custom sides, verify customDt/customCt equal dt/ct; change a counterpart account and relink the pointer, verify inherited copies follow the new defaults while explicit differing overrides survive. Clear an override and save to restore the current defaults. Generate turnover reports for each side and verify account-code filters precede detail unwind without including unrelated details.
 

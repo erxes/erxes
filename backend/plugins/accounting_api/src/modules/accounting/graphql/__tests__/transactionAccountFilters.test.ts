@@ -63,14 +63,22 @@ const categories = [
 
 const buildModels = ({
   dominantUserIds = [],
+  dominantWriteValue = [],
   permittedAccountIds = [],
 }: {
   dominantUserIds?: string[];
+  dominantWriteValue?: string[] | { userIds: string[] };
   permittedAccountIds?: string[];
 } = {}) =>
   ({
     Configs: {
-      getConfigValue: jest.fn().mockResolvedValue(dominantUserIds),
+      getConfigValue: jest.fn((code: string) =>
+        Promise.resolve(
+          code === 'dominantWriteAccountUsers'
+            ? dominantWriteValue
+            : dominantUserIds,
+        ),
+      ),
       find: () => ({
         lean: () =>
           Promise.resolve([
@@ -232,4 +240,37 @@ test('a filter never reveals accounts outside a regular user permissions', async
       accountant,
     ),
   ).resolves.toEqual(['cash']);
+});
+
+test('an owner without account filters is not narrowed to a list of every account', async () => {
+  await expect(
+    filterByAccounts(buildModels(), {}, owner),
+  ).resolves.toBeUndefined();
+});
+
+test('a dominant writer without account filters is not narrowed, including the legacy config shape', async () => {
+  await expect(
+    filterByAccounts(
+      buildModels({ dominantWriteValue: ['accountant'] }),
+      {},
+      accountant,
+    ),
+  ).resolves.toBeUndefined();
+  await expect(
+    filterByAccounts(
+      buildModels({ dominantWriteValue: { userIds: ['accountant'] } }),
+      {},
+      accountant,
+    ),
+  ).resolves.toBeUndefined();
+});
+
+test('a regular user without account filters stays limited to permitted accounts', async () => {
+  await expect(
+    filterByAccounts(
+      buildModels({ permittedAccountIds: ['cash', 'bank'] }),
+      {},
+      accountant,
+    ),
+  ).resolves.toEqual(['cash', 'bank']);
 });

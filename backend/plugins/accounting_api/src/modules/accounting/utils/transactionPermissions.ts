@@ -186,15 +186,13 @@ export const getPermittedTransactionJournals = async (
     ]);
   }
 
-  const permittedSourceJournals: string[] = [];
-
-  for (const [journal, actions] of Object.entries(
-    TRANSACTION_PERMISSION_ACTIONS,
-  )) {
-    if (await canUseAction(context, actions[mode])) {
-      permittedSourceJournals.push(journal);
-    }
-  }
+  const journalActions = Object.entries(TRANSACTION_PERMISSION_ACTIONS);
+  const allowed = await Promise.all(
+    journalActions.map(([, actions]) => canUseAction(context, actions[mode])),
+  );
+  const permittedSourceJournals = journalActions
+    .filter((_, index) => allowed[index])
+    .map(([journal]) => journal);
 
   return getUniqueValues([
     ...permittedSourceJournals,

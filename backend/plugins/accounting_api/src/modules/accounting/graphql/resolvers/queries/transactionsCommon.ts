@@ -2,10 +2,8 @@ import {
   ICursorPaginateParams,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { SortOrder } from 'mongoose';
 import {
   cursorPaginate,
-  cursorPaginateAggregation,
   defaultPaginate,
   escapeRegExp,
   getPureDate,
@@ -25,6 +23,10 @@ import {
   applyTransactionJournalPermissionFilter,
   getPermittedTransactionJournals,
 } from '../../../utils/transactionPermissions';
+import {
+  countTrRecords,
+  paginateTrRecords,
+} from '../../../utils/trRecordsCursor';
 
 interface IQueryParams {
   ids?: string[];
@@ -94,6 +96,24 @@ const hasAccountFilter = (accountParams: IAccountQueryParams) =>
       : value !== undefined && value !== null && value !== '';
   });
 
+const canReadAllAccounts = async (models: IModels, user: IUserDocument) => {
+  if (user.isOwner) {
+    return true;
+  }
+
+  const [readUserIds, writeUserIds] = await Promise.all(
+    ['dominantReadAccountUsers', 'dominantWriteAccountUsers'].map((code) =>
+      models.Configs.getConfigValue(code, undefined, []),
+    ),
+  );
+
+  // Settings save a user id array; legacy configs wrap it as `{ userIds }`.
+  return [readUserIds, writeUserIds].some((value) => {
+    const userIds = Array.isArray(value) ? value : value?.userIds;
+    return Array.isArray(userIds) && userIds.includes(user._id);
+  });
+};
+
 const getAccountIds = async (
   models: IModels,
   params: IQueryParams,
@@ -131,16 +151,12 @@ const getAccountIds = async (
     journal: accountJournal,
   };
 
-  const dominantUserIds = await models.Configs.getConfigValue(
-    'dominantReadAccountUsers',
-    undefined,
-    [],
-  );
-
+  // Unrestricted readers without an explicit account filter may see every
+  // account, so a `details.accountId: { $in: <all accounts> }` clause would
+  // only force MongoDB onto a multikey plan with an in-memory sort.
   if (
-    Array.isArray(dominantUserIds) &&
-    dominantUserIds.includes(user._id) &&
-    !hasAccountFilter(accountParams)
+    !hasAccountFilter(accountParams) &&
+    (await canReadAllAccounts(models, user))
   ) {
     return;
   }
@@ -741,55 +757,20 @@ const transactionCommon = {
     const filter = await generateFilter(subdomain, models, params, user);
     await applyReadTransactionJournalFilter(filter, user, checkPermission);
     const { ids, excludeIds } = params;
+    const limit = params.limit ?? 20;
 
-    const paginationParams: ICursorPaginateParams = {
-      ...params,
-      cursor:
-        ids?.length && !excludeIds && ids.length > (params.limit ?? 20)
-          ? ''
-          : params.cursor,
-      limit:
-        ids?.length && !excludeIds && ids.length > (params.limit ?? 20)
-          ? ids.length
-          : params.limit,
-      orderBy: {
-        ...(params.orderBy ?? { ptrNumber: -1 }),
-        ptrNumber: -1 as SortOrder,
-      },
-    };
+    if (limit < 1 || limit > 100) {
+      throw new Error('Limit must be between 1 and 100');
+    }
 
-    return await cursorPaginateAggregation({
+    const showAllIds = !!ids?.length && !excludeIds && ids.length > limit;
+
+    return await paginateTrRecords({
       model: models.Transactions,
-      pipeline: [
-        { $match: { ...filter } },
-        { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
-        {
-          $replaceRoot: {
-            newRoot: {
-              $mergeObjects: [
-                '$$ROOT',
-                {
-                  _id: {
-                    $concat: [
-                      { $toString: '$_id' },
-                      '-',
-                      {
-                        $ifNull: [
-                          { $toString: '$details._id' },
-                          { $toString: '$detailInd' },
-                        ],
-                      },
-                    ],
-                  },
-                },
-                { trId: '$_id' },
-              ],
-            },
-          },
-        },
-      ],
-      params: paginationParams,
-      formatter: { date: 'date', createAt: 'date' },
+      filter,
+      limit: showAllIds ? ids.length : limit,
+      cursor: showAllIds ? '' : params.cursor,
+      direction: params.direction,
     });
   },
 
@@ -858,13 +839,7 @@ const transactionCommon = {
     const filter = await generateFilter(subdomain, models, params, user);
     await applyReadTransactionJournalFilter(filter, user, checkPermission);
 
-    const count = await models.Transactions.aggregate([
-      { $match: { ...filter } },
-      { $unwind: '$details' },
-      { $group: { _id: null, count: { $sum: 1 } } },
-      { $project: { _id: 0 } },
-    ]);
-    return count[0]?.count ?? 0;
+    return countTrRecords(models.Transactions, filter);
   },
 };
 
