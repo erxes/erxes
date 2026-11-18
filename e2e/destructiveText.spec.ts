@@ -41,7 +41,13 @@ test('delete buttons and items read in red the member can read', async ({ page, 
   await note.fill('Called about the engine');
   await page.getByRole('button', { name: 'Add note' }).click();
   await expect(note).toHaveValue('');
-  await page.getByRole('button', { name: 'Note actions' }).click();
+  // This note's menu: an automation another spec leaves on may add notes of its own.
+  await page
+    .locator('div', { has: page.getByText('Called about the engine') })
+    .filter({ has: page.getByRole('button', { name: 'Note actions' }) })
+    .last()
+    .getByRole('button', { name: 'Note actions' })
+    .click();
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
   await expectAccessible(page);
 });
