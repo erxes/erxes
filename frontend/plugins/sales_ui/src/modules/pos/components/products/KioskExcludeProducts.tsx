@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 import { type ProductsFormData } from '@/pos/components/products/Products';
+import { toIds } from '@/pos/utils/toIds';
 
 interface KioskExcludeProductsProps {
   control: Control<ProductsFormData>;
@@ -41,10 +42,7 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
           <PosFieldRow label={t('exclude-products')} icon={IconPackage}>
             <SelectProduct
               value={field.value}
-              onValueChange={(value) => {
-                const ids = Array.isArray(value) ? value : value ? [value] : [];
-                field.onChange(ids);
-              }}
+              onValueChange={(value) => field.onChange(toIds(value))}
               mode="multiple"
               placeholder={t('select-products-to-exclude')}
             />

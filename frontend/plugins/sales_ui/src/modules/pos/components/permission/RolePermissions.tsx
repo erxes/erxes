@@ -10,14 +10,7 @@ import {
 import { PosFieldRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { POS_PANEL_INPUT_CLASS_NAME } from '@/pos/constants/posPanel';
 import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
-
-const toIds = (value: string | string[] | null | undefined): string[] => {
-  if (Array.isArray(value)) {
-    return value;
-  }
-
-  return value ? [value] : [];
-};
+import { toIds } from '@/pos/utils/toIds';
 
 interface RolePermissionsProps {
   control: Control<PermissionFormData>;

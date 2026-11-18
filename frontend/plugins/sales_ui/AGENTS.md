@@ -275,7 +275,9 @@
   hover rows with icon-only edit/delete buttons and a ghost add button
   below, or a muted empty state holding that button). Shared sales field
   components from `@/payments` (`PaymentIdsField`, `OtherPaymentsField`)
-  keep their own look, as pipeline settings use them too. Every boolean setting on Product & Service,
+  keep their own look, as pipeline settings use them too.
+  Single-or-multiple select values become id arrays through `toIds`
+  (`modules/pos/utils/toIds.ts`), never an inline nested ternary. Every boolean setting on Product & Service,
   Permission, Payments (coupons), Screen and Customer uses `PosSwitchRow`;
   mappings and sync cards use `PosItemList`.
 - Tab structure: Permission has Admins and Cashiers sections, both drawn by

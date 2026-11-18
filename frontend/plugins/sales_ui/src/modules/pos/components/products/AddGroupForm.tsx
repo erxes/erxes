@@ -11,6 +11,7 @@ import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { useTranslation } from 'react-i18next';
 import { useProductFilterLabels } from '@/productFilters/useProductFilterLabels';
 import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
+import { toIds } from '@/pos/utils/toIds';
 import { ProductTagSelect } from '@/productFilters/ProductTagSelect';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';
@@ -99,30 +100,21 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
 
   const handleCategorySelect = useCallback(
     (value: string | string[]) => {
-      updateField(
-        'categoryIds',
-        Array.isArray(value) ? value : value ? [value] : [],
-      );
+      updateField('categoryIds', toIds(value));
     },
     [updateField],
   );
 
   const handleExcludeCategorySelect = useCallback(
     (value: string | string[]) => {
-      updateField(
-        'excludedCategoryIds',
-        Array.isArray(value) ? value : value ? [value] : [],
-      );
+      updateField('excludedCategoryIds', toIds(value));
     },
     [updateField],
   );
 
   const handleExcludeProductsChange = useCallback(
     (value: string | string[]) => {
-      updateField(
-        'excludedProductIds',
-        Array.isArray(value) ? value : value ? [value] : [],
-      );
+      updateField('excludedProductIds', toIds(value));
     },
     [updateField],
   );
@@ -182,12 +174,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
             <SelectProduct
               mode="multiple"
               value={formState.productIds}
-              onValueChange={(value) =>
-                updateField(
-                  'productIds',
-                  Array.isArray(value) ? value : value ? [value] : [],
-                )
-              }
+              onValueChange={(value) => updateField('productIds', toIds(value))}
             />
           </PosPanelRow>
         </div>
