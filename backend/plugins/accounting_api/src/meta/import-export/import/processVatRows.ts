@@ -78,7 +78,7 @@ const parseLedgerFormula = async (
   const ids = await Promise.all(
     CODE_FIELDS.map(([codeField, , lookup]) => {
       const code = toText(source[codeField]);
-      return code ? lookups[lookup](code) : undefined;
+      return code ? lookups[lookup](code) : Promise.resolve('');
     }),
   );
 
