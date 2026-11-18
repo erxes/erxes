@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 import type { DateRange, Matcher, PropsBase } from 'react-day-picker';
 import { useTranslation } from 'react-i18next';
 import type { DatePickerMode, DatePickerValue } from './date-picker-value';
-import { useFieldControl } from './field-control';
+import { useFieldButtonState, useFieldControl } from './field-control';
 import type { Popover } from './popover';
 
 export type SelectedDates = Date | Date[] | DateRange;
@@ -39,19 +39,34 @@ export type DatePickerProps = {
 } & DateControlProps &
   Omit<PropsBase, 'mode' | 'required' | 'disabled' | keyof DateControlProps>;
 
-/** The field's own naming props over its form row's (`useFieldControl`). */
-const useDateControl = (own: DateControlProps): DateControlProps => {
+/**
+ * The field's own naming props over its form row's: `input` for the single-date text input,
+ * `button` for the range or multiple trigger, which can't carry `aria-required`.
+ */
+const useDateControl = (own: DateControlProps) => {
   const field = useFieldControl();
+  const buttonState = useFieldButtonState();
 
-  return {
-    ...field,
+  const named = {
     id: own.id,
     'aria-label': own['aria-label'],
     // A field's own aria-label names it; the row's label would win over it.
     'aria-labelledby':
       own['aria-labelledby'] ?? (own['aria-label'] ? undefined : field['aria-labelledby']),
-    'aria-describedby': own['aria-describedby'] ?? field['aria-describedby'],
-    'aria-invalid': own['aria-invalid'] ?? field['aria-invalid'],
+  };
+
+  return {
+    input: {
+      ...field,
+      ...named,
+      'aria-describedby': own['aria-describedby'] ?? field['aria-describedby'],
+      'aria-invalid': own['aria-invalid'] ?? field['aria-invalid'],
+    },
+    button: {
+      ...named,
+      'aria-describedby': own['aria-describedby'] ?? buttonState['aria-describedby'],
+      'aria-invalid': own['aria-invalid'] ?? buttonState['aria-invalid'],
+    },
   };
 };
 
@@ -128,8 +143,8 @@ export const useResolvedProps = ({
       inline && mode !== 'single'
         ? {
             ...calendarProps,
-            'aria-label': control['aria-label'],
-            'aria-labelledby': control['aria-labelledby'],
+            'aria-label': control.input['aria-label'],
+            'aria-labelledby': control.input['aria-labelledby'],
           }
         : calendarProps,
   };

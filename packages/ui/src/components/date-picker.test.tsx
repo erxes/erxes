@@ -37,6 +37,13 @@ const NOVEMBER = new Date(2026, 10, 1);
 const clickDay = (container: HTMLElement, isoDay: string) =>
   act(() => container.querySelector<HTMLButtonElement>(`[data-day="${isoDay}"] button`)?.click());
 
+/** The text of the elements an aria-labelledby or aria-describedby names. */
+const text = (ids: string | null | undefined) =>
+  ids
+    ?.split(' ')
+    .map((id) => document.getElementById(id)?.textContent)
+    .join(' ');
+
 /** A date row of a form, as a settings page writes one. */
 const BirthdayForm = () => {
   const form = useForm({ defaultValues: { birthday: '' } });
@@ -129,6 +136,21 @@ describe('DatePicker', () => {
 
     expect(input?.id).toBeTruthy();
     expect(form.querySelector('label')?.getAttribute('for')).toBe(input?.id);
+  });
+
+  it("names its range button by a required row's label and says Required in its description", () => {
+    const row = inLanguage(
+      'en',
+      <PanelFormRow label="Campaign dates" required>
+        <DatePicker mode="range" onChange={() => undefined} />
+      </PanelFormRow>,
+    );
+
+    const button = row.querySelector('button');
+
+    expect(text(button?.getAttribute('aria-labelledby'))).toBe('Campaign dates *');
+    expect(text(button?.getAttribute('aria-describedby'))).toBe('Required');
+    expect(button?.hasAttribute('aria-required')).toBe(false);
   });
 
   it('shows its placeholder and a count of days in the UI language', () => {

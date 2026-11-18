@@ -187,7 +187,7 @@ export const DatePicker = (props: DatePickerProps) => {
       isDisabled={isDisabled}
       placeholder={o.placeholder}
       className={o.className}
-      control={o.control}
+      control={o.control.input}
       inputRef={picker.inputRef}
       onClear={picker.handleClear}
       onOpen={o.inline ? undefined : () => setIsOpen(true)}
@@ -230,7 +230,7 @@ export const DatePicker = (props: DatePickerProps) => {
           singleInput
         ) : (
           <Popover.Trigger
-            {...o.control}
+            {...o.control.button}
             render={<Button variant={o.variant} />}
             disabled={isDisabled}
             className={cn('w-full justify-start text-left font-normal', o.className)}
