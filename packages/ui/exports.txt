@@ -50,12 +50,15 @@ type TContactContentType
 type TContactKind
 type TDashboardWidget
 type TDashboardWidgetPreview
+type TIntegrationCategory
+type TIntegrationTab
 type TListDisplay
 type TListDisplayOption
 type TListFilterField
 type TListFilterProps
 type TListViews
 type TPanelRecordType
+type TPluginIntegration
 type TPluginListType
 type TPluginSettingsPage
 type TPropertyLimit
@@ -119,6 +122,7 @@ value Form
 value FullNameField
 value FullNameValue
 value HoverCard
+value INTEGRATION_CATEGORIES
 value IconComponent
 value IconPicker
 value IconTip

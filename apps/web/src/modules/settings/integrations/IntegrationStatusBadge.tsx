@@ -1,5 +1,6 @@
 import { Badge, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { usePluginText } from '~/modules/plugins/pluginText';
 import type { Integration } from './catalog';
 import type { IntegrationStatus } from './useIntegrationStatus';
 
@@ -29,11 +30,18 @@ export const IntegrationStatusBadge = ({ status }: { status: IntegrationStatus |
 /** The integration's name and one line, in the member's language. */
 export const useIntegrationText = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+  const text = usePluginText();
 
-  return (integration: Integration) => ({
-    name: t(`name.${integration.key}`, integration.name),
-    summary: t(`catalog.${integration.key}`, integration.summary),
-  });
+  return (integration: Integration) =>
+    integration.kind === 'plugin'
+      ? {
+          name: text(integration.plugin, integration.name),
+          summary: text(integration.plugin, integration.summary),
+        }
+      : {
+          name: t(`name.${integration.key}`, integration.name),
+          summary: t(`catalog.${integration.key}`, integration.summary),
+        };
 };
 
 /** The integration's mark in a square, as tiles and its page show it. */
