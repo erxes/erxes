@@ -37,6 +37,7 @@ export const AddAdjustClosing = () => {
     <SettingsPanelAddButton
       contentType={ADJUST_CLOSING_CONTENT_TYPE}
       label={t('Add Closing Adjustment')}
+      permission="manageAdjustClosings"
     />
   );
 };

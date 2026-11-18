@@ -14,7 +14,7 @@ export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
   }: {
     code: string;
     subId?: string;
-    value: any;
+    value: unknown;
   }) => {
     return configAdd({
       ...options,

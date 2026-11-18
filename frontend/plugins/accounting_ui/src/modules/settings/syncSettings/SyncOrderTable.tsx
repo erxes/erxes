@@ -9,7 +9,7 @@ import { POS_DETAIL } from '../graphql/queries/relatedQueries';
 import { IConfig } from '../types/Config';
 import { syncBaseColumns, SyncConfigTable } from './SyncTableShared';
 
-const PosSelect = ({ posId }: { posId: string }) => {
+const PosSelect = ({ posId }: { posId?: string }) => {
   const { data: queryData, loading } = useQuery(POS_DETAIL, {
     variables: { _id: posId ?? '' },
     skip: !posId,

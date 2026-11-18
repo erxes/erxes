@@ -26,7 +26,7 @@ export const AdjustClosingDelete = ({ row }: { row: Row<IAdjustClosing> }) => {
             onError: (e: ApolloError) => {
               toast({
                 title: t('error'),
-                description: e.message,
+                description: t(e.message, { nsSeparator: false }),
                 variant: 'destructive',
               });
             },

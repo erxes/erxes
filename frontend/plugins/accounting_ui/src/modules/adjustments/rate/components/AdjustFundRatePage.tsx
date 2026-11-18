@@ -2,7 +2,7 @@ import { AddAdjustFundRate } from './AdjustFundRateForm';
 import { AdjustFundRateTable } from './AdjustFundRateTable';
 import { AccountingLayout } from '@/layout/components/Layout';
 import { AdjustmentHeader } from '../../components/Header';
-import { TransactionsFilter } from '@/transactions/components/TrFilters';
+import { AdjustFundRateFilter } from '@/adjustments/rate/components/AdjustFundRateFilter';
 import { PageSubHeader } from 'erxes-ui';
 
 export const AdjustFundRatePage = () => {
@@ -12,7 +12,7 @@ export const AdjustFundRatePage = () => {
         <AddAdjustFundRate />
       </AdjustmentHeader>
       <PageSubHeader>
-        <TransactionsFilter />
+        <AdjustFundRateFilter />
       </PageSubHeader>
       <AdjustFundRateTable />
     </AccountingLayout>

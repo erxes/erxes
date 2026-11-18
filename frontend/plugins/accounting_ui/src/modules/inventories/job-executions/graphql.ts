@@ -56,3 +56,8 @@ export const REMOVE_EXECUTION = gql(`
     jobExecutionRemove(_id: $_id)
   }
 `);
+export const GET_EXECUTION_DETAIL = gql(`
+  query AccountingJobExecutionDetail($_id: String!) {
+    jobExecutionDetail(_id: $_id) { ...AccountingJobExecutionFields }
+  }
+`);

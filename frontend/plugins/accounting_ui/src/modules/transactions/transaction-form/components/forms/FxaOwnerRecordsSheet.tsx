@@ -231,13 +231,7 @@ export const FxaOwnerRecordsSheet = ({
                 <Table.Head>{t('available-quantity')}</Table.Head>
                 <Table.Head>{t('quantity-to-select')}</Table.Head>
                 <Table.Head>{t('asset-custodian')}</Table.Head>
-                {isMove && (
-                  <Table.Head>
-                    {t('new-asset-custodian', {
-                      defaultValue: 'Шинэ эд хариуцагч',
-                    })}
-                  </Table.Head>
-                )}
+                {isMove && <Table.Head>{t('new-asset-custodian')}</Table.Head>}
               </Table.Row>
             </Table.Header>
             <Table.Body>

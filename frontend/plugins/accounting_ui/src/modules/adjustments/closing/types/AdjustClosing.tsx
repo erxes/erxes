@@ -16,3 +16,11 @@ export type IClosingDetailEntry = NonNullable<
 export type AdjustClosingDetailQueryData = AccountingAdjustClosingDetailQuery;
 export type AdjustClosingDetailQueryVariables =
   AccountingAdjustClosingDetailQueryVariables;
+
+export const ADJUST_CLOSING_STATUSES = [
+  'draft',
+  'process',
+  'warning',
+  'complete',
+  'publish',
+] as const;

@@ -40,16 +40,7 @@ export const useAdjustDebtRateChange = (
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: [
-        {
-          query: ADJUST_DEBT_RATE_QUERY,
-          variables: {
-            limit: 20,
-            cursor: null,
-            orderBy: { createdAt: -1 },
-          },
-        },
-      ],
+      refetchQueries: [ADJUST_DEBT_RATE_QUERY],
       awaitRefetchQueries: true,
     });
   };
@@ -91,16 +82,7 @@ export const useAdjustDebtRateRemove = (
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: [
-        {
-          query: ADJUST_DEBT_RATE_QUERY,
-          variables: {
-            limit: 20,
-            cursor: null,
-            orderBy: { createdAt: -1 },
-          },
-        },
-      ],
+      refetchQueries: [ADJUST_DEBT_RATE_QUERY],
       awaitRefetchQueries: true,
       update: () => {
         const pathname = '/accounting/adjustment/debRate';

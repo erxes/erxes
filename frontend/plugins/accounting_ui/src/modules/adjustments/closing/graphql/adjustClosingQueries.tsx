@@ -1,12 +1,13 @@
 import { gql } from '~/gql';
 
 export const ADJUST_CLOSING_QUERY = gql(`
-query accountingAdjustClosings($page: Int, $perPage: Int, $sortField: String, $sortDirection: Int) {
+query accountingAdjustClosings($page: Int, $perPage: Int, $sortField: String, $sortDirection: Int, $status: String) {
   adjustClosings(
     page: $page
     perPage: $perPage
     sortField: $sortField
     sortDirection: $sortDirection
+    status: $status
   ) {
     _id
     description
@@ -20,6 +21,6 @@ query accountingAdjustClosings($page: Int, $perPage: Int, $sortField: String, $s
     createdAt
     updatedAt
   }
-  adjustClosingsCount
+  adjustClosingsCount(status: $status)
 }
 `);

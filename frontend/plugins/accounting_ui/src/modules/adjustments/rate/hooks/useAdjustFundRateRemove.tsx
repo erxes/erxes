@@ -38,16 +38,7 @@ export const useAdjustFundRateRemove = (
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: [
-        {
-          query: ADJUST_FUND_RATE_QUERY,
-          variables: {
-            limit: 20,
-            cursor: null,
-            orderBy: { createdAt: -1 },
-          },
-        },
-      ],
+      refetchQueries: [ADJUST_FUND_RATE_QUERY],
       awaitRefetchQueries: true,
       update: (cashe) => {
         const pathname = '/accounting/adjustment/fundRate';

@@ -64,3 +64,8 @@ export function toGraphqlView(value: unknown): unknown {
   return value;
 }
 /* eslint-enable no-redeclare */
+
+export const isJsonObject = (
+  value: unknown,
+): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;

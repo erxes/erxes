@@ -10,6 +10,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { isJsonObject } from '@/utils/graphql';
 import { useBranchesMain, useDepartmentsMain } from 'ui-modules';
 import type { TFunction } from 'i18next';
 import { getI18n, useTranslation } from 'react-i18next';
@@ -25,23 +26,31 @@ type InventoryEntry = {
   soonOut: number;
 };
 
-const parseInventories = (inventories: any): InventoryEntry[] => {
-  if (!inventories || typeof inventories !== 'object') return [];
+const readInventoryNumber = (
+  data: unknown,
+  key: 'remainder' | 'cost' | 'soonIn' | 'soonOut',
+) => {
+  const value = isJsonObject(data) ? data[key] : undefined;
+  return typeof value === 'number' ? value : 0;
+};
+
+const parseInventories = (inventories: unknown): InventoryEntry[] => {
+  if (!isJsonObject(inventories)) return [];
 
   const rows: InventoryEntry[] = [];
   for (const branchId of Object.keys(inventories)) {
     const departmentMap = inventories[branchId];
-    if (!departmentMap || typeof departmentMap !== 'object') continue;
+    if (!isJsonObject(departmentMap)) continue;
     for (const departmentId of Object.keys(departmentMap)) {
       const data = departmentMap[departmentId];
       if (!data) continue;
       rows.push({
         branchId,
         departmentId,
-        remainder: data.remainder ?? 0,
-        cost: data.cost ?? 0,
-        soonIn: data.soonIn ?? 0,
-        soonOut: data.soonOut ?? 0,
+        remainder: readInventoryNumber(data, 'remainder'),
+        cost: readInventoryNumber(data, 'cost'),
+        soonIn: readInventoryNumber(data, 'soonIn'),
+        soonOut: readInventoryNumber(data, 'soonOut'),
       });
     }
   }
@@ -140,7 +149,7 @@ const buildInventoryColumns = (
 ];
 
 type InventoriesTableProps = {
-  inventories: any;
+  inventories: unknown;
 };
 
 export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
