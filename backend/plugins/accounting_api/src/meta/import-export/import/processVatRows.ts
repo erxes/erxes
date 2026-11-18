@@ -44,7 +44,12 @@ const getKind = (row: ImportRow) => {
 };
 
 const hasColumn = (row: ImportRow, ...keys: string[]) =>
-  keys.some((key) => Object.prototype.hasOwnProperty.call(row, key));
+  keys.some((key) => key in row);
+
+const toText = (value: unknown) =>
+  typeof value === 'string' || typeof value === 'number'
+    ? String(value).trim()
+    : '';
 
 type CodeLookup = (code: string) => Promise<string>;
 
@@ -57,12 +62,49 @@ const CODE_FIELDS = [
   ['creditAccountCategoryCode', 'creditAccountCategoryId', 'category'],
 ] as const;
 
-const parseLedgerFormulas = async (
+type CodeLookups = Record<'account' | 'category', CodeLookup>;
+
+const parseLedgerFormula = async (
+  item: unknown,
+  position: number,
+  lookups: CodeLookups,
+): Promise<ITaxRowLedgerFormula> => {
+  if (!item || typeof item !== 'object') {
+    throw new TypeError('ledger formulas must contain objects');
+  }
+
+  const source = item as Record<string, unknown>;
+  const formula: Record<string, unknown> = { ...source };
+  const ids = await Promise.all(
+    CODE_FIELDS.map(([codeField, , lookup]) => {
+      const code = toText(source[codeField]);
+      return code ? lookups[lookup](code) : undefined;
+    }),
+  );
+
+  CODE_FIELDS.forEach(([codeField, idField], index) => {
+    delete formula[codeField];
+    if (ids[index]) formula[idField] = ids[index];
+  });
+  formula._id = toText(source._id) || nanoid();
+
+  const parsed = taxRowLedgerFormulaSchema.safeParse(formula);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    throw new Error(
+      `ledger formula ${position} ${issue.path.join('.')}: ${issue.message}`,
+    );
+  }
+
+  return parsed.data;
+};
+
+const parseLedgerFormulas = (
   value: string,
-  lookups: Record<'account' | 'category', CodeLookup>,
+  lookups: CodeLookups,
 ): Promise<ITaxRowLedgerFormula[]> => {
   if (!value) {
-    return [];
+    return Promise.resolve([]);
   }
 
   let items: unknown;
@@ -74,44 +116,12 @@ const parseLedgerFormulas = async (
   }
 
   if (!Array.isArray(items)) {
-    throw new Error('ledger formulas must be a JSON array');
+    throw new TypeError('ledger formulas must be a JSON array');
   }
 
-  const formulas: ITaxRowLedgerFormula[] = [];
-
-  for (const item of items) {
-    if (!item || typeof item !== 'object') {
-      throw new Error('ledger formulas must contain objects');
-    }
-
-    const source = item as Record<string, unknown>;
-    const formula: Record<string, unknown> = { ...source };
-
-    for (const [codeField, idField, lookup] of CODE_FIELDS) {
-      delete formula[codeField];
-      const code = String(source[codeField] ?? '').trim();
-
-      if (code) {
-        formula[idField] = await lookups[lookup](code);
-      }
-    }
-
-    formula._id = String(source._id ?? '').trim() || nanoid();
-
-    const parsed = taxRowLedgerFormulaSchema.safeParse(formula);
-    if (!parsed.success) {
-      const issue = parsed.error.issues[0];
-      throw new Error(
-        `ledger formula ${formulas.length + 1} ${issue.path.join('.')}: ${
-          issue.message
-        }`,
-      );
-    }
-
-    formulas.push(parsed.data);
-  }
-
-  return formulas;
+  return Promise.all(
+    items.map((item, index) => parseLedgerFormula(item, index + 1, lookups)),
+  );
 };
 
 const createCodeLookup = (
@@ -200,24 +210,38 @@ export const processVatRows = async (
     ),
   };
 
-  for (const row of rows) {
-    try {
-      const doc = prepareVatRowDoc(row);
+  // Docs are prepared (codes resolved, fields validated) up front; writes stay
+  // in file order so a repeated number updates the row created before it.
+  const prepared = await Promise.all(
+    rows.map(async (row) => {
+      try {
+        const doc = prepareVatRowDoc(row);
 
-      if (hasColumn(row, 'ledger_formulas', 'ledgerFormulas')) {
-        doc.ledgerFormulas = await parseLedgerFormulas(
-          getString(row, 'ledger_formulas') || getString(row, 'ledgerFormulas'),
-          lookups,
-        );
+        if (hasColumn(row, 'ledger_formulas', 'ledgerFormulas')) {
+          doc.ledgerFormulas = await parseLedgerFormulas(
+            getString(row, 'ledger_formulas') ||
+              getString(row, 'ledgerFormulas'),
+            lookups,
+          );
+        }
+
+        return { row, doc: cleanTaxRowReportFields(doc) };
+      } catch (error) {
+        return { row, error };
+      }
+    }),
+  );
+
+  for (const { row, doc, error: prepareError } of prepared) {
+    try {
+      if (!doc) {
+        throw prepareError;
       }
 
       const existing = existingByNumber.get(doc.number);
 
       if (existing) {
-        await models.VatRows.updateOne(
-          { _id: existing._id },
-          { $set: cleanTaxRowReportFields(doc) },
-        );
+        await models.VatRows.updateOne({ _id: existing._id }, { $set: doc });
         successRows.push({ ...row, _id: existing._id });
       } else {
         const vatRow = await models.VatRows.createVatRow(doc);

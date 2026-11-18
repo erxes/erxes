@@ -104,26 +104,35 @@ const calculateLedgerValues = async (
     accounts.map((account) => account._id),
   );
 
-  for (const row of ledgerRows) {
-    let total = 0;
+  // The ledger caches each date window, so formulas can run concurrently.
+  const totals = await Promise.all(
+    ledgerRows.map(async (row) => {
+      const amounts = await Promise.all(
+        (row.ledgerFormulas || []).map(async (formula) => {
+          const amount = await calculateLedgerFormula(
+            ledger,
+            toReportFormula(row._id, formula),
+            accounts,
+            categories,
+            getLedgerDateMatch(formula.getDate, fromDate, toDate),
+            formula.valueSide ??
+              (row.valueSide === 'credit' ? 'credit' : 'debit'),
+          );
 
-    for (const formula of row.ledgerFormulas || []) {
-      const amount = await calculateLedgerFormula(
-        ledger,
-        toReportFormula(row._id, formula),
-        accounts,
-        categories,
-        getLedgerDateMatch(formula.getDate, fromDate, toDate),
-        formula.valueSide ?? (row.valueSide === 'credit' ? 'credit' : 'debit'),
+          return (
+            applyReportPercent(amount, formula.percent) *
+            (formula.plusOrMinus ? 1 : -1)
+          );
+        }),
       );
 
-      total +=
-        applyReportPercent(amount, formula.percent) *
-        (formula.plusOrMinus ? 1 : -1);
-    }
+      return amounts.reduce((sum, amount) => sum + amount, 0);
+    }),
+  );
 
-    values.set(normalizeTaxRowNumber(row.number), total);
-  }
+  ledgerRows.forEach((row, index) => {
+    values.set(normalizeTaxRowNumber(row.number), totals[index]);
+  });
 
   return values;
 };

@@ -1,7 +1,6 @@
 const TITLE_KIND = 'title';
 
 const MAX_RANGE_SIZE = 1000;
-const RANGE_PATTERN = /(\d+)\s*\.\.\s*(\d+)/g;
 
 type Token =
   | { type: 'number'; value: number }
@@ -16,29 +15,82 @@ export interface ITaxFormulaRow {
 }
 
 export const normalizeTaxRowNumber = (value: unknown) => {
-  const text = String(value ?? '').trim();
+  const text =
+    typeof value === 'string' || typeof value === 'number'
+      ? String(value).trim()
+      : '';
 
   return /^\d+$/.test(text) ? String(Number(text)) : text;
 };
 
-// Erkhet writes "11..25" for {11} + ... + {25}; the range stays grouped so a
-// multiplier in front of it applies to the whole sum.
-export const expandTaxFormulaRanges = (formula: string) =>
-  formula.replace(RANGE_PATTERN, (_match, from: string, to: string) => {
-    const start = Number(from);
-    const end = Number(to);
+const isDigit = (char: string) => char >= '0' && char <= '9';
+const isSpace = (char: string) => char.trim() === '';
 
-    if (end < start || end - start > MAX_RANGE_SIZE) {
-      throw new Error(`Invalid tax row range: ${from}..${to}`);
+// Moves from `index` while `test` holds, backwards when `step` is -1. The
+// character read is at `index` going forwards and before it going backwards.
+const skip = (
+  text: string,
+  index: number,
+  limit: number,
+  step: 1 | -1,
+  test: (char: string) => boolean,
+) => {
+  let position = index;
+  const charAt = (at: number) => text[step === 1 ? at : at - 1];
+
+  while (position !== limit && test(charAt(position))) position += step;
+
+  return position;
+};
+
+const expandRange = (from: string, to: string) => {
+  const start = Number(from);
+  const end = Number(to);
+
+  if (end < start || end - start > MAX_RANGE_SIZE) {
+    throw new Error(`Invalid tax row range: ${from}..${to}`);
+  }
+
+  const refs = Array.from(
+    { length: end - start + 1 },
+    (_value, index) => `{${start + index}}`,
+  );
+
+  return `(${refs.join(' + ')})`;
+};
+
+// Erkhet writes "11..25" for {11} + ... + {25}; the range stays grouped so a
+// multiplier in front of it applies to the whole sum. Scanned by hand so long
+// digit runs cannot make a regex backtrack.
+export const expandTaxFormulaRanges = (formula: string) => {
+  let result = '';
+  let index = 0;
+  let dots = formula.indexOf('..');
+
+  while (dots !== -1) {
+    const fromEnd = skip(formula, dots, index, -1, isSpace);
+    const fromStart = skip(formula, fromEnd, index, -1, isDigit);
+    const toStart = skip(formula, dots + 2, formula.length, 1, isSpace);
+    const toEnd = skip(formula, toStart, formula.length, 1, isDigit);
+
+    if (fromStart < fromEnd && toStart < toEnd) {
+      result +=
+        formula.slice(index, fromStart) +
+        expandRange(
+          formula.slice(fromStart, fromEnd),
+          formula.slice(toStart, toEnd),
+        );
+      index = toEnd;
+    } else {
+      result += formula.slice(index, dots + 2);
+      index = dots + 2;
     }
 
-    const refs = Array.from(
-      { length: end - start + 1 },
-      (_value, index) => `{${start + index}}`,
-    );
+    dots = formula.indexOf('..', index);
+  }
 
-    return `(${refs.join(' + ')})`;
-  });
+  return result + formula.slice(index);
+};
 
 const tokenize = (formula: string): Token[] => {
   const tokens: Token[] = [];
