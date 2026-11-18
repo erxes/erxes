@@ -51,8 +51,8 @@ export const ReportTransferField = ({
       const result = await transfer.fill(form.getValues(), currentReportId);
       setText(formatReportTransfer(result.value));
       setError(result.missing.length ? missingMessage(result.missing) : '');
-    } catch (failure) {
-      setError(failure instanceof Error ? failure.message : String(failure));
+    } catch (error_) {
+      setError(error_ instanceof Error ? error_.message : String(error_));
     }
   };
   const apply = async () => {
@@ -72,8 +72,8 @@ export const ReportTransferField = ({
       void form.trigger();
       setError('');
       notifyMutationResult(true, t('jsonApplied'));
-    } catch (failure) {
-      setError(failure instanceof Error ? failure.message : String(failure));
+    } catch (error_) {
+      setError(error_ instanceof Error ? error_.message : String(error_));
     }
   };
   const copy = async () => {
