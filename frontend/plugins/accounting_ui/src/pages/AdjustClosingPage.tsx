@@ -1,5 +1,5 @@
 import { AccountingLayout } from '@/layout/components/Layout';
-import { TransactionsFilter } from '@/transactions/components/TrFilters';
+import { AdjustClosingFilter } from '@/adjustments/closing/components/AdjustClosingFilter';
 import { AdjustmentHeader } from '../modules/adjustments/components/Header';
 import { PageSubHeader } from 'erxes-ui';
 import { AdjustClosingTable } from '~/modules/adjustments/closing/components/AdjustClosingTable';
@@ -14,7 +14,7 @@ export const AdjustClosingListPage = () => {
         </div>
       </AdjustmentHeader>
       <PageSubHeader>
-        <TransactionsFilter />
+        <AdjustClosingFilter />
       </PageSubHeader>
       <AdjustClosingTable />
     </AccountingLayout>

@@ -7,7 +7,7 @@ import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { ADJUST_CLOSING_QUERY } from '../graphql/adjustClosingQueries';
 import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
-import { EnumCursorDirection } from 'erxes-ui';
+import { EnumCursorDirection, useQueryState } from 'erxes-ui';
 
 export const useAdjustClosing = (
   options?: QueryHookOptions<
@@ -15,14 +15,21 @@ export const useAdjustClosing = (
     AccountingAdjustClosingsQueryVariables
   >,
 ) => {
+  const [status] = useQueryState<string>('status');
   const {
     data: queryData,
     loading,
     error,
     fetchMore,
   } = useQuery(ADJUST_CLOSING_QUERY, {
+    fetchPolicy: 'cache-and-network',
     ...options,
-    variables: { ...options?.variables, page: 1, perPage: ACC_TRS__PER_PAGE },
+    variables: {
+      status: status || undefined,
+      ...options?.variables,
+      page: 1,
+      perPage: ACC_TRS__PER_PAGE,
+    },
   });
   const data = toGraphqlView(queryData);
   const { adjustClosings = [], adjustClosingsCount = 0 } = data || {};

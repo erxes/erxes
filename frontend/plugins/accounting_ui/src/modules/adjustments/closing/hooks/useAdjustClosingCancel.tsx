@@ -32,7 +32,7 @@ export const useAdjustClosingCancel = (
       onError: (error: ApolloError) => {
         toast({
           title: t('error'),
-          description: error.message,
+          description: t(error.message, { nsSeparator: false }),
           variant: 'destructive',
         });
         options?.onError?.(error);

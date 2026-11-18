@@ -471,7 +471,11 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
         message: t('Are you sure you want to delete this adjustment?'),
       }).then(() =>
         removeAdjust(id, {
-          onError: (error) => notifyMutationResult(false, error.message),
+          onError: (error) =>
+            notifyMutationResult(
+              false,
+              t(error.message, { nsSeparator: false }),
+            ),
           onCompleted: () =>
             notifyMutationResult(true, t('Adjustment deleted successfully')),
         }),
@@ -547,9 +551,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
               onPublish={handlePublish}
               onRun={handleRun}
               runLoading={runLoading}
-              status={
-                adjustClosingDetail?.status ? t(adjustClosingDetail.status) : ''
-              }
+              status={adjustClosingDetail?.status}
             />
           </div>
         </div>

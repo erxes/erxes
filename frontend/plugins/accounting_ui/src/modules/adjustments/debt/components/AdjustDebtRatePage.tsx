@@ -2,7 +2,7 @@ import { AddAdjustDebtRate } from './AdjustDebtRateForm';
 import { AdjustDebtRateTable } from './AdjustDebtRateTable';
 import { AccountingLayout } from '@/layout/components/Layout';
 import { AdjustmentHeader } from '../../components/Header';
-import { TransactionsFilter } from '@/transactions/components/TrFilters';
+import { AdjustDebtRateFilter } from '@/adjustments/debt/components/AdjustDebtRateFilter';
 import { PageSubHeader } from 'erxes-ui';
 
 export const AdjustDebtRatePage = () => {
@@ -12,7 +12,7 @@ export const AdjustDebtRatePage = () => {
         <AddAdjustDebtRate />
       </AdjustmentHeader>
       <PageSubHeader>
-        <TransactionsFilter />
+        <AdjustDebtRateFilter />
       </PageSubHeader>
       <AdjustDebtRateTable />
     </AccountingLayout>
