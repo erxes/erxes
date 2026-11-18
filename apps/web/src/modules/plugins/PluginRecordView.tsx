@@ -92,7 +92,7 @@ const useRecordTabs = (
       label: t('detail', 'Detail'),
       icon: IconId,
       content: (
-        <ContactDetailScroll>
+        <ContactDetailScroll fill>
           <Slot plugin={plugin} component={type.Detail} record={record} />
         </ContactDetailScroll>
       ),
