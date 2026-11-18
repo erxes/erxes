@@ -284,12 +284,21 @@ export const PLUGIN_SCOPES = [
   'payments:write',
   'products:read',
   'products:write',
+  /**
+   * Add fields and objects to every record type (Data Extensions): its own schema per
+   * organisation (`core_plugin_org_schema`), the record types (`recordTypes.list`) and, in a
+   * member's plugin session, what the member may do with each of them (`records`).
+   */
+  'records:extend',
   'units:read',
   'units:write',
   'users:read',
   'users:write',
   'views:read',
 ] as const;
+
+/** What a member may do with a record type's records, in a `records:extend` plugin's session. */
+export const RECORD_RIGHTS = ['read', 'update'] as const;
 
 /** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */
 export const ENTITLEMENT_STATUSES = ['active', 'past_due', 'canceling'] as const;

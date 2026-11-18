@@ -10,14 +10,20 @@ import { usePlugins } from './usePlugins';
 /** Where a relation tab shows when it names no hosts: a customer's and a company's panels. */
 const CONTACT_TYPES = ['core:customer', 'core:company'];
 
+/** A relation tab's `hosts` entry for every record type. */
+const EVERY_RECORD_TYPE = '*';
+
 /**
  * Whether a plugin's relation tab shows on a record of `contentType`: the record types its
- * `hosts` names (`core:customer` alone, `tasks:task`), else customers and companies. Another
- * plugin's record shows it only when named, so an order doesn't list its customer's deals
- * unless the plugin asks for that.
+ * `hosts` names (`core:customer` alone, `tasks:task`, `*` for all), else customers and
+ * companies. Another plugin's record shows it only when named, so an order doesn't list its
+ * customer's deals unless the plugin asks for that.
  */
-const showsOn = (tab: TRelationTab, contentType: string) =>
-  (tab.hosts ?? CONTACT_TYPES).includes(contentType);
+const showsOn = (tab: TRelationTab, contentType: string) => {
+  const hosts = tab.hosts ?? CONTACT_TYPES;
+
+  return hosts.includes(EVERY_RECORD_TYPE) || hosts.includes(contentType);
+};
 
 /** One plugin's relation tab: its list, kept apart if it crashes. */
 const RelationTabContent = ({

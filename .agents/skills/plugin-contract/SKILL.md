@@ -40,6 +40,15 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      pick it from `GET <api.url>/automations/records/<recordType>` without `parent`, so that
      route answers every record of the type then ("Pipeline · Stage"), and that type's record
      pickers offer it. The route, the query key `parent` and the answer's shape are the contract.
+     The manifest's `objects` (`PluginObject` in `packages/contract/src/recordTypes.ts`: `type`,
+     `label`, `singularLabel`, `icon?`, `permission?`, `updatePermission?`) name the plugin's
+     record types a plugin with the scope `records:extend` (Data Extensions) may add fields to.
+     That plugin lists core's and every installed plugin's types with `recordTypes.list`, gets
+     `records` (type → `read` or `update`) in a member's session (`canRecord` in the SDK), and
+     creates its schema per organisation, `<plugin>_<org id>`, with
+     `SELECT core_plugin_org_schema('<org id>')`; its tables there pass
+     `core_plugin_tenancy_problems` like those in public. Customers and companies that leave the
+     recycle bin for good publish `core.customer.purged` and `core.company.purged`.
      The manifest's `pluginReads` (`PluginRead`: `plugin`, `permissions`, `reason`, in
      `packages/contract/src/pluginReads.ts`) lets a plugin read another plugin's API for an
      organisation: the owner approves it like a scope (stored in the installation's granted scopes
@@ -104,7 +113,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      plugin with settings pages links from its own settings, and the plugin keeps
      the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on the
      record types their `hosts` name (`core:customer`, `core:company`, a plugin type with
-     `contacts`), and on customers and companies when they name none
+     `contacts`, or `*` for every type), and on customers and companies when they name none
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
      entry. Core shows the config's words (the app's name, `title`s and `label`s) through

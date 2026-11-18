@@ -187,8 +187,8 @@ export type TRelationTab = {
   title: string;
   icon: Icon;
   /**
-   * The record types it shows on (`core:customer` alone, `tasks:task`); none: customers and
-   * companies.
+   * The record types it shows on (`core:customer` alone, `tasks:task`); `['*']`: every record
+   * type, core's and each plugin's (Data Extensions' fields); none: customers and companies.
    */
   hosts?: string[];
   component: React.ComponentType<TRelationTabProps>;

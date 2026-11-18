@@ -275,6 +275,8 @@ export const ACCESS = {
 
   ...PAYMENT_ACCESS,
 
+  // Labels and permission names only, so any member may read them.
+  'recordTypes.list': { member: 'any', plugin: 'records:extend' },
   'products.list': { member: 'any', plugin: 'products:read' },
   'products.get': { member: 'any', plugin: 'products:read' },
   'products.lookup': { member: 'any', plugin: 'products:read' },
