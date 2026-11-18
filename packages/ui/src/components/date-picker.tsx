@@ -123,9 +123,10 @@ const PickerPopover = ({
 };
 
 /**
- * The range or multiple picker's button, showing the dates or the placeholder. With dates its
- * name is its label, then the dates: a label alone would hide them from screen readers. The
- * label is the row's or its own `aria-labelledby`, or its `aria-label` through its own id.
+ * The range or multiple picker's button, showing the dates or the placeholder. Its name is its
+ * label, then what it shows: a label alone would hide the dates from screen readers and leave
+ * its visible text out of its name. The label is the row's or its own `aria-labelledby`, or its
+ * `aria-label` through its own id.
  */
 const PickerButton = ({
   control,
@@ -151,7 +152,7 @@ const PickerButton = ({
     <Popover.Trigger
       {...control}
       id={id}
-      aria-labelledby={shown && label ? `${label} ${textId}` : control['aria-labelledby']}
+      aria-labelledby={label ? `${label} ${textId}` : undefined}
       render={<Button variant={variant} />}
       disabled={disabled}
       className={cn('w-full justify-start text-left font-normal', className)}
