@@ -151,7 +151,6 @@ export const generateTunableReport = async (
   ): Promise<number> => {
     const period = resolveReportPeriod(formula, row, column);
     validateReportFormulaPeriod(
-      formula.kind,
       period.getDate,
       reportCellLabel({ report: owner, section, row, column }),
     );

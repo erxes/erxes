@@ -71,7 +71,7 @@ export const reportSectionInputSchema = z.object({
   ),
   formulas: z.array(reportFormulaInputSchema).default([]),
 });
-const reportDefinitionSchema = z.object({
+export const reportDefinitionSchema = z.object({
   code: id,
   name: id,
   description: z.string().default(''),
@@ -124,11 +124,6 @@ export const reportFormSchema = reportDefinitionSchema.superRefine(
           const date = formula.getDate ?? column.getDate ?? row.getDate;
           if (!date)
             issue('getDate', 'Select a date on the formula, row or column');
-          if (formula.kind === 'balance' && date === 'between')
-            issue(
-              'getDate',
-              'Balance formulas require an opening or closing date',
-            );
         });
       });
     });

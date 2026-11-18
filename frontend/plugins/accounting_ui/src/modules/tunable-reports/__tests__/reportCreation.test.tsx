@@ -90,6 +90,7 @@ jest.mock('erxes-ui', () => {
       children,
       disabled,
       type,
+      form,
       onClick,
     }: ComponentProps<'button'> & { asChild?: boolean }) =>
       asChild ? (
@@ -97,7 +98,7 @@ jest.mock('erxes-ui', () => {
           cloneElement(children)
         ) : null
       ) : (
-        <button disabled={disabled} type={type} onClick={onClick}>
+        <button disabled={disabled} type={type} form={form} onClick={onClick}>
           {children}
         </button>
       ),
@@ -135,9 +136,10 @@ test('an unsaved report can be edited and submitted before client permission met
     </MemoryRouter>,
   );
   expect(container.querySelector('fieldset')?.disabled).toBe(false);
-  expect(
-    screen.getByRole('button', { name: 'save' }).getAttribute('type'),
-  ).toBe('submit');
+  const save = screen.getByRole('button', { name: 'save' });
+  expect(save.getAttribute('type')).toBe('submit');
+  // Save may sit outside the form (the page top bar) and still submits it.
+  expect(save.getAttribute('form')).toBe(container.querySelector('form')?.id);
 });
 
 test('reports render as cards and Generate opens the selected report sheet', () => {

@@ -203,12 +203,10 @@ export const FormulaRow = ({
           form={form}
           name={`${path}.getDate`}
           label={t('period')}
-          options={['__inherit', 'first', 'last', 'between']
-            .filter((value) => kind !== 'balance' || value !== 'between')
-            .map((value) => ({
-              value,
-              label: t(value === '__inherit' ? 'inherit' : value),
-            }))}
+          options={['__inherit', 'first', 'last', 'between'].map((value) => ({
+            value,
+            label: t(value === '__inherit' ? 'inherit' : value),
+          }))}
         />
       </Table.Cell>
       <Table.Cell>
