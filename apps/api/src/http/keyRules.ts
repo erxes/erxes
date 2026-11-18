@@ -39,6 +39,11 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   customerAccount: null,
   customerAuth: null,
   customerNotifications: null,
+  dataFields: { lookup: true, writes: 'settings' },
+  dataObjects: { lookup: true, writes: 'settings' },
+  // Records and values follow their record type's rights, which a key's areas don't map.
+  dataRecords: null,
+  dataValues: null,
   emails: null,
   // The event stream carries contacts' data.
   events: null,
@@ -53,6 +58,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   plugins: 'plugins',
   productCategories: 'products',
   products: 'products',
+  recordTypes: { lookup: true, writes: 'settings' },
   roles: 'team',
   saas: 'settings',
   search: { lookup: true, writes: 'settings' },

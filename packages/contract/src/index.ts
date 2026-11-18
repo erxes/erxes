@@ -10,6 +10,8 @@ import { companiesContract } from './companies';
 import { emailsContract } from './emails';
 import { eventsContract } from './events';
 import { customersContract } from './customers';
+import { dataFieldsContract, dataObjectsContract } from './dataExtensions';
+import { dataRecordsContract, dataValuesContract } from './dataRecords';
 import { favoritesContract } from './favorites';
 import { customerAccountContract, customerAuthContract } from './customerAuth';
 import { customerNotificationsContract } from './customerNotifications';
@@ -22,6 +24,7 @@ import { paymentsContract } from './payments';
 import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
+import { recordTypesContract } from './recordTypes';
 import { rolesContract } from './roles';
 import { searchContract } from './search';
 import { tagsContract } from './tags';
@@ -45,6 +48,10 @@ export type CoreContract = {
   broadcasts: typeof broadcastsContract;
   companies: typeof companiesContract;
   customers: typeof customersContract;
+  dataFields: typeof dataFieldsContract;
+  dataObjects: typeof dataObjectsContract;
+  dataRecords: typeof dataRecordsContract;
+  dataValues: typeof dataValuesContract;
   favorites: typeof favoritesContract;
   customerAccount: typeof customerAccountContract;
   customerAuth: typeof customerAuthContract;
@@ -62,6 +69,7 @@ export type CoreContract = {
   plugins: typeof pluginsContract;
   productCategories: typeof productCategoriesContract;
   products: typeof productsContract;
+  recordTypes: typeof recordTypesContract;
   roles: typeof rolesContract;
   saas: typeof saasContract;
   search: typeof searchContract;
@@ -87,6 +95,10 @@ export const coreContract: CoreContract = {
   broadcasts: broadcastsContract,
   companies: companiesContract,
   customers: customersContract,
+  dataFields: dataFieldsContract,
+  dataObjects: dataObjectsContract,
+  dataRecords: dataRecordsContract,
+  dataValues: dataValuesContract,
   favorites: favoritesContract,
   customerAccount: customerAccountContract,
   customerAuth: customerAuthContract,
@@ -104,6 +116,7 @@ export const coreContract: CoreContract = {
   plugins: pluginsContract,
   productCategories: productCategoriesContract,
   products: productsContract,
+  recordTypes: recordTypesContract,
   roles: rolesContract,
   saas: saasContract,
   search: searchContract,
@@ -148,6 +161,14 @@ export * from './companies';
 
 export * from './customers';
 
+export * from './dataExtensionFields';
+
+export * from './dataExtensions';
+
+export * from './dataExtensionValues';
+
+export * from './dataRecords';
+
 export * from './customerAuth';
 
 export * from './customerNotifications';
@@ -161,6 +182,8 @@ export * from './favorites';
 export * from './fieldGroups';
 
 export * from './fields';
+
+export * from './recordTypes';
 
 export * from './files';
 

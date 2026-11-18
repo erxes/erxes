@@ -49,6 +49,9 @@ const databaseError = (error: unknown, depth = 0): DatabaseError | undefined => 
 /** The SQLSTATE of the pg error behind `error`, e.g. 23505 for a unique violation. */
 export const pgCode = (error: unknown) => databaseError(error)?.code;
 
+/** The constraint or index the pg error behind `error` names, if any. */
+export const pgConstraint = (error: unknown) => databaseError(error)?.constraint;
+
 /**
  * The unique indexes and foreign keys input can run into, by constraint name:
  * the input field and what to tell the caller. A unique violation answers
@@ -117,6 +120,14 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
   core_org_units_org_kind_code_key: {
     field: 'code',
     message: 'Another unit of this kind has this code',
+  },
+  core_data_objects_org_key_key: {
+    field: 'key',
+    message: 'An object with this key already exists',
+  },
+  core_data_fields_org_type_key_key: {
+    field: 'key',
+    message: 'This record type already has a field with this key',
   },
   core_org_unit_types_org_kind_code_key: {
     field: 'code',

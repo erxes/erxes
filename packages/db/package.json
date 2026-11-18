@@ -10,6 +10,7 @@
     ".": "./src/index.ts",
     "./assistantEnums": "./src/assistantEnums.ts",
     "./automationDefinition": "./src/automationDefinition.ts",
+    "./dataExtensionEnums": "./src/dataExtensionEnums.ts",
     "./enums": "./src/enums.ts",
     "./schema": "./src/schema/index.ts"
   },

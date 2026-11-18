@@ -1,0 +1,114 @@
+import { dataExtensionValueSchema, type RecordType } from '@erxes/core-contract';
+import {
+  caller,
+  type Db,
+  type DataFieldOption,
+  type DataFieldSettings,
+  dataFields,
+} from '@erxes/core-db';
+import { count, eq, sql } from 'drizzle-orm';
+import { fail } from '~/http/errors';
+import { listRecordTypes } from '~/modules/recordTypes/recordTypes.service';
+import { customKeyOf, FIELDS_MAX, activeObject } from './definitions';
+import { UNIQUE_TYPES } from './unique';
+
+/** What a field's definition must hold before it is saved. */
+
+type FieldDefinition = {
+  type: (typeof dataFields.$inferSelect)['type'];
+  options: DataFieldOption[];
+  settings: DataFieldSettings;
+};
+
+const invalid = (path: string, message: string) =>
+  fail('INVALID_INPUT', message, { issues: [{ path: path.split('.'), message }] });
+
+/** Throws 400 INVALID_INPUT when options or settings don't suit the type. */
+export const assertFieldDefinition = (field: FieldDefinition) => {
+  const choosing = field.type === 'select' || field.type === 'multiSelect';
+
+  if (choosing && !field.options.length) throw invalid('options', 'A select needs options');
+
+  if (!choosing && field.options.length) throw invalid('options', 'Only selects have options');
+
+  if (field.settings.unique && !UNIQUE_TYPES.has(field.type)) {
+    throw invalid('settings.unique', 'Only text, email, phone, url and number fields are unique');
+  }
+
+  const { min, max } = field.settings;
+
+  if (min !== undefined && max !== undefined && min > max) {
+    throw invalid('settings.min', 'The minimum is above the maximum');
+  }
+
+  const { defaultValue } = field.settings;
+
+  if (
+    defaultValue !== undefined &&
+    !dataExtensionValueSchema({ ...field, relation: null }).safeParse(defaultValue).success
+  ) {
+    throw invalid('settings.defaultValue', 'The default is not a value of this field');
+  }
+};
+
+/**
+ * A record type fields may be added to: core's, an installed plugin's, or an active custom
+ * object. 400 INVALID_REFERENCE for any other.
+ */
+export const extendableType = async (
+  client: Db,
+  recordType: string,
+  field = 'recordType',
+): Promise<RecordType> => {
+  const key = customKeyOf(recordType);
+
+  if (key) await activeObject(client, key);
+
+  const found = (await listRecordTypes(client)).find((type) => type.type === recordType);
+
+  if (!found) throw fail('INVALID_REFERENCE', `${recordType} is not a record type here`, { field });
+
+  return found;
+};
+
+/** Throws 400 LIMIT_EXCEEDED when the record type has its most fields. */
+export const assertRoom = async (client: Db, recordType: string, adding = 1) => {
+  const [counted] = await client
+    .select({ total: count() })
+    .from(dataFields)
+    .where(eq(dataFields.recordType, recordType));
+
+  if ((counted?.total ?? 0) + adding > FIELDS_MAX) {
+    throw fail('LIMIT_EXCEEDED', `A record type has at most ${FIELDS_MAX} fields`);
+  }
+};
+
+/** A plugin reads the fields of its own record types only. */
+export const assertPluginReads = (recordType: string) => {
+  const who = caller();
+
+  if (who.type === 'plugin' && !recordType.startsWith(`${who.plugin}.`)) {
+    throw fail('NOT_ALLOWED', 'Plugins read the fields of their own record types only');
+  }
+};
+
+/** The next position at the end of a record type's fields. */
+export const nextPosition = async (client: Db, recordType: string) => {
+  const [row] = await client
+    .select({ next: sql<number>`coalesce(max(${dataFields.position}) + 1, 0)::int` })
+    .from(dataFields)
+    .where(eq(dataFields.recordType, recordType));
+
+  return row?.next ?? 0;
+};
+
+/** The columns a record type's fields have, archived ones too. */
+export const takenColumns = async (client: Db, recordType: string) =>
+  new Set(
+    (
+      await client
+        .select({ column: dataFields.column })
+        .from(dataFields)
+        .where(eq(dataFields.recordType, recordType))
+    ).flatMap((row) => (row.column ? [row.column] : [])),
+  );

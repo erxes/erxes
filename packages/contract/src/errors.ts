@@ -131,6 +131,11 @@ export const ERRORS = {
   INVALID_FIELD_VALUE: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_GROUP: { status: 400, data: z.object({ groupId: z.string() }).optional() },
   FIELD_IN_USE: { status: 409, data: z.object({ fieldId: z.string() }).optional() },
+  // Data Extensions (the `dataextension` plugin): another change to the organisation's data
+  // model held its tables past the lock timeout; the same change can be sent again.
+  SCHEMA_BUSY: { status: 409 },
+  // Only an archived object or field is deleted, which drops its data.
+  ARCHIVE_FIRST: { status: 409 },
   // A field a plugin declared: only that plugin changes it or writes its values.
   PLUGIN_FIELD: { status: 403, data: z.object({ fieldId: z.string(), plugin: z.string() }) },
   // `views.matches` on a member's own view: only views shared with the team decide for plugins.
