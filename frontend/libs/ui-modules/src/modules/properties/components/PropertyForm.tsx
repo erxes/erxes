@@ -23,6 +23,11 @@ import { IPropertyForm } from '../types/propertyFormTypes';
 import { PropertyFormGroupField } from './PropertyFormGroupField';
 import { PropertyFormLogicFields } from './PropertyFormLogicFields';
 import { PropertyFormObjectListFields } from './PropertyFormObjectListFields';
+import {
+  PropertyFormPanel,
+  PropertyFormPanelFields,
+  PropertyTypeSelectContent,
+} from './PropertyFormPanelFields';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
@@ -53,7 +58,7 @@ export const PropertyForm = ({
   // Featured fields: a plugin owns them, so only presentation can change.
   locked?: boolean;
   onCancel: () => void;
-  layout?: 'sheet' | 'record';
+  layout?: 'sheet' | 'record' | 'panel';
   contentType: string;
   fieldId?: string;
 }) => {
@@ -70,6 +75,16 @@ export const PropertyForm = ({
     !isEdit || valueUsage.unused
       ? FIELD_TYPES.map(({ value }) => value)
       : getEditableTypes(defaultValues.type);
+  const typeDisabled = !!(locked || disableType || allowedTypes.length < 2);
+
+  const handleTypeChange = (value: string) => {
+    if (!isEdit) {
+      form.setValue('options', []);
+      form.setValue('objectListConfigs', []);
+    } else if (!OPTION_TYPES.includes(value)) {
+      form.setValue('options', []);
+    }
+  };
 
   const handleSubmit = (data: IPropertyForm) => {
     let sendData = data;
@@ -92,6 +107,63 @@ export const PropertyForm = ({
     };
     onSubmit(sendData);
   };
+
+  const typeHint = isEdit && fieldId && !locked && !disableType && (
+    <PropertyTypeUsageHint
+      fieldId={fieldId}
+      contentType={contentType}
+      {...valueUsage}
+    />
+  );
+
+  const advancedFields = (
+    <>
+      {!locked && <PropertyFormValidation form={form} />}
+      <PropertyFormSelectFields
+        form={form}
+        isEdit={isEdit}
+        locked={locked}
+        fieldId={fieldId}
+        contentType={contentType}
+        optionCount={valueUsage.optionCount}
+      />
+      {!locked && (
+        <>
+          <PropertyFormObjectListFields form={form} isEdit={isEdit} />
+          <PropertySelectRelationType form={form} isEdit={isEdit} />
+          <PropertyFormLogicFields
+            form={form}
+            contentType={contentType}
+            excludeFieldId={fieldId}
+          />
+        </>
+      )}
+    </>
+  );
+
+  if (layout === 'panel') {
+    return (
+      <PropertyFormPanel
+        form={form}
+        onSubmit={handleSubmit}
+        onCancel={onCancel}
+        loading={loading}
+        isEdit={isEdit}
+        locked={locked}
+      >
+        <PropertyFormPanelFields
+          form={form}
+          contentType={contentType}
+          locked={locked}
+          typeDisabled={typeDisabled}
+          allowedTypes={allowedTypes}
+          onTypeChange={handleTypeChange}
+          typeHint={typeHint}
+        />
+        <div className="flex flex-col gap-5 empty:hidden">{advancedFields}</div>
+      </PropertyFormPanel>
+    );
+  }
 
   const Content = layout === 'record' ? 'div' : Sheet.Content;
   const Footer = layout === 'record' ? 'div' : Sheet.Footer;
@@ -210,16 +282,9 @@ export const PropertyForm = ({
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
-                        if (!isEdit) {
-                          form.setValue('options', []);
-                          form.setValue('objectListConfigs', []);
-                        } else if (!OPTION_TYPES.includes(value)) {
-                          form.setValue('options', []);
-                        }
+                        handleTypeChange(value);
                       }}
-                      disabled={
-                        locked || disableType || allowedTypes.length < 2
-                      }
+                      disabled={typeDisabled}
                     >
                       <Form.Control>
                         <Select.Trigger>
@@ -228,26 +293,9 @@ export const PropertyForm = ({
                           />
                         </Select.Trigger>
                       </Form.Control>
-                      <Select.Content>
-                        {FIELD_TYPES.filter(({ value }) =>
-                          allowedTypes.includes(value),
-                        ).map((type) => (
-                          <Select.Item key={type.value} value={type.value}>
-                            <div className="flex items-center gap-2 [&_svg]:size-4">
-                              <type.icon />
-                              {t(`field-type.${type.value}`, type.label)}
-                            </div>
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
+                      <PropertyTypeSelectContent allowedTypes={allowedTypes} />
                     </Select>
-                    {isEdit && fieldId && !locked && !disableType && (
-                      <PropertyTypeUsageHint
-                        fieldId={fieldId}
-                        contentType={contentType}
-                        {...valueUsage}
-                      />
-                    )}
+                    {typeHint}
                     <Form.Message />
                   </Form.Item>
                 )}
@@ -267,26 +315,7 @@ export const PropertyForm = ({
                   </Form.Item>
                 )}
               />
-              {!locked && <PropertyFormValidation form={form} />}
-              <PropertyFormSelectFields
-                form={form}
-                isEdit={isEdit}
-                locked={locked}
-                fieldId={fieldId}
-                contentType={contentType}
-                optionCount={valueUsage.optionCount}
-              />
-              {!locked && (
-                <>
-                  <PropertyFormObjectListFields form={form} isEdit={isEdit} />
-                  <PropertySelectRelationType form={form} isEdit={isEdit} />
-                  <PropertyFormLogicFields
-                    form={form}
-                    contentType={contentType}
-                    excludeFieldId={fieldId}
-                  />
-                </>
-              )}
+              {advancedFields}
             </div>
           </ScrollArea>
         </Content>

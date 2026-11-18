@@ -15,88 +15,94 @@ export const SourceAutomations = ({
   hint,
   empty,
   allLabel,
+  framed = true,
   ...hookOptions
 }: Parameters<typeof useSourceAutomations>[0] & {
   hint: string;
   empty: string;
   allLabel: string;
+  framed?: boolean;
 }) => {
   const { t } = useTranslation('sales');
   const { automations, loading, error, editPath, createAutomation } =
     useSourceAutomations(hookOptions);
   const { removeAutomation, removing } = useSourceAutomationRemove();
 
+  const content = (
+    <>
+      <p className="text-sm text-muted-foreground">{hint}</p>
+
+      {loading && !automations.length && <Skeleton className="h-9 w-full" />}
+
+      {error && (
+        <p className="text-sm text-destructive">
+          {t('pos-automations-failed', {
+            defaultValue: 'Could not load automations: {{message}}',
+            message: error.message,
+          })}
+        </p>
+      )}
+
+      {!loading && !error && !automations.length && (
+        <p className="text-sm text-muted-foreground">{empty}</p>
+      )}
+
+      {!!automations.length && (
+        <div className="flex flex-col gap-2">
+          {automations.map(({ _id, name, status, events, isAll }) => (
+            <div
+              key={_id}
+              className="flex items-center gap-1 rounded-md border pr-1 transition-colors hover:bg-accent"
+            >
+              <Link
+                to={editPath(_id)}
+                className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2 text-sm"
+              >
+                <IconBolt className="size-4 shrink-0 text-muted-foreground" />
+                <span className="flex-1 truncate">
+                  {name || t('untitled', 'Untitled')}
+                </span>
+                {isAll && <Badge variant="secondary">{allLabel}</Badge>}
+                {!!events.length && (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {events.join(' · ')}
+                  </span>
+                )}
+                <Badge variant={status === 'active' ? 'success' : 'secondary'}>
+                  {status || 'draft'}
+                </Badge>
+                <IconChevronRight className="size-4 shrink-0 text-muted-foreground" />
+              </Link>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={t('delete', 'Delete')}
+                disabled={removing}
+                onClick={() => removeAutomation(_id, name)}
+              >
+                <IconTrash />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button type="button" variant="secondary" onClick={createAutomation}>
+        <IconPlus />
+        {t('pos-other-automation', 'Other automation')}
+      </Button>
+    </>
+  );
+
+  if (!framed) {
+    return <div className="space-y-4">{content}</div>;
+  }
+
   return (
     <div className="p-6">
       <InfoCard title={t('pos-automations', 'Automations')}>
-        <InfoCard.Content className="space-y-4">
-          <p className="text-sm text-muted-foreground">{hint}</p>
-
-          {loading && !automations.length && (
-            <Skeleton className="h-9 w-full" />
-          )}
-
-          {error && (
-            <p className="text-sm text-destructive">
-              {t('pos-automations-failed', {
-                defaultValue: 'Could not load automations: {{message}}',
-                message: error.message,
-              })}
-            </p>
-          )}
-
-          {!loading && !error && !automations.length && (
-            <p className="text-sm text-muted-foreground">{empty}</p>
-          )}
-
-          {!!automations.length && (
-            <div className="flex flex-col gap-2">
-              {automations.map(({ _id, name, status, events, isAll }) => (
-                <div
-                  key={_id}
-                  className="flex items-center gap-1 rounded-md border pr-1 transition-colors hover:bg-accent"
-                >
-                  <Link
-                    to={editPath(_id)}
-                    className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2 text-sm"
-                  >
-                    <IconBolt className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1 truncate">
-                      {name || t('untitled', 'Untitled')}
-                    </span>
-                    {isAll && <Badge variant="secondary">{allLabel}</Badge>}
-                    {!!events.length && (
-                      <span className="truncate text-xs text-muted-foreground">
-                        {events.join(' · ')}
-                      </span>
-                    )}
-                    <Badge
-                      variant={status === 'active' ? 'success' : 'secondary'}
-                    >
-                      {status || 'draft'}
-                    </Badge>
-                    <IconChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                  </Link>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t('delete', 'Delete')}
-                    disabled={removing}
-                    onClick={() => removeAutomation(_id, name)}
-                  >
-                    <IconTrash />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <Button type="button" variant="secondary" onClick={createAutomation}>
-            <IconPlus />
-            {t('pos-other-automation', 'Other automation')}
-          </Button>
-        </InfoCard.Content>
+        <InfoCard.Content className="space-y-4 p-6">{content}</InfoCard.Content>
       </InfoCard>
     </div>
   );

@@ -1,3 +1,6 @@
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import {
   restorePosPaymentConfig,
   restorePosPaymentText,
@@ -12,7 +15,7 @@ import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { IPosEarnTier } from '@/pos/types/pos';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, toast } from 'erxes-ui';
+import { Form, isDefined, toast } from 'erxes-ui';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +49,7 @@ const DEFAULT_FORM_VALUES: PaymentFormData = {
 
 const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PaymentFormData>({
@@ -161,16 +165,11 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={PAYMENT_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={PAYMENT_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -207,23 +206,36 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <PaymentIdsField control={control} />
-          <OtherPaymentsField control={control} />
-          <EarnScoreCampaignsField control={control} posId={posId} />
-          <PosEarnTierField control={control} />
-          <AcceptCouponsField control={control} />
+          <PosSettingsSection
+            title={labels.paymentMethodsTitle}
+            description={labels.paymentMethodsDescription}
+          >
+            <div className="space-y-6">
+              <PaymentIdsField control={control} />
+              <OtherPaymentsField control={control} />
+            </div>
+          </PosSettingsSection>
+
+          <PosSettingsSection
+            separated
+            title={labels.loyaltyTitle}
+            description={labels.loyaltyDescription}
+          >
+            <div className="space-y-6">
+              <EarnScoreCampaignsField control={control} posId={posId} />
+              <PosEarnTierField control={control} />
+            </div>
+          </PosSettingsSection>
+
+          <PosSettingsSection separated title={labels.couponsTitle}>
+            <AcceptCouponsField control={control} />
+          </PosSettingsSection>
         </form>
       </Form>
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('payment-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { Payment };

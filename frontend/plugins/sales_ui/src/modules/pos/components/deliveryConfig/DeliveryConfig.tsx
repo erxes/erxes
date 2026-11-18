@@ -1,10 +1,13 @@
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
 import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
 import { Stage } from '@/pos/components/deliveryConfig/Stage';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { Form, isDefined, toast } from 'erxes-ui';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +46,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
   onSaveActionChange,
 }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<DeliveryConfigFormData>({
@@ -120,16 +124,11 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={DELIVERY_CONFIG_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={DELIVERY_CONFIG_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -182,27 +181,26 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <section className="space-y-4">
-            <Label>{t('stage')}</Label>
+          <PosSettingsSection
+            title={labels.deliveryStageTitle}
+            description={labels.deliveryStageDescription}
+          >
             <Stage control={control} />
-          </section>
+          </PosSettingsSection>
 
-          <section className="pt-6 space-y-4 border-t">
-            <Label>{t('deal-users')}</Label>
+          <PosSettingsSection
+            separated
+            title={t('deal-users')}
+            description={labels.deliveryUsersDescription}
+          >
             <DealUsers control={control} />
-          </section>
+          </PosSettingsSection>
         </form>
       </Form>
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('delivery-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { DeliveryConfig };
