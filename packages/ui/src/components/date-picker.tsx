@@ -1,5 +1,5 @@
 import type { Matcher, PropsBase } from 'react-day-picker';
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Calendar } from './calendar';
 import { Button } from './button';
@@ -122,6 +122,45 @@ const PickerPopover = ({
   );
 };
 
+/**
+ * The range or multiple picker's button, showing the dates or the placeholder. With dates its
+ * name is its label, then the dates: a label alone would hide them from screen readers. The
+ * label is the row's or its own `aria-labelledby`, or its `aria-label` through its own id.
+ */
+const PickerButton = ({
+  control,
+  shown,
+  placeholder,
+  variant,
+  disabled,
+  className,
+}: {
+  control: ReturnType<typeof useResolvedProps>['control']['button'];
+  shown: string | undefined;
+  placeholder: string;
+  variant: DatePickerProps['variant'];
+  disabled: boolean;
+  className?: string;
+}) => {
+  const ownId = useId();
+  const textId = useId();
+  const id = control.id ?? ownId;
+  const label = control['aria-labelledby'] ?? (control['aria-label'] ? id : undefined);
+
+  return (
+    <Popover.Trigger
+      {...control}
+      id={id}
+      aria-labelledby={shown && label ? `${label} ${textId}` : control['aria-labelledby']}
+      render={<Button variant={variant} />}
+      disabled={disabled}
+      className={cn('w-full justify-start text-left font-normal', className)}
+    >
+      <span id={textId}>{shown ?? placeholder}</span>
+    </Popover.Trigger>
+  );
+};
+
 /** Open state, the normalized value, bounds and the select and clear handlers. */
 const useDatePicker = ({
   value,
@@ -168,7 +207,8 @@ const useDatePicker = ({
 /**
  * A date field with a calendar popover, for one day, several or a range.
  * `mode` picks which; `inline` shows the calendar without the popover. Its `aria-label`, or
- * the label of the form row it's in, names the text input or the button that opens it.
+ * the label of the form row it's in, names the text input or the button that opens it; the
+ * button's name goes on with the dates it shows.
  */
 export const DatePicker = (props: DatePickerProps) => {
   const { calendarProps, ...o } = useResolvedProps(props);
@@ -229,14 +269,14 @@ export const DatePicker = (props: DatePickerProps) => {
         o.mode === 'single' ? (
           singleInput
         ) : (
-          <Popover.Trigger
-            {...o.control.button}
-            render={<Button variant={o.variant} />}
+          <PickerButton
+            control={o.control.button}
+            shown={describeValue(normalizedValue, fmt.date, o.formatMultiple)}
+            placeholder={o.placeholder}
+            variant={o.variant}
             disabled={isDisabled}
-            className={cn('w-full justify-start text-left font-normal', o.className)}
-          >
-            {describeValue(normalizedValue, fmt.date, o.formatMultiple) ?? o.placeholder}
-          </Popover.Trigger>
+            className={o.className}
+          />
         )
       }
       contentProps={o.popoverContentProps}

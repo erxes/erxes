@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { computeAccessibleName } from 'dom-accessibility-api';
 import { createInstance } from 'i18next';
 import { act, type ReactNode } from 'react';
 import type { DateRange } from 'react-day-picker';
@@ -43,6 +44,10 @@ const text = (ids: string | null | undefined) =>
     ?.split(' ')
     .map((id) => document.getElementById(id)?.textContent)
     .join(' ');
+
+/** What a screen reader calls an element. */
+const nameOf = (element: Element | null | undefined) =>
+  element ? computeAccessibleName(element) : undefined;
 
 /** A date row of a form, as a settings page writes one. */
 const BirthdayForm = () => {
@@ -151,6 +156,44 @@ describe('DatePicker', () => {
     expect(text(button?.getAttribute('aria-labelledby'))).toBe('Campaign dates *');
     expect(text(button?.getAttribute('aria-describedby'))).toBe('Required');
     expect(button?.hasAttribute('aria-required')).toBe(false);
+  });
+
+  it("names a range or multiple picker in a form row by the row's label, then what it shows", () => {
+    const stay: DateRange = { from: new Date(2026, 11, 3), to: new Date(2026, 11, 5) };
+
+    const range = inLanguage(
+      'en',
+      <PanelFormRow label="Stay">
+        <DatePicker mode="range" value={stay} onChange={() => undefined} />
+      </PanelFormRow>,
+    );
+
+    const dates = range.querySelector('button')?.textContent;
+
+    expect(dates).toMatch(/3.+5/);
+    expect(nameOf(range.querySelector('button'))).toBe(`Stay ${dates}`);
+
+    const multiple = inLanguage(
+      'en',
+      <PanelFormRow label="Days off">
+        <DatePicker mode="multiple" value={[new Date(2026, 11, 3)]} onChange={() => undefined} />
+      </PanelFormRow>,
+    );
+
+    expect(nameOf(multiple.querySelector('button'))).toBe('Days off 1 day');
+  });
+
+  it('names a range picker by its aria-label, then the dates it shows', () => {
+    const stay: DateRange = { from: new Date(2026, 11, 3), to: new Date(2026, 11, 5) };
+
+    const range = inLanguage(
+      'en',
+      <DatePicker mode="range" aria-label="Period" value={stay} onChange={() => undefined} />,
+    );
+
+    const button = range.querySelector('button');
+
+    expect(nameOf(button)).toBe(`Period ${button?.textContent ?? ''}`);
   });
 
   it('shows its placeholder and a count of days in the UI language', () => {
