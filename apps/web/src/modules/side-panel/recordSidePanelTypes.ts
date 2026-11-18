@@ -42,6 +42,8 @@ export type RecordSidePanelHeaderProps = {
   onBack?: () => void;
   avatar?: ReactNode;
   title: ReactNode;
+  /** `title` is the panel's heading (`h2`); false when it holds controls, as the assistant's tabs. */
+  heading?: boolean;
   // The record's own actions (e.g. a "more" menu), before expand and close.
   actions?: ReactNode;
   onExpand?: () => void;

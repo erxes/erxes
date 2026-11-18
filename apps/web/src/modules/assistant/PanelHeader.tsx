@@ -170,5 +170,7 @@ export const PanelHeader = ({ tabs, onClose }: { tabs: AssistantTabs; onClose: (
     </>
   );
 
-  return <RecordSidePanel.Header title={<TabStrip tabs={tabs} />} actions={actions} />;
+  return (
+    <RecordSidePanel.Header title={<TabStrip tabs={tabs} />} heading={false} actions={actions} />
+  );
 };

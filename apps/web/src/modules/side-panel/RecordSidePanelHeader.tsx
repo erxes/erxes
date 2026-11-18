@@ -28,6 +28,7 @@ export const RecordSidePanelHeader = ({
   variant = 'panel',
   avatar,
   title,
+  heading = true,
   actions,
   onBack,
   onExpand,
@@ -65,7 +66,12 @@ export const RecordSidePanelHeader = ({
         </Button>
       )}
       {avatar}
-      <div className="flex-1 min-w-0 px-1 text-sm font-medium truncate">{title}</div>
+      {/* The record's name heads the panel; controls (the assistant's tabs) or nothing yet don't. */}
+      {heading && title ? (
+        <h2 className="flex-1 min-w-0 px-1 text-sm font-medium truncate">{title}</h2>
+      ) : (
+        <div className="flex-1 min-w-0 px-1 text-sm font-medium truncate">{title}</div>
+      )}
       {actions && <div className="flex flex-none items-center gap-1">{actions}</div>}
       {expand && (
         <Button

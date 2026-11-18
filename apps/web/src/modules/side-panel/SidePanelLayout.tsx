@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { usePluginText } from '~/modules/plugins/pluginText';
 import { PanelRecordOpener } from './PanelRecordOpener';
 import { recordPageHref } from './panelNavigation';
 import { recordPagePath, usePanelRecordType } from './panelRecordTypes';
@@ -30,14 +31,21 @@ const SidePanelDraft = ({
   onBack,
   onClose,
   label,
+  plugin,
   New,
-}: IRecordViewProps & { label: string; New: ComponentType<{ contentType: string }> }) => {
+}: IRecordViewProps & {
+  label: string;
+  plugin?: string;
+  New: ComponentType<{ contentType: string }>;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const text = usePluginText();
+  const type = plugin ? text(plugin, label) : t(`record-types.${label}`, label);
 
   return (
     <>
       <RecordSidePanel.Header
-        title={t('new-record', 'New {{type}}', { type: label.toLowerCase() })}
+        title={t('new-record', 'New {{type}}', { type: type.toLowerCase() })}
         onBack={onBack}
         onClose={onClose}
       />
@@ -119,7 +127,7 @@ export const SidePanelRecord = (props: IRecordViewProps) => {
   return (
     <PanelRecordOpener stack>
       {isNew && type.New ? (
-        <SidePanelDraft {...props} label={type.label} New={type.New} />
+        <SidePanelDraft {...props} label={type.label} plugin={type.plugin} New={type.New} />
       ) : (
         <RecordPanelScope record={props.record} onClose={props.onClose}>
           <type.View {...props} />
