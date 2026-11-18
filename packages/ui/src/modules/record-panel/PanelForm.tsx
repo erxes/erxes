@@ -189,7 +189,7 @@ export const PanelFormLayout = ({
       <div ref={bodyRef} className="flex-1 min-h-0 overflow-y-auto">
         <div className="flex flex-col gap-1 p-3">{children}</div>
       </div>
-      <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
+      <div data-save-bar className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
         <Button type="button" variant="ghost" size="sm" disabled={saving} onClick={onCancel}>
           {t('cancel', 'Cancel')}
         </Button>
