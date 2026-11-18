@@ -5,7 +5,7 @@ import { outboundFetch } from '~/lib/outbound';
 import { logger } from '~/logger';
 import { pluginSession } from '~/modules/plugins/installations.service';
 import type { InstalledPlugin } from '../plugins';
-import { type ApiProcedure, carriesCredentials, isCredentialName, isRisky } from './apiCatalog';
+import { type ApiProcedure, carriesCredentials, isCredentialName } from './apiCatalog';
 import { bounded, describeError, refusal } from './results';
 
 const PLUGIN_TIMEOUT_MS = 30_000;
@@ -36,7 +36,6 @@ export const pluginProcedures = (plugins: InstalledPlugin[]): PluginProcedure[] 
             denied:
               carriesCredentials([operation.input]) ||
               operation.name.split('.').some(isCredentialName),
-            risky: isRisky(operation.name, method),
             plugin,
             apiUrl,
             operation: operation.name,

@@ -1,35 +1,79 @@
-import type { UIMessage } from 'ai';
 import { describe, expect, it } from 'vite-plus/test';
-import { pendingAction, transcriptRows } from '../transcriptRows';
+import { answerMessage, transcriptOf } from '../transcriptRows';
 
-type Parts = UIMessage['parts'];
+// Entry ids are numbers, as pi stores them.
+const member = (id: number, text: string) => ({
+  id,
+  kind: 'assistant.user',
+  data: [{ type: 'text', text }],
+});
 
-const search: Parts[number] = {
-  type: 'tool-searchApi',
-  toolCallId: 'c1',
-  state: 'output-available',
-  input: { query: 'deals' },
-  output: { procedures: [] },
+type Fields = Record<string, unknown>;
+
+const said = (id: number, ...content: Fields[]) => ({
+  id,
+  kind: 'pi.assistant',
+  model: [{ role: 'assistant', content, stopReason: 'stop' }],
+});
+
+const call = (id: string, name: string, args: Fields) => ({
+  type: 'toolCall',
+  id,
+  name,
+  arguments: args,
+});
+
+const result = (toolCallId: string, value: unknown, isError = false) => ({
+  id: 100,
+  kind: 'pi.toolResult',
+  model: [
+    {
+      role: 'toolResult',
+      toolCallId,
+      toolName: 'tool',
+      content: [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value) }],
+      isError,
+    },
+  ],
+});
+
+const replyRows = (entries: Fields[], docs: Fields = {}) => {
+  const last = transcriptOf({ entries, docs }).messages.at(-1);
+
+  if (last?.role !== 'assistant') throw new Error('no reply');
+
+  return last.rows;
 };
 
-const list: Parts[number] = {
-  type: 'tool-callApi',
-  toolCallId: 'c2',
-  state: 'output-available',
-  input: { procedure: 'customers.list', input: { limit: 3 } },
-  output: { ok: true, result: { data: [] } },
-};
+const failureOf = (reason: string) =>
+  transcriptOf({
+    entries: [member(1, 'Hi')],
+    docs: { 'pi.live': { runFailure: { taskId: 't', inputs: [], reason, detail: 'Bad key' } } },
+  }).failure;
 
-describe('transcriptRows', () => {
+const changedBy = (output: Fields) =>
+  transcriptOf({
+    entries: [
+      member(1, 'Tag Ada'),
+      said(2, call('c1', 'callApi', { procedure: 'customers.update' })),
+      result('c1', output),
+    ],
+    docs: {},
+  }).changed;
+
+describe('transcriptOf', () => {
   it('groups tool calls into one steps row whose count matches the rows it lists', () => {
-    const rows = transcriptRows([
-      { type: 'step-start' },
-      { type: 'reasoning', text: 'Look up deals first.', state: 'done' },
-      search,
-      { type: 'step-start' },
-      list,
-      { type: 'step-start' },
-      { type: 'text', text: 'Here they are.', state: 'done' },
+    const rows = replyRows([
+      member(1, 'Show me deals'),
+      said(
+        2,
+        { type: 'thinking', thinking: 'Look up deals first.' },
+        call('c1', 'searchApi', { query: 'deals' }),
+      ),
+      result('c1', { procedures: [] }),
+      said(4, call('c2', 'callApi', { procedure: 'customers.list', input: { limit: 3 } })),
+      result('c2', { ok: true, result: { data: [] } }),
+      said(5, { type: 'text', text: 'Here they are.' }),
     ]);
 
     expect(rows.map((row) => row.kind)).toEqual(['thinking', 'steps', 'text']);
@@ -42,43 +86,36 @@ describe('transcriptRows', () => {
     ]);
   });
 
-  it('draws an answered question where it was asked, before the steps that followed', () => {
-    const rows = transcriptRows([
-      {
-        type: 'tool-ask_user',
-        toolCallId: 'q1',
-        state: 'output-available',
-        input: { questions: [{ question: 'Which channel?', options: [{ label: 'Email' }] }] },
-        output: { answers: ['Email'] },
-      },
-      { type: 'step-start' },
-      list,
-      { type: 'text', text: 'Done.', state: 'done' },
-    ]);
-
-    expect(rows.map((row) => row.kind)).toEqual(['answered', 'steps', 'text']);
-    expect(rows[0]).toMatchObject({
-      kind: 'answered',
-      answers: [{ question: 'Which channel?', answer: 'Email' }],
+  it('keeps one reply per run between member messages, and skips pi system entries', () => {
+    const { messages } = transcriptOf({
+      entries: [
+        { id: 0, kind: 'pi.system', model: [{ role: 'system', content: [] }] },
+        member(1, 'Hi'),
+        said(2, { type: 'text', text: 'Hello.' }),
+        member(3, 'Thanks'),
+        said(4, { type: 'text', text: 'Any time.' }),
+      ],
+      docs: {},
     });
+
+    expect(messages.map((message) => [message.role, message.key])).toEqual([
+      ['user', '1'],
+      ['assistant', 'reply-1'],
+      ['user', '3'],
+      ['assistant', 'reply-3'],
+    ]);
   });
 
   it('names a loaded skill by the skill, and a program run by what it did', () => {
-    const rows = transcriptRows([
-      {
-        type: 'tool-loadSkill',
-        toolCallId: 's1',
-        state: 'output-available',
-        input: { name: 'author-automation' },
-        output: { ok: true, name: 'author-automation', instructions: '…' },
-      },
-      {
-        type: 'tool-runCode',
-        toolCallId: 'r1',
-        state: 'output-available',
-        input: { code: 'return 1;' },
-        output: { ok: false, code: 'TIMEOUT', message: 'The program ran past 10 seconds' },
-      },
+    const rows = replyRows([
+      member(1, 'Automate it'),
+      said(
+        2,
+        call('s1', 'loadSkill', { name: 'author-automation' }),
+        call('r1', 'runCode', { code: 'return 1;' }),
+      ),
+      result('s1', { ok: true, name: 'author-automation', instructions: '…' }),
+      result('r1', { ok: false, code: 'TIMEOUT', message: 'The program ran past 10 seconds' }),
     ]);
 
     expect(rows).toMatchObject([
@@ -93,82 +130,113 @@ describe('transcriptRows', () => {
   });
 
   it('marks a step failed when the tool errored or the API refused it', () => {
-    const rows = transcriptRows([
-      {
-        type: 'tool-callApi',
-        toolCallId: 'c3',
-        state: 'output-error',
-        input: { procedure: 'tags.create', input: {} },
-        errorText: 'Network down',
-      },
-      {
-        type: 'tool-callApi',
-        toolCallId: 'c4',
-        state: 'output-available',
-        input: { procedure: 'tags.remove', input: { id: 'x' } },
-        output: { ok: false, code: 'NOT_FOUND', message: 'Tag not found' },
-      },
+    const rows = replyRows([
+      member(1, 'Clean up tags'),
+      said(
+        2,
+        call('c3', 'callApi', { procedure: 'tags.create', input: {} }),
+        call('c4', 'callApi', { procedure: 'tags.remove', input: { id: 'x' } }),
+      ),
+      result('c3', 'Network down', true),
+      result('c4', { ok: false, code: 'NOT_FOUND', message: 'Tag not found' }),
     ]);
 
     expect(rows).toMatchObject([
       {
         kind: 'steps',
         steps: [
-          { name: 'tags.create', status: 'failed', error: 'Network down' },
+          { name: 'tags.create', status: 'failed', error: 'Network down', output: null },
           { name: 'tags.remove', status: 'failed', error: 'Tag not found' },
         ],
       },
     ]);
   });
 
-  it('turns a pending approval into an approval card and a declined one into a declined step', () => {
-    const rows = transcriptRows([
-      {
-        type: 'tool-callApi',
-        toolCallId: 'c5',
-        state: 'output-denied',
-        input: { procedure: 'customers.remove', input: { id: 'a' } },
-        approval: { id: 'a0', approved: false },
-      },
-      {
-        type: 'tool-callApi',
-        toolCallId: 'c6',
-        state: 'approval-requested',
-        input: { procedure: 'customers.create', input: { firstName: 'Ada' } },
-        approval: { id: 'a1' },
-      },
+  it('shows a call without a result as running, and an artifact as a card', () => {
+    const artifact = {
+      format: 'csv',
+      title: 'Top customers',
+      filename: 'Top-customers.csv',
+      content: 'Customer\nAda',
+    };
+
+    const rows = replyRows([
+      member(1, 'Make a table'),
+      said(
+        2,
+        call('c1', 'createArtifact', { title: 'Top customers' }),
+        call('c2', 'callApi', { procedure: 'deals.list' }),
+      ),
+      result('c1', artifact),
     ]);
 
     expect(rows).toMatchObject([
-      { kind: 'steps', steps: [{ name: 'customers.remove', status: 'declined' }] },
-      {
-        kind: 'approval',
-        approvalId: 'a1',
-        procedure: 'customers.create',
-        input: { firstName: 'Ada' },
-      },
+      { kind: 'artifact', artifact },
+      { kind: 'steps', steps: [{ name: 'deals.list', status: 'running' }] },
     ]);
   });
 
-  it('asks the questions of an unanswered ask_user call', () => {
-    const rows = transcriptRows([
-      {
-        type: 'tool-ask_user',
-        toolCallId: 'q2',
-        state: 'input-available',
-        input: {
-          questions: [
-            { question: 'Which channel?', options: [{ label: 'Email' }, { label: 'SMS' }] },
-            { question: 'Anything to add?' },
-          ],
+  it('streams the message the model is writing now, after what is committed', () => {
+    const live = {
+      'pi.live': {
+        run: { taskId: 't1', inputs: [], turns: 0 },
+        generation: {
+          attempt: 1,
+          message: {
+            role: 'assistant',
+            content: [
+              { type: 'thinking', thinking: 'Counting.' },
+              { type: 'text', text: 'There are' },
+            ],
+            stopReason: 'pending',
+          },
         },
       },
+    };
+
+    const view = { entries: [member(1, 'How many?')], docs: live };
+    const transcript = transcriptOf(view);
+
+    expect(transcript.running).toBe(true);
+    expect(replyRows(view.entries, live)).toMatchObject([
+      { kind: 'thinking', text: 'Counting.', streaming: false },
+      { kind: 'text', text: 'There are', streaming: true },
     ]);
 
-    expect(rows).toMatchObject([
+    expect(transcriptOf({ ...view, docs: {} }).running).toBe(false);
+  });
+
+  it('says why the last run ended without an answer, unless the member stopped it', () => {
+    expect(failureOf('model_error')).toBe('Bad key');
+    expect(failureOf('aborted')).toBeNull();
+  });
+
+  it('notices a reply that changed records', () => {
+    expect(changedBy({ ok: true, changed: true, result: {} })).toBe(true);
+    expect(changedBy({ ok: true, result: {} })).toBe(false);
+  });
+});
+
+describe('questions the assistant asks', () => {
+  const asked = said(
+    2,
+    call('q2', 'ask_user', {
+      questions: [
+        { question: 'Which channel?', options: [{ label: 'Email' }, { label: 'SMS' }] },
+        { question: 'Anything to add?' },
+      ],
+    }),
+  );
+
+  it('asks the questions of an ask_user call after the latest member message', () => {
+    const entries = [member(1, 'Send a campaign'), asked, result('q2', { asked: true })];
+    const transcript = transcriptOf({ entries, docs: {} });
+
+    expect(transcript.pending).toBe('question');
+    expect(replyRows(entries)).toMatchObject([
       {
         kind: 'question',
-        toolCallId: 'q2',
+        key: 'q2',
         questions: [
           { question: 'Which channel?', options: [{ label: 'Email' }, { label: 'SMS' }] },
           { question: 'Anything to add?', options: [] },
@@ -176,62 +244,32 @@ describe('transcriptRows', () => {
       },
     ]);
   });
-});
 
-const assistant = (parts: Parts): UIMessage => ({ id: 'm', role: 'assistant', parts });
-
-describe('pendingAction', () => {
-  it('says what the member must do before the reply can go on', () => {
-    expect(
-      pendingAction(
-        assistant([
-          {
-            type: 'tool-callApi',
-            toolCallId: 'c',
-            state: 'approval-requested',
-            input: { procedure: 'tags.create', input: {} },
-            approval: { id: 'a' },
-          },
-        ]),
-      ),
-    ).toBe('approval');
-
-    expect(
-      pendingAction(
-        assistant([
-          {
-            type: 'tool-ask_user',
-            toolCallId: 'q',
-            state: 'input-available',
-            input: { questions: [{ question: 'Why?' }] },
-          },
-        ]),
-      ),
-    ).toBe('question');
-
-    expect(pendingAction(assistant([search, { type: 'text', text: 'Ok', state: 'done' }]))).toBe(
-      null,
+  it('answers with one line per question, and asks no more once answered', () => {
+    const text = answerMessage(
+      [
+        { question: 'Which channel?', options: [] },
+        { question: 'Which days?', options: [], selectionMode: 'multi_select' },
+      ],
+      ['Email', ['Mon', 'Tue']],
     );
-  });
 
-  it('waits until every approval in the reply is answered', () => {
-    const answered = {
-      type: 'tool-callApi',
-      toolCallId: 'c7',
-      state: 'approval-responded',
-      input: { procedure: 'tags.create', input: {} },
-      approval: { id: 'a7', approved: true },
-    } as const;
+    expect(text).toBe('Which channel?: Email\nWhich days?: Mon, Tue');
 
-    const waiting = {
-      type: 'tool-callApi',
-      toolCallId: 'c8',
-      state: 'approval-requested',
-      input: { procedure: 'tags.create', input: {} },
-      approval: { id: 'a8' },
-    } as const;
+    const transcript = transcriptOf({
+      entries: [
+        member(1, 'Send a campaign'),
+        asked,
+        result('q2', { asked: true }),
+        member(3, text),
+        said(4, { type: 'text', text: 'Sent.' }),
+      ],
+      docs: {},
+    });
 
-    expect(pendingAction(assistant([answered, waiting]))).toBe('approval');
-    expect(pendingAction(assistant([answered]))).toBeNull();
+    expect(transcript.pending).toBeNull();
+    expect(
+      transcript.messages.flatMap((message) => (message.role === 'user' ? [] : message.rows)),
+    ).toMatchObject([{ kind: 'text', text: 'Sent.' }]);
   });
 });

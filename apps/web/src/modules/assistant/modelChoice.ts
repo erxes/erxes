@@ -1,5 +1,6 @@
 import {
   type AssistantConnection,
+  type AssistantMessagePart,
   type AssistantProvider,
   AssistantThinkingLevel,
   type coreContract,
@@ -74,3 +75,20 @@ export const modelToRun = ({ connections, catalog, picked }: Choice): ModelRun |
     thinkingLevel: nearestLevel(picked.thinkingLevel ?? 'off', levels),
   };
 };
+
+/** What `assistant.send` gets: the message, its thread, and the model that will run. */
+export const sendRequest = ({
+  threadId,
+  parts,
+  run,
+}: {
+  threadId: string | null;
+  parts: AssistantMessagePart[];
+  run: Pick<ModelRun, 'provider' | 'model' | 'thinkingLevel'> | null;
+}) => ({
+  ...(threadId ? { threadId } : {}),
+  message: { parts },
+  ...(run ? { provider: run.provider } : {}),
+  ...(run?.model ? { model: run.model } : {}),
+  ...(run?.thinkingLevel ? { thinkingLevel: run.thinkingLevel } : {}),
+});

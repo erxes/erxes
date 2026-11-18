@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
-import { partsOf, postChat, threadIdOf, userMessage } from './assistantChat';
+import { chat, errorsOf, resultsOf, textOf, userMessage } from './assistantChat';
 import { useTestDatabase } from './db';
 import { fakeModel, lastToolResult } from './fakeModel';
 import { useTwoOrgs } from './support';
@@ -20,14 +20,14 @@ describe('assistant artifacts', () => {
         : { text: 'Here it is.' },
     );
 
-    const reply = await postChat(t.url('/core/v1/assistant/chat'), await t.token(), {
+    const { view } = await chat(t.owner(), {
       model: 'kimi-k3',
       message: userMessage('Make me a file'),
     });
 
-    const thread = await t.owner().assistant.thread({ id: threadIdOf(reply.chunks) });
+    expect(textOf(view)).toBe('Here it is.');
 
-    return partsOf(thread.messages[1]).find((part) => part.type === 'tool-createArtifact');
+    return { created: resultsOf(view, 'createArtifact'), errors: errorsOf(view, 'createArtifact') };
   };
 
   beforeAll(async () => {
@@ -39,30 +39,27 @@ describe('assistant artifacts', () => {
   afterAll(() => model.close());
 
   it('returns a CSV document with a safe file name as the tool result', async () => {
-    const part = await create({
+    const { created } = await create({
       format: 'csv',
       title: 'Top customers: Q3/2026',
       content: 'Customer,Won deals\nNomin Trade,4\n"Altai, LLC",3\n',
     });
 
-    expect(part).toMatchObject({
-      state: 'output-available',
-      output: {
+    expect(created).toEqual([
+      {
         format: 'csv',
         title: 'Top customers: Q3/2026',
         filename: 'Top-customers-Q3-2026.csv',
         content: 'Customer,Won deals\nNomin Trade,4\n"Altai, LLC",3',
       },
-    });
+    ]);
   });
 
   it('keeps an HTML report and a Markdown document as written', async () => {
-    const html = await create({
-      format: 'html',
-      title: 'Sales report',
-      content:
-        '<h1>Sales</h1><ul class="kpis"><li class="kpi"><span>Won</span><strong>12</strong></li></ul>',
-    });
+    const content =
+      '<h1>Sales</h1><ul class="kpis"><li class="kpi"><span>Won</span><strong>12</strong></li></ul>';
+
+    const html = await create({ format: 'html', title: 'Sales report', content });
 
     const markdown = await create({
       format: 'markdown',
@@ -70,24 +67,25 @@ describe('assistant artifacts', () => {
       content: '# Notes\n\n- Call Nomin on Monday',
     });
 
-    expect(html).toMatchObject({
-      state: 'output-available',
-      output: { filename: 'Sales-report.html' },
-    });
-    expect(markdown).toMatchObject({
-      state: 'output-available',
-      output: { filename: 'Meeting-notes.md' },
-    });
+    expect(html.created).toEqual([
+      expect.objectContaining({ filename: 'Sales-report.html', content }),
+    ]);
+    expect(markdown.created).toEqual([
+      expect.objectContaining({
+        filename: 'Meeting-notes.md',
+        content: '# Notes\n\n- Call Nomin on Monday',
+      }),
+    ]);
   });
 
   it('refuses a CSV whose rows do not match its header, and tells the model why', async () => {
-    const part = await create({
+    const { errors } = await create({
       format: 'csv',
       title: 'Broken',
       content: 'Customer,Won deals\nNomin Trade,4,extra\n',
     });
 
-    expect(part?.state).toBe('output-error');
+    expect(errors).toEqual([expect.stringMatching(/row 2 has 3 columns; the header has 2/i)]);
     expect(model.lastToolResult()).toMatch(/row 2 has 3 columns; the header has 2/i);
   });
 
@@ -110,21 +108,17 @@ describe('assistant artifacts', () => {
       content: '<img src="https://tracker.example/p.png">',
     });
 
-    expect([scripted?.state, handler?.state, remote?.state]).toEqual([
-      'output-error',
-      'output-error',
-      'output-error',
-    ]);
+    expect([scripted, handler, remote].map(({ errors }) => errors.length)).toEqual([1, 1, 1]);
     expect(model.lastToolResult()).toMatch(/outside resources/i);
   });
 
   it('refuses content over the size limit', async () => {
-    const part = await create({
+    const { errors } = await create({
       format: 'markdown',
       title: 'Huge',
       content: 'x'.repeat(300_000),
     });
 
-    expect(part?.state).toBe('output-error');
+    expect(errors).toHaveLength(1);
   });
 });

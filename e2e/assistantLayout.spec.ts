@@ -17,12 +17,10 @@ test('a long conversation keeps its newest reply in view, and two open conversat
   await ask(panel, 'Write the meeting notes');
   await expect(panel.getByText('Weekly sales meeting is ready.')).toBeInViewport();
 
-  await ask(panel, `Add a customer named Zoe ${unique()}`);
-  await expect(
-    panel
-      .getByRole('group', { name: 'Approve this change?' })
-      .getByRole('button', { name: 'Approve' }),
-  ).toBeInViewport();
+  const name = `Zoe ${unique()}`;
+
+  await ask(panel, `Add a customer named ${name}`);
+  await expect(panel.getByText(`Added ${name} as a customer.`)).toBeInViewport();
 
   await panel.getByRole('button', { name: 'New chat' }).click();
   await expect(panel.getByRole('textbox', { name: 'Message' })).toBeFocused();

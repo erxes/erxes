@@ -27,7 +27,6 @@ import {
   SUPPRESSION_REASONS,
 } from '@erxes/core-db/enums';
 import {
-  ASSISTANT_APPROVAL_MODES,
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
   ASSISTANT_AVATAR_EXPRESSIONS,
@@ -396,10 +395,6 @@ export type AssistantProvider = z.infer<typeof AssistantProvider>;
 export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
 
 export type AssistantThinkingLevel = z.infer<typeof AssistantThinkingLevel>;
-
-export const AssistantApprovalMode = z.enum(ASSISTANT_APPROVAL_MODES);
-
-export type AssistantApprovalMode = z.infer<typeof AssistantApprovalMode>;
 
 export const AssistantQuestionMode = z.enum(ASSISTANT_QUESTION_MODES);
 

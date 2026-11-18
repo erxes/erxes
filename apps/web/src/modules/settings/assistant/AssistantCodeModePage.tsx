@@ -2,7 +2,6 @@ import {
   IconClockHour4,
   IconCode,
   IconCpu,
-  IconLock,
   IconShieldCheck,
   type TablerIcon,
 } from '@tabler/icons-react';
@@ -97,13 +96,6 @@ export const AssistantCodeModePage = () => {
                 text={t(
                   'code-mode-fact-api',
                   'Only search and call the API, as the member who asked and within their role.',
-                )}
-              />
-              <Fact
-                icon={IconLock}
-                text={t(
-                  'code-mode-fact-approval',
-                  'Changes that need approval are refused inside a program: the assistant asks for them in the chat.',
                 )}
               />
               <Fact

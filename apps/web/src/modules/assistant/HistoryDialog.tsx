@@ -1,5 +1,5 @@
 import type { AssistantThread } from '@erxes/core-contract';
-import { IconHistory, IconLoader2, IconMessage, IconPin } from '@tabler/icons-react';
+import { IconHistory, IconMessage, IconPin } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { isToday, isYesterday, subDays } from 'date-fns';
 import { Button, Command, Spinner, useFormat } from 'erxes-ui';
@@ -44,7 +44,6 @@ const ThreadItem = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () =>
     <Command.Item value={`${title} ${thread.id}`} onSelect={onOpen}>
       <Icon aria-hidden className="text-muted-foreground" />
       <span className="min-w-0 flex-1 truncate">{title}</span>
-      {thread.running && <IconLoader2 aria-hidden className="animate-spin" />}
       <time dateTime={thread.updatedAt} className="shrink-0 text-xs text-muted-foreground">
         {format.date(thread.updatedAt, 'MMM d')}
       </time>

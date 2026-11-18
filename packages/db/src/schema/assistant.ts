@@ -1,9 +1,7 @@
 import {
-  ASSISTANT_APPROVAL_MODES,
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
   ASSISTANT_AVATAR_EXPRESSIONS,
-  ASSISTANT_MESSAGE_ROLES,
   ASSISTANT_PROVIDERS,
   ASSISTANT_RECORD_TYPES,
 } from '../assistantEnums';
@@ -13,21 +11,13 @@ import {
   check,
   foreignKey,
   index,
-  integer,
-  jsonb,
   primaryKey,
   text,
-  timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
-
-export interface AssistantMessagePart {
-  type: string;
-  [field: string]: unknown;
-}
 
 export const assistantConnections = pgTable(
   'assistant_connections',
@@ -67,8 +57,6 @@ export const assistantThreads = pgTable(
     userId: text().notNull(),
     title: text(),
     pinned: boolean().default(false).notNull(),
-
-    runningSince: timestamp({ withTimezone: true, mode: 'date' }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -83,36 +71,6 @@ export const assistantThreads = pgTable(
       columns: [table.orgId],
       foreignColumns: [organizations.id],
       name: 'core_assistant_threads_org_id_fkey',
-    }).onDelete('cascade'),
-  ],
-);
-
-export const assistantMessages = pgTable(
-  'assistant_messages',
-  {
-    threadId: text().notNull(),
-    id: text().notNull(),
-    orgId: orgIdColumn(),
-    role: text({ enum: ASSISTANT_MESSAGE_ROLES }).notNull(),
-    parts: jsonb().$type<AssistantMessagePart[]>().notNull(),
-    position: integer().notNull(),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    primaryKey({ columns: [table.threadId, table.id], name: 'core_assistant_messages_pkey' }),
-    uniqueIndex('core_assistant_messages_thread_position_key').on(table.threadId, table.position),
-    index('core_assistant_messages_org_thread_idx').on(table.orgId, table.threadId),
-    check('core_assistant_messages_role_check', inList(table.role, ASSISTANT_MESSAGE_ROLES)),
-    foreignKey({
-      columns: [table.threadId],
-      foreignColumns: [assistantThreads.id],
-      name: 'core_assistant_messages_thread_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_assistant_messages_org_id_fkey',
     }).onDelete('cascade'),
   ],
 );
@@ -155,15 +113,10 @@ export const assistantSettings = pgTable(
   'assistant_settings',
   {
     orgId: orgIdColumn().primaryKey(),
-    approvalMode: text({ enum: ASSISTANT_APPROVAL_MODES }).default('writes').notNull(),
     codeMode: boolean().default(false).notNull(),
     updatedAt: updatedAt(),
   },
   (table) => [
-    check(
-      'core_assistant_settings_approval_mode_check',
-      inList(table.approvalMode, ASSISTANT_APPROVAL_MODES),
-    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

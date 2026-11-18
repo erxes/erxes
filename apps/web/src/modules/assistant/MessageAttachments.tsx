@@ -1,11 +1,11 @@
 import {
   type AssistantAttachment,
   AssistantFiles,
+  type AssistantMessagePart,
   type AssistantSelection,
   AssistantSelections,
 } from '@erxes/core-contract';
 import { IconFileText } from '@tabler/icons-react';
-import type { UIMessage } from 'ai';
 import { useTranslation } from 'react-i18next';
 import { fileDownloadUrl } from '~/lib/files';
 import { isImage, sizeLabel, typeLabel } from './attachments';
@@ -13,13 +13,13 @@ import { isImage, sizeLabel, typeLabel } from './attachments';
 const CARD =
   'flex h-12 max-w-56 min-w-0 items-center gap-2 rounded-lg border bg-background p-1.5 pr-3 text-xs hover:bg-accent';
 
-export const attachmentsOf = (message: UIMessage) => ({
-  files: message.parts.flatMap((part) =>
-    part.type === 'data-files' ? (AssistantFiles.safeParse(part.data).data?.files ?? []) : [],
+export const attachmentsOf = (parts: AssistantMessagePart[]) => ({
+  files: parts.flatMap((part) =>
+    part.type === 'data-files' ? (AssistantFiles.safeParse(part['data']).data?.files ?? []) : [],
   ),
-  selections: message.parts.flatMap((part) =>
+  selections: parts.flatMap((part) =>
     part.type === 'data-selections'
-      ? (AssistantSelections.safeParse(part.data).data?.selections ?? [])
+      ? (AssistantSelections.safeParse(part['data']).data?.selections ?? [])
       : [],
   ),
 });
@@ -82,9 +82,9 @@ const SelectionCard = ({ selection }: { selection: AssistantSelection }) => {
   );
 };
 
-export const MessageAttachments = ({ message }: { message: UIMessage }) => {
+export const MessageAttachments = ({ parts }: { parts: AssistantMessagePart[] }) => {
   const { t } = useTranslation('assistant');
-  const { files, selections } = attachmentsOf(message);
+  const { files, selections } = attachmentsOf(parts);
 
   if (!files.length && !selections.length) return null;
 

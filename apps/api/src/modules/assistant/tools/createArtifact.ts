@@ -3,9 +3,9 @@ import {
   AssistantArtifact,
   AssistantArtifactFormat,
 } from '@erxes/core-contract';
-import { tool } from 'ai';
 import { parse } from 'csv-parse/sync';
 import { z } from 'zod';
+import { agentTool } from '~/modules/agents/tool';
 
 const ArtifactInput = z.object({
   format: AssistantArtifactFormat.describe(
@@ -92,10 +92,10 @@ const artifactOf = (input: ArtifactInput) => {
   return AssistantArtifact.parse({ ...input, filename: fileName(input) });
 };
 
-export const createArtifact = tool({
+export const createArtifact = agentTool({
+  name: 'createArtifact',
   description:
     'Deliver a file the member asked for: an HTML report or dashboard, a CSV table or a Markdown document. The panel shows it as a card with a preview and downloads (CSV also as Excel, Markdown also as Word and PDF). Never use it for an ordinary answer, a greeting or a question. It changes no workspace records.',
-  inputSchema: ArtifactInput,
-  outputSchema: AssistantArtifact,
-  execute: (input) => artifactOf(input),
+  input: ArtifactInput,
+  execute: artifactOf,
 });
