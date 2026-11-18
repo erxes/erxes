@@ -13,7 +13,7 @@ import { Button, cn } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useSortSensors } from '~/lib/sortSensors';
+import { useSortAccessibility, useSortSensors } from '~/lib/sortSensors';
 import { useFavorites } from './useFavorites';
 
 const FavoriteRow = ({
@@ -84,6 +84,11 @@ export const FavoritesList = ({ onOpen }: { onOpen: () => void }) => {
 
   const sensors = useSortSensors();
 
+  const accessibility = useSortAccessibility(
+    (id) => favorites.find((favorite) => favorite.id === id)?.label ?? id,
+    { keyboard: true },
+  );
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     // Cleared after the click the drop makes has been ignored.
     setTimeout(() => {
@@ -107,6 +112,7 @@ export const FavoritesList = ({ onOpen }: { onOpen: () => void }) => {
         {t('title', 'Favorites')}
       </h2>
       <DndContext
+        accessibility={accessibility}
         autoScroll={false}
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}

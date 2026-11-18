@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn, Tabs } from 'erxes-ui';
-import { usePointerSortSensors } from '~/lib/sortSensors';
+import { usePointerSortSensors, useSortAccessibility } from '~/lib/sortSensors';
 import type { IRecordSidePanelTab } from './recordSidePanelTypes';
 import { useRelationTabOrder } from './relationTabOrder';
 
@@ -83,12 +83,18 @@ export const PanelTabList = ({
   const sensors = usePointerSortSensors();
   const sortable = tabs.filter((tab) => tab.sortable).map((tab) => tab.value);
 
+  const accessibility = useSortAccessibility(
+    (id) => tabs.find((tab) => tab.value === id)?.label ?? id,
+    { keyboard: false },
+  );
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over) order.move(sortable, String(active.id), String(over.id));
   };
 
   return (
     <DndContext
+      accessibility={accessibility}
       autoScroll={false}
       collisionDetection={closestCenter}
       modifiers={[

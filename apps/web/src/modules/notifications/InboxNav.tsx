@@ -8,7 +8,7 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { paths } from '~/lib/paths';
-import { usePointerSortSensors } from '~/lib/sortSensors';
+import { usePointerSortSensors, useSortAccessibility } from '~/lib/sortSensors';
 import { CORE_INBOX, type Inbox, useInboxOrder } from './useNotifications';
 
 const UnreadCount = ({ value, active }: { value: number; active?: boolean }) =>
@@ -98,6 +98,11 @@ export const InboxNav = ({
   const dragging = useRef(false);
   const plugins = inboxes.filter((inbox) => inbox.source !== CORE_INBOX).map((i) => i.source);
 
+  const accessibility = useSortAccessibility(
+    (id) => inboxes.find((inbox) => inbox.source === id)?.label ?? id,
+    { keyboard: false },
+  );
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over) order.move(plugins, String(active.id), String(over.id));
   };
@@ -116,6 +121,7 @@ export const InboxNav = ({
         {t('inboxes', 'Inboxes')}
       </p>
       <DndContext
+        accessibility={accessibility}
         autoScroll={false}
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}

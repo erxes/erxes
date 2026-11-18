@@ -2,7 +2,7 @@ import type { LeadStage } from '@erxes/core-contract';
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconPlus, IconProgress } from '@tabler/icons-react';
-import { useSortSensors } from '~/lib/sortSensors';
+import { useSortAccessibility, useSortSensors } from '~/lib/sortSensors';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Input, PageContainer, PageHeader, ScrollArea, Spinner } from 'erxes-ui';
 import { useState } from 'react';
@@ -11,7 +11,7 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { paths } from '~/lib/paths';
-import { useLeadsT } from '~/modules/leads/i18n';
+import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 import { leadStagesQuery, useLeadStageMutations, useLeadStages } from '~/modules/leads/useLeads';
 import { RemoveStageDialog } from './RemoveStageDialog';
 import { KINDS, StageRow } from './StageRow';
@@ -57,7 +57,13 @@ const StageList = ({
   const client = useQueryClient();
   const { reorder } = useLeadStageMutations();
   const sensors = useSortSensors();
+  const stageName = useStageName();
   const ids = stages.map((stage) => stage.id);
+
+  const accessibility = useSortAccessibility(
+    (id) => stageName(stages.find((stage) => stage.id === id)?.name),
+    { keyboard: true },
+  );
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -76,7 +82,12 @@ const StageList = ({
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+    <DndContext
+      accessibility={accessibility}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={onDragEnd}
+    >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         {stages.map((stage) => (
           <StageRow key={stage.id} stage={stage} onRemove={() => onRemove(stage)} />

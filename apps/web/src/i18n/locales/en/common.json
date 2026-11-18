@@ -651,6 +651,16 @@
       "Team member": "Team member"
     }
   },
+  "sort": {
+    "keyboard": "Press Space to pick it up, the arrow keys to move it, Space again to drop it, or Escape to cancel.",
+    "pointer": "Drag it with the mouse, or touch and hold, to move it.",
+    "picked": "Picked up {{name}}.",
+    "over": "{{name}} is over {{target}}.",
+    "nowhere": "{{name}} is over no place.",
+    "dropped": "Dropped {{name}} over {{target}}.",
+    "dropped-back": "Dropped {{name}} where it was.",
+    "cancelled": "Put {{name}} back where it was."
+  },
   "two-factor": {
     "authenticator-code": "Authenticator code",
     "recovery-code": "Recovery code",

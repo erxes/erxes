@@ -6,7 +6,7 @@ import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-reac
 import { cn, ContextMenu, TabButton } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePointerSortSensors } from '~/lib/sortSensors';
+import { usePointerSortSensors, useSortAccessibility } from '~/lib/sortSensors';
 import type { NavApp } from './apps';
 
 /** The app's icon; on hover it turns into a grip, as tabs can be dragged. */
@@ -235,6 +235,11 @@ export const CoreTabAppTabs = ({
 
   const sensors = usePointerSortSensors();
 
+  const accessibility = useSortAccessibility(
+    (id) => tabs.find((tab) => tab.id === id)?.label ?? id,
+    { keyboard: false },
+  );
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over && active.id !== over.id) onMove(String(active.id), String(over.id));
   };
@@ -260,6 +265,7 @@ export const CoreTabAppTabs = ({
 
   return (
     <DndContext
+      accessibility={accessibility}
       autoScroll={false}
       collisionDetection={closestCenter}
       modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
