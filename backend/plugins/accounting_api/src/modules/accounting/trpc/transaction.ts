@@ -4,6 +4,7 @@ import sift from 'sift';
 import { z } from 'zod';
 import { AccountingTRPCContext } from '~/init-trpc';
 import { generateFilter } from '../graphql/resolvers/queries/transactionsCommon';
+import { activeCost } from '../utils/inventories';
 
 const t = initTRPC.context<AccountingTRPCContext>().create();
 
@@ -54,6 +55,65 @@ export const transactionTrpcRouter = t.router({
         const matchesNew = newDocs.some((tr) => sift(filterParams)(tr));
 
         return { matchesOld, matchesNew };
+      }),
+
+    /**
+     * Current unit cost per product at one inventory location, so a plugin can
+     * price the transaction it sends. Pass the ids of the plugin's earlier
+     * transactions in excludedTransactionIds when re-sending.
+     */
+    activeCost: t.procedure
+      .input(
+        z.object({
+          accountId: z.string().min(1),
+          branchId: z.string().optional(),
+          departmentId: z.string().optional(),
+          productIds: z.array(z.string()),
+          excludedTransactionIds: z.array(z.string()).optional(),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        return activeCost(
+          ctx.models,
+          input.accountId,
+          input.branchId,
+          input.departmentId,
+          input.productIds,
+          input.excludedTransactionIds || [],
+        );
+      }),
+
+    /**
+     * Creates a transaction group, or replaces it when parentId is given.
+     * Used by other plugins (storage) that build their own transactions.
+     */
+    savePTransaction: t.procedure
+      .input(
+        z.object({
+          parentId: z.string().optional(),
+          docs: z.array(z.any()).min(1),
+          userId: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const userId = input.userId || '';
+        const options = { skipAccountPermission: true };
+
+        const transactions = input.parentId
+          ? await models.Transactions.updatePTransaction(
+              input.parentId,
+              input.docs,
+              userId,
+              options,
+            )
+          : await models.Transactions.createPTransaction(
+              input.docs,
+              userId,
+              options,
+            );
+
+        return { parentId: transactions[0]?.parentId };
       }),
   }),
 });

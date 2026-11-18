@@ -1,5 +1,5 @@
 import { IRfidTag, IScanProductRow, IScanSession } from '../@types/storage';
-import { IModels } from '../db/models/Storage';
+import { IModels } from '~/connectionResolvers';
 import { LIMITS, normalizeEpcIds } from './validation';
 import { requireZone } from './zoneService';
 

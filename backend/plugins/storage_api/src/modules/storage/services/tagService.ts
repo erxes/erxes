@@ -1,4 +1,4 @@
-import { IModels } from '../db/models/Storage';
+import { IModels } from '~/connectionResolvers';
 import {
   assertPositiveInt,
   assertRequired,

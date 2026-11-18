@@ -6,7 +6,7 @@
 - **Project:** `storage_api`
 - **Layer:** Backend API
 - **Path:** `backend/plugins/storage_api`
-- **Last synchronized:** `2026-11-17`
+- **Last synchronized:** `2026-11-18`
 
 ## Scope
 
@@ -20,7 +20,7 @@
 ### Does not own
 
 - Products, branches, departments and users (core).
-- Stock quantities, cost, inventory transactions, period close, fixed assets and VAT (`accounting_api`). This plugin keeps no stock counts and never writes accounting collections.
+- Stock quantities, cost, inventory transactions, period close, fixed assets and VAT (`accounting_api`). This plugin keeps no stock counts and never writes accounting collections; it asks accounting to book its movements over tRPC.
 - RFID reader hardware; EPC lists arrive through GraphQL.
 
 ## Current Capabilities
@@ -36,15 +36,18 @@
 | Area | Path | Responsibility |
 | --- | --- | --- |
 | Entry | `backend/plugins/storage_api/src/main.ts` | `startPlugin` config, context, tRPC router, permissions meta |
+| Models | `backend/plugins/storage_api/src/connectionResolvers.ts` | `IModels`, `IContext`, `generateModels(subdomain)` |
 | Types | `backend/plugins/storage_api/src/modules/storage/@types/storage.ts` | Document interfaces |
-| Models | `backend/plugins/storage_api/src/modules/storage/db/models/Storage.ts` | Schemas, `IModels`, `Movements.publishCreated` |
+| Schemas | `backend/plugins/storage_api/src/modules/storage/db/definitions/` | `zones`, `rfidTags`, `movements`, `scanSessions` |
+| Model classes | `backend/plugins/storage_api/src/modules/storage/db/models/` | `Zones.getZone`, `Movements.setAccountingResult` |
 | Zones | `backend/plugins/storage_api/src/modules/storage/services/zoneService.ts` | Zone save, remove, lookup |
 | Tags | `backend/plugins/storage_api/src/modules/storage/services/tagService.ts` | Tag registration and removal |
 | Scan | `backend/plugins/storage_api/src/modules/storage/services/scanService.ts` | Count session comparison |
-| Movements | `backend/plugins/storage_api/src/modules/storage/services/movementService.ts` | Box breaking, retry, accounting result |
+| Movements | `backend/plugins/storage_api/src/modules/storage/services/movementService.ts` | Box breaking, retry |
+| Accounting | `backend/plugins/storage_api/src/modules/storage/services/accountingService.ts` | Builds the inventory-move transaction and sends it to accounting over tRPC |
 | Validation | `backend/plugins/storage_api/src/modules/storage/services/validation.ts` | Input checks, limits, ID helpers |
 | GraphQL | `backend/plugins/storage_api/src/apollo/` | `typeDefs.ts`, `resolvers/index.ts` |
-| tRPC | `backend/plugins/storage_api/src/trpc/init-trpc.ts` | `movements.setAccountingResult` |
+| tRPC | `backend/plugins/storage_api/src/trpc/init-trpc.ts` | Empty router (nothing calls storage) |
 
 ## Contracts
 
@@ -52,26 +55,25 @@
 
 - GraphQL queries: `storageZones`, `storageRfidTags`, `storageRfidSummary`, `storageMovements`, `storageScanSessions`.
 - GraphQL mutations: `storageZoneSave`, `storageZoneRemove`, `storageRfidTagsRegister`, `storageRfidTagsRemove`, `storageBreakBoxes`, `storageRfidScanSubmit`, `storageMovementRetryAccounting`.
-- Document event: a created `storage:storage.movements` document, published with `sendDbEventLog` from `Movements.publishCreated`. `accounting_api` consumes it in `meta/afterProcess.ts`.
-- tRPC: `movements.setAccountingResult({ movementId, status, message })`, called by `accounting_api`.
 - Permission actions (module `storage`): `showStorage`, `manageStorageTags`, `manageStorageMovements`, `manageStorageZones`.
 
 ### Consumes
 
-- `erxes-api-shared/utils`: `startPlugin`, `createGenerateModels`, event handlers, `apolloCommonTypes`, `apolloCustomScalars`, `ITRPCContext`.
+- `erxes-api-shared/utils`: `startPlugin`, `createGenerateModels`, `sendTRPCMessage`, `fixNum`, `apolloCommonTypes`, `apolloCustomScalars`, `ITRPCContext`.
+- `accounting_api` tRPC, module `accountingTransaction`: `getTransactions` (query), `activeCost` (query), `savePTransaction` (mutation).
 - `erxes-api-shared/core-types`: `IMainContext`.
 - Federated `Product`, `Branch` and `Department` entities resolved by core through the gateway.
 
 ## Data and State
 
 - Tenant-scoped collections: `storage_zones`, `storage_rfid_tags`, `storage_movements`, `storage_scan_sessions`.
-- `storage_movements.requestKey` is unique; `accountingStatus` is `pending` → `success` | `error`.
+- `storage_movements.requestKey` is unique; `accountingStatus` is `pending` → `success` | `error`; `accountingTrId` holds the accounting transaction's parentId once booked.
 - No migrations.
 
 ## Local Invariants
 
-- Integration with other plugins goes through `meta` and events only: storage publishes the movement, accounting books it and answers by tRPC. No direct calls into `accounting_api` logic or collections.
-- A movement is published only after all its tags were claimed (`SEALED` → `OPENED`); if the claim is partial, tags are restored and the movement is deleted.
+- Storage sends each movement to accounting itself, through accounting's tRPC (`accountingTransaction.*`). The transaction has `contentType: storage:storage.movements` and `contentId: <movementId>`; re-sending replaces it. No direct access to accounting collections.
+- A movement is sent to accounting only after all its tags were claimed (`SEALED` → `OPENED`); if the claim is partial, tags are restored and the movement is deleted.
 - A retry with the same `requestKey` returns the first movement.
 - Inputs are validated with upper bounds from `LIMITS`; errors are `StorageInputError`.
 - No `any`.
@@ -80,4 +82,5 @@
 
 - `pnpm nx build storage_api`
 - `pnpm nx run storage_api:schema:print`
-- Smoke: `pnpm dev:apis` with `accounting_api` and the logs service enabled; create a zone, register tags, break a box, and confirm the movement turns `success` and an `invMove` transaction exists in accounting.
+- `pnpm nx test storage_api`
+- Smoke: `pnpm dev:apis` with `accounting_api` enabled; create a zone, register tags, break a box, and confirm the movement turns `success` and an `invMove` transaction exists in accounting.

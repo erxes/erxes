@@ -1,16 +1,11 @@
-import { IMainContext } from 'erxes-api-shared/core-types';
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import { IZoneLocation } from '../../modules/storage/@types/storage';
-import { IModels } from '../../modules/storage/db/models/Storage';
+import { IContext } from '~/connectionResolvers';
 import { breakBoxes, IBreakBoxesInput, retryAccounting } from '../../modules/storage/services/movementService';
 import { submitScan, zoneSummary } from '../../modules/storage/services/scanService';
 import { IRegisterTagsInput, registerTags, removeTags } from '../../modules/storage/services/tagService';
 import { pageOf } from '../../modules/storage/services/validation';
 import { IZoneInput, removeZone, saveZone } from '../../modules/storage/services/zoneService';
-
-interface IContext extends IMainContext {
-  models: IModels;
-}
 
 interface IPageArgs {
   page?: number;
@@ -98,7 +93,7 @@ export const resolvers = {
     },
     storageBreakBoxes: async (_: unknown, args: IBreakBoxesInput, ctx: IContext) => {
       await ctx.checkPermission('manageStorageMovements');
-      return breakBoxes(ctx.models, args, userIdOf(ctx));
+      return breakBoxes(ctx.models, ctx.subdomain, args, userIdOf(ctx));
     },
     storageRfidScanSubmit: async (_: unknown, args: { zoneId: string; epcIds: string[] }, ctx: IContext) => {
       await ctx.checkPermission('manageStorageTags');
@@ -106,7 +101,7 @@ export const resolvers = {
     },
     storageMovementRetryAccounting: async (_: unknown, args: { _id: string }, ctx: IContext) => {
       await ctx.checkPermission('manageStorageMovements');
-      return retryAccounting(ctx.models, args._id);
+      return retryAccounting(ctx.models, ctx.subdomain, args._id, userIdOf(ctx));
     },
   },
 };

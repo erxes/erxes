@@ -1,5 +1,5 @@
 import { IStorageZone, IZoneLocation } from '../@types/storage';
-import { IModels } from '../db/models/Storage';
+import { IModels } from '~/connectionResolvers';
 import { assertRequired, isDuplicateKeyError, StorageInputError } from './validation';
 
 export interface IZoneInput {
@@ -50,8 +50,4 @@ export const removeZone = async (models: IModels, zoneId: string) => {
   return zoneId;
 };
 
-export const requireZone = async (models: IModels, zoneId: string) => {
-  const zone = await models.Zones.findById(zoneId).lean();
-  if (!zone) throw new StorageInputError('Бүс олдсонгүй.');
-  return zone;
-};
+export const requireZone = (models: IModels, zoneId: string) => models.Zones.getZone(zoneId);

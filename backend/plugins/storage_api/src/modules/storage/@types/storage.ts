@@ -1,3 +1,5 @@
+import { Document } from 'mongoose';
+
 /** One accounting location: an inventory account at a branch and department. */
 export interface IZoneLocation {
   accountId: string;
@@ -15,6 +17,12 @@ export interface IStorageZone {
   open: IZoneLocation;
 }
 
+export interface IStorageZoneDocument extends IStorageZone, Document {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type RfidTagStatus = 'SEALED' | 'OPENED';
 
 export interface IRfidTag {
@@ -26,6 +34,12 @@ export interface IRfidTag {
   batchId?: string;
   movementId?: string;
   createdBy?: string;
+}
+
+export interface IRfidTagDocument extends IRfidTag, Document {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type StorageMovementType = 'BREAK_BOX';
@@ -41,8 +55,8 @@ export interface IStorageMovementItem {
 
 /**
  * A stock movement decided in storage. Storage never keeps stock counts or
- * cost: accounting_api listens for created movements (afterProcess) and books
- * the inventory transaction, then reports back through tRPC.
+ * cost: it sends the movement to accounting_api over tRPC as one inventory-move
+ * transaction and stores accounting's answer here.
  */
 export interface IStorageMovement {
   requestKey: string;
@@ -56,6 +70,14 @@ export interface IStorageMovement {
   userId?: string;
   accountingStatus: AccountingStatus;
   accountingResponse?: string;
+  /** Parent id of the accounting transaction, once booked. */
+  accountingTrId?: string;
+}
+
+export interface IStorageMovementDocument extends IStorageMovement, Document {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IScanProductRow {
@@ -79,4 +101,10 @@ export interface IScanSession {
   otherZoneEpcIds: string[];
   products: IScanProductRow[];
   userId?: string;
+}
+
+export interface IScanSessionDocument extends IScanSession, Document {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

@@ -147,13 +147,13 @@
 - GraphQL query `fxaOwnerRecordsCount(searchValue, ids, fixedAssetIds, fixedAssetId, categoryId, action, status, ownerId, balanceOnly, createdFrom, createdTo, transactionId)`, returning the matching owner-record or balance-row count.
 - GraphQL queries `journalReportData` and `journalReportMore`, returning summary and detailed rows for account, trial balance, general-ledger, main-journal, main-journal-summary, fund, debt, inventory-cost, inventory-sale, inventory-sale-cost, inventory-sale-period, inventory-price, inventory-profit, inventory-shipper, inventory-document, inventory-seller-subsystem, and fixed-asset reports with account permission filters, pointer/account/product/fixed-asset/customer/content metadata filters, branch/department child filters, `trKind`/`trKinds`/`getTrKind` filters, detail-level currency/account matching, line-record projection, and group metadata enrichment.
 - Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, `updateTransaction`, and removal helpers used by accounting-owned flows.
+- tRPC module `accountingTransaction` for other plugins: `getTransactions`, `getFilterMatches`, `activeCost({ accountId, branchId, departmentId, productIds, excludedTransactionIds })` returning unit cost per product, and `savePTransaction({ parentId?, docs, userId })` creating a transaction group or replacing it when `parentId` is given (account permission is skipped; the caller checks its own permissions). The storage plugin uses these to book RFID box breaks as `invMove`.
 - Inventory split input contract is `details[].followInfos.invSplit` with canonical `hasSplit`; when true, `productId` and a positive `ratio` are required on an `invIncome` or `invMove` source detail, while false disables splitting without validating those fields. Generated `invOut` and `invIncome` rows use `originId` to point to that source transaction. Save normalizes legacy root `followInfos.invSplitDetails` into detail state.
 
 ### Consumes
 
 - Core branch, department, customer, company, product, and organization data through `sendTRPCMessage`, GraphQL, HTTP, or shared platform contracts.
 - Shared backend utilities, cursor pagination helpers, pubsub, and service startup APIs from `erxes-api-shared`.
-- Created `storage:storage.movements` documents through `meta/afterProcess.ts`: `afterProcessHandlers/storageMovementToTrs.ts` books each as one `invMove` transaction (source and destination account, branch and department come from the movement) and reports the result to the storage plugin's tRPC `movements.setAccountingResult`.
 
 ## Data and State
 

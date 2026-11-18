@@ -1,5 +1,6 @@
-import { AccountingStatus, IRfidTag, IStorageMovement, IStorageMovementItem } from '../@types/storage';
-import { IModels } from '../db/models/Storage';
+import { IRfidTag, IStorageMovement, IStorageMovementItem } from '../@types/storage';
+import { IModels } from '~/connectionResolvers';
+import { bookMovement } from './accountingService';
 import { isDuplicateKeyError, LIMITS, newId, normalizeEpcIds, StorageInputError } from './validation';
 import { requireZone } from './zoneService';
 
@@ -43,11 +44,17 @@ const assertBreakable = (tags: TagSnapshot[], epcIds: string[]) => {
 /**
  * Moves sealed packs to the open area of their zone.
  *
- * Storage only flips the tags and records the movement. The stock and cost
- * side is booked by accounting_api, which receives the created movement
- * through afterProcess and writes an inventory-move transaction.
+ * Storage flips the tags and records the movement, then sends the movement to
+ * accounting_api over tRPC as an inventory-move transaction. If accounting
+ * fails, the tags stay opened and the movement keeps the error so it can be
+ * re-sent.
  */
-export const breakBoxes = async (models: IModels, input: IBreakBoxesInput, userId?: string) => {
+export const breakBoxes = async (
+  models: IModels,
+  subdomain: string,
+  input: IBreakBoxesInput,
+  userId?: string,
+) => {
   const epcIds = normalizeEpcIds(input.epcIds, LIMITS.MAX_BREAK_BOXES);
   const requestKey = input.requestKey || newId();
 
@@ -83,8 +90,10 @@ export const breakBoxes = async (models: IModels, input: IBreakBoxesInput, userI
     throw new StorageInputError('Зарим хайрцаг зэрэг задлагдсан байна. Дахин оролдоно уу.');
   }
 
-  await models.Movements.publishCreated(movementId);
-  return models.Movements.findById(movementId).lean();
+  const movement = await models.Movements.findOne({ _id: movementId }).lean();
+  if (!movement) throw new StorageInputError('Хөдөлгөөн олдсонгүй.');
+
+  return bookMovement(models, subdomain, movement, userId);
 };
 
 const createMovement = async (
@@ -107,7 +116,12 @@ const createMovement = async (
 };
 
 /** Re-sends a movement to accounting, for example after its config was fixed. */
-export const retryAccounting = async (models: IModels, movementId: string) => {
+export const retryAccounting = async (
+  models: IModels,
+  subdomain: string,
+  movementId: string,
+  userId?: string,
+) => {
   const movement = await models.Movements.findOneAndUpdate(
     { _id: movementId, accountingStatus: { $ne: 'success' } },
     { $set: { accountingStatus: 'pending' }, $unset: { accountingResponse: 1 } },
@@ -116,17 +130,5 @@ export const retryAccounting = async (models: IModels, movementId: string) => {
 
   if (!movement) throw new StorageInputError('Дахин илгээх боломжтой хөдөлгөөн олдсонгүй.');
 
-  await models.Movements.publishCreated(movementId);
-  return movement;
-};
-
-/** Called by accounting_api (tRPC) once it has booked, or failed to book, the movement. */
-export const setAccountingResult = async (
-  models: IModels,
-  params: { movementId: string; status: AccountingStatus; message?: string },
-) => {
-  await models.Movements.updateOne(
-    { _id: params.movementId },
-    { $set: { accountingStatus: params.status, accountingResponse: (params.message || '').slice(0, 1000) } },
-  );
+  return bookMovement(models, subdomain, movement, userId);
 };
