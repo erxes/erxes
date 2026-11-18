@@ -177,8 +177,8 @@ export type TRelationTabProps = TRecordSlotProps & TRecordContacts;
 /**
  * A plugin's tab on other records' panels, listing its own records.
  * It lists the plugin's own records of the same customers and companies: a customer's deals.
- * Shown on core's customers and companies (their contacts are themselves), and on the plugin
- * record types `hosts` names that give `contacts` (a task's deals). A record clicked in it opens
+ * Shown on the record types `hosts` names: core's customers or companies (their contacts are
+ * themselves), and plugin record types that give `contacts` (a task's deals). A record clicked in it opens
  * on top in the same panel (`useOpenRecord().open`), and Back returns.
  */
 export type TRelationTab = {
@@ -186,7 +186,10 @@ export type TRelationTab = {
   name: string;
   title: string;
   icon: Icon;
-  /** Plugin record types it also shows on (`tasks:task`); customers and companies always. */
+  /**
+   * The record types it shows on (`core:customer` alone, `tasks:task`); none: customers and
+   * companies.
+   */
   hosts?: string[];
   component: React.ComponentType<TRelationTabProps>;
 };
