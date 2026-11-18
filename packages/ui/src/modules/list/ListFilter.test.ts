@@ -141,6 +141,27 @@ describe('ListFilter outside erxes', () => {
     });
   });
 
+  it('names the popover the filter button opens', async () => {
+    const container = await render(
+      createElement(ListFilter, { id: 'deals', fields: FIELDS, members }),
+      '',
+    );
+
+    const button = await filterButton(container);
+
+    await act(async () => button.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+
+    const dialog = await vi.waitFor(() => {
+      const found = document.querySelector('[role="dialog"]');
+
+      if (!found) throw new Error('the popover has not opened');
+
+      return found;
+    });
+
+    expect(dialog.getAttribute('aria-label')).toBe('Add a filter');
+  });
+
   it('names a picked member outside the team', async () => {
     const container = await render(
       createElement(ListFilter, { id: 'deals', fields: FIELDS, members }),
