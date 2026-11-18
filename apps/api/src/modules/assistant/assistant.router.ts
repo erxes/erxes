@@ -32,9 +32,12 @@ export const assistantRouter = {
   threads: scoped.assistant.threads.handler(({ input }) => listThreads(db(), input)),
   thread: scoped.assistant.thread.handler(({ input }) => findThread(db(), input.id)),
   send: unscoped.assistant.send.handler(({ input }) => sendMessage(input)),
-  watch: unscoped.assistant.watch.handler(({ input, signal }) =>
-    watchThread(input.id, signal ?? AbortSignal.any([])),
-  ),
+  watch: unscoped.assistant.watch.handler(({ input, signal, context }) => {
+    // An event stream: the web image's nginx would buffer it under /core/ (apps/web/deploy).
+    context.res?.setHeader('X-Accel-Buffering', 'no');
+
+    return watchThread(input.id, signal ?? AbortSignal.any([]));
+  }),
   updateThread: scoped.assistant.updateThread.handler(({ input: { id, ...changes } }) =>
     updateThread(db(), id, changes),
   ),
