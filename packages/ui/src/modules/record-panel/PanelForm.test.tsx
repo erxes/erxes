@@ -1,7 +1,10 @@
 // @vitest-environment happy-dom
 import { act, useState } from 'react';
 import { describe, expect, it, vi } from 'vite-plus/test';
+import { Combobox } from '../../components/combobox';
 import { Input } from '../../components/input';
+import { Popover } from '../../components/popover';
+import { Select } from '../../components/select';
 import { setupDomRender } from '../../lib/render-in-dom';
 import { Editor } from '../blocks/components/Editor';
 import { PanelFormLayout, PanelFormRow } from './PanelForm';
@@ -72,6 +75,44 @@ describe('PanelFormRow', () => {
     expect(message?.textContent).toBe('Enter a name');
     expect(input?.getAttribute('aria-invalid')).toBe('true');
     expect(input?.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('says a required picker is required in its description, since a button cannot be marked required', () => {
+    const container = render(
+      <PanelFormRow label="Owner" required error="Pick an owner">
+        <Popover>
+          <Combobox.Trigger>
+            <Combobox.Value placeholder="Pick an owner" />
+          </Combobox.Trigger>
+        </Popover>
+      </PanelFormRow>,
+    );
+
+    const trigger = container.querySelector('button');
+
+    const description = (trigger?.getAttribute('aria-describedby') ?? '')
+      .split(' ')
+      .map((id) => document.getElementById(id)?.textContent);
+
+    expect(trigger?.hasAttribute('aria-required')).toBe(false);
+    expect(trigger?.getAttribute('aria-invalid')).toBe('true');
+    expect(description).toEqual(['Required', 'Pick an owner']);
+  });
+
+  it('marks a required select required, as a combobox may be', () => {
+    const container = render(
+      <PanelFormRow label="Type" required>
+        <Select value="">
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select>
+      </PanelFormRow>,
+    );
+
+    const trigger = container.querySelector('[role=combobox]');
+
+    expect(trigger?.getAttribute('aria-required')).toBe('true');
   });
 
   it('names a text editor by the label, with its placeholder', async () => {

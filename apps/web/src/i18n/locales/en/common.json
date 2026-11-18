@@ -543,7 +543,8 @@
     "discard-title": "Discard this draft?",
     "discard-description": "What you typed here is not saved.",
     "keep-editing": "Keep editing",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "required": "Required"
   },
   "favorites": {
     "add": "Add to favorites",
