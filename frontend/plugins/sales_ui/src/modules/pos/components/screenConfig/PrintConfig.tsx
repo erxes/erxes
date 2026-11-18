@@ -1,37 +1,31 @@
-import { Control, Controller } from 'react-hook-form';
-import { Label, Switch } from 'erxes-ui';
+import { Control } from 'react-hook-form';
 import type { ScreenConfigFormData } from './ScreenConfig';
-import { useTranslation } from 'react-i18next';
+import {
+  PosSwitchList,
+  PosSwitchRow,
+} from '@/pos/components/pos-edit/PosSwitchRow';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
 interface PrintConfigProps {
   control: Control<ScreenConfigFormData>;
 }
 
 export const PrintConfig: React.FC<PrintConfigProps> = ({ control }) => {
-  const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <Controller
+    <PosSwitchList>
+      <PosSwitchRow
+        control={control}
         name="kitchenIsPrint"
-        control={control}
-        render={({ field }) => (
-          <div className="flex gap-2 items-center">
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>{t('KITCHEN-PRINT')}</Label>
-          </div>
-        )}
+        label={labels.kitchenPrint}
+        description={labels.kitchenPrintDescription}
       />
-
-      <Controller
+      <PosSwitchRow
+        control={control}
         name="waitingIsPrint"
-        control={control}
-        render={({ field }) => (
-          <div className="flex gap-2 items-center">
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>{t('WAITING-PRINT')}</Label>
-          </div>
-        )}
+        label={labels.waitingPrint}
+        description={labels.waitingPrintDescription}
       />
-    </div>
+    </PosSwitchList>
   );
 };

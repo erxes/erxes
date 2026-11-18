@@ -20,6 +20,7 @@ export const PosAutomations = ({
 
   return (
     <SourceAutomations
+      framed={false}
       label={label}
       triggerTypes={[POS_ORDER_TRIGGER_TYPE]}
       scopeOf={scopeOf}

@@ -16,6 +16,12 @@ const PosSettingsPage = lazy(() =>
   })),
 );
 
+const PosEditRecordPage = lazy(() =>
+  import('~/pages/PosEditRecordPage').then((module) => ({
+    default: module.PosEditRecordPage,
+  })),
+);
+
 const PosEditPage = lazy(() =>
   import('~/pages/PosEditPage').then((module) => ({
     default: module.PosEditPage,
@@ -50,6 +56,10 @@ const Settings = () => {
         <Route path="/deals" element={<DealsSettings />} />
         <Route path="/pos" element={<PosSettingsPage />} />
         <Route path="/pos/:id" element={<PosEditPage />} />
+        <Route
+          path="/pos/:id/edit/:recordType/:recordKey"
+          element={<PosEditRecordPage />}
+        />
         <Route path="/" element={<Navigate to="deals" replace />} />
       </Routes>
     </Suspense>

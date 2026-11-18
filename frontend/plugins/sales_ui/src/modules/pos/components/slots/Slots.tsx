@@ -1,42 +1,35 @@
-import { InfoCard } from 'erxes-ui';
-import POSSlotsManager from '@/pos/slot/components/slot';
 import { usePosSlots } from '@/pos/hooks/usePosSlots';
+import { SlotEditor } from '@/pos/slot/components/SlotEditor';
 import { useTranslation } from 'react-i18next';
 
 interface SlotsProps {
   posId: string;
+  onSaveActionChange?: (action: React.ReactNode | null) => void;
 }
 
-const Slots: React.FC<SlotsProps> = ({ posId }) => {
+export const Slots = ({ posId, onSaveActionChange }: SlotsProps) => {
   const { t } = useTranslation('sales');
-  const { nodes, setNodes, loading } = usePosSlots(posId);
+  const { slots, loading, error, saving, saveSlots } = usePosSlots(posId);
 
   if (loading) {
+    return <div className="h-full animate-pulse rounded-lg bg-muted" />;
+  }
+
+  if (error || !slots) {
     return (
-      <div className="flex flex-col p-6 h-full overflow-hidden">
-        <InfoCard title={t('slots')}>
-          <InfoCard.Content>
-            <div className="h-64 rounded animate-pulse bg-muted" />
-          </InfoCard.Content>
-        </InfoCard>
-      </div>
+      <p className="p-6 text-center text-destructive">
+        {t('failed-to-load-slots')}
+        {error ? `: ${error.message}` : null}
+      </p>
     );
   }
 
   return (
-    <div className="flex flex-col p-6 h-full overflow-hidden">
-      <InfoCard title={t('slots')} className="flex-1 min-h-0 flex flex-col">
-        <InfoCard.Content className="flex-1 min-h-0">
-          <POSSlotsManager
-            posId={posId}
-            initialNodes={nodes}
-            onNodesChange={setNodes}
-            isCreating={false}
-          />
-        </InfoCard.Content>
-      </InfoCard>
-    </div>
+    <SlotEditor
+      savedSlots={slots}
+      saving={saving}
+      onSave={saveSlots}
+      onSaveActionChange={onSaveActionChange}
+    />
   );
 };
-
-export default Slots;

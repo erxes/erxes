@@ -1,17 +1,25 @@
-import { Button, PageContainer } from 'erxes-ui';
-import { IconCashRegister, IconPlus } from '@tabler/icons-react';
+import { Button, PageContainer, ToggleGroup } from 'erxes-ui';
+import {
+  IconCashRegister,
+  IconLayoutGrid,
+  IconList,
+  IconPlus,
+} from '@tabler/icons-react';
 import { PosCardGrid } from '@/pos/components/PosRecordList';
-import { PosCreate } from '@/pos/components/pos-create';
-import { SettingsHeader } from 'ui-modules';
-import { useState } from 'react';
+import { PosRecordTable } from '@/pos/components/PosRecordTable';
+import { POS_CREATE_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { posListViewAtom, TPosListView } from '@/pos/states/posListView';
+import { SettingsHeader, useSidePanel } from 'ui-modules';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 export const PosSettingsPage = () => {
   const { t } = useTranslation('sales');
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [view, setView] = useAtom(posListViewAtom);
+  const { openNewRecord } = useSidePanel();
 
   const onCreatePos = () => {
-    setCreateDialogOpen(true);
+    openNewRecord(POS_CREATE_CONTENT_TYPE);
   };
 
   return (
@@ -23,19 +31,41 @@ export const PosSettingsPage = () => {
               <IconCashRegister />
               {t('pos')}
             </Button>
-            <Button onClick={onCreatePos}>
-              <IconPlus className="mr-2 w-4 h-4" />
-              {t('pos-create')}
-            </Button>
+            <div className="flex items-center gap-2">
+              <ToggleGroup
+                type="single"
+                value={view}
+                onValueChange={(value) => {
+                  if (value) setView(value as TPosListView);
+                }}
+              >
+                <ToggleGroup.Item value="list" aria-label={t('list')}>
+                  <IconList />
+                </ToggleGroup.Item>
+                <ToggleGroup.Item
+                  value="card"
+                  aria-label={t('pos-card-view', 'Cards')}
+                >
+                  <IconLayoutGrid />
+                </ToggleGroup.Item>
+              </ToggleGroup>
+              <Button onClick={onCreatePos}>
+                <IconPlus className="mr-2 w-4 h-4" />
+                {t('pos-create')}
+              </Button>
+            </div>
           </div>
         </SettingsHeader>
         <div className="flex overflow-hidden flex-auto w-full">
           <div className="flex overflow-hidden flex-col w-full">
-            <PosCardGrid onCreatePos={onCreatePos} />
+            {view === 'list' ? (
+              <PosRecordTable onCreatePos={onCreatePos} />
+            ) : (
+              <PosCardGrid onCreatePos={onCreatePos} />
+            )}
           </div>
         </div>
       </div>
-      <PosCreate open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </PageContainer>
   );
 };

@@ -1,10 +1,18 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Label } from 'erxes-ui';
+import {
+  IconCircleMinus,
+  IconCirclePlus,
+  IconFolder,
+  IconPackage,
+  IconTag,
+} from '@tabler/icons-react';
 import { SelectCategory, SelectProduct } from 'ui-modules';
+import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { useTranslation } from 'react-i18next';
 import { useProductFilterLabels } from '@/productFilters/useProductFilterLabels';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
+import { toIds } from '@/pos/utils/toIds';
 import { ProductTagSelect } from '@/productFilters/ProductTagSelect';
-import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';
 import { useForm, useWatch } from 'react-hook-form';
@@ -47,6 +55,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
 }) => {
   const { t } = useTranslation('sales');
   const filterLabels = useProductFilterLabels();
+  const labels = usePosSettingsLabels();
   const {
     control,
     reset,
@@ -60,7 +69,6 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
   });
   const formState = useWatch({ control, defaultValue: INITIAL_STATE });
   const [initialState, setInitialState] = useState<FormState>(INITIAL_STATE);
-  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     const newState: FormState = editingGroup
@@ -92,30 +100,21 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
 
   const handleCategorySelect = useCallback(
     (value: string | string[]) => {
-      updateField(
-        'categoryIds',
-        Array.isArray(value) ? value : value ? [value] : [],
-      );
+      updateField('categoryIds', toIds(value));
     },
     [updateField],
   );
 
   const handleExcludeCategorySelect = useCallback(
     (value: string | string[]) => {
-      updateField(
-        'excludedCategoryIds',
-        Array.isArray(value) ? value : value ? [value] : [],
-      );
+      updateField('excludedCategoryIds', toIds(value));
     },
     [updateField],
   );
 
   const handleExcludeProductsChange = useCallback(
     (value: string | string[]) => {
-      updateField(
-        'excludedProductIds',
-        Array.isArray(value) ? value : value ? [value] : [],
-      );
+      updateField('excludedProductIds', toIds(value));
     },
     [updateField],
   );
@@ -149,81 +148,68 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
     };
   }, [handleSave, hasChanges, onDirtyChange, onSaveRequestChange]);
 
-  const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
-
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 items-end gap-x-4 gap-y-6">
-        <div className="min-w-0 space-y-2">
-          <Label>{t('PRODUCT-CATEGORY')}</Label>
-          <SelectCategory
-            mode="multiple"
-            value={formState.categoryIds}
-            onValueChange={handleCategorySelect}
-            placeholder={t('select-product-categories')}
-          />
-        </div>
-        {!showMore && (
-          <div>
-            <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
+      <div className="space-y-4">
+        <div className="min-w-0 space-y-0.5">
+          <div className="flex h-7 items-center gap-1.5 px-2 text-xs font-medium">
+            <IconCirclePlus className="size-3.5 text-primary" />
+            {labels.include}
           </div>
-        )}
-        {showMore && (
-          <>
-            <div className="min-w-0 space-y-2">
-              <Label>{t('EXCLUDE-PRODUCT-CATEGORY')}</Label>
-              <SelectCategory
-                mode="multiple"
-                value={formState.excludedCategoryIds}
-                onValueChange={handleExcludeCategorySelect}
-                placeholder={t('select-product-categories-to-exclude')}
-              />
-            </div>
-            <div className="min-w-0 space-y-2">
-              <Label>{filterLabels.tags}</Label>
-              <ProductTagSelect
-                value={formState.tagIds || []}
-                onValueChange={(value) => updateField('tagIds', value)}
-              />
-            </div>
-            <div className="min-w-0 space-y-2">
-              <Label>{filterLabels.excludeTags}</Label>
-              <ProductTagSelect
-                value={formState.excludeTagIds || []}
-                onValueChange={(value) => updateField('excludeTagIds', value)}
-              />
-            </div>
-            <div className="min-w-0 space-y-2">
-              <Label>{filterLabels.products}</Label>
-              <SelectProduct
-                mode="multiple"
-                value={formState.productIds}
-                onValueChange={(value) =>
-                  updateField(
-                    'productIds',
-                    Array.isArray(value) ? value : value ? [value] : [],
-                  )
-                }
-              />
-            </div>
-            <div className="min-w-0 space-y-2">
-              <Label>{t('exclude-products')}</Label>
-              <SelectProduct
-                mode="multiple"
-                value={formState.excludedProductIds}
-                onValueChange={handleExcludeProductsChange}
-                placeholder={t('select-products-to-exclude')}
-              />
-            </div>
-            <p className="col-span-2 text-sm text-muted-foreground">
-              {filterLabels.description}
-            </p>
-            <div className="col-span-2">
-              <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
-            </div>
-          </>
-        )}
+          <PosPanelRow label={t('product-categories')} icon={IconFolder}>
+            <SelectCategory
+              mode="multiple"
+              value={formState.categoryIds}
+              onValueChange={handleCategorySelect}
+              placeholder={t('select-product-categories')}
+            />
+          </PosPanelRow>
+          <PosPanelRow label={filterLabels.tags} icon={IconTag}>
+            <ProductTagSelect
+              value={formState.tagIds || []}
+              onValueChange={(value) => updateField('tagIds', value)}
+            />
+          </PosPanelRow>
+          <PosPanelRow label={filterLabels.products} icon={IconPackage}>
+            <SelectProduct
+              mode="multiple"
+              value={formState.productIds}
+              onValueChange={(value) => updateField('productIds', toIds(value))}
+            />
+          </PosPanelRow>
+        </div>
+        <div className="min-w-0 space-y-0.5">
+          <div className="flex h-7 items-center gap-1.5 px-2 text-xs font-medium">
+            <IconCircleMinus className="size-3.5 text-destructive" />
+            {labels.exclude}
+          </div>
+          <PosPanelRow label={t('exclude-categories')} icon={IconFolder}>
+            <SelectCategory
+              mode="multiple"
+              value={formState.excludedCategoryIds}
+              onValueChange={handleExcludeCategorySelect}
+              placeholder={t('select-product-categories-to-exclude')}
+            />
+          </PosPanelRow>
+          <PosPanelRow label={filterLabels.excludeTags} icon={IconTag}>
+            <ProductTagSelect
+              value={formState.excludeTagIds || []}
+              onValueChange={(value) => updateField('excludeTagIds', value)}
+            />
+          </PosPanelRow>
+          <PosPanelRow label={t('exclude-products')} icon={IconPackage}>
+            <SelectProduct
+              mode="multiple"
+              value={formState.excludedProductIds}
+              onValueChange={handleExcludeProductsChange}
+              placeholder={t('select-products-to-exclude')}
+            />
+          </PosPanelRow>
+        </div>
       </div>
+      <p className="px-2 text-xs text-muted-foreground">
+        {filterLabels.description}
+      </p>
       {Object.keys(errors).length > 0 && (
         <p className="text-sm text-destructive" role="alert">
           {filterLabels.invalidSelection}

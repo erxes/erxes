@@ -58,6 +58,7 @@ import {
   RecordSidePanel,
   SIDE_PANEL_CHAT_PATH,
   SIDE_PANEL_ROOT_PATH,
+  sidePanelDraftState,
   sidePanelWidthState,
   usePanelExpanded,
   useCompanyDetail,
@@ -737,10 +738,18 @@ export const SidePanelLayout = () => {
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { detailPath } = useRecordPanelPlugin(record?.contentType ?? '');
+  const draft = useAtomValue(sidePanelDraftState);
+  const { detailPath, draftPath } = useRecordPanelPlugin(
+    record?.contentType ?? '',
+  );
   // Records with detail routes expand into their own pages.
   const getRecordPage = () => {
-    if (!record || record.contentId === NEW_RECORD_ID) return null;
+    if (!record) return null;
+    if (record.contentId === NEW_RECORD_ID) {
+      return draftPath && draft?.contentType === record.contentType
+        ? draftPath(draft.defaults, pathname)
+        : null;
+    }
     if (isContactContentType(record.contentType)) {
       return getContactDetailPath(
         record.contentType,
