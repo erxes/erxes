@@ -121,16 +121,17 @@ const START_MONTH = new Date(1980, 6);
  * for a field, use `DatePicker`, which puts this in a popover. Years run 1980 to ten ahead.
  */
 export const Calendar = ({ className, classNames, ...props }: CalendarProps) => {
-  const { locale } = useFormat();
+  const fmt = useFormat();
 
   return (
     <DayPicker
-      locale={locale}
+      locale={fmt.locale}
       className={cn('p-3', className)}
       classNames={getBaseClassNames({
         [UI.Months]: 'relative',
         [UI.Month]: 'space-y-4 ml-0',
-        [UI.MonthCaption]: 'flex justify-center items-center h-7',
+        // Clear of the previous and next buttons, which sit over its ends.
+        [UI.MonthCaption]: 'flex justify-center items-center h-7 px-8',
         [UI.PreviousMonthButton]: cn(
           buttonVariants({ variant: 'secondary' }),
           'absolute left-0 top-0 size-7 p-0',
@@ -145,6 +146,8 @@ export const Calendar = ({ className, classNames, ...props }: CalendarProps) => 
         ...classNames,
       })}
       captionLayout="dropdown"
+      // Short month names ("Nov", "11-р сар"): the long Mongolian ones don't fit beside the year.
+      formatters={{ formatMonthDropdown: (month) => fmt.date(month, 'LLL') }}
       startMonth={START_MONTH}
       endMonth={END_MONTH}
       components={{ DropdownNav, MonthsDropdown, YearsDropdown, Chevron }}
