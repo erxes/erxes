@@ -1,6 +1,7 @@
 import type { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { FieldControlProps } from 'erxes-ui/components/field-control';
 import { useToast } from 'erxes-ui/hooks/use-toast';
 import { errorMessage, storeFile } from 'erxes-ui/utils/file-storage';
@@ -21,21 +22,22 @@ export const useBlockEditor = (args?: {
   const { initialContent, placeholder, label, uploadFile, field = {} } = args ?? {};
 
   const { toast } = useToast();
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
 
   const defaultUploadFile = async (file: File) => {
     try {
       return await storeFile(file);
     } catch (error) {
       toast({
-        title: 'Upload failed',
-        description: errorMessage(error, 'Upload failed'),
+        title: t('upload-failed', 'Could not upload the file'),
+        description: errorMessage(error, t('upload-failed-reason', 'Upload failed')),
         variant: 'destructive',
       });
       throw error;
     }
   };
 
-  const defaultPlaceholder = placeholder || "Type '/' for commands...";
+  const defaultPlaceholder = placeholder || t('placeholder', 'Type “/” for commands…');
 
   const editor = useCreateBlockNote({
     schema: BLOCK_SCHEMA,

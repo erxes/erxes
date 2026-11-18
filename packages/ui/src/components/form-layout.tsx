@@ -33,7 +33,7 @@ export const FormSection = ({
         <h2
           className={cn(
             'text-base font-semibold',
-            variant === 'destructive' && 'text-(--destructive-text)',
+            variant === 'destructive' && 'text-destructive-text',
           )}
         >
           {title}
@@ -65,7 +65,10 @@ export const FormSaveBar = ({
   const { isDirty } = useFormState();
 
   return (
-    <div className="sticky bottom-0 z-10 flex items-center justify-end gap-2 border-t bg-background/95 py-3 backdrop-blur">
+    <div
+      data-save-bar
+      className="sticky bottom-0 z-10 flex items-center justify-end gap-2 border-t bg-background/95 py-3 backdrop-blur"
+    >
       {isDirty && (
         <output className="mr-auto text-xs text-muted-foreground">
           {t('unsaved', 'Unsaved changes')}

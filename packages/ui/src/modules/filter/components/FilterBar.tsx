@@ -116,12 +116,13 @@ export const FilterBarButton = ({
 
 export const FilterSearchValueBarItem = () => {
   const [searchValue] = useQueryState('searchValue');
+  const { t } = useTranslation('ui', { keyPrefix: 'filter' });
 
   return (
     <FilterBarItem queryKey="searchValue">
       <FilterBarName>
         <IconSearch />
-        Search
+        {t('search', 'Search')}
       </FilterBarName>
       <FilterBarButton filterKey="searchValue" inDialog>
         {searchValue}

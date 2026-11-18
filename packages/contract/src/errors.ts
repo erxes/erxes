@@ -175,8 +175,10 @@ export const ERRORS = {
   UNKNOWN_PLACEHOLDER: { status: 400, data: z.object({ placeholders: z.array(z.string()) }) },
   NO_RECIPIENTS: { status: 409 },
 
-  // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down.
+  // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
+  // a receipt that can't print (not issued, or a return).
   EBARIMT_NOT_SET_UP: { status: 409 },
+  RECEIPT_NOT_PRINTABLE: { status: 409 },
   COMPANY_NOT_FOUND: { status: 404 },
   TAX_OFFICE_UNAVAILABLE: { status: 503 },
 

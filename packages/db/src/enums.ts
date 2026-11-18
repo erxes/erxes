@@ -481,6 +481,26 @@ export const EBARIMT_RECEIPT_STATUSES = ['pending', 'success', 'failed'] as cons
 /** A receipt for a person (B2C) or a company (B2B, with its tax number). */
 export const EBARIMT_BUYER_TYPES = ['B2C_RECEIPT', 'B2B_RECEIPT'] as const;
 
+/**
+ * The parts of a printed receipt, in their default order: the merchant, the
+ * header text, the bill (number and date), the buyer, the lines, the totals,
+ * the QR code, the lottery number and the footer text.
+ */
+export const EBARIMT_PRINT_BLOCKS = [
+  'merchant',
+  'header',
+  'bill',
+  'buyer',
+  'lines',
+  'totals',
+  'qr',
+  'lottery',
+  'footer',
+] as const;
+
+/** The receipt printer's paper: 58 mm or 80 mm rolls, or A4. */
+export const EBARIMT_PAPER_SIZES = ['58mm', '80mm', 'a4'] as const;
+
 // ─── Email sending ──────────────────────────────────────────────────────────
 
 /** How an organisation sends its emails, when not through the server's (`EMAIL_SMTP_URL`). */

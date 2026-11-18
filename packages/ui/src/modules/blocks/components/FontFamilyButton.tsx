@@ -2,10 +2,12 @@ import { useComponentsContext, usePortalElement } from '@blocknote/react';
 import { useStringStyle } from 'erxes-ui/modules/blocks/hooks/toolbar/useStringStyle';
 import { FONT_FAMILIES } from 'erxes-ui/modules/blocks/constant/toolbar/fontFamilies';
 import { IconTypography } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const FontFamilyButton = () => {
   const Components = useComponentsContext();
   const portalElement = usePortalElement();
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
 
   const {
     value: currentFont,
@@ -23,8 +25,8 @@ export const FontFamilyButton = () => {
         <Components.FormattingToolbar.Button
           data-test="fontFamily"
           className="bn-button"
-          label="Font"
-          mainTooltip="Font Family"
+          label={t('font', 'Font')}
+          mainTooltip={t('font', 'Font')}
           icon={<IconTypography size={16} />}
         />
       </Components.Generic.Menu.Trigger>
@@ -39,7 +41,7 @@ export const FontFamilyButton = () => {
               className="flex items-center gap-2 w-full font-(family-name:--font)"
               style={{ '--font': font.value }}
             >
-              {font.name}
+              {font.value ? font.name : t('default', 'Default')}
             </div>
           </Components.Generic.Menu.Item>
         ))}

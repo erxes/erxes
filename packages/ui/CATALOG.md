@@ -158,7 +158,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<Button variant tone size>` A button in the theme's variants, tones and sizes; native by default.
 - `type ButtonProps` Base UI button props plus `variant`, `tone` and `size`.
 - `buttonVariants(props)` Button classes by `variant`, `tone` and `size`, to style a link as one.
-- `<Calendar classNames>` A month grid to pick a day or range, with month and year selects.
+- `<Calendar classNames>` A month grid to pick a day or range, in the UI's language.
 - `type CalendarProps` react-day-picker's `DayPicker` props.
 - `Card.{Header, Footer, Title, Description, Content}` A raised panel with header, title, description, content and footer.
 - `type ChartConfig` Each series' label, icon and colour by data key, for `ChartContainer`.
@@ -174,7 +174,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `CommandBar.{Value, Bar}` A bar floating at the page bottom with bulk actions for a selection.
 - `ContextMenu.{Trigger, Content, Item, Group, Label, …}` A menu that opens on right-click, beside the pointer.
 - `<CopyText value>` Text that copies `value` to the clipboard on click and shows "Copied!".
-- `<DateInput>` A calendar date typed in.
+- `<DateInput {...DateTimeInputProps}>` A calendar date typed in.
 - `<DatePicker {...DatePickerProps}>` A date field with a calendar popover, for one day, several or a range.
 - `Dialog.{Trigger, Close, Portal, Backdrop, Content, …}` A centered modal over a dimmed page, such as an image lightbox.
 - `<DragHandle variant>` A small grip button to drag a row or card by, for a sortable list.
@@ -206,9 +206,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<TabButton render variant active dragging split>` A tab-looking button for a strip that isn't a `Tabs` list.
 - `Table.{Header, Body, Footer, Head, Row, …}` A plain styled HTML table, for small static grids of values.
 - `Tabs.{List, Trigger, Content}` Tabs that switch between panels of one view.
-- `<Textarea variant text truncate>` A themed multi-line text box; `flat` and `ghost` drop the border.
+- `<Textarea variant text truncate onInvalid>` A themed multi-line text box; `flat` and `ghost` drop the border.
 - `TextOverflowTooltip.{Input}` Text cut with an ellipsis that shows the full value in a tooltip.
-- `<TimeField>` A time of day.
+- `<TimeField {...DateTimeInputProps}>` A time of day.
 - `<Toaster>` Draws the toasts `toast()` raises; core's web app already mounts it.
 - `<Toggle variant size>` A button that stays pressed or not, such as bold in a toolbar.
 - `ToggleGroup.{Item}` A row of toggle buttons where one or several stay pressed.
@@ -262,6 +262,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `localTimeZone()` The browser's time zone ("Asia/Ulaanbaatar"), when it says.
 - `oneOf(options, value)` `value` narrowed to one of `options`, else undefined.
 - `<PopoverScoped scope onOpenChange onEnter closeOnEnter dependencies>` A `Popover` that takes over the hotkey scope while it is open.
+- `printHtml(html)` Prints a whole HTML page through the browser's print dialog.
 - `readImage(value)` The address to show a stored file at.
 - `SexCode` A person's sex as an ISO/IEC 5218 code.
 - `stored({ key, schema, initial, session })` An atom kept in browser storage under `key`.
@@ -281,6 +282,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `usePageHotkey(keys, action, { when, useKey })` A page shortcut, skipped while typing or while a dialog or menu is open.
 - `usePreviousHotkeyScope()` Sets a hotkey scope and remembers the old one to go back to.
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
+- `useSortAccessibility(nameOf, { pointer })` What a screen reader says as a sorted item moves, in the UI's language.
+- `useSortRoleDescription()` What a screen reader calls a sortable item, in the UI's language.
 - `useToast()` `{ toast }` as a hook; calling `toast` directly does the same.
 - `useUpload()` Uploads files to the host's file storage, one request per file.
 - `zoneOffset(zone)` A time zone's offset today, like "UTC+8".

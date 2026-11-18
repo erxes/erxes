@@ -13,7 +13,7 @@ import { Toolbar } from 'erxes-ui/modules/blocks/components/BlockToolbar';
 import { cn } from 'erxes-ui/lib/utils';
 import { cva } from 'class-variance-authority';
 import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
-import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
+import { useSlashMenuItems } from 'erxes-ui/modules/blocks/hooks/useSlashMenuItems';
 import { themeState } from 'erxes-ui/state/themeState';
 import { useAtomValue } from 'jotai';
 
@@ -51,6 +51,7 @@ export const BlockEditor = ({
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
+  const getSlashMenuItems = useSlashMenuItems(editor, additionalSlashMenuItems);
   const editable = !readonly && !disabled;
 
   const { onKeyDownCapture, onKeyUpCapture, clearMarksAfterDelete } = useBlockEditorKeys(
@@ -94,7 +95,7 @@ export const BlockEditor = ({
         >
           <SuggestionMenuController
             triggerCharacter="/"
-            getItems={(query) => getSlashMenuItems(query, editor, additionalSlashMenuItems)}
+            getItems={getSlashMenuItems}
             suggestionMenuComponent={SlashMenu}
             floatingUIOptions={
               slashMenuOnTop ? { useFloatingOptions: { placement: 'top-start' } } : undefined

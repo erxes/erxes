@@ -1,6 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { type ComponentProps, type ComponentRef, type RefAttributes, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Avatar, type AvatarProps } from '../../components/avatar';
 import { Badge } from '../../components/badge';
 import { Button } from '../../components/button';
@@ -15,17 +16,20 @@ import { EntityPicker } from './EntityPicker';
 import { type Member, type MemberQueries, memberName, useMembersById } from './members';
 
 /** A member's name, with an "Inactive" badge for disabled ones. */
-const MemberLabel = ({ member }: { member: Member }) =>
-  member.status === 'active' ? (
+const MemberLabel = ({ member }: { member: Member }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'member' });
+
+  return member.status === 'active' ? (
     <>{memberName(member)}</>
   ) : (
     <span className="inline-flex items-center gap-1">
       <span>{memberName(member)}</span>
       <Badge variant="destructive" size="sm" className="h-5 shrink-0">
-        Inactive
+        {t('inactive', 'Inactive')}
       </Badge>
     </span>
   );
+};
 
 /** A member's avatar and name by id, or a placeholder without one. */
 export const MemberInline = ({
@@ -41,6 +45,7 @@ export const MemberInline = ({
   size?: AvatarProps['size'];
   className?: string;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'member' });
   const member = useMembersById([memberId], members).get(memberId ?? '');
 
   return (
@@ -54,7 +59,7 @@ export const MemberInline = ({
       <Combobox.Value
         value={member && <MemberLabel member={member} />}
         loading={Boolean(memberId) && !member}
-        placeholder={placeholder ?? 'Select a member'}
+        placeholder={placeholder ?? t('select', 'Select a member')}
         className={className}
       />
     </>
@@ -70,6 +75,7 @@ const MemberList = ({
 }: Pick<SelectMemberProps, 'value' | 'members' | 'noneLabel'> & {
   onPick: (id: string | null) => void;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'member' });
   const team = useQuery(members.team);
 
   return (
@@ -80,7 +86,11 @@ const MemberList = ({
         label: `${memberName(member)} ${member.email ?? ''}`,
       })}
       renderItem={(member) => (
-        <MemberInline memberId={member.id} members={members} placeholder="Unnamed user" />
+        <MemberInline
+          memberId={member.id}
+          members={members}
+          placeholder={t('unnamed', 'Unnamed user')}
+        />
       )}
       value={value ? [value] : []}
       onValueChange={([id]) => onPick(id ?? null)}
@@ -203,9 +213,9 @@ const SelectMemberLinked = ({
   members,
   noneLabel,
   scope,
-  addLabel = 'Add',
-  changeLabel = 'Change',
-  emptyLabel = 'Not specified',
+  addLabel,
+  changeLabel,
+  emptyLabel,
 }: Omit<SelectMemberProps, 'onValueChange' | 'placeholder'> & {
   onValueChange?: (id: string | null) => void;
   scope?: string;
@@ -216,7 +226,10 @@ const SelectMemberLinked = ({
   /** Read-only and empty. */
   emptyLabel?: string;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'member' });
   const [open, setOpen] = useState(false);
+  const add = addLabel ?? t('add', 'Add');
+  const change = changeLabel ?? t('change', 'Change');
 
   return (
     <div className="group/relations flex min-h-7 min-w-0 items-center gap-1 px-1">
@@ -226,7 +239,9 @@ const SelectMemberLinked = ({
         </div>
       )}
       {!value && !onValueChange && (
-        <span className="px-1 text-xs text-muted-foreground">{emptyLabel}</span>
+        <span className="px-1 text-xs text-muted-foreground">
+          {emptyLabel ?? t('none', 'Not specified')}
+        </span>
       )}
       {onValueChange && (
         <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
@@ -237,7 +252,7 @@ const SelectMemberLinked = ({
                 size="xs"
                 tone="muted"
                 data-panel-inline=""
-                aria-label={value ? changeLabel : addLabel}
+                aria-label={value ? change : add}
                 className={cn(
                   'shrink-0 [&>svg]:size-3.5',
                   value &&
@@ -247,7 +262,7 @@ const SelectMemberLinked = ({
             }
           >
             <IconPlus aria-hidden="true" />
-            {!value && <span className="font-normal">{addLabel}</span>}
+            {!value && <span className="font-normal">{add}</span>}
           </Popover.Trigger>
           <Combobox.Content>
             <MemberList

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { IconDots } from '@tabler/icons-react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { useTranslation } from 'react-i18next';
 import { Separator } from './separator';
 import { cn } from '../lib/utils';
 
@@ -10,7 +11,11 @@ const BreadcrumbRoot = ({
   ...props
 }: React.ComponentProps<'nav'> & {
   separator?: React.ReactNode;
-}) => <nav ref={ref} aria-label="breadcrumb" {...props} />;
+}) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'breadcrumb' });
+
+  return <nav ref={ref} data-slot="breadcrumb" aria-label={t('label', 'Breadcrumb')} {...props} />;
+};
 
 const BreadcrumbList = ({ ref, className, ...props }: React.ComponentProps<'ol'>) => (
   <ol
@@ -65,17 +70,21 @@ const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentP
   </li>
 );
 
-const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<'span'>) => (
-  <span
-    role="presentation"
-    aria-hidden="true"
-    className={cn('flex h-9 w-9 items-center justify-center', className)}
-    {...props}
-  >
-    <IconDots className="h-4 w-4" />
-    <span className="sr-only">More</span>
-  </span>
-);
+const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<'span'>) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'breadcrumb' });
+
+  return (
+    <span
+      role="presentation"
+      aria-hidden="true"
+      className={cn('flex h-9 w-9 items-center justify-center', className)}
+      {...props}
+    >
+      <IconDots className="h-4 w-4" />
+      <span className="sr-only">{t('more', 'More')}</span>
+    </span>
+  );
+};
 
 /** The trail of links to the current page, on the left of a `PageHeader`. */
 export const Breadcrumb = Object.assign(BreadcrumbRoot, {

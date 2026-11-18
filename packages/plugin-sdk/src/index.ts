@@ -7,6 +7,11 @@
  *
  *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });
  *
+ * In a procedure, pass core's refusals on (400 with the field, 404, 409) and only core being
+ * unreachable as 503 SERVICE_UNAVAILABLE:
+ *
+ *   const customer = await core.forOrg(orgId).customers.get({ id }).catch(passCoreError('customers'));
+ *
  * Words core shows for the plugin (its title, record types' titles, activity and timeline labels)
  * come in other languages from the manifest's `translations`, keyed by the English text; web shows
  * the member's language, else the English:

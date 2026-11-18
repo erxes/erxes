@@ -73,7 +73,8 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
 - Log through pino, `log.info({ fileId }, 'file removed')`, errors under `err`: `context.log` in
   procedures, `req.log` in Express routes, `logger.child({ component })` in background work, and
   `traced('name', run)` around a job. Thrown 4xx `fail()` errors are answers, logged at info. A new
-  secret field name goes in `redact` in `src/logger.ts`.
+  secret field name goes in `LOG_REDACT` (`packages/plugin-sdk/src/logger.ts`), which plugins'
+  loggers use too.
 
 ## Tests
 

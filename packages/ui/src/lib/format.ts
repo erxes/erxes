@@ -1,6 +1,6 @@
 import { format, formatDistance, formatDistanceStrict, parseISO } from 'date-fns';
-import { enUS } from 'date-fns/locale/en-US';
-import { mn } from 'date-fns/locale/mn';
+import { enUS } from 'react-day-picker/locale/en-US';
+import { mn } from 'react-day-picker/locale/mn';
 import { useTranslation } from 'react-i18next';
 
 /*
@@ -9,7 +9,10 @@ import { useTranslation } from 'react-i18next';
  * https://date-fns.org/docs/format. Numbers and amounts go through Intl.NumberFormat.
  */
 
-/** The UI's languages, each with its own name and date-fns locale. */
+/**
+ * The UI's languages, each with its own name and date-fns locale. The locales are
+ * react-day-picker's, date-fns's own plus the calendar's labels ("Go to the Next Month").
+ */
 export const LANGUAGES = [
   { code: 'en', label: 'English', dates: enUS },
   { code: 'mn', label: 'Монгол', dates: mn },
@@ -26,6 +29,8 @@ export const formatter = (language: string) => {
     LANGUAGES.find((entry) => language.startsWith(entry.code))?.dates ?? LANGUAGES[0].dates;
 
   return {
+    /** The language's date-fns locale with the calendar's labels, for `Calendar`. */
+    locale,
     /** A date in a date-fns pattern; `PP` by default ("Nov 14, 2026"). */
     date: (value: DateInput, pattern = 'PP') => format(toDate(value), pattern, { locale }),
     /** A date and time: "Nov 14, 2026, 2:30 PM". */

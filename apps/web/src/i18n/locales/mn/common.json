@@ -47,6 +47,10 @@
     "back-to-app": "{{name}} руу буцах",
     "plugin-settings-title": "{{name}} тохиргоо",
     "resize-sidebar": "Хажуугийн самбарын өргөнийг өөрчлөх",
+    "collapse-sidebar": "Хажуугийн самбарыг хураах",
+    "expand-sidebar": "Хажуугийн самбарыг дэлгэх",
+    "open-sidebar": "Хажуугийн самбарыг нээх",
+    "toggle-sidebar": "Хажуугийн самбарыг харуулах эсвэл нуух",
     "assistant": "Туслах",
     "assistant-shortcut": "Туслах (Ctrl+J)",
     "assistant-unread": "Шинэ хариулт",
@@ -659,16 +663,6 @@
       "Product": "Бүтээгдэхүүн",
       "Team member": "Багийн гишүүн"
     }
-  },
-  "sort": {
-    "keyboard": "Space товчоор авч, сумаар зөөж, дахин Space дарж тавина. Escape дарвал цуцлагдана.",
-    "pointer": "Байрлалыг нь өөрчлөхдөө хулганаар чирэх, эсвэл мэдрэгч дэлгэц дээр удаан дараад чирнэ үү.",
-    "picked": "Авлаа: {{name}}.",
-    "over": "{{name}} — {{target}}-ийн байранд.",
-    "nowhere": "{{name}} ямар ч байранд алга.",
-    "dropped": "Тавилаа: {{name}} — {{target}}-ийн байранд.",
-    "dropped-back": "Тавилаа: {{name}} хуучин байрандаа.",
-    "cancelled": "Цуцаллаа: {{name}} хуучин байрандаа буцлаа."
   },
   "two-factor": {
     "authenticator-code": "Authenticator код",

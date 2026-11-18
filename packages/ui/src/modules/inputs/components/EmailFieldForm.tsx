@@ -4,6 +4,7 @@ import { Input } from 'erxes-ui/components/input';
 import { Separator } from 'erxes-ui/components/separator';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFocusWhenShown, type ContactFieldInput } from '../hooks/useContactFieldInput';
 import type { TEmails } from '../types/emailField';
 import { emailSchema } from '../validations/emailValidation';
@@ -25,7 +26,8 @@ export const EmailFieldForm = ({
   const [draft, setDraft] = useState(editing ?? '');
   const [invalid, setInvalid] = useState(false);
   const inputRef = useFocusWhenShown(showInput);
-  const label = editing ? 'Edit email' : 'Add email';
+  const { t } = useTranslation('ui', { keyPrefix: 'contact-field' });
+  const label = editing ? t('edit-email', 'Edit email') : t('add-email', 'Add email');
 
   const save = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();

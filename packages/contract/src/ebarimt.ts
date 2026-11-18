@@ -4,6 +4,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
+import { ebarimtPrintContract } from './ebarimtPrint';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { EbarimtReceiptStatus } from './values';
 
@@ -269,4 +270,5 @@ export const ebarimtContract = {
     })
     .input(z.object({ no: z.string().trim().min(7).max(14) }))
     .output(z.object({ tin: z.string(), name: z.string().nullable() })),
+  ...ebarimtPrintContract,
 };

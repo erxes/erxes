@@ -3,12 +3,12 @@ import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconListDetails } from '@tabler/icons-react';
-import { Empty, Spinner } from 'erxes-ui';
+import { Empty, Spinner, useSortAccessibility } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
-import { useSortAccessibility, useSortSensors } from '~/lib/sortSensors';
+import { useSortSensors } from '~/lib/sortSensors';
 import { reorderItems } from '../reorder';
 import { selectedFieldIdsState } from '../states';
 import { type FieldSection, groupFields, useAllFields, useFieldGroups } from '../useFields';
@@ -63,8 +63,7 @@ const SortableGroups = ({
   const sensors = useSortSensors();
 
   const accessibility = useSortAccessibility(
-    (id) => groups.find((group) => group.id === id)?.name ?? id,
-    { keyboard: true },
+    (id) => groups.find((group) => group.id === id)?.name ?? String(id),
   );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {

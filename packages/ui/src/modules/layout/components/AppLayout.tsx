@@ -13,6 +13,7 @@ import {
   IconMenu2,
 } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from 'erxes-ui/components/button';
 import { Separator } from 'erxes-ui/components/separator';
@@ -128,23 +129,27 @@ const AppLayoutSidebarHeader = ({
 }: {
   title?: ReactNode;
   onCollapse: () => void;
-}) => (
-  <div className="flex h-10 shrink-0 items-center px-2">
-    <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">{title}</div>
-    <Button
-      aria-expanded
-      aria-label="Collapse sidebar"
-      className="size-8 shrink-0"
-      size="icon"
-      title="Collapse sidebar"
-      type="button"
-      variant="ghost"
-      onClick={onCollapse}
-    >
-      <IconLayoutSidebarLeftCollapse />
-    </Button>
-  </div>
-);
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
+  return (
+    <div className="flex h-10 shrink-0 items-center px-2">
+      <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">{title}</div>
+      <Button
+        aria-expanded
+        aria-label={t('collapse-sidebar', 'Collapse sidebar')}
+        className="size-8 shrink-0"
+        size="icon"
+        title={t('collapse-sidebar', 'Collapse sidebar')}
+        type="button"
+        variant="ghost"
+        onClick={onCollapse}
+      >
+        <IconLayoutSidebarLeftCollapse />
+      </Button>
+    </div>
+  );
+};
 
 /** Renders the persisted desktop sidebar beside the application page slot. */
 const AppLayoutDesktop = ({
@@ -160,6 +165,7 @@ const AppLayoutDesktop = ({
   footer?: ReactNode;
   title?: ReactNode;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const [open, setOpen] = useAtom(appLayoutOpenState(id));
   const [width, setWidth] = useAtom(appLayoutWidthState(id));
   const [resizing, setResizing] = useState(false);
@@ -207,7 +213,7 @@ const AppLayoutDesktop = ({
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {!open && (
           <AppLayoutFloatingButton
-            label="Expand sidebar"
+            label={t('expand-sidebar', 'Expand sidebar')}
             icon={<IconLayoutSidebarLeftExpand />}
             onClick={() => setOpen(true)}
           />
@@ -230,6 +236,7 @@ const AppLayoutMobile = ({
   footer?: ReactNode;
   title?: ReactNode;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { toggleSidebar } = Sidebar.useSidebar();
 
   return (
@@ -249,7 +256,7 @@ const AppLayoutMobile = ({
         <AppLayoutFooter>{footer}</AppLayoutFooter>
       </Sidebar>
       <AppLayoutFloatingButton
-        label="Open sidebar"
+        label={t('open-sidebar', 'Open sidebar')}
         icon={<IconMenu2 className="size-4" />}
         onClick={toggleSidebar}
       />

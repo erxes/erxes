@@ -106,6 +106,10 @@ const PROCEDURE_RULES: Partial<Record<ProcedurePath, ApiKeyArea | null>> = {
   'ebarimt.saveSettings': 'settings',
   'ebarimt.removeSettings': 'settings',
   'ebarimt.testConnection': 'settings',
+  'ebarimt.printTemplates': 'settings',
+  'ebarimt.savePrintTemplate': 'settings',
+  'ebarimt.resetPrintTemplate': 'settings',
+  'ebarimt.previewPrint': 'settings',
   'users.setPassword': null,
   'users.update': null,
   // Webhooks carry the events' data: where they send it and what is a signed-in member's call.

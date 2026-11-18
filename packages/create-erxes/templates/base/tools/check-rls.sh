@@ -13,7 +13,7 @@ url=$(node -e 'const u = new URL(process.argv[1]); u.pathname = `/${process.argv
 psql "$server" -qX -v ON_ERROR_STOP=1 -c "CREATE DATABASE $name"
 trap 'psql "$server" -qX -c "DROP DATABASE IF EXISTS $name WITH (FORCE)"' EXIT
 
-# Core's tenant functions, which the migrations call.
+# Core's extensions and tenant functions, which the migrations use.
 psql "$url" -qX -v ON_ERROR_STOP=1 -f api/src/test/core-functions.sql
 # Only DATA_URL matters to a migration; the others satisfy config.ts.
 DATA_URL="$url" CORE_URL=http://127.0.0.1:9 PLUGIN_SECRET=rls-check-only-secret-xxxxxxxxxxxx \

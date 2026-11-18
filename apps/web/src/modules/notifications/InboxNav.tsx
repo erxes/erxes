@@ -3,12 +3,12 @@ import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifi
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconInbox } from '@tabler/icons-react';
-import { cn } from 'erxes-ui';
+import { cn, useSortAccessibility } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { paths } from '~/lib/paths';
-import { usePointerSortSensors, useSortAccessibility } from '~/lib/sortSensors';
+import { usePointerSortSensors } from '~/lib/sortSensors';
 import { CORE_INBOX, type Inbox, useInboxOrder } from './useNotifications';
 
 const UnreadCount = ({ value, active }: { value: number; active?: boolean }) =>
@@ -99,8 +99,8 @@ export const InboxNav = ({
   const plugins = inboxes.filter((inbox) => inbox.source !== CORE_INBOX).map((i) => i.source);
 
   const accessibility = useSortAccessibility(
-    (id) => inboxes.find((inbox) => inbox.source === id)?.label ?? id,
-    { keyboard: false },
+    (id) => inboxes.find((inbox) => inbox.source === id)?.label ?? String(id),
+    { pointer: true },
   );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {

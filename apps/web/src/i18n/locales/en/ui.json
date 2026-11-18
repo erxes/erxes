@@ -1,0 +1,233 @@
+{
+  "badge": {
+    "remove": "Remove"
+  },
+  "barcode": {
+    "apply": "Apply barcode size",
+    "custom": "Custom size",
+    "delete": "Delete barcode",
+    "height": "Height (px)",
+    "hint": "Barcode preview: prints the selected product’s barcode",
+    "preset": "Barcode size preset",
+    "preview": "Product barcode preview",
+    "resize": "Resize barcode",
+    "resize-hint": "Drag up to increase height; drag right to increase width",
+    "settings": "Barcode settings",
+    "size": "Barcode size",
+    "width": "Width (px)"
+  },
+  "breadcrumb": {
+    "label": "Breadcrumb",
+    "more": "More"
+  },
+  "color": {
+    "custom": "Custom color",
+    "names": {
+      "amber": "Amber",
+      "blue": "Blue",
+      "cyan": "Cyan",
+      "emerald": "Emerald",
+      "fuchsia": "Fuchsia",
+      "green": "Green",
+      "indigo": "Indigo",
+      "lime": "Lime",
+      "orange": "Orange",
+      "pink": "Pink",
+      "purple": "Purple",
+      "red": "Red",
+      "rose": "Rose",
+      "sky": "Sky",
+      "violet": "Violet",
+      "yellow": "Yellow"
+    }
+  },
+  "confirm": {
+    "cancel": "Cancel",
+    "mismatch": "Enter {{expected}} to confirm",
+    "ok": "Confirm",
+    "placeholder": "Enter confirmation",
+    "type-to-confirm": "Type <b>{{expected}}</b> in the field below to confirm."
+  },
+  "contact-field": {
+    "add-email": "Add email",
+    "delete": "Delete",
+    "edit": "Edit",
+    "edit-email": "Edit email",
+    "options": "Options",
+    "primary-email": "Primary email",
+    "primary-phone": "Primary phone",
+    "set-primary-email": "Set as primary email",
+    "set-primary-phone": "Set as primary phone",
+    "unverified": "Unverified",
+    "verified": "Verified"
+  },
+  "copy": {
+    "copied": "Copied!",
+    "hint": "Click to copy"
+  },
+  "date": {
+    "clear": "Clear",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "placeholder": "Pick a date"
+  },
+  "document": {
+    "placeholder": "Document placeholder",
+    "placeholder-code": "Document placeholder: {{code}}",
+    "select": "Select a document",
+    "untitled": "Untitled document"
+  },
+  "editor": {
+    "add-images": "Add images to gallery",
+    "add-more": "Add more",
+    "block-type": "Block type",
+    "columns": "{{count}} columns",
+    "default": "Default",
+    "delete-table": "Delete table",
+    "font": "Font",
+    "font-size": "Font size",
+    "gallery": "Gallery",
+    "gallery-hint": "Insert a multi-image gallery grid",
+    "gallery-upload-failed": "Could not upload these gallery images",
+    "header-column": "Header column",
+    "header-row": "Header row",
+    "image": "Image",
+    "image-preview": "Image preview",
+    "image-style": {
+      "float-left": "Float Left",
+      "float-right": "Float Right",
+      "label": "Image style",
+      "normal": "Normal",
+      "wide": "Wide"
+    },
+    "loading-commands": "Loading commands…",
+    "no-commands": "No commands found.",
+    "no-upload": "Uploading images is not available here",
+    "placeholder": "Type “/” for commands…",
+    "preview-image": "Preview image",
+    "remove-image": "Remove image",
+    "size-number": "Enter a number",
+    "size-range": "Enter a whole number from {{min}} to {{max}}",
+    "upload-failed": "Could not upload the file",
+    "upload-failed-reason": "Upload failed",
+    "uploading": "Uploading…",
+    "video": "Video"
+  },
+  "field": {
+    "save": "Save"
+  },
+  "filter": {
+    "apply": "Apply",
+    "back": "Back",
+    "by": "Filter by {{field}}…",
+    "cancel": "Cancel",
+    "search": "Search"
+  },
+  "icon": {
+    "pick": "Pick an icon",
+    "search": "Search icons…"
+  },
+  "lightbox": {
+    "close": "Close preview",
+    "download": "Download file",
+    "next": "Next image",
+    "previous": "Previous image",
+    "title": "Image preview"
+  },
+  "list": {
+    "load-more": "Load more…",
+    "no-results": "No results found.",
+    "search": "Search"
+  },
+  "member": {
+    "add": "Add",
+    "change": "Change",
+    "inactive": "Inactive",
+    "none": "Not specified",
+    "select": "Select a member",
+    "unnamed": "Unnamed user"
+  },
+  "multiselect": {
+    "clear-all": "Clear all",
+    "create": "Create \"{{value}}\"",
+    "remove": "Remove {{name}}",
+    "search": "Search"
+  },
+  "name": {
+    "first": "First name",
+    "last": "Last name",
+    "unknown": "Unknown"
+  },
+  "phone": {
+    "country": "Country code: {{country}}",
+    "format": "Phone number can only contain digits and + prefix",
+    "invalid": "Invalid phone number",
+    "search-country": "Search country…",
+    "too-long": "Phone number must not exceed 16 characters",
+    "too-short": "Phone number must be at least 8 characters"
+  },
+  "selection-actions": "Actions for the selected records",
+  "sex": {
+    "female": "Female",
+    "male": "Male",
+    "not-applicable": "Not applicable",
+    "not-known": "Not known"
+  },
+  "sort": {
+    "cancelled": "Put {{item}} back where it was.",
+    "dropped": "Dropped {{item}} over {{target}}.",
+    "dropped-nowhere": "Dropped {{item}}.",
+    "instructions": "Press Space to pick up the item, the arrow keys to move it, Space again to drop it, or Escape to cancel.",
+    "outside": "{{item}} is no longer over a place to drop it.",
+    "over": "{{item}} is over {{target}}.",
+    "picked": "Picked up {{item}}.",
+    "pointer-instructions": "Drag the item with the mouse, or touch and hold it, to move it.",
+    "role": "sortable"
+  },
+  "table": {
+    "clear-sort": "Clear sort",
+    "columns": "Columns",
+    "last-visible-column": "At least one column must stay visible",
+    "more": "More",
+    "pin-column": "Pin column to left",
+    "select": "Select {{name}}",
+    "select-all-in": "Select all in {{group}}",
+    "select-all-rows": "Select all rows",
+    "select-row": "Select row",
+    "sort-ascending": "Sort ascending",
+    "sort-descending": "Sort descending",
+    "unpin-column": "Unpin column"
+  },
+  "tags": {
+    "add": "Add a tag"
+  },
+  "toast": {
+    "region": "Notifications"
+  },
+  "upload": {
+    "change": "Change image",
+    "choose": "Upload image",
+    "delete-failed": "Could not delete the stored file",
+    "delete-failed-description": "It has been removed here, but the server still holds a copy.",
+    "delete-failed-reason": "Delete failed",
+    "empty": "No image uploaded",
+    "failed": "Could not upload the file",
+    "failed-reason": "Upload failed",
+    "image": "Uploaded image",
+    "remove": "Remove",
+    "uploaded": "Image uploaded"
+  },
+  "validation": {
+    "email": "Enter an email address.",
+    "invalid": "Enter a valid value.",
+    "pattern": "Match the format asked for.",
+    "required": "Fill in this field.",
+    "too-large": "Enter {{max}} or less.",
+    "too-long_one": "Use at most {{count}} character.",
+    "too-long_other": "Use at most {{count}} characters.",
+    "too-short_one": "Use at least {{count}} character.",
+    "too-short_other": "Use at least {{count}} characters.",
+    "too-small": "Enter {{min}} or more.",
+    "url": "Enter a web address."
+  }
+}

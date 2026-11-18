@@ -1,4 +1,5 @@
 import { useState, type ClipboardEvent, type KeyboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from './badge';
 
 /**
@@ -9,7 +10,7 @@ export function StringArrayInput({
   id,
   value,
   onValueChange,
-  placeholder = 'Add a tag',
+  placeholder,
 }: {
   /** The text input's id, for a `<Label htmlFor>`. */
   id?: string;
@@ -17,6 +18,7 @@ export function StringArrayInput({
   onValueChange: (value: string[]) => void;
   placeholder?: string;
 }) {
+  const { t } = useTranslation('ui', { keyPrefix: 'tags' });
   const [draft, setDraft] = useState('');
 
   const add = (texts: string[]) => {
@@ -60,7 +62,7 @@ export function StringArrayInput({
       <input
         id={id}
         value={draft}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('add', 'Add a tag')}
         onChange={(event) => setDraft(event.target.value)}
         onKeyDown={onKeyDown}
         onPaste={onPaste}

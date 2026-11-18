@@ -182,6 +182,8 @@ export * from './invoiceLines';
 
 export * from './ebarimt';
 
+export * from './ebarimtPrint';
+
 export * from './emailSettings';
 
 export * from './pluginJobs';

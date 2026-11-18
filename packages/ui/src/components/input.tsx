@@ -6,6 +6,7 @@ import { cva } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
 import type { Except } from 'type-fest';
 import type { ReactElementProps } from 'react-imask';
+import { useValidationMessage } from '../hooks/use-validation-message';
 import { useFieldControl } from './field-control';
 import { MaskInput } from './on-demand';
 
@@ -60,13 +61,16 @@ const InputMain = ({
   type,
   variant,
   text,
+  onInvalid,
   ...props
 }: InputProps & React.RefAttributes<HTMLInputElement>) => {
   const field = useFieldControl();
+  const handleInvalid = useValidationMessage(onInvalid);
 
   return (
     <input
       {...field}
+      onInvalid={handleInvalid}
       type={type}
       autoComplete="off"
       className={cn(
@@ -88,16 +92,19 @@ const InputNumber = ({
   value,
   onChange,
   className,
+  onInvalid,
   ...props
 }: ReactElementProps<HTMLInputElement> & {
   onChange?: (value?: number | '') => void;
   value?: number;
 }) => {
   const field = useFieldControl();
+  const handleInvalid = useValidationMessage(onInvalid);
 
   return (
     <MaskInput
       {...field}
+      onInvalid={handleInvalid}
       mask={Number}
       onAccept={(accepted) => {
         onChange?.(accepted ? Number(accepted) : '');

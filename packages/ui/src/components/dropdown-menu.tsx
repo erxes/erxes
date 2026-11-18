@@ -102,7 +102,7 @@ const menuItemVariants = cva(
     variants: {
       variant: {
         default: '',
-        destructive: 'text-destructive',
+        destructive: 'text-destructive-text',
       },
       inset: { true: 'pl-8' },
     },

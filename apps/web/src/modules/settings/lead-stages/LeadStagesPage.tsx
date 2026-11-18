@@ -2,9 +2,17 @@ import type { LeadStage } from '@erxes/core-contract';
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconPlus, IconProgress } from '@tabler/icons-react';
-import { useSortAccessibility, useSortSensors } from '~/lib/sortSensors';
+import { useSortSensors } from '~/lib/sortSensors';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Input, PageContainer, PageHeader, ScrollArea, Spinner } from 'erxes-ui';
+import {
+  Button,
+  Input,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Spinner,
+  useSortAccessibility,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -60,9 +68,8 @@ const StageList = ({
   const stageName = useStageName();
   const ids = stages.map((stage) => stage.id);
 
-  const accessibility = useSortAccessibility(
-    (id) => stageName(stages.find((stage) => stage.id === id)?.name),
-    { keyboard: true },
+  const accessibility = useSortAccessibility((id) =>
+    stageName(stages.find((stage) => stage.id === id)?.name),
   );
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useToast } from 'erxes-ui/hooks/use-toast';
 import type { GalleryImage } from 'erxes-ui/modules/blocks/utils/galleryImages';
@@ -31,6 +32,7 @@ export const useGalleryUpload = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
 
   const upload = async (fileList: FileList | null) => {
     if (!fileList?.length || !uploadFile) return;
@@ -50,7 +52,7 @@ export const useGalleryUpload = ({
 
       if (failedNames.length) {
         toast({
-          title: 'Failed to upload gallery images',
+          title: t('gallery-upload-failed', 'Could not upload these gallery images'),
           description: failedNames.join(', '),
           variant: 'destructive',
         });

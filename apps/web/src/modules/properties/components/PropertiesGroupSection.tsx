@@ -18,6 +18,7 @@ import {
   DropdownMenu,
   RecordTable,
   buttonVariants,
+  useSortRoleDescription,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { type ReactNode, useMemo, useState } from 'react';
@@ -171,6 +172,7 @@ export const PropertiesGroupSection = ({
 
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: group.id,
+    attributes: { roleDescription: useSortRoleDescription() },
   });
 
   return (

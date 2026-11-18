@@ -3,10 +3,10 @@ import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modi
 import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-react';
-import { cn, ContextMenu, TabButton } from 'erxes-ui';
+import { cn, ContextMenu, TabButton, useSortAccessibility, useSortRoleDescription } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePointerSortSensors, useSortAccessibility } from '~/lib/sortSensors';
+import { usePointerSortSensors } from '~/lib/sortSensors';
 import type { NavApp } from './apps';
 
 /** The app's icon; on hover it turns into a grip, as tabs can be dragged. */
@@ -144,6 +144,7 @@ const CoreTabAppTab = ({
 
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: app.id,
+    attributes: { roleDescription: useSortRoleDescription() },
   });
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -236,8 +237,8 @@ export const CoreTabAppTabs = ({
   const sensors = usePointerSortSensors();
 
   const accessibility = useSortAccessibility(
-    (id) => tabs.find((tab) => tab.id === id)?.label ?? id,
-    { keyboard: false },
+    (id) => tabs.find((tab) => tab.id === id)?.label ?? String(id),
+    { pointer: true },
   );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {

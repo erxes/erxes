@@ -88,7 +88,7 @@ export const EntityPicker = <T, K extends string = string>({
       {header}
       {/* Outside the list: the "none" or picked rows would otherwise hide a failed load. */}
       {error && (
-        <p role="alert" className="text-destructive px-3 py-2 text-sm">
+        <p role="alert" className="text-destructive-text px-3 py-2 text-sm">
           {error.message}
         </p>
       )}

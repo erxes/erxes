@@ -3,6 +3,7 @@ import React from 'react';
 import { SIDEBAR_WIDTH_MOBILE } from './constants';
 import { Sheet } from 'erxes-ui/components/sheet';
 import { cn } from 'erxes-ui/lib/utils';
+import { useTranslation } from 'react-i18next';
 import { useSidebar } from './context';
 
 const MOBILE_WIDTH: Record<`--${string}`, string> = { '--sidebar-width': SIDEBAR_WIDTH_MOBILE };
@@ -115,16 +116,17 @@ export const SidebarRoot = ({
 };
 
 export const SidebarRail = ({ ref, className, ...props }: React.ComponentProps<'button'>) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { toggleSidebar } = useSidebar();
 
   return (
     <button
       ref={ref}
       data-sidebar="rail"
-      aria-label="Toggle Sidebar"
+      aria-label={t('toggle-sidebar', 'Show or hide the sidebar')}
       tabIndex={-1}
       onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      title={t('toggle-sidebar', 'Show or hide the sidebar')}
       className={cn(
         'absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-0.5 hover:after:bg-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
         'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',

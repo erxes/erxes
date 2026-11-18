@@ -127,6 +127,8 @@ export { usePageHotkey } from './hooks/use-page-hotkey';
 
 export { useFocusFirstField } from './hooks/use-focus-first-field';
 
+export { useSortAccessibility, useSortRoleDescription } from './hooks/use-sort-accessibility';
+
 export { toast, useToast } from './hooks/use-toast';
 
 export { useUpload } from './hooks/use-upload';
@@ -370,6 +372,8 @@ export {
 } from './utils/plugin-runtime';
 
 export { addPluginStyles } from './utils/plugin-styles';
+
+export { printHtml } from './utils/print';
 
 export {
   RecordTimeline,

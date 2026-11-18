@@ -1,4 +1,5 @@
 import { useResolveUrl } from '@blocknote/react';
+import { useTranslation } from 'react-i18next';
 import { IconLayoutGrid, IconLoader2, IconPhoto, IconPlus, IconX } from '@tabler/icons-react';
 import { Button } from 'erxes-ui/components/button';
 import { Spinner } from 'erxes-ui/components/spinner';
@@ -18,6 +19,7 @@ export const GalleryItem = ({
   onRemove: () => void;
   onPreview: () => void;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
   const { loadingState, downloadUrl } = useResolveUrl(image.url);
   const src = downloadUrl ?? image.url;
 
@@ -31,7 +33,7 @@ export const GalleryItem = ({
         <Button
           variant="ghost"
           size="flush"
-          aria-label="Preview image"
+          aria-label={t('preview-image', 'Preview image')}
           className="h-full w-full"
           onClick={onPreview}
         >
@@ -48,7 +50,7 @@ export const GalleryItem = ({
         <Button
           variant="overlay"
           size="icon"
-          aria-label="Remove image"
+          aria-label={t('remove-image', 'Remove image')}
           className="absolute top-1 right-1 size-5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [&>svg]:size-3"
           onMouseDown={(e) => e.preventDefault()}
           onClick={onRemove}
@@ -74,14 +76,15 @@ export const GalleryUploadButton = ({
   empty: boolean;
   onClick: () => void;
 }) => {
-  let label = 'Add more';
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
+  let label = t('add-more', 'Add more');
   let icon = <IconPlus size={15} />;
 
   if (uploading) {
-    label = 'Uploading...';
+    label = t('uploading', 'Uploading…');
     icon = <IconLoader2 size={15} className="animate-spin" />;
   } else if (empty) {
-    label = 'Add images to gallery';
+    label = t('add-images', 'Add images to gallery');
     icon = <IconPhoto size={15} />;
   }
 
@@ -99,12 +102,16 @@ export const GalleryUploadButton = ({
   );
 };
 
-export const GalleryNoUploadHandler = () => (
-  <div className="flex flex-1 items-center justify-center gap-1.5 text-sm text-muted-foreground border border-dashed rounded-md px-3 py-2">
-    <IconPhoto size={15} />
-    <span>No upload handler configured</span>
-  </div>
-);
+export const GalleryNoUploadHandler = () => {
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
+
+  return (
+    <div className="flex flex-1 items-center justify-center gap-1.5 text-sm text-muted-foreground border border-dashed rounded-md px-3 py-2">
+      <IconPhoto size={15} />
+      <span>{t('no-upload', 'Uploading images is not available here')}</span>
+    </div>
+  );
+};
 
 export const GalleryColumnPicker = ({
   columns,
@@ -112,27 +119,31 @@ export const GalleryColumnPicker = ({
 }: {
   columns: number;
   onChange: (columns: number) => void;
-}) => (
-  <div className="flex items-center gap-1 shrink-0">
-    <IconLayoutGrid size={14} className="text-muted-foreground" />
-    <ToggleGroup
-      variant="outline"
-      size="sm"
-      value={[String(columns)]}
-      onValueChange={([next]) => {
-        if (next) onChange(Number(next));
-      }}
-    >
-      {COLUMN_OPTIONS.map((n) => (
-        <ToggleGroup.Item
-          key={n}
-          value={String(n)}
-          aria-label={`${n} columns`}
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          {n}
-        </ToggleGroup.Item>
-      ))}
-    </ToggleGroup>
-  </div>
-);
+}) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
+
+  return (
+    <div className="flex items-center gap-1 shrink-0">
+      <IconLayoutGrid size={14} className="text-muted-foreground" />
+      <ToggleGroup
+        variant="outline"
+        size="sm"
+        value={[String(columns)]}
+        onValueChange={([next]) => {
+          if (next) onChange(Number(next));
+        }}
+      >
+        {COLUMN_OPTIONS.map((n) => (
+          <ToggleGroup.Item
+            key={n}
+            value={String(n)}
+            aria-label={t('columns', '{{count}} columns', { count: n })}
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {n}
+          </ToggleGroup.Item>
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+};

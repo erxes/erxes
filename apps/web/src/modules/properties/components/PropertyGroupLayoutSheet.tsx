@@ -9,8 +9,16 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical } from '@tabler/icons-react';
-import { useSortAccessibility, useSortSensors } from '~/lib/sortSensors';
-import { Button, cn, Empty, Sheet, Spinner } from 'erxes-ui';
+import { useSortSensors } from '~/lib/sortSensors';
+import {
+  Button,
+  cn,
+  Empty,
+  Sheet,
+  Spinner,
+  useSortAccessibility,
+  useSortRoleDescription,
+} from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +30,7 @@ import { useReorder } from '../usePropertyMutations';
 const LayoutItem = ({ field }: { field: Field }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: field.id,
+    attributes: { roleDescription: useSortRoleDescription() },
   });
 
   return (
@@ -61,8 +70,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
   const sensors = useSortSensors();
 
   const accessibility = useSortAccessibility(
-    (id) => items.find((item) => item.id === id)?.label ?? id,
-    { keyboard: true },
+    (id) => items.find((item) => item.id === id)?.label ?? String(id),
   );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {

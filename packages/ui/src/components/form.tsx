@@ -104,10 +104,14 @@ const FormLabel = ({
   const { error, formItemId } = useFormField();
 
   return (
-    <Label className={cn(error && 'text-destructive', className)} htmlFor={formItemId} {...props}>
+    <Label
+      className={cn(error && 'text-destructive-text', className)}
+      htmlFor={formItemId}
+      {...props}
+    >
       {children}
       {required && (
-        <span aria-hidden="true" className="text-destructive">
+        <span aria-hidden="true" className="text-destructive-text">
           {' *'}
         </span>
       )}
@@ -175,7 +179,7 @@ const FormMessage = ({
     <p
       ref={ref}
       id={formMessageId}
-      className={cn(error && 'text-destructive', formMessageVariants({ variant }), className)}
+      className={cn(error && 'text-destructive-text', formMessageVariants({ variant }), className)}
       {...props}
     >
       {body}

@@ -7,6 +7,7 @@ import {
   IconEdit,
   IconTrash,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from 'erxes-ui/components/button';
 import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
@@ -68,14 +69,28 @@ export const ContactFieldOptions = ({
   onDelete,
   onStatusChange,
 }: ContactFieldOptionsProps) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'contact-field' });
+
   const setStatus = (next: ValidationStatus) => {
     if (next !== status) onStatusChange(next);
   };
+
+  const primary = {
+    phone: {
+      is: t('primary-phone', 'Primary phone'),
+      set: t('set-primary-phone', 'Set as primary phone'),
+    },
+    email: {
+      is: t('primary-email', 'Primary email'),
+      set: t('set-primary-email', 'Set as primary email'),
+    },
+  }[kind];
 
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger
         render={<Button variant="secondary" className="size-8 shrink-0" size="icon" />}
+        aria-label={t('options', 'Options')}
       >
         <IconDots />
       </DropdownMenu.Trigger>
@@ -88,11 +103,11 @@ export const ContactFieldOptions = ({
       >
         <DropdownMenu.Item onClick={isPrimary ? undefined : onSetPrimary}>
           {isPrimary ? <IconBookmarkFilled className="text-primary-text" /> : <IconBookmark />}
-          {isPrimary ? `Primary ${kind}` : `Set as primary ${kind}`}
+          {isPrimary ? primary.is : primary.set}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={onEdit}>
           <IconEdit />
-          Edit
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         {isPrimary && showVerification && (
           <>
@@ -103,14 +118,14 @@ export const ContactFieldOptions = ({
                 onClick={() => setStatus(ValidationStatus.Valid)}
               >
                 <IconCircleDashedCheck className="text-success" />
-                Verified
+                {t('verified', 'Verified')}
               </DropdownMenu.RadioItem>
               <DropdownMenu.RadioItem
                 value={ValidationStatus.Invalid}
                 onClick={() => setStatus(ValidationStatus.Invalid)}
               >
                 <IconCircleDashed className="text-muted-foreground" />
-                Unverified
+                {t('unverified', 'Unverified')}
               </DropdownMenu.RadioItem>
             </DropdownMenu.RadioGroup>
           </>
@@ -118,7 +133,7 @@ export const ContactFieldOptions = ({
         <DropdownMenu.Separator />
         <DropdownMenu.Item variant="destructive" onClick={onDelete}>
           <IconTrash />
-          Delete
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

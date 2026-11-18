@@ -55,5 +55,6 @@ describe('the app tab bar in Mongolian', () => {
     expect(instructions?.textContent).toBe(
       'Байрлалыг нь өөрчлөхдөө хулганаар чирэх, эсвэл мэдрэгч дэлгэц дээр удаан дараад чирнэ үү.',
     );
+    expect(tab?.getAttribute('aria-roledescription')).toBe('эрэмбэлэгдэх');
   });
 });

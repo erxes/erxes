@@ -29,4 +29,10 @@ export const PAYMENT_ACCESS = {
   'ebarimt.sync': { member: 'payments.manage', plugin: 'payments:write' },
   'ebarimt.setBuyer': { member: 'payments.manage', plugin: 'payments:write' },
   'ebarimt.findCompany': { member: 'any', plugin: 'payments:read' },
+  'ebarimt.printTemplates': needs('integrations.manage'),
+  'ebarimt.savePrintTemplate': needs('integrations.manage'),
+  'ebarimt.resetPrintTemplate': needs('integrations.manage'),
+  'ebarimt.previewPrint': needs('integrations.manage'),
+  'ebarimt.printReceipt': { member: 'payments.manage', plugin: 'payments:read' },
+  'ebarimt.emailReceipt': { member: 'payments.manage', plugin: 'payments:write' },
 } as const;

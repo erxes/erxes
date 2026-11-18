@@ -2243,6 +2243,66 @@
           "path": "/ebarimt/companies/{no}"
         }
       }
+    },
+    "printTemplates": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/print-templates"
+        }
+      }
+    },
+    "savePrintTemplate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/ebarimt/print-templates/{plugin}"
+        }
+      }
+    },
+    "resetPrintTemplate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/ebarimt/print-templates/{plugin}"
+        }
+      }
+    },
+    "previewPrint": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/print-templates/preview"
+        }
+      }
+    },
+    "printReceipt": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/ebarimt/receipts/{id}/print"
+        }
+      }
+    },
+    "emailReceipt": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/receipts/{id}/email"
+        }
+      }
     }
   },
   "plugins": {

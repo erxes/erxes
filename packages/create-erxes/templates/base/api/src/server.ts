@@ -51,11 +51,12 @@ const memberOf = async (authorization: string | undefined) => {
     .catch(() => null);
 };
 
-export const createApp = () => {
+/** The API; requests log to `log` (tests pass their own). */
+export const createApp = (log = logger) => {
   const app = express();
 
   app.disable('x-powered-by');
-  app.use(pinoHttp({ logger }));
+  app.use(pinoHttp({ logger: log }));
   // The plugin UI calls this API from web, at whatever address the organisation
   // uses (acme.app.erxes.io, its own domain). Any origin may: access is the
   // Bearer session token core issues, never a cookie, so CORS guards nothing here.

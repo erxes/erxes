@@ -2,6 +2,7 @@ import React from 'react';
 
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { useValidationMessage } from '../hooks/use-validation-message';
 import { useFieldControl } from './field-control';
 import { fieldTextVariants } from './input';
 import { cn } from 'erxes-ui/lib/utils';
@@ -32,13 +33,16 @@ export const Textarea = ({
   variant,
   text,
   truncate,
+  onInvalid,
   ...props
 }: React.ComponentProps<'textarea'> & VariantProps<typeof textareaVariants>) => {
   const field = useFieldControl();
+  const handleInvalid = useValidationMessage(onInvalid);
 
   return (
     <textarea
       {...field}
+      onInvalid={handleInvalid}
       className={cn(textareaVariants({ variant, text, truncate }), className)}
       ref={ref}
       {...props}

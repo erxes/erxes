@@ -3,6 +3,7 @@ import { Command } from 'erxes-ui/components/command';
 import { Popover } from 'erxes-ui/components/popover';
 import { useIcons } from 'erxes-ui/modules/icons/hooks/useIcons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconComponent } from './IconComponent';
 
 /**
@@ -18,6 +19,7 @@ export const IconPicker = ({
   value?: string;
   onValueChange?: (value: string | null) => void;
 } & React.RefAttributes<HTMLButtonElement>) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'icon' });
   const { getIcons } = useIcons();
   const [open, setOpen] = useState(false);
   const icons = Object.entries(getIcons());
@@ -29,13 +31,19 @@ export const IconPicker = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.TriggerBase variant="ghost" size="icon" ref={ref} {...props}>
+      <Combobox.TriggerBase
+        variant="ghost"
+        size="icon"
+        ref={ref}
+        aria-label={t('pick', 'Pick an icon')}
+        {...props}
+      >
         <IconComponent name={value} />
       </Combobox.TriggerBase>
 
       <Combobox.Content className="w-60 min-w-60">
         <Command>
-          <Command.Input placeholder="Search icon..." />
+          <Command.Input placeholder={t('search', 'Search icons…')} />
           <Command.List className="max-h-50 overflow-y-auto hide-scroll">
             <div className="flex flex-wrap gap-2">
               {selectedFirst.map(([key, Icon]) => (

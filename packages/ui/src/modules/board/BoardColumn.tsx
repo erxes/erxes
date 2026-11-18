@@ -129,7 +129,7 @@ export const BoardColumn = ({
       <div className="styled-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
         {loading &&
           CARD_SKELETONS.map((key) => <Skeleton key={key} radius="lg" className="h-23 shrink-0" />)}
-        {error && <p className="p-2 text-xs text-destructive">{error}</p>}
+        {error && <p className="p-2 text-xs text-destructive-text">{error}</p>}
         <BoardColumnContext value={id}>{children}</BoardColumnContext>
         {ordered && here && hasCards && target.beforeId === null && (
           <span className="h-0.5 shrink-0 rounded bg-primary" />

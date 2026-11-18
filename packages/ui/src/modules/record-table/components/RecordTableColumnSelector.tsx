@@ -28,6 +28,11 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
 import { IconSettings, IconGripVertical, IconPin, IconPinFilled } from '@tabler/icons-react';
 import { buildHeaderGroups, type Column, type RowData } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
+import {
+  useSortAccessibility,
+  useSortRoleDescription,
+} from 'erxes-ui/hooks/use-sort-accessibility';
 
 type RecordTableColumn = Column<RecordTableFeatures, RowData>;
 
@@ -73,10 +78,17 @@ const SortableColumnItem = ({
   pinned: boolean;
   isLastVisible: boolean;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'table' });
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.id,
     disabled: pinned,
+    attributes: { roleDescription: useSortRoleDescription() },
   });
+
+  const pinLabel = pinned
+    ? t('unpin-column', 'Unpin column')
+    : t('pin-column', 'Pin column to left');
 
   return (
     <div
@@ -104,7 +116,11 @@ const SortableColumnItem = ({
         id={`col-visibility-${column.id}`}
         checked={visible}
         disabled={isLastVisible}
-        title={isLastVisible ? 'At least one column must stay visible' : undefined}
+        title={
+          isLastVisible
+            ? t('last-visible-column', 'At least one column must stay visible')
+            : undefined
+        }
         onCheckedChange={(checked) => column.toggleVisibility(checked)}
       />
 
@@ -119,8 +135,8 @@ const SortableColumnItem = ({
       <Button
         variant="ghost"
         size="icon"
-        title={pinned ? 'Unpin column' : 'Pin column to left'}
-        aria-label={pinned ? 'Unpin column' : 'Pin column to left'}
+        title={pinLabel}
+        aria-label={pinLabel}
         tone="muted"
         className="size-5 flex-none"
         onClick={(e) => {
@@ -139,6 +155,7 @@ export const RecordTableColumnSelector = ({
 }: {
   align?: 'start' | 'center' | 'end';
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'table' });
   const { table, columnSelectorOpen, setColumnSelectorOpen } = useRecordTable();
 
   // The table renders again on every layout change, so these reads are current.
@@ -162,6 +179,10 @@ export const RecordTableColumnSelector = ({
     useSensor(KeyboardSensor),
   );
 
+  const accessibility = useSortAccessibility(
+    (id) => columns.find((item) => item.column.id === id)?.label ?? String(id),
+  );
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
 
@@ -178,7 +199,7 @@ export const RecordTableColumnSelector = ({
     <DropdownMenu open={columnSelectorOpen} onOpenChange={setColumnSelectorOpen}>
       <DropdownMenu.Trigger
         render={<Button variant="cell" size="icon" className="h-full w-full" />}
-        aria-label="Columns"
+        aria-label={t('columns', 'Columns')}
       >
         <IconSettings />
       </DropdownMenu.Trigger>
@@ -189,6 +210,7 @@ export const RecordTableColumnSelector = ({
       >
         <DndContext
           sensors={sensors}
+          accessibility={accessibility}
           modifiers={[restrictToVerticalAxis]}
           onDragEnd={handleDragEnd}
         >

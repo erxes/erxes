@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconCheck } from '@tabler/icons-react';
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Command } from 'erxes-ui/components/command';
@@ -54,6 +55,9 @@ const CountrySelect = ({
   variant: PhoneInputProps['variant'];
 }) => {
   const [open, setOpen] = useState(false);
+  const { t, i18n } = useTranslation('ui', { keyPrefix: 'phone' });
+  const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
+  const nameOf = (country: PhoneCountry) => regionNames.of(country.code) ?? country.name;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,19 +65,22 @@ const CountrySelect = ({
         variant={variant === 'secondary' ? 'secondary' : 'outline'}
         size="icon"
         aria-expanded={open}
+        aria-label={t('country', 'Country code: {{country}}', {
+          country: selected ? nameOf(selected) : '',
+        })}
         className="w-8"
       >
         <span className="text-xl">{selected?.flag}</span>
       </Combobox.TriggerBase>
       <Popover.Content variant="flush" className="w-56" align="start">
         <Command>
-          <Command.Input placeholder="Search country..." className="h-9" />
+          <Command.Input placeholder={t('search-country', 'Search country…')} className="h-9" />
           <Command.List className="max-h-75 overflow-auto">
             <Command.Group>
               {CountryPhoneCodes.map((country) => (
                 <Command.Item
                   key={country.code}
-                  value={country.name}
+                  value={`${nameOf(country)} ${country.name}`}
                   onSelect={() => {
                     onSelect(country);
                     setOpen(false);
@@ -82,7 +89,7 @@ const CountrySelect = ({
                 >
                   <div className="flex items-center">
                     <span className="mr-2">{country.flag}</span>
-                    <span className="text-sm">{country.name}</span>
+                    <span className="text-sm">{nameOf(country)}</span>
                     <span className="ml-2 text-sm text-muted-foreground">{country.dial_code}</span>
                   </div>
                   {selected?.code === country.code && <IconCheck className="size-4" />}
@@ -99,13 +106,21 @@ const CountrySelect = ({
 /** Validates on change and blur, keeps the message for the input's error style. */
 const usePhoneValidation = (onValidationChange: PhoneInputProps['onValidationChange']) => {
   const [validationError, setValidationError] = useState('');
+  const { t } = useTranslation('ui', { keyPrefix: 'phone' });
+
+  const messages: Partial<Record<string, string>> = {
+    too_small: t('too-short', 'Phone number must be at least 8 characters'),
+    too_big: t('too-long', 'Phone number must not exceed 16 characters'),
+    invalid_format: t('format', 'Phone number can only contain digits and + prefix'),
+  };
 
   const validate = (phone: string) => {
     const result = phoneSchema.safeParse({ phone: phone.replace(/[\s\-()]/g, '') });
+    const code = result.error?.issues[0]?.code;
 
     const message = result.success
       ? ''
-      : (result.error.issues[0]?.message ?? 'Invalid phone number');
+      : ((code && messages[code]) ?? t('invalid', 'Invalid phone number'));
 
     setValidationError(message);
     onValidationChange?.(result.success, message || undefined);
