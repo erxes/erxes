@@ -13,17 +13,21 @@ const CONTACT_TYPES = ['core:customer', 'core:company'];
 /** A relation tab's `hosts` entry for every record type. */
 const EVERY_RECORD_TYPE = '*';
 
+/** What a tab on every type gets for a record whose contacts are unknown (or loading). */
+const NO_CONTACTS: TRecordContacts = { customerIds: [], companyIds: [] };
+
+const onEveryType = (tab: TRelationTab) => tab.hosts?.includes(EVERY_RECORD_TYPE) ?? false;
+
 /**
  * Whether a plugin's relation tab shows on a record of `contentType`: the record types its
  * `hosts` names (`core:customer` alone, `tasks:task`, `*` for all), else customers and
  * companies. Another plugin's record shows it only when named, so an order doesn't list its
- * customer's deals unless the plugin asks for that.
+ * customer's deals unless the plugin asks for that. A tab on every type needs only the record,
+ * so it shows on types that name no contacts too; the others wait for the contacts.
  */
-const showsOn = (tab: TRelationTab, contentType: string) => {
-  const hosts = tab.hosts ?? CONTACT_TYPES;
-
-  return hosts.includes(EVERY_RECORD_TYPE) || hosts.includes(contentType);
-};
+const showsOn = (tab: TRelationTab, contentType: string, contacts: TRecordContacts | undefined) =>
+  onEveryType(tab) ||
+  (contacts !== undefined && (tab.hosts ?? CONTACT_TYPES).includes(contentType));
 
 /** One plugin's relation tab: its list, kept apart if it crashes. */
 const RelationTabContent = ({
@@ -59,7 +63,8 @@ const RelationTabContent = ({
 
 /**
  * The tabs installed plugins the member may use add to a record (`relationTabs` in their
- * `CONFIG`): a customer's deals, a task's deals. None until the record's contacts are known.
+ * `CONFIG`): a customer's deals, a task's deals. Only tabs on every type until the record's
+ * contacts are known.
  */
 export const usePluginRelationTabs = ({
   contentType,
@@ -74,11 +79,9 @@ export const usePluginRelationTabs = ({
   const text = usePluginText();
   const order = useRelationTabOrder();
 
-  if (!contacts) return [];
-
   const tabs = plugins.flatMap(({ remote, config }) =>
     config.relationTabs
-      .filter((tab) => showsOn(tab, contentType))
+      .filter((tab) => showsOn(tab, contentType, contacts))
       .map((tab) => ({
         value: `${remote}:${tab.name}`,
         label: text(config.name, tab.title),
@@ -90,7 +93,7 @@ export const usePluginRelationTabs = ({
             tab={tab}
             contentType={contentType}
             contentId={contentId}
-            contacts={contacts}
+            contacts={contacts ?? NO_CONTACTS}
           />
         ),
       })),

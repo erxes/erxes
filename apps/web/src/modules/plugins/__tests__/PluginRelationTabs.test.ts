@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { TRelationTabProps } from 'erxes-ui';
+import type { TRecordContacts, TRelationTabProps } from 'erxes-ui';
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
@@ -60,20 +60,28 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-const Tabs = ({ contentType }: { contentType: string }) =>
+const CONTACTS = { customerIds: ['c1'], companyIds: [] };
+
+const Tabs = ({
+  contentType,
+  contacts,
+}: {
+  contentType: string;
+  contacts: TRecordContacts | undefined;
+}) =>
   createElement(
     'output',
     null,
-    usePluginRelationTabs({
-      contentType,
-      contentId: 'r1',
-      contacts: { customerIds: ['c1'], companyIds: [] },
-    })
+    usePluginRelationTabs({ contentType, contentId: 'r1', contacts })
       .map((tab) => tab.label)
       .join(', ') || 'none',
   );
 
-const tabsOn = async (contentType: string) => {
+/** The tab labels on a record of `contentType`; `{}` for a record whose contacts are unknown. */
+const tabsOn = async (
+  contentType: string,
+  { contacts }: { contacts?: TRecordContacts } = { contacts: CONTACTS },
+) => {
   const container = document.createElement('div');
 
   document.body.append(container);
@@ -83,7 +91,7 @@ const tabsOn = async (contentType: string) => {
       createElement(
         QueryClientProvider,
         { client: new QueryClient() },
-        createElement(Tabs, { contentType }),
+        createElement(Tabs, { contentType, contacts }),
       ),
     );
   });
@@ -104,4 +112,9 @@ describe('a plugin’s relation tabs', () => {
       expect(await tabsOn(type)).toBe(tabs);
     },
   );
+
+  it('show on a record without contacts only when they are on every type', async () => {
+    expect(await tabsOn('sales:deal', {})).toBe('Fields');
+    expect(await tabsOn('core:customer', {})).toBe('Fields');
+  });
 });

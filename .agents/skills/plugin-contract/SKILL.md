@@ -113,7 +113,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      plugin with settings pages links from its own settings, and the plugin keeps
      the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on the
      record types their `hosts` name (`core:customer`, `core:company`, a plugin type with
-     `contacts`, or `*` for every type), and on customers and companies when they name none
+     `contacts`, or `*` for every type, `contacts` or not), and on customers and companies when they name none
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
      entry. Core shows the config's words (the app's name, `title`s and `label`s) through
