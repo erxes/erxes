@@ -8,13 +8,55 @@ import {
   Select,
   Switch,
   Textarea,
+  cn,
   useErxesUpload,
 } from 'erxes-ui';
-import { IconPaperclip, IconUpload, IconX } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconCalendar,
+  IconCircleDot,
+  IconCursorText,
+  IconHash,
+  IconLink,
+  IconListCheck,
+  IconMail,
+  IconPaperclip,
+  IconPhoto,
+  IconSelector,
+  IconToggleRight,
+  IconUpload,
+  IconX,
+  type Icon,
+} from '@tabler/icons-react';
+import { TOURISM_PANEL_INPUT_CLASS_NAME } from '@/tms/side-panel/TourismPanelForm';
 import type { CustomFieldValue } from '../utils/customFields';
 import { ImageUploadGrid } from '../../../components';
 
 const MAX_IMAGES = 10;
+
+export const TOUR_CUSTOM_FIELD_ICONS: Record<string, Icon> = {
+  text: IconCursorText,
+  email: IconMail,
+  url: IconLink,
+  textarea: IconAlignLeft,
+  number: IconHash,
+  date: IconCalendar,
+  checkbox: IconToggleRight,
+  boolean: IconToggleRight,
+  select: IconSelector,
+  radio: IconCircleDot,
+  multiSelect: IconListCheck,
+  image: IconPhoto,
+  file: IconPaperclip,
+};
+
+export const TOUR_CUSTOM_FIELD_BLOCK_TYPES = new Set([
+  'textarea',
+  'radio',
+  'multiSelect',
+  'image',
+  'file',
+]);
 
 export interface TourCustomFieldDefinition {
   _id: string;
@@ -132,10 +174,12 @@ export const TourCustomFieldInput = ({
         <Input
           type={field.type === 'text' ? 'text' : field.type}
           placeholder={
-            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
+            field.placeholder ||
+            t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
         />
       );
 
@@ -143,12 +187,13 @@ export const TourCustomFieldInput = ({
       return (
         <Textarea
           placeholder={
-            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
+            field.placeholder ||
+            t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           rows={6}
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
-          className="resize-none"
+          className={cn(TOURISM_PANEL_INPUT_CLASS_NAME, 'h-auto resize-none')}
         />
       );
 
@@ -157,10 +202,12 @@ export const TourCustomFieldInput = ({
         <Input
           type="number"
           placeholder={
-            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
+            field.placeholder ||
+            t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
         />
       );
 
@@ -172,6 +219,7 @@ export const TourCustomFieldInput = ({
             onChange(date ? (date as Date).toISOString() : '')
           }
           placeholder={field.placeholder || t('select-date')}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
         />
       );
 
@@ -185,10 +233,13 @@ export const TourCustomFieldInput = ({
           value={typeof value === 'string' ? value : ''}
           onValueChange={onChange}
         >
-          <Select.Trigger className="w-full">
+          <Select.Trigger className={TOURISM_PANEL_INPUT_CLASS_NAME}>
             <Select.Value
               placeholder={
-                field.placeholder || t('select-field-placeholder', { label: field.label.toLowerCase() })
+                field.placeholder ||
+                t('select-field-placeholder', {
+                  label: field.label.toLowerCase(),
+                })
               }
             />
           </Select.Trigger>
@@ -208,7 +259,7 @@ export const TourCustomFieldInput = ({
           {(field.options || []).map((option) => (
             <label
               key={option}
-              className="flex items-center gap-2 text-sm cursor-pointer"
+              className="flex items-center gap-2 text-xs cursor-pointer"
             >
               <input
                 type="radio"
@@ -237,10 +288,12 @@ export const TourCustomFieldInput = ({
           )}
           options={options}
           placeholder={
-            field.placeholder || t('select-field-placeholder', { label: field.label.toLowerCase() })
+            field.placeholder ||
+            t('select-field-placeholder', { label: field.label.toLowerCase() })
           }
           hidePlaceholderWhenSelected
           emptyIndicator={t('no-options')}
+          className={cn(TOURISM_PANEL_INPUT_CLASS_NAME, 'h-auto min-h-7')}
           onChange={(options: Array<{ value: string }>) =>
             onChange(options.map((option) => option.value))
           }
@@ -258,10 +311,12 @@ export const TourCustomFieldInput = ({
       return (
         <Input
           placeholder={
-            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
+            field.placeholder ||
+            t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
         />
       );
   }

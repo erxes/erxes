@@ -7,9 +7,14 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { useTourOrders, ITourOrder } from '../hooks/useTourOrders';
-import { Card, Select, Separator, Spinner } from 'erxes-ui';
+import { Card, Select, Separator } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CustomersInline } from 'ui-modules';
+import {
+  TourismPanelEmpty,
+  TourismPanelLoading,
+} from '@/tms/side-panel/TourismPanelLayout';
 import { TMS_ORDER_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
 
@@ -176,6 +181,7 @@ function OrderRow({
 }
 
 export const TourOrdersPanel = ({ tourId }: Props) => {
+  const { t } = useTranslation('tourism');
   const [statusFilter, setStatusFilter] = useState<OrderFilterValue>('all');
   const { openDetail } = useTourismPanel(TMS_ORDER_CONTENT_TYPE);
   const { orders, loading } = useTourOrders({
@@ -194,25 +200,16 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
   }, [orders, statusFilter]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Spinner />
-      </div>
-    );
+    return <TourismPanelLoading />;
   }
 
   if (!orders.length) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
-        <IconClipboardList className="w-8 h-8 text-muted-foreground" />
-
-        <h3 className="text-base font-semibold">No bookings yet</h3>
-
-        <p className="max-w-xs text-sm text-muted-foreground">
-          This tour doesn’t have any bookings yet. Once customers make a
-          reservation, they will appear here.
-        </p>
-      </div>
+      <TourismPanelEmpty
+        icon={IconClipboardList}
+        title={t('no-bookings-yet')}
+        description={t('no-bookings-yet-desc')}
+      />
     );
   }
 

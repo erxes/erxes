@@ -43,6 +43,7 @@ import {
   ElementPanelNoteField,
   ElementPanelStartTimeField,
 } from './ElementPanelFields';
+import { useTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 interface ElementPanelFormProps {
   element?: IElement;
@@ -113,6 +114,8 @@ const ElementPanelForm = ({
       getElementFormValues(element, mainLanguage, translationLanguages),
     );
   }, [form, element, mainLanguage, translationLanguages]);
+
+  useTourismDraftValues(TMS_ELEMENT_CONTENT_TYPE, form, !element);
 
   const onInvalid = () => {
     if (!form.getValues('name')?.trim()) {

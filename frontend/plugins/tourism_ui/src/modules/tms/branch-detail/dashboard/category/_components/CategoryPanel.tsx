@@ -41,6 +41,7 @@ import {
   CategoryNameField,
   CategoryParentIdField,
 } from './CategoryFormFields';
+import { useTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 interface CategoryPanelFormProps {
   category?: ICategory;
@@ -95,6 +96,7 @@ const CategoryPanelForm = ({
           translations: buildEmptyCategoryTranslations(translationLanguages),
         },
   });
+  useTourismDraftValues(TMS_CATEGORY_CONTENT_TYPE, form, !category);
 
   useFieldArray({
     control: form.control,

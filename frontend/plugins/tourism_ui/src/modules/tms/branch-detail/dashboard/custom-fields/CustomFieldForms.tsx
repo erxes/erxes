@@ -29,6 +29,12 @@ import {
   ITourTypeFormValues,
   generateCode,
 } from './customFieldUtils';
+import {
+  TMS_CUSTOM_FIELD_CONTENT_TYPE,
+  TMS_FIELD_GROUP_CONTENT_TYPE,
+  TMS_TOUR_TYPE_CONTENT_TYPE,
+} from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 interface ICustomFieldFormProps<T> {
   defaultValues: T;
@@ -189,6 +195,7 @@ export const TourTypeForm = ({
 }: ICustomFieldFormProps<ITourTypeFormValues>) => {
   const { t } = useTranslation('tourism');
   const form = useForm<ITourTypeFormValues>({ defaultValues });
+  useTourismDraftValues(TMS_TOUR_TYPE_CONTENT_TYPE, form, props.isNew);
   const setGeneratedPluralLabel = useGeneratedValue(
     props.isNew,
     () => form.getValues('pluralLabel'),
@@ -246,6 +253,7 @@ export const FieldGroupForm = ({
 }) => {
   const { t } = useTranslation('tourism');
   const form = useForm<IFieldGroupFormValues>({ defaultValues });
+  useTourismDraftValues(TMS_FIELD_GROUP_CONTENT_TYPE, form, props.isNew);
   const setGeneratedCode = useGeneratedValue(
     props.isNew,
     () => form.getValues('code'),
@@ -307,6 +315,7 @@ export const FieldForm = ({
 }: ICustomFieldFormProps<IFieldFormValues>) => {
   const { t } = useTranslation('tourism');
   const form = useForm<IFieldFormValues>({ defaultValues });
+  useTourismDraftValues(TMS_CUSTOM_FIELD_CONTENT_TYPE, form, props.isNew);
   const setGeneratedCode = useGeneratedValue(
     props.isNew,
     () => form.getValues('code'),

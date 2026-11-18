@@ -702,11 +702,6 @@ export const TourGuidesField = ({
 
   return (
     <div className="flex flex-col gap-1">
-      {fields.length === 0 && (
-        <p className="py-1 text-xs text-muted-foreground">
-          {t('no-crew-assigned')}
-        </p>
-      )}
       {fields.map((field, index) => (
         <div
           key={field.id}
