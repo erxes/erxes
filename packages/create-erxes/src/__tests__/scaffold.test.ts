@@ -113,7 +113,7 @@ describe('scaffold', () => {
       quality.exec(await read(repo, 'AGENTS.md'))?.[0],
     );
     expect(await read(dir, 'api/src/test/core-functions.sql')).toMatch(
-      /FUNCTION core_tenant_visible[\s\S]*FUNCTION core_enable_tenant_rls/,
+      /CREATE EXTENSION IF NOT EXISTS btree_gist;[\s\S]*FUNCTION core_tenant_visible[\s\S]*FUNCTION core_enable_tenant_rls/,
     );
     expect(await read(dir, 'api/src/test/core-calls.sql')).toMatch(
       /FUNCTION core_publish_event[\s\S]*CREATE TABLE "core_events"[\s\S]*CREATE TABLE "core_audit_logs"/,
