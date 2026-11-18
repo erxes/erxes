@@ -1,5 +1,46 @@
 
 
+## [3.4.23](https://github.com/erxes/erxes/compare/3.4.22...3.4.23) (2026-11-17)
+
+
+### Bug Fixes
+
+* **accounting:** back button replace by transactions ([f7fdd3a](https://github.com/erxes/erxes/commit/f7fdd3a37847eebae1683b1bbd29913686c2ac68))
+* **accounting:** dynamic reports ([2e38bbc](https://github.com/erxes/erxes/commit/2e38bbc4691c579d9d6b2eb7954d5a281387d373))
+* **accounting:** journal forms details with total amounts ([f362074](https://github.com/erxes/erxes/commit/f36207476a5ddf4cebcaaee4987bd1667b7d3aff))
+* **accounting:** move inventory forms to side panel ([#10587](https://github.com/erxes/erxes/issues/10587)) ([bebc509](https://github.com/erxes/erxes/commit/bebc509a5f165158d4f178495a2f48ce139c7da5))
+* **accounting:** type the transactions module and stop double delete toasts ([#10562](https://github.com/erxes/erxes/issues/10562)) ([022a721](https://github.com/erxes/erxes/commit/022a72187228006f21effa3127a437e4cbb588a1))
+* **accounting:** validate date ([1158b7f](https://github.com/erxes/erxes/commit/1158b7fb15b6f31848309e6dd2c055e58faa50dc))
+* **accounting:** validate sync rule settings before saving ([#10559](https://github.com/erxes/erxes/issues/10559)) ([44ef3b6](https://github.com/erxes/erxes/commit/44ef3b692654b608b86d50abf644f5e0150f49f3))
+* **content:** index cms_posts for the client portal post list ([#10660](https://github.com/erxes/erxes/issues/10660)) ([0aa0f51](https://github.com/erxes/erxes/commit/0aa0f5171bd932060bf15b1835e4c60f6dab6e2b))
+* **content:** make CMS slugs unique per site and cheapen public lists ([#10691](https://github.com/erxes/erxes/issues/10691)) ([3e87a3b](https://github.com/erxes/erxes/commit/3e87a3ba547e699f9d8d58dcff03a36495d061c0))
+* **documents:** move detail printing into more menus ([#9677](https://github.com/erxes/erxes/issues/9677)) ([#10049](https://github.com/erxes/erxes/issues/10049)) ([16d7c93](https://github.com/erxes/erxes/commit/16d7c9315ea0d18123cc5779ad2cb8d49ba2e198))
+* **frontline:** select customer and company on ticket detail ([#10501](https://github.com/erxes/erxes/issues/10501)) ([1681ec9](https://github.com/erxes/erxes/commit/1681ec9e9201d32b5dc29e79f7fcf476b942e296))
+* open plugin property types in the plugin's own settings ([#9948](https://github.com/erxes/erxes/issues/9948)) ([416ed5b](https://github.com/erxes/erxes/commit/416ed5b886d3645ede5dd5cede6050b9461b2770))
+* **payment:** re-check invoices per transaction instead of per-org cron ([#10512](https://github.com/erxes/erxes/issues/10512)) ([f2a56ac](https://github.com/erxes/erxes/commit/f2a56ac961cfbaab5671f0ca0494a7f10cd9aa15))
+* **payment:** route Golomt push through shared claim and paid notification ([#10563](https://github.com/erxes/erxes/issues/10563)) ([a807ad4](https://github.com/erxes/erxes/commit/a807ad418424c3b23966603fadc83d5ad69c935f))
+
+
+### Features
+
+* accounting dynamic reports ([#10661](https://github.com/erxes/erxes/issues/10661)) ([c0dc410](https://github.com/erxes/erxes/commit/c0dc4103ac5349790e7b3e857d0ed52ceee82b80))
+* add automation value preview hook and related state management ([d45ffda](https://github.com/erxes/erxes/commit/d45ffda34c623246d2cbc8df213e89dc33c44f18))
+* **locales:** update English and Mongolian templates with new hero section and descriptions ([963470c](https://github.com/erxes/erxes/commit/963470c4d63ed3cf3f02201789736ff5375fd1ee))
+* operation projects to side panel ([#10480](https://github.com/erxes/erxes/issues/10480)) ([8665a0b](https://github.com/erxes/erxes/commit/8665a0b9aa1fe3a2009b97853b50e4bdd73f9893))
+* **operation:** open triages in the side panel with a properties tab ([#10663](https://github.com/erxes/erxes/issues/10663)) ([8b5f8c0](https://github.com/erxes/erxes/commit/8b5f8c0d25a747dafb8da342b352f03f5f1a91ca))
+* restore position, department and links in customer panel ([#10504](https://github.com/erxes/erxes/issues/10504)) ([8a01368](https://github.com/erxes/erxes/commit/8a013684957ddb9ceb28e029804bfe82ef4ef3a2))
+* **sales:** deal side panel with compact products, sales relation and detail fields ([#10061](https://github.com/erxes/erxes/issues/10061)) ([6153ba2](https://github.com/erxes/erxes/commit/6153ba2b8de5ae8f2ed03f88cc5047ddb98aa562))
+* **sales:** replace settings side panels with sidebar navigation ([#9927](https://github.com/erxes/erxes/issues/9927)) ([9aeeba0](https://github.com/erxes/erxes/commit/9aeeba0e7ba65cafffab7b9d1f3f4cb82facfe40))
+* **segments:** add hooks for query select input, segment conditions, and overview ([8224c4a](https://github.com/erxes/erxes/commit/8224c4aaef83e67ad1210046f08bc96a8f305402))
+* share record overview customize and page minimize ([#10497](https://github.com/erxes/erxes/issues/10497)) ([8cd54d5](https://github.com/erxes/erxes/commit/8cd54d54b02594b4b096f6534c35af4a1a437d52))
+* translate permission labels ([#10491](https://github.com/erxes/erxes/issues/10491)) ([bf57610](https://github.com/erxes/erxes/commit/bf576103606dc5f9c9a31ee78d7df3a3167c22bc))
+
+
+### Performance Improvements
+
+* **frontline:** improve knowledge base article panel ([#10471](https://github.com/erxes/erxes/issues/10471)) ([1518a7e](https://github.com/erxes/erxes/commit/1518a7ee96a0854ba00cf126dbeb24182d0b9f40))
+* **frontline:** Update channels ui, translation and integration count ([#10689](https://github.com/erxes/erxes/issues/10689)) ([528779f](https://github.com/erxes/erxes/commit/528779fb36d65b005dcb5dca78c70af122484aec))
+
 ## [3.4.22](https://github.com/erxes/erxes/compare/3.4.21...3.4.22) (2026-11-13)
 
 

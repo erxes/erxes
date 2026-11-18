@@ -18,6 +18,7 @@ export const types = `
     customerId: String
     companyId: String
     tagIds: [String]
+    propertiesData: JSON
   }
 
   input ITriageAddInput {
@@ -29,6 +30,7 @@ export const types = `
     customerId: String
     companyId: String
     tagIds: [String]
+    propertiesData: JSON
   }
 
   input ITriageUpdateInput {
@@ -40,6 +42,7 @@ export const types = `
     customerId: String
     companyId: String
     tagIds: [String]
+    propertiesData: JSON
   }
 
   type TriageListResponse {

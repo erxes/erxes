@@ -15,6 +15,7 @@ export const UPDATE_TRIAGE_MUTATION = gql(`
       customerId
       companyId
       tagIds
+      propertiesData
     }
   }
 `);

@@ -3,13 +3,15 @@ import { isDefined } from 'erxes-ui';
 import { useMemo } from 'react';
 import { GET_CHANNEL_INTEGRATIONS_PEEK } from '@/channels/graphql/queries';
 
+export const CHANNEL_INTEGRATIONS_PEEK_LIMIT = 100;
+
 const needsAttention = (status?: string | null) =>
   Boolean(status) && status !== 'healthy';
 
 /** A channel's integrations, broken first and archived last. */
 export const useChannelIntegrationsPeek = (channelId: string) => {
   const { data, loading, error } = useQuery(GET_CHANNEL_INTEGRATIONS_PEEK, {
-    variables: { channelId },
+    variables: { channelId, limit: CHANNEL_INTEGRATIONS_PEEK_LIMIT },
     fetchPolicy: 'cache-and-network',
   });
 

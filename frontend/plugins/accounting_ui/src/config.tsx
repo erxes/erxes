@@ -41,6 +41,11 @@ export const CONFIG: IUIConfig = {
       path: 'accounting/journal-reports',
     },
     {
+      name: 'tunable-reports',
+      icon: IconCashBanknote,
+      path: 'accounting/tunable-reports',
+    },
+    {
       name: 'check-sync',
       icon: IconCashBanknote,
       path: 'accounting/check-sync',

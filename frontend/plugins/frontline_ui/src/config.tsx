@@ -6,6 +6,7 @@ import {
   IconLifebuoy,
   IconMail,
   IconPhone,
+  IconPhoto,
   IconSettings,
   IconStackFront,
   IconTicket,
@@ -16,6 +17,8 @@ import { getTicketDetailPath } from '@/ticket/constants';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 import { FRONTLINE_DASHBOARD_WIDGETS } from '~/widgets/dashboard/frontlineDashboardWidgets';
 import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
+import { getArticleDetailPath } from '@/knowledgebase/articles/utils/getArticleDetailPath';
+import { ARTICLE_MEDIA_TAB } from '@/knowledgebase/constants';
 
 const TicketStatusPropertyInput = lazy(() =>
   import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
@@ -44,7 +47,20 @@ export const CONFIG: IUIConfig = {
   widgets: {
     recordPanels: [
       { contentType: 'frontline:ticket', detailPath: getTicketDetailPath },
-      { contentType: 'frontline:knowledgebase.article', properties: false },
+      {
+        contentType: 'frontline:knowledgebase.article',
+        properties: false,
+        detailPath: getArticleDetailPath,
+        tabs: [
+          {
+            value: ARTICLE_MEDIA_TAB,
+            label: 'Media',
+            labelKey: 'kb-media',
+            icon: IconPhoto,
+            after: 'detail',
+          },
+        ],
+      },
       { contentType: 'frontline:knowledgebase.topic', properties: false },
       { contentType: 'frontline:knowledgebase.category', properties: false },
       { contentType: 'frontline:article', properties: false },

@@ -10,7 +10,11 @@ import { commonRemove, commonRemoveValidation } from '../../utils/commonRemove';
 import { commonSave, commonSaveValidation } from '../../utils/commonSave';
 import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
 import { transactionSchema } from '../definitions/transaction';
-import { generateTrStatusActivityLog, setPtrStatus } from './utils';
+import {
+  generateTrStatusActivityLog,
+  getRelAccountOverride,
+  setPtrStatus,
+} from './utils';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
@@ -87,29 +91,21 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-const normalizeRelAccountCodes = (codes: unknown): string[] | undefined => {
-  if (!Array.isArray(codes)) {
-    return;
-  }
-
-  const cleanCodes = codes
-    .filter((code): code is string => typeof code === 'string')
-    .map((code) => code.trim())
-    .filter(Boolean);
-
-  return cleanCodes.length ? cleanCodes : undefined;
-};
-
-const normalizeRelAccounts = (relAccounts: unknown) => {
+const normalizeRelAccounts = (
+  relAccounts: unknown,
+  previous?: ITransaction['relAccounts'],
+) => {
   if (!relAccounts || typeof relAccounts !== 'object') {
     return;
   }
 
-  const customDt = normalizeRelAccountCodes(
+  const customDt = getRelAccountOverride(
     (relAccounts as { customDt?: unknown }).customDt,
+    previous?.dt,
   );
-  const customCt = normalizeRelAccountCodes(
+  const customCt = getRelAccountOverride(
     (relAccounts as { customCt?: unknown }).customCt,
+    previous?.ct,
   );
 
   if (!customDt && !customCt) {
@@ -124,9 +120,10 @@ const normalizeRelAccounts = (relAccounts: unknown) => {
 
 const normalizeTransactionRelAccounts = (
   doc: ITransaction & { relAccounts?: unknown },
+  previous?: ITransaction['relAccounts'],
 ) => {
   const cleanDoc = { ...doc };
-  const relAccounts = normalizeRelAccounts(doc.relAccounts);
+  const relAccounts = normalizeRelAccounts(doc.relAccounts, previous);
   const shouldClearRelAccountOverrides = !relAccounts;
 
   if (relAccounts) {
@@ -409,7 +406,7 @@ export const loadTransactionClass = (
     ) {
       const oldTr = await models.Transactions.getTransaction({ _id });
       const { cleanDoc, shouldClearRelAccountOverrides } =
-        normalizeTransactionRelAccounts(doc);
+        normalizeTransactionRelAccounts(doc, oldTr.relAccounts);
       const { cleanDoc: normalizedDoc, unsetDoc } =
         splitUndefinedUnsetFields(cleanDoc);
 

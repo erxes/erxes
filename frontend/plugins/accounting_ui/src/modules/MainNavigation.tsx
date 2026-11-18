@@ -3,6 +3,7 @@ import {
   IconListCheck,
   IconListDetails,
   IconRefreshAlert,
+  IconReportAnalytics,
 } from '@tabler/icons-react';
 
 import { NavigationMenuLinkItem, sidebarPanelOpenState } from 'erxes-ui';
@@ -29,9 +30,15 @@ export const MainNavigation = () => {
         onClick={() => setSidebarPanelOpen(true)}
       />
       <NavigationMenuLinkItem
-        name={t('report')}
+        name={t('journal-reports')}
         icon={IconClipboardTextFilled}
         path="journal-reports"
+        pathPrefix="accounting"
+      />
+      <NavigationMenuLinkItem
+        name={t('tunable-reports')}
+        icon={IconReportAnalytics}
+        path="tunable-reports"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem

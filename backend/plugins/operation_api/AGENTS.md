@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-11-11`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -161,6 +161,7 @@ propertiesData? } })`
 ## Local Invariants
 
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.
+- Triages keep `propertiesData` for the task's custom properties (`operation:task` fields; there is no `triage` property type). `operationAddTriage` / `operationUpdateTriage` accept it and validate it through core `fields.validateFieldValues`, the same way `updateTask` does, `Triage` exposes it, and `operationConvertTriageToTask` copies it onto the task.
 - `getTasks` without `orderBy` pages through `taskCursorPaginateByStatus` (`modules/task/graphql/resolvers/utils.ts`): status type ascending like projects (in progress, todo, backlog, done, cancelled; untyped last), then the status's own `order`, its name, and newest `updatedAt`. Never order by hard-coded status names; teams rename and add statuses.
 - Every automation action declares a `configSchema` (`src/modules/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create task (`name`, `teamId`, `status`) and create project (`name`, a team). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
 - Every `createNotifications` call passes `event`, typed
@@ -172,7 +173,7 @@ propertiesData? } })`
   are saved under; renaming one drops saved choices, and the meta lists only
   events that have a sender.
 - `createTask` / `updateTask`, `createProject` / `updateProject` and `operationAddTriage` / `operationUpdateTriage` accept `customerId` / `companyId` (one of each) and save them on the record; `getTasks`, `getProjects` and `operationGetTriageList` filter by them (a contact's records). `Task`, `Project` and `Triage` expose both fields.
-- `createTask` and `operationAddTriage` require a name (the UI creates a task or triage only once its draft is named in the side panel). `createTask` accepts a task without a status: a triage then starts in the team's backlog, any other task in its first to-do (`UNSTARTED`) status by `order`.
+- `createTask` and `operationAddTriage` require a name (the UI creates a task or triage only once its draft is named in the side panel). `createTask` accepts a task without a status: it then starts in the team's first to-do (`UNSTARTED`) status by `order`, including a triage accepted without a requested status.
 - Operation owns its records' contacts: change them only through its own mutations (and `contactFields.sync` for merges and removals); never create core relations for record ↔ contact links.
 - `applyDataExtensionsNamespace` strips `dataExtensions` from inserts, updates
   and bulk writes made through the models, and rejects a `save()` that changed

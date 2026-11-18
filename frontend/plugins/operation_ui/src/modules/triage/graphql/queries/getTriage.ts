@@ -19,6 +19,7 @@ export const GET_TRIAGE = gql(`
       customerId
       companyId
       tagIds
+      propertiesData
     }
   }
 `);

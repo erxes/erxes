@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { ITriageAddInput, ITriageUpdateInput } from '@/task/@types/triage';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { validatePropertiesData } from '@/fields/validatePropertiesData';
 
 export const triageMutations = {
   operationAddTriage: async (
@@ -23,6 +24,12 @@ export const triageMutations = {
         customerId: input.customerId || null,
         companyId: input.companyId || null,
         tagIds: input.tagIds || [],
+        ...(input.propertiesData && {
+          propertiesData: await validatePropertiesData(
+            subdomain,
+            input.propertiesData,
+          ),
+        }),
       },
       subdomain: subdomain,
     });
@@ -33,9 +40,16 @@ export const triageMutations = {
   operationUpdateTriage: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: ITriageUpdateInput },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('triageUpdate');
+
+    if (input.propertiesData) {
+      input.propertiesData = await validatePropertiesData(
+        subdomain,
+        input.propertiesData,
+      );
+    }
 
     return models.Triage.updateTriage(_id, input);
   },
@@ -82,12 +96,13 @@ export const triageMutations = {
     }
 
     // The task takes the triage's _id (see Task.createTask) and keeps its
-    // customer, company and tags.
+    // customer, company, tags and properties.
     const task = await models.Task.createTask({
       doc: {
         customerId: triage.customerId ?? null,
         companyId: triage.companyId ?? null,
         tagIds: triage.tagIds || [],
+        propertiesData: triage.propertiesData,
         name: triage.name,
         description: triage.description,
         teamId: triage.teamId,

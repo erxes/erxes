@@ -2,16 +2,24 @@ import { ChecklistItem } from './ChecklistItem';
 import { Empty, Separator, Spinner } from 'erxes-ui';
 import { IconListCheck } from '@tabler/icons-react';
 import { useChecklists } from '@/deals/cards/hooks/useChecklists';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const Checklists = ({
   stageId,
   dealId,
   newChecklistId,
+  compact,
+  bare,
+  empty = null,
 }: Readonly<{
   stageId?: string;
   dealId?: string;
   newChecklistId?: string;
+  compact?: boolean;
+  bare?: boolean;
+  // Shown when the deal has no checklists; nothing by default.
+  empty?: ReactNode;
 }>) => {
   const { t } = useTranslation('sales');
   const { checklists, loading, error } = useChecklists({
@@ -46,23 +54,28 @@ export const Checklists = ({
   }
 
   if (!checklists || checklists.length === 0) {
-    return null;
+    return empty;
+  }
+
+  const items = checklists.map((checklist) => (
+    <ChecklistItem
+      key={checklist._id}
+      item={checklist}
+      stageId={stageId}
+      focusNewItem={checklist._id === newChecklistId}
+      compact={compact}
+    />
+  ));
+
+  if (bare) {
+    return <div>{items}</div>;
   }
 
   return (
     <>
       <div className="flex flex-col gap-2">
         <h4 className="text-sm font-medium">{t('checklists', 'Checklists')}</h4>
-        <div className="py-2">
-          {checklists.map((checklist) => (
-            <ChecklistItem
-              key={checklist._id}
-              item={checklist}
-              stageId={stageId}
-              focusNewItem={checklist._id === newChecklistId}
-            />
-          ))}
-        </div>
+        <div className="py-2">{items}</div>
       </div>
       <Separator className="mt-1" />
     </>

@@ -7,6 +7,7 @@ import { CreateBrand } from '@/inbox/brand/components/CreateBrand';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { DiscordServersNav } from '@/integrations/discord/components/DiscordChannelsNav';
 import { InboxWorkNav } from '@/inbox/components/InboxWorkNav';
+import { KnowledgeBaseNavigations } from '@/knowledgebase/sidebar/components/KnowledgeBaseNavigations';
 import { NavigationGroupActions } from '@/NavigationGroupActions';
 import { PersonalInboxNav } from '@/inbox/channel/components/PersonalInboxNav';
 import { TeamChannelsNav } from '@/inbox/channel/components/TeamChannelsNav';
@@ -22,8 +23,12 @@ export const FrontlineSubGroups = () => {
   const isTickets = pathname.startsWith('/frontline/tickets');
   const isForms = pathname.startsWith('/frontline/forms');
   const isSurveys = pathname.startsWith('/frontline/surveys');
+  const isKnowledgeBase = pathname.startsWith('/frontline/knowledgebase');
   if (isTickets) {
     return <TicketNavigations />;
+  }
+  if (isKnowledgeBase) {
+    return <KnowledgeBaseNavigations />;
   }
   if (isForms || isSurveys) {
     return (

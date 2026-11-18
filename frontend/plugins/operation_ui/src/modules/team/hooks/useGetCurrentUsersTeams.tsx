@@ -10,7 +10,7 @@ export const useGetCurrentUsersTeams = (
 ) => {
   const currentUser = useAtomValue(currentUserState);
   const userId = currentUser?._id;
-  const { data, loading } = useQuery(GET_TEAMS, {
+  const { data, loading, error, refetch } = useQuery(GET_TEAMS, {
     ...options,
     variables: {
       userId,
@@ -20,5 +20,5 @@ export const useGetCurrentUsersTeams = (
 
   const teams = compactList(data?.getTeams);
 
-  return { teams, loading };
+  return { teams, loading, error, refetch };
 };

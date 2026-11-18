@@ -1,0 +1,326 @@
+import { SectionName } from '@/tunable-reports/SectionName';
+import { useEffect, useState } from 'react';
+import { useFieldArray, useWatch } from 'react-hook-form';
+import { Button, Sheet, useConfirm } from 'erxes-ui';
+import { IconSettings, IconTrash, IconPlus } from '@tabler/icons-react';
+import { ReportForm } from '@/tunable-reports/fields';
+import {
+  ReportSectionFields,
+  ReportRowFields,
+  ReportColumnFields,
+} from '@/tunable-reports/SectionSettingsFields';
+import { FormulaCellEditor } from '@/tunable-reports/FormulaEditor';
+import { ReportGrid, GridTarget } from '@/tunable-reports/ReportGrid';
+import { newColumn, newRow } from '@/tunable-reports/values';
+import { reportSectionInputSchema } from '@/tunable-reports/schema';
+import { useReportTranslation } from '@/tunable-reports/locales';
+import { notifyMutationResult } from '@/utils/graphqlMutation';
+
+type SettingsTarget =
+  | { kind: 'section' }
+  | { kind: 'row' | 'column'; id: string }
+  | { kind: 'cell'; target: GridTarget };
+
+const SETTINGS_TITLES: Record<SettingsTarget['kind'], string> = {
+  section: 'sectionSettings',
+  row: 'rowSettings',
+  column: 'columnSettings',
+  cell: 'configureFormula',
+};
+const removalMessage = (
+  kind: 'rows' | 'columns',
+  lastColumn: boolean,
+): string => {
+  if (kind === 'rows') return 'removeRowConfirm';
+  return lastColumn ? 'removeLastColumnConfirm' : 'removeColumnConfirm';
+};
+export const SectionEditor = ({
+  form,
+  index,
+  reportId,
+  onRemove,
+  revealErrors = false,
+}: {
+  form: ReportForm;
+  index: number;
+  reportId?: string;
+  onRemove?: () => Promise<void>;
+  revealErrors?: boolean;
+}) => {
+  const { t } = useReportTranslation();
+  const { confirm } = useConfirm();
+  const path = `sections.${index}` as const;
+  const section = useWatch({ control: form.control, name: path });
+  const columns = useFieldArray({
+    control: form.control,
+    name: `${path}.columns`,
+  });
+  const rows = useFieldArray({ control: form.control, name: `${path}.rows` });
+  const [settings, setSettings] = useState<SettingsTarget>();
+  const [pendingRemoval, setPendingRemoval] = useState<{
+    kind: 'rows' | 'columns';
+    id: string;
+  }>();
+  const removeRow = rows.remove;
+  const removeColumn = columns.remove;
+  useEffect(() => {
+    if (!pendingRemoval || settings) return;
+    // Unmount the sheet Controllers before removing their indexed fields.
+    const current = form.getValues(path);
+    const { kind, id } = pendingRemoval;
+    const itemIndex = current[kind].findIndex((item) => item._id === id);
+    if (itemIndex >= 0) {
+      const lastColumn = kind === 'columns' && current.columns.length === 1;
+      form.setValue(
+        `${path}.formulas`,
+        lastColumn
+          ? []
+          : current.formulas.filter((formula) =>
+              kind === 'rows' ? formula.rowId !== id : formula.columnId !== id,
+            ),
+        { shouldDirty: true },
+      );
+      if (kind === 'rows') removeRow(itemIndex);
+      else removeColumn(itemIndex);
+    }
+    setPendingRemoval(undefined);
+  }, [pendingRemoval, settings, form, path, removeRow, removeColumn]);
+
+  const rowIndex =
+    settings?.kind === 'row'
+      ? section.rows.findIndex((row) => row._id === settings.id)
+      : -1;
+  const columnIndex =
+    settings?.kind === 'column'
+      ? section.columns.findIndex((column) => column._id === settings.id)
+      : -1;
+  const formulaErrors = form.formState.errors.sections?.[index]?.formulas;
+  const columnErrors = form.formState.errors.sections?.[index]?.columns;
+  useEffect(() => {
+    if (!revealErrors) return;
+    const formula = section.formulas.find(
+      (_formula, formulaIndex) => formulaErrors?.[formulaIndex],
+    );
+    if (formula)
+      setSettings({
+        kind: 'cell',
+        target: {
+          rowId: formula.rowId,
+          columnId: formula.columnId || section.columns[0]?._id || '',
+        },
+      });
+    else {
+      const column = section.columns.find(
+        (_column, columnIndex) => columnErrors?.[columnIndex],
+      );
+      if (column) setSettings({ kind: 'column', id: column._id });
+    }
+  }, [
+    formulaErrors,
+    columnErrors,
+    section.formulas,
+    section.columns,
+    revealErrors,
+  ]);
+  const deleteItem = async (kind: 'rows' | 'columns', itemIndex: number) => {
+    const item = section[kind][itemIndex];
+    const lastColumn = kind === 'columns' && section.columns.length === 1;
+    const referenced = form.getValues('sections').some((otherSection) =>
+      otherSection.formulas.some((formula) => {
+        if (lastColumn && otherSection._id === section._id) return false;
+        if (
+          kind === 'rows' &&
+          otherSection._id === section._id &&
+          formula.rowId === item._id
+        )
+          return false;
+        return [formula.source, formula.ratioSource].some(
+          (source) =>
+            source &&
+            (!source.reportId || source.reportId === reportId) &&
+            (source.sectionId || otherSection._id) === section._id &&
+            (kind === 'rows'
+              ? source.rowId === item._id
+              : source.columnId === item._id),
+        );
+      }),
+    );
+    if (referenced) {
+      notifyMutationResult(false, t('referenced'));
+      return;
+    }
+    try {
+      await confirm({
+        message: t(removalMessage(kind, lastColumn)),
+      });
+    } catch {
+      return;
+    }
+    setPendingRemoval({ kind, id: item._id });
+    setSettings(undefined);
+  };
+  const addColumn = () => columns.append(newColumn());
+  const addRow = () =>
+    rows.append(reportSectionInputSchema.shape.rows.element.parse(newRow()));
+  const title = t(SETTINGS_TITLES[settings?.kind ?? 'section']);
+  const cellRow =
+    settings?.kind === 'cell'
+      ? section.rows.find((row) => row._id === settings.target.rowId)
+      : undefined;
+  const cellColumn =
+    settings?.kind === 'cell'
+      ? section.columns.find(
+          (column) => column._id === settings.target.columnId,
+        )
+      : undefined;
+  return (
+    <section className="min-w-0 overflow-hidden rounded-lg border bg-background">
+      <div className="flex items-center gap-2 border-b py-2 pl-10 pr-2">
+        <div className="min-w-0 flex-1">
+          <SectionName form={form} index={index} />
+        </div>
+        {!section.isActive && (
+          <span className="text-xs text-muted-foreground">{t('archived')}</span>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-8"
+          aria-label={`${t('sectionSettings')} · ${section.name}`}
+          onClick={() => setSettings({ kind: 'section' })}
+        >
+          <IconSettings className="size-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-8 whitespace-nowrap px-2 font-normal text-muted-foreground"
+          onClick={addColumn}
+        >
+          <IconPlus className="size-4" />
+          {t('addColumn')}
+        </Button>
+        {onRemove && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-destructive"
+            aria-label={`${t('remove')} · ${t('section')}`}
+            onClick={() => void onRemove()}
+          >
+            <IconTrash className="size-4" />
+            {t('remove')}
+          </Button>
+        )}
+      </div>
+      <ReportGrid
+        form={form}
+        index={index}
+        rowFields={rows.fields}
+        columnFields={columns.fields}
+        moveRow={rows.move}
+        moveColumn={columns.move}
+        addRow={addRow}
+        editRow={(id) => setSettings({ kind: 'row', id })}
+        editColumn={(id) => setSettings({ kind: 'column', id })}
+        editCell={(target) => setSettings({ kind: 'cell', target })}
+      />
+      <Sheet
+        open={!!settings}
+        onOpenChange={(open) => !open && setSettings(undefined)}
+      >
+        <Sheet.View
+          className={
+            settings?.kind === 'cell'
+              ? 'sm:max-w-5xl'
+              : 'sm:max-w-lg bg-background'
+          }
+        >
+          <Sheet.Header>
+            <Sheet.Title>{title}</Sheet.Title>
+            <Sheet.Close />
+          </Sheet.Header>
+          <Sheet.Content className="overflow-y-auto">
+            {cellRow && (
+              <Sheet.Description className="px-5 pt-4">
+                {cellRow.name || cellRow.number} ·{' '}
+                {section.formulaType === 'row'
+                  ? t('rowScope')
+                  : cellColumn?.name}
+              </Sheet.Description>
+            )}
+            {settings?.kind === 'section' && (
+              <ReportSectionFields form={form} index={index} />
+            )}
+            {rowIndex >= 0 && (
+              <ReportRowFields form={form} index={index} rowIndex={rowIndex} />
+            )}
+            {columnIndex >= 0 && (
+              <ReportColumnFields
+                form={form}
+                index={index}
+                columnIndex={columnIndex}
+              />
+            )}
+            {settings?.kind === 'cell' && (
+              <FormulaCellEditor
+                key={`${settings.target.rowId}-${settings.target.columnId}`}
+                form={form}
+                sectionIndex={index}
+                reportId={reportId}
+                target={settings.target}
+              />
+            )}
+          </Sheet.Content>
+          <Sheet.Footer
+            className={
+              settings?.kind === 'cell'
+                ? undefined
+                : 'flex justify-end shrink-0 p-2.5 gap-1 bg-muted'
+            }
+          >
+            {settings?.kind === 'section' && onRemove && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => void onRemove()}
+              >
+                <IconTrash />
+                {t('remove')}
+              </Button>
+            )}
+            {rowIndex >= 0 && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => void deleteItem('rows', rowIndex)}
+              >
+                <IconTrash />
+                {t('remove')}
+              </Button>
+            )}
+            {columnIndex >= 0 && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => void deleteItem('columns', columnIndex)}
+              >
+                <IconTrash />
+                {t('remove')}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSettings(undefined)}
+            >
+              {t('done')}
+            </Button>
+          </Sheet.Footer>
+        </Sheet.View>
+      </Sheet>
+    </section>
+  );
+};
