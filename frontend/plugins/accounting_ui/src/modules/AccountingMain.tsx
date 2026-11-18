@@ -93,6 +93,12 @@ const AccountingGenJournalReport = lazy(() =>
   })),
 );
 
+const AccountingGenTaxReport = lazy(() =>
+  import('~/pages/GenTaxReport').then((module) => ({
+    default: module.GenTaxReport,
+  })),
+);
+
 const AccountingTunableReportPrint = lazy(() =>
   import('~/pages/TunableReportPrintPage').then((module) => ({
     default: module.TunableReportPrintPage,
@@ -250,6 +256,7 @@ const PluginAccounting = () => {
             path="/gen-journal-report"
             element={<AccountingGenJournalReport />}
           />
+          <Route path="/gen-tax-report" element={<AccountingGenTaxReport />} />
 
           <Route
             path="/inventories/remainders"

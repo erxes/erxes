@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { ACCOUNT_STATUSES } from '../../@types/constants';
 import { IVatRowDocument, IVatRow } from '../../@types/vatRow';
+import { cleanTaxRowReportFields } from '../../utils/taxReports/rowValidation';
 import { vatRowSchema } from '../definitions/vatRow';
 
 export interface IVatRowModel extends Model<IVatRowDocument> {
@@ -36,7 +37,10 @@ export const loadVatRowClass = (models: IModels, _subdomain: string) => {
      * Create a accounting
      */
     public static async createVatRow(doc: IVatRow) {
-      return models.VatRows.create({ ...doc, createdAt: new Date() });
+      return models.VatRows.create({
+        ...cleanTaxRowReportFields(doc),
+        createdAt: new Date(),
+      });
     }
 
     /**
@@ -45,7 +49,10 @@ export const loadVatRowClass = (models: IModels, _subdomain: string) => {
     public static async updateVatRow(_id: string, doc: IVatRow) {
       await models.VatRows.getVatRow({ _id });
 
-      await models.VatRows.updateOne({ _id }, { $set: doc });
+      await models.VatRows.updateOne(
+        { _id },
+        { $set: cleanTaxRowReportFields(doc) },
+      );
 
       return await models.VatRows.findOne({ _id }).lean();
     }

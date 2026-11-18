@@ -31,7 +31,9 @@ import {
   ISettingsPanelViews,
   SettingsPanelDetailLayout,
 } from '@/settings/components/panel/SettingsPanelLayout';
+import { TaxRowReportPanelFields } from '@/settings/components/TaxRowReportPanelFields';
 import { VAT_ROW_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
+import { TTaxRowReportChange } from '@/settings/types/taxRowReport';
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
 const SCOPE = 'side-panel-vat-row';
@@ -115,11 +117,17 @@ const VatRowPanelTitle = ({ contentId }: ISettingsPanelViewProps) => {
 const VatRowPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
   const { t } = useTranslation('accounting');
   const { vatRowDetail: vatRow, loading } = useVatRowDetail(contentId);
-  const { editVatRow } = useVatRowEdit();
+  const { editVatRow, loading: saving } = useVatRowEdit();
 
-  const save = (
-    fields: TTaxRowPanelChange & { tabCount?: number; isBold?: boolean },
-  ) => editVatRow({ variables: { _id: contentId, ...fields } });
+  const save = async (
+    fields: TTaxRowPanelChange &
+      TTaxRowReportChange & { tabCount?: number; isBold?: boolean },
+  ) => {
+    const result = await editVatRow({
+      variables: { _id: contentId, ...fields },
+    });
+    return !result.errors && !!result.data;
+  };
 
   return (
     <SettingsPanelDetailLayout loading={loading} hasRecord={!!vatRow}>
@@ -149,6 +157,12 @@ const VatRowPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
               onCheckedChange={(isBold) => save({ isBold })}
             />
           </PanelField>
+          <TaxRowReportPanelFields
+            scope={SCOPE}
+            row={vatRow}
+            saving={saving}
+            onSave={save}
+          />
         </>
       )}
     </SettingsPanelDetailLayout>

@@ -11,6 +11,7 @@ import AdjustFundRates from './adjustFundRates';
 import AdjustDebtRates from './adjustDebtRates';
 import AccountPermissions from './permissions';
 import Transactions from './transactionsCommon';
+export { taxReportQueries as TaxReport } from './taxReport';
 export { vatRowQueries as VatRows } from './vatRows';
 export { AdjustFixedAssets } from './adjustFixedAssets';
 

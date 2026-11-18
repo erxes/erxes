@@ -69,6 +69,7 @@ export const SelectVatList = ({
             value={vat._id}
             onSelect={() => setSelectedVat(vat)}
           >
+            <span className="shrink-0 text-muted-foreground">{vat.number}</span>
             <TextOverflowTooltip value={vat.name} />
             <Combobox.Check checked={selectedVat?._id === vat._id} />
           </Command.Item>
@@ -114,8 +115,10 @@ export const SelectVatValue = ({
   }
 
   return (
-    <div className="inline-flex gap-2">
-      <span className="text-muted-foreground">{lastVatRow?.number}</span>
+    <div className="inline-flex min-w-0 gap-2">
+      <span className="shrink-0 text-muted-foreground">
+        {lastVatRow?.number}
+      </span>
       <Combobox.Value value={lastVatRow?.name} />
     </div>
   );

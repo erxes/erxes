@@ -8,6 +8,10 @@ export const types = () => `
     formulaText: String
     status: String
     percent: Float
+    tabCount: Float
+    isBold: Boolean
+    valueSide: String
+    ledgerFormulas: JSON
   }
 `;
 
@@ -19,6 +23,10 @@ const ctaxRowParams = `
   formulaText: String
   status: String
   percent: Float
+  tabCount: Float
+  isBold: Boolean
+  valueSide: String
+  ledgerFormulas: JSON
 `;
 
 const ctaxRowsQueryParams = `

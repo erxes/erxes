@@ -71,6 +71,9 @@ export const SelectCtaxList = ({
             value={ctax._id}
             onSelect={() => setSelectedCtax(ctax)}
           >
+            <span className="shrink-0 text-muted-foreground">
+              {ctax.number}
+            </span>
             <TextOverflowTooltip value={ctax.name} />
             <Combobox.Check checked={selectedCtax?._id === ctax._id} />
           </Command.Item>
@@ -118,8 +121,10 @@ export const SelectCtaxValue = ({
   }
 
   return (
-    <div className="inline-flex gap-2">
-      <span className="text-muted-foreground">{lastCtaxRow?.number}</span>
+    <div className="inline-flex min-w-0 gap-2">
+      <span className="shrink-0 text-muted-foreground">
+        {lastCtaxRow?.number}
+      </span>
       <Combobox.Value value={lastCtaxRow?.name} />
     </div>
   );
