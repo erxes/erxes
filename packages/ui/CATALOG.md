@@ -174,7 +174,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `CommandBar.{Value, Bar}` A bar floating at the page bottom with bulk actions for a selection.
 - `ContextMenu.{Trigger, Content, Item, Group, Label, …}` A menu that opens on right-click, beside the pointer.
 - `<CopyText value>` Text that copies `value` to the clipboard on click and shows "Copied!".
-- `<DateInput>` A calendar date typed in.
+- `<DateInput {...DateTimeInputProps}>` A calendar date typed in.
 - `<DatePicker {...DatePickerProps}>` A date field with a calendar popover, for one day, several or a range.
 - `Dialog.{Trigger, Close, Portal, Backdrop, Content, …}` A centered modal over a dimmed page, such as an image lightbox.
 - `<DragHandle variant>` A small grip button to drag a row or card by, for a sortable list.
@@ -206,9 +206,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<TabButton render variant active dragging split>` A tab-looking button for a strip that isn't a `Tabs` list.
 - `Table.{Header, Body, Footer, Head, Row, …}` A plain styled HTML table, for small static grids of values.
 - `Tabs.{List, Trigger, Content}` Tabs that switch between panels of one view.
-- `<Textarea variant text truncate>` A themed multi-line text box; `flat` and `ghost` drop the border.
+- `<Textarea variant text truncate onInvalid>` A themed multi-line text box; `flat` and `ghost` drop the border.
 - `TextOverflowTooltip.{Input}` Text cut with an ellipsis that shows the full value in a tooltip.
-- `<TimeField>` A time of day.
+- `<TimeField {...DateTimeInputProps}>` A time of day.
 - `<Toaster>` Draws the toasts `toast()` raises; core's web app already mounts it.
 - `<Toggle variant size>` A button that stays pressed or not, such as bold in a toolbar.
 - `ToggleGroup.{Item}` A row of toggle buttons where one or several stay pressed.
