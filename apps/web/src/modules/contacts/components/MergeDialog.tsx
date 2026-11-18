@@ -1,6 +1,7 @@
 import { IconArrowMerge } from '@tabler/icons-react';
 import { Button, cn, Dialog, Spinner } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface MergeCandidate {
   id: string;
@@ -15,18 +16,20 @@ export interface MergeCandidate {
 export const MergeDialog = ({
   open,
   onOpenChange,
-  noun,
+  kind,
   records,
   merging,
   onMerge,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  noun: string;
+  /** What is merged, which the dialog's words name. */
+  kind: 'customer' | 'company';
   records: MergeCandidate[];
   merging?: boolean;
   onMerge: (keepId: string) => void;
 }) => {
+  const { t } = useTranslation('contact');
   const [keepId, setKeepId] = useState(records[0]?.id ?? '');
   const [wasOpen, setWasOpen] = useState(open);
 
@@ -41,17 +44,11 @@ export const MergeDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-lg">
         <Dialog.Header>
-          <Dialog.Title>
-            Merge {records.length} {noun}
-          </Dialog.Title>
-          <Dialog.Description>
-            Choose the {noun.replace(/s$/, '')} to keep. Its empty fields are filled from the
-            others; emails, phones, tags and links are combined. The others are deleted, and their
-            links open the kept one.
-          </Dialog.Description>
+          <Dialog.Title>{t(`merge.title.${kind}`, { total: records.length })}</Dialog.Title>
+          <Dialog.Description>{t(`merge.description.${kind}`)}</Dialog.Description>
         </Dialog.Header>
         <fieldset className="flex min-w-0 flex-col gap-2">
-          <legend className="sr-only">The {noun.replace(/s$/, '')} to keep</legend>
+          <legend className="sr-only">{t(`merge.legend.${kind}`)}</legend>
           {records.map((record) => (
             <label
               key={record.id}
@@ -70,7 +67,9 @@ export const MergeDialog = ({
               />
               <span className="flex w-full items-center justify-between gap-2 text-sm font-medium">
                 <span className="truncate">{record.title}</span>
-                {record.id === keepId && <span className="text-xs text-primary-text">Keep</span>}
+                {record.id === keepId && (
+                  <span className="text-xs text-primary-text">{t('merge.keep', 'Keep')}</span>
+                )}
               </span>
               {record.details.filter(Boolean).map((detail) => (
                 <span key={detail} className="truncate text-xs text-muted-foreground">
@@ -82,11 +81,11 @@ export const MergeDialog = ({
         </fieldset>
         <Dialog.Footer>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={merging}>
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
           <Button onClick={() => onMerge(keepId)} disabled={!keepId || merging}>
             {merging ? <Spinner size="sm" /> : <IconArrowMerge />}
-            Merge
+            {t('merge.merge', 'Merge')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

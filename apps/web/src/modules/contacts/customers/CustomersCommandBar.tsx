@@ -43,7 +43,14 @@ const CustomersDeleteMenu = ({ ids }: { ids: string[] }) => {
         <IconRepeat />
         {t('actions')}
       </Popover.Trigger>
-      <Popover.Content variant="flush" className="min-w-70" align="end" side="top" sideOffset={10}>
+      <Popover.Content
+        variant="flush"
+        className="min-w-70"
+        align="end"
+        side="top"
+        sideOffset={10}
+        aria-label={tContact('selected-actions', 'Actions on the selected customers')}
+      >
         <Command>
           <Command.List>
             <Command.Group>
@@ -69,6 +76,7 @@ const CustomersMergeDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('contact');
   const { table } = RecordTable.useRecordTable();
   const { openRecord } = useSidePanel();
   const merge = useCustomersMerge();
@@ -77,15 +85,15 @@ const CustomersMergeDialog = ({
     <MergeDialog
       open={open}
       onOpenChange={onOpenChange}
-      noun="customers"
+      kind="customer"
       merging={merge.isPending}
       records={customers.map((customer) => ({
         id: customer.id,
-        title: customerTitle(customer) || 'Unnamed',
+        title: customerTitle(customer) || t('unnamed', 'Unnamed'),
         details: [
           customer.primaryEmail ?? '',
           customer.primaryPhone ?? '',
-          customer.state === 'lead' ? 'Lead' : '',
+          customer.state === 'lead' ? t('lead', 'Lead') : '',
         ],
       }))}
       onMerge={(keepId) =>
