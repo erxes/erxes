@@ -20,10 +20,11 @@ interface Answer {
  * A plugin's API that verifies each delivery like a plugin would and records
  * it: events at `/events`, jobs at `/jobs/<name>`, record access checks at
  * `/timelines/access`, public calls at `/public/*`. A job answers with the next status in `jobAnswers`,
- * then 204; a check allows the records in `readable`.
+ * then 204; a check allows the records in `readable`. `subjects` names each event's customer or company.
  */
 export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   const received: { type: string; payload: Record<string, unknown> }[] = [];
+  const subjects: { type: string; subjectType?: string; subjectId?: string }[] = [];
   const jobs: (PluginJobDelivery & { path: string; idempotencyKey: unknown })[] = [];
   const jobRequests: { authorization: string | undefined; raw: string }[] = [];
   const jobAnswers: number[] = [];
@@ -99,6 +100,11 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
       const event = await verifyCoreEvent(headers.authorization, raw, { coreUrl, plugin });
 
       received.push({ type: event.type, payload: event.data.payload });
+      subjects.push({
+        type: event.type,
+        subjectType: event.data.subjectType ?? undefined,
+        subjectId: event.data.subjectId ?? undefined,
+      });
 
       return { status: 204 };
     } catch (error) {
@@ -130,6 +136,7 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   return {
     url: `http://127.0.0.1:${address.port}`,
     received,
+    subjects,
     jobs,
     jobRequests,
     jobAnswers,
