@@ -1,6 +1,7 @@
 import { IconAlignLeft, IconPhoto, IconUserCircle } from '@tabler/icons-react';
 import { Editor, Form, SelectMember, useToast, PanelFormLayout, PanelFormRow } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   type FieldValues,
   type SubmitHandler,
@@ -125,9 +126,18 @@ export const ContactOwnerRow = ({ label }: { label: string }) => {
  * A new contact's description: editor JSON, held to the contract's limit, so Save
  * stops it here instead of sending what the server refuses.
  */
-export const contactDescription = z
-  .string()
-  .max(DESCRIPTION_MAX, 'The description is too long. Shorten it to save.');
+export const useContactDescription = () => {
+  const { t } = useTranslation('contact');
+
+  return z
+    .string()
+    .max(
+      DESCRIPTION_MAX,
+      t('description-too-long', 'The description is too long. Shorten it to save.'),
+    );
+};
+
+export type ContactDescription = ReturnType<typeof useContactDescription>;
 
 /** The description editor under a new contact's rows, with its error. */
 export const ContactDescriptionRow = ({ label, scope }: { label: string; scope: string }) => {

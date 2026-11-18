@@ -2,6 +2,7 @@
   "customers": "Customers",
   "companies": "Companies",
   "leads": "Leads",
+  "description-too-long": "The description is too long. Shorten it to save.",
   "customer": {
     "_": "Customer",
     "add": {

@@ -155,6 +155,8 @@ export { RelativeDateDisplay } from './modules/display/components/RelativeDateDi
 
 export { SexDisplay } from './modules/display/components/SexDisplay';
 
+export { useSexLabels } from './constants/SexCodes';
+
 export { Filter } from './modules/filter/components/Filter';
 
 export { useFilterContext } from './modules/filter/hooks/useFilterContext';
