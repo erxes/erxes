@@ -42,7 +42,7 @@ const findByContact = async (client: Db, email: string | null, phone: string | n
 /**
  * The customer with this email or phone (also among their other emails and
  * phones), or a new one. Calls for the same email or phone run one at a time,
- * so two at once never make two customers.
+ * so two at once never make two customers. With only a name it creates one.
  */
 export const findOrCreateCustomer = async (client: Db, input: Contact) => {
   const email = input.primaryEmail ? normalizeEmail(input.primaryEmail) : null;
@@ -56,7 +56,8 @@ export const findOrCreateCustomer = async (client: Db, input: Contact) => {
     ...(phone ? [`customer:${orgId}:phone:${phone}`] : []),
   ]);
 
-  const found = await findByContact(client, email, phone);
+  // A name alone matches nobody: names repeat, so it always makes a new customer.
+  const found = email || phone ? await findByContact(client, email, phone) : undefined;
 
   if (found)
     return {

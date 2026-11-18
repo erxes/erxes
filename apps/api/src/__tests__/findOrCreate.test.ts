@@ -36,7 +36,32 @@ describe('customers for plugins (find or create)', () => {
     const audit = await t.owner().audit.list({ targetId: id, action: 'customer.created' });
 
     expect(audit.data[0]).toMatchObject({ actorType: 'plugin', actorId: 'hr', source: 'hr' });
-    await expect(hr.customers.findOrCreate({})).rejects.toMatchObject({ status: 400 });
+  });
+
+  it('creates a customer known only by name each time, as create does', async () => {
+    const hr = t.hr();
+
+    const first = await hr.customers.findOrCreate({ firstName: 'Walk-in', lastName: 'Guest' });
+    const second = await hr.customers.findOrCreate({ firstName: 'Walk-in', lastName: 'Guest' });
+
+    expect(first).toMatchObject({
+      created: true,
+      customer: { firstName: 'Walk-in', primaryEmail: null, primaryPhone: null },
+    });
+    expect(second.created).toBe(true);
+    expect(second.customer.id).not.toBe(first.customer.id);
+  });
+
+  it('refuses a call with nothing to find or name, naming the fields it needs', async () => {
+    await expect(t.hr().customers.findOrCreate({ firstName: '  ' })).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_INPUT',
+      data: {
+        issues: [
+          { path: [], message: 'firstName, lastName, primaryEmail or primaryPhone is required' },
+        ],
+      },
+    });
   });
 
   it('needs the customers scopes', async () => {

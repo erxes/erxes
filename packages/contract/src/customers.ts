@@ -226,7 +226,7 @@ export const customersContract = {
       method: 'POST',
       path: '/customers/find-or-create',
       summary:
-        'The customer with this email or phone, or a new one (members with contacts.create; plugins with customers:write). Safe to call twice at once',
+        'The customer with this email or phone, or a new one (members with contacts.create; plugins with customers:write). Safe to call twice at once. With only a name there is nothing to match, so it always creates one',
     })
     .input(
       z
@@ -241,8 +241,9 @@ export const customersContract = {
           sourceDetails: CustomerFields.shape.sourceDetails,
         })
         .refine(
-          (value) => Boolean(value.primaryEmail || value.primaryPhone),
-          'an email or a phone is required',
+          (value) =>
+            Boolean(value.primaryEmail || value.primaryPhone || value.firstName || value.lastName),
+          'firstName, lastName, primaryEmail or primaryPhone is required',
         ),
     )
     .output(z.object({ customer: Customer, created: z.boolean() })),
