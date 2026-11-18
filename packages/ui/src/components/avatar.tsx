@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Avatar as AvatarPrimitive } from '@base-ui/react/avatar';
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
 
@@ -34,42 +33,61 @@ const avatarVariants = cva('relative flex shrink-0 overflow-hidden border-0', {
   },
 });
 
-/** Base UI avatar props plus `corners`, `ring` and `size`. */
-export type AvatarProps = React.ComponentProps<typeof AvatarPrimitive.Root> &
-  VariantProps<typeof avatarVariants>;
+/** A `span`'s props plus `corners`, `ring` and `size`. */
+export type AvatarProps = React.ComponentProps<'span'> & VariantProps<typeof avatarVariants>;
 
 const AvatarRoot = ({ className, corners, ring, size, ...props }: AvatarProps) => (
-  <AvatarPrimitive.Root
-    className={cn(avatarVariants({ corners, ring, size }), className)}
+  <span
+    className={cn('group/avatar', avatarVariants({ corners, ring, size }), className)}
     {...props}
   />
 );
 
+// The picture shows once the browser has loaded it, and the initials until then or when it
+// fails. Only the img's own load and error events change that, once per address, and the
+// initials hide by CSS, so drawing many avatars at once can't start a chain of renders.
+// Without `alt` the picture is decorative: the name is beside it.
 const AvatarImage = ({
   className,
+  src,
+  alt = '',
+  onLoad,
+  onError,
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) => (
-  <AvatarPrimitive.Image
-    className={cn('aspect-square h-full w-full object-cover', className)}
-    {...props}
-  />
-);
+}: React.ComponentProps<'img'>) => {
+  const [loadedSrc, setLoadedSrc] = React.useState<string>();
+  const loaded = Boolean(src) && loadedSrc === src;
 
-const AvatarFallback = ({
-  className,
-  style,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) => {
+  if (!src) return null;
+
   return (
-    <AvatarPrimitive.Fallback
-      className={cn(
-        'flex h-full w-full items-center justify-center uppercase bg-muted text-muted-foreground',
-        className,
-      )}
+    <img
+      src={src}
+      alt={alt}
+      data-loaded={loaded ? '' : undefined}
+      onLoad={(event) => {
+        setLoadedSrc(src);
+        onLoad?.(event);
+      }}
+      onError={(event) => {
+        setLoadedSrc(undefined);
+        onError?.(event);
+      }}
+      className={cn('aspect-square h-full w-full object-cover', className, !loaded && 'hidden')}
       {...props}
     />
   );
 };
+
+const AvatarFallback = ({ className, ...props }: React.ComponentProps<'span'>) => (
+  <span
+    className={cn(
+      'flex h-full w-full items-center justify-center uppercase bg-muted text-muted-foreground group-has-data-loaded/avatar:hidden',
+      className,
+    )}
+    {...props}
+  />
+);
 
 /** A person's picture, round or square, falling back to their initials. */
 export const Avatar = Object.assign(AvatarRoot, {

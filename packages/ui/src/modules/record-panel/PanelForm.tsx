@@ -37,15 +37,20 @@ export const PanelFormRow = ({
   htmlFor?: string;
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'form' });
   const labelId = useId();
   const messageId = useId();
+  const requiredNoteId = useId();
   const LabelTag = htmlFor ? 'label' : 'span';
 
   const field = {
-    'aria-labelledby': labelId,
-    'aria-describedby': error || hint ? messageId : undefined,
-    'aria-invalid': error ? true : undefined,
-    'aria-required': required ? true : undefined,
+    control: {
+      'aria-labelledby': labelId,
+      'aria-describedby': error || hint ? messageId : undefined,
+      'aria-invalid': error ? true : undefined,
+      'aria-required': required ? true : undefined,
+    },
+    requiredNoteId: required ? requiredNoteId : undefined,
   };
 
   return (
@@ -76,6 +81,12 @@ export const PanelFormRow = ({
           <FieldControlContext value={field}>{children}</FieldControlContext>
         </RecordTableInlineCell.LabelledBy>
       </div>
+      {/* Read in a picker button's description, since a button can't be marked required. */}
+      {required && (
+        <span id={requiredNoteId} hidden>
+          {t('required', 'Required')}
+        </span>
+      )}
       {error ? (
         <span id={messageId} role="alert" className="col-start-2 text-xs text-destructive">
           {error}

@@ -99,6 +99,64 @@ describe('ContactLink', () => {
 
     expect(container.querySelector('button')?.textContent).toContain('Company not found');
   });
+
+  it('draws a hundred links whose customers arrive a few at a time', async () => {
+    // Each answer lands in its own task, as a slow network delivers them.
+    const arriving: ContactQueries = {
+      ...contacts,
+      customer: (id) => ({
+        queryKey: ['customer', id],
+        queryFn: () =>
+          new Promise((resolve) => {
+            setTimeout(
+              () =>
+                resolve({
+                  id,
+                  firstName: `Customer ${id}`,
+                  middleName: null,
+                  lastName: null,
+                  primaryEmail: null,
+                  primaryPhone: null,
+                  avatarUrl: null,
+                }),
+              Number(id) % 7,
+            );
+          }),
+      }),
+    };
+
+    const crashes: unknown[] = [];
+    const container = document.createElement('div');
+
+    document.body.append(container);
+    root = createRoot(container, { onUncaughtError: (error) => crashes.push(error) });
+
+    const links = Array.from({ length: 100 }, (_, index) =>
+      createElement(ContactLink, {
+        key: index,
+        contentType: 'core:customer',
+        contentId: String(index),
+        contacts: arriving,
+      }),
+    );
+
+    await act(async () => {
+      root?.render(
+        createElement(
+          QueryClientProvider,
+          { client: new QueryClient() },
+          inHost(() => undefined, links),
+        ),
+      );
+    });
+
+    await vi.waitFor(() => {
+      expect(crashes).toEqual([]);
+      expect(container.querySelectorAll('button')).toHaveLength(100);
+    });
+
+    expect(container.querySelector('button')?.textContent).toContain('Customer 0');
+  });
 });
 
 const members: MemberQueries = {

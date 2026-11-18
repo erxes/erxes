@@ -149,7 +149,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `Alert.{Title, Description}` An inline notice: icon, title and text, plain, warning or destructive.
 - `AlertDialog.{Action, Cancel, Content, Description, Footer, …}` A modal that asks the member to confirm or cancel one action.
 - `Avatar.{Image, Fallback}` A person's picture, round or square, falling back to their initials.
-- `type AvatarProps` Base UI avatar props plus `corners`, `ring` and `size`.
+- `type AvatarProps` A `span`'s props plus `corners`, `ring` and `size`.
 - `<BackgroundGradientAnimation containerClassName>` Slowly moving colour blobs behind `children`, as a backdrop.
 - `<Badge variant size onClose>` A small tinted label for a status, tag or count; `onClose` adds an x.
 - `type BadgeProps { onClose }` Div props plus `variant`, `size` and `onClose`, which adds a remove x.

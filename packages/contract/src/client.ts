@@ -2,6 +2,7 @@ import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient, ORPCErrorFromErrorMap } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { createTanstackQueryUtils } from '@orpc/tanstack-query';
+import DataLoader from 'dataloader';
 import type { ERRORS, ErrorCode } from './errors';
 import type { coreContract } from './index';
 import { coreRoutes } from './routes';
@@ -48,13 +49,60 @@ export const memberQueries = {
 };
 
 /**
+ * Reads records by id with one list request for all the ids asked for in the same task, up to
+ * 100. An id the list doesn't return (merged into another record, or gone) is read on its own,
+ * so it resolves or fails as `get` does. React Query caches the rows, so the loader doesn't.
+ */
+const loaderById = <Row extends { id: string }>(
+  list: (ids: string) => Promise<{ data: Row[] }>,
+  get: (id: string) => Promise<Row>,
+) =>
+  new DataLoader<string, Row>(
+    async (ids) => {
+      const { data } = await list(ids.join(','));
+      const found = new Map(data.map((row) => [row.id, row]));
+
+      // An Error in the list fails that id's lookup only.
+      return Promise.all(
+        ids.map(async (id) => {
+          const row = found.get(id);
+
+          if (row) return row;
+
+          return get(id).catch((error: unknown) =>
+            error instanceof Error ? error : new Error(String(error)),
+          );
+        }),
+      );
+    },
+    { cache: false, maxBatchSize: 100 },
+  );
+
+const customerLoader = loaderById(
+  (ids) => client.customers.list({ ids, limit: 100 }),
+  (id) => client.customers.get({ id }),
+);
+
+const companyLoader = loaderById(
+  (ids) => client.companies.list({ ids, limit: 100 }),
+  (id) => client.companies.get({ id }),
+);
+
+/**
  * Where erxes-ui's `ContactLink` reads a customer or company:
  * `<ContactLink contentType="core:customer" contentId={id} contacts={contactQueries} />`.
- * It is the query web's panel reads, so a name edited there shows in every link.
+ * Each is cached under the query web's panel reads, so a name edited there shows in every
+ * link, while the links on one page load together in one request.
  */
 export const contactQueries = {
-  customer: (id: string) => orpc.customers.get.queryOptions({ input: { id }, staleTime: 60_000 }),
-  company: (id: string) => orpc.companies.get.queryOptions({ input: { id }, staleTime: 60_000 }),
+  customer: (id: string) => ({
+    ...orpc.customers.get.queryOptions({ input: { id }, staleTime: 60_000 }),
+    queryFn: () => customerLoader.load(id),
+  }),
+  company: (id: string) => ({
+    ...orpc.companies.get.queryOptions({ input: { id }, staleTime: 60_000 }),
+    queryFn: () => companyLoader.load(id),
+  }),
 };
 
 /**
