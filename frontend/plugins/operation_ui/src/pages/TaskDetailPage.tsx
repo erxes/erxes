@@ -9,10 +9,7 @@ import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { TaskPanelActions } from '~/widgets/record-panel/TaskPanelActions';
-import {
-  TaskPanelActivity,
-  TaskPanelTitle,
-} from '~/widgets/record-panel/RecordPanel';
+import { TaskPanelActivity } from '~/widgets/record-panel/RecordPanel';
 import {
   TaskPageDescription,
   TaskPageFields,
@@ -97,7 +94,7 @@ export const TaskDetailPage = () => {
       }}
       breadcrumb={<TaskPageBreadcrumb />}
       actions={<TaskPanelActions taskId={taskId} />}
-      title={<TaskPanelTitle taskId={taskId} />}
+      title={t('task-details')}
       fields={<TaskPageFields taskId={taskId} />}
       description={<TaskPageDescription taskId={taskId} />}
       activity={<TaskPanelActivity taskId={taskId} />}

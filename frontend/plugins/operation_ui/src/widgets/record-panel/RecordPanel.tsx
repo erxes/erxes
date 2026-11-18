@@ -6,15 +6,13 @@ import { isRecord } from '@/operation/utils/isRecord';
 import { TASK_CONTENT_TYPE } from '@/task/constants';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useTaskCustomFieldEdit } from '@/task/hooks/useTaskCustomFieldEdit';
-import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { ScrollArea, Skeleton, TextField } from 'erxes-ui';
+import { ScrollArea, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { IRecordPanelProps } from 'ui-modules';
 import { TaskPanelActions } from './TaskPanelActions';
 import { TaskPanelDetail } from './TaskPanelDetail';
 import { TRIAGE_CONTENT_TYPE } from '@/triage/constants';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
-import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useTriageCustomFieldEdit } from '@/triage/hooks/useTriageCustomFieldEdit';
 import { TriagePanelActions } from './TriagePanelActions';
 import { TriagePanelDetail } from './TriagePanelDetail';
@@ -24,34 +22,6 @@ import { TaskConnectionPanel } from '../contact/TaskConnectionPanel';
 import { TASK_CONNECTION_CONTENT_TYPE } from '../contact/taskContactConnection';
 import { PROJECT_CONTENT_TYPE } from '@/project/constants/contentType';
 import { ProjectPanel } from './ProjectPanel';
-
-const TITLE_FIELD_CLASS_NAME = 'rounded-sm px-1 font-medium shadow-none';
-
-export const TaskPanelTitle = ({ taskId }: { taskId: string }) => {
-  const { t } = useTranslation('operation');
-  const { task, loading } = useGetTask(taskId);
-  const { updateTask } = useUpdateTask();
-
-  if (loading && !task) {
-    return <Skeleton className="h-4 w-32" />;
-  }
-
-  if (!task) {
-    return t('untitled', 'Untitled');
-  }
-
-  return (
-    <TextField
-      scope={`side-panel-task.${taskId}.name`}
-      value={task.name || ''}
-      placeholder={t('task-name')}
-      className={TITLE_FIELD_CLASS_NAME}
-      onSave={(name) =>
-        name.trim() && updateTask({ variables: { _id: taskId, name } })
-      }
-    />
-  );
-};
 
 const TaskPanelProperties = ({ taskId }: { taskId: string }) => {
   const { task } = useGetTask(taskId);
@@ -67,33 +37,6 @@ const TaskPanelProperties = ({ taskId }: { taskId: string }) => {
         mutateHook={useTaskCustomFieldEdit}
       />
     </ScrollArea>
-  );
-};
-
-const TriagePanelTitle = ({ triageId }: { triageId: string }) => {
-  const { t } = useTranslation('operation');
-  const { triage, loading } = useGetTriage(triageId);
-  const { updateTriage } = useUpdateTriage();
-
-  if (loading && !triage) {
-    return <Skeleton className="h-4 w-32" />;
-  }
-
-  if (!triage) {
-    return t('untitled', 'Untitled');
-  }
-
-  return (
-    <TextField
-      scope={`side-panel-triage.${triageId}.name`}
-      value={triage.name || ''}
-      placeholder={t('triage-name')}
-      className={TITLE_FIELD_CLASS_NAME}
-      onSave={(name) =>
-        name.trim() &&
-        updateTriage({ variables: { _id: triageId, input: { name } } })
-      }
-    />
   );
 };
 
@@ -141,10 +84,6 @@ const TriagePanel = ({
     return <TriagePanelNew />;
   }
 
-  if (view === 'title') {
-    return <TriagePanelTitle triageId={triageId} />;
-  }
-
   if (view === 'actions') {
     return <TriagePanelActions triageId={triageId} />;
   }
@@ -187,8 +126,6 @@ const TaskPanel = ({
   switch (view) {
     case 'new':
       return <TaskPanelNew />;
-    case 'title':
-      return <TaskPanelTitle taskId={taskId} />;
     case 'actions':
       return <TaskPanelActions taskId={taskId} />;
     case 'properties':
@@ -216,6 +153,7 @@ export const RecordPanel = ({
       if (view === 'title') return t('connect-task', 'Connect task');
       return view === 'new' ? <TaskConnectionPanel /> : null;
     case TRIAGE_CONTENT_TYPE:
+      if (view === 'title') return t('triage-details');
       return <TriagePanel triageId={contentId} view={view} />;
     case PROJECT_CONTENT_TYPE:
       return (
@@ -226,6 +164,7 @@ export const RecordPanel = ({
         />
       );
     case TASK_CONTENT_TYPE:
+      if (view === 'title') return t('task-details');
       return <TaskPanel taskId={contentId} view={view} />;
     default:
       return null;

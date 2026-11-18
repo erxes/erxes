@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { type ReactNode, useRef, useState } from 'react';
 import { PanelField, SelectMember, TagsSelect } from 'ui-modules';
 import { RecordDescriptionField } from './RecordDescriptionField';
+import { RecordNameField } from './RecordNameField';
 
 const ProjectFields = ({ project }: { project: IProjectDetail }) => {
   const { t } = useTranslation('operation');
@@ -49,6 +50,12 @@ const ProjectFields = ({ project }: { project: IProjectDetail }) => {
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
+      <RecordNameField
+        scope={`${scope}.name`}
+        value={project.name}
+        placeholder={t('project-name')}
+        onSave={(name) => updateProject({ variables: { _id, name } })}
+      />
       <PanelField icon={IconPhoto} label={t('icon')} cell={false}>
         <IconPicker
           value={project.icon ?? undefined}
