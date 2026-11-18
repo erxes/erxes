@@ -18,8 +18,68 @@ import {
 } from '~/widgets/record-panel/DealPanelCells';
 import { toSingle } from '~/widgets/record-panel/useDealListField';
 
-export const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
+export const DealBrokerFields = ({
+  type,
+  id,
+  onTypeChange,
+  onIdChange,
+}: {
+  type: string;
+  id: string;
+  onTypeChange: (value: string) => void;
+  onIdChange: (value: string) => void;
+}) => {
   const { t } = useTranslation('sales');
+  const setBrokerId = (value: string | string[]) => onIdChange(toSingle(value));
+  const placeholder = t('select-broker');
+
+  return (
+    <>
+      <PanelField icon={IconBriefcase} label={t('broker')}>
+        <DealPanelOptionCell
+          value={type || '_none'}
+          options={[
+            { value: '_none', label: t('none') },
+            { value: 'customer', label: t('customer') },
+            { value: 'company', label: t('company') },
+            { value: 'user', label: t('user') },
+          ]}
+          onValueChange={onTypeChange}
+        />
+      </PanelField>
+      {type === 'customer' && (
+        <PanelField icon={IconUsers} label={t('customer')}>
+          <DealPanelCustomerCell
+            value={id}
+            placeholder={placeholder}
+            onValueChange={setBrokerId}
+          />
+        </PanelField>
+      )}
+      {type === 'company' && (
+        <PanelField icon={IconBuilding} label={t('company')}>
+          <DealPanelCompanyCell
+            value={id}
+            placeholder={placeholder}
+            onValueChange={setBrokerId}
+          />
+        </PanelField>
+      )}
+      {type === 'user' && (
+        <PanelField icon={IconUser} label={t('user')}>
+          <DealPanelMemberCell
+            mode="single"
+            value={id}
+            placeholder={placeholder}
+            onValueChange={setBrokerId}
+          />
+        </PanelField>
+      )}
+    </>
+  );
+};
+
+export const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
   const { editDeals } = useDealsEdit();
   const broker = useDealBroker({
     deal,
@@ -34,52 +94,13 @@ export const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
         }),
       ),
   });
-  const setBrokerId = (value: string | string[]) =>
-    broker.setId(toSingle(value));
-  const placeholder = t('select-broker');
 
   return (
-    <>
-      <PanelField icon={IconBriefcase} label={t('broker')}>
-        <DealPanelOptionCell
-          value={broker.type || '_none'}
-          options={[
-            { value: '_none', label: t('none') },
-            { value: 'customer', label: t('customer') },
-            { value: 'company', label: t('company') },
-            { value: 'user', label: t('user') },
-          ]}
-          onValueChange={broker.setType}
-        />
-      </PanelField>
-      {broker.type === 'customer' && (
-        <PanelField icon={IconUsers} label={t('customer')}>
-          <DealPanelCustomerCell
-            value={broker.id}
-            placeholder={placeholder}
-            onValueChange={setBrokerId}
-          />
-        </PanelField>
-      )}
-      {broker.type === 'company' && (
-        <PanelField icon={IconBuilding} label={t('company')}>
-          <DealPanelCompanyCell
-            value={broker.id}
-            placeholder={placeholder}
-            onValueChange={setBrokerId}
-          />
-        </PanelField>
-      )}
-      {broker.type === 'user' && (
-        <PanelField icon={IconUser} label={t('user')}>
-          <DealPanelMemberCell
-            mode="single"
-            value={broker.id}
-            placeholder={placeholder}
-            onValueChange={setBrokerId}
-          />
-        </PanelField>
-      )}
-    </>
+    <DealBrokerFields
+      type={broker.type}
+      id={broker.id}
+      onTypeChange={broker.setType}
+      onIdChange={broker.setId}
+    />
   );
 };

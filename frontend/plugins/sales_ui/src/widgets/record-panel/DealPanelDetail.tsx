@@ -55,18 +55,25 @@ import {
 
 export const DEAL_PANEL_SCOPE = 'side-panel-deal';
 
-const DealPanelTags = ({ deal }: { deal: IDealDetail }) => {
+export const DealTagsSection = ({
+  value,
+  scope,
+  onValueChange,
+}: {
+  value: string[];
+  scope: string;
+  onValueChange: (value: string[]) => void;
+}) => {
   const { t } = useTranslation('sales');
-  const tags = useDealListField(deal, 'tagIds');
 
   return (
     <DealDetailSection title={t('tags')}>
       <TagsSelect.Provider
         type="sales:deal"
         mode="multiple"
-        scope={`${DEAL_PANEL_SCOPE}.tags`}
-        value={tags.value}
-        onValueChange={(value) => tags.setValue(toList(value))}
+        scope={scope}
+        value={value}
+        onValueChange={(next) => onValueChange(toList(next))}
       >
         <RecordTableInlineCell.Trigger
           className="rounded-sm"
@@ -76,7 +83,7 @@ const DealPanelTags = ({ deal }: { deal: IDealDetail }) => {
             maxVisible={3}
             className="min-w-0 overflow-hidden"
           />
-          {!tags.value.length && (
+          {!value.length && (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <IconPlus className="size-3.5" aria-hidden="true" />
               {t('add-tags')}
@@ -88,6 +95,18 @@ const DealPanelTags = ({ deal }: { deal: IDealDetail }) => {
         </RecordTableInlineCell.Content>
       </TagsSelect.Provider>
     </DealDetailSection>
+  );
+};
+
+const DealPanelTags = ({ deal }: { deal: IDealDetail }) => {
+  const tags = useDealListField(deal, 'tagIds');
+
+  return (
+    <DealTagsSection
+      value={tags.value}
+      scope={`${DEAL_PANEL_SCOPE}.tags`}
+      onValueChange={tags.setValue}
+    />
   );
 };
 

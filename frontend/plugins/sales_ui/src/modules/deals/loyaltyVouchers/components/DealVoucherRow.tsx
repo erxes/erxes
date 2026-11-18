@@ -52,7 +52,7 @@ export const DealVoucherRow = ({ deal }: { deal: IDealDetail }) => {
 
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-center gap-1.5 rounded-md border px-2 py-1.5 text-xs">
+      <div className="mb-3 flex shrink-0 flex-wrap items-center gap-1.5 rounded-md border px-2 py-1.5 text-xs">
         {loading && <Spinner size="sm" />}
         {error && (
           <span role="alert" className="text-destructive">

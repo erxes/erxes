@@ -167,6 +167,7 @@ export const DateSelectDealRoot = ({
   variant = DateSelectVariant.TABLE,
   placeholder,
   label,
+  onValueChange,
 }: {
   value?: Date | string | null;
   id?: string;
@@ -175,6 +176,7 @@ export const DateSelectDealRoot = ({
   variant?: `${DateSelectVariant}`;
   placeholder?: string;
   label?: string;
+  onValueChange?: (value?: Date) => void;
 }) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
@@ -186,6 +188,11 @@ export const DateSelectDealRoot = ({
     resetKey: id,
     isEqual: areDatesEqual,
     onCommit: (nextValue) => {
+      if (onValueChange) {
+        onValueChange(nextValue);
+        return;
+      }
+
       if (!id) {
         return;
       }

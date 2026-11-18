@@ -331,7 +331,7 @@ export const ProductsList = ({
 
   return (
     <ProductListHandlersContext.Provider value={listHandlers}>
-      <div ref={containerRef} className="flex h-full min-h-0 flex-col">
+      <div ref={containerRef} className="flex min-h-0 flex-1 flex-col">
         {showExpandedView ? (
           <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
             <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">

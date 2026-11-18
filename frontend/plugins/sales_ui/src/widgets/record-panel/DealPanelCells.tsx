@@ -1,4 +1,9 @@
 import {
+  SelectLabels,
+  SelectLabelsContent,
+  SelectLabelsValue,
+} from '@/deals/components/common/filters/SelectLabel';
+import {
   Icon,
   IconBriefcase,
   IconBuildingSkyscraper,
@@ -9,11 +14,13 @@ import { Combobox, Command, Popover, RecordTableInlineCell } from 'erxes-ui';
 import { useState } from 'react';
 import {
   PanelFieldTrigger,
+  SelectBoard,
   SelectBranches,
   SelectCompany,
   SelectCustomer,
   SelectDepartments,
   SelectMember,
+  SelectPipeline,
   SelectStage,
 } from 'ui-modules';
 
@@ -155,6 +162,99 @@ export const DealPanelStageCell = ({
         <SelectStage.Content />
       </PanelPopoverCell>
     </SelectStage.Provider>
+  );
+};
+
+export const DealPanelBoardCell = ({
+  value,
+  onValueChange,
+  placeholder,
+}: TCellProps & { placeholder?: string }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectBoard.Provider
+      mode="single"
+      value={value}
+      onValueChange={(next) => {
+        onValueChange(next);
+        setOpen(false);
+      }}
+    >
+      <PanelPopoverCell
+        open={open}
+        onOpenChange={setOpen}
+        value={<SelectBoard.Value placeholder={placeholder} />}
+      >
+        <SelectBoard.Content />
+      </PanelPopoverCell>
+    </SelectBoard.Provider>
+  );
+};
+
+export const DealPanelPipelineCell = ({
+  value,
+  boardId,
+  onValueChange,
+  placeholder,
+}: TCellProps & { boardId?: string; placeholder?: string }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectPipeline.Provider
+      mode="single"
+      boardId={boardId}
+      value={value}
+      onValueChange={(next) => {
+        onValueChange(next);
+        setOpen(false);
+      }}
+    >
+      <PanelPopoverCell
+        open={open}
+        onOpenChange={setOpen}
+        value={<SelectPipeline.Value placeholder={placeholder} />}
+      >
+        <SelectPipeline.Content />
+      </PanelPopoverCell>
+    </SelectPipeline.Provider>
+  );
+};
+
+export const DealPanelLabelsCell = ({
+  value,
+  pipelineId,
+  onValueChange,
+}: {
+  value: string[];
+  pipelineId?: string;
+  onValueChange: (value: string[]) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectLabels
+      mode="multiple"
+      pipelineId={pipelineId}
+      value={value}
+      onValueChange={(next) =>
+        onValueChange(
+          (Array.isArray(next) ? next : [next]).filter(
+            (id): id is string => !!id,
+          ),
+        )
+      }
+    >
+      <div className="[&_.-ml-1]:ml-0!">
+        <PanelPopoverCell
+          open={open}
+          onOpenChange={setOpen}
+          value={<SelectLabelsValue showLabels />}
+        >
+          <SelectLabelsContent />
+        </PanelPopoverCell>
+      </div>
+    </SelectLabels>
   );
 };
 

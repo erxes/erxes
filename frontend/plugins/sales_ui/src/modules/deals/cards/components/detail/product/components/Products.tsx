@@ -38,7 +38,7 @@ export const Products = ({
         <Tabs.Content
           value="product"
           forceMount
-          className="mt-4 min-h-0 flex-1 data-[state=inactive]:hidden"
+          className="mt-4 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden"
         >
           <DealVoucherRow deal={deal} />
           <ProductsList
