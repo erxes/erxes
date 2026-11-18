@@ -44,7 +44,6 @@ const en = {
     team: 'Only you so far. Invite your team from Settings.',
   },
   error: 'This could not be loaded.',
-  role: { owner: 'Owner', admin: 'Admin', member: 'Member' },
   status: { invited: 'Invited', disabled: 'Disabled' },
 };
 
@@ -83,7 +82,6 @@ const mn: typeof en = {
     team: 'Одоогоор зөвхөн та байна. Тохиргооноос багаа урина уу.',
   },
   error: 'Ачаалж чадсангүй.',
-  role: { owner: 'Эзэмшигч', admin: 'Админ', member: 'Гишүүн' },
   status: { invited: 'Уригдсан', disabled: 'Идэвхгүй' },
 };
 

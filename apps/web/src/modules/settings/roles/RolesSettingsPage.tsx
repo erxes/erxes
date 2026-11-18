@@ -10,7 +10,7 @@ import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { RoleEditor } from './RoleEditor';
-import { rolesQuery } from './useRoles';
+import { rolesQuery, useRoleText } from './useRoles';
 
 const RoleList = ({
   roles,
@@ -22,6 +22,7 @@ const RoleList = ({
   onSelect: (key: string) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
+  const roleText = useRoleText();
 
   return (
     <div className="flex w-64 shrink-0 border-r">
@@ -38,7 +39,7 @@ const RoleList = ({
                 item.key === selected && 'bg-muted font-medium',
               )}
             >
-              <span className="flex-1 truncate">{item.name}</span>
+              <span className="flex-1 truncate">{roleText(item).name}</span>
               {!item.editable && (
                 <IconLock
                   className="size-3.5 shrink-0 text-muted-foreground"

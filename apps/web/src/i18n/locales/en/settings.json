@@ -1018,7 +1018,15 @@
     "collapse-all": "Collapse all",
     "select-all-in": "All of {{name}}",
     "no-match": "No permissions match",
-    "no-match-description": "Try another word or show all."
+    "no-match-description": "Try another word or show all.",
+    "builtin": {
+      "owner": {
+        "name": "Owner",
+        "description": "Everything, including plugins and the audit log's retention"
+      },
+      "admin": { "name": "Admin", "description": "Everything except owner-only actions" },
+      "member": { "name": "Member", "description": "Works with contacts and tags" }
+    }
   },
   "general": {
     "title": "General",
