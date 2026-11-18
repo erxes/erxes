@@ -5,6 +5,7 @@ import { createApp } from '~/app';
 import { config } from '~/config';
 import { startDraining } from '~/lib/lifecycle';
 import { loadSigningKeys } from '~/lib/signing';
+import { closeAgents } from '~/modules/agents/host';
 import { startJobs, stopJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
 import { liveHub } from '~/modules/live/hub';
@@ -74,7 +75,7 @@ const start = async () => {
 
     forced.unref();
     server.close(() => {
-      Promise.all([stopJobs(), liveHub.stop()])
+      Promise.all([stopJobs(), closeAgents(), liveHub.stop()])
         .then(() => Promise.all([closeDb(), stopTracing()]))
         .then(() => log.info('stopped'))
         .catch((error: unknown) => {
