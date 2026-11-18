@@ -1,12 +1,9 @@
-import type { AssistantArtifact } from '@erxes/core-contract';
-import { getToolName, isTextUIPart, isToolUIPart, type UIMessage } from 'ai';
+import type { AssistantArtifact, AssistantMessagePart } from '@erxes/core-contract';
 import { fileDownloadUrl } from '~/lib/files';
 import { csvRows } from './artifacts/csvRows';
 import { sizeLabel, typeLabel } from './attachments';
 import { attachmentsOf } from './MessageAttachments';
-import { answeredQuestions, artifactOf } from './transcriptRows';
-
-type Part = UIMessage['parts'][number];
+import { type TranscriptMessage, type TranscriptRow, userText } from './transcriptRows';
 
 const cell = (text: string) => text.replaceAll('|', '\\|').replaceAll('\n', ' ');
 
@@ -30,50 +27,36 @@ const artifactBlock = (artifact: AssistantArtifact) => {
   return `### ${artifact.title}\n\n${content}`;
 };
 
-const attachmentLines = (message: UIMessage, origin: string) => {
-  const { files, selections } = attachmentsOf(message);
+const userBlocks = (parts: AssistantMessagePart[], origin: string) => {
+  const text = userText(parts);
+  const { files, selections } = attachmentsOf(parts);
 
-  return [
+  const attachments = [
     ...files.map(
       (file) =>
         `- [${file.name}](${origin}${fileDownloadUrl(file.id)}) (${typeLabel(file)} · ${sizeLabel(file.size)})`,
     ),
     ...selections.map((selection) => `- Page selection: ${selection.title} (${selection.path})`),
   ];
+
+  return [...(text ? [text] : []), ...(attachments.length ? [attachments.join('\n')] : [])];
 };
 
-const blockOf = (part: Part) => {
-  if (isTextUIPart(part)) return part.text.trim() ? [part.text.trim()] : [];
+const replyBlocks = (rows: TranscriptRow[]) =>
+  rows.flatMap((row) => {
+    if (row.kind === 'text') return [row.text.trim()];
 
-  if (isToolUIPart(part) && getToolName(part) === 'createArtifact') {
-    const artifact = artifactOf(part);
+    return row.kind === 'artifact' ? [artifactBlock(row.artifact)] : [];
+  });
 
-    return artifact ? [artifactBlock(artifact)] : [];
-  }
-
-  const answers = answeredQuestions(part);
-
-  return answers
-    ? [answers.map(({ question, answer }) => `> ${question}\n> ${answer}`).join('\n>\n')]
-    : [];
-};
-
-const blocksOf = (message: UIMessage, origin: string) => {
-  const attachments = attachmentLines(message, origin);
-
-  return [
-    ...message.parts.flatMap(blockOf),
-    ...(attachments.length ? [attachments.join('\n')] : []),
-  ];
-};
-
-export const threadMarkdown = (title: string, messages: UIMessage[], origin: string) =>
+export const threadMarkdown = (title: string, messages: TranscriptMessage[], origin: string) =>
   [
     `# ${title}`,
-    ...messages.flatMap((message) => [
-      `## ${message.role === 'user' ? 'You' : 'Assistant'}`,
-      ...blocksOf(message, origin),
-    ]),
+    ...messages.flatMap((message) =>
+      message.role === 'user'
+        ? ['## You', ...userBlocks(message.parts, origin)]
+        : ['## Assistant', ...replyBlocks(message.rows)],
+    ),
   ]
     .map((block) => `${block}\n`)
     .join('\n');

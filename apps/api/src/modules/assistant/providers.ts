@@ -1,11 +1,14 @@
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { createXai } from '@ai-sdk/xai';
+import type { Api, Model } from '@earendil-works/pi-ai';
+import { openAICompletionsApi } from '@earendil-works/pi-ai/api/openai-completions.lazy';
+import { openAIResponsesApi } from '@earendil-works/pi-ai/api/openai-responses.lazy';
+import { createModels, createProvider } from '@earendil-works/pi-ai/models';
+import { kimiCodingProvider } from '@earendil-works/pi-ai/providers/kimi-coding';
+import { moonshotaiProvider } from '@earendil-works/pi-ai/providers/moonshotai';
+import { openaiProvider } from '@earendil-works/pi-ai/providers/openai';
+import { xaiProvider } from '@earendil-works/pi-ai/providers/xai';
 import type { AssistantProvider } from '@erxes/core-contract';
-import type { LanguageModel } from 'ai';
-import { z } from 'zod';
 import { config } from '~/config';
+import { listModelsDevModels } from './modelsDev';
 
 const LABELS: Record<AssistantProvider, string> = {
   openai: 'OpenAI',
@@ -25,28 +28,67 @@ export const DEFAULT_MODELS: Record<AssistantProvider, string> = {
 
 export const endpointOf = (provider: AssistantProvider) => config.assistant.endpoints[provider];
 
-export const createModel = (
-  provider: AssistantProvider,
-  model: string,
-  apiKey: string,
-): LanguageModel => {
-  const baseURL = endpointOf(provider);
+/** The pi-ai provider each erxes provider speaks like: its model catalog and API. */
+const BASES = {
+  openai: () => ({ base: openaiProvider(), api: openAIResponsesApi() }),
+  grok: () => ({ base: xaiProvider(), api: openAIResponsesApi() }),
+  kimi: () => ({ base: moonshotaiProvider(), api: openAICompletionsApi() }),
+  'kimi-code': () => ({ base: kimiCodingProvider(), api: openAICompletionsApi() }),
+} satisfies Record<AssistantProvider, unknown>;
 
-  switch (provider) {
-    case 'openai':
-      return createOpenAI({ apiKey, baseURL })(model);
-    case 'grok':
-      return createXai({ apiKey, baseURL })(model);
-    case 'kimi':
-      return createOpenAICompatible({ name: 'kimi', apiKey, baseURL, includeUsage: true })(model);
-    case 'kimi-code':
-      return createAnthropic({
-        apiKey,
-        baseURL,
-        headers: { Authorization: `Bearer ${apiKey}` },
-      })(model);
-  }
+/**
+ * Every model the member can pick for `provider`, at erxes' endpoint: pi-ai's catalog, then the
+ * models.dev ids and the default it lacks, with the settings of the catalog's first model.
+ */
+const modelsOf = <TApi extends Api>(provider: AssistantProvider, known: readonly Model<TApi>[]) => {
+  const ids = new Set(known.map((model) => model.id));
+  const [first] = known;
+
+  const described = [
+    ...listModelsDevModels(provider).map((model) => ({ id: model.id, reasoning: model.reasoning })),
+    { id: DEFAULT_MODELS[provider], reasoning: false },
+  ].flatMap(({ id, reasoning }) => {
+    if (!first || ids.has(id)) return [];
+
+    ids.add(id);
+
+    return [{ ...first, id, name: id, reasoning }];
+  });
+
+  return [...known, ...described].map((model) => ({
+    ...model,
+    provider,
+    baseUrl: endpointOf(provider),
+  }));
 };
+
+/** The member's providers as pi-ai sees them, each with its key and erxes' endpoint. */
+export const modelsFor = (keys: { provider: AssistantProvider; apiKey: string }[]) => {
+  const models = createModels();
+
+  for (const { provider, apiKey } of keys) {
+    const { base, api } = BASES[provider]();
+
+    models.setProvider(
+      createProvider({
+        id: provider,
+        name: providerLabel(provider),
+        baseUrl: endpointOf(provider),
+        auth: {
+          apiKey: { name: providerLabel(provider), resolve: async () => ({ auth: { apiKey } }) },
+        },
+        models: modelsOf(provider, base.getModels()),
+        api,
+      }),
+    );
+  }
+
+  return models;
+};
+
+/** One model at erxes' endpoint, for a request outside a conversation. */
+export const modelOf = (provider: AssistantProvider, id: string) =>
+  modelsOf(provider, BASES[provider]().base.getModels()).find((model) => model.id === id);
 
 const MESSAGE_LIMIT = 200;
 
@@ -77,39 +119,17 @@ export const providerErrorMessage = (body: unknown): unknown => {
 export const unreadableKey = (provider: AssistantProvider) =>
   `The saved ${providerLabel(provider)} key can't be decrypted on this server (its encryption key changed). Save it again.`;
 
-const jsonOrNull = (text: string): unknown => {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-};
-
-const ProviderFailure = z.object({
-  statusCode: z.number().optional(),
-  responseBody: z.string().optional(),
-});
-
+/** What a member reads when a provider fails: pi-ai's error message without the key. */
 export const describeProviderError = (
   provider: AssistantProvider,
   model: string,
-  error: unknown,
+  message: string | undefined,
   apiKey: string,
 ) => {
   const label = providerLabel(provider);
-  const failure = ProviderFailure.safeParse(error).data;
-  const status = failure?.statusCode;
-  const body = failure?.responseBody;
+  const detail = sanitizeProviderMessage(message, apiKey);
 
-  const detail = sanitizeProviderMessage(
-    providerErrorMessage(body === undefined ? undefined : jsonOrNull(body)) ??
-      (error instanceof Error ? error.message : undefined),
-    apiKey,
-  );
+  if (/\b401\b/.test(detail)) return `${label} rejected the saved API key (401). Save it again.`;
 
-  if (status === 401) return `${label} rejected the saved API key (401). Save it again.`;
-
-  const code = status === undefined ? '' : ` (${status})`;
-
-  return `${label} could not answer with "${model}"${code}${detail ? `: ${detail}` : '.'}`;
+  return `${label} could not answer with "${model}"${detail ? `: ${detail}` : '.'}`;
 };

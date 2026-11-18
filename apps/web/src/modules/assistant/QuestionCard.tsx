@@ -172,23 +172,3 @@ export const QuestionCard = ({
     </section>
   );
 };
-
-export const AnsweredCard = ({ answers }: { answers: { question: string; answer: string }[] }) => {
-  const { t } = useTranslation('assistant');
-
-  return (
-    <section className="flex flex-col gap-2 rounded-lg border p-3">
-      <h3 className="text-xs font-medium text-muted-foreground">
-        {t('question.answered', 'You answered')}
-      </h3>
-      <dl className="flex flex-col gap-2 text-sm">
-        {answers.map(({ question, answer }) => (
-          <div key={question}>
-            <dt className="text-muted-foreground">{question}</dt>
-            <dd className="font-medium">{answer || '—'}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
-  );
-};

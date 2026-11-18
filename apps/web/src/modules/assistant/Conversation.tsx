@@ -1,9 +1,8 @@
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Alert, Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { isApiError } from '@erxes/core-contract/client';
+import { isApiError, messageOf } from '@erxes/core-contract/client';
 import type { AssistantTab } from './assistantState';
-import { chatErrorOf, needsKey } from './chatError';
 import { Composer } from './Composer';
 import { EmptyState, KeyNotice } from './EmptyState';
 import { usePageContext } from './PageContextChip';
@@ -12,47 +11,56 @@ import type { AssistantTabs } from './useAssistantTabs';
 import { useConversation } from './useConversation';
 
 const ChatFailure = ({
-  error,
-  onRetry,
-  onReload,
+  message,
+  action,
 }: {
-  error: Error;
-  onRetry: () => void;
-  onReload: () => void;
+  message: string;
+  action?: { label: string; onClick: () => void };
 }) => {
   const { t } = useTranslation('assistant');
-  const failure = chatErrorOf(error);
-
-  if (needsKey(failure)) return <KeyNotice />;
 
   return (
     <Alert variant="destructive">
       <IconAlertTriangle />
       <Alert.Title>{t('failed', 'The reply stopped')}</Alert.Title>
       <Alert.Description>
-        <p>{failure.message}</p>
-        <div className="mt-1 flex gap-2">
-          <Button size="sm" onClick={onRetry}>
-            {t('retry', 'Try again')}
+        <p>{message}</p>
+        {action && (
+          <Button className="mt-1 self-start" size="sm" onClick={action.onClick}>
+            {action.label}
           </Button>
-          <Button variant="ghost" size="sm" onClick={onReload}>
-            {t('reload', 'Reload conversation')}
-          </Button>
-        </div>
+        )}
       </Alert.Description>
     </Alert>
   );
 };
 
-const Announcement = ({ pending }: { pending: 'approval' | 'question' | null }) => {
+const SendFailure = ({ error, onRetry }: { error: Error; onRetry: () => void }) => {
   const { t } = useTranslation('assistant');
 
-  const text = {
-    approval: t('needs-approval', 'The assistant needs your approval'),
-    question: t('needs-answer', 'The assistant needs your answer'),
-  };
+  if (
+    isApiError(error, 'ASSISTANT_NO_CONNECTION') ||
+    isApiError(error, 'ASSISTANT_KEY_UNREADABLE')
+  ) {
+    return <KeyNotice />;
+  }
 
-  return <output className="sr-only">{pending ? text[pending] : ''}</output>;
+  return (
+    <ChatFailure
+      message={messageOf(error)}
+      action={{ label: t('retry', 'Try again'), onClick: onRetry }}
+    />
+  );
+};
+
+const Announcement = ({ pending }: { pending: 'question' | null }) => {
+  const { t } = useTranslation('assistant');
+
+  return (
+    <output className="sr-only">
+      {pending ? t('needs-answer', 'The assistant needs your answer') : ''}
+    </output>
+  );
 };
 
 const Centered = ({ children }: { children: React.ReactNode }) => (
@@ -63,21 +71,22 @@ const Centered = ({ children }: { children: React.ReactNode }) => (
 
 const TranscriptFooter = ({ view }: { view: ReturnType<typeof useConversation> }) => {
   const { t } = useTranslation('assistant');
-  const { chat } = view;
+  const { transcript, watch } = view;
 
   return (
     <>
-      {chat.status === 'submitted' && chat.messages.at(-1)?.role !== 'assistant' && (
+      {view.busy && transcript.messages.at(-1)?.role !== 'assistant' && (
         <WorkingRow label={t('working', 'Working on it…')} avatar />
       )}
-      {view.runningElsewhere && (
-        <WorkingRow label={t('running-elsewhere', 'Writing a reply… it appears here when done.')} />
-      )}
-      {chat.error && (
+      {transcript.failure && <ChatFailure message={transcript.failure} />}
+      {view.sendError && <SendFailure error={view.sendError} onRetry={view.retry} />}
+      {watch.error && (
         <ChatFailure
-          error={chat.error}
-          onRetry={view.actions.onRegenerate}
-          onReload={view.reload}
+          message={messageOf(watch.error)}
+          action={{
+            label: t('reload', 'Reload conversation'),
+            onClick: () => void watch.refetch(),
+          }}
         />
       )}
     </>
@@ -96,7 +105,7 @@ export const Conversation = ({
   const { t } = useTranslation('assistant');
   const context = usePageContext();
   const view = useConversation(tab, tabs, open, context.page);
-  const { chat, model } = view;
+  const { model, transcript } = view;
 
   if (isApiError(view.thread.error, 'NOT_FOUND')) {
     return (
@@ -126,7 +135,7 @@ export const Conversation = ({
       aria-labelledby={`assistant-tab-${tab.key}`}
       className="flex min-h-0 flex-1 flex-col"
     >
-      {chat.messages.length === 0 && !chat.error ? (
+      {transcript.messages.length === 0 && !view.busy && !view.sendError && !view.watch.error ? (
         <EmptyState
           noKey={model.noKey}
           record={context.page?.record?.type ?? null}
@@ -135,13 +144,13 @@ export const Conversation = ({
           }
         />
       ) : (
-        <Transcript messages={chat.messages} footer={footer} actions={view.actions} />
+        <Transcript messages={transcript.messages} footer={footer} actions={view.actions} />
       )}
-      <Announcement pending={view.pending} />
+      <Announcement pending={transcript.pending} />
       <Composer
         open={open}
         model={model}
-        busy={view.busy || view.runningElsewhere}
+        busy={view.busy}
         block={view.block}
         page={context.page}
         onHidePage={context.hide}

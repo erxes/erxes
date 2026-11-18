@@ -18,7 +18,6 @@ export {
   activities,
   assistantAppearances,
   assistantConnections,
-  assistantMessages,
   assistantReferences,
   assistantSettings,
   assistantThreads,
@@ -94,7 +93,6 @@ export {
 
 export type {
   ActorType,
-  AssistantMessagePart,
   BroadcastChannel,
   BroadcastRecipientStatus,
   BroadcastStatus,

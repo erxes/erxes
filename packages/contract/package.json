@@ -153,6 +153,8 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "@earendil-works/chord": "1.5.2",
+    "@earendil-works/pi-durable": "1.5.2",
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi-client": "1.16.2",

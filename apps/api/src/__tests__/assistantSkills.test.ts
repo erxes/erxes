@@ -2,9 +2,9 @@ import type { AutomationDefinition } from '@erxes/core-contract';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import type { z } from 'zod';
 import { config } from '~/config';
-import { postChat, userMessage } from './assistantChat';
+import { chat, userMessage } from './assistantChat';
 import { useTestDatabase } from './db';
-import { fakeModel, inSteps, systemOf } from './fakeModel';
+import { fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0012';
@@ -20,17 +20,12 @@ describe('assistant built-in skills', () => {
   const t = useTwoOrgs();
   let model: Awaited<ReturnType<typeof fakeModel>>;
 
-  const chat = async (text: string) =>
-    postChat(t.url('/core/v1/assistant/chat'), await t.token(), {
-      model: 'kimi-k3',
-      message: userMessage(text),
-    });
+  const ask = (text: string) => chat(t.owner(), { model: 'kimi-k3', message: userMessage(text) });
 
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
     await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
-    await t.owner().assistant.updateSettings({ approvalMode: 'destructive' });
   });
 
   afterAll(() => model.close());
@@ -69,13 +64,13 @@ describe('assistant built-in skills', () => {
       ),
     );
 
-    await chat('Tag every new customer as vip');
+    await ask('Tag every new customer as vip');
 
     const [first, skill, checked] = model.chats().slice(-5);
 
     expect(first ? systemOf(first) : '').toContain('author-automation');
-    expect(skill?.messages.at(-1)?.content).toEqual(expect.stringContaining('draft'));
-    expect(checked?.messages.at(-1)?.content).toEqual(expect.stringContaining('"problems":[]'));
+    expect(skill ? lastToolResult(skill) : '').toContain('draft');
+    expect(checked ? lastToolResult(checked) : '').toContain('"problems":[]');
     expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
 
     const { data } = await t.owner().automations.list({});
@@ -88,7 +83,7 @@ describe('assistant built-in skills', () => {
       inSteps({ tool: 'loadSkill', input: { name: 'create-report' } }, { text: 'Done.' }),
     );
 
-    await chat('Build me a sales report');
+    await ask('Build me a sales report');
 
     const first = model.chats().at(-2);
 

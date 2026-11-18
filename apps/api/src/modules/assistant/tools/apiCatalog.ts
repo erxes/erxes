@@ -1,4 +1,4 @@
-import { type AssistantApprovalMode, coreContract } from '@erxes/core-contract';
+import { coreContract } from '@erxes/core-contract';
 import { type AnyContractProcedure, type AnySchema, isContractProcedure } from '@orpc/contract';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 
@@ -10,7 +10,6 @@ export interface ApiProcedure {
   input: Record<string, unknown>;
   changes: boolean;
   denied: boolean;
-  risky: boolean;
 }
 
 const READS_BY_POST = new Set(['automations.check', 'automations.test']);
@@ -53,9 +52,6 @@ const DENIED_PROCEDURES = new Set([
   'webhooks.update',
   'webhooks.rotateSecret',
 ]);
-
-const RISKY_ACTION =
-  /(remove|delete|merge|destroy|archive|purge|send|reply|broadcast|publish|refund|cancel|undo)/i;
 
 const words = (name: string) =>
   name
@@ -102,9 +98,6 @@ const jsonSchema = (procedure: AnyContractProcedure, strategy: 'input' | 'output
 export const carriesCredentials = (schemas: unknown[]) =>
   schemas.flatMap((schema) => namesIn(schema)).some(isCredentialName);
 
-export const isRisky = (name: string, method: string) =>
-  method === 'DELETE' || RISKY_ACTION.test(name.split('.').at(-1) ?? '');
-
 const describe = (name: string, procedure: AnyContractProcedure): ApiProcedure => {
   const { route } = procedure['~orpc'];
   const method = route.method ?? 'POST';
@@ -122,7 +115,6 @@ const describe = (name: string, procedure: AnyContractProcedure): ApiProcedure =
       DENIED_GROUPS.has(group) ||
       DENIED_PROCEDURES.has(name) ||
       carriesCredentials([input, jsonSchema(procedure, 'output')]),
-    risky: isRisky(name, method),
   };
 };
 
@@ -141,6 +133,3 @@ export const apiCatalog = () => {
 
   return catalog;
 };
-
-export const needsApproval = (procedure: ApiProcedure, mode: AssistantApprovalMode) =>
-  procedure.changes && (mode === 'writes' || procedure.risky);

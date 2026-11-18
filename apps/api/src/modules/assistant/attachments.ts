@@ -7,9 +7,10 @@ import {
   type AssistantSelection,
   AssistantSelections,
   assistantFileLimitMb,
+  type AssistantMessagePart as Part,
 } from '@erxes/core-contract';
+import type { ImageContent, TextContent } from '@earendil-works/pi-ai';
 import type { Db } from '@erxes/core-db';
-import type { FileUIPart, TextUIPart, UIMessage } from 'ai';
 import { ORPCError } from '@orpc/server';
 import { fail } from '~/http/errors';
 import { readFileBytes, readyFilesOfCaller } from '~/modules/files/files.service';
@@ -29,15 +30,12 @@ const DOCUMENT_FORMATS: Record<AssistantDocumentType, DocumentFormat> = {
 };
 
 type FileContent =
-  | { kind: 'image'; url: string; mediaType: string }
-  | { kind: 'text'; text: string; truncated: boolean }
-  | { kind: 'failed'; reason: string };
+  | { kind: 'image'; data: string; mimeType: string }
+  | { kind: 'text'; text: string; truncated: boolean };
 
 export type Contents = Map<string, FileContent>;
 
-type Part = UIMessage['parts'][number];
-
-type ModelPart = TextUIPart | FileUIPart;
+type ModelPart = TextContent | ImageContent;
 
 const unavailable = (id: string) =>
   fail(
@@ -48,29 +46,6 @@ const unavailable = (id: string) =>
 
 const unreadable = (id: string, reason: string) =>
   fail('ASSISTANT_FILE_UNREADABLE', reason, { id, reason });
-
-const dataOf = <T>(
-  parts: { type: string; data?: unknown }[],
-  type: string,
-  parse: (data: unknown) => T | undefined,
-) =>
-  parts.flatMap((part) => {
-    if (part.type !== type) return [];
-
-    const data = parse(part.data);
-
-    return data === undefined ? [] : [data];
-  });
-
-const filesIn = (parts: { type: string; data?: unknown }[]) =>
-  dataOf(parts, 'data-files', (data) => AssistantFiles.safeParse(data).data?.files).flat();
-
-const selectionsIn = (parts: { type: string; data?: unknown }[]) =>
-  dataOf(
-    parts,
-    'data-selections',
-    (data) => AssistantSelections.safeParse(data).data?.selections,
-  ).flat();
 
 const checkRow = (row: { id: string; contentType: string; size: number }, image: boolean) => {
   const type = AssistantFileType.safeParse(row.contentType);
@@ -170,11 +145,7 @@ const contentOf = async (file: AssistantAttachment, bytes: Buffer): Promise<File
 
     if (!mediaType) throw new DocumentTextError('The file is not a PNG, JPEG, WebP or GIF image');
 
-    return {
-      kind: 'image',
-      mediaType,
-      url: `data:${mediaType};base64,${bytes.toString('base64')}`,
-    };
+    return { kind: 'image', mimeType: mediaType, data: bytes.toString('base64') };
   }
 
   const document = AssistantDocumentType.safeParse(file.contentType);
@@ -209,20 +180,12 @@ const reasonOf = (error: unknown) => {
 export const readContents = async (
   orgId: string,
   files: AssistantAttachment[],
-  { strict }: { strict: boolean },
 ): Promise<Contents> => {
   const read = await Promise.all(
     files.map(async (file): Promise<[string, FileContent]> => {
       try {
         return [file.id, await readOne(orgId, file)];
       } catch (error) {
-        if (!strict) {
-          const reason =
-            error instanceof DocumentTextError ? error.message : 'The file could not be read now';
-
-          return [file.id, { kind: 'failed', reason }];
-        }
-
         if (error instanceof DocumentTextError && error.busy) {
           throw fail('ASSISTANT_FILE_BUSY', error.message, { id: file.id });
         }
@@ -235,40 +198,22 @@ export const readContents = async (
   return new Map(read);
 };
 
-export const readAttachmentText = async (orgId: string, file: AssistantAttachment) => {
-  if (AssistantImageType.safeParse(file.contentType).success) {
-    throw new Error('This attachment is an image; only its first message showed it');
-  }
-
-  const content = await readOne(orgId, file).catch((error: unknown) => {
-    throw new Error(reasonOf(error));
-  });
-
-  return content.kind === 'text' ? content : { text: '', truncated: false };
-};
-
 const sizeOf = (bytes: number) =>
   bytes >= MB ? `${(bytes / MB).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 
 const describe = (file: AssistantAttachment) =>
   `"${file.name}" (${file.contentType}, ${sizeOf(file.size)})`;
 
-const textPart = (text: string): TextUIPart => ({ type: 'text', text });
+const textPart = (text: string): TextContent => ({ type: 'text', text });
 
 const fileParts = (file: AssistantAttachment, content: FileContent | undefined): ModelPart[] => {
-  if (!content) {
-    return [
-      textPart(
-        `[Attachment] ${describe(file)} was attached earlier. To read it again, call readAttachment with fileId "${file.id}".`,
-      ),
-    ];
-  }
-
-  switch (content.kind) {
+  switch (content?.kind) {
+    case undefined:
+      return [textPart(`[Attachment] ${describe(file)} could not be read.`)];
     case 'image':
       return [
         textPart(`[Attachment] ${describe(file)}, shown below.`),
-        { type: 'file', mediaType: content.mediaType, url: content.url, filename: file.name },
+        { type: 'image', mimeType: content.mimeType, data: content.data },
       ];
     case 'text':
       return [
@@ -286,8 +231,6 @@ const fileParts = (file: AssistantAttachment, content: FileContent | undefined):
           ].join('\n'),
         ),
       ];
-    case 'failed':
-      return [textPart(`[Attachment] ${describe(file)} could not be read: ${content.reason}.`)];
   }
 };
 
@@ -307,48 +250,23 @@ const selectionParts = (
   );
 
   return content?.kind === 'image'
-    ? [
-        intro,
-        { type: 'file', mediaType: content.mediaType, url: content.url, filename: 'selection.png' },
-      ]
+    ? [intro, { type: 'image', mimeType: content.mimeType, data: content.data }]
     : [intro];
 };
 
-const expand = (part: Part, contents: Contents | null): Part[] => {
+/** What the model reads of a message's files and selections, with `contents` read for it. */
+export const attachmentContent = (part: Part, contents: Contents): ModelPart[] => {
   if (part.type === 'data-files') {
-    return (AssistantFiles.safeParse(part.data).data?.files ?? []).flatMap((file) =>
-      fileParts(file, contents?.get(file.id)),
+    return (AssistantFiles.safeParse(part['data']).data?.files ?? []).flatMap((file) =>
+      fileParts(file, contents.get(file.id)),
     );
   }
 
   if (part.type === 'data-selections') {
-    return (AssistantSelections.safeParse(part.data).data?.selections ?? []).flatMap((selection) =>
-      selectionParts(selection, contents?.get(selection.snapshot)),
+    return (AssistantSelections.safeParse(part['data']).data?.selections ?? []).flatMap(
+      (selection) => selectionParts(selection, contents.get(selection.snapshot)),
     );
   }
 
-  return [part];
+  return [];
 };
-
-export const forModel = (messages: UIMessage[], contents: Contents): UIMessage[] => {
-  const latest = messages.findLastIndex((message) => message.role === 'user');
-
-  return messages.map((message, index) =>
-    message.role === 'user'
-      ? {
-          ...message,
-          parts: message.parts.flatMap((part) => expand(part, index === latest ? contents : null)),
-        }
-      : message,
-  );
-};
-
-export const attachmentsOf = (parts: { type: string; data?: unknown }[]): AssistantAttachment[] => [
-  ...filesIn(parts),
-  ...selectionsIn(parts).map((selection) => ({
-    id: selection.snapshot,
-    name: `${selection.title}.png`,
-    contentType: 'image/png',
-    size: 0,
-  })),
-];

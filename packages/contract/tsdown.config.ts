@@ -16,6 +16,8 @@ export default defineConfig({
   deps: {
     alwaysBundle: [/^@erxes\/core-db(\/|$)/],
     onlyImport: [
+      '@earendil-works/chord',
+      '@earendil-works/pi-durable',
       '@orpc/client',
       '@orpc/contract',
       '@orpc/openapi-client',

@@ -9,10 +9,11 @@ import { apiReference } from '~/http/apiReference';
 import { authenticate } from '~/http/auth';
 import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
-import { assistantChatRouter } from '~/modules/assistant/assistant.http';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
+import { registerAgent } from '~/modules/agents/host';
+import { assistantAgent } from '~/modules/assistant/agent';
 import { answerError, fail } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
@@ -89,6 +90,8 @@ const requestLogger = (log: Logger) =>
 export const createApp = (log: Logger = logger): Express => {
   const app = express();
   const limit = createRateLimits();
+
+  registerAgent(assistantAgent);
 
   app.disable('x-powered-by');
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');
@@ -180,7 +183,6 @@ export const createApp = (log: Logger = logger): Express => {
     streamRouter,
     downloadRouter,
     auditExportRouter,
-    assistantChatRouter,
     coreApi,
   );
 

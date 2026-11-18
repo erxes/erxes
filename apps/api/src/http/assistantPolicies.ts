@@ -10,6 +10,8 @@ export const ASSISTANT_ACCESS = {
   'assistant.verifyModel': needs('assistant.chat'),
   'assistant.threads': needs('assistant.chat'),
   'assistant.thread': needs('assistant.chat'),
+  'assistant.send': needs('assistant.chat'),
+  'assistant.watch': needs('assistant.chat'),
   'assistant.updateThread': needs('assistant.chat'),
   'assistant.stopThread': needs('assistant.chat'),
   'assistant.removeThread': needs('assistant.chat'),

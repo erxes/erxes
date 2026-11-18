@@ -2,11 +2,11 @@ import type { PluginManifest } from '@erxes/core-contract';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import type { z } from 'zod';
 import { config } from '~/config';
-import { partsOf, postChat, respond, threadIdOf, toolPart, userMessage } from './assistantChat';
+import { callsTo, chat, resultsOf, userMessage } from './assistantChat';
 import { useTestDatabase } from './db';
-import { fakeModel, inSteps, systemOf } from './fakeModel';
+import { fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
 import { pluginRpc } from './pluginRpc';
-import { useTwoOrgs } from './support';
+import { type CoreClient, useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0010';
 
@@ -65,18 +65,8 @@ describe('assistant plugin contributions', () => {
   let model: Awaited<ReturnType<typeof fakeModel>>;
   let hr: Awaited<ReturnType<typeof pluginRpc>>;
 
-  const chat = async (text: string, user = t.ids.owner, org = t.ids.org) =>
-    postChat(t.url('/core/v1/assistant/chat'), await t.token(user, org), {
-      model: 'kimi-k3',
-      message: userMessage(text),
-    });
-
-  const lastParts = async (threadId: string) => {
-    const thread = await t.owner().assistant.thread({ id: threadId });
-    const message = thread.messages.at(-1);
-
-    return { message, parts: partsOf(message) };
-  };
+  const ask = (text: string, api: CoreClient = t.owner()) =>
+    chat(api, { model: 'kimi-k3', message: userMessage(text) });
 
   beforeAll(async () => {
     model = await fakeModel(KEY);
@@ -109,7 +99,7 @@ describe('assistant plugin contributions', () => {
       inSteps({ tool: 'loadSkill', input: { name: 'hr-leave-balances' } }, { text: 'Done.' }),
     );
 
-    await chat('How many leave days are left?');
+    await ask('How many leave days are left?');
 
     const [first] = model.chats().slice(-2);
     const system = first ? systemOf(first) : '';
@@ -126,7 +116,7 @@ describe('assistant plugin contributions', () => {
       inSteps({ tool: 'loadSkill', input: { name: 'hr-leave-balances' } }, { text: 'Done.' }),
     );
 
-    await chat('How many leave days are left?', t.ids.otherOwner, t.ids.otherOrg);
+    await ask('How many leave days are left?', t.other());
 
     const [first] = model.chats().slice(-2);
 
@@ -145,13 +135,11 @@ describe('assistant plugin contributions', () => {
 
     const before = hr.calls.length;
 
-    await chat('How many leave days does Bat-Erdene have?');
+    await ask('How many leave days does Bat-Erdene have?');
 
     const searched = model.chats().at(-2);
 
-    expect(searched?.messages.at(-1)?.content).toEqual(
-      expect.stringContaining('hr:leave.balances'),
-    );
+    expect(searched ? lastToolResult(searched) : '').toContain('hr:leave.balances');
     expect(hr.calls.slice(before)).toEqual([
       { procedure: 'leave.balances', userId: t.ids.owner, orgId: t.ids.org, input: {} },
     ]);
@@ -166,14 +154,14 @@ describe('assistant plugin contributions', () => {
       ),
     );
 
-    await chat('Leave balances please', t.ids.member);
+    await ask('Leave balances please', t.member());
 
     expect(hr.calls.at(-1)).toMatchObject({ procedure: 'leave.balances', userId: t.ids.member });
     expect(model.lastToolResult()).toContain('FORBIDDEN');
     expect(model.lastToolResult()).toContain('hr.leave.view');
   });
 
-  it('asks before a plugin operation that changes data, and calls it once approved', async () => {
+  it('calls a plugin operation that changes data and tells the model it did', async () => {
     model.script(
       inSteps(
         { tool: 'callApi', input: { procedure: 'hr:leave.approve', input: { requestId: 'r1' } } },
@@ -181,28 +169,16 @@ describe('assistant plugin contributions', () => {
       ),
     );
 
-    const before = hr.calls.length;
-    const reply = await chat('Approve leave request r1');
-    const threadId = threadIdOf(reply.chunks);
-
-    expect(reply.chunks.map((chunk) => chunk.type)).toContain('tool-approval-request');
-    expect(hr.calls.length).toBe(before);
-
-    const { message, parts } = await lastParts(threadId);
-
-    await postChat(t.url('/core/v1/assistant/chat'), await t.token(), {
-      model: 'kimi-k3',
-      threadId,
-      message: { ...message, parts: respond(parts, true) },
-    });
+    const { view } = await ask('Approve leave request r1');
 
     expect(hr.calls.at(-1)).toMatchObject({
       procedure: 'leave.approve',
+      userId: t.ids.owner,
       input: { requestId: 'r1' },
     });
-    expect(toolPart((await lastParts(threadId)).parts, 'callApi')).toMatchObject({
-      state: 'output-available',
-    });
+    expect(resultsOf(view, 'callApi')).toEqual([
+      expect.objectContaining({ ok: true, changed: true }),
+    ]);
   });
 
   it('keeps a denied plugin operation denied whatever a skill says', async () => {
@@ -219,12 +195,11 @@ describe('assistant plugin contributions', () => {
     );
 
     const before = hr.calls.length;
-    const reply = await chat('Connect payroll');
+    const { view } = await ask('Connect payroll');
+    const searched = model.chats().at(-2);
 
-    expect(reply.chunks.map((chunk) => chunk.type)).not.toContain('tool-approval-request');
-    expect(model.chats().at(-2)?.messages.at(-1)?.content).not.toEqual(
-      expect.stringContaining('hr:payroll.connect'),
-    );
+    expect(callsTo(view, 'callApi')).toHaveLength(1);
+    expect(searched ? lastToolResult(searched) : '').not.toContain('hr:payroll.connect');
     expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
     expect(hr.calls.length).toBe(before);
   });

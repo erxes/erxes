@@ -5,9 +5,13 @@ import {
   type ConversationView,
   createRegistry,
   Harness,
+  ROOT_CONVERSATION_ID,
 } from '@earendil-works/pi-durable';
 import { Repeater } from '@repeaterjs/repeater';
+import { eq, sql } from 'drizzle-orm';
+import { type Db, schema } from '@erxes/core-db';
 import { logger } from '~/logger';
+import { liveHub, type LiveSignal } from '~/modules/live/hub';
 import type { Agent, AgentScope } from './agent';
 import { openAgentStorage, StorageBusy } from './storage';
 
@@ -23,6 +27,21 @@ interface Running {
 }
 
 const running = new Map<string, Promise<Running>>();
+
+const agents = new Map<string, Agent>();
+
+/** Makes an agent available by its name; the app registers each agent once at start. */
+export const registerAgent = (agent: Agent) => {
+  agents.set(agent.name, agent);
+};
+
+export const agentNamed = (name: string) => {
+  const agent = agents.get(name);
+
+  if (!agent) throw new Error(`No agent is named ${name}`);
+
+  return agent;
+};
 
 const storageKeyOf = (agent: Agent, key: string) => `${agent.name}:${key}`;
 
@@ -220,6 +239,70 @@ export async function* watchConversation(
     held.release();
   }
 }
+
+const stopHere = async (storageKey: string) => {
+  const started = running.get(storageKey);
+
+  if (!started) return;
+
+  const { harness } = await started;
+  const conversation = await harness.conversation(ROOT_CONVERSATION_ID, BACKGROUND_CONTEXT);
+
+  await conversation?.abort(BACKGROUND_CONTEXT);
+};
+
+/**
+ * Stops the root conversation's run: here when this server runs it, else on the server that
+ * does, once `client`'s transaction commits. What the run wrote stays.
+ */
+export const stopAgent = async (client: Db, agent: Agent, scope: AgentScope) => {
+  const storageKey = storageKeyOf(agent, scope.key);
+
+  if (running.has(storageKey)) {
+    await stopHere(storageKey);
+
+    return;
+  }
+
+  const signal = JSON.stringify({ o: scope.orgId, k: 'agent-stop', s: storageKey });
+
+  await client.execute(sql`select pg_notify('core_live', ${signal})`);
+};
+
+liveHub.on('signal', (signal: LiveSignal) => {
+  if (signal.k !== 'agent-stop') return;
+
+  stopHere(signal.s).catch((error: unknown) => {
+    log.warn({ err: error, storageKey: signal.s }, 'agents: could not stop a conversation');
+  });
+});
+
+const STORAGE_TABLES = [
+  schema.agentDurableMetadata,
+  schema.agentRecordIds,
+  schema.agentConversations,
+  schema.agentEntries,
+  schema.agentTasks,
+  schema.agentSubmissions,
+  schema.agentDocuments,
+  schema.agentDocumentRevisions,
+];
+
+/**
+ * Deletes everything `scope`'s storage holds, in `client`'s transaction, and closes it on this
+ * server. A server that still runs it loses its lease at its next commit.
+ */
+export const removeAgent = async (client: Db, agent: Agent, scope: AgentScope) => {
+  const storageKey = storageKeyOf(agent, scope.key);
+  const entry = await running.get(storageKey)?.catch(() => null);
+
+  if (entry) await close(storageKey, entry);
+
+  await client.execute(sql`select set_config('pi.storage_key', ${storageKey}, true)`);
+  await Promise.all(
+    STORAGE_TABLES.map((table) => client.delete(table).where(eq(table.storageKey, storageKey))),
+  );
+};
 
 /** Closes every conversation this server runs, at shutdown; their tasks resume elsewhere. */
 export const closeAgents = () =>

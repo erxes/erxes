@@ -212,6 +212,26 @@
         }
       }
     },
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/assistant/send"
+        }
+      }
+    },
+    "watch": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/threads/{id}/watch"
+        }
+      }
+    },
     "updateThread": {
       "~orpc": {
         "errorMap": {},
