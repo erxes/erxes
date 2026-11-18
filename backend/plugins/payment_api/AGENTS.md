@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-18`
 ## Scope
 
 ### Owns
@@ -61,6 +61,14 @@
 - The widget renders Pocket payments with a dedicated `PocketForm`. On phones
   it opens the Pocket app automatically through the `deeplink` returned by
   Pocket's `createInvoice`; desktops and tablets get the QR only.
+
+- Settles Khanbank (Corporate Gateway) invoices from the account statement:
+  the customer transfers by hand, and `apis/khanbank/api.ts` `checkInvoice`
+  looks for the transfer with `StatementsApi.findTransactions`
+  (`modules/corporateGateway/khanbank/khanbank/api/statements.ts`). It reads
+  every statement page from the transaction's creation day (Ulaanbaatar time)
+  to today and matches on the amount plus the words of the invoice
+  description, compared lowercased with punctuation removed.
 
 ## Architecture
 
@@ -141,6 +149,25 @@
   once, and shows "Pocket апп-аар төлөх" / "QR кодоор төлөх" as a fallback.
   iPads, Android tablets, desktops, and responses without a deeplink show the
   QR only, so POS tablets never try to launch the app.
+- Khanbank description matching is by whole words, never by prefix or
+  substring: the description that reaches the statement can lose characters
+  such as "—", and a substring match would let `Installment 1` settle
+  `Installment 10`. The sender suffix the bank appends (`<BANK>ААС: <6-digit
+  bank code> <sender>`) is cut off first, and the invoice words must appear
+  in it in order without gaps, so sender details can never supply a missing
+  invoice word.
+- One Khanbank statement line settles one transaction. A line is skipped when
+  it is older than the transaction (5 minutes of slack), has no readable
+  date/time, or is already saved on another transaction of any Khanbank
+  payment method on the same account (`response.matched.record`, or the
+  legacy `response.record`). A line is then claimed atomically in Redis
+  (`payment:khanbank:statement:<account>:<record>`, `SET NX`) before the
+  check returns `paid`, so concurrent checks cannot both use it. The match is
+  saved on the transaction as `response.matched`.
+- The Khanbank access token is cached for its lifetime minus 60 seconds and
+  not cached at all when that is not positive; token errors surface the
+  bank's `code`/`message`.
+
 ## Validation
 
 - `pnpm nx run payment_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
@@ -157,3 +184,7 @@
   to the browser shows the fallback buttons. On desktop, an iPad, and an
   Android tablet, confirm only the QR is shown and no deeplink launch is
   attempted.
+- Smoke (Khanbank): create two invoices with the same amount and a
+  description like `TEST — Deposit`, transfer that amount once with the
+  description typed as `test deposit`, then run `invoicesCheck` on both:
+  exactly one is `paid`, the other stays `pending`.

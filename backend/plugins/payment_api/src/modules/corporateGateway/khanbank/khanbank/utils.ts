@@ -46,14 +46,19 @@ export const getAuthHeaders = async (args: {
       );
     }
 
-    const ttl = Math.floor(Number(response.access_token_expires_in) - 60);
+    // cache the token a minute less than it lives; a token that lives a
+    // minute or less is used once and not cached, so an expired token is
+    // never served from the cache
+    const ttl = Math.floor(Number(response.access_token_expires_in)) - 60;
 
-    await redis.set(
-      `khanbank_token_${consumerKey}:${secretKey}`,
-      response.access_token,
-      'EX',
-      ttl > 0 ? ttl : 300,
-    );
+    if (ttl > 0) {
+      await redis.set(
+        `khanbank_token_${consumerKey}:${secretKey}`,
+        response.access_token,
+        'EX',
+        ttl,
+      );
+    }
 
     return {
       'Content-Type': 'application/json',
