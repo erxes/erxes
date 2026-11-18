@@ -16,6 +16,7 @@ import { RecordTableInlineCell, ScrollArea, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PanelField, TagsSelect } from 'ui-modules';
 import { RecordContactsField } from './RecordContactsField';
+import { RecordNameField } from './RecordNameField';
 import { RecordTagsValue } from './RecordTagsValue';
 
 const SCOPE = 'side-panel-triage';
@@ -37,6 +38,7 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
 
   const { _id, priority, teamId, description } = triage;
   const update = (input: {
+    name?: string;
     priority?: number;
     description?: string;
     customerId?: string | null;
@@ -62,6 +64,12 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="grid gap-5 p-3 @3xl/record-panel:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] @3xl/record-panel:p-6">
         <div className="flex min-w-0 flex-col gap-1">
+          <RecordNameField
+            scope={`${SCOPE}.${_id}.name`}
+            value={triage.name}
+            placeholder={t('triage-name')}
+            onSave={(name) => update({ name })}
+          />
           <PanelField icon={IconFlag} label={t('priority')}>
             <SelectPriority
               variant="table"
